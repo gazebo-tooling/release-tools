@@ -50,8 +50,9 @@ def go(argv):
     check_call(['cmake', pwd])
     check_call(['make', 'package_source'])
 
-    # Upload tarball: TODO
-    check_call(['scp'])
+    # TODO: Upload tarball
+
+    # TODO: Kick off Jenkins jobs
 
 if __name__ == '__main__':
     go(sys.argv)
