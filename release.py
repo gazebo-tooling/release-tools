@@ -5,14 +5,20 @@ import subprocess
 import sys
 import tempfile
 import os
+import urllib
 
-USAGE = 'release.py <package> <version>'
+USAGE = 'release.py <package> <version> <jenkinstoken>'
+JENKINS_URL = 'http://build.osrfoundation.org'
+JOB_NAME_PATTERN = '%s-debbuild'
+
+UBUNTU_ARCHS = ['i386', 'amd64']
+UBUNTU_DISTROS = ['precise']
 
 def parse_args(argv):
-    if len(argv) != 3:
+    if len(argv) != 4:
         print(USAGE)
         sys.exit(1)
-    return (argv[1], argv[2])
+    return (argv[1], argv[2], argv[3])
 
 def check_call(cmd):
     print('Running:\n  %s'%(' '.join(cmd)))
@@ -26,7 +32,7 @@ def check_call(cmd):
     return out, err
 
 def go(argv):
-    package, version = parse_args(argv)
+    package, version, jenkins_token = parse_args(argv)
 
     pwd = os.getcwd()
 
@@ -57,7 +63,13 @@ def go(argv):
 
     # TODO: Update Ubuntu changelog
 
-    # TODO: Kick off Jenkins jobs
+    # Kick off Jenkins jobs
+    base_url = '%s/job/%s/buildWithParameters?token=%s&PACKAGE=%s&VERSION=%s&TAG=%s'%(JENKINS_URL, JOB_NAME_PATTERN%(package), jenkins_token, package, version, tag)
+    for d in UBUNTU_DISTROS:
+        for a in UBUNTU_ARCHS:
+            url = '%s&ARCH=%s&DISTRO=%s'%(base_url, a, d)
+            print('Accessing: %s'%(url))
+            urllib.urlopen(url)
 
 if __name__ == '__main__':
     go(sys.argv)
