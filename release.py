@@ -12,7 +12,7 @@ import shutil
 USAGE = 'release.py <package> <version> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuild'
-UPLOAD_DEST = 'ubuntu@gazebosim.org:/tmp/tarballs'
+UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 
 UBUNTU_ARCHS = ['i386', 'amd64']
 UBUNTU_DISTROS = ['precise']
