@@ -11,10 +11,11 @@ USAGE = 'release.py <package> <version>'
 def parse_args(argv):
     if len(argv) != 3:
         print(USAGE)
+        sys.exit(1)
     return (argv[1], argv[2])
 
 def check_call(cmd):
-    print 'Running:\n  %s'%(' '.join(cmd))
+    print('Running:\n  %s'%(' '.join(cmd)))
     po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = po.communicate()
     if po.returncode != 0:
@@ -39,10 +40,10 @@ def go(argv):
 
     # Tag repo
     tag = '%s_%s'%(package, version)
-    check_call(['hg', 'tag', tag])
+    check_call(['hg', 'tag', '-f', tag])
 
     # Push tag
-    check_call(c['hg', 'push'])
+    check_call(['hg', 'push'])
 
     # Make build tmpdir, configure and make package_source
     tmpdir = tempfile.mkdtemp() 
@@ -51,6 +52,10 @@ def go(argv):
     check_call(['make', 'package_source'])
 
     # TODO: Upload tarball
+
+    # Platform-specific stuff:
+
+    # TODO: Update Ubuntu changelog
 
     # TODO: Kick off Jenkins jobs
 
