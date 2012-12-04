@@ -55,7 +55,7 @@ def go(argv):
     # The goal is to tag the repo and prepare a tarball.
 
     # Check for uncommitted changes; abort if present
-    cmd = ['hg', 'status']
+    cmd = ['hg', 'status', '-q']
     out, err = check_call(cmd)
     if len(out) != 0:
         print('Mercurial says that you have uncommitted changes.  Please clean up your working copy so that "%s" outputs nothing'%(' '.join(cmd)))
