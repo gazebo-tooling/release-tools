@@ -13,6 +13,7 @@ USAGE = 'release.py <package> <version> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuild'
 UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
+DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['i386', 'amd64']
 UBUNTU_DISTROS = ['precise']
@@ -80,6 +81,7 @@ def go(argv):
     tarball_fname = '%s/%s-%s.tar.bz2'%(tmpdir, args.package, args.version)
     check_call(['scp', tarball_fname, UPLOAD_DEST])
     shutil.rmtree(tmpdir)
+    source_tarball_uri = DOWNLOAD_URI + os.path.basename(tarball_fname)
 
     ###################################################
     # Platform-specific stuff.
@@ -100,7 +102,15 @@ def go(argv):
         sys.exit(1)
 
     # Kick off Jenkins jobs
-    base_url = '%s/job/%s/buildWithParameters?token=%s&PACKAGE=%s&VERSION=%s&TAG=%s'%(JENKINS_URL, JOB_NAME_PATTERN%(args.package), args.jenkins_token, args.package, args.version, tag)
+    #TODO: remove TAG arg after all debbuild jobs are updated to look at SOURCE_TARBALL_URI
+    params = {}
+    params['token'] = args.jenkins_token
+    params['PACKAGE'] = args.package
+    params['VERSION'] = args.version
+    params['SOURCE_TARBALL_URI'] = source_tarball_uri
+    params['TAG'] = tag
+    params_query = urllib.urlencode(params)
+    base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, JOB_NAME_PATTERN%(args.package), params_query)
     for d in UBUNTU_DISTROS:
         for a in UBUNTU_ARCHS:
             url = '%s&ARCH=%s&DISTRO=%s'%(base_url, a, d)
