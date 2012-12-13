@@ -92,7 +92,8 @@ def go(argv):
     # package itself doesn't know anything about this).
     if args.package != args.package_alias:
         tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
-        shutil.copyfile(tarball_path, os.path.join(tmpdir, tarball_fname))
+        if not args.dry_run:
+          shutil.copyfile(tarball_path, os.path.join(tmpdir, tarball_fname))
         tarball_path = os.path.join(tmpdir, tarball_fname)
     check_call(['scp', tarball_path, UPLOAD_DEST])
     shutil.rmtree(tmpdir)
