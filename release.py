@@ -72,7 +72,7 @@ def go(argv):
         sys.exit(1)
 
     # Tag repo
-    tag = '%s_%s'%(args.package, args.version)
+    tag = '%s_%s'%(args.package_alias, args.version)
     check_call(['hg', 'tag', '-f', tag])
 
     # Push tag
