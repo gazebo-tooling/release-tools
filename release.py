@@ -28,7 +28,15 @@ def parse_args(argv):
     parser.add_argument('jenkins_token', help='secret token to allow access to Jenkins to start builds')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
+    parser.add_argument('-a', '--package-alias', dest='package_alias', 
+                        default=None, 
+                        help='different name that we are releasing under')
+    parser.add_argument('-b', '--release-repo-branch', dest='release_repo_branch', 
+                        default='default', 
+                        help='which version of the accompanying -release repo to use (if not default)')
     args = parser.parse_args()
+    if not args.package_alias:
+        args.package_alias = args.package
     DRY_RUN = args.dry_run
     return args
 
@@ -78,10 +86,17 @@ def go(argv):
 
     # Upload tarball
     # TODO: we're assuming a particular naming scheme and a particular compression tool
-    tarball_fname = '%s/%s-%s.tar.bz2'%(tmpdir, args.package, args.version)
-    check_call(['scp', tarball_fname, UPLOAD_DEST])
+    tarball_fname = '%s-%s.tar.bz2'%(args.package, args.version)
+    tarball_path = os.path.join(tmpdir, tarball_fname)
+    # If we're releasing under a different name, then rename the tarball (the
+    # package itself doesn't know anything about this).
+    if args.package != args.package_alias:
+        tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
+        shutil.copyfile(tarball_path, os.path.join(tmpdir, tarball_fname))
+        tarball_path = os.path.join(tmpdir, tarball_fname)
+    check_call(['scp', tarball_path, UPLOAD_DEST])
     shutil.rmtree(tmpdir)
-    source_tarball_uri = DOWNLOAD_URI + os.path.basename(tarball_fname)
+    source_tarball_uri = DOWNLOAD_URI + tarball_fname
 
     ###################################################
     # Platform-specific stuff.
@@ -94,7 +109,7 @@ def go(argv):
     # TODO: Consider auto-updating the Ubuntu changelog.  It requires
     # cloning the <package>-release repo, making a change, and pushing it back.
     # Until we do that, the user must have first updated it manually.
-    print('\n\nReady to kick off the Ubuntu deb-builder.  Did you already update ubuntu/debian/changelog in the %s-release repo? [y/N]'%(args.package))
+    print('\n\nReady to kick off the Ubuntu deb-builder.  Did you already update ubuntu/debian/changelog in the %s-release repo (on the %s branch)?  [y/N]'%(args.package, args. release_repo_branch))
     answer = sys.stdin.readline().strip()
     if answer != 'Y' and answer != 'y':
         print('Ubuntu deb-builds were NOT started.')
@@ -108,6 +123,8 @@ def go(argv):
     params['PACKAGE'] = args.package
     params['VERSION'] = args.version
     params['SOURCE_TARBALL_URI'] = source_tarball_uri
+    params['RELEASE_REPO_BRANCH'] = args.release_repo_branch
+    params['PACKAGE_ALIAS'] = args.package_alias
     params['TAG'] = tag
     params_query = urllib.urlencode(params)
     base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, JOB_NAME_PATTERN%(args.package), params_query)
