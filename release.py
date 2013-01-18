@@ -34,6 +34,9 @@ def parse_args(argv):
     parser.add_argument('-b', '--release-repo-branch', dest='release_repo_branch', 
                         default='default', 
                         help='which version of the accompanying -release repo to use (if not default)')
+    parser.add_argument('-u', '--ubuntu-version', dest='ubuntu_version', 
+                        default=None,
+                        help='Ubuntu-specific version suffix; must begin with a hyphen (e.g., \'-0ubuntu1\')')
     args = parser.parse_args()
     if not args.package_alias:
         args.package_alias = args.package
@@ -78,23 +81,30 @@ def go(argv):
     # Push tag
     check_call(['hg', 'push'])
 
-    # Make build tmpdir, configure and make package_source
+    # Make a clean copy, to avoid pulling in other stuff that the user has
+    # sitting in the working copy
     tmpdir = tempfile.mkdtemp() 
-    os.chdir(tmpdir)
-    check_call(['cmake', pwd])
+    srcdir = os.path.join(tmpdir, 'src')
+    builddir = os.path.join(tmpdir, 'build')
+    check_call(['hg', 'archive', srcdir])
+
+    # configure and make package_source
+    os.mkdir(builddir)
+    os.chdir(builddir)
+    check_call(['cmake', srcdir])
     check_call(['make', 'package_source'])
 
     # Upload tarball
     # TODO: we're assuming a particular naming scheme and a particular compression tool
     tarball_fname = '%s-%s.tar.bz2'%(args.package, args.version)
-    tarball_path = os.path.join(tmpdir, tarball_fname)
+    tarball_path = os.path.join(builddir, tarball_fname)
     # If we're releasing under a different name, then rename the tarball (the
     # package itself doesn't know anything about this).
     if args.package != args.package_alias:
         tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
         if not args.dry_run:
-          shutil.copyfile(tarball_path, os.path.join(tmpdir, tarball_fname))
-        tarball_path = os.path.join(tmpdir, tarball_fname)
+          shutil.copyfile(tarball_path, os.path.join(builddir, tarball_fname))
+        tarball_path = os.path.join(builddir, tarball_fname)
     check_call(['scp', tarball_path, UPLOAD_DEST])
     shutil.rmtree(tmpdir)
     source_tarball_uri = DOWNLOAD_URI + tarball_fname
@@ -127,6 +137,8 @@ def go(argv):
     params['RELEASE_REPO_BRANCH'] = args.release_repo_branch
     params['PACKAGE_ALIAS'] = args.package_alias
     params['TAG'] = tag
+    if args.ubuntu_version:
+        params['UBUNTU_VERSION'] = args.ubuntu_version
     params_query = urllib.urlencode(params)
     base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, JOB_NAME_PATTERN%(args.package), params_query)
     for d in UBUNTU_DISTROS:
