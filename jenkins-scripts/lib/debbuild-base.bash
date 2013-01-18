@@ -106,7 +106,7 @@ wget --quiet -O ${PACKAGE_ALIAS}_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
 # Step 3: unpack tarball
 rm -rf $PACKAGE-$VERSION
 tar xf ${PACKAGE_ALIAS}_$VERSION.orig.tar.bz2
-cd ${PACKAGE_ALIAS}-$VERSION
+cd $PACKAGE-$VERSION
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
 rm -rf /tmp/$PACKAGE-release
