@@ -106,7 +106,7 @@ wget --quiet -O ${PACKAGE_ALIAS}_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
 # Step 3: unpack tarball
 rm -rf $PACKAGE-$VERSION
 tar xf ${PACKAGE_ALIAS}_$VERSION.orig.tar.bz2
-cd $PACKAGE-$VERSION
+cd ${PACKAGE_ALIAS}-$VERSION
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
 rm -rf /tmp/$PACKAGE-release
@@ -126,13 +126,32 @@ pbuilder-dist $DISTRO $ARCH build ../*.dsc
 # Step 7: upload resulting .deb
 sudo apt-get install -y openssh-client
 cd /var/packages/gazebo/ubuntu
-if [ -f /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/${PACKAGE_ALIAS}_${VERSION}${UBUNTU_VERSION}_$ARCH.deb ]; then
-  GNUPGHOME=$WORKSPACE/gnupg reprepro includedeb $DISTRO /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/${PACKAGE_ALIAS}_${VERSION}${UBUNTU_VERSION}_$ARCH.deb
-  scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/${PACKAGE_ALIAS}_${VERSION}${UBUNTU_VERSION}_$ARCH.deb ubuntu@gazebosim.org:/var/www/assets/distributions
-else
-  GNUPGHOME=$WORKSPACE/gnupg reprepro includedeb $DISTRO /var/lib/jenkins/pbuilder/${DISTRO}_result/${PACKAGE_ALIAS}_${VERSION}${UBUNTU_VERSION}_$ARCH.deb
-  scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa /var/lib/jenkins/pbuilder/${DISTRO}_result/${PACKAGE_ALIAS}_${VERSION}${UBUNTU_VERSION}_$ARCH.deb ubuntu@gazebosim.org:/var/www/assets/distributions
-fi
+
+MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/${PACKAGE_ALIAS}_${VERSION}${UBUNTU_VERSION}_$ARCH.deb /var/lib/jenkins/pbuilder/${DISTRO}_result/${PACKAGE_ALIAS}_${VERSION}${UBUNTU_VERSION}_$ARCH.deb"
+
+DEBUG_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/${PACKAGE_ALIAS}-dbg_${VERSION}${UBUNTU_VERSION}_$ARCH.deb /var/lib/jenkins/pbuilder/${DISTRO}_result/${PACKAGE_ALIAS}-dbg_${VERSION}${UBUNTU_VERSION}_$ARCH.deb"
+
+FOUND_PKG=0
+for pkg in ${MAIN_PKGS}; do
+    if [ -f ${pkg} ]; then
+        GNUPGHOME=$WORKSPACE/gnupg reprepro includedeb $DISTRO ${pkg}
+        scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
+        FOUND_PKG=1
+        break;
+    fi
+done
+$(( FOUND_PKG )) || exit -1
+
+FOUND_PKG=0
+for pkg in ${DEBUG_PKGS}; do
+    if [ -f ${pkg} ]; then
+        GNUPGHOME=$WORKSPACE/gnupg reprepro includedeb $DISTRO ${pkg}
+        scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
+        FOUND_PKG=1
+        break;
+    fi
+done
+$(( FOUND_PKG )) || echo "No debug packages found. No upload"
 DELIM
 
 # Copy in my GPG key, to allow reprepro to sign the debs it builds.
