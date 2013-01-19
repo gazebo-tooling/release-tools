@@ -132,26 +132,28 @@ MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/${PACKAGE_ALIAS}_$
 DEBUG_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/${PACKAGE_ALIAS}-dbg_${VERSION}${UBUNTU_VERSION}_$ARCH.deb /var/lib/jenkins/pbuilder/${DISTRO}_result/${PACKAGE_ALIAS}-dbg_${VERSION}${UBUNTU_VERSION}_$ARCH.deb"
 
 FOUND_PKG=0
-for pkg in ${MAIN_PKGS}; do
-    if [ -f ${pkg} ]; then
-        GNUPGHOME=$WORKSPACE/gnupg reprepro includedeb $DISTRO ${pkg}
-        scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
+for pkg in \${MAIN_PKGS}; do
+    echo "looking for \$pkg"
+    if [ -f \${pkg} ]; then
+        echo "found \$pkg"
+        GNUPGHOME=$WORKSPACE/gnupg reprepro includedeb $DISTRO \${pkg}
+        scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa \${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
         FOUND_PKG=1
         break;
     fi
 done
-$(( FOUND_PKG )) || exit -1
+test \$FOUND_PKG -eq 1 || exit -1
 
 FOUND_PKG=0
-for pkg in ${DEBUG_PKGS}; do
-    if [ -f ${pkg} ]; then
-        GNUPGHOME=$WORKSPACE/gnupg reprepro includedeb $DISTRO ${pkg}
-        scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
+for pkg in \${DEBUG_PKGS}; do
+    if [ -f \${pkg} ]; then
+        GNUPGHOME=$WORKSPACE/gnupg reprepro includedeb $DISTRO \${pkg}
+        scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa \${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
         FOUND_PKG=1
         break;
     fi
 done
-$(( FOUND_PKG )) || echo "No debug packages found. No upload"
+test \$FOUND_PKG -eq 1 || echo "No debug packages found. No upload"
 DELIM
 
 # Copy in my GPG key, to allow reprepro to sign the debs it builds.
