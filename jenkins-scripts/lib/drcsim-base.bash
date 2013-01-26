@@ -92,8 +92,13 @@ apt-get update
 
 # Step 1: install everything you need
 
+# Check for special gazebo versions
+if [ -z \$GAZEBO_DEB_PACKAGE ]; then
+    GAZEBO_DEB_PACKAGE=gazebo
+fi;
+
 # Install drcsim's Build-Depends
-apt-get install -y cmake debhelper ros-fuerte-pr2-mechanism ros-fuerte-std-msgs ros-fuerte-common-msgs ros-fuerte-image-common ros-fuerte-geometry ros-fuerte-pr2-controllers ros-fuerte-geometry-experimental ros-fuerte-robot-model-visualization ros-fuerte-image-pipeline osrf-common sandia-hand gazebo-prerelease
+apt-get install -y cmake debhelper ros-fuerte-pr2-mechanism ros-fuerte-std-msgs ros-fuerte-common-msgs ros-fuerte-image-common ros-fuerte-geometry ros-fuerte-pr2-controllers ros-fuerte-geometry-experimental ros-fuerte-robot-model-visualization ros-fuerte-image-pipeline osrf-common sandia-hand \$GAZEBO_DEB_PACKAGE
 
 # Step 2: configure and build
 
