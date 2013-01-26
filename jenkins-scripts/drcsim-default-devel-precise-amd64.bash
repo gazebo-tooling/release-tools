@@ -93,13 +93,13 @@ apt-get update
 # Step 1: install everything you need
 
 # Install drcsim's Build-Depends
-apt-get install -y cmake debhelper gazebo ros-fuerte-pr2-mechanism ros-fuerte-std-msgs ros-fuerte-common-msgs ros-fuerte-image-common ros-fuerte-geometry ros-fuerte-pr2-controllers ros-fuerte-geometry-experimental ros-fuerte-image-pipeline
+apt-get install -y cmake debhelper ros-fuerte-pr2-mechanism ros-fuerte-std-msgs ros-fuerte-common-msgs ros-fuerte-image-common ros-fuerte-geometry ros-fuerte-pr2-controllers ros-fuerte-geometry-experimental ros-fuerte-robot-model-visualization ros-fuerte-image-pipeline osrf-common sandia-hand gazebo
 
 # Step 2: configure and build
 
 # Normal cmake routine
 . /opt/ros/fuerte/setup.sh
-. /usr/share/gazebo-1.3/setup.sh
+. /usr/share/gazebo/setup.sh
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
