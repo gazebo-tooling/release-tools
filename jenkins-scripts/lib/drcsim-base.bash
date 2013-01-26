@@ -92,8 +92,11 @@ apt-get update
 
 # Step 1: install everything you need
 
-# Check for special gazebo versions
-if [ -z $GAZEBO_DEB_PACKAGE ]; then
+# Check for special gazebo versions.
+# This line takes care of inside/outside variables importing GAZEBO_DEB_PACKAGE
+# to build.sh scope
+GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
+if [ -z \$GAZEBO_DEB_PACKAGE ]; then
     GAZEBO_DEB_PACKAGE=gazebo
 fi;
 
