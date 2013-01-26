@@ -93,7 +93,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Check for special gazebo versions
-if [ -z \$GAZEBO_DEB_PACKAGE ]; then
+if [ -z $GAZEBO_DEB_PACKAGE ]; then
     GAZEBO_DEB_PACKAGE=gazebo
 fi;
 
