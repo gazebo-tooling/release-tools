@@ -102,7 +102,7 @@ cmake -DPKG_CONFIG_PATH=/opt/ros/fuerte/lib/pkgconfig:/opt/ros/fuerte/stacks/vis
 make -j3
 make install
 . $WORKSPACE/install/share/gazebo-1.*/setup.sh
-LD_LIBRARY_PATH=/opt/ros/fuerte/lib:/opt/ros/fuerte/stacks/visualization_common/ogre/ogre/lib make test ARGS="-VV" || true
+PATH=$WORKSPACE/install/bin:\$PATH LD_LIBRARY_PATH=/opt/ros/fuerte/lib:/opt/ros/fuerte/stacks/visualization_common/ogre/ogre/lib make test ARGS="-VV" || true
 
 # Step 3: code check
 cd $WORKSPACE/gazebo
