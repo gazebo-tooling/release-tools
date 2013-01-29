@@ -15,7 +15,7 @@ JOB_NAME_PATTERN = '%s-debbuild'
 UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
-UBUNTU_ARCHS = ['i386', 'amd64']
+UBUNTU_ARCHS = ['amd64', 'i386']
 UBUNTU_DISTROS = ['precise']
 
 DRY_RUN = False
