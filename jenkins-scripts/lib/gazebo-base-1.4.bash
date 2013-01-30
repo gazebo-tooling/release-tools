@@ -99,7 +99,7 @@ rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
 CMAKE_PREFIX_PATH=/opt/ros/fuerte cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install $WORKSPACE/gazebo
-make -j3
+make -j1
 make install
 . $WORKSPACE/install/share/gazebo/setup.sh
 PATH=$WORKSPACE/install/bin:\$PATH LD_LIBRARY_PATH=/opt/ros/fuerte/lib make test ARGS="-VV" || true
