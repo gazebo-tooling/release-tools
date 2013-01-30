@@ -95,14 +95,14 @@ apt-get install -y cmake build-essential debhelper libfreeimage-dev libprotoc-de
 # Step 2: configure and build
 
 # Normal cmake routine for Gazebo
-rm -rf $WORKSPACE/build $WORKSPACE/install
-mkdir -p $WORKSPACE/build $WORKSPACE/install
+rm -rf $WORKSPACE/build
+mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-CMAKE_PREFIX_PATH=/opt/ros/fuerte cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install $WORKSPACE/gazebo
+CMAKE_PREFIX_PATH=/opt/ros/fuerte cmake -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/gazebo
 make -j1
 make install
-. $WORKSPACE/install/share/gazebo/setup.sh
-PATH=$WORKSPACE/install/bin:\$PATH LD_LIBRARY_PATH=/opt/ros/fuerte/lib make test ARGS="-VV" || true
+. /usr/install/share/gazebo/setup.sh
+LD_LIBRARY_PATH=/opt/ros/fuerte/lib make test ARGS="-VV" || true
 
 # Step 3: code check
 cd $WORKSPACE/gazebo
