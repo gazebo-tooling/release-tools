@@ -95,7 +95,7 @@ apt-get install -y cmake build-essential debhelper libfreeimage-dev libprotoc-de
 # Install Bullet from source
 apt-get install -y unzip
 BULLET_VERSION=2.81-rev2613
-wget --quiet -O $WORKSPACE/bullet-\$BULLET_VERSION.zip https://bullet.googlecode.com/files/bullet-\$BULLET_VERSION.zip
+wget --quiet -O $WORKSPACE/bullet-\$BULLET_VERSION.zip http://bullet.googlecode.com/files/bullet-\$BULLET_VERSION.zip
 rm -rf $WORKSPACE/bullet-\$BULLET_VERSION
 cd $WORKSPACE
 unzip $WORKSPACE/bullet-\$BULLET_VERSION.zip
