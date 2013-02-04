@@ -5,4 +5,4 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISPLAY=:0.0
-. ${SCRIPT_DIR}/lib/gazebo-base.bash
+. ${SCRIPT_DIR}/lib/gazebo-base-1.x.bash
