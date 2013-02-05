@@ -125,14 +125,14 @@ make install
 
 # Normal cmake routine
 . /opt/ros/fuerte/setup.sh
-. /usr/local/share/gazebo-1.*/setup.sh
+. /usr/local/share/gazebo/setup.sh
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
 cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install $WORKSPACE/drcsim
 make -j3
 make install
-SHELL=/bin/sh . $WORKSPACE/install/share/drcsim-1.*/setup.sh
+SHELL=/bin/sh . $WORKSPACE/install/share/drcsim/setup.sh
 DISPLAY=:0 ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-VV" || true
 ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results rosrun rosunit clean_junit_xml.py
 DELIM
