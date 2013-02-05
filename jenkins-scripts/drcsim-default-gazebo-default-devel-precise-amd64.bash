@@ -109,8 +109,8 @@ make -j3
 make install
 
 # Normal cmake routine for Gazebo
-
 apt-get install -y mercurial
+rm -fr $WORKSPACE/gazebo
 hg clone https://bitbucket.org/osrf/gazebo $WORKSPACE/gazebo
 
 rm -rf $WORKSPACE/gazebo/build $WORKSPACE/gazebo/install
