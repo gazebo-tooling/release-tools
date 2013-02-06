@@ -92,6 +92,9 @@ cd $WORKSPACE/build
 cmake $WORKSPACE/cloudsim
 PYTHONPATH=$WORKSPACE/cloudsim/inside/cgi-bin make test ARGS="-VV" || true
 
+# run redis-server as it does not seem to start on its own
+/etc/init.d/redis-server start
+
 DELIM
 
 # Copy in my boto config file, to allow launching of AWS machines.
