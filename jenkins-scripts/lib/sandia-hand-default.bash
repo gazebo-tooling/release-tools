@@ -22,7 +22,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Required stuff for Gazebo
-apt-get install -y cmake build-essential debhelper ros-fuerte-xacro, ros-fuerte-ros, osrf-common, libboost-dev, ros-fuerte-image-common, ros-fuerte-ros-comm, ros-fuerte-common-msgs
+apt-get install -y cmake build-essential debhelper ros-fuerte-xacro ros-fuerte-ros osrf-common libboost-dev ros-fuerte-image-common ros-fuerte-ros-comm ros-fuerte-common-msgs
 . /opt/ros/${ROS_DISTRO}/setup.sh
 
 # Step 2: configure and build
