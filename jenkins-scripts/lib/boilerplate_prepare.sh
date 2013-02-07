@@ -1,7 +1,7 @@
 # Common instructions to create the building enviroment
 set -e
 
-distro=${ROS_DISTRO}
+distro=${DISTRO}
 arch=amd64
 base=/var/cache/pbuilder-$distro-$arch
 

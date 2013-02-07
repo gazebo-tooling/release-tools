@@ -1,8 +1,12 @@
 #!/bin/bash -x
 set -e
 
+if [ -z ${DISTRO} ]; then
+    DISTRO=precise
+fi
+
 if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=precise
+  ROS_DISTRO=fuerte
 fi
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
@@ -15,7 +19,7 @@ set -ex
 
 # get ROS repo's key, to be used both in installing prereqs here and in creating the pbuilder chroot
 apt-get install -y wget
-sh -c 'echo "deb http://packages.ros.org/ros/ubuntu ${ROS_DISTRO} main" > /etc/apt/sources.list.d/ros-latest.list'
+sh -c 'echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/ros-latest.list'
 wget http://packages.ros.org/ros.key -O - | apt-key add -
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu precise main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
