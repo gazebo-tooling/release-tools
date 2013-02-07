@@ -32,13 +32,14 @@ apt-get install -y cmake build-essential debhelper ros-fuerte-xacro ros-fuerte-r
 . /opt/ros/${ROS_DISTRO}/setup.sh
 
 # Step 2: configure and build
-# Normal cmake routine for Gazebo
-rm -rf $WORKSPACE/build $WORKSPACE/install
-mkdir -p $WORKSPACE/build $WORKSPACE/install
+# Normal cmake routine for sandia-hand
 cd $WORKSPACE
 export ROS_PACKAGE_PATH=`pwd`:/usr/share/osrf-common-1.0/ros:\$ROS_PACKAGE_PATH
+rm -rf $WORKSPACE/build
+mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-CMAKE_PREFIX_PATH=/opt/ros/fuerte cmake -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE
+ls $WORKSPACE
+CMAKE_PREFIX_PATH=/opt/ros/fuerte cmake -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/sandia-hand
 make -j3
 make install
 LD_LIBRARY_PATH=/opt/ros/fuerte/lib make test ARGS="-VV" || true
