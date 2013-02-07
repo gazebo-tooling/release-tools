@@ -38,7 +38,7 @@ mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE
 export ROS_PACKAGE_PATH=`pwd`:/usr/share/osrf-common-1.0/ros:\$ROS_PACKAGE_PATH
 cd $WORKSPACE/build
-CMAKE_PREFIX_PATH=/opt/ros/fuerte cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+CMAKE_PREFIX_PATH=/opt/ros/fuerte cmake -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE
 make -j3
 make install
 LD_LIBRARY_PATH=/opt/ros/fuerte/lib make test ARGS="-VV" || true
