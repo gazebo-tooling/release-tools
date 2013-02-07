@@ -33,7 +33,7 @@ apt-get install -y cmake build-essential debhelper ros-fuerte-xacro ros-fuerte-r
 
 # Step 2: configure and build
 # Normal cmake routine for sandia-hand
-cd $WORKSPACE
+cd $WORKSPACE/sandia-hand
 export ROS_PACKAGE_PATH=`pwd`:/usr/share/osrf-common-1.0/ros:\$ROS_PACKAGE_PATH
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
