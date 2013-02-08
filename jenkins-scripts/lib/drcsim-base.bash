@@ -119,7 +119,7 @@ DISPLAY=:0 ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-V
 ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results rosrun rosunit clean_junit_xml.py
 
 # Step 3: code check
-CODE_CHECK_APP=$WORKSPACE/tools/code_check.sh
+CODE_CHECK_APP=$WORKSPACE/drcsim/tools/code_check.sh
 if [ -f \$CODE_CHECK_APP ]; then
    cd $WORKSPACE
    sh \$CODE_CHECK_APP -xmldir $WORKSPACE/build/cppcheck_results || true
