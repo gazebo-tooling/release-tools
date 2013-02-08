@@ -86,14 +86,14 @@ apt-get install -y python python-pip openvpn redis-server cmake make cloud-utils
 # generate junit xml
 pip install unittest-xml-reporting redis
 
+# run redis-server as it does not seem to start on its own
+/etc/init.d/redis-server start
+
 rm -rf $WORKSPACE/build $WORKSPACE/cloudsim/test-reports
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake $WORKSPACE/cloudsim
 PYTHONPATH=$WORKSPACE/cloudsim/inside/cgi-bin make test ARGS="-VV" || true
-
-# run redis-server as it does not seem to start on its own
-/etc/init.d/redis-server start
 
 DELIM
 

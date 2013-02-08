@@ -142,7 +142,7 @@ for pkg in \${MAIN_PKGS}; do
         break;
     fi
 done
-test \$FOUND_PKG -eq 1 || exit -1
+test \$FOUND_PKG -eq 1 || exit 1
 
 FOUND_PKG=0
 for pkg in \${DEBUG_PKGS}; do
