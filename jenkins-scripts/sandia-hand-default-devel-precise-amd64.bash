@@ -4,6 +4,4 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export GAZEBO_DEB_PACKAGE=gazebo-prerelease
-
-. ${SCRIPT_DIR}/lib/drcsim-base.bash
+. ${SCRIPT_DIR}/lib/sandia-hand-default.bash
