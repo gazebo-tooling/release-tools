@@ -30,7 +30,7 @@ apt-get install -y cmake build-essential debhelper ros-${ROS_DISTRO}-ros ros-${R
 . /opt/ros/${ROS_DISTRO}/setup.sh
 
 # For quantal, need to start rosdep base
-if [ ${ROS_DISTRO} == 'quantal' ]; then
+if [ "${DISTRO}" = "quantal" ]; then
   rosdep init
   rosdep update
 fi
