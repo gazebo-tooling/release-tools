@@ -1,0 +1,52 @@
+#!/bin/bash -x
+set -e
+
+if [ -z ${DISTRO} ]; then
+    DISTRO=precise
+fi
+
+if [ -z ${ROS_DISTRO} ]; then
+  ROS_DISTRO=fuerte
+fi
+
+. ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+
+cat > build.sh << DELIM
+###################################################
+# Make project-specific changes here
+#
+set -ex
+
+# get ROS repo's key, to be used both in installing prereqs here and in creating the pbuilder chroot
+apt-get install -y wget
+sh -c 'echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/ros-latest.list'
+wget http://packages.ros.org/ros.key -O - | apt-key add -
+apt-get update
+
+# Step 1: install everything you need
+
+# Required stuff for Gazebo
+apt-get install -y cmake build-essential debhelper ros-${ROS_DISTRO}-ros ros-${ROS_DISTRO}-comm
+. /opt/ros/${ROS_DISTRO}/setup.sh
+
+# Step 2: configure and build
+# Normal cmake routine for osrf-common
+cd $WORKSPACE/osrf-common
+export ROS_PACKAGE_PATH=\$PWD:\$ROS_PACKAGE_PATH
+rm -rf $WORKSPACE/build
+mkdir -p $WORKSPACE/build
+cd $WORKSPACE/build
+ls $WORKSPACE
+CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO} cmake -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/osrf-common
+make -j3
+make install
+LD_LIBRARY_PATH=/opt/ros/${ROS_DISTRO}/lib make test ARGS="-VV" || true
+DELIM
+
+# Make project-specific changes here
+###################################################
+
+sudo $WORKSPACE/pbuilder  --execute \
+    --bindmounts $WORKSPACE \
+    --basetgz $basetgz \
+    -- build.sh
