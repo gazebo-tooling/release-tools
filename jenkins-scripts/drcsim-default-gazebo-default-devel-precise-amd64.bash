@@ -39,7 +39,7 @@ cd $WORKSPACE/catkin-debs
 #setup the cross platform apt environment
 # using sudo since this is shared with pbuilder and if pbuilder is interupted it will leave a sudo only lock file.  Otherwise sudo is not necessary. 
 # And you can't chown it even with sudo and recursive 
-sudo PYTHONPATH=$PYTHONPATH $WORKSPACE/catkin-debs/scripts/setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE
+sudo PYTHONPATH=$PYTHONPATH $WORKSPACE/catkin-debs/scripts/setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE --repo ros@http://packages.ros.org/ros/ubuntu
 
 sudo rm -rf $output_dir
 mkdir -p $output_dir
@@ -93,7 +93,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Install drcsim's and gazebo Build-Depends
-apt-get install -y cmake debhelper ros-fuerte-pr2-mechanism ros-fuerte-std-msgs ros-fuerte-common-msgs ros-fuerte-image-common ros-fuerte-geometry ros-fuerte-pr2-controllers ros-fuerte-geometry-experimental ros-fuerte-image-pipeline build-essential  libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libcurl4-openssl-dev libtinyxml-dev libtar-dev libtbb-dev ros-fuerte-visualization-common libxml2-dev pkg-config libqt4-dev ros-fuerte-urdfdom libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck ros-fuerte-robot-model-visualization osrf-common sandia-hand
+apt-get install -y cmake debhelper ros-fuerte-pr2-mechanism ros-fuerte-std-msgs ros-fuerte-common-msgs ros-fuerte-image-common ros-fuerte-geometry ros-fuerte-pr2-controllers ros-fuerte-geometry-experimental ros-fuerte-image-pipeline build-essential  libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libcurl4-openssl-dev libtinyxml-dev libtar-dev libtbb-dev ros-fuerte-visualization-common libxml2-dev pkg-config libqt4-dev ros-fuerte-urdfdom ros-fuerte-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck ros-fuerte-robot-model-visualization osrf-common sandia-hand
 
 # Install Bullet from source
 apt-get install -y unzip
@@ -109,8 +109,8 @@ make -j3
 make install
 
 # Normal cmake routine for Gazebo
-
 apt-get install -y mercurial
+rm -fr $WORKSPACE/gazebo
 hg clone https://bitbucket.org/osrf/gazebo $WORKSPACE/gazebo
 
 rm -rf $WORKSPACE/gazebo/build $WORKSPACE/gazebo/install
@@ -125,14 +125,14 @@ make install
 
 # Normal cmake routine
 . /opt/ros/fuerte/setup.sh
-. /usr/local/share/gazebo-1.*/setup.sh
+. /usr/local/share/gazebo/setup.sh
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
 cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install $WORKSPACE/drcsim
 make -j3
 make install
-SHELL=/bin/sh . $WORKSPACE/install/share/drcsim-1.*/setup.sh
+SHELL=/bin/sh . $WORKSPACE/install/share/drcsim/setup.sh
 DISPLAY=:0 ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-VV" || true
 ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results rosrun rosunit clean_junit_xml.py
 DELIM

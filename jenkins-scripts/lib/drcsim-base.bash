@@ -39,7 +39,7 @@ cd $WORKSPACE/catkin-debs
 #setup the cross platform apt environment
 # using sudo since this is shared with pbuilder and if pbuilder is interupted it will leave a sudo only lock file.  Otherwise sudo is not necessary. 
 # And you can't chown it even with sudo and recursive 
-sudo PYTHONPATH=$PYTHONPATH $WORKSPACE/catkin-debs/scripts/setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE
+sudo PYTHONPATH=$PYTHONPATH $WORKSPACE/catkin-debs/scripts/setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE --repo ros@http://packages.ros.org/ros/ubuntu
 
 sudo rm -rf $output_dir
 mkdir -p $output_dir
@@ -101,7 +101,7 @@ if [ -z \$GAZEBO_DEB_PACKAGE ]; then
 fi;
 
 # Install drcsim's Build-Depends
-apt-get install -y cmake debhelper ros-fuerte-pr2-mechanism ros-fuerte-std-msgs ros-fuerte-common-msgs ros-fuerte-image-common ros-fuerte-geometry ros-fuerte-pr2-controllers ros-fuerte-geometry-experimental ros-fuerte-robot-model-visualization ros-fuerte-image-pipeline osrf-common sandia-hand \$GAZEBO_DEB_PACKAGE
+apt-get install -y cmake debhelper ros-fuerte-pr2-mechanism ros-fuerte-std-msgs ros-fuerte-common-msgs ros-fuerte-image-common ros-fuerte-geometry ros-fuerte-pr2-controllers ros-fuerte-geometry-experimental ros-fuerte-robot-model-visualization ros-fuerte-image-pipeline ros-fuerte-console-bridge osrf-common sandia-hand \$GAZEBO_DEB_PACKAGE
 
 # Step 2: configure and build
 

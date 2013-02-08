@@ -1,13 +1,7 @@
-#!/bin/bash -x
-
-###################################################
-# Boilerplate.
-# DO NOT MODIFY
-
-#stop on error
+# Common instructions to create the building enviroment
 set -e
 
-distro=precise
+distro=${DISTRO}
 arch=amd64
 base=/var/cache/pbuilder-$distro-$arch
 
@@ -39,7 +33,7 @@ cd $WORKSPACE/catkin-debs
 #setup the cross platform apt environment
 # using sudo since this is shared with pbuilder and if pbuilder is interupted it will leave a sudo only lock file.  Otherwise sudo is not necessary. 
 # And you can't chown it even with sudo and recursive 
-sudo PYTHONPATH=$PYTHONPATH $WORKSPACE/catkin-debs/scripts/setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE
+sudo PYTHONPATH=$PYTHONPATH $WORKSPACE/catkin-debs/scripts/setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE --repo ros@http://packages.ros.org/ros/ubuntu
 
 sudo rm -rf $output_dir
 mkdir -p $output_dir
@@ -70,40 +64,3 @@ then
 else
   sudo $WORKSPACE/pbuilder --update --basetgz $basetgz
 fi
-
-# Boilerplate.
-# DO NOT MODIFY
-###################################################
-
-cat > build.sh << DELIM
-###################################################
-# Make project-specific changes here
-#
-set -ex
-
-apt-get install -y python python-pip openvpn redis-server cmake make cloud-utils openssh-client zip unzip iputils-ping
-
-# generate junit xml
-pip install unittest-xml-reporting redis
-
-rm -rf $WORKSPACE/build $WORKSPACE/cloudsim/test-reports
-mkdir -p $WORKSPACE/build
-cd $WORKSPACE/build
-cmake $WORKSPACE/cloudsim
-PYTHONPATH=$WORKSPACE/cloudsim/inside/cgi-bin make test ARGS="-VV" || true
-
-# run redis-server as it does not seem to start on its own
-/etc/init.d/redis-server start
-
-DELIM
-
-# Copy in my boto config file, to allow launching of AWS machines.
-cp $HOME/boto.test-osrfoundation.org $WORKSPACE/boto.ini
-
-# Make project-specific changes here
-###################################################
-
-sudo $WORKSPACE/pbuilder  --execute \
-    --bindmounts $WORKSPACE \
-    --basetgz $basetgz \
-    -- build.sh
