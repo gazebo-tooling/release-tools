@@ -26,7 +26,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Required stuff for Gazebo
-apt-get install -y cmake build-essential debhelper ros-${ROS_DISTRO}-ros ros-${ROS_DISTRO}-comm
+apt-get install -y cmake build-essential debhelper ros-${ROS_DISTRO}-ros ros-${ROS_DISTRO}-ros-comm
 . /opt/ros/${ROS_DISTRO}/setup.sh
 
 # Step 2: configure and build
