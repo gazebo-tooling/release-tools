@@ -81,10 +81,14 @@ cat > build.sh << DELIM
 #
 set -ex
 
-apt-get install -y python python-pip openvpn redis-server cmake make cloud-utils openssh-client zip unzip iputils-ping
 
-# generate junit xml
-pip install unittest-xml-reporting redis
+sudo apt-get install -y python openssh-client unzip zip mercurial apache2 redis-server python-pip python-redis
+sudo pip install --upgrade boto
+
+sudo pip install unittest-xml-reporting 
+sudo apt-get install cmake 
+sudo apt-get install python-software-properties
+
 
 # run redis-server as it does not seem to start on its own
 /etc/init.d/redis-server start
