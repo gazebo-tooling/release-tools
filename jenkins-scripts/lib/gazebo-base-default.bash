@@ -8,7 +8,7 @@ set -e
 if [ -z ${GZ_BUILD_TYPE} ]; then
     GZ_CMAKE_BUILD_TYPE=
 else
-    GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_CMAKE=${GZ_BUILD_TYPE}"
+    GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
 fi
 
 ###################################################
