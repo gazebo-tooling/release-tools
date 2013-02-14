@@ -5,6 +5,6 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
-export GZ_BUILD_TYPE=Profile
+export GZ_BUILD_TYPE=Release
 
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash
