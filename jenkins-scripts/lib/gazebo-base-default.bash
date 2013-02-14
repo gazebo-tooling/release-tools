@@ -1,11 +1,19 @@
 #!/bin/bash -x
 
+#stop on error
+set -e
+
+# Keep the option of default to not really send a build type and let our own gazebo cmake rules
+# to decide what is the default mode.
+if [ -z ${GZ_BUILD_TYPE} ]; then
+    GZ_CMAKE_BUILD_TYPE=
+else
+    GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
+fi
+
 ###################################################
 # Boilerplate.
 # DO NOT MODIFY
-
-#stop on error
-set -e
 
 distro=precise
 arch=amd64
@@ -111,7 +119,7 @@ make install
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
-CMAKE_PREFIX_PATH=/opt/ros/fuerte cmake -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/gazebo
+CMAKE_PREFIX_PATH=/opt/ros/fuerte cmake ${GZ_CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/gazebo
 make -j1
 make install
 . /usr/share/gazebo/setup.sh
