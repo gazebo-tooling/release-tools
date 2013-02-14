@@ -101,7 +101,7 @@ cd $WORKSPACE
 unzip $WORKSPACE/bullet-\$BULLET_VERSION.zip
 mkdir -p $WORKSPACE/bullet-build
 cd $WORKSPACE/bullet-build
-cmake -G "Unix Makefiles" -DBUILD_SHARED_LIBS=ON $WORKSPACE/bullet-\$BULLET_VERSION
+cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=ON $WORKSPACE/bullet-\$BULLET_VERSION
 make -j3
 make install
 
