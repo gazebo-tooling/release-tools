@@ -1,6 +1,15 @@
 # Common instructions to create the building enviroment
 set -e
 
+# Default values - Provide them is prefered
+if [ -z ${DISTRO} ]; then
+    DISTRO=precise
+fi
+
+if [ -z ${ROS_DISTRO} ]; then
+  ROS_DISTRO=fuerte
+fi
+
 distro=${DISTRO}
 arch=amd64
 base=/var/cache/pbuilder-$distro-$arch
