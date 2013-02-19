@@ -38,6 +38,7 @@ apt-get update
 apt-get install -y cmake build-essential debhelper libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libcurl4-openssl-dev libtinyxml-dev libtar-dev libtbb-dev libogre-dev libxml2-dev pkg-config libqt4-dev ros-fuerte-urdfdom ros-fuerte-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck robot-player-dev libcegui-mk2-dev libavformat-dev libavcodec-dev libswscale-dev mesa-utils
 
 # Install rtql8
+apt-get install -y mercurial
 cd $WORKSPACE
 hg clone http://bitbucket.org/karenliu/rtql8
 mkdir $WORKSPACE/rtql8/build
