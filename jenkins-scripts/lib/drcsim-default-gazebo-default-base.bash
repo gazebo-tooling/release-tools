@@ -53,13 +53,13 @@ cd $WORKSPACE/gazebo/build
 CMAKE_PREFIX_PATH=/opt/ros/fuerte cmake ${GZ_CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/gazebo
 make -j3
 make install
-. /usr/local/share/gazebo-1.*/setup.sh
+. /usr/share/gazebo-1.*/setup.sh
 
 # Step 3: configure and build drcim
 
 # Normal cmake routine
 . /opt/ros/fuerte/setup.sh
-. /usr/local/share/gazebo/setup.sh
+. /usr/share/gazebo/setup.sh
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
