@@ -39,6 +39,7 @@ apt-get install -y cmake build-essential debhelper libfreeimage-dev libprotoc-de
 
 # Install rtql8
 apt-get install -y mercurial
+rm -fr $WORKSPACE/rtql8
 cd $WORKSPACE
 hg clone http://bitbucket.org/karenliu/rtql8
 mkdir $WORKSPACE/rtql8/build
