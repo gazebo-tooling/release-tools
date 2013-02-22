@@ -16,7 +16,7 @@ UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['precise']
+UBUNTU_DISTROS = ['precise','quantal']
 
 DRY_RUN = False
 
@@ -34,9 +34,9 @@ def parse_args(argv):
     parser.add_argument('-b', '--release-repo-branch', dest='release_repo_branch', 
                         default='default', 
                         help='which version of the accompanying -release repo to use (if not default)')
-    parser.add_argument('-u', '--ubuntu-version', dest='ubuntu_version', 
+    parser.add_argument('-r', '--release-version', dest='release_version', 
                         default=None,
-                        help='Ubuntu-specific version suffix; must begin with a hyphen (e.g., \'-0ubuntu1\')')
+                        help='Release version suffix; usually 1 (e.g., 1')
     args = parser.parse_args()
     if not args.package_alias:
         args.package_alias = args.package
@@ -137,8 +137,9 @@ def go(argv):
     params['RELEASE_REPO_BRANCH'] = args.release_repo_branch
     params['PACKAGE_ALIAS'] = args.package_alias
     params['TAG'] = tag
-    if args.ubuntu_version:
-        params['UBUNTU_VERSION'] = args.ubuntu_version
+    if not args.release_version:
+        args.release_version = 1
+    params['RELEASE_VERSION'] = args.release_version
     params_query = urllib.urlencode(params)
     base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, JOB_NAME_PATTERN%(args.package), params_query)
     for d in UBUNTU_DISTROS:
