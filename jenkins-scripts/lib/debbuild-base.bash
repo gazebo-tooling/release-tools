@@ -124,11 +124,7 @@ cp -a /tmp/$PACKAGE-release/ubuntu/* .
 
 # Step 5: use debuild to create source package
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
-debuild -S -uc -us
-
-# DEBUG
-find /var/lib/jenkins/pbuilder -name "*.tar.gz"
-find /var/lib/jenkins/pbuilder -name "*.tar.gz" -exec tar tf {} \;
+debuild -S -uc -us --source-option=--include-binaries
 
 # Step 6: use pbuilder-dist to create binary package(s)
 pbuilder-dist $DISTRO $ARCH build ../*.dsc
