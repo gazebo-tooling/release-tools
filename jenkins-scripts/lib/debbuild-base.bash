@@ -111,7 +111,7 @@ wget --quiet -O ${PACKAGE_ALIAS}_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
 
 # Step 3: unpack tarball
 rm -rf $PACKAGE-$VERSION
-tar xf ${PACKAGE_ALIAS}_$VERSION.orig.tar.bz2
+tar xvf ${PACKAGE_ALIAS}_$VERSION.orig.tar.bz2
 cd $PACKAGE-$VERSION
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
@@ -125,6 +125,10 @@ cp -a /tmp/$PACKAGE-release/ubuntu/* .
 # Step 5: use debuild to create source package
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
 debuild -S -uc -us
+
+# DEBUG
+find /var/lib/jenkins/pbuilder -name "*.tar.gz"
+find /var/lib/jenkins/pbuilder -name "*.tar.gz" -exec tar tf {} \;
 
 # Step 6: use pbuilder-dist to create binary package(s)
 pbuilder-dist $DISTRO $ARCH build ../*.dsc
