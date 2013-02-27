@@ -1,14 +1,6 @@
 #!/bin/bash -x
 set -e
 
-if [ -z ${DISTRO} ]; then
-    DISTRO=precise
-fi
-
-if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=fuerte
-fi
-
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
