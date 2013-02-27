@@ -4,4 +4,7 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-. ${SCRIPT_DIR}/lib/drcsim-base-quantal.bash
+export DISTRO=quantal
+export ROS_DISTRO=groovy
+
+. ${SCRIPT_DIR}/lib/drcsim-base.bash
