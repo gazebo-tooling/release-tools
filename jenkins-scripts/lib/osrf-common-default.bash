@@ -29,6 +29,12 @@ apt-get update
 apt-get install -y cmake build-essential debhelper ros-${ROS_DISTRO}-ros ros-${ROS_DISTRO}-ros-comm
 . /opt/ros/${ROS_DISTRO}/setup.sh
 
+# For quantal, need to start rosdep base
+if [ "${DISTRO}" = "quantal" ]; then
+  rosdep init
+  rosdep update
+fi
+
 # Step 2: configure and build
 # Normal cmake routine for osrf-common
 cd $WORKSPACE/osrf-common
