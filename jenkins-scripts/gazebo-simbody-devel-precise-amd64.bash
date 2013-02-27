@@ -85,23 +85,13 @@ set -ex
 apt-get install -y wget
 sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
 wget http://packages.ros.org/ros.key -O - | apt-key add -
+# OSRF repository to get bullet
+sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu precise main" > /etc/apt/sources.list.d/drc-latest.list'
+wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
 # Step 1: install everything you need
-apt-get install -y cmake build-essential debhelper libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libtinyxml-dev libtar-dev libtbb-dev ros-fuerte-visualization-common libxml2-dev pkg-config libqt4-dev ros-fuerte-urdfdom ros-fuerte-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck libcurl4-gnutls-dev libdap-dev libgdal1-dev liblapack-dev liblas-dev
-
-# Install Bullet from source
-apt-get install -y unzip
-BULLET_VERSION=2.81-rev2613
-wget --quiet -O $WORKSPACE/bullet-\$BULLET_VERSION.zip https://bullet.googlecode.com/files/bullet-\$BULLET_VERSION.zip
-rm -rf $WORKSPACE/bullet-\$BULLET_VERSION
-cd $WORKSPACE
-unzip $WORKSPACE/bullet-\$BULLET_VERSION.zip
-mkdir -p $WORKSPACE/bullet-build
-cd $WORKSPACE/bullet-build
-cmake -G "Unix Makefiles" -DBUILD_SHARED_LIBS=ON $WORKSPACE/bullet-\$BULLET_VERSION
-make -j3
-make install
+apt-get install -y cmake build-essential debhelper libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libtinyxml-dev libtar-dev libtbb-dev ros-fuerte-visualization-common libxml2-dev pkg-config libqt4-dev ros-fuerte-urdfdom ros-fuerte-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck libcurl4-gnutls-dev libdap-dev libgdal1-dev liblapack-dev liblas-dev libbullet-dev
 
 # Step 2: build and install simbody
 svn co https://simtk.org/svn/simbody/branches/Simbody3.0.1 ~/simbody
