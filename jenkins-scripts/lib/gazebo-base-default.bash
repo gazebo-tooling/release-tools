@@ -11,6 +11,9 @@ else
     GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
 fi
 
+# No explicit activation means no coverage
+[ -z ${COVERAGE_ENABLED} ] && COVERAGE_ENABLED=false
+
 ###################################################
 # Boilerplate.
 # DO NOT MODIFY
@@ -104,8 +107,32 @@ apt-get update
 # (mesa-utils is used for getting dri information)
 apt-get install -y cmake build-essential debhelper libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libcurl4-openssl-dev libtinyxml-dev libtar-dev libtbb-dev libogre-dev libxml2-dev pkg-config libqt4-dev ros-fuerte-urdfdom ros-fuerte-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck robot-player-dev libcegui-mk2-dev libavformat-dev libavcodec-dev libswscale-dev mesa-utils libbullet-dev
 
-# Step 2: configure and build
+if ${COVERAGE_ENABLED} ; then
+  # Clean previous content
+  rm -fr $WORKSPACE/coverage
+  # Download and install Bullseyes
+  cd $WORKSPACE
+  rm -fr $WORKSPACE/Bulls*
+  wget http://www.bullseye.com/download/BullseyeCoverage-8.7.45-Linux-x64.tar -O bullseye.tar
+  tar -xf bullseye.tar
+  cd Bulls*
+  # Set up the license
+  echo $PATH >install-path
+  rm -fr /usr/bullseyes
+  uname -a
+  file ./install
+  set +x # keep password secret
+  ./install --prefix /usr/bullseyes --key $BULLSEYE_LICENSE
+  set -x # back to debug
+  # Set up Bullseyes for compiling
+  export PATH=/usr/bullseyes/bin:\$PATH
+  export COVFILE=$WORKSPACE/gazebo/test.cov
+  cd $WORKSPACE/gazebo
+  covselect --file test.cov --add .
+  cov01 --on
+fi
 
+# Step 2: configure and build
 # Normal cmake routine for Gazebo
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
@@ -119,6 +146,25 @@ LD_LIBRARY_PATH=/opt/ros/fuerte/lib make test ARGS="-VV" || true
 # Step 3: code check
 cd $WORKSPACE/gazebo
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+
+# Step 4: generate code coverage if enabled
+if ${COVERAGE_ENABLED} ; then
+  rm -fr $WORKSPACE/coverage
+  rm -fr $WORKSPACE/bullshtml
+  mkdir -p $WORKSPACE/coverage
+  covselect --add '!$WORKSPACE/build/' '!../build/' '!test/' '!tools/test/' '!$WORKSPACE/deps/' '!/opt/' '!gazebo/rendering/skyx/'
+  covhtml --srcdir $WORKSPACE/gazebo/ $WORKSPACE/coverage
+  # Generate valid cover.xml file using the bullshtml software
+  # java is needed to run bullshtml
+  apt-get install -y default-jre
+  cd $WORKSPACE
+  wget http://bullshtml.googlecode.com/files/bullshtml_1.0.5.tar.gz -O bullshtml.tar.gz
+  tar -xzf bullshtml.tar.gz
+  cd bullshtml
+  sh bullshtml .
+  # Hack to remove long paths from report
+  sed -i -e 's:$WORKSPACE/build/gazebo::g' clover.xml
+fi
 DELIM
 
 # Make project-specific changes here
