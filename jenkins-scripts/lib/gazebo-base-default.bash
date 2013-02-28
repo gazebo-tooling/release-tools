@@ -82,6 +82,11 @@ else
   sudo $WORKSPACE/pbuilder --update --basetgz $basetgz
 fi
 
+# Copy the bullseye license to the chroot
+set +x # keep password secret
+BULLSEYE_LICENSE=`cat $HOME/bullseye-jenkins-license`
+set -x # back to debug
+
 # Boilerplate.
 # DO NOT MODIFY
 ###################################################
@@ -119,8 +124,6 @@ if ${COVERAGE_ENABLED} ; then
   # Set up the license
   echo $PATH >install-path
   rm -fr /usr/bullseyes
-  uname -a
-  file ./install
   set +x # keep password secret
   ./install --prefix /usr/bullseyes --key $BULLSEYE_LICENSE
   set -x # back to debug
