@@ -155,7 +155,7 @@ if ${COVERAGE_ENABLED} ; then
   rm -fr $WORKSPACE/coverage
   rm -fr $WORKSPACE/bullshtml
   mkdir -p $WORKSPACE/coverage
-  covselect --add '!$WORKSPACE/build/' '!../build/' '!test/' '!tools/test/' '!$WORKSPACE/deps/' '!/opt/' '!gazebo/rendering/skyx/'
+  covselect --add '!$WORKSPACE/build/' '!../build/' '!test/' '!tools/test/' '!deps/' '!/opt/' '!gazebo/rendering/skyx/'
   covhtml --srcdir $WORKSPACE/gazebo/ $WORKSPACE/coverage
   # Generate valid cover.xml file using the bullshtml software
   # java is needed to run bullshtml
@@ -166,7 +166,7 @@ if ${COVERAGE_ENABLED} ; then
   cd bullshtml
   sh bullshtml .
   # Hack to remove long paths from report
-  sed -i -e 's:$WORKSPACE/build/gazebo::g' clover.xml
+  sed -i -e 's:$WORKSPACE::g' clover.xml
 fi
 DELIM
 
