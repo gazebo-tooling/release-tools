@@ -12,7 +12,7 @@ cat > build.sh << DELIM
 set -ex
 
 # Install NoseXUnit
-sudo apt-get install --upgrade nose
+apt-get install --upgrade nose
 
 cd $WORKSPACE/cloudsim-client-tools/vrc_shaping
 nosetests --with-xunit vrc_sniffer
