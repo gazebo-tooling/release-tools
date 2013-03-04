@@ -127,7 +127,12 @@ hg clone https://bitbucket.org/osrf/$PACKAGE-release /tmp/$PACKAGE-release
 cd /tmp/$PACKAGE-release
 hg up $RELEASE_REPO_BRANCH
 cd $WORKSPACE/build/$PACKAGE-$VERSION
-cp -a /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/* .
+# cmake symlink need to specify inside contents when copied
+cp -a /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/cmake/* cmake/
+# copy rest of directories
+for d in \$(find /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY} -type d); do
+cp -a \${d} .
+done
 
 # Step 5: use debuild to create source package
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
