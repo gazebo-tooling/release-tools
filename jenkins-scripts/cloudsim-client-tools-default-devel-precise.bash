@@ -14,9 +14,10 @@ set -ex
 # Install NoseXUnit
 apt-get install -y redis-server python-redis python-nose
 
-cd $WORKSPACE/cloudsim-client-tools/vrc_shaping
-nosetests --with-xunit vrc_sniffer
-
+# Testing
+rm -fr $WORKSPACE/test_results
+mkdir -p $WORKSPACE/test_results
+nosetests --with-xunit $WORKSPACE/cloudsim-client-tools/vrc_shaping/vrc_sniffer.py
 
 #sudo apt-get install -y python openssh-client unzip zip mercurial apache2 redis-server python-pip python-redis
 #sudo pip install --upgrade boto
