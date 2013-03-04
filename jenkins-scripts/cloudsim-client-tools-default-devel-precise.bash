@@ -12,7 +12,7 @@ cat > build.sh << DELIM
 set -ex
 
 # Install NoseXUnit
-apt-get install --upgrade python-nose
+apt-get install -y python-nose
 
 cd $WORKSPACE/cloudsim-client-tools/vrc_shaping
 nosetests --with-xunit vrc_sniffer
