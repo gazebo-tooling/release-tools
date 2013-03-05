@@ -131,12 +131,12 @@ hg up $RELEASE_REPO_BRANCH
 # by symlinks (like cmake) in the repository can not be copied directly. Need special care to copy only
 # contents since trying to copy full dir will fail
 cd /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY} 
-rel_symlinks=\$(find . -type l)
-rel_dirs=\$(find . -type d)
+rel_symlinks=\$(find . -maxdepth 1 -type l)
+rel_dirs=\$(find ./* -maxdepth 1 -type d)
 # copy symlinks taking care of existing dirs
 cd $WORKSPACE/build/$PACKAGE-$VERSION
 for sym in \$rel_symlinks; do
-   if [ -f ${sym} ]; then
+   if [ -d \${sym} ]; then
      cp -a /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/\${sym}/* \${sym}/
    else
      cp -a /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/\${sym} .
