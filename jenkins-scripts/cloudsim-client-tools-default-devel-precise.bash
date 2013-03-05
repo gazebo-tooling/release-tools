@@ -12,7 +12,7 @@ cat > build.sh << DELIM
 set -ex
 
 # Install NoseXUnit
-apt-get install -y redis-server python-redis python-nose
+apt-get install -y fping redis-server python-redis python-nose
 
 # Testing
 rm -fr $WORKSPACE/test_results
