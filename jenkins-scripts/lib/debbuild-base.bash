@@ -126,12 +126,25 @@ rm -rf /tmp/$PACKAGE-release
 hg clone https://bitbucket.org/osrf/$PACKAGE-release /tmp/$PACKAGE-release
 cd /tmp/$PACKAGE-release
 hg up $RELEASE_REPO_BRANCH
+
+# Adding extra directories to code. debian has no problem but some extra directories handled
+# by symlinks (like cmake) in the repository can not be copied directly. Need special care to copy only
+# contents since trying to copy full dir will fail
+cd /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY} 
+rel_symlinks=\$(find . -type l)
+rel_dirs=\$(find . -type d)
+# copy symlinks taking care of existing dirs
 cd $WORKSPACE/build/$PACKAGE-$VERSION
-# cmake symlink need to specify inside contents when copied
-cp -a /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/cmake/* cmake/
+for sym in \$rel_symlinks; do
+   if [ -f ${sym} ]; then
+     cp -a /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/\${sym}/* \${sym}/
+   else
+     cp -a /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/\${sym} .
+   fi
+done
 # copy rest of directories
-for d in \$(find /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY} -type d); do
-cp -a \${d} .
+for dir in \$rel_dirs; do
+   cp -a /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/\${dir} .
 done
 
 # Step 5: use debuild to create source package
