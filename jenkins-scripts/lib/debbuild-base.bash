@@ -14,7 +14,7 @@ if [ -z $RELEASE_REPO_DIRECTORY ]; then
 fi;
 
 NIGHTLY_MODE=false
-if [ "${SOURCE_TARBALL_URI}" = "nightly" ]; then
+if [ "${VERSION}" = "nightly" ]; then
     NIGHTLY_MODE=true
 fi
 
