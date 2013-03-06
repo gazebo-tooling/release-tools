@@ -151,10 +151,9 @@ if $NIGHTLY_MODE; then
   TIMESTAMP=\$(date '+%Y%m%d')
   RELEASE_DATE=\$(date '+%a, %d %B %Y %T -0700')
   REV=\$(hg parents --template="{node|short}\n")
-  NIGHTLY_VERSION_SUFFIX=-\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}~${ARCH}
-  NIGHTLY_VERSION=${PACKAGE_ALIAS}-\${NIGHTLY_VERSION_SUFFIX}
+  NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}
   # Fix the changelog
-  sed -i -e 's:xxxxx:\${NIGHTLY_VERSION}:g' debian/changelog
+  sed -i -e "s/xxxxx/\${NIGHTLY_VERSION_SUFFIX}/g" debian/changelog
   sed -i -e "s/ddddd/\${RELEASE_DATE}/g" debian/changelog
   # TODO: Fix CMakeLists.txt ?
 fi
@@ -172,11 +171,11 @@ cd /var/packages/gazebo/ubuntu
 
 # Set proper package names
 if $NIGHTLY_MODE; then
-  PKG_NAME=\${NIGHTLY_VERSION}.deb
-  DBG_PKG_NAME=${PACKAGE_ALIAS}-dbg\${NIGHTLY_VERSION_SUFFIX}.deb
+  PKG_NAME=${PACKAGE_ALIAS}_\${NIGHTLY_VERSION_SUFFIX}_${ARCH}.deb
+  DBG_PKG_NAME=${PACKAGE_ALIAS}-dbg_\${NIGHTLY_VERSION_SUFFIX}_${ARCH}.deb
 else
   PKG_NAME=${PACKAGE_ALIAS}_${VERSION}-${RELEASE_VERSION}~${DISTRO}_${ARCH}.deb
-  DBG_PKG_NAME=${PACKAGE_ALIAS}-dbg-${VERSION}-${RELEASE_VERSION}~${DISTRO}_${ARCH}.deb
+  DBG_PKG_NAME=${PACKAGE_ALIAS}-dbg_${VERSION}-${RELEASE_VERSION}~${DISTRO}_${ARCH}.deb
 fi
 
 MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}_result/\${PKG_NAME}"
