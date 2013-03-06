@@ -149,11 +149,13 @@ cp -a --dereference /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/* .
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
   TIMESTAMP=\$(date '+%Y%m%d')
+  RELEASE_DATE=\$(date '+%a, %d %B %Y %T -0700')
   REV=\$(hg parents --template="{node|short}\n")
   NIGHTLY_VERSION_SUFFIX=-\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}~${ARCH}
   NIGHTLY_VERSION=${PACKAGE_ALIAS}-\${NIGHTLY_VERSION_SUFFIX}
   # Fix the changelog
   sed -i -e 's:xxxxx:\${NIGHTLY_VERSION}:g' debian/changelog
+  sed -i -e "s/ddddd/\${RELEASE_DATE}/g" debian/changelog
   # TODO: Fix CMakeLists.txt ?
 fi
 
