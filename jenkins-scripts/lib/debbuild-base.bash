@@ -134,6 +134,10 @@ fi
 rm -rf /tmp/$PACKAGE-release
 hg clone https://bitbucket.org/osrf/$PACKAGE-release /tmp/$PACKAGE-release
 cd /tmp/$PACKAGE-release
+# In nightly get the default latest version from default changelog
+if $NIGHTLY_MODE; then
+    UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${RELEASE_REPO_DIRECTORY}/debian/changelog | head -n 1)
+fi
 hg up $RELEASE_REPO_BRANCH
 
 # Adding extra directories to code. debian has no problem but some extra directories 
@@ -144,7 +148,6 @@ cp -a --dereference /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/* .
 
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
-  UPSTREAM_VERSION=1.4.0 # TODO fix this to get latest from changelog
   TIMESTAMP=\$(date '+%Y%m%d')
   REV=\$(hg parents --template="{node|short}\n")
   NIGHTLY_VERSION_SUFFIX=-\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}~${ARCH}
