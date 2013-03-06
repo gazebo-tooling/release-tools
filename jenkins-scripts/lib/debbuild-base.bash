@@ -136,25 +136,11 @@ hg clone https://bitbucket.org/osrf/$PACKAGE-release /tmp/$PACKAGE-release
 cd /tmp/$PACKAGE-release
 hg up $RELEASE_REPO_BRANCH
 
-# Adding extra directories to code. debian has no problem but some extra directories handled
-# by symlinks (like cmake) in the repository can not be copied directly. Need special care to copy only
-# contents since trying to copy full dir will fail
-cd /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY} 
-rel_symlinks=\$(find . -maxdepth 1 -type l)
-rel_dirs=\$(find ./* -maxdepth 1 -type d)
-# copy symlinks taking care of existing dirs
+# Adding extra directories to code. debian has no problem but some extra directories 
+# handled by symlinks (like cmake) in the repository can not be copied directly. 
+# Need special care to copy, using first a --dereference
 cd $WORKSPACE/build/\$PACKAGE_SRC_BUILD_DIR
-for sym in \$rel_symlinks; do
-   if [ -d \${sym} ]; then
-     cp -a /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/\${sym}/* \${sym}/
-   else
-     cp -a /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/\${sym} .
-   fi
-done
-# copy rest of directories
-for dir in \$rel_dirs; do
-   cp -a /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/\${dir} .
-done
+cp -a --dereference /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/* .
 
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
