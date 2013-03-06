@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+. ${SCRIPT_DIR}/lib/check_graphic_card.bash
+
 ###################################################
 # Boilerplate.
 # DO NOT MODIFY
