@@ -161,7 +161,7 @@ fi
 
 # Step 5: use debuild to create source package
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
-debuild -S -uc -us --source-option=--include-binaries
+debuild --no-tgz-check -S -uc -us --source-option=--include-binaries
 
 # Step 6: use pbuilder-dist to create binary package(s)
 pbuilder-dist $DISTRO $ARCH build ../*.dsc
