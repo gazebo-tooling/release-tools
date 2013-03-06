@@ -1,10 +1,13 @@
+#!/bin/bash -x
+set -e
+
 GRAPHIC_CARD_FOUND=false
 GRAPHIC_CARD_PKG=""
 
 # Check for Nvidia stuff
-NVIDIA_SUPPORT_RESULT=$(lspci -v | grep nvidia | grep "Kernel driver in use: nvidia")
+NVIDIA_SUPPORT_RESULT=$(lspci -v | grep nvidia | head -n 2 | grep "Kernel driver in use: nvidia")
 if [ -n "${NVIDIA_SUPPORT_RESULT}" ]; then
-    export GRAPHIC_CARD_PKG=$(lspci -v | grep nvidia | grep "Kernel modules:" | awk '{ print$3 }' | tr -d ','| sed -e s:_:-:)
+    export GRAPHIC_CARD_PKG=$(lspci -v | grep nvidia | head -n 2 | grep "Kernel modules:" | awk '{ print $3 }' | tr -d ','| sed -e s:_:-:)
     if [ -z ${GRAPHIC_CARD_PKG} ]; then
 	echo "Nvidia support found but not the module in use"
 	exit 1
