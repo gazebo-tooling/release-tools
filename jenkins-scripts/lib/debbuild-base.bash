@@ -136,7 +136,12 @@ hg clone https://bitbucket.org/osrf/$PACKAGE-release /tmp/$PACKAGE-release
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
-    UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${RELEASE_REPO_DIRECTORY}/debian/changelog | head -n 1)
+    # TODO: remove check when multidistribution reach default branch
+    if [ -f "${RELEASE_REPO_DIRECTORY}/debian/changelog}" ]; then
+      UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${RELEASE_REPO_DIRECTORY}/debian/changelog | head -n 1)
+    else
+      UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ubuntu/debian/changelog | head -n 1)
+    fi
 fi
 hg up $RELEASE_REPO_BRANCH
 
