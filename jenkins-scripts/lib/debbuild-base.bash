@@ -130,7 +130,7 @@ hg up $RELEASE_REPO_BRANCH
 # Adding extra directories to code. debian has no problem but some extra directories 
 # handled by symlinks (like cmake) in the repository can not be copied directly. 
 # Need special care to copy, using first a --dereference
-cd $WORKSPACE/build/\$PACKAGE_SRC_BUILD_DIR
+cd $WORKSPACE/build/$PACKAGE-$VERSION
 cp -a --dereference /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/* .
 
 # Step 5: use debuild to create source package
