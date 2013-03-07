@@ -11,6 +11,8 @@ else
     GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
 fi
 
+. ${SCRIPT_DIR}/lib/check_graphic_card.bash
+
 ###################################################
 # Boilerplate.
 # DO NOT MODIFY
@@ -79,6 +81,7 @@ else
   sudo $WORKSPACE/pbuilder --update --basetgz $basetgz
 fi
 
+
 # Boilerplate.
 # DO NOT MODIFY
 ###################################################
@@ -103,6 +106,11 @@ apt-get update
 # Required stuff for Gazebo
 # (mesa-utils is used for getting dri information)
 apt-get install -y cmake build-essential debhelper libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libcurl4-openssl-dev libtinyxml-dev libtar-dev libtbb-dev libogre-dev libxml2-dev pkg-config libqt4-dev ros-fuerte-urdfdom ros-fuerte-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck robot-player-dev libcegui-mk2-dev libavformat-dev libavcodec-dev libswscale-dev mesa-utils libbullet-dev
+
+# Optional stuff. Check for graphic card support
+if ${GRAPHIC_CARD_FOUND}; then
+    apt-get install -y ${GRAPHIC_CARD_PKG}
+fi
 
 # Step 2: configure and build
 

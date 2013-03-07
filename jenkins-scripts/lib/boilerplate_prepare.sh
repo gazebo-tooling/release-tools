@@ -10,6 +10,8 @@ if [ -z ${ROS_DISTRO} ]; then
   ROS_DISTRO=fuerte
 fi
 
+. ${SCRIPT_DIR}/lib/check_graphic_card.bash
+
 distro=${DISTRO}
 arch=amd64
 base=/var/cache/pbuilder-$distro-$arch
