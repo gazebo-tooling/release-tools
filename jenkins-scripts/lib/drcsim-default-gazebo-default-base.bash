@@ -27,20 +27,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Install drcsim's and gazebo Build-Depends
-apt-get install -y cmake debhelper ros-fuerte-pr2-mechanism ros-fuerte-std-msgs ros-fuerte-common-msgs ros-fuerte-image-common ros-fuerte-geometry ros-fuerte-pr2-controllers ros-fuerte-geometry-experimental ros-fuerte-image-pipeline build-essential  libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libcurl4-openssl-dev libtinyxml-dev libtar-dev libtbb-dev libogre-dev ros-fuerte-visualization-common libxml2-dev pkg-config libqt4-dev ros-fuerte-urdfdom ros-fuerte-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck ros-fuerte-robot-model-visualization osrf-common sandia-hand
-
-# Install Bullet from source
-apt-get install -y unzip
-BULLET_VERSION=2.81-rev2613
-wget --quiet -O $WORKSPACE/bullet-\$BULLET_VERSION.zip https://bullet.googlecode.com/files/bullet-\$BULLET_VERSION.zip
-rm -rf $WORKSPACE/bullet-\$BULLET_VERSION
-cd $WORKSPACE
-unzip $WORKSPACE/bullet-\$BULLET_VERSION.zip
-mkdir -p $WORKSPACE/bullet-build
-cd $WORKSPACE/bullet-build
-cmake -G "Unix Makefiles" -DBUILD_SHARED_LIBS=ON $WORKSPACE/bullet-\$BULLET_VERSION
-make -j3
-make install
+apt-get install -y cmake debhelper ros-fuerte-pr2-mechanism ros-fuerte-std-msgs ros-fuerte-common-msgs ros-fuerte-image-common ros-fuerte-geometry ros-fuerte-pr2-controllers ros-fuerte-geometry-experimental ros-fuerte-image-pipeline build-essential  libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libcurl4-openssl-dev libtinyxml-dev libtar-dev libtbb-dev libogre-dev libbullet-dev ros-fuerte-visualization-common libxml2-dev pkg-config libqt4-dev ros-fuerte-urdfdom ros-fuerte-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck ros-fuerte-robot-model-visualization osrf-common sandia-hand
 
 # Normal cmake routine for Gazebo
 apt-get install -y mercurial
