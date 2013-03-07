@@ -19,13 +19,18 @@ UBUNTU_ARCHS = ['amd64', 'i386']
 UBUNTU_DISTROS = ['precise']
 
 DRY_RUN = False
+NIGHTLY = False
 
 def parse_args(argv):
     global DRY_RUN
+    global NIGHTLY
+
     parser = argparse.ArgumentParser(description='Make releases.')
     parser.add_argument('package', help='which package to release')
     parser.add_argument('version', help='which version to release')
     parser.add_argument('jenkins_token', help='secret token to allow access to Jenkins to start builds')
+    parser.add_argument('--nightly', dest='nightly', action='store_true', default=False,
+                        help='Build nightly releases: do not upload tar.bz2 and values are autoconfigured')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
     parser.add_argument('-a', '--package-alias', dest='package_alias', 
@@ -41,11 +46,12 @@ def parse_args(argv):
     if not args.package_alias:
         args.package_alias = args.package
     DRY_RUN = args.dry_run
+    NIGHTLY = args.nightly
     return args
 
 def check_call(cmd):
     print('Running:\n  %s'%(' '.join(cmd)))
-    if DRY_RUN:
+    if DRY_RUN or NIGHTLY:
         return '', ''
     else:
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -102,7 +108,7 @@ def go(argv):
     # package itself doesn't know anything about this).
     if args.package != args.package_alias:
         tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
-        if not args.dry_run:
+        if (not args.dry_run) and (not args.nightly):
           shutil.copyfile(tarball_path, os.path.join(builddir, tarball_fname))
         tarball_path = os.path.join(builddir, tarball_fname)
     check_call(['scp', tarball_path, UPLOAD_DEST])
@@ -120,12 +126,13 @@ def go(argv):
     # TODO: Consider auto-updating the Ubuntu changelog.  It requires
     # cloning the <package>-release repo, making a change, and pushing it back.
     # Until we do that, the user must have first updated it manually.
-    print('\n\nReady to kick off the Ubuntu deb-builder.  Did you already update ubuntu/debian/changelog in the %s-release repo (on the %s branch)?  [y/N]'%(args.package, args. release_repo_branch))
-    answer = sys.stdin.readline().strip()
-    if answer != 'Y' and answer != 'y':
-        print('Ubuntu deb-builds were NOT started.')
-        print('Please update the changelog and try again.')
-        sys.exit(1)
+    if not args.nightly:
+        print('\n\nReady to kick off the Ubuntu deb-builder.  Did you already update ubuntu/debian/changelog in the %s-release repo (on the %s branch)?  [y/N]'%(args.package, args. release_repo_branch))
+        answer = sys.stdin.readline().strip()
+        if answer != 'Y' and answer != 'y':
+            print('Ubuntu deb-builds were NOT started.')
+            print('Please update the changelog and try again.')
+            sys.exit(1)
 
     # Kick off Jenkins jobs
     #TODO: remove TAG arg after all debbuild jobs are updated to look at SOURCE_TARBALL_URI
@@ -137,6 +144,10 @@ def go(argv):
     params['RELEASE_REPO_BRANCH'] = args.release_repo_branch
     params['PACKAGE_ALIAS'] = args.package_alias
     params['TAG'] = tag
+    if NIGHTLY:
+        params['VERSION'] = 'nightly'
+        params['SOURCE_TARBALL_URI'] = ''
+        params['RELEASE_REPO_BRANCH'] = 'nightly'
     if not args.release_version:
         args.release_version = 1
     params['RELEASE_VERSION'] = args.release_version
