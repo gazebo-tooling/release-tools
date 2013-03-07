@@ -1,14 +1,6 @@
 #!/bin/bash -x
 set -e
 
-if [ -z ${DISTRO} ]; then
-    DISTRO=precise
-fi
-
-if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=fuerte
-fi
-
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
@@ -28,6 +20,12 @@ apt-get update
 # Required stuff for Gazebo
 apt-get install -y cmake build-essential debhelper ros-${ROS_DISTRO}-ros ros-${ROS_DISTRO}-ros-comm
 . /opt/ros/${ROS_DISTRO}/setup.sh
+
+# For quantal, need to start rosdep base
+if [ "${DISTRO}" = "quantal" ]; then
+  rosdep init
+  rosdep update
+fi
 
 # Step 2: configure and build
 # Normal cmake routine for osrf-common

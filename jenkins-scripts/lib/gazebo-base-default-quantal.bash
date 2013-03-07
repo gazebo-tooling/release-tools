@@ -7,7 +7,7 @@
 #stop on error
 set -e
 
-distro=precise
+distro=quantal
 arch=amd64
 base=/var/cache/pbuilder-$distro-$arch
 
@@ -83,35 +83,29 @@ set -ex
 
 # get ROS repo's key, to be used both in installing prereqs here and in creating the pbuilder chroot
 apt-get install -y wget
-sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
+sh -c 'echo "deb http://packages.ros.org/ros/ubuntu quantal main" > /etc/apt/sources.list.d/ros-latest.list'
 wget http://packages.ros.org/ros.key -O - | apt-key add -
-# OSRF repository to get bullet
-sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu precise main" > /etc/apt/sources.list.d/drc-latest.list'
+# Get libbullet from OSRF repo
+sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu quantal main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
 # Step 1: install everything you need
-apt-get install -y cmake build-essential debhelper libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libtinyxml-dev libtar-dev libtbb-dev ros-fuerte-visualization-common libxml2-dev pkg-config libqt4-dev ros-fuerte-urdfdom ros-fuerte-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck libcurl4-gnutls-dev libdap-dev libgdal1-dev liblapack-dev liblas-dev libbullet-dev
 
-# Step 2: build and install simbody
-svn co https://simtk.org/svn/simbody/branches/Simbody3.0.1 ~/simbody
-cd ~/simbody
-mkdir build
-cd build
-cmake -DSimTK_INSTALL_PREFIX=/usr ..
-make install
+# Required stuff for Gazebo
+apt-get install -y cmake build-essential debhelper libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libcurl4-openssl-dev libtinyxml-dev libtar-dev libtbb-dev libogre-dev libxml2-dev pkg-config libqt4-dev ros-groovy-urdfdom libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck robot-player-dev libcegui-mk2-dev libavformat-dev libavcodec-dev libswscale-dev libbullet-dev
 
-# Step 3: configure and build
+# Step 2: configure and build
 
 # Normal cmake routine for Gazebo
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
-cmake -DPKG_CONFIG_PATH=/opt/ros/fuerte/lib/pkgconfig:/opt/ros/fuerte/stacks/visualization_common/ogre/ogre/lib/pkgconfig -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install -DSimTK_INSTALL_PREFIX=/usr -DCMAKE_MODULE_PATH=/usr/share/cmake $WORKSPACE/gazebo
-make -j3
+CMAKE_PREFIX_PATH=/opt/ros/groovy cmake -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/gazebo
+make -j1
 make install
-. $WORKSPACE/install/share/gazebo-1.*/setup.sh
-LD_LIBRARY_PATH=/opt/ros/fuerte/lib:/opt/ros/fuerte/stacks/visualization_common/ogre/ogre/lib make test ARGS="-VV" || true
+. /usr/share/gazebo/setup.sh
+LD_LIBRARY_PATH=/opt/ros/groovy/lib make test ARGS="-VV" || true
 
 # Step 3: code check
 cd $WORKSPACE/gazebo

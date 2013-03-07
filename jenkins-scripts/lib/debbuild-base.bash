@@ -1,5 +1,18 @@
 #!/bin/bash -x
 
+# DISTRO is passed as a jenkins job parameter. If not set up
+# default to precise
+if [ -z $DISTRO ]; then
+    DISTRO=precise
+fi;
+
+# RELEASE_REPO_DIRECTORY control the migration from single distribution
+# to multidistribution. If not set, go for ubuntu in single distribution
+# mode
+if [ -z $RELEASE_REPO_DIRECTORY ]; then
+    RELEASE_REPO_DIRECTORY=ubuntu
+fi;
+
 ###################################################
 # Boilerplate.
 # DO NOT MODIFY
@@ -7,8 +20,8 @@
 #stop on error
 set -e
 
-distro=precise
-arch=amd64
+distro=$DISTRO
+arch=$ARCH
 base=/var/cache/pbuilder-$distro-$arch
 
 aptconffile=$WORKSPACE/apt.conf
@@ -82,18 +95,18 @@ cat > build.sh << DELIM
 set -ex
 
 # Install deb-building tools
-apt-get install -y pbuilder debootstrap devscripts ubuntu-dev-tools mercurial debhelper reprepro wget
+apt-get install -y pbuilder fakeroot debootstrap devscripts ubuntu-dev-tools mercurial debhelper reprepro wget
 
 # get ROS repo's key, to be used in creating the pbuilder chroot (to allow it to install packages from that repo)
-sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
+sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $DISTRO main" > /etc/apt/sources.list.d/ros-latest.list'
 wget http://packages.ros.org/ros.key -O - | apt-key add -
 # Also get drc repo's key, to be used in getting Gazebo
-sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu precise main" > /etc/apt/sources.list.d/drc-latest.list'
+sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
 # Step 0: create/update distro-specific pbuilder environment
-pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.ros.org/ros/ubuntu precise main|deb http://packages.osrfoundation.org/drc/ubuntu precise main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
 
 # Step 0: Clean up
 rm -rf $WORKSPACE/build
@@ -113,12 +126,16 @@ rm -rf /tmp/$PACKAGE-release
 hg clone https://bitbucket.org/osrf/$PACKAGE-release /tmp/$PACKAGE-release
 cd /tmp/$PACKAGE-release
 hg up $RELEASE_REPO_BRANCH
+
+# Adding extra directories to code. debian has no problem but some extra directories 
+# handled by symlinks (like cmake) in the repository can not be copied directly. 
+# Need special care to copy, using first a --dereference
 cd $WORKSPACE/build/$PACKAGE-$VERSION
-cp -a /tmp/$PACKAGE-release/ubuntu/* .
+cp -a --dereference /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/* .
 
 # Step 5: use debuild to create source package
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
-debuild -S -uc -us
+debuild -S -uc -us --source-option=--include-binaries
 
 # Step 6: use pbuilder-dist to create binary package(s)
 pbuilder-dist $DISTRO $ARCH build ../*.dsc
@@ -127,9 +144,11 @@ pbuilder-dist $DISTRO $ARCH build ../*.dsc
 sudo apt-get install -y openssh-client
 cd /var/packages/gazebo/ubuntu
 
-MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/${PACKAGE_ALIAS}_${VERSION}${UBUNTU_VERSION}_$ARCH.deb /var/lib/jenkins/pbuilder/${DISTRO}_result/${PACKAGE_ALIAS}_${VERSION}${UBUNTU_VERSION}_$ARCH.deb"
+PKG_NAME=${PACKAGE_ALIAS}_${VERSION}-${RELEASE_VERSION}~${DISTRO}_${ARCH}.deb
+DBG_PKG_NAME=${PACKAGE_ALIAS}-dbg_${VERSION}-${RELEASE_VERSION}~${DISTRO}_${ARCH}.deb
 
-DEBUG_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/${PACKAGE_ALIAS}-dbg_${VERSION}${UBUNTU_VERSION}_$ARCH.deb /var/lib/jenkins/pbuilder/${DISTRO}_result/${PACKAGE_ALIAS}-dbg_${VERSION}${UBUNTU_VERSION}_$ARCH.deb"
+MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}_result/\${PKG_NAME}"
+DEBUG_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${DBG_PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}_result/\${DBG_PKG_NAME}"
 
 FOUND_PKG=0
 for pkg in \${MAIN_PKGS}; do
@@ -149,7 +168,7 @@ for pkg in \${DEBUG_PKGS}; do
     if [ -f \${pkg} ]; then
         # Check for correctly generated debug packages size > 2Kb
         # when not valid instructions in rules/control it generates 1.5K package
-        test -z \$(find \$pkg -size +2k) && exit -1
+        test -z \$(find \$pkg -size +2k) && exit 1
         GNUPGHOME=$WORKSPACE/gnupg reprepro includedeb $DISTRO \${pkg}
         scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa \${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
         FOUND_PKG=1
