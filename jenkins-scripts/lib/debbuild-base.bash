@@ -138,6 +138,8 @@ cp -a --dereference /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/* .
 debuild -S -uc -us --source-option=--include-binaries
 
 if [ $DISTRO = quantal ]; then
+PBUILD_DIR=\$HOME/.pbuilder
+mkdir -p \$PBUILD_DIR
 cat > \$PBUILD_DIR/A10_run_rosdep << DELIM_ROS_DEP
 #!/bin/sh
 
