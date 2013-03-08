@@ -35,8 +35,8 @@ basetgz=$base/base-$basetgz_version.tgz
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
-sudo apt-get update
-sudo apt-get install -y pbuilder python-empy python-argparse debhelper # todo move to server setup, or confirm it's there
+#sudo apt-get update
+#sudo apt-get install -y pbuilder python-empy python-argparse debhelper # todo move to server setup, or confirm it's there
 
 if [ -e $WORKSPACE/catkin-debs ]
 then
