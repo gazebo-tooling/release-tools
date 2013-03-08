@@ -21,14 +21,14 @@ set -ex
 apt-get install -y wget
 sh -c 'echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/ros-latest.list'
 wget http://packages.ros.org/ros.key -O - | apt-key add -
-sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu precise main" > /etc/apt/sources.list.d/drc-latest.list'
+sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
 # Step 1: install everything you need
 
 # Required stuff for Gazebo
-apt-get install -y cmake build-essential debhelper ros-fuerte-xacro ros-fuerte-ros osrf-common libboost-dev ros-fuerte-image-common ros-fuerte-ros-comm ros-fuerte-common-msgs
+apt-get install -y cmake build-essential debhelper ros-${ROS_DISTRO}-xacro ros-${ROS_DISTRO}-ros osrf-common libboost-dev ros-${ROS_DISTRO}-image-common ros-${ROS_DISTRO}-ros-comm ros-${ROS_DISTRO}-common-msgs
 . /opt/ros/${ROS_DISTRO}/setup.sh
 
 # Step 2: configure and build
@@ -39,10 +39,10 @@ rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 ls $WORKSPACE
-CMAKE_PREFIX_PATH=/opt/ros/fuerte cmake -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/sandia-hand
+CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO} cmake -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/sandia-hand
 make -j3
 make install
-LD_LIBRARY_PATH=/opt/ros/fuerte/lib make test ARGS="-VV" || true
+LD_LIBRARY_PATH=/opt/ros/${ROS_DISTRO}/lib make test ARGS="-VV" || true
 DELIM
 
 # Make project-specific changes here
