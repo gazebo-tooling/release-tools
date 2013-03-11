@@ -32,6 +32,11 @@ apt-get update
 # Install drcsim's and gazebo Build-Depends
 apt-get install -y cmake debhelper ros-fuerte-pr2-mechanism ros-fuerte-std-msgs ros-fuerte-common-msgs ros-fuerte-image-common ros-fuerte-geometry ros-fuerte-pr2-controllers ros-fuerte-geometry-experimental ros-fuerte-image-pipeline build-essential  libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libcurl4-openssl-dev libtinyxml-dev libtar-dev libtbb-dev libogre-dev libbullet-dev ros-fuerte-visualization-common libxml2-dev pkg-config libqt4-dev ros-fuerte-urdfdom ros-fuerte-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck ros-fuerte-robot-model-visualization osrf-common sandia-hand
 
+# Optional stuff. Check for graphic card support
+if ${GRAPHIC_CARD_FOUND}; then
+    apt-get install -y ${GRAPHIC_CARD_PKG}
+fi
+
 # Normal cmake routine for Gazebo
 apt-get install -y mercurial
 rm -fr $WORKSPACE/gazebo
