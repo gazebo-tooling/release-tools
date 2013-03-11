@@ -1,5 +1,8 @@
 #!/bin/bash -x
 
+# Use always DISPLAY in drcsim project
+export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
@@ -42,7 +45,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install $WORKSPACE/drcsim
 make -j3
 make install
 SHELL=/bin/sh . $WORKSPACE/install/share/drcsim/setup.sh
-DISPLAY=:0 ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-VV" || true
+ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-VV" || true
 ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results rosrun rosunit clean_junit_xml.py
 
 # Step 3: code check
