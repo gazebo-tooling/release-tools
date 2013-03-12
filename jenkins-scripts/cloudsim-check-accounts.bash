@@ -22,7 +22,7 @@ pip install --upgrade boto
 # Testing
 cd $WORKSPACE/cloudsim
 set +x # keep password secret
-./bin/cloud-check.py $WORKSPACE/aws_accounts.yaml jrivero@osrfoundation.org 24 osrfbuild@osrfoundation.org $MAIL_PASS
+./bin/cloud-check.py $WORKSPACE/aws_accounts.yaml caguero@osrfoundation.org 24 osrfbuild@osrfoundation.org $MAIL_PASS
 set -x # back to debug
 DELIM
 
