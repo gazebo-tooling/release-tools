@@ -41,7 +41,7 @@ fi
 # Step 2: configure and build
 
 if [ $DISTRO = quantal ]; then
-    rosdep init && rodep update
+    rosdep init && rosdep update
 fi
 
 # Normal cmake routine
