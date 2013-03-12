@@ -16,7 +16,7 @@ cat > build.sh << DELIM
 set -ex
 
 # Install dependencies
-apt-get install -y python-pip
+apt-get install -y python-pip python-yaml
 pip install --upgrade boto
 
 # Testing
