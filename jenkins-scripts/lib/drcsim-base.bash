@@ -40,6 +40,10 @@ fi
 
 # Step 2: configure and build
 
+if [ $DISTRO = quantal ]; then
+    rosdep init && rodep update
+fi
+
 # Normal cmake routine
 . /opt/ros/${ROS_DISTRO}/setup.sh
 . /usr/share/gazebo/setup.sh
