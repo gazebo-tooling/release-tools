@@ -26,9 +26,6 @@ set +x # keep password secret
 set -x # back to debug
 DELIM
 
-# Copy in my boto config file, to allow launching of AWS machines.
-cp $HOME/boto.test-osrfoundation.org $WORKSPACE/boto.ini
-
 # Make project-specific changes here
 ###################################################
 
