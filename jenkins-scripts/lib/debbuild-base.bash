@@ -137,7 +137,7 @@ cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
     # TODO: remove check when multidistribution reach default branch
-    if [ -f "${RELEASE_REPO_DIRECTORY}/debian/changelog}" ]; then
+    if [ -f "${RELEASE_REPO_DIRECTORY}/debian/changelog" ]; then
       UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${RELEASE_REPO_DIRECTORY}/debian/changelog | head -n | tr -d ' ')
     else
       UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ubuntu/debian/changelog | head -n 1 | tr -d ' ')
