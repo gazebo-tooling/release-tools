@@ -50,8 +50,10 @@ def parse_args(argv):
     return args
 
 def check_call(cmd):
+    if NIGHTLY:
+        return '',''
     print('Running:\n  %s'%(' '.join(cmd)))
-    if DRY_RUN or NIGHTLY:
+    if DRY_RUN:
         return '', ''
     else:
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
