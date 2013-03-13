@@ -38,7 +38,7 @@ if ${GRAPHIC_CARD_FOUND}; then
 fi
 
 # Normal cmake routine for Gazebo
-apt-get install -y mercurial
+apt-get install -y mercurial ca-certificates
 rm -fr $WORKSPACE/gazebo
 hg clone https://bitbucket.org/osrf/gazebo $WORKSPACE/gazebo
 
