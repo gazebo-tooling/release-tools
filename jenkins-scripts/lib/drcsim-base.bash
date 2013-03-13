@@ -1,5 +1,8 @@
 #!/bin/bash -x
 
+# Use always DISPLAY in drcsim project
+export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
@@ -30,7 +33,16 @@ fi;
 # Install drcsim's Build-Depends
 apt-get install -y cmake debhelper ros-${ROS_DISTRO}-pr2-mechanism ros-${ROS_DISTRO}-std-msgs ros-${ROS_DISTRO}-common-msgs ros-${ROS_DISTRO}-image-common ros-${ROS_DISTRO}-geometry ros-${ROS_DISTRO}-pr2-controllers ros-${ROS_DISTRO}-geometry-experimental ros-${ROS_DISTRO}-robot-model-visualization ros-${ROS_DISTRO}-image-pipeline ros-${ROS_DISTRO}-console-bridge osrf-common sandia-hand \$GAZEBO_DEB_PACKAGE
 
+# Optional stuff. Check for graphic card support
+if ${GRAPHIC_CARD_FOUND}; then
+    apt-get install -y ${GRAPHIC_CARD_PKG}
+fi
+
 # Step 2: configure and build
+
+if [ $DISTRO = quantal ]; then
+    rosdep init && rosdep update
+fi
 
 # Normal cmake routine
 . /opt/ros/${ROS_DISTRO}/setup.sh
@@ -42,7 +54,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install $WORKSPACE/drcsim
 make -j3
 make install
 SHELL=/bin/sh . $WORKSPACE/install/share/drcsim/setup.sh
-DISPLAY=:0 ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-VV" || true
+ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-VV" || true
 ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results rosrun rosunit clean_junit_xml.py
 
 # Step 3: code check

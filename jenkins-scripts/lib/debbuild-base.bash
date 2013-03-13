@@ -40,8 +40,8 @@ basetgz=$base/base-$basetgz_version.tgz
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
-sudo apt-get update
-sudo apt-get install -y pbuilder python-empy python-argparse debhelper # todo move to server setup, or confirm it's there
+#sudo apt-get update
+#sudo apt-get install -y pbuilder python-empy python-argparse debhelper # todo move to server setup, or confirm it's there
 
 if [ -e $WORKSPACE/catkin-debs ]
 then
@@ -166,6 +166,23 @@ fi
 # Step 5: use debuild to create source package
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
 debuild --no-tgz-check -S -uc -us --source-option=--include-binaries
+
+if [ $PACKAGE != gazebo ]; then
+  if [ $DISTRO = quantal ]; then
+PBUILD_DIR=\$HOME/.pbuilder
+mkdir -p \$PBUILD_DIR
+cat > \$PBUILD_DIR/A10_run_rosdep << DELIM_ROS_DEP
+#!/bin/sh
+
+# root share the same /tmp/buildd HOME than pbuilder user. Need to specify the root
+# HOME=/root otherwise it will make cache created during ros call forbidden to 
+# access to pbuilder user.
+HOME=/root rosdep init
+DELIM_ROS_DEP
+chmod a+x \$PBUILD_DIR/A10_run_rosdep
+echo "HOOKDIR=\$PBUILD_DIR" > \$HOME/.pbuilderrc
+  fi
+fi
 
 # Step 6: use pbuilder-dist to create binary package(s)
 pbuilder-dist $DISTRO $ARCH build ../*.dsc
