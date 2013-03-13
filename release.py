@@ -148,6 +148,9 @@ def go(argv):
         params['VERSION'] = 'nightly'
         params['SOURCE_TARBALL_URI'] = ''
         params['RELEASE_REPO_BRANCH'] = 'nightly'
+        # FAKE! TODO! REMOVE!
+        JOB_NAME_PATTERN = '%s-fake-debbuild'
+
     if not args.release_version:
         args.release_version = 1
     params['RELEASE_VERSION'] = args.release_version
