@@ -77,7 +77,7 @@ if $NIGHTLY_MODE; then
   TIMESTAMP=\$(date '+%Y%m%d')
   RELEASE_DATE=\$(date '+%a, %d %B %Y %T -0700')
   REV=\$(hg parents --template="{node|short}\n")
-  NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}
+  NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}~${DISTRO}
   # Fix the changelog
   sed -i -e "s/xxxxx/\${NIGHTLY_VERSION_SUFFIX}/g" debian/changelog
   sed -i -e "s/ddddd/\${RELEASE_DATE}/g" debian/changelog
