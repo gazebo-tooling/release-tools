@@ -6,4 +6,8 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 # Hack to pick from current processes the DISPLAY available
 export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+
+export DISTRO=precise
+export ROS_DISTRO=fuerte
+
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash
