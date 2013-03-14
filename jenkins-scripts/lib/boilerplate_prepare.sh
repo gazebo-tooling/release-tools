@@ -30,21 +30,11 @@ work_dir=$WORKSPACE/work
 sudo apt-get update
 sudo apt-get install -y pbuilder python-empy python-argparse debhelper # todo move to server setup, or confirm it's there
 
-if [ -e $WORKSPACE/catkin-debs ]
-then
-  rm -rf $WORKSPACE/catkin-debs
-fi
-
-git clone git://github.com/willowgarage/catkin-debs.git $WORKSPACE/catkin-debs -b master --depth 1
-
-
-cd $WORKSPACE/catkin-debs
-. setup.sh
-
 #setup the cross platform apt environment
 # using sudo since this is shared with pbuilder and if pbuilder is interupted it will leave a sudo only lock file.  Otherwise sudo is not necessary. 
-# And you can't chown it even with sudo and recursive 
-sudo PYTHONPATH=$PYTHONPATH $WORKSPACE/catkin-debs/scripts/setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE --repo ros@http://packages.ros.org/ros/ubuntu
+# And you can't chown it even with sudo and recursive
+cd $WORKSPACE/scripts/catkin-debs/
+sudo ./setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE --repo ros@http://packages.ros.org/ros/ubuntu
 
 sudo rm -rf $output_dir
 mkdir -p $output_dir
