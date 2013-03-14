@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 
-# Imported script from github on March 14
-# Modify to not use the internal ros repo at 50.28.27.175
-
 from __future__ import print_function
 import argparse
 
-import apt_root
+import buildfarm.apt_root
 
 def parse_options():
     parser = argparse.ArgumentParser(
@@ -14,7 +11,7 @@ def parse_options():
     parser.add_argument('--mirror', dest='mirror', action='store', default='http://us.archive.ubuntu.com/ubuntu/',
            help='The url for the default repo, like --mirror to debootstrap')
     parser.add_argument('--repo', dest='repo_urls', action='append',metavar=['REPO_NAME@REPO_URL'],
-           help='The name for the source and the url such as ros@http://packages.ros.org/ros/ubuntu')
+           help='The name for the source and the url such as ros@http://50.28.27.175/repos/building')
     parser.add_argument(dest='distro',
            help='The debian release distro, lucid, oneiric, etc')
     parser.add_argument(dest='architecture',
@@ -28,7 +25,7 @@ def parse_options():
 
     if not args.repo_urls:
         #default to devel machine for now
-        args.repo_urls = ['ros@http://packages.ros.org/ros/ubuntu']
+        args.repo_urls = ['ros@http://50.28.27.175/repos/building']
 
     for a in args.repo_urls:
         if not '@' in a:
