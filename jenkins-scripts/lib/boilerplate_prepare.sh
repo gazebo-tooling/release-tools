@@ -33,7 +33,8 @@ sudo apt-get install -y pbuilder python-empy python-argparse debhelper # todo mo
 #setup the cross platform apt environment
 # using sudo since this is shared with pbuilder and if pbuilder is interupted it will leave a sudo only lock file.  Otherwise sudo is not necessary. 
 # And you can't chown it even with sudo and recursive
-sudo $WORKSPACE/scripts/catkin-debs/setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE --repo ros@http://packages.ros.org/ros/ubuntu
+cd $WORKSPACE/scripts/catkin-debs/
+sudo ./setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE --repo ros@http://packages.ros.org/ros/ubuntu
 
 sudo rm -rf $output_dir
 mkdir -p $output_dir
