@@ -32,7 +32,7 @@ DELIM
 rm -fr $WORKSPACE/aws_accounts.yaml
 cp -a $HOME/aws_accounts.yaml $WORKSPACE/aws_accounts.yaml
 
-sudo $WORKSPACE/pbuilder  --execute \
+sudo pbuilder  --execute \
     --bindmounts $WORKSPACE \
     --basetgz $basetgz \
     -- build.sh

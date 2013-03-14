@@ -52,7 +52,7 @@ DELIM
 # Make project-specific changes here
 ###################################################
 
-sudo $WORKSPACE/pbuilder  --execute \
+sudo pbuilder  --execute \
     --bindmounts $WORKSPACE \
     --basetgz $basetgz \
     -- build.sh
