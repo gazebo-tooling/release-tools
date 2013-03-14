@@ -45,23 +45,17 @@ cd $work_dir
 
 sudo apt-get update -c $aptconffile
 
-# Grab a newer version of pbuilder, because the one that ships with Lucid suffers from a bug when using --execute
-# https://bugs.launchpad.net/ubuntu/+source/pbuilder/+bug/811016
-rm -f $WORKSPACE/pbuilder
-wget -O $WORKSPACE/pbuilder http://bazaar.launchpad.net/~vcs-imports/pbuilder/trunk/download/head:/pbuilder/pbuilder
-chmod a+x $WORKSPACE/pbuilder
-
 # Setup the pbuilder environment if not existing, or update
 if [ ! -e $basetgz ] || [ ! -s $basetgz ] 
 then
   #make sure the base dir exists
   sudo mkdir -p $base
   #create the base image
-  sudo $WORKSPACE/pbuilder create \
+  sudo pbuilder create \
     --distribution $distro \
     --aptconfdir $rootdir/etc/apt \
     --basetgz $basetgz \
     --architecture $arch
 else
-  sudo $WORKSPACE/pbuilder --update --basetgz $basetgz
+  sudo pbuilder --update --basetgz $basetgz
 fi
