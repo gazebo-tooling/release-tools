@@ -21,8 +21,8 @@ apt-get install -y python openssh-client unzip zip mercurial apache2 redis-serve
 pip install --upgrade boto
 
 pip install unittest-xml-reporting 
-apt-get install cmake 
-apt-get install python-software-properties
+apt-get install -y cmake 
+apt-get install -y python-software-properties
 
 
 # run redis-server as it does not seem to start on its own
