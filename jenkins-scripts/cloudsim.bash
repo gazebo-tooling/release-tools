@@ -17,12 +17,12 @@ cat > build.sh << DELIM
 set -ex
 
 
-sudo apt-get install -y python openssh-client unzip zip mercurial apache2 redis-server python-pip python-redis
-sudo pip install --upgrade boto
+apt-get install -y python openssh-client unzip zip mercurial apache2 redis-server python-pip python-redis
+pip install --upgrade boto
 
-sudo pip install unittest-xml-reporting 
-sudo apt-get install cmake 
-sudo apt-get install python-software-properties
+pip install unittest-xml-reporting 
+apt-get install cmake 
+apt-get install python-software-properties
 
 
 # run redis-server as it does not seem to start on its own
