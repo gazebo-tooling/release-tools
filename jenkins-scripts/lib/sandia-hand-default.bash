@@ -27,8 +27,7 @@ apt-get update
 
 # Step 1: install everything you need
 
-# Required stuff for Gazebo
-apt-get install -y cmake build-essential debhelper ros-${ROS_DISTRO}-xacro ros-${ROS_DISTRO}-ros osrf-common libboost-dev ros-${ROS_DISTRO}-image-common ros-${ROS_DISTRO}-ros-comm ros-${ROS_DISTRO}-common-msgs
+apt-get install -y cmake build-essential debhelper ros-${ROS_DISTRO}-xacro ros-${ROS_DISTRO}-ros osrf-common libboost-dev ros-${ROS_DISTRO}-image-common ros-${ROS_DISTRO}-ros-comm ros-${ROS_DISTRO}-common-msgs libqt4-dev
 
 if [ $DISTRO = quantal ]; then
     rosdep init && rosdep update
