@@ -18,10 +18,11 @@ cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
 #
+#!/usr/bin/env bash
 set -ex
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts ubuntu-dev-tools mercurial debhelper reprepro wget
+apt-get install -y pbuilder fakeroot debootstrap devscripts ubuntu-dev-tools mercurial debhelper reprepro wget bash
 
 # get ROS repo's key, to be used in creating the pbuilder chroot (to allow it to install packages from that repo)
 sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $DISTRO main" > /etc/apt/sources.list.d/ros-latest.list'
