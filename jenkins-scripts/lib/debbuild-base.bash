@@ -131,8 +131,7 @@ for pkg in \${MAIN_PKGS}; do
         echo "found \$pkg"
 	# Check for correctly generated packages size > 3Kb
         test -z \$(find \$pkg -size +3k) && exit 1
-        GNUPGHOME=$WORKSPACE/gnupg reprepro includedeb $DISTRO \${pkg}
-        scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa \${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
+        ls -lash \${pkg}
         FOUND_PKG=1
         break;
     fi
@@ -145,8 +144,7 @@ for pkg in \${DEBUG_PKGS}; do
         # Check for correctly generated debug packages size > 3Kb
         # when not valid instructions in rules/control it generates 1.5K package
         test -z \$(find \$pkg -size +3k) && exit 1
-        GNUPGHOME=$WORKSPACE/gnupg reprepro includedeb $DISTRO \${pkg}
-        scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa \${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
+        ls -lash \${pkg}
         FOUND_PKG=1
         break;
     fi
