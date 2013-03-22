@@ -118,7 +118,7 @@ if ${COVERAGE_ENABLED} ; then
   # Download and install Bullseyes
   cd $WORKSPACE
   rm -fr $WORKSPACE/Bulls*
-  wget http://www.bullseye.com/download/BullseyeCoverage-8.7.45-Linux-x64.tar -O bullseye.tar
+  wget http://www.bullseye.com/download/BullseyeCoverage-8.7.52-Linux-x64.tar -O bullseye.tar
   tar -xf bullseye.tar
   cd Bulls*
   # Set up the license
