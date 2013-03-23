@@ -27,8 +27,13 @@ basetgz=$base/base-$basetgz_version.tgz
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
-sudo apt-get update
-sudo apt-get install -y pbuilder python-empy python-argparse debhelper # todo move to server setup, or confirm it's there
+NEEDED_HOST_PACKAGES="pbuilder python-empy python-argparse debhelper"
+# Check if they are already installed in the host
+QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1)
+if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
+  sudo apt-get update
+  sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
+fi
 
 #setup the cross platform apt environment
 # using sudo since this is shared with pbuilder and if pbuilder is interupted it will leave a sudo only lock file.  Otherwise sudo is not necessary. 
