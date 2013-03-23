@@ -21,7 +21,7 @@ cat > build.sh << DELIM
 set -ex
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts ubuntu-dev-tools mercurial debhelper reprepro wget
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools mercurial debhelper reprepro wget
 
 # get ROS repo's key, to be used in creating the pbuilder chroot (to allow it to install packages from that repo)
 sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $DISTRO main" > /etc/apt/sources.list.d/ros-latest.list'
@@ -70,6 +70,13 @@ hg up $RELEASE_REPO_BRANCH
 # handled by symlinks (like cmake) in the repository can not be copied directly. 
 # Need special care to copy, using first a --dereference
 cd $WORKSPACE/build/\$PACKAGE_SRC_BUILD_DIR
+
+# If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
+if $NIGHTLY_MODE; then
+  rm -fr .hg*
+  echo | dh_make -s --createorig -p ${PACKAGE_ALIAS}_\${NIGHTLY_VERSION_SUFFIX} > /dev/null
+fi
+
 cp -a --dereference /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/* .
 
 # [nightly] Adjust version in nightly mode
