@@ -43,7 +43,7 @@ cd $WORKSPACE/build
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
   apt-get install -y mercurial
-  hg clone https://bitbucket.org/osrf/$PACKAGE
+  hg clone https://bitbucket.org/osrf/$PACKAGE -b testing_cmake_fix
   PACKAGE_SRC_BUILD_DIR=$PACKAGE
 else
   wget --quiet -O ${PACKAGE_ALIAS}_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
@@ -54,7 +54,7 @@ fi
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
 rm -rf /tmp/$PACKAGE-release
-hg clone https://bitbucket.org/osrf/$PACKAGE-release /tmp/$PACKAGE-release -b testing_cmake_fix
+hg clone https://bitbucket.org/osrf/$PACKAGE-release /tmp/$PACKAGE-release 
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
