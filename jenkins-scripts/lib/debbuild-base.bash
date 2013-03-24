@@ -54,7 +54,7 @@ fi
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
 rm -rf /tmp/$PACKAGE-release
-hg clone https://bitbucket.org/osrf/$PACKAGE-release /tmp/$PACKAGE-release
+hg clone https://bitbucket.org/osrf/$PACKAGE-release /tmp/$PACKAGE-release -b testing_cmake_fix
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
