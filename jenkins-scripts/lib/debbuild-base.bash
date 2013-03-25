@@ -53,7 +53,7 @@ fi
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
 rm -rf /tmp/$PACKAGE-release
-hg clone https://bitbucket.org/osrf/$PACKAGE-release /tmp/$PACKAGE-release
+hg clone https://bitbucket.org/osrf/$PACKAGE-release /tmp/$PACKAGE-release 
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
@@ -66,19 +66,7 @@ if $NIGHTLY_MODE; then
 fi
 hg up $RELEASE_REPO_BRANCH
 
-# Adding extra directories to code. debian has no problem but some extra directories 
-# handled by symlinks (like cmake) in the repository can not be copied directly. 
-# Need special care to copy, using first a --dereference
-cd $WORKSPACE/build/\$PACKAGE_SRC_BUILD_DIR
-
-# If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
-if $NIGHTLY_MODE; then
-  rm -fr .hg*
-  echo | dh_make -s --createorig -p ${PACKAGE_ALIAS}_\${NIGHTLY_VERSION_SUFFIX} > /dev/null
-fi
-
-cp -a --dereference /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/* .
-
+cd /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
   TIMESTAMP=\$(date '+%Y%m%d')
@@ -90,6 +78,18 @@ if $NIGHTLY_MODE; then
   sed -i -e "s/ddddd/\${RELEASE_DATE}/g" debian/changelog
   # TODO: Fix CMakeLists.txt ?
 fi
+
+cd $WORKSPACE/build/\$PACKAGE_SRC_BUILD_DIR
+# If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
+if $NIGHTLY_MODE; then
+  rm -fr .hg*
+  echo | dh_make -s --createorig -p ${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV} > /dev/null
+fi
+
+# Adding extra directories to code. debian has no problem but some extra directories 
+# handled by symlinks (like cmake) in the repository can not be copied directly. 
+# Need special care to copy, using first a --dereference
+cp -a --dereference /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/* .
 
 # Step 5: use debuild to create source package
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
