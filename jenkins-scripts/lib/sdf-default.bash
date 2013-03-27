@@ -24,6 +24,7 @@ make test ARGS="-VV" || true
 # Step 3: code check
 cd $WORKSPACE/sdf
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+cat $WORKSPACE/build/cppcheck_results/*.xml
 DELIM
 
 # Make project-specific changes here
