@@ -10,7 +10,7 @@ cat > build.sh << DELIM
 set -ex
 
 # Step 1: install everything you need
-apt-get install -y cmake build-essential libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev libtinyxml-dev
+apt-get install -y cmake build-essential libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev libtinyxml-dev cppcheck
 
 # Step 2: configure and build
 rm -rf $WORKSPACE/build
@@ -20,6 +20,10 @@ cmake $WORKSPACE/sdf
 make -j3
 make install
 make test ARGS="-VV" || true
+
+# Step 3: code check
+cd $WORKSPACE/gazebo
+sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
 DELIM
 
 # Make project-specific changes here
