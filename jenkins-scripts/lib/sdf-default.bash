@@ -16,7 +16,7 @@ apt-get install -s cmake build-essential libboost-system-dev libboost-filesystem
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-which cmake
+ls -las /usr/bin/cmake
 cmake $WORKSPACE/sdf
 make -j3
 make install
