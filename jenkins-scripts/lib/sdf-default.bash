@@ -22,7 +22,7 @@ make install
 make test ARGS="-VV" || true
 
 # Step 3: code check
-cd $WORKSPACE/gazebo
+cd $WORKSPACE/sdf
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
 DELIM
 
