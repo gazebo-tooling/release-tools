@@ -10,13 +10,12 @@ cat > build.sh << DELIM
 set -ex
 
 # Step 1: install everything you need
-apt-get install -s cmake build-essential libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev libtinyxml-dev
+apt-get install -y cmake build-essential libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev libtinyxml-dev
 
 # Step 2: configure and build
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-dpkg -L cmake
 cmake $WORKSPACE/sdf
 make -j3
 make install
