@@ -40,6 +40,10 @@ fi
 
 # Step 2: configure and build
 
+if [ $DISTRO = quantal ]; then
+    rosdep init && rosdep update
+fi
+
 # Normal cmake routine
 . /opt/ros/${ROS_DISTRO}/setup.sh
 . /usr/share/gazebo/setup.sh
@@ -64,7 +68,7 @@ DELIM
 # Make project-specific changes here
 ###################################################
 
-sudo $WORKSPACE/pbuilder  --execute \
+sudo pbuilder  --execute \
     --bindmounts $WORKSPACE \
     --basetgz $basetgz \
     -- build.sh

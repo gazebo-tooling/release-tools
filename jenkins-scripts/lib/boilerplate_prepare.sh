@@ -27,24 +27,19 @@ basetgz=$base/base-$basetgz_version.tgz
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
-sudo apt-get update
-sudo apt-get install -y pbuilder python-empy python-argparse debhelper # todo move to server setup, or confirm it's there
-
-if [ -e $WORKSPACE/catkin-debs ]
-then
-  rm -rf $WORKSPACE/catkin-debs
+NEEDED_HOST_PACKAGES="pbuilder python-empy python-argparse debhelper"
+# Check if they are already installed in the host
+QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1)
+if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
+  sudo apt-get update
+  sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
-
-git clone git://github.com/willowgarage/catkin-debs.git $WORKSPACE/catkin-debs -b master --depth 1
-
-
-cd $WORKSPACE/catkin-debs
-. setup.sh
 
 #setup the cross platform apt environment
 # using sudo since this is shared with pbuilder and if pbuilder is interupted it will leave a sudo only lock file.  Otherwise sudo is not necessary. 
-# And you can't chown it even with sudo and recursive 
-sudo PYTHONPATH=$PYTHONPATH $WORKSPACE/catkin-debs/scripts/setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE --repo ros@http://packages.ros.org/ros/ubuntu
+# And you can't chown it even with sudo and recursive
+cd $WORKSPACE/scripts/catkin-debs/
+sudo ./setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE --repo ros@http://packages.ros.org/ros/ubuntu
 
 sudo rm -rf $output_dir
 mkdir -p $output_dir
@@ -55,23 +50,17 @@ cd $work_dir
 
 sudo apt-get update -c $aptconffile
 
-# Grab a newer version of pbuilder, because the one that ships with Lucid suffers from a bug when using --execute
-# https://bugs.launchpad.net/ubuntu/+source/pbuilder/+bug/811016
-rm -f $WORKSPACE/pbuilder
-wget -O $WORKSPACE/pbuilder http://bazaar.launchpad.net/~vcs-imports/pbuilder/trunk/download/head:/pbuilder/pbuilder
-chmod a+x $WORKSPACE/pbuilder
-
 # Setup the pbuilder environment if not existing, or update
 if [ ! -e $basetgz ] || [ ! -s $basetgz ] 
 then
   #make sure the base dir exists
   sudo mkdir -p $base
   #create the base image
-  sudo $WORKSPACE/pbuilder create \
+  sudo pbuilder create \
     --distribution $distro \
     --aptconfdir $rootdir/etc/apt \
     --basetgz $basetgz \
     --architecture $arch
 else
-  sudo $WORKSPACE/pbuilder --update --basetgz $basetgz
+  sudo pbuilder --update --basetgz $basetgz
 fi

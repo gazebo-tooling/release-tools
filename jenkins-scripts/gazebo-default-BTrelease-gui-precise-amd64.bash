@@ -5,6 +5,10 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+
+export DISTRO=precise
+export ROS_DISTRO=fuerte
+
 export GZ_BUILD_TYPE=Release
 
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash

@@ -27,12 +27,15 @@ apt-get update
 
 # Step 1: install everything you need
 
-# Required stuff for Gazebo
-apt-get install -y cmake build-essential debhelper ros-${ROS_DISTRO}-xacro ros-${ROS_DISTRO}-ros osrf-common libboost-dev ros-${ROS_DISTRO}-image-common ros-${ROS_DISTRO}-ros-comm ros-${ROS_DISTRO}-common-msgs
-. /opt/ros/${ROS_DISTRO}/setup.sh
+apt-get install -y cmake build-essential debhelper ros-${ROS_DISTRO}-xacro ros-${ROS_DISTRO}-ros osrf-common libboost-dev ros-${ROS_DISTRO}-image-common ros-${ROS_DISTRO}-ros-comm ros-${ROS_DISTRO}-common-msgs libqt4-dev
+
+if [ $DISTRO = quantal ]; then
+    rosdep init && rosdep update
+fi
 
 # Step 2: configure and build
 # Normal cmake routine for sandia-hand
+. /opt/ros/${ROS_DISTRO}/setup.sh
 cd $WORKSPACE/sandia-hand
 export ROS_PACKAGE_PATH=\$PWD:/usr/share/osrf-common-1.0/ros:\$ROS_PACKAGE_PATH
 rm -rf $WORKSPACE/build
@@ -48,7 +51,7 @@ DELIM
 # Make project-specific changes here
 ###################################################
 
-sudo $WORKSPACE/pbuilder  --execute \
+sudo pbuilder  --execute \
     --bindmounts $WORKSPACE \
     --basetgz $basetgz \
     -- build.sh
