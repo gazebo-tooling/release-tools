@@ -26,7 +26,18 @@ apt-get update
 # Step 1: install everything you need
 apt-get install -y ${SOFTWARE_UNDER_TEST}-nightly
 
-# Step 2: configure and build
+# Step 2: load all setup files available
+if [ -f /opt/ros/${ROS_DISTRO}/setup.sh ]; then
+  . /opt/ros/${ROS_DISTRO}/setup.sh
+fi
+if [ -f /usr/share/gazebo/setup.sh ]; then
+  . /usr/share/gazebo/setup.sh
+fi
+if [ -f /usr/share/drcsim/setup.sh ]; then
+  . /usr/share/drcsim/setup.sh
+fi
+
+# Step 3: configure and build
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
