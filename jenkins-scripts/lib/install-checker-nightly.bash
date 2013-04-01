@@ -34,7 +34,7 @@ if [ -f /usr/share/gazebo/setup.sh ]; then
   . /usr/share/gazebo/setup.sh
 fi
 if [ -f /usr/share/drcsim/setup.sh ]; then
-  . /usr/share/drcsim/setup.sh
+  SHELL=/bin/sh . /usr/share/drcsim/setup.sh
 fi
 
 # Step 3: configure and build
