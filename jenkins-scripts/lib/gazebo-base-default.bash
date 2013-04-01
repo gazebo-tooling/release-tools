@@ -96,6 +96,7 @@ cat > build.sh << DELIM
 # Make project-specific changes here
 #
 set -ex
+set -e
 
 # get ROS repo's key, to be used both in installing prereqs here and in creating the pbuilder chroot
 apt-get install -y wget
@@ -104,13 +105,13 @@ wget http://packages.ros.org/ros.key -O - | apt-key add -
 # OSRF repository to get bullet
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu precise main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
-apt-get update
+#apt-get update
 
 # Step 1: install everything you need
 
 # Required stuff for Gazebo
 # (mesa-utils is used for getting dri information)
-apt-get install -y cmake build-essential debhelper libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libcurl4-openssl-dev libtinyxml-dev libtar-dev libtbb-dev libogre-dev libxml2-dev pkg-config libqt4-dev ros-fuerte-urdfdom ros-fuerte-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck robot-player-dev libcegui-mk2-dev libavformat-dev libavcodec-dev libswscale-dev mesa-utils libbullet-dev
+#apt-get install -y cmake build-essential debhelper libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libcurl4-openssl-dev libtinyxml-dev libtar-dev libtbb-dev libogre-dev libxml2-dev pkg-config libqt4-dev ros-fuerte-urdfdom ros-fuerte-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck robot-player-dev libcegui-mk2-dev libavformat-dev libavcodec-dev libswscale-dev mesa-utils libbullet-dev
 
 if ${COVERAGE_ENABLED} ; then
   # Clean previous content
@@ -118,7 +119,11 @@ if ${COVERAGE_ENABLED} ; then
   # Download and install Bullseyes
   cd $WORKSPACE
   rm -fr $WORKSPACE/Bulls*
-  wget http://www.bullseye.com/download/BullseyeCoverage-8.7.52-Linux-x64.tar -O bullseye.tar
+  # Look for current version
+  wget http://www.bullseye.com/download/ -O bull_index.html
+  BULL_TAR=\$( grep -R BullseyeCoverage-.*-Linux-x64.tar bull_index.html | head -n 1 | sed 's/.*">//' | sed 's/<.*//' )
+  # Download package
+  wget http://www.bullseye.com/download/\$BULL_TAR -O bullseye.tar
   tar -xf bullseye.tar
   cd Bulls*
   # Set up the license
