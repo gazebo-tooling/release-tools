@@ -43,7 +43,7 @@ cd $WORKSPACE/build
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
   apt-get install -y mercurial
-  hg clone https://bitbucket.org/osrf/$PACKAGE -b testing_cmake_fix
+  hg clone https://bitbucket.org/osrf/$PACKAGE
   PACKAGE_SRC_BUILD_DIR=$PACKAGE
 else
   wget --quiet -O ${PACKAGE_ALIAS}_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
