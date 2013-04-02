@@ -42,7 +42,12 @@ rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake $WORKSPACE/${SOFTWARE_UNDER_TEST}
-make test ARGS="-VV" || true
+ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-VV" || true
+
+if [ $SOFTWARE_UNDER_TEST = 'drcsim' ]; then
+  ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results rosrun rosunit clean_junit_xml.py
+fi
+
 DELIM
 
 # Make project-specific changes here
