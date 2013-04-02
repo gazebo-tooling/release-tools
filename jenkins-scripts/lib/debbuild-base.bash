@@ -95,20 +95,21 @@ cp -a --dereference /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/* .
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
 debuild --no-tgz-check -S -uc -us --source-option=--include-binaries
 
-if [ -f /usr/bin/rosdep ]; then
+# Step 5.1: define a pbuilder hack to include all things needed to run from inside
+# pbuilder.
 PBUILD_DIR=\$HOME/.pbuilder
 mkdir -p \$PBUILD_DIR
 cat > \$PBUILD_DIR/A10_run_rosdep << DELIM_ROS_DEP
 #!/bin/sh
-
-# root share the same /tmp/buildd HOME than pbuilder user. Need to specify the root
-# HOME=/root otherwise it will make cache created during ros call forbidden to 
-# access to pbuilder user.
-HOME=/root rosdep init
+if [ -f /usr/bin/rosdep ]; then
+  # root share the same /tmp/buildd HOME than pbuilder user. Need to specify the root
+  # HOME=/root otherwise it will make cache created during ros call forbidden to 
+  # access to pbuilder user.
+  HOME=/root rosdep init
+fi
 DELIM_ROS_DEP
 chmod a+x \$PBUILD_DIR/A10_run_rosdep
 echo "HOOKDIR=\$PBUILD_DIR" > \$HOME/.pbuilderrc
-fi
 
 # Step 6: use pbuilder-dist to create binary package(s)
 pbuilder-dist $DISTRO $ARCH build ../*.dsc
