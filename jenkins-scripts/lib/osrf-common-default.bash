@@ -2,7 +2,6 @@
 set -e
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
-. ${SCRIPT_DIR}/lib/dependencies_archive.sh
 
 cat > build.sh << DELIM
 ###################################################

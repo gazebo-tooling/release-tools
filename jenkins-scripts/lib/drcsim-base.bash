@@ -4,7 +4,6 @@
 export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
-. ${SCRIPT_DIR}/lib/dependencies_archive.sh
 
 cat > build.sh << DELIM
 ###################################################
