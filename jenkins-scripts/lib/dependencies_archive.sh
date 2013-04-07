@@ -12,7 +12,7 @@ GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev libcegui-mk2-dev libavformat-dev lib
 # DRCSIM related dependencies
 # Check for special gazebo versions when builiding gazebo dependant software
 GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
-if [ -z \$GAZEBO_DEB_PACKAGE ]; then
+if [ -z $GAZEBO_DEB_PACKAGE ]; then
     GAZEBO_DEB_PACKAGE=gazebo
 fi
 
