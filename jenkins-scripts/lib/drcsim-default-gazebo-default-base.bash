@@ -5,6 +5,7 @@ set -e
 export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/dependencies_archive.sh
 
 if [ -z ${GZ_BUILD_TYPE} ]; then
     GZ_CMAKE_BUILD_TYPE=
@@ -30,7 +31,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Install drcsim's and gazebo Build-Depends
-apt-get install -y cmake debhelper ros-${ROS_DISTRO}-pr2-mechanism ros-${ROS_DISTRO}-std-msgs ros-${ROS_DISTRO}-common-msgs ros-${ROS_DISTRO}-image-common ros-${ROS_DISTRO}-geometry ros-${ROS_DISTRO}-pr2-controllers ros-${ROS_DISTRO}-geometry-experimental ros-${ROS_DISTRO}-image-pipeline build-essential  libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libcurl4-openssl-dev libtinyxml-dev libtar-dev libtbb-dev libogre-dev libbullet-dev ros-${ROS_DISTRO}-visualization-common libxml2-dev pkg-config libqt4-dev ros-${ROS_DISTRO}-urdfdom ros-${ROS_DISTRO}-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck ros-${ROS_DISTRO}-robot-model-visualization osrf-common sandia-hand
+apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${DRCSIM_BASE_DEPENDENCIES} osrf-common sandia-hand
 
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then

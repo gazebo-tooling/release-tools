@@ -2,6 +2,7 @@
 set -e
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/dependencies_archive.sh
 
 cat > build.sh << DELIM
 ###################################################
@@ -18,7 +19,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Required stuff for Gazebo
-apt-get install -y cmake build-essential debhelper ros-${ROS_DISTRO}-ros ros-${ROS_DISTRO}-ros-comm
+apt-get install -y ${BASE_DEPENDENCIES} ros-${ROS_DISTRO}-ros ros-${ROS_DISTRO}-ros-comm
 . /opt/ros/${ROS_DISTRO}/setup.sh
 
 # For quantal, need to start rosdep base

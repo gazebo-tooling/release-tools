@@ -4,6 +4,7 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/dependencies_archive.sh
 
 cat > build.sh << DELIM
 ###################################################
@@ -21,7 +22,7 @@ wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
 # Step 1: install everything you need
-apt-get install -y cmake build-essential debhelper libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libtinyxml-dev libtar-dev libtbb-dev ros-fuerte-visualization-common libxml2-dev pkg-config libqt4-dev ros-fuerte-urdfdom ros-fuerte-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev cppcheck libcurl4-gnutls-dev libdap-dev libgdal1-dev liblapack-dev liblas-dev libbullet-dev
+apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ros-fuerte-visualization-common libcurl4-gnutls-dev libdap-dev libgdal1-dev liblapack-dev liblas-dev libbullet-dev
 
 # Step 2: build and install simbody
 # svn co https://simtk.org/svn/simbody/branches/Simbody3.0.1 ~/simbody
