@@ -1,4 +1,6 @@
-if [[ -z $ROS_DISTRO ]];
+#!/bin/bash
+
+if [[ -z $ROS_DISTRO ]]; then
     echo "ROS_DISTRO was not set before using dependencies_archive.sh!"
     exit 1
 fi
