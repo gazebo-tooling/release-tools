@@ -49,6 +49,10 @@ else
   rm -rf $PACKAGE-$VERSION
   tar xf ${PACKAGE_ALIAS}_$VERSION.orig.tar.bz2
   PACKAGE_SRC_BUILD_DIR=$PACKAGE-$VERSION
+  # Hack to support sdf special name for bitbucket
+  if [ '$PACKAGE' = 'sdf' ]; then
+    PACKAGE_SRC_BUILD_DIR="sdformat-$VERSION"   
+  fi
 fi
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
