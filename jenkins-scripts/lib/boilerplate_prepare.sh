@@ -11,6 +11,7 @@ if [ -z ${ROS_DISTRO} ]; then
 fi
 
 . ${SCRIPT_DIR}/lib/check_graphic_card.bash
+. ${SCRIPT_DIR}/lib/dependencies_archive.sh
 
 distro=${DISTRO}
 arch=amd64

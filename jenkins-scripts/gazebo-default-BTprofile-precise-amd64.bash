@@ -8,5 +8,6 @@ export DISTRO=precise
 export ROS_DISTRO=fuerte
 
 export GZ_BUILD_TYPE=Profile
+export EXTRA_PACKAGES=libgoogle-perftools-dev
 
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash
