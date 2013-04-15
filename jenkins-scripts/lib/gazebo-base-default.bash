@@ -16,6 +16,10 @@ fi
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
+set +x # keep password secret
+BULLSEYE_LICENSE=`cat $HOME/bullseye-jenkins-license`
+set -x # back to debug
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
