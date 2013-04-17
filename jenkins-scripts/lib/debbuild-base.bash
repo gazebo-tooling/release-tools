@@ -44,6 +44,9 @@ if ${NIGHTLY_MODE}; then
   apt-get install -y mercurial
   hg clone https://bitbucket.org/osrf/$PACKAGE
   PACKAGE_SRC_BUILD_DIR=$PACKAGE
+  cd $PACKAGE
+  # Store revision for use in version
+  REV=\$(hg parents --template="{node|short}\n")
 else
   wget --quiet -O ${PACKAGE_ALIAS}_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
   rm -rf $PACKAGE-$VERSION
@@ -75,7 +78,6 @@ cd /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}
 if $NIGHTLY_MODE; then
   TIMESTAMP=\$(date '+%Y%m%d')
   RELEASE_DATE=\$(date '+%a, %d %B %Y %T -0700')
-  REV=\$(hg parents --template="{node|short}\n")
   NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}~${DISTRO}
   # Fix the changelog
   sed -i -e "s/xxxxx/\${NIGHTLY_VERSION_SUFFIX}/g" debian/changelog
