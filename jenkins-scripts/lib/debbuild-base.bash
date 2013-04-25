@@ -31,6 +31,12 @@ sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" > /e
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
+# Hack to avoid problem with non updated 
+if [ $DISTRO = 'precise' ]; then
+  echo "Skipping pbuilder check for outdated info"
+  sed -i -e 's:UbuntuDistroInfo().devel():self.target_distro:g' /usr/bin/pbuilder-dist
+fi
+
 # Step 0: create/update distro-specific pbuilder environment
 pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
 
