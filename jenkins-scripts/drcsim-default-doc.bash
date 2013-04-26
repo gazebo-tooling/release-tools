@@ -46,7 +46,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install $WORKSPACE/drcsim
 make doc
 
 # Step 3: upload docs
-# apt-get install -y openssh-client
+apt-get install -y openssh-client
 ssh -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ubuntu@gazebosim.org sudo rm -rf /var/www/drc/api /tmp/drcsim_dev
 scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa -r doxygen/html ubuntu@gazebosim.org:/tmp/drcsim_dev
 ssh -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ubuntu@gazebosim.org sudo mv /tmp/drcsim_dev /var/www/drc/api
