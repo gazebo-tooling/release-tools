@@ -40,7 +40,16 @@ fi
 # Step 2: configure and build
 
 if [ $DISTRO = quantal ]; then
-    rosdep init && rosdep update
+    rosdep init 
+    # Hack for not failing when github is down
+    update_done=false
+    seconds_waiting=0
+    while (! $update_done); do
+      rosdep update && update_done=true
+      sleep 1
+      seconds_waiting=$((seconds_waiting+1))
+      [ $seconds_waiting -gt 60 ] && exit 1
+    done
 fi
 
 # Normal cmake routine

@@ -24,5 +24,5 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism ros-${ROS_DISTRO}-std-
 
 # Extra dependencies for groovy
 if [[ ${ROS_DISTRO} == 'groovy' ]]; then
-    DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} ros-groovy-compressed-depth-image-transport"
+     DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} ros-groovy-compressed-depth-image-transport ros-groovy-compressed-image-transport ros-groovy-theora-image-transport"
 fi
