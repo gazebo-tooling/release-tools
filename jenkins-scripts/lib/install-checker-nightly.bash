@@ -26,7 +26,7 @@ wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
 # Step 1: install everything you need
-apt-get install -y ${SOFTWARE_UNDER_TEST}-nightly
+apt-get install -y ${SOFTWARE_UNDER_TEST}-nightly mesa-utils
 
 # Step 2: load all setup files available
 if [ -f /opt/ros/${ROS_DISTRO}/setup.sh ]; then
