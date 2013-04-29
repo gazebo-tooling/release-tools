@@ -8,6 +8,8 @@ fi
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
+export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
