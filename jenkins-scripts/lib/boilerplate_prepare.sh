@@ -28,7 +28,7 @@ basetgz=$base/base-$basetgz_version.tgz
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
-NEEDED_HOST_PACKAGES="pbuilder python-empy python-argparse debhelper python-setuptools"
+NEEDED_HOST_PACKAGES="mercurial pbuilder python-empy python-argparse debhelper python-setuptools"
 # Check if they are already installed in the host
 QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
 if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
