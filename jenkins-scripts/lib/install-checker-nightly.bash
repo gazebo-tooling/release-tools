@@ -6,9 +6,8 @@ if [ -z ${SOFTWARE_UNDER_TEST} ]; then
     exit 1
 fi
 
-. ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
-
 export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+. ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
 ###################################################
