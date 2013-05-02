@@ -27,6 +27,18 @@ apt-get update
 # Step 1: install everything you need
 apt-get install -y ${SOFTWARE_UNDER_TEST}-nightly mesa-utils
 
+# Optional stuff. Check for graphic card support
+if ${GRAPHIC_CARD_FOUND}; then
+    apt-get install -y ${GRAPHIC_CARD_PKG}
+    # Check to be sure version of kernel graphic card support is the same.
+    # It will kill DRI otherwise
+    CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\ " | awk '{ print \$3 }')
+    if [ "\${CHROOT_GRAPHIC_CARD_PKG_VERSION}" != "${GRAPHIC_CARD_PKG_VERSION}" ]; then
+       echo "Package ${GRAPHIC_CARD_PKG} has different version in chroot and host system. Maybe you need to update your host" 
+       exit 1
+    fi
+fi
+
 # Step 2: load all setup files available
 if [ -f /opt/ros/${ROS_DISTRO}/setup.sh ]; then
   . /opt/ros/${ROS_DISTRO}/setup.sh
