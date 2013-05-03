@@ -13,6 +13,7 @@ fi
 # Useful for running tests properly in ros based software
 export ROS_HOSTNAME=localhost
 export ROS_MASTER_URI=http://localhost:11311
+export ROS_IP=127.0.0.1
 
 . ${SCRIPT_DIR}/lib/check_graphic_card.bash
 . ${SCRIPT_DIR}/lib/dependencies_archive.sh
