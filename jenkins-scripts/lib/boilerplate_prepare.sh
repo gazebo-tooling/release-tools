@@ -10,6 +10,10 @@ if [ -z ${ROS_DISTRO} ]; then
   ROS_DISTRO=fuerte
 fi
 
+# Useful for running tests properly in ros based software
+export ROS_HOSTNAME=localhost
+export ROS_MASTER_URI=http://localhost:11311
+
 . ${SCRIPT_DIR}/lib/check_graphic_card.bash
 . ${SCRIPT_DIR}/lib/dependencies_archive.sh
 
