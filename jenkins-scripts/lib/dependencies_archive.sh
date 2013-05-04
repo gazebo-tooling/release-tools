@@ -20,7 +20,8 @@ if [ -z $GAZEBO_DEB_PACKAGE ]; then
 fi
 
 # image-transport-plugins is needed to properly advertise compressed image topics
-DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism ros-${ROS_DISTRO}-std-msgs ros-${ROS_DISTRO}-common-msgs ros-${ROS_DISTRO}-image-common ros-${ROS_DISTRO}-geometry ros-${ROS_DISTRO}-pr2-controllers ros-${ROS_DISTRO}-geometry-experimental ros-${ROS_DISTRO}-robot-model-visualization ros-${ROS_DISTRO}-image-pipeline ros-${ROS_DISTRO}-console-bridge osrf-common sandia-hand ${GAZEBO_DEB_PACKAGE} ros-${ROS_DISTRO}-image-transport-plugins"
+DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism ros-${ROS_DISTRO}-std-msgs ros-${ROS_DISTRO}-common-msgs ros-${ROS_DISTRO}-image-common ros-${ROS_DISTRO}-geometry ros-${ROS_DISTRO}-pr2-controllers ros-${ROS_DISTRO}-geometry-experimental ros-${ROS_DISTRO}-robot-model-visualization ros-${ROS_DISTRO}-image-pipeline ros-${ROS_DISTRO}-console-bridge osrf-common-nightly sandia-hand-nightly ${GAZEBO_DEB_PACKAGE} ros-${ROS_DISTRO}-image-transport-plugins"
+echo "TODO: Using nightly sandia and osrf-common packages until end of VRC"
 
 # Extra dependencies for groovy
 if [[ ${ROS_DISTRO} == 'groovy' ]]; then
