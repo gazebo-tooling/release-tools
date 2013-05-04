@@ -16,7 +16,8 @@ GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev libcegui-mk2-dev libavformat-dev lib
 # Check for special gazebo versions when builiding gazebo dependant software
 GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
 if [ -z $GAZEBO_DEB_PACKAGE ]; then
-    GAZEBO_DEB_PACKAGE=gazebo
+    GAZEBO_DEB_PACKAGE=gazebo-nightly
+    echo "TODO: Using nightly gazebo until end of VRC"
 fi
 
 # image-transport-plugins is needed to properly advertise compressed image topics
