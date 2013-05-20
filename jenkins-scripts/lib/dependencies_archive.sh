@@ -9,7 +9,9 @@ fi
 BASE_DEPENDENCIES="build-essential cmake debhelper mesa-utils cppcheck xsltproc"
 
 # GAZEBO related dependencies
-GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libcurl4-openssl-dev libtinyxml-dev libtar-dev libtbb-dev libogre-dev libxml2-dev pkg-config libqt4-dev ros-${ROS_DISTRO}-urdfdom ros-${ROS_DISTRO}-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev libbullet-dev"
+# NO_CURL version exits for simbody which needs libcurl4-gnutls-dev instead of libcurl4-openssl-dev
+GAZEBO_BASE_DEPENDENCIES_NO_CURL="libfreeimage-dev libprotoc-dev libprotobuf-dev protobuf-compiler freeglut3-dev libtinyxml-dev libtar-dev libtbb-dev libogre-dev libxml2-dev pkg-config libqt4-dev ros-${ROS_DISTRO}-urdfdom ros-${ROS_DISTRO}-console-bridge libltdl-dev libboost-thread-dev libboost-signals-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev libbullet-dev"
+GAZEBO_BASE_DEPENDENCIES="libcurl4-openssl-dev ${GAZEBO_BASE_DEPENDENCIES_NO_CURL}"
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev libcegui-mk2-dev libavformat-dev libavcodec-dev libswscale-dev"
 
 # DRCSIM related dependencies
