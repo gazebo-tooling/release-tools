@@ -23,17 +23,33 @@ apt-get update
 # Step 1: install everything you need
 
 # Install drcsim's Build-Depends
-apt-get install -y ${BASE_DEPENDENCIES} ${DRCSIM_BASE_DEPENDENCIES}
+apt-get install -y ${BASE_DEPENDENCIES} ${DRCSIM_FULL_DEPENDENCIES}
 
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
     apt-get install -y ${GRAPHIC_CARD_PKG}
+    # Check to be sure version of kernel graphic card support is the same.
+    # It will kill DRI otherwise
+    CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\ " | awk '{ print \$3 }')
+    if [ "\${CHROOT_GRAPHIC_CARD_PKG_VERSION}" != "${GRAPHIC_CARD_PKG_VERSION}" ]; then
+       echo "Package ${GRAPHIC_CARD_PKG} has different version in chroot and host system. Maybe you need to update your host" 
+       exit 1
+    fi
 fi
 
 # Step 2: configure and build
 
 if [ $DISTRO = quantal ]; then
-    rosdep init && rosdep update
+    rosdep init 
+    # Hack for not failing when github is down
+    update_done=false
+    seconds_waiting=0
+    while (! \$update_done); do
+      rosdep update && update_done=true
+      sleep 1
+      seconds_waiting=$((seconds_waiting+1))
+      [ \$seconds_waiting -gt 60 ] && exit 1
+    done
 fi
 
 # Normal cmake routine

@@ -9,7 +9,14 @@ fi;
 
 NIGHTLY_MODE=false
 if [ "${VERSION}" = "nightly" ]; then
-    NIGHTLY_MODE=true
+   NIGHTLY_MODE=true
+   # Check to disable the VRC nightly builds based on branches
+   # on 1st of July
+   if [[ `date +%m%d` -gt 0701 ]]; then
+       echo "VRC should be finished. Please disable branch based nightly generation"
+       echo "or extend it if it's needed"
+       exit -1
+   fi
 fi
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
@@ -32,6 +39,12 @@ sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" > /e
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
+# Hack to avoid problem with non updated 
+if [ $DISTRO = 'precise' ]; then
+  echo "Skipping pbuilder check for outdated info"
+  sed -i -e 's:UbuntuDistroInfo().devel():self.target_distro:g' /usr/bin/pbuilder-dist
+fi
+
 # Step 0: create/update distro-specific pbuilder environment
 pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
 
@@ -43,8 +56,19 @@ cd $WORKSPACE/build
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
   apt-get install -y mercurial
-  hg clone https://bitbucket.org/osrf/$PACKAGE
+  # Branch based nightly packages during VRC
+  if [ '$PACKAGE' = 'gazebo' ]; then
+      vrc_branch="gazebo_1.8"
+  elif [ '$PACKAGE' = 'drcsim' ]; then
+      vrc_branch="drcsim_2.6"
+  elif [ '$PACKAGE' = 'sandia-hand' ]; then
+      vrc_branch="sandia_hand_5.1"
+  fi
+  hg clone https://bitbucket.org/osrf/$PACKAGE -r \${vrc_branch}
   PACKAGE_SRC_BUILD_DIR=$PACKAGE
+  cd $PACKAGE
+  # Store revision for use in version
+  REV=\$(hg parents --template="{node|short}\n")
 else
   wget --quiet -O ${PACKAGE_ALIAS}_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
   rm -rf $PACKAGE-$VERSION
@@ -76,7 +100,6 @@ cd /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}
 if $NIGHTLY_MODE; then
   TIMESTAMP=\$(date '+%Y%m%d')
   RELEASE_DATE=\$(date '+%a, %d %B %Y %T -0700')
-  REV=\$(hg parents --template="{node|short}\n")
   NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}~${DISTRO}
   # Fix the changelog
   sed -i -e "s/xxxxx/\${NIGHTLY_VERSION_SUFFIX}/g" debian/changelog
