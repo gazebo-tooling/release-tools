@@ -62,6 +62,8 @@ if ${NIGHTLY_MODE}; then
       vrc_branch="drcsim_2.6"
   elif [ '$PACKAGE' = 'sandia-hand' ]; then
       vrc_branch="sandia_hand_5.1"
+  else
+      vrc_branch="default"
   fi
   hg clone https://bitbucket.org/osrf/$PACKAGE -r \${vrc_branch}
   PACKAGE_SRC_BUILD_DIR=$PACKAGE
