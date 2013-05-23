@@ -27,7 +27,7 @@ apt-get update
 
 # Step 1: install everything you need
 
-apt-get install -y cmake build-essential debhelper ros-${ROS_DISTRO}-xacro ros-${ROS_DISTRO}-ros osrf-common libboost-dev ros-${ROS_DISTRO}-image-common ros-${ROS_DISTRO}-ros-comm ros-${ROS_DISTRO}-common-msgs libqt4-dev
+apt-get install -y ${BASE_DEPENDENCIES} ros-${ROS_DISTRO}-xacro ros-${ROS_DISTRO}-ros osrf-common libboost-dev ros-${ROS_DISTRO}-image-common ros-${ROS_DISTRO}-ros-comm ros-${ROS_DISTRO}-common-msgs libqt4-dev
 
 if [ $DISTRO = quantal ]; then
     rosdep init && rosdep update
