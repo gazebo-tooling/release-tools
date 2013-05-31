@@ -62,6 +62,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install $WORKSPACE/drcsim
 make -j3
 make install
 SHELL=/bin/sh . $WORKSPACE/install/share/drcsim/setup.sh
+export PATH="\$PATH:$WORKSPACE/install/bin/"
 ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-VV" || true
 ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results rosrun rosunit clean_junit_xml.py
 
