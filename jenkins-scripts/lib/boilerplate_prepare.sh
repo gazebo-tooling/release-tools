@@ -41,6 +41,12 @@ if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
 
+# monitor all subprocess and enforce termination (thanks to ROS crew)
+# never failed on this
+wget https://raw.github.com/ros-infrastructure/buildfarm/master/scripts/subprocess_reaper.py -O subprocess_reaper.py
+sudo python subprocess_reaper.py $$ &
+sleep 1
+
 #setup the cross platform apt environment
 # using sudo since this is shared with pbuilder and if pbuilder is interupted it will leave a sudo only lock file.  Otherwise sudo is not necessary. 
 # And you can't chown it even with sudo and recursive
