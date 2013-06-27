@@ -59,7 +59,7 @@ rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
 cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install $WORKSPACE/drcsim
-make -j3
+make -j${MAKE_JOBS}
 make install
 SHELL=/bin/sh . $WORKSPACE/install/share/drcsim/setup.sh
 export PATH="\$PATH:$WORKSPACE/install/bin/"

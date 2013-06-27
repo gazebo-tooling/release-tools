@@ -10,6 +10,11 @@ if [ -z ${ROS_DISTRO} ]; then
   ROS_DISTRO=fuerte
 fi
 
+# Define making jobs by default if not present
+if [ -z ${MAKE_JOBS} ]; then
+    MAKE_JOBS=1
+fi
+
 # Useful for running tests properly in ros based software
 export ROS_HOSTNAME=localhost
 export ROS_MASTER_URI=http://localhost:11311
@@ -33,7 +38,7 @@ basetgz=$base/base-$basetgz_version.tgz
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
-NEEDED_HOST_PACKAGES="mercurial pbuilder python-empy python-argparse debhelper python-setuptools"
+NEEDED_HOST_PACKAGES="mercurial pbuilder python-empy python-argparse debhelper python-setuptools python-psutil"
 # Check if they are already installed in the host
 QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
 if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
