@@ -149,7 +149,7 @@ for pkg in \${MAIN_PKGS}; do
         scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa \${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
         if $NIGHTLY_MODE; then
           # Remove all nightly version except latest three (after another check)
-          grep -v -q "nightly" <<< ${PACKAGE_ALIAS} && echo "Sanity check fail! Close to remove something with no nightly in the name" && exit 1
+          #grep -v -q "nightly" <<< ${PACKAGE_ALIAS} && echo "Sanity check fail! Close to remove something with no nightly in the name" && exit 1
           ssh ubuntu@gazebosim.org "ls -t /var/www/assets/distributions/${PACKAGE_ALIAS}_*~${DISTRO}_${ARCH}.deb | sed -e '1,3d' | xargs -d '\n' rm"
         fi
         FOUND_PKG=1
@@ -168,7 +168,7 @@ for pkg in \${DEBUG_PKGS}; do
         scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa \${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
         if $NIGHTLY_MODE; then
           # Remove all nightly version except latest three (after another check)
-          grep -v -q "nightly" <<< ${PACKAGE_ALIAS} && echo "Sanity check fail! Close to remove something with no nightly in the name" && exit 1
+          # grep -v -q "nightly" <<< ${PACKAGE_ALIAS} && echo "Sanity check fail! Close to remove something with no nightly in the name" && exit 1
           ssh ubuntu@gazebosim.org "ls -t /var/www/assets/distributions/${PACKAGE_ALIAS}-dbg_*~${DISTRO}_${ARCH}.deb | sed -e '1,3d' | xargs -d '\n' rm"
         fi
         FOUND_PKG=1
