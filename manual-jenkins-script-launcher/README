@@ -1,0 +1,45 @@
+README
+====== 
+This scripts are done to launch OSRF jenkins scripts in a local
+machine without a jenkins enviroment.
+
+Two kind of launchers are ready:
+
+    - A launcher for compilations jobs: launch_compilation.sh
+    - A launcher for debbuilds jobs: launch_debbuild.sh
+
+1. SCRIPT: launch_compilation.sh 
+--------------------------------- 
+Run jenkins scripts for continuous integration jobs. It will download
+release-tools repository and <package> repository and run the <script> selected.
+
+Modified local versions (instead bitbucket repositories) of release-tools
+repository or package source can be used if defined in RELEASE_TOOL_DIR and/or
+SOFTWARE_CODE_DIR environment variables.
+
+  * Usage: 
+     - ./launch_compilation.sh <package> <script>
+
+  * Examples:
+     - ./launch_compilation.sh gazebo gazebo-default-devel-precise-amd64.bash
+     - RELEASE_TOOLS_DIR=~/code/release-tools ./launch_compilation.sh gazebo gazebo-default-devel-precise-amd64.bash
+     - SOFTWARE_CODE_DIR=~/code/gazebo RELEASE_TOOLS_DIR=~/code/release-tools ./launch_compilation.sh gazebo gazebo-default-devel-precise-amd64.bash
+           
+   TODO:
+    * Still need to figure out how to work with works with non default
+      branches, such as gazebo_1.5 or drcsim_2.1.0
+
+2. SCRIPT: launch_debbuild.sh
+-----------------------------
+Run jenkins scripts for deb package generation jobs. It will download
+release-tools repository and run debbuild script with parameters provided.
+
+Package/s generated will be available in /tmp/workspace/pbuilder/*_result/
+
+ * Usage:
+    - ./launch_debbuild.sh <package> <version> [release-version] [distro] [arch] [source_uri] [release_repo_branch] [package_alias]
+
+ * Examples:
+   - ./launch_debbuild.sh gazebo 1.5.0
+   - ./launch_debbuild.sh sandia-hand 5.1.10 1 precise i386
+   - RELEASE_TOOLS_DIR=~/code/release-tools ./launch_debbuild.sh sandia-hand nightly 1 quantal amd64 none nightly sandia-nightly
