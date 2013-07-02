@@ -149,7 +149,7 @@ for pkg in \${MAIN_PKGS}; do
         scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa \${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
         if $NIGHTLY_MODE; then
           # Be sure we are not removing something not -nightly
-          if [ `echo $PACKAGE_ALIAS | sed -e 's:nightly::'` != $PACKAGE_ALIAS ]; then
+          if [ `echo $PACKAGE_ALIAS | sed -e 's:nightly::'` == $PACKAGE_ALIAS ]; then
                echo "Sanity check fail! Close to remove something with no nightly in the name" && exit 1
 	  fi
           # Remove all nightly version except latest three
@@ -171,7 +171,7 @@ for pkg in \${DEBUG_PKGS}; do
         scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa \${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
         if $NIGHTLY_MODE; then
           # Be sure we are not removing something not -nightly
-          if [ `echo $PACKAGE_ALIAS | sed -e 's:nightly::'` != $PACKAGE_ALIAS ]; then
+          if [ `echo $PACKAGE_ALIAS | sed -e 's:nightly::'` == $PACKAGE_ALIAS ]; then
                echo "Sanity check fail! Close to remove something with no nightly in the name" && exit 1
 	  fi
           # Remove all nightly version except latest three
