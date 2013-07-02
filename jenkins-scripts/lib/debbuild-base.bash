@@ -150,7 +150,7 @@ for pkg in \${MAIN_PKGS}; do
         if $NIGHTLY_MODE; then
           # Remove all nightly version except latest three (after another check)
           #grep -v -q "nightly" <<< ${PACKAGE_ALIAS} && echo "Sanity check fail! Close to remove something with no nightly in the name" && exit 1
-          ssh ubuntu@gazebosim.org "ls -t /var/www/assets/distributions/${PACKAGE_ALIAS}_*~${DISTRO}_${ARCH}.deb | sed -e '1,3d' | xargs -d '\n' rm"
+          ssh -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ubuntu@gazebosim.org "ls -t /var/www/assets/distributions/${PACKAGE_ALIAS}_*~${DISTRO}_${ARCH}.deb | sed -e '1,3d' | xargs -d '\n' rm"
         fi
         FOUND_PKG=1
         break;
