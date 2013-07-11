@@ -10,13 +10,6 @@ fi;
 NIGHTLY_MODE=false
 if [ "${VERSION}" = "nightly" ]; then
    NIGHTLY_MODE=true
-   # Check to disable the VRC nightly builds based on branches
-   # on 1st of July
-   if [[ `date +%m%d` -gt 0701 ]]; then
-       echo "VRC should be finished. Please disable branch based nightly generation"
-       echo "or extend it if it's needed"
-       exit -1
-   fi
 fi
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
