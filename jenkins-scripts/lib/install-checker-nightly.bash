@@ -24,8 +24,9 @@ sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > 
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
-# Step 1: install everything you need
-apt-get install -y ${SOFTWARE_UNDER_TEST}-nightly mesa-utils
+# Step 1: install everything you need. Need DRCSIM_BASE_DEPENDENCIES to
+# get proper test support. It could be refactor.
+apt-get install -y ${SOFTWARE_UNDER_TEST}-nightly mesa-utils ${DRCSIM_BASE_DEPENDENCIES}
 
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then

@@ -16,13 +16,13 @@ apt-get install -y python cmake build-essential libboost-system-dev libboost-fil
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-cmake $WORKSPACE/sdf
+cmake $WORKSPACE/sdformat
 make -j3
 make install
 make test ARGS="-VV" || true
 
 # Step 3: code check
-cd $WORKSPACE/sdf
+cd $WORKSPACE/sdformat
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
 cat $WORKSPACE/build/cppcheck_results/*.xml
 DELIM

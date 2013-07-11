@@ -10,6 +10,11 @@ if [ -z ${ROS_DISTRO} ]; then
   ROS_DISTRO=fuerte
 fi
 
+# Define making jobs by default if not present
+if [ -z ${MAKE_JOBS} ]; then
+    MAKE_JOBS=1
+fi
+
 # Useful for running tests properly in ros based software
 export ROS_HOSTNAME=localhost
 export ROS_MASTER_URI=http://localhost:11311
@@ -33,13 +38,19 @@ basetgz=$base/base-$basetgz_version.tgz
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
-NEEDED_HOST_PACKAGES="mercurial pbuilder python-empy python-argparse debhelper python-setuptools"
+NEEDED_HOST_PACKAGES="mercurial pbuilder python-empy python-argparse debhelper python-setuptools python-psutil"
 # Check if they are already installed in the host
 QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
 if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
   sudo apt-get update
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
+
+# monitor all subprocess and enforce termination (thanks to ROS crew)
+# never failed on this
+wget https://raw.github.com/ros-infrastructure/buildfarm/master/scripts/subprocess_reaper.py -O subprocess_reaper.py
+sudo python subprocess_reaper.py $$ &
+sleep 1
 
 #setup the cross platform apt environment
 # using sudo since this is shared with pbuilder and if pbuilder is interupted it will leave a sudo only lock file.  Otherwise sudo is not necessary. 

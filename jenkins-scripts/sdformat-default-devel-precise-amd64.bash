@@ -6,4 +6,4 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=precise
 
-. ${SCRIPT_DIR}/lib/sdf-default.bash
+. ${SCRIPT_DIR}/lib/sdformat-default.bash

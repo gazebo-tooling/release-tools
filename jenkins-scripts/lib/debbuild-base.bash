@@ -56,15 +56,7 @@ cd $WORKSPACE/build
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
   apt-get install -y mercurial
-  # Branch based nightly packages during VRC
-  if [ '$PACKAGE' = 'gazebo' ]; then
-      vrc_branch="gazebo_1.8"
-  elif [ '$PACKAGE' = 'drcsim' ]; then
-      vrc_branch="drcsim_2.6"
-  elif [ '$PACKAGE' = 'sandia-hand' ]; then
-      vrc_branch="sandia_hand_5.1"
-  fi
-  hg clone https://bitbucket.org/osrf/$PACKAGE -r \${vrc_branch}
+  hg clone https://bitbucket.org/osrf/$PACKAGE -r default
   PACKAGE_SRC_BUILD_DIR=$PACKAGE
   cd $PACKAGE
   # Store revision for use in version
