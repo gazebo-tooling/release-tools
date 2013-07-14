@@ -8,5 +8,6 @@ export DISTRO=precise
 export ROS_DISTRO=fuerte
 
 export SOFTWARE_UNDER_TEST=drcsim
+export GAZEBO_DEB_PACKAGE=gazebo-nightly
 
 . ${SCRIPT_DIR}/lib/install-checker-nightly.bash
