@@ -51,6 +51,20 @@ if [ -f /usr/share/drcsim/setup.sh ]; then
   SHELL=/bin/sh . /usr/share/drcsim/setup.sh
 fi
 
+# Need rosdep view to run quantal tests
+if [ $DISTRO = quantal ]; then
+    rosdep init 
+    # Hack for not failing when github is down
+    update_done=false
+    seconds_waiting=0
+    while (! \$update_done); do
+      rosdep update && update_done=true
+      sleep 1
+      seconds_waiting=$((seconds_waiting+1))
+      [ \$seconds_waiting -gt 60 ] && exit 1
+    done
+fi
+
 # Step 3: configure and build
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
