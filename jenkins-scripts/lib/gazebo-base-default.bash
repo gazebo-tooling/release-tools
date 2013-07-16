@@ -59,6 +59,13 @@ LD_LIBRARY_PATH=/opt/ros/${ROS_DISTRO}/lib make test ARGS="-VV" || true
 
 # Step 3: code check
 cd $WORKSPACE/gazebo
+cat > keep_output.sh <<- DELIM3
+while true; do
+    echo "-"
+    sleep 20s
+done
+DELIM3
+timeout 5m sh keep_output.sh
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
 DELIM
 
