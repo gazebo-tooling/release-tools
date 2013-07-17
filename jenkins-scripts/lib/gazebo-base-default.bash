@@ -61,7 +61,7 @@ LD_LIBRARY_PATH=/opt/ros/${ROS_DISTRO}/lib make test ARGS="-VV" || true
 cd $WORKSPACE/gazebo
 cat > keep_output.sh <<- DELIM3
 while true; do
-    echo "-"
+    echo -n "."
     sleep 20s
 done
 DELIM3
