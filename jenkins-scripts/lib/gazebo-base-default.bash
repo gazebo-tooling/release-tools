@@ -65,7 +65,7 @@ while true; do
     sleep 20s
 done
 DELIM3
-timeout 5m sh keep_output.sh
+timeout 15m sh keep_output.sh
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
 DELIM
 
