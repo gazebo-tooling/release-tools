@@ -62,10 +62,10 @@ cd $WORKSPACE/gazebo
 cat > keep_output.sh <<- DELIM3
 while true; do
     echo -n "."
-    sleep 20s
+    sleep 30s
 done
 DELIM3
-timeout 15m sh keep_output.sh &
+sh keep_output.sh &
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
 DELIM
 
