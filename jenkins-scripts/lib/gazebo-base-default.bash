@@ -68,7 +68,9 @@ while true; do
 done
 DELIM3
 sh keep_output.sh &
+K_PID=\$!
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+kill -9 \$K_PID
 DELIM
 
 # Make project-specific changes here
