@@ -70,7 +70,7 @@ fi
 cat > keep_output.sh <<- DELIM3
 K_PID=\$!
 while true; do
-    echo -n "."
+    echo "-"
     sleep 30s
 done
 DELIM3

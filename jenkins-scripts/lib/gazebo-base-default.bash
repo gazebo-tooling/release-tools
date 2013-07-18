@@ -63,7 +63,7 @@ cd $WORKSPACE/gazebo
 # finish, since no output is generated
 cat > keep_output.sh <<- DELIM3
 while true; do
-    echo -n "."
+    echo "-"
     sleep 30s
 done
 DELIM3
