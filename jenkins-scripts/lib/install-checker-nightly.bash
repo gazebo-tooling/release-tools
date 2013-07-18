@@ -65,17 +65,28 @@ if [ $DISTRO = quantal ]; then
     done
 fi
 
+# Workaround to avoid jenkins to close connection while waiting cppcheck to
+# finish, since no output is generated
+cat > keep_output.sh <<- DELIM3
+K_PID=\$!
+while true; do
+    echo -n "."
+    sleep 30s
+done
+DELIM3
+
 # Step 3: configure and build
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake $WORKSPACE/${SOFTWARE_UNDER_TEST}
+
 ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-VV" || true
 
 if [ $SOFTWARE_UNDER_TEST = 'drcsim' ]; then
   ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results rosrun rosunit clean_junit_xml.py
 fi
-
+kill -9 \$K_PID
 DELIM
 
 # Make project-specific changes here
