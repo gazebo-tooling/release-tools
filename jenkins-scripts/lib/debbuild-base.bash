@@ -167,6 +167,8 @@ for pkg in \${DEBUG_PKGS}; do
     fi
 done
 test \$FOUND_PKG -eq 1 || echo "No debug packages found. No upload"
+
+find /var/lib/jenkins/pbuilder -type f -name *.deb -exec cp {} /var/packages/gazebo/ubuntu \;
 DELIM
 
 # Copy in my GPG key, to allow reprepro to sign the debs it builds.
