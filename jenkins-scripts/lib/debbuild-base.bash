@@ -139,10 +139,10 @@ else
 fi
 
 mkdir -p $WORKSPACE/pkgs
-find /var/lib/jenkins/pbuilder -type f -name *.deb -exec cp {} $WORKSPACE/pkgs/ \;
+rm -fr $WORKSPACE/pkgs/*
 
-MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}_result/\${PKG_NAME}"
-DEBUG_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${DBG_PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}_result/\${DBG_PKG_NAME}"
+MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}_result/\${PKG_NAME}"
+DEBUG_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}_result/\${DBG_PKG_NAME}"
 
 FOUND_PKG=0
 for pkg in \${MAIN_PKGS}; do
@@ -152,6 +152,7 @@ for pkg in \${MAIN_PKGS}; do
 	# Check for correctly generated packages size > 3Kb
         ls -lash \${pkg}
         test -z \$(find \$pkg -size +3k) && exit 1
+	cp \${pkg} $WORKSPACE/pkgs
         FOUND_PKG=1
         break;
     fi
@@ -165,6 +166,7 @@ for pkg in \${DEBUG_PKGS}; do
         # when not valid instructions in rules/control it generates 1.5K package
         ls -lash \${pkg}
         test -z \$(find \$pkg -size +3k) && exit 1
+	cp \${pkg} $WORKSPACE/pkgs
         FOUND_PKG=1
         break;
     fi
