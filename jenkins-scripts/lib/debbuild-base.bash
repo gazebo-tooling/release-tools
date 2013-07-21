@@ -138,7 +138,7 @@ else
   DBG_PKG_NAME=${PACKAGE_ALIAS}-dbg_${VERSION}-${RELEASE_VERSION}~${DISTRO}_${ARCH}.deb
 fi
 
-mkdir $WORKSPACE/pkgs
+mkdir -p $WORKSPACE/pkgs
 find /var/lib/jenkins/pbuilder -type f -name *.deb -exec cp {} $WORKSPACE/pkgs/ \;
 
 MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}_result/\${PKG_NAME}"
