@@ -100,7 +100,7 @@ if $NIGHTLY_MODE; then
 fi
 
 # Parallel build
-export DEB_BUILD_OPTIONS=\"parallel=$MAKE_JOBS\"
+export DEB_BUILD_OPTIONS="parallel=$MAKE_JOBS"
 
 # Adding extra directories to code. debian has no problem but some extra directories 
 # handled by symlinks (like cmake) in the repository can not be copied directly. 
