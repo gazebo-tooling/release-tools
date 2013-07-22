@@ -130,6 +130,7 @@ pbuilder-dist $DISTRO $ARCH build ../*.dsc
 
 # Step 7: upload resulting .deb
 sudo apt-get install -y openssh-client
+mkdir -p /var/packages/gazebo/ubuntu
 cd /var/packages/gazebo/ubuntu
 
 # Set proper package names
