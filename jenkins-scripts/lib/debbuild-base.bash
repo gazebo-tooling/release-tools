@@ -99,6 +99,9 @@ if $NIGHTLY_MODE; then
   echo | dh_make -s --createorig -p ${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV} > /dev/null
 fi
 
+# Parallel build
+export DEB_BUILD_OPTIONS=\"parallel=$MAKE_JOBS\"
+
 # Adding extra directories to code. debian has no problem but some extra directories 
 # handled by symlinks (like cmake) in the repository can not be copied directly. 
 # Need special care to copy, using first a --dereference
