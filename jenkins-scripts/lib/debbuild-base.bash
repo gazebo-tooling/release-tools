@@ -188,7 +188,7 @@ cp $HOME/.ssh/id_rsa $WORKSPACE
 # Make project-specific changes here
 ###################################################
 
-mkdir -p /var/packages/gazebo/ubuntu
+sudo mkdir -p /var/packages/gazebo/ubuntu
 sudo pbuilder  --execute \
     --bindmounts "$WORKSPACE /var/packages/gazebo/ubuntu" \
     --basetgz $basetgz \
