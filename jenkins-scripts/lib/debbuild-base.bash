@@ -130,7 +130,6 @@ pbuilder-dist $DISTRO $ARCH build ../*.dsc
 
 # Step 7: upload resulting .deb
 sudo apt-get install -y openssh-client
-mkdir -p /var/packages/gazebo/ubuntu
 cd /var/packages/gazebo/ubuntu
 
 # Set proper package names
@@ -189,6 +188,7 @@ cp $HOME/.ssh/id_rsa $WORKSPACE
 # Make project-specific changes here
 ###################################################
 
+mkdir -p /var/packages/gazebo/ubuntu
 sudo pbuilder  --execute \
     --bindmounts "$WORKSPACE /var/packages/gazebo/ubuntu" \
     --basetgz $basetgz \
