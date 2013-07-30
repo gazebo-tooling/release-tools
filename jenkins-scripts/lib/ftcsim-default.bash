@@ -40,10 +40,12 @@ fi
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-cmake $WORKSPACE/ftcsim
+cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install $WORKSPACE/ftcsim
 make -j${MAKE_JOBS}
 make install
-make test ARGS="-VV" || true
+SHELL=/bin/sh . $WORKSPACE/install/share/ftcsim/setup.sh
+export PATH="\$PATH:$WORKSPACE/install/bin/"
+# make test ARGS="-VV" || true
 
 # Step 3: code check
 cd $WORKSPACE/ftcsim
