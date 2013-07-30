@@ -37,6 +37,8 @@ fi
 
 . /opt/ros/${ROS_DISTRO}/setup.sh
 . /usr/share/gazebo/setup.sh
+export ROS_ROOT=/opt/ros/${ROS_DISTRO}
+
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
