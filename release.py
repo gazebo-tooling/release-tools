@@ -17,13 +17,16 @@ DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
 UBUNTU_DISTROS = ['precise','quantal']
+UBUNTU_DISTROS_EXPERIMENTAL = ['raring']
 
 DRY_RUN = False
 NIGHTLY = False
+EXP_DISTROS = False
 
 def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
+    global EXP_DISTROS
 
     parser = argparse.ArgumentParser(description='Make releases.')
     parser.add_argument('package', help='which package to release')
@@ -33,6 +36,8 @@ def parse_args(argv):
                         help='Build nightly releases: do not upload tar.bz2 and values are autoconfigured')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
+    parser.add_argument('-e', '--experimental-distros', dest='exp_distros', action='store_true', default=False,
+                        help='build packages for experimentally supported Ubuntu distros')
     parser.add_argument('-a', '--package-alias', dest='package_alias', 
                         default=None, 
                         help='different name that we are releasing under')
@@ -47,6 +52,7 @@ def parse_args(argv):
         args.package_alias = args.package
     DRY_RUN = args.dry_run
     NIGHTLY = args.nightly
+    EXP_DISTROS = args.exp_distros
     return args
 
 def check_call(cmd):
@@ -156,7 +162,10 @@ def go(argv):
     params['RELEASE_VERSION'] = args.release_version
     params_query = urllib.urlencode(params)
     base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, JOB_NAME_PATTERN%(args.package), params_query)
-    for d in UBUNTU_DISTROS:
+    distros = UBUNTU_DISTROS
+    if EXP_DISTROS:
+        distros.extend(UBUNTU_DISTROS_EXPERIMENTAL)
+    for d in distros:
         for a in UBUNTU_ARCHS:
             url = '%s&ARCH=%s&DISTRO=%s'%(base_url, a, d)
             print('Accessing: %s'%(url))
