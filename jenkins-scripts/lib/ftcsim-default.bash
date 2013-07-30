@@ -23,6 +23,7 @@ apt-get install -y python pkg-config cmake build-essential libboost-system-dev l
 
 # Step 2: configure and build
 if [ $DISTRO = quantal ]; then
+    apt-get install ros-groovy-rosbuild
     rosdep init 
     # Hack for not failing when github is down
     update_done=false
