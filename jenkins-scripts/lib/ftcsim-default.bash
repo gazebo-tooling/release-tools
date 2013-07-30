@@ -9,6 +9,11 @@ cat > build.sh << DELIM
 #
 set -ex
 
+apt-get install -y wget
+sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
+wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
+apt-get update
+
 # Step 1: install everything you need
 apt-get install -y python pkg-config cmake build-essential libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev libtinyxml-dev cppcheck gazebo
 
