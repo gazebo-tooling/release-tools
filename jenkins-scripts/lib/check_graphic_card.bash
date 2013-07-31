@@ -18,11 +18,17 @@ if [ -n "$(lspci -v | grep nvidia | head -n 2 | grep "Kernel driver in use: nvid
 fi
 
 # Check for ati stuff
-ATI_SUPPORT_RESULT=
 if [ -n "$(lspci -v | grep "ATI" | grep "VGA")" ]; then
     # TODO search for correct version of fglrx
     export GRAPHIC_CARD_PKG=fglrx
     export GRAPHIC_CARD_NAME="ATI"
+    export GRAPHIC_CARD_FOUND=true
+fi
+
+# Check for intel
+if [ -n "$(lspci -v | grep "Kernel driver in use: i[0-9][0-9][0-9]")" ]; then
+    export GRAPHIC_CARD_PKG="xserver-xorg-video-intel"
+    export GRAPHIC_CARD_NAME="Intel"
     export GRAPHIC_CARD_FOUND=true
 fi
 
