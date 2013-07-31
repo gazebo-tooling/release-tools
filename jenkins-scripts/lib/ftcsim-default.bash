@@ -19,7 +19,7 @@ wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
 # Step 1: install everything you need
-apt-get install -y python pkg-config cmake build-essential libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev libtinyxml-dev cppcheck gazebo ros-${ROS_DISTRO}-common-msgs ros-${ROS_DISTRO}-image-transport-plugins 
+apt-get install -y python pkg-config cmake build-essential libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev libtinyxml-dev cppcheck gazebo ros-${ROS_DISTRO}-common-msgs ros-${ROS_DISTRO}-image-transport-plugins ros-${ROS_DISTRO}-image-pipeline ros-${ROS_DISTRO}-joystick-drivers
 
 # Step 2: configure and build
 if [ $DISTRO = quantal ]; then
