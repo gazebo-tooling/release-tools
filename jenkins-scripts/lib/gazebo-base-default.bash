@@ -56,18 +56,7 @@ make test ARGS="-VV" || true
 
 # Step 3: code check
 cd $WORKSPACE/gazebo
-# Workaround to avoid jenkins to close connection while waiting cppcheck to
-# finish, since no output is generated
-cat > keep_output.sh <<- DELIM3
-while true; do
-    echo "-"
-    sleep 30s
-done
-DELIM3
-sh keep_output.sh &
-K_PID=\$!
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
-kill -9 \$K_PID
 DELIM
 
 # Make project-specific changes here
