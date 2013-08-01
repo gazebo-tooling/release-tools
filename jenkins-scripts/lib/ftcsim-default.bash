@@ -22,18 +22,16 @@ apt-get update
 apt-get install -y python pkg-config cmake build-essential libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev libtinyxml-dev cppcheck gazebo ros-${ROS_DISTRO}-common-msgs ros-${ROS_DISTRO}-image-transport-plugins ros-${ROS_DISTRO}-image-pipeline ros-${ROS_DISTRO}-joystick-drivers ros-${ROS_DISTRO}-rosbuild ros-${ROS_DISTRO}-rosunit ros-${ROS_DISTRO}-roslaunch
 
 # Step 2: configure and build
-if [ $DISTRO = quantal ]; then
-    rosdep init 
-    # Hack for not failing when github is down
-    update_done=false
-    seconds_waiting=0
-    while (! \$update_done); do
-      rosdep update && update_done=true
-      sleep 1
-      seconds_waiting=$((seconds_waiting+1))
-      [ \$seconds_waiting -gt 60 ] && exit 1
-    done
-fi
+rosdep init 
+# Hack for not failing when github is down
+update_done=false
+seconds_waiting=0
+while (! \$update_done); do
+  rosdep update && update_done=true
+  sleep 1
+  seconds_waiting=$((seconds_waiting+1))
+  [ \$seconds_waiting -gt 60 ] && exit 1
+done
 
 . /opt/ros/${ROS_DISTRO}/setup.sh
 . /usr/share/gazebo/setup.sh
