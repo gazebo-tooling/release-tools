@@ -19,11 +19,10 @@ wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
 # Step 1: install everything you need
-apt-get install -y python pkg-config cmake build-essential libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev libtinyxml-dev cppcheck gazebo ros-${ROS_DISTRO}-common-msgs ros-${ROS_DISTRO}-image-transport-plugins ros-${ROS_DISTRO}-image-pipeline ros-${ROS_DISTRO}-joystick-drivers
+apt-get install -y python pkg-config cmake build-essential libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev libtinyxml-dev cppcheck gazebo ros-${ROS_DISTRO}-common-msgs ros-${ROS_DISTRO}-image-transport-plugins ros-${ROS_DISTRO}-image-pipeline ros-${ROS_DISTRO}-joystick-drivers ros-groovy-rosbuild ros-groovy-rosunit
 
 # Step 2: configure and build
 if [ $DISTRO = quantal ]; then
-    apt-get install ros-groovy-rosbuild ros-groovy-rosunit
     rosdep init 
     # Hack for not failing when github is down
     update_done=false
@@ -47,7 +46,7 @@ make -j${MAKE_JOBS}
 make install
 SHELL=/bin/sh . $WORKSPACE/install/share/ftcsim/setup.sh
 export PATH="\$PATH:$WORKSPACE/install/bin/"
-# make test ARGS="-VV" || true
+make test ARGS="-VV" || true
 
 # Step 3: code check
 cd $WORKSPACE/ftcsim
