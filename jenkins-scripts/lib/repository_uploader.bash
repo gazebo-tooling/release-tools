@@ -12,8 +12,8 @@ if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
 
-# Place in home jenkins directory to run reprepro
-cd $HOME
+# Place in reprepro directory
+cd /var/packages/gazebo/ubuntu
 
 for pkg in `ls $WORKSPACE/pkgs/*.deb`; do
   GNUPGHOME=$HOME/.gnupg reprepro includedeb $DISTRO ${pkg}
