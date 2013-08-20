@@ -5,12 +5,15 @@ if [[ -z ${DISTRO} ]]; then
     exit 1
 fi
 
-NEEDED_HOST_PACKAGES="reprepro openssh"
+NEEDED_HOST_PACKAGES="reprepro openssh-client"
 QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
 if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
   sudo apt-get update
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
+
+# Place in home jenkins directory to run reprepro
+cd $HOME
 
 for pkg in `ls $WORKSPACE/pkgs/*.deb`; do
   GNUPGHOME=$HOME/.gnupg reprepro includedeb $DISTRO ${pkg}
