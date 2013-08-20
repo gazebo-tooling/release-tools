@@ -16,7 +16,7 @@ fi
 cd /var/packages/gazebo/ubuntu
 
 for pkg in `ls $WORKSPACE/pkgs/*.deb`; do
-  sudo GNUPGHOME=$HOME/.gnupg reprepro includedeb $DISTRO ${pkg}
+  sudo GNUPGHOME=$HOME/.gnupg reprepr --nothingiserror includedeb $DISTRO ${pkg}
   scp -o StrictHostKeyChecking=no -i $HOME/.ssh/id_rsa ${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
 done
 
