@@ -128,6 +128,8 @@ echo "HOOKDIR=\$PBUILD_DIR" > \$HOME/.pbuilderrc
 # Step 6: use pbuilder-dist to create binary package(s)
 pbuilder-dist $DISTRO $ARCH build ../*.dsc
 
+find / -name '*.deb'
+
 # Set proper package names
 if $NIGHTLY_MODE; then
   PKG_NAME=${PACKAGE_ALIAS}_\${NIGHTLY_VERSION_SUFFIX}_${ARCH}.deb
