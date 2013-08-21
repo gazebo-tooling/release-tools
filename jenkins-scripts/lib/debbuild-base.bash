@@ -9,7 +9,7 @@ fi;
 
 NIGHTLY_MODE=false
 if [ "${VERSION}" = "nightly" ]; then
-    NIGHTLY_MODE=true
+   NIGHTLY_MODE=true
 fi
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
@@ -31,6 +31,12 @@ sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" > /e
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
+# Hack to avoid problem with non updated 
+if [ $DISTRO = 'precise' ]; then
+  echo "Skipping pbuilder check for outdated info"
+  sed -i -e 's:UbuntuDistroInfo().devel():self.target_distro:g' /usr/bin/pbuilder-dist
+fi
+
 # Step 0: create/update distro-specific pbuilder environment
 pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
 
@@ -42,7 +48,7 @@ cd $WORKSPACE/build
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
   apt-get install -y mercurial
-  hg clone https://bitbucket.org/osrf/$PACKAGE
+  hg clone https://bitbucket.org/osrf/$PACKAGE -r default
   PACKAGE_SRC_BUILD_DIR=$PACKAGE
   cd $PACKAGE
   # Store revision for use in version
@@ -54,7 +60,7 @@ else
   PACKAGE_SRC_BUILD_DIR=$PACKAGE-$VERSION
   # Hack to support sdf special name for bitbucket
   if [ '$PACKAGE' = 'sdf' ]; then
-    PACKAGE_SRC_BUILD_DIR="sdformat-$VERSION"   
+      PACKAGE_SRC_BUILD_DIR="sdformat-$VERSION"
   fi
 fi
 
@@ -145,6 +151,14 @@ for pkg in \${MAIN_PKGS}; do
         test -z \$(find \$pkg -size +3k) && exit 1
         GNUPGHOME=$WORKSPACE/gnupg reprepro includedeb $DISTRO \${pkg}
         scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa \${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
+        if $NIGHTLY_MODE; then
+          # Be sure we are not removing something not -nightly
+          if [ `echo $PACKAGE_ALIAS | sed -e 's:nightly::'` == $PACKAGE_ALIAS ]; then
+               echo "Sanity check fail! Close to remove something with no nightly in the name" && exit 1
+	  fi
+          # Remove all nightly version except latest three
+          ssh -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ubuntu@gazebosim.org "ls -t /var/www/assets/distributions/${PACKAGE_ALIAS}_*~${DISTRO}_${ARCH}.deb | sed -e '1,3d' | xargs -d '\n' rm -f"
+        fi
         FOUND_PKG=1
         break;
     fi
@@ -159,6 +173,14 @@ for pkg in \${DEBUG_PKGS}; do
         # test -z \$(find \$pkg -size +1.5k) && exit 1
         GNUPGHOME=$WORKSPACE/gnupg reprepro includedeb $DISTRO \${pkg}
         scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa \${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
+        if $NIGHTLY_MODE; then
+          # Be sure we are not removing something not -nightly
+          if [ `echo $PACKAGE_ALIAS | sed -e 's:nightly::'` == $PACKAGE_ALIAS ]; then
+               echo "Sanity check fail! Close to remove something with no nightly in the name" && exit 1
+	  fi
+          # Remove all nightly version except latest three
+          ssh -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ubuntu@gazebosim.org "ls -t /var/www/assets/distributions/${PACKAGE_ALIAS}-dbg_*~${DISTRO}_${ARCH}.deb | sed -e '1,3d' | xargs -d '\n' rm -f"
+        fi
         FOUND_PKG=1
         break;
     fi

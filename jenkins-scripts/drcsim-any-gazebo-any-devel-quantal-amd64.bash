@@ -7,7 +7,4 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 export DISTRO=quantal
 export ROS_DISTRO=groovy
 
-export SOFTWARE_UNDER_TEST=drcsim
-export GAZEBO_DEB_PACKAGE=gazebo-nightly
-
-. ${SCRIPT_DIR}/lib/install-checker-nightly.bash
+. ${SCRIPT_DIR}/lib/drcsim-any-gazebo-any-base.bash

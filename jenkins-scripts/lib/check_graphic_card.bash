@@ -18,7 +18,6 @@ if [ -n "$(lspci -v | grep nvidia | head -n 2 | grep "Kernel driver in use: nvid
 fi
 
 # Check for ati stuff
-ATI_SUPPORT_RESULT=
 if [ -n "$(lspci -v | grep "ATI" | grep "VGA")" ]; then
     # TODO search for correct version of fglrx
     export GRAPHIC_CARD_PKG=fglrx
@@ -26,7 +25,14 @@ if [ -n "$(lspci -v | grep "ATI" | grep "VGA")" ]; then
     export GRAPHIC_CARD_FOUND=true
 fi
 
+# Check for intel
+if [ -n "$(lspci -v | grep "Kernel driver in use: i[0-9][0-9][0-9]")" ]; then
+    export GRAPHIC_CARD_PKG="xserver-xorg-video-intel"
+    export GRAPHIC_CARD_NAME="Intel"
+    export GRAPHIC_CARD_FOUND=true
+fi
+
 # Get version of package 
-export GRAPHIC_CARD_PKG_VERSION=$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\ " | awk '{ print $3 }')
+export GRAPHIC_CARD_PKG_VERSION=$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\ " | awk '{ print $3 }' | sed 's:-.*::')
 echo "${GRAPHIC_CARD_NAME} found using package ${GRAPHIC_CARD_PKG} (${GRAPHIC_CARD_PKG_VERSION})"
 
