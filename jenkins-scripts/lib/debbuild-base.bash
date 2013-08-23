@@ -20,6 +20,10 @@ cat > build.sh << DELIM
 #
 set -ex
 
+# ccache is sometimes broken and has now reason to be used here
+# http://lists.debian.org/debian-devel/2012/05/msg00240.html
+echo "unset CCACHEDIR" >> /etc/etc/pbuilderrc
+
 # Install deb-building tools
 apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools mercurial debhelper reprepro wget
 
