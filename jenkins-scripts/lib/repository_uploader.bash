@@ -21,4 +21,5 @@ for pkg in `ls $WORKSPACE/pkgs/*.deb`; do
   scp -o StrictHostKeyChecking=no -i $HOME/.ssh/id_rsa ${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
 done
 
+
 rm -fr $WORKSPACE/pkgs/*.deb
