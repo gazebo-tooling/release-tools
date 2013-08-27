@@ -44,7 +44,7 @@ fi
 
 # 1. Install sdformat
 rm -fr $WORKSPACE/sdformat
-hg clone https://bitbucket.org/osrf/osrf-common $WORKSPACE/sdformat
+hg clone https://bitbucket.org/osrf/sdformat $WORKSPACE/sdformat
 
 cd $WORKSPACE/sdformat
 rm -rf $WORKSPACE/sdformat/build
