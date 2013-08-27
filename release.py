@@ -11,7 +11,7 @@ import shutil
 
 USAGE = 'release.py <package> <version> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
-JOB_NAME_PATTERN = '%s-debbuild'
+JOB_NAME_PATTERN = '%s-debbuilder'
 UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
