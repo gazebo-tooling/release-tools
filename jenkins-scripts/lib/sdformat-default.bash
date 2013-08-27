@@ -10,7 +10,7 @@ cat > build.sh << DELIM
 set -ex
 
 # Step 1: install everything you need
-apt-get install -y python cmake build-essential libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev libboost-iostreams-dev libtinyxml-dev cppcheck
+apt-get install -y ${SDFORMAT_BASE_DEPENDENCIES}
 
 # Step 2: configure and build
 rm -rf $WORKSPACE/build
