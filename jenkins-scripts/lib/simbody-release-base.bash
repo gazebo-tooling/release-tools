@@ -32,6 +32,7 @@ mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 
 # Step 1: Get the source (nightly builds or tarball)
+rm -fr $WORKSPACE/simbody
 git clone https://github.com/j-rivero/simbody.git $WORKSPACE/simbody
 cd $WORKSPACE/simbody
 # Use current distro
