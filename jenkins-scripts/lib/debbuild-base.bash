@@ -26,7 +26,7 @@ set -ex
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools mercurial debhelper reprepro wget bash
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools mercurial debhelper wget
 
 # get ROS repo's key, to be used in creating the pbuilder chroot (to allow it to install packages from that repo)
 sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $DISTRO main" > /etc/apt/sources.list.d/ros-latest.list'
@@ -52,7 +52,6 @@ cd $WORKSPACE/build
 
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
-  apt-get install -y mercurial
   hg clone https://bitbucket.org/osrf/$PACKAGE -r default
   PACKAGE_SRC_BUILD_DIR=$PACKAGE
   cd $PACKAGE
@@ -131,8 +130,6 @@ echo "HOOKDIR=\$PBUILD_DIR" > \$HOME/.pbuilderrc
 
 # Step 6: use pbuilder-dist to create binary package(s)
 pbuilder-dist $DISTRO $ARCH build ../*.dsc
-
-find / -name '*.deb'
 
 # Set proper package names
 if $NIGHTLY_MODE; then
