@@ -102,9 +102,6 @@ if $NIGHTLY_MODE; then
   echo | dh_make -s --createorig -p ${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV} > /dev/null
 fi
 
-# Parallel build
-export DEB_BUILD_OPTIONS="parallel=$MAKE_JOBS"
-
 # Adding extra directories to code. debian has no problem but some extra directories 
 # handled by symlinks (like cmake) in the repository can not be copied directly. 
 # Need special care to copy, using first a --dereference
@@ -112,7 +109,7 @@ cp -a --dereference /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/* .
 
 # Step 5: use debuild to create source package
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
-debuild --no-tgz-check -S -uc -us --source-option=--include-binaries
+debuild --no-tgz-check -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
 PBUILD_DIR=\$HOME/.pbuilder
 mkdir -p \$PBUILD_DIR
@@ -129,7 +126,7 @@ chmod a+x \$PBUILD_DIR/A10_run_rosdep
 echo "HOOKDIR=\$PBUILD_DIR" > \$HOME/.pbuilderrc
 
 # Step 6: use pbuilder-dist to create binary package(s)
-pbuilder-dist $DISTRO $ARCH build ../*.dsc
+pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 
 # Set proper package names
 if $NIGHTLY_MODE; then
