@@ -153,7 +153,6 @@ for pkg in \${MAIN_PKGS}; do
     if [ -f \${pkg} ]; then
         echo "found \$pkg"
 	# Check for correctly generated packages size > 3Kb
-        ls -lash \${pkg}
         test -z \$(find \$pkg -size +3k) && exit 1
 	cp \${pkg} $WORKSPACE/pkgs
         FOUND_PKG=1
@@ -167,9 +166,8 @@ for pkg in \${DEBUG_PKGS}; do
     if [ -f \${pkg} ]; then
         # Check for correctly generated debug packages size > 3Kb
         # when not valid instructions in rules/control it generates 1.5K package
-        ls -lash \${pkg}
         test -z \$(find \$pkg -size +3k) && exit 1
-	cp \${pkg} $WORKSPACE/pkgs
+        cp \${pkg} $WORKSPACE/pkgs
         FOUND_PKG=1
         break;
     fi
