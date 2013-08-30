@@ -33,13 +33,13 @@ cd $WORKSPACE/build
 
 # Step 1: Get the source (nightly builds or tarball)
 rm -fr $WORKSPACE/simbody
-git clone https://github.com/simbody/simbody.git -b simbody-3.3 $WORKSPACE/simbody
+git clone https://github.com/simbody/simbody.git -b simbody-${VERSION} $WORKSPACE/simbody
 cd $WORKSPACE/simbody
 # Use current distro
 sed -i -e 's:quantal:$DISTRO:g' debian/changelog
 
 # Step 5: use debuild to create source package
-echo | dh_make -s --createorig -p ${PACKAGE_ALIAS}_3.0 > /dev/null
+echo | dh_make -s --createorig -p ${PACKAGE_ALIAS}_${VERSION} 
 
 debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
