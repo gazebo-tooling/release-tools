@@ -39,7 +39,7 @@ cd $WORKSPACE/simbody
 sed -i -e 's:quantal:$DISTRO:g' debian/changelog
 
 # Step 5: use debuild to create source package
-echo | dh_make -s --createorig -p ${PACKAGE_ALIAS}_${VERSION} 
+echo | dh_make -s --createorig -p ${PACKAGE_ALIAS}_${VERSION} || true
 
 debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
