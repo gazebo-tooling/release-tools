@@ -49,18 +49,16 @@ debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 
 # Set proper package names
-PKG_NAME=${PACKAGE_ALIAS}_${VERSION}-${RELEASE_VERSION}~${DISTRO}_${ARCH}.deb
-DBG_PKG_NAME=${PACKAGE_ALIAS}-dbg_${VERSION}-${RELEASE_VERSION}~${DISTRO}_${ARCH}.deb
+PKG_POSTFIX=${VERSION}-${RELEASE_VERSION}~${DISTRO}_${ARCH}.deb
 
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
 
 # Both paths are need, beacuse i386 use a different path
-MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}_result/\${PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${PKG_NAME}"
-DEBUG_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}_result/\${DBG_PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${DBG_PKG_NAME}"
+PKGS=\`ls /var/lib/jenkins/pbuilder/${DISTRO}_result/*\${PKG_POSTFIX} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/*\${PKG_POSTFIX}\`
 
 FOUND_PKG=0
-for pkg in \${MAIN_PKGS}; do
+for pkg in \${PKGS}; do
     echo "looking for \$pkg"
     if [ -f \${pkg} ]; then
         echo "found \$pkg"
@@ -71,20 +69,8 @@ for pkg in \${MAIN_PKGS}; do
         break;
     fi
 done
+# check at least one upload
 test \$FOUND_PKG -eq 1 || exit 1
-
-FOUND_PKG=0
-for pkg in \${DEBUG_PKGS}; do
-    if [ -f \${pkg} ]; then
-        # Check for correctly generated debug packages size > 3Kb
-        # when not valid instructions in rules/control it generates 1.5K package
-        test -z \$(find \$pkg -size +3k) && exit 1
-        cp \${pkg} $WORKSPACE/pkgs
-        FOUND_PKG=1
-        break;
-    fi
-done
-test \$FOUND_PKG -eq 1 || echo "No debug packages found. No upload"
 DELIM
 
 #
