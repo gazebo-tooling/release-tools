@@ -45,6 +45,7 @@ echo | dh_make -s --createorig -p ${PACKAGE_ALIAS}_${VERSION} || true
 
 debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
+export DEB_BUILD_OPTIONS="parallel=$MAKE_JOBS"
 # Step 6: use pbuilder-dist to create binary package(s)
 pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 
