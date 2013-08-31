@@ -56,7 +56,7 @@ mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
 
 # Both paths are need, beacuse i386 use a different path
-PKGS=\`ls /var/lib/jenkins/pbuilder/${DISTRO}_result/*\${PKG_POSTFIX} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/*\${PKG_POSTFIX}\`
+PKGS=\`ls /var/lib/jenkins/pbuilder/${DISTRO}_result/*\${PKG_POSTFIX} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/*\${PKG_POSTFIX}\ || true`
 
 FOUND_PKG=0
 for pkg in \${PKGS}; do
