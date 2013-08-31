@@ -49,26 +49,19 @@ export DEB_BUILD_OPTIONS="parallel=$MAKE_JOBS"
 # Step 6: use pbuilder-dist to create binary package(s)
 pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 
-# Set proper package names
-PKG_POSTFIX=${VERSION}-${RELEASE_VERSION}~${DISTRO}_${ARCH}.deb
-
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
 
 # Both paths are need, beacuse i386 use a different path
-PKGS=\`ls /var/lib/jenkins/pbuilder/${DISTRO}_result/*\${PKG_POSTFIX} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/*\${PKG_POSTFIX}\ || true\`
+PKGS=\`ls /var/lib/jenkins/pbuilder/${DISTRO}_result/*.deb /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/*.deb\ || true\`
 
 FOUND_PKG=0
 for pkg in \${PKGS}; do
-    echo "looking for \$pkg"
-    if [ -f \${pkg} ]; then
-        echo "found \$pkg"
-	# Check for correctly generated packages size > 3Kb
-        test -z \$(find \$pkg -size +3k) && exit 1
-	cp \${pkg} $WORKSPACE/pkgs
-        FOUND_PKG=1
-        break;
-    fi
+    echo "found \$pkg"
+    # Check for correctly generated packages size > 3Kb
+    test -z \$(find \$pkg -size +3k) && exit 1
+    cp \${pkg} $WORKSPACE/pkgs
+    FOUND_PKG=1
 done
 # check at least one upload
 test \$FOUND_PKG -eq 1 || exit 1
