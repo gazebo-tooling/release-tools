@@ -53,10 +53,7 @@ pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
 
-find /var/lib/jenkins/pbuilder -name *.deb 
-
-# Both paths are need, beacuse i386 use a different path
-PKGS=\`ls /var/lib/jenkins/pbuilder/${DISTRO}_result/*.deb /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/*.deb\ || true\`
+PKGS=\`find /var/lib/jenkins/pbuilder -name *.deb || true\`
 
 FOUND_PKG=0
 for pkg in \${PKGS}; do
