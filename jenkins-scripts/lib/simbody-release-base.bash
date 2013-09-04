@@ -32,7 +32,7 @@ mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 
 # Clean from workspace all package related files
-rm -fr $WORKSPACE/"$PACKAGE_*"
+rm -fr $WORKSPACE/"$PACKAGE"_*
 
 # Step 1: Get the source (nightly builds or tarball)
 rm -fr $WORKSPACE/simbody
