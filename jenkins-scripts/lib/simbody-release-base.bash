@@ -31,10 +31,12 @@ rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 
+# Clean from workspace all package related files
+rm -fr $WORKSPACE/$PACKAGE_*
+
 # Step 1: Get the source (nightly builds or tarball)
 rm -fr $WORKSPACE/simbody
 git clone https://github.com/simbody/simbody.git -b simbody-${VERSION} $WORKSPACE/simbody
-rm -fr $WORKSPACE/*.orig.*
 cd $WORKSPACE/simbody
 # Use current distro
 sed -i -e 's:quantal:$DISTRO:g' debian/changelog
