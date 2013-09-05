@@ -11,11 +11,7 @@ cat > build.sh << DELIM
 #
 set -ex
 
-# get ROS repo's key, to be used both in installing prereqs here and in creating the pbuilder chroot
 apt-get install -y wget
-sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
-wget http://packages.ros.org/ros.key -O - | apt-key add -
-# OSRF repository to get bullet
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu precise main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
@@ -39,11 +35,11 @@ make install
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
-cmake -DPKG_CONFIG_PATH=/opt/ros/fuerte/lib/pkgconfig:/opt/ros/fuerte/stacks/visualization_common/ogre/ogre/lib/pkgconfig -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install -DSimTK_INSTALL_PREFIX=/usr -DCMAKE_MODULE_PATH=/usr/share/cmake $WORKSPACE/gazebo
+cmake  -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install -DSimTK_INSTALL_PREFIX=/usr -DCMAKE_MODULE_PATH=/usr/share/cmake $WORKSPACE/gazebo
 make -j3
 make install
 . $WORKSPACE/install/share/gazebo-1.*/setup.sh
-LD_LIBRARY_PATH=/opt/ros/fuerte/lib:/opt/ros/fuerte/stacks/visualization_common/ogre/ogre/lib make test ARGS="-VV" || true
+make test ARGS="-VV" || true
 
 # Step 3: code check
 cd $WORKSPACE/gazebo
