@@ -11,26 +11,14 @@ cat > build.sh << DELIM
 #
 set -ex
 
-# get ROS repo's key, to be used both in installing prereqs here and in creating the pbuilder chroot
-apt-get install -y wget
-sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
-wget http://packages.ros.org/ros.key -O - | apt-key add -
 # OSRF repository to get bullet
+apt-get install -y wget
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu precise main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
 # Step 1: install everything you need
-apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ros-fuerte-visualization-common libcurl4-gnutls-dev libdap-dev libgdal1-dev liblapack-dev liblas-dev libbullet-dev
-
-# Step 2: build and install simbody
-# svn co https://simtk.org/svn/simbody/branches/Simbody3.0.1 ~/simbody
-svn co https://simtk.org/svn/simbody/trunk ~/simbody
-cd ~/simbody
-mkdir build
-cd build
-cmake -DSimTK_INSTALL_PREFIX=/usr ..
-make install
+apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} libsimbody-dev
 
 # Step 3: configure and build
 
@@ -38,15 +26,11 @@ make install
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
-cmake -DPKG_CONFIG_PATH=/opt/ros/fuerte/lib/pkgconfig:/opt/ros/fuerte/stacks/visualization_common/ogre/ogre/lib/pkgconfig -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install -DSimTK_INSTALL_PREFIX=/usr -DCMAKE_MODULE_PATH=/usr/share/cmake $WORKSPACE/gazebo
-make -j3
+cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install -DCMAKE_MODULE_PATH=/usr/share/cmake $WORKSPACE/gazebo
+make -j${MAKE_JOBS}
 make install
 . $WORKSPACE/install/share/gazebo-1.*/setup.sh
-LD_LIBRARY_PATH=/opt/ros/fuerte/lib:/opt/ros/fuerte/stacks/visualization_common/ogre/ogre/lib make test ARGS="-VV" || true
-
-# Step 3: code check
-cd $WORKSPACE/gazebo
-sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+make test ARGS="-VV" || true
 DELIM
 
 # Make project-specific changes here
