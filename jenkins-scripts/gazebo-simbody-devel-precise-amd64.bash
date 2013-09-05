@@ -21,7 +21,7 @@ wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
 # Step 1: install everything you need. Note the different curl provider package
-apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES_NO_CURL} sdformat ros-fuerte-visualization-common libcurl4-gnutls-dev libdap-dev libgdal1-dev liblapack-dev liblas-dev libbullet-dev
+apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} liblapack-dev
 
 # Step 2: build and install simbody
 # svn co https://simtk.org/svn/simbody/branches/Simbody3.0.1 ~/simbody
