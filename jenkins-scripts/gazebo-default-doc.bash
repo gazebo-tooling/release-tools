@@ -13,6 +13,12 @@ set -ex
 
 # Step 1: install everything you need
 
+# OSRF repository to get bullet and sdformat
+apt-get install -y wget
+sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
+wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
+apt-get update
+
 # Required stuff for Gazebo
 apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} 
 # Optional stuff for Gazebo
