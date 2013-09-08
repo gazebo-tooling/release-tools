@@ -18,6 +18,7 @@ cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
 #
+#!/usr/bin/env bash
 set -ex
 
 # ccache is sometimes broken and has now reason to be used here
@@ -25,7 +26,7 @@ set -ex
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools mercurial debhelper reprepro wget
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools mercurial debhelper wget
 
 # get ROS repo's key, to be used in creating the pbuilder chroot (to allow it to install packages from that repo)
 sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $DISTRO main" > /etc/apt/sources.list.d/ros-latest.list'
@@ -51,7 +52,6 @@ cd $WORKSPACE/build
 
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
-  apt-get install -y mercurial
   hg clone https://bitbucket.org/osrf/$PACKAGE -r default
   PACKAGE_SRC_BUILD_DIR=$PACKAGE
   cd $PACKAGE
@@ -64,7 +64,7 @@ else
   PACKAGE_SRC_BUILD_DIR=$PACKAGE-$VERSION
   # Hack to support sdf special name for bitbucket
   if [ '$PACKAGE' = 'sdf' ]; then
-      PACKAGE_SRC_BUILD_DIR="sdformat-$VERSION"
+    PACKAGE_SRC_BUILD_DIR="sdformat-$VERSION"   
   fi
 fi
 
@@ -109,10 +109,8 @@ cp -a --dereference /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/* .
 
 # Step 5: use debuild to create source package
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
-debuild --no-tgz-check -S -uc -us --source-option=--include-binaries
+debuild --no-tgz-check -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
-# Step 5.1: define a pbuilder hack to include all things needed to run from inside
-# pbuilder.
 PBUILD_DIR=\$HOME/.pbuilder
 mkdir -p \$PBUILD_DIR
 cat > \$PBUILD_DIR/A10_run_rosdep << DELIM_ROS_DEP
@@ -128,11 +126,7 @@ chmod a+x \$PBUILD_DIR/A10_run_rosdep
 echo "HOOKDIR=\$PBUILD_DIR" > \$HOME/.pbuilderrc
 
 # Step 6: use pbuilder-dist to create binary package(s)
-pbuilder-dist $DISTRO $ARCH build ../*.dsc
-
-# Step 7: upload resulting .deb
-sudo apt-get install -y openssh-client
-cd /var/packages/gazebo/ubuntu
+pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 
 # Set proper package names
 if $NIGHTLY_MODE; then
@@ -143,8 +137,12 @@ else
   DBG_PKG_NAME=${PACKAGE_ALIAS}-dbg_${VERSION}-${RELEASE_VERSION}~${DISTRO}_${ARCH}.deb
 fi
 
-MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}_result/\${PKG_NAME}"
-DEBUG_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${DBG_PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}_result/\${DBG_PKG_NAME}"
+mkdir -p $WORKSPACE/pkgs
+rm -fr $WORKSPACE/pkgs/*
+
+# Both paths are need, beacuse i386 use a different path
+MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}_result/\${PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${PKG_NAME}"
+DEBUG_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}_result/\${DBG_PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${DBG_PKG_NAME}"
 
 FOUND_PKG=0
 for pkg in \${MAIN_PKGS}; do
@@ -153,16 +151,7 @@ for pkg in \${MAIN_PKGS}; do
         echo "found \$pkg"
 	# Check for correctly generated packages size > 3Kb
         test -z \$(find \$pkg -size +3k) && exit 1
-        GNUPGHOME=$WORKSPACE/gnupg reprepro includedeb $DISTRO \${pkg}
-        scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa \${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
-        if $NIGHTLY_MODE; then
-          # Be sure we are not removing something not -nightly
-          if [ `echo $PACKAGE_ALIAS | sed -e 's:nightly::'` == $PACKAGE_ALIAS ]; then
-               echo "Sanity check fail! Close to remove something with no nightly in the name" && exit 1
-	  fi
-          # Remove all nightly version except latest three
-          ssh -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ubuntu@gazebosim.org "ls -t /var/www/assets/distributions/${PACKAGE_ALIAS}_*~${DISTRO}_${ARCH}.deb | sed -e '1,3d' | xargs -d '\n' rm -f"
-        fi
+	cp \${pkg} $WORKSPACE/pkgs
         FOUND_PKG=1
         break;
     fi
@@ -174,17 +163,8 @@ for pkg in \${DEBUG_PKGS}; do
     if [ -f \${pkg} ]; then
         # Check for correctly generated debug packages size > 3Kb
         # when not valid instructions in rules/control it generates 1.5K package
-        # test -z \$(find \$pkg -size +1.5k) && exit 1
-        GNUPGHOME=$WORKSPACE/gnupg reprepro includedeb $DISTRO \${pkg}
-        scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa \${pkg} ubuntu@gazebosim.org:/var/www/assets/distributions
-        if $NIGHTLY_MODE; then
-          # Be sure we are not removing something not -nightly
-          if [ `echo $PACKAGE_ALIAS | sed -e 's:nightly::'` == $PACKAGE_ALIAS ]; then
-               echo "Sanity check fail! Close to remove something with no nightly in the name" && exit 1
-	  fi
-          # Remove all nightly version except latest three
-          ssh -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ubuntu@gazebosim.org "ls -t /var/www/assets/distributions/${PACKAGE_ALIAS}-dbg_*~${DISTRO}_${ARCH}.deb | sed -e '1,3d' | xargs -d '\n' rm -f"
-        fi
+        test -z \$(find \$pkg -size +3k) && exit 1
+        cp \${pkg} $WORKSPACE/pkgs
         FOUND_PKG=1
         break;
     fi
@@ -192,17 +172,11 @@ done
 test \$FOUND_PKG -eq 1 || echo "No debug packages found. No upload"
 DELIM
 
-# Copy in my GPG key, to allow reprepro to sign the debs it builds.
-rm -rf $WORKSPACE/gnupg
-cp -a $HOME/.gnupg $WORKSPACE/gnupg
-
-# Copy in my ssh keys, to allow the above ssh/scp calls to work; not sure this is the best way to do it, 
-# but it shouldn't be a security issue, as only Jenkins users can see the contents of the workspace
-cp $HOME/.ssh/id_rsa $WORKSPACE
 #
 # Make project-specific changes here
 ###################################################
 
+sudo mkdir -p /var/packages/gazebo/ubuntu
 sudo pbuilder  --execute \
     --bindmounts "$WORKSPACE /var/packages/gazebo/ubuntu" \
     --basetgz $basetgz \
