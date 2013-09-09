@@ -37,7 +37,7 @@ mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker
 cat > pkg.xml << CURRENT_DELIM
  <version>
-     stable version
+     stable_version
  </version>
    
  <headers>
