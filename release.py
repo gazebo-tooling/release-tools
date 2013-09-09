@@ -22,7 +22,7 @@ UBUNTU_DISTROS_EXPERIMENTAL = ['raring']
 
 DRY_RUN = False
 NIGHTLY = False
-UPSTREAN = False
+UPSTREAM = False
 EXP_DISTROS = False
 
 def parse_args(argv):
