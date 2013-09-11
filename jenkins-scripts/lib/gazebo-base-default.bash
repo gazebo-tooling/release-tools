@@ -54,9 +54,12 @@ make install
 . /usr/share/gazebo/setup.sh
 make test ARGS="-VV" || true
 
-# Step 3: code check
-cd $WORKSPACE/gazebo
-sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+# Only run cppcheck on raring
+if [ "$DISTRO" = "raring" ]; then 
+  # Step 3: code check
+  cd $WORKSPACE/gazebo
+  sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+fi
 DELIM
 
 # Make project-specific changes here
