@@ -52,7 +52,8 @@ cmake ${GZ_CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/gazebo
 make -j${MAKE_JOBS}
 make install
 . /usr/share/gazebo/setup.sh
-make test ARGS="-VV" || true
+make test ARGS="-VV -R UNIT_*" || true
+make test ARGS="-VV -R INTEGRATION_*" || true
 
 # Only run cppcheck on raring
 if [ "$DISTRO" = "raring" ]; then 
