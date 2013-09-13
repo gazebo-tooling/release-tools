@@ -7,7 +7,7 @@
 #stop on error
 set -e
 
-distro=precise
+distro=${DISTRO}
 arch=amd64
 base=/var/cache/pbuilder-$distro-$arch
 
