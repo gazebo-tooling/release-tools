@@ -63,14 +63,18 @@ make -j${MAKE_JOBS}
 make install
 SHELL=/bin/sh . $WORKSPACE/install/share/drcsim/setup.sh
 export PATH="\$PATH:$WORKSPACE/install/bin/"
-ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-VV" || true
+#ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-VV" || true
+# Only a selection of tests
+ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-R \\(atlas_publishers_hz_gpu.test\\|atlas_sandia_hands_publishers_hz_gpu.test\\|atlas_rosapi.test\\|atlas_sandia_hands_rosapi.test\\|vrc_task_1_scoring.test\\|vrc_task_1_gzlog_stop.test\\|vrc_task_1_dynamic_walking.test\\|multicamera_connection.test\\|vrc_final_task1_start_standup.test\\|vrc_final_task1_atlas_pubs_gpu.test\\)
 ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results rosrun rosunit clean_junit_xml.py
 
 # Step 3: code check
-CODE_CHECK_APP=$WORKSPACE/drcsim/tools/code_check.sh
-if [ -f \$CODE_CHECK_APP ]; then
-   cd $WORKSPACE/drcsim
-   sh \$CODE_CHECK_APP -xmldir $WORKSPACE/build/cppcheck_results || true
+if [ "$DISTRO" = "raring" ]; then 
+  CODE_CHECK_APP=$WORKSPACE/drcsim/tools/code_check.sh
+  if [ -f \$CODE_CHECK_APP ]; then
+    cd $WORKSPACE/drcsim
+    sh \$CODE_CHECK_APP -xmldir $WORKSPACE/build/cppcheck_results || true
+  fi
 fi
 DELIM
 
