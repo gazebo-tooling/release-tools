@@ -75,6 +75,9 @@ if [ "$DISTRO" = "raring" ]; then
     cd $WORKSPACE/drcsim
     sh \$CODE_CHECK_APP -xmldir $WORKSPACE/build/cppcheck_results || true
   fi
+else
+  mkdir -p $WORKSPACE/build/cppcheck_results/
+  echo "<results></results>" >> $WORKSPACE/build/cppcheck_results/empty.xml 
 fi
 DELIM
 

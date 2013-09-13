@@ -60,6 +60,9 @@ if [ "$DISTRO" = "raring" ]; then
   # Step 3: code check
   cd $WORKSPACE/gazebo
   sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+else
+  mkdir -p $WORKSPACE/build/cppcheck_results/
+  echo "<results></results>" >> $WORKSPACE/build/cppcheck_results/empty.xml 
 fi
 DELIM
 
