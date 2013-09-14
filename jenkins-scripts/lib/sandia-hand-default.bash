@@ -29,7 +29,7 @@ apt-get update
 
 apt-get install -y ${BASE_DEPENDENCIES} ros-${ROS_DISTRO}-xacro ros-${ROS_DISTRO}-ros osrf-common libboost-dev ros-${ROS_DISTRO}-image-common ros-${ROS_DISTRO}-ros-comm ros-${ROS_DISTRO}-common-msgs libqt4-dev
 
-if [ $DISTRO = quantal ]; then
+if [ $DISTRO != precise ]; then
     rosdep init && rosdep update
 fi
 
