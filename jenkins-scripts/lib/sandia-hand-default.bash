@@ -6,7 +6,7 @@ if [ -z ${DISTRO} ]; then
 fi
 
 if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=fuerte
+  ROS_DISTRO=groovy
 fi
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
