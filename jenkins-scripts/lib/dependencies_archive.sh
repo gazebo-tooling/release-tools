@@ -37,6 +37,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev
                           libboost-regex-dev
                           libboost-iostreams-dev
                           libbullet-dev
+                          libsimbody-dev
                           sdformat"
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev
