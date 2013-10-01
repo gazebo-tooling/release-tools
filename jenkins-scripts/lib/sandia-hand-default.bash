@@ -47,11 +47,10 @@ cd $WORKSPACE/sandia-hand
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-ls $WORKSPACE
-CMAKE_PREFIX_PATH=/usr/share:/opt/ros/${ROS_DISTRO} cmake -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/sandia-hand
-make -j3
+cmake -DCMAKE_INSTALL_PREFIX=/opt/ros/${ROS_DISTRO} $WORKSPACE/sandia-hand
+make -j${MAKE_JOBS}
 make install
-LD_LIBRARY_PATH=/opt/ros/${ROS_DISTRO}/lib make test ARGS="-VV" || true
+make test ARGS="-VV" || true
 DELIM
 
 # Make project-specific changes here
