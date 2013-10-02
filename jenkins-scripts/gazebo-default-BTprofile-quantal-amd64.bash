@@ -5,6 +5,7 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=quantal
+export ROS_DISTRO=groovy
 
 export GZ_BUILD_TYPE=Profile
 export EXTRA_PACKAGES=libgoogle-perftools-dev

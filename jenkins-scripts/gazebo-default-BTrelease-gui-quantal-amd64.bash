@@ -7,6 +7,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
 
 export DISTRO=quantal
+export ROS_DISTRO=groovy
 
 export GZ_BUILD_TYPE=Release
 
