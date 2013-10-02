@@ -73,5 +73,5 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
                           ${GAZEBO_DEB_PACKAGE}"
 
 DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} \\
-                          sandia-hand                 \\
-			  osrf-common"
+                          sandia-hand-prerelease      \\
+			  osrf-common-prerelease"
