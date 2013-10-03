@@ -13,10 +13,16 @@ set -ex
 
 # Step 1: install everything you need
 
+# OSRF repository to get bullet and sdformat
+apt-get install -y wget
+sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
+wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
+apt-get update
+
 # Required stuff for Gazebo
-apt-get install -y build-essential libtinyxml-dev libtbb-dev libxml2-dev libqt4-dev pkg-config  libprotoc-dev libfreeimage-dev libprotobuf-dev protobuf-compiler libboost-all-dev freeglut3-dev cmake libogre-dev libcurl4-openssl-dev libtar-dev
+apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} 
 # Optional stuff for Gazebo
-apt-get install -y robot-player-dev libcegui-mk2-dev libavformat-dev libavcodec-dev libltdl-dev libgtest-dev
+apt-get install -y ${GAZEBO_EXTRA_DEPENDENCIES}
 #TODO: pare down to just the following install; blocked on https://bitbucket.org/osrf/gazebo/issue/27/
 apt-get install -y doxygen graphviz texlive-latex-base texlive-latex-extra texlive-latex-recommended latex-xcolor texlive-fonts-recommended
 
