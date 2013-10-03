@@ -42,7 +42,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libboost-iostreams-dev           \\
                           libbullet-dev                    \\
                           libsimbody-dev                   \\
-                          sdformat"
+                          sdformat-prerelease"
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libcegui-mk2-dev \\
