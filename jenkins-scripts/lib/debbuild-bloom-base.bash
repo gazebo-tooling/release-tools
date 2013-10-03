@@ -52,11 +52,13 @@ cd $WORKSPACE/build
 
 # Step 4: checkout bloom software -release repo 
 rm -rf /tmp/$PACKAGE-release
-hg clone https://bitbucket.org/osrf/$PACKAGE-release /tmp/$PACKAGE-release 
 git clone ${UPSTREAM_RELEASE_REPO} /tmp/$PACKAGE-release
 cd /tmp/$PACKAGE-release
 
-git checkout tags/debian/$PACKAGE_NAME\_$VERSION-$RELEASE_VERSION_$DISTRO
+FULL_VERSION=$VERSION-$RELEASE_VERSION
+
+git checkout -b tags/release/$DISTRO/$PACKAGE/\$FULL_VERSION
+git checkout tags/debian/$PACKAGE\_\$FULL_VERSION_$DISTRO
 
 # Step 5: use debuild to create source package
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
