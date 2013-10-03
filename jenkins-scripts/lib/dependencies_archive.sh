@@ -66,7 +66,7 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
                           ros-${ROS_DISTRO}-robot-model-visualization         \\
                           ros-${ROS_DISTRO}-image-pipeline                    \\
                           ros-${ROS_DISTRO}-image-transport-plugins           \\
-                          ros-${ROS_DISTRO}-gazebo-plugins                    \\
+                          ros-${ROS_DISTRO}-gazebo-plugins-prerelease         \\
                           ros-${ROS_DISTRO}-compressed-depth-image-transport  \\
                           ros-${ROS_DISTRO}-compressed-image-transport        \\
                           ros-${ROS_DISTRO}-theora-image-transport            \\
