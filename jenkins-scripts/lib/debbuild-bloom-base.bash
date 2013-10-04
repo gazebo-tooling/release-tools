@@ -12,6 +12,14 @@ if [ "${VERSION}" = "nightly" ]; then
    NIGHTLY_MODE=true
 fi
 
+if [ "$DISTRO" = 'precise' ] || [ "$DISTRO" = 'quantal' ]; then
+    ROS_DISTRO="groovy"
+else
+    ROS_DISTRO="hydro"
+fi
+
+PACKAGE_UNDERSCORE_NAME=${PACKAGE/-/_}
+
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
@@ -56,9 +64,13 @@ git clone ${UPSTREAM_RELEASE_REPO} /tmp/$PACKAGE-release
 cd /tmp/$PACKAGE-release
 
 FULL_VERSION=$VERSION-$RELEASE_VERSION
+FULL_DEBIAN_BRANCH_NAME=ros-$ROS_DISTRO-$PACKAGE\_\$FULL_VERSION\_$DISTRO
 
-git checkout -b tags/release/$DISTRO/$PACKAGE/\$FULL_VERSION
-git checkout tags/debian/$PACKAGE\_\$FULL_VERSION_$DISTRO
+git checkout release/$ROS_DISTRO/$PACKAGE_UNDERSCORE_NAME/\$FULL_VERSION
+git checkout debian/\$FULL_DEBIAN_BRANCH_NAME
+
+echo | dh_make -s --createorig -p ros-$ROS_DISTRO-${PACKAGE}_${VERSION} || true
+ls ..
 
 # Step 5: use debuild to create source package
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
@@ -82,15 +94,13 @@ echo "HOOKDIR=\$PBUILD_DIR" > \$HOME/.pbuilderrc
 pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 
 # Set proper package names
-PKG_NAME=${PACKAGE_NAME}_${VERSION}-${RELEASE_VERSION}~${DISTRO}_${ARCH}.deb
-DBG_PKG_NAME=${PACKAGE_NAME}-dbg_${VERSION}-${RELEASE_VERSION}~${DISTRO}_${ARCH}.deb
+PKG_NAME=ros-${ROS_DISTRO}-${PACKAGE}_${VERSION}-${RELEASE_VERSION}${DISTRO}_${ARCH}.deb
 
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
 
 # Both paths are need, beacuse i386 use a different path
 MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}_result/\${PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${PKG_NAME}"
-DEBUG_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}_result/\${DBG_PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${DBG_PKG_NAME}"
 
 FOUND_PKG=0
 for pkg in \${MAIN_PKGS}; do
@@ -105,19 +115,6 @@ for pkg in \${MAIN_PKGS}; do
     fi
 done
 test \$FOUND_PKG -eq 1 || exit 1
-
-FOUND_PKG=0
-for pkg in \${DEBUG_PKGS}; do
-    if [ -f \${pkg} ]; then
-        # Check for correctly generated debug packages size > 3Kb
-        # when not valid instructions in rules/control it generates 1.5K package
-        test -z \$(find \$pkg -size +3k) && exit 1
-        cp \${pkg} $WORKSPACE/pkgs
-        FOUND_PKG=1
-        break;
-    fi
-done
-test \$FOUND_PKG -eq 1 || echo "No debug packages found. No upload"
 DELIM
 
 #
