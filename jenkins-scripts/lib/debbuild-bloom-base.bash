@@ -20,7 +20,9 @@ fi
 
 PACKAGE_UNDERSCORE_NAME=${PACKAGE/-/_}
 
-. boilerplate_prepare.sh
+[[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
+SCRIPT_DIR="${SCRIPT_DIR%/*}"
+. ${SCRIPT_DIR}/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
 ###################################################
