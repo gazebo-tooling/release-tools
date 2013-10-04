@@ -20,7 +20,7 @@ fi
 
 PACKAGE_UNDERSCORE_NAME=${PACKAGE/-/_}
 
-. ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. boilerplate_prepare.sh
 
 cat > build.sh << DELIM
 ###################################################
