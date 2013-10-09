@@ -36,7 +36,7 @@ apt-get install -y ${BASE_DEPENDENCIES}                 \\
                    ros-${ROS_DISTRO}-message-generation \\
                    libboost-dev                         \\
                    libqt4-dev                           \\
-                   osrf-common-prerelease
+                   osrf-common
 
 rosdep init && rosdep update
 
