@@ -42,7 +42,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libboost-iostreams-dev           \\
                           libbullet-dev                    \\
                           libsimbody-dev                   \\
-                          sdformat-prerelease"
+                          sdformat"
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libcegui-mk2-dev \\
@@ -73,5 +73,5 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
                           ${GAZEBO_DEB_PACKAGE}"
 
 DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} \\
-                          sandia-hand-prerelease      \\
-			  osrf-common-prerelease"
+                          sandia-hand                 \\
+                          osrf-common"
