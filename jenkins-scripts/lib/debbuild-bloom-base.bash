@@ -18,7 +18,7 @@ else
     ROS_DISTRO="hydro"
 fi
 
-PACKAGE_UNDERSCORE_NAME=${PACKAGE/-/_}
+PACKAGE_UNDERSCORE_NAME=${PACKAGE//-/_}
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
