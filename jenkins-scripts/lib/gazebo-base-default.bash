@@ -89,6 +89,7 @@ cat > devel.xml << DEVEL_DELIM
 DEVEL_DELIM
 
 abi-compliance-checker -lib gazebo -old pkg.xml -new devel.xml || true
+cat /var/lib/jenkins/workspace/gazebo-default-abichecker-precise-amd64/abi_checker/logs/gazebo/stable_version/log.txt
 cp compat_reports/gazebo/stable_version_to_development/compat_report.html $WORKSPACE/
 DELIM
 
