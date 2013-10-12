@@ -9,8 +9,8 @@ cat > build.sh << DELIM
 #
 set -ex
 
-# Step 1: install everything you need
-apt-get install -y ${SDFORMAT_BASE_DEPENDENCIES} git
+# Step 1: install everything you need ans sdformat from binaries
+apt-get install -y ${SDFORMAT_BASE_DEPENDENCIES} sdformat git exuberant-ctags 
 
 # Step 2: configure and build
 rm -rf $WORKSPACE/build
@@ -59,6 +59,8 @@ cat > devel.xml << DEVEL_DELIM
 DEVEL_DELIM
 
 abi-compliance-checker -lib sdformat -old pkg.xml -new devel.xml
+ls
+cp compat_reports/sdformat/stable_version_to_development/compat_report.html $WORKSPACE/
 DELIM
 
 # Make project-specific changes here
