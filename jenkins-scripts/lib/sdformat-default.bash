@@ -10,6 +10,7 @@ cat > build.sh << DELIM
 set -ex
 
 # Step 1: install everything you need ans sdformat (OSRF repo) from binaries
+apt-get install -y wget 
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
