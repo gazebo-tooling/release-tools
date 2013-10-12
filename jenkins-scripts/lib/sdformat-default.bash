@@ -32,11 +32,13 @@ git clone git://github.com/lvc/abi-compliance-checker.git
 cd abi-compliance-checker
 perl Makefile.pl -install --prefix=/usr
 
+BIN_VERSION=\$(dpkg -l libssl1.0.0 | tail -n 1 | awk '{ print  \$3 }')
+
 mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker
 cat > pkg.xml << CURRENT_DELIM
  <version>
-     stable_version
+     sdformat deb pkg version \$BIN_VERSION
  </version>
    
  <headers>
@@ -50,11 +52,11 @@ CURRENT_DELIM
 
 cat > devel.xml << DEVEL_DELIM
  <version>
-     development
+     sdformat branch: $BRANCH
  </version>
    
  <headers>
-    /usr/local/include/sdformat-1.4//
+    /usr/local/include/sdformat-1.4/
  </headers>
    
  <libs>
