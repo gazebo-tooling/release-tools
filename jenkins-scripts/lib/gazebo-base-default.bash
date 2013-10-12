@@ -27,8 +27,8 @@ apt-get update
 
 # Step 1: install everything you need
 
-# Required stuff for Gazebo
-apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES} git
+# Required stuff for Gazebo and install gazebo binary itself
+apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES} git gazebo
 
 # Step 2: configure and build
 
