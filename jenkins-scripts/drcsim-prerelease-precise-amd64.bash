@@ -5,7 +5,7 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=precise
-export ROS_DISTRO=fuerte
+export ROS_DISTRO=groovy
 export GAZEBO_DEB_PACKAGE=gazebo-prerelease 
 
 . ${SCRIPT_DIR}/lib/drcsim-base.bash

@@ -7,7 +7,7 @@ if [ -z ${DISTRO} ]; then
 fi
 
 if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=fuerte
+  ROS_DISTRO=groovy
 fi
 
 # Define making jobs by default if not present

@@ -4,7 +4,5 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export DISTRO=precise
-export ROS_DISTRO=groovy
-
-. ${SCRIPT_DIR}/lib/drcsim-base.bash
+export RELEASE_REPO_DIRECTORY=${DISTRO}
+. ${SCRIPT_DIR}/lib/simbody-release-base.bash
