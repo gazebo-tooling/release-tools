@@ -28,7 +28,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Required stuff for Gazebo and install gazebo binary itself
-apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES} git gazebo
+apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES} git gazebo exuberant-ctags
 
 # Step 2: configure and build
 
@@ -88,7 +88,7 @@ cat > devel.xml << DEVEL_DELIM
  </libs>
 DEVEL_DELIM
 
-abi-compliance-checker -lib gazebo -old pkg.xml -new devel.xml
+abi-compliance-checker -lib gazebo -old pkg.xml -new devel.xml || true
 cp compat_reports/gazebo/stable_version_to_development/compat_report.html $WORKSPACE/
 DELIM
 
