@@ -28,19 +28,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Required stuff for Gazebo
-apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES}
-
-# Optional stuff. Check for graphic card support
-if ${GRAPHIC_CARD_FOUND}; then
-    apt-get install -y ${GRAPHIC_CARD_PKG}
-    # Check to be sure version of kernel graphic card support is the same.
-    # It will kill DRI otherwise
-    CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\ " | awk '{ print \$3 }' | sed 's:-.*::')
-    if [ "\${CHROOT_GRAPHIC_CARD_PKG_VERSION}" != "${GRAPHIC_CARD_PKG_VERSION}" ]; then
-       echo "Package ${GRAPHIC_CARD_PKG} has different version in chroot and host system. Maybe you need to update your host" 
-       exit 1
-    fi
-fi
+apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES} git
 
 # Step 2: configure and build
 
@@ -48,15 +36,60 @@ fi
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
-cmake ${GZ_CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/gazebo
+cmake ${GZ_CMAKE_BUILD_TYPE} -DENABLE_TESTS_COMPILATION:BOOL=False -DCMAKE_INSTALL_PREFIX=/usr/local $WORKSPACE/gazebo
 make -j${MAKE_JOBS}
 make install
-. /usr/share/gazebo/setup.sh
-make test ARGS="-VV" || true
 
-# Step 3: code check
-cd $WORKSPACE/gazebo
-sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+# Install abi-compliance-checker.git
+cd $WORKSPACE
+rm -fr $WORKSPACE/abi-compliance-checker
+git clone git://github.com/lvc/abi-compliance-checker.git  
+cd abi-compliance-checker
+perl Makefile.pl -install --prefix=/usr
+
+GAZEBO_LIBS=\$(dpkg -L gazebo | grep lib.*.so)
+GAZEBO_LIBS_LOCAL=\$(dpkg -L gazebo | grep lib.*.so | sed -e 's:^/usr:/usr/local:g')
+echo \$GAZEBO_LIBS
+echo \$GAZEBO_LIBS_LOCAL
+
+mkdir -p $WORKSPACE/abi_checker
+cd $WORKSPACE/abi_checker
+cat > pkg.xml << CURRENT_DELIM
+ <version>
+     stable_version
+ </version>
+ <headers>
+   /usr/include/gazebo-2.0/gazebo
+ </headers>
+ <skip_headers>
+   /usr/include/gazebo-2.0/gazebo/GIMPACT
+   /usr/include/gazebo-2.0/gazebo/opcode
+ </skip_headers>
+ <libs>
+  \$GAZEBO_LIBS
+ </libs>
+CURRENT_DELIM
+
+cat > devel.xml << DEVEL_DELIM
+ <version>
+     development
+ </version>
+ 
+  <headers>
+   /usr/local/include/gazebo-2.0/gazebo
+ </headers>
+ 
+ <skip_headers>
+   /usr/local/include/gazebo-2.0/gazebo/GIMPACT
+   /usr/local/include/gazebo-2.0/gazebo/opcode
+ </skip_headers>
+ <libs>
+  \$GAZEBO_LIBS_LOCAL
+ </libs>
+DEVEL_DELIM
+
+abi-compliance-checker -lib gazebo -old pkg.xml -new devel.xml
+cp compat_reports/gazebo/stable_version_to_development/compat_report.html $WORKSPACE/
 DELIM
 
 # Make project-specific changes here
