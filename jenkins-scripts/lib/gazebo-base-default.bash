@@ -58,13 +58,17 @@ cat > pkg.xml << CURRENT_DELIM
  <version>
      stable_version
  </version>
+
  <headers>
    /usr/include/gazebo-2.0/gazebo
  </headers>
+
  <skip_headers>
    /usr/include/gazebo-2.0/gazebo/GIMPACT
    /usr/include/gazebo-2.0/gazebo/opcode
+   /usr/include/gazebo-2.0/gazebo/test
  </skip_headers>
+
  <libs>
   \$GAZEBO_LIBS
  </libs>
@@ -82,7 +86,9 @@ cat > devel.xml << DEVEL_DELIM
  <skip_headers>
    /usr/local/include/gazebo-2.0/gazebo/GIMPACT
    /usr/local/include/gazebo-2.0/gazebo/opcode
+   /usr/local/include/gazebo-2.0/gazebo/test
  </skip_headers>
+ 
  <libs>
   \$GAZEBO_LIBS_LOCAL
  </libs>
