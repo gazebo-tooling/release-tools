@@ -64,6 +64,7 @@ cat > devel.xml << DEVEL_DELIM
  </libs>
 DEVEL_DELIM
 
+rm -fr $WORKSPACE/compat_report.html
 abi-compliance-checker -lib sdformat -old pkg.xml -new devel.xml
 ls
 cp compat_reports/sdformat/stable_version_to_development/compat_report.html $WORKSPACE/
