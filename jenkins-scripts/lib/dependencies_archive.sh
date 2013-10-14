@@ -42,7 +42,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libboost-iostreams-dev           \\
                           libbullet-dev                    \\
                           libsimbody-dev                   \\
-                          sdformat-prerelease"
+                          sdformat"
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libcegui-mk2-dev \\
@@ -52,7 +52,7 @@ GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
 
 GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
 if [ -z $GAZEBO_DEB_PACKAGE ]; then
-    GAZEBO_DEB_PACKAGE=gazebo-prerelease
+    GAZEBO_DEB_PACKAGE=gazebo
 fi
 
 # image-transport-plugins is needed to properly advertise compressed image topics
@@ -66,12 +66,12 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
                           ros-${ROS_DISTRO}-robot-model-visualization         \\
                           ros-${ROS_DISTRO}-image-pipeline                    \\
                           ros-${ROS_DISTRO}-image-transport-plugins           \\
-                          ros-${ROS_DISTRO}-gazebo-plugins-prerelease         \\
+                          ros-${ROS_DISTRO}-gazebo-plugins                    \\
                           ros-${ROS_DISTRO}-compressed-depth-image-transport  \\
                           ros-${ROS_DISTRO}-compressed-image-transport        \\
                           ros-${ROS_DISTRO}-theora-image-transport            \\
                           ${GAZEBO_DEB_PACKAGE}"
 
 DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} \\
-                          sandia-hand-prerelease      \\
-			  osrf-common-prerelease"
+                          sandia-hand                 \\
+			  osrf-common"
