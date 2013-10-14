@@ -50,22 +50,27 @@ rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 
+# Hack to support gazebo2 and friends
+if [ $PACKAGE = 'gazebo2' ]; then
+    REAL_PACKAGE_NAME='gazebo'
+    REAL_PACKAGE_ALIAS='gazebo'
+else
+    REAL_PACKAGE_NAME=$PACKAGE
+    REAL_PACKAGE_ALIAS=$PACKAGE_ALIAS
+fi
+
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
-  hg clone https://bitbucket.org/osrf/$PACKAGE -r default
-  PACKAGE_SRC_BUILD_DIR=$PACKAGE
-  cd $PACKAGE
+  hg clone https://bitbucket.org/osrf/\$REAL_PACKAGE_NAME -r default
+  PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME
+  cd \$REAL_PACKAGE_NAME
   # Store revision for use in version
   REV=\$(hg parents --template="{node|short}\n")
 else
-  wget --quiet -O ${PACKAGE_ALIAS}_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
-  rm -rf $PACKAGE-$VERSION
-  tar xf ${PACKAGE_ALIAS}_$VERSION.orig.tar.bz2
-  PACKAGE_SRC_BUILD_DIR=$PACKAGE-$VERSION
-  # Hack to support sdf special name for bitbucket
-  if [ '$PACKAGE' = 'sdf' ]; then
-    PACKAGE_SRC_BUILD_DIR="sdformat-$VERSION"   
-  fi
+  wget --quiet -O \$REAL_PACKAGE_ALIAS_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
+  rm -rf \$REAL_PACKAGE_NAME-$VERSION
+  tar xf \$REAL_PACKAGE_ALIAS\_$VERSION.orig.tar.bz2
+  PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME-$VERSION
 fi
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
