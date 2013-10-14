@@ -95,7 +95,7 @@ cat > devel.xml << DEVEL_DELIM
 DEVEL_DELIM
 
 abi-compliance-checker -lib gazebo -old pkg.xml -new devel.xml || true
-cp compat_reports/gazebo/stable_version_to_development/compat_report.html $WORKSPACE/
+# copy method version independant ( cp ... /*/ ... was not working)
 find compat_reports/ -name compat_report.html -exec cp {} $WORKSPACE/ \;
 DELIM
 
