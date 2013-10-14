@@ -49,14 +49,14 @@ perl Makefile.pl -install --prefix=/usr
 
 GAZEBO_LIBS=\$(dpkg -L gazebo | grep lib.*.so)
 GAZEBO_LIBS_LOCAL=\$(dpkg -L gazebo | grep lib.*.so | sed -e 's:^/usr:/usr/local:g')
-echo \$GAZEBO_LIBS
-echo \$GAZEBO_LIBS_LOCAL
+
+BIN_VERSION=\$(dpkg -l gazebo | tail -n 1 | awk '{ print  \$3 }')
 
 mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker
 cat > pkg.xml << CURRENT_DELIM
  <version>
-     stable_version
+     .deb pkg version: \$BIN_VERSION
  </version>
 
  <headers>
@@ -76,7 +76,7 @@ CURRENT_DELIM
 
 cat > devel.xml << DEVEL_DELIM
  <version>
-     development
+     branch: $BRANCH
  </version>
  
   <headers>
