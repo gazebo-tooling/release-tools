@@ -54,6 +54,7 @@ make install
 . /usr/share/gazebo/setup.sh
 make test ARGS="-VV -R UNIT_*" || true
 make test ARGS="-VV -R INTEGRATION_*" || true
+make test ARGS="-VV -R REGRESSION_*" || true
 
 # Only run cppcheck on raring
 if [ "$DISTRO" = "raring" ]; then 
