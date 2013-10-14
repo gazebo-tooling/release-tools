@@ -23,7 +23,6 @@ cd $WORKSPACE/build
 cmake $WORKSPACE/sdformat -DCMAKE_INSTALL_PREFIX=/usr/local
 make -j3
 make install
-make test ARGS="-VV" || true
 
 # Install abi-compliance-checker.git
 cd $WORKSPACE
