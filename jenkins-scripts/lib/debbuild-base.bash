@@ -130,6 +130,8 @@ DELIM_ROS_DEP
 chmod a+x \$PBUILD_DIR/A10_run_rosdep
 echo "HOOKDIR=\$PBUILD_DIR" > \$HOME/.pbuilderrc
 
+export DEB_BUILD_OPTIONS=parallel=${MAKE_JOBS}
+
 # Step 6: use pbuilder-dist to create binary package(s)
 pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 
