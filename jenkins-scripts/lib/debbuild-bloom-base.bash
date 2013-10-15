@@ -77,6 +77,7 @@ ls ..
 debuild --no-tgz-check -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
 # Need osrf yaml file to translate gazebo -> gazebo_current
+mkdir -p /etc/ros/rosdep/sources.list.d
 wget https://raw.github.com/osrf/osrf-rosdep/master/osrf.yaml -O /etc/ros/rosdep/sources.list.d/00-osrf.list 
 
 PBUILD_DIR=\$HOME/.pbuilder
