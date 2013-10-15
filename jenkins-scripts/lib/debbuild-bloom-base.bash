@@ -69,16 +69,16 @@ FULL_DEBIAN_BRANCH_NAME=ros-$ROS_DISTRO-$PACKAGE\_\$FULL_VERSION\_$DISTRO
 git checkout release/$ROS_DISTRO/$PACKAGE_UNDERSCORE_NAME/\$FULL_VERSION
 git checkout debian/\$FULL_DEBIAN_BRANCH_NAME
 
+if [ -f debian/control ]; then
+cat debian/control
+fi
+
 echo | dh_make -s --createorig -p ros-$ROS_DISTRO-${PACKAGE}_${VERSION} || true
 ls ..
 
 # Step 5: use debuild to create source package
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
 debuild --no-tgz-check -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
-
-# Need osrf yaml file to translate gazebo -> gazebo_current
-mkdir -p /etc/ros/rosdep/sources.list.d
-wget https://raw.github.com/osrf/osrf-rosdep/master/osrf.yaml -O /etc/ros/rosdep/sources.list.d/00-osrf.list 
 
 PBUILD_DIR=\$HOME/.pbuilder
 mkdir -p \$PBUILD_DIR
