@@ -76,6 +76,9 @@ ls ..
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
 debuild --no-tgz-check -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
+# Need osrf yaml file to translate gazebo -> gazebo_current
+wget https://raw.github.com/osrf/osrf-rosdep/master/osrf.yaml -O /etc/ros/rosdep/sources.list.d/00-osrf.list 
+
 PBUILD_DIR=\$HOME/.pbuilder
 mkdir -p \$PBUILD_DIR
 cat > \$PBUILD_DIR/A10_run_rosdep << DELIM_ROS_DEP
