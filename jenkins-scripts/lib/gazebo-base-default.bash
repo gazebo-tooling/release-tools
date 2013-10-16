@@ -48,7 +48,10 @@ fi
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
-cmake ${GZ_CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/gazebo
+cmake ${GZ_CMAKE_BUILD_TYPE}         \\
+    -DCMAKE_INSTALL_PREFIX=/usr      \\
+    -DENABLE_SCREEN_TESTS:BOOL=False \\
+  $WORKSPACE/gazebo
 make -j${MAKE_JOBS}
 make install
 . /usr/share/gazebo/setup.sh

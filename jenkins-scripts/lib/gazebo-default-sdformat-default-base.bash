@@ -61,7 +61,10 @@ hg clone https://bitbucket.org/osrf/gazebo $WORKSPACE/gazebo
 rm -rf $WORKSPACE/gazebo/build $WORKSPACE/gazebo/install
 mkdir -p $WORKSPACE/gazebo/build $WORKSPACE/gazebo/install
 cd $WORKSPACE/gazebo/build
-cmake ${GZ_CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/gazebo
+cmake ${GZ_CMAKE_BUILD_TYPE}         \\
+    -DCMAKE_INSTALL_PREFIX=/usr      \\
+    -DENABLE_SCREEN_TESTS:BOOL=False \\
+  $WORKSPACE/gazebo
 make -j${MAKE_JOBS}
 make install
 . /usr/share/gazebo-1.*/setup.sh
