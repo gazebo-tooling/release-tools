@@ -17,6 +17,8 @@ DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
 UBUNTU_DISTROS = ['precise', 'quantal','raring']
+ROS_DISTROS_IN_RARING = [ 'hydro' ];
+ROS_DISTROS_IN_PRECISE_QUANTAL = [ 'groovy', 'hydro' ]
 
 DRY_RUN = False
 
@@ -80,9 +82,9 @@ def go(argv):
             # raring           -> hydro
             # quantal, precise -> groovy + hydro
             if (a == 'raring'):
-                ROS_DISTROS = [ 'hydro' ]
+                ROS_DISTROS = ROS_DISTROS_IN_RARING
             else:
-                ROS_DISTROS = [ 'groovy' , 'hydro' ]
+                ROS_DISTROS = ROS_DISTROS_IN_PRECISE_QUANTAL
             for r in ROS_DISTROS:
                 url = '%s&ARCH=%s&DISTRO=%s&ROS_DISTRO=%s'%(base_url, a, d, r)
                 print('Accessing: %s'%(url))
