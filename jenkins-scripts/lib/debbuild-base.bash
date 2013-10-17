@@ -50,8 +50,8 @@ rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 
-# Hack to support gazebo2 and friends
-if [ $PACKAGE = 'gazebo2' ]; then
+# Hack to support gazebo-current and friends
+if [ $PACKAGE = 'gazebo-current' ]; then
     REAL_PACKAGE_NAME='gazebo'
     REAL_PACKAGE_ALIAS='gazebo'
 else
