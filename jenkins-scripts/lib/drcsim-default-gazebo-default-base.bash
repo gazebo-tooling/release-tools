@@ -95,7 +95,6 @@ cd $WORKSPACE/gazebo/build
 CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO} cmake ${GZ_CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/gazebo
 make -j1
 make install
-. /usr/share/gazebo-1.*/setup.sh
 
 # Normal cmake routine
 . /opt/ros/${ROS_DISTRO}/setup.sh
