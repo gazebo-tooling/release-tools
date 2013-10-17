@@ -12,12 +12,6 @@ if [ "${VERSION}" = "nightly" ]; then
    NIGHTLY_MODE=true
 fi
 
-if [ "$DISTRO" = 'precise' ] || [ "$DISTRO" = 'quantal' ]; then
-    ROS_DISTRO="groovy"
-else
-    ROS_DISTRO="hydro"
-fi
-
 PACKAGE_UNDERSCORE_NAME=${PACKAGE//-/_}
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh

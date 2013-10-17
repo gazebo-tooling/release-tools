@@ -16,7 +16,7 @@ UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['precise', 'quantal']
+UBUNTU_DISTROS = ['precise', 'quantal','raring']
 
 DRY_RUN = False
 
@@ -76,10 +76,18 @@ def go(argv):
     distros = UBUNTU_DISTROS
     for d in distros:
         for a in UBUNTU_ARCHS:
-            url = '%s&ARCH=%s&DISTRO=%s'%(base_url, a, d)
-            print('Accessing: %s'%(url))
-            if not DRY_RUN:
-                urllib.urlopen(url)
+            # Process ROS distros for each ubuntu distro
+            # raring           -> hydro
+            # quantal, precise -> groovy + hydro
+            if (a == 'raring'):
+                ROS_DISTROS = [ 'hydro' ]
+            else:
+                ROS_DISTROS = [ 'groovy' , 'hydro' ]
+            for r in ROS_DISTROS:
+                url = '%s&ARCH=%s&DISTRO=%s&ROS_DISTRO=%s'%(base_url, a, d, r)
+                print('Accessing: %s'%(url))
+                if not DRY_RUN:
+                    urllib.urlopen(url)
 
 if __name__ == '__main__':
     go(sys.argv)
