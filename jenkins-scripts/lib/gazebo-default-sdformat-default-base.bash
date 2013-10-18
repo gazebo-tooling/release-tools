@@ -1,17 +1,16 @@
 #!/bin/bash -x
-
-#stop on error
 set -e
 
-# Keep the option of default to not really send a build type and let our own gazebo cmake rules
-# to decide what is the default mode.
+# Use always DISPLAY in drcsim project
+export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+
+. ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+
 if [ -z ${GZ_BUILD_TYPE} ]; then
     GZ_CMAKE_BUILD_TYPE=
 else
     GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
 fi
-
-. ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
 ###################################################
@@ -19,16 +18,17 @@ cat > build.sh << DELIM
 #
 set -ex
 
-# OSRF repository to get bullet
+# get OSRF repo's key
 apt-get install -y wget
+# Also get drc repo's key, to be used in getting Gazebo
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
 # Step 1: install everything you need
 
-# Required stuff for Gazebo
-apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES}
+# Install mercurial and sdformat and gazebo Build-Depends
+apt-get install -y mercurial ca-certificates ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES} 
 
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
@@ -42,32 +42,33 @@ if ${GRAPHIC_CARD_FOUND}; then
     fi
 fi
 
-# Step 2: configure and build
+# 1. Install sdformat
+rm -fr $WORKSPACE/sdformat
+hg clone https://bitbucket.org/osrf/sdformat $WORKSPACE/sdformat
 
-# Normal cmake routine for Gazebo
-rm -rf $WORKSPACE/build $WORKSPACE/install
-mkdir -p $WORKSPACE/build $WORKSPACE/install
-cd $WORKSPACE/build
+cd $WORKSPACE/sdformat
+rm -rf $WORKSPACE/sdformat/build
+mkdir -p $WORKSPACE/sdformat/build
+cd $WORKSPACE/sdformat/build
+cmake -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/sdformat
+make -j${MAKE_JOBS}
+make install
+
+# 2. Install Gazebo
+rm -fr $WORKSPACE/gazebo
+hg clone https://bitbucket.org/osrf/gazebo $WORKSPACE/gazebo
+
+rm -rf $WORKSPACE/gazebo/build $WORKSPACE/gazebo/install
+mkdir -p $WORKSPACE/gazebo/build $WORKSPACE/gazebo/install
+cd $WORKSPACE/gazebo/build
 cmake ${GZ_CMAKE_BUILD_TYPE}         \\
     -DCMAKE_INSTALL_PREFIX=/usr      \\
     -DENABLE_SCREEN_TESTS:BOOL=False \\
   $WORKSPACE/gazebo
 make -j${MAKE_JOBS}
 make install
-. /usr/share/gazebo/setup.sh
-make test ARGS="-VV -R UNIT_*" || true
-make test ARGS="-VV -R INTEGRATION_*" || true
-make test ARGS="-VV -R REGRESSION_*" || true
-
-# Only run cppcheck on raring
-if [ "$DISTRO" = "raring" ]; then 
-  # Step 3: code check
-  cd $WORKSPACE/gazebo
-  sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
-else
-  mkdir -p $WORKSPACE/build/cppcheck_results/
-  echo "<results></results>" >> $WORKSPACE/build/cppcheck_results/empty.xml 
-fi
+. /usr/share/gazebo-1.*/setup.sh
+make test ARGS="-VV" || true
 DELIM
 
 # Make project-specific changes here
@@ -77,4 +78,3 @@ sudo pbuilder  --execute \
     --bindmounts $WORKSPACE \
     --basetgz $basetgz \
     -- build.sh
-

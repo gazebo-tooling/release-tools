@@ -18,6 +18,15 @@ BASE_DEPENDENCIES="build-essential \\
                    xsltproc        \\
                    python"
 
+# 1. SDFORMAT
+SDFORMAT_BASE_DEPENDENCIES="python                       \\
+                            libboost-system-dev          \\
+                            libboost-filesystem-dev      \\
+                            libboost-program-options-dev \\
+                            libboost-regex-dev           \\
+                            libboost-iostreams-dev       \\
+                            libtinyxml-dev"
+
 # GAZEBO related dependencies
 GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libprotoc-dev                    \\
