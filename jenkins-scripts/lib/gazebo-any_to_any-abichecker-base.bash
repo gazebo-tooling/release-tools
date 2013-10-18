@@ -21,7 +21,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Required stuff for Gazebo and install gazebo binary itself
-apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES} mercurial git exuberant-ctags
+apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES} mercurial ca-certificates git exuberant-ctags
 
 # Step 2: configure and build
 
