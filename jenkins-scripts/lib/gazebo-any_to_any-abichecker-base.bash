@@ -25,8 +25,11 @@ apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXT
 
 # Step 2: configure and build
 
+# Copy gazebo to manipulate under root perms
 # 2.1 Origin branch
-cd $WORKSPACE/gazebo
+cp -a $WORKSPACE/gazebo /tmp/gazebo
+chown -R root:root /tmp/gazebo
+cd /tmp/gazebo
 hg pull
 hg up $GAZEBO_ORIGIN_BRANCH
 # Normal cmake routine for Gazebo
@@ -35,14 +38,14 @@ mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake -DENABLE_TESTS_COMPILATION:BOOL=False \\
       -DCMAKE_INSTALL_PREFIX=/usr/local/origin_branch \\
-  $WORKSPACE/gazebo
+  /tmp/gazebo
 make -j${MAKE_JOBS}
 make install
 
 # 2.2 Target branch
 # Reusing the same building and source directory to save bandwith and
 # compilation time.
-cd $WORKSPACE/gazebo
+cd /tmp/gazebo
 hg up $GAZEBO_TARGET_BRANCH
 # Normal cmake routine for Gazebo
 cd $WORKSPACE/build
