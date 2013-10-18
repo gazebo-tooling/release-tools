@@ -29,6 +29,8 @@ apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXT
 cd $WORKSPACE/gazebo
 hg up $GAZEBO_ORIGIN_BRANCH
 # Normal cmake routine for Gazebo
+rm -rf $WORKSPACE/build
+mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake -DENABLE_TESTS_COMPILATION:BOOL=False \\
       -DCMAKE_INSTALL_PREFIX=/usr/local/origin_branch \\
