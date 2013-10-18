@@ -27,6 +27,7 @@ apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXT
 
 # 2.1 Origin branch
 cd $WORKSPACE/gazebo
+hg pull
 hg up $GAZEBO_ORIGIN_BRANCH
 # Normal cmake routine for Gazebo
 rm -rf $WORKSPACE/build
