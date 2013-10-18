@@ -61,7 +61,7 @@ GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
 
 GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
 if [ -z $GAZEBO_DEB_PACKAGE ]; then
-    GAZEBO_DEB_PACKAGE=gazebo
+    GAZEBO_DEB_PACKAGE=gazebo-current
 fi
 
 # image-transport-plugins is needed to properly advertise compressed image topics
