@@ -72,13 +72,13 @@ cat > pkg.xml << CURRENT_DELIM
  </version>
 
  <headers>
-   /usr/local/origin_branch/include/$GAZEBO_ORIGIN_DIR/gazebo
+   /usr/local/origin_branch/include/\$GAZEBO_ORIGIN_DIR/gazebo
  </headers>
 
  <skip_headers>
-   /usr/local/origin_branch/include/$GAZEBO_ORIGIN_DIR/gazebo/GIMPACT
-   /usr/local/origin_branch/include/$GAZEBO_ORIGIN_DIR/gazebo/opcode
-   /usr/local/origin_branch/include/$GAZEBO_ORIGIN_DIR/gazebo/test
+   /usr/local/origin_branch/include/\$GAZEBO_ORIGIN_DIR/gazebo/GIMPACT
+   /usr/local/origin_branch/include/\$GAZEBO_ORIGIN_DIR/gazebo/opcode
+   /usr/local/origin_branch/include/\$GAZEBO_ORIGIN_DIR/gazebo/test
  </skip_headers>
 
  <libs>
@@ -92,13 +92,13 @@ cat > devel.xml << DEVEL_DELIM
  </version>
  
  <headers>
-   /usr/local/target_branch/include/$GAZEBO_TARGET_DIR/gazebo
+   /usr/local/target_branch/include/\$GAZEBO_TARGET_DIR/gazebo
  </headers>
 
  <skip_headers>
-   /usr/local/target_branch/include/$GAZEBO_TARGET_DIR/gazebo/GIMPACT
-   /usr/local/target_branch/include/$GAZEBO_TARGET_DIR/gazebo/opcode
-   /usr/local/target_branch/include/$GAZEBO_TARGET_DIR/gazebo/test
+   /usr/local/target_branch/include/\$GAZEBO_TARGET_DIR/gazebo/GIMPACT
+   /usr/local/target_branch/include/\$GAZEBO_TARGET_DIR/gazebo/opcode
+   /usr/local/target_branch/include/\$GAZEBO_TARGET_DIR/gazebo/test
  </skip_headers>
 
  <libs>
