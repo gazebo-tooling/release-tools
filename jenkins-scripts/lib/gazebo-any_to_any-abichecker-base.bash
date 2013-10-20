@@ -51,7 +51,7 @@ hg up $GAZEBO_TARGET_BRANCH
 cd $WORKSPACE/build
 cmake -DENABLE_TESTS_COMPILATION:BOOL=False \\
       -DCMAKE_INSTALL_PREFIX=/usr/local/target_branch \\
-  $WORKSPACE/gazebo
+  /tmp/gazebo
 make -j${MAKE_JOBS}
 make install
 
