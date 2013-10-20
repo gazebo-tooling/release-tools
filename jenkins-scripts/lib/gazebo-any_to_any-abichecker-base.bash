@@ -41,6 +41,7 @@ cmake -DENABLE_TESTS_COMPILATION:BOOL=False \\
   /tmp/gazebo
 make -j${MAKE_JOBS}
 make install
+GAZEBO_ORIGIN_DIR=\$(find /usr/local/origin_branch/include -name gazebo-* -type d | sed -e 's:.*/::')
 
 # 2.2 Target branch
 # Reusing the same building and source directory to save bandwith and
@@ -54,6 +55,7 @@ cmake -DENABLE_TESTS_COMPILATION:BOOL=False \\
   /tmp/gazebo
 make -j${MAKE_JOBS}
 make install
+GAZEBO_TARGET_DIR=\$(find /usr/local/target_branch/include -name gazebo-* -type d | sed -e 's:.*/::')
 
 # Install abi-compliance-checker.git
 cd $WORKSPACE
@@ -70,13 +72,13 @@ cat > pkg.xml << CURRENT_DELIM
  </version>
 
  <headers>
-   /usr/local/origin_branch/include/gazebo-*/gazebo
+   /usr/local/origin_branch/include/$GAZEBO_ORIGIN_DIR/gazebo
  </headers>
 
  <skip_headers>
-   /usr/local/origin_branch/include/gazebo-*/gazebo/GIMPACT
-   /usr/local/origin_branch/include/gazebo-*/gazebo/opcode
-   /usr/local/origin_branch/include/gazebo-*/gazebo/test
+   /usr/local/origin_branch/include/$GAZEBO_ORIGIN_DIR/gazebo/GIMPACT
+   /usr/local/origin_branch/include/$GAZEBO_ORIGIN_DIR/gazebo/opcode
+   /usr/local/origin_branch/include/$GAZEBO_ORIGIN_DIR/gazebo/test
  </skip_headers>
 
  <libs>
@@ -90,13 +92,13 @@ cat > devel.xml << DEVEL_DELIM
  </version>
  
  <headers>
-   /usr/local/target_branch/include/gazebo-*/gazebo
+   /usr/local/target_branch/include/$GAZEBO_TARGET_DIR/gazebo
  </headers>
 
  <skip_headers>
-   /usr/local/target_branch/include/gazebo-*/gazebo/GIMPACT
-   /usr/local/target_branch/include/gazebo-*/gazebo/opcode
-   /usr/local/target_branch/include/gazebo-*/gazebo/test
+   /usr/local/target_branch/include/$GAZEBO_TARGET_DIR/gazebo/GIMPACT
+   /usr/local/target_branch/include/$GAZEBO_TARGET_DIR/gazebo/opcode
+   /usr/local/target_branch/include/$GAZEBO_TARGET_DIR/gazebo/test
  </skip_headers>
 
  <libs>
