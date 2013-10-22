@@ -16,9 +16,11 @@ if [ -z ${MAKE_JOBS} ]; then
 fi
 
 # Useful for running tests properly in ros based software
+if ${ENABLE_ROS}; then
 export ROS_HOSTNAME=localhost
 export ROS_MASTER_URI=http://localhost:11311
 export ROS_IP=127.0.0.1
+fi
 
 . ${SCRIPT_DIR}/lib/check_graphic_card.bash
 . ${SCRIPT_DIR}/lib/dependencies_archive.sh
@@ -56,7 +58,12 @@ sleep 1
 # using sudo since this is shared with pbuilder and if pbuilder is interupted it will leave a sudo only lock file.  Otherwise sudo is not necessary. 
 # And you can't chown it even with sudo and recursive
 cd $WORKSPACE/scripts/catkin-debs/
+
+if $ENABLE_ROS; then
 sudo ./setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE --repo ros@http://packages.ros.org/ros/ubuntu
+else
+sudo ./setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE
+fi
 
 sudo rm -rf $output_dir
 mkdir -p $output_dir
@@ -65,8 +72,7 @@ sudo rm -rf $work_dir
 mkdir -p $work_dir
 cd $work_dir
 
-# || true to support ROS still to release ubuntu version and not to fail
-sudo apt-get update -c $aptconffile || true
+sudo apt-get update -c $aptconffile
 
 # Setup the pbuilder environment if not existing, or update
 if [ ! -e $basetgz ] || [ ! -s $basetgz ] 
