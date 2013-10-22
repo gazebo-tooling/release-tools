@@ -57,7 +57,8 @@ GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libcegui-mk2-dev \\
                            libavformat-dev  \\
                            libavcodec-dev   \\
-                           libswscale-dev"
+                           libswscale-dev   \\
+                           ruby-ronn "
 
 GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
 if [ -z $GAZEBO_DEB_PACKAGE ]; then
