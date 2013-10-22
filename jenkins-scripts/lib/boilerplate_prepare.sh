@@ -65,7 +65,8 @@ sudo rm -rf $work_dir
 mkdir -p $work_dir
 cd $work_dir
 
-sudo apt-get update -c $aptconffile
+# || true to support ROS still to release ubuntu version and not to fail
+sudo apt-get update -c $aptconffile || true
 
 # Setup the pbuilder environment if not existing, or update
 if [ ! -e $basetgz ] || [ ! -s $basetgz ] 

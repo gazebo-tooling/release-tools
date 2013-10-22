@@ -34,7 +34,9 @@ wget http://packages.ros.org/ros.key -O - | apt-key add -
 # Also get drc repo's key, to be used in getting Gazebo
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
-apt-get update
+
+# || true to support ROS still to release ubuntu version and not to fail
+apt-get update || true
 
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
