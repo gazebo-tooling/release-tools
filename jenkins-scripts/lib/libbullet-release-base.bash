@@ -7,6 +7,10 @@ UPSTREAM_VERSION="2.82-r2704"
 VERSION="2.82"
 PACKAGE=bullet
 
+# Do not use the subprocess_reaper in debbuild. Seems not as needed as in
+# testing jobs and seems to be slow at the end of jenkins jobs
+export ENABLE_REAPER=false
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
