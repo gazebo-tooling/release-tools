@@ -41,7 +41,7 @@ rm -fr $WORKSPACE/"$PACKAGE"_*
 # Step 1: Get the source from 
 rm -fr $WORKSPACE/bullet
 cd $WORKSPACE
-wget https://bullet.googlecode.com/files/bullet-$VERSION.tgz -O bullet.tgz
+wget https://bullet.googlecode.com/files/bullet-$UPSTREAM_VERSION.tgz -O bullet.tgz
 tar xzf bullet.tgz
 mv bullet-$UPSTREAM_VERSION bullet
 
