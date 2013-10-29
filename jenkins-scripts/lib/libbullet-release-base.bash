@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+# Do not use ROS
+export ENABLE_ROS=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
