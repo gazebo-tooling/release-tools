@@ -3,7 +3,8 @@
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
-VERSION=2.82-r2704
+UPSTREAM_VERSION="2.82-r2704"
+VERSION="2.82"
 PACKAGE=bullet
 
 cat > build.sh << DELIM
@@ -42,7 +43,7 @@ rm -fr $WORKSPACE/bullet
 cd $WORKSPACE
 wget https://bullet.googlecode.com/files/bullet-$VERSION.tgz -O bullet.tgz
 tar xzf bullet.tgz
-mv bullet-$VERSION bullet
+mv bullet-$UPSTREAM_VERSION bullet
 
 cd $WORKSPACE/bullet
 
