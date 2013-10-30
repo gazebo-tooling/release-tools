@@ -49,7 +49,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libboost-program-options-dev     \\
                           libboost-regex-dev               \\
                           libboost-iostreams-dev           \\
-                          libbullet-dev                    \\
+                          libbullet2.82-dev                \\
                           libsimbody-dev                   \\
                           sdformat"
 
