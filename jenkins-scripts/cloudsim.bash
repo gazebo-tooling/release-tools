@@ -32,6 +32,10 @@ pip install softlayer
 
 ########################################################333####################
 
+## necessary for jenkins machine
+apt-get install python-dateutil
+
+## other
 apt-get install -y cmake 
 apt-get install -y python-software-properties
 
