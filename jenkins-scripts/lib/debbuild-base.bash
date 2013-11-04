@@ -158,36 +158,18 @@ fi
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
 
-# Both paths are need, beacuse i386 use a different path
-MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}_result/\${PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${PKG_NAME}"
-DEBUG_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}_result/\${DBG_PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${DBG_PKG_NAME}"
+PKGS=\`find /var/lib/jenkins/pbuilder -name *.deb || true\`
 
 FOUND_PKG=0
-for pkg in \${MAIN_PKGS}; do
-    echo "looking for \$pkg"
-    if [ -f \${pkg} ]; then
-        echo "found \$pkg"
-	# Check for correctly generated packages size > 3Kb
-        test -z \$(find \$pkg -size +3k) && exit 1
-	cp \${pkg} $WORKSPACE/pkgs
-        FOUND_PKG=1
-        break;
-    fi
+for pkg in \${PKGS}; do
+    echo "found \$pkg"
+    # Check for correctly generated packages size > 3Kb
+    test -z \$(find \$pkg -size +3k) && exit 1
+    cp \${pkg} $WORKSPACE/pkgs
+    FOUND_PKG=1
 done
+# check at least one upload
 test \$FOUND_PKG -eq 1 || exit 1
-
-FOUND_PKG=0
-for pkg in \${DEBUG_PKGS}; do
-    if [ -f \${pkg} ]; then
-        # Check for correctly generated debug packages size > 3Kb
-        # when not valid instructions in rules/control it generates 1.5K package
-        test -z \$(find \$pkg -size +3k) && exit 1
-        cp \${pkg} $WORKSPACE/pkgs
-        FOUND_PKG=1
-        break;
-    fi
-done
-test \$FOUND_PKG -eq 1 || echo "No debug packages found. No upload"
 DELIM
 
 #
