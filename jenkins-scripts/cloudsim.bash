@@ -17,10 +17,21 @@ cat > build.sh << DELIM
 set -ex
 
 
-apt-get install -y python openssh-client unzip zip mercurial apache2 redis-server python-pip python-redis
-pip install --upgrade boto
+##### From: http://gazebosim.org/wiki/Tutorials/CloudSim/setup  ###############
 
-pip install unittest-xml-reporting 
+echo "installing packages for Cloudsim: http://gazebosim.org/wiki/Tutorials/CloudSim/setup"
+
+sudo apt-get install -y redis-server python-pip python-redis python-novaclient
+
+# CloudSim is compatible with boto 2.8.0 and up, so you can't use the default 
+# package in Ubuntu 12.04
+
+sudo pip install --upgrade boto
+sudo apt-get install -y expect
+sudo pip install softlayer
+
+########################################################333####################
+
 apt-get install -y cmake 
 apt-get install -y python-software-properties
 
