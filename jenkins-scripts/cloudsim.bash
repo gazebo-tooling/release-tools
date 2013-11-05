@@ -33,13 +33,12 @@ pip install softlayer
 ########################################################333####################
 
 ## necessary for jenkins machine
-apt-get install python-dateutil
-apt-get install openssh-client
+apt-get install -y python-dateutil
+apt-get install -y openssh-client
 
 ## other
 apt-get install -y cmake 
 apt-get install -y python-software-properties
-
 
 # run redis-server as it does not seem to start on its own
 /etc/init.d/redis-server start
