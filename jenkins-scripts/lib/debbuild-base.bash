@@ -12,6 +12,10 @@ if [ "${VERSION}" = "nightly" ]; then
    NIGHTLY_MODE=true
 fi
 
+# Do not use the subprocess_reaper in debbuild. Seems not as needed as in
+# testing jobs and seems to be slow at the end of jenkins jobs
+export ENABLE_REAPER=false
+
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
@@ -26,11 +30,14 @@ set -ex
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools mercurial debhelper wget
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools mercurial debhelper wget pkg-kde-tools 
 
+if $ENABLE_ROS; then
 # get ROS repo's key, to be used in creating the pbuilder chroot (to allow it to install packages from that repo)
 sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $DISTRO main" > /etc/apt/sources.list.d/ros-latest.list'
 wget http://packages.ros.org/ros.key -O - | apt-key add -
+fi
+
 # Also get drc repo's key, to be used in getting Gazebo
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
@@ -43,7 +50,11 @@ if [ $DISTRO = 'precise' ]; then
 fi
 
 # Step 0: create/update distro-specific pbuilder environment
+if $ENABLE_ROS; then
 pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+else
+pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+fi
 
 # Step 0: Clean up
 rm -rf $WORKSPACE/build
@@ -147,36 +158,18 @@ fi
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
 
-# Both paths are need, beacuse i386 use a different path
-MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}_result/\${PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${PKG_NAME}"
-DEBUG_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}_result/\${DBG_PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${DBG_PKG_NAME}"
+PKGS=\`find /var/lib/jenkins/pbuilder -name *.deb || true\`
 
 FOUND_PKG=0
-for pkg in \${MAIN_PKGS}; do
-    echo "looking for \$pkg"
-    if [ -f \${pkg} ]; then
-        echo "found \$pkg"
-	# Check for correctly generated packages size > 3Kb
-        test -z \$(find \$pkg -size +3k) && exit 1
-	cp \${pkg} $WORKSPACE/pkgs
-        FOUND_PKG=1
-        break;
-    fi
+for pkg in \${PKGS}; do
+    echo "found \$pkg"
+    # Check for correctly generated packages size > 3Kb
+    test -z \$(find \$pkg -size +3k) && echo "WARNING: empty package?"
+    cp \${pkg} $WORKSPACE/pkgs
+    FOUND_PKG=1
 done
+# check at least one upload
 test \$FOUND_PKG -eq 1 || exit 1
-
-FOUND_PKG=0
-for pkg in \${DEBUG_PKGS}; do
-    if [ -f \${pkg} ]; then
-        # Check for correctly generated debug packages size > 3Kb
-        # when not valid instructions in rules/control it generates 1.5K package
-        test -z \$(find \$pkg -size +3k) && exit 1
-        cp \${pkg} $WORKSPACE/pkgs
-        FOUND_PKG=1
-        break;
-    fi
-done
-test \$FOUND_PKG -eq 1 || echo "No debug packages found. No upload"
 DELIM
 
 #

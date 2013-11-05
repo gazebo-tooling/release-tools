@@ -30,6 +30,14 @@ apt-get update
 # Required stuff for Gazebo
 apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES}
 
+# Replace sdformat by nightly until 1.5 is released
+# TODO: remove after this
+V=\$(apt-cache show sdformat | grep Version) && V=\$(echo \$V | sed -e 's/Version: //g') && V=\$(echo \$V | sed -e 's:-.*::')
+if [ "\$V" = "1.4.9" ]; then
+    apt-get remove sdformat
+    apt-get install libsformat-dev-nightly
+fi
+
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
     apt-get install -y ${GRAPHIC_CARD_PKG}
