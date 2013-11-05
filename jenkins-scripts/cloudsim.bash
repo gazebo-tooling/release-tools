@@ -35,6 +35,7 @@ pip install softlayer
 ## necessary for jenkins machine
 apt-get install -y python-dateutil
 apt-get install -y openssh-client
+apt-get install -y zip
 
 ## other
 apt-get install -y cmake 
