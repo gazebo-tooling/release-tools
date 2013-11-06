@@ -30,6 +30,8 @@ pip install --upgrade boto
 apt-get install -y expect
 pip install softlayer
 
+pip install unittest-xml-reporting
+
 ########################################################333####################
 
 ## necessary for jenkins machine
@@ -49,6 +51,9 @@ mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake $WORKSPACE/cloudsim
 PYTHONPATH=$WORKSPACE/cloudsim/inside/cgi-bin make test ARGS="-VV" || true
+# Sanitize XML output files, to save Jenkins's parser from throwing an
+# error.  This step could be moved into CloudSim itself.
+$WORKSPACE/cloudsim/tools/sanitize_junitxml.py $WORKSPACE/cloudsim/test-reports/*.xml || true
 
 DELIM
 

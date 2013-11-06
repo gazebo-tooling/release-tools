@@ -35,7 +35,7 @@ apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXT
 V=\$(apt-cache show sdformat | grep Version) && V=\$(echo \$V | sed -e 's/Version: //g') && V=\$(echo \$V | sed -e 's:-.*::')
 if [ "\$V" = "1.4.9" ]; then
     apt-get remove -y sdformat
-    apt-get install -y libsdformat-dev-nightly
+    apt-get install -y libsdformat-dev-nightly libsdformat1-nightly
 fi
 
 # Optional stuff. Check for graphic card support
