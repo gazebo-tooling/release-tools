@@ -30,6 +30,8 @@ pip install --upgrade boto
 apt-get install -y expect
 pip install softlayer
 
+pip install unittest-xml-reporting
+
 ########################################################333####################
 
 ## necessary for jenkins machine
