@@ -27,6 +27,17 @@ SDFORMAT_BASE_DEPENDENCIES="python                       \\
                             libboost-iostreams-dev       \\
                             libtinyxml-dev"
 
+# Need to explicit define to use old sdformat package
+if [[ -z ${USE_OLD_SDFORMAT} ]]; then
+    USE_OLD_SDFORMAT=false
+fi
+
+if ${USE_OLD_SDFORMAT}; then
+    sdformat_pkg="sdformat"
+else
+    sdformat_pkg="libsdformat-dev"
+fi
+
 # GAZEBO related dependencies
 GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libprotoc-dev                    \\
@@ -51,7 +62,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libboost-iostreams-dev           \\
                           libbullet2.82-dev                \\
                           libsimbody-dev                   \\
-                          sdformat"
+                          ${sdformat_pkg}"
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libcegui-mk2-dev \\
