@@ -39,6 +39,14 @@ else
 fi
 
 # GAZEBO related dependencies
+
+# In saucy we need to use 1.8 package to avoid conflicts with boost
+if [[ ${DISTRO} == 'saucy' ]]; then
+    ogre_pkg="libogre-1.8-dev"
+else
+    ogre_pkg="libogre-dev"
+fi
+
 GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libprotoc-dev                    \\
                           libprotobuf-dev                  \\
@@ -48,7 +56,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libtinyxml-dev                   \\
                           libtar-dev                       \\
                           libtbb-dev                       \\
-                          libogre-dev                      \\
+                          ${ogre_pkg}                      \\
                           libxml2-dev                      \\
                           pkg-config                       \\
                           libqt4-dev                       \\
