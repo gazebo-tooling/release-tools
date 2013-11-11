@@ -54,7 +54,7 @@ sed -i -e 's:experimental:$DISTRO:g' debian/changelog
 
 # In precise, no multiarch paths was implemented in GNUInstallDirs. Remove it.
 if [ $DISTRO = 'precise' ]; then
-  sed 's:/\*/:/:g' debian/*.install
+  sed -i -e 's:/\*/:/:g' debian/*.install
 fi
 
 # Step 5: use debuild to create source package
