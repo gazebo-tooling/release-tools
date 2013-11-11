@@ -67,7 +67,7 @@ cmake ${GZ_CMAKE_BUILD_TYPE}         \\
   $WORKSPACE/gazebo
 make -j${MAKE_JOBS}
 make install
-. /usr/share/gazebo-1.*/setup.sh
+. /usr/share/gazebo/setup.sh
 make test ARGS="-VV" || true
 DELIM
 
