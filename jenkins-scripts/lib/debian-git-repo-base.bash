@@ -1,5 +1,8 @@
 #!/bin/bash -x
 
+# Do not use the subprocess_reaper in debbuild. Seems not as needed as in
+# testing jobs and seems to be slow at the end of jenkins jobs
+export ENABLE_REAPER=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
@@ -15,7 +18,7 @@ set -ex
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper cdbs git
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper cdbs git pkg-kde-tools
 
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
@@ -41,15 +44,22 @@ cd $WORKSPACE/repo
 
 # Adjust version
 VERSION=\$(head -n 1 debian/changelog | cut -d "(" -f2 | cut -d ")" -f1)
-OSRF_VERSION=\$VERSION\osrf${RELEASE_VERSION}~${ARCH}${RELEASE_ARCH_VERSION}
-sed -i -e 's:\$VERSION:\$OSRF_VERSION::' debian/changelog
+VERSION_NO_REVISION=\$(echo \$VERSION | sed 's:-.*::')
+OSRF_VERSION=\$VERSION\osrf${RELEASE_VERSION}~${DISTRO}${RELEASE_ARCH_VERSION}
+sed -i -e "s:\$VERSION:\$OSRF_VERSION:g" debian/changelog
 
 # Use current distro (unstable or experimental are in debian)
 sed -i -e 's:unstable:$DISTRO:g' debian/changelog
 sed -i -e 's:experimental:$DISTRO:g' debian/changelog
 
+# In precise, no multiarch paths was implemented in GNUInstallDirs. Remove it.
+if [ $DISTRO = 'precise' ]; then
+  sed 's:/\*/:/:g' debian/*.install
+fi
+
 # Step 5: use debuild to create source package
-echo | dh_make -s --createorig -p ${PACKAGE}_${VERSION} || true
+echo | dh_make -s --createorig -p ${PACKAGE}_\${VERSION_NO_REVISION} || true
+ls ../*orig*
 
 debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
