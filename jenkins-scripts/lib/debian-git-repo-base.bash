@@ -57,9 +57,11 @@ if [ $DISTRO = 'precise' ]; then
   sed -i -e 's:/\*/:/:g' debian/*.install
 fi
 
+# Do not perform symbol checking
+rm -fr debian/*.symbols
+
 # Step 5: use debuild to create source package
 echo | dh_make -s --createorig -p ${PACKAGE}_\${VERSION_NO_REVISION} || true
-ls ../*orig*
 
 debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
