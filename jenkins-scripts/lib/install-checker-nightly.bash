@@ -51,8 +51,8 @@ if [ -f /usr/share/drcsim/setup.sh ]; then
   SHELL=/bin/sh . /usr/share/drcsim/setup.sh
 fi
 
-# Need rosdep view to run quantal tests
-if [ $DISTRO = quantal ]; then
+# Need rosdep view to run >=quantal tests
+if [ $DISTRO != precise ]; then
     rosdep init 
     # Hack for not failing when github is down
     update_done=false

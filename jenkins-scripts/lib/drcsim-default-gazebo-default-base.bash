@@ -46,7 +46,7 @@ fi
 
 . /opt/ros/${ROS_DISTRO}/setup.sh
 
-if [ $DISTRO = quantal ]; then
+if [ $DISTRO != precise ]; then
     rosdep init 
     # Hack for not failing when github is down
     update_done=false
