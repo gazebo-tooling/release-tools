@@ -17,13 +17,31 @@ cat > build.sh << DELIM
 set -ex
 
 
-apt-get install -y python openssh-client unzip zip mercurial apache2 redis-server python-pip python-redis
-pip install --upgrade boto
+##### From: http://gazebosim.org/wiki/Tutorials/CloudSim/setup  ###############
 
-pip install unittest-xml-reporting 
+echo "installing packages for Cloudsim: http://gazebosim.org/wiki/Tutorials/CloudSim/setup"
+
+apt-get install -y redis-server python-pip python-redis python-novaclient
+
+# CloudSim is compatible with boto 2.8.0 and up, so you can't use the default 
+# package in Ubuntu 12.04
+
+pip install --upgrade boto
+apt-get install -y expect
+pip install softlayer
+
+pip install unittest-xml-reporting
+
+########################################################333####################
+
+## necessary for jenkins machine
+apt-get install -y python-dateutil
+apt-get install -y openssh-client
+apt-get install -y zip
+
+## other
 apt-get install -y cmake 
 apt-get install -y python-software-properties
-
 
 # run redis-server as it does not seem to start on its own
 /etc/init.d/redis-server start
@@ -33,6 +51,9 @@ mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake $WORKSPACE/cloudsim
 PYTHONPATH=$WORKSPACE/cloudsim/inside/cgi-bin make test ARGS="-VV" || true
+# Sanitize XML output files, to save Jenkins's parser from throwing an
+# error.  This step could be moved into CloudSim itself.
+$WORKSPACE/cloudsim/tools/sanitize_junitxml.py $WORKSPACE/cloudsim/test-reports/*.xml || true
 
 DELIM
 

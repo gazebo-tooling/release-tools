@@ -6,7 +6,7 @@ if [ -z ${DISTRO} ]; then
 fi
 
 if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=fuerte
+  ROS_DISTRO=groovy
 fi
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
@@ -27,7 +27,16 @@ apt-get update
 
 # Step 1: install everything you need
 
-apt-get install -y ${BASE_DEPENDENCIES} ros-${ROS_DISTRO}-xacro ros-${ROS_DISTRO}-ros osrf-common libboost-dev ros-${ROS_DISTRO}-image-common ros-${ROS_DISTRO}-ros-comm ros-${ROS_DISTRO}-common-msgs libqt4-dev
+apt-get install -y ${BASE_DEPENDENCIES}                 \\
+                   ros-${ROS_DISTRO}-xacro              \\
+                   ros-${ROS_DISTRO}-ros                \\
+                   ros-${ROS_DISTRO}-image-common       \\
+                   ros-${ROS_DISTRO}-ros-comm           \\
+                   ros-${ROS_DISTRO}-common-msgs        \\
+                   ros-${ROS_DISTRO}-message-generation \\
+                   libboost-dev                         \\
+                   libqt4-dev                           \\
+                   osrf-common
 
 if [ $DISTRO != precise ]; then
     rosdep init && rosdep update
@@ -41,9 +50,8 @@ export ROS_PACKAGE_PATH=\$PWD:/usr/share/osrf-common-1.0/ros:\$ROS_PACKAGE_PATH
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-ls $WORKSPACE
 CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO} cmake -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/sandia-hand
-make -j3
+make -j${MAKE_JOBS}
 make install
 LD_LIBRARY_PATH=/opt/ros/${ROS_DISTRO}/lib make test ARGS="-VV" || true
 DELIM

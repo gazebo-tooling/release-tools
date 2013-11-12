@@ -41,7 +41,6 @@ cd $WORKSPACE/build
 cmake  -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install -DSimTK_INSTALL_PREFIX=/usr -DCMAKE_MODULE_PATH=/usr/share/cmake $WORKSPACE/gazebo
 make -j3
 make install
-. $WORKSPACE/install/share/gazebo-1.*/setup.sh
 make test ARGS="-VV" || true
 
 # Step 3: code check
