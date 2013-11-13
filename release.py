@@ -229,8 +229,8 @@ def go(argv):
     if not args.release_version:
         args.release_version = 1
 
-    # Sanity checks before proceed
-    if not args.no_sanity_checks:
+    # Sanity checks before proceed. UPSTREAM repository is not known in release-tools script
+    if not UPSTREAM and not args.no_sanity_checks:
         sanity_checks(args)
 
     source_tarball_uri = ''
