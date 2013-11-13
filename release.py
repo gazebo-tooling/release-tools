@@ -23,6 +23,13 @@ DRY_RUN = False
 NIGHTLY = False
 EXP_DISTROS = False
 
+def error(msg):
+    print("\n !! " + msg + "\n")
+    sys.exit(1)
+
+def print_success(msg):
+    print("     + OK " + msg)
+
 def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
@@ -36,6 +43,9 @@ def parse_args(argv):
                         help='Build nightly releases: do not upload tar.bz2 and values are autoconfigured')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
+    parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
+                        help='no-sanity-checks; i.e. skip sanity checks commands')
+
     parser.add_argument('-e', '--experimental-distros', dest='exp_distros', action='store_true', default=False,
                         help='build packages for experimentally supported Ubuntu distros')
     parser.add_argument('-a', '--package-alias', dest='package_alias', 
@@ -54,6 +64,71 @@ def parse_args(argv):
     NIGHTLY = args.nightly
     EXP_DISTROS = args.exp_distros
     return args
+
+def get_release_repository_URL(package):
+    return "https://bitbucket.org/osrf/" + package + "-release"
+
+def download_release_repository(package):
+    url = get_release_repository_URL(package)
+    release_tmp_dir = tempfile.mkdtemp() 
+    cmd = [ "hg", "clone", url, release_tmp_dir]
+    check_call(cmd)
+    return release_tmp_dir
+
+def sanity_package_name(repo_dir, package, package_alias):
+    expected_name = package
+
+    if not package_alias:
+        expected_name = package_alias
+
+    cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
+    out, err = check_call(cmd)
+    for line in out.split("\n"):
+        if not line:
+            continue
+        # Check that first word is the package alias or name
+        if line.partition(' ')[0] != expected_name:
+            error("Error in package name or alias: " + line)
+
+    print_success("Package names in changelog")
+
+def sanity_package_version(repo_dir, version, release_version):
+    cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
+    out, err = check_call(cmd)
+    for line in out.split("\n"):
+        if not line:
+            continue
+        # return full version in brackets
+        full_version=line.split(' ')[1]
+        # get only version (not release) in brackets
+        c_version=full_version[full_version.find("(")+1:full_version.find("-")]
+        c_revision=full_version[full_version.find("-")+1:full_version.find("~")]
+
+        if c_version != version:
+            error("Error in package version: " + full_version)
+
+        if c_revision != release_version:
+            error("Error in package release version. Expected " + release_version + " in line " + full_version)
+
+    print_success("Package versions in changelog")
+    print_success("Package release versions in changelog")
+
+def sanity_check_gazebo_versions(package, version):
+    if package == 'gazebo':
+        if int(version[0]) > 1:
+            error("Error in gazebo version. Please use 'gazebo-current' package for gazebo 2")
+    if package == 'gazebo-current':
+        if int(version[0]) < 2:
+            error("Error in gazebo-current version. Please use 'gazebo' package for gazebo 1.x")
+
+    print_success("Gazebo version in proper gazebo package")
+
+def sanity_checks(args):
+    repo_dir = download_release_repository(args.package)
+    sanity_package_name(repo_dir, args.package, args.package_alias)
+    sanity_package_version(repo_dir, args.version, str(args.release_version))
+    sanity_check_gazebo_versions(args.package, args.version)
+    shutil.rmtree(repo_dir)
 
 def check_call(cmd):
     if NIGHTLY:
@@ -74,7 +149,13 @@ def check_call(cmd):
 def go(argv):
     args = parse_args(argv)
 
-    pwd = os.getcwd()
+    # Default to release 1 if not present
+    if not args.release_version:
+        args.release_version = 1
+
+    # Sanity checks before proceed
+    if not args.no_sanity_checks:
+        sanity_checks(args)
 
     ###################################################
     # Platform-agnostic stuff.
@@ -157,8 +238,6 @@ def go(argv):
         params['SOURCE_TARBALL_URI'] = ''
         params['RELEASE_REPO_BRANCH'] = 'nightly'
 
-    if not args.release_version:
-        args.release_version = 1
     params['RELEASE_VERSION'] = args.release_version
     params_query = urllib.urlencode(params)
     base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, JOB_NAME_PATTERN%(args.package), params_query)
