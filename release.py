@@ -12,6 +12,7 @@ import shutil
 USAGE = 'release.py <package> <version> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuilder'
+JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
 UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
@@ -21,6 +22,7 @@ UBUNTU_DISTROS_EXPERIMENTAL = ['saucy']
 
 DRY_RUN = False
 NIGHTLY = False
+UPSTREAM = False
 EXP_DISTROS = False
 
 def error(msg):
@@ -33,6 +35,7 @@ def print_success(msg):
 def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
+    global UPSTREAM
     global EXP_DISTROS
 
     parser = argparse.ArgumentParser(description='Make releases.')
@@ -48,6 +51,8 @@ def parse_args(argv):
 
     parser.add_argument('-e', '--experimental-distros', dest='exp_distros', action='store_true', default=False,
                         help='build packages for experimentally supported Ubuntu distros')
+    parser.add_argument('-u', '--upstream', dest='upstream', action='store_true', default=False,
+                        help='release non OSRF software (do not generate and upload source tar.bz)')
     parser.add_argument('-a', '--package-alias', dest='package_alias', 
                         default=None, 
                         help='different name that we are releasing under')
@@ -62,6 +67,7 @@ def parse_args(argv):
         args.package_alias = args.package
     DRY_RUN = args.dry_run
     NIGHTLY = args.nightly
+    UPSTREAM = args.upstream
     EXP_DISTROS = args.exp_distros
     return args
 
@@ -146,17 +152,7 @@ def check_call(cmd):
             sys.exit(1)
         return out, err
 
-def go(argv):
-    args = parse_args(argv)
-
-    # Default to release 1 if not present
-    if not args.release_version:
-        args.release_version = 1
-
-    # Sanity checks before proceed
-    if not args.no_sanity_checks:
-        sanity_checks(args)
-
+def generate_upload_tarball(args):
     ###################################################
     # Platform-agnostic stuff.
     # The goal is to tag the repo and prepare a tarball.
@@ -223,8 +219,25 @@ def go(argv):
             print('Please update the changelog and try again.')
             sys.exit(1)
 
+    return source_tarball_uri
+
+
+def go(argv):
+    args = parse_args(argv)
+
+    # Default to release 1 if not present
+    if not args.release_version:
+        args.release_version = 1
+
+    # Sanity checks before proceed
+    if not args.no_sanity_checks:
+        sanity_checks(args)
+
+    source_tarball_uri = ''
+    if not UPSTREAM:
+        source_tarball_uri = generate_upload_tarball(args)
+    
     # Kick off Jenkins jobs
-    #TODO: remove TAG arg after all debbuild jobs are updated to look at SOURCE_TARBALL_URI
     params = {}
     params['token'] = args.jenkins_token
     params['PACKAGE'] = args.package
@@ -232,15 +245,17 @@ def go(argv):
     params['SOURCE_TARBALL_URI'] = source_tarball_uri
     params['RELEASE_REPO_BRANCH'] = args.release_repo_branch
     params['PACKAGE_ALIAS'] = args.package_alias
-    params['TAG'] = tag
     if NIGHTLY:
         params['VERSION'] = 'nightly'
         params['SOURCE_TARBALL_URI'] = ''
         params['RELEASE_REPO_BRANCH'] = 'nightly'
 
-    params['RELEASE_VERSION'] = args.release_version
+    if UPSTREAM:
+        job_name = JOB_NAME_UPSTREAM_PATTERN%(args.package)
+    else:
+        job_name = JOB_NAME_PATTERN%(args.package)
     params_query = urllib.urlencode(params)
-    base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, JOB_NAME_PATTERN%(args.package), params_query)
+    base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
     distros = UBUNTU_DISTROS
     if EXP_DISTROS:
         distros.extend(UBUNTU_DISTROS_EXPERIMENTAL)

@@ -52,7 +52,7 @@ make -j${MAKE_JOBS}
 make install
 
 # Step 3: configure and build drcim
-if [ $DISTRO = quantal ]; then
+if [ $DISTRO != precise ]; then
     rosdep init && rosdep update
 fi
 # Normal cmake routine
