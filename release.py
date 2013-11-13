@@ -245,6 +245,7 @@ def go(argv):
     params['SOURCE_TARBALL_URI'] = source_tarball_uri
     params['RELEASE_REPO_BRANCH'] = args.release_repo_branch
     params['PACKAGE_ALIAS'] = args.package_alias
+    params['RELEASE_VERSION'] = args.release_version
     if NIGHTLY:
         params['VERSION'] = 'nightly'
         params['SOURCE_TARBALL_URI'] = ''
