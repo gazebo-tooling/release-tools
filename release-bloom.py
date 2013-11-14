@@ -81,7 +81,7 @@ def go(argv):
             # Process ROS distros for each ubuntu distro
             # raring           -> hydro
             # quantal, precise -> groovy + hydro
-            if (a == 'raring'):
+            if (d == 'raring'):
                 ROS_DISTROS = ROS_DISTROS_IN_RARING
             else:
                 ROS_DISTROS = ROS_DISTROS_IN_PRECISE_QUANTAL
