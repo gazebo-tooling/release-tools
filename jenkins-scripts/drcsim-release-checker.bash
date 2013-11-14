@@ -9,6 +9,11 @@ if [[ $VERSION = 'nightly' ]]; then
     exit 0
 fi
 
+# Do not check i386
+if [[ $ARCH = 'i386' ]]; then
+    exit 0
+fi
+
 if [[ $DISTRO = 'precise' ]]; then
   export ROS_DISTRO=groovy
 elif [[ $DISTRO = 'quantal' ]]; then
