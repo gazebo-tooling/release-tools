@@ -55,6 +55,7 @@ apt-get install -y drcsim
 # In our nvidia machines, run the test to launch altas
 if [ $GRAPHIC_CARD_NAME = Nvidia ]; then
   . /opt/ros/${ROS_DISTRO}/setup.sh
+  . /usr/share/drcsim/setup.sh
   timeout 180 roslaunch drcsim_gazebo atlas.launch
 fi
 
