@@ -65,7 +65,7 @@ DEVEL_DELIM
 
 rm -fr compat_reports/ 
 rm -fr $WORKSPACE/compat_report.html
-abi-compliance-checker -lib sdformat -old pkg.xml -new devel.xml
+abi-compliance-checker -lib sdformat -old pkg.xml -new devel.xml || true
 # copy method version independant ( cp ... /*/ ... was not working)
 find compat_reports/ -name compat_report.html -exec cp {} $WORKSPACE/ \;
 DELIM
