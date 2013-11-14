@@ -12,6 +12,10 @@ if [ "${VERSION}" = "nightly" ]; then
    NIGHTLY_MODE=true
 fi
 
+# Do not use the subprocess_reaper in debbuild. Seems not as needed as in
+# testing jobs and seems to be slow at the end of jenkins jobs
+export ENABLE_REAPER=false
+
 PACKAGE_UNDERSCORE_NAME=${PACKAGE//-/_}
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
