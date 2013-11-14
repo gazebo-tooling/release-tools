@@ -3,6 +3,10 @@
 # Use always DISPLAY in drcsim project
 export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
 
+# Do not use the subprocess_reaper in debbuild. Seems not as needed as in
+# testing jobs and seems to be slow at the end of jenkins jobs
+export ENABLE_REAPER=false
+
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
