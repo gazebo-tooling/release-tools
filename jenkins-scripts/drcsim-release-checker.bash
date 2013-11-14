@@ -4,6 +4,11 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
+# Do not check nightly
+if [[ $VERSION = 'nightly' ]]; then
+    exit 0
+fi
+
 if [[ $DISTRO = 'precise' ]]; then
   export ROS_DISTRO=groovy
 elif [[ $DISTRO = 'quantal' ]]; then
