@@ -25,6 +25,8 @@ NIGHTLY = False
 UPSTREAM = False
 EXP_DISTROS = False
 
+IGNORE_DRY_RUN = True
+
 def error(msg):
     print("\n !! " + msg + "\n")
     sys.exit(1)
@@ -78,7 +80,7 @@ def download_release_repository(package):
     url = get_release_repository_URL(package)
     release_tmp_dir = tempfile.mkdtemp() 
     cmd = [ "hg", "clone", url, release_tmp_dir]
-    check_call(cmd)
+    check_call(cmd, IGNORE_DRY_RUN)
     return release_tmp_dir
 
 def sanity_package_name(repo_dir, package, package_alias):
@@ -123,9 +125,11 @@ def sanity_check_gazebo_versions(package, version):
     if package == 'gazebo':
         if int(version[0]) > 1:
             error("Error in gazebo version. Please use 'gazebo-current' package for gazebo 2")
-    if package == 'gazebo-current':
+    elif package == 'gazebo-current':
         if int(version[0]) < 2:
             error("Error in gazebo-current version. Please use 'gazebo' package for gazebo 1.x")
+    else:
+        return
 
     print_success("Gazebo version in proper gazebo package")
 
@@ -136,11 +140,15 @@ def sanity_checks(args):
     sanity_check_gazebo_versions(args.package, args.version)
     shutil.rmtree(repo_dir)
 
-def check_call(cmd):
+def check_call(cmd, ignore_dry_run = False):
     if NIGHTLY:
         return '',''
-    print('Running:\n  %s'%(' '.join(cmd)))
-    if DRY_RUN:
+    if ignore_dry_run:
+        # Commands that do not change anything in repo level
+        print('Dry-run running:\n  %s'%(' '.join(cmd)))
+    else:
+        print('Running:\n  %s'%(' '.join(cmd)))
+    if DRY_RUN and not ignore_dry_run:
         return '', ''
     else:
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
