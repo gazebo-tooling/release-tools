@@ -37,6 +37,14 @@ apt-get update
 # Required stuff for Gazebo
 apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES}
 
+# Replace sdformat by nightly until 1.5 is released
+# TODO: remove after this
+V=\$(apt-cache show sdformat | grep Version) && V=\$(echo \$V | sed -e 's/Version: //g') && V=\$(echo \$V | sed -e 's:-.*::')
+if [ "\$V" = "1.4.9" ]; then
+    apt-get remove -y sdformat
+    apt-get install -y libsdformat-dev-nightly libsdformat1-nightly
+fi
+
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
     apt-get install -y ${GRAPHIC_CARD_PKG}
@@ -83,7 +91,10 @@ fi
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
-cmake ${GZ_CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/gazebo
+cmake ${GZ_CMAKE_BUILD_TYPE}         \\
+    -DCMAKE_INSTALL_PREFIX=/usr      \\
+    -DENABLE_SCREEN_TESTS:BOOL=False \\
+  $WORKSPACE/gazebo
 make -j${MAKE_JOBS}
 make install
 . /usr/share/gazebo/setup.sh

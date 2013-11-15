@@ -50,10 +50,9 @@ cd $WORKSPACE/gazebo/build
 CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO} cmake ${GZ_CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/gazebo
 make -j${MAKE_JOBS}
 make install
-. /usr/share/gazebo-1.*/setup.sh
 
 # Step 3: configure and build drcim
-if [ $DISTRO = quantal ]; then
+if [ $DISTRO != precise ]; then
     rosdep init && rosdep update
 fi
 # Normal cmake routine
