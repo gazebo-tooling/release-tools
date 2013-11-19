@@ -1,3 +1,12 @@
+#
+# This script should be run on a fork of gazebo_ros_pkgs-release repository
+# and will modify control.em bloom templates for:
+#
+#   - Rename the Package name to $(Package)-current
+#   - Define a conflict on the same $(Package)
+#
+# It will commit and push the hydro and groovy branches
+
 PKGS="gazebo_plugins gazebo_msgs gazebo_ros gazebo_ros_control gazebo_ros_pkgs"
 DISTROS="groovy hydro"
 
