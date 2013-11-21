@@ -17,7 +17,8 @@ apt-get install -y wget
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
-apt-get install -y ${BASE_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES} sdformat git exuberant-ctags 
+apt-get install -y ${BASE_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES} sdformat git exuberant-ctags mercurial
+
 # Step 2: configure and build
 
 # Copy sdformat to manipulate under root perms
