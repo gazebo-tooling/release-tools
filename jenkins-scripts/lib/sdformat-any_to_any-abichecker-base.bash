@@ -32,7 +32,7 @@ hg up $SDFORMAT_ORIGIN_BRANCH
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-      -DCMAKE_INSTALL_PREFIX=/usr/local/origin_branch \\
+cmake -DCMAKE_INSTALL_PREFIX=/usr/local/origin_branch \\
   /tmp/sdformat
 make -j${MAKE_JOBS}
 make install
