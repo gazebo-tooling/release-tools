@@ -66,7 +66,7 @@ cat > pkg.xml << CURRENT_DELIM
  </version>
 
  <headers>
-   /usr/local/origin_branch/include/\$sdformat_ORIGIN_DIR/sdformat
+   /usr/local/origin_branch/include/\$sdformat_ORIGIN_DIR/sdf
  </headers>
 
  <libs>
@@ -80,7 +80,7 @@ cat > devel.xml << DEVEL_DELIM
  </version>
  
  <headers>
-   /usr/local/target_branch/include/\$sdformat_TARGET_DIR/sdformat
+   /usr/local/target_branch/include/\$sdformat_TARGET_DIR/sdf
  </headers>
 
  <libs>
