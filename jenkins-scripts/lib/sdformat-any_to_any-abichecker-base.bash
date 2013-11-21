@@ -68,12 +68,6 @@ cat > pkg.xml << CURRENT_DELIM
    /usr/local/origin_branch/include/\$sdformat_ORIGIN_DIR/sdformat
  </headers>
 
- <skip_headers>
-   /usr/local/origin_branch/include/\$sdformat_ORIGIN_DIR/sdformat/GIMPACT
-   /usr/local/origin_branch/include/\$sdformat_ORIGIN_DIR/sdformat/opcode
-   /usr/local/origin_branch/include/\$sdformat_ORIGIN_DIR/sdformat/test
- </skip_headers>
-
  <libs>
    /usr/local/origin_branch/lib/
  </libs>
@@ -87,12 +81,6 @@ cat > devel.xml << DEVEL_DELIM
  <headers>
    /usr/local/target_branch/include/\$sdformat_TARGET_DIR/sdformat
  </headers>
-
- <skip_headers>
-   /usr/local/target_branch/include/\$sdformat_TARGET_DIR/sdformat/GIMPACT
-   /usr/local/target_branch/include/\$sdformat_TARGET_DIR/sdformat/opcode
-   /usr/local/target_branch/include/\$sdformat_TARGET_DIR/sdformat/test
- </skip_headers>
 
  <libs>
    /usr/local/target_branch/lib/
