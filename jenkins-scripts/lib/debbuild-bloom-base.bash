@@ -45,7 +45,7 @@ apt-get update
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
   echo "Skipping pbuilder check for outdated info"
-  sed -i -e 's:UbuntuDistroInfo().devel():self.target_distro:g' /usr/bin/pbuilder-dist
+  #sed -i -e 's:UbuntuDistroInfo().devel():self.target_distro:g' /usr/bin/pbuilder-dist
 fi
 
 # Step 0: create/update distro-specific pbuilder environment
