@@ -27,7 +27,26 @@ SDFORMAT_BASE_DEPENDENCIES="python                       \\
                             libboost-iostreams-dev       \\
                             libtinyxml-dev"
 
+# Need to explicit define to use old sdformat package
+if [[ -z ${USE_OLD_SDFORMAT} ]]; then
+    USE_OLD_SDFORMAT=false
+fi
+
+if ${USE_OLD_SDFORMAT}; then
+    sdformat_pkg="sdformat"
+else
+    sdformat_pkg="libsdformat-dev"
+fi
+
 # GAZEBO related dependencies
+
+# In saucy we need to use 1.8 package to avoid conflicts with boost
+if [[ ${DISTRO} == 'saucy' ]]; then
+    ogre_pkg="libogre-1.8-dev"
+else
+    ogre_pkg="libogre-dev"
+fi
+
 GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libprotoc-dev                    \\
                           libprotobuf-dev                  \\
@@ -37,7 +56,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libtinyxml-dev                   \\
                           libtar-dev                       \\
                           libtbb-dev                       \\
-                          libogre-dev                      \\
+                          ${ogre_pkg}                      \\
                           libxml2-dev                      \\
                           pkg-config                       \\
                           libqt4-dev                       \\
@@ -49,19 +68,20 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libboost-program-options-dev     \\
                           libboost-regex-dev               \\
                           libboost-iostreams-dev           \\
-                          libbullet-dev                    \\
+                          libbullet2.82-dev                \\
                           libsimbody-dev                   \\
-                          sdformat"
+                          ${sdformat_pkg}"
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libcegui-mk2-dev \\
                            libavformat-dev  \\
                            libavcodec-dev   \\
-                           libswscale-dev"
+                           libswscale-dev   \\
+                           ruby-ronn "
 
 GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
 if [ -z $GAZEBO_DEB_PACKAGE ]; then
-    GAZEBO_DEB_PACKAGE=gazebo
+    GAZEBO_DEB_PACKAGE=gazebo-current
 fi
 
 # image-transport-plugins is needed to properly advertise compressed image topics

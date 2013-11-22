@@ -15,10 +15,17 @@ if [ -z ${MAKE_JOBS} ]; then
     MAKE_JOBS=1
 fi
 
+# Use reaper by default
+if [ -z ${ENABLE_REAPER} ]; then
+    ENABLE_REAPER=true
+fi
+
 # Useful for running tests properly in ros based software
+if ${ENABLE_ROS}; then
 export ROS_HOSTNAME=localhost
 export ROS_MASTER_URI=http://localhost:11311
 export ROS_IP=127.0.0.1
+fi
 
 . ${SCRIPT_DIR}/lib/check_graphic_card.bash
 . ${SCRIPT_DIR}/lib/dependencies_archive.sh
@@ -48,15 +55,22 @@ fi
 
 # monitor all subprocess and enforce termination (thanks to ROS crew)
 # never failed on this
+if $ENABLE_REAPER; then
 wget https://raw.github.com/ros-infrastructure/buildfarm/master/scripts/subprocess_reaper.py -O subprocess_reaper.py
 sudo python subprocess_reaper.py $$ &
 sleep 1
+fi
 
 #setup the cross platform apt environment
 # using sudo since this is shared with pbuilder and if pbuilder is interupted it will leave a sudo only lock file.  Otherwise sudo is not necessary. 
 # And you can't chown it even with sudo and recursive
 cd $WORKSPACE/scripts/catkin-debs/
+
+if $ENABLE_ROS; then
 sudo ./setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE --repo ros@http://packages.ros.org/ros/ubuntu
+else
+sudo ./setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE
+fi
 
 sudo rm -rf $output_dir
 mkdir -p $output_dir

@@ -5,6 +5,4 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export RELEASE_REPO_DIRECTORY=${DISTRO}
-export ENABLE_ROS=true
-. ${SCRIPT_DIR}/lib/debbuild-base.bash
-
+. ${SCRIPT_DIR}/lib/libbullet-release-base.bash
