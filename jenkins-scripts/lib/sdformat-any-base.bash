@@ -7,6 +7,26 @@ export ENABLE_REAPER=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
+if [[ -z $REPO_TO_USE ]]; then
+    export REPO_TO_USE=OSRF
+fi
+
+case $REPO_TO_USE in
+    "OSRF" )
+       export REPO_URL="http://packages.osrfoundation.org/drc/ubuntu"
+       export REPO_KEY="http://packages.osrfoundation.org/drc.key"
+       ;;
+    "ROS" )
+       export REPO_URL="http://packages.ros.org/ros/ubuntu"
+       export REPO_KEY="http://packages.ros.org/ros.key"
+       ;;
+    * )
+	echo "Unknown REPO_TO_USE value"
+	exit 1
+	;;
+esac
+
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
@@ -15,8 +35,8 @@ set -ex
 
 # Step 1: install everything you need ans sdformat (OSRF repo) from binaries
 apt-get install -y wget 
-sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
-wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
+sh -c 'echo "deb ${REPO_URL} ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
+wget ${REPO_KEY} -O - | apt-key add -
 apt-get update
 apt-get install -y ${BASE_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES} sdformat git exuberant-ctags 
 
