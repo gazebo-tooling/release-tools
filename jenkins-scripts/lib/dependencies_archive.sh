@@ -95,12 +95,13 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
                           ros-${ROS_DISTRO}-robot-model-visualization         \\
                           ros-${ROS_DISTRO}-image-pipeline                    \\
                           ros-${ROS_DISTRO}-image-transport-plugins           \\
-                          ros-${ROS_DISTRO}-gazebo-plugins                    \\
                           ros-${ROS_DISTRO}-compressed-depth-image-transport  \\
                           ros-${ROS_DISTRO}-compressed-image-transport        \\
-                          ros-${ROS_DISTRO}-theora-image-transport            \\
-                          ${GAZEBO_DEB_PACKAGE}"
+                          ros-${ROS_DISTRO}-theora-image-transport"
 
-DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} \\
-                          sandia-hand                 \\
-			  osrf-common"
+DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}      \\
+                          sandia-hand                      \\
+			  osrf-common                      \\
+                          ros-${ROS_DISTRO}-gazebo-plugins \\
+                          ros-${ROS_DISTRO}-gazebo-ros     \\
+                          ${GAZEBO_DEB_PACKAGE}"
