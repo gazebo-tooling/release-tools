@@ -1,0 +1,104 @@
+#!/bin/bash -x
+set -e
+
+# Use always DISPLAY in drcsim project
+export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+
+. ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+
+if [ -z ${GZ_BUILD_TYPE} ]; then
+    GZ_CMAKE_BUILD_TYPE=
+else
+    GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
+fi
+
+cat > build.sh << DELIM
+###################################################
+# Make project-specific changes here
+#
+set -ex
+
+# get ROS repo's key
+apt-get install -y wget
+sh -c 'echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/ros-latest.list'
+wget http://packages.ros.org/ros.key -O - | apt-key add -
+# Also get drc repo's key, to be used in getting Gazebo
+sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
+wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
+apt-get update
+
+# Step 1: install everything you need
+
+# Install mercurial and drcsim's and gazebo Build-Depends
+apt-get install -y git mercurial ca-certificates ${BASE_DEPENDENCIES} gazebo-nightly ${DRCSIM_BASE_DEPENDENCIES}
+
+# Optional stuff. Check for graphic card support
+if ${GRAPHIC_CARD_FOUND}; then
+    apt-get install -y ${GRAPHIC_CARD_PKG}
+    # Check to be sure version of kernel graphic card support is the same.
+    # It will kill DRI otherwise
+    CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\ " | awk '{ print \$3 }' | sed 's:-.*::')
+    if [ "\${CHROOT_GRAPHIC_CARD_PKG_VERSION}" != "${GRAPHIC_CARD_PKG_VERSION}" ]; then
+       echo "Package ${GRAPHIC_CARD_PKG} has different version in chroot and host system. Maybe you need to update your host" 
+       exit 1
+    fi
+fi
+
+. /opt/ros/${ROS_DISTRO}/setup.sh
+
+if [ $DISTRO = quantal ]; then
+    rosdep init 
+    # Hack for not failing when github is down
+    update_done=false
+    seconds_waiting=0
+    while (! \$update_done); do
+      rosdep update && update_done=true
+      sleep 1
+      seconds_waiting=$((seconds_waiting+1))
+      [ \$seconds_waiting -gt 60 ] && exit 1
+    done
+fi
+
+# Normal cmake routine for Gazebo
+rm -fr $WORKSPACE/gazebo
+hg clone https://bitbucket.org/osrf/gazebo $WORKSPACE/gazebo
+
+rm -rf $WORKSPACE/gazebo/build $WORKSPACE/gazebo/install
+mkdir -p $WORKSPACE/gazebo/build $WORKSPACE/gazebo/install
+cd $WORKSPACE/gazebo/build
+CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO} cmake ${GZ_CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_TESTS_COMPILATION:BOOL=False $WORKSPACE/gazebo
+make -j${MAKE_JOBS}
+make install
+
+. /usr/share/gazebo/setup.sh
+
+# Create the catkin workspace
+rm -fr $WORKSPACE/ws/src
+mkdir -p $WORKSPACE/ws/src
+cd $WORKSPACE/ws/src
+catkin_init_workspace
+hg clone $WORKSPACE/drcsim drcsim
+hg clone https://bitbucket.org/osrf/osrf-common $WORKSPACE/osrf-common
+hg clone https://bitbucket.org/osrf/sandia-hand $WORKSPACE/sandia-hand
+git clone https://github.com/ros-simulation/gazebo_ros_pkgs  
+cd $WORKSPACE/ws
+catkin make -j${MAKE_JOBS}
+
+# Testing procedure
+SHELL=/bin/sh . $WORKSPACE/ws/install/setup.sh
+SHELL=/bin/sh . $WORKSPACE/ws/install/share/drcsim/setup.shh
+timeout 120 roslaunch drcsim_gazebo atlas.launch
+
+#cd $WORKSPACE/ws/s
+#ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-VV" || true
+#ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-R \\(atlas_publishers_hz_gpu.test\\|atlas_sandia_hands_publishers_hz_gpu.test\\|atlas_rosapi.test\\|atlas_sandia_hands_rosapi.test\\|vrc_task_1_scoring.test\\|vrc_task_1_gzlog_stop.test\\|vrc_task_1_dynamic_walking.test\\|multicamera_connection.test\\|vrc_final_task1_start_standup.test\\|vrc_final_task1_atlas_pubs_gpu.test\\)
+#ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results rosrun rosunit clean_junit_xml.py
+DELIM
+
+# Make project-specific changes here
+###################################################
+
+sudo pbuilder  --execute \
+    --bindmounts $WORKSPACE \
+    --basetgz $basetgz \
+    -- build.sh
