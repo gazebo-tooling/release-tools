@@ -45,6 +45,7 @@ if ${GRAPHIC_CARD_FOUND}; then
 fi
 
 . /opt/ros/${ROS_DISTRO}/setup.sh
+. /usr/share/gazebo/setup.sh
 
 if [ $DISTRO = quantal ]; then
     rosdep init 
@@ -58,19 +59,6 @@ if [ $DISTRO = quantal ]; then
       [ \$seconds_waiting -gt 60 ] && exit 1
     done
 fi
-
-# Normal cmake routine for Gazebo
-rm -fr $WORKSPACE/gazebo
-hg clone https://bitbucket.org/osrf/gazebo $WORKSPACE/gazebo
-
-rm -rf $WORKSPACE/gazebo/build $WORKSPACE/gazebo/install
-mkdir -p $WORKSPACE/gazebo/build $WORKSPACE/gazebo/install
-cd $WORKSPACE/gazebo/build
-CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO} cmake ${GZ_CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_TESTS_COMPILATION:BOOL=False $WORKSPACE/gazebo
-make -j${MAKE_JOBS}
-make install
-
-. /usr/share/gazebo/setup.sh
 
 # Create the catkin workspace
 rm -fr $WORKSPACE/ws/src
