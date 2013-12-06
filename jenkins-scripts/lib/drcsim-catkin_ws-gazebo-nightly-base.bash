@@ -70,7 +70,7 @@ hg clone https://bitbucket.org/osrf/osrf-common $WORKSPACE/osrf-common
 hg clone https://bitbucket.org/osrf/sandia-hand $WORKSPACE/sandia-hand
 git clone https://github.com/ros-simulation/gazebo_ros_pkgs  
 cd $WORKSPACE/ws
-catkin make -j${MAKE_JOBS}
+catkin_make -j${MAKE_JOBS}
 
 # Testing procedure
 SHELL=/bin/sh . $WORKSPACE/ws/install/setup.sh
