@@ -105,3 +105,12 @@ DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}      \\
                           ros-${ROS_DISTRO}-gazebo-plugins \\
                           ros-${ROS_DISTRO}-gazebo-ros     \\
                           ${GAZEBO_DEB_PACKAGE}"
+
+# ros-gazebo-pkgs dependencies
+ROS_GAZEBO_PKGS_DEPENDENCIES="ros-${ROS_DISTRO}-catkin                  \\
+			      ros-${ROS_DISTRO}-controller-manager      \\
+			      ros-${ROS_DISTRO}-joint-limits-interface  \\
+			      ros-${ROS_DISTRO}-pluginlib               \\
+			      ros-${ROS_DISTRO}-roscpp                  \\
+			      ros-${ROS_DISTRO}-transmission-interface  \\
+			      ros-${ROS_DISTRO}-urdf"
