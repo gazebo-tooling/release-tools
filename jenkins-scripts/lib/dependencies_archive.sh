@@ -108,9 +108,14 @@ DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}      \\
 
 # ros-gazebo-pkgs dependencies
 ROS_GAZEBO_PKGS_DEPENDENCIES="ros-${ROS_DISTRO}-catkin                  \\
-			      ros-${ROS_DISTRO}-controller-manager      \\
-			      ros-${ROS_DISTRO}-joint-limits-interface  \\
 			      ros-${ROS_DISTRO}-pluginlib               \\
 			      ros-${ROS_DISTRO}-roscpp                  \\
-			      ros-${ROS_DISTRO}-transmission-interface  \\
+			      ros-${ROS_DISTRO}-driver-base             \\
 			      ros-${ROS_DISTRO}-urdf"
+
+if [[ $ROS_DISTRO != 'groovy' ]]; then
+ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES}           \\
+                              ros-${ROS_DISTRO}-controller-manager      \\
+                              ros-${ROS_DISTRO}-joint-limits-interface  \\
+                              ros-${ROS_DISTRO}-transmission-interface"
+fi
