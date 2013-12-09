@@ -111,6 +111,24 @@ ROS_GAZEBO_PKGS_DEPENDENCIES="ros-${ROS_DISTRO}-catkin                  \\
 			      ros-${ROS_DISTRO}-pluginlib               \\
 			      ros-${ROS_DISTRO}-roscpp                  \\
 			      ros-${ROS_DISTRO}-driver-base             \\
+			      ros-${ROS_DISTRO}-angles                  \\
+			      ros-${ROS_DISTRO}-cv-bridge               \\
+			      ros-${ROS_DISTRO}-diagnostic-updater      \\
+			      ros-${ROS_DISTRO}-dynamic-reconfigure     \\
+			      ros-${ROS_DISTRO}-geometry-msgs           \\
+			      ros-${ROS_DISTRO}-image-transport         \\
+			      ros-${ROS_DISTRO}-message-generation      \\
+			      ros-${ROS_DISTRO}-nav-msgs                \\
+			      ros-${ROS_DISTRO}-nodelet                 \\
+			      ros-${ROS_DISTRO}-pcl-conversions         \\
+			      ros-${ROS_DISTRO}-pcl-ros                 \\
+			      ros-${ROS_DISTRO}-polled-camera           \\
+			      ros-${ROS_DISTRO}-rosconsole              \\
+			      ros-${ROS_DISTRO}-rosgraph-msgs           \\
+			      ros-${ROS_DISTRO}-sensor-msgs             \\
+			      ros-${ROS_DISTRO}-std-srvs                \\
+			      ros-${ROS_DISTRO}-tf                      \\
+			      ros-${ROS_DISTRO}-trajectory-msgs         \\
 			      ros-${ROS_DISTRO}-urdf"
 
 if [[ $ROS_DISTRO != 'groovy' ]]; then
