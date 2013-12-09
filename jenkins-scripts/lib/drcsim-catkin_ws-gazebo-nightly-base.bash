@@ -66,9 +66,9 @@ mkdir -p $WORKSPACE/ws/src
 cd $WORKSPACE/ws/src
 catkin_init_workspace
 hg clone $WORKSPACE/drcsim drcsim
-hg clone https://bitbucket.org/osrf/osrf-common $WORKSPACE/osrf-common
-hg clone https://bitbucket.org/osrf/sandia-hand $WORKSPACE/sandia-hand
-git clone https://github.com/ros-simulation/gazebo_ros_pkgs  
+hg clone https://bitbucket.org/osrf/osrf-common osrf-common
+hg clone https://bitbucket.org/osrf/sandia-hand sandia-hand
+git clone https://github.com/ros-simulation/gazebo_ros_pkgs gazebo_ros_pkgs
 cd $WORKSPACE/ws
 catkin_make -j${MAKE_JOBS}
 
