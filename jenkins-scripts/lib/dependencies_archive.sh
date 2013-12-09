@@ -107,7 +107,8 @@ DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}      \\
                           ${GAZEBO_DEB_PACKAGE}"
 
 # ros-gazebo-pkgs dependencies
-ROS_GAZEBO_PKGS_DEPENDENCIES="ros-${ROS_DISTRO}-catkin                  \\
+ROS_GAZEBO_PKGS_DEPENDENCIES="libtinyxml-dev                            \\
+                              ros-${ROS_DISTRO}-catkin                  \\
 			      ros-${ROS_DISTRO}-pluginlib               \\
 			      ros-${ROS_DISTRO}-roscpp                  \\
 			      ros-${ROS_DISTRO}-driver-base             \\
@@ -129,7 +130,8 @@ ROS_GAZEBO_PKGS_DEPENDENCIES="ros-${ROS_DISTRO}-catkin                  \\
 			      ros-${ROS_DISTRO}-std-srvs                \\
 			      ros-${ROS_DISTRO}-tf                      \\
 			      ros-${ROS_DISTRO}-trajectory-msgs         \\
-			      ros-${ROS_DISTRO}-urdf"
+			      ros-${ROS_DISTRO}-urdf                    \\
+			      ros-${ROS_DISTRO}-cmake-modules"
 
 if [[ $ROS_DISTRO != 'groovy' ]]; then
 ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES}           \\
