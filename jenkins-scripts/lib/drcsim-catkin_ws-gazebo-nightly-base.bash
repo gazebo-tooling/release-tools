@@ -78,7 +78,7 @@ catkin_make -j${MAKE_JOBS} install
 
 # Testing procedure
 SHELL=/bin/sh . $WORKSPACE/ws/install/setup.sh
-SHELL=/bin/sh . $WORKSPACE/ws/install/share/drcsim/setup.shh
+SHELL=/bin/sh . $WORKSPACE/ws/install/share/drcsim/setup.sh
 timeout 120 roslaunch drcsim_gazebo atlas.launch
 
 #cd $WORKSPACE/ws/s
