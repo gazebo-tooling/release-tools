@@ -11,11 +11,14 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 curl -fsSL https://raw.github.com/mxcl/homebrew/go/install > install.rb
 RUN_DIR=$(mktemp -d ${HOME}/jenkins.XXXX)
 echo "Install into: ${RUN_DIR}"
+cd $RUN_DIR
+# Install 
+curl https://github.com/mxcl/homebrew/tarball/master | tar xzf --strip 1
 # Configure PREFIX
-sed -i -e "s#HOMEBREW_PREFIX = .*#HOMEBREW_PREFIX='${RUN_DIR}'#" install.rb
+# sed -i -e "s#HOMEBREW_PREFIX = .*#HOMEBREW_PREFIX='${RUN_DIR}'#" install.rb
 # Non interactive
-sed -i -e "s#c = getc#c = 13#" install.rb
-ruby install.rb
+# sed -i -e "s#c = getc#c = 13#" install.rb
+# ruby install.rb
 
 # Step 2. Install sdformat
 ${RUN_DIR}/bin/brew tap osrf/simulation
