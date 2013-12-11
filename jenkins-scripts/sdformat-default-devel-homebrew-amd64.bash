@@ -6,7 +6,6 @@ set -e
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 # Step 1. Set up homebrew
-curl -fsSL https://raw.github.com/mxcl/homebrew/go/install > install.rb
 RUN_DIR=$(mktemp -d ${HOME}/jenkins.XXXX)
 echo "Install into: ${RUN_DIR}"
 cd $RUN_DIR
