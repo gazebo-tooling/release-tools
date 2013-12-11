@@ -5,8 +5,6 @@ set -e
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-#. ${SCRIPT_DIR}/lib/sdformat-homebrew-default.bash
-
 # Step 1. Set up homebrew
 curl -fsSL https://raw.github.com/mxcl/homebrew/go/install > install.rb
 RUN_DIR=$(mktemp -d ${HOME}/jenkins.XXXX)
@@ -38,4 +36,4 @@ ${RUN_DIR}/bin/brew link sdformat
 make test ARGS="-VV" || true
 
 # Step 3. Clean up
-# rm -fr ${RUN_DIR}
+rm -fr ${RUN_DIR}
