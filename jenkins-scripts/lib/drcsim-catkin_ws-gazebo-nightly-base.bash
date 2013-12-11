@@ -74,7 +74,7 @@ if [ $ROS_DISTRO = groovy ]; then
   touch $WORKSPACE/ws/src/gazebo_ros_pkgs/gazebo_ros_control/CATKIN_IGNORE
 fi
 cd $WORKSPACE/ws
-catkin_make -j${MAKE_JOBS}
+catkin_make -j${MAKE_JOBS} install
 
 # Testing procedure
 SHELL=/bin/sh . $WORKSPACE/ws/install/setup.sh
