@@ -13,7 +13,8 @@ RUN_DIR=$(mktemp -d ${HOME}/jenkins.XXXX)
 echo "Install into: ${RUN_DIR}"
 cd $RUN_DIR
 # Install 
-curl https://github.com/mxcl/homebrew/tarball/master | tar xzf --strip 1
+curl -L -o homebrew.tar.gz https://github.com/mxcl/homebrew/tarball/master 
+tar --strip 1 -xzf homebrew.tar.gz
 # Configure PREFIX
 # sed -i -e "s#HOMEBREW_PREFIX = .*#HOMEBREW_PREFIX='${RUN_DIR}'#" install.rb
 # Non interactive
