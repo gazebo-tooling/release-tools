@@ -23,9 +23,8 @@ ${RUN_DIR}/bin/brew install `${RUN_DIR}/bin/brew deps sdformat`
 cd ${WORKSPACE}/sdformat
 mkdir -p ${WORKSPACE}/build
 cd ${WORKSPACE}/build
-# TODO fix version number
 ${RUN_DIR}/bin/cmake ${WORKSPACE}/sdformat \
-      -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/sdformat/1.4.12 \
+      -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/sdformat/HEAD \
       -DCMAKE_PREFIX_PATH=${RUN_DIR}
 
 make -j${MAKE_JOBS} install
