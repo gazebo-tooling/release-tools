@@ -24,14 +24,18 @@ ${RUN_DIR}/bin/brew install `${RUN_DIR}/bin/brew deps sdformat`
 
 # Step 3. Manually compile and install sdformat
 cd ${WORKSPACE}/sdformat
-mkdir -p ${WORKSPACE}/sdformat/build
-cd ${WORKSPACE}/sdformat/build
+mkdir -p ${WORKSPACE}/build
+cd ${WORKSPACE}/build
 # TODO fix version number
-${RUN_DIR}/bin/cmake .. -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/sdformat/1.4.12 \
-         -DCMAKE_PREFIX_PATH=${RUN_DIR}
+${RUN_DIR}/bin/cmake ${WORKSPACE}/sdformat \
+      -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/sdformat/1.4.12 \
+      -DCMAKE_PREFIX_PATH=${RUN_DIR}
 
 make -j${MAKE_JOBS} install
 ${RUN_DIR}/bin/brew link sdformat
+
+# Step 4. Testing
+make test ARGS="-VV" || true
 
 # Step 3. Clean up
 # rm -fr ${RUN_DIR}
