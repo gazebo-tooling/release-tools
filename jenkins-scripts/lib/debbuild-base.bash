@@ -62,7 +62,7 @@ mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 
 # Hack to support gazebo-current and friends
-if [ $PACKAGE = 'gazebo-current' ]; then
+if [ $PACKAGE = 'gazebo-current' ] || [ $PACKAGE = 'gazebo2' ]; then
     REAL_PACKAGE_NAME='gazebo'
     REAL_PACKAGE_ALIAS='gazebo'
 else
