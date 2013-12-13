@@ -79,7 +79,15 @@ catkin_make -j${MAKE_JOBS} install
 # Testing procedure
 SHELL=/bin/sh . $WORKSPACE/ws/install/setup.sh
 SHELL=/bin/sh . $WORKSPACE/ws/install/share/drcsim/setup.sh
-timeout 120 roslaunch drcsim_gazebo atlas.launch || if [ $? != 124 ]; then echo "Unexpected exit of launch" && false; fi
+
+T="\$(date +%s)"
+timeout 120 roslaunch drcsim_gazebo atlas.launch || true 
+T="\$((\$(date +%s)-T))"
+
+if [ \$T -lt 120 ]; then
+  echo "Unexpected exit of launch before timeout. Please review log"
+  false
+fi
 
 #cd $WORKSPACE/ws/s
 #ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-VV" || true
