@@ -23,25 +23,20 @@ set -ex
 apt-get install -y wget
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
-apt-get update
-
+# Dart repositories
 if $ENABLE_DART; then
   # software-properties for apt-add-repository
-  apt-get install -y python-software-properties apt-utils software-properties-common debianutils
-  which apt-add-repository || true
-  which apt-add-repository || true
-  dpkg -L python-software-properties
-  /usr/bin/apt-add-repository -y ppa:libccd-debs
+  apt-get install -y python-software-properties apt-utils software-properties-common
+  apt-add-repository -y ppa:libccd-debs
   apt-add-repository -y ppa:fcl-debs
   apt-add-repository -y ppa:dartsim
   GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES libdart-core3-dev"
 fi
 
 # Step 1: install everything you need
-
 # Required stuff for Gazebo
+apt-get update
 apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES}
-
 
 # Replace sdformat by nightly until 1.5 is released
 # TODO: remove after this
