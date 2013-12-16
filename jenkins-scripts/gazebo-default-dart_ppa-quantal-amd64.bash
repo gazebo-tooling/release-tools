@@ -6,6 +6,6 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=quantal
 export ROS_DISTRO=groovy
-export ENABLE_DART=true
+export DART_FROM_PKGS=true
 
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash

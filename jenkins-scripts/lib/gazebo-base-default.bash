@@ -23,14 +23,29 @@ set -ex
 apt-get install -y wget
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
+
 # Dart repositories
-if $ENABLE_DART; then
+if $DART_FROM_PKGS: then
   # software-properties for apt-add-repository
   apt-get install -y python-software-properties apt-utils software-properties-common
   apt-add-repository -y ppa:libccd-debs
   apt-add-repository -y ppa:fcl-debs
   apt-add-repository -y ppa:dartsim
   GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES libdart-core3-dev"
+fi
+
+if $DART_COMPILE_FROM_SOURCE; then
+  apt-get install -y python-software-properties apt-utils software-properties-common git
+  apt-add-repository -y ppa:libccd-debs
+  apt-add-repository -y ppa:fcl-debs
+  apt-get install -y $DART_DEPENDENCIES
+  git clone https://github.com/dartsim/dart.git $WORKSPACE/dart
+  mkdir -p $WORKSPACE/dart/build
+  cd $WORKSPACE/dart/build
+  cmake .. \
+      -DCMAKE_INSTALL_PREFIX=/usr
+  make -j${MAKE_JOBS}
+  make install
 fi
 
 # Step 1: install everything you need

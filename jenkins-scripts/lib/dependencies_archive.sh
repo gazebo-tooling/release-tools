@@ -9,11 +9,6 @@ if [[ -z $ROS_DISTRO ]]; then
     exit 1
 fi
 
-# Do not use dart by default
-if [ -z ${ENABLE_DART} ]; then
-    ENABLE_DART=false
-fi
-
 # mesa-utils for dri checks and xsltproc for qtest->junit conversion
 BASE_DEPENDENCIES="build-essential \\
                    cmake           \\
@@ -148,3 +143,26 @@ ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES}           \\
                               ros-${ROS_DISTRO}-joint-limits-interface  \\
                               ros-${ROS_DISTRO}-transmission-interface"
 fi
+
+# DART dependencies
+if [ -z ${DART_COMPILE_FROM_SOURCE} ]; then
+    DART_COMPILE_FROM_SOURCE=false
+fi
+
+if [ -z ${DART_FROM_PKGS} ]; then
+    DART_FROM_PKGS=false
+fi
+
+DART_DEPENDENCIES="libflann-dev            \\
+                   libgtest-dev            \\
+		   libeigen3-dev           \\
+		   libassimp-dev           \\
+		   freeglut3-dev           \\
+		   libxi-dev               \\
+		   libxmu-dev              \\
+		   libtinyxml-dev          \\
+		   libtinyxml2-dev         \\
+		   libfcl-dev              \\
+		   liburdfdom-dev          \\
+		   libboost-system-dev     \\
+		   libboost-filesystem-dev"
