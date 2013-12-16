@@ -27,7 +27,7 @@ apt-get update
 
 if $ENABLE_DART; then
   # software-properties for apt-add-repository
-  apt-get install -y python-software-properties 
+  apt-get install -y python-software-properties apt-utils
   which apt-add-repository
   dpkg -L python-software-properties
   /usr/bin/apt-add-repository -y ppa:libccd-debs
