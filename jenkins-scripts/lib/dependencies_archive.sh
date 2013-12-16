@@ -77,7 +77,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libsimbody-dev                   \\
                           ${sdformat_pkg}"
 if $ENABLE_DART; then
-    GAZEBO_BASE_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES \\
+    GAZEBO_BASE_DEPENDENCIES="$GAZEBO_BASE_DEPENDENCIES \\
                              libdart-core3-dev"
 fi
 
