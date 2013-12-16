@@ -28,7 +28,9 @@ apt-get update
 if $ENABLE_DART; then
   # software-properties for apt-add-repository
   apt-get install -y python-software-properties 
-  apt-add-repository -y ppa:libccd-debs
+  which apt-add-repository
+  dpkg -L python-software-properties
+  /usr/bin/apt-add-repository -y ppa:libccd-debs
   apt-add-repository -y ppa:fcl-debs
   apt-add-repository -y ppa:dartsim
   GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES libdart-core3-dev"
