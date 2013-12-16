@@ -9,6 +9,11 @@ if [[ -z $ROS_DISTRO ]]; then
     exit 1
 fi
 
+# Do not use dart by default
+if [ -z ${ENABLE_DART} ]; then
+    ENABLE_DART=false
+fi
+
 # mesa-utils for dri checks and xsltproc for qtest->junit conversion
 BASE_DEPENDENCIES="build-essential \\
                    cmake           \\
@@ -71,13 +76,17 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libbullet2.82-dev                \\
                           libsimbody-dev                   \\
                           ${sdformat_pkg}"
+if $ENABLE_DART; then
+    GAZEBO_BASE_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES \\
+                             libdart-core3-dev"
+fi
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libcegui-mk2-dev \\
                            libavformat-dev  \\
                            libavcodec-dev   \\
                            libswscale-dev   \\
-                           ruby-ronn "
+                           ruby-ronn"
 
 GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
 if [ -z $GAZEBO_DEB_PACKAGE ]; then
