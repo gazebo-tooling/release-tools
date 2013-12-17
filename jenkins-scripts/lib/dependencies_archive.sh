@@ -160,13 +160,19 @@ DART_DEPENDENCIES="libflann-dev            \\
 		   libboost-filesystem-dev"
 
 if [ -z ${DART_COMPILE_FROM_SOURCE} ]; then
-    DART_COMPILE_FROM_SOURCE=false
+   DART_COMPILE_FROM_SOURCE=false
+fi
+
+if ${DART_COMPILE_FROM_SOURCE}; then
     GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES \\
                                $DART_DEPENDENCIES"
 fi
 
 if [ -z ${DART_FROM_PKGS} ]; then
     DART_FROM_PKGS=false
+fi
+
+if $DART_FROM_PKGS; then
     GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES \\
                                libdart-core3-dev"
 fi
