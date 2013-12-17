@@ -70,7 +70,13 @@ fi
 # Step 2: configure and build
 # Check for DART
 if $DART_COMPILE_FROM_SOURCE; then
-  git clone https://github.com/dartsim/dart.git $WORKSPACE/dart
+  if [ -d $WORKSPACE/dart ]; then
+      cd $WORKSPACE/dart
+      git pull
+  else
+     git clone https://github.com/dartsim/dart.git $WORKSPACE/dart
+  fi
+  rm -fr $WORKSPACE/dart/build
   mkdir -p $WORKSPACE/dart/build
   cd $WORKSPACE/dart/build
   cmake .. \
