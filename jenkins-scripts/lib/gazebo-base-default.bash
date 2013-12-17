@@ -38,6 +38,7 @@ if $DART_COMPILE_FROM_SOURCE; then
   apt-get install -y python-software-properties apt-utils software-properties-common git
   apt-add-repository -y ppa:libccd-debs
   apt-add-repository -y ppa:fcl-debs
+  apt-get update
   apt-get install -y $DART_DEPENDENCIES
   git clone https://github.com/dartsim/dart.git $WORKSPACE/dart
   mkdir -p $WORKSPACE/dart/build
