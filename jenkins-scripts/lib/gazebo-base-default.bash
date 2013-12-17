@@ -25,7 +25,7 @@ sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > 
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 
 # Dart repositories
-if $DART_FROM_PKGS: then
+if $DART_FROM_PKGS; then
   # software-properties for apt-add-repository
   apt-get install -y python-software-properties apt-utils software-properties-common
   apt-add-repository -y ppa:libccd-debs
