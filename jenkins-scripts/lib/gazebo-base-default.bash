@@ -31,7 +31,6 @@ if $DART_FROM_PKGS; then
   apt-add-repository -y ppa:libccd-debs
   apt-add-repository -y ppa:fcl-debs
   apt-add-repository -y ppa:dartsim
-  GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES libdart-core3-dev"
 fi
 
 if $DART_COMPILE_FROM_SOURCE; then
@@ -39,7 +38,6 @@ if $DART_COMPILE_FROM_SOURCE; then
   apt-add-repository -y ppa:libccd-debs
   apt-add-repository -y ppa:fcl-debs
   apt-add-repository -y ppa:dartsim
-  GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES $DART_DEPENDENCIES"
 fi
 
 # Step 1: install everything you need
@@ -81,7 +79,8 @@ if $DART_COMPILE_FROM_SOURCE; then
   cd $WORKSPACE/dart/build
   cmake .. \
       -DCMAKE_INSTALL_PREFIX=/usr
-  make -j${MAKE_JOBS}
+  #make -j${MAKE_JOBS}
+  make -j1
   make install
 fi
 
