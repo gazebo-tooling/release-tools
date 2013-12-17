@@ -39,15 +39,7 @@ if $DART_COMPILE_FROM_SOURCE; then
   apt-add-repository -y ppa:libccd-debs
   apt-add-repository -y ppa:fcl-debs
   apt-add-repository -y ppa:dartsim
-  apt-get update
-  apt-get install -y $DART_DEPENDENCIES
-  git clone https://github.com/dartsim/dart.git $WORKSPACE/dart
-  mkdir -p $WORKSPACE/dart/build
-  cd $WORKSPACE/dart/build
-  cmake .. \
-      -DCMAKE_INSTALL_PREFIX=/usr
-  make -j${MAKE_JOBS}
-  make install
+  GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES $DART_DEPENDENCIES"
 fi
 
 # Step 1: install everything you need
@@ -76,6 +68,16 @@ if ${GRAPHIC_CARD_FOUND}; then
 fi
 
 # Step 2: configure and build
+# Check for DART
+if $DART_COMPILE_FROM_SOURCE; then
+  git clone https://github.com/dartsim/dart.git $WORKSPACE/dart
+  mkdir -p $WORKSPACE/dart/build
+  cd $WORKSPACE/dart/build
+  cmake .. \
+      -DCMAKE_INSTALL_PREFIX=/usr
+  make -j${MAKE_JOBS}
+  make install
+fi
 
 # Normal cmake routine for Gazebo
 rm -rf $WORKSPACE/build $WORKSPACE/install
