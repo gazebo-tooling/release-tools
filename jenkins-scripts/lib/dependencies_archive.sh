@@ -71,7 +71,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libbullet2.82-dev                \\
                           libsimbody-dev                   \\
                           ${sdformat_pkg}"
-if $ENABLE_DART; then
+if $DART_FROM_PKGS; then
     GAZEBO_BASE_DEPENDENCIES="$GAZEBO_BASE_DEPENDENCIES \\
                              libdart-core3-dev"
 fi
@@ -145,14 +145,6 @@ ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES}           \\
 fi
 
 # DART dependencies
-if [ -z ${DART_COMPILE_FROM_SOURCE} ]; then
-    DART_COMPILE_FROM_SOURCE=false
-fi
-
-if [ -z ${DART_FROM_PKGS} ]; then
-    DART_FROM_PKGS=false
-fi
-
 DART_DEPENDENCIES="libflann-dev            \\
                    libgtest-dev            \\
 		   libeigen3-dev           \\
@@ -166,3 +158,15 @@ DART_DEPENDENCIES="libflann-dev            \\
 		   liburdfdom-dev          \\
 		   libboost-system-dev     \\
 		   libboost-filesystem-dev"
+
+if [ -z ${DART_COMPILE_FROM_SOURCE} ]; then
+    DART_COMPILE_FROM_SOURCE=false
+    GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES \\
+                               $DART_DEPENDENCIES"
+fi
+
+if [ -z ${DART_FROM_PKGS} ]; then
+    DART_FROM_PKGS=false
+    GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES \\
+                               libdart-core3-dev"
+fi
