@@ -18,9 +18,9 @@ tar --strip 1 -xzf homebrew.tar.gz
 # Need to create cache so the system one (without permissions) is not used
 mkdir -p ${HOME}/Library/Caches/Homebrew
 
-# Step 2. Install ${PROJECT}
+# Step 2. Install dependencies of ${PROJECT}
 ${RUN_DIR}/bin/brew tap osrf/simulation
-${RUN_DIR}/bin/brew install `${RUN_DIR}/bin/brew deps ${PROJECT}`
+${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
 
 # Step 3. Manually compile and install ${PROJECT}
 cd ${WORKSPACE}/${PROJECT}
