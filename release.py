@@ -194,8 +194,12 @@ def generate_upload_tarball(args):
     check_call(['make', 'package_source'])
 
     # Upload tarball
+    # We need to trick the current packages for the tarball
+    tarball_name = args.package
+    if args.package == "gazebo-current":
+        tarball_name = "gazebo"
     # TODO: we're assuming a particular naming scheme and a particular compression tool
-    tarball_fname = '%s-%s.tar.bz2'%(args.package, args.version)
+    tarball_fname = '%s-%s.tar.bz2'%(tarball_name, args.version)
     tarball_path = os.path.join(builddir, tarball_fname)
     # If we're releasing under a different name, then rename the tarball (the
     # package itself doesn't know anything about this).
