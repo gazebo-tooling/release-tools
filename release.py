@@ -86,7 +86,7 @@ def download_release_repository(package, release_branch):
 def sanity_package_name(repo_dir, package, package_alias):
     expected_name = package
 
-    if not package_alias:
+    if package_alias:
         expected_name = package_alias
 
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
