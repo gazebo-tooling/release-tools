@@ -76,10 +76,10 @@ def parse_args(argv):
 def get_release_repository_URL(package):
     return "https://bitbucket.org/osrf/" + package + "-release"
 
-def download_release_repository(package):
+def download_release_repository(package, release_branch):
     url = get_release_repository_URL(package)
     release_tmp_dir = tempfile.mkdtemp() 
-    cmd = [ "hg", "clone", url, release_tmp_dir]
+    cmd = [ "hg", "clone", "-b", release_branch, url, release_tmp_dir]
     check_call(cmd, IGNORE_DRY_RUN)
     return release_tmp_dir
 
@@ -134,7 +134,7 @@ def sanity_check_gazebo_versions(package, version):
     print_success("Gazebo version in proper gazebo package")
 
 def sanity_checks(args):
-    repo_dir = download_release_repository(args.package)
+    repo_dir = download_release_repository(args.package, args.release_repo_branch)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_package_version(repo_dir, args.version, str(args.release_version))
     sanity_check_gazebo_versions(args.package, args.version)
