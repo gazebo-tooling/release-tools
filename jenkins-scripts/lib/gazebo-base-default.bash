@@ -68,6 +68,9 @@ make test ARGS="-VV" || true
 # Step 3: code check
 cd $WORKSPACE/gazebo
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+
+# Step 4: copy test log
+cp $HOME/.gazebo/test.log $WORKSPACE/test.log
 DELIM
 
 # Make project-specific changes here
