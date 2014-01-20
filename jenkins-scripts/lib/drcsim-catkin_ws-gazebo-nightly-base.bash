@@ -65,7 +65,7 @@ rm -fr $WORKSPACE/ws/src
 mkdir -p $WORKSPACE/ws/src
 cd $WORKSPACE/ws/src
 catkin_init_workspace
-hg clone $WORKSPACE/drcsim drcsim
+hg clone $WORKSPACE/drcsim drcsim -b fix_check_tests
 hg clone https://bitbucket.org/osrf/osrf-common osrf-common
 hg clone https://bitbucket.org/osrf/sandia-hand sandia-hand
 git clone https://github.com/ros-simulation/gazebo_ros_pkgs gazebo_ros_pkgs
