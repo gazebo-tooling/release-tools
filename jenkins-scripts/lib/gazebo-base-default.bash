@@ -64,11 +64,15 @@ if ${COVERAGE_ENABLED} ; then
   # Download and install Bullseyes
   cd $WORKSPACE
   rm -fr $WORKSPACE/Bulls*
-  # Look for current version
-  wget http://www.bullseye.com/download/ -O bull_index.html
-  BULL_TAR=\$( grep -R BullseyeCoverage-.*-Linux-x64.tar bull_index.html | head -n 1 | sed 's/.*">//' | sed 's/<.*//' )
+  
+  # Look for current version. NOT IN USE since we lost the maintenance support on 2014 
+  # reenable if the support is back.
+  # wget http://www.bullseye.com/download/ -O bull_index.html
+  # BULL_TAR=\$( grep -R BullseyeCoverage-.*-Linux-x64.tar bull_index.html | head -n 1 | sed 's/.*">//' | sed 's/<.*//' )
+  # wget http://www.bullseye.com/download/\$BULL_TAR -O bullseye.tar
+
   # Download package
-  wget http://www.bullseye.com/download/\$BULL_TAR -O bullseye.tar
+  wget https://www.dropbox.com/s/i1ay7t8sg8i77jr/bullseye-8.8.9.tar -O bullseye.tar
   tar -xf bullseye.tar
   cd Bulls*
   # Set up the license
