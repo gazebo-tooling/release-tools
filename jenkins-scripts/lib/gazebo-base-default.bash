@@ -70,7 +70,8 @@ cd $WORKSPACE/gazebo
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
 
 # Step 4: copy test log
-cp $HOME/.gazebo/test.log $WORKSPACE/test.log
+mkdir $WORKSPACE/logs
+cp $HOME/.gazebo/*.log $WORKSPACE/logs/
 DELIM
 
 # Make project-specific changes here
