@@ -38,9 +38,9 @@ sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $DISTRO main" > /etc/apt/sou
 wget http://packages.ros.org/ros.key -O - | apt-key add -
 fi
 
-# Also get drc repo's key, to be used in getting Gazebo
-sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" > /etc/apt/sources.list.d/drc-latest.list'
-wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
+# Also get gazebo repo's key, to be used in getting Gazebo
+sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main|deb" > /etc/apt/sources.list.d/gazebo.list'
+wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
 apt-get update
 
 # Hack to avoid problem with non updated 
@@ -51,9 +51,9 @@ fi
 
 # Step 0: create/update distro-specific pbuilder environment
 if $ENABLE_ROS; then
-pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main|deb" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
 else
-pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main|deb" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
 fi
 
 # Step 0: Clean up
