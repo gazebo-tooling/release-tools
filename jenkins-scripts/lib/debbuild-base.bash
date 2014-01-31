@@ -39,7 +39,7 @@ wget http://packages.ros.org/ros.key -O - | apt-key add -
 fi
 
 # Also get gazebo repo's key, to be used in getting Gazebo
-sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main|deb" > /etc/apt/sources.list.d/gazebo.list'
+sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" > /etc/apt/sources.list.d/gazebo.list'
 wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
 apt-get update
 
