@@ -1,6 +1,8 @@
 #!/bin/bash -x
 set -e
 
+export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
+
 # Get project name as first argument to this script
 PROJECT=$1
 
