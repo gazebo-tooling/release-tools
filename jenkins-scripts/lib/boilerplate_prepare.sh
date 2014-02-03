@@ -30,7 +30,15 @@ fi
 . ${SCRIPT_DIR}/lib/check_graphic_card.bash
 . ${SCRIPT_DIR}/lib/dependencies_archive.sh
 
-distro=${DISTRO}
+# 
+if [[ -z $WORKAROUND_PBUILDER_BUG ]]; then
+  WORKAROUND_PBUILDER_BUG=false
+fi
+
+if $WORKAROUND_PBUILDER_BUG && [[ $DISTRO == 'precise' ]]; then
+  distro=raring
+fi
+
 arch=amd64
 base=/var/cache/pbuilder-$distro-$arch
 
