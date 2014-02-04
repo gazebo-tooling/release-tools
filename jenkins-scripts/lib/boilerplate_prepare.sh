@@ -40,8 +40,6 @@ if $WORKAROUND_PBUILDER_BUG && [[ $DISTRO == 'precise' ]]; then
   distro=raring
 fi
 
-distro=$DISTRO
-
 arch=amd64
 base=/var/cache/pbuilder-$distro-$arch
 
