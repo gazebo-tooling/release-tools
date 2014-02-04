@@ -53,7 +53,7 @@ fi
 # Fix segfault when using two repositories by setting OTHERMIRROR env variable
 if $ENABLE_ROS; then
 # OTHERMIRROR='deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main' pbuilder-dist $DISTRO $ARCH create --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
-pbuilder-dist $DISTRO $ARCH create --othermirror='deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main' --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
 else
 pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
 fi
