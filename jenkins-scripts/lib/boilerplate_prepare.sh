@@ -29,6 +29,11 @@ fi
 
 . ${SCRIPT_DIR}/lib/check_graphic_card.bash
 . ${SCRIPT_DIR}/lib/dependencies_archive.sh
+      
+
+distro=${DISTRO}
+arch=amd64
+base=/var/cache/pbuilder-$distro-$arch
 
 # Workaround for precise pbuilder-dist segfault
 # https://bitbucket.org/osrf/release-tools/issue/22
@@ -39,9 +44,6 @@ fi
 if $WORKAROUND_PBUILDER_BUG && [[ $DISTRO == 'precise' ]]; then
   distro=raring
 fi
-
-arch=amd64
-base=/var/cache/pbuilder-$distro-$arch
 
 aptconffile=$WORKSPACE/apt.conf
 
