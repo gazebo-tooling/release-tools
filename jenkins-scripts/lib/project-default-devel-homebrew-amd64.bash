@@ -30,7 +30,7 @@ mkdir -p ${WORKSPACE}/build
 cd ${WORKSPACE}/build
 
 # Need to trick config path
-export PKG_CONFIG_PATH=${RUN_DIR}
+export PKG_CONFIG_PATH=${RUN_DIR}/lib/pkgconfig
 
 ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
       -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/${PROJECT}/HEAD \
