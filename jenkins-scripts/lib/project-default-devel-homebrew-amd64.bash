@@ -29,8 +29,12 @@ cd ${WORKSPACE}/${PROJECT}
 mkdir -p ${WORKSPACE}/build
 cd ${WORKSPACE}/build
 
-# Need to trick config path
+# Mimic the homebrew variables
 export PKG_CONFIG_PATH=${RUN_DIR}/lib/pkgconfig
+export DYLD_FALLBACK_LIBRARY_PATH="$DYLD_FALLBACK_LIBRARY_PATH:${RUN_DIR}/lib"
+export PATH="${PATH}:${RUN_DIR}/bin"
+export C_INCLUDE_PATH="${C_INCLUDE_PATH}:${RUN_DIR}/include"
+export CPLUS_INCLUDE_PATH="${CPLUS_INCLUDE_PATH}:${RUN_DIR}/include"
 
 ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
       -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/${PROJECT}/HEAD \
