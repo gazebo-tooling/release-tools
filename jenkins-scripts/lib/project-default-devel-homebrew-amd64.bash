@@ -48,4 +48,4 @@ ${RUN_DIR}/bin/brew link ${PROJECT}
 make test ARGS="-VV" || true
 
 # Step 5. Clean up
-rm -fr ${RUN_DIR}
+#rm -fr ${RUN_DIR}
