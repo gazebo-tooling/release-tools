@@ -34,7 +34,8 @@ export PKG_CONFIG_PATH=${RUN_DIR}
 
 ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
       -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/${PROJECT}/HEAD \
-      -DCMAKE_PREFIX_PATH=${RUN_DIR}
+      -DCMAKE_PREFIX_PATH=${RUN_DIR} \
+      -DBOOST_ROOT=${RUN_DIR}
 
 make -j${MAKE_JOBS} install
 ${RUN_DIR}/bin/brew link ${PROJECT}
