@@ -28,6 +28,10 @@ ${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
 cd ${WORKSPACE}/${PROJECT}
 mkdir -p ${WORKSPACE}/build
 cd ${WORKSPACE}/build
+
+# Need to trick config path
+export PKG_CONFIG_PATH=${RUN_DIR}
+
 ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
       -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/${PROJECT}/HEAD \
       -DCMAKE_PREFIX_PATH=${RUN_DIR}
