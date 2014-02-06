@@ -63,15 +63,16 @@ cmake ${GZ_CMAKE_BUILD_TYPE}         \\
 make -j${MAKE_JOBS}
 make install
 . /usr/share/gazebo/setup.sh
-make test ARGS="-VV" || true
+# make test ARGS="-VV" || true
+make test ARGS="-VV UNIT_*" || true
 
 # Step 3: code check
-cd $WORKSPACE/gazebo
-sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+# cd $WORKSPACE/gazebo
+# sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
 
 # Step 4: copy test log
 mkdir $WORKSPACE/logs
-cp $HOME/.gazebo/*.log $WORKSPACE/logs/
+cp $HOME/.gazebo/logs/*.log $WORKSPACE/logs/
 DELIM
 
 # Make project-specific changes here
