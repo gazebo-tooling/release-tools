@@ -26,6 +26,7 @@ ${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
 
 # Step 3. Manually compile and install ${PROJECT}
 cd ${WORKSPACE}/${PROJECT}
+rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
 cd ${WORKSPACE}/build
 
