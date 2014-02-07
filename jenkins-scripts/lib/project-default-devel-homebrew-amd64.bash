@@ -45,8 +45,17 @@ ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
 make -j${MAKE_JOBS} install
 ${RUN_DIR}/bin/brew link ${PROJECT}
 
-# Step 4. Testing
-make test ARGS="-VV" || true
+# Need to use root to access to the graphical env
+export DISPLAY=$(sudo find /private/tmp -name *xquartz* | sed 's:/private::')
+
+cat > test_run.sh << DELIM
+cd $WORKSPACE/build/
+export DYLD_FALLBACK_LIBRARY_PATH=${RUN_DIR}/lib
+mak test ARGS="-VV" || true
+DELIM
+
+chmod +x test_run.sh
+sudo  ./test_run.sh
 
 # Step 5. Clean up
 #rm -fr ${RUN_DIR}
