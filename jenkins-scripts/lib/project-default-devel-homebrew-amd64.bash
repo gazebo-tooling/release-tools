@@ -51,7 +51,7 @@ export DISPLAY=$(sudo find /private/tmp -name *xquartz* | sed 's:/private::')
 cat > test_run.sh << DELIM
 cd $WORKSPACE/build/
 export DYLD_FALLBACK_LIBRARY_PATH=${RUN_DIR}/lib
-mak test ARGS="-VV" || true
+make test ARGS="-VV" || true
 DELIM
 
 chmod +x test_run.sh
