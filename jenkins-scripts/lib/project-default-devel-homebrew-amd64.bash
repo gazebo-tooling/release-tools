@@ -28,9 +28,8 @@ ${RUN_DIR}/bin/brew tap osrf/simulation
 # If the case of gazebo, reuse qt so we don't need to compile it all the time
 if [[ $PROJECT == 'gazebo' ]]; then
   if [[ ! $(find ${LOCAL_CELLAR} -name qt-4.*.mavericks.bottle.tar.gz) ]]; then
-      pushd ${LOCAL_CELLAR} 2> /dev/null
-      curl -L https://www.dropbox.com/s/to19m8jw6elk9m0/qt-4.8.5.mavericks.bottle.tar.gz
-      popd 2>/dev/null
+    curl -L -o "${LOCAL_CELLAR}/qt-4.8.5.mavericks.bottle.tar.gz" \
+      https://www.dropbox.com/s/to19m8jw6elk9m0/qt-4.8.5.mavericks.bottle.tar.gz
   fi
 
   ${RUN_DIR}/bin/brew install "${LOCAL_CELLAR}/qt-4.8.5.mavericks.bottle.tar.gz"
