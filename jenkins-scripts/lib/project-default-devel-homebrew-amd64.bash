@@ -26,7 +26,8 @@ ${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
 
 # Step 3. Manually compile and install ${PROJECT}
 cd ${WORKSPACE}/${PROJECT}
-rm -fr ${WORKSPACE}/build
+# Need the sudo since the test are running with roots perms to access to GUI
+sudo rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
 cd ${WORKSPACE}/build
 
