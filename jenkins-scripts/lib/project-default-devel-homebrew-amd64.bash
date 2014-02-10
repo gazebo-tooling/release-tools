@@ -29,7 +29,7 @@ ${RUN_DIR}/bin/brew tap osrf/simulation
 if [[ $PROJECT == 'gazebo' ]]; then
   if [[ ! $(find ${LOCAL_CELLAR} -name qt-4.*.mavericks.bottle.tar.gz) ]]; then
       pushd ${LOCAL_CELLAR} 2> /dev/null
-      curl -L -o https://www.dropbox.com/s/to19m8jw6elk9m0/qt-4.8.5.mavericks.bottle.tar.gz
+      curl -L https://www.dropbox.com/s/to19m8jw6elk9m0/qt-4.8.5.mavericks.bottle.tar.gz
       popd 2>/dev/null
   fi
 
