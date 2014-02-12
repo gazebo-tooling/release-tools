@@ -39,7 +39,7 @@ if [[ $PROJECT == 'gazebo' ]]; then
     sed -i -e "s:${HOME}/jenkins.R7cR:${RUN_DIR}:g" {} \;
 
   # debug
-  grep -R 'R7vR' ${RUN_DIR}
+  grep -R 'R7cR' ${RUN_DIR}
 fi
 # Process the package dependencies
 ${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
