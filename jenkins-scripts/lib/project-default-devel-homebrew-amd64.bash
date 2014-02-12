@@ -35,12 +35,18 @@ if [[ $PROJECT == 'gazebo' ]]; then
   ${RUN_DIR}/bin/brew install "${LOCAL_CELLAR}/qt-4.8.5.mavericks.bottle.tar.gz"
   # The bottle has some hardcoded files in qmake configurations. Hack them.
   # see https://bitbucket.org/osrf/release-tools/pull-request/30
-  find ${RUN_DIR} -type f \( -name "*.prl" -or -name "*.prl-e" \) -exec \
+  find ${RUN_DIR} \( -name "*.prl" -or -name "*.prl-e" \) -exec \
       sed -i -e "s:${HOME}/jenkins.R7cR:${RUN_DIR}:g" {} \;
 
-  grep 'R7cR' $WORKSPACE/build/CMakeCache.txt || true
   # debug
   grep -R 'R7cR' ${RUN_DIR} || true
+
+  find ${RUN_DIR} \( -name "*.prl-e" -or -name "*.prl" \) -exec \
+      sed -i -e "s:${HOME}/jenkins.R7cR:${RUN_DIR}:g" {} \;
+
+  # debug
+  grep -R 'R7cR' ${RUN_DIR} || true
+
 fi
 # Process the package dependencies
 ${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
@@ -51,6 +57,7 @@ cd ${WORKSPACE}/${PROJECT}
 sudo rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
 cd ${WORKSPACE}/build
+ 
 
 # Mimic the homebrew variables
 export PKG_CONFIG_PATH=${RUN_DIR}/lib/pkgconfig
@@ -63,6 +70,8 @@ ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
       -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/${PROJECT}/HEAD \
       -DCMAKE_PREFIX_PATH=${RUN_DIR} \
       -DBOOST_ROOT=${RUN_DIR}
+
+grep 'R7cR' $WORKSPACE/build/CMakeCache.txt || true
 
 make -j${MAKE_JOBS} install
 ${RUN_DIR}/bin/brew link ${PROJECT}
