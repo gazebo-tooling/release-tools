@@ -70,7 +70,11 @@ export DISPLAY=$(sudo find /private/tmp -name *xquartz* | sed 's:/private::')
 
 cat > test_run.sh << DELIM
 cd $WORKSPACE/build/
+export PKG_CONFIG_PATH=${RUN_DIR}/lib/pkgconfig
 export DYLD_FALLBACK_LIBRARY_PATH=${RUN_DIR}/lib
+export BOOST_ROOT=${RUN_DIR}
+export PATH="${PATH}:${RUN_DIR}/bin"
+
 make test ARGS="-VV" || true
 DELIM
 
