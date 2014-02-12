@@ -17,11 +17,29 @@ cd $RUN_DIR
 # Install homebrew
 curl -L -o homebrew.tar.gz https://github.com/Homebrew/homebrew/tarball/master 
 tar --strip 1 -xzf homebrew.tar.gz
+
 # Need to create cache so the system one (without permissions) is not used
-mkdir -p ${HOME}/Library/Caches/Homebrew
+LOCAL_CELLAR=${HOME}/Library/Caches/Homebrew
+mkdir -p ${LOCAL_CELLAR}
 
 # Step 2. Install dependencies of ${PROJECT}
 ${RUN_DIR}/bin/brew tap osrf/simulation
+
+# If the case of gazebo, reuse qt so we don't need to compile it all the time
+if [[ $PROJECT == 'gazebo' ]]; then
+  if [[ ! $(find ${LOCAL_CELLAR} -name qt-4.*.mavericks.bottle.tar.gz) ]]; then
+    curl -L -o "${LOCAL_CELLAR}/qt-4.8.5.mavericks.bottle.tar.gz" \
+      https://www.dropbox.com/s/to19m8jw6elk9m0/qt-4.8.5.mavericks.bottle.tar.gz
+  fi
+
+  ${RUN_DIR}/bin/brew install "${LOCAL_CELLAR}/qt-4.8.5.mavericks.bottle.tar.gz"
+
+  # The bottle has some hardcoded files in qmake configurations. Hack them.
+  # see https://bitbucket.org/osrf/release-tools/pull-request/30
+  rm -fr ${HOME}/jenkins.R7cR
+  ln -s ${RUN_DIR} ${HOME}/jenkins.R7cR 
+fi
+# Process the package dependencies
 ${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
 
 # Step 3. Manually compile and install ${PROJECT}
@@ -30,6 +48,7 @@ cd ${WORKSPACE}/${PROJECT}
 sudo rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
 cd ${WORKSPACE}/build
+ 
 
 # Mimic the homebrew variables
 export PKG_CONFIG_PATH=${RUN_DIR}/lib/pkgconfig
