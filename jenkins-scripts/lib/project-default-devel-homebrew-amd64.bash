@@ -35,7 +35,7 @@ if [[ $PROJECT == 'gazebo' ]]; then
   ${RUN_DIR}/bin/brew install "${LOCAL_CELLAR}/qt-4.8.5.mavericks.bottle.tar.gz"
   # The bottle has some hardcoded files in qmake configurations. Hack them.
   # see https://bitbucket.org/osrf/release-tools/pull-request/30
-  find ${RUN_DIR} -name '*.prl' -exec \
+  find ${RUN_DIR} -name '*.prl' -name '*.prl-e' -exec \
       sed -i -e "s:${HOME}/jenkins.R7cR:${RUN_DIR}:g" {} \;
 
   grep 'R7cR' $WORKSPACE/build/CMakeCache.txt || true
