@@ -37,7 +37,7 @@ if [[ $PROJECT == 'gazebo' ]]; then
   # The bottle has some hardcoded files in qmake configurations. Hack them.
   # see https://bitbucket.org/osrf/release-tools/pull-request/30
   rm -fr ${HOME}/jenkins.R7cR
-  ln -s ${HOME}/jenkins.R7cR ${RUN_DIR}
+  ln -s ${RUN_DIR} ${HOME}/jenkins.R7cR 
 fi
 # Process the package dependencies
 ${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
