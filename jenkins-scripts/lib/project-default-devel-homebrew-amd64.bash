@@ -25,6 +25,8 @@ mkdir -p ${LOCAL_CELLAR}
 # Hack to use a patched version of protobuf
 ${RUN_DIR}/bin/brew tap j-rivero/simulation
 ${RUN_DIR}/bin/brew install j-rivero/simulation/protobuf
+# Hack to use ffmepg with gazebo
+${RUN_DIR}/bin/brew install ffmpeg
 
 # Step 2. Install dependencies of ${PROJECT}
 ${RUN_DIR}/bin/brew tap osrf/simulation
