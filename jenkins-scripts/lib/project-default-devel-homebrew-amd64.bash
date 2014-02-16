@@ -22,6 +22,10 @@ tar --strip 1 -xzf homebrew.tar.gz
 LOCAL_CELLAR=${HOME}/Library/Caches/Homebrew
 mkdir -p ${LOCAL_CELLAR}
 
+# Hack to use a patched version of protobuf
+${RUN_DIR}/bin/brew tap j-rivero/simulation
+${RUN_DIR}/bin/brew install protobuf
+
 # Step 2. Install dependencies of ${PROJECT}
 ${RUN_DIR}/bin/brew tap osrf/simulation
 
