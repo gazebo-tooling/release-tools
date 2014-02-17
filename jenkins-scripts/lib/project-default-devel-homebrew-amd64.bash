@@ -26,7 +26,7 @@ mkdir -p ${LOCAL_CELLAR}
 ${RUN_DIR}/bin/brew tap j-rivero/simulation
 ${RUN_DIR}/bin/brew install j-rivero/simulation/protobuf
 # Hack to use ffmepg with gazebo - Need to fix detection first
-# ${RUN_DIR}/bin/brew install ffmpeg
+${RUN_DIR}/bin/brew install ffmpeg
 
 # Step 2. Install dependencies of ${PROJECT}
 ${RUN_DIR}/bin/brew tap osrf/simulation
