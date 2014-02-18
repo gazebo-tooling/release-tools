@@ -17,6 +17,11 @@ export ENABLE_REAPER=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
+# Default to install plain gazebo in gazebo_pkg is not speficied
+if [[ -z $GAZEBO_PKG ]]; then
+    export GAZEBO_PKG=gazebo
+fi
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
@@ -32,7 +37,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Required stuff for Gazebo and install gazebo binary itself
-apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES} git gazebo exuberant-ctags
+apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES} git ${GAZEBO_PKG} exuberant-ctags
 
 # Step 2: configure and build
 
@@ -56,6 +61,9 @@ GAZEBO_LIBS_LOCAL=\$(dpkg -L gazebo | grep lib.*.so | sed -e 's:^/usr:/usr/local
 
 BIN_VERSION=\$(dpkg -l gazebo | tail -n 1 | awk '{ print  \$3 }')
 
+GAZEBO_INC_DIR=\$(find /usr/include -name gazebo-* -type d | sed -e 's:.*/::')
+GAZEBO_LOCAL_INC_DIR=\$(find /usr/local/include -name gazebo-* -type d | sed -e 's:.*/::')
+
 mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker
 cat > pkg.xml << CURRENT_DELIM
@@ -64,13 +72,13 @@ cat > pkg.xml << CURRENT_DELIM
  </version>
 
  <headers>
-   /usr/include/gazebo-2.0/gazebo
+   /usr/include/\$GAZEBO_INC_DIR/gazebo
  </headers>
 
  <skip_headers>
-   /usr/include/gazebo-2.0/gazebo/GIMPACT
-   /usr/include/gazebo-2.0/gazebo/opcode
-   /usr/include/gazebo-2.0/gazebo/test
+   /usr/include/\$GAZEBO_INC_DIR/gazebo/GIMPACT
+   /usr/include/\$GAZEBO_INC_DIR/gazebo/opcode
+   /usr/include/\$GAZEBO_INC_DIR/gazebo/test
  </skip_headers>
 
  <libs>
@@ -84,13 +92,13 @@ cat > devel.xml << DEVEL_DELIM
  </version>
  
   <headers>
-   /usr/local/include/gazebo-2.0/gazebo
+   /usr/local/include/\$GAZEBO_LOCAL_INC_DIR/gazebo
  </headers>
  
  <skip_headers>
-   /usr/local/include/gazebo-2.0/gazebo/GIMPACT
-   /usr/local/include/gazebo-2.0/gazebo/opcode
-   /usr/local/include/gazebo-2.0/gazebo/test
+   /usr/local/include/\$GAZEBO_LOCAL_INC_DIR/gazebo/GIMPACT
+   /usr/local/include/\$GAZEBO_LOCAL_INC_DIR/gazebo/opcode
+   /usr/local/include/\$GAZEBO_LOCAL_INC_DIR/gazebo/test
  </skip_headers>
  
  <libs>
