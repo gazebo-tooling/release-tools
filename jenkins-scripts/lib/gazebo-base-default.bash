@@ -56,10 +56,10 @@ git clone git://github.com/lvc/abi-compliance-checker.git
 cd abi-compliance-checker
 perl Makefile.pl -install --prefix=/usr
 
-GAZEBO_LIBS=\$(dpkg -L gazebo | grep lib.*.so)
-GAZEBO_LIBS_LOCAL=\$(dpkg -L gazebo | grep lib.*.so | sed -e 's:^/usr:/usr/local:g')
+GAZEBO_LIBS=\$(dpkg -L ${GAZEBO_PKG} | grep lib.*.so)
+GAZEBO_LIBS_LOCAL=\$(dpkg -L ${GAZEBO_PKG} | grep lib.*.so | sed -e 's:^/usr:/usr/local:g')
 
-BIN_VERSION=\$(dpkg -l gazebo | tail -n 1 | awk '{ print  \$3 }')
+BIN_VERSION=\$(dpkg -l ${GAZEBO_PKG} | tail -n 1 | awk '{ print  \$3 }')
 
 GAZEBO_INC_DIR=\$(find /usr/include -name gazebo-* -type d | sed -e 's:.*/::')
 GAZEBO_LOCAL_INC_DIR=\$(find /usr/local/include -name gazebo-* -type d | sed -e 's:.*/::')
