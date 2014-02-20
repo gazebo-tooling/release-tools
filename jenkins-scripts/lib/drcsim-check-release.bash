@@ -32,7 +32,7 @@ if [ $DISTRO = 'precise' ]; then
     DRCSIM_PKG=drcsim-${ROS_DISTRO}
 fi
 
-apt-get install -y \DRCSIM_PKG
+apt-get install -y \$DRCSIM_PKG
 
 # Step 2: configure and build
 if [ $ROS_DISTRO != groovy ]; then
