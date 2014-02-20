@@ -6,11 +6,13 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 # Do not check nightly
 if [[ $VERSION = 'nightly' ]]; then
+    echo "DO_NOT_CHECK"
     exit 0
 fi
 
 # Do not check i386
 if [[ $ARCH = 'i386' ]]; then
+    echo "DO_NOT_CHECK"
     exit 0
 fi
 
@@ -18,21 +20,25 @@ fi
 # bloom ros-gazebo-pkgs define ROS_DISTRO, ignore non supported drcsim 
 if [[ $DISTRO = 'precise' ]]; then
   if [[ $ROS_DISTRO != 'groovy' ]]; then
+      echo "DO_NOT_CHECK"
       exit 0
   fi
   export ROS_DISTRO=groovy
 elif [[ $DISTRO = 'quantal' ]]; then
   if [[ $ROS_DISTRO != 'groovy' ]]; then
+      echo "DO_NOT_CHECK"
       exit 0
   fi
   export ROS_DISTRO=groovy
 elif [[ $DISTRO = 'raring' ]]; then
   if [[ $ROS_DISTRO != 'hydro' ]]; then
+      echo "DO_NOT_CHECK"
       exit 0
   fi
   export ROS_DISTRO=hydro
 elif [[ $DISTRO = 'saucy' ]]; then
   # saucy is not supported in drcsim yet
+  echo "DO_NOT_CHECK"
   exit 0
 else
   echo "Unknow ubuntu distro. Fix your script"
