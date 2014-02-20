@@ -28,7 +28,7 @@ apt-get update
 
 DRCSIM_PKG=drcsim
 # check for several distros on precise
-if [ $DISTRO == 'precise' ]; then
+if [ $DISTRO = 'precise' ]; then
     DRCSIM_PKG=drcsim-${ROS_DISTRO}
 fi
 
