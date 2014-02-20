@@ -28,14 +28,7 @@ if [[ -z $ROS_DISTRO ]]; then
 fi
 
 # Exclude of checking versions not supported by drcsim
-if [[ $DISTRO = 'precise' ]]; then
-    # TODO: we are skipping precise-hydro by the moment
-    # TODO: supporting it needs changes in drcsin-release-test.bash
-    if [[ $ROS_DISTRO != 'groovy' ]]; then
-      echo "DO_NOT_CHECK"
-      exit 0
-  fi
-elif [[ $DISTRO = 'quantal' ]]; then
+if [[ $DISTRO = 'quantal' ]]; then
   if [[ $ROS_DISTRO != 'groovy' ]]; then
       echo "DO_NOT_CHECK"
       exit 0
@@ -45,7 +38,4 @@ elif [[ $DISTRO = 'raring' ]]; then
       echo "DO_NOT_CHECK"
       exit 0
   fi
-else
-  echo "Unknow ubuntu distro. Fix your script"
-  exit 1
 fi

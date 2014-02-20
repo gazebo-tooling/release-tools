@@ -27,9 +27,14 @@ apt-get update
 
 # Do not run optional stuff: check for graphic card support
 
-# Step 2: configure and build
+DRCSIM_PKG=drcsim
+# check for several distros on precise
+[[ $DISTRO == 'precise' ]] && DRCSIM_PKG=drcsim-${ROS_DISTRO}
 
-if [ $DISTRO != precise ]; then
+apt-get install -y \DRCSIM_PKG
+
+# Step 2: configure and build
+if [ $ROS_DISTRO != groovy ]; then
     rosdep init 
     # Hack for not failing when github is down
     update_done=false
@@ -42,8 +47,6 @@ if [ $DISTRO != precise ]; then
     done
 fi
 
-# Check that installation can be done just fine
-apt-get install -y drcsim
 
 # In our nvidia machines, run the test to launch altas
 if [ $GRAPHIC_CARD_NAME = Nvidia ]; then
