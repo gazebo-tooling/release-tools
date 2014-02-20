@@ -19,23 +19,23 @@ fi
 # debbuild typically does not define ROS_DISTRO so autogenerate it
 # bloom ros-gazebo-pkgs define ROS_DISTRO, ignore non supported drcsim 
 if [[ $DISTRO = 'precise' ]]; then
+  [[ -z $ROS_DISTRO ]] && export ROS_DISTRO=groovy
   if [[ $ROS_DISTRO != 'groovy' ]]; then
       echo "DO_NOT_CHECK"
       exit 0
   fi
-  export ROS_DISTRO=groovy
 elif [[ $DISTRO = 'quantal' ]]; then
+  [[ -z $ROS_DISTRO ]] && export ROS_DISTRO=groovy
   if [[ $ROS_DISTRO != 'groovy' ]]; then
       echo "DO_NOT_CHECK"
       exit 0
   fi
-  export ROS_DISTRO=groovy
 elif [[ $DISTRO = 'raring' ]]; then
+  [[ -z $ROS_DISTRO ]] && export ROS_DISTRO=hydro
   if [[ $ROS_DISTRO != 'hydro' ]]; then
       echo "DO_NOT_CHECK"
       exit 0
   fi
-  export ROS_DISTRO=hydro
 elif [[ $DISTRO = 'saucy' ]]; then
   # saucy is not supported in drcsim yet
   echo "DO_NOT_CHECK"
