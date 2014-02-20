@@ -16,6 +16,17 @@ if [[ $ARCH = 'i386' ]]; then
     exit 0
 fi
 
+# saucy is not supported in drcsim
+if [[ $DISTRO = 'saucy' ]]; then
+  echo "DO_NOT_CHECK"
+  exit 0
+fi
+
+# If no ROS_DISTRO is set, we stop processing here and succesffully end
+if [[ -z $ROS_DISTRO ]]; then
+    exit 0
+fi
+
 # Exclude of checking versions not supported by drcsim
 if [[ $DISTRO = 'precise' ]]; then
     # TODO: we are skipping precise-hydro by the moment
@@ -34,10 +45,6 @@ elif [[ $DISTRO = 'raring' ]]; then
       echo "DO_NOT_CHECK"
       exit 0
   fi
-elif [[ $DISTRO = 'saucy' ]]; then
-  # saucy is not supported in drcsim
-  echo "DO_NOT_CHECK"
-  exit 0
 else
   echo "Unknow ubuntu distro. Fix your script"
   exit 1
