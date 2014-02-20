@@ -16,28 +16,26 @@ if [[ $ARCH = 'i386' ]]; then
     exit 0
 fi
 
-# debbuild typically does not define ROS_DISTRO so autogenerate it
-# bloom ros-gazebo-pkgs define ROS_DISTRO, ignore non supported drcsim 
+# Exclude of checking versions not supported by drcsim
 if [[ $DISTRO = 'precise' ]]; then
-  [[ -z $ROS_DISTRO ]] && export ROS_DISTRO=groovy
-  if [[ $ROS_DISTRO != 'groovy' ]]; then
+    # TODO: we are skipping precise-hydro by the moment
+    # TODO: supporting it needs changes in drcsin-release-test.bash
+    if [[ $ROS_DISTRO != 'groovy' ]]; then
       echo "DO_NOT_CHECK"
       exit 0
   fi
 elif [[ $DISTRO = 'quantal' ]]; then
-  [[ -z $ROS_DISTRO ]] && export ROS_DISTRO=groovy
   if [[ $ROS_DISTRO != 'groovy' ]]; then
       echo "DO_NOT_CHECK"
       exit 0
   fi
 elif [[ $DISTRO = 'raring' ]]; then
-  [[ -z $ROS_DISTRO ]] && export ROS_DISTRO=hydro
   if [[ $ROS_DISTRO != 'hydro' ]]; then
       echo "DO_NOT_CHECK"
       exit 0
   fi
 elif [[ $DISTRO = 'saucy' ]]; then
-  # saucy is not supported in drcsim yet
+  # saucy is not supported in drcsim
   echo "DO_NOT_CHECK"
   exit 0
 else

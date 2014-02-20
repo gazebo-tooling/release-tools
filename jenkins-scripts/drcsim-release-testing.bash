@@ -4,4 +4,12 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
+# debbuild typically does not define ROS_DISTRO so autogenerate it
+# bloom ros-gazebo-pkgs define ROS_DISTRO, ignore non supported drcsim 
+if [[ -z $ROS_DISTRO ]]; then
+    [[ $DISTRO = 'precise' ]] && export ROS_DISTRO=groovy
+    [[ $DISTRO = 'quantal' ]] && export ROS_DISTRO=groovy
+    [[ $DISTRO = 'raring' ]]  && export ROS_DISTRO=hydro
+fi
+
 . ${SCRIPT_DIR}/lib/drcsim-check-release.bash
