@@ -44,5 +44,3 @@ else
   echo "Unknow ubuntu distro. Fix your script"
   exit 1
 fi
-
-. ${SCRIPT_DIR}/lib/drcsim-check-release.bash
