@@ -24,12 +24,13 @@ sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > 
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
-
 # Do not run optional stuff: check for graphic card support
 
 DRCSIM_PKG=drcsim
 # check for several distros on precise
-[[ $DISTRO == 'precise' ]] && DRCSIM_PKG=drcsim-${ROS_DISTRO}
+if [ $DISTRO == 'precise' ]; then
+    DRCSIM_PKG=drcsim-${ROS_DISTRO}
+fi
 
 apt-get install -y \DRCSIM_PKG
 
