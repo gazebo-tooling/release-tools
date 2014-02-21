@@ -23,6 +23,7 @@ UBUNTU_DISTROS_EXPERIMENTAL = ['saucy']
 DRY_RUN = False
 NIGHTLY = False
 UPSTREAM = False
+NO_SRC_FILE = False
 EXP_DISTROS = False
 
 IGNORE_DRY_RUN = True
@@ -38,6 +39,7 @@ def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
     global UPSTREAM
+    global NO_SRC_FILE
     global EXP_DISTROS
 
     parser = argparse.ArgumentParser(description='Make releases.')
@@ -48,9 +50,6 @@ def parse_args(argv):
                         help='Build nightly releases: do not upload tar.bz2 and values are autoconfigured')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
-    parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
-                        help='no-sanity-checks; i.e. skip sanity checks commands')
-
     parser.add_argument('-e', '--experimental-distros', dest='exp_distros', action='store_true', default=False,
                         help='build packages for experimentally supported Ubuntu distros')
     parser.add_argument('-u', '--upstream', dest='upstream', action='store_true', default=False,
@@ -64,13 +63,24 @@ def parse_args(argv):
     parser.add_argument('-r', '--release-version', dest='release_version', 
                         default=None,
                         help='Release version suffix; usually 1 (e.g., 1')
+    parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
+                        help='no-sanity-checks; i.e. skip sanity checks commands')
+    parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
+                        help='no-sanity-checks; i.e. skip sanity checks commands')
+
     args = parser.parse_args()
     if not args.package_alias:
         args.package_alias = args.package
     DRY_RUN = args.dry_run
     NIGHTLY = args.nightly
     UPSTREAM = args.upstream
+    NO_SRC_FILE = args.no_source_file
     EXP_DISTROS = args.exp_distros
+
+    # Upstream always do not need of a tar.bz2 file
+    if UPSTREAM:
+        NO_SRC_FILE = True
+
     return args
 
 def get_release_repository_URL(package):
@@ -246,7 +256,7 @@ def go(argv):
         sanity_checks(args)
 
     source_tarball_uri = ''
-    if not UPSTREAM:
+    if not NO_SRC_FILE:
         source_tarball_uri = generate_upload_tarball(args)
     
     # Kick off Jenkins jobs
