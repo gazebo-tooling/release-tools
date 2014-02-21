@@ -77,9 +77,9 @@ def parse_args(argv):
     NO_SRC_FILE = args.no_source_file
     EXP_DISTROS = args.exp_distros
 
-    # Upstream always do not need of a tar.bz2 file
-    if UPSTREAM:
-        NO_SRC_FILE = True
+    # Upstream and nightly do not generate a tar.bz2 file
+    if args.upstream or args.nightly:
+        args.no_source_file = True
 
     return args
 
@@ -215,7 +215,7 @@ def generate_upload_tarball(args):
     # package itself doesn't know anything about this).
     if args.package != args.package_alias:
         tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
-        if (not args.dry_run) and (not args.nightly):
+        if (not args.dry_run):
           shutil.copyfile(tarball_path, os.path.join(builddir, tarball_fname))
         tarball_path = os.path.join(builddir, tarball_fname)
     check_call(['scp', tarball_path, UPLOAD_DEST])
@@ -256,7 +256,9 @@ def go(argv):
         sanity_checks(args)
 
     source_tarball_uri = ''
-    if not NO_SRC_FILE:
+
+    # Do not generate source file if not needed or impossible
+    if not arg.no_source_file:
         source_tarball_uri = generate_upload_tarball(args)
     
     # Kick off Jenkins jobs
