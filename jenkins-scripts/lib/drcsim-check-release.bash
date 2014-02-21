@@ -50,7 +50,7 @@ fi
 
 
 # In our nvidia machines, run the test to launch altas
-if [ $GRAPHIC_CARD_NAME = Nvidia ]; then
+if [ $GRAPHIC_CARD_NAME = Nvidia ] && [ $DISTRO = quantal]; then
   SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
   . /usr/share/drcsim/setup.sh
   timeout 180 roslaunch drcsim_gazebo atlas.launch
