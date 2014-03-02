@@ -25,12 +25,14 @@ if ${ENABLE_ROS}; then
 export ROS_HOSTNAME=localhost
 export ROS_MASTER_URI=http://localhost:11311
 export ROS_IP=127.0.0.1
+
+if [[ -n `ps aux | grep gzserver | grep -v grep` ]]; then
+    echo "There is a gzserver already running on the machine. Stopping"
+    exit -1
 fi
 
 . ${SCRIPT_DIR}/lib/check_graphic_card.bash
 . ${SCRIPT_DIR}/lib/dependencies_archive.sh
-      
-
 
 # Workaround for precise pbuilder-dist segfault
 # https://bitbucket.org/osrf/release-tools/issue/22
