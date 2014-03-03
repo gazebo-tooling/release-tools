@@ -22,9 +22,10 @@ fi
 
 # Useful for running tests properly in ros based software
 if ${ENABLE_ROS}; then
-export ROS_HOSTNAME=localhost
-export ROS_MASTER_URI=http://localhost:11311
-export ROS_IP=127.0.0.1
+  export ROS_HOSTNAME=localhost
+  export ROS_MASTER_URI=http://localhost:11311
+  export ROS_IP=127.0.0.1
+fi
 
 if [[ -n `ps aux | grep gzserver | grep -v grep` ]]; then
     echo "There is a gzserver already running on the machine. Stopping"
