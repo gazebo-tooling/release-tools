@@ -96,6 +96,11 @@ cd $work_dir
 
 sudo apt-get update -c $aptconffile
 
+# Check if trusty exists in the machine (not in precise) and symlink
+if [[ ! -f /usr/share/debootstrap/scripts/trusty ]]; then
+    ln -s /usr/share/debootstrap/scripts/gutsy /usr/share/debootstrap/scripts/trusty
+fi
+
 # Setup the pbuilder environment if not existing, or update
 if [ ! -e $basetgz ] || [ ! -s $basetgz ] 
 then
