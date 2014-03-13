@@ -25,7 +25,7 @@ upload_package()
                ubuntu@gazebosim.org:/var/www/assets/distributions
 }
 
-pkgs_paths="$WORKSPACE/pkgs/*.deb"
+pkgs_path="$WORKSPACE/pkgs/*.deb"
 
 for pkg in `ls $pkgs_path`; do
   # Get components from pkg
