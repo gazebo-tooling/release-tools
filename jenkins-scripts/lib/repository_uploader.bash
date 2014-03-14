@@ -25,9 +25,9 @@ upload_package()
                ubuntu@gazebosim.org:/var/www/assets/distributions
 }
 
-pkgs_path="$WORKSPACE/pkgs/*.deb"
+pkgs_path="$WORKSPACE/pkgs"
 
-for pkg in `ls $pkgs_path`; do
+for pkg in `ls $pkgs_path/*.deb`; do
   # Get components from pkg
   pkg=`echo ${pkg} | sed "s:$pkgs_path::"` # remove the root path
   pkg_name=${pkg/_*} # get the first part only
