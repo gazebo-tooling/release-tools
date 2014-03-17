@@ -29,10 +29,10 @@ pkgs_path="$WORKSPACE/pkgs"
 
 for pkg in `ls $pkgs_path/*.deb`; do
   # Get components from pkg
-  pkg=`echo ${pkg} | sed "s:$pkgs_path::"` # remove the root path
-  pkg_name=${pkg/_*} # get the first part only
-  pkg_suffix=${pkg##*_} # amd64.deb, i386.deb, all.deb
-  pkg_version=${pkg#*_} # remove package name
+  pkg_relative=`echo ${pkg} | sed "s:$pkgs_path/::"` # remove the root path
+  pkg_name=${pkg_relative/_*} # get the first part only
+  pkg_suffix=${pkg_relative##*_} # amd64.deb, i386.deb, all.deb
+  pkg_version=${pkg_relative#*_} # remove package name
   pkg_version=${pkg_version/_*} # remove package suffix
 
   case ${pkg_suffix} in
@@ -44,7 +44,7 @@ for pkg in `ls $pkgs_path/*.deb`; do
 	# all should be multiarch, so supposed to work on every platform
 	existing_version=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro ls ${pkg_name} | grep ${DISTRO} | awk '{ print $3 }')
 	if [[ ${existing_version} == ${pkg_version} ]]; then
-	    echo "${pkg} for ${DISTRO} is already in the repo"
+	    echo "${pkg_relative} for ${DISTRO} is already in the repo"
 	    echo "SKIP UPLOAD"
 	    continue
 	fi
