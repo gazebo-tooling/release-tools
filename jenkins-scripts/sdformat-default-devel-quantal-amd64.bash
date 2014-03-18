@@ -6,4 +6,4 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=quantal
 
-. ${SCRIPT_DIR}/lib/sdformat-default.bash
+. ${SCRIPT_DIR}/lib/sdformat-any-base.bash
