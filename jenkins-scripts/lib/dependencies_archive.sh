@@ -19,6 +19,7 @@ BASE_DEPENDENCIES="build-essential \\
                    python"
 
 # 1. SDFORMAT
+# ruby for xml_schemas generation and libxml2-utils for xmllint used in tests
 SDFORMAT_BASE_DEPENDENCIES="python                       \\
                             libboost-system-dev          \\
                             libboost-filesystem-dev      \\
@@ -26,7 +27,8 @@ SDFORMAT_BASE_DEPENDENCIES="python                       \\
                             libboost-regex-dev           \\
                             libboost-iostreams-dev       \\
                             libtinyxml-dev               \\
-                            ruby1.9.1"
+                            ruby1.9.1                    \\
+			    libxml2-utils"
 
 # Need to explicit define to use old sdformat package
 if [[ -z ${USE_OLD_SDFORMAT} ]]; then
