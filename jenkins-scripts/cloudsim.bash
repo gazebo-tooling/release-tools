@@ -32,6 +32,7 @@ pip install softlayer
 
 pip install unittest-xml-reporting
 
+python -c"import boto; print('*** BOTO version: %s' % boto.Version)"
 ########################################################333####################
 
 ## necessary for jenkins machine

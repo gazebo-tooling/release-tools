@@ -6,5 +6,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export RELEASE_REPO_DIRECTORY=${DISTRO}
 export ENABLE_ROS=true
+export WORKAROUND_PBUILDER_BUG=true
+
 . ${SCRIPT_DIR}/lib/debbuild-base.bash
 

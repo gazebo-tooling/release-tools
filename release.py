@@ -17,13 +17,22 @@ UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['precise', 'quantal', 'raring']
-UBUNTU_DISTROS_EXPERIMENTAL = ['saucy']
+UBUNTU_DISTROS = ['precise', 'quantal', 'raring','saucy']
+UBUNTU_DISTROS_EXPERIMENTAL = ['trusty']
 
 DRY_RUN = False
 NIGHTLY = False
 UPSTREAM = False
 EXP_DISTROS = False
+
+IGNORE_DRY_RUN = True
+
+def error(msg):
+    print("\n !! " + msg + "\n")
+    sys.exit(1)
+
+def print_success(msg):
+    print("     + OK " + msg)
 
 def parse_args(argv):
     global DRY_RUN
@@ -39,6 +48,9 @@ def parse_args(argv):
                         help='Build nightly releases: do not upload tar.bz2 and values are autoconfigured')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
+    parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
+                        help='no-sanity-checks; i.e. skip sanity checks commands')
+
     parser.add_argument('-e', '--experimental-distros', dest='exp_distros', action='store_true', default=False,
                         help='build packages for experimentally supported Ubuntu distros')
     parser.add_argument('-u', '--upstream', dest='upstream', action='store_true', default=False,
@@ -61,11 +73,82 @@ def parse_args(argv):
     EXP_DISTROS = args.exp_distros
     return args
 
-def check_call(cmd):
+def get_release_repository_URL(package):
+    return "https://bitbucket.org/osrf/" + package + "-release"
+
+def download_release_repository(package, release_branch):
+    url = get_release_repository_URL(package)
+    release_tmp_dir = tempfile.mkdtemp() 
+    cmd = [ "hg", "clone", "-b", release_branch, url, release_tmp_dir]
+    check_call(cmd, IGNORE_DRY_RUN)
+    return release_tmp_dir
+
+def sanity_package_name(repo_dir, package, package_alias):
+    expected_name = package
+
+    if package_alias:
+        expected_name = package_alias
+
+    cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
+    out, err = check_call(cmd)
+    for line in out.split("\n"):
+        if not line:
+            continue
+        # Check that first word is the package alias or name
+        if line.partition(' ')[0] != expected_name:
+            error("Error in package name or alias: " + line)
+
+    print_success("Package names in changelog")
+
+def sanity_package_version(repo_dir, version, release_version):
+    cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
+    out, err = check_call(cmd)
+    for line in out.split("\n"):
+        if not line:
+            continue
+        # return full version in brackets
+        full_version=line.split(' ')[1]
+        # get only version (not release) in brackets
+        c_version=full_version[full_version.find("(")+1:full_version.find("-")]
+        c_revision=full_version[full_version.find("-")+1:full_version.find("~")]
+
+        if c_version != version:
+            error("Error in package version: " + full_version)
+
+        if c_revision != release_version:
+            error("Error in package release version. Expected " + release_version + " in line " + full_version)
+
+    print_success("Package versions in changelog")
+    print_success("Package release versions in changelog")
+
+def sanity_check_gazebo_versions(package, version):
+    if package == 'gazebo':
+        if int(version[0]) > 1:
+            error("Error in gazebo version. Please use 'gazebo-current' package for gazebo 2")
+    elif package == 'gazebo-current':
+        if int(version[0]) < 2:
+            error("Error in gazebo-current version. Please use 'gazebo' package for gazebo 1.x")
+    else:
+        return
+
+    print_success("Gazebo version in proper gazebo package")
+
+def sanity_checks(args):
+    repo_dir = download_release_repository(args.package, args.release_repo_branch)
+    sanity_package_name(repo_dir, args.package, args.package_alias)
+    sanity_package_version(repo_dir, args.version, str(args.release_version))
+    sanity_check_gazebo_versions(args.package, args.version)
+    shutil.rmtree(repo_dir)
+
+def check_call(cmd, ignore_dry_run = False):
     if NIGHTLY:
         return '',''
-    print('Running:\n  %s'%(' '.join(cmd)))
-    if DRY_RUN:
+    if ignore_dry_run:
+        # Commands that do not change anything in repo level
+        print('Dry-run running:\n  %s'%(' '.join(cmd)))
+    else:
+        print('Running:\n  %s'%(' '.join(cmd)))
+    if DRY_RUN and not ignore_dry_run:
         return '', ''
     else:
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -111,8 +194,12 @@ def generate_upload_tarball(args):
     check_call(['make', 'package_source'])
 
     # Upload tarball
+    # We need to trick the current packages for the tarball
+    tarball_name = args.package
+    if args.package == "gazebo-current":
+        tarball_name = "gazebo"
     # TODO: we're assuming a particular naming scheme and a particular compression tool
-    tarball_fname = '%s-%s.tar.bz2'%(args.package, args.version)
+    tarball_fname = '%s-%s.tar.bz2'%(tarball_name, args.version)
     tarball_path = os.path.join(builddir, tarball_fname)
     # If we're releasing under a different name, then rename the tarball (the
     # package itself doesn't know anything about this).
@@ -150,6 +237,14 @@ def generate_upload_tarball(args):
 def go(argv):
     args = parse_args(argv)
 
+    # Default to release 1 if not present
+    if not args.release_version:
+        args.release_version = 1
+
+    # Sanity checks before proceed. UPSTREAM repository is not known in release-tools script
+    if not UPSTREAM and not args.no_sanity_checks:
+        sanity_checks(args)
+
     source_tarball_uri = ''
     if not UPSTREAM:
         source_tarball_uri = generate_upload_tarball(args)
@@ -162,11 +257,10 @@ def go(argv):
     params['SOURCE_TARBALL_URI'] = source_tarball_uri
     params['RELEASE_REPO_BRANCH'] = args.release_repo_branch
     params['PACKAGE_ALIAS'] = args.package_alias
-    if not args.release_version:
-        args.release_version = 1
     params['RELEASE_VERSION'] = args.release_version
     if NIGHTLY:
         params['VERSION'] = 'nightly'
+        params['SOURCE_TARBALL_URI'] = ''
         params['RELEASE_REPO_BRANCH'] = 'nightly'
 
     if UPSTREAM:

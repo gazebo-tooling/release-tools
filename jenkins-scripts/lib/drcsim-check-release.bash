@@ -24,23 +24,33 @@ sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > 
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
-# Step 1: install everything you need
+# check for graphic card support
+GRAPHIC_TESTS=false
+if [ $GRAPHIC_CARD_NAME = Nvidia ] && [ $DISTRO = quantal ]; then
+    GRAPHIC_TESTS=true
 
-# Optional stuff. Check for graphic card support
-if ${GRAPHIC_CARD_FOUND}; then
-    apt-get install -y ${GRAPHIC_CARD_PKG}
-    # Check to be sure version of kernel graphic card support is the same.
-    # It will kill DRI otherwise
-    CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\ " | awk '{ print \$3 }' | sed 's:-.*::')
-    if [ "\${CHROOT_GRAPHIC_CARD_PKG_VERSION}" != "${GRAPHIC_CARD_PKG_VERSION}" ]; then
-       echo "Package ${GRAPHIC_CARD_PKG} has different version in chroot and host system. Maybe you need to update your host" 
-       exit 1
+    if ${GRAPHIC_CARD_FOUND}; then
+	apt-get install -y ${GRAPHIC_CARD_PKG}
+	# Check to be sure version of kernel graphic card support is the same.
+	# It will kill DRI otherwise
+	CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\ " | awk '{ print \$3 }' | sed 's:-.*::')
+	if [ "\${CHROOT_GRAPHIC_CARD_PKG_VERSION}" != "${GRAPHIC_CARD_PKG_VERSION}" ]; then
+	   echo "Package ${GRAPHIC_CARD_PKG} has different version in chroot and host system. Maybe you need to update your host" 
+	   exit 1
+	fi
     fi
 fi
 
-# Step 2: configure and build
+DRCSIM_PKG=drcsim
+# check for several distros on precise
+if [ $DISTRO = 'precise' ]; then
+    DRCSIM_PKG=drcsim-${ROS_DISTRO}
+fi
 
-if [ $DISTRO != precise ]; then
+apt-get install -y \$DRCSIM_PKG
+
+# Step 2: configure and build
+if [ $ROS_DISTRO != groovy ]; then
     rosdep init 
     # Hack for not failing when github is down
     update_done=false
@@ -53,12 +63,10 @@ if [ $DISTRO != precise ]; then
     done
 fi
 
-# Check that installation can be done just fine
-apt-get install -y drcsim
 
 # In our nvidia machines, run the test to launch altas
-if [ $GRAPHIC_CARD_NAME = Nvidia ]; then
-  . /opt/ros/${ROS_DISTRO}/setup.sh
+if \$GRAPHIC_TESTS; then
+  SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
   . /usr/share/drcsim/setup.sh
   timeout 180 roslaunch drcsim_gazebo atlas.launch
 fi

@@ -45,11 +45,11 @@ apt-get update
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
   echo "Skipping pbuilder check for outdated info"
-  sed -i -e 's:UbuntuDistroInfo().devel():self.target_distro:g' /usr/bin/pbuilder-dist
+  #sed -i -e 's:UbuntuDistroInfo().devel():self.target_distro:g' /usr/bin/pbuilder-dist
 fi
 
 # Step 0: create/update distro-specific pbuilder environment
-pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+OTHERMIRROR='deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main' pbuilder-dist $DISTRO $ARCH create --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
 
 # Step 0: Clean up
 rm -rf $WORKSPACE/build
@@ -106,8 +106,10 @@ PKGS=\`find /var/lib/jenkins/pbuilder -name *.deb || true\`
 FOUND_PKG=0
 for pkg in \${PKGS}; do
     echo "found \$pkg"
-    # Check for correctly generated packages size > 3Kb
-    test -z \$(find \$pkg -size +3k) && echo "WARNING: empty package?" && exit 1
+    if [ $PACKAGE != 'gazebo-ros-pkgs' ]; then
+      # Check for correctly generated packages size > 3Kb
+      test -z \$(find \$pkg -size +3k) && echo "WARNING: empty package?" && exit 1
+    fi
     cp \${pkg} $WORKSPACE/pkgs
     FOUND_PKG=1
 done
