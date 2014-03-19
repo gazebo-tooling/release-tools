@@ -20,48 +20,46 @@
 # $ cd $software-release 
 # $ ./changelog_spawn <version> [msg]
 
-function changelog_spawn
-{
-    local version=${1} msg=${2}
+version=${1} 
+msg=${2}
 
-    if [[ $# -lt 1 ]]; then
-	echo "changelog_spawn <version> [msg]"
-	return 1
-    fi
+if [[ $# -lt 1 ]]; then
+    echo "changelog_spawn <version> [msg]"
+    return 1
+fi
 
-    if [[ -z ${DEBEMAIL} || -z ${DEBFULLNAME} ]]; then
-	echo "DEBEMAIL and/or DEBFULLNAME env variables are empty. Needed for changelogs"
-	echo "Please add it to your bashrc"
-	return 1
-    fi
+if [[ -z ${DEBEMAIL} || -z ${DEBFULLNAME} ]]; then
+    echo "DEBEMAIL and/or DEBFULLNAME env variables are empty. Needed for changelogs"
+    echo "Please add it to your bashrc"
+    return 1
+fi
 
-    changelog_example=$(find . -name changelog | head -n 1)
-    
-    if [[ -z ${changelog_example} ]]; then
-	echo "Did not found any changelog files in subdirectories. Check your current path"
-	return 1
-    fi
+changelog_example=$(find . -name changelog | head -n 1)
 
-    pkg_name=$(dpkg-parsechangelog -l${changelog_example} | grep Source | awk '{ print $2 }')
-    msg_text=${msg:-"${pkg_name} ${version} release"}
+if [[ -z ${changelog_example} ]]; then
+    echo "Did not found any changelog files in subdirectories. Check your current path"
+    return 1
+fi
 
-    echo "Changelogs: "
-    echo " - pkg     : ${pkg_name}"
-    echo " - version : ${version}"
-    echo " - msg     : ${msg_text}"
-    echo ""
+pkg_name=$(dpkg-parsechangelog -l${changelog_example} | grep Source | awk '{ print $2 }')
+msg_text=${msg:-"${pkg_name} ${version} release"}
 
-    changelog_files=$(find . -name changelog)
+echo "Changelogs: "
+echo " - pkg     : ${pkg_name}"
+echo " - version : ${version}"
+echo " - msg     : ${msg_text}"
+echo ""
 
-    for f in $changelog_files; do
-	ubuntu_distro=$(dpkg-parsechangelog -l${f}  | grep ^Version | sed 's:.*~::')
-	version_txt=${version}~${ubuntu_distro}
-	echo " [x] ${f} [$version_txt]"
-	debchange --package ${pkg_name} \
-		  --newversion ${version_txt}  \
-        	  --distribution ${ubuntu_distro} \
-	  	  --force-distribution \
-		  --changelog=${f} -- "${msg_text}" &> ${HOME}/.changelog_spawn.log
-    done
-}
+changelog_files=$(find . -name changelog)
+
+for f in $changelog_files; do
+    ubuntu_distro=$(dpkg-parsechangelog -l${f}  | grep ^Version | sed 's:.*~::')
+    version_txt=${version}~${ubuntu_distro}
+    echo " [x] ${f} [$version_txt]"
+    debchange --package ${pkg_name} \
+	      --newversion ${version_txt}  \
+	      --distribution ${ubuntu_distro} \
+	      --force-distribution \
+	      --changelog=${f} -- "${msg_text}" &> ${HOME}/.changelog_spawn.log
+done
 
