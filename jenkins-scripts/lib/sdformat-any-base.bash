@@ -47,6 +47,8 @@ cd $WORKSPACE/build
 cmake $WORKSPACE/sdformat -DCMAKE_INSTALL_PREFIX=/usr/local
 make -j3
 make install
+sdformat_ORIGIN_DIR=\$(find /usr/include -name sdformat-* -type d | sed -e 's:.*/::')
+sdformat_TARGET_DIR=\$(find /usr/local/include -name sdformat-* -type d | sed -e 's:.*/::')
 
 # Install abi-compliance-checker.git
 cd $WORKSPACE
@@ -65,7 +67,7 @@ cat > pkg.xml << CURRENT_DELIM
  </version>
    
  <headers>
-    /usr/include/sdformat-1.4/
+    /usr/local/include/\$sdformat_ORIGIN_DIR/sdf
  </headers>
    
  <libs>
@@ -79,7 +81,7 @@ cat > devel.xml << DEVEL_DELIM
  </version>
    
  <headers>
-    /usr/local/include/sdformat-1.4/
+    /usr/local/include/\$sdformat_TARGET_DIR/sdf
  </headers>
    
  <libs>
