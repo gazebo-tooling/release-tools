@@ -22,6 +22,9 @@ tar --strip 1 -xzf homebrew.tar.gz
 LOCAL_CELLAR=${HOME}/Library/Caches/Homebrew
 mkdir -p ${LOCAL_CELLAR}
 
+# Run brew update to get latest versions of formulae
+${RUN_DIR}/bin/brew update
+
 # Step 2. Install dependencies of ${PROJECT}
 ${RUN_DIR}/bin/brew tap osrf/simulation
 
