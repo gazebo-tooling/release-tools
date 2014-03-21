@@ -25,8 +25,8 @@ mkdir -p ${LOCAL_CELLAR}
 # Run brew update to get latest versions of formulae
 ${RUN_DIR}/bin/brew update
 # Hack to use a patched version of protobuf
-${RUN_DIR}/bin/brew tap j-rivero/simulation
-${RUN_DIR}/bin/brew install j-rivero/simulation/protobuf
+${RUN_DIR}/bin/brew tap j-rivero/protobuf
+${RUN_DIR}/bin/brew install j-rivero/protobuf/protobuf
 # Hack to use ffmepg with gazebo - Need to fix detection first
 ${RUN_DIR}/bin/brew install ffmpeg
 
