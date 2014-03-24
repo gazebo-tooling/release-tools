@@ -46,7 +46,7 @@ fi
 
 . /opt/ros/${ROS_DISTRO}/setup.sh
 
-if [ $DISTRO = quantal ]; then
+if [ $DISTRO != precise ]; then
     rosdep init 
     # Hack for not failing when github is down
     update_done=false
@@ -68,7 +68,7 @@ export ROS_PACKAGE_PATH=\$PWD:\$ROS_PACKAGE_PATH
 rm -rf $WORKSPACE/osrf-common/build
 mkdir -p $WORKSPACE/osrf-common/build
 cd $WORKSPACE/osrf-common/build
-CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO} cmake -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/osrf-common
+CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO} cmake -DCMAKE_INSTALL_PREFIX=/opt/ros/${ROS_DISTRO} $WORKSPACE/osrf-common
 make -j3
 make install
 
@@ -81,7 +81,7 @@ export ROS_PACKAGE_PATH=\$PWD:/usr/share/osrf-common-1.0/ros:\$ROS_PACKAGE_PATH
 rm -rf $WORKSPACE/sandia-hand/build
 mkdir -p $WORKSPACE/sandia-hand/build
 cd $WORKSPACE/sandia-hand/build
-CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO} cmake -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/sandia-hand
+CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO} cmake -DCMAKE_INSTALL_PREFIX=/opt/ros/${ROS_DISTRO} $WORKSPACE/sandia-hand
 make -j3
 make install
 

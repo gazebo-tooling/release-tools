@@ -12,6 +12,10 @@ if [ "${VERSION}" = "nightly" ]; then
    NIGHTLY_MODE=true
 fi
 
+# Do not use the subprocess_reaper in debbuild. Seems not as needed as in
+# testing jobs and seems to be slow at the end of jenkins jobs
+export ENABLE_REAPER=false
+
 PACKAGE_UNDERSCORE_NAME=${PACKAGE//-/_}
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
@@ -41,11 +45,11 @@ apt-get update
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
   echo "Skipping pbuilder check for outdated info"
-  sed -i -e 's:UbuntuDistroInfo().devel():self.target_distro:g' /usr/bin/pbuilder-dist
+  #sed -i -e 's:UbuntuDistroInfo().devel():self.target_distro:g' /usr/bin/pbuilder-dist
 fi
 
 # Step 0: create/update distro-specific pbuilder environment
-pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+OTHERMIRROR='deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main' pbuilder-dist $DISTRO $ARCH create --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
 
 # Step 0: Clean up
 rm -rf $WORKSPACE/build
@@ -97,19 +101,19 @@ PKG_NAME=ros-${ROS_DISTRO}-${PACKAGE}_${VERSION}-${RELEASE_VERSION}${DISTRO}_${A
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
 
-# Both paths are need, beacuse i386 use a different path
-MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}_result/\${PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${PKG_NAME}"
+PKGS=\`find /var/lib/jenkins/pbuilder -name *.deb || true\`
 
 FOUND_PKG=0
-for pkg in \${MAIN_PKGS}; do
-    echo "looking for \$pkg"
-    if [ -f \${pkg} ]; then
-        echo "found \$pkg"
-	cp \${pkg} $WORKSPACE/pkgs
-        FOUND_PKG=1
-        break;
+for pkg in \${PKGS}; do
+    echo "found \$pkg"
+    if [ $PACKAGE != 'gazebo-ros-pkgs' ]; then
+      # Check for correctly generated packages size > 3Kb
+      test -z \$(find \$pkg -size +3k) && echo "WARNING: empty package?" && exit 1
     fi
+    cp \${pkg} $WORKSPACE/pkgs
+    FOUND_PKG=1
 done
+# check at least one upload
 test \$FOUND_PKG -eq 1 || exit 1
 DELIM
 

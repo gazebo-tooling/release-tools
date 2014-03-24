@@ -21,8 +21,8 @@ apt-get update
 apt-get install -y ${BASE_DEPENDENCIES} ros-${ROS_DISTRO}-ros ros-${ROS_DISTRO}-ros-comm
 . /opt/ros/${ROS_DISTRO}/setup.sh
 
-# For quantal, need to start rosdep base
-if [ "${DISTRO}" = "quantal" ]; then
+# For >=quantal, need to start rosdep base
+if [ "${DISTRO}" != "precise" ]; then
   rosdep init
   rosdep update
 fi

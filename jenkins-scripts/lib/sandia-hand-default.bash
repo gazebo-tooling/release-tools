@@ -38,19 +38,22 @@ apt-get install -y ${BASE_DEPENDENCIES}                 \\
                    libqt4-dev                           \\
                    osrf-common
 
-rosdep init && rosdep update
+if [ $DISTRO != precise ]; then
+    rosdep init && rosdep update
+fi
 
 # Step 2: configure and build
 # Normal cmake routine for sandia-hand
 . /opt/ros/${ROS_DISTRO}/setup.sh
 cd $WORKSPACE/sandia-hand
+export ROS_PACKAGE_PATH=\$PWD:/usr/share/osrf-common-1.0/ros:\$ROS_PACKAGE_PATH
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-cmake -DCMAKE_INSTALL_PREFIX=/opt/ros/${ROS_DISTRO} $WORKSPACE/sandia-hand
+CMAKE_PREFIX_PATH=/opt/ros/${ROS_DISTRO} cmake -DCMAKE_INSTALL_PREFIX=/usr $WORKSPACE/sandia-hand
 make -j${MAKE_JOBS}
 make install
-make test ARGS="-VV" || true
+LD_LIBRARY_PATH=/opt/ros/${ROS_DISTRO}/lib make test ARGS="-VV" || true
 DELIM
 
 # Make project-specific changes here
