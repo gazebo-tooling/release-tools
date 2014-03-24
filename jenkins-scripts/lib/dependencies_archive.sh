@@ -35,7 +35,7 @@ fi
 if ${USE_OLD_SDFORMAT}; then
     sdformat_pkg="sdformat"
 else
-    sdformat_pkg="libsdformat-dev"
+    sdformat_pkg="libsdformat-dev-prerelease"
 fi
 
 # GAZEBO related dependencies

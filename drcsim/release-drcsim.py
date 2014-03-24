@@ -11,14 +11,15 @@ import shutil
 
 USAGE = 'release.py <package> <version> <upstream_release_repo> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
-JOB_NAME_PATTERN = '%s-bloom-debbuilder'
+JOB_NAME_PATTERN = '%s-debbuilder-fake'
 UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
 UBUNTU_DISTROS = ['precise', 'quantal','raring']
+ROS_DISTROS_IN_PRECISE = [ 'groovy', 'hydro' ]
+ROS_DISTROS_IN_QUANTAL = [ 'groovy' ]
 ROS_DISTROS_IN_RARING = [ 'hydro' ];
-ROS_DISTROS_IN_PRECISE_QUANTAL = [ 'groovy', 'hydro' ]
 
 DRY_RUN = False
 
@@ -79,12 +80,16 @@ def go(argv):
     for d in distros:
         for a in UBUNTU_ARCHS:
             # Process ROS distros for each ubuntu distro
-            # raring           -> hydro
-            # quantal, precise -> groovy + hydro
-            if (a == 'raring'):
+            if (d == 'precise'):
+                ROS_DISTROS = ROS_DISTROS_IN_PRECISE
+            elif (d == 'quantal'):
+                ROS_DISTROS = ROS_DISTROS_IN_QUANTAL
+            elif (d == 'raring'):
                 ROS_DISTROS = ROS_DISTROS_IN_RARING
             else:
-                ROS_DISTROS = ROS_DISTROS_IN_PRECISE_QUANTAL
+                print ("ERROR in ROS_DISTROS: unkonwn distribution")
+                sys.exit(1)
+
             for r in ROS_DISTROS:
                 url = '%s&ARCH=%s&DISTRO=%s&ROS_DISTRO=%s'%(base_url, a, d, r)
                 print('Accessing: %s'%(url))

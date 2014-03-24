@@ -45,14 +45,6 @@ fi
 apt-get update
 apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES}
 
-# Replace sdformat by nightly until 1.5 is released
-# TODO: remove after this
-V=\$(apt-cache show sdformat | grep Version) && V=\$(echo \$V | sed -e 's/Version: //g') && V=\$(echo \$V | sed -e 's:-.*::')
-if [ "\$V" = "1.4.9" ]; then
-    apt-get remove -y sdformat
-    apt-get install -y libsdformat-dev-nightly libsdformat1-nightly
-fi
-
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
     apt-get install -y ${GRAPHIC_CARD_PKG}
@@ -98,6 +90,7 @@ make install
 make test ARGS="-VV -R UNIT_*" || true
 make test ARGS="-VV -R INTEGRATION_*" || true
 make test ARGS="-VV -R REGRESSION_*" || true
+make test ARGS="-VV -R EXAMPLES_*" || true
 
 # Only run cppcheck on saucy
 if [ "$DISTRO" = "saucy" ]; then 
