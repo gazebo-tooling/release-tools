@@ -63,12 +63,18 @@ mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 
 # Hack to support gazebo-current and friends
+# REAL_PACKAGE_NAME is used to refer to code directory name
+# REAL_PACKAGE_ALIAS is only affecting the name of the tarball
 if [ $PACKAGE = 'gazebo-current' ] || [ $PACKAGE = 'gazebo2' ]; then
     REAL_PACKAGE_NAME='gazebo'
     REAL_PACKAGE_ALIAS='gazebo'
 else
     REAL_PACKAGE_NAME=$PACKAGE
     REAL_PACKAGE_ALIAS=$PACKAGE_ALIAS
+fi
+
+if [ $PACKAGE = 'gazebo3' ]; then
+    REAL_PACKAGE_NAME='gazebo'
 fi
 
 # Step 1: Get the source (nightly builds or tarball)
