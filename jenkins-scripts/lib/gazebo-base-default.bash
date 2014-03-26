@@ -58,7 +58,7 @@ make install
 make test ARGS="-VV -R UNIT_*" || true
 make test ARGS="-VV -R INTEGRATION_*" || true
 make test ARGS="-VV -R REGRESSION_*" || true
-make test ARGS="-VV -R EXAMPLES_*" || true
+make test ARGS="-VV -R EXAMPLE_*" || true
 
 # Only run cppcheck on saucy
 if [ "$DISTRO" = "saucy" ]; then 
