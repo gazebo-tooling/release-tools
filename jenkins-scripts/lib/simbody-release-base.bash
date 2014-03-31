@@ -41,6 +41,11 @@ cd $WORKSPACE/simbody
 # Use current distro
 sed -i -e 's:quantal:$DISTRO:g' debian/changelog
 
+# Bug in saucy doxygen makes the job hangs
+if [ $DISTRO = 'saucy' ]; then
+    sed -i -e '/.*dh_auto_build.*/d' debian/rules
+fi
+
 # Step 5: use debuild to create source package
 echo | dh_make -s --createorig -p ${PACKAGE}_${VERSION} || true
 
