@@ -107,6 +107,12 @@ fi
 hg up $RELEASE_REPO_BRANCH
 
 cd /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}
+
+# Bug in saucy doxygen makes the job hangs
+if [ $DISTRO = 'saucy' ]; then
+    sed -i -e '/.*dh_auto_build.*/d' debian/rules
+fi
+
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
   TIMESTAMP=\$(date '+%Y%m%d')
