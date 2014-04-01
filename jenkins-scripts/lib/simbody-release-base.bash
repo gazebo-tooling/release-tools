@@ -40,7 +40,7 @@ git clone https://github.com/simbody/simbody.git $WORKSPACE/simbody
 cd $WORKSPACE/simbody
 git checkout Simbody-${VERSION}
 # Use current distro
-sed -i -e 's:quantal:$DISTRO:g' debian/changelog
+sed -i -e 's:precise:$DISTRO:g' debian/changelog
 
 # Bug in saucy doxygen makes the job hangs
 if [ $DISTRO = 'saucy' ]; then
