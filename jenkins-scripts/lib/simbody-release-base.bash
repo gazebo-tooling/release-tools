@@ -36,8 +36,9 @@ rm -fr $WORKSPACE/"$PACKAGE"_*
 
 # Step 1: Get the source (nightly builds or tarball)
 rm -fr $WORKSPACE/simbody
-git clone https://github.com/simbody/simbody.git -b simbody-${VERSION} $WORKSPACE/simbody
+git clone https://github.com/simbody/simbody.git $WORKSPACE/simbody
 cd $WORKSPACE/simbody
+git checkout simbody-${VERSION}
 # Use current distro
 sed -i -e 's:quantal:$DISTRO:g' debian/changelog
 
