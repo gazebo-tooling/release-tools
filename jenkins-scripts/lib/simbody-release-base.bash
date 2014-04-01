@@ -38,7 +38,7 @@ rm -fr $WORKSPACE/"$PACKAGE"_*
 rm -fr $WORKSPACE/simbody
 git clone https://github.com/simbody/simbody.git $WORKSPACE/simbody
 cd $WORKSPACE/simbody
-git checkout simbody-${VERSION}
+git checkout Simbody-${VERSION}
 # Use current distro
 sed -i -e 's:quantal:$DISTRO:g' debian/changelog
 
