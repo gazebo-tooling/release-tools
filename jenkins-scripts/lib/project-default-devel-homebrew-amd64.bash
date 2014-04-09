@@ -29,7 +29,10 @@ ${RUN_DIR}/bin/brew update
 ${RUN_DIR}/bin/brew tap osrf/simulation
 
 # Unlink system dependencies first
-/usr/local/bin/brew unlink `/usr/local/bin/brew deps ${PROJECT}` || true
+for dep in `/usr/local/bin/brew deps ${PROJECT}`
+do
+  /usr/local/bin/brew unlink ${dep} || true
+done || true
 
 # If the case of gazebo, reuse qt so we don't need to compile it all the time
 if [[ $PROJECT == 'gazebo' ]]; then
