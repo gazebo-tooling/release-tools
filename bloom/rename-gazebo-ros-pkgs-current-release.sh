@@ -6,13 +6,6 @@
 #   - Define a conflict on the same $(Package)
 #
 # It will commit and push the hydro and groovy branches
-#
-# To transform package dependencies among gazebo-ros-pkgs to -current postfix, 
-# please use the proper rosdep rules at:
-# - https://github.com/osrf/osrf-rosdep/blob/master/00-osrf.list
-# 
-# Typically the changes lives at osrf/gazebo_ros_pkgs-release-current
-# - DONT NEED TO RUN THIS SCRIPT EACH TIME
 
 PKGS="gazebo_plugins gazebo_msgs gazebo_ros gazebo_ros_control gazebo_ros_pkgs"
 DISTROS="groovy hydro"
