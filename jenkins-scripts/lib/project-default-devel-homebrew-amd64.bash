@@ -28,6 +28,9 @@ ${RUN_DIR}/bin/brew update
 # Step 2. Install dependencies of ${PROJECT}
 ${RUN_DIR}/bin/brew tap osrf/simulation
 
+# Unlink system dependencies first
+/usr/local/brew unlink `/usr/local/brew deps ${PROJECT}` || TRUE
+
 # If the case of gazebo, reuse qt so we don't need to compile it all the time
 if [[ $PROJECT == 'gazebo' ]]; then
   if [[ ! $(find ${LOCAL_CELLAR} -name qt-4.*.mavericks.bottle.tar.gz) ]]; then
