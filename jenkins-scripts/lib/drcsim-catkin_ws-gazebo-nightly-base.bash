@@ -30,10 +30,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Install mercurial and drcsim's and gazebo Build-Depends
-apt-get install -y git mercurial ca-certificates ${BASE_DEPENDENCIES} gazebo-prerelease libsdformat-dev-prerelease ${DRCSIM_BASE_DEPENDENCIES} ${ROS_GAZEBO_PKGS_DEPENDENCIES}
-
-# TODO: move this to above when gazebo3-prerelease is ready
-apt-get install -y gazebo3-prerelease || true
+apt-get install -y git mercurial ca-certificates ${BASE_DEPENDENCIES} ${DRCSIM_FULL_DEPENDENCIES}
 
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
