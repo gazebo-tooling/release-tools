@@ -77,6 +77,9 @@ if [ $PACKAGE = 'gazebo3' ]; then
     REAL_PACKAGE_NAME='gazebo'
 fi
 
+# Remove number for packages like (sdformat2 or gazebo3)
+REAL_PACKAGE_NAME=$(echo $PACKAGE | sed 's:[0-9]*$::g')
+
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
   hg clone https://bitbucket.org/osrf/\$REAL_PACKAGE_NAME -r default
