@@ -41,13 +41,20 @@ if [ $GRAPHIC_CARD_NAME = Nvidia ] && [ $DISTRO = quantal ]; then
     fi
 fi
 
-DRCSIM_PKG=drcsim
-# check for several distros on precise
-if [ $DISTRO = 'precise' ]; then
-    DRCSIM_PKG=drcsim-${ROS_DISTRO}
+# Check for proper ros wrappers depending on gazebo version
+if [ $PACKAGE_ALIAS = 'gazebo-current' ]; then
+  ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-gazebo-msgs-current \
+                   ros-$ROS_DISTRO-gazebo-plugins-current \
+		   ros-$ROS_DISTRO-gazebo-ros-current \
+		   ros-$ROS_DISTRO-gazebo-ros-pkgs-current"
+else
+  ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs \
+                   ros-$ROS_DISTRO-$PACKAGE_ALIAS-plugins \
+		   ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros \
+		   ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros-pkgs"
 fi
 
-apt-get install -y \$DRCSIM_PKG
+apt-get install -y \$ROS_GAZEBO_PKGS
 
 # Step 2: configure and build
 if [ $ROS_DISTRO != groovy ]; then
@@ -68,7 +75,7 @@ fi
 if \$GRAPHIC_TESTS; then
   SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
   . /usr/share/drcsim/setup.sh
-  timeout 180 roslaunch drcsim_gazebo atlas.launch
+  timeout 180 roslaunch gazebo_ros shapes_world.launch
 fi
 
 DELIM
@@ -80,4 +87,3 @@ sudo pbuilder  --execute \
     --bindmounts $WORKSPACE \
     --basetgz $basetgz \
     -- build.sh
-

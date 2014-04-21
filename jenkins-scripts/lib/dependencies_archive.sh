@@ -35,7 +35,7 @@ fi
 if ${USE_OLD_SDFORMAT}; then
     sdformat_pkg="sdformat"
 else
-    sdformat_pkg="libsdformat-dev"
+    sdformat_pkg="libsdformat2-dev"
 fi
 
 # GAZEBO related dependencies
@@ -81,7 +81,7 @@ GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
 
 GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
 if [ -z $GAZEBO_DEB_PACKAGE ]; then
-    GAZEBO_DEB_PACKAGE=gazebo-current
+    GAZEBO_DEB_PACKAGE=gazebo3
 fi
 
 # image-transport-plugins is needed to properly advertise compressed image topics
@@ -95,7 +95,7 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
                           ros-${ROS_DISTRO}-robot-model-visualization         \\
                           ros-${ROS_DISTRO}-image-pipeline                    \\
                           ros-${ROS_DISTRO}-image-transport-plugins           \\
-                          ros-${ROS_DISTRO}-gazebo-plugins                    \\
+                          ros-${ROS_DISTRO}-gazebo3-plugins                   \\
                           ros-${ROS_DISTRO}-compressed-depth-image-transport  \\
                           ros-${ROS_DISTRO}-compressed-image-transport        \\
                           ros-${ROS_DISTRO}-theora-image-transport            \\

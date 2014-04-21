@@ -17,8 +17,8 @@ UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['precise', 'quantal', 'raring']
-UBUNTU_DISTROS_EXPERIMENTAL = ['saucy']
+UBUNTU_DISTROS = ['precise', 'quantal', 'raring', 'saucy']
+UBUNTU_DISTROS_EXPERIMENTAL = ['trusty']
 
 DRY_RUN = False
 NIGHTLY = False
@@ -182,7 +182,7 @@ def generate_upload_tarball(args):
         check_call(['hg', 'tag', '-f', tag])
     
         # Push tag
-        check_call(['hg', 'push'])
+        #check_call(['hg', 'push'])
 
         # Make a clean copy, to avoid pulling in other stuff that the user has
         # sitting in the working copy
@@ -201,7 +201,9 @@ def generate_upload_tarball(args):
     # Upload tarball
     # We need to trick the current packages for the tarball
     tarball_name = args.package
-    if args.package == "gazebo-current":
+    if args.package == "gazebo-current" or \
+       args.package == "gazebo2" or \
+       args.package == "gazebo3":
         tarball_name = "gazebo"
     # TODO: we're assuming a particular naming scheme and a particular compression tool
     tarball_fname = '%s-%s.tar.bz2'%(tarball_name, args.version)
