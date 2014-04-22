@@ -24,6 +24,10 @@ mkdir -p ${LOCAL_CELLAR}
 
 # Run brew update to get latest versions of formulae
 ${RUN_DIR}/bin/brew update
+# Hack to use a patched version of protobuf
+${RUN_DIR}/bin/brew install https://raw.githubusercontent.com/j-rivero/homebrew-protobuf/master/protobuf.rb
+# Hack to use ffmepg with gazebo - Need to fix detection first
+${RUN_DIR}/bin/brew install ffmpeg
 
 # Step 2. Install dependencies of ${PROJECT}
 ${RUN_DIR}/bin/brew tap osrf/simulation
@@ -83,6 +87,7 @@ export PKG_CONFIG_PATH=${RUN_DIR}/lib/pkgconfig
 export DYLD_FALLBACK_LIBRARY_PATH=${RUN_DIR}/lib
 export BOOST_ROOT=${RUN_DIR}
 export PATH="${PATH}:${RUN_DIR}/bin"
+export CMAKE_PREFIX_PATH=${RUN_DIR}
 
 make test ARGS="-VV" || true
 DELIM
