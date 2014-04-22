@@ -45,7 +45,10 @@ apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXT
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
-cmake ${GZ_CMAKE_BUILD_TYPE} -DENABLE_TESTS_COMPILATION:BOOL=False -DCMAKE_INSTALL_PREFIX=/usr/local $WORKSPACE/gazebo
+cmake ${GZ_CMAKE_BUILD_TYPE}         \\
+    -DCMAKE_INSTALL_PREFIX=/usr      \\
+    -DENABLE_SCREEN_TESTS:BOOL=False \\
+  $WORKSPACE/gazebo
 make -j${MAKE_JOBS}
 make install
 
