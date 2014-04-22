@@ -30,7 +30,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Install mercurial and drcsim's and gazebo Build-Depends
-apt-get install -y git mercurial ca-certificates ${BASE_DEPENDENCIES} gazebo-nightly libsdformat-dev-nightly ${DRCSIM_BASE_DEPENDENCIES} ${ROS_GAZEBO_PKGS_DEPENDENCIES}
+apt-get install -y git mercurial ca-certificates ${BASE_DEPENDENCIES} ${DRCSIM_BASE_DEPENDENCIES} ${ROS_GAZEBO_PKGS_DEPENDENCIES} ${GAZEBO_DEB_PACKAGE}
 
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
@@ -65,7 +65,11 @@ rm -fr $WORKSPACE/ws/src
 mkdir -p $WORKSPACE/ws/src
 cd $WORKSPACE/ws/src
 catkin_init_workspace
-hg clone $WORKSPACE/drcsim drcsim
+hg clone $WORKSPACE/drcsim drcsim 
+cd drcsim
+hg branches -a
+hg up fix_check_tests
+cd ..
 hg clone https://bitbucket.org/osrf/osrf-common osrf-common
 hg clone https://bitbucket.org/osrf/sandia-hand sandia-hand
 git clone https://github.com/ros-simulation/gazebo_ros_pkgs gazebo_ros_pkgs
@@ -80,19 +84,10 @@ catkin_make -j${MAKE_JOBS} install
 SHELL=/bin/sh . $WORKSPACE/ws/install/setup.sh
 SHELL=/bin/sh . $WORKSPACE/ws/install/share/drcsim/setup.sh
 
-T="\$(date +%s)"
-timeout 120 roslaunch drcsim_gazebo atlas.launch || true 
-T="\$((\$(date +%s)-T))"
-
-if [ \$T -lt 120 ]; then
-  echo "Unexpected exit of launch before timeout. Please review log"
-  false
-fi
-
-#cd $WORKSPACE/ws/s
+cd $WORKSPACE/ws/build
 #ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-VV" || true
-#ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-R \\(atlas_publishers_hz_gpu.test\\|atlas_sandia_hands_publishers_hz_gpu.test\\|atlas_rosapi.test\\|atlas_sandia_hands_rosapi.test\\|vrc_task_1_scoring.test\\|vrc_task_1_gzlog_stop.test\\|vrc_task_1_dynamic_walking.test\\|multicamera_connection.test\\|vrc_final_task1_start_standup.test\\|vrc_final_task1_atlas_pubs_gpu.test\\)
-#ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results rosrun rosunit clean_junit_xml.py
+ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results make test ARGS="-VV -R \\(atlas_publishers_hz_gpu.test\\|atlas_sandia_hands_publishers_hz_gpu.test\\|atlas_rosapi.test\\|atlas_sandia_hands_rosapi.test\\|vrc_task_1_scoring.test\\|vrc_task_1_gzlog_stop.test\\|vrc_task_1_dynamic_walking.test\\|multicamera_connection.test\\|vrc_final_task1_start_standup.test\\|vrc_final_task1_atlas_pubs_gpu.test\\)" || true
+ROS_TEST_RESULTS_DIR=$WORKSPACE/build/test_results rosrun rosunit clean_junit_xml.py
 DELIM
 
 # Make project-specific changes here
