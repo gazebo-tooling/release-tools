@@ -26,7 +26,7 @@ wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
 
 # Required stuff for drcsim
-apt-get install -y ${BASE_DEPENDENCIES} ${DRCSIM_BASE_DEPENDENCIES}
+apt-get install -y ${BASE_DEPENDENCIES} ${DRCSIM_FULL_DEPENDENCIES}
 #TODO: pare down to just the following install; blocked on https://bitbucket.org/osrf/gazebo/issue/27/
 apt-get install -y doxygen graphviz texlive-latex-base texlive-latex-extra texlive-latex-recommended latex-xcolor texlive-fonts-recommended
 
