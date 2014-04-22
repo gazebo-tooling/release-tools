@@ -84,6 +84,9 @@ if [ -z $GAZEBO_DEB_PACKAGE ]; then
     GAZEBO_DEB_PACKAGE=gazebo3
 fi
 
+#
+# DRCSIM_BASE_DEPENDENCIES
+#
 # image-transport-plugins is needed to properly advertise compressed image topics
 DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
                           ros-${ROS_DISTRO}-std-msgs                          \\
@@ -92,7 +95,6 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
                           ros-${ROS_DISTRO}-geometry                          \\
                           ros-${ROS_DISTRO}-pr2-controllers                   \\
                           ros-${ROS_DISTRO}-geometry-experimental             \\
-                          ros-${ROS_DISTRO}-robot-model-visualization         \\
                           ros-${ROS_DISTRO}-image-pipeline                    \\
                           ros-${ROS_DISTRO}-image-transport-plugins           \\
                           ros-${ROS_DISTRO}-gazebo3-plugins                   \\
@@ -100,16 +102,27 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
                           ros-${ROS_DISTRO}-compressed-image-transport        \\
                           ros-${ROS_DISTRO}-theora-image-transport"
 
+if [[ $ROS_DISTRO != 'groovy' ]]; then
+  DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} \\
+                            ros-${ROS_DISTRO}-robot-model-visualization"
+else
+  DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} \\
+                            ros-${ROS_DISTRO}-robot-model"
+fi
+
+#
+# DRCSIM_FULL_DEPENDENCIES
+#
 DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}       \\
                           sandia-hand                       \\
-			              osrf-common                       \\
+    	                  osrf-common                       \\
                           ros-${ROS_DISTRO}-gazebo3-plugins \\
                           ros-${ROS_DISTRO}-gazebo3-ros     \\
                           ${GAZEBO_DEB_PACKAGE}"
 
 # ros-gazebo-pkgs dependencies
 ROS_GAZEBO_PKGS_DEPENDENCIES="libtinyxml-dev                            \\
-                  ros-${ROS_DISTRO}-catkin                  \\
+                              ros-${ROS_DISTRO}-catkin                  \\
 			      ros-${ROS_DISTRO}-pluginlib               \\
 			      ros-${ROS_DISTRO}-roscpp                  \\
 			      ros-${ROS_DISTRO}-driver-base             \\
