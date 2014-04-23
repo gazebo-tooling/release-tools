@@ -113,9 +113,18 @@ fi
 #
 # DRCSIM_FULL_DEPENDENCIES
 #
+
+# Need ROS postfix in precise for groovy/hydro 
+if [[ $ROS_DISTRO != 'groovy' ]]; then
+   ROS_POSTFIX="-${ROS_DISTRO}"
+else
+   ROS_POSTFIX=""
+fi
+
+
 DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}       \\
-                          sandia-hand                       \\
-    	                  osrf-common                       \\
+                          sandia-hand${ROS_POSTIFX}         \\
+    	                  osrf-common${ROS_POSTFIX}         \\
                           ros-${ROS_DISTRO}-gazebo3-plugins \\
                           ros-${ROS_DISTRO}-gazebo3-ros     \\
                           ${GAZEBO_DEB_PACKAGE}"
