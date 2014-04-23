@@ -123,7 +123,7 @@ fi
 
 
 DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}       \\
-                          sandia-hand${ROS_POSTIFX}         \\
+                          sandia-hand${ROS_POSTFIX}         \\
     	                  osrf-common${ROS_POSTFIX}         \\
                           ros-${ROS_DISTRO}-gazebo3-plugins \\
                           ros-${ROS_DISTRO}-gazebo3-ros     \\
