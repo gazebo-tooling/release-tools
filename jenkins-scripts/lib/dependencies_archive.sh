@@ -102,7 +102,7 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
                           ros-${ROS_DISTRO}-compressed-image-transport        \\
                           ros-${ROS_DISTRO}-theora-image-transport"
 
-if [[ $ROS_DISTRO != 'groovy' ]]; then
+if [[ $ROS_DISTRO == 'groovy' ]]; then
   DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} \\
                             ros-${ROS_DISTRO}-robot-model-visualization"
 else
