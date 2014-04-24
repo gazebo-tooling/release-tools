@@ -71,13 +71,17 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libbullet2.82-dev                \\
                           libsimbody-dev                   \\
                           ${sdformat_pkg}"
+if $DART_FROM_PKGS; then
+    GAZEBO_BASE_DEPENDENCIES="$GAZEBO_BASE_DEPENDENCIES \\
+                             libdart-core3-dev"
+fi
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libcegui-mk2-dev \\
                            libavformat-dev  \\
                            libavcodec-dev   \\
                            libswscale-dev   \\
-                           ruby-ronn "
+                           ruby-ronn"
 
 GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
 if [ -z $GAZEBO_DEB_PACKAGE ]; then
@@ -100,33 +104,7 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
                           ros-${ROS_DISTRO}-gazebo3-plugins                   \\
                           ros-${ROS_DISTRO}-compressed-depth-image-transport  \\
                           ros-${ROS_DISTRO}-compressed-image-transport        \\
-                          ros-${ROS_DISTRO}-theora-image-transport"
-
-if [[ $ROS_DISTRO == 'groovy' ]]; then
-  DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} \\
-                            ros-${ROS_DISTRO}-robot-model-visualization"
-else
-  DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} \\
-                            ros-${ROS_DISTRO}-robot-model"
-fi
-
-#
-# DRCSIM_FULL_DEPENDENCIES
-#
-
-# Need ROS postfix in precise for groovy/hydro 
-if [[ $DISTRO == 'precise' ]]; then
-   ROS_POSTFIX="-${ROS_DISTRO}"
-else
-   ROS_POSTFIX=""
-fi
-
-
-DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}       \\
-                          sandia-hand${ROS_POSTFIX}         \\
-    	                  osrf-common${ROS_POSTFIX}         \\
-                          ros-${ROS_DISTRO}-gazebo3-plugins \\
-                          ros-${ROS_DISTRO}-gazebo3-ros     \\
+                          ros-${ROS_DISTRO}-theora-image-transport            \\
                           ${GAZEBO_DEB_PACKAGE}"
 
 # ros-gazebo-pkgs dependencies
@@ -161,4 +139,39 @@ ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES}           \\
                               ros-${ROS_DISTRO}-controller-manager      \\
                               ros-${ROS_DISTRO}-joint-limits-interface  \\
                               ros-${ROS_DISTRO}-transmission-interface"
+fi
+
+#
+# DART dependencies
+#
+DART_DEPENDENCIES="libflann-dev            \\
+                   libgtest-dev            \\
+		   libeigen3-dev           \\
+		   libassimp-dev           \\
+		   freeglut3-dev           \\
+		   libxi-dev               \\
+		   libxmu-dev              \\
+		   libtinyxml-dev          \\
+		   libtinyxml2-dev         \\
+		   libfcl-dev              \\
+		   liburdfdom-dev          \\
+		   libboost-system-dev     \\
+		   libboost-filesystem-dev"
+
+if [ -z ${DART_COMPILE_FROM_SOURCE} ]; then
+   DART_COMPILE_FROM_SOURCE=false
+fi
+
+if ${DART_COMPILE_FROM_SOURCE}; then
+    GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES \\
+                               $DART_DEPENDENCIES"
+fi
+
+if [ -z ${DART_FROM_PKGS} ]; then
+    DART_FROM_PKGS=false
+fi
+
+if $DART_FROM_PKGS; then
+    GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES \\
+                               libdart-core3-dev"
 fi
