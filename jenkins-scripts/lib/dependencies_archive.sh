@@ -115,7 +115,7 @@ fi
 #
 
 # Need ROS postfix in precise for groovy/hydro 
-if [[ $ROS_DISTRO != 'groovy' ]]; then
+if [[ $DISTRO == 'precise' ]]; then
    ROS_POSTFIX="-${ROS_DISTRO}"
 else
    ROS_POSTFIX=""
