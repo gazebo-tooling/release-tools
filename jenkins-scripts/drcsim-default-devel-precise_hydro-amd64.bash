@@ -5,7 +5,6 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=precise
+export ROS_DISTRO=hydro
 
-export GZ_BUILD_TYPE=Release
-
-. ${SCRIPT_DIR}/lib/gazebo-base-default.bash
+. ${SCRIPT_DIR}/lib/drcsim-base.bash

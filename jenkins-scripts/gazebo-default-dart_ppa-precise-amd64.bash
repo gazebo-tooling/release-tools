@@ -5,7 +5,6 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=precise
-
-export GZ_BUILD_TYPE=Release
+export DART_FROM_PKGS=true
 
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash
