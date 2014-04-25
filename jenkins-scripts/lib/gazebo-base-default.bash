@@ -102,6 +102,10 @@ else
   mkdir -p $WORKSPACE/build/cppcheck_results/
   echo "<results></results>" >> $WORKSPACE/build/cppcheck_results/empty.xml 
 fi
+
+# Step 4: copy test log
+mkdir $WORKSPACE/logs
+cp $HOME/.gazebo/logs/*.log $WORKSPACE/logs/
 DELIM
 
 # Make project-specific changes here
