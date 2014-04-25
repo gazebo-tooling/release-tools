@@ -1,7 +1,9 @@
 #!/bin/bash -x
 
-# Use always DISPLAY in drcsim project
-export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+# Use always DISPLAY in drcsim project unless explicit asked
+if [[ -z ${USE_DISPLAY} ]] || ${USE_DISPLAY}; then
+  export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+fi
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 

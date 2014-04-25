@@ -6,5 +6,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=raring
 export ROS_DISTRO=hydro
+# No node with raring relieable GPU
+export USE_DISPLAY=false
 
 . ${SCRIPT_DIR}/lib/drcsim-base.bash
