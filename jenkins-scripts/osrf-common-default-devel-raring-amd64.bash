@@ -4,7 +4,7 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export DISTRO=precise
-export ROS_DISTRO=groovy
+export DISTRO=raring
+export ROS_DISTRO=hydro
 
 . ${SCRIPT_DIR}/lib/osrf-common-default.bash
