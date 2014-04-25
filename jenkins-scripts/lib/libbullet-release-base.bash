@@ -1,10 +1,17 @@
 #!/bin/bash -x
 
+# Do not use ROS
+export ENABLE_ROS=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
-VERSION=2.81
+UPSTREAM_VERSION="2.82-r2704"
+VERSION="2.82"
 PACKAGE=bullet
+
+# Do not use the subprocess_reaper in debbuild. Seems not as needed as in
+# testing jobs and seems to be slow at the end of jenkins jobs
+export ENABLE_REAPER=false
 
 cat > build.sh << DELIM
 ###################################################
@@ -18,7 +25,7 @@ set -ex
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget subversion cdbs
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget subversion cdbs mercurial ca-certificates
 
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
@@ -37,21 +44,25 @@ cd $WORKSPACE/build
 # Clean from workspace all package related files
 rm -fr $WORKSPACE/"$PACKAGE"_*
 
-# Step 1: Get the source (nightly builds or tarball)
+# Step 1: Get the source from 
 rm -fr $WORKSPACE/bullet
-svn checkout http://bullet.googlecode.com/svn/trunk/ $WORKSPACE/bullet 
-# Fix compile bug in bullet
-sed -i -e 's/btMultiBodyJointLimitConstraint:://g' $WORKSPACE/bullet/src/BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.h
+cd $WORKSPACE
+wget https://bullet.googlecode.com/files/bullet-$UPSTREAM_VERSION.tgz -O bullet.tgz
+tar xzf bullet.tgz
+mv bullet-$UPSTREAM_VERSION bullet
+
 cd $WORKSPACE/bullet
-# need to use the debian from previous releases
-wget https://launchpad.net/~efl/+archive/trunk/+files/bullet_2.81-1ppa1%7Equantal.debian.tar.gz -O debian.tar.gz
-tar xfz debian.tar.gz
-# get svn revision to use in package version
-SVN_REV=\$(svn info | sed -n -e '/^Revision: \([0-9]*\).*$/s//\1/p')
-SVN_REV=rev\$SVN_REV
+
+# Debian information
+rm -fr $WORKSPACE/debian
+mkdir $WORKSPACE/debian
+hg clone https://bitbucket.org/osrf/bullet-2.82-debian-release $WORKSPACE/debian
+cp -a --dereference $WORKSPACE/debian/old/debian $WORKSPACE/bullet
+
+cd $WORKSPACE/bullet
 # Use current distro
-sed -i -e 's:quantal:$DISTRO:g' debian/changelog
-sed -i -e "s:1ppa1:$RELEASE_VERSION\$SVN_REV:g" debian/changelog
+sed -i -e 's:precise:$DISTRO:g' debian/changelog
+sed -i -e "s:osrf1:osrf$RELEASE_VERSION:g" debian/changelog
 
 # Step 5: use debuild to create source package
 echo | dh_make -s --createorig -p ${PACKAGE}_${VERSION} || true
