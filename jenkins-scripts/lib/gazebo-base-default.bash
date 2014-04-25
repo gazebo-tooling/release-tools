@@ -95,6 +95,7 @@ if ${COVERAGE_ENABLED} ; then
   cd $WORKSPACE/gazebo
   covselect --file test.cov --add .
   cov01 --on
+fi
 
 # Step 2: configure and build
 # Check for DART
