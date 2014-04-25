@@ -4,6 +4,5 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export DISTRO=raring
+. ${SCRIPT_DIR}/lib/project-default-devel-homebrew-amd64.bash gazebo
 
-. ${SCRIPT_DIR}/lib/sdformat-default.bash

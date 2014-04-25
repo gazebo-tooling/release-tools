@@ -4,8 +4,7 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export RELEASE_REPO_DIRECTORY=${DISTRO}
-export WORKAROUND_PBUILDER_BUG=true
+export DISTRO=precise
+export DART_COMPILE_FROM_SOURCE=true
 
-. ${SCRIPT_DIR}/lib/debbuild-bloom-base.bash
-
+. ${SCRIPT_DIR}/lib/gazebo-base-default.bash

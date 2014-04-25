@@ -17,8 +17,7 @@ rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake $WORKSPACE/sdformat
-make -j3
-make install
+make -j${MAKE_JOBS}
 make test ARGS="-VV" || true
 
 # Step 3: code check

@@ -7,7 +7,7 @@ fi
 
 # Check for Nvidia stuff
 if [ -n "$(lspci -v | grep nvidia | head -n 2 | grep "Kernel driver in use: nvidia")" ]; then
-    export GRAPHIC_CARD_PKG=$(lspci -v | grep nvidia | head -n 2 | grep "Kernel modules:" | awk '{ print $3 }' | tr -d ','| sed -e s:_:-:)
+    export GRAPHIC_CARD_PKG=$(lspci -v | grep nvidia | head -n 2 | grep "Kernel modules:" | awk '{ print $3 }' | tr -d ','| sed -e s:_:-:g)
     if [ -z "${GRAPHIC_CARD_PKG}" ]; then
 	echo "Nvidia support found but not the module in use"
 	exit 1

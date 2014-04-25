@@ -23,20 +23,28 @@ set -ex
 apt-get install -y wget
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
-apt-get update
+
+# Dart repositories
+if $DART_FROM_PKGS; then
+  # software-properties for apt-add-repository
+  apt-get install -y python-software-properties apt-utils software-properties-common
+  apt-add-repository -y ppa:libccd-debs
+  apt-add-repository -y ppa:fcl-debs
+  apt-add-repository -y ppa:dartsim
+fi
+
+if $DART_COMPILE_FROM_SOURCE; then
+  apt-get install -y python-software-properties apt-utils software-properties-common git
+  apt-add-repository -y ppa:libccd-debs
+  apt-add-repository -y ppa:fcl-debs
+  apt-add-repository -y ppa:dartsim
+fi
 
 # Step 1: install everything you need
 
 # Required stuff for Gazebo
+apt-get update
 apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES}
-
-# Replace sdformat by nightly until 1.5 is released
-# TODO: remove after this
-V=\$(apt-cache show sdformat | grep Version) && V=\$(echo \$V | sed -e 's/Version: //g') && V=\$(echo \$V | sed -e 's:-.*::')
-if [ "\$V" = "1.4.9" ]; then
-    apt-get remove -y sdformat
-    apt-get install -y libsdformat-dev-nightly libsdformat1-nightly
-fi
 
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
@@ -51,6 +59,23 @@ if ${GRAPHIC_CARD_FOUND}; then
 fi
 
 # Step 2: configure and build
+# Check for DART
+if $DART_COMPILE_FROM_SOURCE; then
+  if [ -d $WORKSPACE/dart ]; then
+      cd $WORKSPACE/dart
+      git pull
+  else
+     git clone https://github.com/dartsim/dart.git $WORKSPACE/dart
+  fi
+  rm -fr $WORKSPACE/dart/build
+  mkdir -p $WORKSPACE/dart/build
+  cd $WORKSPACE/dart/build
+  cmake .. \
+      -DCMAKE_INSTALL_PREFIX=/usr
+  #make -j${MAKE_JOBS}
+  make -j1
+  make install
+fi
 
 # Normal cmake routine for Gazebo
 rm -rf $WORKSPACE/build $WORKSPACE/install
@@ -63,12 +88,20 @@ cmake ${GZ_CMAKE_BUILD_TYPE}         \\
 make -j${MAKE_JOBS}
 make install
 . /usr/share/gazebo/setup.sh
-# make test ARGS="-VV" || true
-make test ARGS="-VV UNIT_*" || true
+make test ARGS="-VV -R UNIT_*" || true
+make test ARGS="-VV -R INTEGRATION_*" || true
+make test ARGS="-VV -R REGRESSION_*" || true
+make test ARGS="-VV -R EXAMPLE_*" || true
 
-# Step 3: code check
-# cd $WORKSPACE/gazebo
-# sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+# Only run cppcheck on saucy
+if [ "$DISTRO" = "saucy" ]; then 
+  # Step 3: code check
+  cd $WORKSPACE/gazebo
+  sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+else
+  mkdir -p $WORKSPACE/build/cppcheck_results/
+  echo "<results></results>" >> $WORKSPACE/build/cppcheck_results/empty.xml 
+fi
 
 # Step 4: copy test log
 mkdir $WORKSPACE/logs

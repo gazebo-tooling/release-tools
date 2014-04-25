@@ -6,6 +6,5 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=quantal
 export ROS_DISTRO=groovy
-export GAZEBO_DEB_PACKAGE=gazebo-prerelease 
 
-. ${SCRIPT_DIR}/lib/drcsim-base.bash
+. ${SCRIPT_DIR}/lib/drcsim-catkin_ws-gazebo-nightly-base.bash
