@@ -50,10 +50,11 @@ fi
 
 # GAZEBO related dependencies
 
-# In saucy we need to use 1.8 package to avoid conflicts with boost
-if [[ ${DISTRO} == 'saucy' ]]; then
-    ogre_pkg="libogre-1.8-dev"
-else
+# Old versions used libogre-dev
+ogre_pkg="libogre-1.8-dev"
+if [[ ${DISTRO} == 'precise' ]] || \
+   [[ ${DISTRO} == 'raring' ]] || \
+   [[ ${DISTRO} == 'quantal' ]]; then
     ogre_pkg="libogre-dev"
 fi
 
