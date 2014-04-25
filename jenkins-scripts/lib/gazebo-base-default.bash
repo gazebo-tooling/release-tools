@@ -140,6 +140,7 @@ if [ "$DISTRO" = "saucy" ]; then
 else
   mkdir -p $WORKSPACE/build/cppcheck_results/
   echo "<results></results>" >> $WORKSPACE/build/cppcheck_results/empty.xml 
+fi
 
 # Step 4: generate code coverage if enabled
 if ${COVERAGE_ENABLED} ; then
