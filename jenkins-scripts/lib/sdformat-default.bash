@@ -10,15 +10,14 @@ cat > build.sh << DELIM
 set -ex
 
 # Step 1: install everything you need
-apt-get install -y ${SDFORMAT_BASE_DEPENDENCIES}
+apt-get install -y ${BASE_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES}
 
 # Step 2: configure and build
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake $WORKSPACE/sdformat
-make -j3
-make install
+make -j${MAKE_JOBS}
 make test ARGS="-VV" || true
 
 # Step 3: code check

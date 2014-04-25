@@ -4,7 +4,5 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export DISTRO=quantal
-export ROS_DISTRO=groovy
+. ${SCRIPT_DIR}/lib/project-default-devel-homebrew-amd64.bash gazebo
 
-. ${SCRIPT_DIR}/lib/sandia-hand-default.bash

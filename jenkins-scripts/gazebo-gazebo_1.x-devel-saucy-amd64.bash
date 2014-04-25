@@ -4,7 +4,7 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export DISTRO=quantal
-export ROS_DISTRO=groovy
+export DISTRO=saucy
+export USE_OLD_SDFORMAT=true
 
-. ${SCRIPT_DIR}/lib/osrf-common-default.bash
+. ${SCRIPT_DIR}/lib/gazebo-base-default.bash

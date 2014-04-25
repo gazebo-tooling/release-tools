@@ -30,7 +30,7 @@ set -ex
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools mercurial debhelper wget pkg-kde-tools 
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools mercurial debhelper wget pkg-kde-tools bash-completion
 
 if $ENABLE_ROS; then
 # get ROS repo's key, to be used in creating the pbuilder chroot (to allow it to install packages from that repo)
@@ -38,9 +38,9 @@ sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $DISTRO main" > /etc/apt/sou
 wget http://packages.ros.org/ros.key -O - | apt-key add -
 fi
 
-# Also get drc repo's key, to be used in getting Gazebo
-sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" > /etc/apt/sources.list.d/drc-latest.list'
-wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
+# Also get gazebo repo's key, to be used in getting Gazebo
+sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" > /etc/apt/sources.list.d/gazebo.list'
+wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
 apt-get update
 
 # Hack to avoid problem with non updated 
@@ -50,10 +50,11 @@ if [ $DISTRO = 'precise' ]; then
 fi
 
 # Step 0: create/update distro-specific pbuilder environment
+# Fix segfault when using two repositories by setting OTHERMIRROR env variable
 if $ENABLE_ROS; then
-pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+OTHERMIRROR='deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main' pbuilder-dist $DISTRO $ARCH create --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
 else
-pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
 fi
 
 # Step 0: Clean up
@@ -62,13 +63,22 @@ mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 
 # Hack to support gazebo-current and friends
-if [ $PACKAGE = 'gazebo-current' ]; then
+# REAL_PACKAGE_NAME is used to refer to code directory name
+# REAL_PACKAGE_ALIAS is only affecting the name of the tarball
+if [ $PACKAGE = 'gazebo-current' ] || [ $PACKAGE = 'gazebo2' ]; then
     REAL_PACKAGE_NAME='gazebo'
     REAL_PACKAGE_ALIAS='gazebo'
 else
     REAL_PACKAGE_NAME=$PACKAGE
     REAL_PACKAGE_ALIAS=$PACKAGE_ALIAS
 fi
+
+if [ $PACKAGE = 'gazebo3' ]; then
+    REAL_PACKAGE_NAME='gazebo'
+fi
+
+# Remove number for packages like (sdformat2 or gazebo3)
+REAL_PACKAGE_NAME=$(echo $PACKAGE | sed 's:[0-9]*$::g')
 
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
@@ -100,6 +110,12 @@ fi
 hg up $RELEASE_REPO_BRANCH
 
 cd /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}
+
+# Bug in saucy doxygen makes the job hangs
+if [ $DISTRO = 'saucy' ]; then
+    sed -i -e '/.*dh_auto_build.*/d' debian/rules
+fi
+
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
   TIMESTAMP=\$(date '+%Y%m%d')
@@ -158,36 +174,19 @@ fi
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
 
-# Both paths are need, beacuse i386 use a different path
-MAIN_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}_result/\${PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${PKG_NAME}"
-DEBUG_PKGS="/var/lib/jenkins/pbuilder/${DISTRO}_result/\${DBG_PKG_NAME} /var/lib/jenkins/pbuilder/${DISTRO}-${ARCH}_result/\${DBG_PKG_NAME}"
+PKGS=\`find /var/lib/jenkins/pbuilder/*_result* -name *.deb || true\`
 
 FOUND_PKG=0
-for pkg in \${MAIN_PKGS}; do
-    echo "looking for \$pkg"
-    if [ -f \${pkg} ]; then
-        echo "found \$pkg"
-	# Check for correctly generated packages size > 3Kb
-        test -z \$(find \$pkg -size +3k) && exit 1
-	cp \${pkg} $WORKSPACE/pkgs
-        FOUND_PKG=1
-        break;
-    fi
+for pkg in \${PKGS}; do
+    echo "found \$pkg"
+    # Check for correctly generated packages size > 3Kb
+    test -z \$(find \$pkg -size +3k) && echo "WARNING: empty package?" 
+    # && exit 1
+    cp \${pkg} $WORKSPACE/pkgs
+    FOUND_PKG=1
 done
+# check at least one upload
 test \$FOUND_PKG -eq 1 || exit 1
-
-FOUND_PKG=0
-for pkg in \${DEBUG_PKGS}; do
-    if [ -f \${pkg} ]; then
-        # Check for correctly generated debug packages size > 3Kb
-        # when not valid instructions in rules/control it generates 1.5K package
-        test -z \$(find \$pkg -size +3k) && exit 1
-        cp \${pkg} $WORKSPACE/pkgs
-        FOUND_PKG=1
-        break;
-    fi
-done
-test \$FOUND_PKG -eq 1 || echo "No debug packages found. No upload"
 DELIM
 
 #

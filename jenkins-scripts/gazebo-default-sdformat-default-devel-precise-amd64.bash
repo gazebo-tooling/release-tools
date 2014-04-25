@@ -5,6 +5,5 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=precise
-export ROS_DISTRO=fuerte
 
-. ${SCRIPT_DIR}/lib/gazebo-base-default.bash
+. ${SCRIPT_DIR}/lib/gazebo-default-sdformat-default-base.bash
