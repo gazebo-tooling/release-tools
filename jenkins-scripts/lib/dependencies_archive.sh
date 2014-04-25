@@ -141,6 +141,18 @@ DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}       \\
                           ros-${ROS_DISTRO}-gazebo3-plugins \\
                           ros-${ROS_DISTRO}-gazebo3-ros     \\
                           ${GAZEBO_DEB_PACKAGE}"
+#
+# SANDIA_HAND DEPENDECIES
+#
+SANDIA_HAND_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-xacro              \\
+                               ros-${ROS_DISTRO}-ros                \\
+			       ros-${ROS_DISTRO}-image-common       \\
+			       ros-${ROS_DISTRO}-ros-comm           \\
+			       ros-${ROS_DISTRO}-common-msgs        \\
+			       ros-${ROS_DISTRO}-message-generation \\
+			       libboost-dev                         \\
+			       libqt4-dev                           \\
+			       osrf-common${ROS_POSTFIX}"
 
 #			  
 # ROS_GAZEBO_PKGS DEPENDECIES
