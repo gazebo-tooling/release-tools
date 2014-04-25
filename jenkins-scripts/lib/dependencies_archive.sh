@@ -9,6 +9,16 @@ if [[ -z $ROS_DISTRO ]]; then
     exit 1
 fi
 
+# Dart flags
+if [ -z ${DART_COMPILE_FROM_SOURCE} ]; then
+   DART_COMPILE_FROM_SOURCE=false
+fi
+
+if [ -z ${DART_FROM_PKGS} ]; then
+    DART_FROM_PKGS=false
+fi
+
+
 # mesa-utils for dri checks and xsltproc for qtest->junit conversion
 BASE_DEPENDENCIES="build-essential \\
                    cmake           \\
@@ -158,17 +168,9 @@ DART_DEPENDENCIES="libflann-dev            \\
 		   libboost-system-dev     \\
 		   libboost-filesystem-dev"
 
-if [ -z ${DART_COMPILE_FROM_SOURCE} ]; then
-   DART_COMPILE_FROM_SOURCE=false
-fi
-
 if ${DART_COMPILE_FROM_SOURCE}; then
     GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES \\
                                $DART_DEPENDENCIES"
-fi
-
-if [ -z ${DART_FROM_PKGS} ]; then
-    DART_FROM_PKGS=false
 fi
 
 if $DART_FROM_PKGS; then
