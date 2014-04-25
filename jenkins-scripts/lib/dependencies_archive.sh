@@ -119,7 +119,7 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
                           ${GAZEBO_DEB_PACKAGE}"
 
 
-if [[ $ROS_DISTRO != 'groovy' ]]; then
+if [[ $ROS_DISTRO == 'groovy' ]]; then
   DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} \\
                             ros-${ROS_DISTRO}-robot-model-visualization"
 else
