@@ -17,11 +17,10 @@ UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['precise', 'quantal', 'raring', 'saucy']
-UBUNTU_DISTROS_EXPERIMENTAL = ['trusty']
+UBUNTU_DISTROS = ['precise', 'raring', 'saucy','trusty']
+UBUNTU_DISTROS_EXPERIMENTAL = ['']
 
 ROS_DISTROS_IN_PRECISE = [ 'groovy', 'hydro' ]
-ROS_DISTROS_IN_QUANTAL = [ 'groovy' ]
 ROS_DISTROS_IN_RARING = [ 'hydro' ];
 
 DRY_RUN = False
@@ -314,8 +313,6 @@ def go(argv):
             else:
                 if (d == 'precise'):
                     ROS_DISTROS = ROS_DISTROS_IN_PRECISE
-                elif (d == 'quantal'):
-                    ROS_DISTROS = ROS_DISTROS_IN_QUANTAL
                 elif (d == 'raring'):
                     ROS_DISTROS = ROS_DISTROS_IN_RARING
                 else:
