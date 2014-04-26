@@ -19,7 +19,7 @@ export ENABLE_REAPER=false
 
 # Default to install plain gazebo in gazebo_pkg is not speficied
 if [[ -z $GAZEBO_PKG ]]; then
-    export GAZEBO_PKG=gazebo
+    export GAZEBO_PKG=gazebo3
 fi
 
 cat > build.sh << DELIM
