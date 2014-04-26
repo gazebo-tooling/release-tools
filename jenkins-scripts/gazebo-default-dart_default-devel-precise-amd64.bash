@@ -5,6 +5,6 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=precise
-export ROS_DISTRO=groovy
+export DART_COMPILE_FROM_SOURCE=true
 
-. ${SCRIPT_DIR}/lib/osrf-common-default.bash
+. ${SCRIPT_DIR}/lib/gazebo-base-default.bash

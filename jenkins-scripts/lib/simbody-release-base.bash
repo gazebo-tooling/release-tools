@@ -36,10 +36,16 @@ rm -fr $WORKSPACE/"$PACKAGE"_*
 
 # Step 1: Get the source (nightly builds or tarball)
 rm -fr $WORKSPACE/simbody
-git clone https://github.com/simbody/simbody.git -b simbody-${VERSION} $WORKSPACE/simbody
+git clone https://github.com/simbody/simbody.git $WORKSPACE/simbody
 cd $WORKSPACE/simbody
+git checkout Simbody-${VERSION}
 # Use current distro
-sed -i -e 's:quantal:$DISTRO:g' debian/changelog
+sed -i -e 's:precise:$DISTRO:g' debian/changelog
+
+# Bug in saucy doxygen makes the job hangs
+if [ $DISTRO = 'saucy' ]; then
+    sed -i -e '/.*dh_auto_build.*/d' debian/rules
+fi
 
 # Step 5: use debuild to create source package
 echo | dh_make -s --createorig -p ${PACKAGE}_${VERSION} || true

@@ -17,7 +17,7 @@ UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['precise', 'quantal', 'raring','saucy']
+UBUNTU_DISTROS = ['precise', 'quantal', 'raring', 'saucy']
 UBUNTU_DISTROS_EXPERIMENTAL = ['trusty']
 
 DRY_RUN = False
@@ -157,7 +157,7 @@ def check_call(cmd, ignore_dry_run = False):
             print('Error running command (%s).'%(' '.join(cmd)))
             print('stdout: %s'%(out))
             print('stderr: %s'%(err))
-            sys.exit(1)
+            raise Exception('subprocess call failed')
         return out, err
 
 def generate_upload_tarball(args):
@@ -165,27 +165,32 @@ def generate_upload_tarball(args):
     # Platform-agnostic stuff.
     # The goal is to tag the repo and prepare a tarball.
 
-    # Check for uncommitted changes; abort if present
-    cmd = ['hg', 'status', '-q']
-    out, err = check_call(cmd)
-    if len(out) != 0:
-        print('Mercurial says that you have uncommitted changes.  Please clean up your working copy so that "%s" outputs nothing'%(' '.join(cmd)))
-        print('stdout: %s'%(out))
-        sys.exit(1)
-
-    # Tag repo
-    tag = '%s_%s'%(args.package_alias, args.version)
-    check_call(['hg', 'tag', '-f', tag])
-
-    # Push tag
-    check_call(['hg', 'push'])
-
-    # Make a clean copy, to avoid pulling in other stuff that the user has
-    # sitting in the working copy
-    tmpdir = tempfile.mkdtemp() 
-    srcdir = os.path.join(tmpdir, 'src')
+    tmpdir = tempfile.mkdtemp()
     builddir = os.path.join(tmpdir, 'build')
-    check_call(['hg', 'archive', srcdir])
+    # Put the hg-specific stuff in a try block, to allow for a git repo
+    try:
+        # Check for uncommitted changes; abort if present
+        cmd = ['hg', 'status', '-q']
+        out, err = check_call(cmd)
+        if len(out) != 0:
+            print('Mercurial says that you have uncommitted changes.  Please clean up your working copy so that "%s" outputs nothing'%(' '.join(cmd)))
+            print('stdout: %s'%(out))
+            sys.exit(1)
+    
+        # Tag repo
+        tag = '%s_%s'%(args.package_alias, args.version)
+        check_call(['hg', 'tag', '-f', tag])
+    
+        # Push tag
+        #check_call(['hg', 'push'])
+
+        # Make a clean copy, to avoid pulling in other stuff that the user has
+        # sitting in the working copy
+        srcdir = os.path.join(tmpdir, 'src')
+        check_call(['hg', 'archive', srcdir])
+    except Exception as e:
+        # Assume that it's git and that we'll just use the CWD
+        srcdir = os.getcwd()
 
     # configure and make package_source
     os.mkdir(builddir)
@@ -196,7 +201,9 @@ def generate_upload_tarball(args):
     # Upload tarball
     # We need to trick the current packages for the tarball
     tarball_name = args.package
-    if args.package == "gazebo-current":
+    if args.package == "gazebo-current" or \
+       args.package == "gazebo2" or \
+       args.package == "gazebo3":
         tarball_name = "gazebo"
     # TODO: we're assuming a particular naming scheme and a particular compression tool
     tarball_fname = '%s-%s.tar.bz2'%(tarball_name, args.version)

@@ -5,5 +5,6 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=quantal
+export ROS_DISTRO=groovy
 
-. ${SCRIPT_DIR}/lib/sdformat-default.bash
+. ${SCRIPT_DIR}/lib/drcsim-catkin_ws-gazebo-nightly-base.bash
