@@ -54,7 +54,7 @@ rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
 cmake ${GZ_CMAKE_BUILD_TYPE}         \\
-    -DCMAKE_INSTALL_PREFIX=/usr      \\
+    -DCMAKE_INSTALL_PREFIX=/usr/local\\
     -DENABLE_SCREEN_TESTS:BOOL=False \\
     -DCMAKE_INSTALL_LIBDIR:STRING="lib/\${DEB_HOST_MULTIARCH}" \\
   $WORKSPACE/gazebo
