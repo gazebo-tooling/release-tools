@@ -41,6 +41,9 @@ apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXT
 
 # Step 2: configure and build
 
+# Need multiarch to properly compare against the package version
+DEB_HOST_MULTIARCH=\$(dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null)
+
 # Normal cmake routine for Gazebo
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
@@ -48,6 +51,7 @@ cd $WORKSPACE/build
 cmake ${GZ_CMAKE_BUILD_TYPE}         \\
     -DCMAKE_INSTALL_PREFIX=/usr      \\
     -DENABLE_SCREEN_TESTS:BOOL=False \\
+    -DCMAKE_INSTALL_LIBDIR:STRING="lib/\${DEB_HOST_MULTIARCH}" \\
   $WORKSPACE/gazebo
 make -j${MAKE_JOBS}
 make install
@@ -59,9 +63,11 @@ git clone git://github.com/lvc/abi-compliance-checker.git
 cd abi-compliance-checker
 perl Makefile.pl -install --prefix=/usr
 
-GAZEBO_LIBS=\$(dpkg -L ${GAZEBO_PKG} | grep lib.*.so)
-GAZEBO_LIBS_LOCAL=\$(dpkg -L ${GAZEBO_PKG} | grep lib.*.so | sed -e 's:^/usr:/usr/local:g')
-
+# Search all packages installed called *gazebo* and list of *.so.* files in these packages
+GAZEBO_LIBS=\$(dpkg -L \$(dpkg -l | grep ^ii | grep gazebo | awk '{ print \$2 }' | tr '\n' ' ') | grep 'lib.*.so.*')
+echo \$GAZEBO_LIBS
+GAZEBO_LIBS_LOCAL=\$(echo \${GAZEBO_LIBS} | sed -e 's:^/usr:/usr/local:g')
+echo \$GAZEBO_LIBS_LOCAL
 BIN_VERSION=\$(dpkg -l ${GAZEBO_PKG} | tail -n 1 | awk '{ print  \$3 }')
 
 GAZEBO_INC_DIR=\$(find /usr/include -name gazebo-* -type d | sed -e 's:.*/::')
