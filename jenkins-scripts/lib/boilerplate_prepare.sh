@@ -22,15 +22,18 @@ fi
 
 # Useful for running tests properly in ros based software
 if ${ENABLE_ROS}; then
-export ROS_HOSTNAME=localhost
-export ROS_MASTER_URI=http://localhost:11311
-export ROS_IP=127.0.0.1
+  export ROS_HOSTNAME=localhost
+  export ROS_MASTER_URI=http://localhost:11311
+  export ROS_IP=127.0.0.1
+fi
+
+if [[ -n `ps aux | grep gzserver | grep -v grep` ]]; then
+    echo "There is a gzserver already running on the machine. Stopping"
+    exit -1
 fi
 
 . ${SCRIPT_DIR}/lib/check_graphic_card.bash
 . ${SCRIPT_DIR}/lib/dependencies_archive.sh
-      
-
 
 # Workaround for precise pbuilder-dist segfault
 # https://bitbucket.org/osrf/release-tools/issue/22
@@ -68,7 +71,16 @@ fi
 # monitor all subprocess and enforce termination (thanks to ROS crew)
 # never failed on this
 if $ENABLE_REAPER; then
-wget https://raw.github.com/ros-infrastructure/buildfarm/master/scripts/subprocess_reaper.py -O subprocess_reaper.py
+# Hack for not failing when github is down
+download_done=false
+seconds_waiting=0
+while (! $download_done); do
+  wget https://raw.github.com/ros-infrastructure/buildfarm/master/scripts/subprocess_reaper.py -O subprocess_reaper.py && download_done=true
+  sleep 1
+  seconds_waiting=$((seconds_waiting+1))
+  [ $seconds_waiting -gt 60 ] && exit 1
+done
+
 sudo python subprocess_reaper.py $$ &
 sleep 1
 fi
@@ -92,6 +104,11 @@ mkdir -p $work_dir
 cd $work_dir
 
 sudo apt-get update -c $aptconffile
+
+# Check if trusty exists in the machine (not in precise) and symlink
+if [[ ! -f /usr/share/debootstrap/scripts/trusty ]]; then
+    sudo ln -s /usr/share/debootstrap/scripts/gutsy /usr/share/debootstrap/scripts/trusty
+fi
 
 # Setup the pbuilder environment if not existing, or update
 if [ ! -e $basetgz ] || [ ! -s $basetgz ] 

@@ -5,7 +5,6 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=precise
-export ROS_DISTRO=groovy
-export GAZEBO_DEB_PACKAGE=gazebo-prerelease 
+export ROS_DISTRO=hydro
 
-. ${SCRIPT_DIR}/lib/drcsim-base.bash
+. ${SCRIPT_DIR}/lib/osrf-common-default.bash

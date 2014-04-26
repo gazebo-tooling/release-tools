@@ -22,7 +22,7 @@ apt-get install -y ${BASE_DEPENDENCIES} ros-${ROS_DISTRO}-ros ros-${ROS_DISTRO}-
 . /opt/ros/${ROS_DISTRO}/setup.sh
 
 # For >=quantal, need to start rosdep base
-if [ "${DISTRO}" != "precise" ]; then
+if [ "${ROS_DISTRO}" != "groovy" ]; then
   rosdep init
   rosdep update
 fi
