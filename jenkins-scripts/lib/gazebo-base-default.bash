@@ -22,6 +22,11 @@ if [[ -z $GAZEBO_PKG ]]; then
     export GAZEBO_PKG=gazebo3
 fi
 
+# Split package in gazebo3 needs -dev to explore the headers
+if [[ $GAZEBO_PKG == 'gazebo3' ]]; then
+    GAZEBO_PKG=libgazebo-dev
+fi
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
