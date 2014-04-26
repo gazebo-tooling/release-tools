@@ -69,10 +69,8 @@ cd abi-compliance-checker
 perl Makefile.pl -install --prefix=/usr
 
 # Search all packages installed called *gazebo* and list of *.so.* files in these packages
-GAZEBO_LIBS=\$(dpkg -L \$(dpkg -l | grep ^ii | grep gazebo | awk '{ print \$2 }' | tr '\n' ' ') | grep 'lib.*.so.*')
-echo \$GAZEBO_LIBS
-GAZEBO_LIBS_LOCAL=\$(echo \${GAZEBO_LIBS} | sed -e 's:^/usr:/usr/local:g')
-echo \$GAZEBO_LIBS_LOCAL
+GAZEBO_LIBS=\$(dpkg -L \$(dpkg -l | grep ^ii | grep gazebo | awk '{ print \$2 }' | tr '\\n' ' ') | grep 'lib.*.so.*')
+GAZEBO_LIBS_LOCAL=\$(echo \${GAZEBO_LIBS} | tr ' ' '\\n' | sed -e 's:^/usr:/usr/local:g')
 BIN_VERSION=\$(dpkg -l ${GAZEBO_PKG} | tail -n 1 | awk '{ print  \$3 }')
 
 GAZEBO_INC_DIR=\$(find /usr/include -name gazebo-* -type d | sed -e 's:.*/::')
