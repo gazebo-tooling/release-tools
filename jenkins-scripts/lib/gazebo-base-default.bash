@@ -11,10 +11,6 @@ else
     GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
 fi
 
-# Do not use the subprocess_reaper in debbuild. Seems not as needed as in
-# testing jobs and seems to be slow at the end of jenkins jobs
-export ENABLE_REAPER=false
-
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 # Default to install plain gazebo in gazebo_pkg is not speficied
@@ -26,6 +22,9 @@ fi
 if [[ $GAZEBO_PKG == 'gazebo3' ]]; then
     GAZEBO_PKG=libgazebo-dev
 fi
+
+# Install gazebo from package and git to retrieve api checker
+export EXTRA_PACKAGES="${GAZEBO_PKG} git exuberant-ctags"
 
 cat > build.sh << DELIM
 ###################################################
@@ -58,7 +57,7 @@ fi
 
 # Required stuff for Gazebo and install gazebo binary itself
 apt-get update
-apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES} git ${GAZEBO_PKG} exuberant-ctags
+apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES}
 
 # Step 2: configure and build
 # Check for DART
