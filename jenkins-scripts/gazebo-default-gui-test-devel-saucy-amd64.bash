@@ -4,8 +4,9 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export DISTRO=precise
+# Hack to pick from current processes the DISPLAY available
+export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
 
-export GZ_BUILD_TYPE=Release
+export DISTRO=saucy
 
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash

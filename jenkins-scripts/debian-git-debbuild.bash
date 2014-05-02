@@ -4,7 +4,4 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export DISTRO=precise
-export ROS_DISTRO=groovy
-
-. ${SCRIPT_DIR}/lib/osrf-common-default.bash
+. ${SCRIPT_DIR}/lib/debian-git-repo-base.bash

@@ -4,7 +4,9 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export DISTRO=precise
-export ROS_DISTRO=groovy
+export DISTRO=raring
+export ROS_DISTRO=hydro
+# No node with raring relieable GPU
+export USE_DISPLAY=false
 
-. ${SCRIPT_DIR}/lib/osrf-common-default.bash
+. ${SCRIPT_DIR}/lib/drcsim-base.bash

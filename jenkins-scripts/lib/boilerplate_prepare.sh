@@ -71,7 +71,16 @@ fi
 # monitor all subprocess and enforce termination (thanks to ROS crew)
 # never failed on this
 if $ENABLE_REAPER; then
-wget https://raw.github.com/ros-infrastructure/buildfarm/master/scripts/subprocess_reaper.py -O subprocess_reaper.py
+# Hack for not failing when github is down
+download_done=false
+seconds_waiting=0
+while (! $download_done); do
+  wget https://raw.github.com/ros-infrastructure/buildfarm/master/scripts/subprocess_reaper.py -O subprocess_reaper.py && download_done=true
+  sleep 1
+  seconds_waiting=$((seconds_waiting+1))
+  [ $seconds_waiting -gt 60 ] && exit 1
+done
+
 sudo python subprocess_reaper.py $$ &
 sleep 1
 fi

@@ -37,14 +37,47 @@ set -ex
 apt-get install -y wget
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
-apt-get update
+
+# Dart repositories
+if $DART_FROM_PKGS; then
+  # software-properties for apt-add-repository
+  apt-get install -y python-software-properties apt-utils software-properties-common
+  apt-add-repository -y ppa:libccd-debs
+  apt-add-repository -y ppa:fcl-debs
+  apt-add-repository -y ppa:dartsim
+fi
+
+if $DART_COMPILE_FROM_SOURCE; then
+  apt-get install -y python-software-properties apt-utils software-properties-common git
+  apt-add-repository -y ppa:libccd-debs
+  apt-add-repository -y ppa:fcl-debs
+  apt-add-repository -y ppa:dartsim
+fi
 
 # Step 1: install everything you need
 
 # Required stuff for Gazebo and install gazebo binary itself
+apt-get update
 apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES} git ${GAZEBO_PKG} exuberant-ctags
 
 # Step 2: configure and build
+# Check for DART
+if $DART_COMPILE_FROM_SOURCE; then
+  if [ -d $WORKSPACE/dart ]; then
+      cd $WORKSPACE/dart
+      git pull
+  else
+     git clone https://github.com/dartsim/dart.git $WORKSPACE/dart
+  fi
+  rm -fr $WORKSPACE/dart/build
+  mkdir -p $WORKSPACE/dart/build
+  cd $WORKSPACE/dart/build
+  cmake .. \
+      -DCMAKE_INSTALL_PREFIX=/usr
+  #make -j${MAKE_JOBS}
+  make -j1
+  make install
+fi
 
 # Need multiarch to properly compare against the package version
 DEB_HOST_MULTIARCH=\$(dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null)

@@ -27,16 +27,7 @@ apt-get update
 
 # Step 1: install everything you need
 
-apt-get install -y ${BASE_DEPENDENCIES}                 \\
-                   ros-${ROS_DISTRO}-xacro              \\
-                   ros-${ROS_DISTRO}-ros                \\
-                   ros-${ROS_DISTRO}-image-common       \\
-                   ros-${ROS_DISTRO}-ros-comm           \\
-                   ros-${ROS_DISTRO}-common-msgs        \\
-                   ros-${ROS_DISTRO}-message-generation \\
-                   libboost-dev                         \\
-                   libqt4-dev                           \\
-                   osrf-common
+apt-get install -y ${BASE_DEPENDENCIES} ${SANDIA_HAND_BASE_DEPENDENCIES}
 
 if [ $DISTRO != precise ]; then
     rosdep init && rosdep update
@@ -46,7 +37,6 @@ fi
 # Normal cmake routine for sandia-hand
 . /opt/ros/${ROS_DISTRO}/setup.sh
 cd $WORKSPACE/sandia-hand
-export ROS_PACKAGE_PATH=\$PWD:/usr/share/osrf-common-1.0/ros:\$ROS_PACKAGE_PATH
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
