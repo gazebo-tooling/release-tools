@@ -17,13 +17,18 @@ UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['precise', 'quantal', 'raring', 'saucy']
-UBUNTU_DISTROS_EXPERIMENTAL = ['trusty']
+UBUNTU_DISTROS = ['precise', 'raring', 'saucy','trusty']
+UBUNTU_DISTROS_EXPERIMENTAL = ['']
+
+ROS_DISTROS_IN_PRECISE = [ 'groovy', 'hydro' ]
+ROS_DISTROS_IN_RARING = [ 'hydro' ];
 
 DRY_RUN = False
 NIGHTLY = False
 UPSTREAM = False
+NO_SRC_FILE = False
 EXP_DISTROS = False
+DRCSIM_MULTIROS = False
 
 IGNORE_DRY_RUN = True
 
@@ -38,7 +43,9 @@ def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
     global UPSTREAM
+    global NO_SRC_FILE
     global EXP_DISTROS
+    global DRCSIM_MULTIROS
 
     parser = argparse.ArgumentParser(description='Make releases.')
     parser.add_argument('package', help='which package to release')
@@ -48,9 +55,6 @@ def parse_args(argv):
                         help='Build nightly releases: do not upload tar.bz2 and values are autoconfigured')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
-    parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
-                        help='no-sanity-checks; i.e. skip sanity checks commands')
-
     parser.add_argument('-e', '--experimental-distros', dest='exp_distros', action='store_true', default=False,
                         help='build packages for experimentally supported Ubuntu distros')
     parser.add_argument('-u', '--upstream', dest='upstream', action='store_true', default=False,
@@ -64,13 +68,28 @@ def parse_args(argv):
     parser.add_argument('-r', '--release-version', dest='release_version', 
                         default=None,
                         help='Release version suffix; usually 1 (e.g., 1')
+    parser.add_argument('--drcsim-multiros', dest='drcsim_multiros', action='store_true', default=False,
+                        help='To be used with drcsim, osrf-common and sandia-hand. Generate ROS_DISTRO based on drcsim support (i.e: ')
+    parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
+                        help='no-sanity-checks; i.e. skip sanity checks commands')
+    parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
+                        help='no-sanity-checks; i.e. skip sanity checks commands')
+
     args = parser.parse_args()
     if not args.package_alias:
         args.package_alias = args.package
     DRY_RUN = args.dry_run
     NIGHTLY = args.nightly
     UPSTREAM = args.upstream
+    NO_SRC_FILE = args.no_source_file
     EXP_DISTROS = args.exp_distros
+    DRCSIM_MULTIROS = args.drcsim_multiros
+
+    # Upstream and nightly do not generate a tar.bz2 file
+    if args.upstream or args.nightly:
+        NO_SRC_FILE = True
+        args.no_source_file = True
+
     return args
 
 def get_release_repository_URL(package):
@@ -212,7 +231,7 @@ def generate_upload_tarball(args):
     # package itself doesn't know anything about this).
     if args.package != args.package_alias:
         tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
-        if (not args.dry_run) and (not args.nightly):
+        if (not args.dry_run):
           shutil.copyfile(tarball_path, os.path.join(builddir, tarball_fname))
         tarball_path = os.path.join(builddir, tarball_fname)
     check_call(['scp', tarball_path, UPLOAD_DEST])
@@ -253,7 +272,9 @@ def go(argv):
         sanity_checks(args)
 
     source_tarball_uri = ''
-    if not UPSTREAM:
+
+    # Do not generate source file if not needed or impossible
+    if not args.no_source_file:
         source_tarball_uri = generate_upload_tarball(args)
     
     # Kick off Jenkins jobs
@@ -274,18 +295,36 @@ def go(argv):
         job_name = JOB_NAME_UPSTREAM_PATTERN%(args.package)
     else:
         job_name = JOB_NAME_PATTERN%(args.package)
+    
     params_query = urllib.urlencode(params)
     base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
     distros = UBUNTU_DISTROS
     if EXP_DISTROS:
         distros.extend(UBUNTU_DISTROS_EXPERIMENTAL)
+
     for d in distros:
         for a in UBUNTU_ARCHS:
-            url = '%s&ARCH=%s&DISTRO=%s'%(base_url, a, d)
-            print('Accessing: %s'%(url))
-            if not DRY_RUN:
-                urllib.urlopen(url)
+            if not DRCSIM_MULTIROS:
+                url = '%s&ARCH=%s&DISTRO=%s'%(base_url, a, d)
+                print('Accessing: %s'%(url))
 
+                if not DRY_RUN:
+                    urllib.urlopen(url)
+            else:
+                if (d == 'precise'):
+                    ROS_DISTROS = ROS_DISTROS_IN_PRECISE
+                elif (d == 'raring'):
+                    ROS_DISTROS = ROS_DISTROS_IN_RARING
+                else:
+                    print ("ERROR in ROS_DISTROS: unkonwn distribution")
+                    sys.exit(1)
+
+                for r in ROS_DISTROS:
+                    url = '%s&ARCH=%s&DISTRO=%s&ROS_DISTRO=%s'%(base_url, a, d, r)
+                    print('Accessing multiros: %s'%(url))
+                    if not DRY_RUN:
+                        urllib.urlopen(url)
+        
     ###################################################
     # Fedora-specific stuff.
     # The goal is to build rpms.

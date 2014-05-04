@@ -5,6 +5,5 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=precise
-export ROS_DISTRO=groovy
 
-. ${SCRIPT_DIR}/lib/sandia-hand-default.bash
+. ${SCRIPT_DIR}/lib/gazebo-any_to_any-abichecker-base.bash
