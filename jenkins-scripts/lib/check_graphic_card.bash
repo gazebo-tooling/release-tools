@@ -30,6 +30,8 @@ if [ -n "$(lspci -v | grep "Kernel driver in use: i[0-9][0-9][0-9]")" ]; then
     export GRAPHIC_CARD_PKG="xserver-xorg-video-intel"
     export GRAPHIC_CARD_NAME="Intel"
     export GRAPHIC_CARD_FOUND=true
+    # Need to run properly DRI on intel
+    export EXTRA_PACKAGES="${EXTRA_PACKAGES} libgl1-mesa-dri"
 fi
 
 # Get version of package 
