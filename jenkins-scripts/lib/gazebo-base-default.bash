@@ -93,8 +93,8 @@ make test ARGS="-VV -R INTEGRATION_*" || true
 make test ARGS="-VV -R REGRESSION_*" || true
 make test ARGS="-VV -R EXAMPLE_*" || true
 
-# Only run cppcheck on saucy
-if [ "$DISTRO" = "saucy" ]; then 
+# Only run cppcheck on trusty
+if [ "$DISTRO" = "trusty" ]; then 
   # Step 3: code check
   cd $WORKSPACE/gazebo
   sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
