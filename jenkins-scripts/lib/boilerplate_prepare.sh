@@ -62,7 +62,8 @@ work_dir=$WORKSPACE/work
 
 NEEDED_HOST_PACKAGES="mercurial pbuilder python-empy debhelper python-setuptools python-psutil"
 # python-argparse is integrated in libpython2.7-stdlib since raring
-if [[ ${DISTRO} == 'precise' ]]; then
+# Check for precise in the HOST system (not valid DISTRO variable)
+if [[ $(lsb_release -sr | cut -c 1-5) == '12.04' ]]; then
     NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} python2.7"
 else
     NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} libpython2.7-stdlib"
