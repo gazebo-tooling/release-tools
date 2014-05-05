@@ -61,6 +61,13 @@ output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
 NEEDED_HOST_PACKAGES="mercurial pbuilder python-empy python-argparse debhelper python-setuptools python-psutil"
+# python-argparse is integrated in libpython2.7-stdlib since raring
+if [[ ${DISTRO} == 'precise' ]]; then
+    NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} python-argparse"
+else
+    NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} libpython2.7-stdlib"
+fi
+
 # Check if they are already installed in the host
 QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
 if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
