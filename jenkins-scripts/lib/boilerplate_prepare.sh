@@ -60,10 +60,10 @@ basetgz=$base/base-$basetgz_version.tgz
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
-NEEDED_HOST_PACKAGES="mercurial pbuilder python-empy python-argparse debhelper python-setuptools python-psutil"
+NEEDED_HOST_PACKAGES="mercurial pbuilder python-empy debhelper python-setuptools python-psutil"
 # python-argparse is integrated in libpython2.7-stdlib since raring
 if [[ ${DISTRO} == 'precise' ]]; then
-    NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} python-argparse"
+    NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} python2.7"
 else
     NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} libpython2.7-stdlib"
 fi
