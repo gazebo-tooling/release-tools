@@ -41,13 +41,24 @@ mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 
 # Clean from workspace all package related files
-rm -fr libtar
-hg clone https://bitbucket.org/_jrivero_/libtar
+rm -fr libtar*
+
+# Download patches
+hg clone https://bitbucket.org/_jrivero_/libtar libtar_patches
+
+# Download original source
+wget http://archive.ubuntu.com/ubuntu/pool/universe/libt/libtar/libtar_1.2.20.orig.tar.gz 
+tar xvzf libtar_*.tar.gz
+wget http://archive.ubuntu.com/ubuntu/pool/universe/libt/libtar/libtar_1.2.20-3.debian.tar.xz
+tar xvf libtar*.debian.tar.xz -C libtar
 cd libtar
+
+# Patching
+cp ../libtar_patches/changelog debian/changelog
+cp ../libtar_patches/*.patch debian/patches/
 
 # Use current distro
 sed -i -e 's:unstable:$DISTRO:g' debian/changelog
-sed -i -e "s:osrf1:osrf$RELEASE_VERSION:g" debian/changelog
 
 # Step 5: use debuild to create source package
 echo | dh_make -s --createorig -p ${PACKAGE}_${VERSION} || true
