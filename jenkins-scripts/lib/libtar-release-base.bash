@@ -5,7 +5,7 @@ export ENABLE_ROS=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
-VERSION="1.2.20-4"
+VERSION="1.2.20"
 PACKAGE=libtar
 
 # Do not use the subprocess_reaper in debbuild. Seems not as needed as in
