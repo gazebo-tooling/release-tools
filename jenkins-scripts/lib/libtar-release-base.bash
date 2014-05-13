@@ -24,7 +24,7 @@ set -ex
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget subversion cdbs mercurial ca-certificates
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget subversion cdbs mercurial ca-certificates dh-autoreconf autoconf 
 
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
@@ -42,7 +42,7 @@ cd $WORKSPACE/build
 
 # Clean from workspace all package related files
 rm -fr libtar
-hg clone https://_jrivero_@bitbucket.org/_jrivero_/libtar
+hg clone https://bitbucket.org/_jrivero_/libtar
 cd libtar
 
 # Use current distro
