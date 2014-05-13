@@ -5,4 +5,4 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export RELEASE_REPO_DIRECTORY=${DISTRO}
-. ${SCRIPT_DIR}/lib/libbullet-release-base.bash
+. ${SCRIPT_DIR}/lib/libtar-release-base.bash
