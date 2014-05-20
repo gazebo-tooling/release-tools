@@ -5,5 +5,5 @@ echo %WORKSPACE%
 cd %WORKSPACE%
 mkdir build
 cd build
-cmake .. -DBOOST_ROOT:STRING="C:\local\boost_1_55_0"
+cmake .. -DBOOST_ROOT:STRING="C:\local\boost_1_55_0" -DBOOST_LIBRARYDIR:STRING="C:\local\boost_1_55_0/libs"
 msbuild ALL_BUILD.vcxproj  
