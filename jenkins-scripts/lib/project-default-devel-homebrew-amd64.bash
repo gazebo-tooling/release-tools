@@ -75,6 +75,8 @@ export BOOST_ROOT=${RUN_DIR}
 export PATH="${PATH}:${RUN_DIR}/bin"
 export CMAKE_PREFIX_PATH=${RUN_DIR}
 
+# Need to clean up models before run tests (issue 27)
+rm -fr \$HOME/.gazebo/models
 make test ARGS="-VV" || true
 DELIM
 
