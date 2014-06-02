@@ -82,4 +82,4 @@ chmod +x test_run.sh
 sudo  ./test_run.sh
 
 # Step 5. Clean up
-#rm -fr ${RUN_DIR}
+rm -fr ${RUN_DIR}
