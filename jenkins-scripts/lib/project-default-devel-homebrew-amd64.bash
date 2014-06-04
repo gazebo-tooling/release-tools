@@ -37,6 +37,8 @@ do
 done || true
 
 # Process the package dependencies
+# Run twice! details about why in:
+# https://github.com/osrf/homebrew-simulation/pull/18#issuecomment-45041755 
 ${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
 ${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
 
