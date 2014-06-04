@@ -24,8 +24,6 @@ mkdir -p ${LOCAL_CELLAR}
 
 # Run brew update to get latest versions of formulae
 ${RUN_DIR}/bin/brew update
-# Hack to use a patched version of protobuf
-${RUN_DIR}/bin/brew install https://raw.githubusercontent.com/j-rivero/homebrew-protobuf/master/protobuf.rb
 # Hack to use ffmepg with gazebo - Need to fix detection first
 ${RUN_DIR}/bin/brew install ffmpeg
 
@@ -39,6 +37,7 @@ do
 done || true
 
 # Process the package dependencies
+${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
 ${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
 
 # Step 3. Manually compile and install ${PROJECT}
