@@ -7,4 +7,4 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 export DISTRO=precise
 export ROS_DISTRO=groovy
 
-. ${SCRIPT_DIR}/lib/osrf-common-default.bash
+. ${SCRIPT_DIR}/lib/gazebo-api_checker-default.bash

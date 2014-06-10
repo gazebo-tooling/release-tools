@@ -29,13 +29,16 @@ BASE_DEPENDENCIES="build-essential \\
                    python"
 
 # 1. SDFORMAT
+# ruby for xml_schemas generation and libxml2-utils for xmllint used in tests
 SDFORMAT_BASE_DEPENDENCIES="python                       \\
                             libboost-system-dev          \\
                             libboost-filesystem-dev      \\
                             libboost-program-options-dev \\
                             libboost-regex-dev           \\
                             libboost-iostreams-dev       \\
-                            libtinyxml-dev"
+                            libtinyxml-dev               \\
+                            ruby1.9.1                    \\
+			    libxml2-utils"
 
 # Need to explicit define to use old sdformat package
 if [[ -z ${USE_OLD_SDFORMAT} ]]; then
@@ -100,7 +103,7 @@ if [ -z $GAZEBO_DEB_PACKAGE ]; then
 fi
 
 #
-# DRCSIM_BASE_DEPENDENCIES
+# DRCSIM_DEPENDENCIES
 #
 # image-transport-plugins is needed to properly advertise compressed image topics
 DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
@@ -118,7 +121,45 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
                           ros-${ROS_DISTRO}-theora-image-transport            \\
                           ${GAZEBO_DEB_PACKAGE}"
 
-# ros-gazebo-pkgs dependencies
+
+if [[ $ROS_DISTRO == 'groovy' ]]; then
+  DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} \\
+                            ros-${ROS_DISTRO}-robot-model-visualization"
+else
+  DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} \\
+                            ros-${ROS_DISTRO}-robot-model"
+fi
+
+# DRCSIM_FULL_DEPENDENCIES
+# Need ROS postfix in precise for groovy/hydro 
+if [[ $DISTRO == 'precise' ]]; then
+   ROS_POSTFIX="-${ROS_DISTRO}"
+else
+   ROS_POSTFIX=""
+fi
+
+DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}       \\
+                          sandia-hand${ROS_POSTFIX}         \\
+    	                  osrf-common${ROS_POSTFIX}         \\
+                          ros-${ROS_DISTRO}-gazebo3-plugins \\
+                          ros-${ROS_DISTRO}-gazebo3-ros     \\
+                          ${GAZEBO_DEB_PACKAGE}"
+#
+# SANDIA_HAND DEPENDECIES
+#
+SANDIA_HAND_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-xacro              \\
+                               ros-${ROS_DISTRO}-ros                \\
+			       ros-${ROS_DISTRO}-image-common       \\
+			       ros-${ROS_DISTRO}-ros-comm           \\
+			       ros-${ROS_DISTRO}-common-msgs        \\
+			       ros-${ROS_DISTRO}-message-generation \\
+			       libboost-dev                         \\
+			       libqt4-dev                           \\
+			       osrf-common${ROS_POSTFIX}"
+
+#			  
+# ROS_GAZEBO_PKGS DEPENDECIES
+#
 ROS_GAZEBO_PKGS_DEPENDENCIES="libtinyxml-dev                            \\
                               ros-${ROS_DISTRO}-catkin                  \\
 			      ros-${ROS_DISTRO}-pluginlib               \\

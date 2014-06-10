@@ -24,8 +24,6 @@ mkdir -p ${LOCAL_CELLAR}
 
 # Run brew update to get latest versions of formulae
 ${RUN_DIR}/bin/brew update
-# Hack to use a patched version of protobuf
-${RUN_DIR}/bin/brew install https://raw.githubusercontent.com/j-rivero/homebrew-protobuf/master/protobuf.rb
 # Hack to use ffmepg with gazebo - Need to fix detection first
 ${RUN_DIR}/bin/brew install ffmpeg
 
@@ -38,21 +36,10 @@ do
   /usr/local/bin/brew unlink ${dep} || true
 done || true
 
-# If the case of gazebo, reuse qt so we don't need to compile it all the time
-if [[ $PROJECT == 'gazebo' ]]; then
-  if [[ ! $(find ${LOCAL_CELLAR} -name qt-4.*.mavericks.bottle.tar.gz) ]]; then
-    curl -L -o "${LOCAL_CELLAR}/qt-4.8.5.mavericks.bottle.tar.gz" \
-      https://www.dropbox.com/s/to19m8jw6elk9m0/qt-4.8.5.mavericks.bottle.tar.gz
-  fi
-
-  ${RUN_DIR}/bin/brew install "${LOCAL_CELLAR}/qt-4.8.5.mavericks.bottle.tar.gz"
-
-  # The bottle has some hardcoded files in qmake configurations. Hack them.
-  # see https://bitbucket.org/osrf/release-tools/pull-request/30
-  rm -fr ${HOME}/jenkins.R7cR
-  ln -s ${RUN_DIR} ${HOME}/jenkins.R7cR 
-fi
 # Process the package dependencies
+# Run twice! details about why in:
+# https://github.com/osrf/homebrew-simulation/pull/18#issuecomment-45041755 
+${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
 ${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
 
 # Step 3. Manually compile and install ${PROJECT}
@@ -89,6 +76,8 @@ export BOOST_ROOT=${RUN_DIR}
 export PATH="${PATH}:${RUN_DIR}/bin"
 export CMAKE_PREFIX_PATH=${RUN_DIR}
 
+# Need to clean up models before run tests (issue 27)
+rm -fr \$HOME/.gazebo/models
 make test ARGS="-VV" || true
 DELIM
 
@@ -96,4 +85,4 @@ chmod +x test_run.sh
 sudo  ./test_run.sh
 
 # Step 5. Clean up
-#rm -fr ${RUN_DIR}
+rm -fr ${RUN_DIR}

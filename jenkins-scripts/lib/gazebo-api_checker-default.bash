@@ -16,9 +16,18 @@ fi
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
-set +x # keep password secret
-BULLSEYE_LICENSE=`cat $HOME/bullseye-jenkins-license`
-set -x # back to debug
+# Default to install plain gazebo in gazebo_pkg is not speficied
+if [[ -z $GAZEBO_PKG ]]; then
+    export GAZEBO_PKG=gazebo3
+fi
+
+# Split package in gazebo3 needs -dev to explore the headers
+if [[ $GAZEBO_PKG == 'gazebo3' ]]; then
+    GAZEBO_PKG=libgazebo-dev
+fi
+
+# Install gazebo from package and git to retrieve api checker
+export EXTRA_PACKAGES="${GAZEBO_PKG} git exuberant-ctags"
 
 cat > build.sh << DELIM
 ###################################################
@@ -65,38 +74,6 @@ if ${GRAPHIC_CARD_FOUND}; then
     fi
 fi
 
-
-if ${COVERAGE_ENABLED} ; then
-  # Clean previous content
-  rm -fr $WORKSPACE/coverage
-  # Download and install Bullseyes
-  cd $WORKSPACE
-  rm -fr $WORKSPACE/Bulls*
-  
-  # Look for current version. NOT IN USE since we lost the maintenance support on 2014 
-  # reenable if the support is back.
-  # wget http://www.bullseye.com/download/ -O bull_index.html
-  # BULL_TAR=\$( grep -R BullseyeCoverage-.*-Linux-x64.tar bull_index.html | head -n 1 | sed 's/.*">//' | sed 's/<.*//' )
-  # wget http://www.bullseye.com/download/\$BULL_TAR -O bullseye.tar
-
-  # Download package
-  wget https://www.dropbox.com/s/i1ay7t8sg8i77jr/bullseye-8.8.9.tar -O bullseye.tar
-  tar -xf bullseye.tar
-  cd Bulls*
-  # Set up the license
-  echo $PATH >install-path
-  rm -fr /usr/bullseyes
-  set +x # keep password secret
-  ./install --prefix /usr/bullseyes --key $BULLSEYE_LICENSE
-  set -x # back to debug
-  # Set up Bullseyes for compiling
-  export PATH=/usr/bullseyes/bin:\$PATH
-  export COVFILE=$WORKSPACE/gazebo/test.cov
-  cd $WORKSPACE/gazebo
-  covselect --file test.cov --add .
-  cov01 --on
-fi
-
 # Step 2: configure and build
 # Check for DART
 if $DART_COMPILE_FROM_SOURCE; then
@@ -116,13 +93,17 @@ if $DART_COMPILE_FROM_SOURCE; then
   make install
 fi
 
+# Need multiarch to properly compare against the package version
+DEB_HOST_MULTIARCH=\$(dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null)
+
 # Normal cmake routine for Gazebo
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
 cmake ${GZ_CMAKE_BUILD_TYPE}         \\
-    -DCMAKE_INSTALL_PREFIX=/usr      \\
+    -DCMAKE_INSTALL_PREFIX=/usr/local\\
     -DENABLE_SCREEN_TESTS:BOOL=False \\
+    -DCMAKE_INSTALL_LIBDIR:STRING="lib/\${DEB_HOST_MULTIARCH}" \\
   $WORKSPACE/gazebo
 make -j${MAKE_JOBS}
 make install
@@ -132,33 +113,14 @@ make test ARGS="-VV -R INTEGRATION_*" || true
 make test ARGS="-VV -R REGRESSION_*" || true
 make test ARGS="-VV -R EXAMPLE_*" || true
 
-# Only run cppcheck on trusty
-if [ "$DISTRO" = "trusty" ]; then 
+# Only run cppcheck on saucy
+if [ "$DISTRO" = "saucy" ]; then 
   # Step 3: code check
   cd $WORKSPACE/gazebo
   sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
 else
   mkdir -p $WORKSPACE/build/cppcheck_results/
   echo "<results></results>" >> $WORKSPACE/build/cppcheck_results/empty.xml 
-fi
-
-# Step 4: generate code coverage if enabled
-if ${COVERAGE_ENABLED} ; then
-  rm -fr $WORKSPACE/coverage
-  rm -fr $WORKSPACE/bullshtml
-  mkdir -p $WORKSPACE/coverage
-  covselect --add '!$WORKSPACE/build/' '!../build/' '!test/' '!tools/test/' '!deps/' '!/opt/' '!gazebo/rendering/skyx/'
-  covhtml --srcdir $WORKSPACE/gazebo/ $WORKSPACE/coverage
-  # Generate valid cover.xml file using the bullshtml software
-  # java is needed to run bullshtml
-  apt-get install -y default-jre
-  cd $WORKSPACE
-  wget http://bullshtml.googlecode.com/files/bullshtml_1.0.5.tar.gz -O bullshtml.tar.gz
-  tar -xzf bullshtml.tar.gz
-  cd bullshtml
-  sh bullshtml .
-  # Hack to remove long paths from report
-  find . -name '*.html' -exec sed -i -e 's:${WORKSPACE}::g' {} \;
 fi
 
 # Step 4: copy test log

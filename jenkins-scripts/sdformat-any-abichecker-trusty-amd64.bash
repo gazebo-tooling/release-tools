@@ -4,7 +4,10 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export DISTRO=precise
-export ROS_DISTRO=groovy
+if [[ -z ${DISTRO} ]]; then
+  export DISTRO=trusty
+fi
 
-. ${SCRIPT_DIR}/lib/osrf-common-default.bash
+export REPO_TO_USE=OSRF
+
+. ${SCRIPT_DIR}/lib/sdformat-any-base.bash

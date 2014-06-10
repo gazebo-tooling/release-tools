@@ -9,8 +9,13 @@ fi
 if [ -n "$(lspci -v | grep nvidia | head -n 2 | grep "Kernel driver in use: nvidia")" ]; then
     export GRAPHIC_CARD_PKG=$(lspci -v | grep nvidia | head -n 2 | grep "Kernel modules:" | awk '{ print $3 }' | tr -d ','| sed -e s:_:-:g)
     if [ -z "${GRAPHIC_CARD_PKG}" ]; then
-	echo "Nvidia support found but not the module in use"
-	exit 1
+        # Trusty does not support the previous method. Fallback to use
+	# installed package for GRAPHIC_CARD_PKG
+	export GRAPHIC_CARD_PKG=$(dpkg -l | grep "^ii[[:space:]]* nvidia-[0-9]3" | awk '{ print $2 }')
+        if [ -z "${GRAPHIC_CARD_PKG}" ]; then
+	  echo "Nvidia support found but not the module in use"
+	  exit 1
+        fi
     fi
     # Check for host installed version
     export GRAPHIC_CARD_NAME="Nvidia"
@@ -30,6 +35,8 @@ if [ -n "$(lspci -v | grep "Kernel driver in use: i[0-9][0-9][0-9]")" ]; then
     export GRAPHIC_CARD_PKG="xserver-xorg-video-intel"
     export GRAPHIC_CARD_NAME="Intel"
     export GRAPHIC_CARD_FOUND=true
+    # Need to run properly DRI on intel
+    export EXTRA_PACKAGES="${EXTRA_PACKAGES} libgl1-mesa-dri"
 fi
 
 # Get version of package 
