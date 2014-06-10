@@ -84,7 +84,7 @@ cat > devel.xml << DEVEL_DELIM
  </version>
    
  <headers>
-    /usr/local/include/\$sdformat_TARGET_DIR/sdf
+    /usr/local/include/\$sdformat_TARGET_DIR
  </headers>
    
  <libs>
