@@ -70,7 +70,7 @@ cat > pkg.xml << CURRENT_DELIM
  </version>
    
  <headers>
-    /usr/local/include/\$sdformat_ORIGIN_DIR/
+    /usr/include/\$sdformat_ORIGIN_DIR/
  </headers>
    
  <libs>
