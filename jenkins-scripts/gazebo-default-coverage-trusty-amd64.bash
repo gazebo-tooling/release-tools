@@ -5,6 +5,6 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
-export DISTRO=quantal
+export DISTRO=trusty
 export COVERAGE_ENABLED=true
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash
