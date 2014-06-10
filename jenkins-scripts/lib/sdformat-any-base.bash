@@ -38,14 +38,17 @@ apt-get install -y wget
 sh -c 'echo "deb ${REPO_URL} ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
 wget ${REPO_KEY} -O - | apt-key add -
 apt-get update
-apt-get install -y ${BASE_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES} sdformat git exuberant-ctags 
+
+# Checkout latest libsdformatX-dev package
+SDFORMAT_PKG=\$(apt-cache search sdformat | grep 'libsdformat*-dev\ ' | awk '{ print \$1 }')
+apt-get install -y ${BASE_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES} \${SDFORMAT_PKG} git exuberant-ctags 
 
 # Step 2: configure and build
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake $WORKSPACE/sdformat -DCMAKE_INSTALL_PREFIX=/usr/local
-make -j3
+make -j${MAKE_JOBS}
 make install
 sdformat_ORIGIN_DIR=\$(find /usr/include -name sdformat-* -type d | sed -e 's:.*/::')
 sdformat_TARGET_DIR=\$(find /usr/local/include -name sdformat-* -type d | sed -e 's:.*/::')

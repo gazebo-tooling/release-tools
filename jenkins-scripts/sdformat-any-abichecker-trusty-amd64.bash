@@ -8,6 +8,6 @@ if [[ -z ${DISTRO} ]]; then
   export DISTRO=trusty
 fi
 
-export REPO_TO_USE=ROS
+export REPO_TO_USE=OSRF
 
 . ${SCRIPT_DIR}/lib/sdformat-any-base.bash
