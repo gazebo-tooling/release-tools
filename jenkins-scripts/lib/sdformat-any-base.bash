@@ -60,7 +60,7 @@ git clone git://github.com/lvc/abi-compliance-checker.git
 cd abi-compliance-checker
 perl Makefile.pl -install --prefix=/usr
 
-BIN_VERSION=\$(dpkg -l sdformat | tail -n 1 | awk '{ print  \$3 }')
+BIN_VERSION=\$(dpkg -l \${SDFORMAT_PKG} | tail -n 1 | awk '{ print  \$3 }')
 
 mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker
