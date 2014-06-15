@@ -38,6 +38,8 @@ if [ $DISTRO = 'precise' ]; then
   sed -i -e 's:UbuntuDistroInfo().devel():self.target_distro:g' /usr/bin/pbuilder-dist
 fi
 
+pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+
 # Some metadata
 export DEBEMAIL="osrf@osrfoundation.org"
 export DEBFULLNAME="OSRF Building Farm"
