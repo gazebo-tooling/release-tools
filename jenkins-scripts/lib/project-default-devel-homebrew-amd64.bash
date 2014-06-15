@@ -39,8 +39,8 @@ done || true
 # Process the package dependencies
 # Run twice! details about why in:
 # https://github.com/osrf/homebrew-simulation/pull/18#issuecomment-45041755 
-${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
-${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
+${RUN_DIR}/bin/brew install --HEAD ${PROJECT} --only-dependencies
+${RUN_DIR}/bin/brew install --HEAD ${PROJECT} --only-dependencies
 
 # Step 3. Manually compile and install ${PROJECT}
 cd ${WORKSPACE}/${PROJECT}
@@ -48,7 +48,6 @@ cd ${WORKSPACE}/${PROJECT}
 sudo rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
 cd ${WORKSPACE}/build
- 
 
 # Mimic the homebrew variables
 export PKG_CONFIG_PATH=${RUN_DIR}/lib/pkgconfig
