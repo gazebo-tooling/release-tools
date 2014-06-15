@@ -44,7 +44,7 @@ export DEBFULLNAME="OSRF Building Farm"
 
 # Download code
 cd ${WORKSPACE}
-rm -r *.tar.* source/
+rm -fR *.tar.* source/
 wget ${SOURCE_ORIG_TARGZ}
 mkdir source
 tar xzf *orig* -O source
