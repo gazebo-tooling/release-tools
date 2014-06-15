@@ -43,8 +43,8 @@ export DEBEMAIL="osrf@osrfoundation.org"
 export DEBFULLNAME="OSRF Building Farm"
 
 # Download code
-rm *.tar.*
 cd ${WORKSPACE}
+rm -f *.tar.*
 wget ${SOURCE_ORIG_TARGZ}
 tar xzf *orig*
 cd *
