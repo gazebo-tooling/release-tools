@@ -47,7 +47,7 @@ cd ${WORKSPACE}
 rm -fR *.tar.* source/
 wget ${SOURCE_ORIG_TARGZ}
 mkdir source
-tar xzf *orig* -O source
+tar xzf *orig* -C source
 cd source/*/
 # Usally .tar.xz
 wget ${DEBIAN_TARGZ}
