@@ -45,11 +45,11 @@ export DEBFULLNAME="OSRF Building Farm"
 # Download code
 cd ${WORKSPACE}
 wget ${SOURCE_ORIG_TARGZ}
-tar xzf ${SOURCE_ORIG_TARGZ}
+tar xzf *orig*
 cd *
 # Usally .tar.xz
 wget ${DEBIAN_TARGZ}
-tar xf ${DEBIAN_TARGZ}
+tar xf *debian\.*
 cd debian
 
 # Need to update changelog
