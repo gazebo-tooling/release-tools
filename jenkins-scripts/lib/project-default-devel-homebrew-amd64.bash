@@ -28,7 +28,7 @@ ${RUN_DIR}/bin/brew update
 ${RUN_DIR}/bin/brew install ffmpeg
 
 # Step 2. Install dependencies of ${PROJECT}
-${RUN_DIR}/bin/brew tap osrf/simulation
+${RUN_DIR}/bin/brew tap j-rivero/simulation
 
 # Unlink system dependencies first
 for dep in `/usr/local/bin/brew deps ${PROJECT}`
