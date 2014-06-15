@@ -56,7 +56,7 @@ cd debian
 
 # Need to update changelog
 changelog_distro=\$(dpkg-parsechangelog -lchangelog  | grep Distribution | awk '{print \$2}')
-sed -i -e "1 s:\$changelog_distro:$DISTRO:' changelog
+sed -i -e "1 s:\$changelog_distro:$DISTRO:" changelog
 
 cd ..
 
