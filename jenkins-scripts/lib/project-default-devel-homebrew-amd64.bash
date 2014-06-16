@@ -5,6 +5,7 @@ export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 
 # Get project name as first argument to this script
 PROJECT=$1
+PROJECT_ARGS=${2}
 
 # Knowing Script dir beware of symlink
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
@@ -24,14 +25,12 @@ mkdir -p ${LOCAL_CELLAR}
 
 # Run brew update to get latest versions of formulae
 ${RUN_DIR}/bin/brew update
-# Hack to use ffmepg with gazebo - Need to fix detection first
-${RUN_DIR}/bin/brew install ffmpeg
 
 # Step 2. Install dependencies of ${PROJECT}
 ${RUN_DIR}/bin/brew tap osrf/simulation
 
 # Unlink system dependencies first
-for dep in `/usr/local/bin/brew deps ${PROJECT}`
+for dep in `/usr/local/bin/brew deps ${PROJECT} ${PROJECT_ARGS}`
 do
   /usr/local/bin/brew unlink ${dep} || true
 done || true
@@ -39,8 +38,8 @@ done || true
 # Process the package dependencies
 # Run twice! details about why in:
 # https://github.com/osrf/homebrew-simulation/pull/18#issuecomment-45041755 
-${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
-${RUN_DIR}/bin/brew install ${PROJECT} --only-dependencies
+${RUN_DIR}/bin/brew install ${PROJECT} ${PROJECT_ARGS} --only-dependencies
+${RUN_DIR}/bin/brew install ${PROJECT} ${PROJECT_ARGS} --only-dependencies
 
 # Step 3. Manually compile and install ${PROJECT}
 cd ${WORKSPACE}/${PROJECT}
