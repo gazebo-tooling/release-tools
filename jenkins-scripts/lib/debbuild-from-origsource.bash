@@ -30,7 +30,7 @@ set -ex
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Inject package into the system
-if [ -n $PACKAGES_TO_INJECT ]; then
+if [ -n \"$PACKAGES_TO_INJECT\" ]; then
     for p in $PACKAGES_TO_INJECT; do 
 	wget $p; 
     done 
