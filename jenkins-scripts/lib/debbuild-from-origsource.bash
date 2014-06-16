@@ -29,6 +29,9 @@ set -ex
 # http://lists.debian.org/debian-devel/2012/05/msg00240.html
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
+# Install deb-building tools
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools mercurial debhelper wget bash-completion
+
 # Inject package into the system
 if [ -n "$PACKAGES_TO_INJECT" ]; then
     for p in $PACKAGES_TO_INJECT; do 
@@ -36,9 +39,6 @@ if [ -n "$PACKAGES_TO_INJECT" ]; then
     done 
     dpkg -i *.deb
 fi
-
-# Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools mercurial debhelper wget bash-completion
 
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
