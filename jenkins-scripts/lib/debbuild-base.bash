@@ -82,7 +82,7 @@ REAL_PACKAGE_NAME=$(echo $PACKAGE | sed 's:[0-9]*$::g')
 
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
-  hg clone https://bitbucket.org/osrf/\$REAL_PACKAGE_NAME -r default
+  hg clone https://bitbucket.org/${BITBUCKET_REPO}/\$REAL_PACKAGE_NAME -r default
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME
   cd \$REAL_PACKAGE_NAME
   # Store revision for use in version
@@ -96,7 +96,7 @@ fi
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
 rm -rf /tmp/$PACKAGE-release
-hg clone https://bitbucket.org/osrf/$PACKAGE-release /tmp/$PACKAGE-release 
+hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release /tmp/$PACKAGE-release 
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then

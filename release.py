@@ -29,6 +29,7 @@ UPSTREAM = False
 NO_SRC_FILE = False
 EXP_DISTROS = False
 DRCSIM_MULTIROS = False
+IGN_REPO = False:
 
 IGNORE_DRY_RUN = True
 
@@ -46,6 +47,7 @@ def parse_args(argv):
     global NO_SRC_FILE
     global EXP_DISTROS
     global DRCSIM_MULTIROS
+    global IGN_REPO
 
     parser = argparse.ArgumentParser(description='Make releases.')
     parser.add_argument('package', help='which package to release')
@@ -74,6 +76,8 @@ def parse_args(argv):
                         help='no-sanity-checks; i.e. skip sanity checks commands')
     parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
                         help='no-sanity-checks; i.e. skip sanity checks commands')
+    parser.add_argument('--ignition-repo', dest='ignition_repo', action='store_true', default=False,
+                        help='use ignition robotics URL repositories instead of OSRF')
 
     args = parser.parse_args()
     if not args.package_alias:
@@ -84,6 +88,7 @@ def parse_args(argv):
     NO_SRC_FILE = args.no_source_file
     EXP_DISTROS = args.exp_distros
     DRCSIM_MULTIROS = args.drcsim_multiros
+    IGN_REPO = args.ignition_repo
 
     # Upstream and nightly do not generate a tar.bz2 file
     if args.upstream or args.nightly:
@@ -93,7 +98,11 @@ def parse_args(argv):
     return args
 
 def get_release_repository_URL(package):
-    return "https://bitbucket.org/osrf/" + package + "-release"
+    repo = "osrf"
+    if IGN_REPO
+        repo = "ignitionrobotics"
+
+    return "https://bitbucket.org/" + repo + "/" + package + "-release"
 
 def download_release_repository(package, release_branch):
     url = get_release_repository_URL(package)
