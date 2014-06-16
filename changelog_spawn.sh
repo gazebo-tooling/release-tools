@@ -25,13 +25,13 @@ msg=${2}
 
 if [[ $# -lt 1 ]]; then
     echo "changelog_spawn <version> [msg]"
-    return 1
+    exit 1
 fi
 
 if [[ -z ${DEBEMAIL} || -z ${DEBFULLNAME} ]]; then
     echo "DEBEMAIL and/or DEBFULLNAME env variables are empty. Needed for changelogs"
     echo "Please add it to your bashrc"
-    return 1
+    exit 1
 fi
 
 changelog_example=$(find . -name changelog | head -n 1)
