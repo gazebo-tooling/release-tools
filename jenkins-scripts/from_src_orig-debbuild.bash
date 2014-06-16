@@ -5,5 +5,6 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export ENABLE_ROS=false
+export UPLOAD_SOURCEDEB=true
 
 . ${SCRIPT_DIR}/lib/debbuild-from-origsource.bash 
