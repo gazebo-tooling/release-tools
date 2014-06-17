@@ -20,6 +20,11 @@ if [ -z ${ENABLE_REAPER} ]; then
     ENABLE_REAPER=true
 fi
 
+# We use ignitionsrobotics or osrf. osrf by default
+if [ -Z ${BITBUCKET_REPO} ]; then
+    BITBUCKET_REPO="osrf"
+fi
+
 # Useful for running tests properly in ros based software
 if ${ENABLE_ROS}; then
   export ROS_HOSTNAME=localhost
