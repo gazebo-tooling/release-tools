@@ -102,6 +102,15 @@ def download_release_repository(package, release_branch):
     check_call(cmd, IGNORE_DRY_RUN)
     return release_tmp_dir
 
+def sanity_package_name_underscore(package, package_alias):
+    if '_' in package_alias:
+      error("Found an underscore in package_alias. It will conflict with debian package names.")
+
+    if '_' in package and package_alias.empty():
+      error("Found an underscore in package name without providing a package alias (-a <alias>). You probably want to match the package name in the debian changelog")
+
+    print_success("No underscore in package name")
+
 def sanity_package_name(repo_dir, package, package_alias):
     expected_name = package
 
@@ -154,6 +163,7 @@ def sanity_check_gazebo_versions(package, version):
 
 def sanity_checks(args):
     repo_dir = download_release_repository(args.package, args.release_repo_branch)
+    sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_package_version(repo_dir, args.version, str(args.release_version))
     sanity_check_gazebo_versions(args.package, args.version)
@@ -201,7 +211,7 @@ def generate_upload_tarball(args):
         check_call(['hg', 'tag', '-f', tag])
     
         # Push tag
-        #check_call(['hg', 'push'])
+        check_call(['hg', 'push'])
 
         # Make a clean copy, to avoid pulling in other stuff that the user has
         # sitting in the working copy
@@ -232,7 +242,10 @@ def generate_upload_tarball(args):
     if args.package != args.package_alias:
         tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
         if (not args.dry_run):
-          shutil.copyfile(tarball_path, os.path.join(builddir, tarball_fname))
+          try:
+            shutil.copyfile(tarball_path, os.path.join(builddir, tarball_fname))
+          except IOError as e:
+            error("Failed to copy tarball to alias package name. Please check that you don't have an underscore in the project() statement of the CMakeList.txt. In that case, chagne it by a dash")
         tarball_path = os.path.join(builddir, tarball_fname)
     check_call(['scp', tarball_path, UPLOAD_DEST])
     shutil.rmtree(tmpdir)
