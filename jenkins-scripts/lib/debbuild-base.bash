@@ -127,7 +127,8 @@ if $NIGHTLY_MODE; then
   # TODO: Fix CMakeLists.txt ?
 fi
 
-cd $WORKSPACE/build/\$PACKAGE_SRC_BUILD_DIR
+# old method cd $WORKSPACE/build/\$PACKAGE_SRC_BUILD_DIR
+cd $WORKSPACE/build/*
 # If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
 if $NIGHTLY_MODE; then
   rm -fr .hg*
