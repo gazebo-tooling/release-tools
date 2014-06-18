@@ -112,10 +112,11 @@ def download_release_repository(package, release_branch):
     return release_tmp_dir
 
 def sanity_package_name_underscore(package, package_alias):
-    if '_' in package_alias:
-      error("Found an underscore in package_alias. It will conflict with debian package names.")
+    # Alias is never empty. It hosts a exect copy of package if not provided
+    if '_' in package_alias and package_alias != package:
+      error("Found an underscore in package_alias. It will conflict with debian package names. May be fixed changing the underscore for a dash.")
 
-    if '_' in package and package_alias.empty():
+    if '_' in package and package_alias == package:
       error("Found an underscore in package name without providing a package alias (-a <alias>). You probably want to match the package name in the debian changelog")
 
     print_success("No underscore in package name")
