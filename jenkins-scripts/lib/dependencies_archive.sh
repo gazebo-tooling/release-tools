@@ -216,6 +216,11 @@ if ${DART_COMPILE_FROM_SOURCE}; then
 fi
 
 if $DART_FROM_PKGS; then
+    if $DART_USE_4_VERSION; then
+       dart_pkg="libdart-core4-dev"
+    else
+       dart_pkg="libdart-core3-dev"
+    fi
     GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES \\
-                               libdart-core3-dev"
+                               $dart_pkg"
 fi
