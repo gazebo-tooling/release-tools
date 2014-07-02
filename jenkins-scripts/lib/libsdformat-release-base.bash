@@ -48,7 +48,7 @@ hg clone https://bitbucket.org/_jrivero_/libsdformat sdformat_patches
 
 # Download original source
 wget http://archive.ubuntu.com/ubuntu/pool/universe/s/sdformat/sdformat_1.4.11.orig.tar.bz2 
-tar xvzf sdformat_*.tar.gz
+tar xvf sdformat_*.tar.bz2
 wget http://archive.ubuntu.com/ubuntu/pool/universe/s/sdformat/sdformat_2.0.0-4.debian.tar.xz
 tar xvf sdformat*.debian.tar.xz -C sdformat
 cd sdformat
