@@ -8,6 +8,10 @@ export ENABLE_ROS=false
 VERSION="1.4.11"
 PACKAGE=sdformat
 
+if [ -z $UPLOAD_SOURCEDEB ]; then
+    UPLOAD_SOURCEDEB=false
+fi
+
 # Do not use the subprocess_reaper in debbuild. Seems not as needed as in
 # testing jobs and seems to be slow at the end of jenkins jobs
 export ENABLE_REAPER=false
@@ -73,6 +77,13 @@ pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
+
+if [ $UPLOAD_SOURCEDEB ]; then
+    cp ../*.dsc $WORKSPACE/pkgs
+    cp ../*.orig.* $WORKSPACE/pkgs
+    cp ../*.debian.* $WORKSPACE/pkgs
+fi
+
 
 PKGS=\`find /var/lib/jenkins/pbuilder/*_result* -name *.deb || true\`
 
