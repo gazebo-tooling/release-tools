@@ -35,7 +35,7 @@ cd $WORKSPACE/build
 cmake $WORKSPACE/gazebo
 make
 make doc
-./tools/gz sdf -d > dev.html
+./tools/gz sdf -o > dev.html
 
 # Step 3: upload docs
 apt-get install -y openssh-client
