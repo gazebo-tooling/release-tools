@@ -60,7 +60,7 @@ cd ..
 patch -p0 < ${PACKAGE}.debdiff
 
 # Use current distro
-sed -i -e 's:unstable:$DISTRO:g' debian/changelog
+sed -i -e 's:unstable:$DISTRO:g' ${PACKAGE}-*/debian/changelog
 
 # Step 5: use debuild to create source package
 apt-get build-dep ${PACKAGE}
