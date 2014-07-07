@@ -33,7 +33,8 @@ rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake $WORKSPACE/gazebo
-# make doc
+make
+make doc
 ./tools/gz sdf -d > dev.html
 
 # Step 3: upload docs
