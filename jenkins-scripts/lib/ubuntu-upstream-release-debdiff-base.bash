@@ -63,7 +63,7 @@ patch -p0 < ${PACKAGE}.debdiff
 sed -i -e 's:unstable:$DISTRO:g' ${PACKAGE}-*/debian/changelog
 
 # Step 5: use debuild to create source package
-apt-get build-dep ${PACKAGE}
+apt-get build-dep -y ${PACKAGE}
 debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
 export DEB_BUILD_OPTIONS="parallel=$MAKE_JOBS"
