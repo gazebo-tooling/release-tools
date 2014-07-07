@@ -34,8 +34,7 @@ mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake $WORKSPACE/gazebo
 make doc
-make gzsdf
-GAZEBO_RESOURCE_PATH=`pwd`/../gazebo/gazebo ./tools/gzsdf doc > dev.html
+GAZEBO_RESOURCE_PATH=`pwd`/../gazebo/gazebo ./tools/gz sdf -d > dev.html
 
 # Step 3: upload docs
 apt-get install -y openssh-client
