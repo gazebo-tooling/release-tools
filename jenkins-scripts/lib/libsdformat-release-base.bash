@@ -8,6 +8,10 @@ export ENABLE_ROS=false
 VERSION="1.4.11"
 PACKAGE=sdformat
 
+if [ -z $UPLOAD_SOURCEDEB ]; then
+    UPLOAD_SOURCEDEB=false
+fi
+
 # Do not use the subprocess_reaper in debbuild. Seems not as needed as in
 # testing jobs and seems to be slow at the end of jenkins jobs
 export ENABLE_REAPER=false
@@ -24,7 +28,7 @@ set -ex
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget subversion cdbs mercurial ca-certificates dh-autoreconf autoconf 
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget subversion cdbs mercurial ca-certificates dh-autoreconf autoconf pkg-kde-tools 
 
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
@@ -49,7 +53,7 @@ hg clone https://bitbucket.org/_jrivero_/libsdformat sdformat_patches
 # Download original source
 wget http://archive.ubuntu.com/ubuntu/pool/universe/s/sdformat/sdformat_1.4.11.orig.tar.bz2 
 tar xvf sdformat_*.tar.bz2
-wget http://archive.ubuntu.com/ubuntu/pool/universe/s/sdformat/sdformat_2.0.0-4.debian.tar.xz
+wget http://archive.ubuntu.com/ubuntu/pool/universe/s/sdformat/sdformat_1.4.11-1.debian.tar.xz
 mkdir -p sdformat
 tar xvf sdformat*.debian.tar.xz -C sdformat
 cd sdformat
@@ -73,6 +77,13 @@ pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
+
+if [ $UPLOAD_SOURCEDEB ]; then
+    cp ../*.dsc $WORKSPACE/pkgs
+    cp ../*.orig.* $WORKSPACE/pkgs
+    cp ../*.debian.* $WORKSPACE/pkgs
+fi
+
 
 PKGS=\`find /var/lib/jenkins/pbuilder/*_result* -name *.deb || true\`
 

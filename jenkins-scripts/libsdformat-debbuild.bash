@@ -5,4 +5,6 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export RELEASE_REPO_DIRECTORY=${DISTRO}
+export UPLOAD_SOURCEDEB=true
+
 . ${SCRIPT_DIR}/lib/libsdformat-release-base.bash
