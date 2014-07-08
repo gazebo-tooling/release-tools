@@ -85,10 +85,6 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libbullet2.82-dev                \\
                           libsimbody-dev                   \\
                           ${sdformat_pkg}"
-if $DART_FROM_PKGS; then
-    GAZEBO_BASE_DEPENDENCIES="$GAZEBO_BASE_DEPENDENCIES \\
-                             libdart-core3-dev"
-fi
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libcegui-mk2-dev \\
