@@ -9,5 +9,6 @@ export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
 
 export DISTRO=precise
 export ROS_DISTRO=groovy
+export DART_USE_4_VERSION=true
 
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash

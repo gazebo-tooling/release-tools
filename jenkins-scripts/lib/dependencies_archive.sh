@@ -9,15 +9,24 @@ if [[ -z $ROS_DISTRO ]]; then
     exit 1
 fi
 
-# Dart flags
+# Dart flags. Enable it by default unless compiled from source
+DART_FROM_PKGS=true
+
 if [ -z ${DART_COMPILE_FROM_SOURCE} ]; then
    DART_COMPILE_FROM_SOURCE=false
 fi
 
-if [ -z ${DART_FROM_PKGS} ]; then
+if ${DART_COMPILE_FROM_SOURCE}; then
     DART_FROM_PKGS=false
 fi
 
+if $DART_FROM_PKGS; then
+    if $DART_USE_4_VERSION; then
+       dart_pkg="libdart-core4-dev"
+    else
+       dart_pkg="libdart-core3-dev"
+    fi
+fi
 
 # mesa-utils for dri checks and xsltproc for qtest->junit conversion
 BASE_DEPENDENCIES="build-essential \\
@@ -84,6 +93,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libboost-iostreams-dev           \\
                           libbullet2.82-dev                \\
                           libsimbody-dev                   \\
+                          ${dart_pkg}                      \\
                           ${sdformat_pkg}"
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
@@ -209,14 +219,4 @@ DART_DEPENDENCIES="libflann-dev            \\
 if ${DART_COMPILE_FROM_SOURCE}; then
     GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES \\
                                $DART_DEPENDENCIES"
-fi
-
-if $DART_FROM_PKGS; then
-    if $DART_USE_4_VERSION; then
-       dart_pkg="libdart-core4-dev"
-    else
-       dart_pkg="libdart-core3-dev"
-    fi
-    GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES \\
-                               $dart_pkg"
 fi
