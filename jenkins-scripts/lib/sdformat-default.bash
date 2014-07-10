@@ -18,6 +18,7 @@ mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake $WORKSPACE/sdformat
 make -j${MAKE_JOBS}
+make install
 make test ARGS="-VV" || true
 
 # Step 3: code check
