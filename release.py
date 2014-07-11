@@ -244,6 +244,10 @@ def generate_upload_tarball(args):
        args.package == "gazebo2" or \
        args.package == "gazebo3":
         tarball_name = "gazebo"
+
+    if args.package == "sdformat2":
+      tarball_name = "sdformat"
+
     # TODO: we're assuming a particular naming scheme and a particular compression tool
     tarball_fname = '%s-%s.tar.bz2'%(tarball_name, args.version)
     tarball_path = os.path.join(builddir, tarball_fname)
