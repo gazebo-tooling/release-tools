@@ -17,7 +17,7 @@ UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['precise', 'raring', 'saucy','trusty']
+UBUNTU_DISTROS = ['precise', 'raring' ,'trusty']
 UBUNTU_DISTROS_EXPERIMENTAL = ['']
 
 ROS_DISTROS_IN_PRECISE = [ 'groovy', 'hydro' ]
