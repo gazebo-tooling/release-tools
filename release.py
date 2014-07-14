@@ -172,12 +172,22 @@ def sanity_check_gazebo_versions(package, version):
 
     print_success("Gazebo version in proper gazebo package")
 
+def sanity_check_sdformat_versions(package, version):
+    if package == 'sdformat':
+        if int(version[0]) > 1:
+            error("Error is sdformat version. Please use 'sdformatX' (with version number) for package name")
+        else
+            return
+
+    print_success("sdformat version in proper sdformat package")
+
 def sanity_checks(args):
     repo_dir = download_release_repository(args.package, args.release_repo_branch)
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_package_version(repo_dir, args.version, str(args.release_version))
     sanity_check_gazebo_versions(args.package, args.version)
+    sanity_check_sdformat_versions(args.package, args.version)
     shutil.rmtree(repo_dir)
 
 def check_call(cmd, ignore_dry_run = False):
