@@ -176,7 +176,7 @@ def sanity_check_sdformat_versions(package, version):
     if package == 'sdformat':
         if int(version[0]) > 1:
             error("Error is sdformat version. Please use 'sdformatX' (with version number) for package name")
-        else
+        else:
             return
 
     print_success("sdformat version in proper sdformat package")
@@ -253,6 +253,9 @@ def generate_upload_tarball(args):
     # We need to trick the gazebo-current (version 2)
     if args.package == "gazebo-current":
         tarball_name = "gazebo"
+    # For ignition, we use the alias as package name
+    if IGN_REPO:
+        tarball_name = args.package_alias
 
     # TODO: we're assuming a particular naming scheme and a particular compression tool
     tarball_fname = '%s-%s.tar.bz2'%(tarball_name, args.version)
@@ -263,10 +266,14 @@ def generate_upload_tarball(args):
         tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
         if (not args.dry_run):
             if not os.path.isfile(tarball_path):
-                error("Failed to found the tarball: " + tarball_path + ". Please check that you don't have an underscore in the project() statement of the CMakeList.txt. In that case, change it by a dash")
+                error("Failed to found the tarball: " + tarball_path + 
+                      ". Please check that you don't have an underscore in the project() statement of the CMakeList.txt. In that case, change it by a dash")
             dest_file = os.path.join(builddir, tarball_fname)
-            shutil.copyfile(tarball_path, dest_file)
-        tarball_path = os.path.join(builddir, tarball_fname)
+            # Do not copy if files are the same
+            if not (tarball_path == dest_file):
+                shutil.copyfile(tarball_path, dest_file)
+                tarball_path = dest_file
+
     check_call(['scp', tarball_path, UPLOAD_DEST])
     shutil.rmtree(tmpdir)
     source_tarball_uri = DOWNLOAD_URI + tarball_fname
