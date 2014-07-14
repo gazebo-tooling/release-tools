@@ -8,6 +8,7 @@ import os
 import urllib
 import argparse
 import shutil
+import re
 
 USAGE = 'release.py <package> <version> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
@@ -17,7 +18,7 @@ UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['precise', 'raring' ,'trusty']
+UBUNTU_DISTROS = ['precise', 'raring', 'trusty']
 UBUNTU_DISTROS_EXPERIMENTAL = ['']
 
 ROS_DISTROS_IN_PRECISE = [ 'groovy', 'hydro' ]
@@ -237,16 +238,11 @@ def generate_upload_tarball(args):
     check_call(['cmake', srcdir])
     check_call(['make', 'package_source'])
 
-    # Upload tarball
-    # We need to trick the current packages for the tarball
-    tarball_name = args.package
-    if args.package == "gazebo-current" or \
-       args.package == "gazebo2" or \
-       args.package == "gazebo3":
+    # Upload tarball. Do not include versions in tarballs
+    tarball_name = re.sub(r'[0-9]$','', args.package)
+    # We need to trick the gazebo-current (version 2)
+    if args.package == "gazebo-current":
         tarball_name = "gazebo"
-
-    if args.package == "sdformat2":
-      tarball_name = "sdformat"
 
     # TODO: we're assuming a particular naming scheme and a particular compression tool
     tarball_fname = '%s-%s.tar.bz2'%(tarball_name, args.version)
@@ -256,10 +252,10 @@ def generate_upload_tarball(args):
     if args.package != args.package_alias:
         tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
         if (not args.dry_run):
-          try:
-            shutil.copyfile(tarball_path, os.path.join(builddir, tarball_fname))
-          except IOError as e:
-            error("Failed to copy tarball to alias package name. Please check that you don't have an underscore in the project() statement of the CMakeList.txt. In that case, chagne it by a dash")
+            if not os.path.isfile(tarball_path):
+                error("Failed to found the tarball: " + tarball_path + ". Please check that you don't have an underscore in the project() statement of the CMakeList.txt. In that case, change it by a dash")
+            dest_file = os.path.join(builddir, tarball_fname)
+            shutil.copyfile(tarball_path, dest_file)
         tarball_path = os.path.join(builddir, tarball_fname)
     check_call(['scp', tarball_path, UPLOAD_DEST])
     shutil.rmtree(tmpdir)
