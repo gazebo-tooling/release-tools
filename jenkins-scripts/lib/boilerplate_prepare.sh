@@ -103,10 +103,15 @@ fi
 # And you can't chown it even with sudo and recursive
 cd $WORKSPACE/scripts/catkin-debs/
 
+# If using a depracted distro, you need to use old-releases from ubuntu
+if [[ $DISTRO == 'raring' ]]; then
+  mirror_arg="--mirror http://old-releases.ubuntu.com/ubuntu/"
+fi
+
 if $ENABLE_ROS; then
-sudo ./setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE --repo ros@http://packages.ros.org/ros/ubuntu
+sudo ./setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE --repo ros@http://packages.ros.org/ros/ubuntu $mirror_arg
 else
-sudo ./setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE
+sudo ./setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE $mirror_arg 
 fi
 
 sudo rm -rf $output_dir
