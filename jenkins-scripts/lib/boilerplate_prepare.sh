@@ -60,7 +60,7 @@ if [[ -z $WORKAROUND_PBUILDER_BUG ]]; then
 fi
 
 if $WORKAROUND_PBUILDER_BUG && [[ $DISTRO == 'precise' ]]; then
-  distro=raring
+  distro=trusty
 else
   distro=${DISTRO}
 fi
