@@ -1,18 +1,16 @@
 GRAPHIC_CARD_FOUND=false
 GRAPHIC_CARD_PKG=""
 
-if [ -z ${DISPLAY} ]; then
-    return
-fi
-
 if [ -z ${GPU_SUPPORT_NEEDED} ]; then
     GPU_SUPPORT_NEEDED=false
 fi
 
-if ${GPU_SUPPORT_NEEDED}; then
-  #Hack to pick from current processes the DISPLAY available
-  export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+if ! ${GPU_SUPPORT_NEEDED}; then
+    return
 fi
+
+#Hack to pick from current processes the DISPLAY available
+export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
 
 # Check for Nvidia stuff
 if [ -n "$(lspci -v | grep nvidia | head -n 2 | grep "Kernel driver in use: nvidia")" ]; then
