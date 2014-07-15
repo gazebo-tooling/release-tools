@@ -1,8 +1,8 @@
 #!/bin/bash -x
 set -e
 
-# Use always DISPLAY in drcsim project
-export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+# Use always GPU in drcsim project
+export GPU_SUPPORT_NEEDED=true
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 

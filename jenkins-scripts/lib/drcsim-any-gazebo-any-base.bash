@@ -1,8 +1,8 @@
 #!/bin/bash -x
 set -e
 
-# Use always DISPLAY in drcsim project
-export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+# Use always GPU in drcsim project
+export GPU_SUPPORT_NEEDED=true
 
 # Be able to pass different gazebo branches to testing
 if [ -z ${GAZEBO_BRANCH} ]; then

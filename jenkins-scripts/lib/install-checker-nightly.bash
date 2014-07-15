@@ -6,7 +6,7 @@ if [ -z ${SOFTWARE_UNDER_TEST} ]; then
     exit 1
 fi
 
-export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+export GPU_SUPPORT_NEEDED=true
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
