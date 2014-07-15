@@ -5,6 +5,15 @@ if [ -z ${DISPLAY} ]; then
     return
 fi
 
+if [ -z ${GPU_SUPPORT_NEEDED} ]; then
+    GPU_SUPPORT_NEEDED=false
+fi
+
+if ${GPU_SUPPORT_NEEDED}; then
+  #Hack to pick from current processes the DISPLAY available
+  export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+fi
+
 # Check for Nvidia stuff
 if [ -n "$(lspci -v | grep nvidia | head -n 2 | grep "Kernel driver in use: nvidia")" ]; then
     export GRAPHIC_CARD_PKG=$(lspci -v | grep nvidia | head -n 2 | grep "Kernel modules:" | awk '{ print $3 }' | tr -d ','| sed -e s:_:-:g)
@@ -37,6 +46,12 @@ if [ -n "$(lspci -v | grep "Kernel driver in use: i[0-9][0-9][0-9]")" ]; then
     export GRAPHIC_CARD_FOUND=true
     # Need to run properly DRI on intel
     export EXTRA_PACKAGES="${EXTRA_PACKAGES} libgl1-mesa-dri"
+fi
+
+# Check if the GPU support was found when not 
+if $GPU_SUPPORT_NEEDED && ! $GRAPHIC_CARD_FOUND; then
+    echo "GPU support needed by the script but no graphic card found"
+    exit 1
 fi
 
 # Get version of package 
