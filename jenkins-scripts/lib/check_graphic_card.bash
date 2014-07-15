@@ -48,7 +48,8 @@ fi
 
 # Check if the GPU support was found when not 
 if $GPU_SUPPORT_NEEDED && ! $GRAPHIC_CARD_FOUND; then
-    echo "GPU support needed by the script but no graphic card found"
+    echo "GPU support needed by the script but no graphic card found."
+    echo "The DISPLAY variable contains: ${DISPLAY}"
     exit 1
 fi
 
