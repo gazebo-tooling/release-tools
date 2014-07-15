@@ -73,10 +73,6 @@ else
     REAL_PACKAGE_ALIAS=$PACKAGE_ALIAS
 fi
 
-if [ $PACKAGE = 'gazebo3' ]; then
-    REAL_PACKAGE_NAME='gazebo'
-fi
-
 # Remove number for packages like (sdformat2 or gazebo3)
 REAL_PACKAGE_NAME=$(echo $PACKAGE | sed 's:[0-9]*$::g')
 
@@ -146,6 +142,7 @@ debuild --no-tgz-check -S -uc -us --source-option=--include-binaries -j${MAKE_JO
 
 PBUILD_DIR=\$HOME/.pbuilder
 mkdir -p \$PBUILD_DIR
+
 cat > \$PBUILD_DIR/A10_run_rosdep << DELIM_ROS_DEP
 #!/bin/sh
 if [ -f /usr/bin/rosdep ]; then
@@ -156,6 +153,21 @@ if [ -f /usr/bin/rosdep ]; then
 fi
 DELIM_ROS_DEP
 chmod a+x \$PBUILD_DIR/A10_run_rosdep
+
+if $NEED_C11_COMPILER; then
+cat > \$PBUILD_DIR/A20_install_gcc11 << DELIM_C11
+#!/bin/sh
+echo "Installing g++ 4.8"
+apt-get install python-software-properties
+add-apt-repository ppa:ubuntu-toolchain-r/test
+apt-get update
+apt-get install gcc-4.8 g++-4.8
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
+update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
+g++ --version
+DELIM_C11
+chmod a+x \$PBUILD_DIR/A20_install_gcc11
+
 echo "HOOKDIR=\$PBUILD_DIR" > \$HOME/.pbuilderrc
 
 export DEB_BUILD_OPTIONS=parallel=${MAKE_JOBS}

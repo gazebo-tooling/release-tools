@@ -25,6 +25,19 @@ if [ -Z ${BITBUCKET_REPO} ]; then
     BITBUCKET_REPO="osrf"
 fi
 
+# By default, do not need to use C++11 compiler
+if [ -z ${NEED_C11_COMPILER} ]; then
+  NEED_C11_COMPILER=false
+fi
+
+# Only precise needs to install a C++11 compiler. Trusty on
+# already have a supported version
+if $NEED_C11_COMPILER; then
+  if [[ $DISTRO != 'precise' ]]; then
+      NEED_C11_COMPILER=false
+  fi
+fi
+
 # Useful for running tests properly in ros based software
 if ${ENABLE_ROS}; then
   export ROS_HOSTNAME=localhost
