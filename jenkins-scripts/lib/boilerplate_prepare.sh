@@ -103,17 +103,20 @@ fi
 # And you can't chown it even with sudo and recursive
 cd $WORKSPACE/scripts/catkin-debs/
 
+ubuntu_repo_url="http://us.archive.ubuntu.com"
+
 # If using a depracted distro, you need to use old-releases from ubuntu
 if [[ $DISTRO == 'raring' ]]; then
-  mirror_arg="--mirror http://old-releases.ubuntu.com/ubuntu/"
+  ubuntu_repo_url="http://old-releases.ubuntu.com/ubuntu/"
 fi
 
 if $ENABLE_ROS; then
-sudo ./setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE --repo ros@http://packages.ros.org/ros/ubuntu $mirror_arg
-else
-sudo ./setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE $mirror_arg 
+  ros_repository_str="--repo ros@http://packages.ros.org/ros/ubuntu"
 fi
 
+sudo ./setup_apt_root.py $distro $arch $rootdir \
+                          --mirror $ubuntu_repo_url $ros_repository_str \
+			  --local-conf-dir $WORKSPACE 
 sudo rm -rf $output_dir
 mkdir -p $output_dir
 
@@ -134,11 +137,12 @@ then
   #make sure the base dir exists
   sudo mkdir -p $base
   #create the base image
-  sudo pbuilder create $mirror_arg \
+  sudo pbuilder create \
     --distribution $distro \
     --aptconfdir $rootdir/etc/apt \
     --basetgz $basetgz \
-    --architecture $arch 
+    --architecture $arch \
+    --mirror $ubuntu_repo_url
 else
-  sudo pbuilder --update --basetgz $basetgz $mirror_arg
+  sudo pbuilder --update --basetgz $basetgz --mirror $ubuntu_repo_url
 fi
