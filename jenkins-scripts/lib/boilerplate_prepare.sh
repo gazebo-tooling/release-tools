@@ -134,11 +134,11 @@ then
   #make sure the base dir exists
   sudo mkdir -p $base
   #create the base image
-  sudo pbuilder create \
+  sudo pbuilder create $mirror_arg \
     --distribution $distro \
     --aptconfdir $rootdir/etc/apt \
     --basetgz $basetgz \
-    --architecture $arch
+    --architecture $arch 
 else
-  sudo pbuilder --update --basetgz $basetgz
+  sudo pbuilder --update --basetgz $basetgz $mirror_arg
 fi
