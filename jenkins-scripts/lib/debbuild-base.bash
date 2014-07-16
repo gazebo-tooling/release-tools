@@ -52,9 +52,9 @@ fi
 # Step 0: create/update distro-specific pbuilder environment
 # Fix segfault when using two repositories by setting OTHERMIRROR env variable
 if $ENABLE_ROS; then
-OTHERMIRROR='deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main|deb http://archive.ubuntu.com/ubuntu $DISTRO-updates main restricted universe multiverse' pbuilder-dist $DISTRO $ARCH create --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+OTHERMIRROR='deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main|deb http://archive.ubuntu.com/ubuntu $DISTRO-updates main restricted universe multiverse' pbuilder-dist $DISTRO $ARCH create --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg $mirror_arg
 else
-pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main|deb http://archive.ubuntu.com/ubuntu $DISTRO-updates main restricted universe multiverse" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main|deb http://archive.ubuntu.com/ubuntu $DISTRO-updates main restricted universe multiverse" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg $mirror_arg
 fi
 
 # Step 0: Clean up
@@ -162,7 +162,7 @@ echo "HOOKDIR=\$PBUILD_DIR" > \$HOME/.pbuilderrc
 export DEB_BUILD_OPTIONS=parallel=${MAKE_JOBS}
 
 # Step 6: use pbuilder-dist to create binary package(s)
-pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
+pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS} $mirror_arg
 
 # Set proper package names
 if $NIGHTLY_MODE; then
