@@ -103,7 +103,7 @@ fi
 # And you can't chown it even with sudo and recursive
 cd $WORKSPACE/scripts/catkin-debs/
 
-ubuntu_repo_url="http://us.archive.ubuntu.com"
+ubuntu_repo_url="http://us.archive.ubuntu.com/ubuntu"
 
 # If using a depracted distro, you need to use old-releases from ubuntu
 if [[ $DISTRO == 'raring' ]]; then
