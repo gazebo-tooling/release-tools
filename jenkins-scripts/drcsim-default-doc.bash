@@ -4,7 +4,7 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 # Use always DISPLAY in drcsim project
-export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+export GPU_SUPPORT_NEEDED=true
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
