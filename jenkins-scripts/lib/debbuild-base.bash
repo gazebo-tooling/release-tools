@@ -129,7 +129,7 @@ fi
 
 # Get into the unpacked source directory, without explicit knowledge of that 
 # directory's name
-cd `find $WORKSPACE/build -mindepth 1 -type d |head -n 1`
+cd \`find $WORKSPACE/build -mindepth 1 -type d |head -n 1\`
 # If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
 if $NIGHTLY_MODE; then
   rm -fr .hg*
