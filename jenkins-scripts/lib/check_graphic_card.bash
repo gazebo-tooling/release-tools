@@ -9,8 +9,15 @@ if ! ${GPU_SUPPORT_NEEDED}; then
     return
 fi
 
-#Hack to pick from current processes the DISPLAY available
-export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+# Hack to found the current display (if available) two steps:
+# Check for /tmp/.X11-unix/ socket and check if the process is running
+for i in `ls /tmp/.X11-unix/ | head -1 | sed -e 's@^X@:@'`
+do
+  ps aux | grep bin/X.*$i | grep -v grep
+  if [ $? -eq 0 ] ; then
+    export DISPLAY=$i
+  fi
+done
 
 # Check for Nvidia stuff
 if [ -n "$(lspci -v | grep nvidia | head -n 2 | grep "Kernel driver in use: nvidia")" ]; then
