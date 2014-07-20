@@ -168,6 +168,7 @@ update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
 g++ --version
 DELIM_C11
 chmod a+x \$PBUILD_DIR/A20_install_gcc11
+fi
 
 echo "HOOKDIR=\$PBUILD_DIR" > \$HOME/.pbuilderrc
 
