@@ -159,10 +159,10 @@ if $NEED_C11_COMPILER; then
 cat > \$PBUILD_DIR/A20_install_gcc11 << DELIM_C11
 #!/bin/sh
 echo "Installing g++ 4.8"
-apt-get install python-software-properties
+apt-get install -y python-software-properties
 add-apt-repository ppa:ubuntu-toolchain-r/test
 apt-get update
-apt-get install gcc-4.8 g++-4.8
+apt-get install -y gcc-4.8 g++-4.8
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
 update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
 g++ --version
