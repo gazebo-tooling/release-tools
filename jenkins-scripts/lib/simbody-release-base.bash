@@ -50,7 +50,7 @@ if [ $DISTRO = 'saucy' ]; then
 fi
 if [ $DISTRO = 'trusty' ]; then
 # Patch for https://github.com/simbody/simbody/issues/157
-  sed -i -e 's:CONFIGURE_ARGS=:CONFIGURE_ARGS=-DCMAKE_BUILD_TYPE=DebWithRelInfo:' rules
+  sed -i -e 's:CONFIGURE_ARGS=:CONFIGURE_ARGS=-DCMAKE_BUILD_TYPE=DebWithRelInfo:' debian/rules
 fi
 
 # Step 5: use debuild to create source package
