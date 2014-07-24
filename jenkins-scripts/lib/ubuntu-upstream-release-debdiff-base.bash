@@ -1,7 +1,17 @@
 #!/bin/bash -x
 
+# Do not use ROS
+export ENABLE_ROS=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+
+if [ -z $UPLOAD_SOURCEDEB ]; then
+    UPLOAD_SOURCEDEB=false
+fi
+
+# Do not use the subprocess_reaper in debbuild. Seems not as needed as in
+# testing jobs and seems to be slow at the end of jenkins jobs
+export ENABLE_REAPER=false
 
 cat > build.sh << DELIM
 ###################################################
@@ -15,7 +25,7 @@ set -ex
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget git
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget cdbs ca-certificates dh-autoreconf autoconf 
 
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
@@ -32,38 +42,44 @@ mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 
 # Clean from workspace all package related files
-rm -fr $WORKSPACE/"$PACKAGE"_*
+rm -fr ${PACKAGE}*
 
-# Step 1: Get the source (nightly builds or tarball)
-rm -fr $WORKSPACE/simbody
-git clone https://github.com/simbody/simbody.git $WORKSPACE/simbody
-cd $WORKSPACE/simbody
-git checkout Simbody-${VERSION}
+# Download patches
+# This PATCHES URL should be a debdiff applied against 
+wget ${DEBDIFF_URL} -O ${PACKAGE}.debdiff
+
+# Download original source
+apt-get source ${PACKAGE}
+# Handle different compressions
+tar xvf ${PACKAGE}_*.orig.tar.* || tar xvzf ${PACKAGE}_*.orig.tar.*
+cd ${PACKAGE}-*
+tar xvf ../${PACKAGE}*.debian.tar.*
+cd ..
+
+# Patching
+patch -p0 < ${PACKAGE}.debdiff
 
 # Use current distro
-sed -i -e 's:precise:$DISTRO:g' debian/changelog
-# Use current release version
-sed -i -e 's:-1~:-$RELEASE_VERSION~:' debian/changelog
-# Bug in saucy doxygen makes the job hangs
-if [ $DISTRO = 'saucy' ]; then
-    sed -i -e '/.*dh_auto_build.*/d' debian/rules
-fi
-if [ $DISTRO = 'trusty' ]; then
-# Patch for https://github.com/simbody/simbody/issues/157
-  sed -i -e 's:CONFIGURE_ARGS=:CONFIGURE_ARGS=-DCMAKE_BUILD_TYPE=RelWithDebInfo:' debian/rules
-fi
+sed -i -e 's:unstable:$DISTRO:g' ${PACKAGE}-*/debian/changelog
 
 # Step 5: use debuild to create source package
-echo | dh_make -s --createorig -p ${PACKAGE}_${VERSION} || true
-
+apt-get build-dep -y ${PACKAGE}
+cd ${PACKAGE}-*
 debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
 export DEB_BUILD_OPTIONS="parallel=$MAKE_JOBS"
+
 # Step 6: use pbuilder-dist to create binary package(s)
 pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
+
+if [ $UPLOAD_SOURCEDEB ]; then
+    cp ../*.dsc $WORKSPACE/pkgs
+    cp ../*.orig.* $WORKSPACE/pkgs
+    cp ../*.debian.* $WORKSPACE/pkgs
+fi
 
 PKGS=\`find /var/lib/jenkins/pbuilder/*_result* -name *.deb || true\`
 
@@ -71,7 +87,8 @@ FOUND_PKG=0
 for pkg in \${PKGS}; do
     echo "found \$pkg"
     # Check for correctly generated packages size > 3Kb
-    test -z \$(find \$pkg -size +3k) && exit 1
+    test -z \$(find \$pkg -size +3k) && echo "WARNING: empty package?" 
+    # && exit 1
     cp \${pkg} $WORKSPACE/pkgs
     FOUND_PKG=1
 done

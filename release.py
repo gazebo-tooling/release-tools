@@ -8,6 +8,7 @@ import os
 import urllib
 import argparse
 import shutil
+import re
 
 USAGE = 'release.py <package> <version> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
@@ -17,7 +18,7 @@ UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['precise', 'raring', 'saucy','trusty']
+UBUNTU_DISTROS = ['precise', 'raring', 'trusty']
 UBUNTU_DISTROS_EXPERIMENTAL = ['']
 
 ROS_DISTROS_IN_PRECISE = [ 'groovy', 'hydro' ]
@@ -171,12 +172,22 @@ def sanity_check_gazebo_versions(package, version):
 
     print_success("Gazebo version in proper gazebo package")
 
+def sanity_check_sdformat_versions(package, version):
+    if package == 'sdformat':
+        if int(version[0]) > 1:
+            error("Error is sdformat version. Please use 'sdformatX' (with version number) for package name")
+        else:
+            return
+
+    print_success("sdformat version in proper sdformat package")
+
 def sanity_checks(args):
     repo_dir = download_release_repository(args.package, args.release_repo_branch)
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_package_version(repo_dir, args.version, str(args.release_version))
     sanity_check_gazebo_versions(args.package, args.version)
+    sanity_check_sdformat_versions(args.package, args.version)
     shutil.rmtree(repo_dir)
 
 def check_call(cmd, ignore_dry_run = False):
@@ -237,13 +248,15 @@ def generate_upload_tarball(args):
     check_call(['cmake', srcdir])
     check_call(['make', 'package_source'])
 
-    # Upload tarball
-    # We need to trick the current packages for the tarball
-    tarball_name = args.package
-    if args.package == "gazebo-current" or \
-       args.package == "gazebo2" or \
-       args.package == "gazebo3":
+    # Upload tarball. Do not include versions in tarballs
+    tarball_name = re.sub(r'[0-9]$','', args.package)
+    # We need to trick the gazebo-current (version 2)
+    if args.package == "gazebo-current":
         tarball_name = "gazebo"
+    # For ignition, we use the alias as package name
+    if IGN_REPO:
+        tarball_name = args.package_alias
+
     # TODO: we're assuming a particular naming scheme and a particular compression tool
     tarball_fname = '%s-%s.tar.bz2'%(tarball_name, args.version)
     tarball_path = os.path.join(builddir, tarball_fname)
@@ -252,11 +265,15 @@ def generate_upload_tarball(args):
     if args.package != args.package_alias:
         tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
         if (not args.dry_run):
-          try:
-            shutil.copyfile(tarball_path, os.path.join(builddir, tarball_fname))
-          except IOError as e:
-            error("Failed to copy tarball to alias package name. Please check that you don't have an underscore in the project() statement of the CMakeList.txt. In that case, chagne it by a dash")
-        tarball_path = os.path.join(builddir, tarball_fname)
+            if not os.path.isfile(tarball_path):
+                error("Failed to found the tarball: " + tarball_path + 
+                      ". Please check that you don't have an underscore in the project() statement of the CMakeList.txt. In that case, change it by a dash")
+            dest_file = os.path.join(builddir, tarball_fname)
+            # Do not copy if files are the same
+            if not (tarball_path == dest_file):
+                shutil.copyfile(tarball_path, dest_file)
+                tarball_path = dest_file
+
     check_call(['scp', tarball_path, UPLOAD_DEST])
     shutil.rmtree(tmpdir)
     source_tarball_uri = DOWNLOAD_URI + tarball_fname

@@ -10,7 +10,7 @@ if [[ -z $ROS_DISTRO ]]; then
 fi
 
 # Dart flags. Enable it by default unless compiled from source
-DART_FROM_PKGS=true
+DART_FROM_PKGS=false
 
 if [ -z ${DART_COMPILE_FROM_SOURCE} ]; then
    DART_COMPILE_FROM_SOURCE=false
@@ -58,6 +58,10 @@ if ${USE_OLD_SDFORMAT}; then
     sdformat_pkg="sdformat"
 else
     sdformat_pkg="libsdformat2-dev"
+    # Remove after releasing sdformat 2.0.1. It will stop using prerelease from Aug 2014
+    if [[ `date +%y%m` -lt 1408 ]]; then
+      sdformat_pkg="libsdformat2-dev-prerelease"
+    fi
 fi
 
 # GAZEBO related dependencies

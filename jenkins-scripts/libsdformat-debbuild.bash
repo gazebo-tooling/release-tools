@@ -4,6 +4,7 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export DISTRO=precise
+export RELEASE_REPO_DIRECTORY=${DISTRO}
+export UPLOAD_SOURCEDEB=true
 
-. ${SCRIPT_DIR}/lib/gazebo-base-default.bash
+. ${SCRIPT_DIR}/lib/libsdformat-release-base.bash

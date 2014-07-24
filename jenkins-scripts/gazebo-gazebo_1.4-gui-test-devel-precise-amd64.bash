@@ -4,5 +4,5 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export DISPLAY=:0.0
+export GPU_SUPPORT_NEEDED=true
 . ${SCRIPT_DIR}/lib/gazebo-base-1.4.bash

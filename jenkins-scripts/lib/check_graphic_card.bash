@@ -1,9 +1,23 @@
 GRAPHIC_CARD_FOUND=false
 GRAPHIC_CARD_PKG=""
 
-if [ -z ${DISPLAY} ]; then
+if [ -z ${GPU_SUPPORT_NEEDED} ]; then
+    GPU_SUPPORT_NEEDED=false
+fi
+
+if ! ${GPU_SUPPORT_NEEDED}; then
     return
 fi
+
+# Hack to found the current display (if available) two steps:
+# Check for /tmp/.X11-unix/ socket and check if the process is running
+for i in `ls /tmp/.X11-unix/ | head -1 | sed -e 's@^X@:@'`
+do
+  ps aux | grep bin/X.*$i | grep -v grep
+  if [ $? -eq 0 ] ; then
+    export DISPLAY=$i
+  fi
+done
 
 # Check for Nvidia stuff
 if [ -n "$(lspci -v | grep nvidia | head -n 2 | grep "Kernel driver in use: nvidia")" ]; then
@@ -37,6 +51,13 @@ if [ -n "$(lspci -v | grep "Kernel driver in use: i[0-9][0-9][0-9]")" ]; then
     export GRAPHIC_CARD_FOUND=true
     # Need to run properly DRI on intel
     export EXTRA_PACKAGES="${EXTRA_PACKAGES} libgl1-mesa-dri"
+fi
+
+# Check if the GPU support was found when not 
+if $GPU_SUPPORT_NEEDED && ! $GRAPHIC_CARD_FOUND; then
+    echo "GPU support needed by the script but no graphic card found."
+    echo "The DISPLAY variable contains: ${DISPLAY}"
+    exit 1
 fi
 
 # Get version of package 

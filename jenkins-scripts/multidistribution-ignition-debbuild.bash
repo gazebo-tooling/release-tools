@@ -8,5 +8,6 @@ export RELEASE_REPO_DIRECTORY=${DISTRO}
 export ENABLE_ROS=false
 export WORKAROUND_PBUILDER_BUG=true
 export BITBUCKET_REPO=ignitionrobotics
+export NEED_C11_COMPILER=true
 
 . ${SCRIPT_DIR}/lib/debbuild-base.bash

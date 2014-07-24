@@ -25,6 +25,19 @@ if [ -Z ${BITBUCKET_REPO} ]; then
     BITBUCKET_REPO="osrf"
 fi
 
+# By default, do not need to use C++11 compiler
+if [ -z ${NEED_C11_COMPILER} ]; then
+  NEED_C11_COMPILER=false
+fi
+
+# Only precise needs to install a C++11 compiler. Trusty on
+# already have a supported version
+if $NEED_C11_COMPILER; then
+  if [[ $DISTRO != 'precise' ]]; then
+      NEED_C11_COMPILER=false
+  fi
+fi
+
 # Useful for running tests properly in ros based software
 if ${ENABLE_ROS}; then
   export ROS_HOSTNAME=localhost
@@ -47,7 +60,7 @@ if [[ -z $WORKAROUND_PBUILDER_BUG ]]; then
 fi
 
 if $WORKAROUND_PBUILDER_BUG && [[ $DISTRO == 'precise' ]]; then
-  distro=raring
+  distro=trusty
 else
   distro=${DISTRO}
 fi
@@ -103,12 +116,20 @@ fi
 # And you can't chown it even with sudo and recursive
 cd $WORKSPACE/scripts/catkin-debs/
 
-if $ENABLE_ROS; then
-sudo ./setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE --repo ros@http://packages.ros.org/ros/ubuntu
-else
-sudo ./setup_apt_root.py $distro $arch $rootdir --local-conf-dir $WORKSPACE
+ubuntu_repo_url="http://us.archive.ubuntu.com/ubuntu"
+
+# If using a depracted distro, you need to use old-releases from ubuntu
+if [[ $DISTRO == 'raring' ]]; then
+  ubuntu_repo_url="http://old-releases.ubuntu.com/ubuntu/"
 fi
 
+if $ENABLE_ROS; then
+  ros_repository_str="--repo ros@http://packages.ros.org/ros/ubuntu"
+fi
+
+sudo ./setup_apt_root.py $distro $arch $rootdir \
+                          --mirror $ubuntu_repo_url $ros_repository_str \
+			  --local-conf-dir $WORKSPACE 
 sudo rm -rf $output_dir
 mkdir -p $output_dir
 
@@ -133,7 +154,8 @@ then
     --distribution $distro \
     --aptconfdir $rootdir/etc/apt \
     --basetgz $basetgz \
-    --architecture $arch
+    --architecture $arch \
+    --mirror $ubuntu_repo_url
 else
-  sudo pbuilder --update --basetgz $basetgz
+  sudo pbuilder --update --basetgz $basetgz --mirror $ubuntu_repo_url
 fi
