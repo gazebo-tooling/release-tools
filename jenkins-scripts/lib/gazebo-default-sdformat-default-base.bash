@@ -12,6 +12,14 @@ else
     GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
 fi
 
+# Check if we are using gazebo-any-sdformat-any- script
+if [ -z ${GAZEBO_BRANCH} ]; then
+    GAZEBO_BRANCH=default
+fi
+if [ -z ${SDFORMAT_BRANCH} ]; then
+    SDFORMAT_BRANCH=default
+fi
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
@@ -44,7 +52,7 @@ fi
 
 # 1. Install sdformat
 rm -fr $WORKSPACE/sdformat
-hg clone https://bitbucket.org/osrf/sdformat $WORKSPACE/sdformat
+hg clone https://bitbucket.org/osrf/sdformat -r $SDFORMAT_BRANCH $WORKSPACE/sdformat
 
 cd $WORKSPACE/sdformat
 rm -rf $WORKSPACE/sdformat/build
@@ -56,7 +64,7 @@ make install
 
 # 2. Install Gazebo
 rm -fr $WORKSPACE/gazebo
-hg clone https://bitbucket.org/osrf/gazebo $WORKSPACE/gazebo
+hg clone https://bitbucket.org/osrf/gazebo -r $GAZEBO_BRANCH $WORKSPACE/gazebo
 
 rm -rf $WORKSPACE/gazebo/build $WORKSPACE/gazebo/install
 mkdir -p $WORKSPACE/gazebo/build $WORKSPACE/gazebo/install
