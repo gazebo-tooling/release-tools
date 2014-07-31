@@ -13,6 +13,11 @@ if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
 
+if [[ ! -f "${HOME}/.s3cfg" ]]; then
+    echo "No $HOME/.s3cfg file found. Please config the software first in your system"
+    exit 1
+fi
+
 # Place in reprepro directory
 cd /var/packages/gazebo/ubuntu
 
@@ -21,8 +26,16 @@ upload_package()
     local pkg=$1
 
     sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
-    scp -o StrictHostKeyChecking=no -i $HOME/.ssh/id_rsa ${pkg} \
-               ubuntu@gazebosim.org:/var/www/assets/distributions
+
+    # S3 Amazon upload
+    S3_DIR=$(mktemp -d ${HOME}/s3.XXXX)
+    pushd ${S3_DIR}
+    wget https://github.com/s3tools/s3cmd/archive/v1.5.0-rc1.tar.gz -O foo.tar.gz
+    tar xzf foo.tar.gz
+    cd s3cmd-*
+    ./s3cmd put $pkg s3://osrf-distributions/$PACKAGE/
+    popd
+    rm -fr ${S3_DIR}
 }
 
 pkgs_path="$WORKSPACE/pkgs"
