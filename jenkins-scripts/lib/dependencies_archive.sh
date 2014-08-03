@@ -58,8 +58,8 @@ if ${USE_OLD_SDFORMAT}; then
     sdformat_pkg="sdformat"
 else
     sdformat_pkg="libsdformat2-dev"
-    # Remove after releasing sdformat 2.0.1. It will stop using prerelease from Aug 2014
-    if [[ `date +%y%m` -lt 1408 ]]; then
+    # Remove after releasing sdformat 2.0.1. It will stop using prerelease from Sep 2014
+    if [[ `date +%y%m` -lt 1409 ]]; then
       sdformat_pkg="libsdformat2-dev-prerelease"
     fi
 fi
