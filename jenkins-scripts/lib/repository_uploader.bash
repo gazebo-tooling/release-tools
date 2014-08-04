@@ -33,7 +33,7 @@ upload_package()
     wget https://github.com/s3tools/s3cmd/archive/v1.5.0-rc1.tar.gz -O foo.tar.gz
     tar xzf foo.tar.gz
     cd s3cmd-*
-    ./s3cmd put $pkg s3://osrf-distributions/$PACKAGE/
+    ./s3cmd put $pkg s3://osrf-distributions/$PACKAGE/releases/
     popd
     rm -fr ${S3_DIR}
 }
