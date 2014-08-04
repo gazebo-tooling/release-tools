@@ -54,7 +54,8 @@ else
 		   ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros-pkgs"
 fi
 
-apt-get install -y \$ROS_GAZEBO_PKGS
+# Need -ros for rosrun
+apt-get install -y \$ROS_GAZEBO_PKGS ros-$ROS_DISTRO-ros
 
 # Step 2: configure and build
 if [ $ROS_DISTRO != groovy ]; then
