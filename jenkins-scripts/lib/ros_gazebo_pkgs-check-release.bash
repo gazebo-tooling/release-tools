@@ -70,12 +70,13 @@ if [ $ROS_DISTRO != groovy ]; then
     done
 fi
 
+SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
 
 # In our nvidia machines, run the test to launch altas
 if \$GRAPHIC_TESTS; then
-  SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
-  . /usr/share/drcsim/setup.sh
   timeout 180 roslaunch gazebo_ros shapes_world.launch
+else
+  timeout 180 rosrun gazebo_ros gazebo
 fi
 
 DELIM
