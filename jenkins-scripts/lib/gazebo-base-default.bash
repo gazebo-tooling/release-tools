@@ -108,6 +108,15 @@ fi
 # Need fix
 # mkdir $WORKSPACE/logs
 # cp $HOME/.gazebo/logs/*.log $WORKSPACE/logs/
+
+# Step 5. Need to clean build/ directory so disk space is under control
+# Move test results out of build
+mv $WORKSPACE/build/test_results $WORKSPACE/test_results
+rm -fr $WORKSPACE/build
+# To keep backwards compatibility with current configurations keep a copy
+# of tests_results in the build path.
+mkdir -p $WORKSPACE/build
+cp -a $WORKSPACE/test_results $WORKSPACE/build/test_results
 DELIM
 
 # Make project-specific changes here
