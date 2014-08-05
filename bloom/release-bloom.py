@@ -15,10 +15,11 @@ JOB_NAME_PATTERN = '%s-bloom-debbuilder'
 UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
 
-UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['precise', 'quantal','raring']
-ROS_DISTROS_IN_RARING = [ 'hydro' ];
-ROS_DISTROS_IN_PRECISE_QUANTAL = [ 'groovy', 'hydro' ]
+UBUNTU_ARCHS = ['amd64']
+# UBUNTU_DISTROS = ['trusty', 'precise']
+UBUNTU_DISTROS = ['precise']
+ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
+ROS_DISTROS_IN_TRUSTY = [ 'indigo' ]
 
 DRY_RUN = False
 
@@ -81,10 +82,14 @@ def go(argv):
             # Process ROS distros for each ubuntu distro
             # raring           -> hydro
             # quantal, precise -> groovy + hydro
-            if (d == 'raring'):
-                ROS_DISTROS = ROS_DISTROS_IN_RARING
+            if (d == 'precise'):
+                ROS_DISTROS = ROS_DISTROS_IN_PRECISE
+            elif (d == 'trusty'):
+                ROS_DISTROS = ROS_DISTROS_IN_TRUSTY
             else:
-                ROS_DISTROS = ROS_DISTROS_IN_PRECISE_QUANTAL
+                print ("Unkwnon distribution")
+                sys.exit(1)
+
             for r in ROS_DISTROS:
                 url = '%s&ARCH=%s&DISTRO=%s&ROS_DISTRO=%s'%(base_url, a, d, r)
                 print('Accessing: %s'%(url))
