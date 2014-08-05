@@ -88,6 +88,12 @@ cmake ${GZ_CMAKE_BUILD_TYPE}         \\
 make -j${MAKE_JOBS}
 make install
 . /usr/share/gazebo/setup.sh
+
+# Need to clean up from previous built
+rm -fr $WORKSPACE/build/cppcheck_results
+rm -fr $WORKSPACE/build/test_results
+
+# Run tests
 make test ARGS="-VV -R UNIT_*" || true
 make test ARGS="-VV -R INTEGRATION_*" || true
 make test ARGS="-VV -R REGRESSION_*" || true
@@ -111,9 +117,6 @@ fi
 
 # Step 5. Need to clean build/ directory so disk space is under control
 # Move cppcheck and test results out of build
-# Need to clean up from previous built
-rm -fr $WORKSPACE/build/cppcheck_results
-rm -fr $WORKSPACE/build/test_results
 # Copy the results
 mv $WORKSPACE/build/cppcheck_results $WORKSPACE/cppcheck_results
 mv $WORKSPACE/build/test_results $WORKSPACE/test_results
