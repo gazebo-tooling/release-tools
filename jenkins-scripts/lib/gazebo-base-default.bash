@@ -110,12 +110,14 @@ fi
 # cp $HOME/.gazebo/logs/*.log $WORKSPACE/logs/
 
 # Step 5. Need to clean build/ directory so disk space is under control
-# Move test results out of build
+# Move cppcheck and test results out of build
+mv $WORKSPACE/build/cppcheck_results $WORKSPACE/cppcheck_results
 mv $WORKSPACE/build/test_results $WORKSPACE/test_results
 rm -fr $WORKSPACE/build
 # To keep backwards compatibility with current configurations keep a copy
 # of tests_results in the build path.
 mkdir -p $WORKSPACE/build
+cp -a $WORKSPACE/cppcheck_results $WORKSPACE/build/cppcheck_results
 cp -a $WORKSPACE/test_results $WORKSPACE/build/test_results
 DELIM
 
