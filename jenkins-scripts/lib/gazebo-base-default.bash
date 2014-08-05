@@ -111,12 +111,16 @@ fi
 
 # Step 5. Need to clean build/ directory so disk space is under control
 # Move cppcheck and test results out of build
+# Need to clean up from previous built
+rm -fr $WORKSPACE/build/cppcheck_results
+rm -fr $WORKSPACE/build/test_results
+# Copy the results
 mv $WORKSPACE/build/cppcheck_results $WORKSPACE/cppcheck_results
 mv $WORKSPACE/build/test_results $WORKSPACE/test_results
 rm -fr $WORKSPACE/build
+mkdir -p $WORKSPACE/build
 # To keep backwards compatibility with current configurations keep a copy
 # of tests_results in the build path.
-mkdir -p $WORKSPACE/build
 cp -a $WORKSPACE/cppcheck_results $WORKSPACE/build/cppcheck_results
 cp -a $WORKSPACE/test_results $WORKSPACE/build/test_results
 DELIM
