@@ -77,7 +77,7 @@ SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
 if \$GRAPHIC_TESTS; then
   timeout 180 roslaunch gazebo_ros shapes_world.launch
 else
-  timeout 180 rosrun gazebo_ros gazebo
+  timeout 180 roslaunch gazebo_ros shapes_world.launch
 fi
 
 DELIM
