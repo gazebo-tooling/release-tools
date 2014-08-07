@@ -90,8 +90,8 @@ make install
 . /usr/share/gazebo/setup.sh
 
 # Need to clean up from previous built
-rm -fr $WORKSPACE/build/cppcheck_results
-rm -fr $WORKSPACE/build/test_results
+rm -fr $WORKSPACE/cppcheck_results
+rm -fr $WORKSPACE/test_results
 
 # Run tests
 make test ARGS="-VV -R UNIT_*" || true
