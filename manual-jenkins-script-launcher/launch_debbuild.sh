@@ -15,7 +15,7 @@ export DISTRO=${4-precise}
 export ARCH=${5-amd64}
 export RELEASE_REPO_BRANCH=${7-default}
 export PACKAGE_ALIAS=${8-${PACKAGE}}
-export SOURCE_TARBALL_URI=${6-http://old.gazebosim.org/assets/distributions/${PACKAGE_ALIAS}-${VERSION}.tar.bz2}
+export SOURCE_TARBALL_URI=${6-http://gazebosim.org/assets/distributions/${PACKAGE_ALIAS}-${VERSION}.tar.bz2}
 export WORKSPACE=/tmp/workspace
 
 . prepare_env.sh

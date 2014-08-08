@@ -17,9 +17,9 @@ cat > build.sh << DELIM
 set -ex
 
 
-##### From: http://old.gazebosim.org/wiki/Tutorials/CloudSim/setup  ###############
+##### From: http://gazebosim.org/wiki/Tutorials/CloudSim/setup  ###############
 
-echo "installing packages for Cloudsim: http://old.gazebosim.org/wiki/Tutorials/CloudSim/setup"
+echo "installing packages for Cloudsim: http://gazebosim.org/wiki/Tutorials/CloudSim/setup"
 
 apt-get install -y redis-server python-pip python-redis python-novaclient
 
