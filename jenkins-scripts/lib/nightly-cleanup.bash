@@ -26,4 +26,4 @@ if [ `echo $PACKAGE_ALIAS | sed -e 's:nightly::'` == $PACKAGE_ALIAS ]; then
 fi
 
 # Remove all nightly version except latest three
-ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/id_rsa ubuntu@gazebosim.org "ls -t /var/www/assets/distributions/${PACKAGE_ALIAS}_*~${DISTRO}_${ARCH}.deb | sed -e '1,3d' | xargs -d '\n' rm -f"
+ssh -o StrictHostKeyChecking=no -i $HOME/.ssh/id_rsa ubuntu@old.gazebosim.org "ls -t /var/www/assets/distributions/${PACKAGE_ALIAS}_*~${DISTRO}_${ARCH}.deb | sed -e '1,3d' | xargs -d '\n' rm -f"
