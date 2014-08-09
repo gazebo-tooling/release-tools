@@ -50,6 +50,9 @@ wget ${DEBDIFF_URL} -O ${PACKAGE}.debdiff
 
 # Download original source
 apt-get source ${PACKAGE}
+# Remove .dsc file since we are using *.dsc below
+rm *.dsc
+
 # Handle different compressions
 tar xvf ${PACKAGE}_*.orig.tar.* || tar xvzf ${PACKAGE}_*.orig.tar.*
 cd ${PACKAGE}-*
