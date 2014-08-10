@@ -57,7 +57,9 @@ tar xvf ../${PACKAGE}*.debian.tar.*
 cd ..
 
 # Remove original related files since we are using new version upload below
-rm *.dsc *debian* *orig*
+find *.dsc -type f -exec rm {} \; 
+find *debian* -type f -exec rm {} \; 
+find *orig* -type f -exec rm {} \; 
 
 # Patching
 patch -p0 < ${PACKAGE}.debdiff
