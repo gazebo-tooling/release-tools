@@ -49,6 +49,7 @@ rm -fr ${PACKAGE}*
 wget ${DEBDIFF_URL} -O ${PACKAGE}.debdiff
 
 # Download original source
+ls
 apt-get source ${PACKAGE}
 # Handle different compressions
 # tar xvf ${PACKAGE}_*.orig.tar.* || tar xvzf ${PACKAGE}_*.orig.tar.*
@@ -57,7 +58,11 @@ apt-get source ${PACKAGE}
 cd ..
 
 # Remove original related files since we are using new version upload below
-find *.dsc -type f -exec rm {} \; 
+ls
+rm -fr *.dsc
+rm -fr *debian*
+
+# find *.dsc -type f -exec rm {} \; 
 # find *debian* -type f -exec rm {} \; 
 # find *orig* -type f -exec rm {} \; 
 
