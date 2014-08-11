@@ -55,7 +55,7 @@ apt-get source ${PACKAGE}
 # tar xvf ${PACKAGE}_*.orig.tar.* || tar xvzf ${PACKAGE}_*.orig.tar.*
 # cd ${PACKAGE}-*
 # tar xvf ../${PACKAGE}*.debian.tar.*
-cd ..
+# cd ..
 
 # Remove original related files since we are using new version upload below
 ls
