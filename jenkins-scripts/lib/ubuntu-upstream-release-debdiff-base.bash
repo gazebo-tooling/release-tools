@@ -51,15 +51,15 @@ wget ${DEBDIFF_URL} -O ${PACKAGE}.debdiff
 # Download original source
 apt-get source ${PACKAGE}
 # Handle different compressions
-tar xvf ${PACKAGE}_*.orig.tar.* || tar xvzf ${PACKAGE}_*.orig.tar.*
-cd ${PACKAGE}-*
-tar xvf ../${PACKAGE}*.debian.tar.*
+# tar xvf ${PACKAGE}_*.orig.tar.* || tar xvzf ${PACKAGE}_*.orig.tar.*
+# cd ${PACKAGE}-*
+# tar xvf ../${PACKAGE}*.debian.tar.*
 cd ..
 
 # Remove original related files since we are using new version upload below
 find *.dsc -type f -exec rm {} \; 
-find *debian* -type f -exec rm {} \; 
-find *orig* -type f -exec rm {} \; 
+# find *debian* -type f -exec rm {} \; 
+# find *orig* -type f -exec rm {} \; 
 
 # Patching
 patch -p0 < ${PACKAGE}.debdiff
