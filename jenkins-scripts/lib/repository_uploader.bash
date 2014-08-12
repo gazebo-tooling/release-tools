@@ -13,6 +13,8 @@ if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
 
+# Check if the node was configured to use s3cmd
+# This is done by running s3cmd --configure
 if [[ ! -f "${HOME}/.s3cfg" ]]; then
     echo "No $HOME/.s3cfg file found. Please config the software first in your system"
     exit 1
