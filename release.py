@@ -18,11 +18,11 @@ UPLOAD_DEST = 'ubuntu@old.gazebosim.org:/var/www/assets/distributions'
 DOWNLOAD_URI = 'http://old.gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['precise', 'raring', 'trusty']
+UBUNTU_DISTROS = ['precise', 'trusty']
 UBUNTU_DISTROS_EXPERIMENTAL = ['']
 
-ROS_DISTROS_IN_PRECISE = [ 'groovy', 'hydro' ]
-ROS_DISTROS_IN_RARING = [ 'hydro' ];
+ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
+ROS_DISTROS_IN_TRUSTY = [ 'indigo' ];
 
 DRY_RUN = False
 NIGHTLY = False
@@ -353,8 +353,8 @@ def go(argv):
             else:
                 if (d == 'precise'):
                     ROS_DISTROS = ROS_DISTROS_IN_PRECISE
-                elif (d == 'raring'):
-                    ROS_DISTROS = ROS_DISTROS_IN_RARING
+                elif (d == 'trusty'):
+                    ROS_DISTROS = ROS_DISTROS_IN_TRUSTY
                 else:
                     print ("ERROR in ROS_DISTROS: unkonwn distribution")
                     sys.exit(1)
