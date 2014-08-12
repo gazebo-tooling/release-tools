@@ -21,10 +21,9 @@ def parse_options():
     parser.add_argument('--local-conf-dir',dest='local_conf',
                       help='A directory to write an apt-conf to use with apt-get update.')
     args = parser.parse_args()
-ros@http://packages.ros.org/ros/ubuntu
 
     if not args.repo_urls:
-        # previously using ros@http://50.28.27.175/repos/building'. Not any more.
+        # previously using ros@http://50.28.27.175/repos/building'. Not any more
         args.repo_urls = ['ros@http://packages.ros.org/ros/ubuntu']
 
     for a in args.repo_urls:
