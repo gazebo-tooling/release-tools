@@ -30,7 +30,15 @@ upload_package()
     # S3 Amazon upload
     S3_DIR=$(mktemp -d ${HOME}/s3.XXXX)
     pushd ${S3_DIR}
-    wget https://github.com/s3tools/s3cmd/archive/v1.5.0-rc1.tar.gz -O foo.tar.gz
+    # Hack for not failing when github is down
+    update_done=false
+    seconds_waiting=0
+    while (! $update_done); do
+      wget https://github.com/s3tools/s3cmd/archive/v1.5.0-rc1.tar.gz -O foo.tar.gz && update_done=true
+      sleep 1
+      seconds_waiting=$((seconds_waiting+1))
+      [ $seconds_waiting -gt 60 ] && exit 1
+    done
     tar xzf foo.tar.gz
     cd s3cmd-*
     ./s3cmd put $pkg s3://osrf-distributions/$PACKAGE/releases/
