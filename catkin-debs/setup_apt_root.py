@@ -11,7 +11,7 @@ def parse_options():
     parser.add_argument('--mirror', dest='mirror', action='store', default='http://us.archive.ubuntu.com/ubuntu/',
            help='The url for the default repo, like --mirror to debootstrap')
     parser.add_argument('--repo', dest='repo_urls', action='append',metavar=['REPO_NAME@REPO_URL'],
-           help='The name for the source and the url such as ros@http://50.28.27.175/repos/building')
+           help='The name for the source and the url such as ros@http://packages.ros.org/ros/ubuntu')
     parser.add_argument(dest='distro',
            help='The debian release distro, lucid, oneiric, etc')
     parser.add_argument(dest='architecture',
@@ -22,10 +22,9 @@ def parse_options():
                       help='A directory to write an apt-conf to use with apt-get update.')
     args = parser.parse_args()
 
-
     if not args.repo_urls:
-        #default to devel machine for now
-        args.repo_urls = ['ros@http://50.28.27.175/repos/building']
+        # previously using ros@http://50.28.27.175/repos/building'. Not any more
+        args.repo_urls = ['ros@http://packages.ros.org/ros/ubuntu']
 
     for a in args.repo_urls:
         if not '@' in a:
