@@ -31,9 +31,9 @@ echo "unset CCACHEDIR" >> /etc/pbuilderrc
 apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget cdbs ca-certificates dh-autoreconf autoconf equivs git
 
 # Also get gazebo repo's key, to be used in getting Gazebo
-sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" > /etc/apt/sources.list.d/gazebo.list'
-wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
-apt-get update
+#sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" > /etc/apt/sources.list.d/gazebo.list'
+#wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
+#apt-get update
 
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
@@ -42,7 +42,7 @@ if [ $DISTRO = 'precise' ]; then
 fi
 
 # Step 0: create/update distro-specific pbuilder environment
-pbuilder-dist $DISTRO $ARCH create /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main|deb $ubuntu_repo_url $DISTRO-updates main restricted universe multiverse" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg --mirror $ubuntu_repo_url
 
 # Step 0: Clean up
 rm -rf $WORKSPACE/build
@@ -81,8 +81,8 @@ echo | dh_make -s --createorig -p ${PACKAGE}_\${VERSION_NO_REVISION} || true
 debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
 # Install dependencies from a dsc file
-mk-build-deps -i ../*.dsc -t 'apt-get -y --no-install-recommends'
-rm *build-deps*
+#mk-build-deps -i ../*.dsc -t 'apt-get -y --no-install-recommends'
+#rm *build-deps*
 
 export DEB_BUILD_OPTIONS="parallel=$MAKE_JOBS"
 # Step 6: use pbuilder-dist to create binary package(s)
