@@ -19,7 +19,7 @@ echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
 # equivcs for mk-build-depends
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget cdbs ca-certificates dh-autoreconf autoconf equivs
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget cdbs ca-certificates dh-autoreconf autoconf equivs git
 
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
