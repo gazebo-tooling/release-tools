@@ -86,7 +86,7 @@ pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
 
-PKGS=\`find /var/lib/jenkins/pbuilder -name *.deb || true\`
+PKGS=\`find /var/lib/jenkins/pbuilder/*_result* -name *.deb || true\`
 
 FOUND_PKG=0
 for pkg in \${PKGS}; do
