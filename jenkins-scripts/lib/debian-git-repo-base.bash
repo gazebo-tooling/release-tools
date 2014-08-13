@@ -77,7 +77,7 @@ debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
 # Install dependencies from a dsc file
 mk-build-deps -i ../*.dsc -t 'apt-get -y --no-install-recommends'
-rm ../*build-deps*
+rm *build-deps*
 
 export DEB_BUILD_OPTIONS="parallel=$MAKE_JOBS"
 # Step 6: use pbuilder-dist to create binary package(s)
