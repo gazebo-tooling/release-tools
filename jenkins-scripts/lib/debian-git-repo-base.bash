@@ -6,6 +6,15 @@ export ENABLE_REAPER=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
+# If no value for MULTIARCH_SUPPORT was submitted and
+# distro is precise, disable the multiarch, this is generally
+# since the use of GNUINSTALLDIRs
+if [[ -z ${MULTIARCH_SUPPORT} ]]; then
+  if [[ $DISTRO == 'precise' ]]; then
+    MULTIARCH_SUPPORT=false
+  fi
+fi
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
@@ -54,7 +63,7 @@ sed -i -e 's:unstable:$DISTRO:g' debian/changelog
 sed -i -e 's:experimental:$DISTRO:g' debian/changelog
 
 # In precise, no multiarch paths was implemented in GNUInstallDirs. Remove it.
-if [ $DISTRO = 'precise' ]; then
+if ! $MULTIARCH_SUPPORT; then
   sed -i -e 's:/\*/:/:g' debian/*.install
 fi
 
