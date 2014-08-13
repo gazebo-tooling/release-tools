@@ -30,6 +30,11 @@ echo "unset CCACHEDIR" >> /etc/pbuilderrc
 # equivcs for mk-build-depends
 apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget cdbs ca-certificates dh-autoreconf autoconf equivs git
 
+# Also get gazebo repo's key, to be used in getting Gazebo
+sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" > /etc/apt/sources.list.d/gazebo.list'
+wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
+apt-get update
+
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
   echo "Skipping pbuilder check for outdated info"
