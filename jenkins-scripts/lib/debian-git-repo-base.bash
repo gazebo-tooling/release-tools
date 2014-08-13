@@ -18,7 +18,8 @@ set -ex
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper cdbs git pkg-kde-tools
+# equivcs for mk-build-depends
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget cdbs ca-certificates dh-autoreconf autoconf equivs
 
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
@@ -64,6 +65,9 @@ rm -fr debian/*.symbols
 echo | dh_make -s --createorig -p ${PACKAGE}_\${VERSION_NO_REVISION} || true
 
 debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
+
+# Install dependencies from a dsc file
+mk-build-deps -i ../*.dsc -t 'apt-get -y --no-install-recommends'
 
 export DEB_BUILD_OPTIONS="parallel=$MAKE_JOBS"
 # Step 6: use pbuilder-dist to create binary package(s)
