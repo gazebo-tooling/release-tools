@@ -142,7 +142,7 @@ sudo apt-get update -c $aptconffile
 # Check if trusty exists in the machine (not in precise) and symlink
 if [[ ! -f /usr/share/debootstrap/scripts/trusty ]]; then
     sudo mkdir -p /usr/share/debootstrap/scripts
-    sudo ln -s /usr/share/debootstrap/scripts/gutsy /usr/share/debootstrap/scripts/trusty
+    sudo ln -sf /usr/share/debootstrap/scripts/gutsy /usr/share/debootstrap/scripts/trusty
 fi
 
 # Setup the pbuilder environment if not existing, or update
