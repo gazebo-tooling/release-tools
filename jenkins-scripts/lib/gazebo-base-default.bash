@@ -51,7 +51,7 @@ fi
 
 # Required stuff for Gazebo
 apt-get update
-apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES}
+apt-get install -y --force-yes  ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES}
 
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
@@ -127,6 +127,12 @@ cmake ${GZ_CMAKE_BUILD_TYPE}         \\
 make -j${MAKE_JOBS}
 make install
 . /usr/share/gazebo/setup.sh
+
+# Need to clean up from previous built
+rm -fr $WORKSPACE/cppcheck_results
+rm -fr $WORKSPACE/test_results
+
+# Run tests
 make test ARGS="-VV -R UNIT_*" || true
 make test ARGS="-VV -R INTEGRATION_*" || true
 make test ARGS="-VV -R REGRESSION_*" || true
@@ -166,6 +172,18 @@ fi
 # Need fix
 # mkdir $WORKSPACE/logs
 # cp $HOME/.gazebo/logs/*.log $WORKSPACE/logs/
+
+# Step 5. Need to clean build/ directory so disk space is under control
+# Move cppcheck and test results out of build
+# Copy the results
+mv $WORKSPACE/build/cppcheck_results $WORKSPACE/cppcheck_results
+mv $WORKSPACE/build/test_results $WORKSPACE/test_results
+rm -fr $WORKSPACE/build
+mkdir -p $WORKSPACE/build
+# To keep backwards compatibility with current configurations keep a copy
+# of tests_results in the build path.
+cp -a $WORKSPACE/cppcheck_results $WORKSPACE/build/cppcheck_results
+cp -a $WORKSPACE/test_results $WORKSPACE/build/test_results
 DELIM
 
 # Make project-specific changes here

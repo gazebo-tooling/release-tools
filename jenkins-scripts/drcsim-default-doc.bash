@@ -4,7 +4,7 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 # Use always DISPLAY in drcsim project
-export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+export GPU_SUPPORT_NEEDED=true
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
@@ -47,11 +47,11 @@ make doc
 
 # Step 3: upload docs
 apt-get install -y openssh-client
-ssh -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ubuntu@gazebosim.org sudo rm -rf /var/www/drc/api /tmp/drcsim_dev
-scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa -r doxygen/html ubuntu@gazebosim.org:/tmp/drcsim_dev
-ssh -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ubuntu@gazebosim.org sudo mv /tmp/drcsim_dev /var/www/drc/api
-scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa doxygen/latex/drcsim-[0-9]*.[0-9]*.[0-9]*.pdf ubuntu@gazebosim.org:/tmp/drcsim-dev.pdf
-ssh -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ubuntu@gazebosim.org sudo mv /tmp/drcsim-dev.pdf /var/www/drc/api/drcsim-dev.pdf
+ssh -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ubuntu@old.gazebosim.org sudo rm -rf /var/www/drc/api /tmp/drcsim_dev
+scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa -r doxygen/html ubuntu@old.gazebosim.org:/tmp/drcsim_dev
+ssh -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ubuntu@old.gazebosim.org sudo mv /tmp/drcsim_dev /var/www/drc/api
+scp -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa doxygen/latex/drcsim-[0-9]*.[0-9]*.[0-9]*.pdf ubuntu@old.gazebosim.org:/tmp/drcsim-dev.pdf
+ssh -o StrictHostKeyChecking=no -i $WORKSPACE/id_rsa ubuntu@old.gazebosim.org sudo mv /tmp/drcsim-dev.pdf /var/www/drc/api/drcsim-dev.pdf
 DELIM
 
 # Copy in my ssh keys, to allow the above ssh/scp calls to work; not sure this is the best way to do it, 

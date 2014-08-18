@@ -1,8 +1,8 @@
 #!/bin/bash -x
 
-# Use always DISPLAY in drcsim project unless explicit asked
+# Use always GPU in drcsim project unless explicit asked
 if [[ -z ${USE_DISPLAY} ]] || ${USE_DISPLAY}; then
-  export DISPLAY=$(ps aux | grep "X :" | grep -v grep | awk '{ print $12 }')
+  export GPU_SUPPORT_NEEDED=true
 fi
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh

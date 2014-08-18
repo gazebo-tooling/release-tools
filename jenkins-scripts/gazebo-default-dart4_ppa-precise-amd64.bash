@@ -5,6 +5,6 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=precise
-export DART_FROM_PKGS=true
+export DART_USE_4_VERSION=true
 
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash

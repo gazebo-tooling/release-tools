@@ -52,9 +52,9 @@ fi
 # Step 0: create/update distro-specific pbuilder environment
 # Fix segfault when using two repositories by setting OTHERMIRROR env variable
 if $ENABLE_ROS; then
-OTHERMIRROR='deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main' pbuilder-dist $DISTRO $ARCH create --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+OTHERMIRROR='deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main|deb $ubuntu_repo_url $DISTRO-updates main restricted universe multiverse' pbuilder-dist $DISTRO $ARCH create --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg --mirror $ubuntu_repo_url
 else
-pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main|deb $ubuntu_repo_url $DISTRO-updates main restricted universe multiverse" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg --mirror $ubuntu_repo_url
 fi
 
 # Step 0: Clean up
@@ -73,16 +73,12 @@ else
     REAL_PACKAGE_ALIAS=$PACKAGE_ALIAS
 fi
 
-if [ $PACKAGE = 'gazebo3' ]; then
-    REAL_PACKAGE_NAME='gazebo'
-fi
-
 # Remove number for packages like (sdformat2 or gazebo3)
 REAL_PACKAGE_NAME=$(echo $PACKAGE | sed 's:[0-9]*$::g')
 
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
-  hg clone https://bitbucket.org/osrf/\$REAL_PACKAGE_NAME -r default
+  hg clone https://bitbucket.org/${BITBUCKET_REPO}/\$REAL_PACKAGE_NAME -r default
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME
   cd \$REAL_PACKAGE_NAME
   # Store revision for use in version
@@ -96,7 +92,7 @@ fi
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
 rm -rf /tmp/$PACKAGE-release
-hg clone https://bitbucket.org/osrf/$PACKAGE-release /tmp/$PACKAGE-release 
+hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release /tmp/$PACKAGE-release 
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
@@ -127,7 +123,9 @@ if $NIGHTLY_MODE; then
   # TODO: Fix CMakeLists.txt ?
 fi
 
-cd $WORKSPACE/build/\$PACKAGE_SRC_BUILD_DIR
+# Get into the unpacked source directory, without explicit knowledge of that 
+# directory's name
+cd \`find $WORKSPACE/build -mindepth 1 -type d |head -n 1\`
 # If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
 if $NIGHTLY_MODE; then
   rm -fr .hg*
@@ -145,6 +143,7 @@ debuild --no-tgz-check -S -uc -us --source-option=--include-binaries -j${MAKE_JO
 
 PBUILD_DIR=\$HOME/.pbuilder
 mkdir -p \$PBUILD_DIR
+
 cat > \$PBUILD_DIR/A10_run_rosdep << DELIM_ROS_DEP
 #!/bin/sh
 if [ -f /usr/bin/rosdep ]; then
@@ -155,12 +154,28 @@ if [ -f /usr/bin/rosdep ]; then
 fi
 DELIM_ROS_DEP
 chmod a+x \$PBUILD_DIR/A10_run_rosdep
+
+if $NEED_C11_COMPILER; then
+cat > \$PBUILD_DIR/A20_install_gcc11 << DELIM_C11
+#!/bin/sh
+echo "Installing g++ 4.8"
+apt-get install -y python-software-properties
+add-apt-repository ppa:ubuntu-toolchain-r/test
+apt-get update
+apt-get install -y gcc-4.8 g++-4.8
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
+update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
+g++ --version
+DELIM_C11
+chmod a+x \$PBUILD_DIR/A20_install_gcc11
+fi
+
 echo "HOOKDIR=\$PBUILD_DIR" > \$HOME/.pbuilderrc
 
 export DEB_BUILD_OPTIONS=parallel=${MAKE_JOBS}
 
 # Step 6: use pbuilder-dist to create binary package(s)
-pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
+pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS} --mirror $ubuntu_repo_url
 
 # Set proper package names
 if $NIGHTLY_MODE; then

@@ -101,7 +101,7 @@ PKG_NAME=ros-${ROS_DISTRO}-${PACKAGE}_${VERSION}-${RELEASE_VERSION}${DISTRO}_${A
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
 
-PKGS=\`find /var/lib/jenkins/pbuilder -name *.deb || true\`
+PKGS=\`find /var/lib/jenkins/pbuilder/*_result* -name *.deb || true\`
 
 FOUND_PKG=0
 for pkg in \${PKGS}; do

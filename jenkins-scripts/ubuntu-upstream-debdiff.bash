@@ -4,7 +4,6 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export DISTRO=trusty
-export DART_USE_4_VERSION=true
+export UPLOAD_SOURCEDEB=true
 
-. ${SCRIPT_DIR}/lib/gazebo-base-default.bash
+. ${SCRIPT_DIR}/lib/ubuntu-upstream-release-debdiff-base.bash

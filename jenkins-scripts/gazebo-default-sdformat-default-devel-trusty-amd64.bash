@@ -7,4 +7,4 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 export DISTRO=trusty
 export DART_USE_4_VERSION=true
 
-. ${SCRIPT_DIR}/lib/gazebo-base-default.bash
+. ${SCRIPT_DIR}/lib/gazebo-default-sdformat-default-base.bash

@@ -8,20 +8,21 @@ import os
 import urllib
 import argparse
 import shutil
+import re
 
 USAGE = 'release.py <package> <version> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuilder'
 JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
-UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
-DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
+UPLOAD_DEST = 'ubuntu@old.gazebosim.org:/var/www/assets/distributions'
+DOWNLOAD_URI = 'http://old.gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['precise', 'raring', 'saucy','trusty']
+UBUNTU_DISTROS = ['precise', 'trusty']
 UBUNTU_DISTROS_EXPERIMENTAL = ['']
 
-ROS_DISTROS_IN_PRECISE = [ 'groovy', 'hydro' ]
-ROS_DISTROS_IN_RARING = [ 'hydro' ];
+ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
+ROS_DISTROS_IN_TRUSTY = [ 'indigo' ];
 
 DRY_RUN = False
 NIGHTLY = False
@@ -29,6 +30,7 @@ UPSTREAM = False
 NO_SRC_FILE = False
 EXP_DISTROS = False
 DRCSIM_MULTIROS = False
+IGN_REPO = False
 
 IGNORE_DRY_RUN = True
 
@@ -46,6 +48,7 @@ def parse_args(argv):
     global NO_SRC_FILE
     global EXP_DISTROS
     global DRCSIM_MULTIROS
+    global IGN_REPO
 
     parser = argparse.ArgumentParser(description='Make releases.')
     parser.add_argument('package', help='which package to release')
@@ -74,6 +77,8 @@ def parse_args(argv):
                         help='no-sanity-checks; i.e. skip sanity checks commands')
     parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
                         help='no-sanity-checks; i.e. skip sanity checks commands')
+    parser.add_argument('--ignition-repo', dest='ignition_repo', action='store_true', default=False,
+                        help='use ignition robotics URL repositories instead of OSRF')
 
     args = parser.parse_args()
     if not args.package_alias:
@@ -84,6 +89,7 @@ def parse_args(argv):
     NO_SRC_FILE = args.no_source_file
     EXP_DISTROS = args.exp_distros
     DRCSIM_MULTIROS = args.drcsim_multiros
+    IGN_REPO = args.ignition_repo
 
     # Upstream and nightly do not generate a tar.bz2 file
     if args.upstream or args.nightly:
@@ -93,7 +99,11 @@ def parse_args(argv):
     return args
 
 def get_release_repository_URL(package):
-    return "https://bitbucket.org/osrf/" + package + "-release"
+    repo = "osrf"
+    if IGN_REPO:
+        repo = "ignitionrobotics"
+
+    return "https://bitbucket.org/" + repo + "/" + package + "-release"
 
 def download_release_repository(package, release_branch):
     url = get_release_repository_URL(package)
@@ -101,6 +111,16 @@ def download_release_repository(package, release_branch):
     cmd = [ "hg", "clone", "-b", release_branch, url, release_tmp_dir]
     check_call(cmd, IGNORE_DRY_RUN)
     return release_tmp_dir
+
+def sanity_package_name_underscore(package, package_alias):
+    # Alias is never empty. It hosts a exect copy of package if not provided
+    if '_' in package_alias and package_alias != package:
+      error("Found an underscore in package_alias. It will conflict with debian package names. May be fixed changing the underscore for a dash.")
+
+    if '_' in package and package_alias == package:
+      error("Found an underscore in package name without providing a package alias (-a <alias>). You probably want to match the package name in the debian changelog")
+
+    print_success("No underscore in package name")
 
 def sanity_package_name(repo_dir, package, package_alias):
     expected_name = package
@@ -132,7 +152,7 @@ def sanity_package_version(repo_dir, version, release_version):
         c_revision=full_version[full_version.find("-")+1:full_version.find("~")]
 
         if c_version != version:
-            error("Error in package version: " + full_version)
+            error("Error in package version. Repo version: " + c_version + "Provided version: " + version)
 
         if c_revision != release_version:
             error("Error in package release version. Expected " + release_version + " in line " + full_version)
@@ -152,11 +172,22 @@ def sanity_check_gazebo_versions(package, version):
 
     print_success("Gazebo version in proper gazebo package")
 
+def sanity_check_sdformat_versions(package, version):
+    if package == 'sdformat':
+        if int(version[0]) > 1:
+            error("Error is sdformat version. Please use 'sdformatX' (with version number) for package name")
+        else:
+            return
+
+    print_success("sdformat version in proper sdformat package")
+
 def sanity_checks(args):
     repo_dir = download_release_repository(args.package, args.release_repo_branch)
+    sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_package_version(repo_dir, args.version, str(args.release_version))
     sanity_check_gazebo_versions(args.package, args.version)
+    sanity_check_sdformat_versions(args.package, args.version)
     shutil.rmtree(repo_dir)
 
 def check_call(cmd, ignore_dry_run = False):
@@ -201,7 +232,7 @@ def generate_upload_tarball(args):
         check_call(['hg', 'tag', '-f', tag])
     
         # Push tag
-        #check_call(['hg', 'push'])
+        check_call(['hg', 'push'])
 
         # Make a clean copy, to avoid pulling in other stuff that the user has
         # sitting in the working copy
@@ -217,13 +248,15 @@ def generate_upload_tarball(args):
     check_call(['cmake', srcdir])
     check_call(['make', 'package_source'])
 
-    # Upload tarball
-    # We need to trick the current packages for the tarball
-    tarball_name = args.package
-    if args.package == "gazebo-current" or \
-       args.package == "gazebo2" or \
-       args.package == "gazebo3":
+    # Upload tarball. Do not include versions in tarballs
+    tarball_name = re.sub(r'[0-9]$','', args.package)
+    # We need to trick the gazebo-current (version 2)
+    if args.package == "gazebo-current":
         tarball_name = "gazebo"
+    # For ignition, we use the alias as package name
+    if IGN_REPO:
+        tarball_name = args.package_alias
+
     # TODO: we're assuming a particular naming scheme and a particular compression tool
     tarball_fname = '%s-%s.tar.bz2'%(tarball_name, args.version)
     tarball_path = os.path.join(builddir, tarball_fname)
@@ -232,8 +265,15 @@ def generate_upload_tarball(args):
     if args.package != args.package_alias:
         tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
         if (not args.dry_run):
-          shutil.copyfile(tarball_path, os.path.join(builddir, tarball_fname))
-        tarball_path = os.path.join(builddir, tarball_fname)
+            if not os.path.isfile(tarball_path):
+                error("Failed to found the tarball: " + tarball_path + 
+                      ". Please check that you don't have an underscore in the project() statement of the CMakeList.txt. In that case, change it by a dash")
+            dest_file = os.path.join(builddir, tarball_fname)
+            # Do not copy if files are the same
+            if not (tarball_path == dest_file):
+                shutil.copyfile(tarball_path, dest_file)
+                tarball_path = dest_file
+
     check_call(['scp', tarball_path, UPLOAD_DEST])
     shutil.rmtree(tmpdir)
     source_tarball_uri = DOWNLOAD_URI + tarball_fname
@@ -313,8 +353,8 @@ def go(argv):
             else:
                 if (d == 'precise'):
                     ROS_DISTROS = ROS_DISTROS_IN_PRECISE
-                elif (d == 'raring'):
-                    ROS_DISTROS = ROS_DISTROS_IN_RARING
+                elif (d == 'trusty'):
+                    ROS_DISTROS = ROS_DISTROS_IN_TRUSTY
                 else:
                     print ("ERROR in ROS_DISTROS: unkonwn distribution")
                     sys.exit(1)

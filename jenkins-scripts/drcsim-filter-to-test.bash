@@ -16,8 +16,8 @@ if [[ $ARCH = 'i386' ]]; then
     exit 0
 fi
 
-# saucy is not supported in drcsim
-if [[ $DISTRO = 'saucy' ]]; then
+# Only precise and raring are supported
+if [[ $DISTRO != 'precise' ]] && [[ $DISTRO != 'raring' ]]; then
   echo "DO_NOT_CHECK"
   exit 0
 fi
@@ -27,13 +27,14 @@ if [[ -z $ROS_DISTRO ]]; then
     exit 0
 fi
 
-# Exclude of checking versions not supported by drcsim
-if [[ $DISTRO = 'quantal' ]]; then
-  if [[ $ROS_DISTRO != 'groovy' ]]; then
+# Indigo is not supported by drcsim
+if [[ $ROS_DISTRO = 'indigo' ]]; then
       echo "DO_NOT_CHECK"
       exit 0
-  fi
-elif [[ $DISTRO = 'raring' ]]; then
+fi
+
+# Exclude of checking versions not supported by drcsim
+if [[ $DISTRO = 'raring' ]]; then
   if [[ $ROS_DISTRO != 'hydro' ]]; then
       echo "DO_NOT_CHECK"
       exit 0
