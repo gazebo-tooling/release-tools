@@ -153,7 +153,7 @@ if ${COVERAGE_ENABLED} ; then
   rm -fr $WORKSPACE/coverage
   rm -fr $WORKSPACE/bullshtml
   mkdir -p $WORKSPACE/coverage
-  covselect --add '!$WORKSPACE/build/' '!../build/' '!test/' '!tools/test/' '!deps/' '!/opt/' '!gazebo/rendering/skyx/'
+  covselect --add '!$WORKSPACE/build/' '!../build/' '!test/' '!tools/test/' '!deps/' '!/opt/' '!gazebo/rendering/skyx/' '!tmp/'
   covhtml --srcdir $WORKSPACE/gazebo/ $WORKSPACE/coverage
   # Generate valid cover.xml file using the bullshtml software
   # java is needed to run bullshtml
