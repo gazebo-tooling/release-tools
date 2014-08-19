@@ -26,7 +26,7 @@ apt-get update
 
 # check for graphic card support
 GRAPHIC_TESTS=false
-if [ $GRAPHIC_CARD_NAME = Nvidia ] && [ $DISTRO = quantal ]; then
+if [ $GRAPHIC_CARD_NAME = Nvidia ] && [ $DISTRO = trusty ]; then
     GRAPHIC_TESTS=true
 
     if ${GRAPHIC_CARD_FOUND}; then
@@ -42,17 +42,10 @@ if [ $GRAPHIC_CARD_NAME = Nvidia ] && [ $DISTRO = quantal ]; then
 fi
 
 # Check for proper ros wrappers depending on gazebo version
-if [ $PACKAGE_ALIAS = 'gazebo-current' ]; then
-  ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-gazebo-msgs-current \
-                   ros-$ROS_DISTRO-gazebo-plugins-current \
-		   ros-$ROS_DISTRO-gazebo-ros-current \
-		   ros-$ROS_DISTRO-gazebo-ros-pkgs-current"
-else
-  ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs \
-                   ros-$ROS_DISTRO-$PACKAGE_ALIAS-plugins \
-		   ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros \
-		   ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros-pkgs"
-fi
+ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs    \
+	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-plugins \
+	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros     \
+	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros-pkgs"
 
 apt-get install -y \$ROS_GAZEBO_PKGS
 
