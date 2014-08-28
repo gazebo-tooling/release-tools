@@ -50,18 +50,16 @@ ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs    \
 apt-get install -y \$ROS_GAZEBO_PKGS
 
 # Step 2: configure and build
-if [ $ROS_DISTRO != groovy ]; then
-    rosdep init 
-    # Hack for not failing when github is down
-    update_done=false
-    seconds_waiting=0
-    while (! \$update_done); do
-      rosdep update && update_done=true
-      sleep 1
-      seconds_waiting=$((seconds_waiting+1))
-      [ \$seconds_waiting -gt 60 ] && exit 1
-    done
-fi
+rosdep init 
+# Hack for not failing when github is down
+update_done=false
+seconds_waiting=0
+while (! \$update_done); do
+  rosdep update && update_done=true
+  sleep 1
+  seconds_waiting=$((seconds_waiting+1))
+  [ \$seconds_waiting -gt 60 ] && exit 1
+done
 
 
 # In our nvidia machines, run the test to launch altas
