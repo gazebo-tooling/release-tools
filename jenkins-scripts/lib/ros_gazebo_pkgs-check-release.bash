@@ -47,7 +47,8 @@ ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs    \
 	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros     \
 	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros-pkgs"
 
-apt-get install -y \$ROS_GAZEBO_PKGS
+# Need -ros for rosrun
+apt-get install -y \$ROS_GAZEBO_PKGS ros-$ROS_DISTRO-ros
 
 # Step 2: configure and build
 rosdep init 
@@ -61,13 +62,12 @@ while (! \$update_done); do
   [ \$seconds_waiting -gt 60 ] && exit 1
 done
 
+SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
 
 # In our nvidia machines, run the test to launch altas
-if \$GRAPHIC_TESTS; then
-  SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
-  . /usr/share/drcsim/setup.sh
-  timeout 180 roslaunch gazebo_ros shapes_world.launch
-fi
+# Seems like there is no failure in runs on precise pbuilder in
+# our trusty machine. So we do not check for GRAPHIC_TESTS=true
+timeout 180 roslaunch gazebo_ros shapes_world.launch
 
 DELIM
 
