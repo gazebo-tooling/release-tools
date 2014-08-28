@@ -15,10 +15,10 @@ for pkg in ${PKGS}; do
 	echo " - Processing $pkg in $distro"
         git checkout debian/$distro/$pkg
 	# Modify package name
-	sed -i -e "s/Package: @(Package)/Package: @(Package.replace('gazebo-','gazebo4-prerelease-'))/" debian/control.em
+	sed -i -e "s/Package: @(Package)/Package: @(Package.replace('gazebo-','gazebo4-'))/" debian/control.em
 	git commit debian/control.em -m "Patch name to release -4 version"
 	# Include conflict with same package (not current)
-	sed -i -e '/^Depends/aConflicts: @(Package), @(Package)-current, @(Package)3, @(Package)4' debian/control.em
+	sed -i -e '/^Depends/aConflicts: @(Package), @(Package)-current, @(Package)3, @(Package)4-prerelease' debian/control.em
 	git commit debian/control.em -m "Set up a conflict with standard ROS pkg and -current version"
 	git push origin debian/$distro/$pkg
     done

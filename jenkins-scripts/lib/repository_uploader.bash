@@ -22,7 +22,7 @@ upload_package()
 
     sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
     scp -o StrictHostKeyChecking=no -i $HOME/.ssh/id_rsa ${pkg} \
-               ubuntu@gazebosim.org:/var/www/assets/distributions
+               ubuntu@old.gazebosim.org:/var/www/assets/distributions
 }
 
 pkgs_path="$WORKSPACE/pkgs"

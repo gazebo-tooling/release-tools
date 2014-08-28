@@ -1,0 +1,12 @@
+Scripts:
+--------
+
+ * release-bloom.py: generic python script that call -bloom osrf jenkins
+   jobs.
+ 
+ * ros_gazebo_pkgs-release.py.bash: bash script that will use release-bloom.py
+   passing all the names of ros_gazebo_pkgs (gazebo-msgs, gazebo-ros, etc).
+
+ * rename-gazeboX-ros-pkgs-release.sh: run on top of a ros_gazebo_pkgs-release
+   repository, will change all the templates in bloom to set gazebo3 instead of
+   just gazebo for renaming when releasing ROS wrappers.

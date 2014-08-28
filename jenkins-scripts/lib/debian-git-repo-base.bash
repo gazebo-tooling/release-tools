@@ -6,6 +6,15 @@ export ENABLE_REAPER=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
+# If no value for MULTIARCH_SUPPORT was submitted and
+# distro is precise, disable the multiarch, this is generally
+# since the use of GNUINSTALLDIRs
+if [[ -z ${MULTIARCH_SUPPORT} ]]; then
+  if [[ $DISTRO == 'precise' ]]; then
+    MULTIARCH_SUPPORT=false
+  fi
+fi
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
@@ -18,7 +27,15 @@ set -ex
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper cdbs git pkg-kde-tools
+# equivcs for mk-build-depends
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget cdbs ca-certificates dh-autoreconf autoconf equivs git
+
+# Also get gazebo repo's key, to be used in getting Gazebo
+#sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" > /etc/apt/sources.list.d/gazebo.list'
+#apt-get update
+
+# Needed for pbuilder
+wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
 
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
@@ -27,7 +44,7 @@ if [ $DISTRO = 'precise' ]; then
 fi
 
 # Step 0: create/update distro-specific pbuilder environment
-pbuilder-dist $DISTRO $ARCH create /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
+pbuilder-dist $DISTRO $ARCH create --othermirror "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main|deb $ubuntu_repo_url $DISTRO-updates main restricted universe multiverse" --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg --mirror $ubuntu_repo_url
 
 # Step 0: Clean up
 rm -rf $WORKSPACE/build
@@ -53,7 +70,7 @@ sed -i -e 's:unstable:$DISTRO:g' debian/changelog
 sed -i -e 's:experimental:$DISTRO:g' debian/changelog
 
 # In precise, no multiarch paths was implemented in GNUInstallDirs. Remove it.
-if [ $DISTRO = 'precise' ]; then
+if ! $MULTIARCH_SUPPORT; then
   sed -i -e 's:/\*/:/:g' debian/*.install
 fi
 
@@ -65,6 +82,10 @@ echo | dh_make -s --createorig -p ${PACKAGE}_\${VERSION_NO_REVISION} || true
 
 debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
+# Install dependencies from a dsc file
+#mk-build-deps -i ../*.dsc -t 'apt-get -y --no-install-recommends'
+#rm *build-deps*
+
 export DEB_BUILD_OPTIONS="parallel=$MAKE_JOBS"
 # Step 6: use pbuilder-dist to create binary package(s)
 pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
@@ -72,7 +93,7 @@ pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
 
-PKGS=\`find /var/lib/jenkins/pbuilder -name *.deb || true\`
+PKGS=\`find /var/lib/jenkins/pbuilder/*_result* -name *.deb || true\`
 
 FOUND_PKG=0
 for pkg in \${PKGS}; do
