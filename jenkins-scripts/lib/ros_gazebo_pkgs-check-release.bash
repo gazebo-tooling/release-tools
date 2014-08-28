@@ -65,11 +65,9 @@ done
 SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
 
 # In our nvidia machines, run the test to launch altas
-if \$GRAPHIC_TESTS; then
-  timeout 180 roslaunch gazebo_ros shapes_world.launch
-else
-  timeout 180 roslaunch gazebo_ros shapes_world.launch
-fi
+# Seems like there is no failure in runs on precise pbuilder in
+# our trusty machine. So we do not check for GRAPHIC_TESTS=true
+timeout 180 roslaunch gazebo_ros shapes_world.launch
 
 DELIM
 
