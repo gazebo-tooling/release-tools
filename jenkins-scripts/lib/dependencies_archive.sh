@@ -192,6 +192,7 @@ ROS_GAZEBO_PKGS_DEPENDENCIES="libtinyxml-dev                            \\
 			      ros-${ROS_DISTRO}-tf                      \\
 			      ros-${ROS_DISTRO}-trajectory-msgs         \\
 			      ros-${ROS_DISTRO}-urdf                    \\
+			      ros-${ROS_DISTRO}-xacro                   \\
 			      ros-${ROS_DISTRO}-cmake-modules"
 
 if [[ $ROS_DISTRO != 'groovy' ]]; then
