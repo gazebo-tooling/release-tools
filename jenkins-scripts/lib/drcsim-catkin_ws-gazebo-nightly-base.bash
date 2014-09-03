@@ -30,7 +30,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Install mercurial and drcsim's and gazebo Build-Depends
-apt-get install -y git mercurial ca-certificates ${BASE_DEPENDENCIES} ${DRCSIM_BASE_DEPENDENCIES} ${ROS_GAZEBO_PKGS_DEPENDENCIES} ${GAZEBO_DEB_PACKAGE}
+apt-get install -y git mercurial ca-certificates ${BASE_DEPENDENCIES} ${DRCSIM_BASE_DEPENDENCIES} ${ROS_GAZEBO_PKGS_DEPENDENCIES} ${GAZEBO_DEB_PACKAGE} ros-${ROS_DISTRO}-ros
 
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
@@ -47,18 +47,16 @@ fi
 . /opt/ros/${ROS_DISTRO}/setup.sh
 . /usr/share/gazebo/setup.sh
 
-if [ $DISTRO = quantal ]; then
-    rosdep init 
-    # Hack for not failing when github is down
-    update_done=false
-    seconds_waiting=0
-    while (! \$update_done); do
-      rosdep update && update_done=true
-      sleep 1
-      seconds_waiting=$((seconds_waiting+1))
-      [ \$seconds_waiting -gt 60 ] && exit 1
-    done
-fi
+rosdep init 
+# Hack for not failing when github is down
+update_done=false
+seconds_waiting=0
+while (! \$update_done); do
+  rosdep update && update_done=true
+  sleep 1
+  seconds_waiting=$((seconds_waiting+1))
+  [ \$seconds_waiting -gt 60 ] && exit 1
+done
 
 # Create the catkin workspace
 rm -fr $WORKSPACE/ws/src
