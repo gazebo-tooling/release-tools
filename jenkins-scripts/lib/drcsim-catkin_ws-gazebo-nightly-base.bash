@@ -68,15 +68,12 @@ catkin_init_workspace
 hg clone $WORKSPACE/drcsim drcsim 
 cd drcsim
 hg branches -a
-hg up fix_check_tests
+hg up atlas_shim_interface_jrivero 
 cd ..
 hg clone https://bitbucket.org/osrf/osrf-common osrf-common
 hg clone https://bitbucket.org/osrf/sandia-hand sandia-hand
 git clone https://github.com/ros-simulation/gazebo_ros_pkgs gazebo_ros_pkgs
-# Do not use gazebo_ros_control in groovy
-if [ $ROS_DISTRO = groovy ]; then
-  touch $WORKSPACE/ws/src/gazebo_ros_pkgs/gazebo_ros_control/CATKIN_IGNORE
-fi
+
 cd $WORKSPACE/ws
 catkin_make -j${MAKE_JOBS} install
 
