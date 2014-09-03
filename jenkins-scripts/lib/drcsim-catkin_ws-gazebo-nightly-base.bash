@@ -72,7 +72,7 @@ hg up atlas_shim_interface_jrivero
 cd ..
 hg clone https://bitbucket.org/osrf/osrf-common osrf-common
 hg clone https://bitbucket.org/osrf/sandia-hand sandia-hand
-git clone https://github.com/ros-simulation/gazebo_ros_pkgs gazebo_ros_pkgs
+git clone https://github.com/ros-simulation/gazebo_ros_pkgs -b ${ROS_DISTRO}-devel gazebo_ros_pkgs
 
 cd $WORKSPACE/ws
 catkin_make -j${MAKE_JOBS} install
