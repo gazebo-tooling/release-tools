@@ -112,12 +112,10 @@ fi
 # DRCSIM_DEPENDENCIES
 #
 # image-transport-plugins is needed to properly advertise compressed image topics
-DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
-                          ros-${ROS_DISTRO}-std-msgs                          \\
+DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-std-msgs                          \\
                           ros-${ROS_DISTRO}-common-msgs                       \\
                           ros-${ROS_DISTRO}-image-common                      \\
                           ros-${ROS_DISTRO}-geometry                          \\
-                          ros-${ROS_DISTRO}-pr2-controllers                   \\
                           ros-${ROS_DISTRO}-geometry-experimental             \\
                           ros-${ROS_DISTRO}-image-pipeline                    \\
                           ros-${ROS_DISTRO}-image-transport-plugins           \\
@@ -125,15 +123,17 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
                           ros-${ROS_DISTRO}-compressed-depth-image-transport  \\
                           ros-${ROS_DISTRO}-compressed-image-transport        \\
                           ros-${ROS_DISTRO}-theora-image-transport            \\
+                          ros-${ROS_DISTRO}-robot-model                       \\
                           ${GAZEBO_DEB_PACKAGE}"
 
-
-if [[ $ROS_DISTRO == 'groovy' ]]; then
-  DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} \\
-                            ros-${ROS_DISTRO}-robot-model-visualization"
+if [[ $ROS_DISTRO == 'hydro' ]]; then			  
+  DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
+                            ros-${ROS_DISTRO}-pr2-controllers    \\
+                            ros-${ROS_DISTRO}-pr2-mechanism"
 else
-  DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES} \\
-                            ros-${ROS_DISTRO}-robot-model"
+  DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
+                            ros-${ROS_DISTRO}-controller-manager \\
+                            ros-${ROS_DISTRO}-pr2-mechanism-msgs"
 fi
 
 # DRCSIM_FULL_DEPENDENCIES
