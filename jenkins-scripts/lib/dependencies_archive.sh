@@ -105,7 +105,7 @@ GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
 
 GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
 if [ -z $GAZEBO_DEB_PACKAGE ]; then
-    GAZEBO_DEB_PACKAGE=gazebo3
+    GAZEBO_DEB_PACKAGE=libgazebo4-dev
 fi
 
 #
@@ -121,7 +121,7 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-pr2-mechanism                     \\
                           ros-${ROS_DISTRO}-geometry-experimental             \\
                           ros-${ROS_DISTRO}-image-pipeline                    \\
                           ros-${ROS_DISTRO}-image-transport-plugins           \\
-                          ros-${ROS_DISTRO}-gazebo3-plugins                   \\
+                          ros-${ROS_DISTRO}-gazebo4-plugins                   \\
                           ros-${ROS_DISTRO}-compressed-depth-image-transport  \\
                           ros-${ROS_DISTRO}-compressed-image-transport        \\
                           ros-${ROS_DISTRO}-theora-image-transport            \\
@@ -147,8 +147,8 @@ fi
 DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}       \\
                           sandia-hand${ROS_POSTFIX}         \\
     	                  osrf-common${ROS_POSTFIX}         \\
-                          ros-${ROS_DISTRO}-gazebo3-plugins \\
-                          ros-${ROS_DISTRO}-gazebo3-ros     \\
+                          ros-${ROS_DISTRO}-gazebo4-plugins \\
+                          ros-${ROS_DISTRO}-gazebo4-ros     \\
                           ${GAZEBO_DEB_PACKAGE}"
 #
 # SANDIA_HAND DEPENDECIES
