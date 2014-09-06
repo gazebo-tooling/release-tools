@@ -30,7 +30,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Install mercurial and drcsim's and gazebo Build-Depends
-apt-get install -y git mercurial ca-certificates ${BASE_DEPENDENCIES} ${DRCSIM_BASE_DEPENDENCIES} ${ROS_GAZEBO_PKGS_DEPENDENCIES} ${GAZEBO_DEB_PACKAGE}
+apt-get install -y git mercurial ca-certificates ${BASE_DEPENDENCIES} ${DRCSIM_BASE_DEPENDENCIES} ${ROS_GAZEBO_PKGS_DEPENDENCIES} ${GAZEBO_DEB_PACKAGE} ros-${ROS_DISTRO}-ros
 
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
@@ -64,7 +64,6 @@ mkdir -p $WORKSPACE/ws/src
 cd $WORKSPACE/ws/src
 catkin_init_workspace
 hg clone $WORKSPACE/drcsim drcsim 
-# hg up fix_check_tests
 hg clone https://bitbucket.org/osrf/osrf-common osrf-common
 hg clone https://bitbucket.org/osrf/sandia-hand sandia-hand
 git clone https://github.com/ros-simulation/gazebo_ros_pkgs gazebo_ros_pkgs
