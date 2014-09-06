@@ -47,18 +47,16 @@ fi
 . /opt/ros/${ROS_DISTRO}/setup.sh
 . /usr/share/gazebo/setup.sh
 
-if [ $DISTRO = quantal ]; then
-    rosdep init 
-    # Hack for not failing when github is down
-    update_done=false
-    seconds_waiting=0
-    while (! \$update_done); do
-      rosdep update && update_done=true
-      sleep 1
-      seconds_waiting=$((seconds_waiting+1))
-      [ \$seconds_waiting -gt 60 ] && exit 1
-    done
-fi
+rosdep init 
+# Hack for not failing when github is down
+update_done=false
+seconds_waiting=0
+while (! \$update_done); do
+  rosdep update && update_done=true
+  sleep 1
+  seconds_waiting=$((seconds_waiting+1))
+  [ \$seconds_waiting -gt 60 ] && exit 1
+done
 
 # Create the catkin workspace
 rm -fr $WORKSPACE/ws/src
@@ -66,18 +64,13 @@ mkdir -p $WORKSPACE/ws/src
 cd $WORKSPACE/ws/src
 catkin_init_workspace
 hg clone $WORKSPACE/drcsim drcsim 
-cd drcsim
-hg branches -a
-hg up fix_check_tests
-cd ..
+# hg up fix_check_tests
 hg clone https://bitbucket.org/osrf/osrf-common osrf-common
 hg clone https://bitbucket.org/osrf/sandia-hand sandia-hand
 git clone https://github.com/ros-simulation/gazebo_ros_pkgs gazebo_ros_pkgs
-# Do not use gazebo_ros_control in groovy
-if [ $ROS_DISTRO = groovy ]; then
-  touch $WORKSPACE/ws/src/gazebo_ros_pkgs/gazebo_ros_control/CATKIN_IGNORE
-fi
+
 cd $WORKSPACE/ws
+catkin_make_isolated -j${MAKE_JOBS}
 catkin_make -j${MAKE_JOBS} install
 
 # Testing procedure
