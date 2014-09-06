@@ -66,7 +66,7 @@ catkin_init_workspace
 hg clone $WORKSPACE/drcsim drcsim 
 hg clone https://bitbucket.org/osrf/osrf-common osrf-common
 hg clone https://bitbucket.org/osrf/sandia-hand sandia-hand
-git clone https://github.com/ros-simulation/gazebo_ros_pkgs gazebo_ros_pkgs
+git clone https://github.com/ros-simulation/gazebo_ros_pkgs gazebo_ros_pkgs -b ${ROS_DISTRO}-devel
 
 cd $WORKSPACE/ws
 catkin_make_isolated -j${MAKE_JOBS}
