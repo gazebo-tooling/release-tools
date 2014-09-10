@@ -46,7 +46,7 @@ SDFORMAT_BASE_DEPENDENCIES="python                       \\
                             libboost-regex-dev           \\
                             libboost-iostreams-dev       \\
                             libtinyxml-dev               \\
-                            ruby1.9.1                    \\
+                            ruby1.9.1-dev                \\
 			    libxml2-utils"
 
 # Need to explicit define to use old sdformat package
