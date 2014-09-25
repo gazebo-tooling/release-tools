@@ -69,8 +69,8 @@ hg clone https://bitbucket.org/osrf/sandia-hand sandia-hand
 git clone https://github.com/ros-simulation/gazebo_ros_pkgs gazebo_ros_pkgs -b ${ROS_DISTRO}-devel
 
 cd $WORKSPACE/ws
-catkin_make_isolated -j${MAKE_JOBS}
 catkin_make -j${MAKE_JOBS} install
+catkin_make_isolated -j${MAKE_JOBS} install
 
 # Testing procedure
 SHELL=/bin/sh . $WORKSPACE/ws/install/setup.sh
