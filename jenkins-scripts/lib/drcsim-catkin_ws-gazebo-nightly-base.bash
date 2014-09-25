@@ -70,7 +70,7 @@ git clone https://github.com/ros-simulation/gazebo_ros_pkgs gazebo_ros_pkgs -b $
 
 cd $WORKSPACE/ws
 catkin_make -j${MAKE_JOBS} install
-catkin_make_isolated -j${MAKE_JOBS} install
+catkin_make_isolated -j${MAKE_JOBS} --install
 
 # Testing procedure
 SHELL=/bin/sh . $WORKSPACE/ws/install/setup.sh
