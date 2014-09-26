@@ -60,7 +60,13 @@ fi
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
-cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install $WORKSPACE/drcsim
+
+# Do not use atlassiminterface in 32 bist
+if [[ $DISTRO == 'i386' ]]; then
+    EXTRA_ARGS="-DUSE_ATLASSIMINTERFACE_BLOB:BOOL=False"
+fi
+
+cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install \$EXTRA_ARGS $WORKSPACE/drcsim
 make -j${MAKE_JOBS}
 make install
 SHELL=/bin/sh . $WORKSPACE/install/share/drcsim/setup.sh
