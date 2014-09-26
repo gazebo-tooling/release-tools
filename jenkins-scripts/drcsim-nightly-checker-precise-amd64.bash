@@ -5,7 +5,7 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=precise
-export ROS_DISTRO=groovy
+export ROS_DISTRO=hydro
 
 export SOFTWARE_UNDER_TEST=drcsim
 export GAZEBO_DEB_PACKAGE=gazebo-nightly

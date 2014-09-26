@@ -7,7 +7,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 export GPU_SUPPORT_NEEDED=true
 
 export DISTRO=precise
-export ROS_DISTRO=groovy
+export ROS_DISTRO=hydro
 
 export GZ_BUILD_TYPE=Release
 
