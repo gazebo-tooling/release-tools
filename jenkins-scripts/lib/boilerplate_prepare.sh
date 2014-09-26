@@ -65,7 +65,11 @@ else
   distro=${DISTRO}
 fi
 
-arch=amd64
+if [ -z "${ARCH+xxx}" ]; then
+    export ARCH=amd64
+fi
+
+arch=${ARCH}
 base=/var/cache/pbuilder-$distro-$arch
 aptconffile=$WORKSPACE/apt.conf
 
