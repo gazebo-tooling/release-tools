@@ -1,21 +1,21 @@
 REM Windows standard file to build Visual Studio projects
 
-IF "%PLATFORM_TO_BUILD%" == "32" (
+IF "%PLATFORM_TO_BUILD%" == "x86" (
   echo "Using 32bits VS configuration"
-  set VCVARSALL=%VS32bits_VCVARSALL%
+  set VS_CMAKE_GEN=%VS32bits_CMAKE_GEN%
 ) ELSE (
   echo "Using 64bits VS configuration"
-  set VCVARSALL=%VS64bits_VCVARSALL%
+  set VS_CMAKE_GEN=%VS64bits_CMAKE_GEN%
 )
 
 REM Configure the VC++ compilation
-call %VCVARSALL%
+call "c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" %PLATFORM_TO_BUILD%
 
 echo %WORKSPACE%
 cd %WORKSPACE%
 mkdir build
 cd build
 
-cmake .. %VS_DEFAULT_FLAGS% %ARG_CMAKE_FLAGS%
+cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_FLAGS% %ARG_CMAKE_FLAGS%
 
 msbuild ALL_BUILD.vcxproj
