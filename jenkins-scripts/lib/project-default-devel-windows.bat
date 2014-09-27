@@ -1,6 +1,6 @@
 REM Windows standard file to build Visual Studio projects
 
-IF "%PLATFORM_TO_BUILD%" == "x86" (
+IF %PLATFORM_TO_BUILD% == x86 (
   echo "Using 32bits VS configuration"
   set VS_CMAKE_GEN=%VS32bits_CMAKE_GEN%
 ) ELSE (
