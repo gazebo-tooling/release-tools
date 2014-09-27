@@ -1,4 +1,4 @@
-set VS32bits_VCVARSALL='"c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" x86'
+set VS32bits_VCVARSALL='"c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" x86"'
 set VS32bits_DEFAULT_FLAGS='-G"Visual Studio 12"'
 
 set VS64bits_VCVARSALL='"c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" x64'
