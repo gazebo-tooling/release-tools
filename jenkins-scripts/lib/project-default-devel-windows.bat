@@ -9,7 +9,7 @@ IF %PLATFORM_TO_BUILD% == x86 (
 )
 
 REM Configure the VC++ compilation
-call "c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" %PLATFORM_TO_BUILD%
+"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" %PLATFORM_TO_BUILD%
 
 echo %WORKSPACE%
 cd %WORKSPACE%
