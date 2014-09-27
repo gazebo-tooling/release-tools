@@ -4,4 +4,4 @@ set VS64bits_CMAKE_GEN=-G"Visual Studio 12 Win64"
 set VS_DEFAULT_FLAGS=/p:Configuration=Release -DCMAKE_BUILD_TYPE:STRING=Release
 
 REM Software avalibale on windows node
-set ARG_CMAKE_FLAGS='-DBOOST_ROOT:STRING="C:\local\boost_1_55_0" -DBOOST_LIBRARYDIR:STRING="C:\local\boost_1_55_0\lib64-msvc-12.0"'
+set CMAKE_BOOST_FLAGS='-DBOOST_ROOT:STRING="C:\local\boost_1_55_0" -DBOOST_LIBRARYDIR:STRING="C:\local\boost_1_55_0\lib64-msvc-12.0"'
