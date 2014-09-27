@@ -19,8 +19,7 @@ mkdir build
 cd build
 echo "Current directory: %cd%"
 
-echo "cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_FLAGS% %ARG_CMAKE_FLAGS%"
-cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_FLAGS%
-cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_FLAGS% %ARG_CMAKE_FLAGS%
+echo "cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS%"
+cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS%
 
-msbuild ALL_BUILD.vcxproj
+msbuild %VS_DEFAULT_MSBUILD_FLAGS% ALL_BUILD.vcxproj
