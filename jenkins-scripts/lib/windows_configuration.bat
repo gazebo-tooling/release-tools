@@ -9,7 +9,8 @@ set CMAKE_BOOST_FLAGS=-DBOOST_ROOT:STRING="C:\local\boost_1_55_0" -DBOOST_LIBRAR
 
 set CMAKE_ZEROMQ_FLAGS=-DZeroMQ_ROOT_DIR="C:\Program Files (x86)\ZeroMQ 4.0.4" 
 set CMAKE_PROTOBUF_FLAGS=-DPROTOBUF_SRC_ROOT_FOLDER="C:\local\protobuf-2.6.0"
-set PATH=%PATH%;C:\local\protobuf_2.6.0
+set PATH=%PATH%C:\local\protobuf_2.6.0
+protoc
 set CMAKE_CPPZMQ_FLAGS=-DCPPZMQ_HEADER_PATH="C:\local\cppzmq"
 
 echo %PATH%
