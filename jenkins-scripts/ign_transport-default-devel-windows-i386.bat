@@ -1,5 +1,3 @@
-#!/bin/bash -x
-
 echo" %~dp0"
 echo" %~dp"
 
