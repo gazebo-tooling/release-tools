@@ -18,6 +18,7 @@ if exist build ( rmdir build /s /q )
 mkdir build
 cd build
 echo "Current directory: %cd%"
+cmake ..
 
 echo "cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_FLAGS% %ARG_CMAKE_FLAGS%"
 cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_FLAGS% %ARG_CMAKE_FLAGS%
