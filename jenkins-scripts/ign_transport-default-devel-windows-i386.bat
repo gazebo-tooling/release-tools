@@ -1,6 +1,3 @@
-echo "%~dp0"
-echo "%~dp"
-
 set SCRIPT_DIR="%~dp0"
 
 call "%SCRIPT_DIR%/lib/windows_configuration.bat"
