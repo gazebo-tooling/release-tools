@@ -13,9 +13,12 @@ call "c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" %PLA
 
 echo %WORKSPACE%
 cd %WORKSPACE%
+REM Reset the build directory if exists
+if exist build ( rmdir build /s /q )
 mkdir build
 cd build
 
+echo "cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_FLAGS% %ARG_CMAKE_FLAGS%"
 cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_FLAGS% %ARG_CMAKE_FLAGS%
 
 msbuild ALL_BUILD.vcxproj
