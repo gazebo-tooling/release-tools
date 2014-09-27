@@ -5,7 +5,7 @@ IF "%PLATFORM_TO_BUILD%" == "32" (
   set VCVARSALL=%VS32bits_VCVARSALL%
 ) ELSE (
   echo "Using 64bits VS configuration"
-  set VCVARSALL="%VS64bits_VCVARSALL%
+  set VCVARSALL=%VS64bits_VCVARSALL%
 )
 
 REM Configure the VC++ compilation
