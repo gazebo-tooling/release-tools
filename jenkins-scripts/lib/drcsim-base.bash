@@ -63,7 +63,7 @@ cd $WORKSPACE/build
 
 # Do not use atlassiminterface in 32 bist
 echo "Check for atlassimitnerface in 32 bits"
-if [ "$DISTRO" = "i386" ]; then
+if [ "$ARCH" = "i386" ]; then
     EXTRA_ARGS="-DUSE_ATLASSIMINTERFACE_BLOB:BOOL=False"
 fi
 
