@@ -64,7 +64,7 @@ cd $WORKSPACE/build
 # Do not use atlassiminterface in 32 bist
 echo "Check for atlassimitnerface in 32 bits"
 if [ "$ARCH" = "i386" ]; then
-    EXTRA_ARGS="-DATLAS_SIMINTERFACE_1_BINARY_EXISTS=1"
+    EXTRA_ARGS="-DATLAS_SIMINTERFACE_1_BINARY_EXISTS:BOOL=false"
 fi
 
 cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install \$EXTRA_ARGS $WORKSPACE/drcsim
