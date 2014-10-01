@@ -5,5 +5,5 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 . ${SCRIPT_DIR}/lib/project-default-devel-homebrew-amd64.bash gazebo \
-  "--with-ffmpeg --with-bullet --with-simbody --with-player"
+  "--with-ffmpeg --with-bullet --with-simbody"
 

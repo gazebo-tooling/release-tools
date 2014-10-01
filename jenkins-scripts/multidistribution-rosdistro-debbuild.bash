@@ -4,7 +4,7 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export RELEASE_REPO_DIRECTORY=${DISTRO}/${ROS_DISTRO}
+export RELEASE_REPO_DIRECTORY=${DISTRO}
 export ENABLE_ROS=true
 export WORKAROUND_PBUILDER_BUG=true
 

@@ -25,7 +25,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Install drcsim's Build-Depends
-apt-get install -y ${BASE_DEPENDENCIES} ${DRCSIM_FULL_DEPENDENCIES}
+apt-get install -y --force-yes ${BASE_DEPENDENCIES} ${DRCSIM_FULL_DEPENDENCIES}
 
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
@@ -60,7 +60,14 @@ fi
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
-cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install $WORKSPACE/drcsim
+
+# Do not use atlassiminterface in 32 bist
+echo "Check for atlassimitnerface in 32 bits"
+if [ "$ARCH" = "i386" ]; then
+    EXTRA_ARGS="-DATLAS_SIMINTERFACE_1_BINARY_EXISTS:BOOL=false"
+fi
+
+cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install \$EXTRA_ARGS $WORKSPACE/drcsim
 make -j${MAKE_JOBS}
 make install
 SHELL=/bin/sh . $WORKSPACE/install/share/drcsim/setup.sh
