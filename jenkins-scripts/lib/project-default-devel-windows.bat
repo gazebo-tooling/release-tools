@@ -25,4 +25,4 @@ REM Running the compilation
 msbuild %VS_DEFAULT_MSBUILD_FLAGS% ALL_BUILD.vcxproj
 
 REM Need to find a way of running test from msbuild passing ARGS=-VV
-ctest -C "Release" --verbose --extra-verbose || true
+ctest -C "Release" --verbose --extra-verbose || exit 0
