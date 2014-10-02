@@ -11,9 +11,12 @@ fi
 
 # Hack to found the current display (if available) two steps:
 # Check for /tmp/.X11-unix/ socket and check if the process is running
-for i in `ls /tmp/.X11-unix/ | head -1 | sed -e 's@^X@:@'`
+for i in `ls /tmp/.X11-unix/ | sed -e 's@^X@:@'`
 do
+  # grep can fail so let's disable the fail or error during its call
+  set +e
   ps aux | grep bin/X.*$i | grep -v grep
+  set -e
   if [ $? -eq 0 ] ; then
     export DISPLAY=$i
   fi
