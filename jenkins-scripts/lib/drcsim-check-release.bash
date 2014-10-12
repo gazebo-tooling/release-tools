@@ -47,7 +47,8 @@ if [ $DISTRO = 'precise' ]; then
     DRCSIM_PKG=drcsim-${ROS_DISTRO}
 fi
 
-apt-get install -y \$DRCSIM_PKG
+# force-yes to solve problems with ros certificate
+apt-get install -y --force-yes \$DRCSIM_PKG
 
 # Step 2: configure and build
 rosdep init 
