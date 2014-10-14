@@ -21,7 +21,7 @@ set -ex
 # get ROS repo's key
 apt-get install -y wget
 sh -c 'echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/ros-latest.list'
-wget http://packages.ros.org/ros.key -O - | apt-key add -
+wget --no-check-certificate https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | apt-key add -
 # Also get drc repo's key, to be used in getting Gazebo
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
@@ -30,7 +30,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Install mercurial and drcsim's and gazebo Build-Depends
-apt-get install -y git mercurial ca-certificates ${BASE_DEPENDENCIES} ${DRCSIM_BASE_DEPENDENCIES} ${ROS_GAZEBO_PKGS_DEPENDENCIES} ${GAZEBO_DEB_PACKAGE}
+apt-get install -y git mercurial ca-certificates ${BASE_DEPENDENCIES} ${DRCSIM_BASE_DEPENDENCIES} ${ROS_GAZEBO_PKGS_DEPENDENCIES} ${GAZEBO_DEB_PACKAGE} ros-${ROS_DISTRO}-ros
 
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
@@ -47,18 +47,16 @@ fi
 . /opt/ros/${ROS_DISTRO}/setup.sh
 . /usr/share/gazebo/setup.sh
 
-if [ $DISTRO = quantal ]; then
-    rosdep init 
-    # Hack for not failing when github is down
-    update_done=false
-    seconds_waiting=0
-    while (! \$update_done); do
-      rosdep update && update_done=true
-      sleep 1
-      seconds_waiting=$((seconds_waiting+1))
-      [ \$seconds_waiting -gt 60 ] && exit 1
-    done
-fi
+rosdep init 
+# Hack for not failing when github is down
+update_done=false
+seconds_waiting=0
+while (! \$update_done); do
+  rosdep update && update_done=true
+  sleep 1
+  seconds_waiting=$((seconds_waiting+1))
+  [ \$seconds_waiting -gt 60 ] && exit 1
+done
 
 # Create the catkin workspace
 rm -fr $WORKSPACE/ws/src
@@ -66,19 +64,13 @@ mkdir -p $WORKSPACE/ws/src
 cd $WORKSPACE/ws/src
 catkin_init_workspace
 hg clone $WORKSPACE/drcsim drcsim 
-cd drcsim
-hg branches -a
-hg up fix_check_tests
-cd ..
 hg clone https://bitbucket.org/osrf/osrf-common osrf-common
 hg clone https://bitbucket.org/osrf/sandia-hand sandia-hand
-git clone https://github.com/ros-simulation/gazebo_ros_pkgs gazebo_ros_pkgs
-# Do not use gazebo_ros_control in groovy
-if [ $ROS_DISTRO = groovy ]; then
-  touch $WORKSPACE/ws/src/gazebo_ros_pkgs/gazebo_ros_control/CATKIN_IGNORE
-fi
+git clone https://github.com/ros-simulation/gazebo_ros_pkgs gazebo_ros_pkgs -b ${ROS_DISTRO}-devel
+
 cd $WORKSPACE/ws
 catkin_make -j${MAKE_JOBS} install
+catkin_make_isolated -j${MAKE_JOBS} --install
 
 # Testing procedure
 SHELL=/bin/sh . $WORKSPACE/ws/install/setup.sh

@@ -5,7 +5,7 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=precise
-export ROS_DISTRO=groovy
+export ROS_DISTRO=hydro
 
 export GZ_BUILD_TYPE=Debug
 

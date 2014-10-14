@@ -16,7 +16,7 @@ set -ex
 # get ROS repo's key
 apt-get install -y wget
 sh -c 'echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/ros-latest.list'
-wget http://packages.ros.org/ros.key -O - | apt-key add -
+wget --no-check-certificate https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | apt-key add -
 # Also get drc repo's key, to be used in getting Gazebo
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
@@ -25,7 +25,7 @@ apt-get update
 # Step 1: install everything you need
 
 # Install drcsim's Build-Depends
-apt-get install -y ${BASE_DEPENDENCIES} ${DRCSIM_FULL_DEPENDENCIES}
+apt-get install -y --force-yes ${BASE_DEPENDENCIES} ${DRCSIM_FULL_DEPENDENCIES}
 
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
@@ -60,7 +60,14 @@ fi
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
-cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install $WORKSPACE/drcsim
+
+# Do not use atlassiminterface in 32 bist
+echo "Check for atlassimitnerface in 32 bits"
+if [ "$ARCH" = "i386" ]; then
+    EXTRA_ARGS="-DATLAS_SIMINTERFACE_1_BINARY_EXISTS:BOOL=false"
+fi
+
+cmake -DCMAKE_INSTALL_PREFIX=$WORKSPACE/install \$EXTRA_ARGS $WORKSPACE/drcsim
 make -j${MAKE_JOBS}
 make install
 SHELL=/bin/sh . $WORKSPACE/install/share/drcsim/setup.sh
