@@ -17,5 +17,3 @@ set ZEROMQ_DLL_PATH="C:\Program Files (x86)\ZeroMQ 4.0.4\bin"
 
 REM cppzmq header 
 set CMAKE_CPPZMQ_FLAGS=-DCPPZMQ_HEADER_PATH="C:\local\cppzmq"
-
-echo %PATH%
