@@ -1,6 +1,18 @@
 set SCRIPT_DIR="%~dp0"
 
-"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" x86
+REM i386 for the moment to ignition-transport
+set PLATFORM_TO_BUILD=x86
+
+IF %PLATFORM_TO_BUILD% == x86 (
+  echo "Using 32bits VS configuration"
+  set VS_CMAKE_GEN=%VS32bits_CMAKE_GEN%
+) ELSE (
+  echo "Using 64bits VS configuration"
+  set VS_CMAKE_GEN=%VS64bits_CMAKE_GEN%
+)
+
+REM Configure the VC++ compilation
+call "c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" %PLATFORM_TO_BUILD%
 
 cd "C:\Temp"
 mkdir workspace
