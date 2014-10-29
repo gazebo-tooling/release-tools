@@ -36,6 +36,6 @@ cd ign-transport
 
 mkdir build
 cd build
-..\configure
-nmake
-nmake install
+..\configure || goto:error
+nmake || goto:error
+nmake install || goto:error
