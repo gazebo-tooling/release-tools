@@ -8,7 +8,7 @@ call "%SCRIPT_DIR%/BatchLib.bat"
 REM 2. Start of the Batchlib, acquisition of the command line parameters, swtich to the temporary LibTest1.BLibTmp.bat
 <:%BL.Start%
 
-call :bl.import "%SCRIPT_DIR%/lib/windows_library.bat"
+call:BL.Import "%SCRIPT_DIR%/lib/windows_library.bat"
 
 REM i386 for the moment to ignition-transport
 set PLATFORM_TO_BUILD=x86
