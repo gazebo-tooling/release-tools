@@ -16,7 +16,7 @@ REM Configure the VC++ compilation
 call "c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" %PLATFORM_TO_BUILD%
 
 cd "C:\Temp"
-del workspace /s
+del workspace /s /f /q
 mkdir workspace
 cd workspace
 
