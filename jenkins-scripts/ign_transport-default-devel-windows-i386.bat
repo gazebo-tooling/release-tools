@@ -3,7 +3,7 @@
 set SCRIPT_DIR="%~dp0"
 
 REM 1. Prepare the BatchLibrary for the start command
-call BatchLib.bat
+call "%SCRIPT_DIR%/BatchLib.bat"
 
 REM 2. Start of the Batchlib, acquisition of the command line parameters, swtich to the temporary LibTest1.BLibTmp.bat
 <:%BL.Start%
