@@ -36,10 +36,12 @@ cd ign-transport
 
 mkdir build
 cd build
-..\configure || goto:error
+call "..\configure.bat" || goto:error
 nmake || goto:error
 nmake install || goto:error
 
+REM ##################################################################################
+REM
 REM TODO: remove this copy/paste when loading function from a file is working
 REM TODO: http://www.dostips.com/forum/viewtopic.php?f=3&t=1626&hilit=%20library 
 
