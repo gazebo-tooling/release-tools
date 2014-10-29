@@ -2,8 +2,9 @@
 call :%*
 exit /b
 
-:create_unzip_script
-REM ##################################
+:: ##################################
+:create_unzip_script - Create the unzip script to run unzip command
+::
 REM Unzip script from http://jagaroth.livejournal.com/69147.html 
 
 REM This script upzip's files...
@@ -42,19 +43,27 @@ REM This script upzip's files...
 >> j_unzip.vbs ECHO.
 >> j_unzip.vbs ECHO. WScrip.Echo ( "Extracted." )
 >> j_unzip.vbs ECHO.
-REM ##################################
 goto :EOF
 
-:wget
+:: ##################################
+:wget - Download an URL to the current directory
+:: 
+:: arg1 URL to download
+:: arg2 filename (not including the path, just the filename)
 REM Downloading %~1
 bitsadmin /transfer mydownloadjob /download /priority normal %~1 %cd%\%~2 || goto :error
 goto :EOF
 
-:unzip 
+:: ##################################
+:unzip - Unizp a file
+::
+:: arg1 path to the zip file to uncompress
 cscript //B j_unzip.vbs %~1 || goto:error
 goto :EOF
 
-:error
+:: ##################################
+:error - error routine
+::
 echo Failed with error #%errorlevel%.
 exit /b %errorlevel%
 goto :EOF
