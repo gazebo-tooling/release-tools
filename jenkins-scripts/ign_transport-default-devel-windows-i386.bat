@@ -15,6 +15,7 @@ REM Configure the VC++ compilation
 call "c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" %PLATFORM_TO_BUILD%
 
 cd "C:\Temp"
+del workspace /s
 mkdir workspace
 cd workspace
 
@@ -64,7 +65,7 @@ REM This script upzip's files...
 >> j_unzip.vbs ECHO.
 REM ##################################
 
-bitsadmin /transfer mydownloadjob /download /priority normal http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip %cd%\cppzmq.zip
+bitsadmin /transfer mydownloadjob /download /priority normal http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip %cd%\cppzmq-noarch.zip
 bitsadmin /transfer mydownloadjob /download /priority normal http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-win32-vc12.zip %cd%\protobuf-2.6.0-win32-vc12.zip
 bitsadmin /transfer mydownloadjob /download /priority normal http://packages.osrfoundation.org/win32/deps/zeromq-3.2.4-x86.zip %cd%\zeromq-3.2.4-x86.zip
 
