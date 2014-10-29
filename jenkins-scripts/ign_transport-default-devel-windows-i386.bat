@@ -64,9 +64,9 @@ REM This script upzip's files...
 >> j_unzip.vbs ECHO.
 REM ##################################
 
-bitsadmin /transfer mydownloadjob  /download /priority normal http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip
-bitsadmin /transfer mydownloadjob  /download /priority normal http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-win32-vc12.zip
-bitsadmin /transfer mydownloadjob  /download /priority normal http://packages.osrfoundation.org/win32/deps/zeromq-3.2.4-x86.zip
+bitsadmin /transfer mydownloadjob /download /priority normal http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip %cd%\cppzmq.zip
+bitsadmin /transfer mydownloadjob /download /priority normal http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-win32-vc12.zip %cd%\protobuf-2.6.0-win32-vc12.zip
+bitsadmin /transfer mydownloadjob /download /priority normal http://packages.osrfoundation.org/win32/deps/zeromq-3.2.4-x86.zip %cd%\zeromq-3.2.4-x86.zip
 
 cscript //B j_unzip.vbs cppzmq-noarch.zip
 cscript //B j_unzip.vbs protobuf-2.6.0-win32-vc12.zip
