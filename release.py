@@ -135,9 +135,18 @@ def sanity_package_name(repo_dir, package, package_alias):
             continue
         # Check that first word is the package alias or name
         if line.partition(' ')[0] != expected_name:
-            error("Error in package name or alias: " + line)
+            error("Error in changelog package name or alias: " + line)
 
-    print_success("Package names in changelog")
+    cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
+    out, err = check_call(cmd)
+    for line in out.split("\n"):
+        if not line:
+            continue
+        # Check that first word is the package alias or name
+        if line.partition(' ')[2] != expected_name:
+            error("Error in source package. File:  " + line.partition(' ')[1] + ". Got " + line.partition(' ')[2] + " expected " + expected_name)
+
+    print_success("Package names in changelog and control")
 
 def sanity_package_version(repo_dir, version, release_version):
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
