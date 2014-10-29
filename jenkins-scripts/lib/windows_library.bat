@@ -1,11 +1,6 @@
 :create_unzip_script - Create a script to unzip files
 REM ##################################
 REM Unzip script from http://jagaroth.livejournal.com/69147.html 
-REM
-REM Changing working folder back to current directory for Vista & 7 compatibility
-%~d0
-CD %~dp0
-REM Folder changed
 
 REM This script upzip's files...
 > j_unzip.vbs ECHO '
