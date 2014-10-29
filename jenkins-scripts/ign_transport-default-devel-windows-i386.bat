@@ -15,7 +15,6 @@ IF %PLATFORM_TO_BUILD% == x86 (
 REM Configure the VC++ compilation
 call "c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" %PLATFORM_TO_BUILD%
 
-cd "C:\Temp"
 del workspace /q /s /f 
 mkdir workspace
 cd workspace
@@ -25,10 +24,10 @@ call:wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-win32-vc12
 call:wget http://packages.osrfoundation.org/win32/deps/zeromq-3.2.4-x86.zip zeromq-3.2.4-x86.zip
 
 REM get the unzip script for our library
-call:create_unzip_script
-call:unzip cppzmq-noarch.zip
-call:unzip protobuf-2.6.0-win32-vc12.zip
-call:unzip zeromq-3.2.4-x86.zip
+call:create_unzip_script || goto:error
+call:unzip cppzmq-noarch.zip || goto:error
+call:unzip protobuf-2.6.0-win32-vc12.zip || goto:error
+call:unzip zeromq-3.2.4-x86.zip || goto:error
 
 REM TODO: mercurial autoinstalled in windows if not present? Is that even possible?
 hg clone https://bitbucket.org/ignitionrobotics/ign-transport
@@ -50,8 +49,8 @@ REM ##################################
 REM Unzip script from http://jagaroth.livejournal.com/69147.html 
 REM
 REM Changing working folder back to current directory for Vista & 7 compatibility
-%~d0
-CD %~dp0
+REM %~d0
+REM CD %~dp0
 REM Folder changed
 
 REM This script upzip's files...
@@ -90,7 +89,6 @@ REM This script upzip's files...
 >> j_unzip.vbs ECHO.
 >> j_unzip.vbs ECHO. WScrip.Echo ( "Extracted." )
 >> j_unzip.vbs ECHO.
-REM ##################################
 GOTO:EOF
 
 :wget - Download internet file in your current directory. [URL] [filename]
