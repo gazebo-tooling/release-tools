@@ -1,3 +1,5 @@
+@echo on
+
 set SCRIPT_DIR="%~dp0"
 call "%SCRIPT_DIR%/lib/windows_library.bat"
 
@@ -6,10 +8,8 @@ set PLATFORM_TO_BUILD=x86
 
 IF %PLATFORM_TO_BUILD% == x86 (
   echo "Using 32bits VS configuration"
-  set VS_CMAKE_GEN=%VS32bits_CMAKE_GEN%
 ) ELSE (
   echo "Using 64bits VS configuration"
-  set VS_CMAKE_GEN=%VS64bits_CMAKE_GEN%
 )
 
 REM Configure the VC++ compilation

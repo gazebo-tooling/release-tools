@@ -48,10 +48,14 @@ GOTO:EOF
 
 :wget - Download internet file in your current directory. [URL] [filename]
 REM Downloading %~1
-bitsadmin /transfer mydownloadjob /download /priority normal %~1 %cd%\%~2
+bitsadmin /transfer mydownloadjob /download /priority normal %~1 %cd%\%~2 || goto :error
 GOTO:EOF
 
 REM TODO: automatically create the download script if it does not exists
 :unzip - Unzip file [zip_file]
-cscript //B j_unzip.vbs %~1
+cscript //B j_unzip.vbs %~1 || goto:error
 GOTO:EOF
+
+:error
+echo Failed with error #%errorlevel%.
+exit /b %errorlevel%
