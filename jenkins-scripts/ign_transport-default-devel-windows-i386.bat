@@ -2,6 +2,7 @@
 
 set SCRIPT_DIR="%~dp0"
 call "%SCRIPT_DIR%/lib/windows_library.bat"
+if %errorlevel% neq 0 exit /b %errorlevel%
 
 REM i386 for the moment to ignition-transport
 set PLATFORM_TO_BUILD=x86
