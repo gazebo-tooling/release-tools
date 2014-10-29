@@ -2,13 +2,7 @@
 
 set SCRIPT_DIR="%~dp0"
 
-REM 1. Prepare the BatchLibrary for the start command
-call "%SCRIPT_DIR%/BatchLib.bat"
-
-REM 2. Start of the Batchlib, acquisition of the command line parameters, swtich to the temporary LibTest1.BLibTmp.bat
-<:%BL.Start%
-
-call:BL.Import "%SCRIPT_DIR%/lib/windows_library.bat"
+call "%SCRIPT_DIR%/lib/windows_library.bat"
 
 REM i386 for the moment to ignition-transport
 set PLATFORM_TO_BUILD=x86

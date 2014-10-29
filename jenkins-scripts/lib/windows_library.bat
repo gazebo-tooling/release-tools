@@ -1,3 +1,7 @@
+:: needed to import functions from other batch files
+call :%*
+exit /b
+
 :create_unzip_script - Create a script to unzip files
 REM ##################################
 REM Unzip script from http://jagaroth.livejournal.com/69147.html 
