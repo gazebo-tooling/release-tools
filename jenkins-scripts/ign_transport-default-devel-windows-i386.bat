@@ -2,7 +2,7 @@
 
 set SCRIPT_DIR="%~dp0"
 
-call "%SCRIPT_DIR%/lib/windows_library.bat"
+set win_lib="%SCRIPT_DIR%/lib/windows_library.bat"
 
 REM i386 for the moment to ignition-transport
 set PLATFORM_TO_BUILD=x86
@@ -20,15 +20,15 @@ del workspace /q /s /f
 mkdir workspace
 cd workspace
 
-call:wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip
-call:wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-win32-vc12.zip protobuf-2.6.0-win32-vc12.zip
-call:wget http://packages.osrfoundation.org/win32/deps/zeromq-3.2.4-x86.zip zeromq-3.2.4-x86.zip
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-win32-vc12.zip protobuf-2.6.0-win32-vc12.zip
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zeromq-3.2.4-x86.zip zeromq-3.2.4-x86.zip
 
 REM get the unzip script for our library
-call:create_unzip_script || goto:error
-call:unzip cppzmq-noarch.zip || goto:error
-call:unzip protobuf-2.6.0-win32-vc12.zip || goto:error
-call:unzip zeromq-3.2.4-x86.zip || goto:error
+call %win_lib% :create_unzip_script || goto:error
+call %win_lib% :unzip cppzmq-noarch.zip || goto:error
+call %win_lib% :unzip protobuf-2.6.0-win32-vc12.zip || goto:error
+call %win_lib% :unzip zeromq-3.2.4-x86.zip || goto:error
 
 REM TODO: mercurial autoinstalled in windows if not present? Is that even possible?
 hg clone https://bitbucket.org/ignitionrobotics/ign-transport

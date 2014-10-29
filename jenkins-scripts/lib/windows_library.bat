@@ -43,16 +43,16 @@ REM This script upzip's files...
 >> j_unzip.vbs ECHO. WScrip.Echo ( "Extracted." )
 >> j_unzip.vbs ECHO.
 REM ##################################
-exit /b
+goto :EOF
 
 :wget
 REM Downloading %~1
 bitsadmin /transfer mydownloadjob /download /priority normal %~1 %cd%\%~2 || goto :error
-exit /b
+goto :EOF
 
 :unzip 
 cscript //B j_unzip.vbs %~1 || goto:error
-exit /b
+goto :EOF
 
 :error
 echo Failed with error #%errorlevel%.
