@@ -64,9 +64,13 @@ for f in $changelog_files; do
 done
 
 hg diff
+echo
 hg status
 
 echo "All fine to commit? [enter] [control+c to abort]"
 read 
 
-hg commit -m "${msg_text}" --all
+echo
+hg commit -m "${msg_text}"
+echo "Commit done"
+hg push -b .
