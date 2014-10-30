@@ -161,7 +161,7 @@ def sanity_package_version(repo_dir, version, release_version):
         c_revision=full_version[full_version.find("-")+1:full_version.find("~")]
 
         if c_version != version:
-            error("Error in package version. Repo version: " + c_version + "Provided version: " + version)
+            error("Error in package version. Repo version: " + c_version + " Provided version: " + version)
 
         if c_revision != release_version:
             error("Error in package release version. Expected " + release_version + " in line " + full_version)
@@ -236,13 +236,6 @@ def generate_upload_tarball(args):
             print('stdout: %s'%(out))
             sys.exit(1)
     
-        # Tag repo
-        tag = '%s_%s'%(args.package_alias, args.version)
-        check_call(['hg', 'tag', '-f', tag])
-    
-        # Push tag
-        check_call(['hg', 'push'])
-
         # Make a clean copy, to avoid pulling in other stuff that the user has
         # sitting in the working copy
         srcdir = os.path.join(tmpdir, 'src')
@@ -285,6 +278,19 @@ def generate_upload_tarball(args):
 
     check_call(['scp', tarball_path, UPLOAD_DEST])
     shutil.rmtree(tmpdir)
+
+    try:
+        # Tag repo
+        os.chdir(srcdir)
+        tag = '%s_%s'%(args.package_alias, args.version)
+        check_call(['hg', 'tag', '-f', tag])
+    
+        # Push tag
+        check_call(['hg', 'push'])
+    except:
+        # Assume git
+        pass
+
     source_tarball_uri = DOWNLOAD_URI + tarball_fname
 
     ###################################################
