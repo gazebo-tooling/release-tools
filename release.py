@@ -298,14 +298,6 @@ def generate_upload_tarball(args):
     # TODO: Consider auto-updating the Ubuntu changelog.  It requires
     # cloning the <package>-release repo, making a change, and pushing it back.
     # Until we do that, the user must have first updated it manually.
-    if not args.nightly:
-        print('\n\nReady to kick off the Ubuntu deb-builder.  Did you already update ubuntu/debian/changelog in the %s-release repo (on the %s branch)?  [y/N]'%(args.package, args. release_repo_branch))
-        answer = sys.stdin.readline().strip()
-        if answer != 'Y' and answer != 'y':
-            print('Ubuntu deb-builds were NOT started.')
-            print('Please update the changelog and try again.')
-            sys.exit(1)
-
     return source_tarball_uri
 
 
