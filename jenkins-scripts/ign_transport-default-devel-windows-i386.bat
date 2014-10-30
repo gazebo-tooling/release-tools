@@ -1,10 +1,41 @@
+@echo on
+
 set SCRIPT_DIR="%~dp0"
 
-call "%SCRIPT_DIR%/lib/windows_configuration.bat"
-REM x64 or x86
-set PLATFORM_TO_BUILD=x86
-set ARG_CMAKE_FLAGS=%CMAKE_ZEROMQ_FLAGS% %CMAKE_PROTOBUF_FLAGS% %CMAKE_CPPZMQ_FLAGS%
-set PATH=%PATH%;%ZEROMQ_DLL_PATH%;%PROTOBUF_DLL_PATH%
-echo %PATH%
+set win_lib="%SCRIPT_DIR%/lib/windows_library.bat"
 
-call "%SCRIPT_DIR%/lib/project-default-devel-windows.bat"
+REM i386 for the moment to ignition-transport
+set PLATFORM_TO_BUILD=x86
+
+IF %PLATFORM_TO_BUILD% == x86 (
+  echo "Using 32bits VS configuration"
+) ELSE (
+  echo "Using 64bits VS configuration"
+)
+
+REM Configure the VC++ compilation
+call "c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" %PLATFORM_TO_BUILD%
+
+del workspace /q /s /f 
+mkdir workspace
+cd workspace
+
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-win32-vc12.zip protobuf-2.6.0-win32-vc12.zip
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zeromq-3.2.4-x86.zip zeromq-3.2.4-x86.zip
+
+REM get the unzip script for our library
+call %win_lib% :create_unzip_script || goto:error
+call %win_lib% :unzip cppzmq-noarch.zip || goto:error
+call %win_lib% :unzip protobuf-2.6.0-win32-vc12.zip || goto:error
+call %win_lib% :unzip zeromq-3.2.4-x86.zip || goto:error
+
+REM TODO: mercurial autoinstalled in windows if not present? Is that even possible?
+hg clone https://bitbucket.org/ignitionrobotics/ign-transport
+cd ign-transport
+
+mkdir build
+cd build
+call "..\configure.bat" || goto:error
+nmake || goto:error
+nmake install || goto:error
