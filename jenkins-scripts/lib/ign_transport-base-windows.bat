@@ -9,17 +9,17 @@ IF %PLATFORM_TO_BUILD% == x86
   set BITNESS=64
 )
 
-REM Configure the VC++ compilation
-set MSVC_ON_WIN64="c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat"
-set MSVC_ON_WIN32="c:\Program Files\Microsoft Visual Studio 12.0\VC\vcvarsall.bat"
+echo "Configure the VC++ compilation"
+set MSVC_ON_WIN64=c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat
+set MSVC_ON_WIN32=c:\Program Files\Microsoft Visual Studio 12.0\VC\vcvarsall.bat
 
-IF exist %MSVC_ON_WIN64%
+IF exist "%MSVC_ON_WIN64%"
 ( 
-   call %MSVC_ON_WIN64% %PLATFORM_TO_BUILD%
+   call "%MSVC_ON_WIN64%" %PLATFORM_TO_BUILD%
 )
-ELSE IF exist %MSVC_ON_WIN32%
+ELSE IF exist "%MSVC_ON_WIN32%"
 (
-   call %MSVC_ON_WIN32% %PLATFORM_TO_BUILD%
+   call "%MSVC_ON_WIN32%" %PLATFORM_TO_BUILD%
 )
 ELSE
 (
@@ -42,7 +42,7 @@ call %win_lib% :unzip cppzmq-noarch.zip || goto:error
 call %win_lib% :unzip protobuf-2.6.0-win%BITNESS%-vc12.zip || goto:error
 call %win_lib% :unzip zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip || goto:error
 
-cd %WORKSPACE%
+cd ign-transport
 
 echo "Compiling"
 mkdir build
