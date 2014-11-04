@@ -44,4 +44,4 @@ nmake || goto:error
 nmake install || goto:error
 
 echo "Running tests"
-nmake tests
+nmake test
