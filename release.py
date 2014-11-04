@@ -279,15 +279,17 @@ def generate_upload_tarball(args):
     check_call(['scp', tarball_path, UPLOAD_DEST])
     shutil.rmtree(tmpdir)
 
+    # Tag repo
     try:
-        # Tag repo
-        os.chdir(srcdir)
+        if not DRY_RUN:
+            os.chdir(srcdir)
+
         tag = '%s_%s'%(args.package_alias, args.version)
         check_call(['hg', 'tag', '-f', tag])
-    
+
         # Push tag
         check_call(['hg', 'push'])
-    except:
+    except Exception as e:
         # Assume git
         pass
 
