@@ -1,7 +1,7 @@
 REM Configure the VC++ compilation
 call "c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" %PLATFORM_TO_BUILD%
 
-rmdir /s /q workspace  || goto:error
+rmdir /s /q /f workspace  || goto:error
 mkdir workspace
 cd workspace
 
