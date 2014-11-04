@@ -42,3 +42,6 @@ cd build
 call "..\configure.bat" || goto:error
 nmake || goto:error
 nmake install || goto:error
+
+echo "Running tests"
+nmake tests
