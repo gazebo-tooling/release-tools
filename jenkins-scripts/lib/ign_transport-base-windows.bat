@@ -51,5 +51,3 @@ nmake install || goto:error
 echo "Running tests"
 REM Need to find a way of running test from the standard make test (not working)
 ctest -C "Release" --verbose --extra-verbose || exit 0
-
-mv test_results %WORKSPACE%
