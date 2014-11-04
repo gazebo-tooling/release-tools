@@ -1,4 +1,4 @@
-set win_lib="%SCRIPT_DIR%/lib/windows_library.bat"
+set win_lib="%SCRIPT_DIR%\lib\windows_library.bat"
 
 IF %PLATFORM_TO_BUILD% == x86 
 (
