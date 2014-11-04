@@ -36,6 +36,9 @@ call %win_lib% :unzip cppzmq-noarch.zip || goto:error
 call %win_lib% :unzip protobuf-2.6.0-win%BITNESS%-vc12.zip || goto:error
 call %win_lib% :unzip zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip || goto:error
 
+REM Note that your jenkins job should put source in %WORKSPACE%/ign-transport
+echo "Move sources so we agree with configure.bat layout"
+mv %WORKSPACE%\ign-transport .
 cd ign-transport
 
 echo "Compiling"
@@ -49,4 +52,4 @@ echo "Running tests"
 REM Need to find a way of running test from the standard make test (not working)
 ctest -C "Release" --verbose --extra-verbose || exit 0
 
-echo %PWD%
+mv test_results %WORKSPACE%
