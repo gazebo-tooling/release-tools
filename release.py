@@ -224,8 +224,9 @@ def generate_upload_tarball(args):
     # Platform-agnostic stuff.
     # The goal is to tag the repo and prepare a tarball.
 
-    tmpdir = tempfile.mkdtemp()
-    builddir = os.path.join(tmpdir, 'build')
+    sourcedir = os.getcwd() 
+    tmpdir    = tempfile.mkdtemp()
+    builddir  = os.path.join(tmpdir, 'build')
     # Put the hg-specific stuff in a try block, to allow for a git repo
     try:
         # Check for uncommitted changes; abort if present
@@ -280,10 +281,9 @@ def generate_upload_tarball(args):
     shutil.rmtree(tmpdir)
 
     # Tag repo
-    try:
-        if not DRY_RUN:
-            os.chdir(srcdir)
+    os.chdir(sourcedir)
 
+    try:
         tag = '%s_%s'%(args.package_alias, args.version)
         check_call(['hg', 'tag', '-f', tag])
 
