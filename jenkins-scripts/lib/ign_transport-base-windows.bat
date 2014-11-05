@@ -13,9 +13,9 @@ set MSVC_ON_WIN64=c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsa
 set MSVC_ON_WIN32=c:\Program Files\Microsoft Visual Studio 12.0\VC\vcvarsall.bat
 
 IF exist "%MSVC_ON_WIN64%" ( 
-   call "%MSVC_ON_WIN64%" %PLATFORM_TO_BUILD%
+   call "%MSVC_ON_WIN64%" %PLATFORM_TO_BUILD% || goto:error
 ) ELSE IF exist "%MSVC_ON_WIN32%" (
-   call "%MSVC_ON_WIN32%" %PLATFORM_TO_BUILD%
+   call "%MSVC_ON_WIN32%" %PLATFORM_TO_BUILD% || goto:error
 ) ELSE (
    echo "Could not find the vcvarsall.bat file"
    exit -1
