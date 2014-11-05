@@ -26,7 +26,7 @@ cd ign-transport
 echo "Compiling"
 mkdir build
 cd build
-call "..\configure.bat" || goto %win_lib% :error
+call "..\configure.bat" Release %PLATFORM_TO_BUILD% || goto %win_lib% :error
 nmake || goto %win_lib% :error
 nmake install || goto %win_lib% :error
 
