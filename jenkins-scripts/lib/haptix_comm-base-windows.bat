@@ -1,7 +1,6 @@
 :: Supposed to has been called ignition-base before
 
-cd haptix-comm || goto %win_lib% :error
-
+cd %WORKSPACE%/workspace/haptix-comv || goto %win_lib% :error
 
 echo "Compiling haptix"
 mkdir build
