@@ -1,28 +1,7 @@
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
-IF %PLATFORM_TO_BUILD% == x86 (
-  echo "Using 32bits VS configuration"
-  set BITNESS=32
-) ELSE IF %PLATFORM_TO_BUILD% == amd64 (
-  echo "Using 64bits VS configuration"
-  set BITNESS=64
-) ELSE (
-  echo "Please use x86 or amd64 as platform values"
-  goto %win_lib% :error
-)
-
-echo "Configure the VC++ compilation"
-set MSVC_ON_WIN64=c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat
-set MSVC_ON_WIN32=c:\Program Files\Microsoft Visual Studio 12.0\VC\vcvarsall.bat
-
-IF exist "%MSVC_ON_WIN64%" ( 
-   call "%MSVC_ON_WIN64%" %PLATFORM_TO_BUILD% || goto %win_lib% :error
-) ELSE IF exist "%MSVC_ON_WIN32%" (
-   call "%MSVC_ON_WIN32%" %PLATFORM_TO_BUILD% || goto %win_lib% :error
-) ELSE (
-   echo "Could not find the vcvarsall.bat file"
-   exit -1
-)
+:: Call vcvarsall and all the friends
+call %win_lib% :configure_msvc_compiler
 
 IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
 mkdir workspace 
