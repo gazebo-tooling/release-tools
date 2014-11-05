@@ -1,7 +1,7 @@
 @echo on
 
 set SCRIPT_DIR=%~dp0
-set PLATFORM_TO_BUILD=i386
+set PLATFORM_TO_BUILD=x86
 
 :: We need ignition first
 hg clone https://bitbucket.org/ignitionrobotics/ign-transport
