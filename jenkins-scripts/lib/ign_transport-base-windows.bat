@@ -20,7 +20,6 @@ call %win_lib% :unzip zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip
 
 REM Add path for zeromq dynamic library .ddl
 set PATH=%PATH%;%WORKSPACE%/workspace/ZeroMQ 3.2.4/bin/
-echo %PATH%
 
 REM Note that your jenkins job should put source in %WORKSPACE%/ign-transport
 echo "Move sources so we agree with configure.bat layout"
