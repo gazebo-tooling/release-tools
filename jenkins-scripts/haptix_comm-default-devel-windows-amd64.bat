@@ -2,6 +2,7 @@
 
 set SCRIPT_DIR=%~dp0
 set PLATFORM_TO_BUILD=amd64
+set IGN_TEST_DISABLE=TRUE
 
 :: We need ignition first
 hg clone https://bitbucket.org/ignitionrobotics/ign-transport
