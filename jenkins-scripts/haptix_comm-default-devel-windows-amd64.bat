@@ -8,6 +8,6 @@ set IGN_TEST_DISABLE=TRUE
 hg clone https://bitbucket.org/ignitionrobotics/ign-transport
 call %SCRIPT_DIR%/lib/ign_transport-base-windows.bat
 
-cd %WORKSPACE%/workspace
+cd %WORKSPACE%
 move haptix-comm %WORKSPACE%/workspace
 call %SCRIPT_DIR%/lib/haptix_comm-base-windows.bat
