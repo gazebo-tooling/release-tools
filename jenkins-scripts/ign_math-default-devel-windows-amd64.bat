@@ -1,6 +1,8 @@
-@echo on
-
 set SCRIPT_DIR="%~dp0"
-set PLATFORM_TO_BUILD=amd64
 
-call %SCRIPT_DIR%/lib/ign_transport-base-windows.bat
+call "%SCRIPT_DIR%/lib/windows_configuration.bat"
+REM x64 or x86
+set PLATFORM_TO_BUILD=x64
+set ARG_CMAKE_FLAGS=
+
+call "%SCRIPT_DIR%/lib/project-default-devel-windows.bat"
