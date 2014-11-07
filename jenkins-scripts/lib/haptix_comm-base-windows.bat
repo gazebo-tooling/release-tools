@@ -1,6 +1,8 @@
 :: Supposed to has been called ignition-base before
 :: asumming a haptix-comm source at WORKSPACE/haptix-comm
 
+set IGN_TEST_DISABLE=TRUE
+
 cd %WORKSPACE%
 mkdir %WORKSPACE%/workspace
 move haptix-comm %WORKSPACE%/workspace || goto %win_lib% error
