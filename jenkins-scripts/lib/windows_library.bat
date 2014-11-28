@@ -94,6 +94,7 @@ goto :EOF
 :unzip - Unizp a file
 ::
 :: arg1 path to the zip file to uncompress
+echo Uncompressing %~1 
 cscript //B j_unzip.vbs %~1 || goto:error
 goto :EOF
 
