@@ -95,6 +95,7 @@ goto :EOF
 ::
 :: arg1 path to the zip file to uncompress
 echo Uncompressing %~1 
+IF NOT exist %~1 ( echo "Zip file does not exists: %~1" && goto :error )
 cscript //B j_unzip.vbs %~1 || goto:error
 goto :EOF
 
