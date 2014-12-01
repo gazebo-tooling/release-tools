@@ -26,7 +26,7 @@ cd sdformat
 hg up win_gerkey
 mkdir build
 cd build
-..\configure
+call "..\configure.bat" || goto %win_lib% :error
 echo "Compiling sdformat"
 nmake
 nmake install
