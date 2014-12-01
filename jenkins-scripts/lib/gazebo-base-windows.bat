@@ -27,6 +27,7 @@ hg up win_gerkey
 mkdir build
 cd build
 ..\configure
+echo "Compiling sdformat"
 nmake
 nmake install
 cd ..\..
