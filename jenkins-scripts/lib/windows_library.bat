@@ -110,7 +110,7 @@ goto :EOF
 ::
 :: arg1 - File to unzip
 
-7za.exe e %~1 || goto :error
+7za.exe x %~1 || goto :error
 
 goto :EOF
 
