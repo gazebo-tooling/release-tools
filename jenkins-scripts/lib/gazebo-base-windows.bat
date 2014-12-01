@@ -14,11 +14,11 @@ call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/OgreSDK_vc10_v
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/FreeImage.git.zip FreeImage.git.zip
 
 echo "Uncompressing libraries"
-call %win_lib% :create_unzip_script
-call %win_lib% :unzip boost_1_56_0.zip
-call %win_lib% :unzip protobuf-2.6.0-win%BITNESS%-vc12.zip
-call %win_lib% :unzip OgreSDK_vc10_v1-8-1.zip
-call %win_lib% :unzip FreeImage.git.zip
+call %win_lib% :download_7za
+call %win_lib% :unzip_7za boost_1_56_0.zip
+call %win_lib% :unzip_7za protobuf-2.6.0-win%BITNESS%-vc12.zip
+call %win_lib% :unzip_7za OgreSDK_vc10_v1-8-1.zip
+call %win_lib% :unzip_7za FreeImage.git.zip
 
 REM Note that your jenkins job should put source in %WORKSPACE%/ign-transport
 echo "Move sources so we agree with configure.bat layout"

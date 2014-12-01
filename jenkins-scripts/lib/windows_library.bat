@@ -37,7 +37,6 @@ IF exist "%MSVC_ON_WIN64%" (
 )
 goto :EOF
 
-
 :: ##################################
 :create_unzip_script - Create the unzip script to run unzip command
 ::
@@ -97,6 +96,22 @@ goto :EOF
 echo Uncompressing %~1 
 IF NOT exist %~1 ( echo "Zip file does not exists: %~1" && goto :error )
 cscript //B j_unzip.vbs %~1 || goto:error
+goto :EOF
+
+:: ##################################
+:download_7za - Download the unzip utility from osrfoundation.org
+::
+call :wget http://packages.osrfoundation.org/win32/deps/7za.exe 7za.exe || goto :error
+
+goto :EOF
+
+:: ##################################
+:unzip_7za - Unzip using 7za
+::
+:: arg1 - File to unzip
+
+7za.exe e %~1 || goto :error
+
 goto :EOF
 
 :: ##################################
