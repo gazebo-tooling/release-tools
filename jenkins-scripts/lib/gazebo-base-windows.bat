@@ -11,14 +11,16 @@ echo "Download libraries"
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-win%BITNESS%-vc12.zip protobuf-2.6.0-win%BITNESS%-vc12.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/OgreSDK_vc10_v1-8-1.zip OgreSDK_vc10_v1-8-1.zip
-call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/FreeImage.git.zip FreeImage.git.zip
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/FreeImage-vc12-x64-release-debug.zip FreeImage-vc12-x64-release-debug.zip
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/tbb43_20141023oss_win.zip tbb43_20141023oss_win.zip
 
 echo "Uncompressing libraries"
 call %win_lib% :download_7za
 call %win_lib% :unzip_7za boost_1_56_0.zip 
 call %win_lib% :unzip_7za protobuf-2.6.0-win%BITNESS%-vc12.zip
 call %win_lib% :unzip_7za OgreSDK_vc10_v1-8-1.zip
-call %win_lib% :unzip_7za FreeImage.git.zip
+call %win_lib% :unzip_7za FreeImage-vc12-x64-release-debug.zip
+call %win_lib% :unzip_7za tbb43_20141023oss_win.zip
 
 echo "Compile sdformat special branch"
 hg clone https://bitbucket.org/osrf/sdformat
