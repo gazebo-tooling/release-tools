@@ -44,8 +44,5 @@ mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
 
-REM Start by compiling gazebo_math
-nmake gazebo_math || goto %win_lib% :error
-
 REM Next is gazebo_common
-nmake gazebo_common || goto %win_lib% :error
+nmake gazebo_util || goto %win_lib% :error
