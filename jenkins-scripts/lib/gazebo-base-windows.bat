@@ -14,6 +14,7 @@ call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/OgreSDK_vc11_x
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/FreeImage-vc12-x64-release-debug.zip FreeImage-vc12-x64-release-debug.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/tbb43_20141023oss_win.zip tbb43_20141023oss_win.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/libcurl-vc12-x64-release-static-ipv6-sspi-winssl.zip libcurl-vc12-x64-release-static-ipv6-sspi-winssl.zip
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/dlfcn-win32-vc12-x64-release-debug.zip dlfcn-win32-vc12-x64-release-debug.zip
 
 echo "Uncompressing libraries"
 call %win_lib% :download_7za
@@ -23,6 +24,7 @@ call %win_lib% :unzip_7za OgreSDK_vc11_x64_v1-9-0unstable.zip
 call %win_lib% :unzip_7za FreeImage-vc12-x64-release-debug.zip
 call %win_lib% :unzip_7za tbb43_20141023oss_win.zip
 call %win_lib% :unzip_7za libcurl-vc12-x64-release-static-ipv6-sspi-winssl.zip
+call %win_lib% :unzip_7za dlfcn-win32-vc12-x64-release-debug.zip
 
 echo "Compile sdformat special branch"
 hg clone https://bitbucket.org/osrf/sdformat
