@@ -49,4 +49,4 @@ cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
 
 REM Next is gazebo_common
-nmake gazebo_util || goto %win_lib% :error
+nmake gazebo_rendering || goto %win_lib% :error
