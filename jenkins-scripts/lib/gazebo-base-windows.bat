@@ -47,8 +47,4 @@ echo "Compiling"
 mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
-
-REM Next is gazebo_common
-nmake gazebo_rendering || goto %win_lib% :error
-nmake gazebo_physics || goto %win_lib% :error
-nmake gazebo_gui || goto %win_lib% :error
+nmake || goto %win_lib% :error
