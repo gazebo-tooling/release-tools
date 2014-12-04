@@ -17,7 +17,7 @@ DOWNLOAD_URI = 'http://old.gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64']
 # UBUNTU_DISTROS = ['trusty', 'precise']
-UBUNTU_DISTROS = ['precise']
+UBUNTU_DISTROS = ['trusty']
 ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
 ROS_DISTROS_IN_TRUSTY = [ 'indigo' ]
 
@@ -33,6 +33,9 @@ def parse_args(argv):
     parser.add_argument('jenkins_token', help='secret token to allow access to Jenkins to start builds')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
+    parser.add_argument('-r', '--release-version', dest='release_version', 
+                        default=None,
+                        help='Release version suffix; usually 1 (e.g., 1')
     parser.add_argument('-r', '--release-version', dest='release_version', 
                         default=None,
                         help='Release version suffix; usually 1 (e.g., 1')
