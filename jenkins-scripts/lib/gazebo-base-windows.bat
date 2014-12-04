@@ -47,4 +47,12 @@ echo "Compiling"
 mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
+
+call %win_lib% :unzip_7za http://download.qt-project.org/official_releases/jom/jom.zip jom.zip
+call %win_lib% :unzip_7za jom.zip
+
+jom -j4 gzclient
+
+nmake gzclient || goto %win_lib% :error
+nmake gzserver || goto %win_lib% :error
 nmake || goto %win_lib% :error
