@@ -48,7 +48,7 @@ nmake install
 cd ..\..
 ) ELSE (
   :: Remove gazebo copy
-  rmdir /s /q workspace/gazebo || goto %win_lib% :error
+  rmdir /s /q workspace\gazebo || goto %win_lib% :error
 )
 
 REM Note that your jenkins job should put source in %WORKSPACE%/ign-transport
