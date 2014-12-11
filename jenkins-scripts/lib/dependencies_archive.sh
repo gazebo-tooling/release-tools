@@ -224,3 +224,18 @@ if ${DART_COMPILE_FROM_SOURCE}; then
     GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES \\
                                $DART_DEPENDENCIES"
 fi
+
+#
+# IGNITION
+#
+
+IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
+			    python               \\
+			    ruby-ronn            \\
+			    libprotoc-dev        \\
+			    libprotobuf-dev      \\
+			    protobuf-compiler    \\
+			    libignition-msgs-dev \\
+			    uuid-dev             \\
+			    libzmq3-dev          \\
+			    libczmq-dev"
