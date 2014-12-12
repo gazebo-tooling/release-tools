@@ -15,6 +15,7 @@ sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > 
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 
 # Step 1: install everything you need
+apt-get update
 apt-get install -y ${BASE_DEPENDENCIES} ${IGN_TRANSPORT_DEPENDENCIES}
 
 # Step 2: configure and build
