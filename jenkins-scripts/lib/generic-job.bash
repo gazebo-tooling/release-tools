@@ -10,7 +10,7 @@ cat > build.sh << DELIM
 set -ex
 
 # Step 1: install everything you need
-PKG_DEPENDENCIES=\$(eval ${PKG_DEPENDENCIES_VAR_NAME})
+eval PKG_DEPENDENCIES='$'${PKG_DEPENDENCIES_VAR_NAME}
 apt-get install -y ${BASE_DEPENDENCIES} ${PKG_DEPENDENCIES}
 
 # Step 2: configure and build
