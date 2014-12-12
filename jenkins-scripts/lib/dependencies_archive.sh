@@ -235,7 +235,6 @@ IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
 			    libprotoc-dev        \\
 			    libprotobuf-dev      \\
 			    protobuf-compiler    \\
-			    libignition-msgs-dev \\
 			    uuid-dev             \\
 			    libzmq3-dev          \\
 			    libczmq-dev"

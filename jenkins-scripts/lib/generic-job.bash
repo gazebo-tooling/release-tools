@@ -10,8 +10,9 @@ cat > build.sh << DELIM
 set -ex
 
 # Step 1: install everything you need
-eval PKG_DEPENDENCIES='$'${PKG_DEPENDENCIES_VAR_NAME}
-apt-get install -y ${BASE_DEPENDENCIES} ${PKG_DEPENDENCIES}
+# eval PKG_DEPENDENCIES='$'${PKG_DEPENDENCIES_VAR_NAME}
+# apt-get install -y ${BASE_DEPENDENCIES} ${PKG_DEPENDENCIES}
+apt-get install -y ${BASE_DEPENDENCIES} ${IGN_TRANSPORT_DEPENDENCIES}
 
 # Step 2: configure and build
 rm -rf $WORKSPACE/build
