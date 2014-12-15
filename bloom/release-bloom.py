@@ -36,9 +36,6 @@ def parse_args(argv):
     parser.add_argument('-r', '--release-version', dest='release_version', 
                         default=None,
                         help='Release version suffix; usually 1 (e.g., 1')
-    parser.add_argument('-r', '--release-version', dest='release_version', 
-                        default=None,
-                        help='Release version suffix; usually 1 (e.g., 1')
     args = parser.parse_args()
     DRY_RUN = args.dry_run
     return args
