@@ -82,16 +82,16 @@ echo | dh_make -s --createorig -p ${PACKAGE}_\${VERSION_NO_REVISION} || true
 
 debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
-# Install dependencies from a dsc file
-#mk-build-deps -i ../*.dsc -t 'apt-get -y --no-install-recommends'
-#rm *build-deps*
+mkdir -p $WORKSPACE/pkgs
+rm -fr $WORKSPACE/pkgs/*
+
+cp ../*.dsc $WORKSPACE/pkgs
+cp ../*.orig.* $WORKSPACE/pkgs
+cp ../*.debian.* $WORKSPACE/pkgs
 
 export DEB_BUILD_OPTIONS="parallel=$MAKE_JOBS"
 # Step 6: use pbuilder-dist to create binary package(s)
 pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
-
-mkdir -p $WORKSPACE/pkgs
-rm -fr $WORKSPACE/pkgs/*
 
 PKGS=\`find /var/lib/jenkins/pbuilder/*_result* -name *.deb || true\`
 
