@@ -49,7 +49,7 @@ depends=\$(dpkg-checkbuilddeps 2>&1 | sed 's/^dpkg-checkbuilddeps: Unmet build d
 sudo apt-get install -y ${depends}
 
 # Use current distro
-changelog_distro=\$(dpkg-parsechangelog -lchangelog  | grep Distribution | awk '{print \$2}')
+changelog_distro=\$(dpkg-parsechangelog | grep Distribution | awk '{print \$2}')
 sed -i -e "1 s:\$changelog_distro:$DISTRO:" changelog
 
 
