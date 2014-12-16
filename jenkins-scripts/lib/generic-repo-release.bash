@@ -54,7 +54,8 @@ sed -i -e "1 s:\$changelog_distro:$DISTRO:" debian/changelog
 
 
 # Step 5: use debuild to create source package
-echo | dh_make -s --createorig -p ${PACKAGE}_${VERSION} || true
+VERSION=\$(dpkg-parsechangelog  | grep Version | awk '{print \$2}')
+echo | dh_make -s --createorig -p ${PACKAGE}_\${VERSION} || true
 
 debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
