@@ -60,14 +60,14 @@ git clone $GIT_REPOSITORY $WORKSPACE/repo
 cd $WORKSPACE/repo
 
 # Adjust version
-VERSION=\$(head -n 1 debian/changelog | cut -d "(" -f2 | cut -d ")" -f1)
+VERSION=\$(dpkg-parsechangelog  | grep Version | awk '{print \$2}')
 VERSION_NO_REVISION=\$(echo \$VERSION | sed 's:-.*::')
 OSRF_VERSION=\$VERSION\osrf${RELEASE_VERSION}~${DISTRO}${RELEASE_ARCH_VERSION}
 sed -i -e "s:\$VERSION:\$OSRF_VERSION:g" debian/changelog
 
 # Use current distro (unstable or experimental are in debian)
-sed -i -e 's:unstable:$DISTRO:g' debian/changelog
-sed -i -e 's:experimental:$DISTRO:g' debian/changelog
+changelog_distro=\$(dpkg-parsechangelog | grep Distribution | awk '{print \$2}')
+sed -i -e "1 s:\$changelog_distro:$DISTRO:" debian/changelog
 
 # In precise, no multiarch paths was implemented in GNUInstallDirs. Remove it.
 if ! $MULTIARCH_SUPPORT; then
