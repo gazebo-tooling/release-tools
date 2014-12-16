@@ -50,7 +50,7 @@ sudo apt-get install -y ${depends}
 
 # Use current distro
 changelog_distro=\$(dpkg-parsechangelog | grep Distribution | awk '{print \$2}')
-sed -i -e "1 s:\$changelog_distro:$DISTRO:" changelog
+sed -i -e "1 s:\$changelog_distro:$DISTRO:" debian/changelog
 
 
 # Step 5: use debuild to create source package
