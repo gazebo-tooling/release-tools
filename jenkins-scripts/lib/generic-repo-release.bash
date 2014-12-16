@@ -61,11 +61,16 @@ debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
 export DEB_BUILD_OPTIONS="parallel=$MAKE_JOBS"
 
-# Step 6: use pbuilder-dist to create binary package(s)
-pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
-
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
+
+# Export data packages
+cp ../*.dsc $WORKSPACE/pkgs
+cp ../*.orig.* $WORKSPACE/pkgs
+cp ../*.debian.* $WORKSPACE/pkgs
+
+# Step 6: use pbuilder-dist to create binary package(s)
+pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 
 PKGS=\`find /var/lib/jenkins/pbuilder/*_result* -name *.deb || true\`
 
