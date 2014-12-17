@@ -25,7 +25,16 @@ upload_package()
                ubuntu@old.gazebosim.org:/var/www/assets/distributions
 }
 
+upload_dsc_package()
+{
+    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg}
+}
+
 pkgs_path="$WORKSPACE/pkgs"
+
+for pkg in `ls $pkgs_path/*.dsc`; do
+  upload_dsc_package ${pkg}
+done
 
 for pkg in `ls $pkgs_path/*.deb`; do
   # Get components from pkg
@@ -57,8 +66,5 @@ for pkg in `ls $pkgs_path/*.deb`; do
   esac
 done
 
-
-
-
-
 rm -fr $WORKSPACE/pkgs/*.deb
+rm -fr $WORKSPACE/pkgs/*.dsc
