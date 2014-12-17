@@ -33,6 +33,8 @@ call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
 nmake || goto %win_lib% :error
 nmake install || goto %win_lib% :error
 
-echo "Running tests"
-REM Need to find a way of running test from the standard make test (not working)
-ctest -C "Release" --verbose --extra-verbose || exit 0
+if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
+  echo "Running tests"
+  REM Need to find a way of running test from the standard make test (not working)
+  ctest -C "Release" --verbose --extra-verbose || exit 0
+)
