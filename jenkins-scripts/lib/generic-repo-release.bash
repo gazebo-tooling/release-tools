@@ -27,6 +27,10 @@ echo "unset CCACHEDIR" >> /etc/pbuilderrc
 # Install deb-building tools
 apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget subversion cdbs mercurial ca-certificates dh-autoreconf autoconf 
 
+# Cleanup
+rm -fr $WORKSPACE/*.dsc
+rm -fr $WORKSPACE/*.orig.*
+rm -fr $WORKSPACE/*.dsc
 
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
