@@ -40,8 +40,11 @@ git clone https://github.com/simbody/simbody.git $WORKSPACE/simbody
 cd $WORKSPACE/simbody
 git checkout Simbody-${VERSION}
 
+# Debian directory is in doc/
+mv doc/debian .
+
 # Use current distro
-sed -i -e 's:precise:$DISTRO:g' debian/changelog
+sed -i -e 's:quantal:$DISTRO:g' debian/changelog
 # Use current release version
 sed -i -e 's:-1~:-$RELEASE_VERSION~:' debian/changelog
 # Bug in saucy doxygen makes the job hangs
