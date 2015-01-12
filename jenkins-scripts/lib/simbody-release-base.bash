@@ -44,7 +44,7 @@ git checkout Simbody-${VERSION}
 mv doc/debian .
 
 # Use current distro
-sed -i -e 's:quantal:$DISTRO:g' debian/changelog
+sed -i -e 's:trusty:$DISTRO:g' debian/changelog
 # Use current release version
 sed -i -e 's:-1~:-$RELEASE_VERSION~:' debian/changelog
 # Bug in saucy doxygen makes the job hangs
