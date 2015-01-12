@@ -38,7 +38,12 @@ rm -fr $WORKSPACE/"$PACKAGE"_*
 rm -fr $WORKSPACE/simbody
 git clone https://github.com/simbody/simbody.git $WORKSPACE/simbody -b update_debian_3.5.1 
 cd $WORKSPACE/simbody
+# TODO: REMOVE this, it is only for 3.5.1
+cp doc/debian/changelog .
+# Keep this line
 git checkout Simbody-${VERSION}
+# TODO: REMOVE this, it is only for 3.5.1
+mv changelog doc/debian/
 
 # Debian directory is in doc/
 mv doc/debian .
