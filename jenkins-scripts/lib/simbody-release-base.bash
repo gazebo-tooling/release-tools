@@ -36,7 +36,7 @@ rm -fr $WORKSPACE/"$PACKAGE"_*
 
 # Step 1: Get the source (nightly builds or tarball)
 rm -fr $WORKSPACE/simbody
-git clone https://github.com/simbody/simbody.git $WORKSPACE/simbody
+git clone https://github.com/simbody/simbody.git $WORKSPACE/simbody -b update_debian_3.5.1 
 cd $WORKSPACE/simbody
 git checkout Simbody-${VERSION}
 
