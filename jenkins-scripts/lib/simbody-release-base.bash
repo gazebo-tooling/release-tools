@@ -36,9 +36,14 @@ rm -fr $WORKSPACE/"$PACKAGE"_*
 
 # Step 1: Get the source (nightly builds or tarball)
 rm -fr $WORKSPACE/simbody
-git clone https://github.com/simbody/simbody.git $WORKSPACE/simbody
+git clone https://github.com/simbody/simbody.git $WORKSPACE/simbody 
 cd $WORKSPACE/simbody
+# TODO: REMOVE this, it is only for 3.5.1
+cp doc/debian/changelog .
+# Keep this line
 git checkout Simbody-${VERSION}
+# TODO: REMOVE this, it is only for 3.5.1
+mv changelog doc/debian/
 
 # Debian directory is in doc/
 mv doc/debian .
