@@ -59,12 +59,7 @@ fi
 
 # Need to set cpp11 off for precise
 if [ $DISTRO = 'precise' ]; then
-  sed -i -e 's:CONFIGURE_ARGS=:CONFIGURE_ARGS=-DSIMBODY_STANDARD_11=OFF:' debian/rules
-fi
-
-if [ $DISTRO = 'trusty' ]; then
-# Patch for https://github.com/simbody/simbody/issues/157
-  sed -i -e 's:CONFIGURE_ARGS=:CONFIGURE_ARGS=-DCMAKE_BUILD_TYPE=RelWithDebInfo:' debian/rules
+  sed -i -e s/-DMAKE_BUILD_TYPE:STRING=RelWithDebInfo/-DMAKE_BUILD_TYPE:STRING=RelWithDebInfo\ -DSIMBODY_STANDARD_11=OFF/ doc/debian/rules
 fi
 
 # Step 5: use debuild to create source package
