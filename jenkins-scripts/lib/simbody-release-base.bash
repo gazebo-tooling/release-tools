@@ -59,7 +59,9 @@ fi
 
 # Need to set cpp11 off for precise
 if [ $DISTRO = 'precise' ]; then
-  sed -i -e s/-DMAKE_BUILD_TYPE:STRING=RelWithDebInfo/-DMAKE_BUILD_TYPE:STRING=RelWithDebInfo\ -DSIMBODY_STANDARD_11=OFF/ debian/rules
+  DEB_HOST_MULTIARCH=\$(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+  sed -i -e s/-DMAKE_BUILD_TYPE:STRING=RelWithDebInfo/-DMAKE_BUILD_TYPE:STRING=RelWithDebInfo\ -DSIMBODY_STANDARD_11=OFF\ -DCMAKE_INSTALL_LIBDIR:PATH=lib/\${DEB_HOST_MULTIARCH}/ debian/rules
 fi
 
 # Step 5: use debuild to create source package
