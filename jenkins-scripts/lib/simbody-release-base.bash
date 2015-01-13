@@ -15,7 +15,7 @@ set -ex
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget git
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget git dpkg-dev
 
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
@@ -59,7 +59,7 @@ fi
 
 # Need to set cpp11 off for precise
 if [ $DISTRO = 'precise' ]; then
-  DEB_HOST_MULTIARCH=\$(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+  DEB_HOST_MULTIARCH=\$(dpkg-architecture -qDEB_HOST_MULTIARCH)
 
   sed -i -e s/-DMAKE_BUILD_TYPE:STRING=RelWithDebInfo/-DMAKE_BUILD_TYPE:STRING=RelWithDebInfo\ -DSIMBODY_STANDARD_11=OFF\ -DCMAKE_INSTALL_LIBDIR:PATH=lib/\${DEB_HOST_MULTIARCH}/ debian/rules
 fi
