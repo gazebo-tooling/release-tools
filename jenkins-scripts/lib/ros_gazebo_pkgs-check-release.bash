@@ -18,7 +18,7 @@ set -ex
 # get ROS repo's key
 apt-get install -y wget
 sh -c 'echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/ros-latest.list'
-wget http://packages.ros.org/ros.key -O - | apt-key add -
+wget --no-check-certificate https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | apt-key add -
 # Also get drc repo's key, to be used in getting Gazebo
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
@@ -26,7 +26,7 @@ apt-get update
 
 # check for graphic card support
 GRAPHIC_TESTS=false
-if [ $GRAPHIC_CARD_NAME = Nvidia ] && [ $DISTRO = quantal ]; then
+if [ $GRAPHIC_CARD_NAME = Nvidia ] && [ $DISTRO = trusty ]; then
     GRAPHIC_TESTS=true
 
     if ${GRAPHIC_CARD_FOUND}; then
@@ -42,41 +42,35 @@ if [ $GRAPHIC_CARD_NAME = Nvidia ] && [ $DISTRO = quantal ]; then
 fi
 
 # Check for proper ros wrappers depending on gazebo version
-if [ $PACKAGE_ALIAS = 'gazebo-current' ]; then
-  ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-gazebo-msgs-current \
-                   ros-$ROS_DISTRO-gazebo-plugins-current \
-		   ros-$ROS_DISTRO-gazebo-ros-current \
-		   ros-$ROS_DISTRO-gazebo-ros-pkgs-current"
-else
-  ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs \
-                   ros-$ROS_DISTRO-$PACKAGE_ALIAS-plugins \
-		   ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros \
-		   ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros-pkgs"
-fi
+ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs    \
+	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-plugins \
+	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros     \
+	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros-pkgs"
 
-apt-get install -y \$ROS_GAZEBO_PKGS
+# Need -ros for rosrun
+apt-get install -y --force-yes \$ROS_GAZEBO_PKGS ros-$ROS_DISTRO-ros
 
 # Step 2: configure and build
-if [ $ROS_DISTRO != groovy ]; then
-    rosdep init 
-    # Hack for not failing when github is down
-    update_done=false
-    seconds_waiting=0
-    while (! \$update_done); do
-      rosdep update && update_done=true
-      sleep 1
-      seconds_waiting=$((seconds_waiting+1))
-      [ \$seconds_waiting -gt 60 ] && exit 1
-    done
-fi
+rosdep init 
+# Hack for not failing when github is down
+update_done=false
+seconds_waiting=0
+while (! \$update_done); do
+  rosdep update && update_done=true
+  sleep 1
+  seconds_waiting=$((seconds_waiting+1))
+  [ \$seconds_waiting -gt 60 ] && exit 1
+done
 
+SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
 
 # In our nvidia machines, run the test to launch altas
-if \$GRAPHIC_TESTS; then
-  SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
-  . /usr/share/drcsim/setup.sh
-  timeout 180 roslaunch gazebo_ros shapes_world.launch
-fi
+# Seems like there is no failure in runs on precise pbuilder in
+# our trusty machine. So we do not check for GRAPHIC_TESTS=true
+mkdir -p \$HOME/.gazebo
+timeout 180 roslaunch gazebo_ros shapes_world.launch || cat \$HOME/.gazebo/gzserver.log && echo "Failure response in the launch command"
+
+echo "180 testing seconds finished successfully"
 
 DELIM
 

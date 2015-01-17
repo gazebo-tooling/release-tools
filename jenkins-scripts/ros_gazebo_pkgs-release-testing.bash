@@ -7,9 +7,8 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 # debbuild typically does not define ROS_DISTRO so autogenerate it
 # bloom ros-gazebo-pkgs define ROS_DISTRO, ignore non supported drcsim 
 if [[ -z $ROS_DISTRO ]]; then
-    [[ $DISTRO = 'quantal' ]] && export ROS_DISTRO=groovy
     [[ $DISTRO = 'precise' ]] && export ROS_DISTRO=hydro
-    [[ $DISTRO = 'raring' ]]  && export ROS_DISTRO=hydro
+    [[ $DISTRO = 'trusty'  ]] && export ROS_DISTRO=indigo
 fi
 
 . ${SCRIPT_DIR}/lib/ros_gazebo_pkgs-check-release.bash

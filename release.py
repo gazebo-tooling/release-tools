@@ -14,15 +14,15 @@ USAGE = 'release.py <package> <version> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuilder'
 JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
-UPLOAD_DEST = 'ubuntu@gazebosim.org:/var/www/assets/distributions'
-DOWNLOAD_URI = 'http://gazebosim.org/assets/distributions/'
+UPLOAD_DEST = 'ubuntu@old.gazebosim.org:/var/www/assets/distributions'
+DOWNLOAD_URI = 'http://old.gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['precise', 'raring', 'trusty']
-UBUNTU_DISTROS_EXPERIMENTAL = ['']
+UBUNTU_DISTROS = ['precise', 'trusty']
+UBUNTU_DISTROS_EXPERIMENTAL = []
 
-ROS_DISTROS_IN_PRECISE = [ 'groovy', 'hydro' ]
-ROS_DISTROS_IN_RARING = [ 'hydro' ];
+ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
+ROS_DISTROS_IN_TRUSTY = [ 'indigo' ];
 
 DRY_RUN = False
 NIGHTLY = False
@@ -135,9 +135,18 @@ def sanity_package_name(repo_dir, package, package_alias):
             continue
         # Check that first word is the package alias or name
         if line.partition(' ')[0] != expected_name:
-            error("Error in package name or alias: " + line)
+            error("Error in changelog package name or alias: " + line)
 
-    print_success("Package names in changelog")
+    cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
+    out, err = check_call(cmd)
+    for line in out.split("\n"):
+        if not line:
+            continue
+        # Check that first word is the package alias or name
+        if line.partition(' ')[2] != expected_name:
+            error("Error in source package. File:  " + line.partition(' ')[1] + ". Got " + line.partition(' ')[2] + " expected " + expected_name)
+
+    print_success("Package names in changelog and control")
 
 def sanity_package_version(repo_dir, version, release_version):
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
@@ -152,7 +161,7 @@ def sanity_package_version(repo_dir, version, release_version):
         c_revision=full_version[full_version.find("-")+1:full_version.find("~")]
 
         if c_version != version:
-            error("Error in package version. Repo version: " + c_version + "Provided version: " + version)
+            error("Error in package version. Repo version: " + c_version + " Provided version: " + version)
 
         if c_revision != release_version:
             error("Error in package release version. Expected " + release_version + " in line " + full_version)
@@ -215,8 +224,9 @@ def generate_upload_tarball(args):
     # Platform-agnostic stuff.
     # The goal is to tag the repo and prepare a tarball.
 
-    tmpdir = tempfile.mkdtemp()
-    builddir = os.path.join(tmpdir, 'build')
+    sourcedir = os.getcwd() 
+    tmpdir    = tempfile.mkdtemp()
+    builddir  = os.path.join(tmpdir, 'build')
     # Put the hg-specific stuff in a try block, to allow for a git repo
     try:
         # Check for uncommitted changes; abort if present
@@ -227,13 +237,6 @@ def generate_upload_tarball(args):
             print('stdout: %s'%(out))
             sys.exit(1)
     
-        # Tag repo
-        tag = '%s_%s'%(args.package_alias, args.version)
-        check_call(['hg', 'tag', '-f', tag])
-    
-        # Push tag
-        check_call(['hg', 'push'])
-
         # Make a clean copy, to avoid pulling in other stuff that the user has
         # sitting in the working copy
         srcdir = os.path.join(tmpdir, 'src')
@@ -276,6 +279,20 @@ def generate_upload_tarball(args):
 
     check_call(['scp', tarball_path, UPLOAD_DEST])
     shutil.rmtree(tmpdir)
+
+    # Tag repo
+    os.chdir(sourcedir)
+
+    try:
+        tag = '%s_%s'%(args.package_alias, args.version)
+        check_call(['hg', 'tag', '-f', tag])
+
+        # Push tag
+        check_call(['hg', 'push'])
+    except Exception as e:
+        # Assume git
+        pass
+
     source_tarball_uri = DOWNLOAD_URI + tarball_fname
 
     ###################################################
@@ -289,14 +306,6 @@ def generate_upload_tarball(args):
     # TODO: Consider auto-updating the Ubuntu changelog.  It requires
     # cloning the <package>-release repo, making a change, and pushing it back.
     # Until we do that, the user must have first updated it manually.
-    if not args.nightly:
-        print('\n\nReady to kick off the Ubuntu deb-builder.  Did you already update ubuntu/debian/changelog in the %s-release repo (on the %s branch)?  [y/N]'%(args.package, args. release_repo_branch))
-        answer = sys.stdin.readline().strip()
-        if answer != 'Y' and answer != 'y':
-            print('Ubuntu deb-builds were NOT started.')
-            print('Please update the changelog and try again.')
-            sys.exit(1)
-
     return source_tarball_uri
 
 
@@ -353,8 +362,8 @@ def go(argv):
             else:
                 if (d == 'precise'):
                     ROS_DISTROS = ROS_DISTROS_IN_PRECISE
-                elif (d == 'raring'):
-                    ROS_DISTROS = ROS_DISTROS_IN_RARING
+                elif (d == 'trusty'):
+                    ROS_DISTROS = ROS_DISTROS_IN_TRUSTY
                 else:
                     print ("ERROR in ROS_DISTROS: unkonwn distribution")
                     sys.exit(1)

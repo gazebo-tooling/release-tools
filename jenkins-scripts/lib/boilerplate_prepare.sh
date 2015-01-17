@@ -7,7 +7,7 @@ if [ -z ${DISTRO} ]; then
 fi
 
 if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=groovy
+  ROS_DISTRO=hydro
 fi
 
 # Define making jobs by default if not present
@@ -65,7 +65,11 @@ else
   distro=${DISTRO}
 fi
 
-arch=amd64
+if [ -z "${ARCH+xxx}" ]; then
+    export ARCH=amd64
+fi
+
+arch=${ARCH}
 base=/var/cache/pbuilder-$distro-$arch
 aptconffile=$WORKSPACE/apt.conf
 
@@ -88,7 +92,7 @@ else
 fi
 
 # Check if they are already installed in the host
-QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
+QUERY_HOST_PACKAGES=$(dpkg-query --list ${NEEDED_HOST_PACKAGES} | grep '^un ') || true
 if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
   sudo apt-get update
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}

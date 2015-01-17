@@ -11,9 +11,12 @@ fi
 
 # Hack to found the current display (if available) two steps:
 # Check for /tmp/.X11-unix/ socket and check if the process is running
-for i in `ls /tmp/.X11-unix/ | head -1 | sed -e 's@^X@:@'`
+for i in `ls /tmp/.X11-unix/ | sed -e 's@^X@:@'`
 do
+  # grep can fail so let's disable the fail or error during its call
+  set +e
   ps aux | grep bin/X.*$i | grep -v grep
+  set -e
   if [ $? -eq 0 ] ; then
     export DISPLAY=$i
   fi
@@ -53,11 +56,20 @@ if [ -n "$(lspci -v | grep "Kernel driver in use: i[0-9][0-9][0-9]")" ]; then
     export EXTRA_PACKAGES="${EXTRA_PACKAGES} libgl1-mesa-dri"
 fi
 
-# Check if the GPU support was found when not 
-if $GPU_SUPPORT_NEEDED && ! $GRAPHIC_CARD_FOUND; then
-    echo "GPU support needed by the script but no graphic card found."
-    echo "The DISPLAY variable contains: ${DISPLAY}"
-    exit 1
+# Be sure that we have GPU support
+if $GPU_SUPPORT_NEEDED; then
+    # Check for the lack of presence of DISPLAY var
+    if [[ ${DISPLAY} == "" ]]; then
+      echo "GPU support needed by the script but DISPLAY var is empty"
+      exit 1
+    fi
+    
+    # Check if the GPU support was found when not 
+    if ! $GRAPHIC_CARD_FOUND; then
+      echo "GPU support needed by the script but no graphic card found."
+      echo "The DISPLAY variable contains: ${DISPLAY}"
+      exit 1
+    fi
 fi
 
 # Get version of package 
