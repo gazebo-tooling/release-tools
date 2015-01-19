@@ -102,6 +102,7 @@ GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libavformat-dev  \\
                            libavcodec-dev   \\
                            libswscale-dev   \\
+                           libgdal-dev      \\
                            ruby-ronn"
 
 GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
