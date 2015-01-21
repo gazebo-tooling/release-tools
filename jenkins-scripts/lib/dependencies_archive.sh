@@ -64,11 +64,18 @@ fi
 # GAZEBO related dependencies
 
 # Old versions used libogre-dev
-ogre_pkg="libogre-1.8-dev"
+ogre_pkg="libogre-1.9-dev"
 if [[ ${DISTRO} == 'precise' ]] || \
    [[ ${DISTRO} == 'raring' ]] || \
    [[ ${DISTRO} == 'quantal' ]]; then
     ogre_pkg="libogre-dev"
+fi
+
+# Starting from utopic, we are using the bullet provided by ubuntu
+bullet_pkg="libbullet-dev"
+if [[ ${DISTRO} == 'precise' ]] || \
+   [[ ${DISTRO} == 'trusty' ]]; then
+    bullet_pkg="libbullet2.82-dev"
 fi
 
 GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
@@ -92,10 +99,11 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libboost-program-options-dev     \\
                           libboost-regex-dev               \\
                           libboost-iostreams-dev           \\
-                          libbullet2.82-dev                \\
+                          ${bullet_pkg}                    \\
                           libsimbody-dev                   \\
                           ${dart_pkg}                      \\
                           ${sdformat_pkg}"
+
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libcegui-mk2-dev \\
