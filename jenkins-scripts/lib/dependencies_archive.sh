@@ -102,8 +102,14 @@ GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libavformat-dev  \\
                            libavcodec-dev   \\
                            libswscale-dev   \\
-                           libgdal-dev      \\
                            ruby-ronn"
+
+# gdal is not working on precise
+# it was added in gazebo5, which does not support precise
+if [[ ${DISTRO} != 'precise' ]]; then
+    GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} \\
+                               libgdal-dev"
+fi
 
 GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
 if [ -z $GAZEBO_DEB_PACKAGE ]; then
