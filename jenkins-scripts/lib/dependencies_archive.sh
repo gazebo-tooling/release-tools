@@ -73,6 +73,7 @@ if [[ ${DISTRO} == 'precise' ]] || \
    [[ ${DISTRO} == 'quantal' ]]; then
     ogre_pkg="libogre-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -le 4 ]]; then
+    # Before gazebo5, ogre 1.9 was not supported
     ogre_pkg="libogre-1.8-dev"
 fi
 
