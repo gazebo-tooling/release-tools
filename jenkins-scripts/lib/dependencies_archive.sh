@@ -141,6 +141,7 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-std-msgs                          \\
                           ros-${ROS_DISTRO}-theora-image-transport            \\
                           ros-${ROS_DISTRO}-control-msgs                      \\
                           ros-${ROS_DISTRO}-robot-model                       \\
+                          ros-${ROS_DISTRO}-robot-state-publisher             \\
                           ros-${ROS_DISTRO}-control-toolbox                   \\
                           ${GAZEBO_DEB_PACKAGE}"
 
