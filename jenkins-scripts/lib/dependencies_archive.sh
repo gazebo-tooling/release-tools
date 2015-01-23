@@ -62,6 +62,9 @@ else
 fi
 
 # GAZEBO related dependencies
+if [[ -z ${GAZEBO_MAJOR_VERSION} ]]; then
+    GAZEBO_MAJOR_VERSION=5
+fi
 
 # Old versions used libogre-dev
 ogre_pkg="libogre-1.9-dev"
@@ -69,6 +72,8 @@ if [[ ${DISTRO} == 'precise' ]] || \
    [[ ${DISTRO} == 'raring' ]] || \
    [[ ${DISTRO} == 'quantal' ]]; then
     ogre_pkg="libogre-dev"
+elif [[ ${GAZEBO_MAJOR_VERSION} -le 4 ]]
+    ogre_pkg="libogre-1.8-dev"
 fi
 
 # Starting from utopic, we are using the bullet provided by ubuntu
