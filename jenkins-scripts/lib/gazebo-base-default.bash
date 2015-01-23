@@ -16,6 +16,12 @@ GAZEBO_MAJOR_VERSION=`\
   grep 'set.*GAZEBO_MAJOR_VERSION ' ${WORKSPACE}/gazebo/CMakeLists.txt | \
   tr -d 'a-zA-Z _()'`
 
+# Check gazebo version between 1-9 
+if ! [[ ${GAZEBO_MAJOR_VERSION} =~ ^-?[1-9]$ ]]; then
+   echo "Error! GAZEBO_MAJOR_VERSION is not between 1 and 9, check the detection"
+   exit -1
+fi
+
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
