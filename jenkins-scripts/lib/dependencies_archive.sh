@@ -72,7 +72,7 @@ if [[ ${DISTRO} == 'precise' ]] || \
    [[ ${DISTRO} == 'raring' ]] || \
    [[ ${DISTRO} == 'quantal' ]]; then
     ogre_pkg="libogre-dev"
-elif [[ ${GAZEBO_MAJOR_VERSION} -le 4 ]]
+elif [[ ${GAZEBO_MAJOR_VERSION} -le 4 ]]; then
     ogre_pkg="libogre-1.8-dev"
 fi
 
