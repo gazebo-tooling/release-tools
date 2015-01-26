@@ -172,6 +172,7 @@ fi
 DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}       \\
                           sandia-hand${ROS_POSTFIX}         \\
     	                  osrf-common${ROS_POSTFIX}         \\
+                          ros-${ROS_DISTRO}-laser-assembler \\
                           ros-${ROS_DISTRO}-gazebo4-plugins \\
                           ros-${ROS_DISTRO}-gazebo4-ros     \\
                           ${GAZEBO_DEB_PACKAGE}"
