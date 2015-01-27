@@ -1,9 +1,12 @@
+@echo on
+
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
 :: Call vcvarsall and all the friends
 call %win_lib% :configure_msvc_compiler
 
-if "%IGN_CLEAN_WORKSPACE%" == "FALSE" (
+echo %IGN_CLEAN_WORKSPACE%
+if "%IGN_CLEAN_WORKSPACE%" == FALSE (
   echo "Cleaning workspace"
   IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
   mkdir workspace 
