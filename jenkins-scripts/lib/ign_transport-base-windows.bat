@@ -4,6 +4,7 @@ set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 call %win_lib% :configure_msvc_compiler
 
 if "%IGN_CLEAN_WORKSPACE%" == "FALSE" (
+  echo "Cleaning workspace"
   IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
   mkdir workspace 
 )

@@ -9,7 +9,7 @@ set IGN_CLEAN_WORKSPACE=FALSE
 
 cd %WORKSPACE%
 mkdir %WORKSPACE%/workspace
-move haptix-comm %WORKSPACE%/workspace || goto %win_lib% error
+move haptix-comm %WORKSPACE%/workspace/haptix-comm || goto %win_lib% error
 
 :: We need ignition first
 echo "Compiling ignition transport ..."
