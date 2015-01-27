@@ -72,6 +72,10 @@ if [[ ${DISTRO} == 'precise' ]] || \
    [[ ${DISTRO} == 'raring' ]] || \
    [[ ${DISTRO} == 'quantal' ]]; then
     ogre_pkg="libogre-dev"
+elif [[ ${DISTRO} == 'trusty' ]]; then
+    # All versions of gazebo (including 5) are using the 
+    # ogre-1.8-dev package to keep in sync with ROS rviz 
+    ogre_pkg="libogre-1.8-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -le 4 ]]; then
     # Before gazebo5, ogre 1.9 was not supported
     ogre_pkg="libogre-1.8-dev"
