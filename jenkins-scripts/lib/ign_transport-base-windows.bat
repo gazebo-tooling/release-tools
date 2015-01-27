@@ -18,12 +18,14 @@ echo "Download libraries"
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-win%BITNESS%-vc12.zip protobuf-2.6.0-win%BITNESS%-vc12.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip
+REM call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip
 
 echo "Uncompressing libraries"
 call %win_lib% :create_unzip_script
 call %win_lib% :unzip cppzmq-noarch.zip
 call %win_lib% :unzip protobuf-2.6.0-win%BITNESS%-vc12.zip
 call %win_lib% :unzip zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip
+REM call %win_lib% :unzip_7za boost_1_56_0.zip
 
 REM Add path for zeromq dynamic library .ddl
 set PATH=%PATH%;%WORKSPACE%/workspace/ZeroMQ 3.2.4/bin/
