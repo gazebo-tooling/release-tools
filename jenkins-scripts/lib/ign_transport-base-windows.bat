@@ -3,8 +3,11 @@ set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 :: Call vcvarsall and all the friends
 call %win_lib% :configure_msvc_compiler
 
-IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
-mkdir workspace 
+if "%IGN_CLEAN_WORKSPACE%" == "FALSE" (
+  IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
+  mkdir workspace 
+)
+
 cd workspace
 
 echo "Download libraries"

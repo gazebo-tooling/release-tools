@@ -1,19 +1,23 @@
 :: Supposed to has been called ignition-base before
 :: asumming a haptix-comm source at WORKSPACE/haptix-comm
+::
+
+@echo on
 
 set IGN_TEST_DISABLE=TRUE
+set IGN_CLEAN_WORKSPACE=FALSE
 
 cd %WORKSPACE%
 mkdir %WORKSPACE%/workspace
 move haptix-comm %WORKSPACE%/workspace || goto %win_lib% error
 
 :: We need ignition first
+echo "Compiling ignition transport ..."
 hg clone https://bitbucket.org/ignitionrobotics/ign-transport
 call %SCRIPT_DIR%/lib/ign_transport-base-windows.bat
 
+echo "Compiling haptix ..."
 cd %WORKSPACE%/workspace/haptix-comm || goto %win_lib% :error
-
-echo "Compiling haptix"
 mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
