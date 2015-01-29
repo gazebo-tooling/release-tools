@@ -36,9 +36,9 @@ cd ign-transport
 echo "Compiling"
 mkdir build
 cd build
-call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
-nmake || goto %win_lib% :error
-nmake install || goto %win_lib% :error
+call "..\configure.bat" Release %BITNESS% || call %win_lib% :error
+nmake || call %win_lib% :error
+nmake install || call %win_lib% :error
 
 if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo "Running tests"

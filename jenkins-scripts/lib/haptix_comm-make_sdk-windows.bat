@@ -1,5 +1,7 @@
 :: SDK Creation script
 :: arg1 bitness [ x86 | amd64 ]
+:: TODO: Needs migration to use the windows_library.bat functions and
+:: TODO: use haptix-comm-base and ignition-comm-base
 
 :: remove previous packages
 del %WORKSPACE%\*.zip
@@ -60,12 +62,15 @@ set protobuf_zip_name=protobuf-2.6.0-win%BITNESS%-vc12.zip
 bitsadmin /transfer "Download ZeroMQ" http://packages.osrfoundation.org/win32/deps/%zeromq_zip_name% "%tmpdir%\%zeromq_zip_name%" || goto :error
 bitsadmin /transfer "Download cppzmq" http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip "%tmpdir%\cppzmq-noarch.zip"  || goto :error
 bitsadmin /transfer "Download Protobuf" http://packages.osrfoundation.org/win32/deps/%protobuf_zip_name% "%tmpdir%\%protobuf_zip_name%"  || goto :error
+bitsadmin /transfer "Download Boost" http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip  "%tmpdir%\boost_1_56_0.zip" || goto :error
+%protobuf_zip_name% "%tmpdir%\%protobuf_zip_name%"  || goto :error
 bitsadmin /transfer "Download 7zip" http://packages.osrfoundation.org/win32/deps/7za.exe "%tmpdir%\7za.exe"
 
 @rem Unzip stuff
 7za x %zeromq_zip_name% > zeromq_7z.log
 7za x cppzmq-noarch.zip > cppzmq_7z.log
 7za x %protobuf_zip_name% > protobuf_7z.lob
+7za x boost_1_56_0.zip > boost_7z.lob
 
 @rem Clone stuff
 hg clone https://bitbucket.org/ignitionrobotics/ign-transport -b %IGN_TRANSPORT_BRANCH%
