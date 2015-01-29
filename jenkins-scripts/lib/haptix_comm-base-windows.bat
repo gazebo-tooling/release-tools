@@ -19,6 +19,11 @@ echo "Compiling ignition transport ..."
 hg clone https://bitbucket.org/ignitionrobotics/ign-transport
 call %SCRIPT_DIR%/lib/ign_transport-base-windows.bat
 
+echo "Downloading haptix dependencies ..."
+cd %WORKSPACE%/workspace
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip
+call %win_lib% :unzip_7za boost_1_56_0.zip
+
 echo "Compiling haptix ..."
 cd %WORKSPACE%/workspace/haptix-comm || goto %win_lib% :error
 mkdir build
