@@ -105,6 +105,13 @@ cscript //B j_unzip.vbs %~1 || goto:error
 goto :EOF
 
 :: ##################################
+:unzip_7za - Unzip using 7za
+::
+:: arg1 - File to unzip
+7za.exe x %~1 || goto :error
+goto :EOF
+
+:: ##################################
 :error - error routine
 ::
 echo Failed with error #%errorlevel%.
