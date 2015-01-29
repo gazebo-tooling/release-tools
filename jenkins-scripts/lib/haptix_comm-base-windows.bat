@@ -4,10 +4,13 @@
 
 @echo on
 
+set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
+
 set IGN_TEST_DISABLE=TRUE
 set IGN_CLEAN_WORKSPACE=FALSE
 
 cd %WORKSPACE%
+IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
 mkdir %WORKSPACE%/workspace
 move haptix-comm %WORKSPACE%/workspace/haptix-comm || goto %win_lib% error
 
