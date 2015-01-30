@@ -166,8 +166,8 @@ for %%b in (Debug, Release) do (
 
     cd ..
     echo "Current directory is %cd%"
-    echo "Generating SDK zip file: %sdk_zip_file%"
-    "%tmpdir%\7za.exe" a -tzip ../%sdk_zip_file% "hx_gz_sdk_!build_type!\"
+    echo "Generating SDK zip file: !sdk_zip_file!"
+    "%tmpdir%\7za.exe" a -tzip "../!sdk_zip_file!" "hx_gz_sdk_!build_type!\"
 )
 setlocal disabledelayedexpansion
 
