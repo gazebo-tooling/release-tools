@@ -93,8 +93,8 @@ cd ..
 set srcdir=%cd%
 
 setLocal Enabledelayedexpansion
-:: for %%b in (Debug, Release) do (
-for %%b in (Debug) do (
+
+for %%b in (Debug, Release) do (
 
     cd %srcdir%
 
@@ -166,7 +166,7 @@ for %%b in (Debug) do (
     :: TODO: check for the absolute path if really exists
     @echo on
 
-    if %b% == 'Debug' (
+    if %%b == 'Debug' (
       set zmq_lib=libzmq-v120-mt-gd-3_2_4.lib
     ) else (
       set zmq_lib=libzmq-v120-mt-3_2_4.lib
