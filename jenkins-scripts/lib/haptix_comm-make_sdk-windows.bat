@@ -164,7 +164,7 @@ for %%b in (Debug, Release) do (
     :: MEX generation
 
     :: TODO: check for the absolute path if really exists
-    if %%b == 'Debug' (
+    if %%b == "Debug" (
       set zmq_lib=libzmq-v120-mt-gd-3_2_4.lib
     ) else (
       set zmq_lib=libzmq-v120-mt-3_2_4.lib
