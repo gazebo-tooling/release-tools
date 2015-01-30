@@ -165,9 +165,9 @@ for %%b in (Debug, Release) do (
     set "sdk_zip_file=hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip"
 
     cd ..
-    echo "Current directory is %cd%"
+    
     echo "Generating SDK zip file: !sdk_zip_file!"
-    "%tmpdir%\7za.exe" a -tzip "../!sdk_zip_file!" "hx_gz_sdk_!build_type!\"
+    "%tmpdir%\7za.exe" a -tzip "%WORKSPACE%/!sdk_zip_file!" "hx_gz_sdk_!build_type!\"
 )
 setlocal disabledelayedexpansion
 
