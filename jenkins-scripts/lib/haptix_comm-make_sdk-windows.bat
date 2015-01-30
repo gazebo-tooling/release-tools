@@ -164,19 +164,19 @@ for %%b in (Debug, Release) do (
     xcopy "haptix-comm\matlab\*" "!installdir!\matlab"
     :: MEX generation
     :: TODO: check for the absolute path if really exists
-    @echo on
+    :: @echo on
 
-    if %%b == 'Debug' (
-      set zmq_lib=libzmq-v120-mt-gd-3_2_4.lib
-    ) else (
-      set zmq_lib=libzmq-v120-mt-3_2_4.lib
-    )
+    :: if %%b == 'Debug' (
+    ::   set zmq_lib=libzmq-v120-mt-gd-3_2_4.lib
+    :: ) else (
+     ::  set zmq_lib=libzmq-v120-mt-3_2_4.lib
+   ::  )
 
-    "C:\Program files\MATLAB\R2014b\bin\mex" "!installdir!\matlab\hx_getdeviceinfo.c" -I"!installdir!\haptix-comm\!build_type!\include" -L"!installdir!\haptix-comm\!build_type!\lib" -lhaptix-comm -lhaptix_msgs -L"!installdir!\deps\protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\!build_type!" -lprotobuf  -L"!installdir!\deps\ZeroMQ 3.2.4\lib" -l%zmq_lib% -I"!installdir!\deps\ign-transport\!build_type!\include" -L"!installdir!\deps\ign-transport\!build_type!\lib" -lignition-transport -lws2_32 -lIphlpapi -v || goto :error
+    :: "C:\Program files\MATLAB\R2014b\bin\mex" "!installdir!\matlab\hx_getdeviceinfo.c" -I"!installdir!\haptix-comm\!build_type!\include" -L"!installdir!\haptix-comm\!build_type!\lib" -lhaptix-comm -lhaptix_msgs -L"!installdir!\deps\protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\!build_type!" -lprotobuf  -L"!installdir!\deps\ZeroMQ 3.2.4\lib" -l%zmq_lib% -I"!installdir!\deps\ign-transport\!build_type!\include" -L"!installdir!\deps\ign-transport\!build_type!\lib" -lignition-transport -lws2_32 -lIphlpapi -v || goto :error
     :: TODO: need hx_update.c
-    copy "hx_*.mex*" "!installdir!\matlab" || goto :error
+    :: copy "hx_*.mex*" "!installdir!\matlab" || goto :error
 
-    set sdk_zip_file=hx_gz_sdk-%b%-%haptix_hash%-win%BITNESS%.zip
+    set sdk_zip_file=hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip
 
     cd ..
     echo "Current directory is %cd%"
