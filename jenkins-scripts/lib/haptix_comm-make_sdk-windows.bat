@@ -162,7 +162,7 @@ for %%b in (Debug, Release) do (
     :: - haptix-comm MATLAB stuff
     xcopy "haptix-comm\matlab\*" "!installdir!\matlab"
 
-    set sdk_zip_file=hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip
+    set "sdk_zip_file=hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip"
 
     cd ..
     echo "Current directory is %cd%"
