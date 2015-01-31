@@ -166,6 +166,11 @@ echo "inside the loop"
     :: - haptix-comm MATLAB stuff
     xcopy "haptix-comm\matlab\*" "!installdir!\matlab"
 
+    "C:\Program files\MATLAB\R2014b\bin\mex" "!installdir!\matlab\hx_getdeviceinfo.c" -I"!installdir!\haptix-comm\!build_type!\include" -L"!installdir!\haptix-comm\!build_type!\lib" -lhaptix-comm -lhaptix_msgs -L"!installdir!\deps\protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\!build_type!" -lprotobuf  -L"!installdir!\deps\ZeroMQ 3.2.4\lib" -l%zmq_lib% -I"!installdir!\deps\ign-transport\!build_type!\include" -L"!installdir!\deps\ign-transport\!build_type!\lib" -lignition-transport -lws2_32 -lIphlpapi -v || goto :error
+
+    :: TODO: need hx_update.c
+    xcopy hx_*.mex* "!installdir!\matlab" || goto :error
+
     set "sdk_zip_file=hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip"
 
     cd ..
