@@ -93,8 +93,10 @@ cd ..
 
 set srcdir=%cd%
 
-setLocal Enabledelayedexpansion
-for %b in (Debug, Release) do (
+echo "Set delayed expansion"
+setlocal Enabledelayedexpansion
+echo "looping"
+for %%b in (Debug, Release) do (
 
     cd %srcdir%
 
