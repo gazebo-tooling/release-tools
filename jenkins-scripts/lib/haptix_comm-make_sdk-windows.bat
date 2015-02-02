@@ -180,12 +180,12 @@ echo "inside the loop"
     :: TODO: need hx_update.c
     xcopy hx_*.mex* "!installdir!\matlab" || goto :error
 
-    set "sdk_zip_file=hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip"
+    set "sdk_zip_file=%WORKSPACE%\hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip"
 
     cd ..
     
-    echo "Generating SDK zip file: !sdk_zip_file!"
-    "%tmpdir%\7za.exe" a -tzip "%WORKSPACE%/!sdk_zip_file!" "hx_gz_sdk_!build_type!\"
+    echo "Generating SDK zip file: !sdk_zip_file!" > sdk_zip_file.log
+    "%tmpdir%\7za.exe" a -tzip "!sdk_zip_file!" "hx_gz_sdk_!build_type!\"
 )
 setlocal disabledelayedexpansion
 
