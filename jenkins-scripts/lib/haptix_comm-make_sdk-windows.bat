@@ -132,6 +132,10 @@ for %%b in (Debug, Release) do (
     set "sdk_zip_file=%WORKSPACE%\hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip"
 
     echo "Installation directory installdir = 1. !installdir! 2. %installdir% 3. %%install_directory%%" > install_directory.log
+    
+    echo " * Build type             : !build_type!"
+    echo " * Installation directory : !installdir!"
+    echo " * SDK file               : !sdk_zip_file!"
       
     rmdir !installdir! /S /Q
     mkdir "!installdir!" || goto :error
@@ -172,7 +176,7 @@ for %%b in (Debug, Release) do (
 
     echo "Using zmq lib: !zmq_lib!" > zmq_file.log
 
-    start "C:\Program files\MATLAB\R2014b\bin\mex" "!installdir!\matlab\hx_getdeviceinfo.c" -I"!installdir!\haptix-comm\!build_type!\include" -L"!installdir!\haptix-comm\!build_type!\lib" -lhaptix-comm -lhaptix-msgs -L"!installdir!\deps\protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\!build_type!" -lprotobuf  -L"!installdir!\deps\ZeroMQ 3.2.4\lib" -l"!zmq_lib!" -I"!installdir!\deps\ign-transport\!build_type!\include" -L"!installdir!\deps\ign-transport\!build_type!\lib" -lignition-transport -lws2_32 -lIphlpapi -v || goto :error
+    START "MATLAB" "C:\Program files\MATLAB\R2014b\bin\mex" "!installdir!\matlab\hx_getdeviceinfo.c" -I"!installdir!\haptix-comm\!build_type!\include" -L"!installdir!\haptix-comm\!build_type!\lib" -lhaptix-comm -lhaptix-msgs -L"!installdir!\deps\protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\!build_type!" -lprotobuf  -L"!installdir!\deps\ZeroMQ 3.2.4\lib" -l"!zmq_lib!" -I"!installdir!\deps\ign-transport\!build_type!\include" -L"!installdir!\deps\ign-transport\!build_type!\lib" -lignition-transport -lws2_32 -lIphlpapi -v || goto :error
 
     :: TODO: need hx_update.c
     :: hx_getdeviceinfo.mexw64
