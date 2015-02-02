@@ -93,11 +93,8 @@ cd ..
 
 set srcdir=%cd%
 
-echo "Set delayed expansion"
 setlocal Enabledelayedexpansion
-echo "looping"
 for %%b in (Debug, Release) do (
-echo "inside the loop"
 
     cd %srcdir%
 
@@ -132,15 +129,15 @@ echo "inside the loop"
     set "build_type=%%b"
     set "installdir=%cwd%\hx_gz_sdk_!build_type!"
     
-    echo "Installation directory installdir = !installdir!" > install_directory.log
+    set "sdk_zip_file=%WORKSPACE%\hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip"
+
+    echo "Installation directory installdir = 1. !installdir! 2. %installdir% 3. %%install_directory%%" > install_directory.log
       
     rmdir !installdir! /S /Q
     mkdir "!installdir!" || goto :error
 
     mkdir "!installdir!\deps\protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\!build_type!" || goto :error
     :: Protobuf
-    echo "Current directory is: %cd%"
-    echo "Try to run: protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\!build_type!\*.lib !installdir!\deps\protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\!build_type!"
     xcopy "protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\!build_type!\*.lib" "!installdir!\deps\protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\!build_type!" /s /e /i || goto :error
     xcopy "protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\google" "!installdir!\deps\protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\google" /s /e /i
     :: ZeroMQ
@@ -178,9 +175,10 @@ echo "inside the loop"
     "C:\Program files\MATLAB\R2014b\bin\mex" "!installdir!\matlab\hx_getdeviceinfo.c" -I"!installdir!\haptix-comm\!build_type!\include" -L"!installdir!\haptix-comm\!build_type!\lib" -lhaptix-comm -lhaptix-msgs -L"!installdir!\deps\protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\!build_type!" -lprotobuf  -L"!installdir!\deps\ZeroMQ 3.2.4\lib" -l"!zmq_lib!" -I"!installdir!\deps\ign-transport\!build_type!\include" -L"!installdir!\deps\ign-transport\!build_type!\lib" -lignition-transport -lws2_32 -lIphlpapi -v || goto :error
 
     :: TODO: need hx_update.c
-    xcopy hx_*.mex* "!installdir!\matlab" || goto :error
+    :: hx_getdeviceinfo.mexw64
+    xcopy hx_*.mex* "%WORKSPACE%" || goto :error :: TODO REMOVE
+    xcopy "hx_*.mex*" "!installdir!\matlab" || goto :error
 
-    set "sdk_zip_file=%WORKSPACE%\hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip"
 
     cd ..
     
