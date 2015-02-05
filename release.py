@@ -14,8 +14,8 @@ USAGE = 'release.py <package> <version> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuilder'
 JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
-UPLOAD_DEST = 'ubuntu@old.gazebosim.org:/var/www/assets/distributions'
-DOWNLOAD_URI = 'http://old.gazebosim.org/assets/distributions/'
+UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%package/releases/'
+DOWNLOAD_URI = 'https://gazebosim.org/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
 UBUNTU_DISTROS = ['precise', 'trusty']
@@ -40,6 +40,12 @@ def error(msg):
 
 def print_success(msg):
     print("     + OK " + msg)
+
+# Remove the last character if it is a number.
+# That should leave just the package name instead of packageVersion
+# I.E gazebo5 -> gazebo
+def get_canonical_package_name(pkg_name):
+     return pkg_name.rstrip('1234567890')
 
 def parse_args(argv):
     global DRY_RUN
@@ -181,7 +187,23 @@ def sanity_check_sdformat_versions(package, version):
 
     print_success("sdformat version in proper sdformat package")
 
+def check_s3cmd_configuration():
+    # Need to check if s3cmd is installed
+    try:
+        subprocess.call(["s3cmd"])
+    except OSError as e:
+        error("s3cmd command for uploading is not available. Install it using: apt-get install s3cmd")
+    
+    # Need to check if configuration for s3 exists
+    s3_config = os.path.expanduser('~') + "/.s3cfg"
+    if not os.path.isfile(s3_config):
+        error(s3_config + " does not exists. Please configure s3: s3cmd --configure")
+
+    return true
+
 def sanity_checks(args):
+    check_s3cmd_configuration()
+
     repo_dir = download_release_repository(args.package, args.release_repo_branch)
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
@@ -274,7 +296,7 @@ def generate_upload_tarball(args):
                 shutil.copyfile(tarball_path, dest_file)
                 tarball_path = dest_file
 
-    check_call(['scp', tarball_path, UPLOAD_DEST])
+    check_call(['s3cmd', 'put', tarball_path, UPLOAD_DEST_PATTERN%get_canonical_package_name(args.package)])
     shutil.rmtree(tmpdir)
     source_tarball_uri = DOWNLOAD_URI + tarball_fname
 
