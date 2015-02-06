@@ -26,6 +26,9 @@ mkdir -p ${LOCAL_CELLAR}
 # Run brew update to get latest versions of formulae
 ${RUN_DIR}/bin/brew update
 
+# Run brew doctor to check for problems with the system
+${RUN_DIR}/bin/brew doctor
+
 # Step 2. Install dependencies of ${PROJECT}
 ${RUN_DIR}/bin/brew tap osrf/simulation
 
