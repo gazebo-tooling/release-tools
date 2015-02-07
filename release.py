@@ -14,7 +14,7 @@ USAGE = 'release.py <package> <version> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuilder'
 JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
-UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%package/releases/'
+UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
 DOWNLOAD_URI = 'https://gazebosim.org/distributions/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
