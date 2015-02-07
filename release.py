@@ -208,7 +208,7 @@ def check_s3cmd_configuration():
     if not os.path.isfile(s3_config):
         error(s3_config + " does not exists. Please configure s3: s3cmd --configure")
 
-    return true
+    return True
 
 def sanity_checks(args):
     check_s3cmd_configuration()
