@@ -15,7 +15,7 @@ JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuilder'
 JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
 UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
-DOWNLOAD_URI = 'https://gazebosim.org/distributions/'
+DOWNLOAD_URI_PATTERN = 'http://gazebosim.org/distributions/%s/releases/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
 UBUNTU_DISTROS = ['utopic', 'trusty']
@@ -308,14 +308,14 @@ def generate_upload_tarball(args):
     try:
         tag = '%s_%s'%(args.package_alias, args.version)
         check_call(['hg', 'tag', '-f', tag])
-
+ 
         # Push tag
         check_call(['hg', 'push'])
     except Exception as e:
         # Assume git
         pass
 
-    source_tarball_uri = DOWNLOAD_URI + tarball_fname
+    source_tarball_uri = DOWNLOAD_URI_PATTERN%get_canonical_package_name(args.package) + tarball_fname
 
     ###################################################
     # Platform-specific stuff.
