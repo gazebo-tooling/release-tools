@@ -28,7 +28,7 @@ upload_package()
     local pkg=$1
 
     # Get the canonical package name (i.e. gazebo2 -> gazebo)
-    pkg_root_name=${PACKAGE//[[:digit:]]}
+    pkg_root_name=${PACKAGE%[[:digit:]]}
 
     sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
 
