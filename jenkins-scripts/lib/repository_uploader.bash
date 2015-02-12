@@ -27,6 +27,9 @@ upload_package()
 {
     local pkg=$1
 
+    # Get the canonical package name (i.e. gazebo2 -> gazebo)
+    pkg_root_name=${PACKAGE//[[:digit:]]}
+
     sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
 
     # S3 Amazon upload
@@ -43,7 +46,7 @@ upload_package()
     done
     tar xzf foo.tar.gz
     cd s3cmd-*
-    ./s3cmd put $pkg s3://osrf-distributions/$PACKAGE/releases/
+    ./s3cmd put $pkg s3://osrf-distributions/$pkg_root_name/releases/
     popd
     rm -fr ${S3_DIR}
 }
