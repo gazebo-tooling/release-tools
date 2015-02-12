@@ -27,8 +27,7 @@ upload_package()
 {
     local pkg=$1
 
-    # commented to debug
-    # sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
+    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
 
     # S3 Amazon upload
     S3_DIR=$(mktemp -d ${HOME}/s3.XXXX)
