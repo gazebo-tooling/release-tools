@@ -131,7 +131,7 @@ fi
 
 GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
 if [ -z $GAZEBO_DEB_PACKAGE ]; then
-    GAZEBO_DEB_PACKAGE=libgazebo4-dev
+    GAZEBO_DEB_PACKAGE=libgazebo5-dev
 fi
 
 #
