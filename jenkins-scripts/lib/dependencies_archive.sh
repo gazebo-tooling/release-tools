@@ -102,6 +102,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           pkg-config                       \\
                           libqt4-dev                       \\
                           libltdl-dev                      \\
+                          libgts-dev                       \\
                           libboost-thread-dev              \\
                           libboost-signals-dev             \\
                           libboost-system-dev              \\
