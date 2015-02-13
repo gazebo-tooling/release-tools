@@ -91,10 +91,24 @@ bitsadmin /transfer mydownloadjob /download /priority high %~1 %cd%\%~2 || goto 
 goto :EOF
 
 :: ##################################
+:download_7za - Download the unzip utility from osrfoundation.org
+::
+call :wget http://packages.osrfoundation.org/win32/deps/7za.exe 7za.exe || goto :error
+
+goto :EOF
+
+:: ##################################
 :unzip - Unizp a file
 ::
 :: arg1 path to the zip file to uncompress
 cscript //B j_unzip.vbs %~1 || goto:error
+goto :EOF
+
+:: ##################################
+:unzip_7za - Unzip using 7za
+::
+:: arg1 - File to unzip
+7za.exe x %~1 || goto :error
 goto :EOF
 
 :: ##################################

@@ -7,7 +7,6 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 export GPU_SUPPORT_NEEDED=true
 
 export DISTRO=trusty
-export ROS_DISTRO=groovy
 export DART_USE_4_VERSION=true
 
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash

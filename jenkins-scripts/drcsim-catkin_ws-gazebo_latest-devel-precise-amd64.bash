@@ -4,5 +4,7 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export GPU_SUPPORT_NEEDED=true
-. ${SCRIPT_DIR}/lib/gazebo-base-1.4.bash
+export DISTRO=precise
+export ROS_DISTRO=hydro
+
+. ${SCRIPT_DIR}/lib/drcsim-catkin_ws-gazebo_latest-base.bash

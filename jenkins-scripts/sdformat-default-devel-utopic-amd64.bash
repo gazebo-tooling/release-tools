@@ -4,6 +4,6 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export DISTRO=precise
+export DISTRO=utopic
 
-. ${SCRIPT_DIR}/lib/gazebo-any_to_any-abichecker-base.bash
+. ${SCRIPT_DIR}/lib/sdformat-default.bash

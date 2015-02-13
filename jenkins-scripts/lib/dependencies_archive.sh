@@ -62,13 +62,30 @@ else
 fi
 
 # GAZEBO related dependencies
+if [[ -z ${GAZEBO_MAJOR_VERSION} ]]; then
+    GAZEBO_MAJOR_VERSION=5
+fi
 
 # Old versions used libogre-dev
-ogre_pkg="libogre-1.8-dev"
+ogre_pkg="libogre-1.9-dev"
 if [[ ${DISTRO} == 'precise' ]] || \
    [[ ${DISTRO} == 'raring' ]] || \
    [[ ${DISTRO} == 'quantal' ]]; then
     ogre_pkg="libogre-dev"
+elif [[ ${DISTRO} == 'trusty' ]]; then
+    # All versions of gazebo (including 5) are using the 
+    # ogre-1.8-dev package to keep in sync with ROS rviz 
+    ogre_pkg="libogre-1.8-dev"
+elif [[ ${GAZEBO_MAJOR_VERSION} -le 4 ]]; then
+    # Before gazebo5, ogre 1.9 was not supported
+    ogre_pkg="libogre-1.8-dev"
+fi
+
+# Starting from utopic, we are using the bullet provided by ubuntu
+bullet_pkg="libbullet-dev"
+if [[ ${DISTRO} == 'precise' ]] || \
+   [[ ${DISTRO} == 'trusty' ]]; then
+    bullet_pkg="libbullet2.82-dev"
 fi
 
 GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
@@ -92,10 +109,11 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libboost-program-options-dev     \\
                           libboost-regex-dev               \\
                           libboost-iostreams-dev           \\
-                          libbullet2.82-dev                \\
+                          ${bullet_pkg}                    \\
                           libsimbody-dev                   \\
                           ${dart_pkg}                      \\
                           ${sdformat_pkg}"
+
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libcegui-mk2-dev \\
@@ -103,6 +121,13 @@ GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libavcodec-dev   \\
                            libswscale-dev   \\
                            ruby-ronn"
+
+# gdal is not working on precise
+# it was added in gazebo5, which does not support precise
+if [[ ${DISTRO} != 'precise' ]]; then
+    GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} \\
+                               libgdal-dev"
+fi
 
 GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
 if [ -z $GAZEBO_DEB_PACKAGE ]; then
@@ -126,6 +151,7 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-std-msgs                          \\
                           ros-${ROS_DISTRO}-theora-image-transport            \\
                           ros-${ROS_DISTRO}-control-msgs                      \\
                           ros-${ROS_DISTRO}-robot-model                       \\
+                          ros-${ROS_DISTRO}-robot-state-publisher             \\
                           ros-${ROS_DISTRO}-control-toolbox                   \\
                           ${GAZEBO_DEB_PACKAGE}"
 
@@ -150,6 +176,7 @@ fi
 DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}       \\
                           sandia-hand${ROS_POSTFIX}         \\
     	                  osrf-common${ROS_POSTFIX}         \\
+                          ros-${ROS_DISTRO}-laser-assembler \\
                           ros-${ROS_DISTRO}-gazebo4-plugins \\
                           ros-${ROS_DISTRO}-gazebo4-ros     \\
                           ${GAZEBO_DEB_PACKAGE}"
@@ -224,3 +251,17 @@ if ${DART_COMPILE_FROM_SOURCE}; then
     GAZEBO_EXTRA_DEPENDENCIES="$GAZEBO_EXTRA_DEPENDENCIES \\
                                $DART_DEPENDENCIES"
 fi
+
+#
+# IGNITION
+#
+
+IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
+			    python               \\
+			    ruby-ronn            \\
+			    libprotoc-dev        \\
+			    libprotobuf-dev      \\
+			    protobuf-compiler    \\
+			    uuid-dev             \\
+			    libzmq3-dev          \\
+			    libczmq-dev"

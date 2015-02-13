@@ -5,6 +5,7 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export DISTRO=trusty
-export ROS_DISTRO=indigo
+export REPO_DIRECTORY="ignition-transport"
+export PKG_DEPENDENCIES_VAR_NAME="IGN_TRANSPORT_DEPENDENCIES"
 
-. ${SCRIPT_DIR}/lib/drcsim-catkin_ws-gazebo-nightly-base.bash
+. ${SCRIPT_DIR}/lib/generic-job.bash
