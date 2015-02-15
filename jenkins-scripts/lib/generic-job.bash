@@ -3,6 +3,8 @@ set -e
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
+eval PROJECT_DEPENDECIES=\$${PKG_DEPENDENCIES_VAR_NAME}
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
@@ -16,7 +18,7 @@ wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 
 # Step 1: install everything you need
 apt-get update
-apt-get install -y ${BASE_DEPENDENCIES} ${IGN_TRANSPORT_DEPENDENCIES}
+apt-get install -y ${BASE_DEPENDENCIES} ${PROJECT_DEPENDECIES}
 
 # Step 2: configure and build
 rm -rf $WORKSPACE/build
