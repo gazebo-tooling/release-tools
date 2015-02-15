@@ -271,4 +271,7 @@ IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
 #
 HAPTIX_COMM_DEPENDENCIES="libignition-transport-dev \\
                           libboost-system-dev       \\
+			  libprotoc-dev             \\
+			  libprotobuf-dev           \\
+			  protobuf-compiler         \\
                 	  liboctave-dev"
