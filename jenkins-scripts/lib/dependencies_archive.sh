@@ -265,3 +265,10 @@ IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
 			    uuid-dev             \\
 			    libzmq3-dev          \\
 			    libczmq-dev"
+
+#
+# HAPTIX
+#
+HAPTIX_COMM_DEPENDENCIES="libignition-transport-dev \\
+                          libboost-system-dev       \\
+                	  liboctave-dev"
