@@ -130,8 +130,13 @@ if [[ ${DISTRO} != 'precise' ]]; then
 fi
 
 GAZEBO_DEB_PACKAGE=$GAZEBO_DEB_PACKAGE
+
 if [ -z $GAZEBO_DEB_PACKAGE ]; then
     GAZEBO_DEB_PACKAGE=libgazebo5-dev
+    # Gazebo5 is not supported in precise, use gazebo4 instead
+    if [[ ${DISTRO} == 'precise' ]]; then
+      GAZEBO_DEB_PACKAGE=libgazebo4-dev
+    fi
 fi
 
 #
