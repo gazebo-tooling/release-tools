@@ -133,18 +133,17 @@ for %%b in (Debug, Release) do (
     :: Our goal here is to create an "install" layout for all the stuff
     :: needed to use haptix-comm.  That layout can be then be zipped and
     :: distributed.  Lots of assumptions are being made here.
+    echo "Start packaging 1 ..."
 
     :: We need to use expansion at runtime values for variables inside the loop this is
-    :: why the !var! is being used. For more information, please read:
+    :: why the ! var ! is being used. For more information, please read:
     :: http://ss64.com/nt/delayedexpansion.html
-    echo "Start packaging 1"
+    echo "Start packaging 2 ..."
+
     set "build_type=%%b"
-    echo "Start packaging 2"
     set "installdir=%cwd%\hx_gz_sdk_!build_type!"
-    echo "Start packaging 3"
     
     set "sdk_zip_file=%WORKSPACE%\hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip"
-    echo "Start packaging 4"
 
     echo " * Build type             : !build_type!"
     echo " * Installation directory : !installdir!"
@@ -178,10 +177,8 @@ for %%b in (Debug, Release) do (
     :: - dependencies
     mkdir "!installdir!\example\" 
     xcopy "ZeroMQ 3.2.4\bin\libzmq-v120*.dll" "!installdir!\example\" /s /e /i
-    xcopy "ign-transport\build\install\!build_type!\lib" "!installdir!\example\" /s /e /i
-    xcopy "haptix-comm\build\install\!build_type!\lib" "!installdir!\example\" /s /e /i
     :: example .exe files
-    xcopy "haptix-comm\example\build\*.exe" "!installdir!\example\" /s /e /i
+    xcopy "haptix-comm\example\build\*.exe" "!installdir!\example\" /i
 
     :: ------ MATLAB -------------------------------
     :: - zeromq matlab stuff
