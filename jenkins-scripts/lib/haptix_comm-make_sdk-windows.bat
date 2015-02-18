@@ -131,8 +131,6 @@ for %%b in (Debug, Release) do (
     
     set "sdk_zip_file=%WORKSPACE%\hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip"
 
-    echo "Installation directory installdir = 1. !installdir! 2. %installdir% 3. %%install_directory%%" > install_directory.log
-    
     echo " * Build type             : !build_type!"
     echo " * Installation directory : !installdir!"
     echo " * SDK file               : !sdk_zip_file!"
@@ -162,15 +160,15 @@ for %%b in (Debug, Release) do (
     xcopy "haptix-comm\haptix-comm.props" "!installdir!"
     xcopy "haptix-comm\haptix-comm.info" "!installdir!"
     :: - zeromq matlab stuff
-    mkdir "!installdir!\matlab\!build_type!\" 
-    xcopy "ZeroMQ 3.2.4\bin\libzmq-v120*.dll" "!installdir!\matlab\!build_type!\" /s /e /i
+    mkdir "!installdir!\matlab\" 
+    xcopy "ZeroMQ 3.2.4\bin\libzmq-v120*.dll" "!installdir!\matlab\" /s /e /i
      :: - haptix-comm MATLAB stuff (.m files + .mex)
-    xcopy "haptix-comm\build\install\!build_type!\lib\haptix-comm\mex\*" "!installdir!\matlab\!build_type!\" /s /e /i
+    xcopy "haptix-comm\build\install\!build_type!\lib\haptix-comm\mex\*" "!installdir!\matlab\" /s /e /i
 
     cd ..
 
     echo "Generating SDK zip file: !sdk_zip_file!" > sdk_zip_file.log
-    "%tmpdir%\7za.exe" a -tzip "!sdk_zip_file!" "hx_gz_sdk_!build_type!\"
+    "%tmpdir%\7za.exe" a -tzip "!sdk_zip_file!" "hx_gz_sdk_!build_type!\" || goto :error
 )
 setlocal disabledelayedexpansion
 
