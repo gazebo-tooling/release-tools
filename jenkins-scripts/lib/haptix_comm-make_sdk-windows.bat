@@ -137,10 +137,14 @@ for %%b in (Debug, Release) do (
     :: We need to use expansion at runtime values for variables inside the loop this is
     :: why the !var! is being used. For more information, please read:
     :: http://ss64.com/nt/delayedexpansion.html
+    echo "Start packaging 1"
     set "build_type=%%b"
+    echo "Start packaging 2"
     set "installdir=%cwd%\hx_gz_sdk_!build_type!"
+    echo "Start packaging 3"
     
     set "sdk_zip_file=%WORKSPACE%\hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip"
+    echo "Start packaging 4"
 
     echo " * Build type             : !build_type!"
     echo " * Installation directory : !installdir!"
@@ -170,6 +174,16 @@ for %%b in (Debug, Release) do (
     xcopy "haptix-comm\build\install\!build_type!\lib" "!installdir!\haptix-comm\!build_type!\lib" /s /e /i
     xcopy "haptix-comm\haptix-comm.props" "!installdir!"
     xcopy "haptix-comm\haptix-comm.info" "!installdir!"
+    :: haptix-example
+    :: - dependencies
+    mkdir "!installdir!\example\" 
+    xcopy "ZeroMQ 3.2.4\bin\libzmq-v120*.dll" "!installdir!\example\" /s /e /i
+    xcopy "ign-transport\build\install\!build_type!\lib" "!installdir!\example\" /s /e /i
+    xcopy "haptix-comm\build\install\!build_type!\lib" "!installdir!\example\" /s /e /i
+    :: example .exe files
+    xcopy "haptix-comm\example\build\*.exe" "!installdir!\example\" /s /e /i
+
+    :: ------ MATLAB -------------------------------
     :: - zeromq matlab stuff
     mkdir "!installdir!\matlab\" 
     xcopy "ZeroMQ 3.2.4\bin\libzmq-v120*.dll" "!installdir!\matlab\" /s /e /i
