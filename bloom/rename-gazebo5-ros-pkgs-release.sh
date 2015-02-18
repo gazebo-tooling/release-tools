@@ -18,7 +18,7 @@ for pkg in ${PKGS}; do
 	sed -i -e "s/Package: @(Package)/Package: @(Package.replace('gazebo-','gazebo5-'))/" debian/control.em
 	git commit debian/control.em -m "Patch name to release -4 version"
 	# Include conflict with same package (not current)
-	sed -i -e '/^Depends/aConflicts: @(Package), @(Package)-current, @(Package)3, @(Package)4' debian/control.em
+	sed -i -e '/^Depends/aConflicts: @(Package), @(Package)-current, @(Package.replace('gazebo-','gazebo3-')), @(Package.replace('gazebo-','gazebo4-'))
 	git commit debian/control.em -m "Set up a conflict with standard ROS pkg and -current version"
 	git push origin debian/$distro/$pkg
     done
