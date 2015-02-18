@@ -116,7 +116,17 @@ for %%b in (Debug, Release) do (
     call ..\configure %%b %BITNESS%
     nmake VERBOSE=1 > haptix.log || goto :error
     nmake install
-    cd ..\..
+   
+    echo "Build haptix-comm example"
+    cd ..
+    cd example
+    mkdir build
+    cd build
+    del CMakeCache.txt
+    call ..\configure %%b %BITNESS%
+    nmake VERBOSE=1 > haptix_example.log || goto :error
+
+    cd ..\..\..
 
     :: Package it all up
     :: Our goal here is to create an "install" layout for all the stuff
