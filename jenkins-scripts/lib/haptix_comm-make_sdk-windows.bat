@@ -128,6 +128,7 @@ for %%b in (Debug, Release) do (
 
     cd ..\..\..
 
+    echo "Start packaging ..."
     :: Package it all up
     :: Our goal here is to create an "install" layout for all the stuff
     :: needed to use haptix-comm.  That layout can be then be zipped and
