@@ -167,6 +167,8 @@ for %%b in (Debug, Release) do (
      :: - haptix-comm MATLAB stuff (.m files + .mex)
     xcopy "haptix-comm\build\install\!build_type!\lib\haptix-comm\mex\*" "!installdir!\matlab\!build_type!\" /s /e /i
 
+    cd ..
+
     echo "Generating SDK zip file: !sdk_zip_file!" > sdk_zip_file.log
     "%tmpdir%\7za.exe" a -tzip "!sdk_zip_file!" "hx_gz_sdk_!build_type!\"
 )
