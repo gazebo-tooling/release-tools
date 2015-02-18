@@ -150,9 +150,6 @@ for %%b in (Debug, Release) do (
     ::xcopy "ZeroMQ 3.2.4\bin\msvc*" "!installdir!\deps\ZeroMQ 3.2.4\bin" /s /e /i
     xcopy "ZeroMQ 3.2.4\include" "!installdir!\deps\ZeroMQ 3.2.4\include" /s /e /i
     xcopy "ZeroMQ 3.2.4\lib\libzmq-v120*" "!installdir!\deps\ZeroMQ 3.2.4\lib" /s /e /i
-    :: - zeromq matlab stuff
-    mkdir "!installdir!\matlab\"
-    xcopy "ZeroMQ 3.2.4\bin\libzmq-v120*.dll" "!installdir!\matlab" /s /e /i
     :: Ignition transport
     mkdir "!installdir!\deps\ign-transport"
     xcopy "ign-transport\build\install\!build_type!\include" "!installdir!\deps\ign-transport\!build_type!\include" /s /e /i
@@ -164,26 +161,12 @@ for %%b in (Debug, Release) do (
     xcopy "haptix-comm\build\install\!build_type!\lib" "!installdir!\haptix-comm\!build_type!\lib" /s /e /i
     xcopy "haptix-comm\haptix-comm.props" "!installdir!"
     xcopy "haptix-comm\haptix-comm.info" "!installdir!"
-    :: - haptix-comm MATLAB stuff
-    xcopy "haptix-comm\matlab\*" "!installdir!\matlab"
+    :: - zeromq matlab stuff
+    mkdir "!installdir!\matlab\!build_type!\" 
+    xcopy "ZeroMQ 3.2.4\bin\libzmq-v120*.dll" "!installdir!\matlab\!build_type!\" /s /e /i
+     :: - haptix-comm MATLAB stuff (.m files + .mex)
+    xcopy "haptix-comm\build\install\!build_type!\lib\haptix-comm\mex\*" "!installdir!\matlab\!build_type!\" /s /e /i
 
-    :: TODO: check for the absolute path if really exists
-    IF "%%b" == "Debug" (
-      set "zmq_lib=libzmq-v120-mt-gd-3_2_4.lib"
-    ) else (
-      set "zmq_lib=libzmq-v120-mt-3_2_4.lib"
-    )
-
-::    C:\Program files\MATLAB\R2014b\bin\mex "!installdir!\matlab\hx_getdeviceinfo.c" -I"!installdir!\haptix-comm\!build_type!\include" -L"!installdir!\haptix-comm\!build_type!\lib" -lhaptix-comm -lhaptix-msgs -L"!installdir!\deps\protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\!build_type!" -lprotobuf  -L"!installdir!\deps\ZeroMQ 3.2.4\lib" -l"!zmq_lib!" -I"!installdir!\deps\ign-transport\!build_type!\include" -L"!installdir!\deps\ign-transport\!build_type!\lib" -lignition-transport -lws2_32 -lIphlpapi -v || goto :error
-    call %SCRIPT_DIR%\lib\mex_call.bat
-
-    :: TODO: need hx_update.c
-    :: hx_getdeviceinfo.mexw64
-    xcopy hx_*.mex* "%WORKSPACE%" || goto :error :: TODO REMOVE
-    xcopy "hx_*.mex*" "!installdir!\matlab" || goto :error
-
-    cd ..
-    
     echo "Generating SDK zip file: !sdk_zip_file!" > sdk_zip_file.log
     "%tmpdir%\7za.exe" a -tzip "!sdk_zip_file!" "hx_gz_sdk_!build_type!\"
 )
