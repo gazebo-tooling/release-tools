@@ -8,7 +8,7 @@ call %win_lib% :configure_msvc_compiler
 echo %IGN_CLEAN_WORKSPACE%
 if "%IGN_CLEAN_WORKSPACE%" == FALSE (
   echo "Cleaning workspace"
-  IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
+  IF exist workspace ( rmdir /s /q workspace ) || goto :error
   mkdir workspace 
 )
 
@@ -36,12 +36,18 @@ cd ign-transport
 echo "Compiling"
 mkdir build
 cd build
-call "..\configure.bat" Release %BITNESS% || call %win_lib% :error
-nmake || call %win_lib% :error
-nmake install || call %win_lib% :error
+call "..\configure.bat" Release %BITNESS% || goto :error
+nmake || goto :error
+nmake install || goto :error
 
 if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo "Running tests"
   REM Need to find a way of running test from the standard make test (not working)
   ctest -C "Release" --verbose --extra-verbose || exit 0
 )
+
+:error - error routine
+::
+echo Failed with error #%errorlevel%.
+exit /b %errorlevel%
+goto :EOF
