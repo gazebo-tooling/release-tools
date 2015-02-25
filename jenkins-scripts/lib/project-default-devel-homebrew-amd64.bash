@@ -68,6 +68,12 @@ export PATH="${PATH}:${RUN_DIR}/bin"
 export C_INCLUDE_PATH="${C_INCLUDE_PATH}:${RUN_DIR}/include"
 export CPLUS_INCLUDE_PATH="${CPLUS_INCLUDE_PATH}:${RUN_DIR}/include"
 
+# set display before cmake
+export DISPLAY=$(ps ax
+  | grep '\d*:\d\d\.\d\d /opt/X11/bin/Xquartz'
+  | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
+)
+
 ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
       -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/${PROJECT}/HEAD \
       -DCMAKE_PREFIX_PATH=${RUN_DIR} \
@@ -75,12 +81,6 @@ ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
 
 make -j${MAKE_JOBS} install
 ${RUN_DIR}/bin/brew link ${PROJECT}
-
-# Need to use root to access to the graphical env
-export DISPLAY=$(ps ax
-  | grep '\d*:\d\d\.\d\d /opt/X11/bin/Xquartz'
-  | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
-)
 
 cat > test_run.sh << DELIM
 cd $WORKSPACE/build/
