@@ -69,8 +69,8 @@ export C_INCLUDE_PATH="${C_INCLUDE_PATH}:${RUN_DIR}/include"
 export CPLUS_INCLUDE_PATH="${CPLUS_INCLUDE_PATH}:${RUN_DIR}/include"
 
 # set display before cmake
-export DISPLAY=$(ps ax
-  | grep '\d*:\d\d\.\d\d /opt/X11/bin/Xquartz'
+export DISPLAY=$(ps ax \
+  | grep '\d*:\d\d\.\d\d /opt/X11/bin/Xquartz' \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
 
