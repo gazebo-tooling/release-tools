@@ -77,7 +77,10 @@ make -j${MAKE_JOBS} install
 ${RUN_DIR}/bin/brew link ${PROJECT}
 
 # Need to use root to access to the graphical env
-export DISPLAY=$(sudo find /private/tmp -name *xquartz* | sed 's:/private::')
+export DISPLAY=$(ps ax
+  | grep '\d*:\d\d\.\d\d /opt/X11/bin/Xquartz'
+  | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
+)
 
 cat > test_run.sh << DELIM
 cd $WORKSPACE/build/
