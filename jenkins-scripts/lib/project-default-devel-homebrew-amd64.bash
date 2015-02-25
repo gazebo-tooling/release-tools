@@ -73,6 +73,7 @@ export DISPLAY=$(ps ax \
   | grep '\d*:\d\d\.\d\d /opt/X11/bin/Xquartz' \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
+glxinfo || true
 
 ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
       -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/${PROJECT}/HEAD \
