@@ -69,6 +69,8 @@ export C_INCLUDE_PATH="${C_INCLUDE_PATH}:${RUN_DIR}/include"
 export CPLUS_INCLUDE_PATH="${CPLUS_INCLUDE_PATH}:${RUN_DIR}/include"
 
 # set display before cmake
+# open XQuartz manually to ensure a running X server
+open /Applications/Utilities/XQuartz.app || true
 export DISPLAY=$(ps ax \
   | grep '\d*:\d\d\.\d\d /opt/X11/bin/Xquartz' \
   | grep 'auth /Users/jenkins/' \
