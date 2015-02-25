@@ -74,7 +74,6 @@ export DISPLAY=$(ps ax \
   | grep 'auth /Users/jenkins/' \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
-glxinfo || true
 
 ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
       -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/${PROJECT}/HEAD \
