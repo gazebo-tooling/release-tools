@@ -199,7 +199,7 @@ def sanity_check_sdformat_versions(package, version):
 def check_s3cmd_configuration():
     # Need to check if s3cmd is installed
     try:
-        subprocess.call(["s3cmd"])
+        subprocess.call(["s3cmd", "--version"])
     except OSError as e:
         error("s3cmd command for uploading is not available. Install it using: apt-get install s3cmd")
     
