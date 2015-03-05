@@ -69,11 +69,18 @@ SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
 # our trusty machine. So we do not check for GRAPHIC_TESTS=true
 mkdir -p \$HOME/.gazebo
 
-timeout --preserve-status 180 roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose"
+# Precise coreutils does not support preserve-status
+if [ $DISTRO = 'precise' ]; then
+  roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose" &
+  sleep 180
+  killall -9 roslaunch
+else
+  timeout --preserve-status 180 roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose"
 
-if [ $? != 0 ]; then
-  echo "Failure response in the launch command" 
-  exit 1
+  if [ $? != 0 ]; then
+    echo "Failure response in the launch command" 
+    exit 1
+  fi
 fi
 
 echo "180 testing seconds finished successfully"
