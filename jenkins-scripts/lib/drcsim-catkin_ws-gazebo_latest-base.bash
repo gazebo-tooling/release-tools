@@ -4,6 +4,9 @@ set -e
 # Use always GPU in drcsim project
 export GPU_SUPPORT_NEEDED=true
 
+# DRCSim uses gazebo4
+export GAZEBO_MAJOR_VERSION=4
+
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 if [ -z ${GZ_BUILD_TYPE} ]; then
@@ -11,6 +14,7 @@ if [ -z ${GZ_BUILD_TYPE} ]; then
 else
     GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
 fi
+
 
 cat > build.sh << DELIM
 ###################################################
