@@ -48,7 +48,7 @@ ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs    \
 	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros-pkgs"
 
 # Need -ros for rosrun
-apt-get install -y \$ROS_GAZEBO_PKGS ros-$ROS_DISTRO-ros
+apt-get install -y --force-yes \$ROS_GAZEBO_PKGS ros-$ROS_DISTRO-ros
 
 # Step 2: configure and build
 rosdep init 
@@ -68,7 +68,22 @@ SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
 # Seems like there is no failure in runs on precise pbuilder in
 # our trusty machine. So we do not check for GRAPHIC_TESTS=true
 mkdir -p \$HOME/.gazebo
-timeout 180 roslaunch gazebo_ros shapes_world.launch || cat \$HOME/.gazebo/gzserver.log && echo "Failure response in the launch command"
+
+# Precise coreutils does not support preserve-status
+if [ $DISTRO = 'precise' ]; then
+  roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose" &
+  sleep 180
+  apt-get install -y psmisc 
+  killall -9 roslaunch || true
+  killall -9 gzserver || true 
+else
+  timeout --preserve-status 180 roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose"
+
+  if [ $? != 0 ]; then
+    echo "Failure response in the launch command" 
+    exit 1
+  fi
+fi
 
 echo "180 testing seconds finished successfully"
 

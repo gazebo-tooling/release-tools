@@ -56,11 +56,20 @@ if [ -n "$(lspci -v | grep "Kernel driver in use: i[0-9][0-9][0-9]")" ]; then
     export EXTRA_PACKAGES="${EXTRA_PACKAGES} libgl1-mesa-dri"
 fi
 
-# Check if the GPU support was found when not 
-if $GPU_SUPPORT_NEEDED && ! $GRAPHIC_CARD_FOUND; then
-    echo "GPU support needed by the script but no graphic card found."
-    echo "The DISPLAY variable contains: ${DISPLAY}"
-    exit 1
+# Be sure that we have GPU support
+if $GPU_SUPPORT_NEEDED; then
+    # Check for the lack of presence of DISPLAY var
+    if [[ ${DISPLAY} == "" ]]; then
+      echo "GPU support needed by the script but DISPLAY var is empty"
+      exit 1
+    fi
+    
+    # Check if the GPU support was found when not 
+    if ! $GRAPHIC_CARD_FOUND; then
+      echo "GPU support needed by the script but no graphic card found."
+      echo "The DISPLAY variable contains: ${DISPLAY}"
+      exit 1
+    fi
 fi
 
 # Get version of package 

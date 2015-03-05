@@ -1,7 +1,17 @@
 #!/bin/bash -x
 
+# This script is to use with a git repo which contains the the source and the
+# debian directory already in place, but it is not using git-buildpackage 
+# format. Plain git + debian.
+
+# Do not use ROS
+export ENABLE_ROS=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+
+# Do not use the subprocess_reaper in debbuild. Seems not as needed as in
+# testing jobs and seems to be slow at the end of jenkins jobs
+export ENABLE_REAPER=false
 
 cat > build.sh << DELIM
 ###################################################
@@ -15,7 +25,12 @@ set -ex
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget git dpkg-dev
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget subversion cdbs mercurial ca-certificates dh-autoreconf autoconf 
+
+# Cleanup
+rm -fr $WORKSPACE/*.dsc
+rm -fr $WORKSPACE/*.orig.*
+rm -fr $WORKSPACE/*.dsc
 
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
@@ -31,49 +46,35 @@ rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 
-# Clean from workspace all package related files
-rm -fr $WORKSPACE/"$PACKAGE"_*
+cd $WORKSPACE/code
 
-# Step 1: Get the source (nightly builds or tarball)
-rm -fr $WORKSPACE/simbody
-git clone https://github.com/simbody/simbody.git $WORKSPACE/simbody 
-cd $WORKSPACE/simbody
-# TODO: REMOVE this, it is only for 3.5.1
-cp doc/debian/changelog .
-# Keep this line
-git checkout Simbody-${VERSION}
-# TODO: REMOVE this, it is only for 3.5.1
-mv changelog doc/debian/
-
-# Debian directory is in doc/
-mv doc/debian .
+# Install dependencies
+depends=\$(dpkg-checkbuilddeps 2>&1 | sed 's/^dpkg-checkbuilddeps: Unmet build dependencies: //g')
+sudo apt-get install -y ${depends}
 
 # Use current distro
-sed -i -e 's:trusty:$DISTRO:g' debian/changelog
-# Use current release version
-sed -i -e 's:-1~:-$RELEASE_VERSION~:' debian/changelog
-# Bug in saucy doxygen makes the job hangs
-if [ $DISTRO = 'saucy' ]; then
-    sed -i -e '/.*dh_auto_build.*/d' debian/rules
-fi
+changelog_distro=\$(dpkg-parsechangelog | grep Distribution | awk '{print \$2}')
+sed -i -e "1 s:\$changelog_distro:$DISTRO:" debian/changelog
 
-# Need to set cpp11 off for precise
-if [ $DISTRO = 'precise' ]; then
-  DEB_HOST_MULTIARCH=\$(dpkg-architecture -qDEB_HOST_MULTIARCH)
-  sed -i -e 's#-DMAKE_BUILD_TYPE:STRING=RelWithDebInfo#-DMAKE_BUILD_TYPE:STRING=RelWithDebInfo\ -DSIMBODY_STANDARD_11=OFF\ -DCMAKE_INSTALL_LIBDIR:PATH=lib/\${DEB_HOST_MULTIARCH}#' debian/rules
-fi
 
 # Step 5: use debuild to create source package
-echo | dh_make -s --createorig -p ${PACKAGE}_${VERSION} || true
+VERSION=\$(dpkg-parsechangelog  | grep Version | awk '{print \$2}')
+echo | dh_make -s --createorig -p ${PACKAGE}_\${VERSION} || true
 
 debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
 export DEB_BUILD_OPTIONS="parallel=$MAKE_JOBS"
-# Step 6: use pbuilder-dist to create binary package(s)
-pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
+
+# Export data packages
+cp ../*.dsc $WORKSPACE/pkgs
+cp ../*.orig.* $WORKSPACE/pkgs
+cp ../*.debian.* $WORKSPACE/pkgs
+
+# Step 6: use pbuilder-dist to create binary package(s)
+pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 
 PKGS=\`find /var/lib/jenkins/pbuilder/*_result* -name *.deb || true\`
 
@@ -81,7 +82,8 @@ FOUND_PKG=0
 for pkg in \${PKGS}; do
     echo "found \$pkg"
     # Check for correctly generated packages size > 3Kb
-    test -z \$(find \$pkg -size +3k) && exit 1
+    test -z \$(find \$pkg -size +3k) && echo "WARNING: empty package?" 
+    # && exit 1
     cp \${pkg} $WORKSPACE/pkgs
     FOUND_PKG=1
 done

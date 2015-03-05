@@ -4,9 +4,8 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export GPU_SUPPORT_NEEDED=true
-
 export DISTRO=trusty
-export DART_USE_4_VERSION=true
+export REPO_DIRECTORY="haptix_comm"
+export PKG_DEPENDENCIES_VAR_NAME="HAPTIX_COMM_DEPENDENCIES"
 
-. ${SCRIPT_DIR}/lib/gazebo-base-default.bash
+. ${SCRIPT_DIR}/lib/generic-job.bash

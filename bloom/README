@@ -10,3 +10,8 @@ Scripts:
  * rename-gazeboX-ros-pkgs-release.sh: run on top of a ros_gazebo_pkgs-release
    repository, will change all the templates in bloom to set gazebo3 instead of
    just gazebo for renaming when releasing ROS wrappers.
+
+ * git_clone_all_remote_branches.bash: script to clone all remote branches into 
+   a local git repository. This is used when creating a new gazeboX_ros_pkg
+   repository since github does not allow to host more than one fork of the 
+   original gazebo_ros_pkgs repository.
