@@ -73,6 +73,7 @@ mkdir -p \$HOME/.gazebo
 if [ $DISTRO = 'precise' ]; then
   roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose" &
   sleep 180
+  apt-get install -y psmisc 
   killall -9 roslaunch
 else
   timeout --preserve-status 180 roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose"
