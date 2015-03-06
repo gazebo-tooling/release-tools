@@ -10,10 +10,12 @@ if [[ -z $ROS_DISTRO ]]; then
 fi
 
 # Dart flags. Enable it by default unless compiled from source
-DART_FROM_PKGS=false
-
 if [ -z ${DART_COMPILE_FROM_SOURCE} ]; then
    DART_COMPILE_FROM_SOURCE=false
+fi
+
+if [ -z ${DART_FROM_PKGS} ]; then
+  DART_FROM_PKGS=false
 fi
 
 if ${DART_COMPILE_FROM_SOURCE}; then
@@ -104,6 +106,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           pkg-config                       \\
                           libqt4-dev                       \\
                           libltdl-dev                      \\
+                          libgts-dev                       \\
                           libboost-thread-dev              \\
                           libboost-signals-dev             \\
                           libboost-system-dev              \\
