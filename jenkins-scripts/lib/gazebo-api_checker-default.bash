@@ -11,17 +11,29 @@ else
     GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
 fi
 
+# Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
+GAZEBO_MAJOR_VERSION=`\
+  grep 'set.*GAZEBO_MAJOR_VERSION ' ${WORKSPACE}/gazebo/CMakeLists.txt | \
+  tr -d 'a-zA-Z _()'`
+
+# Check gazebo version between 1-9 
+if ! [[ ${GAZEBO_MAJOR_VERSION} =~ ^-?[1-9]$ ]]; then
+   echo "Error! GAZEBO_MAJOR_VERSION is not between 1 and 9, check the detection"
+   exit -1
+fi
+
+case $GAZEBO_MAJOR_VERSION in
+    '2')
+	GAZEBO_PKG=gazebo2
+	;;
+    '3')
+	GAZEBO_PKG=libgazebo-dev
+	;;
+     *)
+	GAZEBO_PKG=libgazebo${GAZEBO_MAJOR_VERSION}-dev
+esac
+
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
-
-# Default to install plain gazebo in gazebo_pkg is not speficied
-if [[ -z $GAZEBO_PKG ]]; then
-    export GAZEBO_PKG=gazebo3
-fi
-
-# Split package in gazebo3 needs -dev to explore the headers
-if [[ $GAZEBO_PKG == 'gazebo3' ]]; then
-    GAZEBO_PKG=libgazebo-dev
-fi
 
 # Install gazebo from package and git to retrieve api checker
 export EXTRA_PACKAGES="${GAZEBO_PKG} git exuberant-ctags"
@@ -105,8 +117,18 @@ GAZEBO_LIBS=\$(dpkg -L \$(dpkg -l | grep ^ii | grep gazebo | awk '{ print \$2 }'
 GAZEBO_LIBS_LOCAL=\$(echo \${GAZEBO_LIBS} | tr ' ' '\\n' | sed -e 's:^/usr:/usr/local:g')
 BIN_VERSION=\$(dpkg -l ${GAZEBO_PKG} | tail -n 1 | awk '{ print  \$3 }')
 
-GAZEBO_INC_DIR=\$(find /usr/include -name gazebo-* -type d | sed -e 's:.*/::')
+GAZEBO_INC_DIR=\$(find /usr/include -name 'gazebo-*' -type d | sed -e 's:.*/::')
 GAZEBO_LOCAL_INC_DIR=\$(find /usr/local/include -name gazebo-* -type d | sed -e 's:.*/::')
+
+if [ -z \$GAZEBO_INC_DIR ]; then
+    echo "GAZEBO_INC_DIR is empty. Please check your script!"
+    exit 1
+fi
+
+if [ -z \$GAZEBO_LOCAL_INC_DIR ]; then
+    echo "GAZEBO_LOCAL_INC_DIR is empty. Please check your script!"
+    exit 1
+fi
 
 mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker
