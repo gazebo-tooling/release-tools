@@ -11,6 +11,8 @@ else
     GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
 fi
 
+[ -z ${COVERAGE_ENABLED} ] && COVERAGE_ENABLED=false
+
 # Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
 GAZEBO_MAJOR_VERSION=`\
   grep 'set.*GAZEBO_MAJOR_VERSION ' ${WORKSPACE}/gazebo/CMakeLists.txt | \
@@ -23,6 +25,10 @@ if ! [[ ${GAZEBO_MAJOR_VERSION} =~ ^-?[1-9]$ ]]; then
 fi
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+
+set +x # keep password secret
+BULLSEYE_LICENSE=`cat $HOME/bullseye-jenkins-license`
+set -x # back to debug
 
 cat > build.sh << DELIM
 ###################################################
