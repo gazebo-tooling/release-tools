@@ -11,27 +11,22 @@ else
     GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
 fi
 
-# Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
-GAZEBO_MAJOR_VERSION=`\
-  grep 'set.*GAZEBO_MAJOR_VERSION ' ${WORKSPACE}/gazebo/CMakeLists.txt | \
-  tr -d 'a-zA-Z _()'`
+# No GAZEBO_PKG specified checking latest
+if [[ -n ${GAZEBO_PKG} ]]; then 
+  # Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
+  GAZEBO_MAJOR_VERSION=`\
+    grep 'set.*GAZEBO_MAJOR_VERSION ' ${WORKSPACE}/gazebo/CMakeLists.txt | \
+    tr -d 'a-zA-Z _()'`
 
-# Check gazebo version between 1-9 
-if ! [[ ${GAZEBO_MAJOR_VERSION} =~ ^-?[1-9]$ ]]; then
-   echo "Error! GAZEBO_MAJOR_VERSION is not between 1 and 9, check the detection"
-   exit -1
+  # Check gazebo version between 1-9 
+  if ! [[ ${GAZEBO_MAJOR_VERSION} =~ ^-?[1-9]$ ]]; then
+    echo "Error! GAZEBO_MAJOR_VERSION is not between 1 and 9, check the detection"
+    exit -1
+  fi
+
+  GAZEBO_LATEST_RELEASE=$((GAZEBO_MAJOR_VERSION - 1))
+  GAZEBO_PKG=libgazebo${GAZEBO_LATEST_RELEASE}-dev
 fi
-
-case $GAZEBO_MAJOR_VERSION in
-    '2')
-	GAZEBO_PKG=gazebo2
-	;;
-    '3')
-	GAZEBO_PKG=libgazebo-dev
-	;;
-     *)
-	GAZEBO_PKG=libgazebo${GAZEBO_MAJOR_VERSION}-dev
-esac
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
