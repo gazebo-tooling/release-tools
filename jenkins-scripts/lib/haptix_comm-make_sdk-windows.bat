@@ -174,17 +174,14 @@ for %%b in (Debug, Release) do (
     xcopy "haptix-comm\haptix-comm.props" "!installdir!"
     xcopy "haptix-comm\haptix-comm.info" "!installdir!"
     :: haptix-example
-    :: - dependencies
-    mkdir "!installdir!\example\" 
-    xcopy "ZeroMQ 3.2.4\bin\libzmq-v120*.dll" "!installdir!\example\" /s /e /i
     :: example .exe files
+    mkdir "!installdir!\example\" 
     xcopy "haptix-comm\example\build\*.exe" "!installdir!\example\" /i
 
     :: ------ MATLAB -------------------------------
     :: - zeromq matlab stuff
+    :: - haptix-comm MATLAB stuff (.m files + .mex)
     mkdir "!installdir!\matlab\" 
-    xcopy "ZeroMQ 3.2.4\bin\libzmq-v120*.dll" "!installdir!\matlab\" /s /e /i
-     :: - haptix-comm MATLAB stuff (.m files + .mex)
     xcopy "haptix-comm\build\install\!build_type!\lib\haptix-comm\mex\*" "!installdir!\matlab\" /s /e /i
 
     cd ..
