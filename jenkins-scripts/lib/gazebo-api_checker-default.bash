@@ -12,7 +12,7 @@ else
 fi
 
 # No GAZEBO_PKG specified checking latest
-if [[ -n ${GAZEBO_PKG} ]]; then 
+if [[ -z ${GAZEBO_PKG} ]]; then 
   # Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
   GAZEBO_MAJOR_VERSION=`\
     grep 'set.*GAZEBO_MAJOR_VERSION ' ${WORKSPACE}/gazebo/CMakeLists.txt | \
@@ -31,7 +31,7 @@ fi
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 # Install gazebo from package and git to retrieve api checker
-export EXTRA_PACKAGES="${GAZEBO_PKG} git exuberant-ctags"
+EXTRA_PACKAGES="${GAZEBO_PKG} git exuberant-ctags"
 
 cat > build.sh << DELIM
 ###################################################
