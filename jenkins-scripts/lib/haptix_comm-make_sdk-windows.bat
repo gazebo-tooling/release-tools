@@ -182,7 +182,7 @@ for %%b in (Debug, Release) do (
     :: - zeromq matlab stuff
     :: - haptix-comm MATLAB stuff (.m files + .mex)
     mkdir "!installdir!\matlab\" 
-    xcopy "haptix-comm\build\install\!build_type!\lib\haptix-comm\mex\*" "!installdir!\matlab\" /s /e /i
+    xcopy "haptix-comm\build\install\!build_type!\lib\haptix-comm\matlab\*" "!installdir!\matlab\" /s /e /i
 
     cd ..
 
