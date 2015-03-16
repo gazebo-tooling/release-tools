@@ -14,7 +14,6 @@ if "%IGN_CLEAN_WORKSPACE%" == FALSE (
   echo # END SECTION
 )
 
-echo # BEGIN SECTION: prepare the workspace
 mkdir workspace 
 cd workspace || goto :error
 
@@ -54,7 +53,7 @@ echo # END SECTION
 if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo # BEGIN SECTION: run tests
   REM Need to find a way of running test from the standard make test (not working)
-  ctest -C "Release" --verbose --extra-verbose || exit 0
+  ctest -C "Release" --verbose --extra-verbose || (exit 0)
   echo # END SECTION
   
   echo # BEGIN SECTION: export testing results
