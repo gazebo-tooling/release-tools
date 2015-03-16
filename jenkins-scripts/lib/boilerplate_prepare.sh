@@ -3,7 +3,7 @@ set -e
 
 # Default values - Provide them is prefered
 if [ -z ${DISTRO} ]; then
-    DISTRO=precise
+    DISTRO=trusty
 fi
 
 if [ -z ${ROS_DISTRO} ]; then
