@@ -53,7 +53,7 @@ echo # END SECTION
 if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo # BEGIN SECTION: run tests
   REM Need to find a way of running test from the standard make test (not working)
-  ctest -C "Release" --verbose --extra-verbose || (exit 0)
+  ctest -C "Release" --verbose --extra-verbose
   echo # END SECTION
   
   echo # BEGIN SECTION: export testing results
@@ -61,10 +61,11 @@ if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo # END SECTION
 )
 
-echo # BEGIN SECTION: clean up build artifacts
-cd %WORKSPACE%
-rmdir /s /q workspace || goto :error
-echo # END SECTION
+if NOT DEFINED %KEEP_WORKSPACE% (
+   echo # BEGIN SECTION: clean up workspace
+   rmdir /s /q workspace || goto :error
+   echo # END SECTION
+)
 
 :error - error routine
 ::
