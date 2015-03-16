@@ -203,7 +203,7 @@ for %%b in (Debug, Release) do (
 )
 setlocal disabledelayedexpansion
 
-if NOT DEFINED %KEEP_WORKSPACE% (
+if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
    rmdir /s /q workspace || goto :error
    echo # END SECTION

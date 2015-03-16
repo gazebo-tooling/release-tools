@@ -61,7 +61,7 @@ if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo # END SECTION
 )
 
-if NOT DEFINED %KEEP_WORKSPACE% (
+if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
    rmdir /s /q workspace || goto :error
    echo # END SECTION
