@@ -10,6 +10,7 @@ set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 :: remove previous packages
 del %WORKSPACE%\*.zip
 
+echo # BEGIN SECTION: configure the platform and compiler
 @set PLATFORM_TO_BUILD=x86
 @if not "%1"=="" set PLATFORM_TO_BUILD=%1
 
@@ -51,8 +52,12 @@ IF exist "%MSVC_ON_WIN64%" (
    echo "Could not find the vcvarsall.bat file"
    exit -1
 )
+echo # END SECTION
 
-@rem Setup directories
+echo # BEGIN SECTION: setup all needed variables and workspace
+mkdir workspace 
+cd workspace || goto :error
+
 set cwd=%cd%
 set tmpdir=%cwd%\hx_gz_sdk_tmp
 rmdir "%tmpdir%" /S /Q
@@ -61,7 +66,9 @@ cd "%tmpdir%"
 
 set zeromq_zip_name=zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip
 set protobuf_zip_name=protobuf-2.6.0-win%BITNESS%-vc12.zip
+echo # END SECTION
 
+echo # BEGIN SECTION: Download dependencies and unzip
 @rem Download stuff.  Note that bitsadmin requires an absolute path.
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%zeromq_zip_name% %zeromq_zip_name% || goto :error
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip  || goto :error
@@ -76,25 +83,29 @@ call %win_lib% :unzip_7za %zeromq_zip_name% > zeromq_7z.log
 call %win_lib% :unzip_7za cppzmq-noarch.zip > cppzmq_7z.log
 call %win_lib% :unzip_7za %protobuf_zip_name% > protobuf_7z.lob
 call %win_lib% :unzip_7za boost_1_56_0.zip > boost_7z.lob
+echo # END SECTION
 
-echo "Cloning ignition-transport"
+echo # BEGIN SECTION: Cloning ignition-transport
 hg clone https://bitbucket.org/ignitionrobotics/ign-transport -b %IGN_TRANSPORT_BRANCH%
 cd ign-transport
 hg tip > ignition-transport.info
 cd ..
+echo # END SECTION
 
-echo "Clonning haptix-comm"
+echo # BEGIN SECTION: Cloning haptix-comm
 hg clone https://bitbucket.org/osrf/haptix-comm haptix-comm -b %HAPTIX_COMM_BRANCH%
 cd haptix-comm
 REM set haptix_hash variable. Yes, we need need to do this for structure
 for /f "delims=" %%a in ('hg id -i') do @set haptix_hash=%%a
 hg tip > haptix-comm.info
 cd ..
+echo # END SECTION
 
 set srcdir=%cd%
 
 setlocal Enabledelayedexpansion
 for %%b in (Debug, Release) do (
+    echo # BEGIN SECTION: SDK generation %%b for %BITNESS%
 
     cd %srcdir%
 
@@ -188,8 +199,15 @@ for %%b in (Debug, Release) do (
 
     echo "Generating SDK zip file: !sdk_zip_file!" > sdk_zip_file.log
     "%tmpdir%\7za.exe" a -tzip "!sdk_zip_file!" "hx_gz_sdk_!build_type!\" || goto :error
+    echo # END SECTION
 )
 setlocal disabledelayedexpansion
+
+if NOT DEFINED %KEEP_WORKSPACE% (
+   echo # BEGIN SECTION: clean up workspace
+   rmdir /s /q workspace || goto :error
+   echo # END SECTION
+)
 
 goto :EOF
 
