@@ -105,11 +105,11 @@ set srcdir=%cd%
 
 setlocal Enabledelayedexpansion
 for %%b in (Debug, Release) do (
-    echo # BEGIN SECTION: SDK generation %%b for %BITNESS%
+    echo # BEGIN SECTION: SDK generation %%b for %BITNESS% bits
 
     cd %srcdir%
 
-    echo "Build ign-transport in %%b"
+    echo # BEGIN SECTION: build ign-transport in %%b
     cd ign-transport
     mkdir build
     cd build
@@ -118,8 +118,9 @@ for %%b in (Debug, Release) do (
     nmake VERBOSE=1 > ign-transport.log || goto :error
     nmake install
     cd ..\..
+    echo # END SECTION
 
-    echo "Build haptix-comm in %%b"
+    echo # BEGIN SECTION: build haptix-comm in %%b
     cd haptix-comm
     mkdir build
     cd build
@@ -127,8 +128,9 @@ for %%b in (Debug, Release) do (
     call ..\configure %%b %BITNESS%
     nmake VERBOSE=1 > haptix.log || goto :error
     nmake install
+    echo # END SECTION
    
-    echo "Build haptix-comm example"
+    echo # BEGIN SECTION: build haptix-comm examples in %%b
     cd ..
     cd example
     mkdir build
@@ -136,21 +138,19 @@ for %%b in (Debug, Release) do (
     del CMakeCache.txt
     call ..\configure %%b %BITNESS%
     nmake VERBOSE=1 > haptix_example.log || goto :error
+    echo # END SECTION
+   
 
     cd ..\..\..
 
-    echo "Start packaging ..."
+    echo # BEGIN SECTION: generate package
     :: Package it all up
     :: Our goal here is to create an "install" layout for all the stuff
     :: needed to use haptix-comm.  That layout can be then be zipped and
     :: distributed.  Lots of assumptions are being made here.
-    echo "Start packaging 1 ..."
-
     :: We need to use expansion at runtime values for variables inside the loop this is
     :: why the ! var ! is being used. For more information, please read:
     :: http://ss64.com/nt/delayedexpansion.html
-    echo "Start packaging 2 ..."
-
     set "build_type=%%b"
     set "installdir=%cwd%\hx_gz_sdk_!build_type!"
     
@@ -196,6 +196,7 @@ for %%b in (Debug, Release) do (
     xcopy "haptix-comm\build\install\!build_type!\lib\haptix-comm\matlab\*" "!installdir!\matlab\" /s /e /i
 
     cd ..
+    echo # END SECTION
 
     echo "Generating SDK zip file: !sdk_zip_file!" > sdk_zip_file.log
     "%tmpdir%\7za.exe" a -tzip "!sdk_zip_file!" "hx_gz_sdk_!build_type!\" || goto :error
