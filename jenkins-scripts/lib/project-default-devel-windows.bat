@@ -19,10 +19,16 @@ mkdir build
 cd build
 
 echo "cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS%"
-cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS%
+cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS% || goto :error
 
 REM Running the compilation
-msbuild %VS_DEFAULT_MSBUILD_FLAGS% ALL_BUILD.vcxproj
+msbuild %VS_DEFAULT_MSBUILD_FLAGS% ALL_BUILD.vcxproj || goto :error
 
 REM Need to find a way of running test from msbuild passing ARGS=-VV
 ctest -C "Release" --verbose --extra-verbose || exit 0
+
+:error - error routine
+::
+echo Failed with error #%errorlevel%.
+exit /b %errorlevel%
+goto :EOF
