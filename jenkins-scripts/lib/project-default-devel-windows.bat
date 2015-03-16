@@ -13,10 +13,10 @@ call "c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" %PLA
 
 echo %WORKSPACE%
 cd %WORKSPACE%
-REM Reset the build directory if exists
-if exist build ( rmdir build /s /q )
-mkdir build
-cd build
+REM Reset the workspace directory if exists
+if exist workspace ( rmdir workspace /s /q )
+mkdir workspace
+cd workspace || goto :error
 
 echo "Download dependency if needed"
 REM Todo: support multiple dependencies
@@ -24,6 +24,12 @@ if defined DEPENDENCY_URL (
   call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%DEPENDENCY_PKG% %DEPENDENCY_PKG%
   call %win_lib% :unzip_7za %DEPENDENCY_PKG% %DEPENDENCY_PKG% > install_boost.log
 )
+
+echo "Copy sources inside workspace"
+xcopy /s /e /i %WORKSPACE%/%VCS_DIRECTORY% . || goto :error
+cd %VCS_DIRECTORY%
+mkdir build
+cd build
 
 echo "Run configure.bat if it exists"
 if exist ../configure.bat (
@@ -37,7 +43,13 @@ REM Running the compilation
 msbuild %VS_DEFAULT_MSBUILD_FLAGS% ALL_BUILD.vcxproj || goto :error
 
 REM Need to find a way of running test from msbuild passing ARGS=-VV
-ctest -C "Release" --verbose --extra-verbose || exit 0
+ctest -C "Release" --verbose --extra-verbose || echo "tests failed"
+
+if NOT DEFINED %KEEP_WORKSPACE% (
+   echo # BEGIN SECTION: clean up workspace
+   rmdir /s /q workspace || goto :error
+   echo # END SECTION
+)
 
 :error - error routine
 ::
