@@ -23,6 +23,7 @@ cd workspace || goto :error
 echo "Download dependency if needed"
 REM Todo: support multiple dependencies
 if defined DEPENDENCY_PKG (
+  call %win_lib% :download_7za
   call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%DEPENDENCY_PKG% %DEPENDENCY_PKG% || goto :error
   call %win_lib% :unzip_7za %DEPENDENCY_PKG% %DEPENDENCY_PKG% > install_boost.log || goto:error
 )
@@ -56,5 +57,6 @@ if NOT DEFINED %KEEP_WORKSPACE% (
 :error - error routine
 ::
 echo Failed with error #%errorlevel%.
+if exist workspace ( rmdir workspace /s /q )
 exit /b %errorlevel%
 goto :EOF
