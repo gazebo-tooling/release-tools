@@ -20,7 +20,7 @@ cd workspace || goto :error
 
 echo "Download dependency if needed"
 REM Todo: support multiple dependencies
-if defined DEPENDENCY_URL (
+if defined DEPENDENCY_PKG (
   call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%DEPENDENCY_PKG% %DEPENDENCY_PKG%
   call %win_lib% :unzip_7za %DEPENDENCY_PKG% %DEPENDENCY_PKG% > install_boost.log
 )
