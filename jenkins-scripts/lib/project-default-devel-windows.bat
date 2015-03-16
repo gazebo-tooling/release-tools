@@ -26,7 +26,7 @@ if defined DEPENDENCY_URL (
 )
 
 echo "Copy sources inside workspace"
-xcopy /s /e /i %WORKSPACE%/%VCS_DIRECTORY% . || goto :error
+xcopy %WORKSPACE%\%VCS_DIRECTORY% . /s /e /i || goto :error
 cd %VCS_DIRECTORY%
 mkdir build
 cd build
