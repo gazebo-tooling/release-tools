@@ -1,5 +1,7 @@
 REM Windows standard file to build Visual Studio projects
 
+set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
+
 IF %PLATFORM_TO_BUILD% == x86 (
   echo "Using 32bits VS configuration"
   set VS_CMAKE_GEN=%VS32bits_CMAKE_GEN%
@@ -21,8 +23,8 @@ cd workspace || goto :error
 echo "Download dependency if needed"
 REM Todo: support multiple dependencies
 if defined DEPENDENCY_PKG (
-  call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%DEPENDENCY_PKG% %DEPENDENCY_PKG%
-  call %win_lib% :unzip_7za %DEPENDENCY_PKG% %DEPENDENCY_PKG% > install_boost.log
+  call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%DEPENDENCY_PKG% %DEPENDENCY_PKG% || goto :error
+  call %win_lib% :unzip_7za %DEPENDENCY_PKG% %DEPENDENCY_PKG% > install_boost.log || goto:error
 )
 
 echo "Copy sources inside workspace"
