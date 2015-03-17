@@ -34,9 +34,9 @@ cd %VCS_DIRECTORY% || goto :error
 mkdir build
 cd build
 
-if exist ../configure.bat (
+if exist ..\configure.bat (
   echo "Found configure.bat running it"
-  ../configure.bat
+  call ..\configure.bat || goto :error
 )
 
 echo "cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS%"
