@@ -71,13 +71,18 @@ mkdir -p \$HOME/.gazebo
 
 # Precise coreutils does not support preserve-status
 if [ $DISTRO = 'precise' ]; then
-  echo "X Error failed is expected on machines with different distro in host than tested"
-  echo "We run the test anyway to test ABI or segfaults"
-  roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose" &
-  sleep 180
-  apt-get install -y psmisc 
-  killall -9 roslaunch || true
-  killall -9 gzserver || true 
+  # TODO: all the testing on precise X in our jenkins is currently segfaulting
+  # docker can not run on Precise without altering the base packages
+  # Previous attemps to get GPU acceleration for intel in chroot:
+  # http://build.osrfoundation.org/job/ros_gazebo_pkgs-release-testing-broken-intel/
+  
+  # echo "X Error failed is expected on machines with different distro in host than tested"
+  # echo "We run the test anyway to test ABI or segfaults"
+  # roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose" &
+  # sleep 180
+  # apt-get install -y psmisc 
+  # killall -9 roslaunch || true
+  # killall -9 gzserver || true 
 else
   timeout --preserve-status 180 roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose"
 
