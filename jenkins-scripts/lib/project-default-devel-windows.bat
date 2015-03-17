@@ -29,13 +29,13 @@ if defined DEPENDENCY_PKG (
 )
 
 echo "Copy sources inside workspace"
-xcopy %WORKSPACE%\%VCS_DIRECTORY% . /s /e /i || goto :error
-cd %VCS_DIRECTORY%
+xcopy %WORKSPACE%\%VCS_DIRECTORY% %VCS_DIRECTORY% /s /e /i > xcopy.log || goto :error
+cd %VCS_DIRECTORY% || goto :error
 mkdir build
 cd build
 
-echo "Run configure.bat if it exists"
 if exist ../configure.bat (
+  echo "Found configure.bat running it"
   ../configure.bat
 )
 
