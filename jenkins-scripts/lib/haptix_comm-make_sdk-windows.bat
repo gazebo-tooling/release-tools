@@ -206,7 +206,7 @@ setlocal disabledelayedexpansion
 
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
-   rmdir /s /q workspace || goto :error
+   rmdir /s /q %WORKSPACE%\workspace || goto :error
    echo # END SECTION
 )
 
