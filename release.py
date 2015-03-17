@@ -379,7 +379,7 @@ def go(argv):
     for d in distros:
         for a in UBUNTU_ARCHS:
             if (a == 'armhf'):
-                # Run on docker need to alter the base_url
+                # armhf runs on docker, it needs a different base_url
                 base_url = '%s/job/%s-docker/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
             else:
                 base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
