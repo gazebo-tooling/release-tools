@@ -342,8 +342,6 @@ def go(argv):
     if not UPSTREAM and not args.no_sanity_checks:
         sanity_checks(args)
 
-    source_tarball_uri = ''
-
     # Do not generate source file if not needed or impossible
     if not args.no_source_file:
         source_tarball_uri = generate_upload_tarball(args)
@@ -367,14 +365,25 @@ def go(argv):
     else:
         job_name = JOB_NAME_PATTERN%(args.package)
     
+    # Enable new armhf jobs in sdformat2 and gazebo5
+    if (args.package == 'sdformat2' or args.package == 'gazebo5'):
+        # No prereleases
+        if (not args.release_repo_branch == 'prerelease'):
+            UBUNTU_ARCHS.append('armhf')
+   
     params_query = urllib.urlencode(params)
-    base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
     distros = UBUNTU_DISTROS
     if EXP_DISTROS:
         distros.extend(UBUNTU_DISTROS_EXPERIMENTAL)
 
     for d in distros:
         for a in UBUNTU_ARCHS:
+            if (a == 'armhf'):
+                # Run on docker need to alter the base_url
+                base_url = '%s/job/%s-docker/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
+            else:
+                base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
+
             if not DRCSIM_MULTIROS:
                 url = '%s&ARCH=%s&DISTRO=%s'%(base_url, a, d)
                 print('Accessing: %s'%(url))
