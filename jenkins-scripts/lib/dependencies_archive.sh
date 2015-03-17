@@ -126,11 +126,16 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
 
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
-                           libcegui-mk2-dev \\
                            libavformat-dev  \\
                            libavcodec-dev   \\
                            libswscale-dev   \\
                            ruby-ronn"
+		       
+# cegui is deprecated in gazebo 6
+if [[ ${GAZEBO_MAJOR_VERSION} -le 6 ]]; then
+    GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} \\
+                               libcegui-mk2-dev"
+fi
 
 # gdal is not working on precise
 # it was added in gazebo5, which does not support precise
