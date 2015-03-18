@@ -28,12 +28,17 @@ echo # END SECTION
 
 :: We need ignition first
 echo # BEGIN SECTION: clonning ign-transport (default branch)
-@REM Need close directly on WORKSPACE to call ign_transport as it is called from jenkins
-if exist ign-transport ( rmdir /s ign-transport )
-hg clone https://bitbucket.org/ignitionrobotics/ign-transport %WORKSPACE%\ign-transport || goto :error
+:: Need close directly on WORKSPACE to call ign_transport as it is called from jenkins
+set IGN_TRANSPORT_PATH=%WORKSPACE%\ign-transport
+
+if exist %IGN_TRANSPORT_PATH% ( rmdir /s /q %IGN_TRANSPORT_PATH% ) || goto :error
+hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_PATH% || goto :error
 call %SCRIPT_DIR%/lib/ign_transport-base-windows.bat
-move %WORKSPACE%/workspace/ign-transport/build/install/
-@REM Do not keep the workspace anymore
+:: configure.bat in haptix is using ../ign-transport to locate ignition
+:: note that ign-transport directory was copied and used to build in
+:: WORKSPACE/workspace/ign-transport by the ign-transport script
+move %WORKSPACE%/workspace/ign-transport %WORKSPACE%/workspace/haptix-comm
+:: Do not keep the workspace anymore
 set KEEP_WORKSPACE=
 echo # END SECTION
 
