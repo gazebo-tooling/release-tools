@@ -6,11 +6,18 @@
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
-echo # BEGIN SECTION: setup all needed variables and workspace
+:: Call vcvarsall and all the friends
+echo # BEGIN SECTION: configure the MSVC compiler
+call %win_lib% :configure_msvc_compiler
+echo # END SECTION
+
 set IGN_TEST_DISABLE=TRUE
 @REM Need to keep workspace when calling ign-transport
 set KEEP_WORKSPACE=TRUE
 set IGN_CLEAN_WORKSPACE=FALSE
+
+set zeromq_zip_name=zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip
+set protobuf_zip_name=protobuf-2.6.0-win%BITNESS%-vc12.zip
 
 cd %WORKSPACE%
 IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
@@ -24,13 +31,21 @@ echo # BEGIN SECTION: clonning ign-transport (default branch)
 @REM Need close directly on WORKSPACE to call ign_transport as it is called from jenkins
 hg clone https://bitbucket.org/ignitionrobotics/ign-transport %WORKSPACE%\ign-transport
 call %SCRIPT_DIR%/lib/ign_transport-base-windows.bat
+@REM Do not keep the workspace anymore
+set KEEP_WORKSPACE=
 echo # END SECTION
 
 echo # BEGIN SECTION: downloading haptix-comm dependencies and unzip
 cd %WORKSPACE%/workspace
 call %win_lib% :download_7za
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%zeromq_zip_name% %zeromq_zip_name% || goto :error
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip  || goto :error
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%protobuf_zip_name% %protobuf_zip_name%  || goto :error
 call %win_lib% :unzip_7za boost_1_56_0.zip > install_boost.log
+call %win_lib% :unzip_7za %zeromq_zip_name% > zeromq_7z.log
+call %win_lib% :unzip_7za cppzmq-noarch.zip > cppzmq_7z.log
+call %win_lib% :unzip_7za %protobuf_zip_name% > protobuf_7z.log
 echo # END SECTION
 
 echo # BEGIN SECTION: configuring haptix-comm
