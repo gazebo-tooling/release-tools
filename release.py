@@ -381,6 +381,9 @@ def go(argv):
     for d in distros:
         for a in UBUNTU_ARCHS:
             if (a == 'armhf'):
+                # Only release armhf in trusty for now
+                if (d != 'trusty'):
+                    continue
                 # armhf runs on docker, it needs a different base_url
                 base_url = '%s/job/%s-docker/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
             else:
