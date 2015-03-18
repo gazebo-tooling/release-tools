@@ -33,7 +33,9 @@ set IGN_TRANSPORT_PATH=%WORKSPACE%\ign-transport
 
 if exist %IGN_TRANSPORT_PATH% ( rmdir /s /q %IGN_TRANSPORT_PATH% ) || goto :error
 hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_PATH% || goto :error
-call %SCRIPT_DIR%/lib/ign_transport-base-windows.bat
+call "%SCRIPT_DIR%/lib/ign_transport-base-windows.bat"  || goto :error
+exit 1
+
 :: configure.bat in haptix is using ../ign-transport to locate ignition
 :: note that ign-transport directory was copied and used to build in
 :: WORKSPACE/workspace/ign-transport by the ign-transport script

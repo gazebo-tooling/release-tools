@@ -14,8 +14,8 @@ if "%IGN_CLEAN_WORKSPACE%" == FALSE (
   echo # END SECTION
 )
 
-mkdir workspace 
-cd workspace || goto :error
+mkdir %WORKSPACE%\workspace 
+cd %WORKSPACE%\workspace || goto :error
 
 REM Note that your jenkins job should put source in %WORKSPACE%/ign-transport
 echo "Move sources so we agree with configure.bat layout
@@ -39,9 +39,10 @@ set PATH=%PATH%;%WORKSPACE%/workspace/ZeroMQ 3.2.4/bin/
 echo # END SECTION
 
 echo # BEGIN SECTION: ign-transport compilation
-cd %WORKSPACE%/workspace/ign-transport
+dir %WORKSPACE%/workspace
+cd %WORKSPACE%/workspace/ign-transport || goto :error
 mkdir build
-cd build
+cd build 
 call "..\configure.bat" Release %BITNESS% || goto :error
 nmake || goto :error
 echo # END SECTION
