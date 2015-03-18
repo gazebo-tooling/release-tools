@@ -13,7 +13,8 @@ set IGN_CLEAN_WORKSPACE=FALSE
 cd %WORKSPACE%
 IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
 mkdir workspace
-xcopy haptix-comm %WORKSPACE%/workspace/haptix-comm /s /i /e || goto %win_lib% :error
+cd workspace
+xcopy %WORKSPACE%\haptix-comm %WORKSPACE%\workspace\haptix-comm /s /i /e || goto %win_lib% :error
 echo # END SECTION
 
 :: We need ignition first
@@ -53,6 +54,9 @@ echo # BEGIN SECTION: running tests
 REM Need to find a way of running test from the standard make test (not working)
 cd %WORKSPACE%/workspace/haptix-comm/build
 ctest -C "Release" --verbose --extra-verbose || echo "test failed"
+echo # END SECTION
+echo # BEGIN SECTION: export testing results
+move test_results %WORKSPACE%/test_results
 echo # END SECTION
 
 if NOT DEFINED KEEP_WORKSPACE (
