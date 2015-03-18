@@ -143,6 +143,7 @@ for %%b in (Debug, Release) do (
 
     cd ..\..\..
 
+    echo # BEGIN SECTION: generate zip file in %%b
     :: Package it all up
     :: Our goal here is to create an "install" layout for all the stuff
     :: needed to use haptix-comm.  That layout can be then be zipped and
@@ -154,8 +155,6 @@ for %%b in (Debug, Release) do (
     set "installdir=%cwd%\hx_gz_sdk_!build_type!"
     
     set "sdk_zip_file=%WORKSPACE%\hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip"
-    
-    echo # BEGIN SECTION: generate zip file hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip
 
     echo " * Build type             : !build_type!"
     echo " * Installation directory : !installdir!"
