@@ -87,6 +87,7 @@ echo # END SECTION
 
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
+   cd %WORKSPACE%
    rmdir /s /q %WORKSPACE%\workspace || goto :error
    echo # END SECTION
 )
