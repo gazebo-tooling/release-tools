@@ -65,7 +65,6 @@ if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
    cd %WORKSPACE%
    rmdir /s /q %WORKSPACE%\workspace || goto :error
-   REM for /D %%p IN ("%WORKSPACE%\workspace\*") DO rmdir "%%p" /s /q
    echo # END SECTION
 )
 
