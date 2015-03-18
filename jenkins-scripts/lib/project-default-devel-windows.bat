@@ -37,10 +37,10 @@ cd build
 if exist ..\configure.bat (
   echo "Found configure.bat running it"
   call ..\configure.bat || goto :error
+) else (
+  echo "cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS%"
+  cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS% || goto :error
 )
-
-echo "cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS%"
-cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS% || goto :error
 
 REM Running the compilation
 msbuild %VS_DEFAULT_MSBUILD_FLAGS% ALL_BUILD.vcxproj || goto :error
