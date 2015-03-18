@@ -206,9 +206,7 @@ setlocal disabledelayedexpansion
 
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
-   dir %WORKSPACE%\workspace\
    for /D %%p IN ("%WORKSPACE%\workspace\*") DO rmdir "%%p" /s /q
-   dir %WORKSPACE%\workspace\
    REM for some reason the rmdir line below seems to do what we intented to do
    REM but fails with the following message:
    REM "The process cannot access the file because it is being used by another process"

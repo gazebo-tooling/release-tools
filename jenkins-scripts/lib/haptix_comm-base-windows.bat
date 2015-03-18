@@ -14,7 +14,7 @@ cd %WORKSPACE%
 IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
 mkdir workspace
 cd workspace
-xcopy %WORKSPACE%\haptix-comm %WORKSPACE%\workspace\haptix-comm /s /i /e || goto %win_lib% :error
+xcopy %WORKSPACE%\haptix-comm %WORKSPACE%\workspace\haptix-comm /s /i /e > xcopy.log || goto %win_lib% :error
 echo # END SECTION
 
 :: We need ignition first
@@ -23,7 +23,7 @@ hg clone https://bitbucket.org/ignitionrobotics/ign-transport
 call %SCRIPT_DIR%/lib/ign_transport-base-windows.bat
 echo # END SECTION
 
-echo # BEGIN SECTION: downloading dependencies
+echo # BEGIN SECTION: downloading dependencies and unzip
 cd %WORKSPACE%/workspace
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip
 call %win_lib% :unzip_7za boost_1_56_0.zip > install_boost.log

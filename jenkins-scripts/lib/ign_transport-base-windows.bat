@@ -38,7 +38,7 @@ REM Add path for zeromq dynamic library .ddl
 set PATH=%PATH%;%WORKSPACE%/workspace/ZeroMQ 3.2.4/bin/
 echo # END SECTION
 
-echo # BEGIN SECTION: compilation
+echo # BEGIN SECTION: ign-transport compilation
 cd %WORKSPACE%/workspace/ign-transport
 mkdir build
 cd build
@@ -63,7 +63,9 @@ if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
 
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
-   rmdir /s /q workspace || goto :error
+   cd %WORKSPACE%
+   rmdir /s /q %WORKSPACE%\workspace || goto :error
+   REM for /D %%p IN ("%WORKSPACE%\workspace\*") DO rmdir "%%p" /s /q
    echo # END SECTION
 )
 
