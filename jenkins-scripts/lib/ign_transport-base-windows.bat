@@ -19,7 +19,7 @@ cd workspace || goto :error
 
 REM Note that your jenkins job should put source in %WORKSPACE%/ign-transport
 echo "Move sources so we agree with configure.bat layout
-xcopy %WORKSPACE%\ign-transport ign-transport /s /i /e > xcopy.log || goto :error
+xcopy %WORKSPACE%\ign-transport %WORKSPACE%\workspace\ign-transport /s /i /e > xcopy.log || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: downloading ign-transport dependencies and unzip

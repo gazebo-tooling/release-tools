@@ -29,8 +29,10 @@ echo # END SECTION
 :: We need ignition first
 echo # BEGIN SECTION: clonning ign-transport (default branch)
 @REM Need close directly on WORKSPACE to call ign_transport as it is called from jenkins
-hg clone https://bitbucket.org/ignitionrobotics/ign-transport %WORKSPACE%\ign-transport
+if exist ign-transport ( rmdir /s ign-transport )
+hg clone https://bitbucket.org/ignitionrobotics/ign-transport %WORKSPACE%\ign-transport || goto :error
 call %SCRIPT_DIR%/lib/ign_transport-base-windows.bat
+move %WORKSPACE%/workspace/ign-transport/build/install/
 @REM Do not keep the workspace anymore
 set KEEP_WORKSPACE=
 echo # END SECTION
