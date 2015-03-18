@@ -85,14 +85,14 @@ call %win_lib% :unzip_7za %protobuf_zip_name% > protobuf_7z.lob
 call %win_lib% :unzip_7za boost_1_56_0.zip > boost_7z.lob
 echo # END SECTION
 
-echo # BEGIN SECTION: Cloning ignition-transport
+echo # BEGIN SECTION: Cloning ignition-transport [%IGN_TRANSPORT_BRANCH% branch]
 hg clone https://bitbucket.org/ignitionrobotics/ign-transport -b %IGN_TRANSPORT_BRANCH%
 cd ign-transport
 hg tip > ignition-transport.info
 cd ..
 echo # END SECTION
 
-echo # BEGIN SECTION: Cloning haptix-comm
+echo # BEGIN SECTION: Cloning haptix-comm [%HAPTIX_COMM_BRANCH% branch]
 hg clone https://bitbucket.org/osrf/haptix-comm haptix-comm -b %HAPTIX_COMM_BRANCH%
 cd haptix-comm
 REM set haptix_hash variable. Yes, we need need to do this for structure
