@@ -6,40 +6,62 @@
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
+echo # BEGIN SECTION: setup all needed variables and workspace
 set IGN_TEST_DISABLE=TRUE
 set IGN_CLEAN_WORKSPACE=FALSE
 
 cd %WORKSPACE%
 IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
 mkdir workspace
-move haptix-comm %WORKSPACE%/workspace/haptix-comm || goto %win_lib% :error
+xcopy haptix-comm %WORKSPACE%/workspace/haptix-comm /s /i /e || goto %win_lib% :error
+echo # END SECTION
 
 :: We need ignition first
-echo "Compiling ignition transport ..."
+echo # BEGIN SECTION: clonning ign-transport (default branch)
 hg clone https://bitbucket.org/ignitionrobotics/ign-transport
 call %SCRIPT_DIR%/lib/ign_transport-base-windows.bat
+echo # END SECTION
 
-echo "Downloading haptix dependencies ..."
+echo # BEGIN SECTION: downloading dependencies
 cd %WORKSPACE%/workspace
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip
 call %win_lib% :unzip_7za boost_1_56_0.zip > install_boost.log
+echo # END SECTION
 
-echo "Compiling haptix ..."
+echo # BEGIN SECTION: configuring haptix
 cd %WORKSPACE%/workspace/haptix-comm || goto %win_lib% :error
 mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
+echo # END SECTION
+echo # BEGIN SECTION: compiling haptix
 nmake || goto %win_lib% :error
+echo # END SECTION
+echo # BEGIN SECTION: installing haptix
 nmake install || goto %win_lib% :error
+echo # END SECTION
 
-echo "Compiling example ..."
+echo # BEGIN SECTION: compiling haptix example
 cd ..\example
 mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
 nmake || goto %win_lib% :error
+echo # END SECTION
 
-echo "Running tests"
+echo # BEGIN SECTION: running tests
 REM Need to find a way of running test from the standard make test (not working)
 cd %WORKSPACE%/workspace/haptix-comm/build
-ctest -C "Release" --verbose --extra-verbose || exit 0
+ctest -C "Release" --verbose --extra-verbose || echo "test failed"
+echo # END SECTION
+
+if NOT DEFINED KEEP_WORKSPACE (
+   echo # BEGIN SECTION: clean up workspace
+   rmdir /s /q %WORKSPACE%\workspace || goto :error
+   echo # END SECTION
+)
+
+goto :EOF
+
+:error
+echo "The program is stopping with errors! Check the log" 
