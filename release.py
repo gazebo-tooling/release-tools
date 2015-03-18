@@ -342,6 +342,8 @@ def go(argv):
     if not UPSTREAM and not args.no_sanity_checks:
         sanity_checks(args)
 
+    source_tarball_uri = ''
+
     # Do not generate source file if not needed or impossible
     if not args.no_source_file:
         source_tarball_uri = generate_upload_tarball(args)
