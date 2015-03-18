@@ -22,7 +22,7 @@ echo "Move sources so we agree with configure.bat layout
 move %WORKSPACE%\ign-transport .
 echo # END SECTION
 
-echo # BEGIN SECTION: Download dependencies and unzip
+echo # BEGIN SECTION: downloading dependencies and unzip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-win%BITNESS%-vc12.zip protobuf-2.6.0-win%BITNESS%-vc12.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip
@@ -46,7 +46,7 @@ call "..\configure.bat" Release %BITNESS% || goto :error
 nmake || goto :error
 echo # END SECTION
 
-echo # BEGIN SECTION: installation
+echo # BEGIN SECTION: ign-transport installation
 nmake install || goto :error
 echo # END SECTION
 
@@ -69,8 +69,9 @@ if NOT DEFINED KEEP_WORKSPACE (
    echo # END SECTION
 )
 
+goto :EOF
+
 :error - error routine
 ::
 echo Failed with error #%errorlevel%.
 exit /b %errorlevel%
-goto :EOF

@@ -8,6 +8,8 @@ set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
 echo # BEGIN SECTION: setup all needed variables and workspace
 set IGN_TEST_DISABLE=TRUE
+@REM Need to keep workspace when calling ign-transport
+set KEEP_WORKSPACE=TRUE
 set IGN_CLEAN_WORKSPACE=FALSE
 
 cd %WORKSPACE%
@@ -25,6 +27,7 @@ echo # END SECTION
 
 echo # BEGIN SECTION: downloading dependencies and unzip
 cd %WORKSPACE%/workspace
+call %win_lib% :download_7za
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip
 call %win_lib% :unzip_7za boost_1_56_0.zip > install_boost.log
 echo # END SECTION
@@ -69,3 +72,4 @@ goto :EOF
 
 :error
 echo "The program is stopping with errors! Check the log" 
+exit /b %errorlevel%
