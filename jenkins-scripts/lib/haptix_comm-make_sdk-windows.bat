@@ -155,7 +155,7 @@ for %%b in (Debug, Release) do (
     
     set "sdk_zip_file=%WORKSPACE%\hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip"
     
-    echo # BEGIN SECTION: generate zip file !sdk_zip_file!
+    echo # BEGIN SECTION: generate zip file hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip
 
     echo " * Build type             : !build_type!"
     echo " * Installation directory : !installdir!"
@@ -208,9 +208,12 @@ setlocal disabledelayedexpansion
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
    dir %WORKSPACE%\workspace\
-   rmdir /s /q %WORKSPACE%\workspace\* 
-   echo "removed"
-   rmdir /s /q %WORKSPACE%\workspace || goto :error
+   for /D %%p IN ("%WORKSPACE%\workspace\*") DO rmdir "%%p" /s /q
+   dir %WORKSPACE%\workspace\
+   REM for some reason the rmdir line below seems to do what we intented to do
+   REM but fails with the following message:
+   REM "The process cannot access the file because it is being used by another process"
+   REM rmdir /s /q %WORKSPACE%\workspace || goto :error
    echo # END SECTION
 )
 
