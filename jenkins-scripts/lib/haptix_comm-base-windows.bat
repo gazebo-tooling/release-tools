@@ -21,27 +21,28 @@ echo # END SECTION
 
 :: We need ignition first
 echo # BEGIN SECTION: clonning ign-transport (default branch)
-hg clone https://bitbucket.org/ignitionrobotics/ign-transport
+@REM Need close directly on WORKSPACE to call ign_transport as it is called from jenkins
+hg clone https://bitbucket.org/ignitionrobotics/ign-transport %WORKSPACE%\ign-transport
 call %SCRIPT_DIR%/lib/ign_transport-base-windows.bat
 echo # END SECTION
 
-echo # BEGIN SECTION: downloading dependencies and unzip
+echo # BEGIN SECTION: downloading haptix-comm dependencies and unzip
 cd %WORKSPACE%/workspace
 call %win_lib% :download_7za
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip
 call %win_lib% :unzip_7za boost_1_56_0.zip > install_boost.log
 echo # END SECTION
 
-echo # BEGIN SECTION: configuring haptix
+echo # BEGIN SECTION: configuring haptix-comm
 cd %WORKSPACE%/workspace/haptix-comm || goto %win_lib% :error
 mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
 echo # END SECTION
-echo # BEGIN SECTION: compiling haptix
+echo # BEGIN SECTION: compiling haptix-comm
 nmake || goto %win_lib% :error
 echo # END SECTION
-echo # BEGIN SECTION: installing haptix
+echo # BEGIN SECTION: installing haptix-comm
 nmake install || goto %win_lib% :error
 echo # END SECTION
 
