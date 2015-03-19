@@ -42,7 +42,7 @@ echo # BEGIN SECTION: ign-transport compilation
 dir %WORKSPACE%/workspace
 cd %WORKSPACE%/workspace/ign-transport || goto :error
 mkdir build
-cd build 
+cd build
 call "..\configure.bat" Release %BITNESS% || goto :error
 nmake || goto :error
 echo # END SECTION
