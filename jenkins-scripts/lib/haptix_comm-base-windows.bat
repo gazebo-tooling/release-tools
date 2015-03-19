@@ -27,7 +27,7 @@ xcopy %WORKSPACE%\haptix-comm %WORKSPACE%\workspace\haptix-comm /s /i /e > xcopy
 echo # END SECTION
 
 :: We need ignition first
-echo # BEGIN SECTION: clonning ign-transport (default branch)
+echo # BEGIN SECTION: cloning ign-transport (default branch)
 :: Need close directly on WORKSPACE to call ign_transport as it is called from jenkins
 set IGN_TRANSPORT_PATH=%WORKSPACE%\ign-transport
 
