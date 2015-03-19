@@ -367,14 +367,28 @@ def go(argv):
     else:
         job_name = JOB_NAME_PATTERN%(args.package)
     
+    # Enable new armhf jobs in sdformat2 and gazebo5
+    if (args.package == 'sdformat2' or args.package == 'gazebo5'):
+        # No prereleases
+        if (not args.release_repo_branch == 'prerelease'):
+            UBUNTU_ARCHS.append('armhf')
+   
     params_query = urllib.urlencode(params)
-    base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
     distros = UBUNTU_DISTROS
     if EXP_DISTROS:
         distros.extend(UBUNTU_DISTROS_EXPERIMENTAL)
 
     for d in distros:
         for a in UBUNTU_ARCHS:
+            if (a == 'armhf'):
+                # Only release armhf in trusty for now
+                if (d != 'trusty'):
+                    continue
+                # armhf runs on docker, it needs a different base_url
+                base_url = '%s/job/%s-docker/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
+            else:
+                base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
+
             if not DRCSIM_MULTIROS:
                 url = '%s&ARCH=%s&DISTRO=%s'%(base_url, a, d)
                 print('Accessing: %s'%(url))
