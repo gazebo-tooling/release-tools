@@ -10,6 +10,7 @@ set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 :: remove previous packages
 del %WORKSPACE%\*.zip
 
+echo # BEGIN SECTION: configure the platform and compiler
 @set PLATFORM_TO_BUILD=x86
 @if not "%1"=="" set PLATFORM_TO_BUILD=%1
 
@@ -51,8 +52,12 @@ IF exist "%MSVC_ON_WIN64%" (
    echo "Could not find the vcvarsall.bat file"
    exit -1
 )
+echo # END SECTION
 
-@rem Setup directories
+echo # BEGIN SECTION: setup all needed variables and workspace
+mkdir workspace 
+cd workspace || goto :error
+
 set cwd=%cd%
 set tmpdir=%cwd%\hx_gz_sdk_tmp
 rmdir "%tmpdir%" /S /Q
@@ -61,7 +66,9 @@ cd "%tmpdir%"
 
 set zeromq_zip_name=zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip
 set protobuf_zip_name=protobuf-2.6.0-win%BITNESS%-vc12.zip
+echo # END SECTION
 
+echo # BEGIN SECTION: Download dependencies and unzip
 @rem Download stuff.  Note that bitsadmin requires an absolute path.
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%zeromq_zip_name% %zeromq_zip_name% || goto :error
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip  || goto :error
@@ -76,29 +83,33 @@ call %win_lib% :unzip_7za %zeromq_zip_name% > zeromq_7z.log
 call %win_lib% :unzip_7za cppzmq-noarch.zip > cppzmq_7z.log
 call %win_lib% :unzip_7za %protobuf_zip_name% > protobuf_7z.lob
 call %win_lib% :unzip_7za boost_1_56_0.zip > boost_7z.lob
+echo # END SECTION
 
-echo "Cloning ignition-transport"
+echo # BEGIN SECTION: Cloning ignition-transport [%IGN_TRANSPORT_BRANCH% branch]
 hg clone https://bitbucket.org/ignitionrobotics/ign-transport -b %IGN_TRANSPORT_BRANCH%
 cd ign-transport
 hg tip > ignition-transport.info
 cd ..
+echo # END SECTION
 
-echo "Clonning haptix-comm"
+echo # BEGIN SECTION: Cloning haptix-comm [%HAPTIX_COMM_BRANCH% branch]
 hg clone https://bitbucket.org/osrf/haptix-comm haptix-comm -b %HAPTIX_COMM_BRANCH%
 cd haptix-comm
 REM set haptix_hash variable. Yes, we need need to do this for structure
 for /f "delims=" %%a in ('hg id -i') do @set haptix_hash=%%a
 hg tip > haptix-comm.info
 cd ..
+echo # END SECTION
 
 set srcdir=%cd%
 
 setlocal Enabledelayedexpansion
 for %%b in (Debug, Release) do (
+    echo # BEGIN SECTION: SDK generation %%b for %BITNESS% bits
 
     cd %srcdir%
 
-    echo "Build ign-transport in %%b"
+    echo # BEGIN SECTION: build ign-transport in %%b
     cd ign-transport
     mkdir build
     cd build
@@ -107,8 +118,9 @@ for %%b in (Debug, Release) do (
     nmake VERBOSE=1 > ign-transport.log || goto :error
     nmake install
     cd ..\..
+    echo # END SECTION
 
-    echo "Build haptix-comm in %%b"
+    echo # BEGIN SECTION: build haptix-comm in %%b
     cd haptix-comm
     mkdir build
     cd build
@@ -116,8 +128,9 @@ for %%b in (Debug, Release) do (
     call ..\configure %%b %BITNESS%
     nmake VERBOSE=1 > haptix.log || goto :error
     nmake install
+    echo # END SECTION
    
-    echo "Build haptix-comm example"
+    echo # BEGIN SECTION: build haptix-comm examples in %%b
     cd ..
     cd example
     mkdir build
@@ -125,21 +138,19 @@ for %%b in (Debug, Release) do (
     del CMakeCache.txt
     call ..\configure %%b %BITNESS%
     nmake VERBOSE=1 > haptix_example.log || goto :error
+    echo # END SECTION
+   
 
     cd ..\..\..
 
-    echo "Start packaging ..."
+    echo # BEGIN SECTION: generate zip file in %%b
     :: Package it all up
     :: Our goal here is to create an "install" layout for all the stuff
     :: needed to use haptix-comm.  That layout can be then be zipped and
     :: distributed.  Lots of assumptions are being made here.
-    echo "Start packaging 1 ..."
-
     :: We need to use expansion at runtime values for variables inside the loop this is
     :: why the ! var ! is being used. For more information, please read:
     :: http://ss64.com/nt/delayedexpansion.html
-    echo "Start packaging 2 ..."
-
     set "build_type=%%b"
     set "installdir=%cwd%\hx_gz_sdk_!build_type!"
     
@@ -185,11 +196,23 @@ for %%b in (Debug, Release) do (
     xcopy "haptix-comm\build\install\!build_type!\lib\haptix-comm\matlab\*" "!installdir!\matlab\" /s /e /i
 
     cd ..
+    echo # END SECTION
 
     echo "Generating SDK zip file: !sdk_zip_file!" > sdk_zip_file.log
     "%tmpdir%\7za.exe" a -tzip "!sdk_zip_file!" "hx_gz_sdk_!build_type!\" || goto :error
+    echo # END SECTION
 )
 setlocal disabledelayedexpansion
+
+if NOT DEFINED KEEP_WORKSPACE (
+   echo # BEGIN SECTION: clean up workspace
+   for /D %%p IN ("%WORKSPACE%\workspace\*") DO rmdir "%%p" /s /q
+   REM for some reason the rmdir line below seems to do what we intented to do
+   REM but fails with the following message:
+   REM "The process cannot access the file because it is being used by another process"
+   REM rmdir /s /q %WORKSPACE%\workspace || goto :error
+   echo # END SECTION
+)
 
 goto :EOF
 

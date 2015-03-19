@@ -144,7 +144,7 @@ else
   echo "<results></results>" >> $WORKSPACE/build/cppcheck_results/empty.xml 
 fi
 
-echo '# BEGIN SECTION: exporting testing information'
+echo '# BEGIN SECTION: clean build directory and export information'
 # Step 4: copy test log
 # Broken http://build.osrfoundation.org/job/gazebo-any-devel-precise-amd64-gpu-nvidia/6/console
 # Need fix
