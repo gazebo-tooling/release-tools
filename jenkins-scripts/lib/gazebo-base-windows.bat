@@ -1,7 +1,12 @@
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
+:: Let's keep the workspace by default
+set KEEP_WORKSPACE=0
+
 :: Call vcvarsall and all the friends
+echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc_compiler
+echo # END SECTION
 
 :: IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
 :: reusing the workspace
@@ -11,7 +16,7 @@ IF NOT exist workspace (
 mkdir workspace 
 cd workspace
 
-echo "Download libraries"
+echo # BEGIN SECTION: downloading gazebo dependencies and unip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/FreeImage-vc12-x64-release-debug.zip FreeImage-vc12-x64-release-debug.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/bzip2-1.0.6-vc12-x64-release-debug.zip bzip2-1.0.6-vc12-x64-release-debug.zip
@@ -24,7 +29,6 @@ call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/tbb43_20141023
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zziplib-0.13.62-vc12-x64-release-debug.zip zziplib-0.13.62-vc12-x64-release-debug.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zlib-1.2.8-vc12-x64-release-debug.zip zlib-1.2.8-vc12-x64-release-debug.zip
 
-echo "Uncompressing libraries"
 call %win_lib% :download_7za
 call %win_lib% :unzip_7za FreeImage-vc12-x64-release-debug.zip
 call %win_lib% :unzip_7za boost_1_56_0.zip 
@@ -37,41 +41,62 @@ call %win_lib% :unzip_7za protobuf-2.6.0-win%BITNESS%-vc12.zip
 call %win_lib% :unzip_7za tbb43_20141023oss_win.zip
 call %win_lib% :unzip_7za zlib-1.2.8-vc12-x64-release-debug.zip
 call %win_lib% :unzip_7za zziplib-0.13.62-vc12-x64-release-debug.zip
+echo # END SECTION
 
 
-
-echo "Compile sdformat special branch"
+echo # BEGIN SECTION: compile and install sdformat
 hg clone https://bitbucket.org/osrf/sdformat
 cd sdformat
-hg up win_gerkey
 mkdir build
 cd build
 call "..\configure.bat" || goto %win_lib% :error
-echo "Compiling sdformat"
 nmake
 nmake install
+echo # END SECTION
 cd ..\..
 ) ELSE (
+  echo # BEGIN SECTION: reusing workspace 
   :: Remove gazebo copy
   rmdir /s /q workspace\gazebo || goto %win_lib% :error
+  echo # END SECTION
 )
 
-REM Note that your jenkins job should put source in %WORKSPACE%/ign-transport
+echo # BEGIN SECTION: move gazebo sources
+:: Note that your jenkins job should put source in %WORKSPACE%/ign-transport
 echo "Move sources so we agree with configure.bat layout"
-move %WORKSPACE%\gazebo .
-cd gazebo
+move %WORKSPACE%\workspace\gazebo .
+cd %WORKSPACE%\workspace\gazebo
+echo # END SECTION
 
-echo "Compiling"
+echo # BEGIN SECTION: configure gazebo
 mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
+echo # END SECTION
 
+echo # BEGIN SECTION: download jom
 call %win_lib% :download_7za
 call %win_lib% :unzip_7za http://download.qt-project.org/official_releases/jom/jom.zip jom.zip
 call %win_lib% :unzip_7za jom.zip
+echo # END SECTION
 
-jom -j4 gzclient
+echo # BEGIN SECTION: compile gzclient
+jom -j%MAKE_JOBS% gzclient || goto :error
+echo # END SECTION
 
-nmake gzserver || goto %win_lib% :error
-nmake gzclient || goto %win_lib% :error
-nmake || goto %win_lib% :error
+echo # BEGIN SECTION: compile gzserver
+jom -j%MAKE_JOBS% gzserver || goto :error
+echo # END SECTION
+
+if NOT DEFINED KEEP_WORKSPACE (
+   echo # BEGIN SECTION: clean up workspace
+   cd %WORKSPACE%
+   rmdir /s /q %WORKSPACE%\workspace || goto :error
+   echo # END SECTION
+)
+
+goto :EOF
+
+:error
+echo "The program is stopping with errors! Check the log" 
+exit /b %errorlevel%
