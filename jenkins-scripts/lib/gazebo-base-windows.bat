@@ -11,10 +11,10 @@ echo # END SECTION
 :: IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
 :: reusing the workspace
 
-IF NOT exist workspace ( 
+IF NOT exist %WORKSPACE%\workspace ( 
 
-mkdir workspace 
-cd workspace
+mkdir %WORKSPACE%\workspace 
+cd %WORKSPACE%\workspace
 
 echo # BEGIN SECTION: downloading gazebo dependencies and unip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/FreeImage-vc12-x64-release-debug.zip FreeImage-vc12-x64-release-debug.zip
@@ -61,9 +61,8 @@ cd ..\..
   echo # END SECTION
 )
 
-echo # BEGIN SECTION: copy gazebo sources
+echo # BEGIN SECTION: copy gazebo sources to workspace
 :: Note that your jenkins job should put source in %WORKSPACE%/ign-transport
-echo "Move sources so we agree with configure.bat layout"
 xcopy gazebo %WORKSPACE%\workspace\gazebo /s /i /e > xcopy.log
 cd %WORKSPACE%\workspace\gazebo
 echo # END SECTION
