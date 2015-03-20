@@ -57,14 +57,14 @@ cd ..\..
 ) ELSE (
   echo # BEGIN SECTION: reusing workspace 
   :: Remove gazebo copy
-  rmdir /s /q workspace\gazebo || goto %win_lib% :error
+  IF EXIST %WORKSPACE%\workspace\gazebo ( rmdir /s /q %WORKSPACE%\workspace\gazebo ) || goto :error
   echo # END SECTION
 )
 
-echo # BEGIN SECTION: move gazebo sources
+echo # BEGIN SECTION: copy gazebo sources
 :: Note that your jenkins job should put source in %WORKSPACE%/ign-transport
 echo "Move sources so we agree with configure.bat layout"
-move %WORKSPACE%\workspace\gazebo .
+xcopy gazebo %WORKSPACE%\workspace\gazebo /s /i /e > xcopy.log
 cd %WORKSPACE%\workspace\gazebo
 echo # END SECTION
 
