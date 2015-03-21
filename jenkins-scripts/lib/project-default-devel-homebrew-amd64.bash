@@ -64,9 +64,18 @@ cd ${WORKSPACE}/build
 # Mimic the homebrew variables
 export PKG_CONFIG_PATH=${RUN_DIR}/lib/pkgconfig
 export DYLD_FALLBACK_LIBRARY_PATH="$DYLD_FALLBACK_LIBRARY_PATH:${RUN_DIR}/lib"
-export PATH="${PATH}:${RUN_DIR}/bin"
+export PATH="${PATH}:/opt/X11/bin:${RUN_DIR}/bin"
 export C_INCLUDE_PATH="${C_INCLUDE_PATH}:${RUN_DIR}/include"
 export CPLUS_INCLUDE_PATH="${CPLUS_INCLUDE_PATH}:${RUN_DIR}/include"
+
+# set display before cmake
+# open XQuartz manually to ensure a running X server
+open /Applications/Utilities/XQuartz.app || true
+export DISPLAY=$(ps ax \
+  | grep '\d*:\d\d\.\d\d /opt/X11/bin/Xquartz' \
+  | grep 'auth /Users/jenkins/' \
+  | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
+)
 
 ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
       -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/${PROJECT}/HEAD \
@@ -75,9 +84,6 @@ ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
 
 make -j${MAKE_JOBS} install
 ${RUN_DIR}/bin/brew link ${PROJECT}
-
-# Need to use root to access to the graphical env
-export DISPLAY=$(sudo find /private/tmp -name *xquartz* | sed 's:/private::')
 
 cat > test_run.sh << DELIM
 cd $WORKSPACE/build/
