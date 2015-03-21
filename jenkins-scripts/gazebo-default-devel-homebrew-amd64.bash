@@ -11,6 +11,8 @@ GAZEBO_MAJOR_VERSION=`\
 # Drop version number if it is 1 (gazebo 1.9 is in gazebo.rb)
 if [ $GAZEBO_MAJOR_VERSION -eq 1 ]; then
   GAZEBO_MAJOR_VERSION=""
+else
+  ln -s ${WORKSPACE}/gazebo ${WORKSPACE}/gazebo${GAZEBO_MAJOR_VERSION}
 fi
 
 . ${SCRIPT_DIR}/lib/project-default-devel-homebrew-amd64.bash gazebo${GAZEBO_MAJOR_VERSION} \
