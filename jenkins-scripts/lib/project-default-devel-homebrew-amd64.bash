@@ -69,7 +69,7 @@ export C_INCLUDE_PATH="${C_INCLUDE_PATH}:${RUN_DIR}/include"
 export CPLUS_INCLUDE_PATH="${CPLUS_INCLUDE_PATH}:${RUN_DIR}/include"
 
 # add X11 path so glxinfo can be found
-export PATH="${PATH}:/opt/X11/bin
+export PATH="${PATH}:/opt/X11/bin"
 
 # set display before cmake
 # search for Xquartz instance owned by jenkins
