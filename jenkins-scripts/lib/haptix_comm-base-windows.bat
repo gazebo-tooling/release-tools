@@ -56,10 +56,10 @@ call %win_lib% :unzip_7za %protobuf_zip_name% > protobuf_7z.log
 echo # END SECTION
 
 echo # BEGIN SECTION: configuring haptix-comm
-cd %WORKSPACE%/workspace/haptix-comm || goto %win_lib% :error
-mkdir build
-cd build
-call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
+cd %WORKSPACE%/workspace/haptix-comm || goto :error
+mkdir build || goto :error
+cd build || goto :error
+call "..\configure.bat" Release %BITNESS% || goto :error
 echo # END SECTION
 echo # BEGIN SECTION: compiling haptix-comm
 nmake || goto %win_lib% :error
