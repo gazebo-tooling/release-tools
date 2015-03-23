@@ -59,13 +59,12 @@ echo # BEGIN SECTION: export testing results
 move test_results %TEST_RESULT_PATH% || goto :error
 echo # END SECTION
 
-if NOT DEFINED %KEEP_WORKSPACE% (
+if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
    cd %WORKSPACE%
    rmdir /s /q %WORKSPACE%\workspace || goto :error
    echo # END SECTION
 )
-
 goto :EOF
 
 :error - error routine
