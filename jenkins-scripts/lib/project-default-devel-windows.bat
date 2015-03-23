@@ -47,15 +47,15 @@ nmake install || goto %win_lib% :error
 echo # END SECTION
 
 echo # BEGIN SECTION: running tests
-set TEST_RESULT_PATH=%WORKSPACE%/test_results
-
-if exist %TEST_RESULT_PATH% ( rmdir /s %TEST_RESULT_PATH% )
 REM Need to find a way of running test from the standard make test (not working)
 cd %WORKSPACE%/workspace/haptix-comm/build
 ctest -C "Release" --verbose --extra-verbose || echo "test failed"
 echo # END SECTION
 
 echo # BEGIN SECTION: export testing results
+set TEST_RESULT_PATH=%WORKSPACE%/test_results
+if exist %TEST_RESULT_PATH% ( rmdir /q /s %TEST_RESULT_PATH% )
+dir 
 move test_results %TEST_RESULT_PATH% || goto :error
 echo # END SECTION
 
