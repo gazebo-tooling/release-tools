@@ -63,7 +63,7 @@ cd ..\..
 
 echo # BEGIN SECTION: copy gazebo sources to workspace
 :: Note that your jenkins job should put source in %WORKSPACE%/ign-transport
-xcopy gazebo %WORKSPACE%\workspace\gazebo /s /i /e > xcopy.log
+xcopy %WORKSPACE%\gazebo %WORKSPACE%\workspace\gazebo /s /i /e > xcopy.log
 cd %WORKSPACE%\workspace\gazebo
 echo # END SECTION
 
