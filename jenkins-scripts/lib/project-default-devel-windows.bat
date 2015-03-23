@@ -54,19 +54,20 @@ REM Need to find a way of running test from the standard make test (not working)
 cd %WORKSPACE%/workspace/haptix-comm/build
 ctest -C "Release" --verbose --extra-verbose || echo "test failed"
 echo # END SECTION
+
 echo # BEGIN SECTION: export testing results
 move test_results %TEST_RESULT_PATH% || goto :error
 echo # END SECTION
 
 if NOT DEFINED %KEEP_WORKSPACE% (
    echo # BEGIN SECTION: clean up workspace
-   rmdir /s /q workspace || goto :error
+   cd %WORKSPACE%
+   rmdir /s /q %WORKSPACE%\workspace || goto :error
    echo # END SECTION
 )
 
 goto :EOF
 
 :error - error routine
-::
 echo Failed with error #%errorlevel%.
 exit /b %errorlevel%
