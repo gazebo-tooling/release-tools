@@ -64,8 +64,9 @@ if NOT DEFINED %KEEP_WORKSPACE% (
    echo # END SECTION
 )
 
+goto :EOF
+
 :error - error routine
 ::
 echo Failed with error #%errorlevel%.
 exit /b %errorlevel%
-goto :EOF
