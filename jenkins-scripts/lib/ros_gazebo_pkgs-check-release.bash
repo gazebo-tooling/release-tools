@@ -48,7 +48,7 @@ ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs    \
 	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros-pkgs"
 
 # Need -ros for rosrun
-apt-get install -y --force-yes \$ROS_GAZEBO_PKGS ros-$ROS_DISTRO-ros
+apt-get install -y --force-yes \$ROS_GAZEBO_PKGS ros-$ROS_DISTRO-ros git
 
 # Step 2: configure and build
 rosdep init 
@@ -68,6 +68,18 @@ SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
 # Seems like there is no failure in runs on precise pbuilder in
 # our trusty machine. So we do not check for GRAPHIC_TESTS=true
 mkdir -p \$HOME/.gazebo
+
+# Create the catkin workspace
+rm -fr $WORKSPACE/ws/src
+mkdir -p $WORKSPACE/ws/src
+cd $WORKSPACE/ws/src
+catkin_init_workspace
+git clone https://github.com/ros-simulation/gazebo_ros_demos
+cd gazebo_ros_demos/
+export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$PWD
+cd $WORKSPACE/ws
+catkin_make -j${MAKE_JOBS}
+SHELL=/bin/sh . $WORKSPACE/ws/devel/setup.sh
 
 # Precise coreutils does not support preserve-status
 if [ $DISTRO = 'precise' ]; then
