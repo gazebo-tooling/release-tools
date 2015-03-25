@@ -48,7 +48,7 @@ ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs    \
 	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros-pkgs"
 
 # Need -ros for rosrun
-apt-get install -y --force-yes \$ROS_GAZEBO_PKGS ros-$ROS_DISTRO-ros git
+apt-get install -y --force-yes \$ROS_GAZEBO_PKGS ros-$ROS_DISTRO-ros git ca-certificates
 
 # Step 2: configure and build
 rosdep init 
