@@ -92,13 +92,13 @@ if [ $DISTRO = 'precise' ]; then
   echo "We run the test anyway to test ABI or segfaults"
   apt-get install -y psmisc 
   # roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose" &
-  roslaunch rrbot_gazebo rrbot_world.launch headless:=true
+  roslaunch rrbot_gazebo rrbot_world.launch headless:=true extra_gazebo_args:="--verbose" &
   sleep 180
   killall -9 roslaunch || true
   killall -9 gzserver || true 
 else
   # timeout --preserve-status 180 roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose"
-  timeout --preserve-status 180 roslaunch rrbot_gazebo rrbot_world.launch headless:=true
+  timeout --preserve-status 180 roslaunch rrbot_gazebo rrbot_world.launch headless:=true extra_gazebo_args:="--verbose"
   if [ $? != 0 ]; then
     echo "Failure response in the launch command" 
     exit 1
