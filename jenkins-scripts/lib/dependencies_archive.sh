@@ -231,14 +231,15 @@ ROS_GAZEBO_PKGS_DEPENDENCIES="libtinyxml-dev                            \\
 			      ros-${ROS_DISTRO}-trajectory-msgs         \\
 			      ros-${ROS_DISTRO}-urdf                    \\
 			      ros-${ROS_DISTRO}-xacro                   \\
-			      ros-${ROS_DISTRO}-cmake-modules"
-
-if [[ $ROS_DISTRO != 'groovy' ]]; then
-ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES}           \\
+			      ros-${ROS_DISTRO}-cmake-modules           \\
                               ros-${ROS_DISTRO}-controller-manager      \\
                               ros-${ROS_DISTRO}-joint-limits-interface  \\
                               ros-${ROS_DISTRO}-transmission-interface"
-fi
+
+# These dependencies are for testing the ros_gazebo_pkgs			      
+ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES}           \\
+                              ros-${ROS_DISTRO}-effort-controllers      \\
+                              ros-${ROS_DISTRO}-joint-state-controller"
 
 #
 # DART dependencies

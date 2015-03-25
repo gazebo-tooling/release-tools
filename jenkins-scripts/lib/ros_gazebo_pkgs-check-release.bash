@@ -79,13 +79,14 @@ if [ $DISTRO = 'precise' ]; then
   echo "X Error failed is expected on machines with different distro in host than tested"
   echo "We run the test anyway to test ABI or segfaults"
   apt-get install -y psmisc 
-  roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose" &
+  # roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose" &
+  roslaunch rrbot_gazebo rrbot_world.launch headless:=true
   sleep 180
   killall -9 roslaunch || true
   killall -9 gzserver || true 
 else
-  timeout --preserve-status 180 roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose"
-
+  # timeout --preserve-status 180 roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose"
+  timeout --preserve-status 180 roslaunch rrbot_gazebo rrbot_world.launch headless:=true
   if [ $? != 0 ]; then
     echo "Failure response in the launch command" 
     exit 1
