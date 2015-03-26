@@ -62,13 +62,12 @@ if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo # BEGIN SECTION: export testing results
   set TEST_RESULT_PATH=%WORKSPACE%\test_results
   dir %WORKSPACE%
-  echo "Path to remove: %TEST_RESULT_PATH%"
-  if exist %TEST_RESULT_PATH% ( 
-       echo "Removing the path"
-       rmdir /q /s %TEST_RESULT_PATH% || goto :error
-  )
+  echo Path to remove: %TEST_RESULT_PATH%
+  echo # BEGIN SECTION: export testing results
+  set TEST_RESULT_PATH=%WORKSPACE%\test_results
+  if exist %TEST_RESULT_PATH% ( rmdir /s %TEST_RESULT_PATH% )
+  xcopy test_results %TEST_RESULT_PATH% /s /i /e || goto :error
   dir %WORKSPACE%
-  xcopy /s /i /e test_results %TEST_RESULT_PATH% || goto :error
   echo # END SECTION
 )
 

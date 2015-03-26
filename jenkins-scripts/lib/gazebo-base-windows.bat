@@ -79,6 +79,10 @@ call %win_lib% :wget http://download.qt-project.org/official_releases/jom/jom.zi
 call %win_lib% :unzip_7za jom.zip
 echo # END SECTION
 
+echo # BEGIN SECTION: compile deps
+jom -j%MAKE_JOBS% gazebo_ode gazebo_opende_ou gazebo_ccd || goto :error
+echo # END SECTION
+
 echo # BEGIN SECTION: compile gzclient
 jom -j%MAKE_JOBS% gzclient || goto :error
 echo # END SECTION
