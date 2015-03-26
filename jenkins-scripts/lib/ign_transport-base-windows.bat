@@ -37,12 +37,12 @@ echo # END SECTION
 
 echo # BEGIN SECTION: add zeromq to PATH for dll load
 REM Add path for zeromq dynamic library .ddl
-set PATH=%PATH%;%WORKSPACE%/workspace/ZeroMQ 3.2.4/bin/
+set PATH=%PATH%;%WORKSPACE%\workspace\ZeroMQ 3.2.4\bin\
 echo # END SECTION
 
 echo # BEGIN SECTION: ign-transport compilation
-dir %WORKSPACE%/workspace
-cd %WORKSPACE%/workspace/ign-transport || goto :error
+dir %WORKSPACE%\workspace
+cd %WORKSPACE%\workspace\ign-transport || goto :error
 mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto :error
@@ -53,6 +53,8 @@ echo # BEGIN SECTION: ign-transport installation
 nmake install || goto :error
 echo # END SECTION
 
+set TEST_RESULT_PATH=%WORKSPACE%\test_results
+
 if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo # BEGIN SECTION: run tests
   REM Need to find a way of running test from the standard make test (not working)
@@ -60,8 +62,6 @@ if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo # END SECTION
   
   echo # BEGIN SECTION: export testing results
-  set TEST_RESULT_PATH=%WORKSPACE%\test_results
-  dir %WORKSPACE%
   echo "Path to remove: %TEST_RESULT_PATH%"
   rmdir /q /s %TEST_RESULT_PATH% || echo "TEST_RESULT_PATH did not exists, that's fine"
   xcopy test_results %TEST_RESULT_PATH% /s /i /e || goto :error
