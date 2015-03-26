@@ -61,9 +61,11 @@ if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   
   echo # BEGIN SECTION: export testing results
   set TEST_RESULT_PATH=%WORKSPACE%\test_results
+  dir %WORKSPACE%
   if exist %TEST_RESULT_PATH% ( rmdir /q /s %TEST_RESULT_PATH% ) || goto :error
-  dir test_results/
-  move test_results %TEST_RESULT_PATH% || goto :error
+  dir %WORKSPACE%
+  dir
+  xcopy /s /i /e test_results %TEST_RESULT_PATH% || goto :error
   echo # END SECTION
 )
 
