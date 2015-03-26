@@ -7,17 +7,19 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc_compiler
 echo # END SECTION
 
-echo %IGN_CLEAN_WORKSPACE%
 if "%IGN_CLEAN_WORKSPACE%" == FALSE (
   echo # BEGIN SECTION: preclean of workspace
   IF exist workspace ( rmdir /s /q workspace ) || goto :error
   echo # END SECTION
+) else (
+  echo # BEGIN SECTION: delete old sources
+  IF exist workspace\ign-transport ( rmdir /s /q workspace\ign-transport ) || goto :error
+  echo # END SECTION
 )
 
 echo # BEGIN SECTION: setup workspace
-cd %WORKSPACE%
-IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
-mkdir workspace
+:: this could fail if exists, that is fine
+mkdir workspace || echo "Workspace already exists"
 cd workspace
 echo # END SECTION
 
