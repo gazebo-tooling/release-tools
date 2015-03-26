@@ -75,7 +75,7 @@ echo # END SECTION
 
 echo # BEGIN SECTION: download jom
 call %win_lib% :download_7za
-call %win_lib% :unzip_7za http://download.qt-project.org/official_releases/jom/jom.zip jom.zip
+call %win_lib% :wget http://download.qt-project.org/official_releases/jom/jom.zip jom.zip
 call %win_lib% :unzip_7za jom.zip
 echo # END SECTION
 
