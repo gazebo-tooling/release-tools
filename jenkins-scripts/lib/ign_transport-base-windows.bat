@@ -7,18 +7,20 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc_compiler
 echo # END SECTION
 
-echo %IGN_CLEAN_WORKSPACE%
 if "%IGN_CLEAN_WORKSPACE%" == FALSE (
   echo # BEGIN SECTION: preclean of workspace
   IF exist workspace ( rmdir /s /q workspace ) || goto :error
   echo # END SECTION
+) else (
+  echo # BEGIN SECTION: delete old sources
+  IF exist workspace\ign-transport ( rmdir /s /q workspace\ign-transport ) || goto :error
+  echo # END SECTION
 )
 
-mkdir %WORKSPACE%\workspace 
+mkdir %WORKSPACE%\workspace || echo "The workspace already exists. Fine"
 cd %WORKSPACE%\workspace || goto :error
 
-REM Note that your jenkins job should put source in %WORKSPACE%/ign-transport
-echo "Move sources so we agree with configure.bat layout
+echo # BEGIN SECTION: move sources so we agree with configure.bat layout
 xcopy %WORKSPACE%\ign-transport %WORKSPACE%\workspace\ign-transport /s /i /e > xcopy.log || goto :error
 echo # END SECTION
 
