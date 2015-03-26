@@ -14,11 +14,14 @@ if "%IGN_CLEAN_WORKSPACE%" == FALSE (
   echo # END SECTION
 )
 
-mkdir %WORKSPACE%\workspace 
-cd %WORKSPACE%\workspace || goto :error
+echo # BEGIN SECTION: setup workspace
+cd %WORKSPACE%
+IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
+mkdir workspace
+cd workspace
+echo # END SECTION
 
-REM Note that your jenkins job should put source in %WORKSPACE%/ign-transport
-echo "Move sources so we agree with configure.bat layout
+echo # BEGIN SECTION: move sources so we agree with configure.bat layout
 xcopy %WORKSPACE%\ign-transport %WORKSPACE%\workspace\ign-transport /s /i /e > xcopy.log || goto :error
 echo # END SECTION
 
