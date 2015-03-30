@@ -61,7 +61,8 @@ if $GPU_SUPPORT_NEEDED; then
     # Check for the lack of presence of DISPLAY var
     if [[ ${DISPLAY} == "" ]]; then
       echo "GPU support needed by the script but DISPLAY var is empty"
-      exit 1
+      # Try to restart lightdm. It should stop the script in the case of failure
+      sudo service lightdm restart
     fi
     
     # Check if the GPU support was found when not 
