@@ -1,4 +1,5 @@
 :: needed to import functions from other batch files
+set path=%path:"=%
 call :%*
 exit /b
 
