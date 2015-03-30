@@ -2,6 +2,9 @@
 call :%*
 exit /b
 
+:: See: https://issues.jenkins-ci.org/browse/JENKINS-11992
+set path=%path:"=%
+
 :: ##################################
 :configure_msvc_compiler
 ::
