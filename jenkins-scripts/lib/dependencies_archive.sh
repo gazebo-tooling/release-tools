@@ -128,6 +128,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libavformat-dev  \\
                            libavcodec-dev   \\
+                           libgraphviz-dev  \\
                            libswscale-dev   \\
                            ruby-ronn"
 		       
