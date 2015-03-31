@@ -2,6 +2,11 @@ REM Windows standard file to build Visual Studio projects
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
+if not defined VCS_DIRECTORY (
+  echo "VCS_DIRECTORY variable was not set. Please set it before calling this script"
+  exit 1
+)
+
 :: Call vcvarsall and all the friends
 echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc_compiler
