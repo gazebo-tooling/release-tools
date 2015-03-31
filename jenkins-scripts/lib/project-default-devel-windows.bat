@@ -2,9 +2,17 @@ REM Windows standard file to build Visual Studio projects
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
+:: safety checks
 if not defined VCS_DIRECTORY (
   echo # BEGIN SECTION: ERROR: VCS_DIRECTORY is not set
   echo VCS_DIRECTORY variable was not set. Please set it before calling this script
+  echo # END SECTION
+  exit 1
+)
+
+if not exist %VCS_DIRECTORY% (
+  echo # BEGIN SECTION: ERROR: %VCS_DIRECTORY% does not exist
+  echo VCS_DIRECTORY variable points to %VCS_DIRECTORY% but it does not exists
   echo # END SECTION
   exit 1
 )
