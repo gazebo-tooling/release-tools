@@ -11,7 +11,20 @@ else
     GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
 fi
 
+# Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
+GAZEBO_MAJOR_VERSION=`\
+  grep 'set.*GAZEBO_MAJOR_VERSION ' ${WORKSPACE}/gazebo/CMakeLists.txt | \
+  tr -d 'a-zA-Z _()'`
+
+# Check gazebo version between 1-9 
+if ! [[ ${GAZEBO_MAJOR_VERSION} =~ ^-?[1-9]$ ]]; then
+   echo "Error! GAZEBO_MAJOR_VERSION is not between 1 and 9, check the detection"
+   exit -1
+fi
+
+echo '# BEGIN SECTION: setup the testing enviroment'
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+echo '# END SECTION'
 
 cat > build.sh << DELIM
 ###################################################
@@ -19,6 +32,7 @@ cat > build.sh << DELIM
 #
 set -ex
 
+echo '# BEGIN SECTION: install dependencies'
 # OSRF repository to get bullet
 apt-get install -y wget
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
@@ -45,7 +59,9 @@ fi
 # Required stuff for Gazebo
 apt-get update
 apt-get install -y --force-yes  ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES}
+echo '# END SECTION'
 
+echo '# BEGIN SECTION: install graphic card support'
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
     apt-get install -y ${GRAPHIC_CARD_PKG}
@@ -57,10 +73,12 @@ if ${GRAPHIC_CARD_FOUND}; then
        exit 1
     fi
 fi
+echo '# END SECTION'
 
 # Step 2: configure and build
 # Check for DART
 if $DART_COMPILE_FROM_SOURCE; then
+  echo '# BEGIN SECTION: compiling DART from source'
   if [ -d $WORKSPACE/dart ]; then
       cd $WORKSPACE/dart
       git pull
@@ -75,9 +93,11 @@ if $DART_COMPILE_FROM_SOURCE; then
   #make -j${MAKE_JOBS}
   make -j1
   make install
+  echo '# END SECTION'
 fi
 
 # Normal cmake routine for Gazebo
+echo '# BEGIN SECTION: Gazebo configuration'
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
@@ -85,30 +105,46 @@ cmake ${GZ_CMAKE_BUILD_TYPE}         \\
     -DCMAKE_INSTALL_PREFIX=/usr      \\
     -DENABLE_SCREEN_TESTS:BOOL=False \\
   $WORKSPACE/gazebo
+echo '# END SECTION'
+echo '# BEGIN SECTION: Gazebo compilation'
 make -j${MAKE_JOBS}
+echo '# END SECTION'
+echo '# BEGIN SECTION: Gazebo installation'
 make install
 . /usr/share/gazebo/setup.sh
+echo '# END SECTION'
 
 # Need to clean up from previous built
 rm -fr $WORKSPACE/cppcheck_results
 rm -fr $WORKSPACE/test_results
 
 # Run tests
+echo '# BEGIN SECTION: UNIT testing'
 make test ARGS="-VV -R UNIT_*" || true
+echo '# END SECTION'
+echo '# BEGIN SECTION: INTEGRATION testing'
 make test ARGS="-VV -R INTEGRATION_*" || true
+echo '# END SECTION'
+echo '# BEGIN SECTION: REGRESSION testing'
 make test ARGS="-VV -R REGRESSION_*" || true
+echo '# END SECTION'
+echo '# BEGIN SECTION: EXAMPLE testing'
 make test ARGS="-VV -R EXAMPLE_*" || true
+echo '# END SECTION'
 
 # Only run cppcheck on trusty
 if [ "$DISTRO" = "trusty" ]; then 
+  echo '# BEGIN SECTION: running cppcheck'
   # Step 3: code check
   cd $WORKSPACE/gazebo
   sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+  echo '# END SECTION'
 else
   mkdir -p $WORKSPACE/build/cppcheck_results/
   echo "<results></results>" >> $WORKSPACE/build/cppcheck_results/empty.xml 
 fi
 
+echo '# BEGIN SECTION: clean build directory and export information'
 # Step 4: copy test log
 # Broken http://build.osrfoundation.org/job/gazebo-any-devel-precise-amd64-gpu-nvidia/6/console
 # Need fix
@@ -126,6 +162,7 @@ mkdir -p $WORKSPACE/build
 # of tests_results in the build path.
 cp -a $WORKSPACE/cppcheck_results $WORKSPACE/build/cppcheck_results
 cp -a $WORKSPACE/test_results $WORKSPACE/build/test_results
+echo '# END SECTION'
 DELIM
 
 # Make project-specific changes here

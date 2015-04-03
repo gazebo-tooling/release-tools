@@ -28,7 +28,7 @@ if [ -n "$(lspci -v | grep nvidia | head -n 2 | grep "Kernel driver in use: nvid
     if [ -z "${GRAPHIC_CARD_PKG}" ]; then
         # Trusty does not support the previous method. Fallback to use
 	# installed package for GRAPHIC_CARD_PKG
-	export GRAPHIC_CARD_PKG=$(dpkg -l | grep "^ii[[:space:]]* nvidia-[0-9]3" | awk '{ print $2 }')
+	export GRAPHIC_CARD_PKG=$(dpkg -l | egrep "^ii[[:space:]]* nvidia-[0-9]{3} " | awk '{ print $2 }')
         if [ -z "${GRAPHIC_CARD_PKG}" ]; then
 	  echo "Nvidia support found but not the module in use"
 	  exit 1
@@ -56,11 +56,21 @@ if [ -n "$(lspci -v | grep "Kernel driver in use: i[0-9][0-9][0-9]")" ]; then
     export EXTRA_PACKAGES="${EXTRA_PACKAGES} libgl1-mesa-dri"
 fi
 
-# Check if the GPU support was found when not 
-if $GPU_SUPPORT_NEEDED && ! $GRAPHIC_CARD_FOUND; then
-    echo "GPU support needed by the script but no graphic card found."
-    echo "The DISPLAY variable contains: ${DISPLAY}"
-    exit 1
+# Be sure that we have GPU support
+if $GPU_SUPPORT_NEEDED; then
+    # Check for the lack of presence of DISPLAY var
+    if [[ ${DISPLAY} == "" ]]; then
+      echo "GPU support needed by the script but DISPLAY var is empty"
+      # Try to restart lightdm. It should stop the script in the case of failure
+      sudo service lightdm restart
+    fi
+    
+    # Check if the GPU support was found when not 
+    if ! $GRAPHIC_CARD_FOUND; then
+      echo "GPU support needed by the script but no graphic card found."
+      echo "The DISPLAY variable contains: ${DISPLAY}"
+      exit 1
+    fi
 fi
 
 # Get version of package 

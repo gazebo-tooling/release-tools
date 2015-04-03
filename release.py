@@ -14,12 +14,12 @@ USAGE = 'release.py <package> <version> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuilder'
 JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
-UPLOAD_DEST = 'ubuntu@old.gazebosim.org:/var/www/assets/distributions'
-DOWNLOAD_URI = 'http://old.gazebosim.org/assets/distributions/'
+UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
+DOWNLOAD_URI_PATTERN = 'http://gazebosim.org/distributions/%s/releases/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['precise', 'trusty']
-UBUNTU_DISTROS_EXPERIMENTAL = ['']
+UBUNTU_DISTROS = ['utopic', 'trusty']
+UBUNTU_DISTROS_EXPERIMENTAL = []
 
 ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
 ROS_DISTROS_IN_TRUSTY = [ 'indigo' ];
@@ -40,6 +40,12 @@ def error(msg):
 
 def print_success(msg):
     print("     + OK " + msg)
+
+# Remove the last character if it is a number.
+# That should leave just the package name instead of packageVersion
+# I.E gazebo5 -> gazebo
+def get_canonical_package_name(pkg_name):
+     return pkg_name.rstrip('1234567890')
 
 def parse_args(argv):
     global DRY_RUN
@@ -135,9 +141,18 @@ def sanity_package_name(repo_dir, package, package_alias):
             continue
         # Check that first word is the package alias or name
         if line.partition(' ')[0] != expected_name:
-            error("Error in package name or alias: " + line)
+            error("Error in changelog package name or alias: " + line)
 
-    print_success("Package names in changelog")
+    cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
+    out, err = check_call(cmd)
+    for line in out.split("\n"):
+        if not line:
+            continue
+        # Check that first word is the package alias or name
+        if line.partition(' ')[2] != expected_name:
+            error("Error in source package. File:  " + line.partition(' ')[1] + ". Got " + line.partition(' ')[2] + " expected " + expected_name)
+
+    print_success("Package names in changelog and control")
 
 def sanity_package_version(repo_dir, version, release_version):
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
@@ -152,7 +167,7 @@ def sanity_package_version(repo_dir, version, release_version):
         c_revision=full_version[full_version.find("-")+1:full_version.find("~")]
 
         if c_version != version:
-            error("Error in package version. Repo version: " + c_version + "Provided version: " + version)
+            error("Error in package version. Repo version: " + c_version + " Provided version: " + version)
 
         if c_revision != release_version:
             error("Error in package release version. Expected " + release_version + " in line " + full_version)
@@ -181,7 +196,23 @@ def sanity_check_sdformat_versions(package, version):
 
     print_success("sdformat version in proper sdformat package")
 
+def check_s3cmd_configuration():
+    # Need to check if s3cmd is installed
+    try:
+        subprocess.call(["s3cmd", "--version"])
+    except OSError as e:
+        error("s3cmd command for uploading is not available. Install it using: apt-get install s3cmd")
+    
+    # Need to check if configuration for s3 exists
+    s3_config = os.path.expanduser('~') + "/.s3cfg"
+    if not os.path.isfile(s3_config):
+        error(s3_config + " does not exists. Please configure s3: s3cmd --configure")
+
+    return True
+
 def sanity_checks(args):
+    check_s3cmd_configuration()
+
     repo_dir = download_release_repository(args.package, args.release_repo_branch)
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
@@ -215,8 +246,9 @@ def generate_upload_tarball(args):
     # Platform-agnostic stuff.
     # The goal is to tag the repo and prepare a tarball.
 
-    tmpdir = tempfile.mkdtemp()
-    builddir = os.path.join(tmpdir, 'build')
+    sourcedir = os.getcwd() 
+    tmpdir    = tempfile.mkdtemp()
+    builddir  = os.path.join(tmpdir, 'build')
     # Put the hg-specific stuff in a try block, to allow for a git repo
     try:
         # Check for uncommitted changes; abort if present
@@ -227,13 +259,6 @@ def generate_upload_tarball(args):
             print('stdout: %s'%(out))
             sys.exit(1)
     
-        # Tag repo
-        tag = '%s_%s'%(args.package_alias, args.version)
-        check_call(['hg', 'tag', '-f', tag])
-    
-        # Push tag
-        check_call(['hg', 'push'])
-
         # Make a clean copy, to avoid pulling in other stuff that the user has
         # sitting in the working copy
         srcdir = os.path.join(tmpdir, 'src')
@@ -274,9 +299,23 @@ def generate_upload_tarball(args):
                 shutil.copyfile(tarball_path, dest_file)
                 tarball_path = dest_file
 
-    check_call(['scp', tarball_path, UPLOAD_DEST])
+    check_call(['s3cmd', 'put', tarball_path, UPLOAD_DEST_PATTERN%get_canonical_package_name(args.package)])
     shutil.rmtree(tmpdir)
-    source_tarball_uri = DOWNLOAD_URI + tarball_fname
+
+    # Tag repo
+    os.chdir(sourcedir)
+
+    try:
+        tag = '%s_%s'%(args.package_alias, args.version)
+        check_call(['hg', 'tag', '-f', tag])
+ 
+        # Push tag
+        check_call(['hg', 'push'])
+    except Exception as e:
+        # Assume git
+        pass
+
+    source_tarball_uri = DOWNLOAD_URI_PATTERN%get_canonical_package_name(args.package) + tarball_fname
 
     ###################################################
     # Platform-specific stuff.
@@ -289,14 +328,6 @@ def generate_upload_tarball(args):
     # TODO: Consider auto-updating the Ubuntu changelog.  It requires
     # cloning the <package>-release repo, making a change, and pushing it back.
     # Until we do that, the user must have first updated it manually.
-    if not args.nightly:
-        print('\n\nReady to kick off the Ubuntu deb-builder.  Did you already update ubuntu/debian/changelog in the %s-release repo (on the %s branch)?  [y/N]'%(args.package, args. release_repo_branch))
-        answer = sys.stdin.readline().strip()
-        if answer != 'Y' and answer != 'y':
-            print('Ubuntu deb-builds were NOT started.')
-            print('Please update the changelog and try again.')
-            sys.exit(1)
-
     return source_tarball_uri
 
 
@@ -336,14 +367,28 @@ def go(argv):
     else:
         job_name = JOB_NAME_PATTERN%(args.package)
     
+    # Enable new armhf jobs in sdformat2 and gazebo5
+    if (args.package == 'sdformat2' or args.package == 'gazebo5'):
+        # No prereleases
+        if (not args.release_repo_branch == 'prerelease'):
+            UBUNTU_ARCHS.append('armhf')
+   
     params_query = urllib.urlencode(params)
-    base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
     distros = UBUNTU_DISTROS
     if EXP_DISTROS:
         distros.extend(UBUNTU_DISTROS_EXPERIMENTAL)
 
     for d in distros:
         for a in UBUNTU_ARCHS:
+            if (a == 'armhf'):
+                # Only release armhf in trusty for now
+                if (d != 'trusty'):
+                    continue
+                # armhf runs on docker, it needs a different base_url
+                base_url = '%s/job/%s-docker/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
+            else:
+                base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
+
             if not DRCSIM_MULTIROS:
                 url = '%s&ARCH=%s&DISTRO=%s'%(base_url, a, d)
                 print('Accessing: %s'%(url))

@@ -15,7 +15,7 @@ set -ex
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
-apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget git
+apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget git dpkg-dev
 
 # Hack to avoid problem with non updated 
 if [ $DISTRO = 'precise' ]; then
@@ -36,21 +36,31 @@ rm -fr $WORKSPACE/"$PACKAGE"_*
 
 # Step 1: Get the source (nightly builds or tarball)
 rm -fr $WORKSPACE/simbody
-git clone https://github.com/simbody/simbody.git $WORKSPACE/simbody
+git clone https://github.com/simbody/simbody.git $WORKSPACE/simbody 
 cd $WORKSPACE/simbody
+# TODO: REMOVE this, it is only for 3.5.1
+cp doc/debian/changelog .
+# Keep this line
 git checkout Simbody-${VERSION}
+# TODO: REMOVE this, it is only for 3.5.1
+mv changelog doc/debian/
+
+# Debian directory is in doc/
+mv doc/debian .
 
 # Use current distro
-sed -i -e 's:precise:$DISTRO:g' debian/changelog
+sed -i -e 's:trusty:$DISTRO:g' debian/changelog
 # Use current release version
 sed -i -e 's:-1~:-$RELEASE_VERSION~:' debian/changelog
 # Bug in saucy doxygen makes the job hangs
 if [ $DISTRO = 'saucy' ]; then
     sed -i -e '/.*dh_auto_build.*/d' debian/rules
 fi
-if [ $DISTRO = 'trusty' ]; then
-# Patch for https://github.com/simbody/simbody/issues/157
-  sed -i -e 's:CONFIGURE_ARGS=:CONFIGURE_ARGS=-DCMAKE_BUILD_TYPE=RelWithDebInfo:' debian/rules
+
+# Need to set cpp11 off for precise
+if [ $DISTRO = 'precise' ]; then
+  DEB_HOST_MULTIARCH=\$(dpkg-architecture -qDEB_HOST_MULTIARCH)
+  sed -i -e 's#-DMAKE_BUILD_TYPE:STRING=RelWithDebInfo#-DMAKE_BUILD_TYPE:STRING=RelWithDebInfo\ -DSIMBODY_STANDARD_11=OFF\ -DCMAKE_INSTALL_LIBDIR:PATH=lib/\${DEB_HOST_MULTIARCH}#' debian/rules
 fi
 
 # Step 5: use debuild to create source package

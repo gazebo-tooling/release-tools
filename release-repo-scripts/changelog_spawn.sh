@@ -25,20 +25,20 @@ msg=${2}
 
 if [[ $# -lt 1 ]]; then
     echo "changelog_spawn <version> [msg]"
-    return 1
+    exit 1
 fi
 
 if [[ -z ${DEBEMAIL} || -z ${DEBFULLNAME} ]]; then
     echo "DEBEMAIL and/or DEBFULLNAME env variables are empty. Needed for changelogs"
     echo "Please add it to your bashrc"
-    return 1
+    exit 1
 fi
 
 changelog_example=$(find . -name changelog | head -n 1)
 
 if [[ -z ${changelog_example} ]]; then
     echo "Did not found any changelog files in subdirectories. Check your current path"
-    return 1
+    exit 1
 fi
 
 pkg_name=$(dpkg-parsechangelog -l${changelog_example} | grep Source | awk '{ print $2 }')
@@ -63,3 +63,14 @@ for f in $changelog_files; do
 	      --changelog=${f} -- "${msg_text}" &> ${HOME}/.changelog_spawn.log
 done
 
+hg diff
+echo
+hg status
+
+echo "All fine to commit? [enter] [control+c to abort]"
+read 
+
+echo
+hg commit -m "${msg_text}"
+echo "Commit done"
+hg push -b .

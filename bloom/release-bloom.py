@@ -12,12 +12,10 @@ import shutil
 USAGE = 'release.py <package> <version> <upstream_release_repo> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-bloom-debbuilder'
-UPLOAD_DEST = 'ubuntu@old.gazebosim.org:/var/www/assets/distributions'
-DOWNLOAD_URI = 'http://old.gazebosim.org/assets/distributions/'
 
 UBUNTU_ARCHS = ['amd64']
 # UBUNTU_DISTROS = ['trusty', 'precise']
-UBUNTU_DISTROS = ['precise']
+UBUNTU_DISTROS = ['trusty']
 ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
 ROS_DISTROS_IN_TRUSTY = [ 'indigo' ]
 

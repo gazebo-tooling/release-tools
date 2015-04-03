@@ -26,6 +26,12 @@ mkdir -p ${LOCAL_CELLAR}
 # Run brew update to get latest versions of formulae
 ${RUN_DIR}/bin/brew update
 
+# Run brew config to print system information
+${RUN_DIR}/bin/brew config
+
+# Run brew doctor to check for problems with the system
+${RUN_DIR}/bin/brew doctor || true
+
 # Step 2. Install dependencies of ${PROJECT}
 ${RUN_DIR}/bin/brew tap osrf/simulation
 
@@ -35,11 +41,17 @@ do
   /usr/local/bin/brew unlink ${dep} || true
 done || true
 
+IS_A_HEAD_FORMULA=${IS_A_HEAD_PROJECT:-false}
+HEAD_STR=""
+if $IS_A_HEAD_PROJECT; then
+    HEAD_STR="--HEAD"
+fi
+
 # Process the package dependencies
 # Run twice! details about why in:
 # https://github.com/osrf/homebrew-simulation/pull/18#issuecomment-45041755 
-${RUN_DIR}/bin/brew install ${PROJECT} ${PROJECT_ARGS} --only-dependencies
-${RUN_DIR}/bin/brew install ${PROJECT} ${PROJECT_ARGS} --only-dependencies
+${RUN_DIR}/bin/brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
+${RUN_DIR}/bin/brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
 
 # Step 3. Manually compile and install ${PROJECT}
 cd ${WORKSPACE}/${PROJECT}

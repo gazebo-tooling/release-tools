@@ -18,7 +18,7 @@ set -ex
 # get ROS repo's key
 apt-get install -y wget
 sh -c 'echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/ros-latest.list'
-wget http://packages.ros.org/ros.key -O - | apt-key add -
+wget --no-check-certificate https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | apt-key add -
 # Also get drc repo's key, to be used in getting Gazebo
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
@@ -48,7 +48,7 @@ ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs    \
 	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros-pkgs"
 
 # Need -ros for rosrun
-apt-get install -y \$ROS_GAZEBO_PKGS ros-$ROS_DISTRO-ros
+apt-get install -y --force-yes \$ROS_GAZEBO_PKGS ros-$ROS_DISTRO-ros
 
 # Step 2: configure and build
 rosdep init 
@@ -68,7 +68,29 @@ SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
 # Seems like there is no failure in runs on precise pbuilder in
 # our trusty machine. So we do not check for GRAPHIC_TESTS=true
 mkdir -p \$HOME/.gazebo
-timeout 180 roslaunch gazebo_ros shapes_world.launch || cat \$HOME/.gazebo/gzserver.log && echo "Failure response in the launch command"
+
+# Precise coreutils does not support preserve-status
+if [ $DISTRO = 'precise' ]; then
+  # TODO: all the testing on precise X in our jenkins is currently segfaulting
+  # docker can not run on Precise without altering the base packages
+  # Previous attemps to get GPU acceleration for intel in chroot:
+  # http://build.osrfoundation.org/job/ros_gazebo_pkgs-release-testing-broken-intel/
+  
+  echo "X Error failed is expected on machines with different distro in host than tested"
+  echo "We run the test anyway to test ABI or segfaults"
+  apt-get install -y psmisc 
+  roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose" &
+  sleep 180
+  killall -9 roslaunch || true
+  killall -9 gzserver || true 
+else
+  timeout --preserve-status 180 roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose"
+
+  if [ $? != 0 ]; then
+    echo "Failure response in the launch command" 
+    exit 1
+  fi
+fi
 
 echo "180 testing seconds finished successfully"
 
