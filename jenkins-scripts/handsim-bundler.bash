@@ -28,4 +28,5 @@ cd $dir
 zip -r $subdir.zip $subdir
 mkdir -p /var/packages/haptix
 cp $subdir.zip /var/packages/haptix
+ln -sf $subdir.zip /var/packages/haptix/handsim-debs-latest.zip
 rm -rf $dir
