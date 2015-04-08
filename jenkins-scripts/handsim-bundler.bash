@@ -3,6 +3,9 @@
 set -x
 set -e
 
+[[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
+SCRIPT_DIR="${SCRIPT_DIR%/*}"
+
 apt-get install zip
 
 # We're going to cherry-pick certain debs out of the repo and produce a .zip file for people to download.
@@ -12,6 +15,7 @@ PKGS="libogre3d-1.9-dev libogre3d-1.9.0 libsdformat3-dev-prerelease libsdformat3
 dir=`mktemp -d`
 subdir=handsim-debs-`date +%F-%H-%M-%S`
 mkdir -p $dir/$subdir
+cp $SCRIPT_DIR/handsim-unbundler.bash $dir/$subdir
 
 root="/var/packages/gazebo/ubuntu"
 cd $root
