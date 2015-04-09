@@ -8,6 +8,6 @@ if [[ $# -ge 1 ]]; then
   FOLDER=$1
 fi
 
-sudo apt-get remove -y '.*sdformat.*' '.*gazebo.*'
+sudo apt-get remove -y '.*sdformat.*' '.*gazebo.*' '.*libogre.*dev.*'
 
 sudo dpkg -R -i $FOLDER
