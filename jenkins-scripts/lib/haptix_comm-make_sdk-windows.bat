@@ -145,7 +145,7 @@ for %%b in (Debug, Release) do (
     xcopy "protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\google" "!installdir!\deps\protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\google" /s /e /i
     :: ZeroMQ
     xcopy "ZeroMQ 3.2.4\COPYING*" "!installdir!\deps\ZeroMQ 3.2.4" /s /e /i
-    xcopy "ZeroMQ 3.2.4\bin\libzmq-v120-mt-3*" "!installdir!\deps\ZeroMQ 3.2.4\bin" /s /e /i
+    xcopy "ZeroMQ 3.2.4\bin\libzmq-v120*" "!installdir!\deps\ZeroMQ 3.2.4\bin" /s /e /i
     ::xcopy "ZeroMQ 3.2.4\bin\msvc*" "!installdir!\deps\ZeroMQ 3.2.4\bin" /s /e /i
     xcopy "ZeroMQ 3.2.4\include" "!installdir!\deps\ZeroMQ 3.2.4\include" /s /e /i
     xcopy "ZeroMQ 3.2.4\lib\libzmq-v120*" "!installdir!\deps\ZeroMQ 3.2.4\lib" /s /e /i
