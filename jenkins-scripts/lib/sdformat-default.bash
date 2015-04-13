@@ -6,9 +6,9 @@ SDFORMAT_MAJOR_VERSION=`\
   grep 'set.*SDF_MAJOR_VERSION ' ${WORKSPACE}/sdformat/CMakeLists.txt | \
   tr -d 'a-zA-Z _()'`
 
-# Check sdformat version between 1-9
-if ! [[ ${SDFORMAT_MAJOR_VERSION} =~ ^-?[1-9]$ ]]; then
-   echo "Error! SDFORMAT_MAJOR_VERSION is not between 1 and 9, check the detection"
+# Check sdformat version is integer
+if ! [[ ${SDFORMAT_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+   echo "Error! SDFORMAT_MAJOR_VERSION is not an integer, check the detection"
    exit -1
 fi
 
