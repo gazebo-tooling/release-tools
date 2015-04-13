@@ -7,6 +7,9 @@ exit /b
 ::
 ::
 
+:: See: https://issues.jenkins-ci.org/browse/JENKINS-11992
+set path=%path:"=%
+
 :: By default should be the same
 set MSVC_KEYWORD=%PLATFORM_TO_BUILD%
 

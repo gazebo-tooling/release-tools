@@ -7,18 +7,20 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc_compiler
 echo # END SECTION
 
-echo %IGN_CLEAN_WORKSPACE%
 if "%IGN_CLEAN_WORKSPACE%" == FALSE (
   echo # BEGIN SECTION: preclean of workspace
   IF exist workspace ( rmdir /s /q workspace ) || goto :error
   echo # END SECTION
+) else (
+  echo # BEGIN SECTION: delete old sources
+  IF exist workspace\ign-transport ( rmdir /s /q workspace\ign-transport ) || goto :error
+  echo # END SECTION
 )
 
-mkdir %WORKSPACE%\workspace 
+mkdir %WORKSPACE%\workspace || echo "The workspace already exists. Fine"
 cd %WORKSPACE%\workspace || goto :error
 
-REM Note that your jenkins job should put source in %WORKSPACE%/ign-transport
-echo "Move sources so we agree with configure.bat layout
+echo # BEGIN SECTION: move sources so we agree with configure.bat layout
 xcopy %WORKSPACE%\ign-transport %WORKSPACE%\workspace\ign-transport /s /i /e > xcopy.log || goto :error
 echo # END SECTION
 
@@ -35,12 +37,12 @@ echo # END SECTION
 
 echo # BEGIN SECTION: add zeromq to PATH for dll load
 REM Add path for zeromq dynamic library .ddl
-set PATH=%PATH%;%WORKSPACE%/workspace/ZeroMQ 3.2.4/bin/
+set PATH=%PATH%;%WORKSPACE%\workspace\ZeroMQ 3.2.4\bin\
 echo # END SECTION
 
 echo # BEGIN SECTION: ign-transport compilation
-dir %WORKSPACE%/workspace
-cd %WORKSPACE%/workspace/ign-transport || goto :error
+dir %WORKSPACE%\workspace
+cd %WORKSPACE%\workspace\ign-transport || goto :error
 mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto :error
@@ -51,6 +53,8 @@ echo # BEGIN SECTION: ign-transport installation
 nmake install || goto :error
 echo # END SECTION
 
+set TEST_RESULT_PATH=%WORKSPACE%\test_results
+
 if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo # BEGIN SECTION: run tests
   REM Need to find a way of running test from the standard make test (not working)
@@ -58,7 +62,9 @@ if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo # END SECTION
   
   echo # BEGIN SECTION: export testing results
-  move test_results %WORKSPACE%/test_results
+  echo "Path to remove: %TEST_RESULT_PATH%"
+  rmdir /q /s %TEST_RESULT_PATH% || echo "TEST_RESULT_PATH did not exists, that's fine"
+  xcopy test_results %TEST_RESULT_PATH% /s /i /e || goto :error
   echo # END SECTION
 )
 

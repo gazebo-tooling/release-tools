@@ -63,7 +63,7 @@ cd ..\..
 
 echo # BEGIN SECTION: copy gazebo sources to workspace
 :: Note that your jenkins job should put source in %WORKSPACE%/ign-transport
-xcopy gazebo %WORKSPACE%\workspace\gazebo /s /i /e > xcopy.log
+xcopy %WORKSPACE%\gazebo %WORKSPACE%\workspace\gazebo /s /i /e > xcopy.log
 cd %WORKSPACE%\workspace\gazebo
 echo # END SECTION
 
@@ -75,8 +75,12 @@ echo # END SECTION
 
 echo # BEGIN SECTION: download jom
 call %win_lib% :download_7za
-call %win_lib% :unzip_7za http://download.qt-project.org/official_releases/jom/jom.zip jom.zip
+call %win_lib% :wget http://download.qt-project.org/official_releases/jom/jom.zip jom.zip
 call %win_lib% :unzip_7za jom.zip
+echo # END SECTION
+
+echo # BEGIN SECTION: compile deps
+jom -j%MAKE_JOBS% gazebo_ode gazebo_opende_ou gazebo_ccd || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: compile gzclient

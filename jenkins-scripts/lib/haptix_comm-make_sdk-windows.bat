@@ -9,26 +9,17 @@ set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
 :: remove previous packages
 del %WORKSPACE%\*.zip
-
-echo # BEGIN SECTION: configure the platform and compiler
-@set PLATFORM_TO_BUILD=x86
-@if not "%1"=="" set PLATFORM_TO_BUILD=%1
-
 :: Default branches
 @if "%IGN_TRANSPORT_BRANCH%" == "" set IGN_TRANSPORT_BRANCH=default
 @if "%HAPTIX_COMM_BRANCH%" == "" set HAPTIX_COMM_BRANCH=default
 
-IF %PLATFORM_TO_BUILD% == x86 (
-  set BITNESS=32
-) ELSE (
-  REM Visual studio is accepting many keywords to compile for 64bits
-  REM We need to set x86_amd64 to make express version to be able to
-  REM Cross compile from x86 -> amd64
-  echo "Using 64bits VS configuration"
-  set BITNESS=64
-  set MSVC_KEYWORD=x86_amd64
-  set PLATFORM_TO_BUILD=amd64
-)
+@set PLATFORM_TO_BUILD=x86
+@if not "%1"=="" set PLATFORM_TO_BUILD=%1
+
+:: Call vcvarsall and all the friends
+echo # BEGIN SECTION: configure the MSVC compiler
+call %win_lib% :configure_msvc_compiler
+echo # END SECTION
 
 @echo ""
 @echo "======================="
@@ -38,21 +29,6 @@ IF %PLATFORM_TO_BUILD% == x86 (
 @echo " haptix-comm   branch: %HAPTIX_COMM_BRANCH%"
 @echo "======================="
 @echo ""
-
-@echo " - Configure the VC++ compilation"
-
-set MSVC_ON_WIN64=c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat
-set MSVC_ON_WIN32=c:\Program Files\Microsoft Visual Studio 12.0\VC\vcvarsall.bat
-
-IF exist "%MSVC_ON_WIN64%" ( 
-   call "%MSVC_ON_WIN64%" %MSVC_KEYWORD% || goto :error
-) ELSE IF exist "%MSVC_ON_WIN32%" (
-   call "%MSVC_ON_WIN32%" %MSVC_KEYWORD% || goto :error
-) ELSE (
-   echo "Could not find the vcvarsall.bat file"
-   exit -1
-)
-echo # END SECTION
 
 echo # BEGIN SECTION: setup all needed variables and workspace
 mkdir workspace 
@@ -169,7 +145,7 @@ for %%b in (Debug, Release) do (
     xcopy "protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\google" "!installdir!\deps\protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\google" /s /e /i
     :: ZeroMQ
     xcopy "ZeroMQ 3.2.4\COPYING*" "!installdir!\deps\ZeroMQ 3.2.4" /s /e /i
-    xcopy "ZeroMQ 3.2.4\bin\libzmq-v120-mt-3*" "!installdir!\deps\ZeroMQ 3.2.4\bin" /s /e /i
+    xcopy "ZeroMQ 3.2.4\bin\libzmq-v120*" "!installdir!\deps\ZeroMQ 3.2.4\bin" /s /e /i
     ::xcopy "ZeroMQ 3.2.4\bin\msvc*" "!installdir!\deps\ZeroMQ 3.2.4\bin" /s /e /i
     xcopy "ZeroMQ 3.2.4\include" "!installdir!\deps\ZeroMQ 3.2.4\include" /s /e /i
     xcopy "ZeroMQ 3.2.4\lib\libzmq-v120*" "!installdir!\deps\ZeroMQ 3.2.4\lib" /s /e /i

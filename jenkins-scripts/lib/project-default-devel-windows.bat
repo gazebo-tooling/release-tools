@@ -2,6 +2,21 @@ REM Windows standard file to build Visual Studio projects
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
+:: safety checks
+if not defined VCS_DIRECTORY (
+  echo # BEGIN SECTION: ERROR: VCS_DIRECTORY is not set
+  echo VCS_DIRECTORY variable was not set. Please set it before calling this script
+  echo # END SECTION
+  exit 1
+)
+
+if not exist %VCS_DIRECTORY% (
+  echo # BEGIN SECTION: ERROR: %VCS_DIRECTORY% does not exist
+  echo VCS_DIRECTORY variable points to %VCS_DIRECTORY% but it does not exists
+  echo # END SECTION
+  exit 1
+)
+
 :: Call vcvarsall and all the friends
 echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc_compiler
@@ -47,25 +62,25 @@ nmake install || goto %win_lib% :error
 echo # END SECTION
 
 echo # BEGIN SECTION: running tests
-set TEST_RESULT_PATH=%WORKSPACE%/test_results
-
-if exist %TEST_RESULT_PATH% ( rmdir /s %TEST_RESULT_PATH% )
 REM Need to find a way of running test from the standard make test (not working)
-cd %WORKSPACE%/workspace/haptix-comm/build
+cd %WORKSPACE%\workspace\haptix-comm\build
 ctest -C "Release" --verbose --extra-verbose || echo "test failed"
 echo # END SECTION
+
 echo # BEGIN SECTION: export testing results
+set TEST_RESULT_PATH=%WORKSPACE%\test_results
+if exist %TEST_RESULT_PATH% ( rmdir /q /s %TEST_RESULT_PATH% )
 move test_results %TEST_RESULT_PATH% || goto :error
 echo # END SECTION
 
-if NOT DEFINED %KEEP_WORKSPACE% (
+if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
-   rmdir /s /q workspace || goto :error
+   cd %WORKSPACE%
+   rmdir /s /q %WORKSPACE%\workspace || goto :error
    echo # END SECTION
 )
+goto :EOF
 
 :error - error routine
-::
 echo Failed with error #%errorlevel%.
 exit /b %errorlevel%
-goto :EOF
