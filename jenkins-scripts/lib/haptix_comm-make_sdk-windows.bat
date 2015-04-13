@@ -115,7 +115,7 @@ for %%b in (Debug, Release) do (
     call ..\configure %%b %BITNESS%
     nmake VERBOSE=1 > ign-transport.log || goto :error
     nmake install
-    set /p IGNTRANSPORT_VERSION=<VERSION
+    set /p IGNTRANSPORT_VERSION=<VERSION || goto :error
     cd ..\..
     echo # END SECTION
 
@@ -127,7 +127,7 @@ for %%b in (Debug, Release) do (
     call ..\configure %%b %BITNESS%
     nmake VERBOSE=1 > haptix.log || goto :error
     nmake install
-    set /p HAPTIX_VERSION=<VERSION
+    set /p HAPTIX_VERSION=<VERSION || goto:error
     echo # END SECTION
    
     echo # BEGIN SECTION: build haptix-comm examples in %%b
@@ -143,7 +143,7 @@ for %%b in (Debug, Release) do (
 
     cd ..\..\..
 
-    echo # BEGIN SECTION: generate zip [version %HAPTIX_VERSION%] in %%b
+    echo # BEGIN SECTION: generate zip [version !HAPTIX_VERSION!] in %%b
     :: Package it all up
     :: Our goal here is to create an "install" layout for all the stuff
     :: needed to use haptix-comm.  That layout can be then be zipped and
@@ -152,9 +152,9 @@ for %%b in (Debug, Release) do (
     :: why the ! var ! is being used. For more information, please read:
     :: http://ss64.com/nt/delayedexpansion.html
     set "build_type=%%b"
-    set "installdir=%cwd%\hx_gz_sdk-%HAPTIX_VERSION%-!build_type!"
+    set "installdir=%cwd%\hx_gz_sdk-!HAPTIX_VERSION!-!build_type!"
     
-    set "sdk_zip_file=%WORKSPACE%\hx_gz_sdk-!build_type!-%HAPTIX_VERSION%-win%BITNESS%.zip"
+    set "sdk_zip_file=%WORKSPACE%\hx_gz_sdk-!build_type!-!HAPTIX_VERSION!-win%BITNESS%.zip"
 
     echo " * Build type             : !build_type!"
     echo " * Installation directory : !installdir!"
