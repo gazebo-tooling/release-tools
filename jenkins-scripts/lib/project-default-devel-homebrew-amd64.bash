@@ -74,7 +74,7 @@ export PATH="${PATH}:/opt/X11/bin"
 # set display before cmake
 # search for Xquartz instance owned by jenkins
 export DISPLAY=$(ps ax \
-  | grep '\d*:\d\d\.\d\d /opt/X11/bin/Xquartz' \
+  | grep '[[:digit:]]*:[[:digit:]][[:digit:]].[[:digit:]][[:digit:]] /opt/X11/bin/Xquartz' \
   | grep 'auth /Users/jenkins/' \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
