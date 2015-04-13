@@ -22,8 +22,16 @@ cat > build.sh << DELIM
 #
 set -ex
 
+echo '# BEGIN SECTION: install dependencies'
+# OSRF repository to get ignition-math
+apt-get install -y wget
+sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/gazebo-latest.list'
+wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
+
 # Step 1: install everything you need
+apt-get update
 apt-get install -y ${BASE_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES}
+echo '# END SECTION'
 
 # Step 2: configure and build
 rm -rf $WORKSPACE/build
