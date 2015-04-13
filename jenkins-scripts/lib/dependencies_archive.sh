@@ -65,6 +65,17 @@ else
     sdformat_pkg="libsdformat2-dev"
 fi
 
+# SDFORMAT related dependencies
+if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
+    SDFORMAT_MAJOR_VERSION=3
+fi
+
+if [[ ${GAZEBO_MAJOR_VERSION} -ge 3 ]]; then
+    # sdformat3 requires ignition-math
+    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES}          \\
+                                libignition-math-dev"
+fi
+
 # GAZEBO related dependencies
 if [[ -z ${GAZEBO_MAJOR_VERSION} ]]; then
     GAZEBO_MAJOR_VERSION=5

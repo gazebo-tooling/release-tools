@@ -1,7 +1,20 @@
 #!/bin/bash -x
 set -e
 
+# Identify SDFORMAT_MAJOR_VERSION to help with dependency resolution
+SDFORMAT_MAJOR_VERSION=`\
+  grep 'set.*SDF_MAJOR_VERSION ' ${WORKSPACE}/sdformat/CMakeLists.txt | \
+  tr -d 'a-zA-Z _()'`
+
+# Check gazebo version between 1-9
+if ! [[ ${SDFORMAT_MAJOR_VERSION} =~ ^-?[1-9]$ ]]; then
+   echo "Error! SDFORMAT_MAJOR_VERSION is not between 1 and 9, check the detection"
+   exit -1
+fi
+
+echo '# BEGIN SECTION: setup the testing enviroment'
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+echo '# END SECTION'
 
 cat > build.sh << DELIM
 ###################################################
