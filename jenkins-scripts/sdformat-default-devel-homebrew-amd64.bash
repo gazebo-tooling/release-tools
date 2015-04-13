@@ -15,5 +15,5 @@ else
   ln -s ${WORKSPACE}/sdformat ${WORKSPACE}/sdformat${SDFORMAT_MAJOR_VERSION}
 fi
 
-. ${SCRIPT_DIR}/lib/project-default-devel-homebrew-amd64.bash sdformat
+. ${SCRIPT_DIR}/lib/project-default-devel-homebrew-amd64.bash sdformat${SDFORMAT_MAJOR_VERSION}
 
