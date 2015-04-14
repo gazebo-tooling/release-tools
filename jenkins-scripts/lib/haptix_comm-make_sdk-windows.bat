@@ -216,8 +216,8 @@ if NOT DEFINED KEEP_WORKSPACE (
 
 :: To agree with linux layout, we need to export the packages at $WORKSPACE/workspace
 :: so repository_upload script can work without any modification
-mkdir %WORKSPACE%\workspace
-move %WORKSPACE%\*.zip %WORKSPACE%\workspace
+mkdir %WORKSPACE%\workspace\pkgs
+move %WORKSPACE%\*.zip %WORKSPACE%\workspace\pkgs\
 
 goto :EOF
 
