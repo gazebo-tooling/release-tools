@@ -49,7 +49,7 @@ cd $WORKSPACE/build
 cd $WORKSPACE/code
 
 # Install dependencies
-depends=\$(dpkg-checkbuilddeps 2>&1 | sed 's/^dpkg-checkbuilddeps: Unmet build dependencies: //g')
+depends=\$(dpkg-checkbuilddeps 2>&1 | sed 's/^dpkg-checkbuilddeps: Unmet build dependencies: //g' | sed 's: (.*) : :g')
 sudo apt-get install -y \$depends
 
 # Use current distro
