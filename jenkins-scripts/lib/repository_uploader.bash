@@ -23,16 +23,16 @@ fi
 # Place in reprepro directory
 cd /var/packages/gazebo/ubuntu
 
-upload_package()
+# S3 Amazon upload
+S3_upload()
 {
-    local pkg=$1
+    local s3_destination_path=${1}
 
-    # Get the canonical package name (i.e. gazebo2 -> gazebo)
-    pkg_root_name=${PACKAGE%[[:digit:]]}
+    if [[ -z ${s3_destination_path} ]]; then
+	echo "s3_destination_path is empty! Internal error"
+	exit 1
+    fi
 
-    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
-
-    # S3 Amazon upload
     S3_DIR=$(mktemp -d ${HOME}/s3.XXXX)
     pushd ${S3_DIR}
     # Hack for not failing when github is down
@@ -46,22 +46,62 @@ upload_package()
     done
     tar xzf foo.tar.gz
     cd s3cmd-*
-    ./s3cmd put $pkg s3://osrf-distributions/$pkg_root_name/releases/
+    ./s3cmd put $pkg s3://osrf-distributions/${s3_destination_path}
     popd
     rm -fr ${S3_DIR}
 }
 
+upload_package()
+{
+    local pkg=${1}
+    [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
+
+    # Get the canonical package name (i.e. gazebo2 -> gazebo)
+    pkg_root_name=${PACKAGE%[[:digit:]]}
+
+    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
+
+    # The path will end up being: s3://osrf-distributions/$pkg_root_name/releases/
+    S3_upload $pkg_root_name/releases/
+}
+
 upload_dsc_package()
 {
+    local pkg=${1}
+    [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
+
     sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg}
+}
+
+upload_zip_file()
+{
+    local pkg=${1} s3_path=${2}
+
+    [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
+    [[ -z ${s3_path} ]] && echo "Bad parameter s3_path" && exit 1
+
+    S3_upload ${pkg} ${s3_path}
 }
 
 pkgs_path="$WORKSPACE/pkgs"
 
+# .zip | (mostly) windows packages
+for pkg in `ls $pkgs_path/*.zip`; do
+  # S3_UPLOAD_PATH should be send by the upstream job
+  if [[ -z ${S3_UPLOAD_PATH} ]]; then
+    echo "S3_UPLOAD_PATH was not defined. Not uploading"
+    exit 1
+  fi
+  
+  upload_zip_package ${pkg} ${S3_UPLOAD_PATH}
+done
+
+# .dsc | source debian packages
 for pkg in `ls $pkgs_path/*.dsc`; do
   upload_dsc_package ${pkg}
 done
 
+# .deb | debian packages
 for pkg in `ls $pkgs_path/*.deb`; do
   # Get components from pkg
   pkg_relative=`echo ${pkg} | sed "s:$pkgs_path/::"` # remove the root path
@@ -85,6 +125,9 @@ for pkg in `ls $pkgs_path/*.deb`; do
 	fi
 	upload_package ${pkg}
       ;;
+      *.zip)
+	upload_zip_file 
+      ;;
       *)
 	  echo "ERROR: unknown pkg_suffix: ${pkg_suffix}"
 	  exit 1
@@ -92,5 +135,6 @@ for pkg in `ls $pkgs_path/*.deb`; do
   esac
 done
 
-rm -fr $WORKSPACE/pkgs/*.deb
+rm -fr $WORKSPACE/pkgs/*.zip
 rm -fr $WORKSPACE/pkgs/*.dsc
+rm -fr $WORKSPACE/pkgs/*.deb
