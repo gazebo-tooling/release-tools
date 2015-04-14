@@ -199,7 +199,7 @@ for %%b in (Debug, Release) do (
     echo # END SECTION
 
     echo "Generating SDK zip file: !sdk_zip_file!" > sdk_zip_file.log
-    "%tmpdir%\7za.exe" a -tzip "!sdk_zip_file!" "hx_gz_sdk_!build_type!\" || goto :error
+    "%tmpdir%\7za.exe" a -tzip "!sdk_zip_file!" "!installdir!" || goto :error
     echo # END SECTION
 )
 setlocal disabledelayedexpansion
