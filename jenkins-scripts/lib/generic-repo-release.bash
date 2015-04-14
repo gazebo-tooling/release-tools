@@ -50,7 +50,7 @@ cd $WORKSPACE/code
 
 # Install dependencies
 depends=\$(dpkg-checkbuilddeps 2>&1 | sed 's/^dpkg-checkbuilddeps: Unmet build dependencies: //g')
-sudo apt-get install -y ${depends}
+sudo apt-get install -y \$depends
 
 # Use current distro
 changelog_distro=\$(dpkg-parsechangelog | grep Distribution | awk '{print \$2}')
