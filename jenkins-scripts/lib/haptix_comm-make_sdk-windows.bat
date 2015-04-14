@@ -214,6 +214,11 @@ if NOT DEFINED KEEP_WORKSPACE (
    echo # END SECTION
 )
 
+:: To agree with linux layout, we need to export the packages at $WORKSPACE/workspace
+:: so repository_upload script can work without any modification
+mkdir %WORKSPACE%\workspace
+move %WORKSPACE%\*.zip %WORKSPACE%\workspace
+
 goto :EOF
 
 :error
