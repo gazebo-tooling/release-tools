@@ -153,8 +153,8 @@ for %%b in (Debug, Release) do (
     :: http://ss64.com/nt/delayedexpansion.html
     set "build_type=%%b"
     set "installdir=%cwd%\hx_gz_sdk-!HAPTIX_VERSION!-!build_type!"
-    
-    set "sdk_zip_file=%WORKSPACE%\hx_gz_sdk-!build_type!-!HAPTIX_VERSION!-win%BITNESS%.zip"
+    :: WORKSPACE\pkgs to agree with repository_uploader script layout
+    set "sdk_zip_file=%WORKSPACE%\pkgs\hx_gz_sdk-!build_type!-!HAPTIX_VERSION!-win%BITNESS%.zip"
 
     echo " * Build type             : !build_type!"
     echo " * Installation directory : !installdir!"
@@ -213,11 +213,6 @@ if NOT DEFINED KEEP_WORKSPACE (
    REM rmdir /s /q %WORKSPACE%\workspace || goto :error
    echo # END SECTION
 )
-
-:: To agree with linux layout, we need to export the packages at $WORKSPACE/workspace
-:: so repository_upload script can work without any modification
-mkdir %WORKSPACE%\workspace\pkgs
-move %WORKSPACE%\*.zip %WORKSPACE%\workspace\pkgs\
 
 goto :EOF
 
