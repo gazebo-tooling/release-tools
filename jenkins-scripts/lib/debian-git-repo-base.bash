@@ -15,6 +15,9 @@ if [[ -z ${MULTIARCH_SUPPORT} ]]; then
   fi
 fi
 
+# Use defaul branch if not sending BRANCH parameter
+[[ -z ${BRANCH} ]] && export BRANCH=default
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
@@ -57,6 +60,7 @@ rm -fr $WORKSPACE/"$PACKAGE"_*
 # Step 1: Get the source (nightly builds or tarball)
 rm -fr $WORKSPACE/repo
 git clone $GIT_REPOSITORY $WORKSPACE/repo
+git checking -b ${BRANCH}
 cd $WORKSPACE/repo
 
 # Adjust version
