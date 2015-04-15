@@ -4,7 +4,7 @@
 # 
 
 if [[ ${#} -lt 2 ]]; then
-    echo "Usage: ${0} <package> <git-repo> [release-version] [release-arch-version] [distro] [arch]"
+    echo "Usage: ${0} <package> <git-repo> [release-version] [release-arch-version] [distro] [arch] [branch/tag]"
     exit -1
 fi
 
@@ -14,6 +14,7 @@ export RELEASE_VERSION=${3-1}
 export RELEASE_ARCH_VERSION=${4-1}
 export DISTRO=${5-precise}
 export ARCH=${6-amd64}
+export BRANCH=${7-default}
 export WORKSPACE=/tmp/workspace
 
 . prepare_env.sh
@@ -27,6 +28,7 @@ echo " - Release_version : ${RELEASE_VERSION}"
 echo " - R_arch_version  : ${RELEASE_ARCH_VERSION}"
 echo " - Distro          : ${DISTRO}"
 echo " - Arch            : ${ARCH}"
+echo " - Branch/Tag      : ${BRANCH}"
 echo ""
 echo " - Workspace       : ${WORKSPACE}"
 echo ""
