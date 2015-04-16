@@ -86,7 +86,8 @@ for pkg in `ls $pkgs_path/*.zip`; do
     exit 1
   fi
   
-  upload_zip_file ${pkg} ${S3_UPLOAD_PATH}
+  # Seems important to upload the path with a final slash
+  upload_zip_file ${pkg} "${S3_UPLOAD_PATH}/"
 done
 
 # .dsc | source debian packages
