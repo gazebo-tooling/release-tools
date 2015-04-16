@@ -34,8 +34,8 @@ echo "unset CCACHEDIR" >> /etc/pbuilderrc
 apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget cdbs ca-certificates dh-autoreconf autoconf equivs git
 
 # Also get gazebo repo's key, to be used in getting Gazebo
-#sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" > /etc/apt/sources.list.d/gazebo.list'
-#apt-get update
+sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" > /etc/apt/sources.list.d/gazebo.list'
+apt-get update
 
 # Needed for pbuilder
 wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
