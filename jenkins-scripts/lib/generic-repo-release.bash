@@ -55,14 +55,14 @@ cd $WORKSPACE/build
 
 cd $WORKSPACE/code
 
-# Install dependencies
-depends=\$(dpkg-checkbuilddeps 2>&1 | sed 's/^dpkg-checkbuilddeps: Unmet build dependencies: //g' | sed 's: (.*) : :g')
-sudo apt-get install -y --force-yes \$depends
+echo '# BEGIN SECTION: install build dependencies'
+mk-build-deps -i debian/control --tool 'apt-get --no-install-recommends --yes'
+rm *build-deps*.deb
+echo '# END SECTION'
 
 # Use current distro
 changelog_distro=\$(dpkg-parsechangelog | grep Distribution | awk '{print \$2}')
 sed -i -e "1 s:\$changelog_distro:$DISTRO:" debian/changelog
-
 
 # Step 5: use debuild to create source package
 VERSION=\$(dpkg-parsechangelog  | grep Version | awk '{print \$2}')
