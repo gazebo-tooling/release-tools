@@ -21,12 +21,10 @@ cd /var/packages/gazebo/ubuntu
 # S3 Amazon upload
 S3_upload()
 {
-    local s3_destination_path=${1}
+    local pkg=${1} s3_destination_path=${2}
 
-    if [[ -z ${s3_destination_path} ]]; then
-	echo "s3_destination_path is empty! Internal error"
-	exit 1
-    fi
+    [[ -z ${pkg} ]] && echo "pkg is empty" && exit 1
+    [[ -z ${s3_destination_path} ]] && echo "s3_destination_path is empty" && exit 1
 
     S3_DIR=$(mktemp -d ${HOME}/s3.XXXX)
     pushd ${S3_DIR}
