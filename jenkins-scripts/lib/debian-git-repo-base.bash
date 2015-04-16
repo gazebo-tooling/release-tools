@@ -60,8 +60,8 @@ rm -fr $WORKSPACE/"$PACKAGE"_*
 # Step 1: Get the source (nightly builds or tarball)
 rm -fr $WORKSPACE/repo
 git clone $GIT_REPOSITORY $WORKSPACE/repo
-git checkout -b ${BRANCH}
 cd $WORKSPACE/repo
+git checkout -b ${BRANCH}
 
 # Adjust version
 VERSION=\$(dpkg-parsechangelog  | grep Version | awk '{print \$2}')
