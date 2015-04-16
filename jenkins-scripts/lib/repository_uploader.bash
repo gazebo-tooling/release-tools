@@ -1,11 +1,6 @@
 #!/bin/bash -x
 set -ex
 
-if [[ -z ${DISTRO} ]]; then
-    echo 'Error: $DISTRO parameter was not set'
-    exit 1
-fi
-
 NEEDED_HOST_PACKAGES="reprepro openssh-client"
 QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
 if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
@@ -103,6 +98,11 @@ done
 
 # .deb | debian packages
 for pkg in `ls $pkgs_path/*.deb`; do
+  if [[ -z ${DISTRO} ]]; then
+    echo 'Error: $DISTRO parameter was not set'
+    exit 1
+  fi
+
   # Get components from pkg
   pkg_relative=`echo ${pkg} | sed "s:$pkgs_path/::"` # remove the root path
   pkg_name=${pkg_relative/_*} # get the first part only
