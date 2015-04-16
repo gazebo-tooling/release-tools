@@ -88,7 +88,7 @@ for pkg in `ls $pkgs_path/*.zip`; do
     exit 1
   fi
   
-  upload_zip_package ${pkg} ${S3_UPLOAD_PATH}
+  upload_zip_file ${pkg} ${S3_UPLOAD_PATH}
 done
 
 # .dsc | source debian packages
@@ -124,9 +124,6 @@ for pkg in `ls $pkgs_path/*.deb`; do
 	    continue
 	fi
 	upload_package ${pkg}
-      ;;
-      *.zip)
-	upload_zip_file 
       ;;
       *)
 	  echo "ERROR: unknown pkg_suffix: ${pkg_suffix}"
