@@ -89,8 +89,9 @@ rm -fr debian/*.symbols
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create source package ${OSRF_VERSION}'
+PACKAGE=\$(dpkg-parsechangelog --show-field Source)
 # Step 5: use debuild to create source package
-echo | dh_make -s --createorig -p ${PACKAGE}_\${VERSION_NO_REVISION} || true
+echo | dh_make -s --createorig -p \${PACKAGE}_\${VERSION_NO_REVISION} || true
 
 debuild -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
