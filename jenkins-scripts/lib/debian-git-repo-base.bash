@@ -104,7 +104,7 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: create deb packages'
 export DEB_BUILD_OPTIONS="parallel=$MAKE_JOBS"
 # Step 6: use pbuilder-dist to create binary package(s)
-pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
+pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS} --mirror $ubuntu_repo_url
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
