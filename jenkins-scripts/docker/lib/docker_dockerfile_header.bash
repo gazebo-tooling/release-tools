@@ -1,14 +1,23 @@
-# Select the docker container depenending on the ARCH
-if [[ ${ARCH} == 'amd64' ]]; then
-   FROM_VALUE=ubuntu:${DISTRO}
-elif [[ ${ARCH} == 'armhf' ]]; then
-   FROM_VALUE=osrf/ubuntu_armhf:${DISTRO}
-elif [[ ${ARCH} == 'i386' ]]; then
-   FROM_VALUE=32bit/ubuntu:${DISTRO}
-else
-  echo "Arch unsupported"
-  exit 1
+if [[ -z ${ARCH} ]]; then
+  echo "Arch undefined, default to amd64"
+  export ARCH="amd64"
 fi
+
+# Select the docker container depenending on the ARCH
+case ${ARCH} in)
+  'amd64') 
+     FROM_VALUE=ubuntu:${DISTRO}
+     ;;
+  'i386')
+     FROM_VALUE=32bit/ubuntu:${DISTRO}
+     ;;
+ 'armhf')
+     FROM_VALUE=osrf/ubuntu_armhf:${DISTRO}
+     ;;
+  *)
+     echo "Arch unknown"
+     exit 1
+esac
 
 [[ -z ${USE_OSRF_REPO} ]] && USE_OSRF_REPO=false
 
