@@ -1,10 +1,19 @@
+# 
+# Script to generate the dockerfile needed for running the build.sh script
+#
+# Inputs used:
+#   - ARCH: base arquitecture (ex: amd64)
+#   - DISTRO: base distribution (ex: vivid)
+#   - DEPENDENCY_PKGS: packages to be installed in the image
+#   - USE_OSRF_REPO: true|false if add the packages.osrfoundation.org to the sources.list
+
 if [[ -z ${ARCH} ]]; then
   echo "Arch undefined, default to amd64"
   export ARCH="amd64"
 fi
 
 # Select the docker container depenending on the ARCH
-case ${ARCH} in)
+case ${ARCH} in
   'amd64') 
      FROM_VALUE=ubuntu:${DISTRO}
      ;;
@@ -37,32 +46,43 @@ RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
   && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
   || echo "No squid-deb-proxy detected on docker host"
 
-RUN \
-  echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO} main restricted universe multiverse" >> /etc/apt/sources.list && \\
-  echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-updates main restricted universe multiverse" >> /etc/apt/sources.list && \\
-  echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-security main restricted universe multiverse" >> /etc/apt/sources.list
+RUN echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO} main restricted universe multiverse" \\
+                                                       >> /etc/apt/sources.list && \\
+    echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-updates main restricted universe multiverse" \\
+                                                       >> /etc/apt/sources.list && \\
+    echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-security main restricted universe multiverse" && \\
+                                                       >> /etc/apt/sources.list
+DELIM_DOCKER
 
-# Invalidate cache daily
-RUN echo "${TODAY_STR}"
+if ${USE_OSRF_REPO}; then
+cat >> Dockerfile << DELIM_DOCKER2
+RUN apt-get update && apt-get install -y wget
+RUN echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > \\
+                                                           /etc/apt/sources.list.d/drc-latest.list && \\
+    wget http://packages.osrfoundation.org/drc.key -O - | apt-key add - 
+DELIM_DOCKER2
+fi
+
+cat >> Dockerfile << DELIM_DOCKER3
+# Invalidate cache monthly
+# This is the firt big installation of packages on top of the raw image. 
+# The expection of updates is low and anyway it is cathed by the next
+# update command below
+RUN echo "${MONTH_YEAR_STR}"
 RUN apt-get update && \
     apt-get install -y ${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS}
+
+# This is killing the cache so we should be getting the most recent packages
+RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))"
+RUN apt-get update
+RUN apt-get install -y ${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS}
 
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
 COPY sdformat ${WORKSPACE}/sdformat
 COPY build.sh build.sh
 RUN chmod +x build.sh
-DELIM_DOCKER
-
-if ${USE_OSRF_REPO}; then
-cat >> Dockerfile << DELIM_DOCKER2
-RUN apt-get install -y wget
-# OSRF needed for ignition math
-RUN echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > \\
-                                                           /etc/apt/sources.list.d/drc-latest.list && \\
-    wget http://packages.osrfoundation.org/drc.key -O - | apt-key add - 
-DELIM_DOCKER2
-fi
+DELIM_DOCKER3
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: see Dockerfile'

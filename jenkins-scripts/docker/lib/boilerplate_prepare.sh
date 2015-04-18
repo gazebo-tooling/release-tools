@@ -120,6 +120,7 @@ export DOCKER_TAG="${DOCKER_JOB_NAME}"
 
 # It is used to invalidate cache
 TODAY_STR=$(date +%D)
+MONTH_YEAR_STR=$(date +%m%y)
 
 rm -fr Dockerfile
 cd ${WORKSPACE}

@@ -51,27 +51,9 @@ cat $WORKSPACE/build/cppcheck_results/*.xml
 echo '# END SECTION'
 DELIM
 
+USE_OSRF_REPO=true
 DEPENDENCY_PKGS="${SDFORMAT_BASE_DEPENDENCIES}"
 SOFTWARE_DIR="sdformat"
+
 . ${SCRIPT_DIR}/lib/docker_dockerfile_header.bash
-
-echo "# BEGIN SECTION: Docker: built with tag ${DOCKER_TAG}"
-sudo docker build -t ${DOCKER_TAG} .
-echo '# END SECTION'
-echo "# BEGIN SECTION: Docker: run build.sh"
-rm -rf $WORKSPACE/build
-mkdir -p $WORKSPACE/build
-sudo docker run \
-            --cidfile=${CIDFILE} \
-            -v ${WORKSPACE}/build:${WORKSPACE}/build \
-            -t ${DOCKER_TAG} \
-            /bin/bash build.sh
-echo '# END SECTION'
-
-CID=$(cat ${CIDFILE})
-
-# Try to stop the container if it is running
-# Do not fail on error, the container is already stoped
-sudo docker ps
-sudo docker stop ${CID} || true
-sudo docker rm ${CID} || true
+. ${SCRIPT_DIR}/lib/docker_run.bash
