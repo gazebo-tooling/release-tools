@@ -25,14 +25,6 @@ cat > build.sh << DELIM
 #!/usr/bin/env bash
 set -ex
 
-# Need to run apt-get update to get latest osrf releases
-apt-get update
-
-# Step 0: Clean up
-rm -rf $WORKSPACE/build
-mkdir -p $WORKSPACE/build
-cd $WORKSPACE/build
-
 echo '# BEGIN SECTION: clone the git repo'
 rm -fr $WORKSPACE/repo
 git clone $GIT_REPOSITORY $WORKSPACE/repo
