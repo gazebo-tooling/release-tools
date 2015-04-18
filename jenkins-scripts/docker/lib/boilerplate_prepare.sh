@@ -50,8 +50,8 @@ if [[ -n `ps aux | grep gzserver | grep -v grep` ]]; then
     exit -1
 fi
 
-. ${SCRIPT_DIR}/lib/check_graphic_card.bash
-. ${SCRIPT_DIR}/lib/dependencies_archive.sh
+. ${SCRIPT_DIR}/../lib/check_graphic_card.bash
+. ${SCRIPT_DIR}/../lib/dependencies_archive.sh
 
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
