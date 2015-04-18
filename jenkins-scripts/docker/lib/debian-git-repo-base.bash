@@ -103,6 +103,7 @@ DEPENDENCY_PKGS="devscripts \
 		 debhelper \
 		 wget \
 		 ca-certificates \
+		 equivs \
 		 git \
 		 git-buildpackage"
 
