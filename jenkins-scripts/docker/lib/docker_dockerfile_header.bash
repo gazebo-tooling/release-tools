@@ -10,6 +10,9 @@ else
   exit 1
 fi
 
+[[ -z ${USE_OSRF_REPO} ]] && USE_OSRF_REPO=false
+
+echo '# BEGIN SECTION: create the Dockerfile'
 cat > Dockerfile << DELIM_DOCKER
 #######################################################
 # Docker file to run build.sh
@@ -25,8 +28,34 @@ RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
   && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
   || echo "No squid-deb-proxy detected on docker host"
 
+RUN \
+  echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO} main restricted universe multiverse" >> /etc/apt/sources.list && \\
+  echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-updates main restricted universe multiverse" >> /etc/apt/sources.list && \\
+  echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-security main restricted universe multiverse" >> /etc/apt/sources.list
+
+# Invalidate cache daily
+RUN echo "${TODAY_STR}"
+RUN apt-get update && \
+    apt-get install -y ${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS}
+
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
-# automatic invalidation of the cache if day is different
-RUN echo "${TODAY_STR}"
+COPY sdformat ${WORKSPACE}/sdformat
+COPY build.sh build.sh
+RUN chmod +x build.sh
 DELIM_DOCKER
+
+if ${USE_OSRF_REPO}; then
+cat >> Dockerfile << DELIM_DOCKER2
+RUN apt-get install -y wget
+# OSRF needed for ignition math
+RUN echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > \\
+                                                           /etc/apt/sources.list.d/drc-latest.list && \\
+    wget http://packages.osrfoundation.org/drc.key -O - | apt-key add - 
+DELIM_DOCKER2
+fi
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: see Dockerfile'
+cat Dockerfile
+echo '# END SECTION'
