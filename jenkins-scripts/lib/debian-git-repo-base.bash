@@ -79,11 +79,13 @@ sed -i -e "1 s:\$changelog_distro:$DISTRO:" debian/changelog
 
 # When backported from Vivid (or above) to Trusty/Utopic some packages are not
 # avilable or names are different
+if [ $DISTRO = 'trusty' ]; then
+  # libbullet-dev is the name in Ubuntu, libbullet2.82.dev is the one in OSRF
+  sed -i -e 's:libbullet-dev:libbullet2.82-dev:g' debian/control
+fi
 if [ $DISTRO = 'trusty' ] || [ $DISTRO = 'utopic' ]; then
   # libsdformat-dev is the name in Ubuntu, libsdformat2-dev is the one in OSRF
   sed -i -e 's:libsdformat-dev:libsdformat2-dev:g' debian/control 
-  # libbullet-dev is the name in Ubuntu, libbullet2.82.dev is the one in OSRF
-  sed -i -e 's:libbullet-dev:libbullet2.82-dev:g' debian/control
 fi
 
 # In precise, no multiarch paths was implemented in GNUInstallDirs. Remove it.
