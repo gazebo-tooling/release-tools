@@ -2,10 +2,11 @@
 # Script to generate the dockerfile needed for running the build.sh script
 #
 # Inputs used:
-#   - ARCH: base arquitecture (ex: amd64)
-#   - DISTRO: base distribution (ex: vivid)
-#   - DEPENDENCY_PKGS: packages to be installed in the image
-#   - USE_OSRF_REPO: true|false if add the packages.osrfoundation.org to the sources.list
+#   - DISTRO          : base distribution (ex: vivid)
+#   - ARCH            : [default amd64] base arquitecture (ex: amd64)
+#   - USE_OSRF_REPO   : [default false] true|false if add the packages.osrfoundation.org to the sources.list
+#   - DEPENDENCY_PKGS : (optional) packages to be installed in the image
+#   - SOFTWARE_DIR    : (optional) directory to copy inside the image
 
 if [[ -z ${ARCH} ]]; then
   echo "Arch undefined, default to amd64"
@@ -79,10 +80,18 @@ RUN apt-get install -y ${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS}
 
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
-COPY sdformat ${WORKSPACE}/sdformat
+DELIM_DOCKER3
+
+if [[ -n ${SOFTWARE_DIR} ]]; then
+cat >> Dockerfile << DELIM_DOCKER4
+COPY ${SOFTWARE_DIR} ${WORKSPACE}/${SOFTWARE_DIR}
+DELIM_DOCKER4
+fi
+
+cat >> Dockerfile << DELIM_DOCKER4
 COPY build.sh build.sh
 RUN chmod +x build.sh
-DELIM_DOCKER3
+DELIM_DOCKER4
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: see Dockerfile'
