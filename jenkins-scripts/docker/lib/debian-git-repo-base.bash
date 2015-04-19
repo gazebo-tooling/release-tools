@@ -68,7 +68,7 @@ rm -fr debian/*.symbols
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: create source package \${OSRF_VERSION}"
-git-buildpackage -j${MAKE_JOBS} --git-ignore-new -S
+git-buildpackage -j${MAKE_JOBS} --git-ignore-new -S -uc -us
 
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
@@ -76,13 +76,11 @@ cp ../*.debian.* $WORKSPACE/pkgs
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create deb packages'
-export DEB_BUILD_OPTIONS="parallel=$MAKE_JOBS"
-# Step 6: use pbuilder-dist to create binary package(s)
-git-buildpackage -j${MAKE_JOBS} --git-ignore-new -S
+git-buildpackage -j${MAKE_JOBS} --git-ignore-new -S -uc -us
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
-PKGS=\`find /var/lib/jenkins/pbuilder/*_result* -name *.deb || true\`
+PKGS=\`find ../ -name *.deb || true\`
 
 FOUND_PKG=0
 for pkg in \${PKGS}; do
