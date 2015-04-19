@@ -76,7 +76,7 @@ cp ../*.debian.* $WORKSPACE/pkgs
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create deb packages'
-git-buildpackage -j${MAKE_JOBS} --git-ignore-new -S -uc -us
+git-buildpackage -j${MAKE_JOBS} --git-ignore-new -uc -us
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
