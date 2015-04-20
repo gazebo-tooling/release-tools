@@ -42,9 +42,15 @@ call %win_lib% :unzip_7za tbb43_20141023oss_win.zip
 call %win_lib% :unzip_7za zlib-1.2.8-vc12-x64-release-debug.zip
 call %win_lib% :unzip_7za zziplib-0.13.62-vc12-x64-release-debug.zip
 echo # END SECTION
-
+) ELSE (
+  echo # BEGIN SECTION: reusing workspace 
+  :: Remove gazebo copy
+  IF EXIST %WORKSPACE%\workspace\gazebo ( rmdir /s /q %WORKSPACE%\workspace\gazebo ) || goto :error
+  echo # END SECTION
+)
 
 echo # BEGIN SECTION: compile and install sdformat
+if EXIST sdformat ( rmdir /s /q %WORKSPACE%\workspace\sdformat )
 hg clone https://bitbucket.org/osrf/sdformat
 cd sdformat
 mkdir build
@@ -53,13 +59,6 @@ call "..\configure.bat" || goto %win_lib% :error
 nmake
 nmake install
 echo # END SECTION
-cd ..\..
-) ELSE (
-  echo # BEGIN SECTION: reusing workspace 
-  :: Remove gazebo copy
-  IF EXIST %WORKSPACE%\workspace\gazebo ( rmdir /s /q %WORKSPACE%\workspace\gazebo ) || goto :error
-  echo # END SECTION
-)
 
 echo # BEGIN SECTION: copy gazebo sources to workspace
 :: Note that your jenkins job should put source in %WORKSPACE%/ign-transport
