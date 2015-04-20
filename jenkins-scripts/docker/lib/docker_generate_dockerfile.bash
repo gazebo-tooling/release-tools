@@ -46,14 +46,18 @@ RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
   && (echo "Acquire::http::Proxy \"http://\$(cat /tmp/host_ip.txt):8000\";" > /etc/apt/apt.conf.d/30proxy) \
   && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
   || echo "No squid-deb-proxy detected on docker host"
+DELIM_DOCKER
 
+if [[ ${ARCH} != 'armhf' ]]; then
+cat >> Dockerfile << DELIM_DOCKER_ARCH
 RUN echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO} main restricted universe multiverse" \\
                                                        >> /etc/apt/sources.list && \\
     echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-updates main restricted universe multiverse" \\
                                                        >> /etc/apt/sources.list && \\
     echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-security main restricted universe multiverse" && \\
                                                        >> /etc/apt/sources.list
-DELIM_DOCKER
+DELIM_DOCKER_ARCH
+fi
 
 if ${USE_OSRF_REPO}; then
 cat >> Dockerfile << DELIM_DOCKER2
@@ -62,6 +66,17 @@ RUN echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > \\
                                                            /etc/apt/sources.list.d/drc-latest.list && \\
     wget http://packages.osrfoundation.org/drc.key -O - | apt-key add - 
 DELIM_DOCKER2
+fi
+
+# Dart repositories
+if ${DART_FROM_PKGS} || ${DART_COMPILE_FROM_SOURCE}; then
+cat >> Dockerfile << DELIM_DOCKER_DART_PKGS
+# Install dart from pkgs 
+RUN apt-get install -y python-software-properties apt-utils software-properties-common
+RUN apt-add-repository -y ppa:libccd-debs
+RUN apt-add-repository -y ppa:fcl-debs
+RUN apt-add-repository -y ppa:dartsim
+DELIM_DOCKER_DART_PKGS
 fi
 
 cat >> Dockerfile << DELIM_DOCKER3
