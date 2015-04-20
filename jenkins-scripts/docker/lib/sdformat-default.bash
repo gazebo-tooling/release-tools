@@ -55,5 +55,5 @@ USE_OSRF_REPO=true
 DEPENDENCY_PKGS="${SDFORMAT_BASE_DEPENDENCIES}"
 SOFTWARE_DIR="sdformat"
 
-. ${SCRIPT_DIR}/lib/docker_dockerfile_header.bash
+. ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
