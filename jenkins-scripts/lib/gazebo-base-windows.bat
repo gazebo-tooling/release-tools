@@ -28,6 +28,7 @@ call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/tbb43_20141023oss_win.zip tbb43_20141023oss_win.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zziplib-0.13.62-vc12-x64-release-debug.zip zziplib-0.13.62-vc12-x64-release-debug.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zlib-1.2.8-vc12-x64-release-debug.zip zlib-1.2.8-vc12-x64-release-debug.zip
+call %win_lib% :wget http://download.qt-project.org/official_releases/jom/jom.zip jom.zip
 
 call %win_lib% :download_7za
 call %win_lib% :unzip_7za FreeImage-vc12-x64-release-debug.zip
@@ -41,6 +42,7 @@ call %win_lib% :unzip_7za protobuf-2.6.0-win%BITNESS%-vc12.zip
 call %win_lib% :unzip_7za tbb43_20141023oss_win.zip
 call %win_lib% :unzip_7za zlib-1.2.8-vc12-x64-release-debug.zip
 call %win_lib% :unzip_7za zziplib-0.13.62-vc12-x64-release-debug.zip
+call %win_lib% :unzip_7za jom.zip
 echo # END SECTION
 ) ELSE (
   echo # BEGIN SECTION: reusing workspace 
@@ -51,12 +53,13 @@ echo # END SECTION
 
 echo # BEGIN SECTION: compile and install sdformat
 if EXIST sdformat ( rmdir /s /q %WORKSPACE%\workspace\sdformat )
-hg clone https://bitbucket.org/osrf/sdformat
-cd sdformat
+hg clone https://bitbucket.org/osrf/sdformat %WORKSPACE%\workspace\sdformat
+cd %WORKSPACE%\workspace\sdformat
 mkdir build
 cd build
-call "..\configure.bat" || goto %win_lib% :error
-nmake
+call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
+copy %WORKSPACE%\workspace\jom.exe .
+jom
 nmake install
 echo # END SECTION
 
@@ -72,13 +75,8 @@ cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
 echo # END SECTION
 
-echo # BEGIN SECTION: download jom
-call %win_lib% :download_7za
-call %win_lib% :wget http://download.qt-project.org/official_releases/jom/jom.zip jom.zip
-call %win_lib% :unzip_7za jom.zip
-echo # END SECTION
-
 echo # BEGIN SECTION: compile deps
+copy %WORKSPACE%\workspace\jom.exe .
 jom -j%MAKE_JOBS% gazebo_ode gazebo_opende_ou gazebo_ccd || goto :error
 echo # END SECTION
 
