@@ -15,7 +15,7 @@ echo # BEGIN SECTION: compile and install ign-math
 IF exist %WORKSPACE%\ign-math ( rmdir /s /q %WORKSPACE%\ign-math ) || goto :error
 hg clone https://bitbucket.org/ignitionrobotics/ign-math %WORKSPACE%\ign-math || goto :error
 set VCS_DIRECTORY=workspace/ign-math
-call project-default-devel-windows.bat
+call "%SCRIPT_DIR%\lib\project-default-devel-windows.bat"
 echo # END SECTION
 
 echo # BEGIN SECTION: download and uncompress dependencies
