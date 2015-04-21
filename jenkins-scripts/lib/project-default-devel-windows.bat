@@ -22,9 +22,9 @@ if not defined VCS_DIRECTORY (
   exit 1
 )
 
-if not exist %VCS_DIRECTORY% (
+if not exist %WORKSPACE%\%VCS_DIRECTORY% (
   echo # BEGIN SECTION: ERROR: %VCS_DIRECTORY% does not exist
-  echo VCS_DIRECTORY variable points to %VCS_DIRECTORY% but it does not exists
+  echo VCS_DIRECTORY variable points to %WORKSPACE%\%VCS_DIRECTORY% but it does not exists
   echo # END SECTION
   exit 1
 )
