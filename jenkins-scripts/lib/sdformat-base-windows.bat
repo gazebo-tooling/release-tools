@@ -13,7 +13,7 @@ echo # END SECTION
 
 echo # BEGIN SECTION: compile and install ign-math
 hg clone https://bitbucket.org/ignitionrobotics/ign-math %WORKSPACE%\ign-math
-VCS_DIRECTORY=workspace/ign-math
+set VCS_DIRECTORY=workspace/ign-math
 call project-default-devel-windows.bat
 echo # END SECTION
 
