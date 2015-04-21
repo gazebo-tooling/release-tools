@@ -6,13 +6,14 @@ call %win_lib% :configure_msvc_compiler
 echo # END SECTION
 
 echo # BEGIN SECTION: preclean of workspace
-IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
+IF exist workspace ( rmdir /s /q workspace ) || goto :error
 mkdir workspace 
 cd workspace
 echo # END SECTION
 
 echo # BEGIN SECTION: compile and install ign-math
-hg clone https://bitbucket.org/ignitionrobotics/ign-math %WORKSPACE%\ign-math
+IF exist workspace\ign-math ( rmdir /s /q workspace\ign-math ) || goto :error
+hg clone https://bitbucket.org/ignitionrobotics/ign-math %WORKSPACE%\ign-math || goto :error
 set VCS_DIRECTORY=workspace/ign-math
 call project-default-devel-windows.bat
 echo # END SECTION
@@ -32,18 +33,24 @@ echo # END SECTION
 echo # BEGIN SECTION: configure
 mkdir build
 cd build
-call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
+call "..\configure.bat" Release %BITNESS% || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: compile
-nmake || goto %win_lib% :error
+nmake || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: install
-nmake install || goto %win_lib% :error
+nmake install || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: run tests
 REM Need to find a way of running test from the standard make test (not working)
 ctest -C "Release" --verbose --extra-verbose || exit 0
 echo # END SECTION
+
+goto EOF
+
+:error:error
+echo "The program is stopping with errors! Check the log" 
+exit /b %errorlevel%
