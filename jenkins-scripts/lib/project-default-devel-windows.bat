@@ -1,4 +1,16 @@
-REM Windows standard file to build Visual Studio projects
+:: Windows standard file to build Visual Studio projects
+::
+:: Parameters:
+::   - VCS_DIRECTORY: WORKSPACE/VCS_DIRECTORY should contain the sources
+::   - DEPENDENCY_PKG: (optional) one package as dependency (only one is supported by now)
+::   - KEEP_WORKSPACE: (optional) true | false. Clean workspace at the end
+::
+:: Actions
+::   - Configure the compiler
+::   - Clean and create the WORKSPACE/workspace
+::   - Download and unzip the DEPENDENCY_PKG (if any)
+::   - configure, compile and install
+::   - run tests
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 

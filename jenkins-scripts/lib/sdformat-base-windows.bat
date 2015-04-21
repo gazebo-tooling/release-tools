@@ -11,22 +11,18 @@ mkdir workspace
 cd workspace
 echo # END SECTION
 
+echo # BEGIN SECTION: compile and install ign-math
+hg clone https://bitbucket.org/ignitionrobotics/ign-math %WORKSPACE%\ign-math
+VCS_DIRECTORY=workspace/ign-math
+call project-default-devel-windows.bat
+echo # END SECTION
+
 echo # BEGIN SECTION: download and uncompress dependencies
+cd %WORKSPACE%/workspace
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip
 
 call %win_lib% :download_7za
 call %win_lib% :unzip_7za boost_1_56_0.zip 
-echo # END SECTION
-
-echo # BEGIN SECTION: compile and install ign-math
-if EXIST ign-math ( rmdir /s /q %WORKSPACE%\workspace\ign-math )
-hg clone https://bitbucket.org/ignitionrobotics/ign-math %WORKSPACE%\workspace\ign-math
-cd %WORKSPACE%\workspace\ign-math
-mkdir build
-cd build
-call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
-namke
-nmake install
 echo # END SECTION
 
 echo # BEGIN SECTION: move sources so we agree with configure.bat layout
