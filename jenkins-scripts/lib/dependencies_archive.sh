@@ -71,9 +71,9 @@ if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
 fi
 
 if [[ ${SDFORMAT_MAJOR_VERSION} -ge 3 ]]; then
-    # sdformat3 requires ignition-math
+    # sdformat3 requires ignition-math2
     SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES}          \\
-                                libignition-math-dev"
+                                libignition-math2-dev"
 fi
 
 # GAZEBO related dependencies
@@ -129,7 +129,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libboost-program-options-dev     \\
                           libboost-regex-dev               \\
                           libboost-iostreams-dev           \\
-                          libignition-math-dev             \\
+                          libignition-math2-dev            \\
                           ${bullet_pkg}                    \\
                           libsimbody-dev                   \\
                           ${dart_pkg}                      \\
