@@ -12,7 +12,7 @@ cd workspace
 echo # END SECTION
 
 echo # BEGIN SECTION: compile and install ign-math
-IF exist workspace\ign-math ( rmdir /s /q workspace\ign-math ) || goto :error
+IF exist %WORKSPACE%\ign-math ( rmdir /s /q %WORKSPACE%\ign-math ) || goto :error
 hg clone https://bitbucket.org/ignitionrobotics/ign-math %WORKSPACE%\ign-math || goto :error
 set VCS_DIRECTORY=workspace/ign-math
 call project-default-devel-windows.bat
