@@ -114,7 +114,7 @@ chmod a+x \$PBUILD_DIR/A20_install_gcc11
 echo '# END SECTION'
 fi
 
-echo '# BEGIN SECTION: create source package \${OSRF_VERSION}'
+echo '# BEGIN SECTION: create source package' \${OSRF_VERSION}
 debuild --no-tgz-check -uc -us -S --source-option=--include-binaries
 
 cp ../*.dsc $WORKSPACE/pkgs
