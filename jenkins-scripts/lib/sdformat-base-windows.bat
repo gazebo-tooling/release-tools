@@ -1,12 +1,14 @@
 :: sdformat base script
 ::
 :: Parameters:
-::  - USE_IGNITION_ZIP (default true) [true | false]. Use zip to install ignition 
-::                     instead of compile
-::  - IGNMATH_BRANCH   (default default) [optional]. Ignition math branch to
-::                     compile. If in use, USE_IGNITION_ZIP will be false
+::  - USE_IGNITION_ZIP : (default true) [true | false]. Use zip to install ignition 
+::                       instead of compile
+::  - BUILD_TYPE       : (default Release) [ Release | Debug ] Build type to use
+::  - IGNMATH_BRANCH   : (default default) [optional]. Ignition math branch to
+::                       compile. If in use, USE_IGNITION_ZIP will be false
 ::                   
 
+@if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
 @if "%USE_IGNITION_ZIP%" == "" set USE_IGNITION_ZIP=TRUE
 
 @if "%IGNMATH_BRANCH%" == "" (
@@ -44,7 +46,7 @@ cd %WORKSPACE%\workspace
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip
 
 call %win_lib% :download_7za
-call %win_lib% :unzip_7za boost_1_56_0.zip 
+call %win_lib% :unzip_7za boost_1_56_0.zip > install_boost.log
 IF %USE_IGNITION_ZIP% == TRUE (
   call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/ign-math2.zip ign-math2.zip
   call %win_lib% :unzip_7za ign-math2.zip
@@ -55,11 +57,11 @@ echo # BEGIN SECTION: move sources so we agree with configure.bat layout
 xcopy %WORKSPACE%\sdformat %WORKSPACE%\workspace\sdformat /s /i /e > xcopy.log || goto :error
 echo # END SECTION
 
-echo # BEGIN SECTION: configure
+echo # BEGIN SECTION: configure in %BUILD_TYPE%
 cd %WORKSPACE%\workspace\sdformat
 mkdir build
 cd build
-call "..\configure.bat" Release %BITNESS% || goto :error
+call "..\configure.bat" %BUILD_TYPE% %BITNESS% || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: compile
@@ -72,7 +74,7 @@ echo # END SECTION
 
 echo # BEGIN SECTION: run tests
 REM Need to find a way of running test from the standard make test (not working)
-ctest -C "Release" --verbose --extra-verbose || exit 0
+ctest -C "%BUILD_TYPE%" --verbose --extra-verbose || exit 0
 echo # END SECTION
 
 goto EOF

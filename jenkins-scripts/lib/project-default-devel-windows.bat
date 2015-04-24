@@ -1,7 +1,8 @@
 :: Windows standard file to build Visual Studio projects
 ::
 :: Parameters:
-::   - VCS_DIRECTORY: WORKSPACE/VCS_DIRECTORY should contain the sources
+::   - VCS_DIRECTORY : WORKSPACE/VCS_DIRECTORY should contain the sources
+::   - BUILD_TYPE    : (default Release) [ Release | Debug ] Build type to use
 ::   - DEPENDENCY_PKG: (optional) one package as dependency (only one is supported by now)
 ::   - KEEP_WORKSPACE: (optional) true | false. Clean workspace at the end
 ::
@@ -13,6 +14,8 @@
 ::   - run tests
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
+
+@if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
 
 :: safety checks
 if not defined VCS_DIRECTORY (
@@ -46,7 +49,7 @@ REM Todo: support multiple dependencies
 if defined DEPENDENCY_PKG (
   call %win_lib% :download_7za
   call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%DEPENDENCY_PKG% %DEPENDENCY_PKG% || goto :error
-  call %win_lib% :unzip_7za %DEPENDENCY_PKG% %DEPENDENCY_PKG% > install_boost.log || goto:error
+  call %win_lib% :unzip_7za %DEPENDENCY_PKG% %DEPENDENCY_PKG% > install.log || goto:error
 )
 echo # END SECTION
 
@@ -58,8 +61,8 @@ cd build
 echo # END SECTION
 
 if exist ..\configure.bat (
-  echo # BEGIN SECTION: configuring %VCS_DIRECTORY% using configure.bat
-  call ..\configure.bat || goto :error
+  echo # BEGIN SECTION: configuring %VCS_DIRECTORY% in %BUILD_TYPE%
+  call ..\configure.bat %BUILD_TYPE% || goto :error
 ) else (
   echo # BEGIN SECTION: configuring %VCS_DIRECTORY% using cmake 
   cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS% || goto :error
@@ -76,7 +79,7 @@ echo # END SECTION
 echo # BEGIN SECTION: running tests
 REM Need to find a way of running test from the standard make test (not working)
 cd %WORKSPACE%\workspace\haptix-comm\build
-ctest -C "Release" --verbose --extra-verbose || echo "test failed"
+ctest -C "%BUILD_TYPE%" --verbose --extra-verbose || echo "test failed"
 echo # END SECTION
 
 echo # BEGIN SECTION: export testing results
