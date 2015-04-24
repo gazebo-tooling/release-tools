@@ -3,6 +3,9 @@ README
 This scripts are done to launch OSRF jenkins scripts in a local
 machine without a jenkins enviroment.
 
+Migration note: the same scripts are progresively being migrated to docker
+and hosted in the docker/ repo.
+
 Two kind of launchers are ready:
 
     - A launcher for compilations jobs: launch_compilation.sh
