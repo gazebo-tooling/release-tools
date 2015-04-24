@@ -116,6 +116,14 @@ fi
 echo " - Using DOCKER_JOB_NAME ${DOCKER_JOB_NAME}"
 
 export CIDFILE="${WORKSPACE}/${DOCKER_JOB_NAME}.cid"
+
+# CIDFILE should not exists
+if [[ -f ${CIDFILE} ]]; then
+    echo "CIDFILE: ${CIDFILE} exists, which will make docker to fail."
+    echo "Container ID file found, make sure the other container isn't running"
+    exit 1
+fi
+
 export DOCKER_TAG="${DOCKER_JOB_NAME}"
 
 # It is used to invalidate cache
