@@ -102,7 +102,7 @@ if [ -f /usr/bin/rosdep ]; then
 fi
 
 if $NEED_C11_COMPILER; then
-echo "# BEGIN SECTION: install C++11 compiler
+echo '# BEGIN SECTION: install C++11 compiler'
 apt-get install -y python-software-properties
 add-apt-repository ppa:ubuntu-toolchain-r/test
 apt-get update
