@@ -4,11 +4,17 @@
 ::  - USE_IGNITION_ZIP (default true) [true | false]. Use zip to install ignition 
 ::                     instead of compile
 ::  - IGNMATH_BRANCH   (default default) [optional]. Ignition math branch to
-::                     compile.
+::                     compile. If in use, USE_IGNITION_ZIP will be false
 ::                   
 
 @if "%USE_IGNITION_ZIP%" == "" set USE_IGNITION_ZIP=TRUE
-@if "%IGNMATH_BRANCH%" == "" set IGNMATH_BRANCH=default
+
+@if "%IGNMATH_BRANCH%" == "" (
+  set IGNMATH_BRANCH=default
+) else (
+  :: When passing a value, we always go for compilation not zip
+  set USE_IGNITION_ZIP=FALSE
+)
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
