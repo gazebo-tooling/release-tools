@@ -93,9 +93,8 @@ fi
 cp -a --dereference /tmp/$PACKAGE-release/${DISTRO}/* .
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: install build ependencies'
-mk-build-deps -i debian/control --tool 'apt-get --no-install-recommends --yes'
-rm *build-deps*.deb
+echo '# BEGIN SECTION: install build dependencies'
+mk-build-deps -r -i debian/control --tool 'apt-get --no-install-recommends --yes'
 echo '# END SECTION'
 
 if [ -f /usr/bin/rosdep ]; then
@@ -115,7 +114,7 @@ chmod a+x \$PBUILD_DIR/A20_install_gcc11
 echo '# END SECTION'
 fi
 
-echo "# BEGIN SECTION: create source package \${OSRF_VERSION}"
+echo '# BEGIN SECTION: create source package \${OSRF_VERSION}'
 debuild --no-tgz-check -uc -us -S --source-option=--include-binaries
 
 cp ../*.dsc $WORKSPACE/pkgs
