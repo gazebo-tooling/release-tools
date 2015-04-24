@@ -9,8 +9,6 @@ fi
 # testing jobs and seems to be slow at the end of jenkins jobs
 export ENABLE_REAPER=false
 
-# Define the name to be used in docker
-DOCKER_JOB_NAME="${PACKAGE}_debbuild"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
@@ -118,7 +116,7 @@ echo '# END SECTION'
 fi
 
 echo "# BEGIN SECTION: create source package \${OSRF_VERSION}"
-git-buildpackage -j${MAKE_JOBS} --git-ignore-new -S -uc -us
+debuild --no-tgz-check -uc -us -S --source-option=--include-binaries
 
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
@@ -126,7 +124,7 @@ cp ../*.debian.* $WORKSPACE/pkgs
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create deb packages'
-git-buildpackage -j${MAKE_JOBS} --git-ignore-new -uc -us
+debuild --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
@@ -147,6 +145,14 @@ echo '# END SECTION'
 DELIM
 
 USE_OSRF_REPO=true
+DEPENDENCY_PKGS="devscripts \
+		 ubuntu-dev-tools \
+		 debhelper \
+		 wget \
+		 ca-certificates \
+		 equivs \
+		 dh-make \
+		 mercurial"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
