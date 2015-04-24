@@ -29,10 +29,11 @@ echo '# BEGIN SECTION: clone the git repo'
 rm -fr $WORKSPACE/repo
 git clone $GIT_REPOSITORY $WORKSPACE/repo
 cd $WORKSPACE/repo
-git checkout -b ${BRANCH}
+git checkout ${BRANCH}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install build dependencies'
+cat debian/control
 mk-build-deps -i debian/control --tool 'apt-get --no-install-recommends --yes'
 rm *build-deps*.deb
 echo '# END SECTION'
