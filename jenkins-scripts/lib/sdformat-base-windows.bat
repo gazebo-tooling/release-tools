@@ -1,10 +1,14 @@
 :: sdformat base script
 ::
 :: Parameters:
-::  - USE_IGNITION_ZIP (default true) true | false. Use zip to install ignition 
+::  - USE_IGNITION_ZIP (default true) [true | false]. Use zip to install ignition 
 ::                     instead of compile
+::  - IGNMATH_BRANCH   (default default) [optional]. Ignition math branch to
+::                     compile.
+::                   
 
 @if "%USE_IGNITION_ZIP%" == "" set USE_IGNITION_ZIP=TRUE
+@if "%IGNMATH_BRANCH%" == "" set IGNMATH_BRANCH=default
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
@@ -22,7 +26,7 @@ echo # END SECTION
 IF %USE_IGNITION_ZIP% == FALSE (
   echo # BEGIN SECTION: compile and install ign-math
   IF exist %WORKSPACE%\ign-math ( rmdir /s /q %WORKSPACE%\ign-math ) || goto :error
-  hg clone https://bitbucket.org/ignitionrobotics/ign-math %WORKSPACE%\ign-math || goto :error
+  hg clone https://bitbucket.org/ignitionrobotics/ign-math %WORKSPACE%\ign-math -b %IGNMATH_BRANCH% || goto :error
   set VCS_DIRECTORY=ign-math
   set KEEP_WORKSPACE=TRUE
   call "%SCRIPT_DIR%\lib\project-default-devel-windows.bat"
