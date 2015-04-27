@@ -13,8 +13,8 @@ gazeboN=gazebo${GAZEBO_MAJOR_VERSION}
 if [ $GAZEBO_MAJOR_VERSION -eq 1 ]; then
   GAZEBO_MAJOR_VERSION=""
 else
-  mv ${WORKSPACE}/gazebo ${WORKSPACE}/${gazeboN}
-  ln -s ${WORKSPACE}/${gazeboN} ${WORKSPACE}/gazebo
+  rm -rf ${WORKSPACE}/${gazeboN}
+  cp -R ${WORKSPACE}/gazebo ${WORKSPACE}/${gazeboN}
 fi
 
 . ${SCRIPT_DIR}/lib/project-default-devel-homebrew-amd64.bash ${gazeboN} \
