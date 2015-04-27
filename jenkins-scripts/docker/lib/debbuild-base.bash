@@ -102,7 +102,7 @@ if [ -f /usr/bin/rosdep ]; then
 fi
 
 if $NEED_C11_COMPILER; then
-echo "# BEGIN SECTION: install C++11 compiler
+echo '# BEGIN SECTION: install C++11 compiler'
 apt-get install -y python-software-properties
 add-apt-repository ppa:ubuntu-toolchain-r/test
 apt-get update
@@ -119,7 +119,8 @@ debuild --no-tgz-check -uc -us -S --source-option=--include-binaries
 
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
-cp ../*.debian.* $WORKSPACE/pkgs
+# debian is only generated in quilt format, native does not have it
+cp ../*.debian.* $WORKSPACE/pkgs || true
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create deb packages'
