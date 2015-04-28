@@ -19,7 +19,14 @@ case ${ARCH} in
      FROM_VALUE=ubuntu:${DISTRO}
      ;;
   'i386')
-     FROM_VALUE=32bit/ubuntu:${DISTRO}
+      # There are no i386 official images. Only 14.04 (trusty) is available
+     # https://registry.hub.docker.com/u/32bit/ubuntu/tags/manage/
+     if [[ $DISTRO != 'trusty' ]]; then
+	 echo "Only trusty images are avilable for i386"
+	 exit 1
+     fi
+
+     FROM_VALUE=32bit/ubuntu
      ;;
  'armhf')
      FROM_VALUE=osrf/ubuntu_armhf:${DISTRO}
