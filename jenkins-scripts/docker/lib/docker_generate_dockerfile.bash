@@ -26,7 +26,7 @@ case ${ARCH} in
 	 exit 1
      fi
 
-     FROM_VALUE=32bit/ubuntu
+     FROM_VALUE=32bit/ubuntu:14.04
      ;;
  'armhf')
      FROM_VALUE=osrf/ubuntu_armhf:${DISTRO}
