@@ -80,6 +80,10 @@ copy %WORKSPACE%\workspace\jom.exe .
 jom -j%MAKE_JOBS% gazebo_ode gazebo_opende_ou gazebo_ccd || goto :error
 echo # END SECTION
 
+echo # BEGIN SECTION: compile gazebo_common
+jom -j%MAKE_JOBS% gazebo_common || goto :error
+echo # END SECTION
+
 echo # BEGIN SECTION: compile gzclient
 jom -j%MAKE_JOBS% gzclient || goto :error
 echo # END SECTION
