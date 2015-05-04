@@ -19,7 +19,7 @@ CID=$(cat ${CIDFILE})
 
 # Not all versions of docker handle return values in a right way
 # https://github.com/docker/docker/issues/354 
-ret=$(docker inspect -format='{{.State.ExitCode}}' ${CID})
+ret=$(sudo docker inspect --format='{{.State.ExitCode}}' ${CID})
 echo "Returned value from run command: ${ret}"
 
 sudo docker stop ${CID} || true
