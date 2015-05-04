@@ -63,7 +63,7 @@ upload_dsc_package()
     local pkg=${1}
     [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
 
-    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg}
+    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc --section science --priority extra $DISTRO ${pkg}
 }
 
 upload_zip_file()
