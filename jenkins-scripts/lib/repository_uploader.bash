@@ -55,7 +55,7 @@ upload_package()
     sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
 
     # The path will end up being: s3://osrf-distributions/$pkg_root_name/releases/
-    S3_upload $pkg_root_name/releases/
+    S3_upload ${pkg} $pkg_root_name/releases/
 }
 
 upload_dsc_package()
