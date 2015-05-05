@@ -63,7 +63,11 @@ upload_dsc_package()
     local pkg=${1}
     [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
 
-    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc --section science --priority extra $DISTRO ${pkg}
+    # .dsc sometimes does not include priority or section, 
+    # try to upload and if failed, specify the values
+    # see: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=768046
+    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg} || \
+	sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg}
 }
 
 upload_zip_file()
