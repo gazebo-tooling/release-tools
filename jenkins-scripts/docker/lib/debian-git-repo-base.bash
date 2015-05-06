@@ -72,6 +72,7 @@ echo "# BEGIN SECTION: create source package \${OSRF_VERSION}"
 git-buildpackage -j${MAKE_JOBS} --git-ignore-new -S -uc -us
 
 cp ../*.dsc $WORKSPACE/pkgs
+cp ../*.tar.gz $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
 cp ../*.debian.* $WORKSPACE/pkgs
 echo '# END SECTION'
