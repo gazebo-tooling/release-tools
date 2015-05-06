@@ -38,7 +38,7 @@ sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" >
 wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
 apt-get update
 
-# Hack to avoid problem with non updated 
+# Hack to avoid problem with non updated
 if [ $DISTRO = 'precise' ]; then
   echo "Skipping pbuilder check for outdated info"
   sed -i -e 's:UbuntuDistroInfo().devel():self.target_distro:g' /usr/bin/pbuilder-dist
@@ -80,12 +80,14 @@ sed -i -e "1 s:\$changelog_distro:$DISTRO:" debian/changelog
 # When backported from Vivid (or above) to Trusty/Utopic some packages are not
 # avilable or names are different
 if [ $DISTRO = 'trusty' ]; then
-  # libbullet-dev is the name in Ubuntu, libbullet2.82.dev is the one in OSRF
-  sed -i -e 's:libbullet-dev:libbullet2.82-dev:g' debian/control
+  # libbullet-dev is only 2.81 in trusty, don't build against it
+  sed -i '/bullet/d' debian/control
+  # use libogre1.8-dev in trusty per https://github.com/ros-infrastructure/rep/pull/89#issuecomment-69232117
+  sed -i -e 's:libogre-1\.9-dev:libogre-1.8-dev:g' debian/control
 fi
 if [ $DISTRO = 'trusty' ] || [ $DISTRO = 'utopic' ]; then
   # libsdformat-dev is the name in Ubuntu, libsdformat2-dev is the one in OSRF
-  sed -i -e 's:libsdformat-dev:libsdformat2-dev:g' debian/control 
+  sed -i -e 's:libsdformat-dev:libsdformat2-dev:g' debian/control
 fi
 
 # In precise, no multiarch paths was implemented in GNUInstallDirs. Remove it.
