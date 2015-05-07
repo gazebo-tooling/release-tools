@@ -68,6 +68,7 @@ GAZEBO_ORIGIN_DIR=\$(find /usr/local/origin_branch/include -name gazebo-* -type 
 # compilation time.
 cd /tmp/gazebo
 hg pull--rev ${GAZEBO_TARGET_BRANCH}
+hg up $GAZEBO_TARGET_BRANCH
 # Normal cmake routine for Gazebo
 cd $WORKSPACE/build
 cmake -DENABLE_TESTS_COMPILATION:BOOL=False \\
