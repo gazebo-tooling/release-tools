@@ -50,7 +50,7 @@ apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXT
 cp -a $WORKSPACE/gazebo /tmp/gazebo
 chown -R root:root /tmp/gazebo
 cd /tmp/gazebo
-hg pull--rev ${GAZEBO_ORIGIN_BRANCH}
+hg pull --rev ${GAZEBO_ORIGIN_BRANCH}
 hg up $GAZEBO_ORIGIN_BRANCH
 # Normal cmake routine for Gazebo
 rm -rf $WORKSPACE/build
@@ -67,7 +67,7 @@ GAZEBO_ORIGIN_DIR=\$(find /usr/local/origin_branch/include -name gazebo-* -type 
 # Reusing the same building and source directory to save bandwith and
 # compilation time.
 cd /tmp/gazebo
-hg pull--rev ${GAZEBO_TARGET_BRANCH}
+hg pull --rev ${GAZEBO_TARGET_BRANCH}
 hg up $GAZEBO_TARGET_BRANCH
 # Normal cmake routine for Gazebo
 cd $WORKSPACE/build
