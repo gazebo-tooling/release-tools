@@ -13,16 +13,12 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 # Step 1. Set up homebrew
 echo '# BEGIN SECTION: clean up /usr/local'
-
+cd /usr/local && git clean -fdx
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install latest homebrew'
-
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 echo '# END SECTION'
-
-# Need to create cache so the system one (without permissions) is not used
-LOCAL_CELLAR=${HOME}/Library/Caches/Homebrew
-mkdir -p ${LOCAL_CELLAR}
 
 echo '# BEGIN SECTION: brew information'
 # Run brew update to get latest versions of formulae
@@ -47,8 +43,8 @@ echo "# BEGIN SECTION: install ${PROJECT} dependencies"
 # Process the package dependencies
 # Run twice! details about why in:
 # https://github.com/osrf/homebrew-simulation/pull/18#issuecomment-45041755 
-${RUN_DIR}/bin/brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
-${RUN_DIR}/bin/brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
+brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
+brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: configuring ${PROJECT}"
@@ -70,7 +66,7 @@ export DISPLAY=$(ps ax \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
 
-${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
+cmake ${WORKSPACE}/${PROJECT} \
       -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/${PROJECT}/HEAD \
       -DCMAKE_PREFIX_PATH=${RUN_DIR} \
       -DBOOST_ROOT=${RUN_DIR}
