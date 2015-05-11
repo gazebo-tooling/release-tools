@@ -18,7 +18,7 @@ cd /usr/local && git clean -fdx
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install latest homebrew'
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+sudo ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: brew information'
