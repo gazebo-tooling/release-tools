@@ -134,6 +134,9 @@ rm -fr compat_reports/
 abi-compliance-checker -lib gazebo -old pkg.xml -new devel.xml || true
 # copy method version independant ( cp ... /*/ ... was not working)
 find compat_reports/ -name compat_report.html -exec cp {} $WORKSPACE/ \;
+
+# Clean up disk space
+rm -rf $WORKSPACE/build
 DELIM
 
 # Make project-specific changes here

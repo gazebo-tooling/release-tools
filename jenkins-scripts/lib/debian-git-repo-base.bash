@@ -136,6 +136,9 @@ done
 # check at least one upload
 test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
+
+# clean up disk space
+rm -fr ${WORKSPACE}/build
 DELIM
 
 #
