@@ -224,7 +224,7 @@ def discover_distros(args, repo_dir):
 
     subdirs =  os.walk(repo_dir).next()[1]
     subdirs.remove('.hg')
-    subdirs.remove('ubuntu')
+    if 'ubuntu' in subdirs: subdirs.remove('ubuntu')
 
     if not subdirs:
         error('Can not find distributions directories in the -release repo')
