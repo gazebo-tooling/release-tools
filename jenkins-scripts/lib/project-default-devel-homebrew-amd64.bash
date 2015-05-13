@@ -14,8 +14,9 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 # Step 1. Set up homebrew
 echo '# BEGIN SECTION: clean up /usr/local'
 sudo chown -R jenkins /usr/local 
+cd /usr/local
+[[ -f .git ]] && git clean -fdx
 rm -rf /usr/local/Cellar /usr/local/.git && brew cleanup
-cd /usr/local && git clean -fdx
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install latest homebrew'
