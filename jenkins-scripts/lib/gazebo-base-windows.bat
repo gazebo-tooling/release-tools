@@ -75,21 +75,8 @@ cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
 echo # END SECTION
 
-echo # BEGIN SECTION: compile deps
-copy %WORKSPACE%\workspace\jom.exe .
-jom -j%MAKE_JOBS% gazebo_ode gazebo_opende_ou gazebo_ccd || goto :error
-echo # END SECTION
-
-echo # BEGIN SECTION: compile gazebo_common
-jom -j%MAKE_JOBS% gazebo_common || goto :error
-echo # END SECTION
-
-echo # BEGIN SECTION: compile gzclient
-jom -j%MAKE_JOBS% gzclient || goto :error
-echo # END SECTION
-
-echo # BEGIN SECTION: compile gzserver
-jom -j%MAKE_JOBS% gzserver || goto :error
+echo # BEGIN SECTION: compiling gazebo
+jom -j%MAKE_JOBS% || goto :error
 echo # END SECTION
 
 if NOT DEFINED KEEP_WORKSPACE (
