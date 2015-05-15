@@ -69,10 +69,7 @@ export DISPLAY=$(ps ax \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
 
-cmake ${WORKSPACE}/${PROJECT} \
-      -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/${PROJECT}/HEAD \
-      -DCMAKE_PREFIX_PATH=${RUN_DIR} \
-      -DBOOST_ROOT=${RUN_DIR}
+cmake ${WORKSPACE}/${PROJECT}
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: compile ${PROJECT}"
@@ -88,8 +85,4 @@ rm -fr \$HOME/.gazebo/models
 cd $WORKSPACE/build/
 # May need sudo to run tests?
 make test ARGS="-VV" || true
-echo '# END SECTION'
-
-# Step 5. Clean up
-rm -fr ${RUN_DIR}
 echo '# END SECTION'
