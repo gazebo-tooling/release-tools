@@ -69,13 +69,26 @@ export DISPLAY=$(ps ax \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
 
+# Hack to install into proper Cellar/PROJECT/VERSION
+# 1. run a cmake command just to be able to run the
+# 2. make package_source
+# 3. use the package_source to get the VERSION
+# 4. run cmake with INSTALL_PREFIX using VERSION
+cmake ${WORKSPACE}/${PROJECT}
+make package_source
+VERSION=$(ls ${PROJECT}*.tar.bz2 | sed -e 's:.*-::' |  sed -e 's:.tar.bz2::')
+rm ${PROJECT}*.tar.bz2
+rm CMakeCache.txt
+
+# Real cmake run
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-      -DCMAKE_INSTALL_PREFIX=/usr/local \
+      -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT}/${VERSION} \
      ${WORKSPACE}/${PROJECT}
 echo '# END SECTION'
 
-echo "# BEGIN SECTION: compile ${PROJECT}"
+echo "# BEGIN SECTION: compile and install ${PROJECT} ${VERSION}"
 make -j${MAKE_JOBS} install
+brek link ${PROJECT}
 echo '# END SECTION'
 
 echo "#BEGIN SECTION: docker analysis"
