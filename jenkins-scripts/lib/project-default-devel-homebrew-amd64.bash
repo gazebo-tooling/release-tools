@@ -76,7 +76,9 @@ echo '# END SECTION'
 
 echo "# BEGIN SECTION: compile ${PROJECT}"
 make -j${MAKE_JOBS} install
-brew link ${PROJECT}
+echo '# END SECTION'
+
+echo "#BEGIN SECTION: docker analysis"
 brew doctor
 echo '# END SECTION'
 
