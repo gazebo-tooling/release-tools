@@ -69,7 +69,9 @@ export DISPLAY=$(ps ax \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
 
-cmake ${WORKSPACE}/${PROJECT}
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+      -DCMAKE_INSTALL_PREFIX=/usr/local \
+     ${WORKSPACE}/${PROJECT}
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: compile ${PROJECT}"
