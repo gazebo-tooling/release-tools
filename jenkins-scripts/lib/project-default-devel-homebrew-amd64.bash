@@ -11,12 +11,15 @@ PROJECT_ARGS=${2}
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
+export HOMEBREW_PREFIX=/usr/local
+export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
+
 # Step 1. Set up homebrew
-echo '# BEGIN SECTION: clean up /usr/local'
-sudo chown -R jenkins /usr/local 
-cd /usr/local
+echo "# BEGIN SECTION: clean up ${HOMEBREW_PREFIX}"
+sudo chown -R jenkins ${HOMEBREW_PREFIX}
+cd ${HOMEBREW_PREFIX}
 [[ -f .git ]] && git clean -fdx
-rm -rf /usr/local/Cellar /usr/local/.git && brew cleanup
+rm -rf ${HOMEBREW_CELLAR} ${HOMEBREW_PREFIX}/.git && brew cleanup
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install latest homebrew'
@@ -29,7 +32,8 @@ brew update
 # Run brew config to print system information
 brew config
 # Run brew doctor to check for problems with the system
-brew doctor || true
+# brew prune to fix some of this problems
+brew doctor || brew prune && brew doctor
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: setup the osrf/simulation tap'
@@ -82,7 +86,7 @@ rm CMakeCache.txt
 
 # Real cmake run
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-      -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT}/${VERSION} \
+      -DCMAKE_INSTALL_PREFIX=${HOMEBREW_CELLAR}/${PROJECT}/${VERSION} \
      ${WORKSPACE}/${PROJECT}
 echo '# END SECTION'
 
@@ -102,4 +106,4 @@ rm -fr \$HOME/.gazebo/models
 cd $WORKSPACE/build/
 # May need sudo to run tests?
 make test ARGS="-VV" || true
-echo '# END SECTION'
+ekecho '# END SECTION'
