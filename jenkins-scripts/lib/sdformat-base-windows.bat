@@ -74,8 +74,22 @@ echo # END SECTION
 
 echo # BEGIN SECTION: run tests
 REM Need to find a way of running test from the standard make test (not working)
-ctest -C "%BUILD_TYPE%" --verbose --extra-verbose || exit 0
+ctest -C "%BUILD_TYPE%" --verbose --extra-verbose || echo "test failed"
 echo # END SECTION
+
+echo # BEGIN SECTION: export testing results
+set TEST_RESULT_PATH=%WORKSPACE%\test_results
+if exist %TEST_RESULT_PATH% ( rmdir /q /s %TEST_RESULT_PATH% )
+move test_results %TEST_RESULT_PATH% || goto :error
+echo # END SECTION
+
+
+if NOT DEFINED KEEP_WORKSPACE (
+   echo # BEGIN SECTION: clean up workspace
+   cd %WORKSPACE%
+   rmdir /s /q %WORKSPACE%\workspace || goto :error
+   echo # END SECTION
+)
 
 goto EOF
 
