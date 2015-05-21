@@ -91,7 +91,7 @@ if NOT DEFINED KEEP_WORKSPACE (
    echo # END SECTION
 )
 
-goto EOF
+goto :EOF
 
 :error:error
 echo "The program is stopping with errors! Check the log" 
