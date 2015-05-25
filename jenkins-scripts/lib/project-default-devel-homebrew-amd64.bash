@@ -4,12 +4,8 @@ set -e
 export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 
 # Get project name as first argument to this script
-PROJECT=$1
+PROJECT=$1 # project will have the major version included (ex gazebo2)
 PROJECT_ARGS=${2}
-
-# Knowing Script dir beware of symlink
-[[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
-SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export HOMEBREW_PREFIX=/usr/local
 export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
@@ -72,17 +68,6 @@ export DISPLAY=$(ps ax \
   | grep 'auth /Users/jenkins/' \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
-
-# Hack to install into proper Cellar/PROJECT/VERSION
-# 1. run a cmake command just to be able to run the
-# 2. make package_source
-# 3. use the package_source to get the VERSION
-# 4. run cmake with INSTALL_PREFIX using VERSION
-cmake ${WORKSPACE}/${PROJECT}
-make package_source
-VERSION=$(ls ${PROJECT}*.tar.bz2 | sed -e 's:.*-::' |  sed -e 's:.tar.bz2::')
-rm ${PROJECT}*.tar.bz2
-rm CMakeCache.txt
 
 # Real cmake run
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
