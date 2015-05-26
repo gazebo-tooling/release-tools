@@ -74,9 +74,9 @@ export DISPLAY=$(ps ax \
 
 # 1. run a cmake command just to be able to sniff the VERSION file
 cmake ${WORKSPACE}/${PROJECT}
-VERSION=$(cat VERSION) || echo "No VERSION file found! Implement it in your pkg" && exit 1
+VERSION=$(cat VERSION) || { echo "No VERSION file found! Implement it in your pkg"; exit 1; }
 
-[[ -z ${VERSION} ]] && echo "VERSION is empty!" && exit 1
+[[ -z ${VERSION} ]] && { echo "VERSION is empty!"; exit 1; }
 
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_INSTALL_PREFIX=${HOMEBREW_CELLAR}/${PROJECT}/${VERSION} \
