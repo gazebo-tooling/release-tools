@@ -68,8 +68,16 @@ export DISPLAY=$(ps ax \
   | grep 'auth /Users/jenkins/' \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
+ 
 
-# Real cmake run
+# Hack to install into proper Cellar/PROJECT/VERSION
+
+# 1. run a cmake command just to be able to sniff the VERSION file
+cmake ${WORKSPACE}/${PROJECT}
+VERSION=$(cat VERSION) || echo "No VERSION file found! Implement it in your pkg" && exit 1
+
+[[ -z ${VERSION} ]] && echo "VERSION is empty!" && exit 1
+
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_INSTALL_PREFIX=${HOMEBREW_CELLAR}/${PROJECT}/${VERSION} \
      ${WORKSPACE}/${PROJECT}
