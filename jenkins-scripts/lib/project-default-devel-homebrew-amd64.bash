@@ -99,4 +99,4 @@ rm -fr \$HOME/.gazebo/models
 cd $WORKSPACE/build/
 # May need sudo to run tests?
 make test ARGS="-VV" || true
-ekecho '# END SECTION'
+echo '# END SECTION'
