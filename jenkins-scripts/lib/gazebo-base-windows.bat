@@ -54,9 +54,10 @@ echo # END SECTION
 )
 
 echo # BEGIN SECTION: compile and install sdformat
-if EXIST sdformat ( rmdir /s /q %WORKSPACE%\workspace\sdformat )
-hg clone https://bitbucket.org/osrf/sdformat %WORKSPACE%\workspace\sdformat
-cd %WORKSPACE%\workspace\sdformat
+set SDFORMAT_DIR=%WORKSPACE%\workspace\sdformat 
+if EXIST %SDFORMAT_DIR% ( rmdir /s /q %SDFORMAT_DIR% )
+hg clone https://bitbucket.org/osrf/sdformat %SDFORMAT_DIR%
+cd %SDFORMAT_DIR%
 mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
