@@ -28,7 +28,6 @@ call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/tbb43_20141023oss_win.zip tbb43_20141023oss_win.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zziplib-0.13.62-vc12-x64-release-debug.zip zziplib-0.13.62-vc12-x64-release-debug.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zlib-1.2.8-vc12-x64-release-debug.zip zlib-1.2.8-vc12-x64-release-debug.zip
-call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/ign-math2.zip ign-math2.zip
 call %win_lib% :wget http://download.qt-project.org/official_releases/jom/jom.zip jom.zip
 
 call %win_lib% :download_7za
@@ -43,7 +42,6 @@ call %win_lib% :unzip_7za protobuf-2.6.0-win%BITNESS%-vc12.zip
 call %win_lib% :unzip_7za tbb43_20141023oss_win.zip
 call %win_lib% :unzip_7za zlib-1.2.8-vc12-x64-release-debug.zip
 call %win_lib% :unzip_7za zziplib-0.13.62-vc12-x64-release-debug.zip
-call %win_lib% :unzip_7za ign-math2.zip
 call %win_lib% :unzip_7za jom.zip
 echo # END SECTION
 ) ELSE (
@@ -58,6 +56,19 @@ set SDFORMAT_DIR=%WORKSPACE%\workspace\sdformat
 if EXIST %SDFORMAT_DIR% ( rmdir /s /q %SDFORMAT_DIR% )
 hg clone https://bitbucket.org/osrf/sdformat %SDFORMAT_DIR%
 cd %SDFORMAT_DIR%
+mkdir build
+cd build
+call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
+copy %WORKSPACE%\workspace\jom.exe .
+jom
+nmake install
+echo # END SECTION
+
+echo # BEGIN SECTION: compile and install ign-math
+set IGN_MATH_DIR=%WORKSPACE%\workspace\IGN_MATH-math
+if EXIST %IGN_MATH_DIR% ( rmdir /s /q %IGN_MATH_DIR% )
+hg clone https://bitbucket.org/ignitionrobotics/ign-math %IGN_MATH_DIR%
+cd %IGN_MATH_DIR%
 mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
