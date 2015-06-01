@@ -65,7 +65,7 @@ nmake install
 echo # END SECTION
 
 echo # BEGIN SECTION: compile and install ign-math
-set IGN_MATH_DIR=%WORKSPACE%\workspace\IGN_MATH-math
+set IGN_MATH_DIR=%WORKSPACE%\workspace\ign-math
 if EXIST %IGN_MATH_DIR% ( rmdir /s /q %IGN_MATH_DIR% )
 hg clone https://bitbucket.org/ignitionrobotics/ign-math %IGN_MATH_DIR%
 cd %IGN_MATH_DIR%
