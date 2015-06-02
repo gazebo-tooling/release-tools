@@ -79,7 +79,7 @@ VERSION=$(cat VERSION) || { echo "No VERSION file found! Implement it in your pk
 [[ -z ${VERSION} ]] && { echo "VERSION is empty!"; exit 1; }
 
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-      -DCMAKE_INSTALL_PREFIX=${HOMEBREW_CELLAR}/${PROJECT}/${VERSION} \
+      -DCMAKE_INSTALL_PREFIX=/usr/local \
      ${WORKSPACE}/${PROJECT}
 echo '# END SECTION'
 
