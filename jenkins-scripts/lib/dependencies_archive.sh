@@ -129,12 +129,15 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libboost-program-options-dev     \\
                           libboost-regex-dev               \\
                           libboost-iostreams-dev           \\
-                          libignition-math2-dev            \\
                           ${bullet_pkg}                    \\
                           libsimbody-dev                   \\
                           ${dart_pkg}                      \\
                           ${sdformat_pkg}"
 
+if [[ ${GAZEBO_MAJOR_VERSION} -ge 6 ]]; then
+    GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES} \\
+                              libignition-math2-dev"
+fi
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libavformat-dev  \\
