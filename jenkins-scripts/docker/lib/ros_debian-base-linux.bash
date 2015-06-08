@@ -15,10 +15,11 @@ set -ex
 
 echo '# BEGIN SECTION: set up the PPA'
 apt-add-repository -y ppa:deb-rob/ros-trusty
+sudo apt-get update
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install the ros-desktop-full-depends metapackage'
-apt-get -y ros-desktop-full-depends
+apt-get install -y ros-desktop-full-depends
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: compile the rest of desktop-full'
