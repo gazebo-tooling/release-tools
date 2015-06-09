@@ -81,7 +81,7 @@ DELIM_DOCKER_ARCH
       ;;
   debian)
 cat >> Dockerfile << DELIM_DOCKER_DEBIAN
-RUN echo "deb http://httpredir.debian.org/debian ${DISTRO} main \\
+RUN echo "deb http://httpredir.debian.org/debian ${DISTRO} main" \\
 						       >> /etc/apt/sources.list
 DELIM_DOCKER_DEBIAN
       ;;
