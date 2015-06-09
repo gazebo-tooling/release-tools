@@ -14,18 +14,19 @@ cat > build.sh << DELIM
 set -ex
 
 echo '# BEGIN SECTION: set up the PPA'
-if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
+if [ ${LINUX_DISTRO} == 'ubuntu' ]; then
   apt-add-repository -y ppa:deb-rob/ros-trusty
 fi
-if [[ ${LINUX_DISTRO} == 'debian' ]]; then
-  echo "deb http://httpredir.debian.org/debian ${DISTRO} main \\
+if [ ${LINUX_DISTRO} = 'debian' ]; then
+  echo "deb http://sir.upc.edu/debian-robotics unstable main" \\
 						       >> /etc/apt/sources.list
+  apt-key adv --keyserver pgp.rediris.es --recv-keys 63DE76AC0B6779BF						       
 fi
-sudo apt-get update
+apt-get update
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install the ros-desktop-full-depends metapackage'
-apt-get install -y ros-desktop-full-depends
+apt-get install -y ros-full-desktop-depends
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: compile the rest of desktop-full'
