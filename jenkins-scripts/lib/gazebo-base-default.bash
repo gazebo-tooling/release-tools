@@ -27,9 +27,11 @@ fi
 echo '# BEGIN SECTION: setup the testing enviroment'
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
-set +x # keep password secret
-BULLSEYE_LICENSE=`cat $HOME/bullseye-jenkins-license`
-set -x # back to debug
+if ${COVERAGE_ENABLED} ; then
+  set +x # keep password secret
+  BULLSEYE_LICENSE=`cat $HOME/bullseye-jenkins-license`
+  set -x # back to debug
+fi
 echo '# END SECTION'
 
 cat > build.sh << DELIM
