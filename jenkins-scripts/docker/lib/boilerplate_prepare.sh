@@ -2,6 +2,10 @@
 set -e
 
 # Default values - Provide them is prefered
+if [ -z ${LINUX_DISTRO} ]; then
+    LINUX_DISTRO=ubuntu
+fi
+
 if [ -z ${DISTRO} ]; then
     DISTRO=trusty
 fi

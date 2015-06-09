@@ -14,7 +14,13 @@ cat > build.sh << DELIM
 set -ex
 
 echo '# BEGIN SECTION: set up the PPA'
-apt-add-repository -y ppa:deb-rob/ros-trusty
+if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
+  apt-add-repository -y ppa:deb-rob/ros-trusty
+fi
+if [[ ${LINUX_DISTRO} == 'debian' ]]; then
+  echo "deb http://httpredir.debian.org/debian ${DISTRO} main \\
+						       >> /etc/apt/sources.list
+fi
 sudo apt-get update
 echo '# END SECTION'
 

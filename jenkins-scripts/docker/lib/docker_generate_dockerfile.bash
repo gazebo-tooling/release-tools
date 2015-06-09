@@ -15,11 +15,16 @@ fi
 
 # Select the docker container depenending on the ARCH
 case ${ARCH} in
-  'amd64') 
-     FROM_VALUE=ubuntu:${DISTRO}
+  'amd64')
+     FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      ;;
   'i386')
-      # There are no i386 official images. Only 14.04 (trusty) is available
+     if [[ ${LINUX_DISTRO} != 'ubuntu' ]]; then
+	 echo "There is no support for i386 non-ubuntu images yet"
+	 exit 1
+     fi
+
+     # There are no i386 official images. Only 14.04 (trusty) is available
      # https://registry.hub.docker.com/u/32bit/ubuntu/tags/manage/
      if [[ $DISTRO != 'trusty' ]]; then
 	 echo "Only trusty images are avilable for i386"
@@ -29,6 +34,11 @@ case ${ARCH} in
      FROM_VALUE=32bit/ubuntu:14.04
      ;;
  'armhf')
+     if [[ ${LINUX_DISTRO} != 'ubuntu' ]]; then
+	 echo "There is no support for armhf non-ubuntu images yet"
+	 exit 1
+     fi
+
      FROM_VALUE=osrf/ubuntu_armhf:${DISTRO}
      ;;
   *)
@@ -55,18 +65,35 @@ RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
   || echo "No squid-deb-proxy detected on docker host"
 DELIM_DOCKER
 
-if [[ ${ARCH} != 'armhf' ]]; then
+
+case ${LINUX_DISTRO} in
+  ubuntu)
+      if [[ ${ARCH} != 'armhf' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_ARCH
 RUN echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO} main restricted universe multiverse" \\
-                                                       >> /etc/apt/sources.list && \\
+						       >> /etc/apt/sources.list && \\
     echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-updates main restricted universe multiverse" \\
-                                                       >> /etc/apt/sources.list && \\
+						       >> /etc/apt/sources.list && \\
     echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-security main restricted universe multiverse" && \\
-                                                       >> /etc/apt/sources.list
+						       >> /etc/apt/sources.list
 DELIM_DOCKER_ARCH
-fi
+      fi
+      ;;
+  debian)
+cat >> Dockerfile << DELIM_DOCKER_DEBIAN
+RUN echo "deb http://httpredir.debian.org/debian ${DISTRO} main \\
+						       >> /etc/apt/sources.list
+DELIM_DOCKER_DEBIAN
+      ;;
+esac
 
+# OSRF repository
 if ${USE_OSRF_REPO}; then
+  if [[ ${LINUX_DISTRO} != 'ubuntu' ]]; then
+    echo "No OSRF repo non-ubuntu"
+    exit 1
+  fi
+
 cat >> Dockerfile << DELIM_DOCKER2
 RUN apt-get update && apt-get install -y wget
 RUN echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > \\
