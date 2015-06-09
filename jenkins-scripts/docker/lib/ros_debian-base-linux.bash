@@ -46,7 +46,9 @@ echo '# END SECTION'
 DELIM
 
 # For use ppa
-DEPENDENCY_PKGS="python-software-properties apt-utils software-properties-common"
+if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
+  DEPENDENCY_PKGS="python-software-properties apt-utils software-properties-common"
+fi
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
