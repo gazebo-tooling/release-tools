@@ -1,11 +1,6 @@
 #!/bin/bash -x
 set -ex
 
-if [[ -z ${DISTRO} ]]; then
-    echo 'Error: $DISTRO parameter was not set'
-    exit 1
-fi
-
 NEEDED_HOST_PACKAGES="reprepro openssh-client"
 QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
 if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
@@ -23,16 +18,14 @@ fi
 # Place in reprepro directory
 cd /var/packages/gazebo/ubuntu
 
-upload_package()
+# S3 Amazon upload
+S3_upload()
 {
-    local pkg=$1
+    local pkg=${1} s3_destination_path=${2}
 
-    # Get the canonical package name (i.e. gazebo2 -> gazebo)
-    pkg_root_name=${PACKAGE%[[:digit:]]}
+    [[ -z ${pkg} ]] && echo "pkg is empty" && exit 1
+    [[ -z ${s3_destination_path} ]] && echo "s3_destination_path is empty" && exit 1
 
-    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
-
-    # S3 Amazon upload
     S3_DIR=$(mktemp -d ${HOME}/s3.XXXX)
     pushd ${S3_DIR}
     # Hack for not failing when github is down
@@ -46,23 +39,73 @@ upload_package()
     done
     tar xzf foo.tar.gz
     cd s3cmd-*
-    ./s3cmd put $pkg s3://osrf-distributions/$pkg_root_name/releases/
+    ./s3cmd put $pkg s3://osrf-distributions/${s3_destination_path}
     popd
     rm -fr ${S3_DIR}
 }
 
+upload_package()
+{
+    local pkg=${1}
+    [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
+
+    # Get the canonical package name (i.e. gazebo2 -> gazebo)
+    pkg_root_name=${PACKAGE%[[:digit:]]}
+
+    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
+
+    # The path will end up being: s3://osrf-distributions/$pkg_root_name/releases/
+    S3_upload ${pkg} $pkg_root_name/releases/
+}
+
 upload_dsc_package()
 {
-    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg}
+    local pkg=${1}
+    [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
+
+    # .dsc sometimes does not include priority or section, 
+    # try to upload and if failed, specify the values
+    # see: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=768046
+    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg} || \
+	sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg}
+}
+
+upload_zip_file()
+{
+    local pkg=${1} s3_path=${2}
+
+    [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
+    [[ -z ${s3_path} ]] && echo "Bad parameter s3_path" && exit 1
+
+    S3_upload ${pkg} ${s3_path}
 }
 
 pkgs_path="$WORKSPACE/pkgs"
 
+# .zip | (mostly) windows packages
+for pkg in `ls $pkgs_path/*.zip`; do
+  # S3_UPLOAD_PATH should be send by the upstream job
+  if [[ -z ${S3_UPLOAD_PATH} ]]; then
+    echo "S3_UPLOAD_PATH was not defined. Not uploading"
+    exit 1
+  fi
+  
+  # Seems important to upload the path with a final slash
+  upload_zip_file ${pkg} "${S3_UPLOAD_PATH}/"
+done
+
+# .dsc | source debian packages
 for pkg in `ls $pkgs_path/*.dsc`; do
   upload_dsc_package ${pkg}
 done
 
+# .deb | debian packages
 for pkg in `ls $pkgs_path/*.deb`; do
+  if [[ -z ${DISTRO} ]]; then
+    echo 'Error: $DISTRO parameter was not set'
+    exit 1
+  fi
+
   # Get components from pkg
   pkg_relative=`echo ${pkg} | sed "s:$pkgs_path/::"` # remove the root path
   pkg_name=${pkg_relative/_*} # get the first part only
@@ -92,5 +135,6 @@ for pkg in `ls $pkgs_path/*.deb`; do
   esac
 done
 
-rm -fr $WORKSPACE/pkgs/*.deb
+rm -fr $WORKSPACE/pkgs/*.zip
 rm -fr $WORKSPACE/pkgs/*.dsc
+rm -fr $WORKSPACE/pkgs/*.deb

@@ -11,8 +11,6 @@ else
     GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
 fi
 
-[ -z ${COVERAGE_ENABLED} ] && COVERAGE_ENABLED=false
-
 # Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
 GAZEBO_MAJOR_VERSION=`\
   grep 'set.*GAZEBO_MAJOR_VERSION ' ${WORKSPACE}/gazebo/CMakeLists.txt | \
@@ -25,12 +23,9 @@ if ! [[ ${GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 echo '# BEGIN SECTION: setup the testing enviroment'
+# Define the name to be used in docker
+DOCKER_JOB_NAME="gazebo_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
-
-set +x # keep password secret
-BULLSEYE_LICENSE=`cat $HOME/bullseye-jenkins-license`
-set -x # back to debug
-echo '# END SECTION'
 
 cat > build.sh << DELIM
 ###################################################
@@ -38,11 +33,8 @@ cat > build.sh << DELIM
 #
 set -ex
 
-echo '# BEGIN SECTION: install dependencies'
-# OSRF repository to get bullet
-apt-get install -y wget
-sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
-wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
+# Step 1: Configure apt
+# The image already has all the needed source.lists entries
 
 # Dart repositories
 if $DART_FROM_PKGS; then
@@ -78,38 +70,6 @@ if ${GRAPHIC_CARD_FOUND}; then
        echo "Package ${GRAPHIC_CARD_PKG} has different version in chroot and host system. Maybe you need to update your host" 
        exit 1
     fi
-fi
-
-
-if ${COVERAGE_ENABLED} ; then
-  # Clean previous content
-  rm -fr $WORKSPACE/coverage
-  # Download and install Bullseyes
-  cd $WORKSPACE
-  rm -fr $WORKSPACE/Bulls*
-  
-  # Look for current version. NOT IN USE since we lost the maintenance support on 2014 
-  # reenable if the support is back.
-  # wget http://www.bullseye.com/download/ -O bull_index.html
-  # BULL_TAR=\$( grep -R BullseyeCoverage-.*-Linux-x64.tar bull_index.html | head -n 1 | sed 's/.*">//' | sed 's/<.*//' )
-  # wget http://www.bullseye.com/download/\$BULL_TAR -O bullseye.tar
-
-  # Download package
-  wget https://www.dropbox.com/s/i1ay7t8sg8i77jr/bullseye-8.8.9.tar -O bullseye.tar
-  tar -xf bullseye.tar
-  cd Bulls*
-  # Set up the license
-  echo $PATH >install-path
-  rm -fr /usr/bullseyes
-  set +x # keep password secret
-  ./install --prefix /usr/bullseyes --key $BULLSEYE_LICENSE
-  set -x # back to debug
-  # Set up Bullseyes for compiling
-  export PATH=/usr/bullseyes/bin:\$PATH
-  export COVFILE=$WORKSPACE/gazebo/test.cov
-  cd $WORKSPACE/gazebo
-  covselect --file test.cov --add .
-  cov01 --on
 fi
 echo '# END SECTION'
 
@@ -182,33 +142,14 @@ else
   echo "<results></results>" >> $WORKSPACE/build/cppcheck_results/empty.xml 
 fi
 
-# Step 4: generate code coverage if enabled
-if ${COVERAGE_ENABLED} ; then
-  rm -fr $WORKSPACE/coverage
-  rm -fr $WORKSPACE/bullshtml
-  mkdir -p $WORKSPACE/coverage
-  covselect --add '!$WORKSPACE/build/' '!../build/' '!test/' '!tools/test/' '!deps/' '!/opt/' '!gazebo/rendering/skyx/' '!/tmp/'
-  covhtml --srcdir $WORKSPACE/gazebo/ $WORKSPACE/coverage
-  # Generate valid cover.xml file using the bullshtml software
-  # java is needed to run bullshtml
-  apt-get install -y default-jre
-  cd $WORKSPACE
-  wget http://bullshtml.googlecode.com/files/bullshtml_1.0.5.tar.gz -O bullshtml.tar.gz
-  tar -xzf bullshtml.tar.gz
-  cd bullshtml
-  sh bullshtml .
-  # Hack to remove long paths from report
-  find . -name '*.html' -exec sed -i -e 's:${WORKSPACE}::g' {} \;
-fi
-
 echo '# BEGIN SECTION: clean build directory and export information'
-# Step 5: copy test log
+# Step 4: copy test log
 # Broken http://build.osrfoundation.org/job/gazebo-any-devel-precise-amd64-gpu-nvidia/6/console
 # Need fix
 # mkdir $WORKSPACE/logs
 # cp $HOME/.gazebo/logs/*.log $WORKSPACE/logs/
 
-# Step 6. Need to clean build/ directory so disk space is under control
+# Step 5. Need to clean build/ directory so disk space is under control
 # Move cppcheck and test results out of build
 # Copy the results
 mv $WORKSPACE/build/cppcheck_results $WORKSPACE/cppcheck_results
@@ -222,11 +163,48 @@ cp -a $WORKSPACE/test_results $WORKSPACE/build/test_results
 echo '# END SECTION'
 DELIM
 
-# Make project-specific changes here
-###################################################
+cat > Dockerfile << DELIM_DOCKER
+#######################################################
+# Docker file to run build.sh
 
-sudo pbuilder  --execute \
-    --bindmounts $WORKSPACE \
-    --basetgz $basetgz \
-    -- build.sh
+FROM jrivero/gazebo
+MAINTAINER Jose Luis Rivero <jrivero@osrfoundation.org>
 
+# If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy
+# By default, squid-deb-proxy 403s unknown sources, so apt shouldn't proxy ppa.launchpad.net
+RUN route -n | awk '/^0.0.0.0/ {print \$2}' > /tmp/host_ip.txt
+RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
+  && (echo "Acquire::http::Proxy \"http://\$(cat /tmp/host_ip.txt):8000\";" > /etc/apt/apt.conf.d/30proxy) \
+  && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
+  || echo "No squid-deb-proxy detected on docker host"
+
+
+# Map the workspace into the container
+RUN mkdir -p ${WORKSPACE}
+ADD gazebo ${WORKSPACE}/gazebo
+RUN echo "${TODAY_STR}"
+RUN apt-get update
+RUN apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES}
+ADD build.sh build.sh
+RUN chmod +x build.sh
+DELIM_DOCKER
+
+sudo rm -fr ${WORKSPACE}/build
+mkdir -p ${WORKSPACE}/build
+
+sudo docker pull jrivero/gazebo
+sudo docker build -t ${DOCKER_TAG} .
+# --priviledged is essential to make DRI work
+echo "DISPLAY=unix$DISPLAY"
+sudo docker run --privileged \
+                       -e "DISPLAY=unix$DISPLAY" \
+                       -v="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+                       --cidfile=${CIDFILE} \
+                       -t ${DOCKER_TAG} \
+                       -v ${WORKSPACE}/build:${WORKSPACE}/build \
+                       /bin/bash build.sh
+
+CID=$(cat ${CIDFILE})
+
+sudo docker stop ${CID}
+sudo docker rm ${CID}

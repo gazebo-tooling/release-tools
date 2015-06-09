@@ -18,8 +18,12 @@ UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
 DOWNLOAD_URI_PATTERN = 'http://gazebosim.org/distributions/%s/releases/'
 
 UBUNTU_ARCHS = ['amd64', 'i386']
-UBUNTU_DISTROS = ['utopic', 'trusty']
-UBUNTU_DISTROS_EXPERIMENTAL = []
+# Ubuntu distributions are automatically taken from the top directory of
+# the release repositories, when needed.
+UBUNTU_DISTROS = []
+# UBUNTU_DISTROS_EXTRA will be added to the discovered list of distros
+# use it if you need manual intervention
+UBUNTU_DISTROS_EXTRA = []
 
 ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
 ROS_DISTROS_IN_TRUSTY = [ 'indigo' ];
@@ -28,7 +32,6 @@ DRY_RUN = False
 NIGHTLY = False
 UPSTREAM = False
 NO_SRC_FILE = False
-EXP_DISTROS = False
 DRCSIM_MULTIROS = False
 IGN_REPO = False
 
@@ -52,7 +55,6 @@ def parse_args(argv):
     global NIGHTLY
     global UPSTREAM
     global NO_SRC_FILE
-    global EXP_DISTROS
     global DRCSIM_MULTIROS
     global IGN_REPO
 
@@ -64,8 +66,6 @@ def parse_args(argv):
                         help='Build nightly releases: do not upload tar.bz2 and values are autoconfigured')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
-    parser.add_argument('-e', '--experimental-distros', dest='exp_distros', action='store_true', default=False,
-                        help='build packages for experimentally supported Ubuntu distros')
     parser.add_argument('-u', '--upstream', dest='upstream', action='store_true', default=False,
                         help='release non OSRF software (do not generate and upload source tar.bz)')
     parser.add_argument('-a', '--package-alias', dest='package_alias', 
@@ -93,7 +93,6 @@ def parse_args(argv):
     NIGHTLY = args.nightly
     UPSTREAM = args.upstream
     NO_SRC_FILE = args.no_source_file
-    EXP_DISTROS = args.exp_distros
     DRCSIM_MULTIROS = args.drcsim_multiros
     IGN_REPO = args.ignition_repo
 
@@ -210,16 +209,29 @@ def check_s3cmd_configuration():
 
     return True
 
-def sanity_checks(args):
+def sanity_checks(args, repo_dir):
     check_s3cmd_configuration()
 
-    repo_dir = download_release_repository(args.package, args.release_repo_branch)
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_package_version(repo_dir, args.version, str(args.release_version))
     sanity_check_gazebo_versions(args.package, args.version)
     sanity_check_sdformat_versions(args.package, args.version)
     shutil.rmtree(repo_dir)
+
+def discover_distros(args, repo_dir):
+    global UBUNTU_DISTROS
+
+    subdirs =  os.walk(repo_dir).next()[1]
+    subdirs.remove('.hg')
+    if 'ubuntu' in subdirs: subdirs.remove('ubuntu')
+
+    if not subdirs:
+        error('Can not find distributions directories in the -release repo')
+
+    print('Releasing for distributions: ' + ', '.join(subdirs))
+
+    UBUNTU_DISTROS = subdirs
 
 def check_call(cmd, ignore_dry_run = False):
     if NIGHTLY:
@@ -338,9 +350,14 @@ def go(argv):
     if not args.release_version:
         args.release_version = 1
 
-    # Sanity checks before proceed. UPSTREAM repository is not known in release-tools script
-    if not UPSTREAM and not args.no_sanity_checks:
-        sanity_checks(args)
+    # Sanity checks and dicover supported distributions before proceed.
+    # UPSTREAM repository is not known in release-tools script
+    if not UPSTREAM:
+        repo_dir = download_release_repository(args.package, args.release_repo_branch)
+        # The supported distros are the ones in the top level of -release repo
+        discover_distros(args, repo_dir)
+        if not args.no_sanity_checks:
+            sanity_checks(args, repo_dir)
 
     source_tarball_uri = ''
 
@@ -367,14 +384,28 @@ def go(argv):
     else:
         job_name = JOB_NAME_PATTERN%(args.package)
     
+    # Enable new armhf jobs in sdformat2 and gazebo5
+    if (args.package == 'sdformat2' or args.package == 'gazebo5'):
+        # No prereleases
+        if (not args.release_repo_branch == 'prerelease'):
+            UBUNTU_ARCHS.append('armhf')
+   
     params_query = urllib.urlencode(params)
-    base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
     distros = UBUNTU_DISTROS
-    if EXP_DISTROS:
-        distros.extend(UBUNTU_DISTROS_EXPERIMENTAL)
+    if UBUNTU_DISTROS_EXTRA:
+        distros.extend(UBUNTU_DISTROS_EXTRA)
 
     for d in distros:
         for a in UBUNTU_ARCHS:
+            if (a == 'armhf'):
+                # Only release armhf in trusty for now
+                if (d != 'trusty'):
+                    continue
+                # armhf runs on docker, it needs a different base_url
+                base_url = '%s/job/%s-docker/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
+            else:
+                base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
+
             if not DRCSIM_MULTIROS:
                 url = '%s&ARCH=%s&DISTRO=%s'%(base_url, a, d)
                 print('Accessing: %s'%(url))

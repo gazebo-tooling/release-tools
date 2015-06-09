@@ -7,6 +7,23 @@ set -e
 # testing jobs and seems to be slow at the end of jenkins jobs
 export ENABLE_REAPER=false
 
+# No GAZEBO_PKG specified checking latest
+if [[ -z ${GAZEBO_PKG} ]]; then 
+  # Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
+  GAZEBO_MAJOR_VERSION=`\
+    grep 'set.*GAZEBO_MAJOR_VERSION ' ${WORKSPACE}/gazebo/CMakeLists.txt | \
+    tr -d 'a-zA-Z _()'`
+
+  # Check gazebo version is integer
+  if ! [[ ${GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+    echo "Error! GAZEBO_MAJOR_VERSION is not an integer, check the detection"
+    exit -1
+  fi
+
+  GAZEBO_LATEST_RELEASE=$((GAZEBO_MAJOR_VERSION - 1))
+  GAZEBO_PKG=libgazebo${GAZEBO_LATEST_RELEASE}-dev
+fi
+
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
@@ -33,7 +50,7 @@ apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXT
 cp -a $WORKSPACE/gazebo /tmp/gazebo
 chown -R root:root /tmp/gazebo
 cd /tmp/gazebo
-hg pull
+hg pull --rev ${GAZEBO_ORIGIN_BRANCH}
 hg up $GAZEBO_ORIGIN_BRANCH
 # Normal cmake routine for Gazebo
 rm -rf $WORKSPACE/build
@@ -50,6 +67,7 @@ GAZEBO_ORIGIN_DIR=\$(find /usr/local/origin_branch/include -name gazebo-* -type 
 # Reusing the same building and source directory to save bandwith and
 # compilation time.
 cd /tmp/gazebo
+hg pull --rev ${GAZEBO_TARGET_BRANCH}
 hg up $GAZEBO_TARGET_BRANCH
 # Normal cmake routine for Gazebo
 cd $WORKSPACE/build
@@ -116,6 +134,9 @@ rm -fr compat_reports/
 abi-compliance-checker -lib gazebo -old pkg.xml -new devel.xml || true
 # copy method version independant ( cp ... /*/ ... was not working)
 find compat_reports/ -name compat_report.html -exec cp {} $WORKSPACE/ \;
+
+# Clean up disk space
+rm -rf $WORKSPACE/build
 DELIM
 
 # Make project-specific changes here

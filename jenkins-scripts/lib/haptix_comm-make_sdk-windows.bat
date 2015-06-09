@@ -9,25 +9,17 @@ set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
 :: remove previous packages
 del %WORKSPACE%\*.zip
-
-@set PLATFORM_TO_BUILD=x86
-@if not "%1"=="" set PLATFORM_TO_BUILD=%1
-
 :: Default branches
 @if "%IGN_TRANSPORT_BRANCH%" == "" set IGN_TRANSPORT_BRANCH=default
 @if "%HAPTIX_COMM_BRANCH%" == "" set HAPTIX_COMM_BRANCH=default
 
-IF %PLATFORM_TO_BUILD% == x86 (
-  set BITNESS=32
-) ELSE (
-  REM Visual studio is accepting many keywords to compile for 64bits
-  REM We need to set x86_amd64 to make express version to be able to
-  REM Cross compile from x86 -> amd64
-  echo "Using 64bits VS configuration"
-  set BITNESS=64
-  set MSVC_KEYWORD=x86_amd64
-  set PLATFORM_TO_BUILD=amd64
-)
+@set PLATFORM_TO_BUILD=x86
+@if not "%1"=="" set PLATFORM_TO_BUILD=%1
+
+:: Call vcvarsall and all the friends
+echo # BEGIN SECTION: configure the MSVC compiler
+call %win_lib% :configure_msvc_compiler
+echo # END SECTION
 
 @echo ""
 @echo "======================="
@@ -38,21 +30,10 @@ IF %PLATFORM_TO_BUILD% == x86 (
 @echo "======================="
 @echo ""
 
-@echo " - Configure the VC++ compilation"
+echo # BEGIN SECTION: setup all needed variables and workspace
+mkdir workspace 
+cd workspace || goto :error
 
-set MSVC_ON_WIN64=c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat
-set MSVC_ON_WIN32=c:\Program Files\Microsoft Visual Studio 12.0\VC\vcvarsall.bat
-
-IF exist "%MSVC_ON_WIN64%" ( 
-   call "%MSVC_ON_WIN64%" %MSVC_KEYWORD% || goto :error
-) ELSE IF exist "%MSVC_ON_WIN32%" (
-   call "%MSVC_ON_WIN32%" %MSVC_KEYWORD% || goto :error
-) ELSE (
-   echo "Could not find the vcvarsall.bat file"
-   exit -1
-)
-
-@rem Setup directories
 set cwd=%cd%
 set tmpdir=%cwd%\hx_gz_sdk_tmp
 rmdir "%tmpdir%" /S /Q
@@ -61,12 +42,13 @@ cd "%tmpdir%"
 
 set zeromq_zip_name=zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip
 set protobuf_zip_name=protobuf-2.6.0-win%BITNESS%-vc12.zip
+echo # END SECTION
 
+echo # BEGIN SECTION: Download dependencies and unzip
 @rem Download stuff.  Note that bitsadmin requires an absolute path.
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%zeromq_zip_name% %zeromq_zip_name% || goto :error
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip  || goto :error
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%protobuf_zip_name% %protobuf_zip_name%  || goto :error
-call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip || goto :error
 
 @rem Unzip stuff
 @rem
@@ -75,30 +57,31 @@ call %win_lib% :download_7za
 call %win_lib% :unzip_7za %zeromq_zip_name% > zeromq_7z.log
 call %win_lib% :unzip_7za cppzmq-noarch.zip > cppzmq_7z.log
 call %win_lib% :unzip_7za %protobuf_zip_name% > protobuf_7z.lob
-call %win_lib% :unzip_7za boost_1_56_0.zip > boost_7z.lob
+echo # END SECTION
 
-echo "Cloning ignition-transport"
+echo # BEGIN SECTION: Cloning ignition-transport [%IGN_TRANSPORT_BRANCH% branch]
 hg clone https://bitbucket.org/ignitionrobotics/ign-transport -b %IGN_TRANSPORT_BRANCH%
 cd ign-transport
 hg tip > ignition-transport.info
 cd ..
+echo # END SECTION
 
-echo "Clonning haptix-comm"
+echo # BEGIN SECTION: Cloning haptix-comm [%HAPTIX_COMM_BRANCH% branch]
 hg clone https://bitbucket.org/osrf/haptix-comm haptix-comm -b %HAPTIX_COMM_BRANCH%
 cd haptix-comm
-REM set haptix_hash variable. Yes, we need need to do this for structure
-for /f "delims=" %%a in ('hg id -i') do @set haptix_hash=%%a
 hg tip > haptix-comm.info
 cd ..
+echo # END SECTION
 
 set srcdir=%cd%
 
 setlocal Enabledelayedexpansion
 for %%b in (Debug, Release) do (
+    echo # BEGIN SECTION: SDK generation %%b for %BITNESS% bits
 
     cd %srcdir%
 
-    echo "Build ign-transport in %%b"
+    echo # BEGIN SECTION: build ign-transport in %%b
     cd ign-transport
     mkdir build
     cd build
@@ -106,9 +89,11 @@ for %%b in (Debug, Release) do (
     call ..\configure %%b %BITNESS%
     nmake VERBOSE=1 > ign-transport.log || goto :error
     nmake install
+    set /p IGNTRANSPORT_VERSION=<VERSION || goto :error
     cd ..\..
+    echo # END SECTION
 
-    echo "Build haptix-comm in %%b"
+    echo # BEGIN SECTION: build haptix-comm in %%b
     cd haptix-comm
     mkdir build
     cd build
@@ -116,8 +101,10 @@ for %%b in (Debug, Release) do (
     call ..\configure %%b %BITNESS%
     nmake VERBOSE=1 > haptix.log || goto :error
     nmake install
+    set /p HAPTIX_VERSION=<VERSION || goto:error
+    echo # END SECTION
    
-    echo "Build haptix-comm example"
+    echo # BEGIN SECTION: build haptix-comm examples in %%b
     cd ..
     cd example
     mkdir build
@@ -125,25 +112,23 @@ for %%b in (Debug, Release) do (
     del CMakeCache.txt
     call ..\configure %%b %BITNESS%
     nmake VERBOSE=1 > haptix_example.log || goto :error
+    echo # END SECTION
+   
 
     cd ..\..\..
 
-    echo "Start packaging ..."
+    echo # BEGIN SECTION: generate zip [version !HAPTIX_VERSION!] in %%b
     :: Package it all up
     :: Our goal here is to create an "install" layout for all the stuff
     :: needed to use haptix-comm.  That layout can be then be zipped and
     :: distributed.  Lots of assumptions are being made here.
-    echo "Start packaging 1 ..."
-
     :: We need to use expansion at runtime values for variables inside the loop this is
     :: why the ! var ! is being used. For more information, please read:
     :: http://ss64.com/nt/delayedexpansion.html
-    echo "Start packaging 2 ..."
-
     set "build_type=%%b"
-    set "installdir=%cwd%\hx_gz_sdk_!build_type!"
-    
-    set "sdk_zip_file=%WORKSPACE%\hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip"
+    set "installdir=%cwd%\hx_gz_sdk-!HAPTIX_VERSION!-!build_type!"
+    :: WORKSPACE\pkgs to agree with repository_uploader script layout
+    set "sdk_zip_file=%WORKSPACE%\pkgs\hx_gz_sdk-!build_type!-!HAPTIX_VERSION!-win%BITNESS%.zip"
 
     echo " * Build type             : !build_type!"
     echo " * Installation directory : !installdir!"
@@ -158,7 +143,7 @@ for %%b in (Debug, Release) do (
     xcopy "protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\google" "!installdir!\deps\protobuf-2.6.0-win%BITNESS%-vc12\vsprojects\google" /s /e /i
     :: ZeroMQ
     xcopy "ZeroMQ 3.2.4\COPYING*" "!installdir!\deps\ZeroMQ 3.2.4" /s /e /i
-    xcopy "ZeroMQ 3.2.4\bin\libzmq-v120-mt-3*" "!installdir!\deps\ZeroMQ 3.2.4\bin" /s /e /i
+    xcopy "ZeroMQ 3.2.4\bin\libzmq-v120*" "!installdir!\deps\ZeroMQ 3.2.4\bin" /s /e /i
     ::xcopy "ZeroMQ 3.2.4\bin\msvc*" "!installdir!\deps\ZeroMQ 3.2.4\bin" /s /e /i
     xcopy "ZeroMQ 3.2.4\include" "!installdir!\deps\ZeroMQ 3.2.4\include" /s /e /i
     xcopy "ZeroMQ 3.2.4\lib\libzmq-v120*" "!installdir!\deps\ZeroMQ 3.2.4\lib" /s /e /i
@@ -185,11 +170,23 @@ for %%b in (Debug, Release) do (
     xcopy "haptix-comm\build\install\!build_type!\lib\haptix-comm\matlab\*" "!installdir!\matlab\" /s /e /i
 
     cd ..
+    echo # END SECTION
 
     echo "Generating SDK zip file: !sdk_zip_file!" > sdk_zip_file.log
-    "%tmpdir%\7za.exe" a -tzip "!sdk_zip_file!" "hx_gz_sdk_!build_type!\" || goto :error
+    "%tmpdir%\7za.exe" a -tzip "!sdk_zip_file!" "!installdir!" || goto :error
+    echo # END SECTION
 )
 setlocal disabledelayedexpansion
+
+if NOT DEFINED KEEP_WORKSPACE (
+   echo # BEGIN SECTION: clean up workspace
+   for /D %%p IN ("%WORKSPACE%\workspace\*") DO rmdir "%%p" /s /q
+   REM for some reason the rmdir line below seems to do what we intented to do
+   REM but fails with the following message:
+   REM "The process cannot access the file because it is being used by another process"
+   REM rmdir /s /q %WORKSPACE%\workspace || goto :error
+   echo # END SECTION
+)
 
 goto :EOF
 

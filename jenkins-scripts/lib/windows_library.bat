@@ -7,6 +7,9 @@ exit /b
 ::
 ::
 
+:: See: https://issues.jenkins-ci.org/browse/JENKINS-11992
+set path=%path:"=%
+
 :: By default should be the same
 set MSVC_KEYWORD=%PLATFORM_TO_BUILD%
 
@@ -36,7 +39,6 @@ IF exist "%MSVC_ON_WIN64%" (
    exit -1
 )
 goto :EOF
-
 
 :: ##################################
 :create_unzip_script - Create the unzip script to run unzip command
@@ -101,6 +103,8 @@ goto :EOF
 :unzip - Unizp a file
 ::
 :: arg1 path to the zip file to uncompress
+echo Uncompressing %~1 
+IF NOT exist %~1 ( echo "Zip file does not exists: %~1" && goto :error )
 cscript //B j_unzip.vbs %~1 || goto:error
 goto :EOF
 

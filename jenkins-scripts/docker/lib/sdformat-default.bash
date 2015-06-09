@@ -13,6 +13,8 @@ if ! [[ ${SDFORMAT_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 echo '# BEGIN SECTION: setup the testing enviroment'
+# Define the name to be used in docker
+DOCKER_JOB_NAME="sdformat_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 echo '# END SECTION'
 
@@ -22,36 +24,36 @@ cat > build.sh << DELIM
 #
 set -ex
 
-echo '# BEGIN SECTION: install dependencies'
-# OSRF repository to get ignition-math
-apt-get install -y wget
-sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/gazebo-latest.list'
-wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
-
-# Step 1: install everything you need
-apt-get update
-apt-get install -y ${BASE_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES}
-echo '# END SECTION'
-
+echo '# BEGIN SECTION: configure sdformat ${SDFORMAT_MAJOR_VERSION}'
 # Step 2: configure and build
-rm -rf $WORKSPACE/build
-mkdir -p $WORKSPACE/build
+cd $WORKSPACE
 cd $WORKSPACE/build
 cmake $WORKSPACE/sdformat
-make -j${MAKE_JOBS}
-make install
-make test ARGS="-VV" || true
+echo '# END SECTION'
 
-# Step 3: code check
+echo '# BEGIN SECTION: compiling'
+make -j${MAKE_JOBS}
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: installing'
+make install
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: running tests'
+mkdir -p \$HOME
+make test ARGS="-VV" || true
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: cppcheck'
 cd $WORKSPACE/sdformat
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
 cat $WORKSPACE/build/cppcheck_results/*.xml
+echo '# END SECTION'
 DELIM
 
-# Make project-specific changes here
-###################################################
+USE_OSRF_REPO=true
+DEPENDENCY_PKGS="${SDFORMAT_BASE_DEPENDENCIES}"
+SOFTWARE_DIR="sdformat"
 
-sudo pbuilder  --execute \
-    --bindmounts $WORKSPACE \
-    --basetgz $basetgz \
-    -- build.sh
+. ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
+. ${SCRIPT_DIR}/lib/docker_run.bash

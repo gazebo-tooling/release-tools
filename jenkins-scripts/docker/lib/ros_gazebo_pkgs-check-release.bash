@@ -7,6 +7,7 @@ export GPU_SUPPORT_NEEDED=true
 # testing jobs and seems to be slow at the end of jenkins jobs
 export ENABLE_REAPER=false
 
+DOCKER_JOB_NAME="ros_gazebo_pkgs_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
@@ -40,15 +41,6 @@ if [ $GRAPHIC_CARD_NAME = Nvidia ] && [ $DISTRO = trusty ]; then
 	fi
     fi
 fi
-
-# Check for proper ros wrappers depending on gazebo version
-ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs    \
-	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-plugins \
-	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros     \
-	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros-pkgs"
-
-# Need -ros for rosrun
-apt-get install -y --force-yes \$ROS_GAZEBO_PKGS $ROS_GAZEBO_PKGS_EXAMPLE_DEPS ros-$ROS_DISTRO-ros git ca-certificates
 
 # Step 2: configure and build
 rosdep init 
@@ -109,10 +101,67 @@ echo "180 testing seconds finished successfully"
 
 DELIM
 
-# Make project-specific changes here
-###################################################
+cat > Dockerfile << DELIM_DOCKER
+#######################################################
+# Docker file to run build.sh
 
-sudo pbuilder  --execute \
-    --bindmounts $WORKSPACE \
-    --basetgz $basetgz \
-    -- build.sh
+FROM ubuntu/${DISTRO}
+MAINTAINER Jose Luis Rivero <jrivero@osrfoundation.org>
+
+sudo rm -fr ${WORKSPACE}/build
+mkdir -p ${WORKSPACE}/build
+
+# Docker file to run build.sh
+
+FROM jrivero/gazebo
+MAINTAINER Jose Luis Rivero <jrivero@osrfoundation.org>
+
+# If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy
+# By default, squid-deb-proxy 403s unknown sources, so apt shouldn't proxy ppa.launchpad.net
+RUN route -n | awk '/^0.0.0.0/ {print \$2}' > /tmp/host_ip.txt
+RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
+  && (echo "Acquire::http::Proxy \"http://\$(cat /tmp/host_ip.txt):8000\";" > /etc/apt/apt.conf.d/30proxy) \
+  && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
+  || echo "No squid-deb-proxy detected on docker host"
+
+
+# Map the workspace into the container
+RUN mkdir -p ${WORKSPACE}
+ADD gazebo ${WORKSPACE}/gazebo
+RUN echo "${TODAY_STR}"
+RUN apt-get install -y wget
+# Add repositories to the image
+RUN \
+    sh -c 'echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/ros-latest.list' && \\
+    wget --no-check-certificate https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | apt-key add - && \\
+    sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list' && \\
+    wget http://packages.osrfoundation.org/drc.key -O - | apt-key add - && \\
+RUN apt-get update
+# Check for proper ros wrappers depending on gazebo version
+ENV ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs \\
+	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-plugins \\
+	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros \\
+	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros-pkgs"
+# Need -ros for rosrun
+RUN apt-get install -y --force-yes \$ROS_GAZEBO_PKGS ros-$ROS_DISTRO-ros
+ADD build.sh build.sh
+RUN chmod +x build.sh
+DELIM_DOCKER
+
+sudo docker pull ubuntu/${DISTRO}
+sudo docker build -t ${DOCKER_TAG} .
+# --priviledged is essential to make DRI work
+echo "DISPLAY=unix$DISPLAY"
+sudo docker run --privileged \
+                       -e "DISPLAY=unix$DISPLAY" \
+                       -v="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+                       --cidfile=${CIDFILE} \
+                       -t ${DOCKER_TAG} \
+                       -v ${WORKSPACE}/build:${WORKSPACE}/build \
+                       /bin/bash build.sh
+
+CID=$(cat ${CIDFILE})
+
+sudo docker ps 
+sudo docker stop ${CID} || true
+sudo docker rm ${CID} || true

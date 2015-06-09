@@ -20,11 +20,18 @@ cat > build.sh << DELIM
 #!/usr/bin/env bash
 set -ex
 
+echo '# BEGIN SECTION: install dependencies'
+# OSRF repository to get bullet
+apt-get install -y wget
+sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
+wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
+
 # ccache is sometimes broken and has now reason to be used here
 # http://lists.debian.org/debian-devel/2012/05/msg00240.html
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
 
 # Install deb-building tools
+apt-get update
 apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools debhelper wget subversion cdbs mercurial ca-certificates dh-autoreconf autoconf 
 
 # Cleanup
@@ -48,14 +55,14 @@ cd $WORKSPACE/build
 
 cd $WORKSPACE/code
 
-# Install dependencies
-depends=\$(dpkg-checkbuilddeps 2>&1 | sed 's/^dpkg-checkbuilddeps: Unmet build dependencies: //g')
-sudo apt-get install -y ${depends}
+echo '# BEGIN SECTION: install build dependencies'
+mk-build-deps -i debian/control --tool 'apt-get --no-install-recommends --yes'
+rm *build-deps*.deb
+echo '# END SECTION'
 
 # Use current distro
 changelog_distro=\$(dpkg-parsechangelog | grep Distribution | awk '{print \$2}')
 sed -i -e "1 s:\$changelog_distro:$DISTRO:" debian/changelog
-
 
 # Step 5: use debuild to create source package
 VERSION=\$(dpkg-parsechangelog  | grep Version | awk '{print \$2}')

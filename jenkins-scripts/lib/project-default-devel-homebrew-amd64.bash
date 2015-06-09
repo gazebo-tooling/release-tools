@@ -68,6 +68,17 @@ export PATH="${PATH}:${RUN_DIR}/bin"
 export C_INCLUDE_PATH="${C_INCLUDE_PATH}:${RUN_DIR}/include"
 export CPLUS_INCLUDE_PATH="${CPLUS_INCLUDE_PATH}:${RUN_DIR}/include"
 
+# add X11 path so glxinfo can be found
+export PATH="${PATH}:/opt/X11/bin"
+
+# set display before cmake
+# search for Xquartz instance owned by jenkins
+export DISPLAY=$(ps ax \
+  | grep '[[:digit:]]*:[[:digit:]][[:digit:]].[[:digit:]][[:digit:]] /opt/X11/bin/Xquartz' \
+  | grep 'auth /Users/jenkins/' \
+  | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
+)
+
 ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
       -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/${PROJECT}/HEAD \
       -DCMAKE_PREFIX_PATH=${RUN_DIR} \
@@ -75,9 +86,6 @@ ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
 
 make -j${MAKE_JOBS} install
 ${RUN_DIR}/bin/brew link ${PROJECT}
-
-# Need to use root to access to the graphical env
-export DISPLAY=$(sudo find /private/tmp -name *xquartz* | sed 's:/private::')
 
 cat > test_run.sh << DELIM
 cd $WORKSPACE/build/

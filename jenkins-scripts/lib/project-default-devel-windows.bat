@@ -1,28 +1,101 @@
-REM Windows standard file to build Visual Studio projects
+:: Windows standard file to build Visual Studio projects
+::
+:: Parameters:
+::   - VCS_DIRECTORY : WORKSPACE/VCS_DIRECTORY should contain the sources
+::   - BUILD_TYPE    : (default Release) [ Release | Debug ] Build type to use
+::   - DEPENDENCY_PKG: (optional) one package as dependency (only one is supported by now)
+::   - KEEP_WORKSPACE: (optional) true | false. Clean workspace at the end
+::
+:: Actions
+::   - Configure the compiler
+::   - Clean and create the WORKSPACE/workspace
+::   - Download and unzip the DEPENDENCY_PKG (if any)
+::   - configure, compile and install
+::   - run tests
 
-IF %PLATFORM_TO_BUILD% == x86 (
-  echo "Using 32bits VS configuration"
-  set VS_CMAKE_GEN=%VS32bits_CMAKE_GEN%
-) ELSE (
-  echo "Using 64bits VS configuration"
-  set VS_CMAKE_GEN=%VS64bits_CMAKE_GEN%
+set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
+
+@if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
+
+:: safety checks
+if not defined VCS_DIRECTORY (
+  echo # BEGIN SECTION: ERROR: VCS_DIRECTORY is not set
+  echo VCS_DIRECTORY variable was not set. Please set it before calling this script
+  echo # END SECTION
+  exit 1
 )
 
-REM Configure the VC++ compilation
-call "c:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" %PLATFORM_TO_BUILD%
+if not exist %WORKSPACE%\%VCS_DIRECTORY% (
+  echo # BEGIN SECTION: ERROR: %VCS_DIRECTORY% does not exist
+  echo VCS_DIRECTORY variable points to %WORKSPACE%\%VCS_DIRECTORY% but it does not exists
+  echo # END SECTION
+  exit 1
+)
 
-echo %WORKSPACE%
+:: Call vcvarsall and all the friends
+echo # BEGIN SECTION: configure the MSVC compiler
+call %win_lib% :configure_msvc_compiler
+echo # END SECTION
+
+echo # BEGIN SECTION: setup workspace
 cd %WORKSPACE%
-REM Reset the build directory if exists
-if exist build ( rmdir build /s /q )
+IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
+mkdir workspace
+cd workspace
+echo # END SECTION
+
+echo # BEGIN SECTION: downloading and unzip dependency %DEPENDENCY_PKG%
+REM Todo: support multiple dependencies
+if defined DEPENDENCY_PKG (
+  call %win_lib% :download_7za
+  call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%DEPENDENCY_PKG% %DEPENDENCY_PKG% || goto :error
+  call %win_lib% :unzip_7za %DEPENDENCY_PKG% %DEPENDENCY_PKG% > install.log || goto:error
+)
+echo # END SECTION
+
+echo # BEGIN SECTION: move %VCS_DIRECTORY% source to workspace
+xcopy %WORKSPACE%\%VCS_DIRECTORY% %VCS_DIRECTORY% /s /e /i > xcopy.log || goto :error
+cd %VCS_DIRECTORY% || goto :error
 mkdir build
 cd build
+echo # END SECTION
 
-echo "cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS%"
-cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS%
+if exist ..\configure.bat (
+  echo # BEGIN SECTION: configuring %VCS_DIRECTORY% in %BUILD_TYPE%
+  call ..\configure.bat %BUILD_TYPE% || goto :error
+) else (
+  echo # BEGIN SECTION: configuring %VCS_DIRECTORY% using cmake 
+  cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS% || goto :error
+)
+echo # END SECTION
 
-REM Running the compilation
-msbuild %VS_DEFAULT_MSBUILD_FLAGS% ALL_BUILD.vcxproj
+echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
+nmake || goto %win_lib% :error
+echo # END SECTION
+echo # BEGIN SECTION: installing %VCS_DIRECTORY%
+nmake install || goto %win_lib% :error
+echo # END SECTION
 
-REM Need to find a way of running test from msbuild passing ARGS=-VV
-ctest -C "Release" --verbose --extra-verbose || exit 0
+echo # BEGIN SECTION: running tests
+REM Need to find a way of running test from the standard make test (not working)
+cd %WORKSPACE%\workspace\haptix-comm\build
+ctest -C "%BUILD_TYPE%" --verbose --extra-verbose || echo "test failed"
+echo # END SECTION
+
+echo # BEGIN SECTION: export testing results
+set TEST_RESULT_PATH=%WORKSPACE%\test_results
+if exist %TEST_RESULT_PATH% ( rmdir /q /s %TEST_RESULT_PATH% )
+move test_results %TEST_RESULT_PATH% || goto :error
+echo # END SECTION
+
+if NOT DEFINED KEEP_WORKSPACE (
+   echo # BEGIN SECTION: clean up workspace
+   cd %WORKSPACE%
+   rmdir /s /q %WORKSPACE%\workspace || goto :error
+   echo # END SECTION
+)
+goto :EOF
+
+:error - error routine
+echo Failed with error #%errorlevel%.
+exit /b %errorlevel%

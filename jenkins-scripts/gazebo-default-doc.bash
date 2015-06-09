@@ -48,7 +48,8 @@ DELIM
 
 # Copy in my ssh keys, to allow the above ssh/scp calls to work; not sure this is the best way to do it, 
 # but it shouldn't be a security issue, as only Jenkins users can see the contents of the workspace
-cp $HOME/.ssh/id_rsa $WORKSPACE
+sudo cp $HOME/.ssh/id_rsa $WORKSPACE
+sudo chown jenkins $WORKSPACE/id_rsa
 
 # Make project-specific changes here
 ###################################################
