@@ -66,6 +66,7 @@ RUN echo " WARNING: FULL CACHE INVALIDATION ENABLED         "
 RUN echo " $(( ( RANDOM % 100000 )  + 1 ))                  "
 RUN echo "**************************************************"
 DELIM_ALL_CACHE_INVALIDATION
+fi
 
 # Squid-deb-proxy configuration
 cat >> Dockerfile << DELIM_DOCKER_SQUID
