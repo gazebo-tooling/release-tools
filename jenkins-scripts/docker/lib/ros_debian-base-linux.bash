@@ -18,8 +18,15 @@ if [ ${LINUX_DISTRO} == 'ubuntu' ]; then
   apt-add-repository -y ppa:deb-rob/ros-trusty
 fi
 if [ ${LINUX_DISTRO} = 'debian' ]; then
+  if [ ${DISTRO} = 'sid' ]; then
   echo "deb http://sir.upc.edu/debian-robotics unstable main" \\
 						       >> /etc/apt/sources.list
+  fi
+  if [ ${DISTRO} = 'jessie' ]; then
+  echo "deb http://sir.upc.edu/debian-robotics jessie-robotics main" \\
+						       >> /etc/apt/sources.list
+  fi
+
   apt-key adv --keyserver pgp.rediris.es --recv-keys 63DE76AC0B6779BF						       
 fi
 apt-get update
