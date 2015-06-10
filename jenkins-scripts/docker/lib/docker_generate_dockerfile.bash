@@ -94,10 +94,7 @@ DELIM_DOCKER_ARCH
       fi
       ;;
   debian)
-cat >> Dockerfile << DELIM_DOCKER_DEBIAN
-RUN echo "deb http://ftp.us.debian.org/debian ${DISTRO} main" \\
-						       >> /etc/apt/sources.list
-DELIM_DOCKER_DEBIAN
+      echo "Default image source.list has main. Enough by now"
       ;;
 esac
 
