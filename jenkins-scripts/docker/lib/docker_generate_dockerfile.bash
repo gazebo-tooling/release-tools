@@ -72,7 +72,8 @@ fi
 cat >> Dockerfile << DELIM_DOCKER_SQUID
 # If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy
 # By default, squid-deb-proxy 403s unknown sources, so apt shouldn't proxy ppa.launchpad.net
-RUN route -n | awk '/^0.0.0.0/ {print \$2}' > /tmp/host_ip.txt
+# route needs the full path to work on debian, please keep it
+RUN /sbin/route -n | awk '/^0.0.0.0/ {print \$2}' > /tmp/host_ip.txt
 RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
   && (echo "Acquire::http::Proxy \"http://\$(cat /tmp/host_ip.txt):8000\";" > /etc/apt/apt.conf.d/30proxy) \
   && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
