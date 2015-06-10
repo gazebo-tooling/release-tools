@@ -51,5 +51,7 @@ if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
   DEPENDENCY_PKGS="python-software-properties apt-utils software-properties-common"
 fi
 
+DEPENDENCY_PKGS="${DEPENDENCY_PKGS} python-qt4"
+
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
