@@ -55,7 +55,20 @@ cat > Dockerfile << DELIM_DOCKER
 
 FROM ${FROM_VALUE}
 MAINTAINER Jose Luis Rivero <jrivero@osrfoundation.org>
+DELIM_DOCKER
 
+# check and run the full cache invalidation
+if ${INVALIDATE_DOCKER_CACHE}; then
+cat >> Dockerfile << DELIM_ALL_CACHE_INVALIDATION
+# Request by the user, invalidating all cache
+RUN echo "**************************************************"
+RUN echo " WARNING: FULL CACHE INVALIDATION ENABLED         "
+RUN echo " $(( ( RANDOM % 100000 )  + 1 ))                  "
+RUN echo "**************************************************"
+DELIM_ALL_CACHE_INVALIDATION
+
+# Squid-deb-proxy configuration
+cat >> Dockerfile << DELIM_DOCKER_SQUID
 # If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy
 # By default, squid-deb-proxy 403s unknown sources, so apt shouldn't proxy ppa.launchpad.net
 RUN route -n | awk '/^0.0.0.0/ {print \$2}' > /tmp/host_ip.txt
@@ -63,8 +76,7 @@ RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
   && (echo "Acquire::http::Proxy \"http://\$(cat /tmp/host_ip.txt):8000\";" > /etc/apt/apt.conf.d/30proxy) \
   && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
   || echo "No squid-deb-proxy detected on docker host"
-DELIM_DOCKER
-
+DELIM_DOCKER_SQUID
 
 case ${LINUX_DISTRO} in
   ubuntu)

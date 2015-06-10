@@ -34,6 +34,14 @@ if [ -z ${NEED_C11_COMPILER} ]; then
   NEED_C11_COMPILER=false
 fi
 
+# Check if we need to invalidate the whole cache
+# by default false
+if [ -z ${INVALIDATE_DOCKER_CACHE} ]; then
+  INVALIDATE_DOCKER_CACHE=false
+else
+  INVALIDATE_DOCKER_CACHE=true
+fi
+
 # Only precise needs to install a C++11 compiler. Trusty on
 # already have a supported version
 if $NEED_C11_COMPILER; then
