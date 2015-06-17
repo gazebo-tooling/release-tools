@@ -56,7 +56,7 @@ DELIM
 
 # For use ppa
 if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
-  USE_OSRF_REPO=true
+  USE_ROS_REPO=true
   DEPENDENCY_PKGS="python-software-properties apt-utils software-properties-common libgazebo5-dev"
 fi
 
