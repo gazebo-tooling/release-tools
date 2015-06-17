@@ -17,6 +17,7 @@ echo '# BEGIN SECTION: set up the PPA'
 if [ ${LINUX_DISTRO} == 'ubuntu' ]; then
   apt-add-repository -y ppa:deb-rob/ros-trusty
 fi
+
 if [ ${LINUX_DISTRO} = 'debian' ]; then
   if [ ${DISTRO} = 'sid' ]; then
   echo "deb http://sir.upc.edu/debian-robotics unstable main" \\
@@ -55,7 +56,8 @@ DELIM
 
 # For use ppa
 if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
-  DEPENDENCY_PKGS="python-software-properties apt-utils software-properties-common"
+  USE_OSRF_REPO=true
+  DEPENDENCY_PKGS="python-software-properties apt-utils software-properties-common libgazebo5-dev"
 fi
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
