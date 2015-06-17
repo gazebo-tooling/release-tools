@@ -1,10 +1,11 @@
-# 
+ 
 # Script to generate the dockerfile needed for running the build.sh script
 #
 # Inputs used:
 #   - DISTRO          : base distribution (ex: vivid)
 #   - ARCH            : [default amd64] base arquitecture (ex: amd64)
 #   - USE_OSRF_REPO   : [default false] true|false if add the packages.osrfoundation.org to the sources.list
+#   - USE_ROS_REPO    : [default false] true|false if add the packages.ros.org to the sources.list
 #   - DEPENDENCY_PKGS : (optional) packages to be installed in the image
 #   - SOFTWARE_DIR    : (optional) directory to copy inside the image
 
@@ -47,6 +48,7 @@ case ${ARCH} in
 esac
 
 [[ -z ${USE_OSRF_REPO} ]] && USE_OSRF_REPO=false
+[[ -z ${USE_ROS_REPO} ]] && USE_ROS_REPO=false
 
 echo '# BEGIN SECTION: create the Dockerfile'
 cat > Dockerfile << DELIM_DOCKER
@@ -98,6 +100,13 @@ DELIM_DOCKER_ARCH
       ;;
 esac
 
+# Handle installation of ROS | OSRF repositories
+if ${USE_OSRF_REPO} || ${USE_ROS_REPO}; then
+cat >> Dockerfile << DELIM_INSTALL_WGET
+RUN apt-get update && apt-get install -y wget
+DELIM_INSTALL_WGET
+fi
+
 # OSRF repository
 if ${USE_OSRF_REPO}; then
   if [[ ${LINUX_DISTRO} != 'ubuntu' ]]; then
@@ -106,12 +115,19 @@ if ${USE_OSRF_REPO}; then
   fi
 
 cat >> Dockerfile << DELIM_DOCKER2
-RUN apt-get update && apt-get install -y wget
 RUN echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > \\
                                                            /etc/apt/sources.list.d/drc-latest.list && \\
     wget http://packages.osrfoundation.org/drc.key -O - | apt-key add - 
 DELIM_DOCKER2
 fi
+
+# ROS repository
+if ${USE_ROS_REPO}; then
+cat >> Dockerfile << DELIM_DOCKER_ROS_REPO
+RUN echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > \\
+                                                           /etc/apt/sources.list.d/ros.list && \\
+    wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+DELIM_DOCKER_ROS_REPO
 
 # Dart repositories
 if ${DART_FROM_PKGS} || ${DART_COMPILE_FROM_SOURCE}; then
