@@ -128,6 +128,7 @@ RUN echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > \\
                                                            /etc/apt/sources.list.d/ros.list && \\
     wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
 DELIM_DOCKER_ROS_REPO
+fi
 
 # Dart repositories
 if ${DART_FROM_PKGS} || ${DART_COMPILE_FROM_SOURCE}; then
