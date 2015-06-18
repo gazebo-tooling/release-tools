@@ -60,5 +60,7 @@ if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
   DEPENDENCY_PKGS="python-software-properties apt-utils software-properties-common libgazebo5-dev"
 fi
 
+DEPENDENCY_PKGS="${DEPENDENCY_PKGS} aptitude"
+
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
