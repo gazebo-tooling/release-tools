@@ -34,7 +34,7 @@ apt-get update
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install the ros-desktop-full-depends pkg'
-apt-get install -y ros-desktop-full-depends
+aptitude install -y ros-desktop-full-depends
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: compile the rest of desktop-full'
