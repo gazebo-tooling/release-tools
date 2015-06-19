@@ -221,7 +221,6 @@ DELIM
 ###################################################
 
 sudo mkdir -p /var/packages/gazebo/ubuntu
-cat build.sh
 sudo pbuilder  --execute \
     --bindmounts "$WORKSPACE /var/packages/gazebo/ubuntu" \
     --basetgz $basetgz \
