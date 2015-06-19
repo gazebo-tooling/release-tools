@@ -3,7 +3,7 @@ set -e
 
 echo '# BEGIN SECTION: setup the testing enviroment'
 # Define the name to be used in docker
-DOCKER_JOB_NAME="ros-debian_ci"
+DOCKER_JOB_NAME="ros_debian_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 echo '# END SECTION'
 
@@ -56,7 +56,6 @@ DELIM
 
 # For use ppa
 if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
-  USE_ROS_REPO=true
   DEPENDENCY_PKGS="python-software-properties apt-utils software-properties-common libgazebo5-dev"
 fi
 
