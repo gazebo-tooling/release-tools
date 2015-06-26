@@ -1,6 +1,6 @@
 #!/bin/bash -x
 set -e
-cp ${SCRIPT_DIR}/lib/_time_lib.sh ${WORKSPACE} && source ${WORKSPACE}/_time_lib.sh ${WORKSPACE}
+cp ${SCRIPT_DIR}/../lib/_time_lib.sh ${WORKSPACE} && source ${WORKSPACE}/_time_lib.sh ${WORKSPACE}
 
 init_stopwatch TOTAL_TIME
 init_stopwatch CREATE_TESTING_ENVIROMENT
