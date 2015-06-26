@@ -1,7 +1,5 @@
 #!/bin/bash -x
 set -e
-init_stopwatch TOTAL_TIME
-init_stopwatch CREATE_TESTING_ENVIROMENT
 
 # Identify SDFORMAT_MAJOR_VERSION to help with dependency resolution
 SDFORMAT_MAJOR_VERSION=`\
