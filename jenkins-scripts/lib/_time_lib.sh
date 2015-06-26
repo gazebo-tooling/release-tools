@@ -5,6 +5,7 @@
 [[ ! -d ${1} ]] && echo "WORKSPACE not found at ${1}" && exit -1
 
 export TIMING_STORE_PATH=${1}/timing
+[[ -f ${TIMING_STORE_PATH}/_enable_timing ]] && ENABLE_TIMING=true || ENABLE_TIMING=false
 
 [[ ! -d ${TIMING_STORE_PATH} ]] && mkdir -p ${TIMING_STORE_PATH}
 
@@ -15,6 +16,8 @@ get_time()
 
 init_stopwatch()
 {
+   [[ ${ENABLE_TIMING} ]] || return
+
    local filename=${TIMING_STORE_PATH}/_time_${1}
 
    [[ -z ${filename} ]] && echo "No name" && exit -1
@@ -26,6 +29,9 @@ init_stopwatch()
 
 stop_stopwatch()
 {
+    echo "ENABLE TIMING: $ENABLE_TIMING"
+  [[ ${ENABLE_TIMING} ]] || return
+
   local clock_filepath=${TIMING_STORE_PATH}/_time_${1}
   local csv_filepath=${TIMING_STORE_PATH}/_time_csv_${1}
   local csv_aggregate_filepath=${TIMING_STORE_PATH}/_time_csv_aggregate

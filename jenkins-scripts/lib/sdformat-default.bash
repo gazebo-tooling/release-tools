@@ -1,10 +1,5 @@
 #!/bin/bash -x
 set -e
-cp ${SCRIPT_DIR}/lib/_time_lib.sh ${WORKSPACE} && source ${WORKSPACE}/_time_lib.sh ${WORKSPACE}
-
-init_stopwatch TOTAL_TIME
-
-init_stopwatch CREATE_TESTING_ENVIROMENT
 # Identify SDFORMAT_MAJOR_VERSION to help with dependency resolution
 SDFORMAT_MAJOR_VERSION=`\
   grep 'set.*SDF_MAJOR_VERSION ' ${WORKSPACE}/sdformat/CMakeLists.txt | \
@@ -26,8 +21,7 @@ cat > build.sh << DELIM
 # Make project-specific changes here
 #
 set -ex
-source ${WORKSPACE}/_time_lib.sh ${WORKSPACE}
-stop_stopwatch CREATE_TESTING_ENVIROMENT
+source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
 
 echo '# BEGIN SECTION: install dependencies'
 # OSRF repository to get ignition-math
@@ -38,6 +32,7 @@ wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
 # Step 1: install everything you need
 apt-get update
 apt-get install -y ${BASE_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES}
+stop_stopwatch CREATE_TESTING_ENVIROMENT
 echo '# END SECTION'
 
 # Step 2: configure and build

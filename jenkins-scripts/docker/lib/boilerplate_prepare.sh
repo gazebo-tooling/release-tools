@@ -1,6 +1,35 @@
 # Common instructions to create the building enviroment
 set -e
 
+# Install needed host packages
+NEEDED_HOST_PACKAGES="mercurial docker.io python-setuptools python-psutil qemu-user-static"
+# python-argparse is integrated in libpython2.7-stdlib since raring
+# Check for precise in the HOST system (not valid DISTRO variable)
+if [[ $(lsb_release -sr | cut -c 1-5) == '12.04' ]]; then
+    NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} python2.7"
+else
+    NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} libpython2.7-stdlib"
+fi
+
+# Check if they are already installed in the host
+QUERY_HOST_PACKAGES=$(dpkg-query --list ${NEEDED_HOST_PACKAGES} | grep '^un ') || true
+if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
+  sudo apt-get update
+  sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
+fi
+
+# Some packages will not show as ^un in the previous query but will return false if
+# they are not present
+if [[ ! $(dpkg-query --list ${NEEDED_HOST_PACKAGES}) ]]; then
+  echo "Some needed packages are failing in the host"
+  exit 1
+fi
+
+# Timing
+source ${SCRIPT_DIR}/../lib/boilerplate_timing_prepare.sh
+init_stopwatch TOTAL_TIME
+init_stopwatch CREATE_TESTING_ENVIROMENT
+
 # Default values - Provide them is prefered
 if [ -z ${DISTRO} ]; then
     DISTRO=trusty
@@ -55,29 +84,6 @@ fi
 
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
-
-NEEDED_HOST_PACKAGES="mercurial docker.io python-setuptools python-psutil qemu-user-static"
-# python-argparse is integrated in libpython2.7-stdlib since raring
-# Check for precise in the HOST system (not valid DISTRO variable)
-if [[ $(lsb_release -sr | cut -c 1-5) == '12.04' ]]; then
-    NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} python2.7"
-else
-    NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} libpython2.7-stdlib"
-fi
-
-# Check if they are already installed in the host
-QUERY_HOST_PACKAGES=$(dpkg-query --list ${NEEDED_HOST_PACKAGES} | grep '^un ') || true
-if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
-  sudo apt-get update
-  sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
-fi
-
-# Some packages will not show as ^un in the previous query but will return false if
-# they are not present
-if [[ ! $(dpkg-query --list ${NEEDED_HOST_PACKAGES}) ]]; then
-  echo "Some needed packages are failing in the host"
-  exit 1
-fi
 
 # Docker checking
 # Code imported from https://github.com/CognitiveRobotics/omnimapper/tree/master/docker 
