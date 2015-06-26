@@ -7,6 +7,7 @@ sudo rm -fr ${WORKSPACE}/build
 sudo mkdir -p ${WORKSPACE}/build
 
 sudo docker build -t ${DOCKER_TAG} .
+stop_stopwatch CREATE_TESTING_ENVIROMENT
 
 sudo docker run  \
             --cidfile=${CIDFILE} \

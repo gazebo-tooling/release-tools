@@ -1,5 +1,9 @@
 #!/bin/bash -x
 set -e
+cp ${SCRIPT_DIR}/lib/_time_lib.sh ${WORKSPACE} && source ${WORKSPACE}/_time_lib.sh ${WORKSPACE}
+
+init_stopwatch TOTAL_TIME
+init_stopwatch CREATE_TESTING_ENVIROMENT
 
 # Identify SDFORMAT_MAJOR_VERSION to help with dependency resolution
 SDFORMAT_MAJOR_VERSION=`\
@@ -19,9 +23,12 @@ DOCKER_JOB_NAME="sdformat_ci"
 echo '# END SECTION'
 
 cat > build.sh << DELIM
+#!/bin/bash
 ###################################################
 # Make project-specific changes here
 #
+source ${WORKSPACE}/_time_lib.sh ${WORKSPACE}
+
 set -ex
 
 echo '# BEGIN SECTION: configure sdformat ${SDFORMAT_MAJOR_VERSION}'
@@ -32,22 +39,27 @@ cmake $WORKSPACE/sdformat
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: compiling'
+init_stopwatch COMPILATION
 make -j${MAKE_JOBS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: installing'
 make install
+stop_stopwatch COMPILATION
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: running tests'
+init_stopwatch TEST
 mkdir -p \$HOME
 make test ARGS="-VV" || true
+stop_stopwatch TEST
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: cppcheck'
 cd $WORKSPACE/sdformat
+init_stopwatch CPPCHECK
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
-cat $WORKSPACE/build/cppcheck_results/*.xml
+stop_stopwatch CPPCHECK
 echo '# END SECTION'
 DELIM
 
