@@ -1,6 +1,7 @@
 #!/bin/bash -x
 set -e
-cp ${SCRIPT_DIR}/../lib/_time_lib.sh ${WORKSPACE} && source ${WORKSPACE}/_time_lib.sh ${WORKSPACE}
+cp ${SCRIPT_DIR}/../lib/_time_lib.sh ${WORKSPACE}/scripts && \
+                              source ${WORKSPACE}/scripts/_time_lib.sh ${WORKSPACE}
 
 init_stopwatch TOTAL_TIME
 init_stopwatch CREATE_TESTING_ENVIROMENT
@@ -27,9 +28,8 @@ cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
 #
-source ${WORKSPACE}/_time_lib.sh ${WORKSPACE}
-
 set -ex
+source ${WORKSPACE}/scripts/_time_lib.sh ${WORKSPACE}
 
 echo '# BEGIN SECTION: configure sdformat ${SDFORMAT_MAJOR_VERSION}'
 # Step 2: configure and build
