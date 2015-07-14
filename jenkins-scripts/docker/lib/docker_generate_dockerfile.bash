@@ -96,7 +96,15 @@ DELIM_DOCKER_ARCH
       fi
       ;;
   debian)
-      echo "Default image source.list has main. Enough by now"
+      # Default docker image uses httpredir. However this seems to be buggy, so use the US repo
+cat >> Dockerfile << DELIM_DOCKER_DEBIAN_REPO
+RUN echo '# BEGIN SECTION: FIX source.list'
+RUN echo "deb http://ftp.us.debian.org/debian ${DISTRO} main" \\
+						       > /etc/apt/sources.list && \\
+    echo "deb-src http://ftp.us.debian.org/debian ${DISTRO} main" \\
+						       >> /etc/apt/sources.list
+RUN echo '# END SECTION'
+DELIM_DOCKER_DEBIAN_REPO
       ;;
 esac
 
