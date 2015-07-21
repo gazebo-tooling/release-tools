@@ -7,7 +7,7 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc_compiler
 echo # END SECTION
 
-if "%IGN_CLEAN_WORKSPACE%" == FALSE (
+if "%IGN_CLEAN_WORKSPACE%" == TRUE (
   echo # BEGIN SECTION: preclean of workspace
   IF exist workspace ( rmdir /s /q workspace ) || goto :error
   echo # END SECTION
