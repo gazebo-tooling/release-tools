@@ -15,8 +15,33 @@ if [[ ! -f "${HOME}/.s3cfg" ]]; then
     exit 1
 fi
 
+# Check repository destiny
+if [[ -z ${UPLOAD_TO_REPO} ]]; then
+    echo "No UPLOAD_TO_REPO value was send. Which repository to use? (stable | prerelease | nightly)"
+    exit 1
+fi
+
+case ${UPLOAD_TO_REPO} in
+    "stable")
+	;;
+    "nightly")
+	;;
+    "prerelease")
+	;;
+    *)
+	echo "Invalid UPLOAD_TO_REPO value: ${UPLOAD_TO_REPO} (stable | prerelease | nightly)"
+	exit 1
+esac
+
+repo_path="/var/packages/gazebo/${UPLOAD_TO_REPO}"
+
+if [[ ! -d ${repo_path} ]]; then
+    echo "Repo directory ${repo_path} not found in server"
+    exit 1
+fi
+
 # Place in reprepro directory
-cd /var/packages/gazebo/ubuntu
+cd ${repo_path}
 
 # S3 Amazon upload
 S3_upload()
