@@ -22,10 +22,6 @@ IF NOT exist %WORKSPACE%\workspace (
 mkdir %WORKSPACE%\workspace || echo "The workspace already exists. Fine"
 cd %WORKSPACE%\workspace || goto :error
 
-echo # BEGIN SECTION: move sources so we agree with configure.bat layout
-xcopy %WORKSPACE%\ign-transport %WORKSPACE%\workspace\ign-transport /s /i /e > xcopy.log || goto :error
-echo # END SECTION
-
 echo # BEGIN SECTION: downloading ign-transport dependencies and unzip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-win%BITNESS%-vc12.zip protobuf-2.6.0-win%BITNESS%-vc12.zip
@@ -38,10 +34,14 @@ call %win_lib% :unzip_7za zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip || goto :error
 echo # END SECTION
 ) ELSE (
   echo # BEGIN SECTION: reusing workspace 
-  :: Remove gazebo copy
+  :: Remove code copy
   IF EXIST %WORKSPACE%\workspace\ign-transport ( rmdir /s /q %WORKSPACE%\workspace\ign-transport ) || goto :error
   echo # END SECTION
 )
+
+echo # BEGIN SECTION: move sources so we agree with configure.bat layout
+xcopy %WORKSPACE%\ign-transport %WORKSPACE%\workspace\ign-transport /s /i /e > xcopy.log || goto :error
+echo # END SECTION
 
 echo # BEGIN SECTION: add zeromq to PATH for dll load
 REM Add path for zeromq dynamic library .ddl
