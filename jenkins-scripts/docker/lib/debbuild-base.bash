@@ -76,7 +76,7 @@ if $NIGHTLY_MODE; then
               --newversion \${NIGHTLY_VERSION_SUFFIX} \\
               --distribution ${DISTRO} \\
               --force-distribution \\
-              --changelog=changelog -- "Nightly release: \${NIGHTLY_VERSION_SUFFIX}"
+              --changelog=debian/changelog -- "Nightly release: \${NIGHTLY_VERSION_SUFFIX}"
 fi
 
 # Get into the unpacked source directory, without explicit knowledge of that 
