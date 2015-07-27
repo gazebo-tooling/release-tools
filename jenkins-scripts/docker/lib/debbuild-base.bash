@@ -61,7 +61,7 @@ cd /tmp/$PACKAGE-release
 if $NIGHTLY_MODE; then
     # TODO: migrate to dpkg-parsechangelog
     # dpkg-parsechangelog| grep Version | cut -f2 -d' '
-    UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${DISTRO}/debian/changelog | head -n 1 | tr -d ' ')
+    UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${DISTRO}/debian/changelog | head -n 1 | tr -d ' ' | sed 's:~.*::')
 fi
 hg up $RELEASE_REPO_BRANCH
 
