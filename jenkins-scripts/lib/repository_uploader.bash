@@ -47,7 +47,7 @@ case ${UPLOAD_TO_REPO} in
 	exit 1
 esac
 
-repo_path="/var/packages/gazebo/${UPLOAD_TO_REPO}"
+repo_path="/var/packages/gazebo/ubuntu-${UPLOAD_TO_REPO}"
 
 if [[ ! -d ${repo_path} ]]; then
     echo "Repo directory ${repo_path} not found in server"
