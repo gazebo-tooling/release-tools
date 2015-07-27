@@ -62,8 +62,6 @@ def parse_args(argv):
     parser.add_argument('package', help='which package to release')
     parser.add_argument('version', help='which version to release')
     parser.add_argument('jenkins_token', help='secret token to allow access to Jenkins to start builds')
-    parser.add_argument('--nightly', dest='nightly', action='store_true', default=False,
-                        help='Build nightly releases: do not upload tar.bz2 and values are autoconfigured')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
     parser.add_argument('-u', '--upstream', dest='upstream', action='store_true', default=False,
@@ -93,15 +91,17 @@ def parse_args(argv):
     if not args.package_alias:
         args.package_alias = args.package
     DRY_RUN = args.dry_run
-    NIGHTLY = args.nightly
     UPSTREAM = args.upstream
     NO_SRC_FILE = args.no_source_file
     DRCSIM_MULTIROS = args.drcsim_multiros
     IGN_REPO = args.ignition_repo
     UPLOAD_REPO = args.upload_to_repository
-
+    # Check for nightly releases
+    NIGHTLY = False
+    if args.upload_to_repository == 'nightly'
+        NIGHTLY = True
     # Upstream and nightly do not generate a tar.bz2 file
-    if args.upstream or args.nightly:
+    if args.upstream or NIGHTLY:
         NO_SRC_FILE = True
         args.no_source_file = True
 
@@ -390,7 +390,6 @@ def go(argv):
     if NIGHTLY:
         params['VERSION'] = 'nightly'
         params['SOURCE_TARBALL_URI'] = ''
-        params['RELEASE_REPO_BRANCH'] = 'nightly'
 
     if UPSTREAM:
         job_name = JOB_NAME_UPSTREAM_PATTERN%(args.package)
