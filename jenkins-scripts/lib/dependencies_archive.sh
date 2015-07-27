@@ -60,7 +60,7 @@ fi
 if ${USE_OLD_SDFORMAT}; then
     sdformat_pkg="sdformat"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 6 ]]; then
-    sdformat_pkg="libsdformat3-dev-prerelease"
+    sdformat_pkg="libsdformat3-dev"
 else
     sdformat_pkg="libsdformat2-dev"
 fi
