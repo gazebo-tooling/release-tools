@@ -18,7 +18,7 @@ if [[ ! -f "${HOME}/.s3cfg" ]]; then
     exit 1
 fi
 
-# Check repository destiny
+# Check destination repository
 if [[ -z ${UPLOAD_TO_REPO} ]]; then
     echo "No UPLOAD_TO_REPO value was send. Which repository to use? (stable | prerelease | nightly)"
     exit 1
