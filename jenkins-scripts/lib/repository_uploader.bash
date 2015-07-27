@@ -8,6 +8,9 @@ if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
 
+# PATH to packages
+pkgs_path="$WORKSPACE/pkgs"
+
 # Check if the node was configured to use s3cmd
 # This is done by running s3cmd --configure
 if [[ ! -f "${HOME}/.s3cfg" ]]; then
@@ -23,6 +26,17 @@ fi
 
 case ${UPLOAD_TO_REPO} in
     "stable")
+	# Security checks not to upload nightly or prereleases
+        # No packages with ~hg or ~pre
+	if [[ -n $(ls ${pkgs_path}/*~hg*.*) && -n $(ls ${pkgs_path}/*~pre*.*) ]]; then
+	  echo "There are nightly packages in the upload directory. Not uploading to stable repo"
+	  exit 1
+	fi
+        # No source packages with ~hg in version
+	if [[ -n $(cat ${pkgs_path}/*.dsc | grep ^Version: | grep '~hg\|~pre') ]]; then
+          echo "There is a sorce package with nightly or pre in version. Not uploading to stable repo"
+	  exit 1
+        fi
 	;;
     "nightly")
 	;;
@@ -105,7 +119,6 @@ upload_zip_file()
     S3_upload ${pkg} ${s3_path}
 }
 
-pkgs_path="$WORKSPACE/pkgs"
 
 # .zip | (mostly) windows packages
 for pkg in `ls $pkgs_path/*.zip`; do
