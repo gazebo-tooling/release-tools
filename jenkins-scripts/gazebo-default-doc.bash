@@ -43,7 +43,8 @@ apt-get install -y doxygen graphviz
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-cmake $WORKSPACE/gazebo
+cmake $WORKSPACE/gazebo \
+  -DENABLE_TESTS_COMPILATION:Bool=False
 make
 make doc
 ./tools/gz sdf -o > dev.html
