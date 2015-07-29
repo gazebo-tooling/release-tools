@@ -89,6 +89,10 @@ cat > devel.xml << DEVEL_DELIM
  <libs>
    /usr/local/target_branch/lib/
  </libs>
+
+ <gcc_options>
+     -std=c++11
+ </gcc_options>
 DEVEL_DELIM
 
 # clean previous reports

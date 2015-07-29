@@ -165,6 +165,10 @@ cat > devel.xml << DEVEL_DELIM
  <libs>
   \$GAZEBO_LIBS_LOCAL
  </libs>
+
+ <gcc_options>
+     -std=c++11
+ </gcc_options>
 DEVEL_DELIM
 
 # clean previous reports
