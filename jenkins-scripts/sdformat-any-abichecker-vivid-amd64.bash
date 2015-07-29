@@ -5,7 +5,7 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 if [[ -z ${DISTRO} ]]; then
-  export DISTRO=trusty
+  export DISTRO=vivid
 fi
 
 export REPO_TO_USE=OSRF
