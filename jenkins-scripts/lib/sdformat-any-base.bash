@@ -65,6 +65,9 @@ BIN_VERSION=\$(dpkg -l \${SDFORMAT_PKG} | tail -n 1 | awk '{ print  \$3 }')
 mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker
 cat > pkg.xml << CURRENT_DELIM
+<gcc_options>
+     /* Additional GCC options, one per line */
+ </gcc_options>
  <version>
      .deb pkg version: \$BIN_VERSION
  </version>
@@ -76,6 +79,11 @@ cat > pkg.xml << CURRENT_DELIM
  <libs>
     /usr/lib/
  </libs>
+
+ <gcc_options>
+     -std=c++11
+ </gcc_options>
+
 CURRENT_DELIM
 
 cat > devel.xml << DEVEL_DELIM
@@ -90,6 +98,10 @@ cat > devel.xml << DEVEL_DELIM
  <libs>
     /usr/local/lib/
  </libs>
+
+ <gcc_options>
+     -std=c++11
+ </gcc_options>
 DEVEL_DELIM
 
 rm -fr compat_reports/ 
