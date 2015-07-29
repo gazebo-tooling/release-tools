@@ -92,8 +92,8 @@ if [[ ${DISTRO} == 'precise' ]] || \
    [[ ${DISTRO} == 'quantal' ]]; then
     ogre_pkg="libogre-dev"
 elif [[ ${DISTRO} == 'trusty' ]]; then
-    # All versions of gazebo (including 5) are using the 
-    # ogre-1.8-dev package to keep in sync with ROS rviz 
+    # All versions of gazebo (including 5) are using the
+    # ogre-1.8-dev package to keep in sync with ROS rviz
     ogre_pkg="libogre-1.8-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -le 4 ]]; then
     # Before gazebo5, ogre 1.9 was not supported
@@ -120,6 +120,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libxml2-dev                      \\
                           pkg-config                       \\
                           libqt4-dev                       \\
+                          libqtwebkit-dev                  \\
                           libltdl-dev                      \\
                           libgts-dev                       \\
                           libboost-thread-dev              \\
@@ -145,7 +146,7 @@ GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libgraphviz-dev  \\
                            libswscale-dev   \\
                            ruby-ronn"
-		       
+
 # cegui is deprecated in gazebo 6
 if [[ ${GAZEBO_MAJOR_VERSION} -le 6 ]]; then
     GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} \\
@@ -180,7 +181,7 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-std-msgs                          \\
                           ros-${ROS_DISTRO}-control-toolbox                   \\
                           ${GAZEBO_DEB_PACKAGE}"
 
-if [[ $ROS_DISTRO == 'hydro' ]]; then			  
+if [[ $ROS_DISTRO == 'hydro' ]]; then
   DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
                             ros-${ROS_DISTRO}-pr2-controllers    \\
                             ros-${ROS_DISTRO}-pr2-mechanism"
@@ -191,7 +192,7 @@ else
 fi
 
 # DRCSIM_FULL_DEPENDENCIES
-# Need ROS postfix in precise for groovy/hydro 
+# Need ROS postfix in precise for groovy/hydro
 if [[ $DISTRO == 'precise' ]]; then
    ROS_POSTFIX="-${ROS_DISTRO}"
 else
@@ -218,7 +219,7 @@ SANDIA_HAND_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-xacro              \\
 			       libqt4-dev                           \\
 			       osrf-common${ROS_POSTFIX}"
 
-#			  
+#
 # ROS_GAZEBO_PKGS DEPENDECIES
 #
 ROS_GAZEBO_PKGS_DEPENDENCIES="libtinyxml-dev                            \\
@@ -251,7 +252,7 @@ ROS_GAZEBO_PKGS_DEPENDENCIES="libtinyxml-dev                            \\
                               ros-${ROS_DISTRO}-joint-limits-interface  \\
                               ros-${ROS_DISTRO}-transmission-interface"
 
-# These dependencies are for testing the ros_gazebo_pkgs			      
+# These dependencies are for testing the ros_gazebo_pkgs
 ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-xacro                   \\
                               ros-${ROS_DISTRO}-effort-controllers      \\
                               ros-${ROS_DISTRO}-joint-state-controller"
