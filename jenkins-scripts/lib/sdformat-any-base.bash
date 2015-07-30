@@ -42,7 +42,7 @@ if [[ -z ${SDFORMAT_PKG} ]]; then
        exit -1
     fi
 
-  SDFORMAT_PKG=libsformat${SDFORMAT_MAJOR_VERSION}-dev
+  SDFORMAT_PKG=libsdformat${SDFORMAT_MAJOR_VERSION}-dev
 fi
 
 
