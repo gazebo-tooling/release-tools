@@ -42,6 +42,7 @@ case ${UPLOAD_TO_REPO} in
         fi
 	;;
     "nightly")
+	# No uploads for nightly packages
 	ENABLE_S3_UPLOAD=false
 	;;
     "prerelease")
