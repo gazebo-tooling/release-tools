@@ -11,6 +11,12 @@ PROJECT_ARGS=${2}
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
+# make verbose mode?
+MAKE_VERBOSE_STR=""
+if [[ ${MAKE_VERBOSE} ]]; then
+  MAKE_VERBOSE_STR="VERBOSE=1"
+fi
+
 # Step 1. Set up homebrew
 RUN_DIR=$(mktemp -d ${HOME}/jenkins.XXXX)
 echo "Install into: ${RUN_DIR}"
@@ -84,7 +90,7 @@ ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
       -DCMAKE_PREFIX_PATH=${RUN_DIR} \
       -DBOOST_ROOT=${RUN_DIR}
 
-make -j${MAKE_JOBS} install
+make -j${MAKE_JOBS} ${MAKE_VERBOSE_STR} install
 ${RUN_DIR}/bin/brew link ${PROJECT}
 
 cat > test_run.sh << DELIM
