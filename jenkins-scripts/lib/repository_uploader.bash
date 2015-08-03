@@ -67,7 +67,7 @@ S3_upload()
 {
     local pkg=${1} s3_destination_path=${2}
 
-    if $ENABLE_S3_UPLOAD; then
+    if ! $ENABLE_S3_UPLOAD; then
         echo '# BEGIN SECTION: S3 upload is DISABLED'
 	echo "S3 upload is disabled"
 	echo '# END SECTION'
