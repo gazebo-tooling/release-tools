@@ -8,6 +8,9 @@ if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
 
+# By default, enable s3 upload of packages
+ENABLE_S3_UPLOAD=true
+
 # PATH to packages
 pkgs_path="$WORKSPACE/pkgs"
 
@@ -39,6 +42,7 @@ case ${UPLOAD_TO_REPO} in
         fi
 	;;
     "nightly")
+	ENABLE_S3_UPLOAD=false
 	;;
     "prerelease")
 	;;
@@ -61,6 +65,13 @@ cd ${repo_path}
 S3_upload()
 {
     local pkg=${1} s3_destination_path=${2}
+
+    if [[ ! $ENABLE_S3_UPLOAD ]]; then
+        echo '# BEGIN SECTION: S3 upload is DISABLED'
+	echo "S3 upload is disabled"
+	echo '# END SECTION'
+	return
+    fi
 
     [[ -z ${pkg} ]] && echo "pkg is empty" && exit 1
     [[ -z ${s3_destination_path} ]] && echo "s3_destination_path is empty" && exit 1
