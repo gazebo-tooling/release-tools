@@ -98,7 +98,7 @@ def parse_args(argv):
     UPLOAD_REPO = args.upload_to_repository
     # Check for nightly releases
     NIGHTLY = False
-    if args.upload_to_repository == 'nightly'
+    if args.upload_to_repository == 'nightly':
         NIGHTLY = True
     # Upstream and nightly do not generate a tar.bz2 file
     if args.upstream or NIGHTLY:
