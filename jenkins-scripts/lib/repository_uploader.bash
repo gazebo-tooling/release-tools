@@ -24,6 +24,9 @@ fi
 # Check destination repository
 if [[ -z ${UPLOAD_TO_REPO} ]]; then
     echo "No UPLOAD_TO_REPO value was send. Which repository to use? (stable | prerelease | nightly)"
+    echo ""
+    echo "Please check that the jenkins -debbuild job that called this uploader is defining the parameter"
+    echo "UPLOAD_TO_REPO in the job configuration. If it is not, just define it as a string parameter"
     exit 1
 fi
 
