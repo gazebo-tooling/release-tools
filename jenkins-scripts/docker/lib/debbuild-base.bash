@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 NIGHTLY_MODE=false
-if [ "${VERSION}" = "nightly" ]; then
+if [ "${UPLOAD_TO_REPO}" = "nightly" ]; then
    NIGHTLY_MODE=true
 fi
 
@@ -19,6 +19,9 @@ cat > build.sh << DELIM
 set -ex
 
 cd $WORKSPACE/build
+
+export DEBFULLNAME="OSRF Jenkins"
+export DEBEMAIL="build@osrfoundation.org"
 
 echo '# BEGIN SECTION: import the debian metadata'
 
@@ -56,12 +59,9 @@ hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release /tmp/$PACKAGE-
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
-    # TODO: remove check when multidistribution reach default branch
-    if [ -f "${DISTRO}/debian/changelog" ]; then
-      UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${DISTRO}/debian/changelog | head -n 1 | tr -d ' ' | sed 's/-.*//')
-    else
-      UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ubuntu/debian/changelog | head -n 1 | tr -d ' '| sed 's/-.*//')
-    fi
+    # TODO: migrate to dpkg-parsechangelog
+    # dpkg-parsechangelog| grep Version | cut -f2 -d' '
+    UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${DISTRO}/debian/changelog | head -n 1 | tr -d ' ' | sed 's:~.*::')
 fi
 hg up $RELEASE_REPO_BRANCH
 
@@ -70,12 +70,13 @@ cd /tmp/$PACKAGE-release/${DISTRO}
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
   TIMESTAMP=\$(date '+%Y%m%d')
-  RELEASE_DATE=\$(date '+%a, %d %B %Y %T -0700')
   NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}~${DISTRO}
-  # Fix the changelog
-  sed -i -e "s/xxxxx/\${NIGHTLY_VERSION_SUFFIX}/g" debian/changelog
-  sed -i -e "s/ddddd/\${RELEASE_DATE}/g" debian/changelog
-  # TODO: Fix CMakeLists.txt ?
+  # Update the changelog
+  debchange --package ${PACKAGE} \\
+              --newversion \${NIGHTLY_VERSION_SUFFIX} \\
+              --distribution ${DISTRO} \\
+              --force-distribution \\
+              --changelog=debian/changelog -- "Nightly release: \${NIGHTLY_VERSION_SUFFIX}"
 fi
 
 # Get into the unpacked source directory, without explicit knowledge of that 

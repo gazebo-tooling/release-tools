@@ -8,6 +8,12 @@ if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
 
+# By default, enable s3 upload of packages
+ENABLE_S3_UPLOAD=true
+
+# PATH to packages
+pkgs_path="$WORKSPACE/pkgs"
+
 # Check if the node was configured to use s3cmd
 # This is done by running s3cmd --configure
 if [[ ! -f "${HOME}/.s3cfg" ]]; then
@@ -15,13 +21,58 @@ if [[ ! -f "${HOME}/.s3cfg" ]]; then
     exit 1
 fi
 
+# Check destination repository
+if [[ -z ${UPLOAD_TO_REPO} ]]; then
+    echo "No UPLOAD_TO_REPO value was send. Which repository to use? (stable | prerelease | nightly)"
+    exit 1
+fi
+
+case ${UPLOAD_TO_REPO} in
+    "stable")
+	# Security checks not to upload nightly or prereleases
+        # No packages with ~hg or ~pre
+	if [[ -n $(ls ${pkgs_path}/*~hg*.*) && -n $(ls ${pkgs_path}/*~pre*.*) ]]; then
+	  echo "There are nightly packages in the upload directory. Not uploading to stable repo"
+	  exit 1
+	fi
+        # No source packages with ~hg in version
+	if [[ -n $(cat ${pkgs_path}/*.dsc | grep ^Version: | grep '~hg\|~pre') ]]; then
+          echo "There is a sorce package with nightly or pre in version. Not uploading to stable repo"
+	  exit 1
+        fi
+	;;
+    "nightly")
+	# No uploads for nightly packages
+	ENABLE_S3_UPLOAD=false
+	;;
+    "prerelease")
+	;;
+    *)
+	echo "Invalid UPLOAD_TO_REPO value: ${UPLOAD_TO_REPO} (stable | prerelease | nightly)"
+	exit 1
+esac
+
+repo_path="/var/packages/gazebo/ubuntu-${UPLOAD_TO_REPO}"
+
+if [[ ! -d ${repo_path} ]]; then
+    echo "Repo directory ${repo_path} not found in server"
+    exit 1
+fi
+
 # Place in reprepro directory
-cd /var/packages/gazebo/ubuntu
+cd ${repo_path}
 
 # S3 Amazon upload
 S3_upload()
 {
     local pkg=${1} s3_destination_path=${2}
+
+    if ! $ENABLE_S3_UPLOAD; then
+        echo '# BEGIN SECTION: S3 upload is DISABLED'
+	echo "S3 upload is disabled"
+	echo '# END SECTION'
+	return
+    fi
 
     [[ -z ${pkg} ]] && echo "pkg is empty" && exit 1
     [[ -z ${s3_destination_path} ]] && echo "s3_destination_path is empty" && exit 1
@@ -80,7 +131,6 @@ upload_zip_file()
     S3_upload ${pkg} ${s3_path}
 }
 
-pkgs_path="$WORKSPACE/pkgs"
 
 # .zip | (mostly) windows packages
 for pkg in `ls $pkgs_path/*.zip`; do
