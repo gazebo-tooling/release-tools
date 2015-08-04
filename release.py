@@ -138,7 +138,7 @@ def sanity_package_name(repo_dir, package, package_alias):
         expected_name = package_alias
 
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
-    out, err = check_call(cmd)
+    out, err = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.split("\n"):
         if not line:
             continue
@@ -147,7 +147,7 @@ def sanity_package_name(repo_dir, package, package_alias):
             error("Error in changelog package name or alias: " + line)
 
     cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
-    out, err = check_call(cmd)
+    out, err = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.split("\n"):
         if not line:
             continue
@@ -159,7 +159,7 @@ def sanity_package_name(repo_dir, package, package_alias):
 
 def sanity_package_version(repo_dir, version, release_version):
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
-    out, err = check_call(cmd)
+    out, err = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.split("\n"):
         if not line:
             continue
@@ -203,7 +203,7 @@ def sanity_check_repo_name(repo_name):
     if repo_name == 'stable' or  repo_name == 'prerelease' or repo_name == 'nightly':
         return
 
-    error("Upload repo value: " + repo_name + "is not valid. stable | prerelease | nightly")
+    error("Upload repo value: " + repo_name + " is not valid. stable | prerelease | nightly")
 
 def check_s3cmd_configuration():
     # Need to check if s3cmd is installed
@@ -224,10 +224,13 @@ def sanity_checks(args, repo_dir):
 
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
-    sanity_package_version(repo_dir, args.version, str(args.release_version))
-    sanity_check_gazebo_versions(args.package, args.version)
-    sanity_check_sdformat_versions(args.package, args.version)
     sanity_check_repo_name(args.upload_to_repository)
+
+    if not NIGHTLY:
+        sanity_package_version(repo_dir, args.version, str(args.release_version))
+        sanity_check_gazebo_versions(args.package, args.version)
+        sanity_check_sdformat_versions(args.package, args.version)
+
     shutil.rmtree(repo_dir)
 
 def discover_distros(args, repo_dir):
@@ -245,11 +248,9 @@ def discover_distros(args, repo_dir):
     UBUNTU_DISTROS = subdirs
 
 def check_call(cmd, ignore_dry_run = False):
-    if NIGHTLY:
-        return '',''
     if ignore_dry_run:
         # Commands that do not change anything in repo level
-        print('Dry-run running:\n  %s'%(' '.join(cmd)))
+        print('Dry-run running:\n  %s\n'%(' '.join(cmd)))
     else:
         print('Running:\n  %s'%(' '.join(cmd)))
     if DRY_RUN and not ignore_dry_run:
