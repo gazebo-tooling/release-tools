@@ -66,6 +66,13 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO} main restricted univers
 DELIM_DOCKER_ARCH
 fi
 
+# Workaround for: https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1325142
+if [[ ${ARCH} == 'i386' ]]; then
+cat >> Dockerfile << DELIM_DOCKER_PAM_BUG
+RUN echo "Workaround on i386 to bug in libpam"
+RUN echo "libpam-systemd  hold" | dpkg --set-selections
+DELIM_DOCKER_PAM_BUG
+
 if ${USE_OSRF_REPO}; then
 cat >> Dockerfile << DELIM_DOCKER2
 RUN apt-get update && apt-get install -y wget
