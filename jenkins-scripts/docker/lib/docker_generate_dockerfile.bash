@@ -72,6 +72,7 @@ cat >> Dockerfile << DELIM_DOCKER_PAM_BUG
 RUN echo "Workaround on i386 to bug in libpam"
 RUN echo "libpam-systemd  hold" | dpkg --set-selections
 DELIM_DOCKER_PAM_BUG
+fi
 
 if ${USE_OSRF_REPO}; then
 cat >> Dockerfile << DELIM_DOCKER2
