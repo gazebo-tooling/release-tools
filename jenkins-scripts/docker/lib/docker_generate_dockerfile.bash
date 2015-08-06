@@ -74,8 +74,8 @@ fi
 if [[ ${ARCH} == 'i386' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_PAM_BUG
 RUN echo "Workaround on i386 to bug in libpam. Needs first apt-get update"
-RUN apt-get update
-RUN echo "libpam-systemd  hold" | dpkg --set-selections
+RUN dpkg-divert --local --rename --add /sbin/initctl
+RUN ln -sf /bin/true /sbin/initctl
 DELIM_DOCKER_PAM_BUG
 fi
 
