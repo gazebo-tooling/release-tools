@@ -8,6 +8,10 @@ sudo mkdir -p ${WORKSPACE}/build
 
 sudo docker build -t ${DOCKER_TAG} .
 
+echo '# BEGIN SECTION: see build.sh script'
+cat build.sh
+echo '# END SECTION'
+
 sudo docker run  \
             --cidfile=${CIDFILE} \
             -v ${WORKSPACE}/pkgs:${WORKSPACE}/pkgs \
