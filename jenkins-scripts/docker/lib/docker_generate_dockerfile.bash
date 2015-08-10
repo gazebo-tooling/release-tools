@@ -78,7 +78,7 @@ RUN dpkg-divert --local --rename --add /sbin/initctl \\
 	&& ln -s /bin/true /sbin/initctl \\
 	&& echo 'udev hold' | dpkg --set-selections \\
 	&& export DEBIAN_FRONTEND=noninteractive \\
-	&& apt-get update \\\
+	&& apt-get update \\
 	&& apt-get -y upgrade
 DELIM_DOCKER_PAM_BUG
 fi
