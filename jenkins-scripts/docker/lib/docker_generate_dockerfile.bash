@@ -19,14 +19,14 @@ case ${ARCH} in
      FROM_VALUE=ubuntu:${DISTRO}
      ;;
   'i386')
-      # There are no i386 official images. Only 14.04 (trusty) is available
+     # There are no i386 official images. Only 14.04 (trusty) is available
      # https://registry.hub.docker.com/u/32bit/ubuntu/tags/manage/
      if [[ $DISTRO != 'trusty' ]]; then
-	 echo "Only trusty images are avilable for i386"
-	 exit 1
+       FROM_VALUE=32bit/ubuntu:14.04
      fi
 
-     FROM_VALUE=32bit/ubuntu:14.04
+     # Other images are not official.
+     FROM_VALUE=mcandre/docker-ubuntu-32bit:${DISTRO}
      ;;
  'armhf')
      FROM_VALUE=osrf/ubuntu_armhf:${DISTRO}
@@ -53,6 +53,10 @@ RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
   && (echo "Acquire::http::Proxy \"http://\$(cat /tmp/host_ip.txt):8000\";" > /etc/apt/apt.conf.d/30proxy) \
   && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
   || echo "No squid-deb-proxy detected on docker host"
+# setup environment
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV DEBIAN_FRONTEND noninteractive
 DELIM_DOCKER
 
 if [[ ${ARCH} != 'armhf' ]]; then
@@ -64,6 +68,19 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO} main restricted univers
     echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-security main restricted universe multiverse" && \\
                                                        >> /etc/apt/sources.list
 DELIM_DOCKER_ARCH
+fi
+
+# Workaround for: https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1325142
+if [[ ${ARCH} == 'i386' ]]; then
+cat >> Dockerfile << DELIM_DOCKER_PAM_BUG
+RUN echo "Workaround on i386 to bug in libpam. Needs first apt-get update"
+RUN dpkg-divert --rename --add /usr/sbin/invoke-rc.d \\
+        && ln -s /bin/true /usr/sbin/invoke-rc.d \\
+	&& apt-get update \\
+        && apt-get install -y libpam-systemd \\
+	&& rm /usr/sbin/invoke-rc.d \\
+        && dpkg-divert --rename --remove /usr/sbin/invoke-rc.d
+DELIM_DOCKER_PAM_BUG
 fi
 
 if ${USE_OSRF_REPO}; then
