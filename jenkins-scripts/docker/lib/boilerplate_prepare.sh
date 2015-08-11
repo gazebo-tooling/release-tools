@@ -30,6 +30,12 @@ if [ -z ${NEED_C11_COMPILER} ]; then
   NEED_C11_COMPILER=false
 fi
 
+# Transition for 4.8 -> 4.9 makes some optimization in the linking
+# which can break some software. Use it as a workaround in this case
+if [ -z ${NEED_GCC48_COMPILER} ]; then
+  NEED_GCC48_COMPILER=false
+fi
+
 # Only precise needs to install a C++11 compiler. Trusty on
 # already have a supported version
 if $NEED_C11_COMPILER; then
