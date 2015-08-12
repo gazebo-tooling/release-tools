@@ -14,10 +14,10 @@ JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-bloom-debbuilder'
 
 UBUNTU_ARCHS = ['amd64']
-# UBUNTU_DISTROS = ['trusty', 'precise']
-UBUNTU_DISTROS = ['trusty']
+UBUNTU_DISTROS = ['trusty','vivid']
 ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
-ROS_DISTROS_IN_TRUSTY = [ 'indigo' ]
+ROS_DISTROS_IN_TRUSTY = [ 'indigo','jade' ]
+ROS_DISTROS_IN_VIVID = [ 'jade' ]
 
 DRY_RUN = False
 
@@ -34,6 +34,9 @@ def parse_args(argv):
     parser.add_argument('-r', '--release-version', dest='release_version', 
                         default=None,
                         help='Release version suffix; usually 1 (e.g., 1')
+    parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
+                        help='OSRF repo to upload: stable | prerelease | nightly')
+
     args = parser.parse_args()
     DRY_RUN = args.dry_run
     return args
@@ -68,6 +71,7 @@ def go(argv):
     params['PACKAGE'] = args.package
     params['VERSION'] = args.version
     params['UPSTREAM_RELEASE_REPO'] = args.upstream_release_repo
+    params['UPLOAD_TO_REPO'] =args.upload_to_repository
 
     if not args.release_version:
         args.release_version = 0
