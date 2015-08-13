@@ -14,11 +14,10 @@ JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-bloom-debbuilder'
 
 UBUNTU_ARCHS = ['amd64']
-UBUNTU_DISTROS = ['trusty','vivid']
-ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
-ROS_DISTROS_IN_TRUSTY = [ 'indigo','jade' ]
-ROS_DISTROS_IN_VIVID = [ 'jade' ]
-
+# not releasing for precise by default
+ROS_DISTROS_IN_UBUNTU = { # 'precise' : ['hydro'],
+                          'trusty'  : ['indigo','jade'],
+                          'vivid'   : ['jade']}
 DRY_RUN = False
 
 def parse_args(argv):
@@ -78,18 +77,11 @@ def go(argv):
     params['RELEASE_VERSION'] = args.release_version
     params_query = urllib.urlencode(params)
     base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, JOB_NAME_PATTERN%(args.package), params_query)
-    distros = UBUNTU_DISTROS
-    for d in distros:
+    for d, ros_distro in ROS_DISTROS_IN_UBUNTU.iteritems():
         for a in UBUNTU_ARCHS:
-            # Process ROS distros for each ubuntu distro
-            # raring           -> hydro
-            # quantal, precise -> groovy + hydro
-            if (d == 'precise'):
-                ROS_DISTROS = ROS_DISTROS_IN_PRECISE
-            elif (d == 'trusty'):
-                ROS_DISTROS = ROS_DISTROS_IN_TRUSTY
-            else:
-                print ("Unkwnon distribution")
+            ROS_DISTROS = ROS_DISTROS_IN_UBUNTU[d]
+            if len(ROS_DISTROS) == 0:
+                print ("No ROS_DISTROS defined in Ubuntu " + d)
                 sys.exit(1)
 
             for r in ROS_DISTROS:
