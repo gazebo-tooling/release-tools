@@ -16,7 +16,7 @@ JOB_NAME_PATTERN = '%s-bloom-debbuilder'
 UBUNTU_ARCHS = ['amd64']
 # not releasing for precise by default
 ROS_DISTROS_IN_UBUNTU = { # 'precise' : ['hydro'],
-                          'trusty'  : ['indigo','jade'],
+                          'trusty'  : ['indigo', 'jade'],
                           'vivid'   : ['jade']}
 DRY_RUN = False
 
@@ -85,6 +85,10 @@ def go(argv):
                 sys.exit(1)
 
             for r in ROS_DISTROS:
+                if r == 'jade' and args.package == 'gazebo-ros-control':
+                    print ("!! No gazebo-ros-control in jade, skipping")
+                    continue
+
                 url = '%s&ARCH=%s&DISTRO=%s&ROS_DISTRO=%s'%(base_url, a, d, r)
                 print('Accessing: %s'%(url))
                 if not DRY_RUN:
