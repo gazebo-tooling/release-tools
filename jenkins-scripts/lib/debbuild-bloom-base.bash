@@ -86,7 +86,7 @@ if [ -f /usr/bin/rosdep ]; then
   # root share the same /tmp/buildd HOME than pbuilder user. Need to specify the root
   # HOME=/root otherwise it will make cache created during ros call forbidden to 
   # access to pbuilder user.
-  HOME=/root rosdep init
+  HOME=/root strace rosdep init
 fi
 DELIM_ROS_DEP
 chmod a+x \$PBUILD_DIR/A10_run_rosdep
