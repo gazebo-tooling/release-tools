@@ -86,6 +86,7 @@ if [ -f /usr/bin/rosdep ]; then
   # root share the same /tmp/buildd HOME than pbuilder user. Need to specify the root
   # HOME=/root otherwise it will make cache created during ros call forbidden to 
   # access to pbuilder user.
+  apt-get install -y strace
   HOME=/root strace rosdep init
 fi
 DELIM_ROS_DEP
