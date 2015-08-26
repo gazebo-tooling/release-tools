@@ -410,6 +410,9 @@ def go(argv):
 
     for d in distros:
         for a in UBUNTU_ARCHS:
+            if (NIGHTLY and a == 'i386'):
+                continue
+
             if (a == 'armhf'):
                 # Only release armhf in trusty for now
                 if (d != 'trusty'):
