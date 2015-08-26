@@ -1,14 +1,12 @@
 :echo on
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
-set DEPENDENCIES_READY_FILE=%WORKSPACE%\ignition_transport_deps_ready.dummy
 
 :: Call vcvarsall and all the friends
 echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc_compiler
 echo # END SECTION
 
-echo %IGN_CLEAN_WORKSPACE%
 if %IGN_CLEAN_WORKSPACE% == true (
   echo # BEGIN SECTION: preclean of workspace
   IF exist workspace ( rmdir /s /q workspace ) || goto :error
@@ -18,9 +16,6 @@ if %IGN_CLEAN_WORKSPACE% == true (
   IF exist workspace\ign-transport ( rmdir /s /q workspace\ign-transport ) || goto :error
   echo # END SECTION
 )
-
-:: Check if we need to download dependencies
-IF NOT exist %DEPENDENCIES_READY_FILE% (
 
 mkdir %WORKSPACE%\workspace || echo "The workspace already exists. Fine"
 cd %WORKSPACE%\workspace || goto :error
@@ -34,18 +29,10 @@ call %win_lib% :download_7za
 call %win_lib% :unzip_7za cppzmq-noarch.zip || goto :error
 call %win_lib% :unzip_7za protobuf-2.6.0-win%BITNESS%-vc12.zip || goto :error
 call %win_lib% :unzip_7za zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip || goto :error
-REM. > %DEPENDENCIES_READY_FILE%
-
-echo # END SECTION
-) ELSE (
-  echo # BEGIN SECTION: reusing workspace
-  echo Remove %DEPENDENCIES_READY_FILE% file to force a reload
-  :: Remove code copy
-  IF EXIST %WORKSPACE%\workspace\ign-transport ( rmdir /s /q %WORKSPACE%\workspace\ign-transport ) || goto :error
-  echo # END SECTION
-)
 
 echo # BEGIN SECTION: move sources so we agree with configure.bat layout
+:: Remove code copy
+IF EXIST %WORKSPACE%\workspace\ign-transport ( rmdir /s /q %WORKSPACE%\workspace\ign-transport ) || goto :error
 xcopy %WORKSPACE%\ign-transport %WORKSPACE%\workspace\ign-transport /s /i /e > xcopy.log || goto :error
 echo # END SECTION
 
