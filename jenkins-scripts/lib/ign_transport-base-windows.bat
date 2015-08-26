@@ -26,9 +26,9 @@ call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip
 
 call %win_lib% :download_7za
-call %win_lib% :unzip_7za cppzmq-noarch.zip || goto :error
-call %win_lib% :unzip_7za protobuf-2.6.0-win%BITNESS%-vc12.zip || goto :error
-call %win_lib% :unzip_7za zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip || goto :error
+call %win_lib% :unzip_7za cppzmq-noarch.zip > cppzmq_7z.log || goto :error
+call %win_lib% :unzip_7za protobuf-2.6.0-win%BITNESS%-vc12.zip > protobuf_7z.log || goto :error
+call %win_lib% :unzip_7za zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip > zeromq_7z.log || goto :error
 
 echo # BEGIN SECTION: move sources so we agree with configure.bat layout
 :: Remove code copy
