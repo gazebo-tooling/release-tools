@@ -1,6 +1,7 @@
 :echo on
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
+set DEPENDENCIES_READY_FILE=%WORKSPACE%\workspace\deps_ready.dummy
 
 :: Call vcvarsall and all the friends
 echo # BEGIN SECTION: configure the MSVC compiler
@@ -18,7 +19,8 @@ if %IGN_CLEAN_WORKSPACE% == true (
   echo # END SECTION
 )
 
-IF NOT exist %WORKSPACE%\workspace ( 
+:: Check if we need to download dependencies
+IF NOT exist %DEPENDENCIES_READY_FILE% (
 
 mkdir %WORKSPACE%\workspace || echo "The workspace already exists. Fine"
 cd %WORKSPACE%\workspace || goto :error
@@ -32,6 +34,8 @@ call %win_lib% :download_7za
 call %win_lib% :unzip_7za cppzmq-noarch.zip || goto :error
 call %win_lib% :unzip_7za protobuf-2.6.0-win%BITNESS%-vc12.zip || goto :error
 call %win_lib% :unzip_7za zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip || goto :error
+REM. > %DEPENDENCIES_READY_FILE%
+
 echo # END SECTION
 ) ELSE (
   echo # BEGIN SECTION: reusing workspace 
