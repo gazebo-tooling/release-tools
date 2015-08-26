@@ -1,7 +1,7 @@
 :echo on
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
-set DEPENDENCIES_READY_FILE=%WORKSPACE%\workspace\deps_ready.dummy
+set DEPENDENCIES_READY_FILE=%WORKSPACE%\ignition_transport_deps_ready.dummy
 
 :: Call vcvarsall and all the friends
 echo # BEGIN SECTION: configure the MSVC compiler
@@ -38,7 +38,8 @@ REM. > %DEPENDENCIES_READY_FILE%
 
 echo # END SECTION
 ) ELSE (
-  echo # BEGIN SECTION: reusing workspace 
+  echo # BEGIN SECTION: reusing workspace
+  echo Remove %DEPENDENCIES_READY_FILE% file to force a reload
   :: Remove code copy
   IF EXIST %WORKSPACE%\workspace\ign-transport ( rmdir /s /q %WORKSPACE%\workspace\ign-transport ) || goto :error
   echo # END SECTION
