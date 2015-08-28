@@ -84,7 +84,7 @@ cp -a --dereference /tmp/$PACKAGE-release/${DISTRO}/* .
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install build dependencies'
-mk-build-deps -r -i debian/control --tool 'apt-get --no-install-recommends --yes'
+mk-build-deps -r -i debian/control --tool 'apt-get --yes'
 echo '# END SECTION'
 
 if [ -f /usr/bin/rosdep ]; then
