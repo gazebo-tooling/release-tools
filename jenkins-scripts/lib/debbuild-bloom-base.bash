@@ -87,7 +87,7 @@ if [ -f /usr/bin/rosdep ]; then
   # HOME=/root otherwise it will make cache created during ros call forbidden to 
   # rosdep needs certificates to access to https
   apt-get install -y python-openssl ca-certificates
-  HOME=/root strace rosdep init
+  HOME=/root rosdep init
 fi
 DELIM_ROS_DEP
 chmod a+x \$PBUILD_DIR/A10_run_rosdep
