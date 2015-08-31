@@ -1,6 +1,14 @@
 # Common instructions to create the building enviroment
 set -e
 
+# GPU_SUPPORT_NEEDED to be use by the scripts.
+# USE_GPU_DOCKER by internal lib/ scripts
+if ${GPU_SUPPORT_NEEDED}; then
+    export USE_GPU_DOCKER=true
+fi
+
+[[ -z $USE_GPU_DOCKER ]] && export USE_GPU_DOCKER=false
+
 # Default values - Provide them is prefered
 if [ -z ${DISTRO} ]; then
     DISTRO=trusty
@@ -135,6 +143,14 @@ export DOCKER_TAG="${DOCKER_JOB_NAME}"
 # It is used to invalidate cache
 TODAY_STR=$(date +%D)
 MONTH_YEAR_STR=$(date +%m%y)
+
+# Clean previous results in the workspace if any
+if [[ -z ${KEEP_WORKSPACE} ]]; then
+    # Clean previous results, need to next mv command not to fail
+    for d in $(find ${WORKSPACE} -name '*_results' -type d); do
+        sudo rm -fr ${d}
+    done
+fi
 
 rm -fr Dockerfile
 cd ${WORKSPACE}
