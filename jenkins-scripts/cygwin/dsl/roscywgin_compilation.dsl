@@ -1,6 +1,6 @@
 job('roscygwin-ci_daily-cygwin64') {
     scm {
-        hg('http://bibucket.org/osrf/release-tools','${RTOOLS_BRANCH}')
+        hg('http://bitbucket.org/osrf/release-tools','${RTOOLS_BRANCH}')
     }
     triggers {
        cron('@daily')
