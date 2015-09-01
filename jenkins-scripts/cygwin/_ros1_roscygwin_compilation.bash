@@ -12,7 +12,7 @@ echo '# END SECTION'
 echo "# BEGIN SECTION: Install library dependencies"
 apt-cyg install libpoco-devel libboost-devel libboost_python-devel libGLU-devel \ 
                 libgtk2.0-devel libcurl-devel libjpeg-devel libfltk-devel \
-				libX11-devel libXext-devel libfreetype-devel libxml2-devel libqhull-devel
+                libX11-devel libXext-devel libfreetype-devel libxml2-devel libqhull-devel
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: Prepare script sources"
