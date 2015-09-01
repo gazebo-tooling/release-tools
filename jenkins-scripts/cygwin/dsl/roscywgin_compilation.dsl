@@ -1,4 +1,6 @@
 job('roscygwin-ci_daily-cygwin64') {
+    label('cygwin')
+
     scm {
         hg('http://bitbucket.org/osrf/release-tools','${RTOOLS_BRANCH}')
     }
