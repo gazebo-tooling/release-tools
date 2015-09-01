@@ -44,7 +44,11 @@ esac
 [[ -z ${USE_ROS_REPO} ]] && USE_ROS_REPO=false
 
 # depracted variable, do migration here
-[[ ${USE_OSRF_REPO} ]] && OSRF_REPOS_TO_USE="stable"
+if [[ -z ${OSRF_REPOS_TO_USE} ]]; then
+  if ${USE_OSRF_REPO}; then
+     OSRF_REPOS_TO_USE="stable"
+  fi
+fi
 
 echo '# BEGIN SECTION: create the Dockerfile'
 cat > Dockerfile << DELIM_DOCKER
