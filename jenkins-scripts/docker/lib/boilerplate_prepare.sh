@@ -3,8 +3,8 @@ set -e
 
 # GPU_SUPPORT_NEEDED to be use by the scripts.
 # USE_GPU_DOCKER by internal lib/ scripts
-if ${GPU_SUPPORT_NEEDED}; then
-    export USE_GPU_DOCKER=true
+if [[ -n ${GPU_SUPPORT_NEEDED} ]] && ${GPU_SUPPORT_NEEDED}; then
+  export USE_GPU_DOCKER=true
 fi
 
 [[ -z $USE_GPU_DOCKER ]] && export USE_GPU_DOCKER=false
