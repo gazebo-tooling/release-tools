@@ -1,6 +1,21 @@
+doesntWork = new File(".").getCanonicalPath()
+println "1: " + doesntWork
+
+println "2: " + new File(".").absolutePath
+
+def scriptDir = new File(getClass().protectionDomain.codeSource.location.path).parent
+println "3: " + scriptDir
+
+def scriptDir2 = getClass().protectionDomain.codeSource.location.path
+println "4: " + scriptDir2
+
+URL scriptUrl = getClass().classLoader.resourceLoader
+    .loadGroovySource(getClass().name)
+
+println "5: " + scriptUrl
+
 def current_dir = new File(getClass().protectionDomain.codeSource.location.path).parent
 def config_file = current_dir + "_configs.groovy"
-print config_file
 evaluate(new File(config_file))
 
 def supported_distros = [ 'trusty' ]
