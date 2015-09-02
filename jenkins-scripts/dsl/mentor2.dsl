@@ -1,5 +1,7 @@
-current_dir = new File(getClass().protectionDomain.codeSource.location.path).parent
-evaluate(new File(current_dir + "/_configs.groovy"))
+def current_dir = new File(getClass().protectionDomain.codeSource.location.path).parent
+def config_file = current_dir + "_configs.groovy"
+print config_file
+evaluate(new File(config_file))
 
 def supported_distros = [ 'trusty' ]
 def supported_arches = [ 'amd64' ]
