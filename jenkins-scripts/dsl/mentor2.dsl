@@ -10,7 +10,7 @@ supported_distros.each { distro ->
     def ci_default_job = job("gazebo-ci_mentor2_v2-${distro}-${arch}")
 
     // Use the linux compilation as base
-    OSRFLinuxCompilation.create(ci_default_job)
+    _configs_.OSRFLinuxCompilation.create(ci_default_job)
 
     ci_default_job.with
     {
