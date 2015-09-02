@@ -1,4 +1,4 @@
-evaluate(new File("./_configs.groovy"))
+evaluate(new File("._configs.groovy"))
 
 def supported_distros = [ 'trusty' ]
 def supported_arches = [ 'amd64' ]
