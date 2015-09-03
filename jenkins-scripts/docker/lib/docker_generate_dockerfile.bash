@@ -145,12 +145,11 @@ RUN apt-get update && \
     apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} && \
     rm -rf /var/lib/apt/lists/*
 
-# This is killing the cache so we getg the most recent packages if there
+# This is killing the cache so we get the most recent packages if there
 # was any update
 RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))"
 RUN apt-get update && \
-    apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES}
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
 DELIM_DOCKER3
