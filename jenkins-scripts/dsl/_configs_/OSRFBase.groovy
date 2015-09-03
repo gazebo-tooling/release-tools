@@ -25,9 +25,9 @@ ${FAILED_TESTS}
      	description 'Automatic generated job by DSL jenkins. Please do not edit manually'
 
         publishers { 
-          extendedEmail(recipients = '$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org'
-                      subjectTemplate = '$DEFAULT_SUBJECT' ,
-                      contentTemplate = ${content})  {
+          extendedEmail(recipients: '$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org'
+                      subjectTemplate: '$DEFAULT_SUBJECT',
+                      contentTemplate: content)  {
             trigger(triggerName: 'Failure', 
                     subject: null, body: null, recipientList: null, 
                     sendToDevelopers: true,
