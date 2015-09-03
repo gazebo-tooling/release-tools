@@ -1,4 +1,4 @@
-import _configs_.OSRFLinuxBase
+import _configs_.OSRFLinuxCompilation
 import javaposse.jobdsl.dsl.Job
 
 def supported_distros = [ 'trusty' ]
@@ -11,7 +11,7 @@ supported_distros.each { distro ->
     def ci_default_job = job("gazebo-ci_mentor2_v2-${distro}-${arch}")
 
     // Use the linux compilation as base
-    OSRFLinuxBase.create(ci_default_job)
+    OSRFLinuxCompilation.create(ci_default_job)
 
     ci_default_job.with
     {

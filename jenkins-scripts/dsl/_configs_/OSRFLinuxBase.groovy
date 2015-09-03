@@ -12,7 +12,7 @@ class OSRFLinuxBase extends OSRFBase
 {
    static void create(Job job)
    {
-     super.create(job)
+     OSRFBase.create(job)
      job.with 
      {
          label: docker

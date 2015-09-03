@@ -10,7 +10,7 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
 {   
   static void create(Job job)
   {
-    super.create(job)
+    OSRFLinuxBase.create(job)
     job.with
     {
       publishers {
