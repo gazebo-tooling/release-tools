@@ -12,7 +12,8 @@ supported_distros.each { distro ->
     def ci_default_job = job("gazebo-ci_mentor2_v2-${distro}-${arch}")
 
     // Use the linux compilation as base
-    MyUtilities.addMyFeature(myJob)
+
+    MyUtilities.addMyFeature(ci_default_job)
 
     println "-----------------------------"
 
