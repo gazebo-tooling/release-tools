@@ -13,9 +13,23 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
     OSRFLinuxBase.create(job)
     job.with
     {
-      publishers {
+      priority 100
+
+      publishers 
+      {
+         publishBuild {
+           discardOldBuilds(daysToKeep = -1, numToKeep = 15)
+	 }
+
          warnings(['GNU C Compiler 4 (gcc)'])
-      }
+
+         archiveXUnit {
+            jUnit {
+                pattern 'build/test_results/*.xml'
+            } 
+         }
+
+       }
     }
   }
 }
