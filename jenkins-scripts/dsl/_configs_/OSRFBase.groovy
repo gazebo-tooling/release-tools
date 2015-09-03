@@ -33,7 +33,7 @@ ${FAILED_TESTS}
                     sendToDevelopers: true,
                     sendToRequester: true, 
                     includeCulprits: false,
-                    sendToRecipientList: true),
+                    sendToRecipientList: true)
             trigger(triggerName: 'Unstable', 
                     subject: null, body: null, recipientList: null, 
                     sendToDevelopers: true,
