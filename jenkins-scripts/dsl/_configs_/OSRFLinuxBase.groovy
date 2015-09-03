@@ -15,7 +15,7 @@ class OSRFLinuxBase extends OSRFBase
      OSRFBase.create(job)
      job.with 
      {
-         label: docker
+         label "docker"
          
          parameters { stringParam('RTOOLS_BRANCH','default','release-tool branch to use') }
 
@@ -27,7 +27,7 @@ class OSRFLinuxBase extends OSRFBase
                  [[ -d ./scripts ]] &&  rm -fr ./scripts
                  hg clone http://bitbucket.org/osrf/release-tools scripts -b ${RTOOLS_BRANCH} 
                """)
-         }
+        " }
 
          wrappers {
            colorizeOutput()
