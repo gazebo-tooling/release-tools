@@ -25,7 +25,7 @@ class OSRFLinuxBase extends OSRFBase
            
            shell("""
                  [[ -d ./scripts ]] &&  rm -fr ./scripts
-                 hg clone http://bitbucket.org/osrf/release-tools scripts -b ${RTOOLS_BRANCH} 
+                 hg clone http://bitbucket.org/osrf/release-tools scripts -b \${RTOOLS_BRANCH} 
                """)
         }
 
