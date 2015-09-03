@@ -19,20 +19,22 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
     {
       priority 100
 
+      logRotator {
+        numToKeep(15)
+      }
+
       publishers 
       {
-         publishBuild {
-           discardOldBuilds(daysToKeep = -1, numToKeep = 15)
-	       }
-
          // compilers warnings
          warnings(['GNU C Compiler 4 (gcc)'])
 
-         // junit test results
-         archiveXUnit {
-            jUnit {
-                pattern 'build/test_results/*.xml'
-            } 
+         // junit plugin is not implemented. Use configure for it
+         configure { project ->
+            project / publishers << 'hudson.tasks.junit.JUnitResultArchiver' {    
+                 testResults('build/test_results/*.xml')
+                 keepLongStdio false
+                 testDataPublishers()             
+            }
          }
 
          // cppcheck is not implemented. Use configure for it
