@@ -8,9 +8,9 @@ import javaposse.jobdsl.dsl.Job
   - RTOOLS parameter + description tag in job
   - colorize ansi output
 */
-public class OSRFLinuxBase extends OSRFBase
+class OSRFLinuxBase extends OSRFBase
 {
-   static def create(Job job)
+   static void create(Job job)
    {
      super.create(job)
      job.with 
@@ -35,4 +35,3 @@ public class OSRFLinuxBase extends OSRFBase
      }
    }
 }
-

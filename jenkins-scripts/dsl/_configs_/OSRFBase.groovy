@@ -6,10 +6,12 @@ import javaposse.jobdsl.dsl.Job
   Implements:
      - description
 */
-public class OSRFBase
+class OSRFBase
 {
-   static def create(Job job)
+   static void create(Job job)
    {
-     description 'Automatic generated job by DSL jenkins. Please do not edit manually'
+     job.with {
+     	description 'Automatic generated job by DSL jenkins. Please do not edit manually'
+     }
    }
 }

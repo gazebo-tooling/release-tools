@@ -6,9 +6,9 @@ import javaposse.jobdsl.dsl.Job
   Implements:
     - compiler warning
 */
-public class OSRFLinuxCompilation extends OSRFLinuxBase
+class OSRFLinuxCompilation extends OSRFLinuxBase
 {   
-  static def create(Job job)
+  static void create(Job job)
   {
     super.create(job)
     job.with
