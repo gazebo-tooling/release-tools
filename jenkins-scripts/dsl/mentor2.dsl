@@ -1,6 +1,5 @@
 import _configs_.OSRFBase
 import _configs_.MyUtilities
-}
 import javaposse.jobdsl.dsl.Job
 
 def supported_distros = [ 'trusty' ]
