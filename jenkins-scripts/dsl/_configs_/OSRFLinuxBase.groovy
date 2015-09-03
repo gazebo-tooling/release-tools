@@ -27,7 +27,7 @@ class OSRFLinuxBase extends OSRFBase
                  [[ -d ./scripts ]] &&  rm -fr ./scripts
                  hg clone http://bitbucket.org/osrf/release-tools scripts -b ${RTOOLS_BRANCH} 
                """)
-        " }
+        }
 
          wrappers {
            colorizeOutput()
