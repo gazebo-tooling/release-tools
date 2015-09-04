@@ -76,5 +76,6 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
            } // end of cppcheckconfig
          } // end of configure
       } // end of publishers
-   } // end of job
+    } // end of job  
+  } // end of method createJob
 } // end of class
