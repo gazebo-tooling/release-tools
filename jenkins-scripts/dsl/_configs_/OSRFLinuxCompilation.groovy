@@ -72,9 +72,9 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
                displayInformationSeverity false
                displayNoCategorySeverity false
                displayPortabilitySeverity false              
-             }
-           }
-        }
-      }
-   }
-}
+             } // end of configGraph
+           } // end of cppcheckconfig
+         } // end of configure
+      } // end of publishers
+   } // end of job
+} // end of class
