@@ -24,7 +24,7 @@ supported_distros.each { distro ->
         }
 
         steps {
-          shell("/bin/bash -x ./scripts/jenkins-scripts/docker/_mentor2_compilation.bash")
+          shell("/bin/bash -x ./scripts/jenkins-scripts/docker/gazebo-default-gui-test-devel-trusty-amd64.bash")
         }
      }
   }
