@@ -39,13 +39,42 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
 
          // cppcheck is not implemented. Use configure for it
          configure { project ->
-	   project / publishers / 'org.jenkinsci.plugins.cppcheck.CppcheckPublisher' / cppcheckconfig {
+           project / publishers / 'org.jenkinsci.plugins.cppcheck.CppcheckPublisher' / cppcheckconfig {
              pattern('build/cppcheck_results/*.xml')
              ignoreBlankFiles true
              allowNoReport false
+         	   
+             configSeverityEvaluation {
+           	   threshold 0
+           	   newThreshold()
+           	   failureThreshold()
+               newFailureThreshold()
+               healthy()
+               unHealthy()
+               severityError true
+               severityWarning true
+               severityStyle true
+               severityPerformance true
+               severityInformation true
+               severityNoCategory false
+               severityPortability false                        
+             }
+             
+         	   configGraph {
+           	   xSize 500
+               ySize 200
+               numBuildsInGraph 0
+               displayAllErrors true
+               displayErrorSeverity false
+               displayWarningSeverity false
+               displayStyleSeverity false
+               displayPerformanceSeverity false
+               displayInformationSeverity false
+               displayNoCategorySeverity false
+               displayPortabilitySeverity false              
+             }
            }
-         }
-       }
-     }
-  }
+        }
+      }
+   }
 }
