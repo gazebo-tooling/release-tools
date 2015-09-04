@@ -5,29 +5,19 @@ import javaposse.jobdsl.dsl.Job
 /* 
   Implements:
      - description
+     - base mail for Failures and Unstables
 */
 class OSRFBase
 {
    static void create(Job job)
    {
-     def content = 
-'''
-$DEFAULT_CONTENT
-
-Test summary:
--------------
- * Total of ${TEST_COUNTS, var="total"} tests : ${TEST_COUNTS, var="fail"} failed and ${TEST_COUNTS, var="skip"
-
-Data log:
-${FAILED_TESTS}
-'''
      job.with {
      	description 'Automatic generated job by DSL jenkins. Please do not edit manually'
 
         publishers { 
           extendedEmail('$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org',
                         '$DEFAULT_SUBJECT',
-                         content)  
+                        '$DEFAULT_CONTENT')
          {
             trigger(triggerName: 'Failure', 
                     subject: null, body: null, recipientList: null, 
