@@ -39,7 +39,7 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
 
          // cppcheck is not implemented. Use configure for it
          configure { project ->
-           project / publishers / 'org.jenkinsci.plugins.cppcheck.CppcheckPublisher' / cppcheckconfig {
+           project / publishers / 'org.jenkinsci.plugins.cppcheck.CppcheckPublisher' / cppcheckConfig {
              pattern('build/cppcheck_results/*.xml')
              ignoreBlankFiles true
              allowNoReport false
@@ -61,7 +61,7 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
              }
              
          	   configGraph {
-           	   xSize 500
+               xSize 500
                ySize 200
                numBuildsInGraph 0
                displayAllErrors true
