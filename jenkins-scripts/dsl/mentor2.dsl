@@ -18,8 +18,9 @@ supported_distros.each { distro ->
         label "gpu-reliable-trusty"
 
         scm {
-          hg('http://bitbucket.org/osrf/gazebo','mentor2_v2') {
-            subdirectory("gazebo")
+          hg('http://bitbucket.org/osrf/gazebo') {
+            branch('mentor2_v2')
+            subdirectory('gazebo')
           }
         }
 
