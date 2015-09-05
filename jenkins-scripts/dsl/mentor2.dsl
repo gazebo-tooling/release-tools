@@ -15,7 +15,7 @@ supported_distros.each { distro ->
 
     ci_default_job.with
     {
-        label: "gpu-reliable-trusty"
+        label "gpu-reliable-trusty"
 
         scm {
           hg('http://bitbucket.org/osrf/gazebo','mentor2_v2') {
