@@ -43,8 +43,8 @@ ${FAILED_TESTS}
 
          // special content with testing failures
          extendedEmail('$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org',
-                        '$DEFAULT_SUBJECT',
-                         content)
+                       '$DEFAULT_SUBJECT',
+                        mail_content)
          {
             trigger(triggerName: 'Failure',
                     subject: null, body: null, recipientList: null,
