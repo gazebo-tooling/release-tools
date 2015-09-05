@@ -17,6 +17,7 @@ supported_distros.each { distro ->
     {
         scm {
           hg('http://bitbucket.org/osrf/gazebo','mentor2_v2')
+          subdirectory("gazebo")
         }
 
         triggers {
