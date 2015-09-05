@@ -16,8 +16,9 @@ supported_distros.each { distro ->
     ci_default_job.with
     {
         scm {
-          hg('http://bitbucket.org/osrf/gazebo','mentor2_v2')
-          subdirectory("gazebo")
+          hg('http://bitbucket.org/osrf/gazebo','mentor2_v2') {
+            subdirectory("gazebo")
+          }
         }
 
         triggers {
