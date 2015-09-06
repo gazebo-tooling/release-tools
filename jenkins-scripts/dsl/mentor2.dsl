@@ -50,7 +50,7 @@ supported_distros.each { distro ->
 
         steps {
           shell("""
-                #/bin/bash
+                #!/bin/bash
 
                 export INSTALL_JOB_PKG=gazebo
                 export INSTALL_JOB_REPOS=mentor2
