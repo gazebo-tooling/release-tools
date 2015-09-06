@@ -1,4 +1,5 @@
 import _configs_.OSRFLinuxCompilation
+import _configs_.OSRFLinuxInstall
 import javaposse.jobdsl.dsl.Job
 
 def supported_distros = [ 'trusty' ]
