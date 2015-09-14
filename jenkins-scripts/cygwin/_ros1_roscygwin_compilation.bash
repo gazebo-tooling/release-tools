@@ -10,17 +10,16 @@ apt-cyg install python make cmake gdb git patch unzip pkg-config gcc-g++ libtool
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: Install library dependencies"
-apt-cyg install libpoco-devel libboost-devel libboost_python-devel libGLU-devel \ 
+apt-cyg install libpoco-devel libboost-devel libboost_python-devel libGLU-devel \
                 libgtk2.0-devel libcurl-devel libjpeg-devel libfltk-devel \
                 libX11-devel libXext-devel libfreetype-devel libxml2-devel libqhull-devel
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: Prepare script sources"
-
+SCRIPTS_INSTALL_DIR=/opt/rosscripts
 # TODO: At his moment the script is located in a cygwin fixed dir
 # need to check it out from the repository
-CHECKOUT_PATH=${HOME}/ros_cygwin-master
-SCRIPTS_INSTALL_DIR=/opt/rosscripts
+CHECKOUT_PATH=${HOME}/ros_cygwin-git
 
 # Cleanup the installs paths
 mkdir -p /opt
