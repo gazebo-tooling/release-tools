@@ -36,9 +36,9 @@ if ${NIGHTLY_MODE}; then
   # Store revision for use in version
   REV=\$(hg parents --template="{node|short}\n")
 else
-  wget --quiet -O \$REAL_PACKAGE_ALIAS\_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
+  wget --quiet -O $PACKAGE_ALIAS\_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
   rm -rf \$REAL_PACKAGE_NAME\-$VERSION
-  tar xf \$REAL_PACKAGE_ALIAS\_$VERSION.orig.tar.bz2
+  tar xf $PACKAGE_ALIAS\_$VERSION.orig.tar.bz2
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME-$VERSION
 fi
 
