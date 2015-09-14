@@ -31,5 +31,5 @@ echo '# END SECTION'
 
 echo "# BEGIN SECTION: Run ros_build_isolated.bat"
 cd ${SCRIPTS_INSTALL_DIR}
-./build_ros_isolated.sh
+bash ./build_ros_isolated.sh
 echo "# END SECTION"
