@@ -36,15 +36,15 @@ if ${NIGHTLY_MODE}; then
   # Store revision for use in version
   REV=\$(hg parents --template="{node|short}\n")
 else
-  wget --quiet -O \$REAL_PACKAGE_ALIAS\_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
+  wget --quiet -O $PACKAGE_ALIAS\_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
   rm -rf \$REAL_PACKAGE_NAME\-$VERSION
-  tar xf \$REAL_PACKAGE_ALIAS\_$VERSION.orig.tar.bz2
+  tar xf $PACKAGE_ALIAS\_$VERSION.orig.tar.bz2
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME-$VERSION
 fi
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
 rm -rf /tmp/$PACKAGE-release
-hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release /tmp/$PACKAGE-release 
+hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release /tmp/$PACKAGE-release
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
@@ -52,7 +52,44 @@ if $NIGHTLY_MODE; then
     # dpkg-parsechangelog| grep Version | cut -f2 -d' '
     UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${DISTRO}/debian/changelog | head -n 1 | tr -d ' ' | sed 's:~.*::')
 fi
+
 hg up $RELEASE_REPO_BRANCH
+
+# Handle build metadata
+if [ ! -f build.metadata.bash ]; then
+    BUILD_METHOD="LEGACY"
+else
+    source build.metadata.bash
+fi
+
+case \${BUILD_METHOD} in
+    "OVERWRITE_BASE")
+	# 1. Clone the base branch
+        hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release \\
+	    -b \${RELEASE_BASE_BRANCH} \\
+	    /tmp/base_$PACKAGE-release
+	# 2. Overwrite the information
+	if [[ -d ${DISTRO} ]]; then
+          cp -a ${DISTRO}/debian/* /tmp/base_$PACKAGE-release/${DISTRO}/debian/
+	else
+	  echo "WARN: no files to overwrite where found. No ${DISTRO} directory in repo"
+        fi
+	# 3. Apply patches (if any)
+	if [[ -d patches/ ]]; then
+	    cp -a patches/*.patch /tmp/base_$PACKAGE-release
+	    pushd /tmp/base_$PACKAGE-release > /dev/null
+	    patch -p1 < /tmp/base_$PACKAGE-release/*.patch
+	    popd > /dev/null
+	fi
+	# 4. swap directories
+	cd /tmp
+	rm -fr /tmp/$PACKAGE-release
+        mv /tmp/base_$PACKAGE-release /tmp/$PACKAGE-release
+	;;
+    "LEGACY")
+	echo "Legacy in place. Nothing needs to be done"
+	;;
+esac
 
 cd /tmp/$PACKAGE-release/${DISTRO}
 
@@ -68,7 +105,7 @@ if $NIGHTLY_MODE; then
               --changelog=debian/changelog -- "Nightly release: \${NIGHTLY_VERSION_SUFFIX}"
 fi
 
-# Get into the unpacked source directory, without explicit knowledge of that 
+# Get into the unpacked source directory, without explicit knowledge of that
 # directory's name
 cd \`find $WORKSPACE/build -mindepth 1 -type d |head -n 1\`
 # If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
@@ -77,8 +114,8 @@ if $NIGHTLY_MODE; then
   echo | dh_make -s --createorig -p ${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV} > /dev/null
 fi
 
-# Adding extra directories to code. debian has no problem but some extra directories 
-# handled by symlinks (like cmake) in the repository can not be copied directly. 
+# Adding extra directories to code. debian has no problem but some extra directories
+# handled by symlinks (like cmake) in the repository can not be copied directly.
 # Need special care to copy, using first a --dereference
 cp -a --dereference /tmp/$PACKAGE-release/${DISTRO}/* .
 echo '# END SECTION'
@@ -125,7 +162,7 @@ FOUND_PKG=0
 for pkg in \${PKGS}; do
     echo "found \$pkg"
     # Check for correctly generated packages size > 3Kb
-    test -z \$(find \$pkg -size +3k) && echo "WARNING: empty package?" 
+    test -z \$(find \$pkg -size +3k) && echo "WARNING: empty package?"
     # && exit 1
     cp \${pkg} $WORKSPACE/pkgs
     FOUND_PKG=1
