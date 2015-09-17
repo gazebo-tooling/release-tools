@@ -167,7 +167,7 @@ def sanity_package_version(repo_dir, version, release_version):
         full_version=line.split(' ')[1]
         # get only version (not release) in brackets
         c_version=full_version[full_version.find("(")+1:full_version.find("-")]
-        c_revision=full_version[full_version.find("-")+1:full_version.find("~")]
+        c_revision=full_version[full_version.find("-")+1:full_version.rfind("~")]
 
         if c_version != version:
             error("Error in package version. Repo version: " + c_version + " Provided version: " + version)
