@@ -103,10 +103,10 @@ dsc_package_exists()
     local pkg=${1} # name, no full path
 
     if [[ -n $(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro ls ${pkg} | grep source) ]]; then
-	return 1
+	return 0 # exists, true
     fi
 
-    return 0
+    return 1 # do not exits, false
 }
 
 upload_package()
