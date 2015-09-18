@@ -163,7 +163,7 @@ for pkg in `ls $pkgs_path/*.dsc`; do
   pkg_name=${pkg##*/} 
   pkg_name=${pkg_name/_*}    
 
-  if dsc_package_exists; then
+  if dsc_package_exists ${pkg_name}; then
     echo "Source package for ${pkg} already exists in the repo"
     echo "SKIP SOURCE UPLOAD"
   else
