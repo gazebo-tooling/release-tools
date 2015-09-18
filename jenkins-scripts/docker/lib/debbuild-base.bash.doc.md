@@ -26,7 +26,7 @@ host other bash variables needed by the different methods.
  * **Directory layout**: In the root directory of the -release repo will exist
    one directory for every ubuntu distribution supported:
 
-``
+```
 build.metadata.bash
 trusty/
   debian/
@@ -34,7 +34,7 @@ trusty/
 vivid/
   debian/
    ...
-``
+```
 
 ### OVERWRITE_BASE
 
@@ -58,9 +58,14 @@ build.metadata.bash
 patches/
   foo.patch
 trusty/
-  debian/build.metadata.bash patches/ foo.patch trusty/ debian/ changelog vivid/ debian/ rules
-    changelog 
-vivid/
-  debian/
-    rules
+  debian/build.metadata.bash 
+  patches/ 
+     foo.patch 
+  trusty/ 
+    debian/ 
+      changelog 
+  vivid/ 
+    debian/
+      rules
+      changelog 
 ```
