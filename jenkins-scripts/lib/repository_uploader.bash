@@ -98,6 +98,17 @@ S3_upload()
     rm -fr ${S3_DIR}
 }
 
+dsc_package_exists()
+{
+    local pkg=${1} # name, no full path
+
+    if [[ -n $(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro ls ${pkg} | grep source) ]]; then
+	return 0 # exists, true
+    fi
+
+    return 1 # do not exits, false
+}
+
 upload_package()
 {
     local pkg=${1}
@@ -149,7 +160,15 @@ done
 
 # .dsc | source debian packages
 for pkg in `ls $pkgs_path/*.dsc`; do
-  upload_dsc_package ${pkg}
+  pkg_name=${pkg##*/} 
+  pkg_name=${pkg_name/_*}    
+
+  if dsc_package_exists ${pkg_name}; then
+    echo "Source package for ${pkg} already exists in the repo"
+    echo "SKIP SOURCE UPLOAD"
+  else
+    upload_dsc_package ${pkg}
+  fi
 done
 
 # .deb | debian packages
