@@ -74,6 +74,14 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO} multiverse" \\
 DELIM_DOCKER_ARCH
 fi
 
+# i386 image only have main by default
+if [[ ${ARCH} == 'i386' ]]; then
+cat >> Dockerfile << DELIM_DOCKER_I386_APT
+RUN echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO} restricted universe" \\
+                                                       >> /etc/apt/sources.list
+DELIM_DOCKER_I386_APT
+fi
+
 # Workaround for: https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1325142
 if [[ ${ARCH} == 'i386' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_PAM_BUG

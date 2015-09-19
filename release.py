@@ -167,7 +167,7 @@ def sanity_package_version(repo_dir, version, release_version):
         full_version=line.split(' ')[1]
         # get only version (not release) in brackets
         c_version=full_version[full_version.find("(")+1:full_version.find("-")]
-        c_revision=full_version[full_version.find("-")+1:full_version.find("~")]
+        c_revision=full_version[full_version.find("-")+1:full_version.rfind("~")]
 
         if c_version != version:
             error("Error in package version. Repo version: " + c_version + " Provided version: " + version)
@@ -411,7 +411,10 @@ def go(argv):
     for d in distros:
         for a in UBUNTU_ARCHS:
             if (NIGHTLY and a == 'i386'):
-                continue
+                # only keep i386 for sdformat in nightly,
+                # just to test CI infrastructure
+                if (not args.package[:-1] == 'sdformat'):
+                    continue
 
             if (a == 'armhf'):
                 # Only release armhf in trusty for now
