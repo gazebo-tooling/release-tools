@@ -48,8 +48,3 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
     
     chown jenkins -R ${WORKSPACE}/build/
 fi
-
-if [[ $ret != 0 ]]; then
-    echo "Docker container returned a non zero value"
-    exit $ret
-fi
