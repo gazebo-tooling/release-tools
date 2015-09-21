@@ -351,7 +351,7 @@ def generate_upload_tarball(args):
         check_call(['hg', 'tag', '-f', tag])
 
         # Push tag
-        check_call(['hg', 'push'])
+        check_call(['hg', 'push','-b','.'])
     except Exception as e:
         # Assume git
         pass
