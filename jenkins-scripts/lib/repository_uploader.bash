@@ -48,11 +48,11 @@ case ${UPLOAD_TO_REPO} in
 	# No uploads for nightly packages
 	ENABLE_S3_UPLOAD=false
 	;;
-    "prerelease")
-	;;
     *)
-	echo "Invalid UPLOAD_TO_REPO value: ${UPLOAD_TO_REPO} (stable | prerelease | nightly)"
-	exit 1
+	# Here we could find project repositories uploads or error values.
+	# Error values for UPLOAD_TO_REPO will be get in the next directory check
+	# some lines below so we do nothing.
+	;;
 esac
 
 repo_path="/var/packages/gazebo/ubuntu-${UPLOAD_TO_REPO}"
