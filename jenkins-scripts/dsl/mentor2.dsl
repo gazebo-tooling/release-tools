@@ -31,10 +31,9 @@ supported_distros.each { distro ->
         }
 
         steps {
-          shell("""
-                #!/bin/bash
+          shell("""#!/bin/bash -xe
 
-                /bin/bash -x ./scripts/jenkins-scripts/docker/gazebo-default-gui-test-devel-trusty-amd64.bash
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-default-gui-test-devel-trusty-amd64.bash
                 """.stripIndent())
         }
      }
@@ -60,8 +59,7 @@ supported_distros.each { distro ->
         }
 
         steps {
-          shell("""
-                #!/bin/bash
+          shell("""#!/bin/bash -xe
 
                 /bin/bash -x ./scripts/jenkins-scripts/docker/sdformat-default-devel-trusty-amd64.bash
                 """.stripIndent())
@@ -82,8 +80,7 @@ supported_distros.each { distro ->
         }
 
         steps {
-          shell("""
-                #!/bin/bash
+          shell("""#!/bin/bash -xe
 
                 export INSTALL_JOB_PKG=libgazebo6-dev
                 export INSTALL_JOB_REPOS=mentor2
