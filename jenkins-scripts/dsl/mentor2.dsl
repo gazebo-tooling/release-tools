@@ -66,7 +66,7 @@ supported_distros.each { distro ->
                 /bin/bash -x ./scripts/jenkins-scripts/docker/sdformat-default-devel-trusty-amd64.bash
                 """.stripIndent())
         }
-     }
+    }
 
     // --------------------------------------------------------------
     // 2. Create the install test job
@@ -89,7 +89,7 @@ supported_distros.each { distro ->
                 export INSTALL_JOB_REPOS=mentor2
                 /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
                 """.stripIndent())
-        }
-     }
+       }
+    }
   }
 }
