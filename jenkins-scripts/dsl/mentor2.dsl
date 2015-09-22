@@ -85,7 +85,7 @@ supported_distros.each { distro ->
           shell("""
                 #!/bin/bash
 
-                export INSTALL_JOB_PKG=gazebo
+                export INSTALL_JOB_PKG=libgazebo6-dev
                 export INSTALL_JOB_REPOS=mentor2
                 /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
                 """.stripIndent())
