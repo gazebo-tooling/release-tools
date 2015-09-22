@@ -32,11 +32,9 @@ sudo docker stop ${CID} || true
 sudo docker rm ${CID} || true
 
 # Export results out of build directory, to WORKSPACE
-ls -las ${d}
 for d in $(find ${WORKSPACE}/build -name '*_results' -type d); do
     sudo mv ${d} ${WORKSPACE}/
     sudo chown -R jenkins ${WORKSPACE}/*_results
-
 done
 
 if [[ -z ${KEEP_WORKSPACE} ]]; then
@@ -49,9 +47,4 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
     done
     
     chown jenkins -R ${WORKSPACE}/build/
-fi
-
-if [[ $ret != 0 ]]; then
-    echo "Docker container returned a non zero value"
-    exit $ret
 fi

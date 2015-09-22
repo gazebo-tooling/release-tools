@@ -84,6 +84,14 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO} multiverse" \\
 DELIM_DOCKER_ARCH
 fi
 
+# i386 image only have main by default
+if [[ ${ARCH} == 'i386' ]]; then
+cat >> Dockerfile << DELIM_DOCKER_I386_APT
+RUN echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO} restricted universe" \\
+                                                       >> /etc/apt/sources.list
+DELIM_DOCKER_I386_APT
+fi
+
 # Workaround for: https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1325142
 if [[ ${ARCH} == 'i386' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_PAM_BUG
@@ -155,12 +163,11 @@ RUN apt-get update && \
     apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} && \
     rm -rf /var/lib/apt/lists/*
 
-# This is killing the cache so we getg the most recent packages if there
+# This is killing the cache so we get the most recent packages if there
 # was any update
 RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))"
 RUN apt-get update && \
-    apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES}
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
 DELIM_DOCKER3

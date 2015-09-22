@@ -167,7 +167,7 @@ def sanity_package_version(repo_dir, version, release_version):
         full_version=line.split(' ')[1]
         # get only version (not release) in brackets
         c_version=full_version[full_version.find("(")+1:full_version.find("-")]
-        c_revision=full_version[full_version.find("-")+1:full_version.find("~")]
+        c_revision=full_version[full_version.find("-")+1:full_version.rfind("~")]
 
         if c_version != version:
             error("Error in package version. Repo version: " + c_version + " Provided version: " + version)
@@ -203,7 +203,21 @@ def sanity_check_repo_name(repo_name):
     if repo_name == 'stable' or  repo_name == 'prerelease' or repo_name == 'nightly':
         return
 
+    # Supported projects
+    if repo_name == 'mentor2':
+        return
+
     error("Upload repo value: " + repo_name + " is not valid. stable | prerelease | nightly")
+
+def sanity_project_package_in_stable(version, repo_name):
+    if repo_name != 'stable':
+        return
+
+    if not '+' in version:
+        return
+
+
+    error("Detected stable repo upload using project versioning scheme (include '+' in the version)")
 
 def check_s3cmd_configuration():
     # Need to check if s3cmd is installed
@@ -230,6 +244,7 @@ def sanity_checks(args, repo_dir):
         sanity_package_version(repo_dir, args.version, str(args.release_version))
         sanity_check_gazebo_versions(args.package, args.version)
         sanity_check_sdformat_versions(args.package, args.version)
+        sanity_project_package_in_stable(args.version, args.upload_to_repository)
 
     shutil.rmtree(repo_dir)
 
@@ -239,6 +254,8 @@ def discover_distros(args, repo_dir):
     subdirs =  os.walk(repo_dir).next()[1]
     subdirs.remove('.hg')
     if 'ubuntu' in subdirs: subdirs.remove('ubuntu')
+    # Some releasing methods use patches/ in root
+    if 'patches' in subdirs: subdirs.remove('patches')
 
     if not subdirs:
         error('Can not find distributions directories in the -release repo')
@@ -334,7 +351,7 @@ def generate_upload_tarball(args):
         check_call(['hg', 'tag', '-f', tag])
 
         # Push tag
-        check_call(['hg', 'push'])
+        check_call(['hg', 'push','-b','.'])
     except Exception as e:
         # Assume git
         pass
@@ -411,7 +428,10 @@ def go(argv):
     for d in distros:
         for a in UBUNTU_ARCHS:
             if (NIGHTLY and a == 'i386'):
-                continue
+                # only keep i386 for sdformat in nightly,
+                # just to test CI infrastructure
+                if (not args.package[:-1] == 'sdformat'):
+                    continue
 
             if (a == 'armhf'):
                 # Only release armhf in trusty for now
