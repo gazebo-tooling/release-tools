@@ -31,7 +31,11 @@ supported_distros.each { distro ->
         }
 
         steps {
-          shell("/bin/bash -x ./scripts/jenkins-scripts/docker/gazebo-default-gui-test-devel-trusty-amd64.bash")
+          shell("""
+                #!/bin/bash
+
+                /bin/bash -x ./scripts/jenkins-scripts/docker/gazebo-default-gui-test-devel-trusty-amd64.bash
+                """.stripIndent())
         }
      }
 
@@ -56,7 +60,11 @@ supported_distros.each { distro ->
         }
 
         steps {
-          shell("/bin/bash -x ./scripts/jenkins-scripts/docker/sdformat-default-devel-trusty-amd64.bash")
+          shell("""
+                #!/bin/bash
+
+                /bin/bash -x ./scripts/jenkins-scripts/docker/sdformat-default-devel-trusty-amd64.bash
+                """.stripIndent())
         }
      }
 
