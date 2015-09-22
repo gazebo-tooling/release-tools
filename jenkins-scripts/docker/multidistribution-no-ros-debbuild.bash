@@ -5,6 +5,7 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export ENABLE_ROS=false
+export OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
 export WORKAROUND_PBUILDER_BUG=true
 
 . ${SCRIPT_DIR}/lib/debbuild-base.bash
