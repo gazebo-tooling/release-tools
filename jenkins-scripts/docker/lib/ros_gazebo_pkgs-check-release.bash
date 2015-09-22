@@ -73,7 +73,6 @@ DELIM
 
 USE_OSRF_REPO=true
 USE_ROS_REPO=true
-USE_GPU_DOCKER=true
 
 # Let's try to install all the packages and check the example
 ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs \
