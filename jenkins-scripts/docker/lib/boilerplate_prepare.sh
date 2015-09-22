@@ -1,7 +1,7 @@
 # Common instructions to create the building enviroment
 set -e
 
-# GPU_SUPPORT_NEEDED to be use by the scripts.
+# Important! GPU_SUPPORT_NEEDED to be use by the scripts.
 # USE_GPU_DOCKER by internal lib/ scripts
 
 [[ -z ${GPU_SUPPORT_NEEDED} ]] && GPU_SUPPORT_NEEDED=false
