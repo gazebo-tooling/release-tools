@@ -32,7 +32,7 @@ echo '# END SECTION'
 fi
 
 echo '# BEGIN SECTION: try to install package: ${INSTALL_JOB_PKG}'
-apt-get install ${INSTALL_JOB_PKG}
+apt-get install -y ${INSTALL_JOB_PKG}
 echo '# END SECTION'
 
 if [ -n ${INSTALL_JOB_POSTINSTALL_HOOK} ]; then

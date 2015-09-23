@@ -2,12 +2,14 @@
 # Script to generate the dockerfile needed for running the build.sh script
 #
 # Inputs used:
-#   - DISTRO          : base distribution (ex: vivid)
-#   - ARCH            : [default amd64] base arquitecture (ex: amd64)
-#   - USE_OSRF_REPO   : [default false] true|false if add the packages.osrfoundation.org to the sources.list
-#   - USE_ROS_REPO    : [default false] true|false if add the packages.ros.org to the sources.list
-#   - DEPENDENCY_PKGS : (optional) packages to be installed in the image
-#   - SOFTWARE_DIR    : (optional) directory to copy inside the image
+#   - DISTRO            : base distribution (ex: vivid)
+#   - ARCH              : [default amd64] base arquitecture (ex: amd64)
+#   - OSRF_REPOS_TO_USE : [default empty] space separated list of osrf repos to add to sourcess.list
+#   - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
+#   - DEPENDENCY_PKGS   : (optional) packages to be installed in the image
+#   - SOFTWARE_DIR      : (optional) directory to copy inside the image
+
+#   - USE_OSRF_REPO     : deprecated! [default false] true|false if true, add the stable osrf repo to sources.list
 
 if [[ -z ${ARCH} ]]; then
   echo "Arch undefined, default to amd64"
@@ -38,7 +40,15 @@ case ${ARCH} in
 esac
 
 [[ -z ${USE_OSRF_REPO} ]] && USE_OSRF_REPO=false
+[[ -z ${OSRF_REPOS_TO_USE} ]] && OSRF_REPOS_TO_USE=""
 [[ -z ${USE_ROS_REPO} ]] && USE_ROS_REPO=false
+
+# depracted variable, do migration here
+if [[ -z ${OSRF_REPOS_TO_USE} ]]; then
+  if ${USE_OSRF_REPO}; then
+     OSRF_REPOS_TO_USE="stable"
+  fi
+fi
 
 echo '# BEGIN SECTION: create the Dockerfile'
 cat > Dockerfile << DELIM_DOCKER
@@ -95,13 +105,13 @@ RUN dpkg-divert --rename --add /usr/sbin/invoke-rc.d \\
 DELIM_DOCKER_PAM_BUG
 fi
 
-if ${USE_OSRF_REPO}; then
+for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
-RUN echo "deb http://packages.osrfoundation.org/gazebo/ubuntu ${DISTRO} main" > \\
-                                                /etc/apt/sources.list.d/osrf.list
+RUN echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-${repo} ${DISTRO} main" > \\
+                                                /etc/apt/sources.list.d/osrf.${repo}.list
 RUN apt-key adv --keyserver pgp.mit.edu --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
 DELIM_OSRF_REPO
-fi
+done
 
 if ${USE_ROS_REPO}; then
 cat >> Dockerfile << DELIM_ROS_REPO

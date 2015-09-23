@@ -2,6 +2,7 @@
 
 NIGHTLY_MODE=false
 if [ "${UPLOAD_TO_REPO}" = "nightly" ]; then
+   OSRF_REPOS_TO_USE="stable nightly"
    NIGHTLY_MODE=true
 fi
 
@@ -172,7 +173,7 @@ test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 DELIM
 
-USE_OSRF_REPO=true
+OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
 DEPENDENCY_PKGS="devscripts \
 		 ubuntu-dev-tools \
 		 debhelper \
