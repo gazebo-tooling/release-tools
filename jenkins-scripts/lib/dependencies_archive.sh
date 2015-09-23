@@ -107,6 +107,8 @@ if [[ ${DISTRO} == 'precise' ]] || \
     bullet_pkg="libbullet2.82-dev"
 fi
 
+# tinyxml2-dev should deprecate libtinyxml-dev as soon as the
+# support is merged. To be removed.
 GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libprotoc-dev                    \\
                           libprotobuf-dev                  \\
@@ -114,6 +116,7 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           freeglut3-dev                    \\
                           libcurl4-openssl-dev             \\
                           libtinyxml-dev                   \\
+                          libtinyxml2-dev                  \\
                           libtar-dev                       \\
                           libtbb-dev                       \\
                           ${ogre_pkg}                      \\
