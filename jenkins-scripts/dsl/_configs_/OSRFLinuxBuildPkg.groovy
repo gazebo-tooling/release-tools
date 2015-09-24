@@ -20,7 +20,7 @@ import javaposse.jobdsl.dsl.Job
     - publish artifacts
     - launch repository_ng
 */
-class OSRFLinuxCompilation extends OSRFLinuxBase
+class OSRFLinuxBuildPkg extends OSRFLinuxBase
 {
   static void create(Job job)
   {
