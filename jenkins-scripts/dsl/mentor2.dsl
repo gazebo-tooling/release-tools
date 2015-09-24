@@ -90,3 +90,21 @@ supported_distros.each { distro ->
     }
   }
 }
+
+
+// --------------------------------------------------------------
+// 3. mentor package builder
+def build_pkg_job = job("mentor2-debbuiler")
+
+// Use the linux install as base
+OSRFLinuxBuildPkg.create(build_pkg_job)
+
+build_pkg_job.with
+{
+    steps {
+      shell("""#!/bin/bash -xe
+
+            /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-no-ros-debbuild.bash
+            """.stripIndent())
+    }
+}
