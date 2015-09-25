@@ -25,6 +25,7 @@ class OSRFLinuxBase extends OSRFBase
            
            shell("""\
                  #!/bin/bash -xe
+
                  [[ -d ./scripts ]] &&  rm -fr ./scripts
                  hg clone http://bitbucket.org/osrf/release-tools scripts -b \${RTOOLS_BRANCH} 
                  """.stripIndent())

@@ -95,7 +95,7 @@ supported_distros.each { distro ->
 
 // --------------------------------------------------------------
 // 3. mentor package builder
-def build_pkg_job = job("mentor2-debbuiler")
+def build_pkg_job = job("mentor2-debbuilder")
 
 // Use the linux install as base
 OSRFLinuxBuildPkg.create(build_pkg_job)
