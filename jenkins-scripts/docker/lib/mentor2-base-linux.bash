@@ -38,7 +38,7 @@ echo '# END SECTION'
 DELIM
 
 SOFTWARE_DIR="mentor2"
-OSRF_REPOS_TO_USE="mentor2"0
+OSRF_REPOS_TO_USE="mentor2"
 DEPENDENCY_PKGS="${BASE_DEPENDENCIES} ${MENTOR2_DEPENDENCIES}"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
