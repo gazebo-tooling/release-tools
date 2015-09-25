@@ -103,7 +103,8 @@ OSRFLinuxBuildPkg.create(build_pkg_job)
 build_pkg_job.with
 {
     steps {
-      shell("""#!/bin/bash -xe
+      shell("""\
+            #!/bin/bash -xe
 
             /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-no-ros-debbuild.bash
             """.stripIndent())
