@@ -23,8 +23,8 @@ class OSRFLinuxBase extends OSRFBase
          {
            systemGroovyCommand("build.setDescription('RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));")
            
-           shell(""" #!/bin/bash -xe
-
+           shell("""\
+                 #!/bin/bash -xe
                  [[ -d ./scripts ]] &&  rm -fr ./scripts
                  hg clone http://bitbucket.org/osrf/release-tools scripts -b \${RTOOLS_BRANCH} 
                  """.stripIndent())
