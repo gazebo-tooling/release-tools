@@ -24,7 +24,7 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
 
 {  
   
-  File token_file = new File(build.getEnvVars()['HOME'] + '/remote_token')
+  static File token_file = new File(build.getEnvVars()['HOME'] + '/remote_token')
 
   static void create(Job job)
   {
