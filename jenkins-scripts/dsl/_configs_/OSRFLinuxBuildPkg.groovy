@@ -21,10 +21,22 @@ import javaposse.jobdsl.dsl.Job
     - launch repository_ng
 */
 class OSRFLinuxBuildPkg extends OSRFLinuxBase
-{
+
+{  
+  
+  File token_file = new File(build.getEnvVars()['HOME'] + '/remote_token')
+
   static void create(Job job)
   {
     OSRFLinuxBase.create(job)
+
+    if (! token_file.exists()) {
+      println("!!! token file was not found for setting the remote password")
+      println("check your filesystem in the jenkins node for: ")
+      println(token_file)
+      
+      System.exit(1)
+    }
 
     job.with
     {
@@ -41,6 +53,13 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
 	maxTotal(5)
       }
 
+      # remote calls don't have DSL implementation
+      configure { project ->
+           project {
+              authtoken token_file.text()
+           }
+      }
+      
       parameters {
         textParam("PACKAGE",null,"Package name to be built")
         textParam("VERSION",null,"Packages version to be built")
