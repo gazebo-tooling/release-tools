@@ -23,8 +23,9 @@ import javaposse.jobdsl.dsl.Job
 class OSRFLinuxBuildPkg extends OSRFLinuxBase
 
 {  
-  
-  static File token_file = new File(build.getEnvVars()['HOME'] + '/remote_token')
+  // FIXME getEnvVars can not be called in a static scope. Hardcoded by now.
+  // static File token_file = new File(build.getEnvVars()['HOME'] + '/remote_token')
+  static File token_file = new File('/var/lib/jenkins/remote_token')
 
   static void create(Job job)
   {
