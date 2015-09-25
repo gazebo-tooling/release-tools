@@ -53,6 +53,8 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
 	maxPerNode(1)
 	maxTotal(5)
       }
+
+      authenticationToken(token_file.text)
       
       parameters {
         textParam("PACKAGE",null,"Package name to be built")
@@ -94,9 +96,9 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
       }
 
       // remote calls don't have DSL implementation
-      configure { project ->
-        project.authToken = token_file.text
-      }
+      // configure { project ->
+      //  project / authToken(token_file.text)
+      // }
 
     } // end of job
   } // end of method createJob
