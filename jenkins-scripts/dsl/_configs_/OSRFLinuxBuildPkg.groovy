@@ -53,7 +53,7 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
 	maxTotal(5)
       }
 
-      # remote calls don't have DSL implementation
+      // remote calls don't have DSL implementation
       configure { project ->
            project {
               authtoken token_file.text()
