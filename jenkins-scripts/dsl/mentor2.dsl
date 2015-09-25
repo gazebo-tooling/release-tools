@@ -7,7 +7,7 @@ def supported_distros = [ 'trusty' ]
 def supported_arches = [ 'amd64' ]
 
 supported_distros.each { distro ->
-  supported_arches.each { arch ->    
+  supported_arches.each { arch ->
 
     // --------------------------------------------------------------
     // 1. Create the default ci jobs
@@ -28,7 +28,7 @@ supported_distros.each { distro ->
         }
 
         triggers {
-          scm('*/5 * * * *') 
+          scm('*/5 * * * *')
         }
 
         steps {
@@ -56,13 +56,41 @@ supported_distros.each { distro ->
         }
 
         triggers {
-          scm('*/5 * * * *') 
+          scm('*/5 * * * *')
         }
 
         steps {
           shell("""#!/bin/bash -xe
 
                 /bin/bash -x ./scripts/jenkins-scripts/docker/sdformat-default-devel-trusty-amd64.bash
+                """.stripIndent())
+        }
+    }
+
+    def mentor2_ci_job = job("mentor2-ci-default-${distro}-${arch}")
+
+    // Use the linux compilation as base
+    OSRFLinuxCompilation.create(mentor2_ci_job)
+
+    mentor2_ci_job.with
+    {
+        label "gpu-reliable-trusty"
+
+        scm {
+          hg('http://bitbucket.org/osrf/mentor2') {
+            branch('default')
+            subdirectory('mentor2')
+          }
+        }
+
+        triggers {
+          scm('*/5 * * * *')
+        }
+
+        steps {
+          shell("""#!/bin/bash -xe
+
+                /bin/bash -x ./scripts/jenkins-scripts/docker/mentor2-default-devel-trusty-amd64.bash
                 """.stripIndent())
         }
     }
@@ -77,7 +105,7 @@ supported_distros.each { distro ->
     install_default_job.with
     {
         triggers {
-          scm('@daily') 
+          scm('@daily')
         }
 
         steps {

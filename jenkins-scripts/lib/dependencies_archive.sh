@@ -319,3 +319,12 @@ HAPTIX_COMM_DEPENDENCIES="pkg-config                \\
 HANDSIM_DEPENDENCIES="libgazebo7-haptix-dev \\
                       liboctave-dev \\
                       libhaptix-comm-dev"
+
+#
+# MENTOR2
+#
+MENTOR2_DEPENDENCIES="libgazebo6-dev    \\
+                      protobuf-compiler \\
+	              libprotobuf-dev   \\
+                      libboost1.54-dev  \\
+                      libqt4-dev"
