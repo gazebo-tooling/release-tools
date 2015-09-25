@@ -95,10 +95,9 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
 
       // remote calls don't have DSL implementation
       configure { project ->
-        project {
-           authToken(token_file.text)
-        }
+        project.authToken = token_file.text
       }
+
     } // end of job
   } // end of method createJob
 } // end of class
