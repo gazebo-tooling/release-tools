@@ -85,8 +85,8 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
         downstreamParameterized {
 	  trigger('repository_uploader_ng') {
 	    condition('SUCCESS')
-	    currentBuild()
 	    parameters {
+	      currentBuild()
 	      predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
 	    }
 	  }
