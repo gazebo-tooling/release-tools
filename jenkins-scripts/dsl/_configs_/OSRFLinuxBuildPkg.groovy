@@ -62,7 +62,7 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
         textParam("ARCH", null, "Architecture to build packages for")
         textParam("SOURCE_TARBALL_URI", null, "URL to the tarball containing the package sources")
         textParam("RELEASE_REPO_BRANCH", null, "Branch from the -release repo to be used")
-        textParam("PACKAGE_ALIAS ", null, "If not empty, package name to be used instead of PACKAGE")
+        textParam("PACKAGE_ALIAS", null, "If not empty, package name to be used instead of PACKAGE")
         textParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to")
       }
 
