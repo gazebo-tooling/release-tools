@@ -70,10 +70,10 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
         systemGroovyCommand("""\
           build.setDescription(
           build.buildVariableResolver.resolve(VERSION); + '-' + 
-          build.buildVariableResolver.resolve(RELEASE_VERSION); + '<br \\>' +
+          build.buildVariableResolver.resolve(RELEASE_VERSION); + '<br />' +
           '(' + build.buildVariableResolver.resolve(DISTRO); + '/' + 
-                build.buildVariableResolver.resolve(ARCH); + ')' + '<br \\>' + 
-          <br \\> +
+                build.buildVariableResolver.resolve(ARCH); + ')' + '<br />' + 
+          <br /> +
           RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
           """.stripIndent()
         )
