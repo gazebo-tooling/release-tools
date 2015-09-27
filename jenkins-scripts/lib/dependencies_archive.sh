@@ -116,7 +116,6 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           freeglut3-dev                    \\
                           libcurl4-openssl-dev             \\
                           libtinyxml-dev                   \\
-                          libtinyxml2-dev                  \\
                           libtar-dev                       \\
                           libtbb-dev                       \\
                           ${ogre_pkg}                      \\
@@ -141,6 +140,13 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
 if [[ ${GAZEBO_MAJOR_VERSION} -ge 6 ]]; then
     GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES} \\
                               libignition-math2-dev"
+fi
+
+# libtinyxml2-dev is not on precise
+# it is needed by gazebo7, which isn't supported on precise
+if [[ ${DISTRO} != 'precise' ]]; then
+    GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES} \\
+                              libtinyxml2-dev"
 fi
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
