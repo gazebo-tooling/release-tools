@@ -69,8 +69,8 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
       steps {
         systemGroovyCommand("""\
           build.setDescription(
-          build.buildVariableResolver.resolve('VERSION') + '-' + 
-          build.buildVariableResolver.resolve('RELEASE_VERSION') +
+          '<b>' + build.buildVariableResolver.resolve('VERSION') + '-' + 
+          build.buildVariableResolver.resolve('RELEASE_VERSION') + '</b>' +
           '(' + build.buildVariableResolver.resolve('DISTRO') + '/' + 
                 build.buildVariableResolver.resolve('ARCH') + ')' +
           '<br />' +
