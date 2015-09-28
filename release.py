@@ -316,9 +316,11 @@ def generate_upload_tarball(args):
 
     # Upload tarball. Do not include versions in tarballs
     tarball_name = re.sub(r'[0-9]$','', args.package)
-    # We need to trick the gazebo-current (version 2)
-    if args.package == "gazebo-current":
-        tarball_name = "gazebo"
+
+    # Trick to make mentor job project to get proper URLs
+    if args.package == "mentor2":
+        tarball_name = "mentor2"
+
     # For ignition, we use the alias as package name
     if IGN_REPO:
         tarball_name = args.package_alias
