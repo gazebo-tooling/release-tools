@@ -42,7 +42,8 @@ all_supported_distros.each { distro ->
                 /bin/bash -xe ./scripts/jenkins-scripts/ign_transport-default-devel-trusty-amd64.bash
                 """.stripIndent())
         }
-     }
+    } 
+  }
 }
 
 // CONTINUOUS INTEGRATION
@@ -72,7 +73,6 @@ ci_distro.each { distro ->
     }
   }
 }
-
 
 // --------------------------------------------------------------
 // ignition-transport package builder
