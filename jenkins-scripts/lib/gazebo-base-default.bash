@@ -28,8 +28,15 @@ echo '# BEGIN SECTION: setup the testing enviroment'
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 if ${COVERAGE_ENABLED} ; then
+  # Workaround on problem with setting HOME to /var/lib/jenkins
+  if [[ -f $HOME/bullseye-jenkins-license ]]; then
+      LICENSE_FILE="$HOME/bullseye-jenkins-license"
+  then
+      LICENSE_FILE="/var/lib/jenkins/bullseye-jenkins-license"
+  fi
+
   set +x # keep password secret
-  BULLSEYE_LICENSE=`cat $HOME/bullseye-jenkins-license`
+  BULLSEYE_LICENSE=`cat $LICENSE_FILE`
   set -x # back to debug
 fi
 echo '# END SECTION'
