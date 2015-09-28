@@ -31,7 +31,7 @@ if ${COVERAGE_ENABLED} ; then
   # Workaround on problem with setting HOME to /var/lib/jenkins
   if [[ -f $HOME/bullseye-jenkins-license ]]; then
       LICENSE_FILE="$HOME/bullseye-jenkins-license"
-  then
+  else
       LICENSE_FILE="/var/lib/jenkins/bullseye-jenkins-license"
   fi
 
