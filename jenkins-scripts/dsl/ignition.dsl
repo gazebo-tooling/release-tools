@@ -1,4 +1,5 @@
 import _configs_.OSRFLinuxCompilation
+import _configs_.OSRFBrewCompilation
 import _configs_.OSRFLinuxInstall
 import _configs_.OSRFLinuxBuildPkg
 import javaposse.jobdsl.dsl.Job
@@ -12,10 +13,9 @@ def supported_arches = [ 'amd64' ]
 
 def all_supported_distros = ci_distro + other_supported_distros
 
-// ALL JOBS
-all_supported_distros.each { distro ->
+// MAIN CI JOBS
+ci_distro.each { distro ->
   supported_arches.each { arch ->
-
     // --------------------------------------------------------------
     // 1. Create the default ci jobs
     def ignition_ci_job = job("ignition_transport-ci-default-${distro}-${arch}")
@@ -42,15 +42,10 @@ all_supported_distros.each { distro ->
                 /bin/bash -xe ./scripts/jenkins-scripts/ign_transport-default-devel-trusty-amd64.bash
                 """.stripIndent())
         }
-    } 
-  }
-}
+    }
 
-// CONTINUOUS INTEGRATION
-ci_distro.each { distro ->
-  supported_arches.each { arch ->
     // --------------------------------------------------------------
-    // 1. Create the install test job
+    // 2. Create the install test job
     def install_default_job = job("ignition_transport-install-pkg-${distro}-${arch}")
 
     // Use the linux install as base
@@ -70,6 +65,39 @@ ci_distro.each { distro ->
                 /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
                 """.stripIndent())
        }
+    }
+
+  }
+}
+
+// OTHER CI SUPPORTED JOBS / DAILY
+other_supported_distros.each { distro ->
+   supported_arches.each { arch ->
+    // --------------------------------------------------------------
+    def ignition_ci_job = job("ignition_transport-ci-default-${distro}-${arch}")
+
+    // Use the linux compilation as base
+    OSRFLinuxCompilation.create(ignition_ci_job)
+
+    ignition_ci_job.with
+    {
+        scm {
+          hg('http://bitbucket.org/ignitionrobotics/ign-transport') {
+            branch('default')
+            subdirectory('ignition-transport')
+          }
+        }
+
+        triggers {
+          scm('@daily')
+        }
+
+        steps {
+          shell("""#!/bin/bash -xe
+
+                /bin/bash -xe ./scripts/jenkins-scripts/ign_transport-default-devel-trusty-amd64.bash
+                """.stripIndent())
+        }
     }
   }
 }
@@ -91,3 +119,33 @@ build_pkg_job.with
             """.stripIndent())
     }
 }
+
+// --------------------------------------------------------------
+// BREW: CI job
+def ignition_brew_ci_job = job("ignition_transport-ci-default-homebrew-amd64")
+
+// Use the linux compilation as base
+OSRFLinuxCompilation.create(ignition_brew_ci_job)
+
+ignition_brew_ci_job.with
+{
+    scm {
+      hg('http://bitbucket.org/ignitionrobotics/ign-transport') {
+        branch('default')
+        subdirectory('ignition-transport')
+      }
+    }
+
+    triggers {
+      scm('@daily')
+    }
+
+    steps {
+      shell("""\
+            #!/bin/bash -xe
+
+            /bin/bash -xe ./scripts/jenkins-scripts/ign_transport-default-devel-homebrew-amd64.bash
+            """.stripIndent())
+    }
+}
+
