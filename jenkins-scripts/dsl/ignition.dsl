@@ -3,16 +3,16 @@ import _configs_.OSRFLinuxInstall
 import _configs_.OSRFLinuxBuildPkg
 import javaposse.jobdsl.dsl.Job
 
-# Main platform using for quick CI
+// Main platform using for quick CI
 def ci_distro = [ 'trusty' ]
-# Other supported platform to be checked but no for quick
-# CI integration.
+// Other supported platform to be checked but no for quick
+// CI integration.
 def other_supported_distros = [ 'trusty','vivid' ]
 def supported_arches = [ 'amd64' ]
 
 def all_supported_distros = ci_distro + other_supported_distros
 
-# ALL JOBS
+// ALL JOBS
 all_supported_distros.each { distro ->
   supported_arches.each { arch ->
 
@@ -45,7 +45,7 @@ all_supported_distros.each { distro ->
      }
 }
 
-# CONTINUOUS INTEGRATION
+// CONTINUOUS INTEGRATION
 ci_distro.each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
