@@ -35,8 +35,8 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
       println("!!! token file was not found for setting the remote password")
       println("check your filesystem in the jenkins node for: ")
       println(token_file)
-      
-      System.exit(1)
+      // We can not use exit here, DSL job hangs
+      buildUnstable()
     }
 
     job.with
