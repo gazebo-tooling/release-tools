@@ -125,7 +125,7 @@ build_pkg_job.with
 def ignition_brew_ci_job = job("ignition_transport-ci-default-homebrew-amd64")
 
 // Use the linux compilation as base
-OSRFLinuxCompilation.create(ignition_brew_ci_job)
+OSRFBrewCompilation.create(ignition_brew_ci_job)
 
 ignition_brew_ci_job.with
 {
