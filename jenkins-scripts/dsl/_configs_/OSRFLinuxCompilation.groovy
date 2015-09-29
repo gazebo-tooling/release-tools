@@ -16,8 +16,7 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
     OSRFLinuxBase.create(job)
 
     /* Properties from generic compilations */
-    def generic_compilation = GenericCompilation()
-    generic_compilation.create(job)
+    GenericCompilation.create(job)
 
     job.with
     {
