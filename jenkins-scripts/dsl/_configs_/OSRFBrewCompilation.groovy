@@ -1,7 +1,6 @@
 package _configs_
 
 import javaposse.jobdsl.dsl.Job
-import javaposse.jobdsl.dsl.GenericCompilation
 
 /*
   Implements:
