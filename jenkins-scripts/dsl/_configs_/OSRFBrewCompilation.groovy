@@ -16,7 +16,8 @@ class OSRFBrewCompilation extends OSRFOsXBase
     OSRFOsXBase.create(job)
 
     /* Properties from generic compilations */
-    GenericCompilation.create(job)
+    def gen = GenericCompilation
+    gen.create(job)
 
     job.with
     {
