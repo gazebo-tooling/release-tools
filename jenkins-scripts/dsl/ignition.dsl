@@ -149,3 +149,29 @@ ignition_brew_ci_job.with
     }
 }
 
+// --------------------------------------------------------------
+// WINDOWS: CI job
+def ignition_win_ci_job = job("ignition_transport-ci-default-windows7-amd64")
+
+// Use the linux compilation as base
+OSRFwinCompilation.create(ignition_win_ci_job)
+
+ignition_win_ci_job.with
+{
+    scm {
+      hg('http://bitbucket.org/ignitionrobotics/ign-transport') {
+        branch('default')
+        subdirectory('ignition-transport')
+      }
+    }
+
+    triggers {
+      scm('@daily')
+    }
+
+    steps {
+      shell("""\
+            call "./scripts/jenkins-scripts/ign_transport-default-devel-windows-amd64.bat"
+            """.stripIndent())
+    }
+}
