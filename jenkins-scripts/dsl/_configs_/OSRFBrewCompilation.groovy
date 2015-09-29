@@ -1,6 +1,7 @@
 package _configs_
 
 import javaposse.jobdsl.dsl.Job
+import GenericCompilation
 
 /*
   -> OSRFOsXBase
