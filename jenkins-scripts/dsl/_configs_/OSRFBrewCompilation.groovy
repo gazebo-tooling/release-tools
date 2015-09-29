@@ -1,7 +1,7 @@
 package _configs_
 
 import javaposse.jobdsl.dsl.Job
-import javaposse.jobdsl.dsl._GenericCompilation
+import javaposse.jobdsl.dsl.GenericCompilation
 
 /*
   Implements:
@@ -18,7 +18,9 @@ class OSRFBrewCompilation extends OSRFOsXBase
   {
     OSRFLinuxBase.create(job)
 
-    _GenericCompilation.create(job)
+    /* Properties from generic compilations */
+    def generic_compilation = GenericCompilation()
+    generic_compilation.create(job)
 
     job.with
     {
