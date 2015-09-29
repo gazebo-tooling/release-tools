@@ -18,7 +18,7 @@ class OSRFBrewCompilation extends OSRFOsXBase
   {
     OSRFLinuxBase.create(job)
 
-    GenericCompilation(job)
+    _GenericCompilation.create(job)
 
     job.with
     {
