@@ -4,18 +4,17 @@ import javaposse.jobdsl.dsl.Job
 
 /*
   Implements:
-  - run on docker
-  - colorize ansi output
+  - run on win
 */
-class OSRFLinuxBase extends OSRFUNIXBase
+class OSRFWinBase extends OSRFBase
 {
    static void create(Job job)
    {
      OSRFBase.create(job)
-     job.with 
+     job.with
      {
-         label "docker"
-         
+         label "win"
+
          wrappers {
            colorizeOutput()
         }

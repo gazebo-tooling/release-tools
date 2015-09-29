@@ -7,7 +7,7 @@ import javaposse.jobdsl.dsl.Job
   - run on docker
   - colorize ansi output
 */
-class OSRFOsXBase extends OSRFBase
+class OSRFOsXBase extends OSRFUNIXBase
 {
    static void create(Job job)
    {
