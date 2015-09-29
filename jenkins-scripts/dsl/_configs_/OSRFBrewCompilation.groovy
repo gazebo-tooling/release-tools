@@ -3,19 +3,17 @@ package _configs_
 import javaposse.jobdsl.dsl.Job
 
 /*
+  -> OSRFOsXBase
+  -> GenericCompilation
+
   Implements:
-    - priorioty 100
-    - keep only 15 builds
     - compiler warning
-    - mail with test results
-    - test results
-    - cppcheck results
 */
 class OSRFBrewCompilation extends OSRFOsXBase
 {
   static void create(Job job)
   {
-    OSRFLinuxBase.create(job)
+    OSRFOsXBase.create(job)
 
     /* Properties from generic compilations */
     def generic_compilation = GenericCompilation()
