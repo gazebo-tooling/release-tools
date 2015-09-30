@@ -6,20 +6,20 @@ import javaposse.jobdsl.dsl.Job
   -> OSRFUNIXBase
 
   Implements:
-  - run on docker
-  - colorize ansi output
+    - run on docker
+    - colorize ansi output
 */
-class OSRFLinuxBase
+class OSRFOsXBase
 {
    static void create(Job job)
    {
-     // Base class for the job     
+     // UNIX Base
      OSRFUNIXBase.create(job)
 
-     job.with 
+     job.with
      {
-         label "docker"
-         
+         label "osx"
+
          wrappers {
            colorizeOutput()
         }
