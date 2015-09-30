@@ -67,6 +67,9 @@ if exist ..\configure.bat (
   echo # BEGIN SECTION: configuring %VCS_DIRECTORY% using cmake 
   cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS% || goto :error
 )
+
+echo "Workaround: to always enable the test compilation (configure.bat usually set it to false)
+cmake .. DENABLE_TESTS_COMPILATION:BOOL=True || echo "second run of cmake for enable tests failed"
 echo # END SECTION
 
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
