@@ -162,7 +162,7 @@ ignition_win_ci_job.with
     scm {
       hg('http://bitbucket.org/ignitionrobotics/ign-transport') {
         branch('default')
-        subdirectory('ignition-transport')
+        subdirectory('ign-transport')
       }
     }
 
