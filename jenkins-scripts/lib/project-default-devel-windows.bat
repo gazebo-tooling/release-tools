@@ -69,7 +69,7 @@ if exist ..\configure.bat (
 )
 
 echo "Workaround: to always enable the test compilation (configure.bat usually set it to false)
-cmake .. DENABLE_TESTS_COMPILATION:BOOL=True || echo "second run of cmake for enable tests failed"
+cmake .. -DENABLE_TESTS_COMPILATION:BOOL=True || echo "second run of cmake for enable tests failed"
 echo # END SECTION
 
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
