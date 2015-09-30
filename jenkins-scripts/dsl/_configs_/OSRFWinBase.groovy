@@ -18,7 +18,7 @@ class OSRFWinBase extends OSRFBase
 
         steps
         {
-          batch("""\
+          batchFile("""\
                 IF exist scripts ( rmdir scripts /s /q )
                 hg clone http://bitbucket.org/osrf/release-tools scripts -b \${RTOOLS_BRANCH}
                 """.stripIndent())
