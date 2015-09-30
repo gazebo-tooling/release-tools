@@ -38,7 +38,8 @@ ci_distro.each { distro ->
         }
 
         steps {
-          shell("""#!/bin/bash -xe
+          shell("""\
+                #!/bin/bash -xe
 
                 /bin/bash -xe ./scripts/jenkins-scripts/ign_transport-default-devel-trusty-amd64.bash
                 """.stripIndent())
@@ -59,7 +60,8 @@ ci_distro.each { distro ->
         }
 
         steps {
-          shell("""#!/bin/bash -xe
+          shell("""\
+                #!/bin/bash -xe
 
                 export INSTALL_JOB_PKG=libignition-transport0-dev
                 export INSTALL_JOB_REPOS=stable
@@ -94,7 +96,8 @@ other_supported_distros.each { distro ->
         }
 
         steps {
-          shell("""#!/bin/bash -xe
+          shell("""\
+                #!/bin/bash -xe
 
                 /bin/bash -xe ./scripts/jenkins-scripts/ign_transport-default-devel-trusty-amd64.bash
                 """.stripIndent())
