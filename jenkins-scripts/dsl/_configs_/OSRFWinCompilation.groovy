@@ -9,7 +9,7 @@ import javaposse.jobdsl.dsl.Job
   Implements:
     - compiler warning
 */
-class OSRFBrewCompilation extends OSRFWinBase
+class OSRFWinCompilation extends OSRFWinBase
 {
   static void create(Job job)
   {
