@@ -35,7 +35,7 @@ class GenericCompilation
         {
            configure { publisher ->
                 // remove the existing 'extendedEmail' element
-                publisher.remove(publishers / ExtendedEmailPublisher)
+                publisher.remove('hudson.plugins.emailext.ExtendedEmailPublisher')
            }
 
            // special content with testing failures
