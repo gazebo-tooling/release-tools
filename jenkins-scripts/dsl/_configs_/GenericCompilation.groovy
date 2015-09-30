@@ -33,6 +33,11 @@ class GenericCompilation
 
         publishers
         {
+           configure { publisher ->
+                // remove the existing 'extendedEmail' element
+                publisher.remove(publishers / ExtendedEmailPublisher)
+           }
+
            // special content with testing failures
            extendedEmail('$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org',
                          '$DEFAULT_SUBJECT',
