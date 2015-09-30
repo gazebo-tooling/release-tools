@@ -16,7 +16,7 @@ class OSRFBrewCompilation extends OSRFOsXBase
     OSRFOsXBase.create(job)
 
     /* Properties from generic compilations */
-    GenericUnixCompilation.create(job)
+    GenericUNIXCompilation.create(job)
 
     job.with
     {
