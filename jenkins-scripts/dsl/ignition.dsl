@@ -154,7 +154,7 @@ ignition_brew_ci_job.with
 def ignition_win_ci_job = job("ignition_transport-ci-default-windows7-amd64")
 
 // Use the linux compilation as base
-OSRFwinCompilation.create(ignition_win_ci_job)
+OSRFWinCompilation.create(ignition_win_ci_job)
 
 ignition_win_ci_job.with
 {
