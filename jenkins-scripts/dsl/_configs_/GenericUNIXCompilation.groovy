@@ -7,7 +7,6 @@ import javaposse.jobdsl.dsl.Job
 
    Implements:
      - test results (build\test_results)
-     - email
 */
 
 class GenericUNIXCompilation
