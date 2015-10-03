@@ -37,6 +37,7 @@ BASE_DEPENDENCIES="build-essential \\
                    mesa-utils      \\
                    cppcheck        \\
                    xsltproc        \\
+                   python-psutil   \\
                    python"
 
 # 1. SDFORMAT
