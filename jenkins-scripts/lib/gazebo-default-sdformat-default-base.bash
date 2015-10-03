@@ -82,6 +82,12 @@ echo '# BEGIN SECTION: Gazebo installation'
 make install
 . /usr/share/gazebo/setup.sh
 echo '# END SECTION'
+
+# Need to clean up from previous built
+rm -fr $WORKSPACE/cppcheck_results
+rm -fr $WORKSPACE/test_results
+
+# Run tests
 echo '# BEGIN SECTION: make test'
 make test ARGS="-VV" || true
 echo '# END SECTION'
