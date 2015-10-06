@@ -30,13 +30,15 @@ if $DART_FROM_PKGS; then
     fi
 fi
 
-# mesa-utils for dri checks and xsltproc for qtest->junit conversion
+# mesa-utils for dri checks, xsltproc for qtest->junit conversion and
+# python-psutil for memory testing
 BASE_DEPENDENCIES="build-essential \\
                    cmake           \\
                    debhelper       \\
                    mesa-utils      \\
                    cppcheck        \\
                    xsltproc        \\
+                   python-psutil   \\
                    python"
 
 # 1. SDFORMAT
