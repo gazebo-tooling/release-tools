@@ -4,10 +4,6 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-if [[ -z ${DISTRO} ]]; then
-  export DISTRO=trusty
-fi
+export DISTRO=vivid
 
-export REPO_TO_USE=OSRF
-
-. ${SCRIPT_DIR}/lib/sdformat-any-base.bash
+. ${SCRIPT_DIR}/lib/gazebo-api_checker-default.bash

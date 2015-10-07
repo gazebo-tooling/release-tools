@@ -14,11 +14,10 @@ JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-bloom-debbuilder'
 
 UBUNTU_ARCHS = ['amd64']
-# UBUNTU_DISTROS = ['trusty', 'precise']
-UBUNTU_DISTROS = ['trusty']
-ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
-ROS_DISTROS_IN_TRUSTY = [ 'indigo' ]
-
+# not releasing for precise by default
+ROS_DISTROS_IN_UBUNTU = { # 'precise' : ['hydro'],
+                          'trusty'  : ['indigo', 'jade'],
+                          'vivid'   : ['jade']}
 DRY_RUN = False
 
 def parse_args(argv):
@@ -34,6 +33,9 @@ def parse_args(argv):
     parser.add_argument('-r', '--release-version', dest='release_version', 
                         default=None,
                         help='Release version suffix; usually 1 (e.g., 1')
+    parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
+                        help='OSRF repo to upload: stable | prerelease | nightly')
+
     args = parser.parse_args()
     DRY_RUN = args.dry_run
     return args
@@ -68,27 +70,25 @@ def go(argv):
     params['PACKAGE'] = args.package
     params['VERSION'] = args.version
     params['UPSTREAM_RELEASE_REPO'] = args.upstream_release_repo
+    params['UPLOAD_TO_REPO'] =args.upload_to_repository
 
     if not args.release_version:
         args.release_version = 0
     params['RELEASE_VERSION'] = args.release_version
     params_query = urllib.urlencode(params)
     base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, JOB_NAME_PATTERN%(args.package), params_query)
-    distros = UBUNTU_DISTROS
-    for d in distros:
+    for d, ros_distro in ROS_DISTROS_IN_UBUNTU.iteritems():
         for a in UBUNTU_ARCHS:
-            # Process ROS distros for each ubuntu distro
-            # raring           -> hydro
-            # quantal, precise -> groovy + hydro
-            if (d == 'precise'):
-                ROS_DISTROS = ROS_DISTROS_IN_PRECISE
-            elif (d == 'trusty'):
-                ROS_DISTROS = ROS_DISTROS_IN_TRUSTY
-            else:
-                print ("Unkwnon distribution")
+            ROS_DISTROS = ROS_DISTROS_IN_UBUNTU[d]
+            if len(ROS_DISTROS) == 0:
+                print ("No ROS_DISTROS defined in Ubuntu " + d)
                 sys.exit(1)
 
             for r in ROS_DISTROS:
+                if r == 'jade' and args.package == 'gazebo-ros-control':
+                    print ("!! No gazebo-ros-control in jade, skipping")
+                    continue
+
                 url = '%s&ARCH=%s&DISTRO=%s&ROS_DISTRO=%s'%(base_url, a, d, r)
                 print('Accessing: %s'%(url))
                 if not DRY_RUN:

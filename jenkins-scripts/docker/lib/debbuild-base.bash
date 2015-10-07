@@ -1,7 +1,8 @@
 #!/bin/bash -x
 
 NIGHTLY_MODE=false
-if [ "${VERSION}" = "nightly" ]; then
+if [ "${UPLOAD_TO_REPO}" = "nightly" ]; then
+   OSRF_REPOS_TO_USE="stable nightly"
    NIGHTLY_MODE=true
 fi
 
@@ -20,18 +21,10 @@ set -ex
 
 cd $WORKSPACE/build
 
-echo '# BEGIN SECTION: import the debian metadata'
+export DEBFULLNAME="OSRF Jenkins"
+export DEBEMAIL="build@osrfoundation.org"
 
-# Hack to support gazebo-current and friends
-# REAL_PACKAGE_NAME is used to refer to code directory name
-# REAL_PACKAGE_ALIAS is only affecting the name of the tarball
-if [ $PACKAGE = 'gazebo-current' ] || [ $PACKAGE = 'gazebo2' ]; then
-    REAL_PACKAGE_NAME='gazebo'
-    REAL_PACKAGE_ALIAS='gazebo'
-else
-    REAL_PACKAGE_NAME=$PACKAGE
-    REAL_PACKAGE_ALIAS=$PACKAGE_ALIAS
-fi
+echo '# BEGIN SECTION: import the debian metadata'
 
 # Remove number for packages like (sdformat2 or gazebo3)
 REAL_PACKAGE_NAME=$(echo $PACKAGE | sed 's:[0-9]*$::g')
@@ -44,41 +37,79 @@ if ${NIGHTLY_MODE}; then
   # Store revision for use in version
   REV=\$(hg parents --template="{node|short}\n")
 else
-  wget --quiet -O \$REAL_PACKAGE_ALIAS\_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
+  wget --quiet -O $PACKAGE_ALIAS\_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
   rm -rf \$REAL_PACKAGE_NAME\-$VERSION
-  tar xf \$REAL_PACKAGE_ALIAS\_$VERSION.orig.tar.bz2
+  tar xf $PACKAGE_ALIAS\_$VERSION.orig.tar.bz2
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME-$VERSION
 fi
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
 rm -rf /tmp/$PACKAGE-release
-hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release /tmp/$PACKAGE-release 
+hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release /tmp/$PACKAGE-release
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
-    # TODO: remove check when multidistribution reach default branch
-    if [ -f "${DISTRO}/debian/changelog" ]; then
-      UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${DISTRO}/debian/changelog | head -n 1 | tr -d ' ' | sed 's/-.*//')
-    else
-      UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ubuntu/debian/changelog | head -n 1 | tr -d ' '| sed 's/-.*//')
-    fi
+    # TODO: migrate to dpkg-parsechangelog
+    # dpkg-parsechangelog| grep Version | cut -f2 -d' '
+    UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${DISTRO}/debian/changelog | head -n 1 | tr -d ' ' | sed 's:~.*::')
 fi
+
 hg up $RELEASE_REPO_BRANCH
+
+# Handle build metadata
+if [ ! -f build.metadata.bash ]; then
+    BUILD_METHOD="LEGACY"
+else
+    source build.metadata.bash
+fi
+
+case \${BUILD_METHOD} in
+    "OVERWRITE_BASE")
+	# 1. Clone the base branch
+        hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release \\
+	    -b \${RELEASE_BASE_BRANCH} \\
+	    /tmp/base_$PACKAGE-release
+	# 2. Overwrite the information
+	if [[ -d ${DISTRO} ]]; then
+          cp -a ${DISTRO}/debian/* /tmp/base_$PACKAGE-release/${DISTRO}/debian/
+	else
+	  echo "WARN: no files to overwrite where found. No ${DISTRO} directory in repo"
+        fi
+	# 3. Apply patches (if any)
+	if [[ -d patches/ ]]; then
+	    cp -a patches/*.patch /tmp/base_$PACKAGE-release
+	    pushd /tmp/base_$PACKAGE-release > /dev/null
+	    for p in /tmp/base_gazebo6-release/*.patch; do
+	      patch -p1 < \$p
+	    done
+	    patch -p1 < /tmp/base_$PACKAGE-release/*.patch
+	    popd > /dev/null
+	fi
+	# 4. swap directories
+	cd /tmp
+	rm -fr /tmp/$PACKAGE-release
+        mv /tmp/base_$PACKAGE-release /tmp/$PACKAGE-release
+	;;
+    "LEGACY")
+	echo "Legacy in place. Nothing needs to be done"
+	;;
+esac
 
 cd /tmp/$PACKAGE-release/${DISTRO}
 
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
   TIMESTAMP=\$(date '+%Y%m%d')
-  RELEASE_DATE=\$(date '+%a, %d %B %Y %T -0700')
   NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}~${DISTRO}
-  # Fix the changelog
-  sed -i -e "s/xxxxx/\${NIGHTLY_VERSION_SUFFIX}/g" debian/changelog
-  sed -i -e "s/ddddd/\${RELEASE_DATE}/g" debian/changelog
-  # TODO: Fix CMakeLists.txt ?
+  # Update the changelog
+  debchange --package ${PACKAGE} \\
+              --newversion \${NIGHTLY_VERSION_SUFFIX} \\
+              --distribution ${DISTRO} \\
+              --force-distribution \\
+              --changelog=debian/changelog -- "Nightly release: \${NIGHTLY_VERSION_SUFFIX}"
 fi
 
-# Get into the unpacked source directory, without explicit knowledge of that 
+# Get into the unpacked source directory, without explicit knowledge of that
 # directory's name
 cd \`find $WORKSPACE/build -mindepth 1 -type d |head -n 1\`
 # If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
@@ -87,21 +118,21 @@ if $NIGHTLY_MODE; then
   echo | dh_make -s --createorig -p ${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV} > /dev/null
 fi
 
-# Adding extra directories to code. debian has no problem but some extra directories 
-# handled by symlinks (like cmake) in the repository can not be copied directly. 
+# Adding extra directories to code. debian has no problem but some extra directories
+# handled by symlinks (like cmake) in the repository can not be copied directly.
 # Need special care to copy, using first a --dereference
 cp -a --dereference /tmp/$PACKAGE-release/${DISTRO}/* .
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install build dependencies'
-mk-build-deps -r -i debian/control --tool 'apt-get --no-install-recommends --yes'
+mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
 echo '# END SECTION'
 
 if [ -f /usr/bin/rosdep ]; then
   rosdep init
 fi
 
-if $NEED_C11_COMPILER; then
+if $NEED_C11_COMPILER || $NEED_GCC48_COMPILER; then
 echo '# BEGIN SECTION: install C++11 compiler'
 apt-get install -y python-software-properties
 add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -135,7 +166,7 @@ FOUND_PKG=0
 for pkg in \${PKGS}; do
     echo "found \$pkg"
     # Check for correctly generated packages size > 3Kb
-    test -z \$(find \$pkg -size +3k) && echo "WARNING: empty package?" 
+    test -z \$(find \$pkg -size +3k) && echo "WARNING: empty package?"
     # && exit 1
     cp \${pkg} $WORKSPACE/pkgs
     FOUND_PKG=1
@@ -145,7 +176,7 @@ test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 DELIM
 
-USE_OSRF_REPO=true
+OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
 DEPENDENCY_PKGS="devscripts \
 		 ubuntu-dev-tools \
 		 debhelper \

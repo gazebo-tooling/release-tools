@@ -85,7 +85,8 @@ cat > \$PBUILD_DIR/A10_run_rosdep << DELIM_ROS_DEP
 if [ -f /usr/bin/rosdep ]; then
   # root share the same /tmp/buildd HOME than pbuilder user. Need to specify the root
   # HOME=/root otherwise it will make cache created during ros call forbidden to 
-  # access to pbuilder user.
+  # rosdep needs certificates to access to https
+  apt-get install -y python-openssl ca-certificates
   HOME=/root rosdep init
 fi
 DELIM_ROS_DEP

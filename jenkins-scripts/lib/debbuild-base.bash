@@ -170,6 +170,18 @@ DELIM_C11
 chmod a+x \$PBUILD_DIR/A20_install_gcc11
 fi
 
+if $NEED_GCC48_COMPILER; then
+cat > \$PBUILD_DIR/A20_install_gcc48 << DELIM_C48
+#!/bin/sh
+echo "Installing g++ 4.8"
+apt-get install -y gcc-4.8 g++-4.8
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
+update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
+g++ --version
+DELIM_C48
+chmod a+x \$PBUILD_DIR/A20_install_gcc48
+fi
+
 echo "HOOKDIR=\$PBUILD_DIR" > \$HOME/.pbuilderrc
 
 export DEB_BUILD_OPTIONS=parallel=${MAKE_JOBS}
