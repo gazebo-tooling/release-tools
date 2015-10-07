@@ -3,6 +3,8 @@ package _configs_
 import javaposse.jobdsl.dsl.Job
 
 /*
+  -> OSRFBase
+
   Implements:
      - bash: RTOOLS checkout
 */
@@ -10,6 +12,8 @@ class OSRFUNIXBase extends OSRFBase
 {
   static void create(Job job)
   {
+    OSRFBase.create(job)
+
     job.with
     {
       steps
