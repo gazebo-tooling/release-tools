@@ -7,10 +7,7 @@ sudo rm -fr ${WORKSPACE}/build
 sudo mkdir -p ${WORKSPACE}/build
 
 # Need to map timing dir into the docker container
-timing_mapping_str=""
-if $ENABLE_TIMING; then
-  timing_mapping_str="-v ${TIMING_DIR}:${TIMING_DIR}"
-fi
+timing_mapping_str="-v ${TIMING_DIR}:${TIMING_DIR}"
 
 sudo docker build -t ${DOCKER_TAG} .
 stop_stopwatch CREATE_TESTING_ENVIROMENT
@@ -30,7 +27,7 @@ sudo docker run $GPU_PARAMS_STR  \
             --cidfile=${CIDFILE} \
             -v ${WORKSPACE}/pkgs:${WORKSPACE}/pkgs \
             -v ${WORKSPACE}/build:${WORKSPACE}/build \
-	        $timing_mapping_str \
+            $timing_mapping_str \
             -t ${DOCKER_TAG} \
             /bin/bash build.sh
 
