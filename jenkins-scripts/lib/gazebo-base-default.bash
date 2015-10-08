@@ -2,12 +2,7 @@
 
 #stop on error
 set -e
-cp ${SCRIPT_DIR}/lib/_time_lib.sh ${WORKSPACE}
-source ${WORKSPACE}/_time_lib.sh
 
-init_stopwatch TOTAL_TIME
-
-init_stopwatch CREATE_TESTING_ENVIROMENT
 # Keep the option of default to not really send a build type and let our own gazebo cmake rules
 # to decide what is the default mode.
 if [ -z ${GZ_BUILD_TYPE} ]; then
@@ -44,7 +39,6 @@ if ${COVERAGE_ENABLED} ; then
   BULLSEYE_LICENSE=`cat $LICENSE_FILE`
   set -x # back to debug
 fi
-stop_stopwatch CREATE_TESTING_ENVIROMENT
 echo '# END SECTION'
 
 cat > build.sh << DELIM
@@ -53,7 +47,7 @@ cat > build.sh << DELIM
 # Make project-specific changes here
 #
 set -ex
-source ${WORKSPACE}/_time_lib.sh
+source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
 
 echo '# BEGIN SECTION: install dependencies'
 init_stopwatch INSTALL_DEPENDENCIES
@@ -129,12 +123,10 @@ if ${COVERAGE_ENABLED} ; then
   covselect --file test.cov --add .
   cov01 --on
 fi
-stop_stopwatch INSTALL_DEPENDENCIES
 echo '# END SECTION'
 
 # Step 2: configure and build
 # Check for DART
-init_stopwatch COMPILATION
 if $DART_COMPILE_FROM_SOURCE; then
   echo '# BEGIN SECTION: compiling DART from source'
   if [ -d $WORKSPACE/dart ]; then
@@ -154,8 +146,12 @@ if $DART_COMPILE_FROM_SOURCE; then
   echo '# END SECTION'
 fi
 
+stop_stopwatch INSTALL_DEPENDENCIES
+stop_stopwatch CREATE_TESTING_ENVIROMENT
+
 # Normal cmake routine for Gazebo
 echo '# BEGIN SECTION: Gazebo configuration'
+init_stopwatch COMPILATION
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
