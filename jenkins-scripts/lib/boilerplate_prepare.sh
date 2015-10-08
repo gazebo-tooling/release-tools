@@ -1,6 +1,11 @@
 # Common instructions to create the building enviroment
 set -e
 
+# Timing
+source ${SCRIPT_DIR}/lib/boilerplate_timing_prepare.sh
+init_stopwatch TOTAL_TIME
+init_stopwatch CREATE_TESTING_ENVIROMENT
+
 # Default values - Provide them is prefered
 if [ -z ${DISTRO} ]; then
     DISTRO=trusty
