@@ -144,6 +144,11 @@ if [[ ${GAZEBO_MAJOR_VERSION} -ge 6 ]]; then
                               libignition-math2-dev"
 fi
 
+if [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
+    GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES} \\
+                              libignition-transport0-dev"
+fi
+
 # libtinyxml2-dev is not on precise
 # it is needed by gazebo7, which isn't supported on precise
 if [[ ${DISTRO} != 'precise' ]]; then
