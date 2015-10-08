@@ -19,10 +19,12 @@ DOCKER_JOB_NAME="sdformat_ci"
 echo '# END SECTION'
 
 cat > build.sh << DELIM
+#!/bin/bash
 ###################################################
 # Make project-specific changes here
 #
 set -ex
+source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
 
 echo '# BEGIN SECTION: configure sdformat ${SDFORMAT_MAJOR_VERSION}'
 # Step 2: configure and build
@@ -32,22 +34,27 @@ cmake $WORKSPACE/sdformat
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: compiling'
+init_stopwatch COMPILATION
 make -j${MAKE_JOBS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: installing'
 make install
+stop_stopwatch COMPILATION
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: running tests'
+init_stopwatch TEST
 mkdir -p \$HOME
 make test ARGS="-VV" || true
+stop_stopwatch TEST
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: cppcheck'
 cd $WORKSPACE/sdformat
+init_stopwatch CPPCHECK
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
-cat $WORKSPACE/build/cppcheck_results/*.xml
+stop_stopwatch CPPCHECK
 echo '# END SECTION'
 DELIM
 

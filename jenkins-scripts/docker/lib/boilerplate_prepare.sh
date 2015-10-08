@@ -26,6 +26,11 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
     fi
 fi
 
+# Timing
+source ${SCRIPT_DIR}/../lib/boilerplate_timing_prepare.sh
+init_stopwatch TOTAL_TIME
+init_stopwatch CREATE_TESTING_ENVIROMENT
+
 # Default values - Provide them is prefered
 if [ -z ${DISTRO} ]; then
     DISTRO=trusty

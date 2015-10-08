@@ -7,6 +7,7 @@ sudo rm -fr ${WORKSPACE}/build
 sudo mkdir -p ${WORKSPACE}/build
 
 sudo docker build -t ${DOCKER_TAG} .
+stop_stopwatch CREATE_TESTING_ENVIROMENT
 
 echo '# BEGIN SECTION: see build.sh script'
 cat build.sh
@@ -23,6 +24,7 @@ sudo docker run $GPU_PARAMS_STR  \
             --cidfile=${CIDFILE} \
             -v ${WORKSPACE}/pkgs:${WORKSPACE}/pkgs \
             -v ${WORKSPACE}/build:${WORKSPACE}/build \
+	        $timing_mapping_str \
             -t ${DOCKER_TAG} \
             /bin/bash build.sh
 

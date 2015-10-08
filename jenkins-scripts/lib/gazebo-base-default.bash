@@ -2,7 +2,12 @@
 
 #stop on error
 set -e
+cp ${SCRIPT_DIR}/lib/_time_lib.sh ${WORKSPACE}
+source ${WORKSPACE}/_time_lib.sh
 
+init_stopwatch TOTAL_TIME
+
+init_stopwatch CREATE_TESTING_ENVIROMENT
 # Keep the option of default to not really send a build type and let our own gazebo cmake rules
 # to decide what is the default mode.
 if [ -z ${GZ_BUILD_TYPE} ]; then
@@ -39,15 +44,19 @@ if ${COVERAGE_ENABLED} ; then
   BULLSEYE_LICENSE=`cat $LICENSE_FILE`
   set -x # back to debug
 fi
+stop_stopwatch CREATE_TESTING_ENVIROMENT
 echo '# END SECTION'
 
 cat > build.sh << DELIM
+#!/bin/bash
 ###################################################
 # Make project-specific changes here
 #
 set -ex
+source ${WORKSPACE}/_time_lib.sh
 
 echo '# BEGIN SECTION: install dependencies'
+init_stopwatch INSTALL_DEPENDENCIES
 # OSRF repository to get bullet
 apt-get install -y wget
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
@@ -120,10 +129,12 @@ if ${COVERAGE_ENABLED} ; then
   covselect --file test.cov --add .
   cov01 --on
 fi
+stop_stopwatch INSTALL_DEPENDENCIES
 echo '# END SECTION'
 
 # Step 2: configure and build
 # Check for DART
+init_stopwatch COMPILATION
 if $DART_COMPILE_FROM_SOURCE; then
   echo '# BEGIN SECTION: compiling DART from source'
   if [ -d $WORKSPACE/dart ]; then
@@ -159,6 +170,7 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: Gazebo installation'
 make install
 . /usr/share/gazebo/setup.sh
+stop_stopwatch COMPILATION
 echo '# END SECTION'
 
 # Need to clean up from previous built
@@ -167,24 +179,34 @@ rm -fr $WORKSPACE/test_results
 
 # Run tests
 echo '# BEGIN SECTION: UNIT testing'
+init_stopwatch UNIT_TESTING
 make test ARGS="-VV -R UNIT_*" || true
+stop_stopwatch UNIT_TESTING
 echo '# END SECTION'
 echo '# BEGIN SECTION: INTEGRATION testing'
+init_stopwatch INTEGRATION_TESTING
 make test ARGS="-VV -R INTEGRATION_*" || true
+stop_stopwatch INTEGRATION_TESTING
 echo '# END SECTION'
 echo '# BEGIN SECTION: REGRESSION testing'
+init_stopwatch REGRESSION_TESTING
 make test ARGS="-VV -R REGRESSION_*" || true
+stop_stopwatch REGRESSION_TESTING
 echo '# END SECTION'
 echo '# BEGIN SECTION: EXAMPLE testing'
+init_stopwatch EXAMPLE_TESTING
 make test ARGS="-VV -R EXAMPLE_*" || true
+stop_stopwatch EXAMPLE_TESTING
 echo '# END SECTION'
 
 # Only run cppcheck on trusty
 if [ "$DISTRO" = "trusty" ]; then 
   echo '# BEGIN SECTION: running cppcheck'
+  init_stopwatch CPPCHECK
   # Step 3: code check
   cd $WORKSPACE/gazebo
   sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+  stop_stopwatch CPPCHECK
   echo '# END SECTION'
 else
   mkdir -p $WORKSPACE/build/cppcheck_results/
@@ -239,3 +261,4 @@ sudo pbuilder  --execute \
     --basetgz $basetgz \
     -- build.sh
 
+stop_stopwatch TOTAL_TIME
