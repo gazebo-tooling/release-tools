@@ -14,8 +14,6 @@ class GenericAnyJob
 {
    static void create(Job job, String repo)
    {
-     subdir = repo.
-
      job.with
      {
         parameters { 
@@ -32,7 +30,7 @@ class GenericAnyJob
         scm {
           hg('${SRC_REPO}') {
             branch('${SRC_BRANCH}')
-            subdirectory(subdir)
+            subdirectory(repo)
           }
         }
 
