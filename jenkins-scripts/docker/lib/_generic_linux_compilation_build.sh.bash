@@ -15,7 +15,8 @@ echo '# BEGIN SECTION: configure'
 # Step 2: configure and build
 cd $WORKSPACE
 cd $WORKSPACE/build
-cmake $WORKSPACE/${SOFTWARE_DIR}
+cmake $WORKSPACE/${SOFTWARE_DIR} \
+    -DCMAKE_INSTALL_PREFIX=/usr
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: compiling'
