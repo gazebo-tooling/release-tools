@@ -35,9 +35,7 @@ echo Modifying ${FORMULA_PATH}
 
 # change stable uri
 OLD_URI=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.url"`
-OLD_URI_LINE=`grep -n ${OLD_URI} ${FORMULA_PATH} \
-  | head -1 \
-  | sed -e 's@:.*@@'`
+OLD_URI_LINE=`awk "index(\$0, \"${OLD_URI}\") != 0 { print FNR }" ${FORMULA_PATH} | head -1`
 echo
 echo Changing url from
 echo ${OLD_URI} to
