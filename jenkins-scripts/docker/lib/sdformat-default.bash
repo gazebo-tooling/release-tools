@@ -19,10 +19,10 @@ DOCKER_JOB_NAME="sdformat_ci"
 echo '# END SECTION'
 
 SOFTWARE_DIR="sdformat"
-source _generic_linux_compilation_build.sh.bash
-
 USE_OSRF_REPO=true
 DEPENDENCY_PKGS="${SDFORMAT_BASE_DEPENDENCIES}"
+
+. ${SCRIPT_DIR}/lib/_generic_linux_compilation_build.sh.bash
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
