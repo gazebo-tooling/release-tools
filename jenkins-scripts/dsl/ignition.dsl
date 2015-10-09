@@ -44,7 +44,7 @@ ci_distro.each { distro ->
                 export DISTRO=${distro}
                 export ARCH=${arch}
 
-                /bin/bash -xe ./scripts/jenkins-scripts/ign_transport-compilation.bash
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_transport-compilation.bash
                 """.stripIndent())
         }
     }
@@ -60,7 +60,7 @@ ci_distro.each { distro ->
                 export DISTRO=${distro}
                 export ARCH=${arch}
 
-                /bin/bash -xe ./scripts/jenkins-scripts/ign_transport-compilation.bash
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_transport-compilation.bash
                 """.stripIndent())
         }
     }
@@ -120,7 +120,7 @@ other_supported_distros.each { distro ->
 
                 export DISTRO=${distro}
                 export ARCH=${arch}
-                /bin/bash -xe ./scripts/jenkins-scripts/ign_transport-compilation.bash
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_transport-compilation.bash
                 """.stripIndent())
         }
     }
