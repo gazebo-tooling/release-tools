@@ -1,6 +1,9 @@
 import _configs_.OSRFLinuxCompilation
+import _configs_.OSRFLinuxCompilationAny
 import _configs_.OSRFBrewCompilation
+import _configs_.OSRFBrewCompilationAny
 import _configs_.OSRFWinCompilation
+import _configs_.OSRFWinCompilationAny
 import _configs_.OSRFLinuxInstall
 import _configs_.OSRFLinuxBuildPkg
 import javaposse.jobdsl.dsl.Job
