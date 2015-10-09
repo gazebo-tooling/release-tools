@@ -196,7 +196,7 @@ ignition_win_ci_any_job.with
 {
     steps {
       batchFile("""\
-            call "./scripts/jenkins-scripts/ign_transport-default-devel-windows7-amd64.bat"
+            call "./scripts/jenkins-scripts/ign_transport-default-devel-windows-amd64.bat"
             """.stripIndent())
     }
 }
