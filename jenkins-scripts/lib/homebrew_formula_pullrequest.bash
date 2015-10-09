@@ -1,8 +1,25 @@
 #!/bin/bash -x
 
 # comment out the following two lines for faster debugging if it has already been cloned
-rm -rf linuxbrew
-git clone https://github.com/Homebrew/linuxbrew.git
+BREW_PREFIX="${PWD}/linuxbrew"
+GIT="git -C ${BREW_PREFIX}"
+if ${GIT} remote -v | grep linuxbrew.git ; then
+  # copying cleanup_before git commands from test-bot.rb
+  echo "Cleaning up existing linuxbrew repository"
+  ${GIT} gc --auto
+  ${GIT} stash
+  ${GIT} am --abort
+  ${GIT} rebase --abort
+  ${GIT} reset --hard
+  ${GIT} checkout -f master
+  ${GIT} clean -ffdx
+  ${GIT} pull
+else
+  echo "Cloning new copy of linuxbrew repository"
+  rm -rf linuxbrew
+  git clone https://github.com/Homebrew/linuxbrew.git
+fi
+
 BREW=${PWD}/linuxbrew/bin/brew
 
 # tap dev-tools to get brew ruby command
@@ -10,6 +27,7 @@ ${BREW} tap homebrew/dev-tools
 ${BREW} tap osrf/simulation
 TAP_PREFIX=${PWD}/linuxbrew/Library/Taps/osrf/homebrew-simulation
 
+echo
 if [ -z "${PACKAGE_ALIAS}" ]; then
   PACKAGE_ALIAS=sdformat2
 fi
