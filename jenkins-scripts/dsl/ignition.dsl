@@ -38,7 +38,10 @@ ci_distro.each { distro ->
           shell("""\
                 #!/bin/bash -xe
 
-                /bin/bash -xe ./scripts/jenkins-scripts/ign_transport-default-devel-${distro}-${arch}.bash
+                export DISTRO=${distro}
+                export ARCH=${arch}
+
+                /bin/bash -xe ./scripts/jenkins-scripts/ign_transport-compilation.bash
                 """.stripIndent())
         }
     }
@@ -51,9 +54,10 @@ ci_distro.each { distro ->
     {
         steps {
           shell("""\
-                #!/bin/bash -xe
+                export DISTRO=${distro}
+                export ARCH=${arch}
 
-                /bin/bash -xe ./scripts/jenkins-scripts/ign_transport-default-devel-${distro}-${arch}.bash
+                /bin/bash -xe ./scripts/jenkins-scripts/ign_transport-compilation.bash
                 """.stripIndent())
         }
     }
@@ -111,7 +115,9 @@ other_supported_distros.each { distro ->
           shell("""\
                 #!/bin/bash -xe
 
-                /bin/bash -xe ./scripts/jenkins-scripts/ign_transport-default-devel-trusty-amd64.bash
+                export DISTRO=${distro}
+                export ARCH=${arch}
+                /bin/bash -xe ./scripts/jenkins-scripts/ign_transport-compilation.bash
                 """.stripIndent())
         }
     }
