@@ -30,12 +30,14 @@ else
   exit -1
 fi
 
-FORMULA_PATH=`brew ruby -e "puts \"${PACKAGE_ALIAS}\".f.path"`
+FORMULA_PATH=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.path"`
 echo Modifying ${FORMULA_PATH}
 
 # change stable uri
-OLD_URI=`brew ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.url"`
-OLD_URI_LINE=`awk "/${OLD_URI}/ {print FNR}" ${FORMULA_PATH} | head -1`
+OLD_URI=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.url"`
+OLD_URI_LINE=`grep -n ${OLD_URI} ${FORMULA_PATH} \
+  | head -1 \
+  | sed -e 's@:.*@@'`
 echo
 echo Changing url from
 echo ${OLD_URI} to
@@ -43,7 +45,7 @@ echo ${SOURCE_TARBALL_URI}
 sed -i -e "${OLD_URI_LINE}c\  url \"${SOURCE_TARBALL_URI}\"" ${FORMULA_PATH}
 
 # change stable sha256
-OLD_SHA=`brew ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.checksum"`
+OLD_SHA=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.checksum"`
 OLD_SHA_LINE=`awk "/${OLD_SHA}/ {print FNR}" ${FORMULA_PATH} | head -1`
 echo
 echo Changing sha256 from
