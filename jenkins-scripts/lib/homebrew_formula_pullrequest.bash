@@ -29,22 +29,18 @@ TAP_PREFIX=${PWD}/linuxbrew/Library/Taps/osrf/homebrew-simulation
 
 echo
 if [ -z "${PACKAGE_ALIAS}" ]; then
-  PACKAGE_ALIAS=sdformat2
-  # echo PACKAGE_ALIAS not specified
-  # exit -1
+  echo PACKAGE_ALIAS not specified
+  exit -1
 fi
 if [ -z "${SOURCE_TARBALL_URI}" ]; then
-  SOURCE_TARBALL_URI=SOURCE_TARBALL_URI
-  # echo SOURCE_TARBALL_URI not specified
-  # exit -1
+  echo SOURCE_TARBALL_URI not specified
+  exit -1
 fi
 if [ -z "${SOURCE_TARBALL_SHA}" ]; then
-  SOURCE_TARBALL_SHA=SOURCE_TARBALL_SHA
-  # echo SOURCE_TARBALL_SHA not specified
-  # computing now
-  # SOURCE_TARBALL_SHA=`curl -L ${SOURCE_TARBALL_URI} \
-  #   | shasum --algorithm 256 \
-  #   | awk '{print $1}'`
+  echo SOURCE_TARBALL_SHA not specified, computing now
+  SOURCE_TARBALL_SHA=`curl -L ${SOURCE_TARBALL_URI} \
+    | shasum --algorithm 256 \
+    | awk '{print $1}'`
 fi
 
 if [ -s ${TAP_PREFIX}/${PACKAGE_ALIAS}.rb ]; then
