@@ -17,7 +17,7 @@ class GenericCompilation
 
      Test summary:
      -------------
-      * Total of ${TEST_COUNTS, var="total"} tests : ${TEST_COUNTS, var="fail"} failed and ${TEST_COUNTS, var="skip"
+      * Total of ${TEST_COUNTS, var="total"} tests : ${TEST_COUNTS, var="fail"} failed and ${TEST_COUNTS, var="skip"}
 
      Data log:
      ${FAILED_TESTS}

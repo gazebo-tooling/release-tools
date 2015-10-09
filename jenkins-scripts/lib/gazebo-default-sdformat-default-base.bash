@@ -69,14 +69,46 @@ hg clone https://bitbucket.org/osrf/gazebo -r $GAZEBO_BRANCH $WORKSPACE/gazebo
 rm -rf $WORKSPACE/gazebo/build $WORKSPACE/gazebo/install
 mkdir -p $WORKSPACE/gazebo/build $WORKSPACE/gazebo/install
 cd $WORKSPACE/gazebo/build
+echo '# BEGIN SECTION: Gazebo configuration'
 cmake ${GZ_CMAKE_BUILD_TYPE}         \\
     -DCMAKE_INSTALL_PREFIX=/usr      \\
     -DENABLE_SCREEN_TESTS:BOOL=False \\
   $WORKSPACE/gazebo
+echo '# END SECTION'
+echo '# BEGIN SECTION: Gazebo compilation'
 make -j${MAKE_JOBS}
+echo '# END SECTION'
+echo '# BEGIN SECTION: Gazebo installation'
 make install
 . /usr/share/gazebo/setup.sh
+echo '# END SECTION'
+
+# Need to clean up from previous built
+rm -fr $WORKSPACE/cppcheck_results
+rm -fr $WORKSPACE/test_results
+
+# Run tests
+echo '# BEGIN SECTION: make test'
 make test ARGS="-VV" || true
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: clean build directory and export information'
+# Step 5: copy test log
+# Broken http://build.osrfoundation.org/job/gazebo-any-devel-precise-amd64-gpu-nvidia/6/console
+# Need fix
+# mkdir $WORKSPACE/logs
+# cp $HOME/.gazebo/logs/*.log $WORKSPACE/logs/
+
+# Step 6. Need to clean build/ directory so disk space is under control
+# Move test results out of build
+# Copy the results
+mv $WORKSPACE/build/test_results $WORKSPACE/test_results
+rm -fr $WORKSPACE/build
+mkdir -p $WORKSPACE/build
+# To keep backwards compatibility with current configurations keep a copy
+# of tests_results in the build path.
+cp -a $WORKSPACE/test_results $WORKSPACE/build/test_results
+echo '# END SECTION'
 DELIM
 
 # Make project-specific changes here
