@@ -14,6 +14,8 @@ class GenericAnyJob
 {
    static void create(Job job, String repo)
    {
+     String subdirectoy = repo.tokenize('/').last()
+
      job.with
      {
         parameters { 
@@ -30,7 +32,7 @@ class GenericAnyJob
         scm {
           hg('${SRC_REPO}') {
             branch('${SRC_BRANCH}')
-            subdirectory(repo)
+            subdirectory(subdirectoy)
           }
         }
 
