@@ -5,6 +5,8 @@ rm -rf linuxbrew
 git clone https://github.com/Homebrew/linuxbrew.git
 BREW=${PWD}/linuxbrew/bin/brew
 
+# tap dev-tools to get brew ruby command
+${BREW} tap homebrew/dev-tools
 ${BREW} tap osrf/simulation
 TAP_PREFIX=${PWD}/linuxbrew/Library/Taps/osrf/homebrew-simulation
 
@@ -28,41 +30,24 @@ else
   exit -1
 fi
 
-TOKEN=__TOKEN__
-FORMULA_PATH1=`echo "puts '__TOKEN__' + \"${PACKAGE_ALIAS}\".f.path" \
-  | ${BREW} irb \
-  | grep ${TOKEN}`
-FORMULA_PATH=`echo ${FORMULA_PATH1} | sed -e "s@.*${TOKEN}@@g"`
+FORMULA_PATH=`brew ruby -e "puts \"${PACKAGE_ALIAS}\".f.path"`
 echo Modifying ${FORMULA_PATH}
 
 # change stable uri
-OLD_URI1=`echo "puts '__TOKEN__' + \"${PACKAGE_ALIAS}\".f.stable.url" \
-  | ${BREW} irb \
-  | grep ${TOKEN}`
-OLD_URI=`echo ${OLD_URI1} | sed -e "s@.*${TOKEN}@@g"`
-OLD_URI_LINE=`${BREW} cat ${PACKAGE_ALIAS} \
-  | grep -n ${OLD_URI} \
-  | head -1 \
-  | sed -e 's@:.*@@'`
+OLD_URI=`brew ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.url"`
+OLD_URI_LINE=`awk "/${OLD_URI}/ {print FNR}" ${FORMULA_PATH} | head -1`
 echo
 echo Changing url from
 echo ${OLD_URI} to
 echo ${SOURCE_TARBALL_URI}
-sed -i -e "${OLD_URI_LINE}c\  url \"${SOURCE_TARBALL_URI}\"" \
-  ${FORMULA_PATH}
+sed -i -e "${OLD_URI_LINE}c\  url \"${SOURCE_TARBALL_URI}\"" ${FORMULA_PATH}
 
-# change stable uri
-OLD_SHA1=`echo "puts '__TOKEN__' + \"${PACKAGE_ALIAS}\".f.stable.checksum.to_s" \
-  | ${BREW} irb \
-  | grep ${TOKEN}`
-OLD_SHA=`echo ${OLD_SHA1} | sed -e "s@.*${TOKEN}@@g"`
-OLD_SHA_LINE=`${BREW} cat ${PACKAGE_ALIAS} \
-  | grep -n ${OLD_SHA} \
-  | head -1 \
-  | sed -e 's@:.*@@'`
+# change stable sha256
+OLD_SHA=`brew ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.checksum"`
+OLD_SHA_LINE=`awk "/${OLD_SHA}/ {print FNR}" ${FORMULA_PATH} | head -1`
 echo
 echo Changing sha256 from
 echo ${OLD_SHA} to
 echo ${SOURCE_TARBALL_SHA}
-sed -i -e "${OLD_SHA_LINE}c\  sha256 \"${SOURCE_TARBALL_URI}\"" \
+sed -i -e "${OLD_SHA_LINE}c\  sha256 \"${SOURCE_TARBALL_SHA}\"" \
   ${FORMULA_PATH}
