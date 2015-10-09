@@ -1,7 +1,8 @@
 #!/bin/bash -x
 
-# rm -rf linuxbrew
-# git clone https://github.com/Homebrew/linuxbrew.git
+# comment out the following two lines for faster debugging if it has already been cloned
+rm -rf linuxbrew
+git clone https://github.com/Homebrew/linuxbrew.git
 BREW=${PWD}/linuxbrew/bin/brew
 
 ${BREW} tap osrf/simulation
