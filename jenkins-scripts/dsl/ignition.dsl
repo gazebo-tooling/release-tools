@@ -195,7 +195,7 @@ OSRFWinCompilationAny.create(ignition_win_ci_any_job,
 ignition_win_ci_any_job.with
 {
     steps {
-      shell("""\
+      batch("""\
             call "./scripts/jenkins-scripts/ign_transport-default-devel-windows7-amd64.bat"
             """.stripIndent())
     }
