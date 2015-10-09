@@ -35,12 +35,14 @@ echo Modifying ${FORMULA_PATH}
 
 # get stable uri and its line number
 URI=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.url"`
-URI_LINE=`awk "index(\$0, \"${URI}\") != 0 { print FNR }" ${FORMULA_PATH} | head -1`
+URI_LINE=`grep -n ${URI} ${FORMULA_PATH} \
+  | head -1 \
+  | sed -e 's@:.*@@'`
 echo
 echo Changing url from
-echo ${OLD_URI} to
+echo ${URI} to
 echo ${SOURCE_TARBALL_URI}
-sed -i -e "${OLD_URI_LINE}c\  url \"${SOURCE_TARBALL_URI}\"" ${FORMULA_PATH}
+sed -i -e "${URI_LINE}c\  url \"${SOURCE_TARBALL_URI}\"" ${FORMULA_PATH}
 
 # get stable sha256 and its line number
 SHA=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.checksum"`
