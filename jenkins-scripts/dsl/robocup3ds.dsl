@@ -7,9 +7,9 @@ def ci_distro = [ 'trusty' ]
 def other_supported_distros = [ 'vivid' ]
 def supported_arches = [ 'amd64' ]
 
-supported_distros.each { distro ->
+// MAIN CI JOBS
+ci_distro.each { distro ->
   supported_arches.each { arch ->
-
     // --------------------------------------------------------------
     // 1. Create the default ci jobs
     def robocup3ds_ci_job = job("robocup3ds-ci-default-${distro}-${arch}")
@@ -30,6 +30,42 @@ supported_distros.each { distro ->
 
         triggers {
           scm('*/5 * * * *')
+        }
+
+        steps {
+          shell("""#!/bin/bash -xe
+
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/robocup3ds-default-devel-${distro}-${arch}.bash
+                """.stripIndent())
+        }
+     }
+  }
+}
+
+// OTHER DAILY CI JOBS
+other_supported_distros.each { distro ->
+  supported_arches.each { arch ->
+
+    // --------------------------------------------------------------
+    // 1. Create the other daily CI jobs
+    def robocup3ds_ci_job = job("robocup3ds-ci-default-${distro}-${arch}")
+
+    // Use the linux compilation as base
+    OSRFLinuxCompilation.create(robocup3ds_ci_job)
+
+    robocup3ds_ci_job.with
+    {
+        label "gpu-reliable-trusty"
+
+        scm {
+          hg('http://bitbucket.org/osrf/robocup3ds') {
+            branch('default')
+            subdirectory('robocup3ds')
+          }
+        }
+
+        triggers {
+          scm('@daily')
         }
 
         steps {
