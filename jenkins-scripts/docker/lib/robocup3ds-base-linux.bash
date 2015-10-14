@@ -7,7 +7,7 @@ echo '# END SECTION'
 
 SOFTWARE_DIR="robocup3ds"
 USE_OSRF_REPO=true
-DEPENDENCY_PKGS="libgazebo6-dev libqt4-dev libboost-1.54-dev"
+DEPENDENCY_PKGS="libgazebo6-dev libqt4-dev libboost-dev"
 
 . ${SCRIPT_DIR}/lib/_generic_linux_compilation_build.sh.bash
 
