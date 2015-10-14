@@ -7,4 +7,4 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 export DISTRO=trusty
 export GPU_SUPPORT_NEEDED=true
 
-. ${SCRIPT_DIR}/lib/robocup-base-linux.bash
+. ${SCRIPT_DIR}/lib/robocup3ds-base-linux.bash
