@@ -9,7 +9,7 @@ def other_supported_distros = [ 'vivid' ]
 def all_supported_distros = ci_distro + other_supported_distros
 def supported_arches = [ 'amd64' ]
 
-def PROJECT_MAILS=", caguero@osrfoundation.org"
+@Field PROJECT_MAILS=", caguero@osrfoundation.org"
 
 // MAIN CI JOBS
 ci_distro.each { distro ->
