@@ -10,8 +10,6 @@ import groovy.transform.Field
      - base mail for Failures and Unstables
 */
 
-print PROJECT_MAILS
-
 class OSRFBase
 {
    def project_mails = PROJECT_MAILS
