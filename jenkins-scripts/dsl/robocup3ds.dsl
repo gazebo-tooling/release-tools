@@ -35,7 +35,10 @@ ci_distro.each { distro ->
         steps {
           shell("""#!/bin/bash -xe
 
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/robocup3ds-default-devel-${distro}-${arch}.bash
+                export DISTRO=${distro}
+                export ARCH=${arch}
+
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/robocup3ds-compilation.bash
                 """.stripIndent())
         }
      }
@@ -71,7 +74,10 @@ other_supported_distros.each { distro ->
         steps {
           shell("""#!/bin/bash -xe
 
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/robocup3ds-default-devel-${distro}-${arch}.bash
+                export DISTRO=${distro}
+                export ARCH=${arch}
+
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/robocup3ds-compilation.bash
                 """.stripIndent())
         }
      }
