@@ -12,7 +12,7 @@ import javaposse.jobdsl.dsl.Job
 def ci_distro = [ 'trusty' ]
 // Other supported platform to be checked but no for quick
 // CI integration.
-def other_supported_distros = [ 'trusty','vivid' ]
+def other_supported_distros = [ 'vivid' ]
 def supported_arches = [ 'amd64' ]
 
 def all_supported_distros = ci_distro + other_supported_distros
