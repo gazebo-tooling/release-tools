@@ -10,8 +10,12 @@ import groovy.transform.Field
      - base mail for Failures and Unstables
 */
 
+print PROJECT_MAILS
+
 class OSRFBase
 {
+   def project_mails = PROJECT_MAILS
+
    static void create(Job job)
    {
      job.with 
@@ -27,7 +31,7 @@ class OSRFBase
 
         publishers 
         {
-          extendedEmail("\$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org " + PROJECT_MAILS,
+          extendedEmail("\$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org " + project_mails,
                         '$DEFAULT_SUBJECT',
                         '$DEFAULT_CONTENT')
          {
