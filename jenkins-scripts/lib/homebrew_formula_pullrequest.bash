@@ -8,8 +8,13 @@ if [ -z "${SOURCE_TARBALL_URI}" ]; then
   echo SOURCE_TARBALL_URI not specified
   exit -1
 fi
+if [ -z "${VERSION}" ]; then
+  echo VERSION not specified
+  exit -1
+fi
 if [ -z "${SOURCE_TARBALL_SHA}" ]; then
   echo SOURCE_TARBALL_SHA not specified, computing now
+  echo
   SOURCE_TARBALL_SHA=`curl -L ${SOURCE_TARBALL_URI} \
     | shasum --algorithm 256 \
     | awk '{print $1}'`
@@ -78,5 +83,22 @@ SHA_LINE=`awk "/${SHA}/ {print FNR}" ${FORMULA_PATH} | head -1`
 echo on line number ${SHA_LINE}
 sed -i -e "${SHA_LINE}c\  sha256 \"${SOURCE_TARBALL_SHA}\"" ${FORMULA_PATH}
 
+GIT="git -C ${TAP_PREFIX}"
+echo ==========================================================
+${GIT} diff
+echo ==========================================================
+
+# ${GIT} remote add fork git@github.com:osrf-user/homebrew-simulation.git
+${GIT} remote add fork https://github.com/osrf-user/homebrew-simulation.git
+${GIT} config user.name "OSRF Build Bot"
+${GIT} config user.email "osrfbuild@osrfoundation.org"
+${GIT} remote -v
+BRANCH="${PACKAGE_ALIAS}_${VERSION}"
+${GIT} checkout -b ${BRANCH}
+${GIT} commit ${FORMULA_PATH} -m "${PACKAGE_ALIAS} ${VERSION}"
 echo
-git -C ${TAP_PREFIX} diff
+${GIT} status
+echo
+${GIT} show HEAD
+echo
+#${GIT} push -u fork ${BRANCH}
