@@ -7,6 +7,12 @@ export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 PROJECT=$1
 PROJECT_ARGS=${2}
 
+# In ignition projects, the name of the repo and the formula does not match
+PROJECT_PATH=${PROJECT}
+if [[ ${PROJECT/ignition} != ${PROJECT} ]]; then
+    PROJECT_PATH="ign${PROJECT/ignition}"
+fi
+
 # Knowing Script dir beware of symlink
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
@@ -60,7 +66,7 @@ ${RUN_DIR}/bin/brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-depend
 ${RUN_DIR}/bin/brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
 
 # Step 3. Manually compile and install ${PROJECT}
-cd ${WORKSPACE}/${PROJECT}
+cd ${WORKSPACE}/${PROJECT_PATH}
 # Need the sudo since the test are running with roots perms to access to GUI
 sudo rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
@@ -85,7 +91,7 @@ export DISPLAY=$(ps ax \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
 
-${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT} \
+${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT_PATH} \
       -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/${PROJECT}/HEAD \
       -DCMAKE_PREFIX_PATH=${RUN_DIR} \
       -DBOOST_ROOT=${RUN_DIR}
