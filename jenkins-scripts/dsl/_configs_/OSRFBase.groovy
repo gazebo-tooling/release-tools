@@ -26,7 +26,7 @@ class OSRFBase
 
         publishers 
         {
-          extendedEmail('$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org',
+          extendedEmail("$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org ${PROJECT_MAILS}",
                         '$DEFAULT_SUBJECT',
                         '$DEFAULT_CONTENT')
          {
