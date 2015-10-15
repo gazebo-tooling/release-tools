@@ -9,7 +9,7 @@ PROJECT_ARGS=${2}
 
 # In ignition projects, the name of the repo and the formula does not match
 PROJECT_PATH=${PROJECT}
-if [[ ${PROJECT/ignition} =! ${PROJECT} ]]; then
+if [[ ${PROJECT/ignition} != ${PROJECT} ]]; then
     PROJECT_PATH="ign${PROJECT/ignition}"
 fi
 
