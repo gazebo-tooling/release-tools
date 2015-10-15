@@ -1,5 +1,20 @@
 #!/bin/bash -x
 
+if [ -z "${PACKAGE_ALIAS}" ]; then
+  echo PACKAGE_ALIAS not specified
+  exit -1
+fi
+if [ -z "${SOURCE_TARBALL_URI}" ]; then
+  echo SOURCE_TARBALL_URI not specified
+  exit -1
+fi
+if [ -z "${SOURCE_TARBALL_SHA}" ]; then
+  echo SOURCE_TARBALL_SHA not specified, computing now
+  SOURCE_TARBALL_SHA=`curl -L ${SOURCE_TARBALL_URI} \
+    | shasum --algorithm 256 \
+    | awk '{print $1}'`
+fi
+
 # comment out the following two lines for faster debugging if it has already been cloned
 BREW_PREFIX="${PWD}/linuxbrew"
 GIT="git -C ${BREW_PREFIX}"
@@ -28,21 +43,6 @@ ${BREW} tap osrf/simulation
 TAP_PREFIX=${PWD}/linuxbrew/Library/Taps/osrf/homebrew-simulation
 
 echo
-if [ -z "${PACKAGE_ALIAS}" ]; then
-  echo PACKAGE_ALIAS not specified
-  exit -1
-fi
-if [ -z "${SOURCE_TARBALL_URI}" ]; then
-  echo SOURCE_TARBALL_URI not specified
-  exit -1
-fi
-if [ -z "${SOURCE_TARBALL_SHA}" ]; then
-  echo SOURCE_TARBALL_SHA not specified, computing now
-  SOURCE_TARBALL_SHA=`curl -L ${SOURCE_TARBALL_URI} \
-    | shasum --algorithm 256 \
-    | awk '{print $1}'`
-fi
-
 if [ -s ${TAP_PREFIX}/${PACKAGE_ALIAS}.rb ]; then
   FORMULA=${TAP_PREFIX}/${PACKAGE_ALIAS}.rb
 elif [ -s ${TAP_PREFIX}/Aliases/${PACKAGE_ALIAS} ]; then
