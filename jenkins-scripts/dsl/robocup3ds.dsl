@@ -3,6 +3,7 @@ import _configs_.OSRFLinuxCompilationAny
 import _configs_.OSRFLinuxInstall
 import _configs_.OSRFLinuxBuildPkg
 import javaposse.jobdsl.dsl.Job
+import groovy.transform.Field
 
 def ci_distro = [ 'trusty' ]
 def other_supported_distros = [ 'vivid' ]
