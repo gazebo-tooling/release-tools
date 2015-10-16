@@ -12,10 +12,10 @@ import groovy.transform.Field
 
 class OSRFBase
 {
-   def project_mails = PROJECT_MAILS
-
    static void create(Job job)
    {
+     def project_mails = PROJECT_MAILS
+
      job.with 
      {
      	description 'Automatic generated job by DSL jenkins. Please do not edit manually'
@@ -29,7 +29,7 @@ class OSRFBase
 
         publishers 
         {
-          extendedEmail("\$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org " + this.project_mails,
+          extendedEmail("\$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org " + project_mails,
                         '$DEFAULT_SUBJECT',
                         '$DEFAULT_CONTENT')
          {
