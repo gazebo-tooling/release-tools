@@ -14,7 +14,7 @@ class OSRFBase
 {
    static void create(Job job)
    {
-     def project_mails = PROJECT_MAILS
+     def project_mails = "${PROJECT_MAILS}"
 
      job.with 
      {
