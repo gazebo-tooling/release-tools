@@ -6,13 +6,13 @@ class Globals
 
    static String get_emails()
    {
-      static String all_mails = default_emails
+      static all_mails = default_emails
 
       if (extra_emails != '')
       {
         all_mails = all_mails + ', ' + extra_emails
       }
 
-      return default_emails
+      return all_mails
    }
 }
