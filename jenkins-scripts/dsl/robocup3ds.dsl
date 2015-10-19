@@ -120,9 +120,8 @@ all_supported_distros.each { distro ->
 
               export DISTRO=${distro}
               export ARCH=${arch}
-              export INSTALL_JOB_PKG=gazebo6-robocup3ds
-              export INSTALL_JOB_REPOS="stable prerelease"
-              /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+
+              /bin/bash -x ./scripts/jenkins-scripts/docker/robocup3ds-install-test-job.bash
               """.stripIndent())
       }
     }
