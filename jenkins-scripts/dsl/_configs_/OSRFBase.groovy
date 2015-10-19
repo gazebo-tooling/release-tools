@@ -14,8 +14,6 @@ class OSRFBase
 {
    static void create(Job job)
    {
-     def project_mails = "${PROJECT_MAILS}"
-
      job.with 
      {
      	description 'Automatic generated job by DSL jenkins. Please do not edit manually'
