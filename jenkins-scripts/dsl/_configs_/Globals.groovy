@@ -8,13 +8,11 @@ class Globals
 
    static String get_emails()
    {
-      all_mails = default_emails
-
       if (extra_emails != '')
       {
-        all_mails = all_mails + ', ' + extra_emails
+        return default_emails + ', ' + extra_emails
       }
 
-      return all_mails
+      return default_emails
    }
 }
