@@ -1,3 +1,5 @@
+package _configs_
+
 class Globals
 {
    // Notifications for email ext plugin
