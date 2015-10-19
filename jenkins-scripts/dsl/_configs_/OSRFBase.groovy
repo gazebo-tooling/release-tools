@@ -1,7 +1,7 @@
 package _configs_
 
+import Globals
 import javaposse.jobdsl.dsl.Job
-import groovy.transform.Field
 
 /*
   Implements:
@@ -29,7 +29,7 @@ class OSRFBase
 
         publishers 
         {
-          extendedEmail("\$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org " + project_mails,
+          extendedEmail(Globals.get_emails(),
                         '$DEFAULT_SUBJECT',
                         '$DEFAULT_CONTENT')
          {

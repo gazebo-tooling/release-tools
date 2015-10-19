@@ -1,17 +1,12 @@
-import _configs_.OSRFLinuxCompilation
-import _configs_.OSRFLinuxCompilationAny
-import _configs_.OSRFLinuxInstall
-import _configs_.OSRFLinuxBuildPkg
+import _configs_.*
 import javaposse.jobdsl.dsl.Job
-import groovy.transform.Field
 
 def ci_distro = [ 'trusty' ]
 def other_supported_distros = [ 'vivid' ]
 def all_supported_distros = ci_distro + other_supported_distros
 def supported_arches = [ 'amd64' ]
 
-@Field String PROJECT_MAILS=", caguero@osrfoundation.org"
-PROJECT_MAILS = ", caguero@osrfoundation.org"
+Globals.extra_emails = "caguero@osrfoundation.org"
 
 // MAIN CI JOBS
 ci_distro.each { distro ->
