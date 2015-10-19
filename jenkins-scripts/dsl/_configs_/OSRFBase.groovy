@@ -1,6 +1,5 @@
 package _configs_
 
-import Globals
 import javaposse.jobdsl.dsl.Job
 
 /*
