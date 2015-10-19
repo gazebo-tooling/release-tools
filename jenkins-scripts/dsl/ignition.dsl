@@ -1,11 +1,4 @@
-import _configs_.OSRFLinuxCompilation
-import _configs_.OSRFLinuxCompilationAny
-import _configs_.OSRFBrewCompilation
-import _configs_.OSRFBrewCompilationAny
-import _configs_.OSRFWinCompilation
-import _configs_.OSRFWinCompilationAny
-import _configs_.OSRFLinuxInstall
-import _configs_.OSRFLinuxBuildPkg
+import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 // Main platform using for quick CI
@@ -16,6 +9,8 @@ def other_supported_distros = [ 'vivid' ]
 def supported_arches = [ 'amd64' ]
 
 def all_supported_distros = ci_distro + other_supported_distros
+
+Globals.extra_emails = "caguero@osrfoundation.org"
 
 // MAIN CI JOBS (check every 5 minutes)
 ci_distro.each { distro ->

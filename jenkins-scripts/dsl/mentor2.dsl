@@ -1,10 +1,10 @@
-import _configs_.OSRFLinuxCompilation
-import _configs_.OSRFLinuxInstall
-import _configs_.OSRFLinuxBuildPkg
+import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 def supported_distros = [ 'trusty' ]
 def supported_arches = [ 'amd64' ]
+
+Globals.extra_emails = "ichen@osrfoundation.org"
 
 supported_distros.each { distro ->
   supported_arches.each { arch ->
