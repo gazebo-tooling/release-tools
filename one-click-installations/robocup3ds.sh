@@ -145,8 +145,6 @@ do_install() {
 	# Run setup for each distro accordingly
 	case "$lsb_dist" in
 		ubuntu)
-			export DEBIAN_FRONTEND=noninteractive
-
 			did_apt_get_update=
 			apt_get_update() {
 				if [ -z "$did_apt_get_update" ]; then
