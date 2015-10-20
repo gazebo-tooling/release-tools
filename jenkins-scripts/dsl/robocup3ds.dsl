@@ -106,7 +106,7 @@ other_supported_distros.each { distro ->
 all_supported_distros.each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
-    def install_default_job = job("robocup3ds-install-pkg-${distro}-${arch}")
+    def install_default_job = job("robocup3ds-install-one_liner-${distro}-${arch}")
     OSRFLinuxInstall.create(install_default_job)
     install_default_job.with
     {
