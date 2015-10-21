@@ -37,7 +37,8 @@ class GenericAnyJob
                 }
 
                 build.setDescription(job_description)
-                """
+                """.stripIndent()
+           )
         }
 
         scm {
