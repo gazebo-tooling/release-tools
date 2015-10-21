@@ -20,7 +20,7 @@ cat > build.sh << DELIM
 #
 set -ex
 
-if [ ${INSTALL_JOB_PREINSTALL_HOOK} ]; then
+if [ -n ${INSTALL_JOB_PREINSTALL_HOOK} ]; then
 echo '# BEGIN SECTION: running pre install hook'
 ${INSTALL_JOB_PREINSTALL_HOOK}
 echo '# END SECTION'
