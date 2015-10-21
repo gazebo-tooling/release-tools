@@ -4,8 +4,9 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
+# Both empty, the one line script should handle all the stuff
 export INSTALL_JOB_PKG=""
-export INSTALL_JOB_REPOS="stable prerelease"
+export INSTALL_JOB_REPOS=""
 
 INSTALL_JOB_PREINSTALL_HOOK="""
 cat >> /var/cache/debconf/config.dat << DELIM
