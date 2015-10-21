@@ -1,11 +1,6 @@
 #!/bin/bash -x
 set -e
 
-if [[ -z ${INSTALL_JOB_REPOS} ]]; then
-  echo "REPOS_TO_INSTALL is empty. Default to stable"
-  REPOS_TO_INSTALL="stable"
-fi
-
 echo '# BEGIN SECTION: setup the testing enviroment'
 # Define the name to be used in docker
 DOCKER_JOB_NAME="install_job"
