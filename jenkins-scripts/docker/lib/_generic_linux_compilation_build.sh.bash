@@ -40,6 +40,8 @@ echo '# BEGIN SECTION: cppcheck'
 cd $WORKSPACE/${SOFTWARE_DIR}
 if [ ! -f tools/cpplint_to_cppcheckxml.py ]; then
   mkdir -p tools
+  ls -R $WORKSPACE
+  find $WORKSPACE -name cpplint.*
   cp $WORKSPACE/scripts/jenkins-scripts/tools/cpplint_to_cppcheckxml.py tools/
 fi
 init_stopwatch CPPCHECK
