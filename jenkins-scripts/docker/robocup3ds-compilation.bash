@@ -16,7 +16,7 @@ fi
 
 export GPU_SUPPORT_NEEDED=true
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-transport"
+export BUILDING_SOFTWARE_DIRECTORY="robocup3ds"
 export BUILDING_DEPENDENCIES="libgazebo6-dev libqt4-dev libboost-dev"
 export BUILDING_JOB_REPOSITORIES="stable prerelease"
 
