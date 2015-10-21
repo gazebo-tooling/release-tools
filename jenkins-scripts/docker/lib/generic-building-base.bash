@@ -5,7 +5,7 @@ DOCKER_JOB_NAME="building_job"
 echo '# END SECTION'
 
 # Could be empty, just fine
-if [[ "${BUILDING_PKG_DEPENDENCIES_VAR_NAME}" !== "" ]]; then
+if [[ "${BUILDING_PKG_DEPENDENCIES_VAR_NAME}" != "" ]]; then
   eval ARCHIVE_PROJECT_DEPENDECIES=\$${BUILDING_PKG_DEPENDENCIES_VAR_NAME}
 fi
 
