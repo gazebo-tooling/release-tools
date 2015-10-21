@@ -26,7 +26,7 @@ ${INSTALL_JOB_PREINSTALL_HOOK}
 echo '# END SECTION'
 fi
 
-if [ ${INSTALL_JOB_PKG} != "" ]; then
+if [ -n ${INSTALL_JOB_PKG} ]; then
 echo '# BEGIN SECTION: try to install package: ${INSTALL_JOB_PKG}'
 apt-get install -y ${INSTALL_JOB_PKG}
 echo '# END SECTION'
