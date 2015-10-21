@@ -5,6 +5,20 @@ set -e
 # 
 # Modfied by jrivero@osrfoundation.org
 
+# Nao meshes require the use of interactive DEBIAN_FRONTEND.
+# stdin is not avilable so interactive/readline can not be used
+# check the presence of alternatives
+
+if [ "`dpkg -l | grep ^ii.*libgnome2-common`" != "" ]; then
+  export DEBIAN_FRONTEND=gnome
+elif [ "`dpkg -l | grep ^ii.*libqtcore4-perl`" != "" ]; then
+  export DEBIAN_FRONTEND=kde
+else
+  echo "The installation script can not present the GUI to accept"
+  echo "the license. Please install libgnome2-common or libqtcore4-perl"
+  exit 1
+fi
+
 command_exists() {
 	command -v "$@" > /dev/null 2>&1
 }
