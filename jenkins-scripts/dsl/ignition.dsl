@@ -3,6 +3,8 @@ import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
 def ignition_software = [ 'transport', 'math' ]
+def ignition_transport_series = '0'
+def ignition_math_series = '2'
 
 // Main platform using for quick CI
 def ci_distro = [ 'trusty' ]
@@ -80,10 +82,10 @@ ignition_software.each { ign_sw ->
            cron('@daily')
          }
  
-         def dev_package = "libignition-${ign_sw}0-dev"
+         def dev_package = "libignition-${ign_sw}${ignition_transport_series}-dev"
 
          if ("${ign_sw}" == "math")
-          dev_package = "libignition-${ign_sw}-dev"
+          dev_package = "libignition-${ign_sw}${ignition_math_series}-dev"
 
          steps {
           shell("""\
