@@ -26,7 +26,18 @@ class GenericAnyJob
 
         steps
         {
-           systemGroovyCommand("")
+           systemGroovyCommand("""\
+                job_description = build.buildVariableResolver.resolve('JOB_DESCRIPTION')
+
+                if (job_description == "")
+                {
+                  job_description = 'branch: <b>' + build.buildVariableResolver.resolve('SRC_BRANCH') + '</b><br />' +
+                                    'repo: ' + build.buildVariableResolver.resolve('SRC_REPO') + '<br />' +
+                                    'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH')
+                }
+
+                build.setDescription(job_description)
+                """
         }
 
         scm {
