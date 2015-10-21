@@ -14,7 +14,7 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-transport"
+export BUILDING_SOFTWARE_DIRECTORY="ignition-transport"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_TRANSPORT_DEPENDENCIES"
 export BUILDING_JOB_REPOSITORIES="stable"
 
