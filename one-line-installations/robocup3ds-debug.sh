@@ -1,6 +1,7 @@
 #!/bin/sh
 set -e
 
+export DEBIAN_FRONTEND=readline
 sudo apt-get install gazebo6-robocup3ds
 exit 0
 
