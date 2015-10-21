@@ -186,7 +186,8 @@ ignition_software.each { ign_sw ->
       scm {
         hg("http://bitbucket.org/ignitionrobotics/ign-${ign_sw}") {
           branch('default')
-          subdirectory("ignition-${ign_sw}")
+          // in brew use ign-math to match OSRFBrewCompilationAny mechanism
+          subdirectory("ign-${ign_sw}")
         }
       }
 
