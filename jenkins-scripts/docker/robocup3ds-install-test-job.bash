@@ -18,7 +18,7 @@ DELIM
 """
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
-curl -ssL https://bitbucket.org/osrf/release-tools/raw/tip/one-click-installations/robocup3ds.sh | sh
+curl -ssL https://bitbucket.org/osrf/release-tools/raw/default/one-line-installations/robocup3ds.sh | sh
 """
 
 . ${SCRIPT_DIR}/lib/generic-install-base.bash
