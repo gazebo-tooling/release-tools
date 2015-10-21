@@ -38,10 +38,8 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: cppcheck'
 cd $WORKSPACE/${SOFTWARE_DIR}
-if [[ ! -f tools/cpplint_to_cppcheckxml.py ]]; then
-  mkdir -p tools
-  cp $WORKSPACE/scripts/jenkins-scripts/tools/cpplint_to_cppcheckxml.py tools/
-fi
+mkdir -p tools
+cp $WORKSPACE/scripts/jenkins-scripts/tools/cpplint_to_cppcheckxml.py tools/
 init_stopwatch CPPCHECK
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
 stop_stopwatch CPPCHECK
