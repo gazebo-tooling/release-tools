@@ -230,7 +230,7 @@ ignition_software.each { ign_sw ->
       scm {
         hg("http://bitbucket.org/ignitionrobotics/ign-${ign_sw}") {
           branch('default')
-          subdirectory("ign-${ign_sw}")
+          subdirectory("ignition-${ign_sw}")
         }
       }
 
