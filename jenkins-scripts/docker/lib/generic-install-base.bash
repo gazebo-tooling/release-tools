@@ -1,11 +1,6 @@
 #!/bin/bash -x
 set -e
 
-if [[ -z ${INSTALL_JOB_PKG} ]]; then
-  echo "PKG_TO_INSTALL empty! needed to run the job"
-  exit 1
-fi
-
 if [[ -z ${INSTALL_JOB_REPOS} ]]; then
   echo "REPOS_TO_INSTALL is empty. Default to stable"
   REPOS_TO_INSTALL="stable"
