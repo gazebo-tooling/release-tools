@@ -48,7 +48,7 @@ do_install() {
 			installation.
 
 			If you installed the current robocup3ds gazebo package using this script and
-			are using it again to update Docker, you can safely ignore this message.
+			are using it again to update the simulator, you can safely ignore this message.
 
 			You may press Ctrl+C now to abort this script.
 		EOF
