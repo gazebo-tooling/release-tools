@@ -5,20 +5,6 @@ set -e
 # 
 # Modfied by jrivero@osrfoundation.org
 
-# Nao meshes require the use of interactive DEBIAN_FRONTEND.
-# stdin is not avilable so interactive/readline can not be used
-# check the presence of alternatives
-
-if [ "`dpkg -l | grep ^ii.*libgtk2-perl`" != "" ]; then
-  export DEBIAN_FRONTEND=gnome
-elif [ "`dpkg -l | grep ^ii.*libqtcore4-perl`" != "" ]; then
-  export DEBIAN_FRONTEND=kde
-else
-  echo "The installation script can not present the GUI to accept"
-  echo "the license. Please install libgtk2-perl or libqtcore4-perl"
-  exit 1
-fi
-
 command_exists() {
 	command -v "$@" > /dev/null 2>&1
 }
@@ -155,6 +141,24 @@ do_install() {
 
 	# Check if this is a forked Linux distro
 	check_forked
+
+        # Nao meshes require the use of interactive DEBIAN_FRONTEND.
+        # stdin is not avilable so interactive/readline can not be used
+        # check the presence of alternatives
+        if [ "`dpkg -l | grep ^ii.*libgtk2-perl`" != "" ]; then
+          export DEBIAN_FRONTEND=gnome
+        elif [ "`dpkg -l | grep ^ii.*libqtcore4-perl`" != "" ]; then
+          export DEBIAN_FRONTEND=kde
+        else
+          # The installation script can not present the GUI to accept
+          # since we use qt extensively for gazebo, the minimal impact
+          # on user system is to install libqtcore4-perl which will 
+          # bring only 2 or 3 dependencies
+          (
+            set -x
+            $sh_c "apt-get -y -q libqtcore4-perl"
+          )
+        fi
 
 	# Run setup for each distro accordingly
 	case "$lsb_dist" in
