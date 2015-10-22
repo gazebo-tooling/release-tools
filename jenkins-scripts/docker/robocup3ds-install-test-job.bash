@@ -18,7 +18,7 @@ Flags: seen
 DELIM
 # Need to install libgnome2-common to complete the the workaround
 # since the script will check for a interactive debconf (gnome/kde)
-apt-get install libgnome2-common
+apt-get install -y libgnome2-common
 """
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
