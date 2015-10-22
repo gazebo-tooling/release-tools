@@ -6,9 +6,6 @@ sudo mkdir -p ${WORKSPACE}/pkgs
 sudo rm -fr ${WORKSPACE}/build
 sudo mkdir -p ${WORKSPACE}/build
 
-# Need to map timing dir into the docker container
-timing_mapping_str="-v ${TIMING_DIR}:${TIMING_DIR}"
-
 sudo docker build -t ${DOCKER_TAG} .
 stop_stopwatch CREATE_TESTING_ENVIROMENT
 
@@ -19,15 +16,13 @@ echo '# END SECTION'
 if $USE_GPU_DOCKER; then
   GPU_PARAMS_STR="--privileged \
                   -e DISPLAY=unix$DISPLAY \
-		          -v /sys:/sys:ro         \
+                  -v /sys:/sys:ro         \
                   -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
 fi
 
 sudo docker run $GPU_PARAMS_STR  \
             --cidfile=${CIDFILE} \
-            -v ${WORKSPACE}/pkgs:${WORKSPACE}/pkgs \
-            -v ${WORKSPACE}/build:${WORKSPACE}/build \
-            $timing_mapping_str \
+            -v ${WORKSPACE}:${WORKSPACE} \
             -t ${DOCKER_TAG} \
             /bin/bash build.sh
 
