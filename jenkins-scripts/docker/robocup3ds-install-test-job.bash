@@ -4,6 +4,8 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
+export GPU_SUPPORT_NEEDED=true
+
 # Both empty, the one line script should handle all the stuff
 export INSTALL_JOB_PKG=""
 export INSTALL_JOB_REPOS=""
