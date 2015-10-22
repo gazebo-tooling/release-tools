@@ -16,7 +16,7 @@ get_time()
 
 init_stopwatch()
 {
-   [[ ${ENABLE_TIMING} ]] || return
+   ${ENABLE_TIMING} || return 0
 
    local filename=${TIMING_STORE_PATH}/_time_${1}
 
@@ -29,8 +29,7 @@ init_stopwatch()
 
 stop_stopwatch()
 {
-    echo "ENABLE TIMING: $ENABLE_TIMING"
-  [[ ${ENABLE_TIMING} ]] || return
+  ${ENABLE_TIMING} || return 0
 
   local clock_filepath=${TIMING_STORE_PATH}/_time_${1}
   local csv_filepath=${TIMING_STORE_PATH}/_time_csv_${1}
