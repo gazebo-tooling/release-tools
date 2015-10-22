@@ -156,7 +156,7 @@ do_install() {
           # bring only 2 or 3 dependencies
           (
             set -x
-            $sh_c "apt-get -y -q libqtcore4-perl"
+            $sh_c "apt-get install -y -q libqtcore4-perl"
           )
         fi
 
