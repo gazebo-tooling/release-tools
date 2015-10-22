@@ -47,8 +47,8 @@ do_install() {
 			why we're displaying this warning and provide the opportunity to cancel the
 			installation.
 
-                        If you installed the current robocup3ds gazebo package using this script and
-                        are using it again to update Docker, you can safely ignore this message.
+			If you installed the current robocup3ds gazebo package using this script and
+			are using it again to update Docker, you can safely ignore this message.
 
 			You may press Ctrl+C now to abort this script.
 		EOF
