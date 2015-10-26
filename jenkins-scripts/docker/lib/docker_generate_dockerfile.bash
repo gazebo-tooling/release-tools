@@ -90,9 +90,9 @@ ENV LANG en_US.UTF-8
 ENV DEBIAN_FRONTEND noninteractive
 DELIM_DOCKER
 
-if [[ ${ARCH} != 'armhf' ]]; then
+if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
+  if [[ ${ARCH} != 'armhf' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_ARCH
-if [ ${LINUX_DISTRO} == 'ubuntu' ]; then
   # Note that main,restricted and universe are not here, only multiverse
   # main, restricted and unvierse are already setup in the original image
   RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} multiverse" \\
@@ -101,8 +101,8 @@ if [ ${LINUX_DISTRO} == 'ubuntu' ]; then
                                                          >> /etc/apt/sources.list && \\
       echo "deb ${SOURCE_LIST_URL} ${DISTRO}-security main restricted universe multiverse" && \\
                                                          >> /etc/apt/sources.list
-fi
 DELIM_DOCKER_ARCH
+  fi
 fi
 
 # i386 image only have main by default
@@ -128,7 +128,7 @@ fi
 
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
-RUN echo "deb http://packages.osrfoundation.org/gazebo/${LINUX_DISTRO}-${repo} ${DISTRO} main" > \\
+RUN echo "deb http://packages.osrfoundation.org/gazebo/${LINUX_DISTRO}-${repo} ${DISTRO} main" >\\
                                                 /etc/apt/sources.list.d/osrf.${repo}.list
 RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
 DELIM_OSRF_REPO
