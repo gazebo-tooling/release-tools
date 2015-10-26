@@ -16,7 +16,7 @@ if [[ -z ${MULTIARCH_SUPPORT} ]]; then
 fi
 
 # Use defaul branch if not sending BRANCH parameter
-[[ -z ${BRANCH} ]] && export BRANCH=default
+[[ -z ${BRANCH} ]] && export BRANCH=master
 
 cat > build.sh << DELIM
 ###################################################
@@ -97,7 +97,7 @@ test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 DELIM
 
-USE_OSRF_REPO=true
+OSRF_REPOS_TO_USE="stable"
 DEPENDENCY_PKGS="devscripts \
 		 ubuntu-dev-tools \
 		 debhelper \
