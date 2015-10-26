@@ -28,7 +28,8 @@ case ${LINUX_DISTRO} in
     ;;
     
   'debian')
-    SOURCE_LIST_URL="http://ftp.us.debian.org/debian"
+    # Currently not needed
+    # SOURCE_LIST_URL="http://ftp.us.debian.org/debian"
 
     if [[ -n ${OSRF_REPOS_TO_USE} ]]; then
       echo "WARN!! OSRF has no debian repositories yet!"
@@ -94,6 +95,13 @@ RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
 ENV LANG en_US.UTF-8
 ENV DEBIAN_FRONTEND noninteractive
 DELIM_DOCKER
+
+# The redirection fails too many times using us ftp
+if [[ ${LINUX_DISTRO} == 'debian' ]]; then
+cat >> Dockerfile << DELIM_DEBIAN_APT
+  RUN sed -i -e 's:httpredir:ftp.us:g' /etc/apt/sources.list
+DELIM_DEBIAN_APT
+fi
 
 if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
   if [[ ${ARCH} != 'armhf' ]]; then
