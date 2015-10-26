@@ -1,8 +1,9 @@
-# 
+#
 # Script to generate the dockerfile needed for running the build.sh script
 #
 # Inputs used:
 #   - DISTRO            : base distribution (ex: vivid)
+#   - LINUX_DISTRO      : [default ubuntu] base linux distribution (ex: debian)
 #   - ARCH              : [default amd64] base arquitecture (ex: amd64)
 #   - OSRF_REPOS_TO_USE : [default empty] space separated list of osrf repos to add to sourcess.list
 #   - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
@@ -16,20 +17,25 @@ if [[ -z ${ARCH} ]]; then
   export ARCH="amd64"
 fi
 
+if [[ -z ${LINUX_DISTRO} ]]; then
+  echo "Linux distro undefined, default to ubuntu"
+  export LINUX_DISTRO="ubuntu"
+fi
+
 # Select the docker container depenending on the ARCH
 case ${ARCH} in
-  'amd64') 
-     FROM_VALUE=ubuntu:${DISTRO}
+  'amd64')
+     FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      ;;
   'i386')
      # There are no i386 official images. Only 14.04 (trusty) is available
      # https://registry.hub.docker.com/u/32bit/ubuntu/tags/manage/
-     if [[ $DISTRO != 'trusty' ]]; then
+     if [[ $DISTRO == 'trusty' ]]; then
        FROM_VALUE=32bit/ubuntu:14.04
      fi
 
      # Other images are not official.
-     FROM_VALUE=mcandre/docker-ubuntu-32bit:${DISTRO}
+     FROM_VALUE=mcandre/docker-${LINUX_DISTRO}-32bit:${DISTRO}
      ;;
  'armhf')
      FROM_VALUE=osrf/ubuntu_armhf:${DISTRO}
@@ -73,14 +79,16 @@ DELIM_DOCKER
 
 if [[ ${ARCH} != 'armhf' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_ARCH
-# Note that main,restricted and universe are not here, only multiverse
-# main, restricted and unvierse are already setup in the original image
-RUN echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO} multiverse" \\
-                                                       >> /etc/apt/sources.list && \\
-    echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-updates multiverse" \\
-                                                       >> /etc/apt/sources.list && \\
-    echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-security main restricted universe multiverse" && \\
-                                                       >> /etc/apt/sources.list
+if ${LINUX_DISTRO} == 'ubuntu'; then
+    # Note that main,restricted and universe are not here, only multiverse
+    # main, restricted and unvierse are already setup in the original image
+    RUN echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO} multiverse" \\
+                                                           >> /etc/apt/sources.list && \\
+        echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-updates multiverse" \\
+                                                           >> /etc/apt/sources.list && \\
+        echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-security main restricted universe multiverse" && \\
+                                                           >> /etc/apt/sources.list
+fi
 DELIM_DOCKER_ARCH
 fi
 
@@ -124,7 +132,7 @@ fi
 # Dart repositories
 if ${DART_FROM_PKGS} || ${DART_COMPILE_FROM_SOURCE}; then
 cat >> Dockerfile << DELIM_DOCKER_DART_PKGS
-# Install dart from pkgs 
+# Install dart from pkgs
 RUN apt-get install -y apt-utils software-properties-common
 RUN apt-add-repository -y ppa:libccd-debs
 RUN apt-add-repository -y ppa:fcl-debs
@@ -153,7 +161,7 @@ fi
 
 cat >> Dockerfile << DELIM_DOCKER3
 # Invalidate cache monthly
-# This is the firt big installation of packages on top of the raw image. 
+# This is the firt big installation of packages on top of the raw image.
 # The expection of updates is low and anyway it is cathed by the next
 # update command below
 RUN echo "${MONTH_YEAR_STR}"
