@@ -18,6 +18,8 @@ packages.each { pkg ->
 	}
       }
 
+      label "docker"
+
       steps {
         shell("""\
               #!/bin/bash -xe
