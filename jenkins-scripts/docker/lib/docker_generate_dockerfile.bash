@@ -31,6 +31,9 @@ case ${LINUX_DISTRO} in
     # Currently not needed
     # SOURCE_LIST_URL="http://ftp.us.debian.org/debian"
 
+    # debian does not ship locales by default
+    export DEPENDENCY_PKGS="locales ${DEPENDENCY_PKGS}"
+
     if [[ -n ${OSRF_REPOS_TO_USE} ]]; then
       echo "WARN!! OSRF has no debian repositories yet!"
       OSRF_REPOS_TO_USE=""
