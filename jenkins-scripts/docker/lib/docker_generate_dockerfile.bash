@@ -72,7 +72,6 @@ RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
   && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
   || echo "No squid-deb-proxy detected on docker host"
 # setup environment
-RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV DEBIAN_FRONTEND noninteractive
 DELIM_DOCKER
@@ -165,11 +164,11 @@ cat >> Dockerfile << DELIM_DOCKER3
 # The expection of updates is low and anyway it is cathed by the next
 # update command below
 RUN echo "${MONTH_YEAR_STR}"
-ENV DEBIAN_FRONTEND noninteractive
 # The rm command will minimize the layer size
 RUN apt-get update && \
     apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} && \
     rm -rf /var/lib/apt/lists/*
+RUN locale-gen en_US.UTF-8
 
 # This is killing the cache so we get the most recent packages if there
 # was any update
