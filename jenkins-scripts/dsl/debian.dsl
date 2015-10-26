@@ -7,7 +7,7 @@ packages.each { pkg ->
 
   def ci_job = job("${pkg}-debian_ci-default-debian_sid-amd64")
 
-  OSRFLinuxBase.create(job)
+  OSRFLinuxBase.create(ci_job)
 
   ci_job.with
   {
