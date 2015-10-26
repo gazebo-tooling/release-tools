@@ -59,11 +59,6 @@ if [ $DISTRO = 'trusty' ] || [ $DISTRO = 'utopic' ]; then
   sed -i -e 's:libsdformat-dev:libsdformat2-dev:g' debian/control 
 fi
 
-# In precise, no multiarch paths was implemented in GNUInstallDirs. Remove it.
-if ! $MULTIARCH_SUPPORT; then
-  sed -i -e 's:/\*/:/:g' debian/*.install
-fi
-
 # Do not perform symbol checking
 rm -fr debian/*.symbols
 echo '# END SECTION'
