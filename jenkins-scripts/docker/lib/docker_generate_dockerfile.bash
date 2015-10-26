@@ -29,6 +29,11 @@ case ${LINUX_DISTRO} in
     
   'debian')
     SOURCE_LIST_URL="http://ftp.us.debian.org/debian"
+
+    if [[ -n ${OSRF_REPOS_TO_USE} ]]; then
+      echo "WARN!! OSRF has no debian repositories yet!"
+      OSRF_REPOS_TO_USE=""
+    fi
     ;;
 
   *)
