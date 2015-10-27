@@ -6,7 +6,7 @@ import javaposse.jobdsl.dsl.Job
    Implements:
      - parameters: SRC_REPO, SRC_BRANCH, JOB_DESCRIPTION
      - job.Description
-     - scm check
+     - scm check with SRC_REPO + SRC_BRANCH
 */
 
 
@@ -46,10 +46,6 @@ class GenericAnyJob
             branch('${SRC_BRANCH}')
             subdirectory(subdirectoy)
           }
-        }
-
-        triggers {
-          scm('*/5 * * * *')
         }
       }
    }
