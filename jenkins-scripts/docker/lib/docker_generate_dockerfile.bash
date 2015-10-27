@@ -97,6 +97,8 @@ RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
 # setup environment
 ENV LANG en_US.UTF-8
 ENV DEBIAN_FRONTEND noninteractive
+ENV DEBFULLNAME "OSRF Jenkins"
+ENV DEBEMAIL "build@osrfoundation.org"
 DELIM_DOCKER
 
 # The redirection fails too many times using us ftp
