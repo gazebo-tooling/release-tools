@@ -20,6 +20,24 @@ packages.each { pkg ->
 	}
       }
 
+      priority 300
+
+      logRotator {
+        artifactNumToKeep(10)
+      }
+
+      concurrentBuild(true)
+
+      throttleConcurrentBuilds {
+	maxPerNode(1)
+	maxTotal(5)
+      }
+
+      parameters {
+        textParam("RELEASE_VERSION", null, "osrfX, OSRF postix version")
+        textParam("RELEASE_ARCH_VERSION", null, "~ARCH-X, release version")
+      }
+
       steps {
         shell("""\
               #!/bin/bash -xe
