@@ -4,14 +4,6 @@ set -e
 # Use always GPU in drcsim project
 export GPU_SUPPORT_NEEDED=true
 
-. ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
-
-if [ -z ${GZ_BUILD_TYPE} ]; then
-    GZ_CMAKE_BUILD_TYPE=
-else
-    GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
-fi
-
 # Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
 GAZEBO_MAJOR_VERSION=`\
   grep 'set.*GAZEBO_MAJOR_VERSION ' ${WORKSPACE}/gazebo/CMakeLists.txt | \
@@ -21,6 +13,14 @@ GAZEBO_MAJOR_VERSION=`\
 if ! [[ ${GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   echo "Error! GAZEBO_MAJOR_VERSION is not an integer, check the detection"
   exit -1
+fi
+
+. ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+
+if [ -z ${GZ_BUILD_TYPE} ]; then
+    GZ_CMAKE_BUILD_TYPE=
+else
+    GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
 fi
 
 # Check if we are using gazebo-any-sdformat-any- script
