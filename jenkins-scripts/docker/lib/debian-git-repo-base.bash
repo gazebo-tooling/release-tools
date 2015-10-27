@@ -33,9 +33,7 @@ git checkout ${BRANCH}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install build dependencies'
-cat debian/control
-mk-build-deps -i debian/control --tool 'apt-get --yes'
-rm *build-deps*.deb
+mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: build version and distribution'
