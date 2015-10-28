@@ -27,7 +27,17 @@ echo '# END SECTION'
 
 
 echo '# BEGIN SECTION: test the script'
-timeout --preserve-status 180 gazebo-robocup3ds --verbose
+
+
+TEST_START=\`date +%s\`
+timeout --preserve-status 180 gazebo-robocup3ds --verbose || true
+TEST_END=\`date +%s\`
+DIFF=\`echo "\$TEST_END - \$TEST_START" | bc\`
+
+if [ \$DIFF -lt 180 ]; then
+   echo "The test took less than 180s. Something bad happened"
+   exit 1
+fi
 echo '# END SECTION'
 """
 
