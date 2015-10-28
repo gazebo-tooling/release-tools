@@ -74,6 +74,9 @@ cp ../*.debian.* $WORKSPACE/pkgs
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create deb packages'
+dpkg -l
+dpkg -l | grep git-buildpackage
+apt-get install -y git-buildpackage
 git-buildpackage -j${MAKE_JOBS} --git-ignore-new -uc -us
 echo '# END SECTION'
 
