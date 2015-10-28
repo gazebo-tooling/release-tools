@@ -39,4 +39,7 @@ fi
 echo '# END SECTION'
 """
 
+# Need bc to proper testing and parsing the time
+export DEPENDENCY_PKGS DEPENDENCY_PKGS="bc"
+
 . ${SCRIPT_DIR}/lib/generic-install-base.bash
