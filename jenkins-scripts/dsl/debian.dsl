@@ -5,7 +5,7 @@ packages = [ 'gazebo', 'sdformat', 'urdfdom', 'urdfdom-headers' ]
 
 packages.each { pkg ->
 
-  def ci_job = job("${pkg}-debian_ci-default-debian_sid-amd64")
+  def ci_job = job("${pkg}-pkg_builder-master-debian_sid-amd64")
 
   OSRFLinuxBase.create(ci_job)
 
