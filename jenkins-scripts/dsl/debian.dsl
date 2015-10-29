@@ -49,5 +49,17 @@ packages.each { pkg ->
               /bin/bash -xe ./scripts/jenkins-scripts/docker/debian-git-debbuild.bash
               """.stripIndent())
       }
+
+      publishers
+      {
+         // Added the lintian parser
+         configure { project ->
+           project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+              unstableOnWarning true
+              failBuildOnError false
+              parsingRulesPath /var/lib/jenkins/logparser_lintian
+           }
+         }
+       }
   }
 }
