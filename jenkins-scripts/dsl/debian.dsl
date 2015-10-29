@@ -57,7 +57,7 @@ packages.each { pkg ->
            project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
               unstableOnWarning true
               failBuildOnError false
-              parsingRulesPath /var/lib/jenkins/logparser_lintian
+              parsingRulesPath('/var/lib/jenkins/logparser_lintian')
            }
          }
        }
