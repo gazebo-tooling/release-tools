@@ -124,6 +124,7 @@ if ! which ${HUB} ; then
 fi
 
 # This cd needed because -C doesn't seem to work for pull-request
+# https://github.com/github/hub/issues/1020
 cd ${TAP_PREFIX}
 ${HUB} -C ${TAP_PREFIX} pull-request \
   -b osrf:master \
