@@ -27,7 +27,7 @@ apt-get install -y ${INSTALL_JOB_PKG}
 echo '# END SECTION'
 fi
 
-if [ `expr length "${INSTALL_JOB_POSTINSTALL_HOOK_HOOK} "` -gt 1 ]; then
+if [ `expr length "${INSTALL_JOB_POSTINSTALL_HOOK} "` -gt 1 ]; then
 echo '# BEGIN SECTION: running post install hook'
 ${INSTALL_JOB_POSTINSTALL_HOOK}
 echo '# END SECTION'
