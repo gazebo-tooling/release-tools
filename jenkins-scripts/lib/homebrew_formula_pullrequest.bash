@@ -83,7 +83,13 @@ SHA_LINE=`awk "/${SHA}/ {print FNR}" ${FORMULA_PATH} | head -1`
 echo on line number ${SHA_LINE}
 sed -i -e "${SHA_LINE}c\  sha256 \"${SOURCE_TARBALL_SHA}\"" ${FORMULA_PATH}
 
+echo
 GIT="git -C ${TAP_PREFIX}"
+DIFF_LENGTH=`${GIT} diff | wc -l`
+if [ ${DIFF_LENGTH} -eq 0 ]; then
+  echo No formula modifications found, aborting
+  exit -1
+fi
 echo ==========================================================
 ${GIT} diff
 echo ==========================================================
