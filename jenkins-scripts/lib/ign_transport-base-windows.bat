@@ -8,6 +8,7 @@ call %win_lib% :configure_msvc_compiler
 echo # END SECTION
 
 if "%IGN_CLEAN_WORKSPACE%" == "" set IGN_CLEAN_WORKSPACE=false
+@if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
 
 if %IGN_CLEAN_WORKSPACE% == true (
   echo # BEGIN SECTION: preclean of workspace
@@ -43,11 +44,12 @@ REM Add path for zeromq dynamic library .ddl
 set PATH=%PATH%;%WORKSPACE%\workspace\ZeroMQ 3.2.4\bin\
 echo # END SECTION
 
-echo # BEGIN SECTION: ign-transport compilation
+echo # BEGIN SECTION: ign-transport compilation in %BUILD_TYPE%
 cd %WORKSPACE%\workspace\ign-transport || goto :error
 mkdir build
 cd build
-call "..\configure.bat" Release %BITNESS% || goto :error
+call "..\configure.bat" %BUILD_TYPE% %BITNESS% || goto :error
+
 nmake || goto :error
 echo # END SECTION
 
@@ -60,7 +62,7 @@ set TEST_RESULT_PATH=%WORKSPACE%\test_results
 if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo # BEGIN SECTION: run tests
   REM Need to find a way of running test from the standard make test (not working)
-  ctest -C "Release" --verbose --extra-verbose || echo "tests failed"
+  ctest -C "%BUILD_TYPE%"" --verbose --extra-verbose || echo "tests failed"
   echo # END SECTION
   
   echo # BEGIN SECTION: export testing results
