@@ -8,7 +8,7 @@
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
 :: remove previous packages
-del %WORKSPACE%\*.zip
+del %WORKSPACE%\pkgs\*.zip
 :: Default branches
 @if "%IGN_TRANSPORT_BRANCH%" == "" set IGN_TRANSPORT_BRANCH=default
 @if "%HAPTIX_COMM_BRANCH%" == "" set HAPTIX_COMM_BRANCH=default
