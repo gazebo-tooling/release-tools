@@ -41,10 +41,7 @@ echo '# BEGIN SECTION: compile the rest of desktop-full'
 rm -fr ${WORKSPACE}/ros
 mkdir ${WORKSPACE}/ros
 cd ${WORKSPACE}/ros
-rosinstall_generator desktop_full --rosdistro indigo --deps --wet-only --tar --exclude RPP \\
- common_tutorials geometry_tutorials ros_tutorials visualization_tutorials urdf_tutorial \\
- ros_base geometry > indigo-desktop-full-wet.rosinstall
-
+wget https://wiki.debian.org/DebianScience/Robotics/ROS?action=AttachFile&do=get&target=jade-debian-desktop-full-missing-packages.rosinstall
 wstool init -j${MAKE_JOBS} src indigo-desktop-full-wet.rosinstall
 catkin_make_isolated --install
 echo '# END SECTION'
@@ -59,7 +56,10 @@ if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
   DEPENDENCY_PKGS="python-software-properties apt-utils software-properties-common"
 fi
 
-DEPENDENCY_PKGS="${DEPENDENCY_PKGS} aptitude"
-
+DEPENDENCY_PKGS="${DEPENDENCY_PKGS} 
+                aptitude \
+		 wget \
+		 ca-certificates"
+	
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
