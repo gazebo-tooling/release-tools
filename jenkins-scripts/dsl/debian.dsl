@@ -1,14 +1,36 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-packages = [ 'gazebo', 'sdformat', 'urdfdom', 'urdfdom-headers' ]
+packages = [ 'gazebo', 'sdformat', 'urdfdom', 'urdfdom-headers', 'simbody' ]
 
 packages.each { pkg ->
+  // --------------------------------------------------------------
+  def install_job = job("${pkg}-install-pkg-debian_sid-amd64")
+  OSRFLinuxInstall.create(install_job)
+  install_job.with
+  {
+     triggers {
+       cron('@weekly')
+     }
 
-  def ci_job = job("${pkg}-pkg_builder-master-debian_sid-amd64")
+     steps {
+      shell("""\
+            #!/bin/bash -xe
 
+            export LINUX_DISTRO=debian
+            export DISTRO=sid
+            export ARCH=amd64
+            # Hack to select the latest -dev of series
+            export INSTALL_JOB_PKG=$(apt-cache search ${pkg} | grep '${pkg}[0-9]-dev -' | tail -1 | awk '{print $1}')
+            /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+            """.stripIndent())
+    }
+  }
+
+  // --------------------------------------------------------------
+  # 1. Create the job that tries to build the package and run lintian
+  def ci_job = job("${pkg}-install-master-debian_sid-amd64")
   OSRFLinuxBase.create(ci_job)
-
   ci_job.with
   {
       def git_repo = "git://anonscm.debian.org/debian-science/packages/${pkg}.git"
@@ -18,6 +40,10 @@ packages.each { pkg ->
 	  branch('master')
 	  subdirectory("${pkg}")
 	}
+      }
+
+      triggers {
+        scm('@daily')
       }
 
       priority 300
@@ -62,4 +88,5 @@ packages.each { pkg ->
          }
        }
   }
+
 }
