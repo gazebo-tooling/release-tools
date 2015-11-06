@@ -7,6 +7,7 @@ packages = [ 'gazebo', 'sdformat', 'urdfdom', 'urdfdom-headers', 'simbody' ]
 
 packages.each { pkg ->
   // --------------------------------------------------------------
+  // 1. Create the job that tries to install packages
   def install_job = job("${pkg}-install-pkg-debian_sid-amd64")
   OSRFLinuxInstall.create(install_job)
   install_job.with
@@ -30,7 +31,7 @@ packages.each { pkg ->
   }
 
   // --------------------------------------------------------------
-  // 1. Create the job that tries to build the package and run lintian
+  // 2. Create the job that tries to build the package and run lintian
   def ci_job = job("${pkg}-pkg_builder-master-debian_sid-amd64")
   OSRFLinuxBase.create(ci_job)
   ci_job.with
@@ -90,5 +91,4 @@ packages.each { pkg ->
          }
        }
   }
-
 }
