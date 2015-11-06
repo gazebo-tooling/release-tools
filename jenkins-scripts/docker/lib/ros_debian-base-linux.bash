@@ -56,8 +56,8 @@ if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
   DEPENDENCY_PKGS="python-software-properties apt-utils software-properties-common"
 fi
 
-DEPENDENCY_PKGS="${DEPENDENCY_PKGS} 
-                aptitude \
+DEPENDENCY_PKGS="${DEPENDENCY_PKGS}  \
+                 aptitude \
 		 wget \
 		 ca-certificates"
 	
