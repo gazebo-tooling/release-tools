@@ -37,7 +37,8 @@ BASE_DEPENDENCIES="build-essential \\
                    mesa-utils      \\
                    cppcheck        \\
                    xsltproc        \\
-                   python"
+                   python          \\
+                   netcat-openbsd"
 
 # 1. SDFORMAT
 # ruby for xml_schemas generation and libxml2-utils for xmllint used in tests
