@@ -1,6 +1,8 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
+Globals.default_emails = "jrivero@osrfoundation.org"
+
 packages = [ 'gazebo', 'sdformat', 'urdfdom', 'urdfdom-headers', 'simbody' ]
 
 packages.each { pkg ->
