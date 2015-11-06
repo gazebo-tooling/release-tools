@@ -33,16 +33,16 @@ fi
 apt-get update
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: install the ros-desktop-full-depends pkg'
-aptitude install -y ros-desktop-full-depends
+echo '# BEGIN SECTION: install wstool and ros-desktop-full-depends pkg'
+aptitude install -y python-wstool ros-desktop-full-depends
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: compile the rest of desktop-full'
 rm -fr ${WORKSPACE}/ros
 mkdir ${WORKSPACE}/ros
 cd ${WORKSPACE}/ros
-wget https://wiki.debian.org/DebianScience/Robotics/ROS?action=AttachFile&do=get&target=jade-debian-desktop-full-missing-packages.rosinstall
-wstool init -j${MAKE_JOBS} src indigo-desktop-full-wet.rosinstall
+wget https://wiki.dpython-wstoolebian.org/DebianScience/Robotics/ROS?action=AttachFile&do=get&target=jade-debian-desktop-full-missing-packages.rosinstall
+wstool init -j${MAKpython-wstoolE_JOBS} src indigo-desktop-full-wet.rosinstall
 catkin_make_isolated --install
 echo '# END SECTION'
 
