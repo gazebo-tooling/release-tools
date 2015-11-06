@@ -23,7 +23,7 @@ packages.each { pkg ->
             export DISTRO=sid
             export ARCH=amd64
             # Hack to select the latest -dev of series
-            export INSTALL_JOB_PKG=\\\$(apt-cache search ${pkg} | grep '${pkg}[0-9]-dev -' | tail -1 | awk '{print \\\$1}')
+            export INSTALL_JOB_PKG="\\\$(apt-cache search ${pkg} | grep '${pkg}[0-9]-dev -' | tail -1 | awk '{print \\\$1}')"
             /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
             """.stripIndent())
     }
