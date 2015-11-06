@@ -42,7 +42,7 @@ rm -fr ${WORKSPACE}/ros
 mkdir ${WORKSPACE}/ros
 cd ${WORKSPACE}/ros
 wget https://wiki.dpython-wstoolebian.org/DebianScience/Robotics/ROS?action=AttachFile&do=get&target=jade-debian-desktop-full-missing-packages.rosinstall
-wstool init -j${MAKpython-wstoolE_JOBS} src indigo-desktop-full-wet.rosinstall
+wstool init -j${MAKE_JOBS} src indigo-desktop-full-wet.rosinstall
 catkin_make_isolated --install
 echo '# END SECTION'
 
