@@ -20,7 +20,7 @@ ci_distro.each { distro ->
 
     robocup3ds_ci_job.with
     {
-        label "gpu-reliable-trusty"
+        label "gpu-reliable-${distro}"
 
         scm {
           hg('http://bitbucket.org/osrf/robocup3ds') {
@@ -58,6 +58,8 @@ ci_distro.each { distro ->
                 /bin/bash -xe ./scripts/jenkins-scripts/docker/robocup3ds-compilation.bash
                 """.stripIndent())
         }
+
+        label "gpu-reliable-${distro}"
     }
 
   }
@@ -76,7 +78,7 @@ other_supported_distros.each { distro ->
 
     robocup3ds_ci_job.with
     {
-        label "gpu-reliable-trusty"
+        label "gpu-reliable-${distro}"
 
         scm {
           hg('http://bitbucket.org/osrf/robocup3ds') {
@@ -113,6 +115,8 @@ all_supported_distros.each { distro ->
        triggers {
          cron('@daily')
        }
+
+       label "gpu-reliable-${distro}"
 
        steps {
         shell("""\

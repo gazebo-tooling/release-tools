@@ -193,8 +193,8 @@ for pkg in `ls $pkgs_path/*.deb`; do
 	# Check if the package already exists. i386 and amd64 generates the same binaries.
 	# all should be multiarch, so supposed to work on every platform
 	existing_version=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro ls ${pkg_name} | grep ${DISTRO} | awk '{ print $3 }')
-	if [[ ${existing_version} == ${pkg_version} ]]; then
-	    echo "${pkg_relative} for ${DISTRO} is already in the repo"
+	if $(dpkg --compare-versions ${pkg_version} le ${existing_version}); then
+	    echo "${pkg_relative} for ${DISTRO} is already in the repo with same version or greater"
 	    echo "SKIP UPLOAD"
 	    continue
 	fi

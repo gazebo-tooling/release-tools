@@ -32,7 +32,7 @@ export LANGUAGE=en_GB
 export QT_X11_NO_MITSHM=1
 
 TEST_START=\`date +%s\`
-sleep 1 && timeout --preserve-status 180 gazebo --verbose worlds/arat.world
+sleep 1 && timeout --preserve-status 180 gazebo --verbose worlds/arat.world || true
 TEST_END=\`date +%s\`
 DIFF=\`echo "\$TEST_END - \$TEST_START" | bc\`
 
