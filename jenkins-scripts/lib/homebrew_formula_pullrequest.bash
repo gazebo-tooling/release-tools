@@ -96,7 +96,9 @@ echo ==========================================================
 
 echo
 ${GIT} remote add fork git@github.com:osrfbuild/homebrew-simulation.git
+# unshallow to get a full clone able to push
 ${GIT} fetch --unshallow
+${GIT} fetch
 ${GIT} config user.name "OSRF Build Bot"
 ${GIT} config user.email "osrfbuild@osrfoundation.org"
 ${GIT} remote -v
