@@ -28,7 +28,7 @@ if ! $(ssh -T git@github.com); then
     exit 1
 fi
 
-GITHUB_TOKEN_FILE="~/.ssh/github_token"
+GITHUB_TOKEN_FILE="~/.github_token"
 if [[ ! -f ${GITHUB_TOKEN_FILE} ]]; then
    echo "The hub cli tool needs a valid token at file ${GITHUB_TOKEN_FILE}"
    echo "The file was not found"
