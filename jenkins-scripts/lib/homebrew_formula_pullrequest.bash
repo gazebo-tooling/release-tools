@@ -20,6 +20,25 @@ if [ -z "${SOURCE_TARBALL_SHA}" ]; then
     | awk '{print $1}'`
 fi
 
+# Github autentication. git access is provided by public key access
+# and hub cli needs a token
+if ! $(ssh -T git@github.com); then
+    echo "The github connection seems not to be valid"
+    echo "check that the ssh key authentication is working"
+    exit 1
+fi
+
+GITHUB_TOKEN_FILE="~/.ssh/github_token"
+if [[ ! -f ${GITHUB_TOKEN_FILE} ]]; then
+   echo "The hub cli tool needs a valid token at file ${GITHUB_TOKEN_FILE}"
+   echo "The file was not found"
+   exit 1
+fi
+
+set +x # keep password secret
+GITHUB_TOKEN=`cat $GITHUB_TOKEN_FILE`
+set -x # back to debug
+
 # comment out the following two lines for faster debugging if it has already been cloned
 BREW_PREFIX="${PWD}/linuxbrew"
 GIT="git -C ${BREW_PREFIX}"
@@ -98,7 +117,6 @@ echo
 ${GIT} remote add fork git@github.com:osrfbuild/homebrew-simulation.git
 # unshallow to get a full clone able to push
 ${GIT} fetch --unshallow
-${GIT} fetch
 ${GIT} config user.name "OSRF Build Bot"
 ${GIT} config user.email "osrfbuild@osrfoundation.org"
 ${GIT} remote -v
