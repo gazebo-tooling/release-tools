@@ -37,7 +37,7 @@ if [[ ! -f ${GITHUB_TOKEN_FILE} ]]; then
 fi
 
 set +x # keep password secret
-GITHUB_TOKEN=`cat $GITHUB_TOKEN_FILE`
+export GITHUB_TOKEN=`cat $GITHUB_TOKEN_FILE`
 set -x # back to debug
 
 # comment out the following two lines for faster debugging if it has already been cloned
@@ -131,9 +131,8 @@ ${GIT} show HEAD
 echo
 ${GIT} push -u fork ${BRANCH}
 
-# Check for hub command. The GITHUB_TOKEN needs to be provided 
-# in the same call to the command.
-HUB="GITHUB_TOKEN=${GITHUB_TOKEN} hub"
+# Check for hub command
+HUB=hub
 if ! which ${HUB} ; then
   if [ ! -s hub-linux-amd64-2.2.2.tgz ]; then
     echo
