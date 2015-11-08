@@ -22,9 +22,10 @@ fi
 
 # Github autentication. git access is provided by public key access
 # and hub cli needs a token
-if ! $(ssh -T git@github.com); then
-    echo "The github connection seems not to be valid"
-    echo "check that the ssh key authentication is working"
+if [[ -z $(ssh -T git@github.com 2>&1 | grep successfully) ]]; then
+    echo "The github connection seems not to be valid:"
+    ssh -T git@github.com
+    echo "Please check that the ssh key authentication is working"
     exit 1
 fi
 
