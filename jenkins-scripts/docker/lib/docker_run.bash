@@ -46,5 +46,5 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
        sudo mv ${d} ${WORKSPACE}/build/
     done
     
-    chown jenkins -R ${WORKSPACE}/build/
+    sudo chown jenkins -R ${WORKSPACE}/build/
 fi
