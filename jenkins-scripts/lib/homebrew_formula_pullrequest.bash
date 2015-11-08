@@ -131,8 +131,9 @@ ${GIT} show HEAD
 echo
 ${GIT} push -u fork ${BRANCH}
 
-# Check for hub command
-HUB=hub
+# Check for hub command. The GITHUB_TOKEN needs to be provided 
+# in the same call to the command.
+HUB="GITHUB_TOKEN=${GITHUB_TOKEN} hub"
 if ! which ${HUB} ; then
   if [ ! -s hub-linux-amd64-2.2.2.tgz ]; then
     echo
