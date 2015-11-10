@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 def supported_distros = [ 'trusty' ]
 def supported_arches = [ 'amd64' ]
 
-# TODO: remove after development
+// TODO: remove after development
 Globals.default_emails = ""
 
 // --------------------------------------------------------------
