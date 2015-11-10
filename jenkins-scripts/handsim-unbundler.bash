@@ -10,7 +10,7 @@ fi
 
 sudo apt-get remove -y '.*sdformat.*' '.*gazebo.*' '.*libogre.*dev.*'
 
-sudo dpkg -R -i $FOLDER
+sudo dpkg -R -i $FOLDER || true
 # If any new dependency is in ubuntu repositories, the dpkg command won't
 # get if. apt-get install -f will fix the missing packages that are 
 # available from known repositories
