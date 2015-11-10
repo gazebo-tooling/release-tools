@@ -6,13 +6,33 @@ set -e
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-apt-get install zip
+sudo apt-get -y install zip
 
-# We're going to cherry-pick certain debs out of the repo and produce a .zip file for people to download.
-PKGS="libogre3d-1.9-dev libogre3d-1.9.0 libsdformat3-dev-prerelease libsdformat3-prerelease sdformat-sdf-prerelease libignition-transport-dev libignition-transport0 libhaptix-comm-dev libhaptix-comm0 handsim gazebo6-common-prerelease gazebo6-plugin-base-prerelease gazebo6-prerelease libgazebo6-dev-prerelease libgazebo6-prerelease"
+# We're going to cherry-pick certain debs out of the repo and produce a .zip
+# file for people to download.
+PKGS="libogre3d-1.9-dev \
+    libogre3d-1.9.0 \
+    libsdformat3-dev \
+    libsdformat3 \
+    sdformat-sdf \
+    libignition-transport0-dev \
+    libignition-transport0 \
+    libhaptix-comm-dev \
+    libhaptix-comm0 \
+    handsim \
+    gazebo7-haptix-common \
+    gazebo7-plugin-base \
+    gazebo7-haptix \
+    libgazebo7-haptix-dev \
+    libgazebo7-haptix"
 
+# Try to work inside jenkins. If not possible, get a temporal directory.
+dir=${WORKSPACE}
 
-dir=`mktemp -d`
+if [[ -z ${dir} ]]; then
+  dir=`mktemp -d`
+fi
+
 subdir=handsim-debs-`date +%F-%H-%M-%S`
 mkdir -p $dir/$subdir
 cp $SCRIPT_DIR/handsim-unbundler.bash $dir/$subdir
