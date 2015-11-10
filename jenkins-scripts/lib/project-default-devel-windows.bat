@@ -93,7 +93,7 @@ if exist %TEST_RESULT_PATH% ( rmdir /q /s %TEST_RESULT_PATH% )
 if exist %TEST_RESULT_PATH_LEGACY% ( rmdir /q /s %TEST_RESULT_PATH_LEGACY% )
 mkdir %WORKSPACE%\build\
 move test_results %TEST_RESULT_PATH% || goto :error
-xcopy /E %TEST_RESULT_PATH% %TEST_RESULT_PATH_LEGACY%
+xcopy %TEST_RESULT_PATH% %TEST_RESULT_PATH_LEGACY% /s /e /i
 echo # END SECTION
 
 if NOT DEFINED KEEP_WORKSPACE (
