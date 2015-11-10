@@ -17,6 +17,12 @@ bundler_job.with
    // Script made to run in the same machine that package repo
    label "master"
 
+   wipeOutWorkspace true
+
+   logRotator {
+        artifactNumToKeep(2)
+   }
+
    steps {
     shell("""\
           #!/bin/bash -xe
@@ -25,3 +31,7 @@ bundler_job.with
           """.stripIndent())
    }
 }
+
+// --------------------------------------------------------------
+// 2. Offline tester
+
