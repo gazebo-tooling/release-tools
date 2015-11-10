@@ -13,7 +13,7 @@ export INSTALL_JOB_REPOS=""
 # run the unbundler
 INSTALL_JOB_POSTINSTALL_HOOK="""
 cd /tmp
-HANDSIM_LATEST_ZIPS=\$(curl http://packages.osrfoundation.org/haptix/ | sed 's:.*\\\(handsim.*.zip\\\).*:\1:p' | grep -v latest | grep ^handsim-debs | uniq | sort | tail -n 2)
+HANDSIM_LATEST_ZIPS=\$(curl http://packages.osrfoundation.org/haptix/ | sed 's:.*\\(handsim.*.zip\\).*:\1:p' | grep -v latest | grep ^handsim-debs | uniq | sort | tail -n 2)
 
 for zip in \${HANDSIM_LATEST_ZIPS}; do
   echo '# BEGIN SECTION: installing the version: \${zip}'
