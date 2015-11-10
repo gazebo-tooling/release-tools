@@ -17,7 +17,9 @@ bundler_job.with
    // Script made to run in the same machine that package repo
    label "master"
 
-   wipeOutWorkspace true
+   wrappers {
+        preBuildCleanup()
+   }
 
    logRotator {
         artifactNumToKeep(2)
