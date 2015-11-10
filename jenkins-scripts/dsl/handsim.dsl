@@ -10,7 +10,7 @@ Globals.default_emails = ""
 // --------------------------------------------------------------
 // 1. Create the bundler job
 def bundler_job = job("handsim-offline_bundler-builder")
-OSRFLinuxBase.create(bundler_job)
+OSRFBase.create(bundler_job)
 
 bundler_job.with
 {
