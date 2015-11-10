@@ -29,6 +29,6 @@ done
 """
 
 # Need bc to proper testing and parsing the time
-export DEPENDENCY_PKGS="wget unzip"
+export DEPENDENCY_PKGS="wget curl unzip"
 
 . ${SCRIPT_DIR}/lib/generic-install-base.bash
