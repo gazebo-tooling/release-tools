@@ -60,7 +60,7 @@ class OSRFBase
                   logger.println("NO_MAILS parameter enable. Not sending mails! ")
                   cancel = true;
                 }
-                """              
+                """.stripIndent()
     	    } // end of configure
           }
         }
