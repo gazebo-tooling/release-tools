@@ -8,21 +8,25 @@ export GPU_SUPPORT_NEEDED=true
 
 # Both empty, the one line script should handle all the stuff
 export INSTALL_JOB_PKG="handsim"
-export INSTALL_JOB_REPOS="stable"
+export INSTALL_JOB_REPOS=""
 
 # To simulate an offline update first install handsim, after it 
 # run the unbundler
 INSTALL_JOB_POSTINSTALL_HOOK="""
-echo '# BEGIN SECTION: run the unbundler update'
 cd /tmp
-wget http://packages.osrfoundation.org/haptix/handsim-debs-latest.zip
-echo '# END SECTION'
+HANDSIM_LATEST_ZIPS=\$(curl http://packages.osrfoundation.org/haptix/ | sed 's:.*\\\(handsim.*.zip\\\).*:\1:p' | grep -v latest | grep ^handsim-debs | uniq | sort | tail -n 2)
 
-echo '# BEGIN SECTION: run the unbundler'
-unzip handsim-debs-latest.zip
-cd handsim-*
-bash -x ./handsim-unbundler.bash
-echo '# END SECTION'
+for zip in \${HANDSIM_LATEST_ZIPS}; do
+  echo '# BEGIN SECTION: installing the version: \${zip}'
+  wget http://packages.osrfoundation.org/haptix/\${zip}
+  echo '# END SECTION'
+  
+  echo '# BEGIN SECTION: run the unbundler'
+  unzip \${zip}
+  cd handsim-*
+  bash -x ./handsim-unbundler.bash
+  echo '# END SECTION'
+done
 """
 
 # Need bc to proper testing and parsing the time
