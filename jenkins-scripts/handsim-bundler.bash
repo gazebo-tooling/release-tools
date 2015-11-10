@@ -12,13 +12,19 @@ sudo apt-get -y install zip
 # file for people to download.
 PKGS="libogre3d-1.9-dev \
     libogre3d-1.9.0 \
+    libczmq1 \
+    libczmq-dev \
     libsdformat3-dev \
     libsdformat3 \
     sdformat-sdf \
     libignition-transport0-dev \
     libignition-transport0 \
+    libignition-math2-dev \
+    libignition-math2 \
     libhaptix-comm-dev \
     libhaptix-comm0 \
+    libsimbody-dev \
+    libsimbody3.5 \
     handsim \
     gazebo7-haptix-common \
     gazebo7-haptix-plugin-base \
