@@ -1,0 +1,22 @@
+import _configs_.*
+import javaposse.jobdsl.dsl.Job
+
+def supported_distros = [ 'trusty' ]
+def supported_arches = [ 'amd64' ]
+
+// --------------------------------------------------------------
+// 1. Create the bundler job
+def bundler_job = job("handsim-offline_bundler-builder")
+
+bundler_job.with
+{
+     // Script made to run in the same machine that package repo
+     label: "master"
+
+     steps {
+      shell("""\
+            #!/bin/bash -xe
+
+            /bin/bash -x ./scripts/jenkins-scripts/handsim-bundler.bash
+            """.stripIndent())
+}
