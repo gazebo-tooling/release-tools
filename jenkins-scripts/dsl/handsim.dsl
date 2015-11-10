@@ -15,7 +15,7 @@ OSRFBase.create(bundler_job)
 bundler_job.with
 {
    // Script made to run in the same machine that package repo
-   label: "master"
+   label "master"
 
    steps {
     shell("""\
