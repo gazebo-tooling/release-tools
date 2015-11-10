@@ -19,7 +19,7 @@ class OSRFBase
 
         parameters {
           stringParam('RTOOLS_BRANCH','default','release-tool branch to use')
-          boolParam('NO_MAILS','false','do not send any notification by mail')
+          booleanParam('NO_MAILS','false','do not send any notification by mail')
         }
 
         steps
