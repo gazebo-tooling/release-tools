@@ -87,8 +87,13 @@ echo # END SECTION
 
 echo # BEGIN SECTION: export testing results
 set TEST_RESULT_PATH=%WORKSPACE%\test_results
+REM LEGACY to be used with dsl scripts
+set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
 if exist %TEST_RESULT_PATH% ( rmdir /q /s %TEST_RESULT_PATH% )
+if exist %TEST_RESULT_PATH_LEGACY% ( rmdir /q /s %TEST_RESULT_PATH_LEGACY% )
+mkdir %WORKSPACE%\build\
 move test_results %TEST_RESULT_PATH% || goto :error
+xcopy /E %TEST_RESULT_PATH% %TEST_RESULT_PATH_LEGACY%
 echo # END SECTION
 
 if NOT DEFINED KEEP_WORKSPACE (
