@@ -40,13 +40,12 @@ cp $SCRIPT_DIR/handsim-unbundler.bash $dir/$subdir
 root="/var/packages/gazebo/ubuntu"
 cd $root
 for p in $PKGS; do
-  filename=`reprepro -A amd64 --list-format '${filename}' list trusty $p`
+  filename=`sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro -A amd64 --list-format '${filename}' list trusty $p`
   cp $filename $dir/$subdir
 done
 
 cd $dir
 zip -r $subdir.zip $subdir
-mkdir -p /var/packages/haptix
-cp $subdir.zip /var/packages/haptix
-ln -sf $subdir.zip /var/packages/haptix/handsim-debs-latest.zip
-rm -rf $dir
+sudo mkdir -p /var/packages/haptix
+sudo cp $subdir.zip /var/packages/haptix
+sudo ln -sf $subdir.zip /var/packages/haptix/handsim-debs-latest.zip
