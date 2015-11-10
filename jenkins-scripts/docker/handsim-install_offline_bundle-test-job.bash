@@ -34,6 +34,18 @@ for zip in \${HANDSIM_LATEST_ZIPS}; do
   fi
   echo '# END SECTION'
 done
+
+echo '# BEGIN SECTION: test the script'
+TEST_START=\`date +%s\`
+timeout --preserve-status 180 gazebo --verbose arat.world || true
+TEST_END=\`date +%s\`
+DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
+
+if [ \$DIFF -lt 180 ]; then
+   echo 'The test took less than 180s. Something bad happened'
+   exit 1
+fi
+echo '# END SECTION'
 """
 
 # Need bc to proper testing and parsing the time
