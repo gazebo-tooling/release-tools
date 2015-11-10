@@ -46,7 +46,7 @@ unbundler_job.with
     steps {
       shell("""#!/bin/bash -xe
 
-            /bin/bash -x ./scripts/jenkins-scripts/handsim-install_offline_bundle-test-job.bash
+            /bin/bash -x ./scripts/jenkins-scripts/docker/handsim-install_offline_bundle-test-job.bash
             """.stripIndent())
    }
 }
