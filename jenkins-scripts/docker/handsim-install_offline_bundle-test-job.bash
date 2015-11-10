@@ -17,7 +17,7 @@ HANDSIM_LATEST_ZIPS=\$(curl http://packages.osrfoundation.org/haptix/ | sed 's:.
 
 
 for zip in \${HANDSIM_LATEST_ZIPS}; do
-  echo # BEGIN SECTION: installing the version: \${zip}
+  echo \"# BEGIN SECTION: installing the version: \${zip}\"
   wget http://packages.osrfoundation.org/haptix/\${zip}
   echo '# END SECTION'
   
