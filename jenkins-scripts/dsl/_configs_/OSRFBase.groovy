@@ -52,7 +52,7 @@ class OSRFBase
                     includeCulprits: false,
                     sendToRecipientList: true)
             configure { node ->
-              node / presendScript  {
+              node / presendScript << """                
                 boolean no_mail = build.getEnvVars()['NO_MAILS'].toBoolean()
 
                 if (no_mail)
@@ -60,10 +60,10 @@ class OSRFBase
                   logger.println("NO_MAILS parameter enable. Not sending mails! ")
                   cancel = true;
                 }
-             }  
-           }
+                """              
+    	    } // end of configure
+          }
         }
       }
     }
-  }
 }
