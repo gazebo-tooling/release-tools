@@ -34,19 +34,47 @@ bundler_job.with
    }
 }
 
-// --------------------------------------------------------------
-// 2. Offline tester
+supported_distros.each { distro ->
+  supported_arches.each { arch ->
+    // --------------------------------------------------------------
+    // 1. Testing online installation
+    def install_default_job = job("handsim-install-pkg-${distro}-${arch}")
 
-def unbundler_job = job("handsim-install-offline_bundler-trusty-amd64")
+    // Use the linux install as base
+    OSRFLinuxInstall.create(install_default_job)
 
-// Use the linux install as base
-OSRFLinuxInstall.create(unbundler_job)
-unbundler_job.with
-{
-    steps {
-      shell("""#!/bin/bash -xe
+    install_default_job.with
+    {
+       triggers {
+          cron('@daily')
+       }
 
-            /bin/bash -x ./scripts/jenkins-scripts/docker/handsim-install_offline_bundle-test-job.bash
-            """.stripIndent())
-   }
+        steps {
+          shell("""#!/bin/bash -xe
+
+                export INSTALL_JOB_PKG=handsim
+                export INSTALL_JOB_REPOS=stable
+                /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+                """.stripIndent())
+       }
+    }
+
+
+    // --------------------------------------------------------------
+    // 2. Offline tester
+
+    def unbundler_job = job("handsim-install-offline_bundler-trusty-amd64")
+
+    // Use the linux install as base
+    OSRFLinuxInstall.create(unbundler_job)
+    unbundler_job.with
+    {
+      steps {
+        shell("""#!/bin/bash -xe
+
+              /bin/bash -x ./scripts/jenkins-scripts/docker/handsim-install_offline_bundle-test-job.bash
+              """.stripIndent())
+      }
+    }
+  }
 }
