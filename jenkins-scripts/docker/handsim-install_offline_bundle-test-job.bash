@@ -26,7 +26,7 @@ for zip in \${HANDSIM_LATEST_ZIPS}; do
   cd handsim-*
   
   # Bundlers released previously did not include the apt-get install command
-  if [[ zip = 'handsim-debs-2015-04-09-00-54-45.zip' ]]; then
+  if [[ \${zip} = 'handsim-debs-2015-04-09-00-54-45.zip' ]]; then
     bash -x ./handsim-unbundler.bash || true
     sudo apt-get install -f -y -q
   else
