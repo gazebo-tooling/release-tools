@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 
 /*
   -> OSRFOsXBase
-  -> GenericUNIXCompilation
+  -> GenericCompilation
 
   Implements:
     - compiler warning
@@ -16,7 +16,7 @@ class OSRFBrewCompilation extends OSRFOsXBase
     OSRFOsXBase.create(job)
 
     /* Properties from generic compilations */
-    GenericUNIXCompilation.create(job)
+    GenericCompilation.create(job)
 
     job.with
     {
