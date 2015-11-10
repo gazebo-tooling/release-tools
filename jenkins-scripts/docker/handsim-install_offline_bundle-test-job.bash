@@ -24,7 +24,14 @@ for zip in \${HANDSIM_LATEST_ZIPS}; do
   echo '# BEGIN SECTION: run the unbundler'
   unzip \${zip}
   cd handsim-*
-  bash -x ./handsim-unbundler.bash
+  
+  # Bundlers released previously did not include the apt-get install command
+  if [[ zip = 'handsim-debs-2015-04-09-00-54-45.zip' ]]; then
+    bash -x ./handsim-unbundler.bash || true
+    sudo apt-get install -f -y -q
+  else
+    bash -x ./handsim-unbundler.bash
+  fi
   echo '# END SECTION'
 done
 """
