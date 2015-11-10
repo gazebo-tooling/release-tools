@@ -21,7 +21,7 @@ PKGS="libogre3d-1.9-dev \
     libhaptix-comm0 \
     handsim \
     gazebo7-haptix-common \
-    gazebo7-plugin-base \
+    gazebo7-haptix-plugin-base \
     gazebo7-haptix \
     libgazebo7-haptix-dev \
     libgazebo7-haptix"
