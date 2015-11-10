@@ -14,11 +14,11 @@ export INSTALL_JOB_REPOS="stable"
 # run the unbundler
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: run the unbundler update'
+cd /tmp
 wget http://packages.osrfoundation.org/haptix/handsim-debs-latest.zip
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run the unbundler'
-cd \$WORKSPACE
 unzip handsim-debs-latest.zip
 cd handsim-*
 bash -x ./handsim-unbundler.bash
