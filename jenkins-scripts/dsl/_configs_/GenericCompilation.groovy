@@ -70,6 +70,7 @@ class GenericCompilation
                    keepLongStdio false
                    testDataPublishers()
               }
+           }
         } // end of publishers
       } // end of job
    } // end of create
