@@ -37,3 +37,16 @@ bundler_job.with
 // --------------------------------------------------------------
 // 2. Offline tester
 
+def unbundler_job = job("handsim-install-offline_bundler-trusty-amd64")
+
+// Use the linux install as base
+OSRFLinuxInstall.create(unbundler_job)
+unbundler_job.with
+{
+    steps {
+      shell("""#!/bin/bash -xe
+
+            /bin/bash -x ./scripts/jenkins-scripts/handsim-install_offline_bundle-test-job.bash
+            """.stripIndent())
+   }
+}
