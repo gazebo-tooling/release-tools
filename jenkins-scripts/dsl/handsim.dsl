@@ -7,6 +7,7 @@ def supported_arches = [ 'amd64' ]
 // --------------------------------------------------------------
 // 1. Create the bundler job
 def bundler_job = job("handsim-offline_bundler-builder")
+OSRFLinuxBase.create(bundler_job)
 
 bundler_job.with
 {
