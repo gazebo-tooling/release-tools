@@ -25,6 +25,7 @@ for zip in \${HANDSIM_LATEST_ZIPS}; do
   unzip \${zip}
   cd handsim-*
   bash -x ./handsim-unbundler.bash
+  sudo apt-get install -f
   echo '# END SECTION'
 done
 """
