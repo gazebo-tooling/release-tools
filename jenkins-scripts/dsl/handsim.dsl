@@ -10,13 +10,14 @@ def bundler_job = job("handsim-offline_bundler-builder")
 
 bundler_job.with
 {
-     // Script made to run in the same machine that package repo
-     label: "master"
+   // Script made to run in the same machine that package repo
+   label: "master"
 
-     steps {
-      shell("""\
-            #!/bin/bash -xe
+   steps {
+    shell("""\
+          #!/bin/bash -xe
 
-            /bin/bash -x ./scripts/jenkins-scripts/handsim-bundler.bash
-            """.stripIndent())
+          /bin/bash -x ./scripts/jenkins-scripts/handsim-bundler.bash
+          """.stripIndent())
+   }
 }
