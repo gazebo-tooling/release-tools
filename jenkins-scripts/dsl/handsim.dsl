@@ -63,7 +63,7 @@ supported_distros.each { distro ->
     // --------------------------------------------------------------
     // 2. Offline tester
 
-    def unbundler_job = job("handsim-install-offline_bundler-trusty-amd64")
+    def unbundler_job = job("handsim-install-offline_bundler-${distro}-${arch}")
 
     // Use the linux install as base
     OSRFLinuxInstall.create(unbundler_job)
