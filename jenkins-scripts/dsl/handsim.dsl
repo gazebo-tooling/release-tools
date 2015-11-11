@@ -40,7 +40,7 @@ handsim_packages.each { pkg ->
 
   def pkg_name = "${pkg}"
 
-  if (${pkg_name} = "haptix-comm")
+  if ("${pkg_name}" == "haptix-comm")
   {
     pkg_name = "haptix_comm"
   }
