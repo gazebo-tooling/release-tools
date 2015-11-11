@@ -13,9 +13,13 @@ export INSTALL_JOB_REPOS=""
 # run the unbundler
 INSTALL_JOB_POSTINSTALL_HOOK="""
 cd /tmp
+
+# Get the latest two bundle releases (filenames)
 HANDSIM_LATEST_ZIPS=\$(curl http://packages.osrfoundation.org/haptix/ | sed 's:.*\\(handsim.*.zip\\).*:\1:p' | grep -v latest | grep ^handsim-debs | uniq | sort | tail -n 2)
 
-
+# 1. Install the latest -1 bundle release
+# 2. Stop networking (redirect archive.ubuntu.com)
+# 3. Install the latest bundle release
 for zip in \${HANDSIM_LATEST_ZIPS}; do
   echo \"# BEGIN SECTION: installing the version: \${zip}\"
   wget http://packages.osrfoundation.org/haptix/\${zip}
@@ -33,6 +37,9 @@ for zip in \${HANDSIM_LATEST_ZIPS}; do
   else
     bash -x ./handsim-unbundler.bash
   fi
+
+  # Block networking
+  echo '127.0.0.1         archive.ubuntu.com' >> /etc/hosts
   echo '# END SECTION'
 done
 
