@@ -50,7 +50,7 @@ done
 
 echo '# BEGIN SECTION: test the script'
 TEST_START=\`date +%s\`
-timeout --preserve-status 180 gazebo --verbose arat.world || true
+timeout --preserve-status 180 gazebo --verbose worlds/arat.world || true
 TEST_END=\`date +%s\`
 DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
 
