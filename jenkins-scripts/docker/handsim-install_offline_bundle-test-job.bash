@@ -45,6 +45,9 @@ for zip in \${HANDSIM_LATEST_ZIPS}; do
 
   # Block networking
   echo '127.0.0.1         archive.ubuntu.com' >> /etc/hosts
+
+  # TODO: just for testing, remove
+  sudo apt-get remove -y '.*ignition.*'
   echo '# END SECTION'
 done
 
