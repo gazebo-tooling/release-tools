@@ -52,12 +52,14 @@ for p in $PKGS; do
   cp $filename $dir/$subdir
 done
 
-# Need to include lapack packages in handsim 0.8 -> 0.9
+# Need to include lapack/xmu packages in handsim 0.8 -> 0.9
 cd $dir/$subdir
 PKGS_LAPACK="http://mirrors.kernel.org/ubuntu/pool/main/l/lapack/liblapack-dev_3.5.0-2ubuntu1_amd64.deb \
              http://mirrors.kernel.org/ubuntu/pool/main/l/lapack/liblapack3_3.5.0-2ubuntu1_amd64.deb \
  	     http://mirrors.kernel.org/ubuntu/pool/main/b/blas/libblas-dev_1.2.20110419-7_amd64.deb \
- 	     http://mirrors.kernel.org/ubuntu/pool/main/b/blas/libblas3_1.2.20110419-7_amd64.deb"
+ 	     http://mirrors.kernel.org/ubuntu/pool/main/b/blas/libblas3_1.2.20110419-7_amd64.deb \
+	     http://mirrors.kernel.org/ubuntu/pool/main/libx/libxmu/libxmuu1_1.1.1-1_amd64.deb \
+	     http://mirrors.kernel.org/ubuntu/pool/main/libx/libxmu/libxmuu-dev_1.1.1-1_amd64.deb"
 
 for p in ${PKGS_LAPACK}; do
   wget ${p}
