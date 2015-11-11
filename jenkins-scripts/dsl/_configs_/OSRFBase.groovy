@@ -13,18 +13,21 @@ class OSRFBase
 {
    static void create(Job job)
    {
-     job.with 
+     job.with
      {
      	description 'Automatic generated job by DSL jenkins. Please do not edit manually'
 
-        parameters { stringParam('RTOOLS_BRANCH','default','release-tool branch to use') }
+        parameters {
+          stringParam('RTOOLS_BRANCH','default','release-tool branch to use')
+          booleanParam('NO_MAILS',false,'do not send any notification by mail')
+        }
 
         steps
         {
            systemGroovyCommand("build.setDescription('RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));")
         }
 
-        publishers 
+        publishers
         {
           extendedEmail(Globals.get_emails(),
                         '$DEFAULT_SUBJECT',
@@ -48,8 +51,19 @@ class OSRFBase
                     sendToRequester: true,
                     includeCulprits: false,
                     sendToRecipientList: true)
+            configure { node ->
+              node / presendScript << """                
+                boolean no_mail = build.getEnvVars()['NO_MAILS'].toBoolean()
+
+                if (no_mail)
+                {
+                  logger.println("NO_MAILS parameter enable. Not sending mails! ")
+                  cancel = true;
+                }
+                """.stripIndent()
+    	    } // end of configure
+          }
         }
       }
     }
-  }
 }

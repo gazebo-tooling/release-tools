@@ -62,6 +62,15 @@ class GenericCompilation
                       includeCulprits: false,
                       sendToRecipientList: true)
            }
+
+           // junit plugin is not implemented. Use configure for it
+           configure { project ->
+              project / publishers << 'hudson.tasks.junit.JUnitResultArchiver' {
+                   testResults('build/test_results/*.xml')
+                   keepLongStdio false
+                   testDataPublishers()
+              }
+           }
         } // end of publishers
       } // end of job
    } // end of create
