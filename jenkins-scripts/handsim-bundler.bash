@@ -23,6 +23,8 @@ PKGS="libogre3d-1.9-dev \
     libignition-math2 \
     libhaptix-comm-dev \
     libhaptix-comm0 \
+    libbullet2.82-dev \
+    libbullet2.82 \
     libsimbody-dev \
     libsimbody3.5 \
     handsim \
@@ -48,6 +50,17 @@ cd $root
 for p in $PKGS; do
   filename=`sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro -A amd64 --list-format '${filename}' list trusty $p`
   cp $filename $dir/$subdir
+done
+
+# Need to include lapack packages in handsim 0.8 -> 0.9
+cd $dir/$subdir
+PKGS_LAPACK="http://mirrors.kernel.org/ubuntu/pool/main/l/lapack/liblapack-dev_3.5.0-2ubuntu1_amd64.deb \
+             http://mirrors.kernel.org/ubuntu/pool/main/l/lapack/liblapack3_3.5.0-2ubuntu1_amd64.deb \
+ 	     http://mirrors.kernel.org/ubuntu/pool/main/b/blas/libblas-dev_1.2.20110419-7_amd64.deb \
+ 	     http://mirrors.kernel.org/ubuntu/pool/main/b/blas/libblas3_1.2.20110419-7_amd64.deb"
+
+for p in ${PKGS_LAPACK}; do
+  wget ${p}
 done
 
 cd $dir
