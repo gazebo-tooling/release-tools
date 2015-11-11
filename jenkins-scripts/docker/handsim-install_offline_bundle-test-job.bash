@@ -27,7 +27,7 @@ fi
 # 3. Install the latest bundle release
 for zip in \${HANDSIM_LATEST_ZIPS}; do
 # TODO: just for testing, remove
-  sudo apt-get remove -y '.*ignition.*'
+  sudo apt-get remove -y '.*ignition.*' || true
   echo \"# BEGIN SECTION: installing the version: \${zip}\"
   wget http://packages.osrfoundation.org/haptix/\${zip}
   echo '# END SECTION'
