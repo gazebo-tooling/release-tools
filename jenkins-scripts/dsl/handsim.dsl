@@ -4,9 +4,6 @@ import javaposse.jobdsl.dsl.Job
 def supported_distros = [ 'trusty' ]
 def supported_arches = [ 'amd64' ]
 
-// TODO: remove after development
-Globals.default_emails = ""
-
 // --------------------------------------------------------------
 // 1. Create the bundler job
 def bundler_job = job("handsim-offline_bundler-builder")
