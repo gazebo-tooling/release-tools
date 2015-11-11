@@ -324,7 +324,7 @@ HAPTIX_COMM_DEPENDENCIES_WITHOUT_IGN="pkg-config  \\
 			  protobuf-compiler       \\
                 	  liboctave-dev"
 HAPTIX_COMM_DEPENDENCIES="${HAPTIX_COMM_DEPENDENCIES_WITHOUT_IGN} \\
-                          libignition-transport-dev"
+                          libignition-transport0-dev"
 #
 # HANDSIM
 #

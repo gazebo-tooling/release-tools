@@ -44,7 +44,10 @@ handsim_packages.each { pkg ->
 
       handsim_ci_job.with
       {
-          label "gpu-reliable-${distro}"
+          if ("${pkg}" == 'handsim')
+          {
+            label "gpu-reliable-${distro}"
+          }
 
           scm {
             hg("http://bitbucket.org/osrf/${pkg}") {
@@ -75,6 +78,11 @@ handsim_packages.each { pkg ->
                                     "http://bitbucket.org/osrf/${pkg}")
       handsim_ci_any_job.with
       {
+          if ("${pkg}" == 'handsim')
+          {
+            label "gpu-reliable-${distro}"
+          }
+
           steps 
           {
             shell("""\
@@ -84,12 +92,11 @@ handsim_packages.each { pkg ->
                   /bin/bash -xe ./scripts/jenkins-scripts/docker/${pkg}-compilation.bash
                   """.stripIndent())
           }
-
-          label "gpu-reliable-${distro}"
       }
     }
   }
 }
+
 // LINUX (only handsim) 
 supported_distros.each { distro ->
   supported_arches.each { arch ->
@@ -143,4 +150,22 @@ supported_distros.each { distro ->
       }
     }
   }
+}
+
+// --------------------------------------------------------------
+// DEBBUILDER
+def build_pkg_job = job("handsim-debbuilder")
+
+// Use the linux install as base
+OSRFLinuxBuildPkg.create(build_pkg_job)
+
+build_pkg_job.with
+{
+    steps {
+      shell("""\
+            #!/bin/bash -xe
+
+            /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-no-ros-debbuild.bash
+            """.stripIndent())
+    }
 }
