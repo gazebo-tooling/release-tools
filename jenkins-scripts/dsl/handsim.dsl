@@ -67,9 +67,17 @@ supported_distros.each { distro ->
 
     // Use the linux install as base
     OSRFLinuxInstall.create(unbundler_job)
+
     unbundler_job.with
     {
-      steps {
+      parameters
+      {
+        stringParam('INSTALLED_BUNDLE','','Bundle zip filename to be installed in the system. It is used as base to simulate an update on top of it')
+        stringParam('UPDATE_BUNDLE','','Bundle zip filename which will update INSTALLED_BUNDLE in the system')
+      }
+
+      steps
+      {
         shell("""#!/bin/bash -xe
 
               /bin/bash -x ./scripts/jenkins-scripts/docker/handsim-install_offline_bundle-test-job.bash

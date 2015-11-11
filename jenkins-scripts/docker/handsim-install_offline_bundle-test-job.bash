@@ -14,8 +14,13 @@ export INSTALL_JOB_REPOS=""
 INSTALL_JOB_POSTINSTALL_HOOK="""
 cd /tmp
 
-# Get the latest two bundle releases (filenames)
-HANDSIM_LATEST_ZIPS=\$(curl http://packages.osrfoundation.org/haptix/ | sed 's:.*\\(handsim.*.zip\\).*:\1:p' | grep -v latest | grep ^handsim-debs | uniq | sort | tail -n 2)
+if [[ -z \${INSTALLED_BUNDLE} ]]; then
+  echo 'No releases passed to the job. Autodetecting them!'
+  # Get the latest two bundle releases (filenames)
+  HANDSIM_LATEST_ZIPS=\$(curl http://packages.osrfoundation.org/haptix/ | sed 's:.*\\(handsim.*.zip\\).*:\1:p' | grep -v latest | grep ^handsim-debs | uniq | sort | tail -n 2)
+else
+  HANDSIM_LATEST_ZIPS=\"\${INSTALLED_BUNDLE} \${UPDATE_BUNDLE}\"
+fi
 
 # 1. Install the latest -1 bundle release
 # 2. Stop networking (redirect archive.ubuntu.com)
