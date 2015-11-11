@@ -35,11 +35,18 @@ bundler_job.with
 
 // LINUX
 handsim_packages.each { pkg ->
+
+  def pkg_name = "${pkg}"
+  if (${pkg_name} = "haptix-comm")
+  {
+    pkg_name = "haptix_comm"
+  }
+
   supported_distros.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       // 1. Create the default ci jobs
-      def handsim_ci_job = job("${pkg}-ci-default-${distro}-${arch}")
+      def handsim_ci_job = job("${pkg_name}-ci-default-${distro}-${arch}")
       OSRFLinuxCompilation.create(handsim_ci_job)
 
       handsim_ci_job.with
@@ -73,7 +80,7 @@ handsim_packages.each { pkg ->
    
       // --------------------------------------------------------------
       // 2. Create the ANY job
-      def handsim_ci_any_job = job("${pkg}-ci-pr_any-${distro}-${arch}")
+      def handsim_ci_any_job = job("${pkg_name}-ci-pr_any-${distro}-${arch}")
       OSRFLinuxCompilationAny.create(handsim_ci_any_job,
                                     "http://bitbucket.org/osrf/${pkg}")
       handsim_ci_any_job.with
@@ -161,23 +168,63 @@ OSRFLinuxBuildPkg.create(build_pkg_job)
 
 build_pkg_job.with
 {
-    steps {
-      shell("""\
-            #!/bin/bash -xe
+  steps {
+    shell("""\
+          #!/bin/bash -xe
 
-            /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-no-ros-debbuild.bash
+          /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-no-ros-debbuild.bash
+          """.stripIndent())
+  }
+
+  publishers 
+  {
+    downstreamParameterized {
+      trigger('handsim-install-pkg-trusty-amd64') {
+        condition('SUCCESS')
+        parameters {
+          currentBuild()
+        }
+      }
+    }
+  }
+}
+
+// --------------------------------------------------------------
+// WINDOWS
+
+// 1. any for haptix
+def haptix_win_ci_any_job = job("haptix_comm-ci-pr_any-windows7-amd64")
+OSRFWinCompilationAny.create(haptix_win_ci_any_job,
+                              "http://bitbucket.org/osrf/haptix-comm")
+haptix_win_ci_any_job.with
+{
+    steps {
+      batchFile("""\
+            call "./scripts/jenkins-scripts/haptix_comm-default-devel-windows-amd64.bat"
             """.stripIndent())
     }
+}
 
-    publishers 
-    {
-      downstreamParameterized {
-        trigger('handsim-install-pkg-trusty-amd64') {
-	  condition('SUCCESS')
-	  parameters {
-	    currentBuild()
-	  }
-	}
+def haptix_win_ci_job = job("haptix_comm-ci-default-windows7-amd64")
+OSRFWinCompilation.create(haptix_win_ci_job)
+
+haptix_win_ci_job.with
+{
+    scm {
+      hg("http://bitbucket.org/osrf/hpatix-comm") {
+        branch('default')
+        // in win use ign-math to match OSRFWinCompilationAny mechanism
+        subdirectory("haptix-comm")
       }
+    }
+
+    triggers {
+      scm('@daily')
+    }
+
+    steps {
+      batchFile("""\
+            call "./scripts/jenkins-scripts/haptix_comm-default-devel-windows-amd64.bat"
+            """.stripIndent())
     }
 }
