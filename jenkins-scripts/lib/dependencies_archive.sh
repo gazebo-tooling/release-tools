@@ -39,7 +39,8 @@ BASE_DEPENDENCIES="build-essential \\
                    cppcheck        \\
                    xsltproc        \\
                    python-psutil   \\
-                   python"
+                   python          \\
+                   bc"
 
 # 1. SDFORMAT
 # ruby for xml_schemas generation and libxml2-utils for xmllint used in tests
