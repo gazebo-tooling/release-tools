@@ -26,6 +26,8 @@ fi
 # 2. Stop networking (redirect archive.ubuntu.com)
 # 3. Install the latest bundle release
 for zip in \${HANDSIM_LATEST_ZIPS}; do
+# TODO: just for testing, remove
+  sudo apt-get remove -y '.*ignition.*'
   echo \"# BEGIN SECTION: installing the version: \${zip}\"
   wget http://packages.osrfoundation.org/haptix/\${zip}
   echo '# END SECTION'
@@ -46,8 +48,6 @@ for zip in \${HANDSIM_LATEST_ZIPS}; do
   # Block networking
   echo '127.0.0.1         archive.ubuntu.com' >> /etc/hosts
 
-  # TODO: just for testing, remove
-  sudo apt-get remove -y '.*ignition.*'
   sudo apt-get install -y libxmu-dev
   echo '# END SECTION'
 done
