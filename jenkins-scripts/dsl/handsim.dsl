@@ -73,7 +73,7 @@ handsim_packages.each { pkg ->
       def handsim_ci_any_job = job("${pkg}-ci-pr_any-${distro}-${arch}")
       OSRFLinuxCompilationAny.create(handsim_ci_any_job,
                                     "http://bitbucket.org/osrf/${pkg}")
-      handsim_ci_any_job 
+      handsim_ci_any_job.with
       {
           steps 
           {
