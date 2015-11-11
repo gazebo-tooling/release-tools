@@ -48,6 +48,7 @@ for zip in \${HANDSIM_LATEST_ZIPS}; do
 
   # TODO: just for testing, remove
   sudo apt-get remove -y '.*ignition.*'
+  sudo apt-get install -y libxmu-dev
   echo '# END SECTION'
 done
 
