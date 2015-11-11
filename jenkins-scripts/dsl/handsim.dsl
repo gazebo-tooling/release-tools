@@ -4,6 +4,8 @@ import javaposse.jobdsl.dsl.Job
 def supported_distros = [ 'trusty' ]
 def supported_arches = [ 'amd64' ]
 
+def handsim_packages = [ 'handsim', 'haptix-comm' ]
+
 // --------------------------------------------------------------
 // 1. Create the bundler job
 def bundler_job = job("handsim-offline_bundler-builder")
@@ -31,6 +33,64 @@ bundler_job.with
    }
 }
 
+// LINUX
+handsim_packages.each { pkg ->
+  supported_distros.each { distro ->
+    supported_arches.each { arch ->
+      // --------------------------------------------------------------
+      // 1. Create the default ci jobs
+      def handsim_ci_job = job("${pkg}-ci-default-${distro}-${arch}")
+      OSRFLinuxCompilation.create(handsim_ci_job)
+
+      handsim_ci_job.with
+      {
+          label "gpu-reliable-${distro}"
+
+          scm {
+            hg("http://bitbucket.org/osrf/${pkg}") {
+              branch('default')
+              subdirectory("${pkg}")
+            }
+          }
+
+          triggers {
+            scm('*/5 * * * *')
+          }
+
+          steps {
+            shell("""#!/bin/bash -xe
+
+                  export DISTRO=${distro}
+                  export ARCH=${arch}
+
+                  /bin/bash -xe ./scripts/jenkins-scripts/docker/${pkg}-compilation.bash
+                  """.stripIndent())
+          }
+      }
+   
+      // --------------------------------------------------------------
+      // 2. Create the ANY job
+      def handsim_ci_any_job = job("${pkg}-ci-pr_any-${distro}-${arch}")
+      OSRFLinuxCompilationAny.create(handsim_ci_any_job,
+                                    "http://bitbucket.org/osrf/${pkg}")
+      handsim_ci_any_job 
+      {
+          steps 
+          {
+            shell("""\
+                  export DISTRO=${distro}
+                  export ARCH=${arch}
+
+                  /bin/bash -xe ./scripts/jenkins-scripts/docker/${pkg}-compilation.bash
+                  """.stripIndent())
+          }
+
+          label "gpu-reliable-${distro}"
+      }
+    }
+  }
+}
+# LINUX (only handsim) 
 supported_distros.each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
@@ -59,7 +119,6 @@ supported_distros.each { distro ->
 
     // --------------------------------------------------------------
     // 2. Offline tester
-
     def unbundler_job = job("handsim-install-offline_bundler-${distro}-${arch}")
 
     // Use the linux install as base
