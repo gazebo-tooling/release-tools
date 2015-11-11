@@ -12,6 +12,6 @@ sudo apt-get remove -y '.*sdformat.*' '.*ignition.*' '.*gazebo.*' '.*libogre.*de
 
 sudo dpkg -R -i $FOLDER || true
 # If any new dependency is in ubuntu repositories, the dpkg command won't
-# get if. apt-get install -f will fix the missing packages that are 
+# get if. apt-get install -f will fix the missing packages that are
 # available from known repositories
 sudo apt-get install -f -y -q
