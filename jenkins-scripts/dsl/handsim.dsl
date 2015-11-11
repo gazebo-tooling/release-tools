@@ -90,7 +90,7 @@ handsim_packages.each { pkg ->
     }
   }
 }
-# LINUX (only handsim) 
+// LINUX (only handsim) 
 supported_distros.each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
@@ -128,8 +128,10 @@ supported_distros.each { distro ->
     {
       parameters
       {
-        stringParam('INSTALLED_BUNDLE','','Bundle zip filename to be installed in the system. It is used as base to simulate an update on top of it')
-        stringParam('UPDATE_BUNDLE','','Bundle zip filename which will update INSTALLED_BUNDLE in the system')
+        stringParam('INSTALLED_BUNDLE','',
+          'Bundle zip filename to be installed in the system. It is used as base to simulate an update on top of it')
+        stringParam('UPDATE_BUNDLE','',
+          'Bundle zip filename which will update INSTALLED_BUNDLE in the system')
       }
 
       steps
