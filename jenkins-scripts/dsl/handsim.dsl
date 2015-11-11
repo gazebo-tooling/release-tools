@@ -168,4 +168,16 @@ build_pkg_job.with
             /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-no-ros-debbuild.bash
             """.stripIndent())
     }
+
+    publishers 
+    {
+      downstreamParameterized {
+        trigger('handsim-install-pkg-trusty-amd64') {
+	  condition('SUCCESS')
+	  parameters {
+	    currentBuild()
+	  }
+	}
+      }
+    }
 }
