@@ -1,6 +1,8 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
+def ci_distro = 'trusty'
+
 def supported_distros = [ 'trusty' ]
 def supported_arches = [ 'amd64' ]
 
@@ -37,9 +39,37 @@ bundler_job.with
 handsim_packages.each { pkg ->
 
   def pkg_name = "${pkg}"
+
   if (${pkg_name} = "haptix-comm")
   {
     pkg_name = "haptix_comm"
+  }
+
+  // --------------------------------------------------------------
+  // debbuilder jobs
+  def build_pkg_job = job("${pkg_name}-debbuilder")
+  OSRFLinuxBuildPkg.create(build_pkg_job)
+  build_pkg_job.with
+  {
+    steps {
+      shell("""\
+            #!/bin/bash -xe
+
+            /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-no-ros-debbuild.bash
+            """.stripIndent())
+    }
+
+    publishers 
+    {
+      downstreamParameterized {
+        trigger("${pkg_name}-install-pkg-${ci_distro}-amd64") {
+          condition('SUCCESS')
+          parameters {
+            currentBuild()
+          }
+        }
+      }
+    }
   }
 
   supported_distros.each { distro ->
@@ -154,36 +184,6 @@ supported_distros.each { distro ->
 
               /bin/bash -x ./scripts/jenkins-scripts/docker/handsim-install_offline_bundle-test-job.bash
               """.stripIndent())
-      }
-    }
-  }
-}
-
-// --------------------------------------------------------------
-// DEBBUILDER
-def build_pkg_job = job("handsim-debbuilder")
-
-// Use the linux install as base
-OSRFLinuxBuildPkg.create(build_pkg_job)
-
-build_pkg_job.with
-{
-  steps {
-    shell("""\
-          #!/bin/bash -xe
-
-          /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-no-ros-debbuild.bash
-          """.stripIndent())
-  }
-
-  publishers 
-  {
-    downstreamParameterized {
-      trigger('handsim-install-pkg-trusty-amd64') {
-        condition('SUCCESS')
-        parameters {
-          currentBuild()
-        }
       }
     }
   }
