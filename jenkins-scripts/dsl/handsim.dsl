@@ -351,9 +351,9 @@ haptix_any_sdk_builder.with
   {
       systemGroovyCommand("""\
           build.setDescription(
-           'ign_transport: ' +
+           '<b>ign_transport:</b> ' +
               build.buildVariableResolver.resolve('IGN_TRANSPORT_BRANCH') +'<br/>' + 
-           'haptix-comm: ' +
+           '<b>haptix-comm:</b> ' +
               build.buildVariableResolver.resolve('HAPTIX_COMM_BRANCH') + '<br /><br />' +
            'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
           """.stripIndent()
