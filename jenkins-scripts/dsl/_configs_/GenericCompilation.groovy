@@ -35,11 +35,6 @@ class GenericCompilation
 
         publishers
         {
-           // remove the existing 'extendedEmail' element
-           configure { project ->
-                project.remove(project / publishers << 'hudson.plugins.emailext.ExtendedEmailPublisher')
-           }
-
            // junit plugin is not implemented. Use configure for it
            configure { project ->
               project / publishers << 'hudson.tasks.junit.JUnitResultArchiver' {

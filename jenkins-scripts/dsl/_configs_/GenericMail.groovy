@@ -15,6 +15,11 @@ class GenericMail
       {
         publishers
         {
+           // remove the existing 'extendedEmail' element
+           configure { project ->
+                project.remove(project / publishers << 'hudson.plugins.emailext.ExtendedEmailPublisher')
+           }
+
           extendedEmail(Globals.get_emails(),
                         subject,
                         content)
