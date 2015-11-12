@@ -63,8 +63,11 @@ if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo # BEGIN SECTION: run tests
   REM Need to find a way of running test from the standard make test (not working)
   REM It is not working because test/ directory exists
+  ctest --force-new-ctest-process -VV  || echo "tests failed"
   dir
-  ctest -C "%BUILD_TYPE%"" --verbose --extra-verbose --force-new-ctest-process -VV  || echo "tests failed"
+  move test\ testt\ || true
+  nmake test || true
+  ctest -C "%BUILD_TYPE%" --verbose --extra-verbose --force-new-ctest-process -VV  || echo "tests failed"
   echo # END SECTION
   
   echo # BEGIN SECTION: export testing results
