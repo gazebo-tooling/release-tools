@@ -55,15 +55,15 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
       }
 
       parameters {
-        textParam("PACKAGE",null,"Package name to be built")
-        textParam("VERSION",null,"Packages version to be built")
-        textParam("RELEASE_VERSION", null, "Packages release version")
-        textParam("DISTRO", null, "Ubuntu distribution to build packages for")
-        textParam("ARCH", null, "Architecture to build packages for")
-        textParam("SOURCE_TARBALL_URI", null, "URL to the tarball containing the package sources")
-        textParam("RELEASE_REPO_BRANCH", null, "Branch from the -release repo to be used")
-        textParam("PACKAGE_ALIAS", null, "If not empty, package name to be used instead of PACKAGE")
-        textParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to")
+        stringParam("PACKAGE",null,"Package name to be built")
+        stringParam("VERSION",null,"Packages version to be built")
+        stringParam("RELEASE_VERSION", null, "Packages release version")
+        stringParam("DISTRO", null, "Ubuntu distribution to build packages for")
+        stringParam("ARCH", null, "Architecture to build packages for")
+        stringParam("SOURCE_TARBALL_URI", null, "URL to the tarball containing the package sources")
+        stringParam("RELEASE_REPO_BRANCH", null, "Branch from the -release repo to be used")
+        stringParam("PACKAGE_ALIAS", null, "If not empty, package name to be used instead of PACKAGE")
+        stringParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to")
       }
 
       steps {

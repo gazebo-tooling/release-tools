@@ -23,6 +23,8 @@ class GenericCompilation
      ${FAILED_TESTS}
      '''.stripIndent()
 
+     GenericMail.include_mail(job, '$DEFAULT_SUBJECT' , mail_content)
+
      job.with
      {
         priority 100
@@ -33,36 +35,6 @@ class GenericCompilation
 
         publishers
         {
-           // remove the existing 'extendedEmail' element
-           configure { project ->
-                project.remove(project / publishers << 'hudson.plugins.emailext.ExtendedEmailPublisher')
-           }
-
-           // special content with testing failures
-           extendedEmail('$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org',
-                         '$DEFAULT_SUBJECT',
-                          mail_content)
-           {
-              trigger(triggerName: 'Failure',
-                      subject: null, body: null, recipientList: null,
-                      sendToDevelopers: true,
-                      sendToRequester: true,
-                      includeCulprits: false,
-                      sendToRecipientList: true)
-              trigger(triggerName: 'Unstable',
-                      subject: null, body: null, recipientList: null,
-                      sendToDevelopers: true,
-                      sendToRequester: true,
-                      includeCulprits: false,
-                      sendToRecipientList: true)
-              trigger(triggerName: 'Fixed',
-                      subject: null, body: null, recipientList: null,
-                      sendToDevelopers: true,
-                      sendToRequester: true,
-                      includeCulprits: false,
-                      sendToRecipientList: true)
-           }
-
            // junit plugin is not implemented. Use configure for it
            configure { project ->
               project / publishers << 'hudson.tasks.junit.JUnitResultArchiver' {
@@ -70,7 +42,7 @@ class GenericCompilation
                    keepLongStdio false
                    testDataPublishers()
               }
-           }
+          }
         } // end of publishers
       } // end of job
    } // end of create
