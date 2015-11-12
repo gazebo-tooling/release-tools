@@ -9,7 +9,7 @@ class GenericMail
       include_mail(job,'$DEFAULT_SUBJECT','$DEFAULT_CONTENT')
     }
 
-    static void include_mail(Job job, String subject, String Content)
+    static void include_mail(Job job, String subject, String content)
     {
       job.with
       {
