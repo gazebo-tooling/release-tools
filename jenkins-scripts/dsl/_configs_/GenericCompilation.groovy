@@ -23,6 +23,8 @@ class GenericCompilation
      ${FAILED_TESTS}
      '''.stripIndent()
 
+     GenericMail.include_mail(job, '$DEFAULT_SUBJECT' , mail_content)
+
      job.with
      {
         priority 100
@@ -38,45 +40,6 @@ class GenericCompilation
                 project.remove(project / publishers << 'hudson.plugins.emailext.ExtendedEmailPublisher')
            }
 
-           // special content with testing failures
-           extendedEmail('$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org',
-                         '$DEFAULT_SUBJECT',
-                          mail_content)
-           {
-              trigger(triggerName: 'Failure',
-                      subject: null, body: null, recipientList: null,
-                      sendToDevelopers: true,
-                      sendToRequester: true,
-                      includeCulprits: false,
-                      sendToRecipientList: true)
-              trigger(triggerName: 'Unstable',
-                      subject: null, body: null, recipientList: null,
-                      sendToDevelopers: true,
-                      sendToRequester: true,
-                      includeCulprits: false,
-                      sendToRecipientList: true)
-              trigger(triggerName: 'Fixed',
-                      subject: null, body: null, recipientList: null,
-                      sendToDevelopers: true,
-                      sendToRequester: true,
-                      includeCulprits: false,
-                      sendToRecipientList: true)
-            
-              // TODO: this is copied from OSRFBase. Find a better way of doing
-              // this without duplicate the code here.
-              configure { node ->
-                node / presendScript << """                
-                  boolean no_mail = build.getEnvVars()['NO_MAILS'].toBoolean()
-
-                  if (no_mail)
-                  {
-                    logger.println("NO_MAILS parameter enable. Not sending mails! ")
-                    cancel = true;
-                  }
-                  """.stripIndent()
-               }
-           }
-
            // junit plugin is not implemented. Use configure for it
            configure { project ->
               project / publishers << 'hudson.tasks.junit.JUnitResultArchiver' {
@@ -84,7 +47,7 @@ class GenericCompilation
                    keepLongStdio false
                    testDataPublishers()
               }
-           }
+          }
         } // end of publishers
       } // end of job
    } // end of create
