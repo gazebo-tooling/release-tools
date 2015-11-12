@@ -160,9 +160,45 @@ supported_distros.each { distro ->
        }
     }
 
+    // --------------------------------------------------------------
+    // 2. multiany test  
+    def handsim_multiany_job = job("handsim-ci-ign_any+haptix_any-${distro}-${arch}")
+    OSRFLinuxCompilation.create(handsim_multiany_job)
+
+    handsim_multiany_job.with
+    {
+      label "gpu-reliable-${distro}"
+
+      paremeters {
+        stringParam('HANDSIM_BRANCH','default','handsim branch to use')
+        stringParam('IGN_BRANCH','default','ignition transport branch to use')
+        stringParam('HAPTIX_BRANCH','default','haptix branch to use')
+      }
+
+      steps
+      {
+         systemGroovyCommand("""\
+            job_description = 
+                   'handsim: ' + 
+                     build.buildVariableResolver.resolve('HANDSIM_BRANCH') + '</b>' +
+                   'haptix-comm: ' + 
+                     build.buildVariableResolver.resolve('HAPTIX_BRANCH') + '<br />' +
+                   'ign-transport: ' + 
+                     build.buildVariableResolver.resolve('IGN_BRANCH') + '<br /><br />' +
+                   'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH')
+            build.setDescription(job_description)
+          """.stripIndent()
+         )
+
+         shell("""#!/bin/bash -xe
+
+              /bin/bash -x ./scripts/jenkins-scripts/docker/handsim-multiany-devel-trusty-amd64.bash
+              """.stripIndent())
+      }
+    }
 
     // --------------------------------------------------------------
-    // 2. Offline tester
+    // 3. Offline tester
     def unbundler_job = job("handsim-install-offline_bundler-${distro}-${arch}")
 
     // Use the linux install as base
