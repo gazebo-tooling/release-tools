@@ -272,6 +272,8 @@ class OSRFWinHaptixSDK
 {
   static void create(Job job)
   {
+    OSRFWinBase.create(job)
+
     job.with
     {
       steps 
