@@ -6,6 +6,8 @@ def ci_distro = 'trusty'
 def supported_distros = [ 'trusty' ]
 def supported_arches = [ 'amd64' ]
 
+def supported_arches_windows = [ 'amd64', 'i386' ]
+
 def handsim_packages = [ 'handsim', 'haptix-comm' ]
 
 // --------------------------------------------------------------
@@ -270,7 +272,7 @@ haptix_win_ci_job.with
 
 class OSRFWinHaptixSDK
 {
-  static void create(Job job)
+  static void create(Job job, String arch = 'amd64')
   {
     OSRFWinBase.create(job)
 
@@ -279,7 +281,7 @@ class OSRFWinHaptixSDK
       steps 
       {
         batchFile("""\
-            call "./scripts/jenkins-scripts/haptix_comm-sdk-debbuilder-amd64.bat"
+            call "./scripts/jenkins-scripts/haptix_comm-sdk-debbuilder-${arch}.bat"
             """.stripIndent())      
       }
    
@@ -300,40 +302,43 @@ class OSRFWinHaptixSDK
   }
 }
 
-// --------------------------------------------------------------
-// 3. Haptix-comm SDK builder
-def haptix_sdk_builder = job("haptix_comm-sdk-builder-windows7-amd64")
-OSRFWinHaptixSDK.create(haptix_sdk_builder)
+supported_arches_windows.each { arch ->
+  // --------------------------------------------------------------
+  // 3. Haptix-comm SDK builder
+  def haptix_sdk_builder = job("haptix_comm-sdk-builder-windows7-${arch}")
+  OSRFWinHaptixSDK.create(haptix_sdk_builder, "${arch}")
 
-haptix_sdk_builder.with
-{
-  steps {
-      systemGroovyCommand("""\
-          build.setDescription(
-           'sdk 64bits windows7 </b></b>' +
-           'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
-          """.stripIndent()
-        )
-  }
-
-  publishers
+  haptix_sdk_builder.with
   {
-    downstreamParameterized {
-      trigger('repository_uploader_ng') {
-        condition('SUCCESS')
-        parameters {
-          currentBuild()
-          predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-          predefinedProp("S3_UPLOAD_PATH", "haptix")
-          predefinedProp("UPLOAD_TO_REPO", "stable")
-          predefinedProp("PACKAGE_ALIAS" , "handsim-sdk")
-          predefinedProp("DISTRO",         "win7")
-          predefinedProp("ARCH",           "amd64")
+    steps {
+        systemGroovyCommand("""\
+            build.setDescription(
+             'sdk ${arch} windows7 </b></b>' +
+             'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+            """.stripIndent()
+          )
+    }
+
+    publishers
+    {
+      downstreamParameterized {
+        trigger('repository_uploader_ng') {
+          condition('SUCCESS')
+          parameters {
+            currentBuild()
+            predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+            predefinedProp("S3_UPLOAD_PATH", "haptix")
+            predefinedProp("UPLOAD_TO_REPO", "stable")
+            predefinedProp("PACKAGE_ALIAS" , "handsim-sdk")
+            predefinedProp("DISTRO",         "win7")
+            predefinedProp("ARCH",           "${arch}")
+          }
         }
       }
     }
   }
 }
+
 
 // 3. Haptix-comm ANY SDK builder
 def haptix_any_sdk_builder = job("haptix_comm-sdk+ign_any+haptix_any-builder-windows7-amd64")
