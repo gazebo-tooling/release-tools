@@ -169,7 +169,7 @@ supported_distros.each { distro ->
     {
       label "gpu-reliable-${distro}"
 
-      paremeters {
+      parameters {
         stringParam('HANDSIM_BRANCH','default','handsim branch to use')
         stringParam('IGN_BRANCH','default','ignition transport branch to use')
         stringParam('HAPTIX_BRANCH','default','haptix branch to use')
