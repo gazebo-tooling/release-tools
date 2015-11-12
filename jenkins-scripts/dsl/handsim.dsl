@@ -211,7 +211,7 @@ OSRFWinCompilation.create(haptix_win_ci_job)
 haptix_win_ci_job.with
 {
     scm {
-      hg("http://bitbucket.org/osrf/hpatix-comm") {
+      hg("http://bitbucket.org/osrf/haptix-comm") {
         branch('default')
         // in win use ign-math to match OSRFWinCompilationAny mechanism
         subdirectory("haptix-comm")
