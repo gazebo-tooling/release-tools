@@ -228,7 +228,8 @@ supported_distros.each { distro ->
 // --------------------------------------------------------------
 // WINDOWS
 
-// 1. any for haptix
+// --------------------------------------------------------------
+// 1. Windows any for haptix
 def haptix_win_ci_any_job = job("haptix_comm-ci-pr_any-windows7-amd64")
 OSRFWinCompilationAny.create(haptix_win_ci_any_job,
                               "http://bitbucket.org/osrf/haptix-comm")
@@ -241,6 +242,8 @@ haptix_win_ci_any_job.with
     }
 }
 
+// --------------------------------------------------------------
+// 2. Windows default for haptix
 def haptix_win_ci_job = job("haptix_comm-ci-default-windows7-amd64")
 OSRFWinCompilation.create(haptix_win_ci_job)
 
@@ -263,4 +266,92 @@ haptix_win_ci_job.with
             call "./scripts/jenkins-scripts/haptix_comm-default-devel-windows-amd64.bat"
             """.stripIndent())
     }
+}
+
+class OSRFWinHaptixSDK
+{
+  static void create(Job job)
+  {
+    steps 
+    {
+      batchFile("""\
+          call "./scripts/jenkins-scripts/haptix_comm-sdk-debbuilder-amd64.bat"
+          """.stripIndent())      
+    }
+ 
+    publishers
+    {
+      archiveArtifacts('pkgs/*.zip')
+
+      // Added the lintian parser
+      configure { project ->
+         project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+            unstableOnWarning true
+            failBuildOnError true
+            parsingRulesPath('/var/lib/jenkins/logparser_warn_on_windows_errors')
+         }
+      }
+    }
+  }
+}
+
+// --------------------------------------------------------------
+// 3. Haptix-comm SDK builder
+def haptix_sdk_builder = job("haptix_comm-sdk-builder-windows7-amd64")
+OSRFWinHaptixSDK.create(haptix_sdk_builder)
+
+haptix_sdk_builder.with
+{
+  steps {
+      systemGroovyCommand("""\
+          build.setDescription(
+           'sdk 64bits windows7 </b></b>' +
+           'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+          """.stripIndent()
+        )
+  }
+
+  publishers
+  {
+    downstreamParameterized {
+      trigger('repository_uploader_ng') {
+        condition('SUCCESS')
+        parameters {
+          currentBuild()
+          predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+          predefinedProp("S3_UPLOAD_PATH", "haptix")
+          predefinedProp("UPLOAD_TO_REPO", "stable")
+          predefinedProp("PACKAGE_ALIAS" , "handsim-sdk")
+          predefinedProp("DISTRO",         "win7")
+          predefinedProp("ARCH",           "amd64")
+        }
+      }
+    }
+  }
+}
+
+// 3. Haptix-comm ANY SDK builder
+def haptix_any_sdk_builder = job("haptix_comm-sdk+ign_any+haptix_any-builder-windows7-amd64")
+OSRFWinHaptixSDK.create(haptix_any_sdk_builder)
+
+haptix_any_sdk_builder.with
+{
+  parameters
+  {
+    stringParam('IGN_TRANSPORT_BRANCH', 'default', 'ignition transport branch to use')
+    stringParam('HAPTIX_COMM_BRANCH', 'default', 'ignition transport branch to use')
+  }
+
+  steps 
+  {
+      systemGroovyCommand("""\
+          build.setDescription(
+           'ign_transport: ' +
+              build.buildVariableResolver.resolve('IGN_TRANSPORT_BRANCH') + <br/> + 
+           'haptix-comm: ' +
+              build.buildVariableResolver.resolve('HAPTIX_COMM_BRANCH') + <br /><br />' +
+           'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+          """.stripIndent()
+        )
+  }
 }
