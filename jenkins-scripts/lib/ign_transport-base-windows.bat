@@ -62,9 +62,10 @@ set TEST_RESULT_PATH=%WORKSPACE%\test_results
 if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo # BEGIN SECTION: run tests
   REM Need to find a way of running test from the standard make test (not working)
-  type CMakeCache.txt || true
+  echo "Moving test directory"
+  move test/ testt/
   nmake test ARGS="-VV"|| true
-  ctest -C "%BUILD_TYPE%"" --verbose --extra-verbose ARGS="-VV" || echo "tests failed"
+  ARGS="-VV" ctest -C "%BUILD_TYPE%"" --verbose --extra-verbose || echo "tests failed"
   echo # END SECTION
   
   echo # BEGIN SECTION: export testing results
