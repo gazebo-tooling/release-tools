@@ -272,24 +272,27 @@ class OSRFWinHaptixSDK
 {
   static void create(Job job)
   {
-    steps 
+    job.with
     {
-      batchFile("""\
-          call "./scripts/jenkins-scripts/haptix_comm-sdk-debbuilder-amd64.bat"
-          """.stripIndent())      
-    }
- 
-    publishers
-    {
-      archiveArtifacts('pkgs/*.zip')
+      steps 
+      {
+        batchFile("""\
+            call "./scripts/jenkins-scripts/haptix_comm-sdk-debbuilder-amd64.bat"
+            """.stripIndent())      
+      }
+   
+      publishers
+      {
+        archiveArtifacts('pkgs/*.zip')
 
-      // Added the lintian parser
-      configure { project ->
-         project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
-            unstableOnWarning true
-            failBuildOnError true
-            parsingRulesPath('/var/lib/jenkins/logparser_warn_on_windows_errors')
-         }
+        // Added the lintian parser
+        configure { project ->
+           project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+              unstableOnWarning true
+              failBuildOnError true
+              parsingRulesPath('/var/lib/jenkins/logparser_warn_on_windows_errors')
+           }
+        }
       }
     }
   }
