@@ -61,14 +61,17 @@ set TEST_RESULT_PATH=%WORKSPACE%\test_results
 
 if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo # BEGIN SECTION: run tests
-  REM Need to find a way of running test from the standard make test (not working)
-  ctest -C "%BUILD_TYPE%"" --verbose --extra-verbose || echo "tests failed"
+  REM nmake test is not working test/ directory exists and nmake is not
+  REM able to handle it.
+  ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV  || echo "tests failed"
   echo # END SECTION
   
   echo # BEGIN SECTION: export testing results
-  echo "Path to remove: %TEST_RESULT_PATH%"
+  set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
+  if exist %TEST_RESULT_PATH_LEGACY% ( rmdir /q /s %TEST_RESULT_PATH_LEGACY% )
   rmdir /q /s %TEST_RESULT_PATH% || echo "TEST_RESULT_PATH did not exists, that's fine"
   xcopy test_results %TEST_RESULT_PATH% /s /i /e || goto :error
+  xcopy %TEST_RESULT_PATH% %TEST_RESULT_PATH_LEGACY% /s /e /i
   echo # END SECTION
 )
 

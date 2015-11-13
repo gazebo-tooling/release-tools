@@ -80,9 +80,10 @@ nmake install || goto %win_lib% :error
 echo # END SECTION
 
 echo # BEGIN SECTION: running tests
-REM Need to find a way of running test from the standard make test (not working)
 cd %WORKSPACE%\workspace\haptix-comm\build
-ctest -C "%BUILD_TYPE%" --verbose --extra-verbose || echo "test failed"
+REM nmake test is not working test/ directory exists and nmake is not
+REM able to handle it.
+ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV  || echo "tests failed"
 echo # END SECTION
 
 echo # BEGIN SECTION: export testing results
