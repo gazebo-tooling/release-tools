@@ -100,7 +100,8 @@ handsim_packages.each { pkg ->
           }
 
           steps {
-            shell("""#!/bin/bash -xe
+            shell("""\
+                  #!/bin/bash -xe
 
                   export DISTRO=${distro}
                   export ARCH=${arch}
@@ -148,16 +149,19 @@ supported_distros.each { distro ->
 
     install_default_job.with
     {
+       label "gpu-reliable-${distro}"
+
        triggers {
           cron('@daily')
        }
 
         steps {
-          shell("""#!/bin/bash -xe
+          shell("""\
+                #!/bin/bash -xe
 
                 export INSTALL_JOB_PKG=handsim
                 export INSTALL_JOB_REPOS=stable
-                /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+                /bin/bash -x ./scripts/jenkins-scripts/docker/handsim-install-test-job.bash
                 """.stripIndent())
        }
     }
@@ -218,7 +222,8 @@ supported_distros.each { distro ->
 
       steps
       {
-        shell("""#!/bin/bash -xe
+        shell("""\
+              #!/bin/bash -xe
 
               /bin/bash -x ./scripts/jenkins-scripts/docker/handsim-install_offline_bundle-test-job.bash
               """.stripIndent())
