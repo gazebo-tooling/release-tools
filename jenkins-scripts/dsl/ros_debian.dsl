@@ -7,7 +7,7 @@ supported_arches = [ 'amd64' ]
 ros_debian_supported_distros = [ ubuntu : ["trusty"],            
                                      debian : [ "jessie","sid"] ]
 
-supported_arches { arch -> 
+supported_arches.each { arch -> 
   ros_debian_supported_distros.each { linux, distros ->
       distros.each { distro ->
         def ci_job = job("ros_debian_science-ci-default-${distro}-${arch}")
