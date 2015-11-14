@@ -7,10 +7,8 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 export GPU_SUPPORT_NEEDED=true
 
 # Both empty, the one line script should handle all the stuff
-export INSTALL_JOB_PKG=""
-export INSTALL_JOB_REPOS=""
-
-INSTALL_JOB_PREINSTALL_HOOK=""
+export INSTALL_JOB_PKG="handsim"
+export INSTALL_JOB_REPOS="stable"
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: test the script'
