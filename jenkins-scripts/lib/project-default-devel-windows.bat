@@ -14,6 +14,8 @@
 ::   - run tests
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
+set TEST_RESULT_PATH=%WORKSPACE%\test_results
+set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
 
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
 
@@ -87,8 +89,6 @@ ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV  || echo "tests failed"
 echo # END SECTION
 
 echo # BEGIN SECTION: export testing results
-set TEST_RESULT_PATH=%WORKSPACE%\test_results
-set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
 if exist %TEST_RESULT_PATH% ( rmdir /q /s %TEST_RESULT_PATH% )
 if exist %TEST_RESULT_PATH_LEGACY% ( rmdir /q /s %TEST_RESULT_PATH_LEGACY% )
 mkdir %WORKSPACE%\build\
