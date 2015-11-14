@@ -3,8 +3,8 @@ import javaposse.jobdsl.dsl.Job
 
 
 Globals.default_emails = "jrivero@osrfoundation.org, leo@alaxarxa.net, jochen@sprickerhof.de"
-def supported_arches = [ 'amd64' ]
-def ros_debian_supported_distros = [ ubuntu : ["trusty"],            
+supported_arches = [ 'amd64' ]
+ros_debian_supported_distros = [ ubuntu : ["trusty"],            
                                      debian : [ "jessie","sid"] ]
 
 supported_arches { arch -> 
