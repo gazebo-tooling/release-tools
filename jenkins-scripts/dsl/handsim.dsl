@@ -100,7 +100,8 @@ handsim_packages.each { pkg ->
           }
 
           steps {
-            shell("""#!/bin/bash -xe
+            shell("""\
+                  #!/bin/bash -xe
 
                   export DISTRO=${distro}
                   export ARCH=${arch}
