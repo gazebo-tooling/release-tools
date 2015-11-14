@@ -149,6 +149,8 @@ supported_distros.each { distro ->
 
     install_default_job.with
     {
+       label "gpu-reliable-${distro}"
+
        triggers {
           cron('@daily')
        }
