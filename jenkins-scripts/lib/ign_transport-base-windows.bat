@@ -1,5 +1,9 @@
 :echo on
 
+:: Keep this variables at the top to avoid problems with
+:: expansions inside loops or ifs
+set TEST_RESULT_PATH="%WORKSPACE%\test_results"
+set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
 :: Call vcvarsall and all the friends
@@ -66,12 +70,7 @@ if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo # END SECTION
   
   echo # BEGIN SECTION: export testing results
-  set TEST_RESULT_PATH="%WORKSPACE%\test_results"
-  set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
-  echo "PATH: %TEST_RESULT_PATH%"
   rmdir /q /s %TEST_RESULT_PATH%
-  rmdir /q /s "%WORKSPACE%\test_results"
-  set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
   if exist %TEST_RESULT_PATH_LEGACY% ( rmdir /q /s %TEST_RESULT_PATH_LEGACY% )
   mkdir %WORKSPACE%\build\
   xcopy test_results %TEST_RESULT_PATH% /s /i /e || goto :error
