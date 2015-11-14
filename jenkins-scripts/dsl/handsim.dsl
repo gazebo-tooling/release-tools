@@ -157,7 +157,7 @@ supported_distros.each { distro ->
 
                 export INSTALL_JOB_PKG=handsim
                 export INSTALL_JOB_REPOS=stable
-                /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+                /bin/bash -x ./scripts/jenkins-scripts/docker/handsim-install-test-job.bash
                 """.stripIndent())
        }
     }
