@@ -219,7 +219,8 @@ supported_distros.each { distro ->
 
       steps
       {
-        shell("""#!/bin/bash -xe
+        shell("""\
+              #!/bin/bash -xe
 
               /bin/bash -x ./scripts/jenkins-scripts/docker/handsim-install_offline_bundle-test-job.bash
               """.stripIndent())
