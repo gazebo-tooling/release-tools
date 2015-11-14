@@ -153,7 +153,8 @@ supported_distros.each { distro ->
        }
 
         steps {
-          shell("""#!/bin/bash -xe
+          shell("""\
+                #!/bin/bash -xe
 
                 export INSTALL_JOB_PKG=handsim
                 export INSTALL_JOB_REPOS=stable
