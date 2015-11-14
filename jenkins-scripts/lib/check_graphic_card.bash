@@ -28,7 +28,7 @@ if [ -n "$(lspci -v | grep nvidia | head -n 2 | grep "Kernel driver in use: nvid
     if [ -z "${GRAPHIC_CARD_PKG}" ]; then
         # Trusty does not support the previous method. Fallback to use
 	# installed package for GRAPHIC_CARD_PKG
-	export GRAPHIC_CARD_PKG=$(dpkg -l | egrep "^ii[[:space:]]* nvidia-[0-9]{3} " | awk '{ print $2 }')
+	export GRAPHIC_CARD_PKG=$(dpkg -l | egrep "^ii[[:space:]]* nvidia-[0-9]{3} " | awk '{ print $2 }' | tail -1)
         if [ -z "${GRAPHIC_CARD_PKG}" ]; then
 	  echo "Nvidia support found but not the module in use"
 	  exit 1

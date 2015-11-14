@@ -26,6 +26,25 @@ case $REPO_TO_USE in
 	;;
 esac
 
+# No SDFORMAT_PKG declared, check latest
+# Another alternative is try to get the latest package available, but it 
+# becomes no sensible to which code branch we are testing:
+# apt-cache search sdformat | grep 'libsdformat.*-dev ' | tail  -1 |  awk '{ print $1 }' 
+if [[ -z ${SDFORMAT_PKG} ]]; then
+    # Identify SDFORMAT_MAJOR_VERSION to help with dependency resolution
+    SDFORMAT_MAJOR_VERSION=`\
+      grep 'set.*SDF_MAJOR_VERSION ' ${WORKSPACE}/sdformat/CMakeLists.txt | \
+      tr -d 'a-zA-Z _()'`
+
+    # Check sdformat version is integer
+    if ! [[ ${SDFORMAT_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+       echo "Error! SDFORMAT_MAJOR_VERSION is not an integer, check the detection"
+       exit -1
+    fi
+
+  SDFORMAT_PKG=libsdformat${SDFORMAT_MAJOR_VERSION}-dev
+fi
+
 
 cat > build.sh << DELIM
 ###################################################
@@ -40,8 +59,7 @@ wget ${REPO_KEY} -O - | apt-key add -
 apt-get update
 
 # Checkout latest libsdformatX-dev package
-SDFORMAT_PKG=\$(apt-cache search sdformat | grep 'libsdformat*-dev\ ' | awk '{ print \$1 }')
-apt-get install -y ${BASE_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES} \${SDFORMAT_PKG} git exuberant-ctags 
+apt-get install -y ${BASE_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES} ${SDFORMAT_PKG} git exuberant-ctags
 
 # Step 2: configure and build
 rm -rf $WORKSPACE/build
@@ -60,11 +78,14 @@ git clone git://github.com/lvc/abi-compliance-checker.git
 cd abi-compliance-checker
 perl Makefile.pl -install --prefix=/usr
 
-BIN_VERSION=\$(dpkg -l \${SDFORMAT_PKG} | tail -n 1 | awk '{ print  \$3 }')
+BIN_VERSION=\$(dpkg -l ${SDFORMAT_PKG} | tail -n 1 | awk '{ print  \$3 }')
 
 mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker
 cat > pkg.xml << CURRENT_DELIM
+<gcc_options>
+     /* Additional GCC options, one per line */
+ </gcc_options>
  <version>
      .deb pkg version: \$BIN_VERSION
  </version>
@@ -76,6 +97,11 @@ cat > pkg.xml << CURRENT_DELIM
  <libs>
     /usr/lib/
  </libs>
+
+ <gcc_options>
+     -std=c++11
+ </gcc_options>
+
 CURRENT_DELIM
 
 cat > devel.xml << DEVEL_DELIM
@@ -90,6 +116,10 @@ cat > devel.xml << DEVEL_DELIM
  <libs>
     /usr/local/lib/
  </libs>
+
+ <gcc_options>
+     -std=c++11
+ </gcc_options>
 DEVEL_DELIM
 
 rm -fr compat_reports/ 

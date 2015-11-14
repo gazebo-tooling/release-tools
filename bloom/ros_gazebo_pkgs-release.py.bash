@@ -4,7 +4,7 @@
 # 
 
 if [[ $# -lt 2 ]]; then
-    echo "ros_gazebo_pkgs-release 'same arguments than release.py (except no package names)'"
+    echo "ros_gazebo_pkgs-release <version <release_repo> <token> 'other arguments used in release.py'"
     exit 1
 fi
 

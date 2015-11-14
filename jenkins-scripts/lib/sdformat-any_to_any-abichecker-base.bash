@@ -20,7 +20,7 @@ apt-get install -y wget
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 apt-get update
-apt-get install -y ${BASE_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES} sdformat git exuberant-ctags mercurial ca-certificates
+apt-get install -y ${BASE_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES} git exuberant-ctags mercurial ca-certificates
 
 # Step 2: configure and build
 
@@ -89,6 +89,10 @@ cat > devel.xml << DEVEL_DELIM
  <libs>
    /usr/local/target_branch/lib/
  </libs>
+
+ <gcc_options>
+     -std=c++11
+ </gcc_options>
 DEVEL_DELIM
 
 # clean previous reports

@@ -11,6 +11,8 @@ else
     GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
 fi
 
+[ -z ${COVERAGE_ENABLED} ] && COVERAGE_ENABLED=false
+
 # Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
 GAZEBO_MAJOR_VERSION=`\
   grep 'set.*GAZEBO_MAJOR_VERSION ' ${WORKSPACE}/gazebo/CMakeLists.txt | \
@@ -24,15 +26,31 @@ fi
 
 echo '# BEGIN SECTION: setup the testing enviroment'
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+
+if ${COVERAGE_ENABLED} ; then
+  # Workaround on problem with setting HOME to /var/lib/jenkins
+  if [[ -f $HOME/bullseye-jenkins-license ]]; then
+      LICENSE_FILE="$HOME/bullseye-jenkins-license"
+  else
+      LICENSE_FILE="/var/lib/jenkins/bullseye-jenkins-license"
+  fi
+
+  set +x # keep password secret
+  BULLSEYE_LICENSE=`cat $LICENSE_FILE`
+  set -x # back to debug
+fi
 echo '# END SECTION'
 
 cat > build.sh << DELIM
+#!/bin/bash
 ###################################################
 # Make project-specific changes here
 #
 set -ex
+source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
 
 echo '# BEGIN SECTION: install dependencies'
+init_stopwatch INSTALL_DEPENDENCIES
 # OSRF repository to get bullet
 apt-get install -y wget
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
@@ -73,6 +91,38 @@ if ${GRAPHIC_CARD_FOUND}; then
        exit 1
     fi
 fi
+
+
+if ${COVERAGE_ENABLED} ; then
+  # Clean previous content
+  rm -fr $WORKSPACE/coverage
+  # Download and install Bullseyes
+  cd $WORKSPACE
+  rm -fr $WORKSPACE/Bulls*
+  
+  # Look for current version. NOT IN USE since we lost the maintenance support on 2014 
+  # reenable if the support is back.
+  # wget http://www.bullseye.com/download/ -O bull_index.html
+  # BULL_TAR=\$( grep -R BullseyeCoverage-.*-Linux-x64.tar bull_index.html | head -n 1 | sed 's/.*">//' | sed 's/<.*//' )
+  # wget http://www.bullseye.com/download/\$BULL_TAR -O bullseye.tar
+
+  # Download package
+  wget https://www.dropbox.com/s/i1ay7t8sg8i77jr/bullseye-8.8.9.tar -O bullseye.tar
+  tar -xf bullseye.tar
+  cd Bulls*
+  # Set up the license
+  echo $PATH >install-path
+  rm -fr /usr/bullseyes
+  set +x # keep password secret
+  ./install --prefix /usr/bullseyes --key $BULLSEYE_LICENSE
+  set -x # back to debug
+  # Set up Bullseyes for compiling
+  export PATH=/usr/bullseyes/bin:\$PATH
+  export COVFILE=$WORKSPACE/gazebo/test.cov
+  cd $WORKSPACE/gazebo
+  covselect --file test.cov --add .
+  cov01 --on
+fi
 echo '# END SECTION'
 
 # Step 2: configure and build
@@ -96,8 +146,12 @@ if $DART_COMPILE_FROM_SOURCE; then
   echo '# END SECTION'
 fi
 
+stop_stopwatch INSTALL_DEPENDENCIES
+stop_stopwatch CREATE_TESTING_ENVIROMENT
+
 # Normal cmake routine for Gazebo
 echo '# BEGIN SECTION: Gazebo configuration'
+init_stopwatch COMPILATION
 rm -rf $WORKSPACE/build $WORKSPACE/install
 mkdir -p $WORKSPACE/build $WORKSPACE/install
 cd $WORKSPACE/build
@@ -112,6 +166,7 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: Gazebo installation'
 make install
 . /usr/share/gazebo/setup.sh
+stop_stopwatch COMPILATION
 echo '# END SECTION'
 
 # Need to clean up from previous built
@@ -120,38 +175,67 @@ rm -fr $WORKSPACE/test_results
 
 # Run tests
 echo '# BEGIN SECTION: UNIT testing'
+init_stopwatch UNIT_TESTING
 make test ARGS="-VV -R UNIT_*" || true
+stop_stopwatch UNIT_TESTING
 echo '# END SECTION'
 echo '# BEGIN SECTION: INTEGRATION testing'
+init_stopwatch INTEGRATION_TESTING
 make test ARGS="-VV -R INTEGRATION_*" || true
+stop_stopwatch INTEGRATION_TESTING
 echo '# END SECTION'
 echo '# BEGIN SECTION: REGRESSION testing'
+init_stopwatch REGRESSION_TESTING
 make test ARGS="-VV -R REGRESSION_*" || true
+stop_stopwatch REGRESSION_TESTING
 echo '# END SECTION'
 echo '# BEGIN SECTION: EXAMPLE testing'
+init_stopwatch EXAMPLE_TESTING
 make test ARGS="-VV -R EXAMPLE_*" || true
+stop_stopwatch EXAMPLE_TESTING
 echo '# END SECTION'
 
 # Only run cppcheck on trusty
 if [ "$DISTRO" = "trusty" ]; then 
   echo '# BEGIN SECTION: running cppcheck'
+  init_stopwatch CPPCHECK
   # Step 3: code check
   cd $WORKSPACE/gazebo
   sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+  stop_stopwatch CPPCHECK
   echo '# END SECTION'
 else
   mkdir -p $WORKSPACE/build/cppcheck_results/
   echo "<results></results>" >> $WORKSPACE/build/cppcheck_results/empty.xml 
 fi
 
+# Step 4: generate code coverage if enabled
+if ${COVERAGE_ENABLED} ; then
+  rm -fr $WORKSPACE/coverage
+  rm -fr $WORKSPACE/bullshtml
+  mkdir -p $WORKSPACE/coverage
+  covselect --add '!$WORKSPACE/build/' '!../build/' '!test/' '!tools/test/' '!deps/' '!/opt/' '!gazebo/rendering/skyx/' '!/tmp/'
+  covhtml --srcdir $WORKSPACE/gazebo/ $WORKSPACE/coverage
+  # Generate valid cover.xml file using the bullshtml software
+  # java is needed to run bullshtml
+  apt-get install -y default-jre
+  cd $WORKSPACE
+  wget http://bullshtml.googlecode.com/files/bullshtml_1.0.5.tar.gz -O bullshtml.tar.gz
+  tar -xzf bullshtml.tar.gz
+  cd bullshtml
+  sh bullshtml .
+  # Hack to remove long paths from report
+  find . -name '*.html' -exec sed -i -e 's:${WORKSPACE}::g' {} \;
+fi
+
 echo '# BEGIN SECTION: clean build directory and export information'
-# Step 4: copy test log
+# Step 5: copy test log
 # Broken http://build.osrfoundation.org/job/gazebo-any-devel-precise-amd64-gpu-nvidia/6/console
 # Need fix
 # mkdir $WORKSPACE/logs
 # cp $HOME/.gazebo/logs/*.log $WORKSPACE/logs/
 
-# Step 5. Need to clean build/ directory so disk space is under control
+# Step 6. Need to clean build/ directory so disk space is under control
 # Move cppcheck and test results out of build
 # Copy the results
 mv $WORKSPACE/build/cppcheck_results $WORKSPACE/cppcheck_results
@@ -173,3 +257,4 @@ sudo pbuilder  --execute \
     --basetgz $basetgz \
     -- build.sh
 
+stop_stopwatch TOTAL_TIME

@@ -9,13 +9,20 @@ if [[ ${#} -lt 2 ]]; then
 fi
 
 export PACKAGE=${1}
+pkg_root_name=${PACKAGE%[[:digit:]]}
+
 export VERSION=${2}
 export RELEASE_VERSION=${3-1}
 export DISTRO=${4-precise}
 export ARCH=${5-amd64}
 export RELEASE_REPO_BRANCH=${7-default}
+if [[ $PACKAGE_ALIAS != "" ]]; then
+    export TARBZ_NAME=${PACKAGE_ALIAS}
+else
+    export TARBZ_NAME=$pkg_root_name
+fi
 export PACKAGE_ALIAS=${8-${PACKAGE}}
-export SOURCE_TARBALL_URI=${6-https://gazebosim.org/distributions/${PACKAGE_ALIAS}-${VERSION}.tar.bz2}
+export SOURCE_TARBALL_URI=${6-http://osrf-distributions.s3.amazonaws.com/${pkg_root_name}/releases/${TARBZ_NAME}-${VERSION}.tar.bz2}
 export WORKSPACE=/tmp/workspace
 
 . prepare_env.sh

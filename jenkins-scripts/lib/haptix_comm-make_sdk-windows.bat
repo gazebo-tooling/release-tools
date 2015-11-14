@@ -8,7 +8,7 @@
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
 :: remove previous packages
-del %WORKSPACE%\*.zip
+del %WORKSPACE%\pkgs\*.zip
 :: Default branches
 @if "%IGN_TRANSPORT_BRANCH%" == "" set IGN_TRANSPORT_BRANCH=default
 @if "%HAPTIX_COMM_BRANCH%" == "" set HAPTIX_COMM_BRANCH=default
@@ -129,6 +129,7 @@ for %%b in (Debug, Release) do (
     set "installdir=%cwd%\hx_gz_sdk-!HAPTIX_VERSION!-!build_type!"
     :: WORKSPACE\pkgs to agree with repository_uploader script layout
     set "sdk_zip_file=%WORKSPACE%\pkgs\hx_gz_sdk-!build_type!-!HAPTIX_VERSION!-win%BITNESS%.zip"
+    set "sdk_latest_zip_file=%WORKSPACE%\pkgs\hx_gz_sdk-!build_type!-latest-win%BITNESS%.zip"
 
     echo " * Build type             : !build_type!"
     echo " * Installation directory : !installdir!"
@@ -172,8 +173,9 @@ for %%b in (Debug, Release) do (
     cd ..
     echo # END SECTION
 
-    echo "Generating SDK zip file: !sdk_zip_file!" > sdk_zip_file.log
+    echo "Generating SDK zip files: !sdk_zip_file!" > sdk_zip_file.log
     "%tmpdir%\7za.exe" a -tzip "!sdk_zip_file!" "!installdir!" || goto :error
+    copy "!sdk_zip_file!" "!sdk_latest_zip_file!"
     echo # END SECTION
 )
 setlocal disabledelayedexpansion

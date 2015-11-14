@@ -8,6 +8,12 @@ if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
 
+# By default, enable s3 upload of packages
+ENABLE_S3_UPLOAD=true
+
+# PATH to packages
+pkgs_path="$WORKSPACE/pkgs"
+
 # Check if the node was configured to use s3cmd
 # This is done by running s3cmd --configure
 if [[ ! -f "${HOME}/.s3cfg" ]]; then
@@ -15,13 +21,61 @@ if [[ ! -f "${HOME}/.s3cfg" ]]; then
     exit 1
 fi
 
+# Check destination repository
+if [[ -z ${UPLOAD_TO_REPO} ]]; then
+    echo "No UPLOAD_TO_REPO value was send. Which repository to use? (stable | prerelease | nightly)"
+    echo ""
+    echo "Please check that the jenkins -debbuild job that called this uploader is defining the parameter"
+    echo "UPLOAD_TO_REPO in the job configuration. If it is not, just define it as a string parameter"
+    exit 1
+fi
+
+case ${UPLOAD_TO_REPO} in
+    "stable")
+	# Security checks not to upload nightly or prereleases
+        # No packages with ~hg or ~pre
+	if [[ -n $(ls ${pkgs_path}/*~hg*.*) && -n $(ls ${pkgs_path}/*~pre*.*) ]]; then
+	  echo "There are nightly packages in the upload directory. Not uploading to stable repo"
+	  exit 1
+	fi
+        # No source packages with ~hg in version
+	if [[ -n $(cat ${pkgs_path}/*.dsc | grep ^Version: | grep '~hg\|~pre') ]]; then
+          echo "There is a sorce package with nightly or pre in version. Not uploading to stable repo"
+	  exit 1
+        fi
+	;;
+    "nightly")
+	# No uploads for nightly packages
+	ENABLE_S3_UPLOAD=false
+	;;
+    *)
+	# Here we could find project repositories uploads or error values.
+	# Error values for UPLOAD_TO_REPO will be get in the next directory check
+	# some lines below so we do nothing.
+	;;
+esac
+
+repo_path="/var/packages/gazebo/ubuntu-${UPLOAD_TO_REPO}"
+
+if [[ ! -d ${repo_path} ]]; then
+    echo "Repo directory ${repo_path} not found in server"
+    exit 1
+fi
+
 # Place in reprepro directory
-cd /var/packages/gazebo/ubuntu
+cd ${repo_path}
 
 # S3 Amazon upload
 S3_upload()
 {
     local pkg=${1} s3_destination_path=${2}
+
+    if ! $ENABLE_S3_UPLOAD; then
+        echo '# BEGIN SECTION: S3 upload is DISABLED'
+	echo "S3 upload is disabled"
+	echo '# END SECTION'
+	return
+    fi
 
     [[ -z ${pkg} ]] && echo "pkg is empty" && exit 1
     [[ -z ${s3_destination_path} ]] && echo "s3_destination_path is empty" && exit 1
@@ -42,6 +96,17 @@ S3_upload()
     ./s3cmd put $pkg s3://osrf-distributions/${s3_destination_path}
     popd
     rm -fr ${S3_DIR}
+}
+
+dsc_package_exists()
+{
+    local pkg=${1} # name, no full path
+
+    if [[ -n $(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro ls ${pkg} | grep source) ]]; then
+	return 0 # exists, true
+    fi
+
+    return 1 # do not exits, false
 }
 
 upload_package()
@@ -80,7 +145,6 @@ upload_zip_file()
     S3_upload ${pkg} ${s3_path}
 }
 
-pkgs_path="$WORKSPACE/pkgs"
 
 # .zip | (mostly) windows packages
 for pkg in `ls $pkgs_path/*.zip`; do
@@ -96,7 +160,15 @@ done
 
 # .dsc | source debian packages
 for pkg in `ls $pkgs_path/*.dsc`; do
-  upload_dsc_package ${pkg}
+  pkg_name=${pkg##*/} 
+  pkg_name=${pkg_name/_*}    
+
+  if dsc_package_exists ${pkg_name}; then
+    echo "Source package for ${pkg} already exists in the repo"
+    echo "SKIP SOURCE UPLOAD"
+  else
+    upload_dsc_package ${pkg}
+  fi
 done
 
 # .deb | debian packages
@@ -121,8 +193,8 @@ for pkg in `ls $pkgs_path/*.deb`; do
 	# Check if the package already exists. i386 and amd64 generates the same binaries.
 	# all should be multiarch, so supposed to work on every platform
 	existing_version=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro ls ${pkg_name} | grep ${DISTRO} | awk '{ print $3 }')
-	if [[ ${existing_version} == ${pkg_version} ]]; then
-	    echo "${pkg_relative} for ${DISTRO} is already in the repo"
+	if $(dpkg --compare-versions ${pkg_version} le ${existing_version}); then
+	    echo "${pkg_relative} for ${DISTRO} is already in the repo with same version or greater"
 	    echo "SKIP UPLOAD"
 	    continue
 	fi

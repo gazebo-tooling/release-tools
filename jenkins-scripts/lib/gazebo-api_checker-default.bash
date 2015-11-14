@@ -24,8 +24,7 @@ if [[ -z ${GAZEBO_PKG} ]]; then
     exit -1
   fi
 
-  GAZEBO_LATEST_RELEASE=$((GAZEBO_MAJOR_VERSION - 1))
-  GAZEBO_PKG=libgazebo${GAZEBO_LATEST_RELEASE}-dev
+  GAZEBO_PKG=libgazebo${GAZEBO_MAJOR_VERSION}-dev
 fi
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
@@ -165,6 +164,10 @@ cat > devel.xml << DEVEL_DELIM
  <libs>
   \$GAZEBO_LIBS_LOCAL
  </libs>
+
+ <gcc_options>
+     -std=c++11
+ </gcc_options>
 DEVEL_DELIM
 
 # clean previous reports

@@ -1,11 +1,37 @@
 # Common instructions to create the building enviroment
 set -e
 
-# Default values - Provide them is prefered
-if [ -z ${LINUX_DISTRO} ]; then
-    LINUX_DISTRO=ubuntu
+# Important! GPU_SUPPORT_NEEDED to be use by the scripts.
+# USE_GPU_DOCKER by internal lib/ scripts
+
+[[ -z ${GPU_SUPPORT_NEEDED} ]] && GPU_SUPPORT_NEEDED=false
+   
+if ${GPU_SUPPORT_NEEDED}; then
+    USE_GPU_DOCKER=true
 fi
 
+[[ -z $USE_GPU_DOCKER ]] && export USE_GPU_DOCKER=false
+
+# Check disk space and if low:
+#  *  Containers that exited more than 5 days ago are removed.
+#  *  Images that don't belong to any remaining container after that are removed
+if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
+    # in seconds: 5 days = 432000s
+    PERCENT_ROOT_USED=$(df -h | grep /$ | sed 's:.* \([0-9]*\)%.*:\1:')
+    if [[ $PERCENT_ROOT_USED -gt 90 ]]; then
+        echo "Space left is low: ${PERCENT_ROOT_USED}% used"
+        echo "Run docker cleaner !!"
+        wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
+        sudo bash -c "GRACE_PERIOD_SECONDS=432000 bash docker-gc"
+    fi
+fi
+
+# Timing
+source ${SCRIPT_DIR}/../lib/boilerplate_timing_prepare.sh
+init_stopwatch TOTAL_TIME
+init_stopwatch CREATE_TESTING_ENVIROMENT
+
+# Default values - Provide them is prefered
 if [ -z ${DISTRO} ]; then
     DISTRO=trusty
 fi
@@ -34,10 +60,10 @@ if [ -z ${NEED_C11_COMPILER} ]; then
   NEED_C11_COMPILER=false
 fi
 
-# Check if we need to invalidate the whole cache
-# by default false
-if [ -z ${INVALIDATE_DOCKER_CACHE} ]; then
-  INVALIDATE_DOCKER_CACHE=false
+# Transition for 4.8 -> 4.9 makes some optimization in the linking
+# which can break some software. Use it as a workaround in this case
+if [ -z ${NEED_GCC48_COMPILER} ]; then
+  NEED_GCC48_COMPILER=false
 fi
 
 # Only precise needs to install a C++11 compiler. Trusty on
@@ -66,7 +92,7 @@ fi
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
-NEEDED_HOST_PACKAGES="mercurial docker.io python-setuptools python-psutil qemu-user-static"
+NEEDED_HOST_PACKAGES="mercurial docker-engine python-setuptools python-psutil qemu-user-static gpgv"
 # python-argparse is integrated in libpython2.7-stdlib since raring
 # Check for precise in the HOST system (not valid DISTRO variable)
 if [[ $(lsb_release -sr | cut -c 1-5) == '12.04' ]]; then
@@ -139,6 +165,14 @@ export DOCKER_TAG="${DOCKER_JOB_NAME}"
 # It is used to invalidate cache
 TODAY_STR=$(date +%D)
 MONTH_YEAR_STR=$(date +%m%y)
+
+# Clean previous results in the workspace if any
+if [[ -z ${KEEP_WORKSPACE} ]]; then
+    # Clean previous results, need to next mv command not to fail
+    for d in $(find ${WORKSPACE} -name '*_results' -type d); do
+        sudo rm -fr ${d}
+    done
+fi
 
 rm -fr Dockerfile
 cd ${WORKSPACE}
