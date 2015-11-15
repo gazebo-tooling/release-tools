@@ -40,7 +40,8 @@ BASE_DEPENDENCIES="build-essential \\
                    xsltproc        \\
                    python-psutil   \\
                    python          \\
-                   bc"
+                   bc              \\
+                   netcat-openbsd"
 
 # 1. SDFORMAT
 # ruby for xml_schemas generation and libxml2-utils for xmllint used in tests
@@ -196,7 +197,7 @@ DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-std-msgs                          \\
                           ros-${ROS_DISTRO}-control-toolbox                   \\
                           ${GAZEBO_DEB_PACKAGE}"
 
-if [[ $ROS_DISTRO == 'hydro' ]]; then
+if [[ $ROS_DISTRO == 'hydro' ]]; then			  
   DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
                             ros-${ROS_DISTRO}-pr2-controllers    \\
                             ros-${ROS_DISTRO}-pr2-mechanism"
