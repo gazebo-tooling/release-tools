@@ -3,7 +3,8 @@ import javaposse.jobdsl.dsl.Job
 
 Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 
-# BREW pull request SHA updater
+// -------------------------------------------------------------------
+// BREW pull request SHA updater
 def release_job = job("generic-release-homebrew_pull_request_updater")
 OSRFLinuxBase.create(release_job)
 GenericRemoteToken.create(release_job)
