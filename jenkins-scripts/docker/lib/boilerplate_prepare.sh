@@ -92,7 +92,7 @@ fi
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
-NEEDED_HOST_PACKAGES="mercurial docker.io python-setuptools python-psutil qemu-user-static gpgv"
+NEEDED_HOST_PACKAGES="mercurial docker-engine python-setuptools python-psutil qemu-user-static gpgv"
 # python-argparse is integrated in libpython2.7-stdlib since raring
 # Check for precise in the HOST system (not valid DISTRO variable)
 if [[ $(lsb_release -sr | cut -c 1-5) == '12.04' ]]; then

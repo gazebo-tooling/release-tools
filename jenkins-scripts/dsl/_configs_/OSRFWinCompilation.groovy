@@ -20,6 +20,10 @@ class OSRFWinCompilation extends OSRFWinBase
 
     job.with
     {
+      parameters {
+	  stringParam('BUILD_TYPE', 'Release','Release|Debug compilation type for MSVC')
+      }
+
       publishers
       {
          // compilers warnings

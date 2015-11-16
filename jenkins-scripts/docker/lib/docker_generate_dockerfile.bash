@@ -1,8 +1,9 @@
-# 
+#
 # Script to generate the dockerfile needed for running the build.sh script
 #
 # Inputs used:
 #   - DISTRO            : base distribution (ex: vivid)
+#   - LINUX_DISTRO      : [default ubuntu] base linux distribution (ex: debian)
 #   - ARCH              : [default amd64] base arquitecture (ex: amd64)
 #   - OSRF_REPOS_TO_USE : [default empty] space separated list of osrf repos to add to sourcess.list
 #   - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
@@ -16,20 +17,48 @@ if [[ -z ${ARCH} ]]; then
   export ARCH="amd64"
 fi
 
+if [[ -z ${LINUX_DISTRO} ]]; then
+  echo "Linux distro undefined, default to ubuntu"
+  export LINUX_DISTRO="ubuntu"
+fi
+
+case ${LINUX_DISTRO} in
+  'ubuntu')
+    SOURCE_LIST_URL="http://archive.ubuntu.com/ubuntu"
+    ;;
+    
+  'debian')
+    # Currently not needed
+    # SOURCE_LIST_URL="http://ftp.us.debian.org/debian"
+
+    # debian does not ship locales by default
+    export DEPENDENCY_PKGS="locales ${DEPENDENCY_PKGS}"
+
+    if [[ -n ${OSRF_REPOS_TO_USE} ]]; then
+      echo "WARN!! OSRF has no debian repositories yet!"
+      OSRF_REPOS_TO_USE=""
+    fi
+    ;;
+
+  *)
+    echo "Unknow linux distribution: ${LINUX_DISTRO}"
+    exit 1
+esac
+
 # Select the docker container depenending on the ARCH
 case ${ARCH} in
-  'amd64') 
-     FROM_VALUE=ubuntu:${DISTRO}
+  'amd64')
+     FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      ;;
   'i386')
      # There are no i386 official images. Only 14.04 (trusty) is available
      # https://registry.hub.docker.com/u/32bit/ubuntu/tags/manage/
-     if [[ $DISTRO != 'trusty' ]]; then
+     if [[ $DISTRO == 'trusty' ]]; then
        FROM_VALUE=32bit/ubuntu:14.04
      fi
 
      # Other images are not official.
-     FROM_VALUE=mcandre/docker-ubuntu-32bit:${DISTRO}
+     FROM_VALUE=mcandre/docker-${LINUX_DISTRO}-32bit:${DISTRO}
      ;;
  'armhf')
      FROM_VALUE=osrf/ubuntu_armhf:${DISTRO}
@@ -66,28 +95,39 @@ RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
   && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
   || echo "No squid-deb-proxy detected on docker host"
 # setup environment
-RUN locale-gen en_US.UTF-8
-ENV LANG en_US.UTF-8
+ENV LANG C
+ENV LC_ALL C
 ENV DEBIAN_FRONTEND noninteractive
+ENV DEBFULLNAME "OSRF Jenkins"
+ENV DEBEMAIL "build@osrfoundation.org"
 DELIM_DOCKER
 
-if [[ ${ARCH} != 'armhf' ]]; then
+# The redirection fails too many times using us ftp
+if [[ ${LINUX_DISTRO} == 'debian' ]]; then
+cat >> Dockerfile << DELIM_DEBIAN_APT
+  RUN sed -i -e 's:httpredir:ftp.us:g' /etc/apt/sources.list
+DELIM_DEBIAN_APT
+fi
+
+if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
+  if [[ ${ARCH} != 'armhf' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_ARCH
-# Note that main,restricted and universe are not here, only multiverse
-# main, restricted and unvierse are already setup in the original image
-RUN echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO} multiverse" \\
-                                                       >> /etc/apt/sources.list && \\
-    echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-updates multiverse" \\
-                                                       >> /etc/apt/sources.list && \\
-    echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO}-security main restricted universe multiverse" && \\
-                                                       >> /etc/apt/sources.list
+  # Note that main,restricted and universe are not here, only multiverse
+  # main, restricted and unvierse are already setup in the original image
+  RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} multiverse" \\
+                                                         >> /etc/apt/sources.list && \\
+      echo "deb ${SOURCE_LIST_URL} ${DISTRO}-updates multiverse" \\
+                                                         >> /etc/apt/sources.list && \\
+      echo "deb ${SOURCE_LIST_URL} ${DISTRO}-security main restricted universe multiverse" && \\
+                                                         >> /etc/apt/sources.list
 DELIM_DOCKER_ARCH
+  fi
 fi
 
 # i386 image only have main by default
 if [[ ${ARCH} == 'i386' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_I386_APT
-RUN echo "deb http://archive.ubuntu.com/ubuntu ${DISTRO} restricted universe" \\
+RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} restricted universe" \\
                                                        >> /etc/apt/sources.list
 DELIM_DOCKER_I386_APT
 fi
@@ -107,7 +147,7 @@ fi
 
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
-RUN echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-${repo} ${DISTRO} main" > \\
+RUN echo "deb http://packages.osrfoundation.org/gazebo/${LINUX_DISTRO}-${repo} ${DISTRO} main" >\\
                                                 /etc/apt/sources.list.d/osrf.${repo}.list
 RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
 DELIM_OSRF_REPO
@@ -124,7 +164,7 @@ fi
 # Dart repositories
 if ${DART_FROM_PKGS} || ${DART_COMPILE_FROM_SOURCE}; then
 cat >> Dockerfile << DELIM_DOCKER_DART_PKGS
-# Install dart from pkgs 
+# Install dart from pkgs
 RUN apt-get install -y apt-utils software-properties-common
 RUN apt-add-repository -y ppa:libccd-debs
 RUN apt-add-repository -y ppa:fcl-debs
@@ -153,11 +193,10 @@ fi
 
 cat >> Dockerfile << DELIM_DOCKER3
 # Invalidate cache monthly
-# This is the firt big installation of packages on top of the raw image. 
+# This is the firt big installation of packages on top of the raw image.
 # The expection of updates is low and anyway it is cathed by the next
 # update command below
 RUN echo "${MONTH_YEAR_STR}"
-ENV DEBIAN_FRONTEND noninteractive
 # The rm command will minimize the layer size
 RUN apt-get update && \
     apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} && \
