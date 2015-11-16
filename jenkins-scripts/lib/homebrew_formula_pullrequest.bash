@@ -1,5 +1,6 @@
 #!/bin/bash -x
 
+echo '# BEGIN SECTION: check variables'
 if [ -z "${PACKAGE_ALIAS}" ]; then
   echo PACKAGE_ALIAS not specified
   exit -1
@@ -19,7 +20,9 @@ if [ -z "${SOURCE_TARBALL_SHA}" ]; then
     | shasum --algorithm 256 \
     | awk '{print $1}'`
 fi
+echo '# END SECTION'
 
+echo '# BEGIN SECTION: check github perms'
 # Github autentication. git access is provided by public key access
 # and hub cli needs a token
 if [[ -z $(ssh -T git@github.com 2>&1 | grep successfully) ]]; then
@@ -39,7 +42,9 @@ fi
 set +x # keep password secret
 export GITHUB_TOKEN=`cat $GITHUB_TOKEN_FILE`
 set -x # back to debug
+echo '# END SECTION'
 
+echo '# BEGIN SECTION: download linuxbrew'
 # comment out the following two lines for faster debugging if it has already been cloned
 BREW_PREFIX="${PWD}/linuxbrew"
 GIT="git -C ${BREW_PREFIX}"
@@ -59,6 +64,7 @@ else
   rm -rf linuxbrew
   git clone https://github.com/Homebrew/linuxbrew.git
 fi
+echo '# END SECTION'
 
 BREW=${PWD}/linuxbrew/bin/brew
 
@@ -67,6 +73,7 @@ ${BREW} tap homebrew/dev-tools
 ${BREW} tap osrf/simulation
 TAP_PREFIX=${PWD}/linuxbrew/Library/Taps/osrf/homebrew-simulation
 
+echo '# BEGIN SECTION: check if the formula exists'
 echo
 if [ -s ${TAP_PREFIX}/${PACKAGE_ALIAS}.rb ]; then
   FORMULA=${TAP_PREFIX}/${PACKAGE_ALIAS}.rb
@@ -77,7 +84,9 @@ else
   ls homebrew-simulation/*
   exit -1
 fi
+echo '# END SECTION'
 
+echo '# BEGIN SECTION: calculating the SHA hash and changing the formula'
 FORMULA_PATH=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.path"`
 echo Modifying ${FORMULA_PATH}
 
@@ -113,8 +122,10 @@ fi
 echo ==========================================================
 ${GIT} diff
 echo ==========================================================
+echo '# END SECTION'
 
 echo
+echo '# BEGIN SECTION: commit and pull request creation'
 ${GIT} remote add fork git@github.com:osrfbuild/homebrew-simulation.git
 # unshallow to get a full clone able to push
 ${GIT} fetch --unshallow
@@ -152,3 +163,4 @@ ${HUB} -C ${TAP_PREFIX} pull-request \
   -b osrf:master \
   -h osrfbuild:${BRANCH} \
   -m "${PACKAGE_ALIAS} ${VERSION}"
+echo '# END SECTION'
