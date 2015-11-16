@@ -29,6 +29,15 @@ release_job.with
    }
 
    steps {
+        systemGroovyCommand("""\
+          build.setDescription(
+          '<b>' + build.buildVariableResolver.resolve('PACKAGE_ALIAS') + '-' + 
+          build.buildVariableResolver.resolve('VERSION') + '</b>' +
+          '<br />' +
+          'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+          """.stripIndent()
+        )
+
         shell("""\
               #!/bin/bash -xe
 
