@@ -29,7 +29,7 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
   static void create(Job job)
   {
     OSRFLinuxBase.create(job)
-    GenericRemoteToken.create(release_job)
+    GenericRemoteToken.create(job)
 
     job.with
     {
