@@ -56,19 +56,6 @@ SDFORMAT_BASE_DEPENDENCIES="python                       \\
                             ruby1.9.1                    \\
 			    libxml2-utils"
 
-# Need to explicit define to use old sdformat package
-if [[ -z ${USE_OLD_SDFORMAT} ]]; then
-    USE_OLD_SDFORMAT=false
-fi
-
-if ${USE_OLD_SDFORMAT}; then
-    sdformat_pkg="sdformat"
-elif [[ ${GAZEBO_MAJOR_VERSION} -ge 6 ]]; then
-    sdformat_pkg="libsdformat3-dev"
-else
-    sdformat_pkg="libsdformat2-dev"
-fi
-
 # SDFORMAT related dependencies
 if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
     SDFORMAT_MAJOR_VERSION=3
@@ -87,6 +74,19 @@ fi
 
 if [[ -z $GAZEBO_DEB_PACKAGE ]];then
     GAZEBO_DEB_PACKAGE=libgazebo${GAZEBO_MAJOR_VERSION}-dev
+fi
+
+# Need to explicit define to use old sdformat package
+if [[ -z ${USE_OLD_SDFORMAT} ]]; then
+    USE_OLD_SDFORMAT=false
+fi
+
+if ${USE_OLD_SDFORMAT}; then
+    sdformat_pkg="sdformat"
+elif [[ ${GAZEBO_MAJOR_VERSION} -ge 6 ]]; then
+    sdformat_pkg="libsdformat3-dev"
+else
+    sdformat_pkg="libsdformat2-dev"
 fi
 
 # Old versions used libogre-dev
@@ -342,3 +342,4 @@ MENTOR2_DEPENDENCIES="libgazebo6-dev    \\
 	              libprotobuf-dev   \\
                       libboost1.54-dev  \\
                       libqt4-dev"
+
