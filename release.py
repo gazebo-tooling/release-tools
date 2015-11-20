@@ -14,7 +14,7 @@ USAGE = 'release.py <package> <version> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuilder'
 JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
-GENERIC_BREW_PULLREQUEST_JOB='generic-release-homebrew_pull_request_update'
+GENERIC_BREW_PULLREQUEST_JOB='generic-release-homebrew_pull_request_updater'
 UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
 DOWNLOAD_URI_PATTERN = 'http://gazebosim.org/distributions/%s/releases/'
 
