@@ -69,7 +69,7 @@ fi
 
 # GAZEBO related dependencies
 if [[ -z ${GAZEBO_MAJOR_VERSION} ]]; then
-    GAZEBO_MAJOR_VERSION=5
+    GAZEBO_MAJOR_VERSION=6
 fi
 
 if [[ -z $GAZEBO_DEB_PACKAGE ]];then
