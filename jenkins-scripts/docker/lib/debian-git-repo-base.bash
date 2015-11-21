@@ -80,8 +80,6 @@ PKGS=\`find ../ -name *.deb || true\`
 FOUND_PKG=0
 for pkg in \${PKGS}; do
     echo "found \$pkg"
-    # Check for correctly generated packages size > 3Kb
-    test -z \$(find \$pkg -size +3k) && exit 1
     cp \${pkg} $WORKSPACE/pkgs
     FOUND_PKG=1
 done
