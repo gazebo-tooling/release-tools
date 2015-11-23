@@ -18,17 +18,17 @@ class Globals
 
    // -- Officially support distributions for ign, sdformat and gazebo --
    // Main CI platform
-   static String get_ci_distro()
+   static ArrayList get_ci_distro()
    {
     return [ 'trusty' ]
    }
   
-   static get_other_supported_distros()
+   static ArrayList get_other_supported_distros()
    {
      return [ 'vivid', 'wily' ]
    }
 
-   static get_all_supported_distros()
+   static ArrayList get_all_supported_distros()
    {
      return get_ci_distro() + get_other_supported_distros()
    }
