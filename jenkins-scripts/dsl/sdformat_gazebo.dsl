@@ -36,6 +36,8 @@ ci_distro.each { distro ->
         shell("""\
 	      #!/bin/bash -xe
 
+              export DISTRO=${distro}
+              export ARCH=${arch}
 	      /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
 	      """.stripIndent())
       }
@@ -80,6 +82,8 @@ ci_distro.each { distro ->
          shell("""\
          #!/bin/bash -xe
 
+         export DISTRO=${distro}
+         export ARCH=${arch}
          /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
          """.stripIndent())
        }
@@ -110,6 +114,8 @@ other_supported_distros.each { distro ->
         shell("""\
         #!/bin/bash -xe
 
+	export DISTRO=${distro}
+        export ARCH=${arch}
         /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
         """.stripIndent())
       }
@@ -147,6 +153,8 @@ sdformat_supported_branches.each { branch ->
           shell("""\
           #!/bin/bash -xe
 
+  	  export DISTRO=${distro}
+          export ARCH=${arch}
           /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
           """.stripIndent())
         }
