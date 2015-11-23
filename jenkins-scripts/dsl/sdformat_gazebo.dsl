@@ -71,7 +71,7 @@ ci_distro.each { distro ->
                  trigger('sdformat-any_to_any-abichecker-vivid-amd64') {
                    parameters {
                      predefinedProp("SDFORMAT_ORIGIN_BRANCH", '$DEST_BRANCH')
-                     predefinedProp("SDFORMAT_TARGET_BRANCH", 'SRC_BRANCH')
+                     predefinedProp("SDFORMAT_TARGET_BRANCH", '$SRC_BRANCH')
                    }
                  }
                }
