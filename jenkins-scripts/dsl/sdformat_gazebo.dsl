@@ -48,7 +48,7 @@ ci_distro.each { distro ->
 				  "http://bitbucket.org/osrf/sdformat")
     sdformat_ci_any_job.with
     {
-      paremeters
+      parameters
       {
         stringParam('DEST_BRANCH','default',
                     'Destination branch where the pull request will be merged')
