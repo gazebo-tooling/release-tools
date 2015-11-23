@@ -133,7 +133,7 @@ sdformat_supported_branches.each { branch ->
 
         scm {
           hg("http://bitbucket.org/osrf/sdformat") {
-            branch("${sdf_branch}")
+            branch(sdf_branch)
             subdirectory("sdformat")
           }
         }
