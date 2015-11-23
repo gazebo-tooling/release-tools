@@ -70,8 +70,8 @@ ci_distro.each { distro ->
                downstreamParameterized {
                  trigger('sdformat-any_to_any-abichecker-vivid-amd64') {
                    parameters {
-                     predefinedProp("SDFORMAT_ORIGIN_BRANCH", '${ENV, var="DEST_BRANCH"}')
-                     predefinedProp("SDFORMAT_TARGET_BRANCH", '${ENV, var="SRC_BRANCH"}')
+                     predefinedProp("SDFORMAT_ORIGIN_BRANCH", '$DEST_BRANCH')
+                     predefinedProp("SDFORMAT_TARGET_BRANCH", 'SRC_BRANCH')
                    }
                  }
                }
