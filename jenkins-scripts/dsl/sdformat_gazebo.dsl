@@ -232,6 +232,7 @@ all_branches.each { branch ->
   {
       scm {
         hg("http://bitbucket.org/osrf/sdformat", branch)
+        {
           subdirectory("sdformat")
         }
       }
