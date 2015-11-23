@@ -119,37 +119,39 @@ other_supported_distros.each { distro ->
 
 // BRANCHES CI JOB @ SCM/DAILY
 sdformat_supported_branches.each { branch ->
-  ci_distro.each { arch ->
-    // ci_default job for the rest of arches / scm@daily
-    def sdformat_ci_job = job("sdformat-ci-${branch}-${distro}-${arch}")
-    OSRFLinuxCompilation.create(sdformat_ci_job)
-    sdformat_ci_job.with
-    {
-      def sdf_branch = branch.replace("ormat",'')
+  ci_distro.each { distro ->
+    supported_arches.each { arch ->
+      // ci_default job for the rest of arches / scm@daily
+      def sdformat_ci_job = job("sdformat-ci-${branch}-${distro}-${arch}")
+      OSRFLinuxCompilation.create(sdformat_ci_job)
+      sdformat_ci_job.with
+      {
+        def sdf_branch = branch.replace("ormat",'')
 
-      if ("${branch}" == 'sdformat2')
-         sdf_branch = "sdf_2.3"
+        if ("${branch}" == 'sdformat2')
+           sdf_branch = "sdf_2.3"
 
-      scm {
-        hg("http://bitbucket.org/osrf/sdformat") {
-          branch("${sdf_branch}")
-          subdirectory("sdformat")
+        scm {
+          hg("http://bitbucket.org/osrf/sdformat") {
+            branch("${sdf_branch}")
+            subdirectory("sdformat")
+          }
+        }
+
+        triggers {
+          scm('@daily')
+        }
+
+        steps {
+          shell("""\
+          #!/bin/bash -xe
+
+          /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
+          """.stripIndent())
         }
       }
-
-      triggers {
-        scm('@daily')
-      }
-
-      steps {
-        shell("""\
-        #!/bin/bash -xe
-
-        /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
-        """.stripIndent())
-      }
-    }
-  } // end of arch
+    } // end of arch
+  } // end of distro
 } // end of distro
 
 // INSTALL LINUX -DEV PACKAGES ALL PLATFORMS @ CRON/DAILY
