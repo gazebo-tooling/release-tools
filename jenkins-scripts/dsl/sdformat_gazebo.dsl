@@ -95,14 +95,9 @@ other_supported_distros.each { distro ->
     OSRFLinuxCompilation.create(sdformat_ci_job)
     sdformat_ci_job.with
     {
-      def sdf_branch = branch.replace("ormat",'')
-
-      if ("${branch}" == 'sdformat2')
-         sdf_branch = "sdf_2.3"
-
       scm {
         hg("http://bitbucket.org/osrf/sdformat") {
-          branch("${sdf_branch}")
+          branch('default')
           subdirectory("sdformat")
         }
       }
