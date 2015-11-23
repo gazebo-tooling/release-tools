@@ -129,11 +129,11 @@ sdformat_supported_branches.each { branch ->
         def sdf_branch = branch.replace("ormat",'')
 
         if ("${branch}" == 'sdformat2')
-           sdf_branch = "sdf_2.3"
+           sdf_branch = 'sdf_2.3'
 
         scm {
           hg("http://bitbucket.org/osrf/sdformat") {
-            branch(sdf_branch)
+            branch("${sdf_branch}")
             subdirectory("sdformat")
           }
         }
@@ -231,7 +231,7 @@ all_branches.each { branch ->
   {
       scm {
         hg("http://bitbucket.org/osrf/sdformat") {
-          branch("${sdformat}")
+          branch("${branch}")
           subdirectory("sdformat")
         }
       }
