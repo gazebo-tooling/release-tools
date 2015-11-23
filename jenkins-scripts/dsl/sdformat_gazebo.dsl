@@ -276,8 +276,8 @@ all_branches.each { branch ->
   sdformat_win_ci_job.with
   {
       scm {
-        hg("http://bitbucket.org/osrf/sdformat") {
-          branch('default')
+        hg("http://bitbucket.org/osrf/sdformat", 'default')
+        {
           subdirectory("sdformat")
         }
       }
