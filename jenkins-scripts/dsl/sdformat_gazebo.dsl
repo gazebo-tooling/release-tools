@@ -54,34 +54,35 @@ ci_distro.each { distro ->
                     'Destination branch where the pull request will be merged')
       }
 
-      conditionalSteps 
+      steps 
       {
-        condition 
-        {
-          not {
-            expression('${ENV, var="DEST_BRANCH"}', 'default') 
-          }
+         conditionalSteps 
+         {
+           condition 
+           {
+             not {
+               expression('${ENV, var="DEST_BRANCH"}', 'default') 
+             }
 
-          steps {
-            downstreamParameterized {
-              trigger('sdformat-any_to_any-abichecker-vivid-amd64') {
-                parameters {
-                  predefinedProp("SDFORMAT_ORIGIN_BRANCH", '${ENV, var="DEST_BRANCH"}')
-                  predefinedProp("SDFORMAT_TARGET_BRANCH", '${ENV, var="SRC_BRANCH"}')
-                }
-              }
-            }
-          }
-        }
-      }
+             steps {
+               downstreamParameterized {
+                 trigger('sdformat-any_to_any-abichecker-vivid-amd64') {
+                   parameters {
+                     predefinedProp("SDFORMAT_ORIGIN_BRANCH", '${ENV, var="DEST_BRANCH"}')
+                     predefinedProp("SDFORMAT_TARGET_BRANCH", '${ENV, var="SRC_BRANCH"}')
+                   }
+                 }
+               }
+             }
+           }
+         }
 
-      steps {
-          shell("""\
-          #!/bin/bash -xe
+         shell("""\
+         #!/bin/bash -xe
 
-          /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
-          """.stripIndent())
-	    }
+         /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
+         """.stripIndent())
+       }
      }
   } // end of arch
 } // end of distro
