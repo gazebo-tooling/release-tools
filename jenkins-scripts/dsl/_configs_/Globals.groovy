@@ -30,6 +30,6 @@ class Globals
 
    static get_all_supported_distros()
    {
-     return distro + other_supported_distros
+     return get_ci_distro() + get_other_supported_distros()
    }
 }
