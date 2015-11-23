@@ -132,6 +132,7 @@ sdformat_supported_branches.each { branch ->
            sdf_branch = 'sdf_2.3'
 
         scm {
+          // The usual form using branch in the clousure does not work
           hg("http://bitbucket.org/osrf/sdformat", sdf_branch)
           {
             subdirectory("sdformat")
@@ -230,8 +231,7 @@ all_branches.each { branch ->
   sdformat_brew_ci_job.with
   {
       scm {
-        hg("http://bitbucket.org/osrf/sdformat") {
-          branch("${branch}")
+        hg("http://bitbucket.org/osrf/sdformat", branch)
           subdirectory("sdformat")
         }
       }
