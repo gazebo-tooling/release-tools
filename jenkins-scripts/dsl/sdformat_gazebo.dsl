@@ -126,10 +126,10 @@ sdformat_supported_branches.each { branch ->
       OSRFLinuxCompilation.create(sdformat_ci_job)
       sdformat_ci_job.with
       {
-        def String sdf_branch = branch.replace("ormat",'')
+        String sdf_branch = branch.replace("ormat",'')
 
         if ("${branch}" == 'sdformat2')
-           sdf_branch = 'sdf_2.3'
+           sdf_branch = "sdf_2.3"
 
         scm {
           hg("http://bitbucket.org/osrf/sdformat") {
