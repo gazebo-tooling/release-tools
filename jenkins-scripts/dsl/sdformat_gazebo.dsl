@@ -12,12 +12,6 @@ def supported_arches = [ 'amd64' ]
 
 def all_supported_distros = Globals.get_all_supported_distros()
 
-println sdformat_supported_branches
-println ci_distro
-println other_supported_distros
-println supported_arches
-println all_supported_distros
-
 // MAIN CI JOBS @ SCM/5 min
 ci_distro.each { distro ->
   supported_arches.each { arch ->
