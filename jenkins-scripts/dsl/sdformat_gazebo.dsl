@@ -10,7 +10,8 @@ def ci_distro = Globals.get_ci_distro()
 // CI integration.
 def other_supported_distros = Globals.get_other_supported_distros()
 def all_supported_distros = Globals.get_all_supported_distros()
-def supported_arches = [ 'amd64' ]
+def supported_arches = Globals.get_supported_arches()
+def experimental_arches = Globals.get_experimental_arches()
 
 // Helper function
 String get_sdformat_branch_name(String full_branch_name)
@@ -42,7 +43,7 @@ ci_distro.each { distro ->
       triggers {
       	scm('*/5 * * * *')
       }
-      
+
       steps {
         shell("""\
 	      #!/bin/bash -xe
@@ -67,14 +68,14 @@ ci_distro.each { distro ->
                     'Destination branch where the pull request will be merged')
       }
 
-      steps 
+      steps
       {
-         conditionalSteps 
+         conditionalSteps
          {
-           condition 
+           condition
            {
              not {
-               expression('${ENV, var="DEST_BRANCH"}', 'default') 
+               expression('${ENV, var="DEST_BRANCH"}', 'default')
              }
 
              steps {
@@ -143,7 +144,7 @@ sdformat_supported_branches.each { branch ->
       OSRFLinuxCompilation.create(sdformat_ci_job)
       sdformat_ci_job.with
       {
-        scm 
+        scm
         {
           // The usual form using branch in the clousure does not work
           hg("http://bitbucket.org/osrf/sdformat",
@@ -168,6 +169,39 @@ sdformat_supported_branches.each { branch ->
     } // end of arch
   } // end of distro
 } // end of distro
+//
+
+// EXPERIMENTAL ARCHES @ SCM/WEEKLY
+ci_distro.each { distro ->
+  experimental_arches.each { arch ->
+    def sdformat_ci_job = job("sdformat-ci-default-${distro}-${arch}")
+    OSRFLinuxCompilation.create(sdformat_ci_job)
+    sdformat_ci_job.with
+    {
+      scm
+      {
+        hg("http://bitbucket.org/osrf/sdformat") {
+          branch('default')
+          subdirectory("sdformat")
+        }
+      }
+
+      triggers {
+        scm('@weekly')
+      }
+
+      steps {
+        shell("""\
+        #!/bin/bash -xe
+
+        export DISTRO=${distro}
+        export ARCH=${arch}
+        /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
+        """.stripIndent())
+      }
+    }
+  }
+}
 
 // INSTALL LINUX -DEV PACKAGES ALL PLATFORMS @ CRON/DAILY
 sdformat_supported_branches.each { branch ->
@@ -181,7 +215,7 @@ sdformat_supported_branches.each { branch ->
          triggers {
            cron('@daily')
          }
- 
+
          def dev_package = "lib${branch}-dev"
 
          steps {
@@ -291,7 +325,7 @@ all_branches.each { branch ->
 
   sdformat_win_ci_job.with
   {
-      scm 
+      scm
       {
         hg("http://bitbucket.org/osrf/sdformat",
            'default',

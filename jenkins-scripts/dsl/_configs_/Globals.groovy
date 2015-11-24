@@ -33,6 +33,16 @@ class Globals
      return [ 'vivid', 'wily' ]
    }
 
+   static ArrayList get_supported_arches()
+   {
+     return [ 'amd64' ]
+   }
+
+   static ArrayList get_experimental_arches()
+   {
+     return [ 'i386', 'armhf' ]
+   }
+
    static ArrayList get_all_supported_distros()
    {
      return get_ci_distro() + get_other_supported_distros()
