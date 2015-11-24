@@ -146,9 +146,9 @@ sdformat_supported_branches.each { branch ->
         scm 
         {
           // The usual form using branch in the clousure does not work
-          hg("http://bitbucket.org/osrf/sdformat",
-             get_sdformat_branch_name(branch))
+          hg("http://bitbucket.org/osrf/sdformat")
           {
+            branch(get_sdformat_branch_name(branch))
             subdirectory("sdformat")
           }
         }
