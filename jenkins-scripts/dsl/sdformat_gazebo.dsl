@@ -146,11 +146,9 @@ sdformat_supported_branches.each { branch ->
         scm 
         {
           // The usual form using branch in the clousure does not work
-          hg("http://bitbucket.org/osrf/sdformat")
-          {
-            branch(get_sdformat_branch_name(branch))
-            subdirectory("sdformat")
-          }
+          hg("http://bitbucket.org/osrf/sdformat",
+             get_sdformat_branch_name(branch),
+             { node -> node / subdir << "sdformat" })
         }
 
         triggers {
@@ -250,10 +248,8 @@ all_branches.each { branch ->
   {
       scm {
         hg("http://bitbucket.org/osrf/sdformat",
-           get_sdformat_branch_name(branch))
-        {
-          subdirectory("sdformat")
-        }
+           get_sdformat_branch_name(branch),
+           { node -> node / subdir << "sdformat" })
       }
 
       triggers {
@@ -294,11 +290,11 @@ all_branches.each { branch ->
 
   sdformat_win_ci_job.with
   {
-      scm {
-        hg("http://bitbucket.org/osrf/sdformat", 'default')
-        {
-          subdirectory("sdformat")
-        }
+      scm 
+      {
+        hg("http://bitbucket.org/osrf/sdformat",
+           'default',
+           { node -> node / subdir << "sdformat" })
       }
 
       triggers {
