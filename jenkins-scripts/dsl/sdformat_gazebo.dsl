@@ -39,11 +39,11 @@ abi_distro.each { distro ->
     {
       steps {
         shell("""\
-	      #!/bin/bash -xe
+              #!/bin/bash -xe
 
               export DISTRO=${distro}
               export ARCH=${arch}
-	      /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-abichecker.bash
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-abichecker.bash
 	      """.stripIndent())
       }
     }
