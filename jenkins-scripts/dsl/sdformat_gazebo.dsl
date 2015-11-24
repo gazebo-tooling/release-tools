@@ -8,9 +8,19 @@ def ci_distro = Globals.get_ci_distro()
 // Other supported platform to be checked but no for quick
 // CI integration.
 def other_supported_distros = Globals.get_other_supported_distros()
+def all_supported_distros = Globals.get_all_supported_distros()
 def supported_arches = [ 'amd64' ]
 
-def all_supported_distros = Globals.get_all_supported_distros()
+// Helper function
+String get_sdformat_branch_name(String full_branch_name)
+{
+  String sdf_branch = full_branch_name.replace("ormat",'')
+
+  if ("${full_branch_name}" == 'sdformat2')
+     sdf_branch = 'sdf_2.3'
+
+  return sdf_branch
+}
 
 // MAIN CI JOBS @ SCM/5 min
 ci_distro.each { distro ->
@@ -132,14 +142,11 @@ sdformat_supported_branches.each { branch ->
       OSRFLinuxCompilation.create(sdformat_ci_job)
       sdformat_ci_job.with
       {
-        String sdf_branch = branch.replace("ormat",'')
-
-        if ("${branch}" == 'sdformat2')
-           sdf_branch = 'sdf_2.3'
-
-        scm {
+        scm 
+        {
           // The usual form using branch in the clousure does not work
-          hg("http://bitbucket.org/osrf/sdformat", sdf_branch)
+          hg("http://bitbucket.org/osrf/sdformat",
+             get_sdformat_branch_name(branch))
           {
             subdirectory("sdformat")
           }
@@ -239,7 +246,8 @@ all_branches.each { branch ->
   sdformat_brew_ci_job.with
   {
       scm {
-        hg("http://bitbucket.org/osrf/sdformat", branch)
+        hg("http://bitbucket.org/osrf/sdformat",
+           get_sdformat_branch_name(branch))
         {
           subdirectory("sdformat")
         }
