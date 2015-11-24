@@ -2,6 +2,7 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 def sdformat_supported_branches = [ 'sdformat2', 'sdformat3' ]
+def nightly_sdformat_branch = [ 'sdformat4' ]
 
 // Main platform using for quick CI
 def ci_distro = Globals.get_ci_distro()
@@ -203,7 +204,9 @@ sdformat_supported_branches.each { branch ->
 
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
-sdformat_supported_branches.each { branch ->
+
+all_debbuild_branches = sdformat_supported_branches + nightly_sdformat_branch
+all_debbuild_branches.each { branch ->
   def build_pkg_job = job("${branch}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
 
