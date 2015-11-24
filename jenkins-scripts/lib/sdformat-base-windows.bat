@@ -19,6 +19,8 @@
 )
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
+set TEST_RESULT_PATH="%WORKSPACE%\test_results"
+set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
 
 :: Call vcvarsall and all the friends
 echo # BEGIN SECTION: configure the MSVC compiler
@@ -78,9 +80,11 @@ ctest -C "%BUILD_TYPE%" --verbose --extra-verbose || echo "test failed"
 echo # END SECTION
 
 echo # BEGIN SECTION: export testing results
-set TEST_RESULT_PATH=%WORKSPACE%\test_results
-if exist %TEST_RESULT_PATH% ( rmdir /q /s %TEST_RESULT_PATH% )
-move test_results %TEST_RESULT_PATH% || goto :error
+rmdir /q /s %TEST_RESULT_PATH%
+if exist %TEST_RESULT_PATH_LEGACY% ( rmdir /q /s %TEST_RESULT_PATH_LEGACY% )
+mkdir %WORKSPACE%\build\
+xcopy test_results %TEST_RESULT_PATH% /s /i /e || goto :error
+xcopy %TEST_RESULT_PATH% %TEST_RESULT_PATH_LEGACY% /s /e /i
 echo # END SECTION
 
 
