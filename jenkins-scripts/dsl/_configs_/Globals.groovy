@@ -22,7 +22,12 @@ class Globals
    {
     return [ 'trusty' ]
    }
-  
+
+   static ArrayList get_abi_distro()
+   {
+     return [ 'vivid' ]
+   }
+
    static ArrayList get_other_supported_distros()
    {
      return [ 'vivid', 'wily' ]
