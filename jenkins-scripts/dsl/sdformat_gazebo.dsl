@@ -241,6 +241,10 @@ sdformat_brew_ci_any_job.with
 // 2. default in all branches @SCM/daily
 all_branches = sdformat_supported_branches + 'default'
 all_branches.each { branch ->
+  // No sdformat2 for brew
+  if ("${branch}" == "sdformat2")
+    continue
+
   def sdformat_brew_ci_job = job("sdformat-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(sdformat_brew_ci_job)
 
