@@ -38,6 +38,14 @@ abi_distro.each { distro ->
     OSRFLinuxABI.create(abi_job)
     abi_job.with
     {
+      scm
+      {
+        hg("http://bitbucket.org/osrf/sdformat") {
+          branch('default')
+          subdirectory("sdformat")
+        }
+      }
+
       steps {
         shell("""\
               #!/bin/bash -xe
