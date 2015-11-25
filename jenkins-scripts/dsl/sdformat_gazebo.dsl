@@ -45,10 +45,10 @@ abi_distro.each { distro ->
               export ARCH=${arch}
               /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-abichecker.bash
 	      """.stripIndent())
-      }
-    }
-  }
-}
+      } // end of steps
+    }  // end of with
+  } // end of arch
+} // end of distro
 
 // MAIN CI JOBS @ SCM/5 min
 ci_distro.each { distro ->
@@ -265,6 +265,7 @@ sdformat_supported_branches.each { branch ->
 ci_distro.each { distro ->
   supported_arches.each { arch ->
     def performance_job = job("sdformat-performance-default-${distro}-${arch}")
+    OSRFLinuxPerformance.create(performance_job)
     performance_job.with
     {
       scm
@@ -281,12 +282,12 @@ ci_distro.each { distro ->
 
       steps {
         shell("""\
-        #!/bin/bash -xe
+              #!/bin/bash -xe
 
-        export DISTRO=${distro}
-        export ARCH=${arch}
-        /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
-        """.stripIndent())
+              export DISTRO=${distro}
+              export ARCH=${arch}
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
+              """.stripIndent())
       } // end of steps
     } // end of with
   } // end of arch
