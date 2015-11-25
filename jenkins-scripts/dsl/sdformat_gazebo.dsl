@@ -254,11 +254,43 @@ sdformat_supported_branches.each { branch ->
                 export INSTALL_JOB_REPOS=stable
                 /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
                 """.stripIndent())
-        }
+
       }
     } // end of arch
   } // end of distro
 } // end of branch
+
+// --------------------------------------------------------------
+// PERFORMANCE: linux performance test
+ci_distro.each { distro ->
+  supported_arches.each { arch ->
+    def performance_job = job("sdformat-performance-default-${distro}-${arch}")
+    performance_job.with
+    {
+      scm
+      {
+        hg("http://bitbucket.org/osrf/sdformat") {
+          branch('default')
+          subdirectory("sdformat")
+        }
+
+        triggers {
+          scm('@daily')
+        }
+
+        steps {
+          shell("""\
+          #!/bin/bash -xe
+
+          export DISTRO=${distro}
+          export ARCH=${arch}
+          /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
+          """.stripIndent())
+        }
+      }
+    }
+  }
+}
 
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
