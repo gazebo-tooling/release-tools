@@ -46,7 +46,7 @@ class OSRFLinuxABI
         systemGroovyCommand("""\
           build.setDescription(
             '<b>origin branch:</b>' + build.buildVariableResolver.resolve('ORIGIN_BRANCH') + 
-            '<b>target branch:</b>' + build.buildVariableResolver.resolve('TARGET_BRANCH')
+            '<b>target branch:</b>' + build.buildVariableResolver.resolve('TARGET_BRANCH') +
             '<br />' +
             'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
           """.stripIndent()
