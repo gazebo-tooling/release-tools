@@ -62,5 +62,5 @@ class OSRFLinuxABI
            }
       } // end of configure
     } // end of with
-  } end of create
+  } // end of create
 } // end of class
