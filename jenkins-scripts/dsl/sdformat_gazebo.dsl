@@ -254,8 +254,8 @@ sdformat_supported_branches.each { branch ->
                 export INSTALL_JOB_REPOS=stable
                 /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
                 """.stripIndent())
-
-      }
+          }
+      } // end of with
     } // end of arch
   } // end of distro
 } // end of branch
