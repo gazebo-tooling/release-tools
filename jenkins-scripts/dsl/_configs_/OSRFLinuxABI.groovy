@@ -13,7 +13,7 @@ import javaposse.jobdsl.dsl.Job
     - set description
     - parse log for result
 */
- 
+
 class OSRFLinuxABI
 {
   static void create(Job job)
@@ -36,7 +36,7 @@ class OSRFLinuxABI
       }
 
       parameters {
-        stringParam("ORIGIN_BRANCH", null, 
+        stringParam("ORIGIN_BRANCH", null,
                     'Branch to use as base for the comparison')
         stringParam("TARGET_BRANCH", null,
                     'Branch to use to compare against ORIGIN_BRANCH')
@@ -45,7 +45,7 @@ class OSRFLinuxABI
       steps {
         systemGroovyCommand("""\
           build.setDescription(
-            '<b>origin branch:</b>' + build.buildVariableResolver.resolve('ORIGIN_BRANCH') + 
+            '<b>origin branch:</b>' + build.buildVariableResolver.resolve('ORIGIN_BRANCH') +
             '<b>target branch:</b>' + build.buildVariableResolver.resolve('TARGET_BRANCH') +
             '<br />' +
             'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
@@ -60,7 +60,7 @@ class OSRFLinuxABI
               failBuildOnError true
               parsingRulesPath('/var/lib/jenkins/logparser_warn_on_abichecker_error')
            }
-      }
-    } // end of job
-  }
-}
+      } // end of configure
+    } // end of with
+  } end of create
+} // end of class
