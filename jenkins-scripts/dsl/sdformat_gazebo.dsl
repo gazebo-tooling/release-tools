@@ -260,6 +260,7 @@ sdformat_supported_branches.each { branch ->
   } // end of distro
 } // end of branch
 
+/*
 // --------------------------------------------------------------
 // PERFORMANCE: linux performance test
 ci_distro.each { distro ->
@@ -292,6 +293,7 @@ ci_distro.each { distro ->
     } // end of with
   } // end of arch
 } // end of distro
+*/
 
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
