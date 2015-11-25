@@ -12,7 +12,7 @@ import javaposse.jobdsl.dsl.Job
     - performance plugin
 */
  
-class OSRFLinuxABI
+class OSRFLinuxPerformance
 {
   static void create(Job job)
   {
