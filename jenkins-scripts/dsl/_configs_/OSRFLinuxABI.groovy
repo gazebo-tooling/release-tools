@@ -45,9 +45,9 @@ class OSRFLinuxABI
       steps {
         systemGroovyCommand("""\
           build.setDescription(
-            '<b>origin branch:</b>' +
+            '<b>origin branch:</b> ' +
               build.buildVariableResolver.resolve('ORIGIN_BRANCH') + <br /> +
-            '<b>target branch:</b>' + 
+            '<b>target branch:</b> ' + 
               build.buildVariableResolver.resolve('TARGET_BRANCH') + <br /> +
             '<br />' +
             'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
