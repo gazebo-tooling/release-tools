@@ -52,9 +52,19 @@ SDFORMAT_BASE_DEPENDENCIES="python                       \\
                             libboost-regex-dev           \\
                             libboost-iostreams-dev       \\
                             libtinyxml-dev               \\
-                            ruby1.9.1-dev                \\
-                            ruby1.9.1                    \\
                             libxml2-utils"
+
+if [[ ${DISTRO} == 'precise' ]] ||
+   [[ ${DISTRO} == 'vivid'   ]] ||
+   [[ ${DISTRO} == 'trusty'  ]]; then
+  SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES} \\
+                            ruby1.9.1-dev                   \\
+                            ruby1.9.1"
+else
+  SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES} \\
+                            ruby-dev                        \\
+                            ruby"
+fi
 
 # SDFORMAT related dependencies
 if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
