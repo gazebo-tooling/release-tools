@@ -54,6 +54,7 @@ class OSRFLinuxABI
             parsers {
               'hudson.plugins.performance.JUnitParser' {
                 glob 'build/test_results/PERFORMANCE_*.xml'
+              }
             } // end of parsers
           } // end of project
         } // end of congfigure
