@@ -273,24 +273,24 @@ ci_distro.each { distro ->
           branch('default')
           subdirectory("sdformat")
         }
-
-        triggers {
-          scm('@daily')
-        }
-
-        steps {
-          shell("""\
-          #!/bin/bash -xe
-
-          export DISTRO=${distro}
-          export ARCH=${arch}
-          /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
-          """.stripIndent())
-        }
       }
-    }
-  }
-}
+
+      triggers {
+        scm('@daily')
+      }
+
+      steps {
+        shell("""\
+        #!/bin/bash -xe
+
+        export DISTRO=${distro}
+        export ARCH=${arch}
+        /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
+        """.stripIndent())
+      } // end of steps
+    } // end of with
+  } // end of arch
+} // end of distro
 
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
