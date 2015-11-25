@@ -7,6 +7,7 @@ def nightly_sdformat_branch = [ 'sdformat4' ]
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
 def abi_distro              = Globals.get_abi_distro()
+def performance_box         = Globals.get_performance_box()
 // Other supported platform to be checked but no for quick
 // CI integration.
 def other_supported_distros = Globals.get_other_supported_distros()
@@ -268,6 +269,8 @@ ci_distro.each { distro ->
     OSRFLinuxPerformance.create(performance_job)
     performance_job.with
     {
+      label "${performance_box}"
+
       scm
       {
         hg("http://bitbucket.org/osrf/sdformat") {
