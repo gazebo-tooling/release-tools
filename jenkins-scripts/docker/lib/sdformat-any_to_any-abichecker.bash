@@ -4,12 +4,12 @@ set -e
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
-echo '# BEGIN SECTION: compile and install branch: ${SDFORMAT_ORIGIN_BRANCH}'
+echo '# BEGIN SECTION: compile and install branch: ${ORIGIN_BRANCH}'
 cp -a $WORKSPACE/sdformat /tmp/sdformat
 chown -R root:root /tmp/sdformat
 cd /tmp/sdformat
 hg pull
-hg up $SDFORMAT_ORIGIN_BRANCH
+hg up $ORIGIN_BRANCH
 # Normal cmake routine for sdformat
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
@@ -18,22 +18,22 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr/local/origin_branch \\
   /tmp/sdformat
 make -j${MAKE_JOBS}
 make install
-sdformat_ORIGIN_DIR=\$(find /usr/local/origin_branch/include -name sdformat-* -type d | sed -e 's:.*/::')
+ORIGIN_DIR=\$(find /usr/local/origin_branch/include -name sdformat-* -type d | sed -e 's:.*/::')
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: compile and install branch: ${SDFORMAT_TARGET_BRANCH}'
+echo '# BEGIN SECTION: compile and install branch: ${TARGET_BRANCH}'
 # 2.2 Target branch
 # Reusing the same building and source directory to save bandwith and
 # compilation time.
 cd /tmp/sdformat
-hg up $SDFORMAT_TARGET_BRANCH
+hg up $TARGET_BRANCH
 # Normal cmake routine for sdformat
 cd $WORKSPACE/build
 cmake -DCMAKE_INSTALL_PREFIX=/usr/local/target_branch \\
   /tmp/sdformat
 make -j${MAKE_JOBS}
 make install
-sdformat_TARGET_DIR=\$(find /usr/local/target_branch/include -name sdformat-* -type d | sed -e 's:.*/::')
+TARGET_DIR=\$(find /usr/local/target_branch/include -name sdformat-* -type d | sed -e 's:.*/::')
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install the ABI checker'
@@ -48,11 +48,11 @@ mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker
 cat > pkg.xml << CURRENT_DELIM
  <version>
-     branch: $SDFORMAT_ORIGIN_BRANCH
+     branch: $ORIGIN_BRANCH
  </version>
 
  <headers>
-   /usr/local/origin_branch/include/\$sdformat_ORIGIN_DIR/sdf
+   /usr/local/origin_branch/include/\$ORIGIN_DIR/sdf
  </headers>
 
  <libs>
@@ -62,11 +62,11 @@ CURRENT_DELIM
 
 cat > devel.xml << DEVEL_DELIM
  <version>
-     branch: $SDFORMAT_TARGET_BRANCH
+     branch: $TARGET_BRANCH
  </version>
 
  <headers>
-   /usr/local/target_branch/include/\$sdformat_TARGET_DIR/sdf
+   /usr/local/target_branch/include/\$TARGET_DIR/sdf
  </headers>
 
  <libs>
