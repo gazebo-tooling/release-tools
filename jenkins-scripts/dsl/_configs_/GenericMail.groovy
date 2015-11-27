@@ -43,14 +43,36 @@ class GenericMail
                     includeCulprits: false,
                     sendToRecipientList: true)
             configure { node ->
-              node / presendScript << """                
-                boolean no_mail = build.getEnvVars()['NO_MAILS'].toBoolean()
+              node / presendScript << """
+                boolean final_cancel_answer = true
+                String logFilePath = build.getLogFile().getPath();
+                String logContent = new File(logFilePath).text;
 
+                // 1. Check if NO_MAILS is enabled
+                boolean no_mail = build.getEnvVars()['NO_MAILS'].toBoolean()
                 if (no_mail)
                 {
                   logger.println("NO_MAILS parameter enable. Not sending mails! ")
-                  cancel = true;
+                  final_cancel_answer = true;
                 }
+
+                // 2. MSVC internal compiler error
+                // Let's assume does only very rarely several
+                // Naginator plugin does not provide a way to know if MAX got
+                // reach withput unsuccessful build
+                // https://issues.jenkins-ci.org/browse/JENKINS-21241
+                try {
+                    if (logContent.find(/INTERNAL COMPILER ERROR/))
+                    {
+                      logger.println("INTERNAL COMPILER ERROR detected. Not sending mails!")
+                      final_cancel_answer = true;
+                    }
+                }
+                catch (all)
+                {
+                }
+
+                cancel = final_cancel_answer
                 """.stripIndent()
     	    } // end of configure
           }
