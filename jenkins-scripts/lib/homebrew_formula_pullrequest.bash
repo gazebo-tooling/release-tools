@@ -82,7 +82,7 @@ elif [ -s ${TAP_PREFIX}/Aliases/${PACKAGE_ALIAS} ]; then
 else
   echo Formula for ${PACKAGE_ALIAS} not found
   [[ -d homebrew-simulation ]] && ls homebrew-simulation/*
-  exit -1
+  exit 0
 fi
 echo '# END SECTION'
 
