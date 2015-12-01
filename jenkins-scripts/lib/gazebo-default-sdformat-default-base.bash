@@ -47,7 +47,13 @@ apt-get update
 # Step 1: install everything you need
 
 # Install mercurial and sdformat and gazebo Build-Depends
-apt-get install -y mercurial ca-certificates ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES} 
+apt-get install -y \
+  mercurial \
+  ca-certificates \
+  ${BASE_DEPENDENCIES} \
+  ${GAZEBO_BASE_DEPENDENCIES} \
+  ${GAZEBO_EXTRA_DEPENDENCIES} \
+  ${SDFORMAT_BASE_DEPENDENCIES}
 
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then
@@ -56,7 +62,7 @@ if ${GRAPHIC_CARD_FOUND}; then
     # It will kill DRI otherwise
     CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\ " | awk '{ print \$3 }' | sed 's:-.*::')
     if [ "\${CHROOT_GRAPHIC_CARD_PKG_VERSION}" != "${GRAPHIC_CARD_PKG_VERSION}" ]; then
-       echo "Package ${GRAPHIC_CARD_PKG} has different version in chroot and host system. Maybe you need to update your host" 
+       echo "Package ${GRAPHIC_CARD_PKG} has different version in chroot and host system. Maybe you need to update your host"
        exit 1
     fi
 fi
