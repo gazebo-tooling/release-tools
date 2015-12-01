@@ -113,7 +113,7 @@ else
   echo Changing version from
   echo ${FORMULA_VERSION} to
   echo ${VERSION}
-  VERSION_LINE=`awk
+  VERSION_LINE=`awk \
     "/version .${FORMULA_VERSION}/ {print FNR}" ${FORMULA_PATH} | head -1`
   echo on line number ${VERSION_LINE}
   sed -i -e "${VERSION_LINE}c\  version \"${VERSION}\"" ${FORMULA_PATH}
