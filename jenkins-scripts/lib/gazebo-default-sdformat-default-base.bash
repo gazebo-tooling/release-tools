@@ -52,8 +52,8 @@ apt-get install -y \
   mercurial \
   ca-certificates \
   ${BASE_DEPENDENCIES} \
-  ${GAZEBO_BASE_DEPENDENCIES} \
-  `echo ${GAZEBO_EXTRA_DEPENDENCIES} | sed -e s@[a-z]*sdformat[0-9\-a-z]*@@` \
+  `echo ${GAZEBO_BASE_DEPENDENCIES} | sed -e s@[a-z]*sdformat[0-9\-a-z]*@@` \
+  ${GAZEBO_EXTRA_DEPENDENCIES} \
   ${SDFORMAT_BASE_DEPENDENCIES}
 
 # Optional stuff. Check for graphic card support
