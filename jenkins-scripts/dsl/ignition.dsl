@@ -2,7 +2,7 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
-def ignition_software = [ 'transport', 'math' ]
+def ignition_software = [ 'transport', 'math', 'common' ]
 def ignition_transport_series = '0'
 def ignition_math_series = '2'
 
