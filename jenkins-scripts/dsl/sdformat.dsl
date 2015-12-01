@@ -318,7 +318,7 @@ all_debbuild_branches.each { branch ->
         shell("""\
               #!/bin/bash -xe
 
-              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-sdformat-debbuild.bash
+              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
               """.stripIndent())
       }
   }
