@@ -71,37 +71,40 @@ ignition_software.each { ign_sw ->
 
 // INSTALL PACKAGE ALL PLATFORMS / DAILY
 ignition_software.each { ign_sw ->
-  all_supported_distros.each { distro ->
-    supported_arches.each { arch ->
-      // --------------------------------------------------------------
-      def install_default_job = job("ignition_${ign_sw}-install-pkg-${distro}-${arch}")
-      OSRFLinuxInstall.create(install_default_job)
-      install_default_job.with
-      {
-         triggers {
-           cron('@daily')
-         }
- 
-         def dev_package = "libignition-${ign_sw}${ignition_transport_series}-dev"
+  // TODO: ign-common still has no packages
+  if ("${ign_sw}" != "common") {
+    all_supported_distros.each { distro ->
+      supported_arches.each { arch ->
+        // --------------------------------------------------------------
+        def install_default_job = job("ignition_${ign_sw}-install-pkg-${distro}-${arch}")
+        OSRFLinuxInstall.create(install_default_job)
+        install_default_job.with
+        {
+           triggers {
+             cron('@daily')
+           }
 
-         if ("${ign_sw}" == "math")
-          dev_package = "libignition-${ign_sw}${ignition_math_series}-dev"
+           def dev_package = "libignition-${ign_sw}${ignition_transport_series}-dev"
 
-         steps {
-          shell("""\
-                #!/bin/bash -xe
+           if ("${ign_sw}" == "math")
+            dev_package = "libignition-${ign_sw}${ignition_math_series}-dev"
 
-                export DISTRO=${distro}
-                export ARCH=${arch}
-                export INSTALL_JOB_PKG=${dev_package}
-                export INSTALL_JOB_REPOS=stable
-                /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
-                """.stripIndent())
+           steps {
+            shell("""\
+                  #!/bin/bash -xe
+
+                  export DISTRO=${distro}
+                  export ARCH=${arch}
+                  export INSTALL_JOB_PKG=${dev_package}
+                  export INSTALL_JOB_REPOS=stable
+                  /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+                  """.stripIndent())
+          }
         }
-      }
-    }
-  }
-}
+      } // arch
+    } //  distro
+  } // ign-common exception
+} // ign-software
 
 // OTHER CI SUPPORTED JOBS / DAILY
 ignition_software.each { ign_sw ->
