@@ -132,7 +132,8 @@ ${GIT} fetch --unshallow
 ${GIT} config user.name "OSRF Build Bot"
 ${GIT} config user.email "osrfbuild@osrfoundation.org"
 ${GIT} remote -v
-BRANCH="${PACKAGE_ALIAS}_${VERSION}"
+# create branch with name and sanitized version string
+BRANCH="${PACKAGE_ALIAS}_`echo ${VERSION} | tr ' ~:^?*[' '_'`"
 ${GIT} checkout -b ${BRANCH}
 ${GIT} commit ${FORMULA_PATH} -m "${PACKAGE_ALIAS} ${VERSION}"
 echo
