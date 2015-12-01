@@ -24,6 +24,15 @@ if ! [[ ${GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
+NEED_PRERELEASE=false
+if [[ $GAZEBO_MAJOR_VERSION -ge 7 ]]; then
+  # Need prerelease repo to get sdformat4 during the development cycle
+  # 20160125 release date of gazebo7
+  if [[ $(date +%Y%m%d) -le 20160125 ]]; then
+    NEED_PRERELEASE=true
+  fi
+fi
+
 echo '# BEGIN SECTION: setup the testing enviroment'
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
@@ -54,6 +63,9 @@ init_stopwatch INSTALL_DEPENDENCIES
 # OSRF repository to get bullet
 apt-get install -y wget
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu ${DISTRO} main" > /etc/apt/sources.list.d/drc-latest.list'
+if ${NEED_PRERELEASE}; then
+  sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu-prerelease ${DISTRO} main" > /etc/apt/sources.list.d/gazebo-prerelease.list'
+fi
 wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
 
 # Dart repositories
