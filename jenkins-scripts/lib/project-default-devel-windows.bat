@@ -3,7 +3,7 @@
 :: Parameters:
 ::   - VCS_DIRECTORY : WORKSPACE/VCS_DIRECTORY should contain the sources
 ::   - BUILD_TYPE    : (default Release) [ Release | Debug ] Build type to use
-::   - DEPENDENCY_PKG: (optional) one package as dependency (only one is supported by now)
+::   - DEPENDENCY_PKG: (optional) comma separated list of packages as dependencies
 ::   - KEEP_WORKSPACE: (optional) true | false. Clean workspace at the end
 ::
 :: Actions
@@ -50,8 +50,12 @@ echo # BEGIN SECTION: downloading and unzip dependency %DEPENDENCY_PKG%
 REM Todo: support multiple dependencies
 if defined DEPENDENCY_PKG (
   call %win_lib% :download_7za
-  call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%DEPENDENCY_PKG% %DEPENDENCY_PKG% || goto :error
-  call %win_lib% :unzip_7za %DEPENDENCY_PKG% %DEPENDENCY_PKG% > install.log || goto:error
+
+  for %%p in (%DEPENDENCY_PKG%) do (
+    echo "Downloading %%p"
+    call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%%p %%p || goto :error
+    call %win_lib% :unzip_7za %%p %%p > install.log || goto:error
+  )
 )
 echo # END SECTION
 
