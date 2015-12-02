@@ -150,25 +150,25 @@ GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
                           libsimbody-dev                   \\
                           ${dart_pkg}"
                    
-GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                          ${sdformat_pkg}"
-
 if [[ ${GAZEBO_MAJOR_VERSION} -ge 6 ]]; then
-    GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES} \\
-                              libignition-math2-dev"
+    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                         libignition-math2-dev"
 fi
 
 if [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
-    GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES} \\
+    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                               libignition-transport0-dev"
 fi
 
 # libtinyxml2-dev is not on precise
 # it is needed by gazebo7, which isn't supported on precise
 if [[ ${DISTRO} != 'precise' ]]; then
-    GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES} \\
+    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                               libtinyxml2-dev"
 fi
+
+GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                          ${sdformat_pkg}"
 
 GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
                            libavformat-dev  \\
