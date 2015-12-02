@@ -48,13 +48,7 @@ apt-get update
 
 # Install mercurial and sdformat and gazebo Build-Depends
 # but don't install libsdformatN-dev
-apt-get install -y \
-  mercurial \
-  ca-certificates \
-  ${BASE_DEPENDENCIES} \
-  `echo ${GAZEBO_BASE_DEPENDENCIES} | sed -e 's@[a-z]*sdformat[0-9a-z-]*@@'` \
-  ${GAZEBO_EXTRA_DEPENDENCIES} \
-  ${SDFORMAT_BASE_DEPENDENCIES}
+apt-get install -y mercurial ca-certificates ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} ${GAZEBO_EXTRA_DEPENDENCIES} ${SDFORMAT_BASE_DEPENDENCIES}
 
 # Optional stuff. Check for graphic card support
 if ${GRAPHIC_CARD_FOUND}; then

@@ -123,7 +123,7 @@ if [[ ${DISTRO} == 'precise' ]] || \
     bullet_pkg="libbullet2.82-dev"
 fi
 
-GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
+GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
                           libprotoc-dev                    \\
                           libprotobuf-dev                  \\
                           protobuf-compiler                \\
@@ -148,7 +148,9 @@ GAZEBO_BASE_DEPENDENCIES="libfreeimage-dev                 \\
                           libboost-iostreams-dev           \\
                           ${bullet_pkg}                    \\
                           libsimbody-dev                   \\
-                          ${dart_pkg}                      \\
+                          ${dart_pkg}"
+                   
+GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                           ${sdformat_pkg}"
 
 if [[ ${GAZEBO_MAJOR_VERSION} -ge 6 ]]; then
