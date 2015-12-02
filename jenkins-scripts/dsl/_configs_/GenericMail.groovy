@@ -44,7 +44,7 @@ class GenericMail
                     sendToRecipientList: true)
             configure { node ->
               node / presendScript << """
-                boolean final_cancel_answer = true
+                boolean final_cancel_answer = false
                 String logFilePath = build.getLogFile().getPath();
                 String logContent = new File(logFilePath).text;
 
