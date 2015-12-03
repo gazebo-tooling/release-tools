@@ -15,6 +15,8 @@ class GenericCompilation
      def mail_content ='''\
      $DEFAULT_CONTENT
 
+     ${BUILD_LOG_REGEX, regex="^.*: (fatal ){0,1}error: .*$",  linesBefore="5", linesAfter="5", maxMatches=0, showTruncatedLines=false}
+
      Test summary:
      -------------
       * Total of ${TEST_COUNTS, var="total"} tests : ${TEST_COUNTS, var="fail"} failed and ${TEST_COUNTS, var="skip"}
