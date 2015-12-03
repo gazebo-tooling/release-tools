@@ -105,16 +105,10 @@ make test ARGS="-VV" || true
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean build directory and export information'
-# Step 5: copy test log
-# Broken http://build.osrfoundation.org/job/gazebo-any-devel-precise-amd64-gpu-nvidia/6/console
-# Need fix
-# mkdir $WORKSPACE/logs
-# cp $HOME/.gazebo/logs/*.log $WORKSPACE/logs/
-
 # Step 6. Need to clean build/ directory so disk space is under control
 # Move test results out of build
 # Copy the results
-mv $WORKSPACE/build/test_results $WORKSPACE/test_results
+mv $WORKSPACE/gazebo/build/test_results $WORKSPACE/test_results
 rm -fr $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 # To keep backwards compatibility with current configurations keep a copy
