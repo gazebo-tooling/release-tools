@@ -62,7 +62,9 @@ supported_distros.each { distro ->
         steps {
           shell("""#!/bin/bash -xe
 
-                /bin/bash -x ./scripts/jenkins-scripts/docker/sdformat-default-devel-trusty-amd64.bash
+                export DISTRO=${distro}
+                export ARCH=${arch}
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
                 """.stripIndent())
         }
     }
