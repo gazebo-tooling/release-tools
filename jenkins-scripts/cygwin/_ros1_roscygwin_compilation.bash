@@ -6,7 +6,7 @@ apt-cyg install wget mercurial tar gawk xz bzip2
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: Install tool dependencies"
-apt-cyg install python make cmake gdb git patch unzip pkg-config gcc-g++ libtool fluid
+apt-cyg install python make cmake gdb git patch unzip pkg-config gcc-g++ libtool fluid graphviz
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: Install library dependencies"
