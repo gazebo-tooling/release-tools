@@ -45,3 +45,39 @@ release_job.with
               """.stripIndent())
    }
 }
+
+// -------------------------------------------------------------------
+// BREW pull request SHA updater
+def bottle_job = job("generic-release-homebrew_bottle_builder")
+OSRFOsXBase.create(bottle_job)
+GenericRemoteToken.create(bottle_job)
+bottle_job.with
+{
+   label "osx"
+
+   wrappers {
+        preBuildCleanup()
+   }
+
+   parameters
+   {
+     stringParam("PULL_REQUEST_NUMBER", '',
+                 'Pull request id in osrf/simulation brew repo to build bottles from')
+   }
+
+   steps {
+        systemGroovyCommand("""\
+          build.setDescription(
+          'pull request: <b>' + build.buildVariableResolver.resolve('PULL_REQUEST_NUMBER') +
+          '<br />' +
+          'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+          """.stripIndent()
+        )
+
+        shell("""\
+              #!/bin/bash -xe
+
+              /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_bottle_pullrequest.bash
+              """.stripIndent())
+   }
+}
