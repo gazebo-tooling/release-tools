@@ -207,7 +207,7 @@ gazebo_supported_branches.each { branch ->
           {
             // The usual form using branch in the clousure does not work
             hg("http://bitbucket.org/osrf/gazebo",
-               get_gazebo_branch_name(branch),
+               branch,
                { node -> node / subdir << "gazebo" })
           }
 
@@ -380,7 +380,7 @@ all_branches.each { branch ->
   {
       scm {
         hg("http://bitbucket.org/osrf/gazebo",
-           get_gazebo_branch_name(branch),
+           branch,
            { node -> node / subdir << "gazebo" })
       }
 
