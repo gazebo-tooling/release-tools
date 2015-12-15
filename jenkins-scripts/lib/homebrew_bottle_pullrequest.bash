@@ -8,7 +8,7 @@ fi
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean up environment'
-bash -x _homebrew_cleanup.bash
+bash -x ${SCRIPT_DIR}/lib/_homebrew_cleanup.bash
 echo '# END SECTION'
 
 
