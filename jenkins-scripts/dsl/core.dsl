@@ -47,7 +47,7 @@ release_job.with
 }
 
 // -------------------------------------------------------------------
-// BREW pull request SHA updater
+// BREW bottle creation job from pullrequest
 def bottle_job = job("generic-release-homebrew_bottle_builder")
 OSRFOsXBase.create(bottle_job)
 GenericRemoteToken.create(bottle_job)
