@@ -140,7 +140,10 @@ ci_distro.each { distro ->
           }
         }
       
-        label "gpu-${gpu}-${distro}"
+        if (gpu != 'none')
+        {
+          label "gpu-${gpu}-${distro}"
+        }
 
         triggers {
           scm('*/5 * * * *')
