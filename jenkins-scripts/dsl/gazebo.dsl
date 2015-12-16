@@ -49,8 +49,6 @@ abi_distro.each { distro ->
         }
       }
 
-      label "gpu-" + ci_gpu[0] + "-${distro}"
-
       steps {
         shell("""\
               #!/bin/bash -xe
