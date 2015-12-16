@@ -22,6 +22,15 @@ if ! [[ ${GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
+NEED_PRERELEASE=false
+if [[ $GAZEBO_MAJOR_VERSION -ge 7 ]]; then
+  # Need prerelease repo to get sdformat4 during the development cycle
+  # 20160125 release date of gazebo7
+  if [[ $(date +%Y%m%d) -le 20160125 ]]; then
+    NEED_PRERELEASE=true
+  fi
+fi
+
 echo '# BEGIN SECTION: setup the testing enviroment'
 # Define the name to be used in docker
 DOCKER_JOB_NAME="gazebo_ci"
@@ -106,7 +115,11 @@ fi
 echo '# END SECTION'
 DELIM
 
-USE_OSRF_REPO=true
+OSRF_REPOS_TO_USE="stable"
+if ${NEED_PRERELEASE}; then
+  OSRF_REPOS_TO_USE="${OSRF_REPOS_TO_USE} prerelease"
+fi
+
 SOFTWARE_DIR="gazebo"
 DEPENDENCY_PKGS="${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES}"
 

@@ -14,8 +14,6 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="gazebo"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GAZEBO_BASE_DEPENDENCIES"
-export BUILDING_JOB_REPOSITORIES="stable"
-
-. ${SCRIPT_DIR}/lib/generic-building-base.bash
+# Can not use generic compilation since we host the DART instalation and some
+# other logic based of every gazebo version
+. ${SCRIPT_DIR}/lib/gazebo-base-default.bash
