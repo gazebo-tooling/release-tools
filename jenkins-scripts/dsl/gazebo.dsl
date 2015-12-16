@@ -439,7 +439,7 @@ all_branches.each { branch ->
   {
       steps {
         batchFile("""\
-              call "./scripts/jenkins-scripts/gazebo-default-devel-windows-amd64.bat"
+              call "./scripts/jenkins-scripts/gazebo-default-devel-windows7-amd64.bat"
               """.stripIndent())
       }
   }
@@ -465,7 +465,7 @@ all_branches.each { branch ->
 
       steps {
         batchFile("""\
-              call "./scripts/jenkins-scripts/gazebo-default-devel-windows-amd64.bat"
+              call "./scripts/jenkins-scripts/gazebo-default-devel-windows7-amd64.bat"
               """.stripIndent())
       }
   }
