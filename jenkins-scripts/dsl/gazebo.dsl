@@ -49,7 +49,7 @@ abi_distro.each { distro ->
         }
       }
 
-      label "gpu-" + ci_gpu[0]
+      label "gpu-" + ci_gpu[0] + "-${distro}"
 
       steps {
         shell("""\
@@ -85,7 +85,7 @@ ci_distro.each { distro ->
         
         if (gpu != 'none')
         {
-          label "gpu-${gpu}"
+          label "gpu-${gpu}-${distro}"
         }
 
         steps
@@ -140,7 +140,7 @@ ci_distro.each { distro ->
           }
         }
       
-        label "gpu-${gpu}"
+        label "gpu-${gpu}-${distro}"
 
         triggers {
           scm('*/5 * * * *')
@@ -186,7 +186,7 @@ other_supported_distros.each { distro ->
         
         if (gpu != 'none')
         {
-          label "gpu-${gpu}"
+          label "gpu-${gpu}-${distro}"
         }
 
         triggers {
@@ -231,7 +231,7 @@ gazebo_supported_branches.each { branch ->
                { node -> node / subdir << "gazebo" })
           }
 
-          label "gpu-${gpu}"
+          label "gpu-${gpu}-${distro}"
 
           triggers {
             scm('@daily')
@@ -339,7 +339,7 @@ ci_distro.each { distro ->
         }
       }
 
-      label "gpu-" + ci_gpu[0]
+      label "gpu-" + ci_gpu[0] + "-${distro}"
 
       triggers {
         scm('@daily')
