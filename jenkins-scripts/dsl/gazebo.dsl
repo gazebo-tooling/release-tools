@@ -49,7 +49,7 @@ abi_distro.each { distro ->
         }
       }
 
-      label ci_gpu
+      label "gpu-${ci_gpu}"
 
       steps {
         shell("""\
@@ -83,7 +83,10 @@ ci_distro.each { distro ->
                       'Destination branch where the pull request will be merged')
         }
         
-        label ci_gpu
+        if (gpu != 'none')
+        {
+          label "gpu-${ci_gpu}"
+        }
 
         steps
         {
@@ -137,7 +140,7 @@ ci_distro.each { distro ->
           }
         }
       
-        label ci_gpu
+        label "gpu-${ci_gpu}"
 
         triggers {
           scm('*/5 * * * *')
@@ -179,6 +182,11 @@ other_supported_distros.each { distro ->
             branch('default')
             subdirectory("gazebo")
           }
+        }
+        
+        if (gpu != 'none')
+        {
+          label "gpu-${ci_gpu}"
         }
 
         triggers {
@@ -222,6 +230,8 @@ gazebo_supported_branches.each { branch ->
                branch,
                { node -> node / subdir << "gazebo" })
           }
+
+          label "gpu-${ci_gpu}"
 
           triggers {
             scm('@daily')
@@ -328,6 +338,8 @@ ci_distro.each { distro ->
           subdirectory("gazebo")
         }
       }
+
+      label "gpu-" + Globals.get_ci_gpu()
 
       triggers {
         scm('@daily')
