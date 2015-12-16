@@ -20,8 +20,8 @@ def all_supported_gpus      = Globals.get_all_supported_gpus()
 // Need to be used in ci_pr
 String abi_job_name = ''
 
-// convert branch name to major version ready for debbuild
-String gazebo_branch_to_debbuild(String branch)
+// convert branch name to major version ready for job names
+String gazebo_branch_to_major_version(String branch)
 {
    if (branch == 'gazebo_2.2')
      return 'gazebo2'
@@ -281,7 +281,8 @@ gazebo_supported_branches.each { branch ->
   ci_distro.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
-      def install_default_job = job("gazebo-install-${branch}_pkg-${distro}-${arch}")
+      branch_name = gazebo_branch_to_major_version(branch)
+      def install_default_job = job("gazebo-install-${branch_name}_pkg-${distro}-${arch}")
       OSRFLinuxInstall.create(install_default_job)
       install_default_job.with
       {
@@ -289,7 +290,10 @@ gazebo_supported_branches.each { branch ->
            cron('@daily')
          }
 
-         def dev_package = "lib${branch}-dev"
+         def dev_package = "lib${branch_name}-dev"
+         
+         if (branch_name == 'gazebo2')
+           dev_package = 'gazebo2'
 
          steps {
           shell("""\
@@ -348,7 +352,7 @@ ci_distro.each { distro ->
 
 all_debbuild_branches = gazebo_supported_branches + nightly_gazebo_branch
 all_debbuild_branches.each { branch ->
-  branch_name = gazebo_branch_to_debbuild(branch)
+  branch_name = gazebo_branch_to_major_version(branch)
   def build_pkg_job = job("${branch_name}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
 
