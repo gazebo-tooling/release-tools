@@ -11,7 +11,7 @@ else
     GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
 fi
 
-${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
+. ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
 
 echo '# BEGIN SECTION: setup the testing enviroment'
 # Define the name to be used in docker
