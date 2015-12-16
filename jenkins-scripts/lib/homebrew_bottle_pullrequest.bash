@@ -17,6 +17,7 @@ echo '# END SECTION'
 
 
 echo '# BEGIN SECTION: run test-bot'
+brew update
 brew test-bot             \
     --tap=osrf/simulation \
     --bottle              \
