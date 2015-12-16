@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
-[[ -L ${0} ]] && SCRIPT_LIBDIR_DIR=$(readlink ${0}) || SCRIPT_LIBDIR_DIR=${0}
-SCRIPT_LIBDIR_DIR="${SCRIPT_LIBDIR_DIR%/*}"
+[[ -L ${0} ]] && SCRIPT_LIBDIR=$(readlink ${0}) || SCRIPT_LIBDIR=${0}
+SCRIPT_LIBDIR="${SCRIPT_LIBDIR%/*}"
 
 
 echo '# BEGIN SECTION: check variables'
