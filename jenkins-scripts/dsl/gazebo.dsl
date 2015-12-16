@@ -20,6 +20,18 @@ def all_supported_gpus      = Globals.get_all_supported_gpus()
 // Need to be used in ci_pr
 String abi_job_name = ''
 
+// convert branch name to major version ready for debbuild
+String gazebo_branch_to_debbuild(String branch)
+{
+   if (branch == 'gazebo_2.2')
+     return 'gazebo2'
+
+   if (branch == 'gazebo_4.1')
+     return 'gazebo4'
+
+   return branch
+}
+
 // ABI Checker job
 // Need to be the before ci-pr_any so the abi job name is defined
 abi_distro.each { distro ->
@@ -336,7 +348,8 @@ ci_distro.each { distro ->
 
 all_debbuild_branches = gazebo_supported_branches + nightly_gazebo_branch
 all_debbuild_branches.each { branch ->
-  def build_pkg_job = job("${branch}-debbuilder")
+  branch_name = gazebo_branch_to_debbuild(branch)
+  def build_pkg_job = job("${branch_name}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
 
   build_pkg_job.with
