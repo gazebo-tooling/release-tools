@@ -27,5 +27,5 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: export bottle'
 mv *.bottle.tar.gz ${PKG_DIR}
-ls *bottle*
+mv *.bottle.rb ${PKG_DIR}
 echo '# END SECTION'
