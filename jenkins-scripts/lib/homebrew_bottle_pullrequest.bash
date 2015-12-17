@@ -4,6 +4,8 @@ set -e
 [[ -L ${0} ]] && SCRIPT_LIBDIR=$(readlink ${0}) || SCRIPT_LIBDIR=${0}
 SCRIPT_LIBDIR="${SCRIPT_LIBDIR%/*}"
 
+export PATH="/usr/local/bin:$PATH"
+
 PKG_DIR=${WORKSPACE}/pkgs
 
 echo '# BEGIN SECTION: check variables'
