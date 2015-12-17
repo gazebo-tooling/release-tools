@@ -21,6 +21,7 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: run test-bot'
 git config --global user.name "OSRF Build Bot"
 git config --global user.email "osrfbuild@osrfoundation.org"
+cat ${HOME}/.gitconfig
 brew test-bot             \
     --tap=osrf/simulation \
     --bottle              \
