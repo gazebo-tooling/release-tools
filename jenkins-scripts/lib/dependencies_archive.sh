@@ -43,6 +43,8 @@ BASE_DEPENDENCIES="build-essential \\
                    bc              \\
                    netcat-openbsd"
 
+BREW_BASE_DEPENDCIES="mercurial git cmake"
+
 # 1. SDFORMAT
 # ruby for xml_schemas generation and libxml2-utils for xmllint used in tests
 SDFORMAT_BASE_DEPENDENCIES="python                       \\
