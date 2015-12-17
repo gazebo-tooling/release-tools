@@ -18,6 +18,9 @@ bash -x ${SCRIPT_LIBDIR}/_homebrew_cleanup.bash
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run test-bot'
+git config user.name "OSRF Build Bot"
+git config user.email "osrfbuild@osrfoundation.org"
+
 brew test-bot             \
     --tap=osrf/simulation \
     --bottle              \
