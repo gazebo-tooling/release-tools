@@ -7,8 +7,8 @@ SCRIPT_LIBDIR="${SCRIPT_LIBDIR%/*}"
 PKG_DIR=${WORKSPACE}/pkgs
 
 echo '# BEGIN SECTION: check variables'
-if [ -z "${PULL_REQUEST_NUMBER}" ]; then
-    echo PULL_REQUEST_NUMBER not specified
+if [ -z "${PULL_REQUEST_URL}" ]; then
+    echo PULL_REQUEST_URL not specified
     exit -1
 fi
 echo '# END SECTION'
