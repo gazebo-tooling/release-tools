@@ -22,11 +22,12 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: run test-bot'
 export GIT_AUTHOR_NAME="OSRF Build Bot"
-export GIT_COMMITTER_NAME= ${GIT_AUTHOR_NAME}
+export GIT_COMMITTER_NAME=${GIT_AUTHOR_NAME}
 export GIT_AUTHOR_EMAIL="osrfbuild@osrfoundation.org"
 export GIT_COMMITTER_EMAIL=${GIT_AUTHOR_EMAIL}
 cat ${HOME}/.gitconfig
 set | grep GIT
+git config --local -l
 
 brew test-bot             \
     --tap=osrf/simulation \
