@@ -1,4 +1,7 @@
-#!/bin/bash -x
+#!/bin/bash
+
+set -e
+set +x
 
 [[ -L ${0} ]] && SCRIPT_LIBDIR=$(readlink ${0}) || SCRIPT_LIBDIR=${0}
 SCRIPT_LIBDIR="${SCRIPT_LIBDIR%/*}"
@@ -18,9 +21,6 @@ rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run test-bot'
-git config user.name "OSRF Build Bot"
-git config user.email "osrfbuild@osrfoundation.org"
-
 brew test-bot             \
     --tap=osrf/simulation \
     --bottle              \
