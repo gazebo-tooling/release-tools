@@ -19,6 +19,8 @@ rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run test-bot'
+git config --global user.name "OSRF Build Bot"
+git config --global user.email "osrfbuild@osrfoundation.org"
 brew test-bot             \
     --tap=osrf/simulation \
     --bottle              \
