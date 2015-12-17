@@ -14,7 +14,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean up environment'
 rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
-bash -x ${SCRIPT_LIBDIR}/_homebrew_cleanup.bash
+. ${SCRIPT_LIBDIR}/_homebrew_cleanup.bash
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run test-bot'
