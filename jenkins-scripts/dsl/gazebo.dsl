@@ -445,7 +445,8 @@ all_branches.each { branch ->
   }
 
 // 2. default / @ SCM/Daily
-all_branches = gazebo_supported_branches + 'default'
+all_branches = gazebo_supported_branches + 'default' - 'gazebo_2.2' - 'gazebo_4.1' - 'gazebo5' - 'gazebo6'
+def nightly_gazebo_branch = [ 'gazebo7' ]
 all_branches.each { branch ->
   def gazebo_win_ci_job = job("gazebo-ci-${branch}-windows7-amd64")
   OSRFWinCompilation.create(gazebo_win_ci_job)
