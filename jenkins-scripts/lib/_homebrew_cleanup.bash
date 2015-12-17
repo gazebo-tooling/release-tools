@@ -1,5 +1,5 @@
+#/bin/bash +x
 set -e
-set +x
 
 # Backup brew executable.
 mv /usr/local/bin/brew /tmp/brew
