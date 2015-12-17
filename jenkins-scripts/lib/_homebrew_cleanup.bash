@@ -16,6 +16,14 @@ rm -rf /usr/local/Library/LinkedKegs/*
 mv /tmp/brew /usr/local/bin/brew
 
 # Restore the basic stuff
-. ${SCRIPT_DIR}/lib/dependencies_archive.sh
+if [[ -n ${SCRIPT_LIBDIR} ]]; then
+  . ${SCRIPT_LIBDIR}/dependencies_archive.sh
+elif [[ -n ${SCRIPT_DIR} ]]; then
+  . ${SCRIPT_DIR}/lib/dependencies_archive.sh
+else
+  echo "Can not find the dependencies_archive.sh"
+  exit -1
+fi
+
 brew update
 brew install ${BREW_BASE_DEPENDCIES}
