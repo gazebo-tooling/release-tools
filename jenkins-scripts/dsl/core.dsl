@@ -61,8 +61,8 @@ bottle_job.with
 
    parameters
    {
-     stringParam("PULL_REQUEST_NUMBER", '',
-                 'Pull request id in osrf/simulation brew repo to build bottles from')
+     stringParam("PULL_REQUEST_URL", '',
+                 'Pull request URL (osrf/simulation) pointing to a pull request.')
    }
 
    steps {

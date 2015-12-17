@@ -25,7 +25,7 @@ brew test-bot             \
     --tap=osrf/simulation \
     --bottle              \
     --ci-pr               \
-    --verbose https://github.com/osrf/homebrew-simulation/pull/${PULL_REQUEST_NUMBER}
+    --verbose ${PULL_REQUEST_URL}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export bottle'

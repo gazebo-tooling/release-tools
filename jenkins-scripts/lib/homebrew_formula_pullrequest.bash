@@ -177,8 +177,12 @@ fi
 # This cd needed because -C doesn't seem to work for pull-request
 # https://github.com/github/hub/issues/1020
 cd ${TAP_PREFIX}
-${HUB} -C ${TAP_PREFIX} pull-request \
+PR_URL=$(${HUB} -C ${TAP_PREFIX} pull-request \
   -b osrf:master \
   -h osrfbuild:${BRANCH} \
-  -m "${PACKAGE_ALIAS} ${VERSION}"
+  -m "${PACKAGE_ALIAS} ${VERSION}")
+
+echo "Pull request created: ${PR_URL}"
+# Exporting URL as an artifact (it will be used in other jobs)
+echo "PULL_REQUEST_URL=${PR_URL}" >> ${WORSPACE}/pull_request_created.properties
 echo '# END SECTION'
