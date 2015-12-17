@@ -30,7 +30,7 @@ brew install ${BREW_BASE_DEPENDCIES}
 
 # Fix perms in /Library/Caches to work with admin group
 sudo chgrp -R admin /Library/Caches/Homebrew/
-chmod -R g+w /Library/Caches/Homebrew/
+sudo chmod -R g+w /Library/Caches/Homebrew/
 
 # test-bot needs variables and does not work just with config not sure why
 export GIT_AUTHOR_NAME="OSRF Build Bot"
