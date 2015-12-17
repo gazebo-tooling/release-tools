@@ -3,6 +3,7 @@
 [[ -L ${0} ]] && SCRIPT_LIBDIR=$(readlink ${0}) || SCRIPT_LIBDIR=${0}
 SCRIPT_LIBDIR="${SCRIPT_LIBDIR%/*}"
 
+PKG_DIR=${WORKSPACE}/pkgs
 
 echo '# BEGIN SECTION: check variables'
 if [ -z "${PULL_REQUEST_NUMBER}" ]; then
@@ -12,15 +13,19 @@ fi
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean up environment'
+rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 bash -x ${SCRIPT_LIBDIR}/_homebrew_cleanup.bash
 echo '# END SECTION'
 
-
 echo '# BEGIN SECTION: run test-bot'
-brew update
 brew test-bot             \
     --tap=osrf/simulation \
     --bottle              \
     --ci-pr               \
     --verbose https://github.com/osrf/homebrew-simulation/pull/${PULL_REQUEST_NUMBER}
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: export bottle'
+mv *.bottle.tar.gz ${PKG_DIR}
+ls *bottle*
 echo '# END SECTION'
