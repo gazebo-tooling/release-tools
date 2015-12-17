@@ -69,8 +69,8 @@ bottle_job.with
         systemGroovyCommand("""\
           build.setDescription(
           'pull request:<b> <a href="' + build.buildVariableResolver.resolve('PULL_REQUEST_URL') +
-          '">' + build.buildVariableResolver.resolve('PULL_REQUEST_URL') + '</a>' +
-          <br />' +
+          '">' + build.buildVariableResolver.resolve('PULL_REQUEST_URL') + '</a></b>' +
+          '<br />' +
           'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
           """.stripIndent()
         )
