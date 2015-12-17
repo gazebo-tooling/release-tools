@@ -28,5 +28,10 @@ fi
 brew update
 brew install ${BREW_BASE_DEPENDCIES}
 
-git config --global user.name "OSRF Build Bot"
-git config --global user.email "osrfbuild@osrfoundation.org"
+# test-bot needs variables and does not work just with config not sure why
+export GIT_AUTHOR_NAME="OSRF Build Bot"
+export GIT_COMMITTER_NAME=${GIT_AUTHOR_NAME}
+export GIT_AUTHOR_EMAIL="osrfbuild@osrfoundation.org"
+export GIT_COMMITTER_EMAIL=${GIT_AUTHOR_EMAIL}
+git config --global user.name "${GIT_AUTHOR_NAME}"
+git config --global user.email "${GIT_AUTHOR_EMAIL}"
