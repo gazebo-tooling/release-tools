@@ -1,5 +1,5 @@
-#!/bin/bash
-set -e && set +x
+#!/bin/bash -x
+set -e
 
 [[ -L ${0} ]] && SCRIPT_LIBDIR=$(readlink ${0}) || SCRIPT_LIBDIR=${0}
 SCRIPT_LIBDIR="${SCRIPT_LIBDIR%/*}"
