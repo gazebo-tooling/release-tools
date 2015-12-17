@@ -21,9 +21,13 @@ rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run test-bot'
-git config --global user.name "OSRF Build Bot"
-git config --global user.email "osrfbuild@osrfoundation.org"
+export GIT_AUTHOR_NAME="OSRF Build Bot"
+export GIT_COMMITTER_NAME= ${GIT_AUTHOR_NAME}
+export GIT_AUTHOR_EMAIL="osrfbuild@osrfoundation.org"
+export GIT_COMMITTER_EMAIL=${GIT_AUTHOR_EMAIL}
 cat ${HOME}/.gitconfig
+set | grep GIT
+
 brew test-bot             \
     --tap=osrf/simulation \
     --bottle              \
