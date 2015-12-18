@@ -18,9 +18,6 @@ fi
 
 export ABI_JOB_SOFTWARE_NAME="gazebo"
 export ABI_JOB_REPOS="stable"
-if ${NEED_PRERELEASE}; then
-  ABI_JOB_REPOS="${ABI_JOB_REPOS} prerelease"
-fi
 export ABI_JOB_PKG_DEPENDENCIES_VAR_NAME="GAZEBO_BASE_DEPENDENCIES"
 
 . ${SCRIPT_DIR}/lib/generic-abi-base.bash
