@@ -58,8 +58,8 @@ class OSRFLinuxABI
 
       publishers {
           publishHtml {
-              # can not be empty (single . is not working) removed below in
-              # configure block
+              // can not be empty (single . is not working) removed below in
+              // configure block
               report('this-will-be-deleted') {
                   reportFiles('compat_report.html')
                   reportName('API_ABI report')
