@@ -20,4 +20,3 @@ export ABI_JOB_PKG_DEPENDENCIES_VAR_NAME="SDFORMAT_BASE_DEPENDENCIES"
 export ABI_JOB_CMAKE_PARAMS="-DENABLE_TESTS_COMPILATION:BOOL=False"
 
 . ${SCRIPT_DIR}/lib/generic-abi-base.bash
-. ${SCRIPT_DIR}/lib/sdformat-any_to_any-abichecker.bash
