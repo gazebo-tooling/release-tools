@@ -49,7 +49,8 @@ handsim_packages.each { pkg ->
 
   // --------------------------------------------------------------
   // debbuilder jobs
-  def build_pkg_job = job("${pkg_name}-debbuilder")
+  // debbuilder does not use the underscore name so pkg instead of pkg_name
+  def build_pkg_job = job("${pkg}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
   build_pkg_job.with
   {

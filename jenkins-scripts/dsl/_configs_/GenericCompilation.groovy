@@ -15,7 +15,7 @@ class GenericCompilation
      def mail_content ='''\
      $DEFAULT_CONTENT
 
-     ${BUILD_LOG_REGEX, regex="^.*: (fatal ){0,1}error: .*$",  linesBefore="5", linesAfter="5", maxMatches=0, showTruncatedLines=false}
+     ${BUILD_LOG_REGEX, regex="^.*: (fatal ){0,1}error.*$",  linesBefore="5", linesAfter="5", maxMatches=0, showTruncatedLines=false}
 
      Test summary:
      -------------
