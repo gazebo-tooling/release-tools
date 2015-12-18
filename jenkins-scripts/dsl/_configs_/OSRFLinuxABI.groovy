@@ -58,9 +58,6 @@ class OSRFLinuxABI
 
       publishers {
           publishHtml {
-              report('') {
-                  reportName('Test Output')
-              }
               report('compat_report.html') {
                   reportName('API_ABI report')
                   keepAll()
