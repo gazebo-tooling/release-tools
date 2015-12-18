@@ -16,6 +16,9 @@ def supported_arches        = Globals.get_supported_arches()
 
 def all_supported_distros = ci_distro + other_supported_distros
 
+// Need to be used in ci_pr
+String abi_job_name = ''
+
 Globals.extra_emails = "caguero@osrfoundation.org"
 
 // ABI Checker job
@@ -91,14 +94,36 @@ ignition_software.each { ign_sw ->
                                     "http://bitbucket.org/ignitionrobotics/ign-${ign_sw}")
       ignition_ci_any_job.with
       {
-          steps {
-            shell("""\
-                  export DISTRO=${distro}
-                  export ARCH=${arch}
+        steps 
+        {
+           conditionalSteps
+           {
+             condition
+             {
+               not {
+                 expression('${ENV, var="DEST_BRANCH"}', 'default')
+               }
 
-                  /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
-                  """.stripIndent())
-          }
+               steps {
+                 downstreamParameterized {
+                   trigger("${abi_job_name}") {
+                     parameters {
+                       predefinedProp("ORIGIN_BRANCH", '$DEST_BRANCH')
+                       predefinedProp("TARGET_BRANCH", '$SRC_BRANCH')
+                     }
+                   }
+                 }
+               }
+             }
+           }
+
+           shell("""\
+                export DISTRO=${distro}
+                export ARCH=${arch}
+
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
+                """.stripIndent())
+        }
       }
     }
   }
