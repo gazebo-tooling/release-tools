@@ -58,7 +58,9 @@ class OSRFLinuxABI
 
       publishers {
           publishHtml {
-              report('.') {
+              # can not be empty (single . is not working) removed below in
+              # configure block
+              report('this-will-be-deleted') {
                   reportFiles('compat_report.html')
                   reportName('API_ABI report')
                   keepAll()
@@ -66,6 +68,12 @@ class OSRFLinuxABI
                   alwaysLinkToLastBuild()
               }
           }
+      }
+
+      // Workaround to remove the reportDir which needs to be empty to point to
+      // workspace
+      configure { project ->
+        (project / publishers / 'htmlpublisher.HtmlPublisher' / reportTargets / 'htmlpublisher.HtmlPublisherTarget' / reportDir).value = ''
       }
 
       // Added the checker result parser (UNSTABLE if not compatible)
