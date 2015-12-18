@@ -88,7 +88,7 @@ cat > pkg.xml << CURRENT_DELIM
  </version>
 
  <headers>
-   /usr/local/origin_branch/include/\$ORIGIN_DIR/sdf
+   /usr/local/origin_branch/include/\$ORIGIN_DIR
  </headers>
 
  <libs>
@@ -102,7 +102,7 @@ cat > devel.xml << DEVEL_DELIM
  </version>
 
  <headers>
-   /usr/local/target_branch/include/\$TARGET_DIR/sdf
+   /usr/local/target_branch/include/\$TARGET_DIR
  </headers>
 
  <libs>
