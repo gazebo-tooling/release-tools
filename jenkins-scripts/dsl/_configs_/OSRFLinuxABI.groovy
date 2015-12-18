@@ -12,6 +12,7 @@ import javaposse.jobdsl.dsl.Job
     - parameter: ORIGIN_BRANCH, TARGET_BRANCH
     - set description
     - parse log for result
+    - publish report in HTML
 */
 
 class OSRFLinuxABI
@@ -53,6 +54,20 @@ class OSRFLinuxABI
             'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
           """.stripIndent()
         )
+      }
+
+      publishers {
+          publishHtml {
+              report('') {
+                  reportName('Test Output')
+              }
+              report('compat_report.html') {
+                  reportName('API_ABI report')
+                  keepAll()
+                  allowMissing(false)
+                  alwaysLinkToLastBuild()
+              }
+          }
       }
 
       // Added the checker result parser (UNSTABLE if not compatible)
