@@ -2,20 +2,55 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
-def ignition_software = [ 'transport', 'math' ]
+def ignition_software         = [ 'transport', 'math' ]
 def ignition_transport_series = '0'
-def ignition_math_series = '2'
+def ignition_math_series      = '2'
 
 // Main platform using for quick CI
-def ci_distro = [ 'trusty' ]
+def ci_distro               = Globals.get_ci_distro()
+def abi_distro              = Globals.get_abi_distro()
 // Other supported platform to be checked but no for quick
 // CI integration.
-def other_supported_distros = [ 'vivid' ]
-def supported_arches = [ 'amd64' ]
+def other_supported_distros = Globals.get_other_supported_distros()
+def supported_arches        = Globals.get_supported_arches()
 
 def all_supported_distros = ci_distro + other_supported_distros
 
 Globals.extra_emails = "caguero@osrfoundation.org"
+
+// ABI Checker job
+// Need to be the before ci-pr_any so the abi job name is defined
+ignition_software.each { ign_sw ->
+  abi_distro.each { distro ->
+    supported_arches.each { arch ->
+      abi_job_name = "ignition_${ign_sw}-abichecker-any_to_any-${distro}-${arch}"
+      def abi_job = job(abi_job_name)
+      OSRFLinuxABI.create(abi_job)
+      abi_job.with
+      {
+        checkout_subdir = "ign-${ign_sw}"
+
+        scm {
+          hg("http://bitbucket.org/ignitionrobotics/ign-${ign_sw}") {
+            branch('default')
+            subdirectory(checkout_subdir)
+          }
+        }
+
+        steps {
+          shell("""\
+                #!/bin/bash -xe
+
+                export DISTRO=${distro}
+                export ARCH=${arch}
+                export ABI_JOB_SOFTWARE_NAME=${checkout_subdir}
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/ignition-abichecker.bash
+                """.stripIndent())
+        } // end of steps
+      }  // end of with
+    } // end of arch
+  } // end of distro
+} // end of ignition
 
 // MAIN CI JOBS (check every 5 minutes)
 ignition_software.each { ign_sw ->
