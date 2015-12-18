@@ -58,7 +58,8 @@ class OSRFLinuxABI
 
       publishers {
           publishHtml {
-              report('compat_report.html') {
+              report('') {
+                  reportFiles('compat_report.html')
                   reportName('API_ABI report')
                   keepAll()
                   allowMissing(false)
