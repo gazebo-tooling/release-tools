@@ -1,5 +1,9 @@
 #!/bin/bash -x
 
+# Parameters
+#  - GAZEBO_BASE_TESTS_HOOK (optional) [default to run UNIT, INTEGRATION, REGRESSION, EXAMPLE]
+#                           piece of code to run in the testing section
+
 #stop on error
 set -e
 
@@ -70,18 +74,23 @@ rm -fr $WORKSPACE/cppcheck_results
 rm -fr $WORKSPACE/test_results
 
 # Run tests
-echo '# BEGIN SECTION: UNIT testing'
-make test ARGS="-VV -R UNIT_*" || true
-echo '# END SECTION'
-echo '# BEGIN SECTION: INTEGRATION testing'
-make test ARGS="-VV -R INTEGRATION_*" || true
-echo '# END SECTION'
-echo '# BEGIN SECTION: REGRESSION testing'
-make test ARGS="-VV -R REGRESSION_*" || true
-echo '# END SECTION'
-echo '# BEGIN SECTION: EXAMPLE testing'
-make test ARGS="-VV -R EXAMPLE_*" || true
-echo '# END SECTION'
+if [ `expr length "${GAZEBO_BASE_TESTS_HOOK} "` -gt 1 ]; then
+  ${GAZEBO_BASE_TESTS_HOOK}
+else
+  # Run default
+  echo '# BEGIN SECTION: UNIT testing'
+  make test ARGS="-VV -R UNIT_*" || true
+  echo '# END SECTION'
+  echo '# BEGIN SECTION: INTEGRATION testing'
+  make test ARGS="-VV -R INTEGRATION_*" || true
+  echo '# END SECTION'
+  echo '# BEGIN SECTION: REGRESSION testing'
+  make test ARGS="-VV -R REGRESSION_*" || true
+  echo '# END SECTION'
+  echo '# BEGIN SECTION: EXAMPLE testing'
+  make test ARGS="-VV -R EXAMPLE_*" || true
+  echo '# END SECTION'
+fi
 
 # Only run cppcheck on trusty
 if [ "$DISTRO" = "trusty" ]; then 
