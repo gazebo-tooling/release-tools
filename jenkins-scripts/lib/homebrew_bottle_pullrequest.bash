@@ -23,11 +23,11 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: run test-bot'
 # return always true since audit fails to run gzserver
 # can not find a way of disabling it
-bash -c "brew test-bot             \
+( brew test-bot             \
     --tap=osrf/simulation \
     --bottle              \
     --ci-pr               \
-    --verbose ${PULL_REQUEST_URL}" || true
+    --verbose ${PULL_REQUEST_URL} ) || true
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export bottle'
