@@ -69,6 +69,7 @@ rm -fr $WORKSPACE/test_results
 # Run tests
 if [ `expr length "${GAZEBO_BASE_TESTS_HOOK} "` -gt 1 ]; then
   ${GAZEBO_BASE_TESTS_HOOK}
+  : # keep this line, needed if the variable is empty
 else
   # Run default
   echo '# BEGIN SECTION: UNIT testing'
