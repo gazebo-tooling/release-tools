@@ -14,4 +14,8 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-. ${SCRIPT_DIR}/lib/sdformat-any_to_any-abichecker.bash
+export ABI_JOB_SOFTWARE_NAME="sdformat"
+export ABI_JOB_REPOS="stable"
+export ABI_JOB_PKG_DEPENDENCIES_VAR_NAME="SDFORMAT_BASE_DEPENDENCIES"
+
+. ${SCRIPT_DIR}/lib/generic-abi-base.bash
