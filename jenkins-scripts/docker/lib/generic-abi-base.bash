@@ -8,6 +8,7 @@
 # ABI_JOB_REPOS: OSRF repositories to use
 # ABI_JOB_PKG_DEPENDENCIES: (optional) list (space separated) of pkg dependencies
 # ABI_JOB_PKG_DEPENDENCIES_VAR_NAME: (option) variable in archive to get dependencies from
+# ABI_JOB_CMAKE_PARAMS: (option) cmake parameters to be pased to cmake configuration
 
 # Jenkins variables:
 # ORIGIN_BRANCH
@@ -50,7 +51,8 @@ hg up $ORIGIN_BRANCH
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-cmake -DCMAKE_INSTALL_PREFIX=/usr/local/origin_branch \\
+cmake ${ABI_JOB_CMAKE_PARAMS} \\
+  -DCMAKE_INSTALL_PREFIX=/usr/local/origin_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
 make install
@@ -65,7 +67,8 @@ cd /tmp/${ABI_JOB_SOFTWARE_NAME}
 hg up $TARGET_BRANCH
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
 cd $WORKSPACE/build
-cmake -DCMAKE_INSTALL_PREFIX=/usr/local/target_branch \\
+cmake ${ABI_JOB_CMAKE_PARAMS} \\
+  -DCMAKE_INSTALL_PREFIX=/usr/local/target_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
 make install
