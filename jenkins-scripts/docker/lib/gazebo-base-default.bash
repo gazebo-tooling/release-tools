@@ -1,19 +1,12 @@
 #!/bin/bash -x
 
 # Parameters
+#  - GAZEBO_BASE_CMAKE_ARGS (optional) extra arguments to pass to cmake
 #  - GAZEBO_BASE_TESTS_HOOK (optional) [default to run UNIT, INTEGRATION, REGRESSION, EXAMPLE]
 #                           piece of code to run in the testing section
 
 #stop on error
 set -e
-
-# Keep the option of default to not really send a build type and let our own gazebo cmake rules
-# to decide what is the default mode.
-if [ -z ${GZ_BUILD_TYPE} ]; then
-    GZ_CMAKE_BUILD_TYPE=
-else
-    GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
-fi
 
 . ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
 
@@ -54,7 +47,7 @@ echo '# BEGIN SECTION: Gazebo configuration'
 rm -rf $WORKSPACE/install
 mkdir -p $WORKSPACE/install
 cd $WORKSPACE/build
-cmake ${GZ_CMAKE_BUILD_TYPE}         \\
+cmake ${GAZEBO_BASE_CMAKE_ARGS}      \\
     -DCMAKE_INSTALL_PREFIX=/usr      \\
     -DENABLE_SCREEN_TESTS:BOOL=False \\
   $WORKSPACE/gazebo

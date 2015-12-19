@@ -2,6 +2,7 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 def gazebo_supported_branches = [ 'gazebo_2.2', 'gazebo_4.1', 'gazebo5', 'gazebo6' ]
+def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
 def nightly_gazebo_branch = [ 'gazebo7' ]
 
 // Main platform using for quick CI
@@ -67,7 +68,7 @@ abi_distro.each { distro ->
 ci_gpu_include_gpu_none = ci_gpu + [ 'none' ]
 ci_distro.each { distro ->
   ci_gpu_include_gpu_none.each { gpu ->
-    supported_arches.each { arch ->     
+    supported_arches.each { arch ->
       // --------------------------------------------------------------
       // 1. Create the any job
       def gazebo_ci_any_job = job("gazebo-ci-pr_any-${distro}-${arch}-gpu-${gpu}")
@@ -80,7 +81,7 @@ ci_distro.each { distro ->
           stringParam('DEST_BRANCH','default',
                       'Destination branch where the pull request will be merged')
         }
-        
+
         if (gpu != 'none')
         {
           label "gpu-${gpu}-${distro}"
@@ -112,7 +113,7 @@ ci_distro.each { distro ->
            String gpu_needed = 'true'
            if (gpu == 'none') {
               gpu_needed = 'false'
-           } 
+           }
 
            shell("""\
            #!/bin/bash -xe
@@ -137,7 +138,7 @@ ci_distro.each { distro ->
             subdirectory("gazebo")
           }
         }
-      
+
         if (gpu != 'none')
         {
           label "gpu-${gpu}-${distro}"
@@ -184,7 +185,7 @@ other_supported_distros.each { distro ->
             subdirectory("gazebo")
           }
         }
-        
+
         if (gpu != 'none')
         {
           label "gpu-${gpu}-${distro}"
@@ -197,7 +198,7 @@ other_supported_distros.each { distro ->
         String gpu_needed = 'true'
         if (gpu == 'none') {
           gpu_needed = 'false'
-        } 
+        }
 
         steps {
           shell("""\
@@ -287,6 +288,44 @@ ci_distro.each { distro ->
   }
 }
 
+ci_distro.each { distro ->
+  supported_arches.each { arch ->
+    gazebo_supported_build_types { build_type ->
+      def gazebo_ci_job = job("gazebo-ci_BT${build_type}-default-${distro}-${arch}-gpu-none")
+      OSRFLinuxCompilation.create(gazebo_ci_job)
+      gazebo_ci_job.with
+      {
+        scm
+        {
+          // The usual form using branch in the clousure does not work
+          hg("http://bitbucket.org/osrf/gazebo",
+             branch,
+             { node -> node / subdir << "gazebo" })
+        }
+
+        triggers {
+          scm('@daily')
+        }
+
+        steps {
+          shell("""\
+          #!/bin/bash -xe
+
+          export DISTRO=${distro}
+          export ARCH=${arch}
+          export GPU_SUPPORT_NEEDED=false
+          export GAZEBO_BASE_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=${build_type}"
+          /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
+          """.stripIndent())
+        }
+      }
+
+    }
+  }
+}
+
+// Other build types
+
 // INSTALL LINUX -DEV PACKAGES ALL PLATFORMS @ CRON/DAILY
 gazebo_supported_branches.each { branch ->
   ci_distro.each { distro ->
@@ -302,7 +341,7 @@ gazebo_supported_branches.each { branch ->
          }
 
          def dev_package = "lib${branch_name}-dev"
-         
+
          if (branch_name == 'gazebo2')
            dev_package = 'gazebo2'
 
@@ -353,7 +392,7 @@ ci_distro.each { distro ->
               export DISTRO=${distro}
               export ARCH=${arch}
               export GPU_SUPPORT_NEEDED=true
-              /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-performance.bash
               """.stripIndent())
       } // end of steps
     } // end of with
