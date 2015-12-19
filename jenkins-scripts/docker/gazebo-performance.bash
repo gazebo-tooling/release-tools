@@ -16,7 +16,7 @@ fi
 
 export GAZEBO_BASE_TESTS_HOOK="""
 echo '# BEGIN SECTION: PERFORMANCE testing'
-make test ARGS="-VV -R PERFORMANCE_*" || true
+make test ARGS=\"-VV -R PERFORMANCE_*\" || true
 echo '# END SECTION'
 """
 
