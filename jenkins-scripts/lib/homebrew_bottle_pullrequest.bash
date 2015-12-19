@@ -31,7 +31,7 @@ echo '# BEGIN SECTION: run test-bot'
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export bottle'
-if [[ $(find . -name *.bottle.*) | wc -l -lt 2 ]]; then
+if [[ $(find . -name *.bottle.* | wc -l) -lt 2 ]]; then
  echo "Can not find the two bottle files"
  exit -1
 fi
