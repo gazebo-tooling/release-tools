@@ -290,7 +290,7 @@ ci_distro.each { distro ->
 
 ci_distro.each { distro ->
   supported_arches.each { arch ->
-    gazebo_supported_build_types { build_type ->
+    gazebo_supported_build_types.each { build_type ->
       def gazebo_ci_job = job("gazebo-ci_BT${build_type}-default-${distro}-${arch}-gpu-none")
       OSRFLinuxCompilation.create(gazebo_ci_job)
       gazebo_ci_job.with
