@@ -297,10 +297,10 @@ ci_distro.each { distro ->
       {
         scm
         {
-          // The usual form using branch in the clousure does not work
-          hg("http://bitbucket.org/osrf/gazebo",
-             branch,
-             { node -> node / subdir << "gazebo" })
+          hg("http://bitbucket.org/osrf/gazebo") {
+            branch('default')
+            subdirectory("gazebo")
+          }
         }
 
         triggers {
