@@ -114,4 +114,4 @@ DEPENDENCY_PKGS="${BASE_DEPENDENCIES} \
 		 ${EXTRA_PACKAGES}"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
-. ${SCRIPT_DIR}/libdocker_run.bash
+. ${SCRIPT_DIR}/lib/docker_run.bash
