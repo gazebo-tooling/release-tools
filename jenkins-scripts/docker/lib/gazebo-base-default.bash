@@ -15,6 +15,12 @@ echo '# BEGIN SECTION: setup the testing enviroment'
 DOCKER_JOB_NAME="gazebo_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
+# If Debug build type was supplied in GAZEBO_BASE_CMAKE_ARGS, add lcov
+# package.
+if [[ ${GAZEBO_BASE_CMAKE_ARGS} != ${GAZEBO_BASE_CMAKE_ARGS/Debug} ]]; then
+  EXTRA_PACKAGES="${EXTRA_PACKAGES} lcov" 
+fi
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
@@ -102,7 +108,10 @@ DELIM
 
 USE_OSRF_REPO=true
 SOFTWARE_DIR="gazebo"
-DEPENDENCY_PKGS="${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES}"
+DEPENDENCY_PKGS="${BASE_DEPENDENCIES} \
+                 ${GAZEBO_BASE_DEPENDENCIES} \
+		 ${GAZEBO_EXTRA_DEPENDENCIES} \
+		 ${EXTRA_PACKAGES}"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
-. ${SCRIPT_DIR}/lib/docker_run.bash
+. ${SCRIPT_DIR}/libdocker_run.bash
