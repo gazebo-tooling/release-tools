@@ -15,9 +15,9 @@ echo '# BEGIN SECTION: setup the testing enviroment'
 DOCKER_JOB_NAME="gazebo_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
-# If Debug build type was supplied in GAZEBO_BASE_CMAKE_ARGS, add lcov
+# If Coverage build type was supplied in GAZEBO_BASE_CMAKE_ARGS, add lcov
 # package.
-if [[ ${GAZEBO_BASE_CMAKE_ARGS} != ${GAZEBO_BASE_CMAKE_ARGS/Debug} ]]; then
+if [[ ${GAZEBO_BASE_CMAKE_ARGS} != ${GAZEBO_BASE_CMAKE_ARGS/Coverage} ]]; then
   EXTRA_PACKAGES="${EXTRA_PACKAGES} lcov" 
 fi
 
