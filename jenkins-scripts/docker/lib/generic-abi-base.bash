@@ -120,12 +120,14 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: run the ABI checker'
 # clean previous reports
-rm -fr $WORKSPACE/compat_report.html
+REPORTS_DIR=$WORKSPACE/reports/
+rm -fr \${REPORTS_DIR} && mkdir -p \${REPORTS_DIR}
 rm -fr compat_reports/
 # run report tool
 abi-compliance-checker -lib ${ABI_JOB_SOFTWARE_NAME} -old pkg.xml -new devel.xml || true
+
 # copy method version independant ( cp ... /*/ ... was not working)
-find compat_reports/ -name compat_report.html -exec cp {} $WORKSPACE/ \;
+find compat_reports/ -name compat_report.html -exec cp {} \${REPORTS_DIR} \;
 echo '# END SECTION'
 
 if [ `expr length "${ABI_JOB_POSTCHECKER_HOOK} "` -gt 1 ]; then
