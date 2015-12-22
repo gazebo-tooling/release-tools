@@ -1,5 +1,9 @@
 #!/bin/bash -x
 
+# Knowing Script dir beware of symlink
+[[ -L ${0} ]] && SCRIPT_LIBDIR=$(readlink ${0}) || SCRIPT_LIBDIR=${0}
+SCRIPT_LIBDIR="${SCRIPT_LIBDIR%/*}"
+
 echo '# BEGIN SECTION: check variables'
 if [ -z "${PACKAGE_ALIAS}" ]; then
   echo PACKAGE_ALIAS not specified
@@ -22,7 +26,7 @@ if [ -z "${SOURCE_TARBALL_SHA}" ]; then
 fi
 echo '# END SECTION'
 
-. ${SCRIPT_DIR}/lib/_homebrew_github_setup.bash
+. ${SCRIPT_LIBDIR}/_homebrew_github_setup.bash
 
 echo '# BEGIN SECTION: calculating the SHA hash and changing the formula'
 # get stable uri and its line number
@@ -49,4 +53,4 @@ sed -i -e "${SHA_LINE}c\  sha256 \"${SOURCE_TARBALL_SHA}\"" ${FORMULA_PATH}
 # create branch with name and sanitized version string
 BRANCH="${PACKAGE_ALIAS}_`echo ${VERSION} | tr ' ~:^?*[' '_'`"
 
-. ${SCRIPT_DIR}/lib/_homebrew_github_commit.bash
+. ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
