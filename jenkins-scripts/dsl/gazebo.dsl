@@ -147,6 +147,11 @@ ci_distro.each { distro ->
         triggers {
           scm('*/5 * * * *')
         }
+        
+        String gpu_needed = 'true'
+        if (gpu == 'none') {
+          gpu_needed = 'false'
+        }
 
         steps {
           shell("""\
@@ -154,7 +159,7 @@ ci_distro.each { distro ->
 
                 export DISTRO=${distro}
                 export ARCH=${arch}
-                export GPU_SUPPORT_NEEDED=true
+                export GPU_SUPPORT_NEEDED=${gpu_needed}
                 /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
                 """.stripIndent())
         }
