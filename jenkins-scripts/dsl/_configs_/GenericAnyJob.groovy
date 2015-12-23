@@ -48,5 +48,9 @@ class GenericAnyJob
           }
         }
       }
+
+      // setup special mail subject
+      mail_subject = '$PROJECT_NAME - Branch: $BRANCH (#$BUILD_NUMBER) - $BUILD_STATUS!'
+      GenericMail.include_mail(job, mail_subject, '$DEFAULT_CONTENT')
    }
 }

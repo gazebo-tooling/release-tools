@@ -11,15 +11,12 @@ class GenericMail
 
     static void include_mail(Job job, String subject, String content)
     {
+      job.remove_mail_config(job)
+
       job.with
       {
         publishers
         {
-           // remove the existing 'extendedEmail' element
-           configure { project ->
-                project.remove(project / publishers << 'hudson.plugins.emailext.ExtendedEmailPublisher')
-           }
-
           extendedEmail(Globals.get_emails(),
                         subject,
                         content)
@@ -79,4 +76,12 @@ class GenericMail
         }
       }
     }
-}
+
+    static void remove_mail_config(Job job)
+    {
+       // remove the existing 'extendedEmail' element
+       configure { project ->
+            project.remove(project / publishers << 'hudson.plugins.emailext.ExtendedEmailPublisher')
+       }
+    }
+} // end of class
