@@ -8,7 +8,6 @@ import javaposse.jobdsl.dsl.Job
   Implements:
     - pritority 100
     - logrotator
-    - concurrent builds
     - performance plugin
 */
  
@@ -26,13 +25,6 @@ class OSRFLinuxPerformance
         artifactNumToKeep(10)
       }
 
-      concurrentBuild(true)
-
-      throttleConcurrentBuilds {
-	maxPerNode(1)
-	maxTotal(5)
-      }
-    
       publishers
       {
         configure { project ->
