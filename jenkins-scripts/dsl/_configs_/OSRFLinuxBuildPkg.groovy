@@ -9,7 +9,6 @@ import javaposse.jobdsl.dsl.Job
   Implements:
     - priorioty 300
     - keep only 10 last artifacts
-    - concurrent builds
     - parameters:
         - PACKAGE
         - VERSION
@@ -37,13 +36,6 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
 
       logRotator {
         artifactNumToKeep(10)
-      }
-
-      concurrentBuild(true)
-
-      throttleConcurrentBuilds {
-	maxPerNode(1)
-	maxTotal(5)
       }
 
       parameters {
