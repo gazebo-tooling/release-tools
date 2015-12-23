@@ -15,9 +15,7 @@ class GenericAnyJob
    static void create(Job job, String repo)
    {
      // setup special mail subject
-     GenericMail.include_mail(job, 
-            '$PROJECT_NAME - Branch: $BRANCH (#$BUILD_NUMBER) - $BUILD_STATUS!',
-            '$DEFAULT_CONTENT')
+     GenericMail.include_mail(job, '$PROJECT_NAME - Branch: $BRANCH (#$BUILD_NUMBER) - $BUILD_STATUS!', '$DEFAULT_CONTENT')
 
      String subdirectoy = repo.tokenize('/').last()
 
