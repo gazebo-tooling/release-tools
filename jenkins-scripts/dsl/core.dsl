@@ -33,30 +33,30 @@ release_job.with
    }
 
    steps {
-        systemGroovyCommand("""\
-          build.setDescription(
-          '<b>' + build.buildVariableResolver.resolve('PACKAGE_ALIAS') + '-' +
-          build.buildVariableResolver.resolve('VERSION') + '</b>' +
-          '<br />' +
-          'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
-          """.stripIndent()
-        )
+    systemGroovyCommand("""\
+      build.setDescription(
+      '<b>' + build.buildVariableResolver.resolve('PACKAGE_ALIAS') + '-' +
+      build.buildVariableResolver.resolve('VERSION') + '</b>' +
+      '<br />' +
+      'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+      """.stripIndent()
+    )
 
-        shell("""\
-              #!/bin/bash -xe
+    copyArtifacts(bottle_builder_job_name) {
+      includePatterns('*.tar.gz')
+      excludePatterns('*.rb')
+      targetDirectory(directory_for_bottles)
+      flatten()
+      buildSelector {
+        upstreamBuild()
+      }
+    }
 
-              /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_formula_pullrequest.bash
-              """.stripIndent())
+    shell("""\
+          #!/bin/bash -xe
 
-        copyArtifacts(bottle_builder_job_name) {
-          includePatterns('*.tar.gz')
-          excludePatterns('*.rb')
-          targetDirectory(directory_for_bottles)
-          flatten()
-          buildSelector {
-            upstreamBuild()
-          }
-        }
+          /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_formula_pullrequest.bash
+          """.stripIndent())
    }
 }
 
@@ -154,12 +154,6 @@ bottle_job_hash_updater.with
         """.stripIndent()
     )
 
-    shell("""\
-          #!/bin/bash -xe
-
-          /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_bottle_pullrequest.bash"
-          """.stripIndent())
-
     copyArtifacts(bottle_builder_job_name) {
       includePatterns('*.rb')
       excludePatterns('*.tar.gz')
@@ -169,5 +163,11 @@ bottle_job_hash_updater.with
         upstreamBuild()
       }
     }
+
+    shell("""\
+          #!/bin/bash -xe
+
+          /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_bottle_pullrequest.bash"
+          """.stripIndent())
   }
 }
