@@ -108,6 +108,7 @@ bottle_job.with
               predefinedProp("S3_UPLOAD_PATH", "\${PACKAGE}")
               predefinedProp("UPLOAD_TO_REPO", "only_s3_upload")
               predefinedProp("ARCH",           "64bits")
+          }
         }
      }
 
