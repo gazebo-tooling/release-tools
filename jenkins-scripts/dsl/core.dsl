@@ -7,6 +7,13 @@ def bottle_builder_job_name      = 'generic-release-homebrew_bottle_builder'
 def bottle_hash_updater_job_name = 'generic-release-homebrew_pr_bottle_hash_updater'
 def directory_for_bottles        = 'pkgs'
 
+/*
+ - update hash (generic pull_request_updater)
+    -> build bottle
+     -> repository_uploader ()
+     -> update hash
+*/
+
 // -------------------------------------------------------------------
 // BREW pull request SHA updater
 def release_job = job("generic-release-homebrew_pull_request_updater")
