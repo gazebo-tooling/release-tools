@@ -15,6 +15,8 @@ export PATH="/usr/local/bin:$PATH"
 
 PKG_DIR=${WORKSPACE}/pkgs
 
+find . -name '*.bottle.*' | wc -l
+
 echo '# BEGIN SECTION: check variables'
 if [ -z "${PULL_REQUEST_URL}" ]; then
     echo PULL_REQUEST_URL not specified
@@ -38,12 +40,14 @@ brew test-bot             \
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export bottle'
+find . -name '*.bottle.*' | wc -l
 if [[ $(find . -name '*.bottle.*' | wc -l) != 2 ]]; then
  echo "Can not find the two bottle files"
  exit -1
 fi
 
 mv *.bottle.tar.gz ${PKG_DIR}
+mv *.bottle.rb ${PKG_DIR}
 
 FILENAME=$(ls *.bottle.rb)
 DISTRO=$(get_osX_distribution ${NEW_HASH_LINE})
