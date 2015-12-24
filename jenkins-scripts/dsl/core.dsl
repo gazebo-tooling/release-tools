@@ -62,10 +62,10 @@ release_job.with
 
 // -------------------------------------------------------------------
 // BREW bottle creation job from pullrequest
-def bottle_job = job(bottle_builder_job_name)
-OSRFOsXBase.create(bottle_job)
-GenericRemoteToken.create(bottle_job)
-bottle_job.with
+def bottle_job_builder = job(bottle_builder_job_name)
+OSRFOsXBase.create(bottle_job_builder)
+GenericRemoteToken.create(bottle_job_builder)
+bottle_job_builder.with
 {
    wrappers {
         preBuildCleanup()
@@ -128,10 +128,10 @@ bottle_job.with
 
 // -------------------------------------------------------------------
 // BREW bottle hash update
-def bottle_job = job(bottle_hash_updater_job_name)
-OSRFOsXBase.create(bottle_job)
-GenericRemoteToken.create(bottle_job)
-bottle_job.with
+def bottle_job_hash_updater = job(bottle_hash_updater_job_name)
+OSRFOsXBase.create(bottle_job_hash_updater)
+GenericRemoteToken.create(bottle_job_hash_updater)
+bottle_job_hash_updater.with
 {
   wrappers {
     preBuildCleanup()
