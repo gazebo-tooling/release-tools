@@ -48,6 +48,10 @@ case ${UPLOAD_TO_REPO} in
 	# No uploads for nightly packages
 	ENABLE_S3_UPLOAD=false
 	;;
+    "only_s3_upload")
+        # This should be fine, no repo, only s3 upload
+        ENABLE_S3_UPLOAD=true
+        ;;
     *)
 	# Here we could find project repositories uploads or error values.
 	# Error values for UPLOAD_TO_REPO will be get in the next directory check
@@ -135,17 +139,6 @@ upload_dsc_package()
 	sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg}
 }
 
-upload_zip_file()
-{
-    local pkg=${1} s3_path=${2}
-
-    [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
-    [[ -z ${s3_path} ]] && echo "Bad parameter s3_path" && exit 1
-
-    S3_upload ${pkg} ${s3_path}
-}
-
-
 # .zip | (mostly) windows packages
 for pkg in `ls $pkgs_path/*.zip`; do
   # S3_UPLOAD_PATH should be send by the upstream job
@@ -155,7 +148,19 @@ for pkg in `ls $pkgs_path/*.zip`; do
   fi
   
   # Seems important to upload the path with a final slash
-  upload_zip_file ${pkg} "${S3_UPLOAD_PATH}/"
+  S3_upload ${pkg} "${S3_UPLOAD_PATH}/"
+done
+
+# .bottle | brew binaries
+for pkg in `ls $pkgs_path/*.bottle.tar.gz`; do
+  # S3_UPLOAD_PATH should be send by the upstream job
+  if [[ -z ${S3_UPLOAD_PATH} ]]; then
+    echo "S3_UPLOAD_PATH was not defined. Not uploading"
+    exit 1
+  fi
+  
+  # Seems important to upload the path with a final slash
+  S3_upload ${pkg} "${S3_UPLOAD_PATH}/"
 done
 
 # .dsc | source debian packages
