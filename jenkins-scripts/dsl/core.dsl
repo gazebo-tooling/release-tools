@@ -8,8 +8,8 @@ def bottle_hash_updater_job_name = 'generic-release-homebrew_pr_bottle_hash_upda
 def directory_for_bottles        = 'pkgs'
 
 /*
- - update hash (generic pull_request_updater)
-    -> build bottle
+ - update hash (generic-release-homebrew_pull_request_updater)
+    -> build bottle (bottle_builder_job_name)
      -> repository_uploader ()
      -> update hash
 */

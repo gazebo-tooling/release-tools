@@ -40,8 +40,8 @@ brew test-bot             \
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export bottle'
-find . -name '*.bottle.*' | wc -l
-if [[ $(find . -name '*.bottle.*' | wc -l) != 2 ]]; then
+find . -name '*.bottle.*' | wc -l | sed 's/^ *//'
+if [[ $(find . -name '*.bottle.*' | wc -l | sed 's/^ *//') != 2 ]]; then
  echo "Can not find the two bottle files"
  exit -1
 fi
