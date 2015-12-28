@@ -25,7 +25,7 @@ fi
 
 FILE_WITH_NEW_HASH="$(ls ${BOTTLE_RB_DIR}/*.rb)"
 
-if [[ -f "${FILE_WITH_NEW_HASH}" ]]; then
+if [[ ! -f "${FILE_WITH_NEW_HASH}" ]]; then
   echo "Can not find the bottle.rb file with the new hash"
   exit -1
 fi
