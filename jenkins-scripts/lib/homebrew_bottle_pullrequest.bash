@@ -40,9 +40,8 @@ echo '# BEGIN SECTION: update hash in formula'
 NEW_HASH_LINE=$(grep sha256 ${FORMULA_PATH})
 DISTRO=$(get_osX_distribution "${NEW_HASH_LINE}")
 CURRENT_HASH=$(sed -n "s/sha256[[:space:]]*\"\(.*\)\".*=>.*${DISTRO}.*/\1/p" ${FORMULA_PATH} | sed 's/^ *//')
-echo "CURRENT_HASH: ${CURRENT_HASH}"
-echo "NEW LINE    : ${NEW_HASH_LINE}"
-sed -i -e "s/sha256.*=>.*${DISTRO}/${NEW_HASH_LINE}/g" ${FORMULA_PATH}
+# NEW_HASH_LINE has double quotes. Do not include it in double quotes :)
+sed -i -e 's/sha256.*=>.*'"${DISTRO}/${NEW_HASH_LINE}/"'g' ${FORMULA_PATH}
 cat ${FORMULA_PATH}
 echo '# END SECTION'
 
