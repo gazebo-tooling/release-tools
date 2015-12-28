@@ -23,7 +23,7 @@ fi
 echo '# END SECTION'
 
 # call to github setup
-. ${SCRIPT_LIBDIR}/lib/_homebrew_github_setup.bash
+. ${SCRIPT_LIBDIR}/_homebrew_github_setup.bash
 
 if [ -z "${FORMULA_PATH}" ]; then
   echo FORMULA_PATH not specified
@@ -40,4 +40,4 @@ sed -i -e "s/sha256.*=>.*${DISTRO}/\${NEW_HASH_LINE}/g" ${FORMULA_PATH}
 cat ${FORMULA_PATH}
 echo '# END SECTION'
 
-#. ${SCRIPT_DIR}/lib/_homebrew_github_commit.bash
+#. ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
