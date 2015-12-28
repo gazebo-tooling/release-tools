@@ -49,4 +49,4 @@ sed -i -e 's/sha256.*=>.*'"${DISTRO}/${NEW_HASH_LINE}/"'g' ${FORMULA_PATH}
 cat ${FORMULA_PATH}
 echo '# END SECTION'
 
-#. ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
+. ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
