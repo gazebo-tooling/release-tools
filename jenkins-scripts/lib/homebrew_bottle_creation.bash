@@ -48,6 +48,5 @@ fi
 mv *.bottle.tar.gz ${PKG_DIR}
 mv *.bottle.rb ${PKG_DIR}
 
-FILENAME=$(ls *.bottle.rb)
 DISTRO=$(get_osX_distribution ${NEW_HASH_LINE})
 echo '# END SECTION'
