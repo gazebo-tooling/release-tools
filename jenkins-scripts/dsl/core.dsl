@@ -145,11 +145,13 @@ bottle_job_hash_updater.with
     preBuildCleanup()
   }
 
+  parameters
+  {
     stringParam("PACKAGE_ALIAS", null,
                 "Versioned name of package name")
     stringParam("VERSION",null,
                 "Packages version. Not used in the scripts just for informative proposes")
-
+  }
 
   steps
   {
