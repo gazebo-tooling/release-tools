@@ -136,7 +136,7 @@ bottle_job_builder.with
 // -------------------------------------------------------------------
 // BREW bottle hash update
 def bottle_job_hash_updater = job(bottle_hash_updater_job_name)
-OSRFLinuxBaseBase.create(bottle_job_hash_updater)
+OSRFLinuxBase.create(bottle_job_hash_updater)
 GenericRemoteToken.create(bottle_job_hash_updater)
 bottle_job_hash_updater.with
 {
