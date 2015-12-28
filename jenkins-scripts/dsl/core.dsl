@@ -136,7 +136,7 @@ bottle_job_builder.with
 // -------------------------------------------------------------------
 // BREW bottle hash update
 def bottle_job_hash_updater = job(bottle_hash_updater_job_name)
-OSRFOsXBase.create(bottle_job_hash_updater)
+OSRFLinuxBaseBase.create(bottle_job_hash_updater)
 GenericRemoteToken.create(bottle_job_hash_updater)
 bottle_job_hash_updater.with
 {
@@ -145,17 +145,11 @@ bottle_job_hash_updater.with
     preBuildCleanup()
   }
 
-  parameters 
-  {
-    stringParam("PACKAGE", null,
-                "Package name (not versioned) corresponding to the bottle")
     stringParam("PACKAGE_ALIAS", null,
                 "Versioned name of package name")
     stringParam("VERSION",null,
                 "Packages version. Not used in the scripts just for informative proposes")
-    stringParam("DISTRO", null,
-                "MacosX distribution of the bottle")
-  }
+
 
   steps
   {
