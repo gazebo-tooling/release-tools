@@ -1,74 +1,6 @@
 #!/bin/bash -x
 set -ex
 
-NEEDED_HOST_PACKAGES="reprepro openssh-client"
-QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
-if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
-  sudo apt-get update
-  sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
-fi
-
-# By default, enable s3 upload of packages
-ENABLE_S3_UPLOAD=true
-
-# PATH to packages
-pkgs_path="$WORKSPACE/pkgs"
-
-# Check if the node was configured to use s3cmd
-# This is done by running s3cmd --configure
-if [[ ! -f "${HOME}/.s3cfg" ]]; then
-    echo "No $HOME/.s3cfg file found. Please config the software first in your system"
-    exit 1
-fi
-
-# Check destination repository
-if [[ -z ${UPLOAD_TO_REPO} ]]; then
-    echo "No UPLOAD_TO_REPO value was send. Which repository to use? (stable | prerelease | nightly)"
-    echo ""
-    echo "Please check that the jenkins -debbuild job that called this uploader is defining the parameter"
-    echo "UPLOAD_TO_REPO in the job configuration. If it is not, just define it as a string parameter"
-    exit 1
-fi
-
-case ${UPLOAD_TO_REPO} in
-    "stable")
-	# Security checks not to upload nightly or prereleases
-        # No packages with ~hg or ~pre
-	if [[ -n $(ls ${pkgs_path}/*~hg*.*) && -n $(ls ${pkgs_path}/*~pre*.*) ]]; then
-	  echo "There are nightly packages in the upload directory. Not uploading to stable repo"
-	  exit 1
-	fi
-        # No source packages with ~hg in version
-	if [[ -n $(cat ${pkgs_path}/*.dsc | grep ^Version: | grep '~hg\|~pre') ]]; then
-          echo "There is a sorce package with nightly or pre in version. Not uploading to stable repo"
-	  exit 1
-        fi
-	;;
-    "nightly")
-	# No uploads for nightly packages
-	ENABLE_S3_UPLOAD=false
-	;;
-    "only_s3_upload")
-        # This should be fine, no repo, only s3 upload
-        ENABLE_S3_UPLOAD=true
-        ;;
-    *)
-	# Here we could find project repositories uploads or error values.
-	# Error values for UPLOAD_TO_REPO will be get in the next directory check
-	# some lines below so we do nothing.
-	;;
-esac
-
-repo_path="/var/packages/gazebo/ubuntu-${UPLOAD_TO_REPO}"
-
-if [[ ! -d ${repo_path} ]]; then
-    echo "Repo directory ${repo_path} not found in server"
-    exit 1
-fi
-
-# Place in reprepro directory
-cd ${repo_path}
-
 # S3 Amazon upload
 S3_upload()
 {
@@ -139,6 +71,64 @@ upload_dsc_package()
 	sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg}
 }
 
+NEEDED_HOST_PACKAGES="reprepro openssh-client"
+QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
+if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
+  sudo apt-get update
+  sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
+fi
+
+# By default, enable s3 upload of packages
+ENABLE_S3_UPLOAD=true
+
+# PATH to packages
+pkgs_path="$WORKSPACE/pkgs"
+
+# Check if the node was configured to use s3cmd
+# This is done by running s3cmd --configure
+if [[ ! -f "${HOME}/.s3cfg" ]]; then
+    echo "No $HOME/.s3cfg file found. Please config the software first in your system"
+    exit 1
+fi
+
+# Check destination repository
+if [[ -z ${UPLOAD_TO_REPO} ]]; then
+    echo "No UPLOAD_TO_REPO value was send. Which repository to use? (stable | prerelease | nightly)"
+    echo ""
+    echo "Please check that the jenkins -debbuild job that called this uploader is defining the parameter"
+    echo "UPLOAD_TO_REPO in the job configuration. If it is not, just define it as a string parameter"
+    exit 1
+fi
+
+case ${UPLOAD_TO_REPO} in
+    "stable")
+	# Security checks not to upload nightly or prereleases
+        # No packages with ~hg or ~pre
+	if [[ -n $(ls ${pkgs_path}/*~hg*.*) && -n $(ls ${pkgs_path}/*~pre*.*) ]]; then
+	  echo "There are nightly packages in the upload directory. Not uploading to stable repo"
+	  exit 1
+	fi
+        # No source packages with ~hg in version
+	if [[ -n $(cat ${pkgs_path}/*.dsc | grep ^Version: | grep '~hg\|~pre') ]]; then
+          echo "There is a sorce package with nightly or pre in version. Not uploading to stable repo"
+	  exit 1
+        fi
+	;;
+    "nightly")
+	# No uploads for nightly packages
+	ENABLE_S3_UPLOAD=false
+	;;
+    "only_s3_upload")
+        # This should be fine, no repo, only s3 upload
+        ENABLE_S3_UPLOAD=true
+        ;;
+    *)
+	# Here we could find project repositories uploads or error values.
+	# Error values for UPLOAD_TO_REPO will be get in the next directory check
+	# some lines below so we do nothing.
+	;;
+esac
+
 # .zip | (mostly) windows packages
 for pkg in `ls $pkgs_path/*.zip`; do
   # S3_UPLOAD_PATH should be send by the upstream job
@@ -162,6 +152,22 @@ for pkg in `ls $pkgs_path/*.bottle.tar.gz`; do
   # Seems important to upload the path with a final slash
   S3_upload ${pkg} "${S3_UPLOAD_PATH}/"
 done
+
+# Check for no reprepro uploads to finish here
+if [[ ${UPLOAD_TO_REPO} == 'only_s3_upload' ]]; then
+  exit 0
+fi
+
+# REPREPRO debian packages
+repo_path="/var/packages/gazebo/ubuntu-${UPLOAD_TO_REPO}"
+
+if [[ ! -d ${repo_path} ]]; then
+    echo "Repo directory ${repo_path} not found in server"
+    exit 1
+fi
+
+# Place in reprepro directory
+cd ${repo_path}
 
 # .dsc | source debian packages
 for pkg in `ls $pkgs_path/*.dsc`; do
