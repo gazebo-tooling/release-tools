@@ -181,7 +181,7 @@ bottle_job_hash_updater.with
     shell("""\
           #!/bin/bash -xe
 
-          /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_bottle_pullrequest.bash"
+          /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_bottle_pullrequest.bash
           """.stripIndent())
   }
 }
