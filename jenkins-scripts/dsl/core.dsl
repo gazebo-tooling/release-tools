@@ -140,6 +140,8 @@ OSRFLinuxBase.create(bottle_job_hash_updater)
 GenericRemoteToken.create(bottle_job_hash_updater)
 bottle_job_hash_updater.with
 {
+  label "master"
+
   wrappers
   {
     preBuildCleanup()
