@@ -1,8 +1,8 @@
 #!/bin/bash -x
 
 # Knowing Script dir beware of symlink
-[[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
-SCRIPT_DIR="${SCRIPT_DIR%/*}"
+[[ -L ${0} ]] && SCRIPT_LIBDIR=$(readlink ${0}) || SCRIPT_LIBDIR=${0}
+SCRIPT_LIBDIR="${SCRIPT_LIBDIR%/*}"
 
 set +e
 
@@ -23,7 +23,7 @@ fi
 echo '# END SECTION'
 
 # call to github setup
-. ${SCRIPT_DIR}/lib/_homebrew_github_setup.bash
+. ${SCRIPT_LIBDIR}/lib/_homebrew_github_setup.bash
 
 if [ -z "${FORMULA_PATH}" ]; then
   echo FORMULA_PATH not specified
