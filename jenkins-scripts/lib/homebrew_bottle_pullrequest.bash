@@ -37,7 +37,7 @@ if [ -z "${FORMULA_PATH}" ]; then
 fi
 
 echo '# BEGIN SECTION: update hash in formula'
-NEW_HASH_LINE=$(grep sha256 ${FORMULA_PATH})
+NEW_HASH_LINE=$(grep 'sha256[[:space:]]*.* => :' ${FORMULA_PATH})
 DISTRO=$(get_osX_distribution "${NEW_HASH_LINE}")
 CURRENT_HASH=$(sed -n "s/sha256[[:space:]]*\"\(.*\)\".*=>.*${DISTRO}.*/\1/p" ${FORMULA_PATH} | sed 's/^ *//')
 # NEW_HASH_LINE has double quotes. Do not include it in double quotes :)
