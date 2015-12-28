@@ -39,7 +39,7 @@ fi
 echo '# BEGIN SECTION: update hash in formula'
 cat "${BOTTLE_RB_DIR}/*.rb"
 NEW_HASH_LINE=$(grep sha256 ${FORMULA_PATH})
-DISTRO=$(get_osX_distribution ${NEW_HASH_LINE})
+DISTRO=$(get_osX_distribution "${NEW_HASH_LINE}")
 HASH=$(sed -n "s/sha256[[:space:]]*\"\(.*\)\".*=>.*${DISTRO}.*/\1/p" ${FORMULA_PATH} | sed 's/^ *//')
 echo "New HASH: ${NEW_HASH}"
 sed -i -e "s/sha256.*=>.*${DISTRO}/\${NEW_HASH_LINE}/g" ${FORMULA_PATH}
