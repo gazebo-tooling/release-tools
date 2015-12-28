@@ -26,6 +26,8 @@ if [[ -f "${BOTTLE_RB_DIR}/*.rb" ]]; then
   echo "Can not find the bottle.rb file with the new hash"
   exit -1
 fi
+
+FILE_WITH_NEW_HASH="$(ls ${BOTTLE_RB_DIR}/*rb)"
 echo '# END SECTION'
 
 # call to github setup
@@ -37,7 +39,7 @@ if [ -z "${FORMULA_PATH}" ]; then
 fi
 
 echo '# BEGIN SECTION: update hash in formula'
-NEW_HASH_LINE=$(grep 'sha256[[:space:]]*.* => :' ${FORMULA_PATH})
+NEW_HASH_LINE=$(grep 'sha256[[:space:]]*.* => :' ${FILE_WITH_NEW_HASH})
 DISTRO=$(get_osX_distribution "${NEW_HASH_LINE}")
 CURRENT_HASH=$(sed -n "s/sha256[[:space:]]*\"\(.*\)\".*=>.*${DISTRO}.*/\1/p" ${FORMULA_PATH} | sed 's/^ *//')
 # NEW_HASH_LINE has double quotes. Do not include it in double quotes :)
