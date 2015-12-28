@@ -16,6 +16,12 @@ get_osX_distribution()
   echo ${hash_line/*:}
 }
 
+echo '# BEGIN SECTION: check variables'
+if [ -z "${PACKAGE_ALIAS}" ]; then
+  echo PACKAGE_ALIAS not specified
+  exit -1
+fi
+
 if [[ -f "${BOTTLE_RB_DIR}/*.rb" ]]; then
   echo "Can not find the bottle.rb file with the new hash"
   exit -1
@@ -34,7 +40,7 @@ echo '# BEGIN SECTION: update hash in formula'
 cat "${BOTTLE_RB_DIR}/*.rb"
 NEW_HASH_LINE=$(grep sha256 ${FORMULA_PATH})
 DISTRO=$(get_osX_distribution ${NEW_HASH_LINE})
-HASH=$(sed -n "s/sha256[[:space:]]*"\(.*\)".*=>.*${DISTRO}.*/\1/p" ${FORMULA_PATH} | sed 's/^ *//')
+HASH=$(sed -n "s/sha256[[:space:]]*\"\(.*\)\".*=>.*${DISTRO}.*/\1/p" ${FORMULA_PATH} | sed 's/^ *//')
 echo "New HASH: ${NEW_HASH}"
 sed -i -e "s/sha256.*=>.*${DISTRO}/\${NEW_HASH_LINE}/g" ${FORMULA_PATH}
 cat ${FORMULA_PATH}
