@@ -331,6 +331,31 @@ ci_distro.each { distro ->
 
 // Other build types
 
+// INSTALL ONELINER
+ci_distro.each { distro ->
+  supported_arches.each { arch ->
+    // --------------------------------------------------------------
+    def install_default_job = job("gazebo-install-one_liner-${distro}-${arch}")
+    OSRFLinuxInstall.create(install_default_job)
+    install_default_job.with
+    {
+      triggers {
+        cron('@daily')
+      }
+
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export DISTRO=${distro}
+              export ARCH=${arch}
+              /bin/bash -x ./scripts/jenkins-scripts/docker/gazebo-one-line-install-test-job.bash
+              """.stripIndent())
+      }
+    } // end of with
+  } // end of arch
+} // end of distro
+
 // INSTALL LINUX -DEV PACKAGES ALL PLATFORMS @ CRON/DAILY
 gazebo_supported_branches.each { branch ->
   ci_distro.each { distro ->
