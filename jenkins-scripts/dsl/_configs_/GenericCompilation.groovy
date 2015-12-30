@@ -10,9 +10,10 @@ import javaposse.jobdsl.dsl.Job
 */
 class GenericCompilation
 {
-   static void create(Job job)
+
+   static String get_compilation_mail_content()
    {
-     def mail_content ='''\
+      return '''\
      $DEFAULT_CONTENT
 
      ${BUILD_LOG_REGEX, regex="^.*: (fatal ){0,1}error.*$",  linesBefore="5", linesAfter="5", maxMatches=0, showTruncatedLines=false}
@@ -24,8 +25,13 @@ class GenericCompilation
      Data log:
      ${FAILED_TESTS}
      '''.stripIndent()
+   }
 
-     GenericMail.update_field(job, 'defaultContent', mail_content)
+   static void create(Job job)
+   {
+
+     GenericMail.update_field(job, 'defaultContent',
+                              GenericCompilation.get_compilation_mail_content())
 
      job.with
      {
