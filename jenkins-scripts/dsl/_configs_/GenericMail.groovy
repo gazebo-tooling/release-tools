@@ -85,7 +85,7 @@ class GenericMail
       {
         // remove the existing 'extendedEmail' element
         configure { project ->
-          project.remove(project / publishers << 'hudson.plugins.emailext.ExtendedEmailPublisher')
+          (project / publishers / 'hudson.plugins.emailext.ExtendedEmailPublisher').value = ''
         }
       }
     }
