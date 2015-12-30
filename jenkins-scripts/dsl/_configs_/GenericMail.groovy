@@ -9,12 +9,12 @@ class GenericMail
     include_mail(job,'$DEFAULT_SUBJECT','$DEFAULT_CONTENT')
   }
 
-  static void update_subject(Job job, String subject)
+  static void update_field(Job job, String field, String new_value)
   {
     job.with
     {
       configure { project ->
-        (project / publishers / 'hudson.plugins.emailext.ExtendedEmailPublisher' / 'defaultSubject').value = subject
+        (project / publishers / 'hudson.plugins.emailext.ExtendedEmailPublisher' / field ).value = new_value
       }
     }
   }

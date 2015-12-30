@@ -25,7 +25,7 @@ class GenericCompilation
      ${FAILED_TESTS}
      '''.stripIndent()
 
-     GenericMail.include_mail(job, '$DEFAULT_SUBJECT' , mail_content)
+     GenericMail.update_field(job, 'defaultContent', mail_content)
 
      job.with
      {

@@ -15,7 +15,8 @@ class GenericAnyJob
    static void create(Job job, String repo)
    {
      // setup special mail subject
-     GenericMail.update_subject(job, '$PROJECT_NAME - Branch: $SRC_BRANCH (#$BUILD_NUMBER) - $BUILD_STATUS!')
+     GenericMail.update_filed(job, 'defaultSubject',
+                    '$PROJECT_NAME - Branch: $SRC_BRANCH (#$BUILD_NUMBER) - $BUILD_STATUS!')
      // TODO: implement this:
      // GenericMail.add_to_content(job, '$JOB_DESCRIPTION', at_the_beggining = true)
 
