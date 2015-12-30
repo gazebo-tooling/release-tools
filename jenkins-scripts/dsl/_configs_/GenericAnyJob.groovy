@@ -18,7 +18,7 @@ class GenericAnyJob
      GenericMail.update_field(job, 'defaultSubject',
                     '$PROJECT_NAME - Branch: $SRC_BRANCH (#$BUILD_NUMBER) - $BUILD_STATUS!')
      GenericMail.update_field(job, 'defaultContent', 
-                    '$JOB_DESCRIPTION' + GenericCompilation.get_compilation_mail_content())
+                    '$JOB_DESCRIPTION \n' + GenericCompilation.get_compilation_mail_content())
 
      String subdirectoy = repo.tokenize('/').last()
 
