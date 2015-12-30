@@ -14,29 +14,43 @@ def directory_for_bottles        = 'pkgs'
      -> update hash
 */
 
+// parameters needed by different reasons in the scripts or in the downstream
+// called jobs
+void include_common_params(Job job)
+{
+  job.with
+  {
+    parameters
+    {
+     stringParam("PACKAGE", '',
+                 'Package name. Needed in downstream jobs.')
+     stringParam("PACKAGE_ALIAS", '',
+                 'Name used for the package which may differ of the original repo name')
+     stringParam("VERSION", '',
+                 'Version of the package just released')
+    }
+  }
+}
+
 // -------------------------------------------------------------------
 // BREW pull request SHA updater
 def release_job = job("generic-release-homebrew_pull_request_updater")
 OSRFLinuxBase.create(release_job)
 GenericRemoteToken.create(release_job)
+
+include_common_params(release_job)
 release_job.with
 {
    label "master"
 
    wrappers {
         preBuildCleanup()
-   }
-
+   } 
+   
    parameters
    {
-     stringParam("PACKAGE", '',
-                 'Package name. Needed in downstream jobs.')
-     stringParam("PACKAGE_ALIAS", '',
-                 'Name used for the package which may differ of the original repo name')
      stringParam("SOURCE_TARBALL_URI", '',
                  'URI with the tarball of the latest release')
-     stringParam("VERSION", '',
-                 'Version of the package just released')
      stringParam('SOURCE_TARBALL_SHA','',
                  'SHA Hash of the tarball file')
    }
@@ -87,6 +101,8 @@ release_job.with
 def bottle_job_builder = job(bottle_builder_job_name)
 OSRFOsXBase.create(bottle_job_builder)
 GenericRemoteToken.create(bottle_job_builder)
+
+include_common_params(bottle_job_builder)
 bottle_job_builder.with
 {
    wrappers {
@@ -95,14 +111,6 @@ bottle_job_builder.with
 
    parameters
    {
-     stringParam("PACKAGE", '',
-                 'Package name. Needed in downstream jobs.')
-     stringParam("PACKAGE_ALIAS", '',
-                 'Name used for the package which may differ of the original repo name' +
-                 'Needed in downstream jobs.')
-     stringParam("VERSION",null,
-                 "Packages version. Not used in the scripts just for informative proposes" +
-                 'Needed in downstream jobs.')
      stringParam("PULL_REQUEST_URL", '',
                  'Pull request URL (osrf/simulation) pointing to a pull request.')
    }
@@ -161,6 +169,8 @@ bottle_job_builder.with
 def bottle_job_hash_updater = job(bottle_hash_updater_job_name)
 OSRFLinuxBase.create(bottle_job_hash_updater)
 GenericRemoteToken.create(bottle_job_hash_updater)
+
+include_common_params(bottle_job_hash_updater)
 bottle_job_hash_updater.with
 {
   label "master"
@@ -168,14 +178,6 @@ bottle_job_hash_updater.with
   wrappers
   {
     preBuildCleanup()
-  }
-
-  parameters
-  {
-    stringParam("PACKAGE_ALIAS", null,
-                "Versioned name of package name")
-    stringParam("VERSION",null,
-                "Packages version. Not used in the scripts just for informative proposes")
   }
 
   steps
