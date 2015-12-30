@@ -11,7 +11,7 @@ class GenericMail
 
   static void include_mail(Job job, String subject, String content)
   {
-    // GenericMail.remove_mail_config(job)
+    GenericMail.remove_mail_config(job)
 
     job.with
     {
