@@ -29,6 +29,8 @@ release_job.with
 
    parameters
    {
+     stringParam("PACKAGE", '',
+                 'Package name. Needed in downstream jobs.')
      stringParam("PACKAGE_ALIAS", '',
                  'Name used for the package which may differ of the original repo name')
      stringParam("SOURCE_TARBALL_URI", '',
@@ -39,7 +41,8 @@ release_job.with
                  'SHA Hash of the tarball file')
    }
 
-   steps {
+   steps
+   {
     systemGroovyCommand("""\
       build.setDescription(
       '<b>' + build.buildVariableResolver.resolve('PACKAGE_ALIAS') + '-' +
@@ -65,6 +68,18 @@ release_job.with
           /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_formula_pullrequest.bash
           """.stripIndent())
    }
+
+   // call to the bottle
+   downstreamParameterized
+   {
+      trigger(bottle_builder_job_name)
+      {
+        condition('SUCCESS')
+        parameters {
+          currentBuild()
+        }
+      }
+   }
 }
 
 // -------------------------------------------------------------------
@@ -80,6 +95,14 @@ bottle_job_builder.with
 
    parameters
    {
+     stringParam("PACKAGE", '',
+                 'Package name. Needed in downstream jobs.')
+     stringParam("PACKAGE_ALIAS", '',
+                 'Name used for the package which may differ of the original repo name' +
+                 'Needed in downstream jobs.')
+     stringParam("VERSION",null,
+                 "Packages version. Not used in the scripts just for informative proposes" +
+                 'Needed in downstream jobs.')
      stringParam("PULL_REQUEST_URL", '',
                  'Pull request URL (osrf/simulation) pointing to a pull request.')
    }
@@ -105,7 +128,7 @@ bottle_job_builder.with
      archiveArtifacts("${directory_for_bottles}/*")
 
      // call to the repository_uploader_ng to upload to S3 the binary
-     downstreamParameterized 
+     downstreamParameterized
      {
         trigger('repository_uploader_ng') {
           condition('SUCCESS')
@@ -120,9 +143,9 @@ bottle_job_builder.with
      }
 
      // call to the bottle hash updater
-     downstreamParameterized 
-     {        
-        trigger(bottle_hash_updater_job_name) 
+     downstreamParameterized
+     {
+        trigger(bottle_hash_updater_job_name)
         {
           condition('SUCCESS')
           parameters {
