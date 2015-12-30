@@ -84,15 +84,18 @@ release_job.with
    }
 
    // call to the bottle
-   downstreamParameterized
+   publishers
    {
-      trigger(bottle_builder_job_name)
-      {
-        condition('SUCCESS')
-        parameters {
-          currentBuild()
+     downstreamParameterized
+     {
+        trigger(bottle_builder_job_name)
+        {
+          condition('SUCCESS')
+          parameters {
+            currentBuild()
+          }
         }
-      }
+     }
    }
 }
 
