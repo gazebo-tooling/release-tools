@@ -9,10 +9,18 @@ class GenericMail
     include_mail(job,'$DEFAULT_SUBJECT','$DEFAULT_CONTENT')
   }
 
+  static void update_subject(Job job, String subject)
+  {
+    job.with
+    {
+      configure { project ->
+        (project / publishers / 'hudson.plugins.emailext.ExtendedEmailPublisher' / 'defaultSubject').value = subject
+      }
+    }
+  }
+
   static void include_mail(Job job, String subject, String content)
   {
-    GenericMail.remove_mail_config(job)
-
     job.with
     {
       publishers
@@ -76,18 +84,4 @@ class GenericMail
       }
     }
   } // end of include_mail
-
-  static void remove_mail_config(Job job)
-  {
-    job.with
-    {
-      publishers
-      {
-        // remove the existing 'extendedEmail' element
-        configure { project ->
-          (project / publishers / 'hudson.plugins.emailext.ExtendedEmailPublisher').value = ''
-        }
-      }
-    }
-  } // end of remove_mail_config
 } // end of class
