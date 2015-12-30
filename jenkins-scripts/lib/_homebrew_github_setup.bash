@@ -1,6 +1,11 @@
 # Parameters:
 # - PACKAGE_ALIAS [mandatory] name of package including major version
 
+if [ -z ${PACKAGE_ALIAS} ]; then
+    echo "PACKAGE_ALIAS variables is empty"
+    exit -1
+fi
+
 echo '# BEGIN SECTION: check github perms'
 # Github autentication. git access is provided by public key access
 # and hub cli needs a token

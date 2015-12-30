@@ -4,13 +4,6 @@ set -e
 [[ -L ${0} ]] && SCRIPT_LIBDIR=$(readlink ${0}) || SCRIPT_LIBDIR=${0}
 SCRIPT_LIBDIR="${SCRIPT_LIBDIR%/*}"
 
-get_osX_distribution()
-{
-  local hash_line=${1}
-
-  echo ${hash_line/*:}
-}
-
 export PATH="/usr/local/bin:$PATH"
 
 PKG_DIR=${WORKSPACE}/pkgs
@@ -48,5 +41,4 @@ fi
 mv *.bottle.tar.gz ${PKG_DIR}
 mv *.bottle.rb ${PKG_DIR}
 
-DISTRO=$(get_osX_distribution ${NEW_HASH_LINE})
 echo '# END SECTION'
