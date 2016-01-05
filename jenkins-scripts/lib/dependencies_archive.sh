@@ -191,7 +191,7 @@ if [[ -z $ROS_DISTRO ]]; then
   echo "ROS_DISTRO was not set before using dependencies_archive.sh!"
   echo "skipping ROS related variables"
   echo "------------------------------------------------------------"
-
+else
   # DRCSIM_DEPENDENCIES
   #
   # image-transport-plugins is needed to properly advertise compressed image topics
