@@ -1,5 +1,7 @@
 # Parameters:
 # - PACKAGE_ALIAS [mandatory] name of package including major version
+# Return:
+# -> FORMULA_PATH
 
 if [ -z ${PACKAGE_ALIAS} ]; then
     echo "PACKAGE_ALIAS variables is empty"
@@ -70,23 +72,7 @@ else
 fi
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: get formula path and version'
-FORMULA_PATH=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.path"`
+echo '# BEGIN SECTION: export formula path'
+export FORMULA_PATH=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.path"`
 echo Modifying ${FORMULA_PATH}
-
-# check if formula has auto-generated version field
-if ${BREW} ruby -e "exit \"${PACKAGE_ALIAS}\".f.stable.version.detected_from_url?"
-then
-  echo Version is autodetected from URL
-else
-  # get version and line number
-  FORMULA_VERSION=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.version"`
-  echo Changing version from
-  echo ${FORMULA_VERSION} to
-  echo ${VERSION}
-  VERSION_LINE=`awk \
-    "/version .${FORMULA_VERSION}/ {print FNR}" ${FORMULA_PATH} | head -1`
-  echo on line number ${VERSION_LINE}
-  sed -i -e "${VERSION_LINE}c\  version \"${VERSION}\"" ${FORMULA_PATH}
-fi
 echo '# END SECTION'
