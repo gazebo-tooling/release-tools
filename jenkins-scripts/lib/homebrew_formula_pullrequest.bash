@@ -41,6 +41,23 @@ echo on line number ${URI_LINE}
 sed -i -e "${URI_LINE}c\  url \"${SOURCE_TARBALL_URI}\"" ${FORMULA_PATH}
 
 echo
+# check if formula has auto-generated version field
+if ${BREW} ruby -e "exit \"${PACKAGE_ALIAS}\".f.stable.version.detected_from_url?"
+then
+  echo Version is autodetected from URL
+else
+  # get version and line number
+  FORMULA_VERSION=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.version"`
+  echo Changing version from
+  echo ${FORMULA_VERSION} to
+  echo ${VERSION}
+  VERSION_LINE=`awk \
+    "/version .${FORMULA_VERSION}/ {print FNR}" ${FORMULA_PATH} | head -1`
+  echo on line number ${VERSION_LINE}
+  sed -i -e "${VERSION_LINE}c\  version \"${VERSION}\"" ${FORMULA_PATH}
+fi
+
+echo
 # get stable sha256 and its line number
 SHA=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.checksum"`
 echo Changing sha256 from
