@@ -441,7 +441,7 @@ def go(argv):
                                                    GENERIC_BREW_PULLREQUEST_JOB,
                                                    params_query)
     print('- Brew: %s'%(brew_url))
-    if not DRY_RUN:
+    if not DRY_RUN and not NIGHTLY:
         urllib.urlopen(brew_url)
 
     # RELEASING FOR LINUX
