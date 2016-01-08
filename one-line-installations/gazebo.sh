@@ -279,10 +279,9 @@ do_install() {
 		osX)
 			(
 			  if ! command_exists ruby; then
-			    cat >&2 <<-'EOF_RUBY'
-			    ruby executable is not found in your system path. Please check
-			    your installation.
-			    EOF_RUBY
+				echo "ERROR: ruby executable is not found in your system path."
+				echo "Please check your installation."
+				exit 1
 			  fi
 
 			  if ! command_exists brew; then
