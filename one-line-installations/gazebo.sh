@@ -285,12 +285,12 @@ do_install() {
 			  fi
 
 			  if ! command_exists brew; then
-				$sh_c 'ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"'
+				ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 			  fi
 
-			  $sh_c 'brew tap osrf/simulation'
-			  $sh_c 'brew update'
-			  $sh_c "brew install ${BREW_PKG_NAME}"
+			  brew tap osrf/simulation
+			  brew update
+			  brew install ${BREW_PKG_NAME}
 			  exit 0
 			)
 			;;
