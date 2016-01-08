@@ -468,6 +468,25 @@ gazebo_brew_ci_any_job.with
     }
 }
 
+def install_brew_job = job("gazebo-install-one_liner-homebrew-amd64")
+OSRFOsXBase(install_brew_job)
+install_brew_job.with
+{
+  triggers {
+    cron('@daily')
+  }
+
+  steps {
+    shell("""\
+          #!/bin/bash -xe
+
+          echo '# BEGIN SECTION: run the one-liner installation'
+          curl -ssL https://bitbucket.org/osrf/release-tools/raw/default/one-line-installations/gazebo.sh | sh
+          echo '# END SECTION'
+          """.stripIndent())
+  }
+}
+
 // 2. default in all branches @SCM/daily
 // No gazebo2 for brew
 all_branches = gazebo_supported_branches + 'default' - 'gazebo2'
