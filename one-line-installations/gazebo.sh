@@ -134,11 +134,11 @@ do_install() {
 		lsb_dist="$(. /etc/os-release && echo "$ID")"
 	fi
 
-	if command_exists sw_vers; then
+	lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
+
+	if [ -z "$lsb_dist" ] && command_exists sw_vers; then
 		lsb_dist='osX'
 	fi
-
-	lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
 
 	case "$lsb_dist" in
 
