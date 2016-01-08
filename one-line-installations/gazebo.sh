@@ -135,7 +135,7 @@ do_install() {
 	fi
 
 	if command_exists sw_vers; then
-		lsb_dist="osX"
+		lsb_dist='osX'
 	fi
 
 	lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
