@@ -134,7 +134,7 @@ do_install() {
 		lsb_dist="$(. /etc/os-release && echo "$ID")"
 	fi
 
-	if command_exists sw_vers: then
+	if command_exists sw_vers; then
 		lsb_dist="osX"
 	fi
 
