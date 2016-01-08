@@ -471,7 +471,7 @@ gazebo_brew_ci_any_job.with
 }
 
 def install_brew_job = job("gazebo-install-one_liner-homebrew-amd64")
-OSRFOsXBase(install_brew_job)
+OSRFOsXBase.create(install_brew_job)
 install_brew_job.with
 {
   triggers {
