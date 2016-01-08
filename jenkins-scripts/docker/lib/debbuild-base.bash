@@ -100,10 +100,8 @@ cd /tmp/$PACKAGE-release/${DISTRO}
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
   TIMESTAMP=\$(date '+%Y%m%d')
-  NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}~${DISTRO}
-  # Update the changelog. --force-bad-version needed when prerelease is present in the changelog
+  NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}+hg\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}~${DISTRO}
   debchange --package ${PACKAGE} \\
-              --force-bad-version \\
               --newversion \${NIGHTLY_VERSION_SUFFIX} \\
               --distribution ${DISTRO} \\
               --force-distribution \\
