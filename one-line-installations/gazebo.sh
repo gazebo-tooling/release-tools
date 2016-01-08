@@ -11,6 +11,7 @@ set -e
 
 GZ_VER=6
 DEB_PKG_NAME=libgazebo$GZ_VER-dev
+BREW_PKG_NAME=gazebo${GZ_VER}
 
 command_exists() {
 	command -v "$@" > /dev/null 2>&1
@@ -133,6 +134,10 @@ do_install() {
 		lsb_dist="$(. /etc/os-release && echo "$ID")"
 	fi
 
+	if command_exists sw_vers: then
+		lsb_dist="osX"
+	fi
+
 	lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
 
 	case "$lsb_dist" in
@@ -166,6 +171,19 @@ do_install() {
 
 		fedora|centos)
 			dist_version="$(rpm -q --whatprovides redhat-release --queryformat "%{VERSION}\n" | sed 's/\/.*//' | sed 's/\..*//' | sed 's/Server*//')"
+		;;
+
+		osX)
+			full_major_version="$(sw_vers -productVersion | sed 's:\.[0-9]*$::')"
+			# Check for supported versions
+			case "$full_major_version" in
+				10.10)
+					dist_version="yosemite"
+				;;
+				10.11)
+					dist_version="elcapitan"
+				;;
+			esac
 		;;
 
 		*)
@@ -257,6 +275,24 @@ do_install() {
 			echo "sci-electronics/gazebo" >> /etc/portage/package.accept_keywords
 			$sh_c 'sleep 3; emerge sci-electronics/gazebo'
 			exit 0
+			;;
+		osX)
+			(
+			  if ! command_exists ruby; then
+			    cat >&2 <<-'EOF_RUBY'
+			    ruby executable is not found in your system path. Please check
+			    your installation.
+			    EOF_RUBY
+			  fi
+
+			  if ! command_exists brew; then
+				$sh_c 'ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"'
+			  fi
+
+			  $sh_c 'brew tap osrf/simulation'
+			  $sh_c 'brew update'
+			  $sh_c "brew install ${BREW_PKG_NAME}"
+			)
 			;;
 	esac
 
