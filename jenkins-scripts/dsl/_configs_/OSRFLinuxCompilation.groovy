@@ -44,8 +44,8 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
                  severityStyle true
                  severityPerformance true
                  severityInformation true
-                 severityNoCategory false
-                 severityPortability false
+                 severityNoCategory true
+                 severityPortability true
                }
 
                      configGraph {
