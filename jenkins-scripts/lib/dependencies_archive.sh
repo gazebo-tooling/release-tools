@@ -42,7 +42,6 @@ BASE_DEPENDENCIES="build-essential \\
                    python-psutil   \\
                    python          \\
                    bc              \\
-                   nc              \\
                    netcat-openbsd"
 
 # 1. SDFORMAT
