@@ -183,16 +183,6 @@ RUN echo 'END SECTION'
 DELIM_DOCKER_INVALIDATE
 fi
 
-cat >> Dockerfile << DELIM_DOCKER_SQUID
-# If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy
-# By default, squid-deb-proxy 403s unknown sources, so apt shouldn't proxy ppa.launchpad.net
-RUN route -n | awk '/^0.0.0.0/ {print \$2}' > /tmp/host_ip.txt
-RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
-  && (echo "Acquire::http::Proxy \"http://\$(cat /tmp/host_ip.txt):8000\";" > /etc/apt/apt.conf.d/30proxy) \
-  && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
-  || echo "No squid-deb-proxy detected on docker host"
-DELIM_DOCKER_SQUID
-
 # Packages that will be installed and cached by docker. In a non-cache
 # run below, the docker script will check for the latest updates
 PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS}"
@@ -220,6 +210,19 @@ RUN apt-get update && \
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
 DELIM_DOCKER3
+
+cat >> Dockerfile << DELIM_DOCKER_SQUID
+# Check if squid-deb-proxy is running or start it otherwiseº
+RUN [[ -n `ps aux | grep squid-deb-proxy.conf | grep -v grep` ]] || service squid-deb-proxy start
+
+# If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy
+# By default, squid-deb-proxy 403s unknown sources, so apt shouldn't proxy ppa.launchpad.net
+RUN route -n | awk '/^0.0.0.0/ {print \$2}' > /tmp/host_ip.txt
+RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
+  && (echo "Acquire::http::Proxy \"http://\$(cat /tmp/host_ip.txt):8000\";" > /etc/apt/apt.conf.d/30proxy) \
+  && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
+  || echo "No squid-deb-proxy detected on docker host"
+DELIM_DOCKER_SQUID
 
 if [[ -n ${SOFTWARE_DIR} ]]; then
 cat >> Dockerfile << DELIM_DOCKER4
