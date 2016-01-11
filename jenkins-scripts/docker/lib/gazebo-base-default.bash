@@ -27,7 +27,7 @@ if [[ ${GAZEBO_BASE_CMAKE_ARGS} != ${GAZEBO_BASE_CMAKE_ARGS/Coverage} ]]; then
   EXTRA_PACKAGES="${EXTRA_PACKAGES} lcov" 
 fi
 
-cat > build.sh << DELIM
+cat > build.sh << DELIM_DART
 ###################################################
 # Make project-specific changes here
 #
@@ -53,30 +53,39 @@ if $DART_COMPILE_FROM_SOURCE; then
   make install
   echo '# END SECTION'
 fi
+DELIM_DART
 
+# Process the source build of dependencies if needed
 for dep in $GAZEBO_OSRF_DEPS; do
-  if \$(eval \$GAZEBO_BUILD_\$dep); then
-    echo "#BEGIN SECTION: building dependency: \${dep} from branch:"
-    if [[ \${dep/IGN} == \${dep} ]]; then
-      bitbucket_repo="osrf/\${dep}"
+  EXTRA_PACKAGES="${EXTRA_PACKAGES} mercurial"
+  if $(eval $\GAZEBO_BUILD_$dep); then
+      # Handle the depedency BRANCH
+      $(eval dep_branch=$\GAZEBO_BUILD_$dep\_BRANCH)
+      [[ -z ${dep_branch} ]] && dep_branch='default'
+cat >> build.sh << DELIM_BUILD_DEPS  
+    echo "#BEGIN SECTION: building dependency: ${dep}"
+    if [[ ${dep/IGN} == ${dep} ]]; then
+      bitbucket_repo="osrf/${dep}"
     else
-      bitbucket_repo="ignitionrobotics/\${dep}"
+      bitbucket_repo="ignitionrobotics/${dep}"
     fi
 
-    hg clone http://bitbucket.org/\$bitbucket_repo -b 
-      $WORKSPACE/\$dep 
+    hg clone http://bitbucket.org/\$bitbucket_repo -b ${dep_branch} \
+	$WORKSPACE/$dep 
 
     GENERIC_ENABLE_CPPCHECK=false
     GENERIC_ENABLE_TESTS=false 
-    SOFTWARE_DIR=\$dep
+    SOFTWARE_DIR=$dep
     . ${SCRIPT_DIR}/lib/_generic_linux_compilation_build.sh.bash
+DELIM_BUILD_DEPS
   fi
 done
 
+cat >> build.sh << DELIM
 # Normal cmake routine for Gazebo
 echo '# BEGIN SECTION: Gazebo configuration'
 rm -rf $WORKSPACE/install
-mkdir -p $WORKSPACE/install
+mkdir -p $WORKSPACE/install $WORKSPACE/build
 cd $WORKSPACE/build
 cmake ${GAZEBO_BASE_CMAKE_ARGS}      \\
     -DCMAKE_INSTALL_PREFIX=/usr      \\
