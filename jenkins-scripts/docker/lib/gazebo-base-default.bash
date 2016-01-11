@@ -55,7 +55,7 @@ if $DART_COMPILE_FROM_SOURCE; then
 fi
 
 for dep in $GAZEBO_OSRF_DEPS; do
-  if $(eval GAZEBO_BUILD_$GAZEBO_OSRF_DEPS); then
+  if $(eval \$GAZEBO_BUILD_$dep); then
     echo "#BEGIN SECTION: building dependency: \${dep} from branch \
     if [[ \${dep/IGN} == \${dep} ]]; then
       bitbucket_repo="osrf/\${dep}"
