@@ -76,12 +76,6 @@ ci_distro.each { distro ->
                                     "http://bitbucket.org/osrf/gazebo")
       gazebo_ci_any_job.with
       {
-        parameters
-        {
-          stringParam('DEST_BRANCH','default',
-                      'Destination branch where the pull request will be merged')
-        }
-
         if (gpu != 'none')
         {
           label "gpu-${gpu}-${distro}"
