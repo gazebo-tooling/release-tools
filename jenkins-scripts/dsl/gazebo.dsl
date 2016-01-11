@@ -244,7 +244,7 @@ ci_distro.each { distro ->
 
             export DISTRO=${distro}
             export ARCH=${arch}
-            export GPU_SUPPORT_NEEDED=${gpu_needed}
+            export GPU_SUPPORT_NEEDED=true
             export GAZEBO_BUILD_SDFORMAT=true
             export GAZEBO_BUILD_IGN_MATH=true
             export GAZEBO_BUILD_IGN_TRANSPORT=true
