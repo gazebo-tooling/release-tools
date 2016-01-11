@@ -117,7 +117,7 @@ fi
 
 # Check if squid-deb-proxy is running or start it otherwise
 if [[ -z $(ps aux | grep squid-deb-proxy.conf | grep -v grep | awk '{ print $2}') ]]; then
-  service squid-deb-proxy start
+  sudo service squid-deb-proxy start
 fi
 
 # Docker checking
