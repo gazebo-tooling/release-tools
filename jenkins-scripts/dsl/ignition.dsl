@@ -16,8 +16,8 @@ def supported_arches        = Globals.get_supported_arches()
 
 def all_supported_distros = ci_distro + other_supported_distros
 
-// Map Need to be used in ci_pr
-abi_job_names = null
+// Map needed to be used in ci_pr
+abi_job_names = [:]
 
 Globals.extra_emails = "caguero@osrfoundation.org"
 
