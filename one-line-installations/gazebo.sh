@@ -291,8 +291,9 @@ do_install() {
 			  brew tap osrf/simulation
 			  brew update
 			  brew install ${BREW_PKG_NAME}
-			  exit 0
 			)
+
+			exit 0
 			;;
 	esac
 
