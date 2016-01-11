@@ -452,6 +452,10 @@ def go(argv):
     for d in distros:
         for a in UBUNTU_ARCHS:
             if (NIGHTLY and a == 'i386'):
+                # no wily for i386 in docker
+                if (d == 'wily'):
+                    continue
+
                 # only keep i386 for sdformat in nightly,
                 # just to test CI infrastructure
                 if (not args.package[:-1] == 'sdformat'):
