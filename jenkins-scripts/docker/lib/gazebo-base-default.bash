@@ -4,9 +4,15 @@
 #  - GAZEBO_BASE_CMAKE_ARGS (optional) extra arguments to pass to cmake
 #  - GAZEBO_BASE_TESTS_HOOK (optional) [default to run UNIT, INTEGRATION, REGRESSION, EXAMPLE]
 #                           piece of code to run in the testing section
+#  - GAZEBO_BUILD_$DEP      (optional) [default false] 
+#                           build dependencies from source. 
+#                           DEP = SDFORMAT | IGN_MATH | IGN_TRANSPORT
+#                           branch parameter = $DEP_BRANCH
 
 #stop on error
 set -e
+
+GAZEBO_OSRF_DEPS="SDFORMAT IGN_MATH IGN_TRANSPORT"
 
 . ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
 
@@ -47,6 +53,25 @@ if $DART_COMPILE_FROM_SOURCE; then
   make install
   echo '# END SECTION'
 fi
+
+for dep in $GAZEBO_OSRF_DEPS; do
+  if $(eval GAZEBO_BUILD_$GAZEBO_OSRF_DEPS); then
+    echo "#BEGIN SECTION: building dependency: \${dep} from branch \
+    if [[ \${dep/IGN} == \${dep} ]]; then
+      bitbucket_repo="osrf/\${dep}"
+    else
+      bitbucket_repo="ignitionrobotics/\${dep}"
+    fi
+
+    hg clone http://bitbucket.org/\$bitbucket_repo -b 
+      $WORKSPACE/\$dep 
+
+    GENERIC_ENABLE_CPPCHECK=false
+    GENERIC_ENABLE_TESTS=false 
+    SOFTWARE_DIR=\$dep
+    . ${SCRIPT_DIR}/lib/_generic_linux_compilation_build.sh.bash
+  fi
+done
 
 # Normal cmake routine for Gazebo
 echo '# BEGIN SECTION: Gazebo configuration'
