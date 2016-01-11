@@ -56,7 +56,7 @@ fi
 
 for dep in $GAZEBO_OSRF_DEPS; do
   if \$(eval \$GAZEBO_BUILD_\$dep); then
-    echo "#BEGIN SECTION: building dependency: \${dep} from branch \
+    echo "#BEGIN SECTION: building dependency: \${dep} from branch:"
     if [[ \${dep/IGN} == \${dep} ]]; then
       bitbucket_repo="osrf/\${dep}"
     else
