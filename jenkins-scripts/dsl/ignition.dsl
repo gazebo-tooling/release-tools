@@ -27,7 +27,7 @@ ignition_software.each { ign_sw ->
   abi_distro.each { distro ->
     supported_arches.each { arch ->
       abi_job_names[ign_sw] = "ignition_${ign_sw}-abichecker-any_to_any-${distro}-${arch}"
-      def abi_job = job(abi_job_names)
+      def abi_job = job(abi_job_names[ign_sw])
       OSRFLinuxABI.create(abi_job)
       abi_job.with
       {
