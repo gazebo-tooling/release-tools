@@ -2,10 +2,9 @@
 
 # Knowing Script dir beware of symlink
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
-SCRIPT_DIR="${SCRIPT_DIR%/*}"
+export SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 echo '# BEGIN SECTION: cleanup brew installation'
-bash -x ${SCRIPT_DIR}/lib/dependencies_archive.sh
 bash -x ${SCRIPT_DIR}/lib/_homebrew_cleanup.bash
 echo '# END SECTION'
 
