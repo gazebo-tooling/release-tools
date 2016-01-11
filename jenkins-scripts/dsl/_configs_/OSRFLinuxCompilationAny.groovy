@@ -18,11 +18,14 @@ class OSRFLinuxCompilationAny
     /* Properties from generic any */
     GenericAnyJob.create(job, repo)
 
-    parameters
+    job.with
     {
-      stringParam('DEST_BRANCH','default',
-                  'Destination branch where the pull request will be merged.' +
-                  'Mostly used to decide if calling to ABI checker')
+      parameters
+      {
+        stringParam('DEST_BRANCH','default',
+                    'Destination branch where the pull request will be merged.' +
+                    'Mostly used to decide if calling to ABI checker')
+      }
     }
   }
 }
