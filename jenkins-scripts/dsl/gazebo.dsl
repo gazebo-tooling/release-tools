@@ -227,28 +227,31 @@ ci_distro.each { distro ->
       def multi_any_job = job("gazebo-ci-pr_any+sdformat_any+ign_any-${distro}-${arch}-gpu-${gpu}")
       OSRFLinuxCompilationAny.create(multi_any_job,
                                     "http://bitbucket.org/osrf/gazebo")
-      parameters
+      multi_any_job.with
       {
-        stringParam('SDFORMAT_BRANCH', 'default', 'sdformat branch to use')
-        stringParam('IGN_MATH_BRANCH', 'default', 'ignition math branch to use')
-        stringParam('IGN_TRANSPORT_BRANCH', 'default', 'ignition transport branch to use')
-      }
-
-      label "gpu-${gpu}-${distro}"
-
-      steps {
-          shell("""\
-          #!/bin/bash -xe
-
-          export DISTRO=${distro}
-          export ARCH=${arch}
-          export GPU_SUPPORT_NEEDED=${gpu_needed}
-          export GAZEBO_BUILD_SDFORMAT=true
-          export GAZEBO_BUILD_IGN_MATH=true
-          export GAZEBO_BUILD_IGN_TRANSPORT=true
-          /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
-          """.stripIndent())
+        parameters
+        {
+          stringParam('SDFORMAT_BRANCH', 'default', 'sdformat branch to use')
+          stringParam('IGN_MATH_BRANCH', 'default', 'ignition math branch to use')
+          stringParam('IGN_TRANSPORT_BRANCH', 'default', 'ignition transport branch to use')
         }
+
+        label "gpu-${gpu}-${distro}"
+
+        steps {
+            shell("""\
+            #!/bin/bash -xe
+
+            export DISTRO=${distro}
+            export ARCH=${arch}
+            export GPU_SUPPORT_NEEDED=${gpu_needed}
+            export GAZEBO_BUILD_SDFORMAT=true
+            export GAZEBO_BUILD_IGN_MATH=true
+            export GAZEBO_BUILD_IGN_TRANSPORT=true
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
+            """.stripIndent())
+        }
+      }
     }
   }
 }
