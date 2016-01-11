@@ -2,10 +2,10 @@
 
 # Knowing Script dir beware of symlink
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
-export SCRIPT_DIR="${SCRIPT_DIR%/*}"
+SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 echo '# BEGIN SECTION: cleanup brew installation'
-bash -x ${SCRIPT_DIR}/lib/_homebrew_cleanup.bash
+. ${SCRIPT_DIR}/lib/_homebrew_cleanup.bash
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run the one-liner installation'
