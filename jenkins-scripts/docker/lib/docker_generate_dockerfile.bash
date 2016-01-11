@@ -212,11 +212,6 @@ RUN mkdir -p ${WORKSPACE}
 DELIM_DOCKER3
 
 cat >> Dockerfile << DELIM_DOCKER_SQUID
-# Check if squid-deb-proxy is running or start it otherwiseº
-RUN if [ -n `ps aux | grep squid-deb-proxy.conf | grep -v grep` ]; then \\
-      service squid-deb-proxy start \\
-    fi
-
 # If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy
 # By default, squid-deb-proxy 403s unknown sources, so apt shouldn't proxy ppa.launchpad.net
 RUN route -n | awk '/^0.0.0.0/ {print \$2}' > /tmp/host_ip.txt
