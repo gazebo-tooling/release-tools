@@ -482,9 +482,7 @@ install_brew_job.with
     shell("""\
           #!/bin/bash -xe
 
-          echo '# BEGIN SECTION: run the one-liner installation'
-          curl -ssL https://bitbucket.org/osrf/release-tools/raw/default/one-line-installations/gazebo.sh | sh
-          echo '# END SECTION'
+          /bin/bash -xe ./scripts/jenkins-scripts/gazebo-one_liner-homebrew.bash
           """.stripIndent())
   }
 }

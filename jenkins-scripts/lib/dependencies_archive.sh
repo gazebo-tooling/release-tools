@@ -3,12 +3,6 @@
 # **** WARNING ***** : when modifying this file
 # **** WARNING ***** : any trailing whitespaces will break dependencies scapes
 
-
-if [[ -z $ROS_DISTRO ]]; then
-    echo "ROS_DISTRO was not set before using dependencies_archive.sh!"
-    exit 1
-fi
-
 # Dart flags. Enable it by default unless compiled from source
 if [ -z ${DART_COMPILE_FROM_SOURCE} ]; then
    DART_COMPILE_FROM_SOURCE=false
@@ -42,6 +36,8 @@ BASE_DEPENDENCIES="build-essential \\
                    python          \\
                    bc              \\
                    netcat-openbsd"
+
+BREW_BASE_DEPENDCIES="mercurial git cmake"
 
 # 1. SDFORMAT
 # ruby for xml_schemas generation and libxml2-utils for xmllint used in tests
@@ -190,108 +186,114 @@ if [[ ${DISTRO} != 'precise' ]]; then
                                libgdal-dev"
 fi
 
-#
-# DRCSIM_DEPENDENCIES
-#
-# image-transport-plugins is needed to properly advertise compressed image topics
-DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-std-msgs                          \\
-                          ros-${ROS_DISTRO}-common-msgs                       \\
-                          ros-${ROS_DISTRO}-image-common                      \\
-                          ros-${ROS_DISTRO}-geometry                          \\
-                          ros-${ROS_DISTRO}-geometry-experimental             \\
-                          ros-${ROS_DISTRO}-image-pipeline                    \\
-                          ros-${ROS_DISTRO}-image-transport-plugins           \\
-                          ros-${ROS_DISTRO}-gazebo4-plugins                   \\
-                          ros-${ROS_DISTRO}-compressed-depth-image-transport  \\
-                          ros-${ROS_DISTRO}-compressed-image-transport        \\
-                          ros-${ROS_DISTRO}-theora-image-transport            \\
-                          ros-${ROS_DISTRO}-control-msgs                      \\
-                          ros-${ROS_DISTRO}-robot-model                       \\
-                          ros-${ROS_DISTRO}-robot-state-publisher             \\
-                          ros-${ROS_DISTRO}-control-toolbox                   \\
-                          ${GAZEBO_DEB_PACKAGE}"
-
-if [[ $ROS_DISTRO == 'hydro' ]]; then
-  DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
-                            ros-${ROS_DISTRO}-pr2-controllers    \\
-                            ros-${ROS_DISTRO}-pr2-mechanism"
+if [[ -z $ROS_DISTRO ]]; then
+  echo "------------------------------------------------------------"
+  echo "ROS_DISTRO was not set before using dependencies_archive.sh!"
+  echo "skipping ROS related variables"
+  echo "------------------------------------------------------------"
 else
-  DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
-                            ros-${ROS_DISTRO}-controller-manager \\
-                            ros-${ROS_DISTRO}-pr2-mechanism-msgs"
+  # DRCSIM_DEPENDENCIES
+  #
+  # image-transport-plugins is needed to properly advertise compressed image topics
+  DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-std-msgs                          \\
+                            ros-${ROS_DISTRO}-common-msgs                       \\
+                            ros-${ROS_DISTRO}-image-common                      \\
+                            ros-${ROS_DISTRO}-geometry                          \\
+                            ros-${ROS_DISTRO}-geometry-experimental             \\
+                            ros-${ROS_DISTRO}-image-pipeline                    \\
+                            ros-${ROS_DISTRO}-image-transport-plugins           \\
+                            ros-${ROS_DISTRO}-gazebo4-plugins                   \\
+                            ros-${ROS_DISTRO}-compressed-depth-image-transport  \\
+                            ros-${ROS_DISTRO}-compressed-image-transport        \\
+                            ros-${ROS_DISTRO}-theora-image-transport            \\
+                            ros-${ROS_DISTRO}-control-msgs                      \\
+                            ros-${ROS_DISTRO}-robot-model                       \\
+                            ros-${ROS_DISTRO}-robot-state-publisher             \\
+                            ros-${ROS_DISTRO}-control-toolbox                   \\
+                            ${GAZEBO_DEB_PACKAGE}"
+
+  if [[ $ROS_DISTRO == 'hydro' ]]; then
+    DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
+                              ros-${ROS_DISTRO}-pr2-controllers    \\
+                              ros-${ROS_DISTRO}-pr2-mechanism"
+  else
+    DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
+                              ros-${ROS_DISTRO}-controller-manager \\
+                              ros-${ROS_DISTRO}-pr2-mechanism-msgs"
+  fi
+
+  # DRCSIM_FULL_DEPENDENCIES
+  # Need ROS postfix in precise for groovy/hydro
+  if [[ $DISTRO == 'precise' ]]; then
+     ROS_POSTFIX="-${ROS_DISTRO}"
+  else
+     ROS_POSTFIX=""
+  fi
+
+  DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}       \\
+                            sandia-hand${ROS_POSTFIX}         \\
+                            osrf-common${ROS_POSTFIX}         \\
+                            ros-${ROS_DISTRO}-laser-assembler \\
+                            ros-${ROS_DISTRO}-gazebo4-plugins \\
+                            ros-${ROS_DISTRO}-gazebo4-ros     \\
+                            ${GAZEBO_DEB_PACKAGE}"
+  #
+  # SANDIA_HAND DEPENDECIES
+  #
+  SANDIA_HAND_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-xacro              \\
+                                 ros-${ROS_DISTRO}-ros                \\
+                                 ros-${ROS_DISTRO}-image-common       \\
+                                 ros-${ROS_DISTRO}-ros-comm           \\
+                                 ros-${ROS_DISTRO}-common-msgs        \\
+                                 ros-${ROS_DISTRO}-message-generation \\
+                                 libboost-dev                         \\
+                                 libqt4-dev                           \\
+                                 osrf-common${ROS_POSTFIX}"
+
+  #
+  # ROS_GAZEBO_PKGS DEPENDECIES
+  #
+  ROS_GAZEBO_PKGS_DEPENDENCIES="libtinyxml-dev                            \\
+                                ros-${ROS_DISTRO}-catkin                  \\
+                                ros-${ROS_DISTRO}-pluginlib               \\
+                                ros-${ROS_DISTRO}-roscpp                  \\
+                                ros-${ROS_DISTRO}-driver-base             \\
+                                ros-${ROS_DISTRO}-angles                  \\
+                                ros-${ROS_DISTRO}-cv-bridge               \\
+                                ros-${ROS_DISTRO}-diagnostic-updater      \\
+                                ros-${ROS_DISTRO}-dynamic-reconfigure     \\
+                                ros-${ROS_DISTRO}-geometry-msgs           \\
+                                ros-${ROS_DISTRO}-image-transport         \\
+                                ros-${ROS_DISTRO}-message-generation      \\
+                                ros-${ROS_DISTRO}-nav-msgs                \\
+                                ros-${ROS_DISTRO}-nodelet                 \\
+                                ros-${ROS_DISTRO}-pcl-conversions         \\
+                                ros-${ROS_DISTRO}-pcl-ros                 \\
+                                ros-${ROS_DISTRO}-polled-camera           \\
+                                ros-${ROS_DISTRO}-rosconsole              \\
+                                ros-${ROS_DISTRO}-rosgraph-msgs           \\
+                                ros-${ROS_DISTRO}-sensor-msgs             \\
+                                ros-${ROS_DISTRO}-std-srvs                \\
+                                ros-${ROS_DISTRO}-tf                      \\
+                                ros-${ROS_DISTRO}-trajectory-msgs         \\
+                                ros-${ROS_DISTRO}-urdf                    \\
+                                ros-${ROS_DISTRO}-xacro                   \\
+                                ros-${ROS_DISTRO}-cmake-modules           \\
+                                ros-${ROS_DISTRO}-controller-manager      \\
+                                ros-${ROS_DISTRO}-joint-limits-interface  \\
+                                ros-${ROS_DISTRO}-transmission-interface"
+
+
+
+  if [[ ${ROS_DISTRO} == 'indigo' ]]; then
+  # These dependencies are for testing the ros_gazebo_pkgs
+  ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-effort-controllers      \\
+                                ros-${ROS_DISTRO}-joint-state-controller"
+  fi
+
+  ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-xacro \\
+                               ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS}"
 fi
-
-# DRCSIM_FULL_DEPENDENCIES
-# Need ROS postfix in precise for groovy/hydro
-if [[ $DISTRO == 'precise' ]]; then
-   ROS_POSTFIX="-${ROS_DISTRO}"
-else
-   ROS_POSTFIX=""
-fi
-
-DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}       \\
-                          sandia-hand${ROS_POSTFIX}         \\
-                          osrf-common${ROS_POSTFIX}         \\
-                          ros-${ROS_DISTRO}-laser-assembler \\
-                          ros-${ROS_DISTRO}-gazebo4-plugins \\
-                          ros-${ROS_DISTRO}-gazebo4-ros     \\
-                          ${GAZEBO_DEB_PACKAGE}"
-#
-# SANDIA_HAND DEPENDECIES
-#
-SANDIA_HAND_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-xacro              \\
-                               ros-${ROS_DISTRO}-ros                \\
-                               ros-${ROS_DISTRO}-image-common       \\
-                               ros-${ROS_DISTRO}-ros-comm           \\
-                               ros-${ROS_DISTRO}-common-msgs        \\
-                               ros-${ROS_DISTRO}-message-generation \\
-                               libboost-dev                         \\
-                               libqt4-dev                           \\
-                               osrf-common${ROS_POSTFIX}"
-
-#
-# ROS_GAZEBO_PKGS DEPENDECIES
-#
-ROS_GAZEBO_PKGS_DEPENDENCIES="libtinyxml-dev                            \\
-                              ros-${ROS_DISTRO}-catkin                  \\
-                              ros-${ROS_DISTRO}-pluginlib               \\
-                              ros-${ROS_DISTRO}-roscpp                  \\
-                              ros-${ROS_DISTRO}-driver-base             \\
-                              ros-${ROS_DISTRO}-angles                  \\
-                              ros-${ROS_DISTRO}-cv-bridge               \\
-                              ros-${ROS_DISTRO}-diagnostic-updater      \\
-                              ros-${ROS_DISTRO}-dynamic-reconfigure     \\
-                              ros-${ROS_DISTRO}-geometry-msgs           \\
-                              ros-${ROS_DISTRO}-image-transport         \\
-                              ros-${ROS_DISTRO}-message-generation      \\
-                              ros-${ROS_DISTRO}-nav-msgs                \\
-                              ros-${ROS_DISTRO}-nodelet                 \\
-                              ros-${ROS_DISTRO}-pcl-conversions         \\
-                              ros-${ROS_DISTRO}-pcl-ros                 \\
-                              ros-${ROS_DISTRO}-polled-camera           \\
-                              ros-${ROS_DISTRO}-rosconsole              \\
-                              ros-${ROS_DISTRO}-rosgraph-msgs           \\
-                              ros-${ROS_DISTRO}-sensor-msgs             \\
-                              ros-${ROS_DISTRO}-std-srvs                \\
-                              ros-${ROS_DISTRO}-tf                      \\
-                              ros-${ROS_DISTRO}-trajectory-msgs         \\
-                              ros-${ROS_DISTRO}-urdf                    \\
-                              ros-${ROS_DISTRO}-xacro                   \\
-                              ros-${ROS_DISTRO}-cmake-modules           \\
-                              ros-${ROS_DISTRO}-controller-manager      \\
-                              ros-${ROS_DISTRO}-joint-limits-interface  \\
-                              ros-${ROS_DISTRO}-transmission-interface"
-
-
-
-if [[ ${ROS_DISTRO} == 'indigo' ]]; then
-# These dependencies are for testing the ros_gazebo_pkgs
-ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-effort-controllers      \\
-                              ros-${ROS_DISTRO}-joint-state-controller"
-fi
-
-ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-xacro \\
-                             ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS}"
 
 #
 # DART dependencies
