@@ -9,6 +9,5 @@ echo '# BEGIN SECTION: cleanup brew installation'
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run the one-liner installation'
-curl -ssL
-https://bitbucket.org/osrf/release-tools/raw/default/one-line-installations/gazebo.sh | sh -x
+curl -ssL https://bitbucket.org/osrf/release-tools/raw/default/one-line-installations/gazebo.sh | sh -x
 echo '# END SECTION'
