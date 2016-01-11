@@ -26,6 +26,7 @@ fi
 
 # mesa-utils for dri checks, xsltproc for qtest->junit conversion and
 # python-psutil for memory testing
+# netcat-openbsd (nc command) for squid-deb-proxy checking
 BASE_DEPENDENCIES="build-essential \\
                    cmake           \\
                    debhelper       \\

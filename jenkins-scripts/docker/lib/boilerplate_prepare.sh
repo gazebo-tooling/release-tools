@@ -115,6 +115,11 @@ if [[ ! $(dpkg-query --list ${NEEDED_HOST_PACKAGES}) ]]; then
   exit 1
 fi
 
+# Check if squid-deb-proxy is running or start it otherwise
+if [[ -z $(ps aux | grep squid-deb-proxy.conf | grep -v grep | awk '{ print $2}') ]]; then
+  sudo service squid-deb-proxy start
+fi
+
 # Docker checking
 # Code imported from https://github.com/CognitiveRobotics/omnimapper/tree/master/docker 
 # under the license detailed in https://github.com/CognitiveRobotics/omnimapper/blob/master/LICENSE 
