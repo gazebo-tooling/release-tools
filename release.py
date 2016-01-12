@@ -452,14 +452,14 @@ def go(argv):
     for d in distros:
         for a in UBUNTU_ARCHS:
             if (NIGHTLY and a == 'i386'):
-                # no wily for i386 in docker
-                if (d == 'wily'):
-                    continue
-
                 # only keep i386 for sdformat in nightly,
                 # just to test CI infrastructure
                 if (not args.package[:-1] == 'sdformat'):
                     continue
+
+            # no wily for i386 in docker
+            if (d == 'wily' and a == 'i386'):
+                continue
 
             if (a == 'armhf'):
                 # Only release armhf in trusty for now
