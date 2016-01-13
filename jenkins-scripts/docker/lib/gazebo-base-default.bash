@@ -56,14 +56,16 @@ fi
 DELIM_DART
 
 # Process the source build of dependencies if needed
-for dep in $GAZEBO_OSRF_DEPS; do
+for dep_uppercase in $GAZEBO_OSRF_DEPS; do
+  dep=`echo $dep_uppercase | tr '[:upper:]' '[:lower:]'`
   EXTRA_PACKAGES="${EXTRA_PACKAGES} mercurial"
-  if $(eval $\GAZEBO_BUILD_$dep); then
+
+  if $(eval $\GAZEBO_BUILD_$dep_uppercase); then
       # Handle the depedency BRANCH
-      $(eval dep_branch=$\GAZEBO_BUILD_$dep\_BRANCH)
+      $(eval dep_branch=$\GAZEBO_BUILD_$dep_uppercase\_BRANCH)
       [[ -z ${dep_branch} ]] && dep_branch='default'
 cat >> build.sh << DELIM_BUILD_DEPS  
-    echo "#BEGIN SECTION: building dependency: ${dep}"
+    echo "#BEGIN SECTION: building dependency: ${dep} (${dep_branch})"
     if [[ ${dep/IGN} == ${dep} ]]; then
       bitbucket_repo="osrf/${dep}"
     else
@@ -76,7 +78,7 @@ cat >> build.sh << DELIM_BUILD_DEPS
     GENERIC_ENABLE_CPPCHECK=false
     GENERIC_ENABLE_TESTS=false 
     SOFTWARE_DIR=$dep
-    . ${SCRIPT_DIR}/lib/_generic_linux_compilation_build.sh.bash
+    . ${WORKSPACE}/${SCRIPT_DIR}/lib/_generic_linux_compilation_build.sh.bash
 DELIM_BUILD_DEPS
   fi
 done
