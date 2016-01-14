@@ -66,6 +66,8 @@ for dep_uppercase in $GAZEBO_OSRF_DEPS; do
       [[ -z ${dep_branch} ]] && dep_branch='default'
 cat >> build.sh << DELIM_BUILD_DEPS  
     echo "#BEGIN SECTION: building dependency: ${dep} (${dep_branch})"
+    rm -fr $WORKSPACE/$dep
+
     if [[ ${dep/ign} == ${dep} ]]; then
       bitbucket_repo="osrf/${dep}"
     else
