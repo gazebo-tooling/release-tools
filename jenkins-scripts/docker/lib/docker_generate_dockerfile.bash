@@ -117,7 +117,7 @@ cat >> Dockerfile << DELIM_DOCKER_ARCH
   # main, restricted and unvierse are already setup in the original image
   RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} multiverse" \\
                                                          >> /etc/apt/sources.list && \\
-      echo "deb ${SOURCE_LIST_URL} ${DISTRO}-updates multiverse" \\
+      echo "deb ${SOURCE_LIST_URL} ${DISTRO}-updates main restricted universe multiverse" \\
                                                          >> /etc/apt/sources.list && \\
       echo "deb ${SOURCE_LIST_URL} ${DISTRO}-security main restricted universe multiverse" && \\
                                                          >> /etc/apt/sources.list
