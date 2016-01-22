@@ -100,7 +100,7 @@ cat > pkg.xml << CURRENT_DELIM
 CURRENT_DELIM
 
 for header in $ABI_JOB_IGNORE_HEADERS; do
-  echo "/usr/local/include/\$ORIGIN_DIR/\$header" >> pkg.xml
+  echo "  /usr/local/include/\$ORIGIN_DIR/\$header" >> pkg.xml
 done
 
 cat >> pkg.xml << CURRENT_DELIM_LIBS
@@ -108,6 +108,10 @@ cat >> pkg.xml << CURRENT_DELIM_LIBS
  <libs>
    /usr/local/origin_branch/lib/
  </libs>
+
+ <gcc_options>
+     -std=c++11
+ </gcc_options>
 CURRENT_DELIM_LIBS
 
 cat > devel.xml << DEVEL_DELIM
@@ -123,10 +127,12 @@ cat > devel.xml << DEVEL_DELIM
 DEVEL_DELIM
 
 for header in $ABI_JOB_IGNORE_HEADERS; do
-  /usr/local/target_branch/include/\$TARGET_DIR/\$header" >> devel.xml
+  echo "  /usr/local/target_branch/include/\$TARGET_DIR/\$header" >> devel.xml
 done
 
 cat >> devel.xml << DEVEL_DELIM_LIBS
+ </skip_headers>
+
  <libs>
    /usr/local/target_branch/lib/
  </libs>
