@@ -143,6 +143,13 @@ cat >> devel.xml << DEVEL_DELIM_LIBS
 DEVEL_DELIM_LIBS
 echo '# END SECTION'
 
+echo '# BEGIN SECTION: display the xml configuration'
+cat devel.xml
+echo
+echo 
+cat pkg.xml
+echo '# END SECTION'
+
 echo '# BEGIN SECTION: run the ABI checker'
 # clean previous reports
 REPORTS_DIR=$WORKSPACE/reports/
