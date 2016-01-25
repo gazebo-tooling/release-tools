@@ -39,17 +39,9 @@ abi_distro.each { distro ->
   supported_arches.each { arch ->
     abi_job_name = "gazebo-abichecker-any_to_any-${distro}-${arch}"
     def abi_job = job(abi_job_name)
-    OSRFLinuxABI.create(abi_job)
+    OSRFLinuxABI.create(abi_job, "http://bitbucket.org/osrf/gazebo")
     abi_job.with
     {
-      scm
-      {
-        hg("http://bitbucket.org/osrf/gazebo") {
-          branch('default')
-          subdirectory("gazebo")
-        }
-      }
-
       steps {
         shell("""\
               #!/bin/bash -xe
