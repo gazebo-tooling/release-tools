@@ -23,7 +23,9 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
       publishers
       {
          // compilers warnings
-         warnings(['GNU C Compiler 4 (gcc)'])
+         warnings(['GNU C Compiler 4 (gcc)'], ['GNU C Compiler 4 (gcc)': '**/*.log']) {
+             thresholds(unstableTotal: [all: 0])
+         }
 
          // cppcheck is not implemented. Use configure for it
          configure { project ->

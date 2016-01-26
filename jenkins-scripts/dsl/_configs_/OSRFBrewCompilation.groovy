@@ -23,7 +23,9 @@ class OSRFBrewCompilation extends OSRFOsXBase
       publishers
       {
          // compilers warnings
-         warnings(['Clang (LLVM based)'])
+         warnings(['Clang (LLVM based)'], ['Clang (LLVM based)' : '**/*.log']) {
+             thresholds(unstableTotal: [all: 0])
+         }
       }
     } // end of job
   } // end of method createJob
