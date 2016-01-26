@@ -1,9 +1,9 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def gazebo_supported_branches = [ 'gazebo_2.2', 'gazebo_4.1', 'gazebo5', 'gazebo6' ]
+def gazebo_supported_branches = [ 'gazebo5', 'gazebo6', 'gazebo7' ]
 def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
-def nightly_gazebo_branch = [ 'gazebo7' ]
+def nightly_gazebo_branch = [ 'gazebo8' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
