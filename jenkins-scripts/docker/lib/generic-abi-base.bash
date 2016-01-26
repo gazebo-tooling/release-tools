@@ -100,7 +100,7 @@ cat > pkg.xml << CURRENT_DELIM
 CURRENT_DELIM
 
 for header in $ABI_JOB_IGNORE_HEADERS; do
-  echo "  /usr/local/include/\$ORIGIN_DIR/\$header" >> pkg.xml
+  echo "  /usr/local/origin_branch/include/\$ORIGIN_DIR/\$header" >> pkg.xml
 done
 
 cat >> pkg.xml << CURRENT_DELIM_LIBS
