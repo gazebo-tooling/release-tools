@@ -8,7 +8,7 @@
 # It will commit and push the hydro and groovy branches
 
 PKGS="gazebo_plugins gazebo_msgs gazebo_ros gazebo_ros_control gazebo_ros_pkgs"
-DISTROS="hydro indigo"
+DISTROS="indigo jade"
 
 for pkg in ${PKGS}; do
     for distro in ${DISTROS}; do
