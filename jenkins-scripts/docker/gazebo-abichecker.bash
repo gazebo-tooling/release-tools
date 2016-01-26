@@ -20,5 +20,7 @@ export ABI_JOB_SOFTWARE_NAME="gazebo"
 export ABI_JOB_REPOS="stable"
 export ABI_JOB_PKG_DEPENDENCIES_VAR_NAME="GAZEBO_BASE_DEPENDENCIES"
 export ABI_JOB_CMAKE_PARAMS="-DENABLE_TESTS_COMPILATION:BOOL=False"
+export ABI_JOB_IGNORE_HEADERS="gazebo/GIMPACT gazebo/opcode gazebo/test"
+
 
 . ${SCRIPT_DIR}/lib/generic-abi-base.bash
