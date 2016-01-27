@@ -23,7 +23,7 @@ class OSRFBrewCompilation extends OSRFOsXBase
       publishers
       {
          // compilers warnings
-         warnings(['Clang (LLVM based)'], ['Clang (LLVM based)' : '**/*.log']) {
+         warnings(['Clang (LLVM based)'], null) {
              thresholds(unstableTotal: [all: 0])
          }
       }

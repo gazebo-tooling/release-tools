@@ -26,7 +26,7 @@ class OSRFWinCompilation extends OSRFWinBase
 
       publishers
       {
-        warnings(['MSBuild'], ['MSBuild' : '**/*.log']) {
+        warnings(['MSBuild'], null) {
           thresholds(unstableTotal: [all: 0])
         }
       }

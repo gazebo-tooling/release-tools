@@ -23,7 +23,7 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
       publishers
       {
          // compilers warnings
-         warnings(['GNU C Compiler 4 (gcc)'], ['GNU C Compiler 4 (gcc)': '**/*.log']) {
+         warnings(['GNU C Compiler 4 (gcc)'], null) {
              thresholds(unstableTotal: [all: 0])
          }
 
