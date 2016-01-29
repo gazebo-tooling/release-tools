@@ -82,7 +82,6 @@ case \${BUILD_METHOD} in
 	    for p in /tmp/base_$PACKAGE-release/*.patch; do
 	      patch -p1 < \$p
 	    done
-	    patch -p1 < /tmp/base_$PACKAGE-release/*.patch
 	    popd > /dev/null
 	fi
 	# 4. swap directories
