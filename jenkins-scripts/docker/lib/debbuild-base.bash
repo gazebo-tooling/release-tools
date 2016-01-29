@@ -79,7 +79,7 @@ case \${BUILD_METHOD} in
 	if [[ -d patches/ ]]; then
 	    cp -a patches/*.patch /tmp/base_$PACKAGE-release
 	    pushd /tmp/base_$PACKAGE-release > /dev/null
-	    for p in /tmp/base_gazebo6-release/*.patch; do
+	    for p in /tmp/base_$PACKAGE-release/*.patch; do
 	      patch -p1 < \$p
 	    done
 	    patch -p1 < /tmp/base_$PACKAGE-release/*.patch
