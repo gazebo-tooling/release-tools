@@ -57,59 +57,70 @@ abi_distro.each { distro ->
 } // end of distro
 
 // MAIN CI JOBS @ SCM/5 min
+ci_any_build_types = [ 'RelWithDebInfo', 'Coverage' ]
 ci_gpu_include_gpu_none = ci_gpu + [ 'none' ]
 ci_distro.each { distro ->
   ci_gpu_include_gpu_none.each { gpu ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       // 1. Create the any job
-      def gazebo_ci_any_job = job("gazebo-ci-pr_any-${distro}-${arch}-gpu-${gpu}")
-      OSRFLinuxCompilationAny.create(gazebo_ci_any_job,
-                                    "http://bitbucket.org/osrf/gazebo")
-      gazebo_ci_any_job.with
-      {
-        if (gpu != 'none')
+      ci_any_build_types.each { build_type ->
+        if (build_type == 'RelWithDebInfo')
         {
-          label "gpu-${gpu}-${distro}"
+          def gazebo_ci_any_job = job("gazebo-ci-pr_any-${distro}-${arch}-gpu-${gpu}")
         }
-
-        steps
+        else
         {
-           conditionalSteps
-           {
-             condition
-             {
-               not {
-                 expression('${ENV, var="DEST_BRANCH"}', 'default')
-               }
+          def gazebo_ci_any_job = job("gazebo-ci-pr_any-BT${build_type}-${distro}-${arch}-gpu-${gpu}")
+        }
+        OSRFLinuxCompilationAny.create(gazebo_ci_any_job,
+                                      "http://bitbucket.org/osrf/gazebo")
+        gazebo_ci_any_job.with
+        {
+          if (gpu != 'none')
+          {
+            label "gpu-${gpu}-${distro}"
+          }
 
-               steps {
-                 downstreamParameterized {
-                   trigger("${abi_job_name}") {
-                     parameters {
-                       predefinedProp("ORIGIN_BRANCH", '$DEST_BRANCH')
-                       predefinedProp("TARGET_BRANCH", '$SRC_BRANCH')
-                     }
-                   }
-                 }
-               }
-             }
-           }
+          steps
+          {
+            conditionalSteps
+            {
+              condition
+              {
+                not {
+                  expression('${ENV, var="DEST_BRANCH"}', 'default')
+                }
 
-           String gpu_needed = 'true'
-           if (gpu == 'none') {
-              gpu_needed = 'false'
-           }
+                steps {
+                  downstreamParameterized {
+                    trigger("${abi_job_name}") {
+                      parameters {
+                        predefinedProp("ORIGIN_BRANCH", '$DEST_BRANCH')
+                        predefinedProp("TARGET_BRANCH", '$SRC_BRANCH')
+                      }
+                    }
+                  }
+                }
+              }
+            }
 
-           shell("""\
-           #!/bin/bash -xe
+            String gpu_needed = 'true'
+            if (gpu == 'none') {
+               gpu_needed = 'false'
+            }
 
-           export DISTRO=${distro}
-           export ARCH=${arch}
-           export GPU_SUPPORT_NEEDED=${gpu_needed}
-           /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
-           """.stripIndent())
-         }
+            shell("""\
+            #!/bin/bash -xe
+
+            export DISTRO=${distro}
+            export ARCH=${arch}
+            export GAZEBO_BASE_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=${build_type}"
+            export GPU_SUPPORT_NEEDED=${gpu_needed}
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
+            """.stripIndent())
+          }
+        }
       }
 
       // --------------------------------------------------------------
