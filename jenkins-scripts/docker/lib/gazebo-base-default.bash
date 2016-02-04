@@ -18,6 +18,7 @@ DOCKER_JOB_NAME="gazebo_ci"
 # If Coverage build type was supplied in GAZEBO_BASE_CMAKE_ARGS, add lcov
 # package.
 if [[ ${GAZEBO_BASE_CMAKE_ARGS} != ${GAZEBO_BASE_CMAKE_ARGS/Coverage} ]]; then
+  ENABLE_COVERAGE=true
   EXTRA_PACKAGES="${EXTRA_PACKAGES} lcov" 
 fi
 
@@ -89,6 +90,15 @@ else
   echo '# END SECTION'
   echo '# BEGIN SECTION: EXAMPLE testing'
   make test ARGS="-VV -R EXAMPLE_*" || true
+  echo '# END SECTION'
+fi
+
+if [ -n "${ENABLE_COVERAGE}" ]; then
+  echo '# BEGIN SECTION: make coverage'
+  rm -rf ${WORKSPACE}/coverage
+  make coverage || true
+  mkdir -p ${WORKSPACE}/coverage
+  cp -R coverage/* ${WORKSPACE}/coverage/
   echo '# END SECTION'
 fi
 
