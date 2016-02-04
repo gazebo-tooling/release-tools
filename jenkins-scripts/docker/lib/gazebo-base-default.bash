@@ -93,7 +93,7 @@ else
 fi
 
 # Only run cppcheck on trusty
-if [ "$DISTRO" = "trusty" ]; then 
+if [ "$DISTRO" = "trusty" ] || [ "$DISTRO" = "wily" ]; then
   echo '# BEGIN SECTION: running cppcheck'
   # Step 3: code check
   cd $WORKSPACE/gazebo
