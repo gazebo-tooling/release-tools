@@ -3,7 +3,7 @@ import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
 def ignition_software         = [ 'transport', 'math' ]
-def ignition_transport_series = '0'
+def ignition_transport_series = '' // empty for a unversioned -dev package
 def ignition_math_series      = '2'
 
 // Main platform using for quick CI
@@ -94,7 +94,7 @@ ignition_software.each { ign_sw ->
                                     "http://bitbucket.org/ignitionrobotics/ign-${ign_sw}")
       ignition_ci_any_job.with
       {
-        steps 
+        steps
         {
            conditionalSteps
            {
@@ -141,7 +141,7 @@ ignition_software.each { ign_sw ->
          triggers {
            cron('@daily')
          }
- 
+
          def dev_package = "libignition-${ign_sw}${ignition_transport_series}-dev"
 
          if ("${ign_sw}" == "math")

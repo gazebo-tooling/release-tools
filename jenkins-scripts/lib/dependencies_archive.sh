@@ -154,7 +154,7 @@ fi
 
 if [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
     GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                              libignition-transport0-dev"
+                              libignition-transport-dev"
 fi
 
 if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
@@ -347,7 +347,7 @@ HAPTIX_COMM_DEPENDENCIES_WITHOUT_IGN="pkg-config  \\
                           protobuf-compiler       \\
                           liboctave-dev"
 HAPTIX_COMM_DEPENDENCIES="${HAPTIX_COMM_DEPENDENCIES_WITHOUT_IGN} \\
-                          libignition-transport0-dev"
+                          libignition-transport-dev"
 #
 # HANDSIM
 #
