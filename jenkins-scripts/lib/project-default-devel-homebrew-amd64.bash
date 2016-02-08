@@ -94,6 +94,7 @@ export DISPLAY=$(ps ax \
 ${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT_PATH} \
       -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/${PROJECT}/HEAD \
       -DCMAKE_PREFIX_PATH=${RUN_DIR} \
+      -DCMAKE_FRAMEWORK_PATH=${RUN_DIR}/lib \
       -DBOOST_ROOT=${RUN_DIR}
 
 make -j${MAKE_JOBS} ${MAKE_VERBOSE_STR} install
