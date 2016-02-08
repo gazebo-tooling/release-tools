@@ -157,6 +157,11 @@ if [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
                               libignition-transport0-dev"
 fi
 
+if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
+    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                         libqwt-dev"
+fi
+
 # libtinyxml2-dev is not on precise
 # it is needed by gazebo7, which isn't supported on precise
 if [[ ${DISTRO} != 'precise' ]]; then
