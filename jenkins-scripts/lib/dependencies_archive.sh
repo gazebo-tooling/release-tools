@@ -354,7 +354,7 @@ HAPTIX_COMM_DEPENDENCIES="${HAPTIX_COMM_DEPENDENCIES_WITHOUT_IGN} \\
 HANDSIM_DEPENDENCIES_WITHOUT_HAPTIX="libgazebo7-haptix-dev \\
                                      liboctave-dev"
 HANDSIM_DEPENDENCIES="${HANDSIM_DEPENDENCIES_WITHOUT_HAPTIX} \\
-                      libignition-transport-dev
+                      libignition-transport-dev              \\
                       libhaptix-comm-dev"
 
 #
