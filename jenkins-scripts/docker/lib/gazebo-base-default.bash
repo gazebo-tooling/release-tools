@@ -22,11 +22,58 @@ if [[ ${GAZEBO_BASE_CMAKE_ARGS} != ${GAZEBO_BASE_CMAKE_ARGS/Coverage} ]]; then
   EXTRA_PACKAGES="${EXTRA_PACKAGES} lcov" 
 fi
 
+if ${COVERAGE_ENABLED} ; then
+  # Workaround on problem with setting HOME to /var/lib/jenkins
+  if [[ -f $HOME/bullseye-jenkins-license ]]; then
+      LICENSE_FILE="$HOME/bullseye-jenkins-license"
+  else
+      LICENSE_FILE="/var/lib/jenkins/bullseye-jenkins-license"
+  fi
+
+  set +x # keep password secret
+  BULLSEYE_LICENSE=`cat $LICENSE_FILE`
+  set -x # back to debug
+fi
+
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
 #
 set -ex
+
+if ${COVERAGE_ENABLED} ; then
+  echo '# BEGIN SECTION: setup bulleyes coverage'
+  # Clean previous content
+  rm -fr $WORKSPACE/coverage
+  # Download and install Bullseyes
+  cd $WORKSPACE
+  rm -fr $WORKSPACE/Bulls*
+  
+  # Look for current version. NOT IN USE since we lost the maintenance support on 2014 
+  # reenable if the support is back.
+  # wget http://www.bullseye.com/download/ -O bull_index.html
+  # BULL_TAR=\$( grep -R BullseyeCoverage-.*-Linux-x64.tar bull_index.html | head -n 1 | sed 's/.*">//' | sed 's/<.*//' )
+  # wget http://www.bullseye.com/download/\$BULL_TAR -O bullseye.tar
+
+  # Download package
+  wget https://www.dropbox.com/s/i1ay7t8sg8i77jr/bullseye-8.8.9.tar -O bullseye.tar
+  tar -xf bullseye.tar
+  cd Bulls*
+  # Set up the license
+  echo $PATH >install-path
+  rm -fr /usr/bullseyes
+  set +x # keep password secret
+  ./install --prefix /usr/bullseyes --key $BULLSEYE_LICENSE
+  set -x # back to debug
+  # Set up Bullseyes for compiling
+  export PATH=/usr/bullseyes/bin:\$PATH
+  export COVFILE=$WORKSPACE/gazebo/test.cov
+  cd $WORKSPACE/gazebo
+  covselect --file test.cov --add .
+  cov01 --on
+  echo '# END SECTION'
+fi
 
 # Step 2: configure and build
 # Check for DART
@@ -93,13 +140,23 @@ else
   echo '# END SECTION'
 fi
 
-if [ -n "${ENABLE_COVERAGE}" ]; then
-  echo '# BEGIN SECTION: make coverage'
-  rm -rf ${WORKSPACE}/coverage
-  make coverage || true
-  mkdir -p ${WORKSPACE}/coverage
-  cp -R coverage/* ${WORKSPACE}/coverage/
-  echo '# END SECTION'
+if ${COVERAGE_ENABLED} ; then
+  echo '# BEGIN SECTION: UNIT testing'
+  rm -fr $WORKSPACE/coverage
+  rm -fr $WORKSPACE/bullshtml
+  mkdir -p $WORKSPACE/coverage
+  covselect --add '!$WORKSPACE/build/' '!../build/' '!test/' '!tools/test/' '!deps/' '!/opt/' '!gazebo/rendering/skyx/' '!/tmp/'
+  covhtml --srcdir $WORKSPACE/gazebo/ $WORKSPACE/coverage
+  # Generate valid cover.xml file using the bullshtml software
+  # java is needed to run bullshtml
+  apt-get install -y default-jre
+  cd $WORKSPACE
+  wget http://bullshtml.googlecode.com/files/bullshtml_1.0.5.tar.gz -O bullshtml.tar.gz
+  tar -xzf bullshtml.tar.gz
+  cd bullshtml
+  sh bullshtml .
+  # Hack to remove long paths from report
+  find . -name '*.html' -exec sed -i -e 's:${WORKSPACE}::g' {} \;
 fi
 
 # Only run cppcheck on trusty
