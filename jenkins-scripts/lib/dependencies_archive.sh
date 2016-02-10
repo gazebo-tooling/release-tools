@@ -27,6 +27,7 @@ fi
 # mesa-utils for dri checks, xsltproc for qtest->junit conversion and
 # python-psutil for memory testing
 # netcat-openbsd (nc command) for squid-deb-proxy checking
+# net-tools (route command) for squid-deb-proxy checking
 BASE_DEPENDENCIES="build-essential \\
                    cmake           \\
                    debhelper       \\
@@ -36,7 +37,8 @@ BASE_DEPENDENCIES="build-essential \\
                    python-psutil   \\
                    python          \\
                    bc              \\
-                   netcat-openbsd"
+                   netcat-openbsd  \\
+                   net-tools"
 
 BREW_BASE_DEPENDCIES="mercurial git cmake"
 
