@@ -15,10 +15,11 @@ echo '# BEGIN SECTION: setup the testing enviroment'
 DOCKER_JOB_NAME="gazebo_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
+[ -z ${COVERAGE_ENABLED} ] && COVERAGE_ENABLED=false
+
 # If Coverage build type was supplied in GAZEBO_BASE_CMAKE_ARGS, add lcov
-# package.
+# package. This is not for bulleseyes coverage, but for lcov.
 if [[ ${GAZEBO_BASE_CMAKE_ARGS} != ${GAZEBO_BASE_CMAKE_ARGS/Coverage} ]]; then
-  ENABLE_COVERAGE=true
   EXTRA_PACKAGES="${EXTRA_PACKAGES} lcov" 
 fi
 
