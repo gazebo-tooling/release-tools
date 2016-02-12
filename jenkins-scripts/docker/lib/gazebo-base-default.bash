@@ -34,6 +34,8 @@ if ${COVERAGE_ENABLED} ; then
   set +x # keep password secret
   BULLSEYE_LICENSE=`cat $LICENSE_FILE`
   set -x # back to debug
+
+  EXTRA_PACKAGES="${EXTRA_PACKAGES} wget"
 fi
 
 
