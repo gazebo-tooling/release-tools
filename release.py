@@ -205,7 +205,7 @@ def sanity_check_repo_name(repo_name):
         return
 
     # Supported projects
-    if repo_name == 'mentor2':
+    if repo_name == 'mentor2' or repo_name == 'haptix-pre':
         return
 
     error("Upload repo value: " + repo_name + " is not valid. stable | prerelease | nightly")
