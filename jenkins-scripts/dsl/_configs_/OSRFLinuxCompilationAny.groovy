@@ -7,7 +7,7 @@ import javaposse.jobdsl.dsl.Job
   -> GenericAnyJob
 
   Implements:
-    - compiler warning
+   - DEST_BRANCH parameter
 */
 class OSRFLinuxCompilationAny
 {
@@ -20,6 +20,37 @@ class OSRFLinuxCompilationAny
 
     job.with
     {
+      steps
+      {
+        shell("""\
+
+        export CONFIG_FILE_PATH="${WORKSPACE}/config_pybitbucket.yml"
+        export BITBUCKET_USER_PASS_FILE="/var/lib/jenkins/remote_token"
+
+        echo "Generating config file ..."
+        cat > ${CONFIG_FILE_PATH} << DELIM_CONFIG
+        bitbucket_origin:
+          repository_name: ${SRC_REPO/*.org\/}
+          sha: ${MERCURIAL_REVISION_SHORT}
+        jenkins_job:
+          name: ${JOB_NAME}
+          url: ${BUILD_URL}
+        DELIM_CONFIG
+        cat config.yml
+
+        echo "Running the set_status_from_file in hidden mode"
+        set +x # keep password secret
+        BITBUCKET_USER_PASS=`cat $BITBUCKET_USER_PASS_FILE`
+        ${WORKSPACE}/scripts/jenkins-scripts/python-bitbucket/set_status_from_file.py \
+             --user osrf_jenkins \
+             --pass <bitbucket_pass> \
+             --status inprogress \
+             --load_from_file ${CONFIG_FILE_PATH} >& pybitbucket.log
+        set -x # back to debug
+        cat pybitbucket.log
+         """.stripIndent())
+      }
+
       parameters
       {
         stringParam('DEST_BRANCH','default',
