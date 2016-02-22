@@ -26,11 +26,12 @@ class OSRFLinuxCompilationAny
 
         export CONFIG_FILE_PATH="${WORKSPACE}/config_pybitbucket.yml"
         export BITBUCKET_USER_PASS_FILE="/var/lib/jenkins/remote_token"
+        export REPO_SHORT_NAME=`echo $SRC_REPO | sed s:.*.org/::`
 
         echo "Generating config file ..."
         cat > ${CONFIG_FILE_PATH} << DELIM_CONFIG
         bitbucket_origin:
-          repository_name: ${SRC_REPO/*.org\/}
+          repository_name: ${REPO_SHORT_NAME}
           sha: ${MERCURIAL_REVISION_SHORT}
         jenkins_job:
           name: ${JOB_NAME}
@@ -48,7 +49,7 @@ class OSRFLinuxCompilationAny
              --load_from_file ${CONFIG_FILE_PATH} >& pybitbucket.log
         set -x # back to debug
         cat pybitbucket.log
-         """.stripIndent())
+        """.stripIndent())
       }
 
       parameters
