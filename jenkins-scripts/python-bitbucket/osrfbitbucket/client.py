@@ -73,11 +73,16 @@ class OSRFBitbucketClient:
 
     def send_build_status(self, build_data, status):
 
+        # Define key as the first 40 chars (bitbucket limit) of the 
+        # job-name just after -ci-pr_any-. This should leave the
+        # testing platform and architecture
+        key = build_data.jenkins_data.job_name.split("-ci-pr_any-")[1][0:39]
+
         build_status = BuildStatus.create_buildstatus(
             owner           = build_data.source_data.owner,
             repository_name = build_data.source_data.repo_short_name,
             revision        = build_data.source_data.sha,
-            key             = build_data.jenkins_data.job_name,
+            key             = key,
             name            = build_data.jenkins_data.build_name,
             url             = build_data.jenkins_data.build_url,
             description     = build_data.jenkins_data.build_description,
