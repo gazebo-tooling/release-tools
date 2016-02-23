@@ -108,6 +108,7 @@ if ${BREW} ruby -e "exit \"${PACKAGE_ALIAS}\".f.stable.version.detected_from_url
 then
   # check if auto-detected version is correct
   if ${BREW} ruby -e "exit \"${PACKAGE_ALIAS}\".f.stable.version.to_s == \"${VERSION}\""
+  then
     echo Version is correctly auto-detected from URL
   else
     # Need to insert explicit version tag after url
