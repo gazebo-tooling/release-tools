@@ -103,10 +103,15 @@ echo on line number ${URI_LINE}
 sed -i -e "${URI_LINE}c\  url \"${SOURCE_TARBALL_URI}\"" ${FORMULA_PATH}
 
 echo
-# check if formula has auto-generated version field
+# check if formula has auto-detected version field
 if ${BREW} ruby -e "exit \"${PACKAGE_ALIAS}\".f.stable.version.detected_from_url?"
 then
-  echo Version is autodetected from URL
+  # check if auto-detected version is correct
+  if ${BREW} ruby -e "exit \"${PACKAGE_ALIAS}\".f.stable.version.to_s == \"${VERSION}\""
+    echo Version is correctly auto-detected from URL
+  else
+    # Need to insert explicit version tag after url
+  fi
 else
   # get version and line number
   FORMULA_VERSION=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.version"`
