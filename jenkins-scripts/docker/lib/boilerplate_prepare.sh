@@ -112,7 +112,7 @@ fi
 
 # Check if they are already installed in the host
 QUERY_HOST_PACKAGES=$(dpkg-query --list ${NEEDED_HOST_PACKAGES} | grep '^un ') || true
-if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
+if [[ -z ${QUERY_HOST_PACKAGES} ]]; then
   sudo apt-get update
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
