@@ -38,7 +38,7 @@ class OSRFLinuxCompilationAny
           name: \${JOB_NAME}
           url: \${BUILD_URL}
         DELIM_CONFIG
-        cat config.yml
+        cat \${CONFIG_FILE_PATH}
 
         echo "Running the set_status_from_file in hidden mode"
         set +x # keep password secret
