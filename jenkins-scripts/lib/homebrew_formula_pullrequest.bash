@@ -111,6 +111,7 @@ then
     echo Version is correctly auto-detected from URL
   else
     # Need to insert explicit version tag after url
+    sed -i -e "${URI_LINE}a\  version \"${VERSION}\"" ${FORMULA_PATH}
   fi
 else
   # get version and line number
