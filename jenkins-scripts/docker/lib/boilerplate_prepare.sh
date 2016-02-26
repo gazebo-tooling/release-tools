@@ -5,7 +5,7 @@ set -e
 # USE_GPU_DOCKER by internal lib/ scripts
 
 [[ -z ${GPU_SUPPORT_NEEDED} ]] && GPU_SUPPORT_NEEDED=false
-   
+
 if ${GPU_SUPPORT_NEEDED}; then
     USE_GPU_DOCKER=true
 fi
@@ -110,9 +110,14 @@ else
     NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} libpython2.7-stdlib"
 fi
 
-# Check if they are already installed in the host
-QUERY_HOST_PACKAGES=$(dpkg-query --list ${NEEDED_HOST_PACKAGES} | grep '^un ') || true
-if [[ -z ${QUERY_HOST_PACKAGES} ]]; then
+# Check if they are already installed in the host.
+# dpkg-query will return an error in stderr if a package has never been in the
+# system. It will return a header composed by several lines started with |, +++
+# and 'Desired' the rest of lines is composed by: ^rc or ^un if the package is
+# not in the system. ^in if it is installed
+QUERY_RESULT=$(dpkg-query --list g++ 2>&1 | grep -v ^ii | grep -v '|' | grep -v '^\+++' | grep -v '^Desired')
+if [[ -z ${QUERY_RESULT} ]]; then
+
   sudo apt-get update
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
@@ -130,10 +135,10 @@ if [[ -z $(ps aux | grep squid-deb-proxy.conf | grep -v grep | awk '{ print $2}'
 fi
 
 # Docker checking
-# Code imported from https://github.com/CognitiveRobotics/omnimapper/tree/master/docker 
-# under the license detailed in https://github.com/CognitiveRobotics/omnimapper/blob/master/LICENSE 
-#version_gt() { 
-#    test "$(echo "$@" | tr " " "\n" | sort -V | tail -n 1)" == "$1"; 
+# Code imported from https://github.com/CognitiveRobotics/omnimapper/tree/master/docker
+# under the license detailed in https://github.com/CognitiveRobotics/omnimapper/blob/master/LICENSE
+#version_gt() {
+#    test "$(echo "$@" | tr " " "\n" | sort -V | tail -n 1)" == "$1";
 #}
 
 #docker_version=$(docker version | grep 'Client version' | awk '{split($0,a,":"); print a[2]}' | tr -d ' ')
