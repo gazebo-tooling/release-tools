@@ -64,7 +64,7 @@ class BuildStatus(BitbucketBase):
             '/2.0/repositories{/owner,repository_name}' +
             '/commit{/revision}/statuses/build')
         # owner, repository_name, and revision are required
-        url = expand(
+        api_url = expand(
             template, {
                 'bitbucket_url': client.get_bitbucket_url(),
                 'owner': owner,
@@ -77,7 +77,7 @@ class BuildStatus(BitbucketBase):
             url=url,
             name=name,
             description=description)
-        return BuildStatus.post(url, json=payload, client=client)
+        return BuildStatus.post(api_url, json=payload, client=client)
 
     """
     A convenience method for changing the current build status.

@@ -90,5 +90,5 @@ class OSRFBitbucketClient:
             client          = self.client)
 
         pprint(build_status)
-        
+
         return build_status
