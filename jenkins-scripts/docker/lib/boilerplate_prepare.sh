@@ -121,8 +121,7 @@ if [[ -n ${QUERY_RESULT} ]]; then
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
 
-# Some packages will not show as ^un in the previous query but will return false if
-# they are not present
+# Check that all of them are present in the system, not returning false
 if [[ ! $(dpkg-query --list ${NEEDED_HOST_PACKAGES}) ]]; then
   echo "Some needed packages are failing in the host"
   exit 1
