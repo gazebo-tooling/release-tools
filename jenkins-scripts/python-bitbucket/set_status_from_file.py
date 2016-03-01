@@ -20,7 +20,7 @@ def main(argv):
       print """
             osrf_pr_from_file --user <bitbucket_user>
                               --pass <bitbucket_pass>
-                              --config_from_file <path>
+                              --load_from_file <path>
                               --status [ok|failed|progress]
             """
       sys.exit(1)

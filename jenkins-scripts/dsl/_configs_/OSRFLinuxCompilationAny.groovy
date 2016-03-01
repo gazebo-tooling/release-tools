@@ -7,7 +7,7 @@ import javaposse.jobdsl.dsl.Job
   -> GenericAnyJob
 
   Implements:
-    - compiler warning
+   - DEST_BRANCH parameter
 */
 class OSRFLinuxCompilationAny
 {
@@ -20,6 +20,15 @@ class OSRFLinuxCompilationAny
 
     job.with
     {
+      steps
+      {
+        shell("""\
+        #!/bin/bash -xe
+
+        /bin/bash -xe ./scripts/jenkins-scripts/_bitbucket_set_status.bash
+        """.stripIndent())
+      }
+
       parameters
       {
         stringParam('DEST_BRANCH','default',
