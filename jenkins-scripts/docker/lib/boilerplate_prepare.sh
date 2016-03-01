@@ -115,9 +115,8 @@ fi
 # system. It will return a header composed by several lines started with |, +++
 # and 'Desired' the rest of lines is composed by: ^rc or ^un if the package is
 # not in the system. ^in if it is installed
-QUERY_RESULT=$(dpkg-query --list g++ 2>&1 | grep -v ^ii | grep -v '|' | grep -v '^\+++' | grep -v '^Desired')
-if [[ -z ${QUERY_RESULT} ]]; then
-
+QUERY_RESULT=$(dpkg-query --list ${NEEDED_HOST_PACKAGES} 2>&1 | grep -v ^ii | grep -v '|' | grep -v '^\+++' | grep -v '^Desired') || true
+if [[ -n ${QUERY_RESULT} ]]; then
   sudo apt-get update
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
