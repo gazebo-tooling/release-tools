@@ -48,6 +48,7 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
         stringParam("RELEASE_REPO_BRANCH", null, "Branch from the -release repo to be used")
         stringParam("PACKAGE_ALIAS", null, "If not empty, package name to be used instead of PACKAGE")
         stringParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to")
+        stringParam("OSRF_REPOS_TO_USE", null, "OSRF repos name to use when building the package")
       }
 
       steps {
