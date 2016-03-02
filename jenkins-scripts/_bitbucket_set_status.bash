@@ -8,7 +8,7 @@ export REPO_SHORT_NAME=`echo ${SRC_REPO} | sed s:.*\.org/::`
 
 if [[ ! -f ${BITBUCKET_USER_PASS_FILE} ]]; then
   echo "Bitbucket user pass not found in file \${BITBUCKET_USER_PASS_FILE}"
-  exit 1
+  exit 0
 fi
 
 # Check if they are already installed in the host. 
