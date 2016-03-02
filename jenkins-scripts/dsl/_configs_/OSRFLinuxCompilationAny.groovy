@@ -20,7 +20,6 @@ class OSRFLinuxCompilationAny
 
     job.with
     {
-/*
       steps
       {
         shell("""\
@@ -30,7 +29,6 @@ class OSRFLinuxCompilationAny
         /bin/bash -xe ./scripts/jenkins-scripts/_bitbucket_set_status.bash inprogress
         """.stripIndent())
       }
-*/
 
       parameters
       {
