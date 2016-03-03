@@ -114,16 +114,20 @@ export PATH="${PATH}:${RUN_DIR}/bin"
 export CMAKE_PREFIX_PATH=${RUN_DIR}
 
 # Need to clean up models before run tests (issue 27)
-rm -fr \$HOME/.gazebo/models
+rm -fr \$HOME/.gazebo/models test_results*
 make test ARGS="-VV" || true
 mv test_results test_results0
 make test ARGS="-VV --rerun-failed" || true
+echo contents of test_results
+ls test_results
+echo contents of test_results0
+ls test_results0
 for i in $(ls test_results); do
   echo looking for flaky tests in test_results0/$i and test_results/$i
   python ${SCRIPT_DIR}/lib/flaky_junit_merge.py test_results0/$i test_results/$i
   python ${SCRIPT_DIR}/lib/flaky_junit_merge.py test_results0/$i test_results/$i > test_results0/$i
 done
-rm -rf test_results
+mv test_results test_results1
 mv test_results0 test_results
 DELIM
 
