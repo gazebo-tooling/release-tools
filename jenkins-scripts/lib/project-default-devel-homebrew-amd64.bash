@@ -67,7 +67,6 @@ ${RUN_DIR}/bin/brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-depend
 
 # Install some python dependencies
 ${RUN_DIR}/bin/brew install python
-pip install lxml psutil
 
 # Step 3. Manually compile and install ${PROJECT}
 cd ${WORKSPACE}/${PROJECT_PATH}
@@ -84,6 +83,7 @@ export PATH="${PATH}:${RUN_DIR}/bin"
 export C_INCLUDE_PATH="${C_INCLUDE_PATH}:${RUN_DIR}/include"
 export CPLUS_INCLUDE_PATH="${CPLUS_INCLUDE_PATH}:${RUN_DIR}/include"
 export PYTHONPATH="${RUN_DIR}/lib/python2.7/site-packages:${PYTHONPATH}"
+pip install lxml psutil
 
 # add X11 path so glxinfo can be found
 export PATH="${PATH}:/opt/X11/bin"
