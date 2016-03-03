@@ -33,13 +33,13 @@ ${WORKSPACE}/scripts/jenkins-scripts/python-bitbucket/set_status_from_file.py \
     --user osrf_jenkins  \
     --pass ${BITBUCKET_USER_PASS} \
     --status ${STATUS} \
-    --load_from_file ${BITBUCKET_BUILD_STATUS_FILE} >& ${WORKSPACE}/pybitbucket.log || BITBUCKET_API_RESULT=false
+    --load_from_file ${BITBUCKET_BUILD_STATUS_FILE} >& ${BITBUCKET_LOG_FILE} || BITBUCKET_API_RESULT=false
 set -x # back to debug
 echo '# END SECTION'
 
 if ! $BITBUCKET_API_RESULT; then
   echo 'BEGIN SECTION: build status FAILED'
   echo 'The call from the python client to bitbucket to set the build status failed'
-  echo "Please check out the workspace for the file pybitbucket.log"
+  echo "Please check out the workspace for the file: ${BITBUCKET_LOG_FILE}"
   echo '# END SECTION'
 fi
