@@ -9,7 +9,6 @@
 #   - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
 #   - DEPENDENCY_PKGS   : (optional) packages to be installed in the image
 #   - SOFTWARE_DIR      : (optional) directory to copy inside the image
-#   - NEED_PRERELEASE   : (optional) use prerelease OSRF repo
 
 #   - USE_OSRF_REPO     : deprecated! [default false] true|false if true, add the stable osrf repo to sources.list
 
@@ -78,13 +77,6 @@ if [[ -z ${OSRF_REPOS_TO_USE} ]]; then
   if ${USE_OSRF_REPO}; then
      OSRF_REPOS_TO_USE="stable"
   fi
-fi
-
-# Handle the NEED_PRERELEASE variable
-[[ -z ${NEED_PRERELEASE} ]] && NEED_PRERELEASE=false
-
-if ${NEED_PRERELEASE}; then
-  OSRF_REPOS_TO_USE="${OSRF_REPOS_TO_USE} prerelease"
 fi
 
 echo '# BEGIN SECTION: create the Dockerfile'
