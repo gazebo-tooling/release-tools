@@ -122,10 +122,10 @@ echo contents of test_results
 ls test_results
 echo contents of test_results0
 ls test_results0
-for i in \$\(ls test_results\); do
+for i in \$(ls test_results); do
   echo looking for flaky tests in test_results0/\$i and test_results/\$i
-  python ${SCRIPT_DIR}/lib/flaky_junit_merge.py test_results0/\$i test_results/\$i
-  python ${SCRIPT_DIR}/lib/flaky_junit_merge.py test_results0/\$i test_results/\$i > test_results0/$i
+  python ${SCRIPT_DIR}/flaky_junit_merge.py test_results0/\$i test_results/\$i
+  python ${SCRIPT_DIR}/flaky_junit_merge.py test_results0/\$i test_results/\$i > test_results0/$i
 done
 mv test_results test_results1
 mv test_results0 test_results
