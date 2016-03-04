@@ -125,7 +125,7 @@ if ! make test ARGS="-VV"; then
   mkdir test_results_tmp
   for i in \$(ls test_results); do
     echo looking for flaky tests in test_results0/\$i and test_results/\$i
-    python ${WORKSPACE}/scripts/jenkins-scripts/lib/flaky_junit_merge.py \
+    python ${WORKSPACE}/scripts/jenkins-scripts/tools/flaky_junit_merge.py \
       test_results0/\$i test_results/\$i \
       > test_results_tmp/\$i
     mv test_results_tmp/\$i test_results0
