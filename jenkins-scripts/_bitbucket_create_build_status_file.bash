@@ -26,7 +26,7 @@ if [[ -n ${QUERY_RESULT} ]]; then
   # Trick to not run apt-get update if there is no error in installation
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES} || { sudo apt-get update && sudo apt-get install -y ${NEEDED_HOST_PACKAGES}; }
   # python-future package is available only from Ubuntu wily on
-  pip install future
+  sudo pip install future
 fi
 
 echo "Generating config file ..."
