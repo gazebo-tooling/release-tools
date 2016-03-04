@@ -73,7 +73,7 @@ class OSRFLinuxCompilationAny
                }
             EscalateStatus(false)
             RunIfJobSuccessful(false)
-            script('/bin/bash -xe ./scripts/jenkins-scripts/_bitbucket_set_status.bash failure')
+            script('/bin/bash -xe ./scripts/jenkins-scripts/_bitbucket_set_status.bash failed')
             } // end of TaskProperties
           } // end of tasks
         } // end of project
