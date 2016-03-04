@@ -125,8 +125,8 @@ ls test_results0
 mkdir test_results_tmp
 for i in \$(ls test_results); do
   echo looking for flaky tests in test_results0/\$i and test_results/\$i
-  python ${SCRIPT_DIR}/lib/flaky_junit_merge.py test_results0/\$i test_results/\$i
-  python ${SCRIPT_DIR}/lib/flaky_junit_merge.py test_results0/\$i test_results/\$i > test_results_tmp/\$i
+  python ${WORKSPACE}/scripts/jenkins-scripts/lib/flaky_junit_merge.py test_results0/\$i test_results/\$i
+  python ${WORKSPACE}/scripts/jenkins-scripts/lib/flaky_junit_merge.py test_results0/\$i test_results/\$i > test_results_tmp/\$i
   mv test_results_tmp/\$i test_results0
   cat test_results0/\$i
 done
