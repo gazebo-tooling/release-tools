@@ -37,7 +37,7 @@ if [[ -n ${QUERY_RESULT} ]]; then
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES} || { sudo apt-get update && sudo apt-get install -y ${NEEDED_HOST_PACKAGES}; }
 fi
 
-sudo pip install -r ${WORKSPACE}/requirements.txt
+sudo pip install --quiet -r ${WORKSPACE}/requirements.txt
 
 echo "Generating config file ..."
 cat > $BITBUCKET_BUILD_STATUS_FILE << DELIM_CONFIG
