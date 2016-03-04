@@ -25,14 +25,14 @@ for ts in xml1.getchildren():
     for tc in ts.getchildren():
         tc2 = xml2.findall(".//testsuite[@name='%s']/testcase[@name='%s']" % (ts.attrib['name'], tc.attrib['name']))[0]
         failures1 = 0
-        failures2 = 0
         for f in tc.getchildren():
             if f.tag == 'failure':
                 failures1 += 1
+        failures2 = 0
         for f in tc2.getchildren():
             if f.tag == 'failure':
                 failures2 += 1
-        if failures1 == 1 and failures2 == 0:
+        if failures1 > 0 and failures2 == 0:
             # flaky test
             f1 = ''
             for f in tc.getchildren():
@@ -42,7 +42,7 @@ for ts in xml1.getchildren():
             ts.attrib['failures'] = str(int(ts.attrib['failures']) - 1)
             xml1.attrib['failures'] = str(int(xml1.attrib['failures']) - 1)
             tc2.append(deepcopy(f1))
-        elif failures1 == 0 and failures2 == 1:
+        elif failures1 == 0 and failures2 > 0:
             # flaky test
             f2 = ''
             for f in tc2.getchildren():
