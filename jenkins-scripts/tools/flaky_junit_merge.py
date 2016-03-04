@@ -35,24 +35,20 @@ for ts in xml1.getchildren():
                 failures2 += 1
         if failures1 > 0 and failures2 == 0:
             # flaky test
-            f1 = ''
             for f in tc.getchildren():
                 if f.tag == 'failure':
                     f.tag = 'flakyFailure'
-                    f1 = f
+                    tc2.append(deepcopy(f))
             ts.attrib['failures'] = str(int(ts.attrib['failures']) - 1)
             xml1.attrib['failures'] = str(int(xml1.attrib['failures']) - 1)
-            tc2.append(deepcopy(f1))
         elif failures1 == 0 and failures2 > 0:
             # flaky test
-            f2 = ''
             for f in tc2.getchildren():
                 if f.tag == 'failure':
                     f.tag = 'flakyFailure'
-                    f2 = f
+                    tc.append(deepcopy(f))
             ts2.attrib['failures'] = str(int(ts2.attrib['failures']) - 1)
             xml2.attrib['failures'] = str(int(xml2.attrib['failures']) - 1)
-            tc.append(deepcopy(f2))
 
 print(etree.tostring(xml1))
 # print(etree.tostring(xml2))
