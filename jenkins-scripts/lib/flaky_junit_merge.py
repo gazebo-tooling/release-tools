@@ -4,7 +4,7 @@ from lxml import etree
 import sys
 
 if len(sys.argv) != 3:
-    print('need to specify two files to merge')
+    print('need to specify two files to merge', file=sys.stderr)
     exit()
 
 f = open(sys.argv[1], 'r')
@@ -15,11 +15,11 @@ xml2 = etree.fromstring(f.read())
 f.close()
 
 if xml1.tag != 'testsuites':
-    print('root tag should be testsuites')
+    print('root tag should be testsuites', file=sys.stderr)
     exit
 for ts in xml1.getchildren():
     if ts.tag != 'testsuite':
-        print('child tags should be testsuite')
+        print('child tags should be testsuite', file=sys.stderr)
         continue
     ts2 = xml2.findall(".//testsuite[@name='%s']" % (ts.attrib['name']))[0]
     for tc in ts.getchildren():
