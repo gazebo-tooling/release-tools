@@ -53,5 +53,5 @@ for ts in xml1.getchildren():
             xml2.attrib['failures'] = str(int(xml2.attrib['failures']) - 1)
             tc.append(deepcopy(f2))
 
-print etree.tostring(xml1)
-# print etree.tostring(xml2)
+print(etree.tostring(xml1))
+# print(etree.tostring(xml2))
