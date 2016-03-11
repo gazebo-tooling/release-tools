@@ -45,11 +45,9 @@ echo # END SECTION
 echo # BEGIN SECTION: downloading haptix-comm dependencies and unzip
 cd %WORKSPACE%/workspace
 call %win_lib% :download_7za
-call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%zeromq_zip_name% %zeromq_zip_name% || goto :error
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip  || goto :error
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%protobuf_zip_name% %protobuf_zip_name%  || goto :error
-call %win_lib% :unzip_7za boost_1_56_0.zip > install_boost.log
 call %win_lib% :unzip_7za %zeromq_zip_name% > zeromq_7z.log
 call %win_lib% :unzip_7za cppzmq-noarch.zip > cppzmq_7z.log
 call %win_lib% :unzip_7za %protobuf_zip_name% > protobuf_7z.log
@@ -84,8 +82,13 @@ echo # END SECTION
 
 echo # BEGIN SECTION: export testing results
 set TEST_RESULT_PATH=%WORKSPACE%\test_results
+REM LEGACY to be used with dsl scripts
+set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
 if exist %TEST_RESULT_PATH% ( rmdir /s /q %TEST_RESULT_PATH% )
+if exist %TEST_RESULT_PATH_LEGACY% ( rmdir /q /s %TEST_RESULT_PATH_LEGACY% )
+mkdir %WORKSPACE%\build\
 move test_results %TEST_RESULT_PATH% || goto :error
+xcopy %TEST_RESULT_PATH% %TEST_RESULT_PATH_LEGACY% /s /e /i
 echo # END SECTION
 
 if NOT DEFINED KEEP_WORKSPACE (

@@ -7,8 +7,20 @@ export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 PROJECT=$1 # project will have the major version included (ex gazebo2)
 PROJECT_ARGS=${2}
 
+# In ignition projects, the name of the repo and the formula does not match
+PROJECT_PATH=${PROJECT}
+if [[ ${PROJECT/ignition} != ${PROJECT} ]]; then
+    PROJECT_PATH="ign${PROJECT/ignition}"
+fi
+
 export HOMEBREW_PREFIX=/usr/local
 export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
+
+# make verbose mode?
+MAKE_VERBOSE_STR=""
+if [[ ${MAKE_VERBOSE} ]]; then
+  MAKE_VERBOSE_STR="VERBOSE=1"
+fi
 
 # Step 1. Set up homebrew
 echo "# BEGIN SECTION: clean up ${HOMEBREW_PREFIX}"
@@ -19,7 +31,7 @@ rm -rf ${HOMEBREW_CELLAR} ${HOMEBREW_PREFIX}/.git && brew cleanup
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install latest homebrew'
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: brew information'
@@ -44,15 +56,12 @@ fi
 
 echo "# BEGIN SECTION: install ${PROJECT} dependencies"
 # Process the package dependencies
-# Run twice! details about why in:
-# https://github.com/osrf/homebrew-simulation/pull/18#issuecomment-45041755 
-brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
 brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: configuring ${PROJECT}"
 # Step 3. Manually compile and install ${PROJECT}
-cd ${WORKSPACE}/${PROJECT}
+cd ${WORKSPACE}/${PROJECT_PATH}
 # Need the sudo since the test are running with roots perms to access to GUI
 sudo rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
@@ -79,12 +88,12 @@ VERSION=$(cat VERSION) || { echo "No VERSION file found! Implement it in your pk
 [[ -z ${VERSION} ]] && { echo "VERSION is empty!"; exit 1; }
 
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-      -DCMAKE_INSTALL_PREFIX=/usr/local \
-     ${WORKSPACE}/${PROJECT}
-echo '# END SECTION'
+      -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT}/HEAD \
+     ${WORKSPACE}/${PROJECT_PATH}
+echo "# BEGIN SECTION: compile and install ${PROJECT} ${VERSION}"
 
 echo "# BEGIN SECTION: compile and install ${PROJECT} ${VERSION}"
-make -j${MAKE_JOBS} install
+make -j${MAKE_JOBS} ${MAKE_VERBOSE_STR} install
 brew link ${PROJECT}
 echo '# END SECTION'
 
@@ -97,6 +106,5 @@ echo "# BEGIN SECTION: run tests"
 rm -fr \$HOME/.gazebo/models
 
 cd $WORKSPACE/build/
-# May need sudo to run tests?
 make test ARGS="-VV" || true
 echo '# END SECTION'

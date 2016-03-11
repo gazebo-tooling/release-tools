@@ -50,7 +50,7 @@ apt-get install -y ${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXT
 cp -a $WORKSPACE/gazebo /tmp/gazebo
 chown -R root:root /tmp/gazebo
 cd /tmp/gazebo
-hg pull
+hg pull --rev ${GAZEBO_ORIGIN_BRANCH}
 hg up $GAZEBO_ORIGIN_BRANCH
 # Normal cmake routine for Gazebo
 rm -rf $WORKSPACE/build
@@ -67,6 +67,7 @@ GAZEBO_ORIGIN_DIR=\$(find /usr/local/origin_branch/include -name gazebo-* -type 
 # Reusing the same building and source directory to save bandwith and
 # compilation time.
 cd /tmp/gazebo
+hg pull --rev ${GAZEBO_TARGET_BRANCH}
 hg up $GAZEBO_TARGET_BRANCH
 # Normal cmake routine for Gazebo
 cd $WORKSPACE/build
@@ -104,6 +105,10 @@ cat > pkg.xml << CURRENT_DELIM
  <libs>
    /usr/local/origin_branch/lib/
  </libs>
+
+ <gcc_options>
+     -std=c++11
+ </gcc_options>
 CURRENT_DELIM
 
 cat > devel.xml << DEVEL_DELIM
@@ -124,6 +129,10 @@ cat > devel.xml << DEVEL_DELIM
  <libs>
    /usr/local/target_branch/lib/
  </libs>
+
+ <gcc_options>
+     -std=c++11
+ </gcc_options>
 DEVEL_DELIM
 
 # clean previous reports
@@ -133,6 +142,9 @@ rm -fr compat_reports/
 abi-compliance-checker -lib gazebo -old pkg.xml -new devel.xml || true
 # copy method version independant ( cp ... /*/ ... was not working)
 find compat_reports/ -name compat_report.html -exec cp {} $WORKSPACE/ \;
+
+# Clean up disk space
+rm -rf $WORKSPACE/build
 DELIM
 
 # Make project-specific changes here

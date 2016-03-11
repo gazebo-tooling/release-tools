@@ -3,6 +3,17 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
+# Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
+GAZEBO_MAJOR_VERSION=`\
+  grep 'set.*GAZEBO_MAJOR_VERSION ' ${WORKSPACE}/gazebo/CMakeLists.txt | \
+  tr -d 'a-zA-Z _()'`
+
+# Check gazebo version is integer
+if ! [[ ${GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+  echo "Error! GAZEBO_MAJOR_VERSION is not an integer, check the detection"
+  exit -1
+fi
+
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
@@ -32,7 +43,8 @@ apt-get install -y doxygen graphviz
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-cmake $WORKSPACE/gazebo
+cmake $WORKSPACE/gazebo \
+  -DENABLE_TESTS_COMPILATION:Bool=False
 make
 make doc
 ./tools/gz sdf -o > dev.html
@@ -48,7 +60,8 @@ DELIM
 
 # Copy in my ssh keys, to allow the above ssh/scp calls to work; not sure this is the best way to do it, 
 # but it shouldn't be a security issue, as only Jenkins users can see the contents of the workspace
-cp $HOME/.ssh/id_rsa $WORKSPACE
+sudo cp $HOME/.ssh/id_rsa $WORKSPACE
+sudo chown jenkins $WORKSPACE/id_rsa
 
 # Make project-specific changes here
 ###################################################

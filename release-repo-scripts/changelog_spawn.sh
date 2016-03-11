@@ -34,6 +34,11 @@ if [[ -z ${DEBEMAIL} || -z ${DEBFULLNAME} ]]; then
     exit 1
 fi
 
+if [[ ${version%-*} == ${version} ]]; then
+  echo "Version should contain a revision number"
+  exit 1
+fi
+
 changelog_example=$(find . -name changelog | head -n 1)
 
 if [[ -z ${changelog_example} ]]; then

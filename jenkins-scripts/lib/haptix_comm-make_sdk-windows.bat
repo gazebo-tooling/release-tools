@@ -8,7 +8,7 @@
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
 :: remove previous packages
-del %WORKSPACE%\*.zip
+del %WORKSPACE%\pkgs\*.zip
 :: Default branches
 @if "%IGN_TRANSPORT_BRANCH%" == "" set IGN_TRANSPORT_BRANCH=default
 @if "%HAPTIX_COMM_BRANCH%" == "" set HAPTIX_COMM_BRANCH=default
@@ -49,7 +49,6 @@ echo # BEGIN SECTION: Download dependencies and unzip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%zeromq_zip_name% %zeromq_zip_name% || goto :error
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip  || goto :error
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%protobuf_zip_name% %protobuf_zip_name%  || goto :error
-call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip || goto :error
 
 @rem Unzip stuff
 @rem
@@ -58,7 +57,6 @@ call %win_lib% :download_7za
 call %win_lib% :unzip_7za %zeromq_zip_name% > zeromq_7z.log
 call %win_lib% :unzip_7za cppzmq-noarch.zip > cppzmq_7z.log
 call %win_lib% :unzip_7za %protobuf_zip_name% > protobuf_7z.lob
-call %win_lib% :unzip_7za boost_1_56_0.zip > boost_7z.lob
 echo # END SECTION
 
 echo # BEGIN SECTION: Cloning ignition-transport [%IGN_TRANSPORT_BRANCH% branch]
@@ -71,8 +69,6 @@ echo # END SECTION
 echo # BEGIN SECTION: Cloning haptix-comm [%HAPTIX_COMM_BRANCH% branch]
 hg clone https://bitbucket.org/osrf/haptix-comm haptix-comm -b %HAPTIX_COMM_BRANCH%
 cd haptix-comm
-REM set haptix_hash variable. Yes, we need need to do this for structure
-for /f "delims=" %%a in ('hg id -i') do @set haptix_hash=%%a
 hg tip > haptix-comm.info
 cd ..
 echo # END SECTION
@@ -93,6 +89,7 @@ for %%b in (Debug, Release) do (
     call ..\configure %%b %BITNESS%
     nmake VERBOSE=1 > ign-transport.log || goto :error
     nmake install
+    set /p IGNTRANSPORT_VERSION=<VERSION || goto :error
     cd ..\..
     echo # END SECTION
 
@@ -104,6 +101,7 @@ for %%b in (Debug, Release) do (
     call ..\configure %%b %BITNESS%
     nmake VERBOSE=1 > haptix.log || goto :error
     nmake install
+    set /p HAPTIX_VERSION=<VERSION || goto:error
     echo # END SECTION
    
     echo # BEGIN SECTION: build haptix-comm examples in %%b
@@ -119,7 +117,7 @@ for %%b in (Debug, Release) do (
 
     cd ..\..\..
 
-    echo # BEGIN SECTION: generate zip file in %%b
+    echo # BEGIN SECTION: generate zip [version !HAPTIX_VERSION!] in %%b
     :: Package it all up
     :: Our goal here is to create an "install" layout for all the stuff
     :: needed to use haptix-comm.  That layout can be then be zipped and
@@ -128,9 +126,10 @@ for %%b in (Debug, Release) do (
     :: why the ! var ! is being used. For more information, please read:
     :: http://ss64.com/nt/delayedexpansion.html
     set "build_type=%%b"
-    set "installdir=%cwd%\hx_gz_sdk_!build_type!"
-    
-    set "sdk_zip_file=%WORKSPACE%\hx_gz_sdk-!build_type!-%haptix_hash%-win%BITNESS%.zip"
+    set "installdir=%cwd%\hx_gz_sdk-!HAPTIX_VERSION!-!build_type!"
+    :: WORKSPACE\pkgs to agree with repository_uploader script layout
+    set "sdk_zip_file=%WORKSPACE%\pkgs\hx_gz_sdk-!build_type!-!HAPTIX_VERSION!-win%BITNESS%.zip"
+    set "sdk_latest_zip_file=%WORKSPACE%\pkgs\hx_gz_sdk-!build_type!-latest-win%BITNESS%.zip"
 
     echo " * Build type             : !build_type!"
     echo " * Installation directory : !installdir!"
@@ -174,8 +173,9 @@ for %%b in (Debug, Release) do (
     cd ..
     echo # END SECTION
 
-    echo "Generating SDK zip file: !sdk_zip_file!" > sdk_zip_file.log
-    "%tmpdir%\7za.exe" a -tzip "!sdk_zip_file!" "hx_gz_sdk_!build_type!\" || goto :error
+    echo "Generating SDK zip files: !sdk_zip_file!" > sdk_zip_file.log
+    "%tmpdir%\7za.exe" a -tzip "!sdk_zip_file!" "!installdir!" || goto :error
+    copy "!sdk_zip_file!" "!sdk_latest_zip_file!"
     echo # END SECTION
 )
 setlocal disabledelayedexpansion

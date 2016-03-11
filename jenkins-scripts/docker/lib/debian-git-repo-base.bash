@@ -16,7 +16,7 @@ if [[ -z ${MULTIARCH_SUPPORT} ]]; then
 fi
 
 # Use defaul branch if not sending BRANCH parameter
-[[ -z ${BRANCH} ]] && export BRANCH=default
+[[ -z ${BRANCH} ]] && export BRANCH=master
 
 cat > build.sh << DELIM
 ###################################################
@@ -33,9 +33,7 @@ git checkout ${BRANCH}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install build dependencies'
-cat debian/control
-mk-build-deps -i debian/control --tool 'apt-get --no-install-recommends --yes'
-rm *build-deps*.deb
+mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: build version and distribution'
@@ -59,17 +57,12 @@ if [ $DISTRO = 'trusty' ] || [ $DISTRO = 'utopic' ]; then
   sed -i -e 's:libsdformat-dev:libsdformat2-dev:g' debian/control 
 fi
 
-# In precise, no multiarch paths was implemented in GNUInstallDirs. Remove it.
-if ! $MULTIARCH_SUPPORT; then
-  sed -i -e 's:/\*/:/:g' debian/*.install
-fi
-
 # Do not perform symbol checking
 rm -fr debian/*.symbols
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: create source package \${OSRF_VERSION}"
-git-buildpackage -j${MAKE_JOBS} --git-ignore-new -S -uc -us
+gbp buildpackage -j${MAKE_JOBS} --git-ignore-new -S -uc -us
 
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.tar.gz $WORKSPACE/pkgs
@@ -78,7 +71,7 @@ cp ../*.debian.* $WORKSPACE/pkgs
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create deb packages'
-git-buildpackage -j${MAKE_JOBS} --git-ignore-new -uc -us
+gbp buildpackage -j${MAKE_JOBS} --git-ignore-new -uc -us
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
@@ -87,8 +80,6 @@ PKGS=\`find ../ -name *.deb || true\`
 FOUND_PKG=0
 for pkg in \${PKGS}; do
     echo "found \$pkg"
-    # Check for correctly generated packages size > 3Kb
-    test -z \$(find \$pkg -size +3k) && exit 1
     cp \${pkg} $WORKSPACE/pkgs
     FOUND_PKG=1
 done
@@ -97,7 +88,7 @@ test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 DELIM
 
-USE_OSRF_REPO=true
+OSRF_REPOS_TO_USE="stable"
 DEPENDENCY_PKGS="devscripts \
 		 ubuntu-dev-tools \
 		 debhelper \
