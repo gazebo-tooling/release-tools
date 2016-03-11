@@ -29,6 +29,9 @@ UBUNTU_DISTROS_EXTRA = []
 ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
 ROS_DISTROS_IN_TRUSTY = [ 'indigo' ];
 
+OSRF_REPOS_SUPPORTED="stable prerelease nightly mentor2 haptix-pre"
+OSRF_REPOS_SELF_CONTAINED="mentor2"
+
 DRY_RUN = False
 NIGHTLY = False
 UPSTREAM = False
@@ -201,11 +204,7 @@ def sanity_check_sdformat_versions(package, version):
     print_success("sdformat version in proper sdformat package")
 
 def sanity_check_repo_name(repo_name):
-    if repo_name == 'stable' or  repo_name == 'prerelease' or repo_name == 'nightly':
-        return
-
-    # Supported projects
-    if repo_name == 'mentor2' or repo_name == 'haptix-pre':
+    if repo_name in OSRF_REPOS_SUPPORTED:
         return
 
     error("Upload repo value: " + repo_name + " is not valid. stable | prerelease | nightly")
@@ -418,6 +417,11 @@ def go(argv):
     params['PACKAGE_ALIAS'] = args.package_alias
     params['RELEASE_VERSION'] = args.release_version
     params['UPLOAD_TO_REPO'] = args.upload_to_repository
+    # Assume that we want stable + own repo in the building
+    params['OSRF_REPOS_TO_USE'] = "stable " + args.upload_to_repository
+
+    if args.upload_to_repository in OSRF_REPOS_SELF_CONTAINED:
+        params['OSRF_REPOS_TO_USE'] = args.upload_to_repository
 
     if NIGHTLY:
         params['VERSION'] = 'nightly'

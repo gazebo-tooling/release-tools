@@ -5,7 +5,7 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 echo '# BEGIN SECTION: sending bitbucket status: inprogress'
-NEEDED_HOST_PACKAGES="python-yaml python-six python-uritemplate python-requests python-requests-oauthlib python-pip"
+NEEDED_HOST_PACKAGES="python-pip"
 REPO_SHORT_NAME=`echo ${SRC_REPO} | sed s:.*\.org/::`
 
 # Source bitbucket configs
@@ -16,6 +16,16 @@ if [[ ! -f ${BITBUCKET_USER_PASS_FILE} ]]; then
   exit 1
 fi
 
+echo "Generating requirements.txt for pip"
+cat > ${WORKSPACE}/requirements.txt <<- REQ
+pyyaml
+six
+uritemplate
+requests>=2.4.2
+requests-oauthlib
+future
+REQ
+
 # Check if they are already installed in the host. 
 # dpkg-query will return an error in stderr if a package has never been in the
 # system. It will return a header composed by several lines started with |, +++
@@ -25,9 +35,9 @@ QUERY_RESULT=$(dpkg-query --list ${NEEDED_HOST_PACKAGES} 2>&1 | grep -v ^ii | gr
 if [[ -n ${QUERY_RESULT} ]]; then
   # Trick to not run apt-get update if there is no error in installation
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES} || { sudo apt-get update && sudo apt-get install -y ${NEEDED_HOST_PACKAGES}; }
-  # python-future package is available only from Ubuntu wily on
-  pip install future
 fi
+
+sudo pip install --quiet -r ${WORKSPACE}/requirements.txt
 
 echo "Generating config file ..."
 cat > $BITBUCKET_BUILD_STATUS_FILE << DELIM_CONFIG
