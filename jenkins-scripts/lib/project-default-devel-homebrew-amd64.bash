@@ -22,9 +22,20 @@ if [[ ${MAKE_VERBOSE} ]]; then
   MAKE_VERBOSE_STR="VERBOSE=1"
 fi
 
+# Step 0. Ensure that brew group exists and that current user is member.
+if ! dscl . -list /groups/brew; then
+  echo Creating brew group
+  sudo dseditgroup -o create brew
+fi
+if ! dsmemberutil checkmembership -U "$(whoami)" -G "brew" \
+   | grep "is a member" > /dev/null; then
+  echo Adding "$(whoami)" to brew group
+  sudo dseditgroup -o edit -a "$(whoami)" -t user brew
+fi
+
 # Step 1. Set up homebrew
 echo "# BEGIN SECTION: clean up ${HOMEBREW_PREFIX}"
-sudo chown -R jenkins ${HOMEBREW_PREFIX}
+sudo chown -R $(whoami):brew ${HOMEBREW_PREFIX}
 cd ${HOMEBREW_PREFIX}
 [[ -f .git ]] && git clean -fdx
 rm -rf ${HOMEBREW_CELLAR} ${HOMEBREW_PREFIX}/.git && brew cleanup
@@ -71,10 +82,10 @@ cd ${WORKSPACE}/build
 export PATH="${PATH}:/opt/X11/bin"
 
 # set display before cmake
-# search for Xquartz instance owned by jenkins
+# search for Xquartz instance owned by current user
 export DISPLAY=$(ps ax \
   | grep '[[:digit:]]*:[[:digit:]][[:digit:]].[[:digit:]][[:digit:]] /opt/X11/bin/Xquartz' \
-  | grep 'auth /Users/jenkins/' \
+  | grep "auth /Users/$(whoami)/" \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
  
