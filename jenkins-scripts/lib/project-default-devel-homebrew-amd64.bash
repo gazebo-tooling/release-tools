@@ -70,7 +70,6 @@ echo "# BEGIN SECTION: install ${PROJECT} dependencies"
 brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
 echo '# END SECTION'
 
-echo "# BEGIN SECTION: configuring ${PROJECT}"
 # Step 3. Manually compile and install ${PROJECT}
 cd ${WORKSPACE}/${PROJECT_PATH}
 # Need the sudo since the test are running with roots perms to access to GUI
@@ -88,19 +87,20 @@ export DISPLAY=$(ps ax \
   | grep "auth /Users/$(whoami)/" \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
- 
+echo '# END SECTION'
 
+echo "# BEGIN SECTION: configure ${PROJECT}"
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT}/HEAD \
      ${WORKSPACE}/${PROJECT_PATH}
-echo "# BEGIN SECTION: compile and install ${PROJECT} ${VERSION}"
+echo '# END SECTION'
 
-echo "# BEGIN SECTION: compile and install ${PROJECT} ${VERSION}"
+echo "# BEGIN SECTION: compile and install ${PROJECT}"
 make -j${MAKE_JOBS} ${MAKE_VERBOSE_STR} install
 brew link ${PROJECT}
 echo '# END SECTION'
 
-echo "#BEGIN SECTION: docker analysis"
+echo "#BEGIN SECTION: brew doctor analysis"
 brew doctor
 echo '# END SECTION'
 
