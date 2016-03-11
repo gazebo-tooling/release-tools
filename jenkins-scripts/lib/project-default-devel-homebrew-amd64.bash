@@ -36,6 +36,7 @@ fi
 # Step 1. Set up homebrew
 echo "# BEGIN SECTION: clean up ${HOMEBREW_PREFIX}"
 sudo chown -R $(whoami):brew ${HOMEBREW_PREFIX}
+sudo chmod -R g+w ${HOMEBREW_PREFIX}
 cd ${HOMEBREW_PREFIX}
 [[ -f .git ]] && git clean -fdx
 rm -rf ${HOMEBREW_CELLAR} ${HOMEBREW_PREFIX}/.git && brew cleanup
