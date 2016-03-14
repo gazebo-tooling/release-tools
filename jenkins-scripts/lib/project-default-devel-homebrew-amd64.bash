@@ -107,5 +107,5 @@ make test ARGS="-VV" || true
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: re-add group write permissions"
-sudo chmod -R ug+rwx ${HOMEBREW_PREFIX}
+sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
 echo '# END SECTION'
