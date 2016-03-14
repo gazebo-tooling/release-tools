@@ -31,6 +31,8 @@ cd ${HOMEBREW_PREFIX}
 [[ -f .git ]] && git clean -fdx
 rm -rf ${HOMEBREW_CELLAR} ${HOMEBREW_PREFIX}/.git
 brew cleanup || echo "brew cleanup couldn't be run"
+mkdir -p ${HOMEBREW_CELLAR}
+sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install latest homebrew'
