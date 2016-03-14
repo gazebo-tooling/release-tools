@@ -15,6 +15,7 @@ fi
 
 export HOMEBREW_PREFIX=/usr/local
 export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
+export PATH=${HOMEBREW_PREFIX}/bin:$PATH
 
 # make verbose mode?
 MAKE_VERBOSE_STR=""
