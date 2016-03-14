@@ -105,3 +105,7 @@ rm -fr \$HOME/.gazebo/models
 cd $WORKSPACE/build/
 make test ARGS="-VV" || true
 echo '# END SECTION'
+
+echo "# BEGIN SECTION: re-add group write permissions"
+sudo chmod -R ug+rwx ${HOMEBREW_PREFIX}
+echo '# END SECTION'
