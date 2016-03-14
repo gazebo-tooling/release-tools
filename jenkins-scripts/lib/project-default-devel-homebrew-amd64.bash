@@ -22,24 +22,14 @@ if [[ ${MAKE_VERBOSE} ]]; then
   MAKE_VERBOSE_STR="VERBOSE=1"
 fi
 
-# Step 0. Ensure that brew group exists and that current user is member.
-if ! dscl . -list /groups/brew; then
-  echo Creating brew group
-  sudo dseditgroup -o create brew
-fi
-if ! dsmemberutil checkmembership -U "$(whoami)" -G "brew" \
-   | grep "is a member" > /dev/null; then
-  echo Adding "$(whoami)" to brew group
-  sudo dseditgroup -o edit -a "$(whoami)" -t user brew
-fi
-
 # Step 1. Set up homebrew
 echo "# BEGIN SECTION: clean up ${HOMEBREW_PREFIX}"
-sudo chown -R $(whoami):brew ${HOMEBREW_PREFIX}
-sudo chmod -R g+w ${HOMEBREW_PREFIX}
+sudo chown -R $(whoami):admin ${HOMEBREW_PREFIX}
+sudo chmod -R ug+rwx ${HOMEBREW_PREFIX}
 cd ${HOMEBREW_PREFIX}
 [[ -f .git ]] && git clean -fdx
-rm -rf ${HOMEBREW_CELLAR} ${HOMEBREW_PREFIX}/.git && brew cleanup
+rm -rf ${HOMEBREW_CELLAR} ${HOMEBREW_PREFIX}/.git
+brew cleanup || echo "brew cleanup couldn't be run"
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install latest homebrew'
