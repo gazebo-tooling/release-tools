@@ -15,7 +15,7 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-msgs"
-export BUILDING_PKG_DEPENDENCIES="libprotobuf-dev protobuf-compiler ruby1.9.1-dev"
+export BUILDING_DEPENDENCIES="libprotobuf-dev protobuf-compiler ruby1.9.1-dev"
 export DOCKER_POSTINSTALL_HOOK="gem install protobuf"
 export BUILDING_JOB_REPOSITORIES="stable"
 
