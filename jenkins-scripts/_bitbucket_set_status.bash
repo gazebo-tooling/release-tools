@@ -4,13 +4,16 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-STATUS=${1}
+# STATUS can be taken an env variable or via the first argument 
+# when calling the script
+BITBUCKET_STATUS=${BITBUCKET_STATUS:-$1}
 
 # Source bitbucket configs
 . ${SCRIPT_DIR}/_bitbucket_configs.bash
 
-if [[ "$#" -ne 1 ]]; then
-    echo "Usage: $0 [inprogress|ok|failed]"
+if [[ -z $BITBUCKET_STATUS ]]; then
+    echo "BITBUCKET_STATUS variable is not set. "
+    echo "Can be called as a first argument of the script or via env variable"
     exit 1
 fi
 
@@ -25,14 +28,14 @@ if [[ ! -f ${BITBUCKET_USER_PASS_FILE} ]]; then
   exit 1
 fi
 
-echo "BEGIN SECTION: build status in bitbucket: ${STATUS} (hidden)"
+echo "BEGIN SECTION: build status in bitbucket: ${BITBUCKET_STATUS} (hidden)"
 set +x # keep password secret
 BITBUCKET_USER_PASS=$(cat ${BITBUCKET_USER_PASS_FILE})
 BITBUCKET_API_RESULT=true
 ${WORKSPACE}/scripts/jenkins-scripts/python-bitbucket/set_status_from_file.py \
     --user osrf_jenkins  \
     --pass ${BITBUCKET_USER_PASS} \
-    --status ${STATUS} \
+    --status ${BITBUCKET_STATUS} \
     --load_from_file ${BITBUCKET_BUILD_STATUS_FILE} >& ${BITBUCKET_LOG_FILE} || BITBUCKET_API_RESULT=false
 set -x # back to debug
 echo '# END SECTION'
