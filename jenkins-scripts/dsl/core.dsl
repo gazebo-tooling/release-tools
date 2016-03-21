@@ -100,7 +100,7 @@ set_status.with
   {
      stringParam('CREATE_CONFIG_BUILD_NUM',
                  '',
-                 'build number from parent job to get the metadata file'),
+                 'build number from parent job to get the metadata file')
      stringParam('BITBUCKET_STATUS',
                  '',
                  'inprogress | fail | ok')
