@@ -98,7 +98,12 @@ set_status.with
 {
   parameters
   {
-     stringParam('STATUS','', 'inprogress | fail | ok')
+     stringParam('CREATE_CONFIG_BUILD_NUM',
+                 '',
+                 'build number from parent job to get the metadata file'),
+     stringParam('BITBUCKET_STATUS',
+                 '',
+                 'inprogress | fail | ok')
   }
 
   wrappers {
@@ -107,6 +112,15 @@ set_status.with
 
   steps
   {
+    copyArtifacts("${create_status_name}") {
+      includePatterns("${build_status_file_name}"),
+      flatten(),
+      buildSelector {
+         buildNumber('${CREATE_CONFIG_BUILD_NUM}')
+      }
+    }
+
+
     shell("""\
           #!/bin/bash -xe
 
