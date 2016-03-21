@@ -113,8 +113,8 @@ set_status.with
   steps
   {
     copyArtifacts("${create_status_name}") {
-      includePatterns("${build_status_file_name}"),
-      flatten(),
+      includePatterns("${build_status_file_name}")
+      flatten()
       buildSelector {
          buildNumber('${CREATE_CONFIG_BUILD_NUM}')
       }
