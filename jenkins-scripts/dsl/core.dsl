@@ -64,7 +64,7 @@ create_status.with
      stringParam('JENKINS_BUILD_JOB_NAME','',
                  'Branch of SRC_REPO to test')
      stringParam('JENKINS_BUILD_URL','',
-                 'Branch of SRC_REPO to test')
+                 'Link to jenkins main ci job')
   }
 
   wrappers {
@@ -73,6 +73,14 @@ create_status.with
 
   steps
   {
+    systemGroovyCommand("""\
+          desc = 'repo: ' + build.buildVariableResolver.resolve('JENKINS_BUILD_REPO') + '<br />' +
+                 'hash: ' + build.buildVariableResolver.resolve('JENKINS_BUILD_HG_HASH') + '<br />' +
+                 'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH')
+        build.setDescription(desc)
+        """.stripIndent()
+    )
+
     shell("""\
           #!/bin/bash -xe
 
@@ -112,6 +120,13 @@ set_status.with
 
   steps
   {
+    systemGroovyCommand("""\
+          desc = 'status: ' + build.buildVariableResolver.resolve('BITBUCKET_STATUS') + '<br />' +
+                 'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH')
+        build.setDescription(desc)
+        """.stripIndent()
+    )
+
     copyArtifacts("${create_status_name}") {
       includePatterns("${build_status_file_name}")
       flatten()
