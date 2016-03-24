@@ -64,7 +64,7 @@ echo "# BEGIN SECTION: install ${PROJECT} dependencies"
 brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
 echo '# END SECTION'
 
-if [[ -n "PIP_PACKAGES_NEEDED" ]]; then
+if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   brew install python
   export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
   pip install ${PIP_PACKAGES_NEEDED}
