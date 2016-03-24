@@ -64,6 +64,11 @@ echo "# BEGIN SECTION: install ${PROJECT} dependencies"
 brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
 echo '# END SECTION'
 
+if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
+  # Install lxml for flaky_junit_merge.py
+  PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} lxml"
+fi
+
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   brew install python
   export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
@@ -108,8 +113,7 @@ echo "# BEGIN SECTION: run tests"
 # Need to clean up models before run tests (issue 27)
 rm -fr \$HOME/.gazebo/models test_results*
 
-cd $WORKSPACE/build/
-if ! make test ARGS="-VV"; then
+if ! make test ARGS="-VV" && [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   mv test_results test_results0
   make test ARGS="-VV --rerun-failed" || true
   echo contents of test_results
