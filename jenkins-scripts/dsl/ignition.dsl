@@ -61,7 +61,7 @@ ignition_software.each { ign_sw ->
     supported_arches.each { arch ->
       // Handle testing
       enable_testing = true
-      if (ign_sw = 'msgs')
+      if (ign_sw == 'msgs')
         enable_testing = false
       // --------------------------------------------------------------
       // 1. Create the default ci jobs
@@ -174,7 +174,7 @@ ignition_software.each { ign_sw ->
      supported_arches.each { arch ->
       // Handle testing
       enable_testing = true
-      if (ign_sw = 'msgs')
+      if (ign_sw == 'msgs')
         enable_testing = false
 
       // --------------------------------------------------------------
@@ -233,7 +233,7 @@ ignition_software.each { ign_sw ->
 ignition_software.each { ign_sw ->
   // Handle testing
   enable_testing = true
-  if (ign_sw = 'msgs')
+  if (ign_sw == 'msgs')
     enable_testing = false
 
   def ignition_brew_ci_any_job = job("ignition_${ign_sw}-ci-pr_any-homebrew-amd64")
@@ -286,7 +286,7 @@ ignition_software.each { ign_sw ->
 ignition_software.each { ign_sw ->
   // Handle testing
   enable_testing = true
-  if (ign_sw = 'msgs')
+  if (ign_sw == 'msgs')
     enable_testing = false
 
   def ignition_win_ci_any_job = job("ignition_${ign_sw}-ci-pr_any-windows7-amd64")
