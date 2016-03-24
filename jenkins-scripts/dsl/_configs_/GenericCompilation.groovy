@@ -27,7 +27,7 @@ class GenericCompilation
      '''.stripIndent()
    }
 
-   static void create(Job job)
+   static void create(Job job, boolean enable_testing = true)
    {
 
      GenericMail.update_field(job, 'defaultContent',
@@ -41,17 +41,20 @@ class GenericCompilation
           numToKeep(15)
         }
 
-        publishers
+        if (enable_testing)
         {
-           // junit plugin is not implemented. Use configure for it
-           configure { project ->
-              project / publishers << 'hudson.tasks.junit.JUnitResultArchiver' {
-                   testResults('build/test_results/*.xml')
-                   keepLongStdio false
-                   testDataPublishers()
-              }
-          }
-        } // end of publishers
+          publishers
+          {
+             // junit plugin is not implemented. Use configure for it
+             configure { project ->
+                project / publishers << 'hudson.tasks.junit.JUnitResultArchiver' {
+                     testResults('build/test_results/*.xml')
+                     keepLongStdio false
+                     testDataPublishers()
+                }
+            }
+          } // end of publishers
+        } // end of enable_testing
       } // end of job
    } // end of create
 } // end of class

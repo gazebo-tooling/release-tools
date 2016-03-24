@@ -59,10 +59,14 @@ ignition_software.each { ign_sw ->
 ignition_software.each { ign_sw ->
   ci_distro.each { distro ->
     supported_arches.each { arch ->
+      // Handle testing
+      enable_testing = true
+      if (ign_sw = 'msgs')
+        enable_testing = false
       // --------------------------------------------------------------
       // 1. Create the default ci jobs
       def ignition_ci_job = job("ignition_${ign_sw}-ci-default-${distro}-${arch}")
-      OSRFLinuxCompilation.create(ignition_ci_job)
+      OSRFLinuxCompilation.create(ignition_ci_job, enable_testing)
       ignition_ci_job.with
       {
           scm {
@@ -91,7 +95,8 @@ ignition_software.each { ign_sw ->
       // 2. Create the any job
       def ignition_ci_any_job = job("ignition_${ign_sw}-ci-pr_any-${distro}-${arch}")
       OSRFLinuxCompilationAny.create(ignition_ci_any_job,
-                                    "http://bitbucket.org/ignitionrobotics/ign-${ign_sw}")
+                                    "http://bitbucket.org/ignitionrobotics/ign-${ign_sw}",
+                                    enable_testing)
       ignition_ci_any_job.with
       {
         steps
@@ -167,10 +172,15 @@ ignition_software.each { ign_sw ->
 ignition_software.each { ign_sw ->
   other_supported_distros.each { distro ->
      supported_arches.each { arch ->
+      // Handle testing
+      enable_testing = true
+      if (ign_sw = 'msgs')
+        enable_testing = false
+
       // --------------------------------------------------------------
       // ci_default job for the rest of arches / scm@daily
       def ignition_ci_job = job("ignition_${ign_sw}-ci-default-${distro}-${arch}")
-      OSRFLinuxCompilation.create(ignition_ci_job)
+      OSRFLinuxCompilation.create(ignition_ci_job, enable_testing)
       ignition_ci_job.with
       {
           scm {
@@ -221,9 +231,15 @@ ignition_software.each { ign_sw ->
 
 // 1. any job
 ignition_software.each { ign_sw ->
+  // Handle testing
+  enable_testing = true
+  if (ign_sw = 'msgs')
+    enable_testing = false
+
   def ignition_brew_ci_any_job = job("ignition_${ign_sw}-ci-pr_any-homebrew-amd64")
   OSRFBrewCompilationAny.create(ignition_brew_ci_any_job,
-                                "http://bitbucket.org/ignitionrobotics/ign-${ign_sw}")
+                                "http://bitbucket.org/ignitionrobotics/ign-${ign_sw}",
+                                enable_testing)
   ignition_brew_ci_any_job.with
   {
       steps {
@@ -234,12 +250,10 @@ ignition_software.each { ign_sw ->
               """.stripIndent())
       }
   }
-}
 
-// 2. default
-ignition_software.each { ign_sw ->
+  // 2. default
   def ignition_brew_ci_job = job("ignition_${ign_sw}-ci-default-homebrew-amd64")
-  OSRFBrewCompilation.create(ignition_brew_ci_job)
+  OSRFBrewCompilation.create(ignition_brew_ci_job, enable_testing)
 
   ignition_brew_ci_job.with
   {
@@ -270,9 +284,15 @@ ignition_software.each { ign_sw ->
 
 // 1. any
 ignition_software.each { ign_sw ->
+  // Handle testing
+  enable_testing = true
+  if (ign_sw = 'msgs')
+    enable_testing = false
+
   def ignition_win_ci_any_job = job("ignition_${ign_sw}-ci-pr_any-windows7-amd64")
   OSRFWinCompilationAny.create(ignition_win_ci_any_job,
-                                "http://bitbucket.org/ignitionrobotics/ign-${ign_sw}")
+                                "http://bitbucket.org/ignitionrobotics/ign-${ign_sw}",
+                               enable_testing)
   ignition_win_ci_any_job.with
   {
       steps {
@@ -281,12 +301,10 @@ ignition_software.each { ign_sw ->
               """.stripIndent())
       }
   }
-}
 
-// 2. default
-ignition_software.each { ign_sw ->
+  // 2. default
   def ignition_win_ci_job = job("ignition_${ign_sw}-ci-default-windows7-amd64")
-  OSRFWinCompilation.create(ignition_win_ci_job)
+  OSRFWinCompilation.create(ignition_win_ci_job, enable_testing)
 
   ignition_win_ci_job.with
   {
