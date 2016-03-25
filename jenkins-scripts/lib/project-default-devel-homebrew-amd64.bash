@@ -70,6 +70,11 @@ if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   pip install ${PIP_PACKAGES_NEEDED}
 fi
 
+if [[ -z "${DISABLE_CCACHE}" ]]; then
+  brew install ccache
+  export PATH=/usr/local/opt/ccache/libexec:$PATH
+fi
+
 # Step 3. Manually compile and install ${PROJECT}
 cd ${WORKSPACE}/${PROJECT_PATH}
 # Need the sudo since the test are running with roots perms to access to GUI
