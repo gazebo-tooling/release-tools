@@ -64,6 +64,13 @@ for ts in xml1.getchildren():
                     tc.append(deepcopy(f))
             ts2.attrib['failures'] = str(int(ts2.attrib['failures']) - 1)
             xml2.attrib['failures'] = str(int(xml2.attrib['failures']) - 1)
+        elif failures1 > 0 and failures2 > 0:
+            # repeated failures
+            # append the second failure as a rerunFailure
+            for f in tc2.getchildren():
+                if f.tag == 'failure':
+                    f.tag = 'rerunFailure'
+                    tc.append(deepcopy(f))
 
 # This script modifies the content of both files, and either could be printed.
 # This script prints the first one, but the second one could also be printed.
