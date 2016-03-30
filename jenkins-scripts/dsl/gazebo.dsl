@@ -50,7 +50,6 @@ abi_distro.each { distro ->
 
               export DISTRO=${distro}
               export ARCH=${arch}
-              export GPU_SUPPORT_NEEDED=true
               /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-abichecker.bash
 	      """.stripIndent())
       } // end of steps

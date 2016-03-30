@@ -13,6 +13,13 @@ from copy import deepcopy
 from lxml import etree
 import sys
 
+def countFailures(testcase):
+    failures = 0
+    for f in testcase.getchildren():
+        if f.tag == 'failure':
+            failures += 1
+    return failures
+
 if len(sys.argv) != 3:
     print('need to specify two files to merge', file=sys.stderr)
     exit()
@@ -39,14 +46,8 @@ for ts in xml1.getchildren():
     for tc in ts.getchildren():
         # find matching <testcase> tag from xml2
         tc2 = xml2.findall(".//testsuite[@name='%s']/testcase[@name='%s']" % (ts.attrib['name'], tc.attrib['name']))[0]
-        failures1 = 0
-        for f in tc.getchildren():
-            if f.tag == 'failure':
-                failures1 += 1
-        failures2 = 0
-        for f in tc2.getchildren():
-            if f.tag == 'failure':
-                failures2 += 1
+        failures1 = countFailures(tc)
+        failures2 = countFailures(tc2)
         if failures1 > 0 and failures2 == 0:
             # flaky test
             for f in tc.getchildren():
@@ -63,6 +64,13 @@ for ts in xml1.getchildren():
                     tc.append(deepcopy(f))
             ts2.attrib['failures'] = str(int(ts2.attrib['failures']) - 1)
             xml2.attrib['failures'] = str(int(xml2.attrib['failures']) - 1)
+        elif failures1 > 0 and failures2 > 0:
+            # repeated failures
+            # append the second failure as a rerunFailure
+            for f in tc2.getchildren():
+                if f.tag == 'failure':
+                    f.tag = 'rerunFailure'
+                    tc.append(deepcopy(f))
 
 # This script modifies the content of both files, and either could be printed.
 # This script prints the first one, but the second one could also be printed.
