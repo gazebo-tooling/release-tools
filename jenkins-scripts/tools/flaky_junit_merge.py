@@ -39,15 +39,20 @@ f = open(sys.argv[2], 'r')
 xml2 = etree.fromstring(f.read())
 f.close()
 
+# we want to iterate over the testsuite elements
 if xml1.tag == 'testsuites':
     testsuites = xml1.getchildren()
 elif xml1.tag == 'testsuite':
+    # just add the whole doc to a list
     testsuites = [xml1]
 else:
     print("root tag of %s should be testsuite or testsuites" % (sys.argv[1]),
           file=sys.stderr)
     exit()
 
+# we search for testsuites elements in the second file with XPath,
+# which means testsuite can't be the root element
+# so create root2 with root tag testsuites to contain the testsuite if necessary
 if xml2.tag == 'testsuites':
     root2 = xml2
 elif xml2.tag == 'testsuite':
