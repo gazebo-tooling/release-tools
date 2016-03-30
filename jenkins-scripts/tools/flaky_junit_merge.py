@@ -31,11 +31,13 @@ def oneLessFailure(element, expectedTag):
 if len(sys.argv) != 3:
     print('need to specify two files to merge', file=sys.stderr)
     exit()
+fileName1 = sys.argv[1]
+fileName2 = sys.argv[2]
 
-f = open(sys.argv[1], 'r')
+f = open(fileName1, 'r')
 xml1 = etree.fromstring(f.read())
 f.close()
-f = open(sys.argv[2], 'r')
+f = open(fileName2, 'r')
 xml2 = etree.fromstring(f.read())
 f.close()
 
@@ -46,7 +48,7 @@ elif xml1.tag == 'testsuite':
     # just add the whole doc to a list
     testsuites = [xml1]
 else:
-    print("root tag of %s should be testsuite or testsuites" % (sys.argv[1]),
+    print("root tag of %s should be testsuite or testsuites" % (fileName1),
           file=sys.stderr)
     exit()
 
@@ -59,7 +61,7 @@ elif xml2.tag == 'testsuite':
     root2 = etree.Element('testsuites')
     root2.append(xml2)
 else:
-    print("root tag of %s should be testsuite or testsuites" % (sys.argv[2]),
+    print("root tag of %s should be testsuite or testsuites" % (fileName2),
           file=sys.stderr)
     exit()
 
