@@ -118,13 +118,12 @@ echo "# BEGIN SECTION: run tests"
 # Need to clean up models before run tests (issue 27)
 rm -fr \$HOME/.gazebo/models test_results*
 
+# Run `make test`
+# If it has any failures, then rerun the failed tests one time
+# and merge the junit results
 if ! make test ARGS="-VV" && [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   mv test_results test_results0
   make test ARGS="-VV --rerun-failed" || true
-  echo contents of test_results
-  ls test_results
-  echo contents of test_results0
-  ls test_results0
   mkdir test_results_tmp
   for i in $(ls test_results); do
     echo looking for flaky tests in test_results0/$i and test_results/$i
