@@ -123,9 +123,9 @@ rm -fr \$HOME/.gazebo/models test_results*
 # and merge the junit results
 if ! make test ARGS="-VV" && [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   mv test_results test_results0
-  echo Failed tests:
   # we can't just run ctest --rerun-failed
   # because that might not run the check_test_ran for failed tests
+  echo Failed tests:
   ctest -N --rerun-failed
   FAILED_TESTS=$(ctest -N --rerun-failed \
     | grep 'Test #[0-9][0-9]*:' \

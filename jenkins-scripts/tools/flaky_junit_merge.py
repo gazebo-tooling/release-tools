@@ -51,28 +51,29 @@ if xml1.tag == 'testsuites' and xml2.tag == 'testsuite':
     # and xml2 has one testcase with name 'test_ran'
     if 1 == len(xml2.getchildren()) == len(xml2.findall("./testcase[@name='test_ran']")):
         # add a passing `test_ran` testcase to xml1
-        # with a matching classname
         testRanSuite = deepcopy(xml2)
         testRanSuite.attrib['failures'] = "0"
         testRanSuite.attrib['time'] = xml1.attrib['time']
         tc = testRanSuite.getchildren()[0]
+        # with a matching classname
         tc.attrib['classname'] = xml1.findall(".//testcase")[0].attrib['classname']
+        # and child <failure> tags removed
         for c in tc.getchildren():
             tc.remove(c)
         xml1.append(testRanSuite)
 
 # we want to iterate over the testsuite elements
 if xml1.tag == 'testsuites':
-    testsuites = xml1.getchildren()
+    testsuiteArray = xml1.getchildren()
 elif xml1.tag == 'testsuite':
     # just add the whole doc to a list
-    testsuites = [xml1]
+    testsuiteArray = [xml1]
 else:
     print("root tag of %s should be testsuite or testsuites" % (fileName1),
           file=sys.stderr)
     exit()
 
-# we search for testsuites elements in the second file with XPath,
+# we search for testsuite elements in the second file with XPath,
 # which means testsuite can't be the root element
 # so create root2 with root tag testsuites to contain the testsuite if necessary
 if xml2.tag == 'testsuites':
@@ -86,7 +87,7 @@ else:
     exit()
 
 # iterate over <testsuite> tags in xml1
-for ts in testsuites:
+for ts in testsuiteArray:
     if ts.tag != 'testsuite':
         print('expected testsuite tag', file=sys.stderr)
         continue
