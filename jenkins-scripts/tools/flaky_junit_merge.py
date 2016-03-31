@@ -41,6 +41,24 @@ f = open(fileName2, 'r')
 xml2 = etree.fromstring(f.read())
 f.close()
 
+# if root tags differ, make sure xml1 has testsuites
+if xml1.tag == 'testsuite' and xml2.tag == 'testsuites':
+    xml1,xml2 = xml2,xml1
+    fileName1,fileName2 = fileName2,fileName1
+
+# if root tags differ
+if xml1.tag == 'testsuites' and xml2.tag == 'testsuite':
+    # and xml2 has one testcase with name 'test_ran'
+    if 1 == len(xml2.getchildren()) == len(xml2.findall("./testcase[@name='test_ran']")):
+        # add a passing `test_ran` testcase to xml1
+        testRanSuite = deepcopy(xml2)
+        testRanSuite.attrib['failures'] = "0"
+        testRanSuite.attrib['time'] = xml1.attrib['time']
+        tc = testRanSuite.getchildren()[0]
+        for c in tc.getchildren():
+            tc.remove(c)
+        xml1.append(testRanSuite)
+
 # we want to iterate over the testsuite elements
 if xml1.tag == 'testsuites':
     testsuites = xml1.getchildren()
@@ -71,18 +89,34 @@ for ts in testsuites:
         print('expected testsuite tag', file=sys.stderr)
         continue
     # find <testsuite> tag with matching name attribute in root2
-    ts2 = root2.findall(".//testsuite[@name='%s']" % (ts.attrib['name']))[0]
+    try:
+        ts2 = root2.findall(".//testsuite[@name='%s']" % (ts.attrib['name']))[0]
+    except IndexError as err:
+        print("testsuite named %s not found in %s" % (ts.attrib['name'], fileName2),
+              file=sys.stderr)
+        continue
     # iterate over <testcase> tags in <testsuite> from xml1
     for tc in ts.getchildren():
         if tc.tag != 'testcase':
             print('expected testcase tag', file=sys.stderr)
             continue
         # find matching <testcase> tag from root2
-        tc2 = root2.findall(".//testsuite[@name='%s']/testcase[@name='%s']" % (ts.attrib['name'], tc.attrib['name']))[0]
+        try:
+            tc2 = root2.findall(".//testsuite[@name='%s']/testcase[@name='%s']" %
+                                (ts.attrib['name'], tc.attrib['name']))[0]
+        except IndexError as err:
+            print("testsuite/testcase named %s/%s not found in %s" %
+                  (ts.attrib['name'], tc.attrib['name'], fileName2),
+                  file=sys.stderr)
+            continue
         failures1 = countFailures(tc)
         failures2 = countFailures(tc2)
         if failures1 > 0 and failures2 == 0:
             # flaky test
+            for f in tc.getchildren():
+                if f.tag == 'failure':
+                    f.tag = 'flakyFailure'
+                    tc2.append(deepcopy(f))
             oneLessFailure(ts, 'testsuite')
             oneLessFailure(xml1, 'testsuites')
         elif failures1 == 0 and failures2 > 0:
@@ -91,6 +125,8 @@ for ts in testsuites:
                 if f.tag == 'failure':
                     f.tag = 'flakyFailure'
                     tc.append(deepcopy(f))
+            oneLessFailure(ts2, 'testsuite')
+            oneLessFailure(xml2, 'testsuites')
         elif failures1 > 0 and failures2 > 0:
             # repeated failures
             # append the second failure as a rerunFailure
@@ -99,5 +135,7 @@ for ts in testsuites:
                     f.tag = 'rerunFailure'
                     tc.append(deepcopy(f))
 
-# This script modifies the content of the first file and prints it out
+# This script modifies the content of both files, and either could be printed.
+# This script prints the first one, but the second one could also be printed.
 print(etree.tostring(xml1))
+# print(etree.tostring(xml2))
