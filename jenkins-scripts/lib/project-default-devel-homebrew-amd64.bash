@@ -123,7 +123,17 @@ rm -fr \$HOME/.gazebo/models test_results*
 # and merge the junit results
 if ! make test ARGS="-VV" && [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   mv test_results test_results0
-  make test ARGS="-VV --rerun-failed" || true
+  echo Failed tests:
+  # we can't just run ctest --rerun-failed
+  # because that might not run the check_test_ran for failed tests
+  ctest -N --rerun-failed
+  FAILED_TESTS=$(ctest -N --rerun-failed \
+    | grep 'Test #[0-9][0-9]*:' \
+    | sed -e 's@^ *Test #[0-9]*: *@@' \
+  )
+  for i in ${FAILED_TESTS}; do
+    make test ARGS="-VV -R ${i}" || true
+  done
   mkdir test_results_tmp
   for i in $(ls test_results); do
     echo looking for flaky tests in test_results0/$i and test_results/$i
