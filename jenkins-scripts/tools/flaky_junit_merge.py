@@ -51,10 +51,12 @@ if xml1.tag == 'testsuites' and xml2.tag == 'testsuite':
     # and xml2 has one testcase with name 'test_ran'
     if 1 == len(xml2.getchildren()) == len(xml2.findall("./testcase[@name='test_ran']")):
         # add a passing `test_ran` testcase to xml1
+        # with a matching classname
         testRanSuite = deepcopy(xml2)
         testRanSuite.attrib['failures'] = "0"
         testRanSuite.attrib['time'] = xml1.attrib['time']
         tc = testRanSuite.getchildren()[0]
+        tc.attrib['classname'] = xml1.findall(".//testcase")[0].attrib['classname']
         for c in tc.getchildren():
             tc.remove(c)
         xml1.append(testRanSuite)

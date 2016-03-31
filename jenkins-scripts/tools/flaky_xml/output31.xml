@@ -9,7 +9,7 @@ Expected: (d) &gt;= (1.5), actual: 1.13947 vs 1.5</failure>
     <testcase name="SetSeed" status="run" time="0.001" classname="RandTest"/>
   </testsuite>
 <testsuite tests="1" failures="0" time="0.001" errors="0" name="UNIT_Rand_TEST.xml">
-  <testcase name="test_ran" status="run" time="1" classname="Results">
+  <testcase name="test_ran" status="run" time="1" classname="RandTest">
     <flakyFailure message="Unable to find test results for UNIT_Rand_TEST.xml, test did not run. Expected results in test_results/UNIT_Rand_TEST.xml" type=""/>
   </testcase>
 </testsuite></testsuites>
