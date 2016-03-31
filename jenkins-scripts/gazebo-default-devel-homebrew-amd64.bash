@@ -17,7 +17,9 @@ else
   cp -R ${WORKSPACE}/gazebo ${WORKSPACE}/${gazeboN}
 fi
 
-RERUN_FAILED_TESTS=1
+if [ $GAZEBO_MAJOR_VERSION -ge 7 ]; then
+  RERUN_FAILED_TESTS=1
+fi
 
 . ${SCRIPT_DIR}/lib/project-default-devel-homebrew-amd64.bash ${gazeboN} \
   "--with-ffmpeg --with-bullet --with-simbody"
