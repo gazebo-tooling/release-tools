@@ -16,6 +16,7 @@ echo '# END SECTION'
 if $USE_GPU_DOCKER; then
   GPU_PARAMS_STR="--privileged \
                   -e DISPLAY=unix$DISPLAY \
+		  -e TIMING_DIR=${TIMING_DIR} \
                   -v /sys:/sys:ro         \
                   -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
 fi
