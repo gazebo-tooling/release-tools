@@ -41,6 +41,27 @@ f = open(fileName2, 'r')
 xml2 = etree.fromstring(f.read())
 f.close()
 
+# if root tags differ, make sure xml1 has testsuites
+if xml1.tag == 'testsuite' and xml2.tag == 'testsuites':
+    xml1,xml2 = xml2,xml1
+    fileName1,fileName2 = fileName2,fileName1
+
+# if root tags differ
+if xml1.tag == 'testsuites' and xml2.tag == 'testsuite':
+    # and xml2 has one testcase with name 'test_ran'
+    if 1 == len(xml2.getchildren()) == len(xml2.findall("./testcase[@name='test_ran']")):
+        # add a passing `test_ran` testcase to xml1
+        testRanSuite = deepcopy(xml2)
+        testRanSuite.attrib['failures'] = "0"
+        testRanSuite.attrib['time'] = xml1.attrib['time']
+        tc = testRanSuite.getchildren()[0]
+        # with a matching classname
+        tc.attrib['classname'] = xml1.findall(".//testcase")[0].attrib['classname']
+        # and child <failure> tags removed
+        for c in tc.getchildren():
+            tc.remove(c)
+        xml1.append(testRanSuite)
+
 # we want to iterate over the testsuite elements
 if xml1.tag == 'testsuites':
     testsuiteArray = xml1.getchildren()
