@@ -3,7 +3,7 @@ import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
 def ignition_software         = [ 'transport', 'math' ]
-def ignition_transport_series = '0'
+def ignition_transport_series = '' // empty for a unversioned -dev package
 def ignition_math_series      = '2'
 
 // Main platform using for quick CI
@@ -16,8 +16,8 @@ def supported_arches        = Globals.get_supported_arches()
 
 def all_supported_distros = ci_distro + other_supported_distros
 
-// Need to be used in ci_pr
-String abi_job_name = ''
+// Map needed to be used in ci_pr
+abi_job_names = [:]
 
 Globals.extra_emails = "caguero@osrfoundation.org"
 
@@ -26,8 +26,8 @@ Globals.extra_emails = "caguero@osrfoundation.org"
 ignition_software.each { ign_sw ->
   abi_distro.each { distro ->
     supported_arches.each { arch ->
-      abi_job_name = "ignition_${ign_sw}-abichecker-any_to_any-${distro}-${arch}"
-      def abi_job = job(abi_job_name)
+      abi_job_names[ign_sw] = "ignition_${ign_sw}-abichecker-any_to_any-${distro}-${arch}"
+      def abi_job = job(abi_job_names[ign_sw])
       OSRFLinuxABI.create(abi_job)
       abi_job.with
       {
@@ -94,7 +94,7 @@ ignition_software.each { ign_sw ->
                                     "http://bitbucket.org/ignitionrobotics/ign-${ign_sw}")
       ignition_ci_any_job.with
       {
-        steps 
+        steps
         {
            conditionalSteps
            {
@@ -106,7 +106,7 @@ ignition_software.each { ign_sw ->
 
                steps {
                  downstreamParameterized {
-                   trigger("${abi_job_name}") {
+                   trigger(abi_job_names[ign_sw]) {
                      parameters {
                        predefinedProp("ORIGIN_BRANCH", '$DEST_BRANCH')
                        predefinedProp("TARGET_BRANCH", '$SRC_BRANCH')
@@ -141,7 +141,7 @@ ignition_software.each { ign_sw ->
          triggers {
            cron('@daily')
          }
- 
+
          def dev_package = "libignition-${ign_sw}${ignition_transport_series}-dev"
 
          if ("${ign_sw}" == "math")

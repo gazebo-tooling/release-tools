@@ -79,10 +79,9 @@ case \${BUILD_METHOD} in
 	if [[ -d patches/ ]]; then
 	    cp -a patches/*.patch /tmp/base_$PACKAGE-release
 	    pushd /tmp/base_$PACKAGE-release > /dev/null
-	    for p in /tmp/base_gazebo6-release/*.patch; do
+	    for p in /tmp/base_$PACKAGE-release/*.patch; do
 	      patch -p1 < \$p
 	    done
-	    patch -p1 < /tmp/base_$PACKAGE-release/*.patch
 	    popd > /dev/null
 	fi
 	# 4. swap directories
@@ -114,7 +113,7 @@ cd \`find $WORKSPACE/build -mindepth 1 -type d |head -n 1\`
 # If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
 if $NIGHTLY_MODE; then
   rm -fr .hg*
-  echo | dh_make -s --createorig -p ${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+hg\${TIMESTAMP}r\${REV} > /dev/null
+  echo | dh_make -y -s --createorig -p ${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+hg\${TIMESTAMP}r\${REV} > /dev/null
 fi
 
 # Adding extra directories to code. debian has no problem but some extra directories
@@ -133,7 +132,7 @@ fi
 
 if $NEED_C11_COMPILER || $NEED_GCC48_COMPILER; then
 echo '# BEGIN SECTION: install C++11 compiler'
-apt-get install -y python-software-properties
+apt-get install -y python-software-propertie ssoftware-properties-common || true
 add-apt-repository ppa:ubuntu-toolchain-r/test
 apt-get update
 apt-get install -y gcc-4.8 g++-4.8

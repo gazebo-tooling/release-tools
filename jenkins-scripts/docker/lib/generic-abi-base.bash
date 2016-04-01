@@ -9,6 +9,8 @@
 # ABI_JOB_PKG_DEPENDENCIES: (optional) list (space separated) of pkg dependencies
 # ABI_JOB_PKG_DEPENDENCIES_VAR_NAME: (option) variable in archive to get dependencies from
 # ABI_JOB_CMAKE_PARAMS: (option) cmake parameters to be pased to cmake configuration
+# ABI_JOB_IGNORE_HEADERS: (optional) relative (to root project path) list (space separated)
+#                         of path headers to ignore
 
 # Jenkins variables:
 # ORIGIN_BRANCH
@@ -94,10 +96,23 @@ cat > pkg.xml << CURRENT_DELIM
    /usr/local/origin_branch/include/\$ORIGIN_DIR
  </headers>
 
+ <skip_headers>
+CURRENT_DELIM
+
+for header in $ABI_JOB_IGNORE_HEADERS; do
+  echo "  /usr/local/origin_branch/include/\$ORIGIN_DIR/\$header" >> pkg.xml
+done
+
+cat >> pkg.xml << CURRENT_DELIM_LIBS
+ </skip_headers>
  <libs>
    /usr/local/origin_branch/lib/
  </libs>
-CURRENT_DELIM
+
+ <gcc_options>
+     -std=c++11
+ </gcc_options>
+CURRENT_DELIM_LIBS
 
 cat > devel.xml << DEVEL_DELIM
  <version>
@@ -108,6 +123,16 @@ cat > devel.xml << DEVEL_DELIM
    /usr/local/target_branch/include/\$TARGET_DIR
  </headers>
 
+ <skip_headers>
+DEVEL_DELIM
+
+for header in $ABI_JOB_IGNORE_HEADERS; do
+  echo "  /usr/local/target_branch/include/\$TARGET_DIR/\$header" >> devel.xml
+done
+
+cat >> devel.xml << DEVEL_DELIM_LIBS
+ </skip_headers>
+
  <libs>
    /usr/local/target_branch/lib/
  </libs>
@@ -115,7 +140,14 @@ cat > devel.xml << DEVEL_DELIM
  <gcc_options>
      -std=c++11
  </gcc_options>
-DEVEL_DELIM
+DEVEL_DELIM_LIBS
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: display the xml configuration'
+cat devel.xml
+echo
+echo 
+cat pkg.xml
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run the ABI checker'

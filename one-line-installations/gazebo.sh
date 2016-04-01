@@ -9,7 +9,7 @@ set -e
 # 
 # Modfied by jrivero@osrfoundation.org
 
-GZ_VER=6
+GZ_VER=7
 DEB_PKG_NAME=libgazebo$GZ_VER-dev
 BREW_PKG_NAME=gazebo${GZ_VER}
 
@@ -285,14 +285,26 @@ do_install() {
 			  fi
 
 			  if ! command_exists brew; then
+				echo "Installing Homebrew:"
 				ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+				echo "Homebrew installation complete."
+				echo
+			  fi
+
+			  if ! pkgutil --pkg-info org.macosforge.xquartz.pkg; then
+				echo "Installing XQuartz:"
+				brew install Caskroom/cask/xquartz
+				echo "XQuartz installation complete."
+				echo
 			  fi
 
 			  brew tap osrf/simulation
 			  brew update
 			  brew install ${BREW_PKG_NAME}
-			  exit 0
+			  brew test ${BREW_PKG_NAME}
 			)
+
+			exit 0
 			;;
 	esac
 

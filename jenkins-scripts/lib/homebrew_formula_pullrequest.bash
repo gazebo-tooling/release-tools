@@ -103,10 +103,17 @@ echo on line number ${URI_LINE}
 sed -i -e "${URI_LINE}c\  url \"${SOURCE_TARBALL_URI}\"" ${FORMULA_PATH}
 
 echo
-# check if formula has auto-generated version field
+# check if formula has auto-detected version field
 if ${BREW} ruby -e "exit \"${PACKAGE_ALIAS}\".f.stable.version.detected_from_url?"
 then
-  echo Version is autodetected from URL
+  # check if auto-detected version is correct
+  if ${BREW} ruby -e "exit \"${PACKAGE_ALIAS}\".f.stable.version.to_s == \"${VERSION}\""
+  then
+    echo Version is correctly auto-detected from URL
+  else
+    # Need to insert explicit version tag after url
+    sed -i -e "${URI_LINE}a\  version \"${VERSION}\"" ${FORMULA_PATH}
+  fi
 else
   # get version and line number
   FORMULA_VERSION=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.version"`
@@ -163,20 +170,17 @@ ${GIT} push -u fork ${BRANCH}
 # Check for hub command
 HUB=hub
 if ! which ${HUB} ; then
-  if [ ! -s hub-linux-amd64-2.2.2.tgz ]; then
+  if [ ! -s hub-linux-amd64-2.2.3.tgz ]; then
     echo
     echo Downloading hub...
-    wget -q https://github.com/github/hub/releases/download/v2.2.2/hub-linux-amd64-2.2.2.tgz
+    wget -q https://github.com/github/hub/releases/download/v2.2.3/hub-linux-amd64-2.2.3.tgz
     echo Downloaded
   fi
-  HUB=`tar tf hub-linux-amd64-2.2.2.tgz | grep /hub$`
-  tar xf hub-linux-amd64-2.2.2.tgz ${HUB}
+  HUB=`tar tf hub-linux-amd64-2.2.3.tgz | grep /hub$`
+  tar xf hub-linux-amd64-2.2.3.tgz ${HUB}
   HUB=${PWD}/${HUB}
 fi
 
-# This cd needed because -C doesn't seem to work for pull-request
-# https://github.com/github/hub/issues/1020
-cd ${TAP_PREFIX}
 ${HUB} -C ${TAP_PREFIX} pull-request \
   -b osrf:master \
   -h osrfbuild:${BRANCH} \

@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def sdformat_supported_branches = [ 'sdformat2', 'sdformat3' ]
+def sdformat_supported_branches = [ 'sdformat2', 'sdformat3', 'sdformat4' ]
 def nightly_sdformat_branch = [ 'sdformat4' ]
 
 // Main platform using for quick CI
@@ -97,12 +97,6 @@ ci_distro.each { distro ->
 				  "http://bitbucket.org/osrf/sdformat")
     sdformat_ci_any_job.with
     {
-      parameters
-      {
-        stringParam('DEST_BRANCH','default',
-                    'Destination branch where the pull request will be merged')
-      }
-
       steps
       {
          conditionalSteps

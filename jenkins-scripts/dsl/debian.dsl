@@ -3,7 +3,7 @@ import javaposse.jobdsl.dsl.Job
 
 Globals.default_emails = "jrivero@osrfoundation.org"
 
-packages = [ 'gazebo', 'sdformat', 'urdfdom', 'urdfdom-headers', 'console-bridge', 'libccd', 'simbody', 'robot-player', 'ignition-math2', 'ignition-transport', 'fcl' ]
+packages = [ 'console-bridge', 'gazebo', 'fcl', 'ignition-math2', 'ignition-transport', 'kido', 'libccd', 'robot-player', 'sdformat', 'simbody', 'urdfdom', 'urdfdom-headers' ]
 
 packages.each { pkg ->
   // --------------------------------------------------------------

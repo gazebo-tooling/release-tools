@@ -9,7 +9,6 @@
 #   - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
 #   - DEPENDENCY_PKGS   : (optional) packages to be installed in the image
 #   - SOFTWARE_DIR      : (optional) directory to copy inside the image
-#   - NEED_PRERELEASE   : (optional) use prerelease OSRF repo
 
 #   - USE_OSRF_REPO     : deprecated! [default false] true|false if true, add the stable osrf repo to sources.list
 
@@ -80,13 +79,6 @@ if [[ -z ${OSRF_REPOS_TO_USE} ]]; then
   fi
 fi
 
-# Handle the NEED_PRERELEASE variable
-[[ -z ${NEED_PRERELEASE} ]] && NEED_PRERELEASE=false
-
-if ${NEED_PRERELEASE}; then
-  OSRF_REPOS_TO_USE="${OSRF_REPOS_TO_USE} prerelease"
-fi
-
 echo '# BEGIN SECTION: create the Dockerfile'
 cat > Dockerfile << DELIM_DOCKER
 #######################################################
@@ -117,7 +109,7 @@ cat >> Dockerfile << DELIM_DOCKER_ARCH
   # main, restricted and unvierse are already setup in the original image
   RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} multiverse" \\
                                                          >> /etc/apt/sources.list && \\
-      echo "deb ${SOURCE_LIST_URL} ${DISTRO}-updates multiverse" \\
+      echo "deb ${SOURCE_LIST_URL} ${DISTRO}-updates main restricted universe multiverse" \\
                                                          >> /etc/apt/sources.list && \\
       echo "deb ${SOURCE_LIST_URL} ${DISTRO}-security main restricted universe multiverse" && \\
                                                          >> /etc/apt/sources.list
@@ -183,16 +175,6 @@ RUN echo 'END SECTION'
 DELIM_DOCKER_INVALIDATE
 fi
 
-cat >> Dockerfile << DELIM_DOCKER_SQUID
-# If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy
-# By default, squid-deb-proxy 403s unknown sources, so apt shouldn't proxy ppa.launchpad.net
-RUN route -n | awk '/^0.0.0.0/ {print \$2}' > /tmp/host_ip.txt
-RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
-  && (echo "Acquire::http::Proxy \"http://\$(cat /tmp/host_ip.txt):8000\";" > /etc/apt/apt.conf.d/30proxy) \
-  && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
-  || echo "No squid-deb-proxy detected on docker host"
-DELIM_DOCKER_SQUID
-
 # Packages that will be installed and cached by docker. In a non-cache
 # run below, the docker script will check for the latest updates
 PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS}"
@@ -220,6 +202,16 @@ RUN apt-get update && \
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
 DELIM_DOCKER3
+
+cat >> Dockerfile << DELIM_DOCKER_SQUID
+# If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy
+# By default, squid-deb-proxy 403s unknown sources, so apt shouldn't proxy ppa.launchpad.net
+RUN route -n | awk '/^0.0.0.0/ {print \$2}' > /tmp/host_ip.txt
+RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
+  && (echo "Acquire::http::Proxy \"http://\$(cat /tmp/host_ip.txt):8000\";" > /etc/apt/apt.conf.d/30proxy) \
+  && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
+  || echo "No squid-deb-proxy detected on docker host"
+DELIM_DOCKER_SQUID
 
 if [[ -n ${SOFTWARE_DIR} ]]; then
 cat >> Dockerfile << DELIM_DOCKER4

@@ -1,9 +1,11 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def gazebo_supported_branches = [ 'gazebo_2.2', 'gazebo_4.1', 'gazebo5', 'gazebo6' ]
+def gazebo_supported_branches = [ 'gazebo5', 'gazebo6', 'gazebo7' ]
 def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
-def nightly_gazebo_branch = [ 'gazebo7' ]
+// nightly_gazebo_branch is not the branch used to get the code from but 
+// the one used to generate the corresponding debbuild job.
+def nightly_gazebo_branch = [ 'gazebo8' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -39,24 +41,15 @@ abi_distro.each { distro ->
   supported_arches.each { arch ->
     abi_job_name = "gazebo-abichecker-any_to_any-${distro}-${arch}"
     def abi_job = job(abi_job_name)
-    OSRFLinuxABI.create(abi_job)
+    OSRFLinuxABI.create(abi_job, "http://bitbucket.org/osrf/gazebo")
     abi_job.with
     {
-      scm
-      {
-        hg("http://bitbucket.org/osrf/gazebo") {
-          branch('default')
-          subdirectory("gazebo")
-        }
-      }
-
       steps {
         shell("""\
               #!/bin/bash -xe
 
               export DISTRO=${distro}
               export ARCH=${arch}
-              export GPU_SUPPORT_NEEDED=true
               /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-abichecker.bash
 	      """.stripIndent())
       } // end of steps
@@ -76,12 +69,6 @@ ci_distro.each { distro ->
                                     "http://bitbucket.org/osrf/gazebo")
       gazebo_ci_any_job.with
       {
-        parameters
-        {
-          stringParam('DEST_BRANCH','default',
-                      'Destination branch where the pull request will be merged')
-        }
-
         if (gpu != 'none')
         {
           label "gpu-${gpu}-${distro}"
@@ -518,9 +505,7 @@ install_brew_job.with
     shell("""\
           #!/bin/bash -xe
 
-          echo '# BEGIN SECTION: run the one-liner installation'
-          curl -ssL https://bitbucket.org/osrf/release-tools/raw/default/one-line-installations/gazebo.sh | sh
-          echo '# END SECTION'
+          /bin/bash -xe ./scripts/jenkins-scripts/gazebo-one_liner-homebrew.bash
           """.stripIndent())
   }
 }

@@ -12,7 +12,7 @@ export INSTALL_JOB_REPOS=""
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: run the one-liner installation'
-curl -ssL https://bitbucket.org/osrf/release-tools/raw/default/one-line-installations/gazebo.sh | sh
+curl -ssL http://get.gazebosim.org | sh
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: test the script'
