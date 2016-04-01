@@ -71,14 +71,26 @@ for ts in testsuiteArray:
         print('expected testsuite tag', file=sys.stderr)
         continue
     # find <testsuite> tag with matching name attribute in root2
-    ts2 = root2.findall(".//testsuite[@name='%s']" % (ts.attrib['name']))[0]
+    try:
+        ts2 = root2.findall(".//testsuite[@name='%s']" % (ts.attrib['name']))[0]
+    except IndexError as err:
+        print("testsuite named %s not found in %s" % (ts.attrib['name'], fileName2),
+              file=sys.stderr)
+        continue
     # iterate over <testcase> tags in <testsuite> from xml1
     for tc in ts.getchildren():
         if tc.tag != 'testcase':
             print('expected testcase tag', file=sys.stderr)
             continue
         # find matching <testcase> tag from root2
-        tc2 = root2.findall(".//testsuite[@name='%s']/testcase[@name='%s']" % (ts.attrib['name'], tc.attrib['name']))[0]
+        try:
+            tc2 = root2.findall(".//testsuite[@name='%s']/testcase[@name='%s']" %
+                                (ts.attrib['name'], tc.attrib['name']))[0]
+        except IndexError as err:
+            print("testsuite/testcase named %s/%s not found in %s" %
+                  (ts.attrib['name'], tc.attrib['name'], fileName2),
+                  file=sys.stderr)
+            continue
         failures1 = countFailures(tc)
         failures2 = countFailures(tc2)
         if failures1 > 0 and failures2 == 0:
