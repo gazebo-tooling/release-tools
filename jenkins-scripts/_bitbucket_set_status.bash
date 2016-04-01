@@ -45,4 +45,5 @@ if ! $BITBUCKET_API_RESULT; then
   echo 'The call from the python client to bitbucket to set the build status failed'
   echo "Please check out the workspace for the file: ${BITBUCKET_LOG_FILE}"
   echo '# END SECTION'
+  return 1
 fi
