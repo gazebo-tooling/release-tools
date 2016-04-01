@@ -76,7 +76,10 @@ class OSRFBitbucketClient:
         # Define key as the first 40 chars (bitbucket limit) of the 
         # job-name just after -ci-pr_any-. This should leave the
         # testing platform and architecture
-        key = build_data.jenkins_data.job_name.split("-ci-pr_any-")[1][0:39]
+        try:
+            key = build_data.jenkins_data.job_name.split("-ci-pr_any-")[1][0:39]
+        except: # fallback to use 40 first chars of job_name
+            key = build_data.jenkins_data.job_name[0:39]
 
         build_status = BuildStatus.create_buildstatus(
             owner           = build_data.source_data.owner,
