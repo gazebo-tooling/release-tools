@@ -16,7 +16,6 @@ echo '# END SECTION'
 if $USE_GPU_DOCKER; then
   GPU_PARAMS_STR="--privileged \
                   -e DISPLAY=unix$DISPLAY \
-		  -e TIMING_DIR=${TIMING_DIR} \
                   -v /sys:/sys:ro         \
                   -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
 fi
@@ -24,6 +23,8 @@ fi
 sudo docker run $GPU_PARAMS_STR  \
             --cidfile=${CIDFILE} \
             -v ${WORKSPACE}:${WORKSPACE} \
+            -e TIMING_DIR=${TIMING_DIR} \
+            -e WORKSPACE=${WORKSPACE} \
             -t ${DOCKER_TAG} \
             /bin/bash build.sh
 
