@@ -13,6 +13,7 @@ from copy import deepcopy
 from lxml import etree
 import sys
 
+# Count the number of child <failure> tags
 def countFailures(testcase):
     failures = 0
     for f in testcase.getchildren():
@@ -23,11 +24,13 @@ def countFailures(testcase):
 if len(sys.argv) != 3:
     print('need to specify two files to merge', file=sys.stderr)
     exit()
+fileName1 = sys.argv[1]
+fileName2 = sys.argv[2]
 
-f = open(sys.argv[1], 'r')
+f = open(fileName1, 'r')
 xml1 = etree.fromstring(f.read())
 f.close()
-f = open(sys.argv[2], 'r')
+f = open(fileName2, 'r')
 xml2 = etree.fromstring(f.read())
 f.close()
 
