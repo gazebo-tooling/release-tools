@@ -21,6 +21,13 @@ def countFailures(testcase):
             failures += 1
     return failures
 
+# Subtract one from the 'failures' attribute
+# if it has the expected tag
+# (this is so we don't decrement twice when testsuite is the root tag)
+def oneLessFailure(element, expectedTag):
+    if element.tag == expectedTag:
+        element.attrib['failures'] = str(int(element.attrib['failures']) - 1)
+
 if len(sys.argv) != 3:
     print('need to specify two files to merge', file=sys.stderr)
     exit()
@@ -57,16 +64,16 @@ for ts in xml1.getchildren():
                 if f.tag == 'failure':
                     f.tag = 'flakyFailure'
                     tc2.append(deepcopy(f))
-            ts.attrib['failures'] = str(int(ts.attrib['failures']) - 1)
-            xml1.attrib['failures'] = str(int(xml1.attrib['failures']) - 1)
+            oneLessFailure(ts, 'testsuite')
+            oneLessFailure(xml1, 'testsuites')
         elif failures1 == 0 and failures2 > 0:
             # flaky test
             for f in tc2.getchildren():
                 if f.tag == 'failure':
                     f.tag = 'flakyFailure'
                     tc.append(deepcopy(f))
-            ts2.attrib['failures'] = str(int(ts2.attrib['failures']) - 1)
-            xml2.attrib['failures'] = str(int(xml2.attrib['failures']) - 1)
+            oneLessFailure(ts2, 'testsuite')
+            oneLessFailure(xml2, 'testsuites')
         elif failures1 > 0 and failures2 > 0:
             # repeated failures
             # append the second failure as a rerunFailure
