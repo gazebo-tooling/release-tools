@@ -211,7 +211,6 @@ do_install() {
 			  by the robocup3ds project.
 
 			  Current supported distributions:
-			    - Ubuntu Vivid
 			    - Ubuntu Trusty
 			EOF
 			exit 1
