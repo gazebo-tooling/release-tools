@@ -50,6 +50,8 @@ if $GENERIC_ENABLE_TESTS; then
   make test ARGS="-VV" || true
   stop_stopwatch TEST
   echo '# END SECTION'
+else
+  "Requested: no test run"
 fi
 
 if $GENERIC_ENABLE_CPPCHECK; then
@@ -63,5 +65,7 @@ if $GENERIC_ENABLE_CPPCHECK; then
   sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
   stop_stopwatch CPPCHECK
   echo '# END SECTION'
+else
+  "Requested: no ccpcheck run"
 fi
 DELIM
