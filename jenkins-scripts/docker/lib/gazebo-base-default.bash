@@ -6,13 +6,13 @@
 #                           piece of code to run in the testing section
 #  - GAZEBO_BUILD_$DEP      (optional) [default false] 
 #                           build dependencies from source. 
-#                           DEP = SDFORMAT | IGN_MATH | IGN_TRANSPORT
+#                           DEP = SDFORMAT | IGN-MATH | IGN-TRANSPORT
 #                           branch parameter = $DEP_BRANCH
 
 #stop on error
 set -e
 
-GAZEBO_OSRF_DEPS="SDFORMAT IGN_MATH IGN_TRANSPORT"
+GAZEBO_OSRF_DEPS="SDFORMAT IGN-MATH IGN-TRANSPORT"
 
 . ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
 
@@ -81,6 +81,7 @@ cat >> build.sh << DELIM_BUILD_DEPS
     GENERIC_ENABLE_TESTS=false 
     SOFTWARE_DIR=$dep
     . ${WORKSPACE}/${SCRIPT_DIR}/lib/_generic_linux_compilation_build.sh.bash
+    /bin/bash -xe build.sh || true
 DELIM_BUILD_DEPS
   fi
 done
