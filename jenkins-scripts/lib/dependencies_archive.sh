@@ -134,8 +134,8 @@ GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
                           ${ogre_pkg}                      \\
                           libxml2-dev                      \\
                           pkg-config                       \\
-                          libqt4-dev                       \\
-                          libqtwebkit-dev                  \\
+                          libqt5-dev                       \\
+                          libqt5webkit5-dev                \\
                           libltdl-dev                      \\
                           libgts-dev                       \\
                           libboost-thread-dev              \\
