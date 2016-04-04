@@ -63,8 +63,8 @@ cd build
 echo # END SECTION
 
 if exist ..\configure.bat (
-  echo # BEGIN SECTION: configuring %VCS_DIRECTORY% in %BUILD_TYPE%
-  call ..\configure.bat %BUILD_TYPE% || goto :error
+  echo # BEGIN SECTION: configuring %VCS_DIRECTORY% in %BUILD_TYPE% / %BITNESS%
+  call ..\configure.bat %BUILD_TYPE% %BITNESS% || goto :error
 ) else (
   echo # BEGIN SECTION: configuring %VCS_DIRECTORY% using cmake 
   cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS% || goto :error
