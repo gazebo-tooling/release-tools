@@ -82,7 +82,8 @@ cat >> build.sh << DELIM_BUILD_DEPS
     GENERIC_ENABLE_CPPCHECK=false
     GENERIC_ENABLE_TESTS=false 
     SOFTWARE_DIR=$dep
-    . ${SCRIPT_DIR}/lib/_generic_linux_compilation.bash
+    cd $WORKSPACE
+    . ${SCRIPT_DIR}/lib/_generic_linux_compilation.bash || ls -las ${SCRIPT_DIR}/lib/
     # clean up build directory
     cd $WORKSPACE &&  rm -fr $WORKSPACE/build
 DELIM_BUILD_DEPS
