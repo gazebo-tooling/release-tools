@@ -49,12 +49,10 @@ cd workspace
 echo # END SECTION
 
 for %%p in (%DEPEN_PKGS%) do (
-  echo # BEGIN SECTION: downloading and unzip dependency %DEPENDENCY_PKG%
-  if defined DEPENDENCY_PKG (
-    call %win_lib% :download_7za
-    call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%%p %%p || goto :error
-    call %win_lib% :unzip_7za %%p %%p > install.log || goto:error
-)
+  echo # BEGIN SECTION: downloading and unzip dependency %%p
+  call %win_lib% :download_7za
+  call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%%p %%p || goto :error
+  call %win_lib% :unzip_7za %%p %%p > install.log || goto:error
 )
 echo # END SECTION
 
