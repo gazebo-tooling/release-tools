@@ -3,13 +3,15 @@
 :: Parameters:
 ::   - VCS_DIRECTORY : WORKSPACE/VCS_DIRECTORY should contain the sources
 ::   - BUILD_TYPE    : (default Release) [ Release | Debug ] Build type to use
-::   - DEPENDENCY_PKG: (optional) one package as dependency (only one is supported by now)
+::   - DEPEN_PKGS    : (optional) one package as dependency (only one is supported by now)
 ::   - KEEP_WORKSPACE: (optional) true | false. Clean workspace at the end
 ::
+::   [deprecated]
+::   - DEPENDENCY_PKG: (optional) one package as dependency (only one is supported by now)
 :: Actions
 ::   - Configure the compiler
 ::   - Clean and create the WORKSPACE/workspace
-::   - Download and unzip the DEPENDENCY_PKG (if any)
+::   - Download and unzip the DEPEN_PKGS
 ::   - configure, compile and install
 ::   - run tests
 
@@ -46,12 +48,13 @@ mkdir workspace
 cd workspace
 echo # END SECTION
 
-echo # BEGIN SECTION: downloading and unzip dependency %DEPENDENCY_PKG%
-REM Todo: support multiple dependencies
-if defined DEPENDENCY_PKG (
-  call %win_lib% :download_7za
-  call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%DEPENDENCY_PKG% %DEPENDENCY_PKG% || goto :error
-  call %win_lib% :unzip_7za %DEPENDENCY_PKG% %DEPENDENCY_PKG% > install.log || goto:error
+for %%p in (%DEPEN_PKGS%) do (
+  echo # BEGIN SECTION: downloading and unzip dependency %DEPENDENCY_PKG%
+  if defined DEPENDENCY_PKG (
+    call %win_lib% :download_7za
+    call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%%p %%p || goto :error
+    call %win_lib% :unzip_7za %%p %%p > install.log || goto:error
+)
 )
 echo # END SECTION
 
