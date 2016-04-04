@@ -76,7 +76,7 @@ cmake .. -DENABLE_TESTS_COMPILATION:BOOL=True || echo "second run of cmake for e
 echo # END SECTION
 
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
-nmake || goto %win_lib% :error
+nmake VERBOSE=1 || goto %win_lib% :error
 echo # END SECTION
 echo # BEGIN SECTION: installing %VCS_DIRECTORY%
 nmake install || goto %win_lib% :error
