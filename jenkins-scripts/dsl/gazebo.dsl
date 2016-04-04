@@ -233,8 +233,8 @@ ci_distro.each { distro ->
             export ARCH=${arch}
             export GPU_SUPPORT_NEEDED=true
             export GAZEBO_BUILD_SDFORMAT=true
-            export GAZEBO_BUILD_IGN-MATH=true
-            export GAZEBO_BUILD_IGN-TRANSPORT=true
+            export GAZEBO_BUILD_IGN_MATH=true
+            export GAZEBO_BUILD_IGN_TRANSPORT=true
             /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
             """.stripIndent())
         }
