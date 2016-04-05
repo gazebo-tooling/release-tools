@@ -11,7 +11,7 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFLinuxCompilationAny
 {
-  static void create(Job job, String repo, boolean enable_testing)
+  static void create(Job job, String repo, boolean enable_testing = true)
   {
     OSRFLinuxCompilation.create(job)
 
