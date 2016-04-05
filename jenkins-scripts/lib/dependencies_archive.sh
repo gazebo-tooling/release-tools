@@ -26,6 +26,8 @@ fi
 
 # mesa-utils for dri checks, xsltproc for qtest->junit conversion and
 # python-psutil for memory testing
+# netcat-openbsd (nc command) for squid-deb-proxy checking
+# net-tools (route command) for squid-deb-proxy checking
 BASE_DEPENDENCIES="build-essential \\
                    cmake           \\
                    debhelper       \\
@@ -35,7 +37,10 @@ BASE_DEPENDENCIES="build-essential \\
                    python-psutil   \\
                    python          \\
                    bc              \\
-                   netcat-openbsd"
+                   netcat-openbsd  \\
+                   net-tools"
+
+BREW_BASE_DEPENDCIES="mercurial git cmake"
 
 BREW_BASE_DEPENDCIES="mercurial git cmake"
 
@@ -75,7 +80,7 @@ fi
 
 # GAZEBO related dependencies
 if [[ -z ${GAZEBO_MAJOR_VERSION} ]]; then
-    GAZEBO_MAJOR_VERSION=6
+    GAZEBO_MAJOR_VERSION=7
 fi
 
 if [[ -z $GAZEBO_DEB_PACKAGE ]];then
@@ -153,7 +158,12 @@ fi
 
 if [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
     GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                              libignition-transport0-dev"
+                              libignition-transport-dev"
+fi
+
+if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
+    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                         libqwt-dev"
 fi
 
 # libtinyxml2-dev is not on precise
@@ -341,13 +351,14 @@ HAPTIX_COMM_DEPENDENCIES_WITHOUT_IGN="pkg-config  \\
                           protobuf-compiler       \\
                           liboctave-dev"
 HAPTIX_COMM_DEPENDENCIES="${HAPTIX_COMM_DEPENDENCIES_WITHOUT_IGN} \\
-                          libignition-transport0-dev"
+                          libignition-transport-dev"
 #
 # HANDSIM
 #
 HANDSIM_DEPENDENCIES_WITHOUT_HAPTIX="libgazebo7-haptix-dev \\
                                      liboctave-dev"
 HANDSIM_DEPENDENCIES="${HANDSIM_DEPENDENCIES_WITHOUT_HAPTIX} \\
+                      libignition-transport-dev              \\
                       libhaptix-comm-dev"
 
 #

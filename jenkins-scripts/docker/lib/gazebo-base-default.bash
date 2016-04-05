@@ -1,31 +1,25 @@
 #!/bin/bash -x
 
+# Parameters
+#  - GAZEBO_BASE_CMAKE_ARGS (optional) extra arguments to pass to cmake
+#  - GAZEBO_BASE_TESTS_HOOK (optional) [default to run UNIT, INTEGRATION, REGRESSION, EXAMPLE]
+#                           piece of code to run in the testing section
+
 #stop on error
 set -e
 
-# Keep the option of default to not really send a build type and let our own gazebo cmake rules
-# to decide what is the default mode.
-if [ -z ${GZ_BUILD_TYPE} ]; then
-    GZ_CMAKE_BUILD_TYPE=
-else
-    GZ_CMAKE_BUILD_TYPE="-DCMAKE_BUILD_TYPE=${GZ_BUILD_TYPE}"
-fi
-
-# Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
-GAZEBO_MAJOR_VERSION=`\
-  grep 'set.*GAZEBO_MAJOR_VERSION ' ${WORKSPACE}/gazebo/CMakeLists.txt | \
-  tr -d 'a-zA-Z _()'`
-
-# Check gazebo version is integer
-if ! [[ ${GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
-  echo "Error! GAZEBO_MAJOR_VERSION is not an integer, check the detection"
-  exit -1
-fi
+. ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
 
 echo '# BEGIN SECTION: setup the testing enviroment'
 # Define the name to be used in docker
 DOCKER_JOB_NAME="gazebo_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+
+# If Coverage build type was supplied in GAZEBO_BASE_CMAKE_ARGS, add lcov
+# package.
+if [[ ${GAZEBO_BASE_CMAKE_ARGS} != ${GAZEBO_BASE_CMAKE_ARGS/Coverage} ]]; then
+  EXTRA_PACKAGES="${EXTRA_PACKAGES} lcov" 
+fi
 
 cat > build.sh << DELIM
 ###################################################
@@ -59,7 +53,7 @@ echo '# BEGIN SECTION: Gazebo configuration'
 rm -rf $WORKSPACE/install
 mkdir -p $WORKSPACE/install
 cd $WORKSPACE/build
-cmake ${GZ_CMAKE_BUILD_TYPE}         \\
+cmake ${GAZEBO_BASE_CMAKE_ARGS}      \\
     -DCMAKE_INSTALL_PREFIX=/usr      \\
     -DENABLE_SCREEN_TESTS:BOOL=False \\
   $WORKSPACE/gazebo
@@ -79,21 +73,27 @@ rm -fr $WORKSPACE/cppcheck_results
 rm -fr $WORKSPACE/test_results
 
 # Run tests
-echo '# BEGIN SECTION: UNIT testing'
-make test ARGS="-VV -R UNIT_*" || true
-echo '# END SECTION'
-echo '# BEGIN SECTION: INTEGRATION testing'
-make test ARGS="-VV -R INTEGRATION_*" || true
-echo '# END SECTION'
-echo '# BEGIN SECTION: REGRESSION testing'
-make test ARGS="-VV -R REGRESSION_*" || true
-echo '# END SECTION'
-echo '# BEGIN SECTION: EXAMPLE testing'
-make test ARGS="-VV -R EXAMPLE_*" || true
-echo '# END SECTION'
+if [ `expr length "${GAZEBO_BASE_TESTS_HOOK} "` -gt 1 ]; then
+  ${GAZEBO_BASE_TESTS_HOOK}
+  : # keep this line, needed if the variable is empty
+else
+  # Run default
+  echo '# BEGIN SECTION: UNIT testing'
+  make test ARGS="-VV -R UNIT_*" || true
+  echo '# END SECTION'
+  echo '# BEGIN SECTION: INTEGRATION testing'
+  make test ARGS="-VV -R INTEGRATION_*" || true
+  echo '# END SECTION'
+  echo '# BEGIN SECTION: REGRESSION testing'
+  make test ARGS="-VV -R REGRESSION_*" || true
+  echo '# END SECTION'
+  echo '# BEGIN SECTION: EXAMPLE testing'
+  make test ARGS="-VV -R EXAMPLE_*" || true
+  echo '# END SECTION'
+fi
 
 # Only run cppcheck on trusty
-if [ "$DISTRO" = "trusty" ]; then 
+if [ "$DISTRO" = "trusty" ] || [ "$DISTRO" = "wily" ]; then
   echo '# BEGIN SECTION: running cppcheck'
   # Step 3: code check
   cd $WORKSPACE/gazebo
@@ -108,7 +108,10 @@ DELIM
 
 USE_OSRF_REPO=true
 SOFTWARE_DIR="gazebo"
-DEPENDENCY_PKGS="${BASE_DEPENDENCIES} ${GAZEBO_BASE_DEPENDENCIES} ${GAZEBO_EXTRA_DEPENDENCIES} ${EXTRA_PACKAGES}"
+DEPENDENCY_PKGS="${BASE_DEPENDENCIES} \
+                 ${GAZEBO_BASE_DEPENDENCIES} \
+		 ${GAZEBO_EXTRA_DEPENDENCIES} \
+		 ${EXTRA_PACKAGES}"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash

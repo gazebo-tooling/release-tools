@@ -11,12 +11,12 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFWinCompilation extends OSRFWinBase
 {
-  static void create(Job job)
+  static void create(Job job, enable_testing = true)
   {
     OSRFWinBase.create(job)
 
     /* Properties from generic compilations */
-    GenericCompilation.create(job)
+    GenericCompilation.create(job, enable_testing)
 
     job.with
     {
@@ -26,8 +26,9 @@ class OSRFWinCompilation extends OSRFWinBase
 
       publishers
       {
-         // compilers warnings
-         warnings(['MSBuild'])
+        warnings(['MSBuild'], null) {
+          thresholds(unstableTotal: [all: 0])
+        }
       }
     } // end of job
   } // end of method createJob

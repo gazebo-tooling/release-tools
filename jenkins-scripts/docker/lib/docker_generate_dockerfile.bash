@@ -2,13 +2,15 @@
 # Script to generate the dockerfile needed for running the build.sh script
 #
 # Inputs used:
-#   - DISTRO            : base distribution (ex: vivid)
-#   - LINUX_DISTRO      : [default ubuntu] base linux distribution (ex: debian)
-#   - ARCH              : [default amd64] base arquitecture (ex: amd64)
-#   - OSRF_REPOS_TO_USE : [default empty] space separated list of osrf repos to add to sourcess.list
-#   - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
-#   - DEPENDENCY_PKGS   : (optional) packages to be installed in the image
-#   - SOFTWARE_DIR      : (optional) directory to copy inside the image
+# - DISTRO            : base distribution (ex: vivid)
+# - LINUX_DISTRO      : [default ubuntu] base linux distribution (ex: debian)
+# - ARCH              : [default amd64] base arquitecture (ex: amd64)
+# - OSRF_REPOS_TO_USE : [default empty] space separated list of osrf repos to add to sourcess.list
+# - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
+# - DEPENDENCY_PKGS   : (optional) packages to be installed in the image
+# - SOFTWARE_DIR      : (optional) directory to copy inside the image
+# - DOCKER_POSTINSTALL_HOOK : (optional) bash code to run after installing  DEPENDENCY_PKGS.
+#                       It can be used for gem ruby installations or pip python
 
 #   - USE_OSRF_REPO     : deprecated! [default false] true|false if true, add the stable osrf repo to sources.list
 
@@ -87,13 +89,6 @@ cat > Dockerfile << DELIM_DOCKER
 FROM ${FROM_VALUE}
 MAINTAINER Jose Luis Rivero <jrivero@osrfoundation.org>
 
-# If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy
-# By default, squid-deb-proxy 403s unknown sources, so apt shouldn't proxy ppa.launchpad.net
-RUN route -n | awk '/^0.0.0.0/ {print \$2}' > /tmp/host_ip.txt
-RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
-  && (echo "Acquire::http::Proxy \"http://\$(cat /tmp/host_ip.txt):8000\";" > /etc/apt/apt.conf.d/30proxy) \
-  && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
-  || echo "No squid-deb-proxy detected on docker host"
 # setup environment
 ENV LANG C
 ENV LC_ALL C
@@ -116,7 +111,7 @@ cat >> Dockerfile << DELIM_DOCKER_ARCH
   # main, restricted and unvierse are already setup in the original image
   RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} multiverse" \\
                                                          >> /etc/apt/sources.list && \\
-      echo "deb ${SOURCE_LIST_URL} ${DISTRO}-updates multiverse" \\
+      echo "deb ${SOURCE_LIST_URL} ${DISTRO}-updates main restricted universe multiverse" \\
                                                          >> /etc/apt/sources.list && \\
       echo "deb ${SOURCE_LIST_URL} ${DISTRO}-security main restricted universe multiverse" && \\
                                                          >> /etc/apt/sources.list
@@ -173,7 +168,6 @@ DELIM_DOCKER_DART_PKGS
 fi
 
 # Handle special INVALIDATE_DOCKER_CACHE keyword by set a random
-# string in the moth year str
 if [[ -n ${INVALIDATE_DOCKER_CACHE} ]]; then
 cat >> Dockerfile << DELIM_DOCKER_INVALIDATE
 RUN echo 'BEGIN SECTION: invalidate full docker cache'
@@ -211,6 +205,16 @@ RUN apt-get update && \
 RUN mkdir -p ${WORKSPACE}
 DELIM_DOCKER3
 
+cat >> Dockerfile << DELIM_DOCKER_SQUID
+# If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy
+# By default, squid-deb-proxy 403s unknown sources, so apt shouldn't proxy ppa.launchpad.net
+RUN route -n | awk '/^0.0.0.0/ {print \$2}' > /tmp/host_ip.txt
+RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
+  && (echo "Acquire::http::Proxy \"http://\$(cat /tmp/host_ip.txt):8000\";" > /etc/apt/apt.conf.d/30proxy) \
+  && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
+  || echo "No squid-deb-proxy detected on docker host"
+DELIM_DOCKER_SQUID
+
 if [[ -n ${SOFTWARE_DIR} ]]; then
 cat >> Dockerfile << DELIM_DOCKER4
 COPY ${SOFTWARE_DIR} ${WORKSPACE}/${SOFTWARE_DIR}
@@ -230,6 +234,13 @@ RUN CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\
        exit 1 \\
    fi
 DELIM_DISPLAY
+fi
+
+if [ `expr length "${DOCKER_POSTINSTALL_HOOK}"` -gt 1 ]; then
+cat >> Dockerfile << DELIM_WORKAROUND_POST_HOOK
+RUN ${DOCKER_POSTINSTALL_HOOK}
+DELIM_WORKAROUND_POST_HOOK
+fi
 
 cat >> Dockerfile << DELIM_WORKAROUND_91
 # Workaround to issue:
@@ -241,7 +252,6 @@ ENV LANGUAGE en_GB
 # Docker has problems with Qt X11 MIT-SHM extension
 ENV QT_X11_NO_MITSHM 1
 DELIM_WORKAROUND_91
-fi
 
 cat >> Dockerfile << DELIM_DOCKER4
 COPY build.sh build.sh

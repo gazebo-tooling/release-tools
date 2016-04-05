@@ -6,12 +6,19 @@ class Globals
    static default_emails = '$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org'
    static extra_emails   = ''
 
+   static gpu_by_distro  = [ trusty : [ 'nvidia', 'intel' ],
+                             vivid  : [ 'intel' ] ]
+
+   static bitbucket_build_status_job_name  = '_bitbucket-create_build_status_file'
+   static bitbucket_build_status_file_name = 'config_pybitbucket.yml'
+   static bitbucket_build_status_file_path = '$WORKSPACE/'+"${bitbucket_build_status_file_name}"
+
    static String get_emails()
    {
       if (extra_emails != '')
       {
         return default_emails + ', ' + extra_emails
-      }
+     }
 
       return default_emails
    }
@@ -33,6 +40,11 @@ class Globals
      return [ 'vivid' ]
    }
 
+   static ArrayList get_ci_gpu()
+   {
+     return [ 'nvidia' ]
+   }
+
    static ArrayList get_other_supported_distros()
    {
      return [ 'vivid', 'wily' ]
@@ -51,5 +63,10 @@ class Globals
    static ArrayList get_all_supported_distros()
    {
      return get_ci_distro() + get_other_supported_distros()
+   }
+
+   static ArrayList get_all_supported_gpus()
+   {
+    return get_ci_gpu() + [ 'intel' ]
    }
 }
