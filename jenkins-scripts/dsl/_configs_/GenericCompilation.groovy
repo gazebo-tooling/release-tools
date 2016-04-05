@@ -50,9 +50,9 @@ class GenericCompilation
                 project / publishers << 'hudson.tasks.junit.JUnitResultArchiver' {
                      testResults('build/test_results/*.xml')
                      keepLongStdio false
-                   testDataPublishers {
-                     publishFlakyTestsReport()
-                   }
+                     testDataPublishers {
+                       publishFlakyTestsReport()
+                     }
                 }
             }
           } // end of publishers
