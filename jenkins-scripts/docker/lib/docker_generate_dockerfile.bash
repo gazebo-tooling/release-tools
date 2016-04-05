@@ -2,13 +2,15 @@
 # Script to generate the dockerfile needed for running the build.sh script
 #
 # Inputs used:
-#   - DISTRO            : base distribution (ex: vivid)
-#   - LINUX_DISTRO      : [default ubuntu] base linux distribution (ex: debian)
-#   - ARCH              : [default amd64] base arquitecture (ex: amd64)
-#   - OSRF_REPOS_TO_USE : [default empty] space separated list of osrf repos to add to sourcess.list
-#   - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
-#   - DEPENDENCY_PKGS   : (optional) packages to be installed in the image
-#   - SOFTWARE_DIR      : (optional) directory to copy inside the image
+# - DISTRO            : base distribution (ex: vivid)
+# - LINUX_DISTRO      : [default ubuntu] base linux distribution (ex: debian)
+# - ARCH              : [default amd64] base arquitecture (ex: amd64)
+# - OSRF_REPOS_TO_USE : [default empty] space separated list of osrf repos to add to sourcess.list
+# - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
+# - DEPENDENCY_PKGS   : (optional) packages to be installed in the image
+# - SOFTWARE_DIR      : (optional) directory to copy inside the image
+# - DOCKER_POSTINSTALL_HOOK : (optional) bash code to run after installing  DEPENDENCY_PKGS.
+#                       It can be used for gem ruby installations or pip python
 
 #   - USE_OSRF_REPO     : deprecated! [default false] true|false if true, add the stable osrf repo to sources.list
 
@@ -232,6 +234,13 @@ RUN CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\
        exit 1 \\
    fi
 DELIM_DISPLAY
+fi
+
+if [ `expr length "${DOCKER_POSTINSTALL_HOOK}"` -gt 1 ]; then
+cat >> Dockerfile << DELIM_WORKAROUND_POST_HOOK
+RUN ${DOCKER_POSTINSTALL_HOOK}
+DELIM_WORKAROUND_POST_HOOK
+fi
 
 cat >> Dockerfile << DELIM_WORKAROUND_91
 # Workaround to issue:
@@ -243,7 +252,6 @@ ENV LANGUAGE en_GB
 # Docker has problems with Qt X11 MIT-SHM extension
 ENV QT_X11_NO_MITSHM 1
 DELIM_WORKAROUND_91
-fi
 
 cat >> Dockerfile << DELIM_DOCKER4
 COPY build.sh build.sh
