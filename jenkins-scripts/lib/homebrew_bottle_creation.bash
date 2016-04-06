@@ -21,7 +21,7 @@ rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run test-bot'
-brew test-bot --tap=osrf/simulation --ci-pr ${PULL_REQUEST_URL}
+brew test-bot --tap=osrf/simulation --ci-pr --bottle --verbose ${PULL_REQUEST_URL}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export bottle'
