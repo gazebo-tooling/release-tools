@@ -42,8 +42,6 @@ BASE_DEPENDENCIES="build-essential \\
 
 BREW_BASE_DEPENDCIES="mercurial git cmake"
 
-BREW_BASE_DEPENDCIES="mercurial git cmake"
-
 # 1. SDFORMAT
 # ruby for xml_schemas generation and libxml2-utils for xmllint used in tests
 SDFORMAT_BASE_DEPENDENCIES="python                       \\
