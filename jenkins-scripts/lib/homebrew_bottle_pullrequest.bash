@@ -23,6 +23,11 @@ if [ -z "${PACKAGE_ALIAS}" ]; then
   exit -1
 fi
 
+if [[ $(ls ${BOTTLE_RB_DIR}/*.rb | wc -l) != 1 ]]; then
+  echo "There is more than one .rb file in ${BOTTLE_RB_DIR}"
+  exit -1
+fi
+
 FILE_WITH_NEW_HASH="$(ls ${BOTTLE_RB_DIR}/*.rb)"
 
 if [[ ! -f "${FILE_WITH_NEW_HASH}" ]]; then
