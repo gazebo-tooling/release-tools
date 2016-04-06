@@ -21,7 +21,10 @@ rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run test-bot'
-brew test-bot --tap=osrf/simulation --ci-pr --bottle --verbose ${PULL_REQUEST_URL}
+# The test-bot makes a full cleanup of all installed pkgs. Be sure of install back
+# mercurial to keep the slave working
+brew test-bot --tap=osrf/simulation --ci-pr --bottle --verbose ${PULL_REQUEST_URL} || brew install hg
+brew install hg
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export bottle'
