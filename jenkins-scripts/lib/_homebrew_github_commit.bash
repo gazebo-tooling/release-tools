@@ -37,14 +37,14 @@ ${GIT} push -u fork ${BRANCH}
 # Check for hub command
 HUB=hub
 if ! which ${HUB} ; then
-  if [ ! -s hub-linux-amd64-2.2.2.tgz ]; then
+  if [ ! -s hub-linux-amd64-2.2.3.tgz ]; then
     echo
     echo Downloading hub...
-    wget -q https://github.com/github/hub/releases/download/v2.2.2/hub-linux-amd64-2.2.2.tgz
+    wget -q https://github.com/github/hub/releases/download/v2.2.3/hub-linux-amd64-2.2.3.tgz
     echo Downloaded
   fi
-  HUB=`tar tf hub-linux-amd64-2.2.2.tgz | grep /hub$`
-  tar xf hub-linux-amd64-2.2.2.tgz ${HUB}
+  HUB=`tar tf hub-linux-amd64-2.2.3.tgz | grep /hub$`
+  tar xf hub-linux-amd64-2.2.3.tgz ${HUB}
   HUB=${PWD}/${HUB}
 fi
 
