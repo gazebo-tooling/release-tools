@@ -65,7 +65,7 @@ for dep_uppercase in $GAZEBO_OSRF_DEPS; do
       $(eval dep_branch=$\GAZEBO_BUILD_$dep_uppercase\_BRANCH)
       [[ -z ${dep_branch} ]] && dep_branch='default'
 cat >> build.sh << DELIM_BUILD_DEPS  
-    echo "#BEGIN SECTION: building dependency: ${dep} (${dep_branch})"
+    echo "# BEGIN SECTION: building dependency: ${dep} (${dep_branch})"
     echo '# END SECTION'
     rm -fr $WORKSPACE/$dep
 
@@ -83,8 +83,7 @@ cat >> build.sh << DELIM_BUILD_DEPS
     GENERIC_ENABLE_TESTS=false 
     SOFTWARE_DIR=$dep
     cd $WORKSPACE
-    . ${SCRIPT_DIR}/lib/_generic_linux_compilation.bash || ls -las ${SCRIPT_DIR}/lib/
-    # clean up build directory
+    . ${SCRIPT_DIR}/lib/_generic_linux_compilation.bash
     cd $WORKSPACE &&  rm -fr $WORKSPACE/build
 DELIM_BUILD_DEPS
   fi
