@@ -20,8 +20,8 @@ def supported_arches        = Globals.get_supported_arches()
 def experimental_arches     = Globals.get_experimental_arches()
 def all_supported_gpus      = Globals.get_all_supported_gpus()
 
-String ci_distro_str = ci_distro[1]
-String ci_gpu_str = ci_gpu[1]
+String ci_distro_str = ci_distro[0]
+String ci_gpu_str = ci_gpu[0]
 String ci_build_any_job_name = "gazebo-ci-pr_any-${ci_distro_str}-amd64-gpu-${ci_gpu_str}"
 
 // Need to be used in ci_pr

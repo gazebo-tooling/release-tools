@@ -21,7 +21,7 @@ abi_job_names = [:]
 
 Globals.extra_emails = "caguero@osrfoundation.org"
 
-String ci_distro_str = ci_distro[1]
+String ci_distro_str = ci_distro[0]
 
 // ABI Checker job
 // Need to be the before ci-pr_any so the abi job name is defined
