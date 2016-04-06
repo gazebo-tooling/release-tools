@@ -59,8 +59,9 @@ DELIM_DART
 for dep_uppercase in $GAZEBO_OSRF_DEPS; do
   dep=`echo $dep_uppercase | tr '[:upper:]' '[:lower:]'`
   EXTRA_PACKAGES="${EXTRA_PACKAGES} mercurial"
+  eval dependecy_installation="\$GAZEBO_BUILD_$dep_uppercase"
 
-  if $(eval $\GAZEBO_BUILD_$dep_uppercase); then
+  if [[ -n ${dependecy_installation} ]] && ${dependecy_installation}; then
       # Handle the depedency BRANCH
       eval dep_branch=\$$dep_uppercase\_BRANCH
       [[ -z ${dep_branch} ]] && dep_branch='default'
