@@ -19,7 +19,7 @@ class OSRFCIWorkFlow
 
       job.with
       {
-        label "master || docker"
+        label "lightweight-linux"
 
         // TODO: share parameters with ci-py_any- jobs
         parameters {
