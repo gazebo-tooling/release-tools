@@ -133,7 +133,7 @@ if ! make test ARGS="-VV" && [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
     | sed -e 's@^ *Test  *#[0-9]*: *@@' \
   )
   for i in ${FAILED_TESTS}; do
-    make test ARGS="-VV -R ${i}" || true
+    make test ARGS="-VV -R ${i}\$$"" || true
   done
   mkdir test_results_tmp
   for i in $(ls test_results); do
