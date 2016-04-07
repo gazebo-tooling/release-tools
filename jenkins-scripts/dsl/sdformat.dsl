@@ -15,7 +15,7 @@ def all_supported_distros   = Globals.get_all_supported_distros()
 def supported_arches        = Globals.get_supported_arches()
 def experimental_arches     = Globals.get_experimental_arches()
 
-String ci_distro_str = ci_distro[1]
+String ci_distro_str = ci_distro[0]
 String ci_build_any_job_name = "sdformat-ci-pr_any-${ci_distro_str}-amd64"
 
 // Need to be used in ci_pr
