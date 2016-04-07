@@ -55,6 +55,8 @@ def create_status = job(create_status_name)
 OSRFLinuxBase.create(create_status)
 create_status.with
 {
+  label "lightweight-linux"
+
   parameters
   {
      stringParam('JENKINS_BUILD_REPO','',
@@ -104,6 +106,8 @@ def set_status = job("_bitbucket-set_status")
 OSRFLinuxBase.create(set_status)
 set_status.with
 {
+  label "lightweight-linux"
+
   parameters
   {
      stringParam('CREATE_CONFIG_BUILD_NUM',
