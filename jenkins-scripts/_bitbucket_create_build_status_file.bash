@@ -4,17 +4,33 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-echo '# BEGIN SECTION: sending bitbucket status: inprogress'
+echo '# BEGIN SECTION: create bitbucket build status file'
 NEEDED_HOST_PACKAGES="python-pip"
-REPO_SHORT_NAME=`echo ${SRC_REPO} | sed s:.*\.org/::`
 
 # Source bitbucket configs
 . ${SCRIPT_DIR}/_bitbucket_configs.bash
+
+if [[ -z ${BITBUCKET_BUILD_STATUS_FILE} ]]; then
+  echo "BITBUCKET_BUILD_STATUS_FILE variable missing"
+  exit 1
+fi
+
+if [[ -z ${JENKINS_BUILD_HG_HASH} ]]; then
+  echo "JENKINS_BUILD_HG_HASH variable missing"
+  exit 1
+fi
+
+if [[ -z ${JENKINS_BUILD_REPO} ]]; then
+  echo "JENKINS_BUILD_REPO variable missing"
+  exit 1
+fi
 
 if [[ ! -f ${BITBUCKET_USER_PASS_FILE} ]]; then
   echo "Bitbucket user pass not found in file \${BITBUCKET_USER_PASS_FILE}"
   exit 1
 fi
+
+REPO_SHORT_NAME=`echo ${JENKINS_BUILD_REPO} | sed s:.*\.org/::`
 
 echo "Generating requirements.txt for pip"
 cat > ${WORKSPACE}/requirements.txt <<- REQ
@@ -43,9 +59,10 @@ echo "Generating config file ..."
 cat > $BITBUCKET_BUILD_STATUS_FILE << DELIM_CONFIG
 bitbucket_origin:
   repository_name: ${REPO_SHORT_NAME}
-  sha: ${MERCURIAL_REVISION_SHORT}
+  sha: ${JENKINS_BUILD_HG_HASH}
 jenkins_job:
-  name: ${JOB_NAME}
-  url: ${BUILD_URL}
+  name: ${JENKINS_BUILD_JOB_NAME}
+  url: ${JENKINS_BUILD_URL}
 DELIM_CONFIG
 cat $BITBUCKET_BUILD_STATUS_FILE
+echo '# END SECTION'

@@ -21,6 +21,8 @@ abi_job_names = [:]
 
 Globals.extra_emails = "caguero@osrfoundation.org"
 
+String ci_distro_str = ci_distro[0]
+
 // ABI Checker job
 // Need to be the before ci-pr_any so the abi job name is defined
 ignition_software.each { ign_sw ->
@@ -59,9 +61,16 @@ ignition_software.each { ign_sw ->
 ignition_software.each { ign_sw ->
   ci_distro.each { distro ->
     supported_arches.each { arch ->
+      // 1. Create the default ci jobs
+      def ignition_ci_job_name = "ignition_${ign_sw}-ci-default-${distro}-${arch}"
+      // --------------------------------------------------------------
+      // 0. Main CI workflow
+      def ign_ci_main = workflowJob("ignition_${ign_sw}-ci-pr_any")
+      OSRFCIWorkFlow.create(ign_ci_main, ignition_ci_job_name)
+
       // --------------------------------------------------------------
       // 1. Create the default ci jobs
-      def ignition_ci_job = job("ignition_${ign_sw}-ci-default-${distro}-${arch}")
+      def ignition_ci_job = job(ignition_ci_job_name)
       OSRFLinuxCompilation.create(ignition_ci_job)
       ignition_ci_job.with
       {
