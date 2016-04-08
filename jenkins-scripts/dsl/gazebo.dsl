@@ -72,7 +72,7 @@ ci_distro.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       // 1. Create the any job
-      def gazebo_ci_any_job = job(ci_build_any_job_name)
+      def gazebo_ci_any_job = job("gazebo-ci-pr_any-${distro}-${arch}-gpu-${gpu}")
       OSRFLinuxCompilationAny.create(gazebo_ci_any_job,
                                     "http://bitbucket.org/osrf/gazebo")
       gazebo_ci_any_job.with
