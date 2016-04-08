@@ -62,7 +62,7 @@ ignition_software.each { ign_sw ->
   ci_distro.each { distro ->
     supported_arches.each { arch ->
       // 1. Create the default ci jobs
-      def ignition_ci_job_name = "ignition_${ign_sw}-ci-default-${distro}-${arch}"
+      def ignition_ci_job_name = "ignition_${ign_sw}-ci-pr_any-${distro}-${arch}"
       // --------------------------------------------------------------
       // 0. Main CI workflow
       def ign_ci_main = workflowJob("ignition_${ign_sw}-ci-pr_any")
