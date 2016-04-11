@@ -157,7 +157,7 @@ ignition_software.each { ign_sw ->
           dev_package = "libignition-${ign_sw}${ignition_math_series}-dev"
 
          // common and msgs don't have packages yet
-         if ("${ign_sw}" == "common") || ("${ign_sw}" == "msgs")
+         if (("${ign_sw}" == "common") || ("${ign_sw}" == "msgs"))
           disabled()
 
          steps {
