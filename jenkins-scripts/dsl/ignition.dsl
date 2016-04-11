@@ -156,6 +156,10 @@ ignition_software.each { ign_sw ->
          if ("${ign_sw}" == "math")
           dev_package = "libignition-${ign_sw}${ignition_math_series}-dev"
 
+         // common and msgs don't have packages yet
+         if ("${ign_sw}" == "common") || ("${ign_sw}" == "msgs")
+          disabled()
+
          steps {
           shell("""\
                 #!/bin/bash -xe
