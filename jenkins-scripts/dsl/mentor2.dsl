@@ -114,7 +114,7 @@ supported_distros.each { distro ->
           shell("""#!/bin/bash -xe
 
                 export INSTALL_JOB_PKG=mentor2
-                export INSTALL_JOB_REPOS=mentor2
+                export INSTALL_JOB_REPOS="mentor2 stable"
                 /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
                 """.stripIndent())
        }
