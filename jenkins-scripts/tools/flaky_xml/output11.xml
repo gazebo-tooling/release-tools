@@ -1,0 +1,13 @@
+<testsuites tests="4" failures="1" disabled="0" errors="0" timestamp="2016-03-04T02:17:40" time="0.001" name="AllTests">
+  <testsuite name="RandTest" tests="4" failures="1" disabled="0" errors="0" time="0.001">
+    <testcase name="Rand1" status="run" time="0" classname="RandTest">
+      <failure message="src/Rand_TEST.cc:34&#10;Expected: (d) &gt;= (1.5), actual: 1.13947 vs 1.5" type="">src/Rand_TEST.cc:34
+Expected: (d) &gt;= (1.5), actual: 1.13947 vs 1.5</failure>
+    <rerunFailure message="src/Rand_TEST.cc:34&#10;Expected: (d) &gt;= (1.5), actual: 1.13947 vs 1.5" type="">src/Rand_TEST.cc:34
+Expected: (d) &gt;= (1.5), actual: 1.13947 vs 1.5</rerunFailure>
+    </testcase>
+    <testcase name="Rand2" status="run" time="0" classname="RandTest"/>
+    <testcase name="Rand" status="run" time="0" classname="RandTest"/>
+    <testcase name="SetSeed" status="run" time="0.001" classname="RandTest"/>
+  </testsuite>
+</testsuites>

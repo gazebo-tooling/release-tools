@@ -12,10 +12,29 @@ import javaposse.jobdsl.dsl.Job
     - parameter: ORIGIN_BRANCH, TARGET_BRANCH
     - set description
     - parse log for result
+    - publish report in HTML
 */
 
 class OSRFLinuxABI
 {
+  static void create(Job job, String repo)
+  {
+    OSRFLinuxABI.create(job)
+
+    String subdirectoy = repo.tokenize('/').last()
+
+    job.with
+    {
+      scm
+      {
+        hg(repo) {
+          branch('${ORIGIN_BRANCH}')
+          subdirectory(subdirectoy)
+        }
+      }
+    }
+  }
+
   static void create(Job job)
   {
     OSRFLinuxBase.create(job)
@@ -47,12 +66,24 @@ class OSRFLinuxABI
           build.setDescription(
             'origin branch: ' +
             '<b>' + build.buildVariableResolver.resolve('ORIGIN_BRANCH') + '</b><br />' +
-            'target branch: ' + 
+            'target branch: ' +
             '<b>' + build.buildVariableResolver.resolve('TARGET_BRANCH') + '</b><br />' +
             '<br />' +
             'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
           """.stripIndent()
         )
+      }
+
+      publishers {
+          publishHtml {
+              report('reports/') {
+                  reportFiles('compat_report.html')
+                  reportName('API_ABI report')
+                  keepAll()
+                  allowMissing(false)
+                  alwaysLinkToLastBuild()
+              }
+          }
       }
 
       // Added the checker result parser (UNSTABLE if not compatible)

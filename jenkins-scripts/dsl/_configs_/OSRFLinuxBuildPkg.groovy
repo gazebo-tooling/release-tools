@@ -9,7 +9,6 @@ import javaposse.jobdsl.dsl.Job
   Implements:
     - priorioty 300
     - keep only 10 last artifacts
-    - concurrent builds
     - parameters:
         - PACKAGE
         - VERSION
@@ -39,13 +38,6 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
         artifactNumToKeep(10)
       }
 
-      concurrentBuild(true)
-
-      throttleConcurrentBuilds {
-	maxPerNode(1)
-	maxTotal(5)
-      }
-
       parameters {
         stringParam("PACKAGE",null,"Package name to be built")
         stringParam("VERSION",null,"Packages version to be built")
@@ -56,6 +48,7 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
         stringParam("RELEASE_REPO_BRANCH", null, "Branch from the -release repo to be used")
         stringParam("PACKAGE_ALIAS", null, "If not empty, package name to be used instead of PACKAGE")
         stringParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to")
+        stringParam("OSRF_REPOS_TO_USE", null, "OSRF repos name to use when building the package")
       }
 
       steps {

@@ -17,8 +17,8 @@ PKGS="libogre3d-1.9-dev \
     libsdformat3-dev \
     libsdformat3 \
     sdformat-sdf \
-    libignition-transport0-dev \
-    libignition-transport0 \
+    libignition-transport-dev \
+    libignition-transport \
     libignition-math2-dev \
     libignition-math2 \
     libhaptix-comm-dev \

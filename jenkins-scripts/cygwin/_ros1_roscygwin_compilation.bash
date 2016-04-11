@@ -1,18 +1,24 @@
 #/bin/bash
 
+set +x
+set -e
+
 echo "# BEGIN SECTION: Install script dependencies"
 apt-cyg update
 apt-cyg install wget mercurial tar gawk xz bzip2 
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: Install tool dependencies"
-apt-cyg install python make cmake gdb git patch unzip pkg-config gcc-g++ libtool fluid
+apt-cyg install python make cmake gdb git patch unzip pkg-config gcc-g++ \
+                libtool fluid graphviz oxygen-icons hicolor-icon-theme \
+		gnome-icon-theme
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: Install library dependencies"
 apt-cyg install libpoco-devel libboost-devel libboost_python-devel libGLU-devel \
                 libgtk2.0-devel libcurl-devel libjpeg-devel libfltk-devel \
-                libX11-devel libXext-devel libfreetype-devel libxml2-devel libqhull-devel
+                libX11-devel libXext-devel libfreetype-devel libxml2-devel libqhull-devel \
+		libSDL-devel libSDL_image-devel libffi-devel
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: Prepare script sources"

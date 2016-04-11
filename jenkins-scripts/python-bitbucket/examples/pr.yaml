@@ -1,0 +1,6 @@
+bitbucket_origin:
+  repository_name: _jrivero_/sdformat
+  sha: 32e0b48
+jenkins_job:    
+  name: gazebo-ci-pr_any-trusty-amd64-gpu-none
+  url: http://build.osrfoundation.org/job/gazebo-ci-pr_any-trusty-amd64-gpu-none/

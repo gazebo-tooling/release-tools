@@ -12,8 +12,11 @@ SDFORMAT_MAJOR_VERSION=`\
 if [ $SDFORMAT_MAJOR_VERSION -le 2 ]; then
   SDFORMAT_MAJOR_VERSION=""
 else
+  rm -f ${WORKSPACE}/sdformat${SDFORMAT_MAJOR_VERSION}
   ln -s ${WORKSPACE}/sdformat ${WORKSPACE}/sdformat${SDFORMAT_MAJOR_VERSION}
 fi
+
+PIP_PACKAGES_NEEDED="psutil"
 
 . ${SCRIPT_DIR}/lib/project-default-devel-homebrew-amd64.bash sdformat${SDFORMAT_MAJOR_VERSION}
 

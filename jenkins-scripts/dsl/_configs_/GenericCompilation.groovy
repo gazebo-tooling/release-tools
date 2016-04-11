@@ -10,10 +10,13 @@ import javaposse.jobdsl.dsl.Job
 */
 class GenericCompilation
 {
-   static void create(Job job)
+
+   static String get_compilation_mail_content()
    {
-     def mail_content ='''\
+      return '''\
      $DEFAULT_CONTENT
+
+     ${BUILD_LOG_REGEX, regex="^.*: (fatal ){0,1}error.*$",  linesBefore="5", linesAfter="5", maxMatches=0, showTruncatedLines=false}
 
      Test summary:
      -------------
@@ -22,8 +25,13 @@ class GenericCompilation
      Data log:
      ${FAILED_TESTS}
      '''.stripIndent()
+   }
 
-     GenericMail.include_mail(job, '$DEFAULT_SUBJECT' , mail_content)
+   static void create(Job job, boolean enable_testing = true)
+   {
+
+     GenericMail.update_field(job, 'defaultContent',
+                              GenericCompilation.get_compilation_mail_content())
 
      job.with
      {
@@ -33,17 +41,20 @@ class GenericCompilation
           numToKeep(15)
         }
 
-        publishers
+        if (enable_testing)
         {
-           // junit plugin is not implemented. Use configure for it
-           configure { project ->
-              project / publishers << 'hudson.tasks.junit.JUnitResultArchiver' {
-                   testResults('build/test_results/*.xml')
-                   keepLongStdio false
-                   testDataPublishers()
-              }
-          }
-        } // end of publishers
+          publishers
+          {
+             // junit plugin is not implemented. Use configure for it
+             configure { project ->
+                project / publishers << 'hudson.tasks.junit.JUnitResultArchiver' {
+                     testResults('build/test_results/*.xml')
+                     keepLongStdio false
+                     testDataPublishers()
+                }
+            }
+          } // end of publishers
+        } // end of enable_testing
       } // end of job
    } // end of create
 } // end of class

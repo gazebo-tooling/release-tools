@@ -62,7 +62,9 @@ supported_distros.each { distro ->
         steps {
           shell("""#!/bin/bash -xe
 
-                /bin/bash -x ./scripts/jenkins-scripts/docker/sdformat-default-devel-trusty-amd64.bash
+                export DISTRO=${distro}
+                export ARCH=${arch}
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
                 """.stripIndent())
         }
     }
@@ -112,7 +114,7 @@ supported_distros.each { distro ->
           shell("""#!/bin/bash -xe
 
                 export INSTALL_JOB_PKG=mentor2
-                export INSTALL_JOB_REPOS=mentor2
+                export INSTALL_JOB_REPOS="mentor2 stable"
                 /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
                 """.stripIndent())
        }

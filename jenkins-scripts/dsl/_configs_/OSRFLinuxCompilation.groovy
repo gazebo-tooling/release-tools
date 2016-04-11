@@ -11,19 +11,21 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFLinuxCompilation extends OSRFLinuxBase
 {
-  static void create(Job job)
+  static void create(Job job, enable_testing = true)
   {
     OSRFLinuxBase.create(job)
 
     /* Properties from generic compilations */
-    GenericCompilation.create(job)
+    GenericCompilation.create(job, enable_testing)
 
     job.with
     {
       publishers
       {
          // compilers warnings
-         warnings(['GNU C Compiler 4 (gcc)'])
+         warnings(['GNU C Compiler 4 (gcc)'], null) {
+             thresholds(unstableTotal: [all: 0])
+         }
 
          // cppcheck is not implemented. Use configure for it
          configure { project ->
@@ -44,8 +46,8 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
                  severityStyle true
                  severityPerformance true
                  severityInformation true
-                 severityNoCategory false
-                 severityPortability false
+                 severityNoCategory true
+                 severityPortability true
                }
 
                      configGraph {

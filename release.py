@@ -29,6 +29,9 @@ UBUNTU_DISTROS_EXTRA = []
 ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
 ROS_DISTROS_IN_TRUSTY = [ 'indigo' ];
 
+OSRF_REPOS_SUPPORTED="stable prerelease nightly mentor2 haptix-pre"
+OSRF_REPOS_SELF_CONTAINED="mentor2"
+
 DRY_RUN = False
 NIGHTLY = False
 UPSTREAM = False
@@ -201,11 +204,7 @@ def sanity_check_sdformat_versions(package, version):
     print_success("sdformat version in proper sdformat package")
 
 def sanity_check_repo_name(repo_name):
-    if repo_name == 'stable' or  repo_name == 'prerelease' or repo_name == 'nightly':
-        return
-
-    # Supported projects
-    if repo_name == 'mentor2':
+    if repo_name in OSRF_REPOS_SUPPORTED:
         return
 
     error("Upload repo value: " + repo_name + " is not valid. stable | prerelease | nightly")
@@ -219,6 +218,12 @@ def sanity_project_package_in_stable(version, repo_name):
 
 
     error("Detected stable repo upload using project versioning scheme (include '+' in the version)")
+
+def sanity_use_prerelease_branch(release_branch):
+    if release_branch == 'prerelease':
+        error("The use of prerelease branch is now deprecated. Please check internal wiki instructions")
+
+    return
 
 def check_s3cmd_configuration():
     # Need to check if s3cmd is installed
@@ -240,6 +245,7 @@ def sanity_checks(args, repo_dir):
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
+    sanity_use_prerelease_branch(args.release_repo_branch)
 
     if not NIGHTLY:
         sanity_package_version(repo_dir, args.version, str(args.release_version))
@@ -411,6 +417,11 @@ def go(argv):
     params['PACKAGE_ALIAS'] = args.package_alias
     params['RELEASE_VERSION'] = args.release_version
     params['UPLOAD_TO_REPO'] = args.upload_to_repository
+    # Assume that we want stable + own repo in the building
+    params['OSRF_REPOS_TO_USE'] = "stable " + args.upload_to_repository
+
+    if args.upload_to_repository in OSRF_REPOS_SELF_CONTAINED:
+        params['OSRF_REPOS_TO_USE'] = args.upload_to_repository
 
     if NIGHTLY:
         params['VERSION'] = 'nightly'
@@ -434,7 +445,7 @@ def go(argv):
                                                    GENERIC_BREW_PULLREQUEST_JOB,
                                                    params_query)
     print('- Brew: %s'%(brew_url))
-    if not DRY_RUN:
+    if not DRY_RUN and not NIGHTLY:
         urllib.urlopen(brew_url)
 
     # RELEASING FOR LINUX
@@ -449,6 +460,10 @@ def go(argv):
                 # just to test CI infrastructure
                 if (not args.package[:-1] == 'sdformat'):
                     continue
+
+            # no wily for i386 in docker
+            if (d == 'wily' and a == 'i386'):
+                continue
 
             if (a == 'armhf'):
                 # Only release armhf in trusty for now

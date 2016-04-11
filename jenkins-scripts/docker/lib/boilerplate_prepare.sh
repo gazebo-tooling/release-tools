@@ -5,7 +5,7 @@ set -e
 # USE_GPU_DOCKER by internal lib/ scripts
 
 [[ -z ${GPU_SUPPORT_NEEDED} ]] && GPU_SUPPORT_NEEDED=false
-   
+
 if ${GPU_SUPPORT_NEEDED}; then
     USE_GPU_DOCKER=true
 fi
@@ -23,6 +23,15 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
         echo "Run docker cleaner !!"
         wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
         sudo bash -c "GRACE_PERIOD_SECONDS=432000 bash docker-gc"
+    fi
+
+    # if not enough, run again with 1 day = 86400s
+    PERCENT_ROOT_USED=$(df -h | grep /$ | sed 's:.* \([0-9]*\)%.*:\1:')
+    if [[ $PERCENT_ROOT_USED -gt 90 ]]; then
+        echo "Space left is low: ${PERCENT_ROOT_USED}% used"
+        echo "Run docker cleaner !!"
+        wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
+        sudo bash -c "GRACE_PERIOD_SECONDS=86400 bash docker-gc"
     fi
 fi
 
@@ -92,7 +101,8 @@ fi
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
-NEEDED_HOST_PACKAGES="mercurial docker-engine python-setuptools python-psutil qemu-user-static gpgv"
+# TODO: Check for docker package
+NEEDED_HOST_PACKAGES="mercurial python-setuptools python-psutil qemu-user-static gpgv squid-deb-proxy"
 # python-argparse is integrated in libpython2.7-stdlib since raring
 # Check for precise in the HOST system (not valid DISTRO variable)
 if [[ $(lsb_release -sr | cut -c 1-5) == '12.04' ]]; then
@@ -101,25 +111,33 @@ else
     NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} libpython2.7-stdlib"
 fi
 
-# Check if they are already installed in the host
-QUERY_HOST_PACKAGES=$(dpkg-query --list ${NEEDED_HOST_PACKAGES} | grep '^un ') || true
-if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
+# Check if they are already installed in the host.
+# dpkg-query will return an error in stderr if a package has never been in the
+# system. It will return a header composed by several lines started with |, +++
+# and 'Desired' the rest of lines is composed by: ^rc or ^un if the package is
+# not in the system. ^in if it is installed
+QUERY_RESULT=$(dpkg-query --list ${NEEDED_HOST_PACKAGES} 2>&1 | grep -v ^ii | grep -v '|' | grep -v '^\+++' | grep -v '^Desired') || true
+if [[ -n ${QUERY_RESULT} ]]; then
   sudo apt-get update
   sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
 fi
 
-# Some packages will not show as ^un in the previous query but will return false if
-# they are not present
+# Check that all of them are present in the system, not returning false
 if [[ ! $(dpkg-query --list ${NEEDED_HOST_PACKAGES}) ]]; then
   echo "Some needed packages are failing in the host"
   exit 1
 fi
 
+# Check if squid-deb-proxy is running or start it otherwise
+if [[ -z $(ps aux | grep squid-deb-proxy.conf | grep -v grep | awk '{ print $2}') ]]; then
+  sudo service squid-deb-proxy start
+fi
+
 # Docker checking
-# Code imported from https://github.com/CognitiveRobotics/omnimapper/tree/master/docker 
-# under the license detailed in https://github.com/CognitiveRobotics/omnimapper/blob/master/LICENSE 
-#version_gt() { 
-#    test "$(echo "$@" | tr " " "\n" | sort -V | tail -n 1)" == "$1"; 
+# Code imported from https://github.com/CognitiveRobotics/omnimapper/tree/master/docker
+# under the license detailed in https://github.com/CognitiveRobotics/omnimapper/blob/master/LICENSE
+#version_gt() {
+#    test "$(echo "$@" | tr " " "\n" | sort -V | tail -n 1)" == "$1";
 #}
 
 #docker_version=$(docker version | grep 'Client version' | awk '{split($0,a,":"); print a[2]}' | tr -d ' ')
