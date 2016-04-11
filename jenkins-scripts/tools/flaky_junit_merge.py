@@ -36,7 +36,7 @@ def open_xml(fileName):
     try:
       xml = etree.fromstring(f.read())
     except etree.XMLSyntaxError as err:
-        print("file %s is empty" % (fileName), file=sys.stderr)
+        print("error parsing %s as xml, writing generic test_ran failure" % (fileName), file=sys.stderr)
         testName = os.path.basename(fileName)
         d = {'test': testName, 'fileName': fileName , 'testNoXml': testName.replace('.xml', '')}
         xml = etree.fromstring("""<?xml version="1.0" encoding="UTF-8"?>
