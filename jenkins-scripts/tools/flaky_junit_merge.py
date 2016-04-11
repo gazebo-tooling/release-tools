@@ -14,7 +14,7 @@ from lxml import etree
 import sys
 
 # Count the number of child <failure> tags
-def countFailures(testcase):
+def count_failures(testcase):
     failures = 0
     for f in testcase.getchildren():
         if f.tag == 'failure':
@@ -24,7 +24,7 @@ def countFailures(testcase):
 # Subtract one from the 'failures' attribute
 # if it has the expected tag
 # (this is so we don't decrement twice when testsuite is the root tag)
-def oneLessFailure(element, expectedTag):
+def one_less_failure(element, expectedTag):
     if element.tag == expectedTag:
         element.attrib['failures'] = str(int(element.attrib['failures']) - 1)
 
@@ -112,24 +112,24 @@ for ts in testsuiteArray:
                   (ts.attrib['name'], tc.attrib['name'], fileName2),
                   file=sys.stderr)
             continue
-        failures1 = countFailures(tc)
-        failures2 = countFailures(tc2)
+        failures1 = count_failures(tc)
+        failures2 = count_failures(tc2)
         if failures1 > 0 and failures2 == 0:
             # flaky test
             for f in tc.getchildren():
                 if f.tag == 'failure':
                     f.tag = 'flakyFailure'
                     tc2.append(deepcopy(f))
-            oneLessFailure(ts, 'testsuite')
-            oneLessFailure(xml1, 'testsuites')
+            one_less_failure(ts, 'testsuite')
+            one_less_failure(xml1, 'testsuites')
         elif failures1 == 0 and failures2 > 0:
             # flaky test
             for f in tc2.getchildren():
                 if f.tag == 'failure':
                     f.tag = 'flakyFailure'
                     tc.append(deepcopy(f))
-            oneLessFailure(ts2, 'testsuite')
-            oneLessFailure(xml2, 'testsuites')
+            one_less_failure(ts2, 'testsuite')
+            one_less_failure(xml2, 'testsuites')
         elif failures1 > 0 and failures2 > 0:
             # repeated failures
             # append the second failure as a rerunFailure
