@@ -34,7 +34,10 @@ supported_distros.each { distro ->
         steps {
           shell("""#!/bin/bash -xe
 
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-default-gui-test-devel-trusty-amd64.bash
+                export DISTRO=${distro}
+                export ARCH=${arch}
+                export GPU_SUPPORT_NEEDED=true
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
                 """.stripIndent())
         }
      }
