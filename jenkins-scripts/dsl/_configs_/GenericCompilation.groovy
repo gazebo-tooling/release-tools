@@ -45,15 +45,10 @@ class GenericCompilation
         {
           publishers
           {
-             // junit plugin is not implemented. Use configure for it
-             configure { project ->
-                project / publishers << 'hudson.tasks.junit.JUnitResultArchiver' {
-                     testResults('build/test_results/*.xml')
-                     keepLongStdio false
-                     testDataPublishers {
-                       publishFlakyTestsReport()
-                     }
-                }
+            archiveJunit('build/test_results/*.xml') {
+              testDataPublishers {
+                publishFlakyTestsReport()
+              }
             }
           } // end of publishers
         } // end of enable_testing
