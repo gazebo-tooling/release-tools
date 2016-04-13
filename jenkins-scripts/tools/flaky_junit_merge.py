@@ -11,10 +11,11 @@
 from __future__ import print_function
 from copy import deepcopy
 from lxml import etree
+import os
 import sys
 
 # Count the number of child <failure> tags
-def countFailures(testcase):
+def count_failures(testcase):
     failures = 0
     for f in testcase.getchildren():
         if f.tag == 'failure':
@@ -24,9 +25,28 @@ def countFailures(testcase):
 # Subtract one from the 'failures' attribute
 # if it has the expected tag
 # (this is so we don't decrement twice when testsuite is the root tag)
-def oneLessFailure(element, expectedTag):
+def one_less_failure(element, expectedTag):
     if element.tag == expectedTag:
         element.attrib['failures'] = str(int(element.attrib['failures']) - 1)
+
+# Try to read file as xml
+# Create simple xml document if file is empty
+def open_xml(fileName):
+    f = open(fileName, 'r')
+    try:
+      xml = etree.fromstring(f.read())
+    except etree.XMLSyntaxError as err:
+        print("error parsing %s as xml, writing generic test_ran failure" % (fileName), file=sys.stderr)
+        testName = os.path.basename(fileName)
+        d = {'test': testName, 'fileName': fileName , 'testNoXml': testName.replace('.xml', '')}
+        xml = etree.fromstring("""<?xml version="1.0" encoding="UTF-8"?>
+<testsuite tests="1" failures="1" time="1" errors="0" name="%(test)s">
+  <testcase name="test_ran" status="run" time="1" classname="%(testNoXml)s">
+    <failure message="Unable to find test results for %(test)s, test did not run.\nExpected results in %(fileName)s" type=""/>
+  </testcase>
+</testsuite>"""%d)
+    f.close()
+    return xml
 
 if len(sys.argv) != 3:
     print('need to specify two files to merge', file=sys.stderr)
@@ -34,12 +54,8 @@ if len(sys.argv) != 3:
 fileName1 = sys.argv[1]
 fileName2 = sys.argv[2]
 
-f = open(fileName1, 'r')
-xml1 = etree.fromstring(f.read())
-f.close()
-f = open(fileName2, 'r')
-xml2 = etree.fromstring(f.read())
-f.close()
+xml1 = open_xml(fileName1)
+xml2 = open_xml(fileName2)
 
 # if root tags differ, make sure xml1 has testsuites
 if xml1.tag == 'testsuite' and xml2.tag == 'testsuites':
@@ -112,24 +128,24 @@ for ts in testsuiteArray:
                   (ts.attrib['name'], tc.attrib['name'], fileName2),
                   file=sys.stderr)
             continue
-        failures1 = countFailures(tc)
-        failures2 = countFailures(tc2)
+        failures1 = count_failures(tc)
+        failures2 = count_failures(tc2)
         if failures1 > 0 and failures2 == 0:
             # flaky test
             for f in tc.getchildren():
                 if f.tag == 'failure':
                     f.tag = 'flakyFailure'
                     tc2.append(deepcopy(f))
-            oneLessFailure(ts, 'testsuite')
-            oneLessFailure(xml1, 'testsuites')
+            one_less_failure(ts, 'testsuite')
+            one_less_failure(xml1, 'testsuites')
         elif failures1 == 0 and failures2 > 0:
             # flaky test
             for f in tc2.getchildren():
                 if f.tag == 'failure':
                     f.tag = 'flakyFailure'
                     tc.append(deepcopy(f))
-            oneLessFailure(ts2, 'testsuite')
-            oneLessFailure(xml2, 'testsuites')
+            one_less_failure(ts2, 'testsuite')
+            one_less_failure(xml2, 'testsuites')
         elif failures1 > 0 and failures2 > 0:
             # repeated failures
             # append the second failure as a rerunFailure
