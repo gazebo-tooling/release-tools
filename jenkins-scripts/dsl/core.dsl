@@ -3,9 +3,6 @@ import javaposse.jobdsl.dsl.Job
 
 Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 
-def build_status_file_name  = Globals.bitbucket_build_status_file_name
-def build_status_file_path  = Globals.bitbucket_build_status_file_path
-
 def bottle_builder_job_name      = 'generic-release-homebrew_bottle_builder'
 def bottle_hash_updater_job_name = 'generic-release-homebrew_pr_bottle_hash_updater'
 def directory_for_bottles        = 'pkgs'
@@ -220,10 +217,9 @@ bottle_job_hash_updater.with
 }
 
 // -------------------------------------------------------------------
-def create_status_name = '_bitbucket-create_build_status_file'
-def create_status = job(create_status_name)
-OSRFLinuxBase.create(create_status)
-create_status.with
+def set_status = job("_bitbucket-set_status")
+OSRFLinuxBase.create(set_status)
+set_status.with
 {
   label "lightweight-linux"
 
@@ -237,52 +233,6 @@ create_status.with
                  'Branch of SRC_REPO to test')
      stringParam('JENKINS_BUILD_URL','',
                  'Link to jenkins main ci job')
-  }
-
-  wrappers {
-     preBuildCleanup()
-  }
-
-  steps
-  {
-    systemGroovyCommand("""\
-          desc = 'repo: ' + build.buildVariableResolver.resolve('JENKINS_BUILD_REPO') + '<br />' +
-                 'hash: ' + build.buildVariableResolver.resolve('JENKINS_BUILD_HG_HASH') + '<br />' +
-                 'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH')
-        build.setDescription(desc)
-        """.stripIndent()
-    )
-
-    shell("""\
-          #!/bin/bash -xe
-
-          export BITBUCKET_BUILD_STATUS_FILE="${build_status_file_path}"
-          /bin/bash -xe ./scripts/jenkins-scripts/_bitbucket_create_build_status_file.bash
-          """.stripIndent())
-  }
-
-  publishers
-  {
-    archiveArtifacts
-    {
-      pattern("${build_status_file_name}")
-      onlyIfSuccessful()
-    }
-  }
-}
-
-// -------------------------------------------------------------------
-def set_status = job("_bitbucket-set_status")
-OSRFLinuxBase.create(set_status)
-set_status.with
-{
-  label "lightweight-linux"
-
-  parameters
-  {
-     stringParam('CREATE_CONFIG_BUILD_NUM',
-                 '',
-                 'build number from parent job to get the metadata file')
      stringParam('BITBUCKET_STATUS',
                  '',
                  'inprogress | fail | ok')
@@ -295,25 +245,17 @@ set_status.with
   steps
   {
     systemGroovyCommand("""\
-          desc = 'status: ' + build.buildVariableResolver.resolve('BITBUCKET_STATUS') + '<br />' +
-                 'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH')
+      desc = 'repo:   ' + build.buildVariableResolver.resolve('JENKINS_BUILD_REPO') +'<br />'+
+             'hash:   ' + build.buildVariableResolver.resolve('JENKINS_BUILD_HG_HASH') +'<br />'+
+             'status: ' + build.buildVariableResolver.resolve('BITBUCKET_STATUS') + '<br />' +
+             'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH')
         build.setDescription(desc)
         """.stripIndent()
     )
 
-    copyArtifacts("${create_status_name}") {
-      includePatterns("${build_status_file_name}")
-      flatten()
-      buildSelector {
-         buildNumber('${CREATE_CONFIG_BUILD_NUM}')
-      }
-    }
-
-
     shell("""\
           #!/bin/bash -xe
 
-          export BITBUCKET_BUILD_STATUS_FILE="${build_status_file_path}"
           /bin/bash -xe ./scripts/jenkins-scripts/_bitbucket_set_status.bash
           """.stripIndent())
   }
