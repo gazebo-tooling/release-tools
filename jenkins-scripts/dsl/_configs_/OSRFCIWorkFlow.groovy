@@ -1,4 +1,4 @@
-package _configs_
+ackage _configs_
 
 import javaposse.jobdsl.dsl.Job
 
@@ -15,7 +15,7 @@ class OSRFCIWorkFlow
 {
    static void create(Job job, String build_any_job_name)
    {
-      def create_status_name = Globals.bitbucket_build_status_job_name
+      def set_status_job_name = '_bitbucket-set_status_ng'
 
       job.with
       {
@@ -50,28 +50,18 @@ class OSRFCIWorkFlow
                     env.MERCURIAL_REVISION_SHORT = readFile('SCM_hash').trim()
                  }
 
-                 stage 'create bitbucket status file'
-                  node {
-                    def bitbucket_metadata = build job: '${create_status_name}',
-                          propagate: false, wait: true,
+                 stage 'set bitbucket status: in progress'
+                 node {
+                     build job: '${set_status_job_name}',
+                       propagate: false, wait: true,
                           parameters:
                             [[\$class: 'StringParameterValue', name: 'RTOOLS_BRANCH',          value: "\$RTOOLS_BRANCH"],
                              [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_REPO',     value: "\$SRC_REPO"],
                              [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_HG_HASH',  value: env.MERCURIAL_REVISION_SHORT],
                              [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_JOB_NAME', value: env.JOB_NAME],
-                             [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_URL',      value: env.BUILD_URL]]
-                    archive_number = bitbucket_metadata.getNumber().toString()
-                  }
-
-                  stage 'set bitbucket status: in progress'
-                  node {
-                     build job: '_bitbucket-set_status',
-                       propagate: false, wait: true,
-                       parameters:
-                          [[\$class: 'StringParameterValue', name: 'RTOOLS_BRANCH',           value: "\$RTOOLS_BRANCH"],
-                           [\$class: 'StringParameterValue', name: 'BITBUCKET_STATUS',        value: "inprogress"],
-                           [\$class: 'StringParameterValue', name: 'CREATE_CONFIG_BUILD_NUM', value: archive_number]]
-                  }
+                             [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_URL',      value: env.BUILD_URL],
+                             [\$class: 'StringParameterValue', name: 'BITBUCKET_STATUS',       value: "inprogress"]]
+                 }
 
                  stage 'compiling + QA'
                  node {
@@ -94,12 +84,15 @@ class OSRFCIWorkFlow
 
                 stage 'publish bitbucket status'
                 node {
-                 build job: '_bitbucket-set_status',
+                 build job: '${set_status_job_name}',
                    propagate: false, wait: true,
-                   parameters:
-                      [[\$class: 'StringParameterValue', name: 'RTOOLS_BRANCH',           value: "\$RTOOLS_BRANCH"],
-                       [\$class: 'StringParameterValue', name: 'BITBUCKET_STATUS',        value: publish_result ],
-                       [\$class: 'StringParameterValue', name: 'CREATE_CONFIG_BUILD_NUM', value: archive_number]]
+                    parameters:
+                      [[\$class: 'StringParameterValue', name: 'RTOOLS_BRANCH',          value: "\$RTOOLS_BRANCH"],
+                       [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_REPO',     value: "\$SRC_REPO"],
+                       [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_HG_HASH',  value: env.MERCURIAL_REVISION_SHORT],
+                       [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_JOB_NAME', value: env.JOB_NAME],
+                       [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_URL',      value: env.BUILD_URL],
+                       [\$class: 'StringParameterValue', name: 'BITBUCKET_STATUS',       value: publish_result ]]
                 }
 
                 currentBuild.result = compilation_job.getResult()
