@@ -1,4 +1,4 @@
-ackage _configs_
+package _configs_
 
 import javaposse.jobdsl.dsl.Job
 
