@@ -22,10 +22,6 @@ supported_arches.each { arch ->
 
           steps
           {
-              triggers {
-                cron('@daily')
-              }
-
               shell("""\
                     #!/bin/bash -xe
 
