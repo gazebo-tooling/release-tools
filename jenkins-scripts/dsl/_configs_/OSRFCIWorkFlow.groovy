@@ -15,7 +15,7 @@ class OSRFCIWorkFlow
 {
    static void create(Job job, String build_any_job_name)
    {
-      def set_status_job_name = '_bitbucket-set_status_ng'
+      def set_status_job_name = '_bitbucket-set_status'
 
       job.with
       {

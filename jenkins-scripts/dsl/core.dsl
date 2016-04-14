@@ -217,8 +217,7 @@ bottle_job_hash_updater.with
 }
 
 // -------------------------------------------------------------------
-// TODO: remove the _ng from the job name here and in OSRFCIWorkFlow
-def set_status = job("_bitbucket-set_status_ng")
+def set_status = job("_bitbucket-set_status")
 OSRFLinuxBase.create(set_status)
 set_status.with
 {
