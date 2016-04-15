@@ -35,7 +35,9 @@ class GenericCompilation
 
      job.with
      {
-        priority 100
+        properties {
+          priority 100
+        }
 
         logRotator {
           numToKeep(15)

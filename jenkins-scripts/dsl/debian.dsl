@@ -69,7 +69,9 @@ packages.each { repo_name, pkgs ->
         scm('@daily')
       }
 
-      priority 300
+      properties {
+        priority 300
+      }
 
       logRotator {
         artifactNumToKeep(10)
