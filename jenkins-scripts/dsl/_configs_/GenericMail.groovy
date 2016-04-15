@@ -31,24 +31,31 @@ class GenericMail
           defaultSubject(subject)
           defaultContent(content)
 
-          trigger(triggerName: 'Failure',
-                  subject: null, body: null, recipientList: null,
-                  sendToDevelopers: true,
-                  sendToRequester: true,
-                  includeCulprits: false,
-                  sendToRecipientList: true)
-          trigger(triggerName: 'Unstable',
-                  subject: null, body: null, recipientList: null,
-                  sendToDevelopers: true,
-                  sendToRequester: true,
-                  includeCulprits: false,
-                  sendToRecipientList: true)
-          trigger(triggerName: 'Fixed',
-                  subject: null, body: null, recipientList: null,
-                  sendToDevelopers: true,
-                  sendToRequester: true,
-                  includeCulprits: false,
-                  sendToRecipientList: true)
+          triggers
+          {
+            failure {
+              sendTo {
+                developers()
+                requester()
+              }
+            }
+
+            unstable {
+              sendTo {
+                developers()
+                requester()
+                recipientList()
+              }
+            }
+   
+            fixed {
+              sendTo {
+                developers()
+                requester()
+                recipientList()
+              }
+            }
+          }
 
           configure { node ->
             node / presendScript << """
