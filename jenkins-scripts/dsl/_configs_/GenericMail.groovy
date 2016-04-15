@@ -25,10 +25,12 @@ class GenericMail
     {
       publishers
       {
-        extendedEmail(Globals.get_emails(),
-                      subject,
-                      content)
-       {
+        extendedEmail
+        {
+          recipientList(Globals.get_emails())
+          defaultSubject(subject)
+          defaultContent(content)
+
           trigger(triggerName: 'Failure',
                   subject: null, body: null, recipientList: null,
                   sendToDevelopers: true,
@@ -47,6 +49,7 @@ class GenericMail
                   sendToRequester: true,
                   includeCulprits: false,
                   sendToRecipientList: true)
+
           configure { node ->
             node / presendScript << """
               boolean final_cancel_answer = false
