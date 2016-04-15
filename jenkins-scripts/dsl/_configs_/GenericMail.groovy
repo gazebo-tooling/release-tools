@@ -57,8 +57,8 @@ class GenericMail
             }
           }
 
-          configure { node ->
-            node / presendScript << """
+          preSendScript(
+              """
               boolean final_cancel_answer = false
               String logFilePath = build.getLogFile().getPath();
               String logContent = new File(logFilePath).text;
@@ -88,8 +88,7 @@ class GenericMail
               }
 
               cancel = final_cancel_answer
-              """.stripIndent()
-          } // end of configure
+              """.stripIndent())
         }
       }
     }
