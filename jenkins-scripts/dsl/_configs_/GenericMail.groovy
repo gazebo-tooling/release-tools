@@ -126,6 +126,9 @@ class GenericMail
               recipients.findAll { addr -> addr.toString().contains('@osrfoundation.org') }
            msg.setRecipients(javax.mail.Message.RecipientType.TO,
                              filtered as javax.mail.Address[])
+
+           // always need to be the last line to cancel email when needed
+           cancel = final_cancel_answer
         """.stripIndent())
   }
 } // end of class
