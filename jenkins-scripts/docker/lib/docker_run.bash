@@ -17,7 +17,8 @@ if $USE_GPU_DOCKER; then
 fi
 
 if $ENABLE_CCACHE; then
-  EXTRA_PARAMS_STR="-v ${CCACHE_DIR}:${CCACHE_DIR}:rw"
+  EXTRA_PARAMS_STR="$EXTRA_PARAMS_STR \
+                    -v ${CCACHE_DIR}:${CCACHE_DIR}:rw"
 fi
 
 sudo docker run $EXTRA_PARAMS_STR  \
