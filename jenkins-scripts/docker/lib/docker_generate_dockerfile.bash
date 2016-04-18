@@ -274,6 +274,10 @@ echo '# END SECTION'
 BUILDSH_CCACHE
 fi
 
+echo '# BEGIN SECTION: see build.sh script'
+cat build.sh
+echo '# END SECTION'
+
 cat >> Dockerfile << DELIM_DOCKER4
 COPY build.sh build.sh
 RUN chmod +x build.sh
@@ -282,8 +286,4 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: see Dockerfile'
 cat Dockerfile
-echo '# END SECTION'
-
-echo '# BEGIN SECTION: see build.sh script'
-cat build.sh
 echo '# END SECTION'
