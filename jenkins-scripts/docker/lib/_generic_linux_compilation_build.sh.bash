@@ -5,9 +5,6 @@ fi
 
 cat > build.sh << DELIM
 #!/bin/bash
-###################################################
-# Make project-specific changes here
-#
 set -ex
 source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
 
