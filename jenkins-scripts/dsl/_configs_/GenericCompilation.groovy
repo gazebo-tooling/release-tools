@@ -7,6 +7,7 @@ import javaposse.jobdsl.dsl.Job
     - priorioty 100
     - keep only 15 builds
     - mail with test results
+    - mails only to OSRF
 */
 class GenericCompilation
 {
