@@ -99,7 +99,7 @@ fi
 . ${SCRIPT_DIR}/../lib/dependencies_archive.sh
 
 # After dependencies_archive.sh call to get the rest of BASE_DEPENDENCIES
-if [ -z ${ENABLE_CCACHE} ]; then
+if [ -z "${ENABLE_CCACHE}" ]; then
   ENABLE_CCACHE=true
   BASE_DEPENDENCIES="${BASE_DEPENDENCIES} ccache"
   CCACHE_DIR="/srv/ccache"
