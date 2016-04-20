@@ -89,6 +89,17 @@ release_job.with
    // call to the bottle
    publishers
    {
+     // Added the checker result parser (UNSTABLE if not compatible)
+     // IMPORTANT: the order of the steps here is important. Leave the confiure
+     // block first.
+     configure { project ->
+       project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+          unstableOnWarning true
+          failBuildOnError false
+          parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+       }
+     } // end of configure
+
      archiveArtifacts
      {
        pattern("${PR_URL_export_file_name}")
@@ -102,20 +113,11 @@ release_job.with
           condition('SUCCESS')
           parameters {
             currentBuild()
-            propertiesFile("${PR_URL_export_file}")
+            propertiesFile("${PR_URL_export_file_name}")
           }
         }
      }
    }
-
-   // Added the checker result parser (UNSTABLE if not compatible)
-   configure { project ->
-     project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
-        unstableOnWarning true
-        failBuildOnError false
-        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
-     }
-   } // end of configure
 }
 
 // -------------------------------------------------------------------
