@@ -103,7 +103,7 @@ release_job.with
      archiveArtifacts
      {
        pattern("${PR_URL_export_file_name}")
-       onlyIfSuccessful()
+       allowEmpty()
      }
 
      downstreamParameterized
