@@ -46,6 +46,8 @@ GenericRemoteToken.create(release_job)
 include_common_params(release_job)
 release_job.with
 {
+   String PR_URL_export_file = '${WORKSPACE}/pull_request_created.properties'
+
    label "master"
 
    wrappers {
@@ -78,6 +80,7 @@ release_job.with
     shell("""\
           #!/bin/bash -xe
 
+          export PR_URL_export_file=${PR_URL_export_file}
           /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_formula_pullrequest.bash
           """.stripIndent())
    }
@@ -85,6 +88,8 @@ release_job.with
    // call to the bottle
    publishers
    {
+     archiveArtifacts("${PR_URL_export_file}")
+
      downstreamParameterized
      {
         trigger(bottle_builder_job_name)
@@ -92,10 +97,20 @@ release_job.with
           condition('SUCCESS')
           parameters {
             currentBuild()
+            propertiesFile("${PR_URL_export_file}")
           }
         }
      }
    }
+
+   // Added the checker result parser (UNSTABLE if not compatible)
+   configure { project ->
+     project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+        unstableOnWarning true
+        failBuildOnError false
+        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+     }
+   } // end of configure
 }
 
 // -------------------------------------------------------------------

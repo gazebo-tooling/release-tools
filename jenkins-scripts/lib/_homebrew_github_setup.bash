@@ -68,6 +68,8 @@ elif [ -s ${TAP_PREFIX}/Aliases/${PACKAGE_ALIAS} ]; then
 else
   echo Formula for ${PACKAGE_ALIAS} not found
   [[ -d homebrew-simulation ]] && ls homebrew-simulation/*
+  # Mark the build as unstable (using logparser plugin)
+  echo "MARK_AS_UNSTABLE"
   exit 0
 fi
 echo '# END SECTION'
