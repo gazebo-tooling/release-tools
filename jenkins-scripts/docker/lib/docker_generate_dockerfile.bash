@@ -52,18 +52,8 @@ case ${ARCH} in
   'amd64')
      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      ;;
-  'i386')
-     # There are no i386 official images. Only 14.04 (trusty) is available
-     # https://registry.hub.docker.com/u/32bit/ubuntu/tags/manage/
-     if [[ $DISTRO == 'trusty' ]]; then
-       FROM_VALUE=32bit/ubuntu:14.04
-     fi
-
-     # Other images are not official.
-     FROM_VALUE=mcandre/docker-${LINUX_DISTRO}-32bit:${DISTRO}
-     ;;
- 'armhf')
-     FROM_VALUE=osrf/ubuntu_armhf:${DISTRO}
+  'i386' | 'armhf' | 'arm64' )
+     FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
      ;;
   *)
      echo "Arch unknown"
