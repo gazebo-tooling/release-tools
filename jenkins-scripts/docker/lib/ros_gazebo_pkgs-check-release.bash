@@ -10,42 +10,25 @@ export ENABLE_REAPER=false
 DOCKER_JOB_NAME="ros_gazebo_pkgs_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
-cat > build.sh << DELIM
+# Generate the first part of the build.sh file for ROS
+. ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash ""
+
+cat > build.sh << DELIM_CHECKOUT
 ###################################################
 # Make project-specific changes here
 #
 set -ex
 
-# Step 2: configure and build
-rosdep init 
-# Hack for not failing when github is down
-update_done=false
-seconds_waiting=0
-while (! \$update_done); do
-  rosdep update && update_done=true
-  sleep 1
-  seconds_waiting=$((seconds_waiting+1))
-  [ \$seconds_waiting -gt 60 ] && exit 1
-done
+git clone https://github.com/ros-simulation/gazebo_ros_demos ${WORKSPACE}/gazebo_ros_demos
+DELIM_CHECKOUT
 
-SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
+# Generate the first part of the build.sh file for ROS
+. ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash "gazebo_ros_demos"
 
-# In our nvidia machines, run the test to launch altas
-# Seems like there is no failure in runs on precise pbuilder in
-# our trusty machine. So we do not check for GRAPHIC_TESTS=true
-mkdir -p \$HOME/.gazebo
-
-# Create the catkin workspace
-rm -fr $WORKSPACE/ws/src
-mkdir -p $WORKSPACE/ws/src
-cd $WORKSPACE/ws/src
-catkin_init_workspace
-git clone https://github.com/ros-simulation/gazebo_ros_demos
-cd gazebo_ros_demos/
+cat >> build.sh << DELIM
+cd ${CATKIN_WS}/gazebo_ros_demos/
 export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$PWD
-cd $WORKSPACE/ws
-catkin_make -j${MAKE_JOBS}
-SHELL=/bin/sh . $WORKSPACE/ws/devel/setup.sh
+cd ${CATKIN_WS}
 
 # Precise coreutils does not support preserve-status
 if [ $DISTRO = 'precise' ]; then
@@ -71,8 +54,8 @@ fi
 echo "180 testing seconds finished successfully"
 DELIM
 
-USE_OSRF_REPO=true
-USE_ROS_REPO=true
+USE_ROS_REPO=${USE_ROS_REPO:-true}
+OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:-stable}
 
 # Let's try to install all the packages and check the example
 ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs \

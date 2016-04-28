@@ -9,6 +9,10 @@ class Globals
    static gpu_by_distro  = [ trusty : [ 'nvidia', 'intel' ],
                              vivid  : [ 'intel' ] ]
 
+   static ros_ci = [ 'indigo'  : ['trusty'] ,
+                     'jade'    : ['trusty'] ,
+                     'kinetic' : ['xenial']]
+
    static String get_emails()
    {
       if (extra_emails != '')
@@ -64,5 +68,10 @@ class Globals
    static ArrayList get_all_supported_gpus()
    {
     return get_ci_gpu() + [ 'intel' ]
+   }
+
+   static ArrayList get_ros_suported_distros()
+   {
+     return [ 'indigo', 'jade' ]
    }
 }
