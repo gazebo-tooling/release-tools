@@ -267,11 +267,15 @@ else
                                 ros-${ROS_DISTRO}-roscpp                  \\
                                 ros-${ROS_DISTRO}-driver-base             \\
                                 ros-${ROS_DISTRO}-angles                  \\
+                                ros-${ROS_DISTRO}-camera-info-manager     \\
+                                ros-${ROS_DISTRO}-cmake-modules           \\
+                                ros-${ROS_DISTRO}-controller-manager      \\
                                 ros-${ROS_DISTRO}-cv-bridge               \\
                                 ros-${ROS_DISTRO}-diagnostic-updater      \\
                                 ros-${ROS_DISTRO}-dynamic-reconfigure     \\
                                 ros-${ROS_DISTRO}-geometry-msgs           \\
                                 ros-${ROS_DISTRO}-image-transport         \\
+                                ros-${ROS_DISTRO}-joint-limits-interface  \\
                                 ros-${ROS_DISTRO}-message-generation      \\
                                 ros-${ROS_DISTRO}-nav-msgs                \\
                                 ros-${ROS_DISTRO}-nodelet                 \\
@@ -283,15 +287,29 @@ else
                                 ros-${ROS_DISTRO}-sensor-msgs             \\
                                 ros-${ROS_DISTRO}-std-srvs                \\
                                 ros-${ROS_DISTRO}-tf                      \\
+                                ros-${ROS_DISTRO}-tf2-ros                 \\
                                 ros-${ROS_DISTRO}-trajectory-msgs         \\
+                                ros-${ROS_DISTRO}-transmission-interface  \\
                                 ros-${ROS_DISTRO}-urdf                    \\
-                                ros-${ROS_DISTRO}-xacro                   \\
-                                ros-${ROS_DISTRO}-cmake-modules           \\
-                                ros-${ROS_DISTRO}-controller-manager      \\
-                                ros-${ROS_DISTRO}-joint-limits-interface  \\
-                                ros-${ROS_DISTRO}-transmission-interface"
+                                ros-${ROS_DISTRO}-xacro"
 
 
+  if [[ -z ${GZ_PACKAGE_TO_USE_IN_ROS} ]]; then
+    case ${ROS_DISTRO} in
+      indigo)
+        GZ_PACKAGE_TO_USE_IN_ROS="gazebo2"
+      ;;
+      jade)
+        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo5-dev"
+      ;;
+      kinetic)
+        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo7-dev"
+      ;;
+    esac
+  fi
+
+  ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
+                                ${GZ_PACKAGE_TO_USE_IN_ROS}"
 
   if [[ ${ROS_DISTRO} == 'indigo' ]]; then
   # These dependencies are for testing the ros_gazebo_pkgs

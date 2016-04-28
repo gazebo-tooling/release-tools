@@ -17,8 +17,10 @@ cat >> build.sh << DELIM
 catkin_make -j${MAKE_JOBS} tests
 DELIM
 
+# don't have rosdep at this point and want gazebo to be cached by docker
+
 USE_ROS_REPO=true
-DEPENDENCY_PKGS="${ROS_GAZEBO_PKGS_DEPENDENCIES}"
+DEPENDENCY_PKGS="${ROS_GAZEBO_PKGS_DEPENDENCIES} ${GZ_PKG}"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
