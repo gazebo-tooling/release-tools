@@ -42,7 +42,7 @@ class OSRFCIWorkFlow
                  def compilation_job = null
 
                  stage 'checkout for the mercurial hash'
-                  node("master") {
+                 node("lightweight-linux") {
                    checkout([\$class: 'MercurialSCM', credentialsId: '', installation: '(Default)',
                              revision: "\$SRC_BRANCH", source: "\$SRC_REPO",
                              propagate: false, wait: true])
@@ -51,7 +51,7 @@ class OSRFCIWorkFlow
                  }
 
                  stage 'set bitbucket status: in progress'
-                 node {
+                 node("lightweight-linux") {
                      build job: '${set_status_job_name}',
                        propagate: false, wait: true,
                           parameters:
@@ -64,7 +64,7 @@ class OSRFCIWorkFlow
                  }
 
                  stage 'compiling + QA'
-                 node {
+                 node("lightweight-linux") {
                     compilation_job = build job: '${build_any_job_name}',
                         propagate: false, wait: true,
                         parameters:
@@ -83,7 +83,7 @@ class OSRFCIWorkFlow
                 }
 
                 stage 'publish bitbucket status'
-                node {
+                node("lightweight-linux") {
                  build job: '${set_status_job_name}',
                    propagate: false, wait: true,
                     parameters:
