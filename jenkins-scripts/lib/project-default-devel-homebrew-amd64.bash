@@ -4,7 +4,7 @@ set -e
 export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 
 # Get project name as first argument to this script
-PROJECT=$1
+PROJECT=$1 # project will have the major version included (ex gazebo2)
 PROJECT_ARGS=${2}
 
 # In ignition projects, the name of the repo and the formula does not match
@@ -13,9 +13,9 @@ if [[ ${PROJECT/ignition} != ${PROJECT} ]]; then
     PROJECT_PATH="ign${PROJECT/ignition}"
 fi
 
-# Knowing Script dir beware of symlink
-[[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
-SCRIPT_DIR="${SCRIPT_DIR%/*}"
+export HOMEBREW_PREFIX=/usr/local
+export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
+export PATH=${HOMEBREW_PREFIX}/bin:$PATH
 
 # make verbose mode?
 MAKE_VERBOSE_STR=""
@@ -24,34 +24,34 @@ if [[ ${MAKE_VERBOSE} ]]; then
 fi
 
 # Step 1. Set up homebrew
-RUN_DIR=$(mktemp -d ${HOME}/jenkins.XXXX)
-echo "Install into: ${RUN_DIR}"
-cd $RUN_DIR
-# Install homebrew
-curl -L -o homebrew.tar.gz https://github.com/Homebrew/homebrew/tarball/master 
-tar --strip 1 -xzf homebrew.tar.gz
+echo "# BEGIN SECTION: clean up ${HOMEBREW_PREFIX}"
+sudo chown -R $(whoami):admin ${HOMEBREW_PREFIX}
+sudo chmod -R ug+rwx ${HOMEBREW_PREFIX}
+cd ${HOMEBREW_PREFIX}
+[[ -f .git ]] && git clean -fdx
+rm -rf ${HOMEBREW_CELLAR} ${HOMEBREW_PREFIX}/.git
+brew cleanup || echo "brew cleanup couldn't be run"
+mkdir -p ${HOMEBREW_CELLAR}
+sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
+echo '# END SECTION'
 
-# Need to create cache so the system one (without permissions) is not used
-LOCAL_CELLAR=${HOME}/Library/Caches/Homebrew
-mkdir -p ${LOCAL_CELLAR}
+echo '# BEGIN SECTION: install latest homebrew'
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+echo '# END SECTION'
 
+echo '# BEGIN SECTION: brew information'
 # Run brew update to get latest versions of formulae
-${RUN_DIR}/bin/brew update
-
+brew update
 # Run brew config to print system information
-${RUN_DIR}/bin/brew config
-
+brew config
 # Run brew doctor to check for problems with the system
-${RUN_DIR}/bin/brew doctor || true
+# brew prune to fix some of this problems
+brew doctor || brew prune && brew doctor
+echo '# END SECTION'
 
-# Step 2. Install dependencies of ${PROJECT}
-${RUN_DIR}/bin/brew tap osrf/simulation
-
-# Unlink system dependencies first
-for dep in `/usr/local/bin/brew deps ${PROJECT} ${PROJECT_ARGS}`
-do
-  /usr/local/bin/brew unlink ${dep} || true
-done || true
+echo '# BEGIN SECTION: setup the osrf/simulation tap'
+brew tap osrf/simulation
+echo '# END SECTION'
 
 IS_A_HEAD_FORMULA=${IS_A_HEAD_PROJECT:-false}
 HEAD_STR=""
@@ -59,11 +59,26 @@ if $IS_A_HEAD_PROJECT; then
     HEAD_STR="--HEAD"
 fi
 
+echo "# BEGIN SECTION: install ${PROJECT} dependencies"
 # Process the package dependencies
-# Run twice! details about why in:
-# https://github.com/osrf/homebrew-simulation/pull/18#issuecomment-45041755 
-${RUN_DIR}/bin/brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
-${RUN_DIR}/bin/brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
+brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
+echo '# END SECTION'
+
+if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
+  # Install lxml for flaky_junit_merge.py
+  PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} lxml"
+fi
+
+if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
+  brew install python
+  export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
+  pip install ${PIP_PACKAGES_NEEDED}
+fi
+
+if [[ -z "${DISABLE_CCACHE}" ]]; then
+  brew install ccache
+  export PATH=/usr/local/opt/ccache/libexec:$PATH
+fi
 
 # Step 3. Manually compile and install ${PROJECT}
 cd ${WORKSPACE}/${PROJECT_PATH}
@@ -72,49 +87,67 @@ sudo rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
 cd ${WORKSPACE}/build
  
-
-# Mimic the homebrew variables
-export PKG_CONFIG_PATH=${RUN_DIR}/lib/pkgconfig
-export DYLD_FALLBACK_LIBRARY_PATH="$DYLD_FALLBACK_LIBRARY_PATH:${RUN_DIR}/lib"
-export PATH="${PATH}:${RUN_DIR}/bin"
-export C_INCLUDE_PATH="${C_INCLUDE_PATH}:${RUN_DIR}/include"
-export CPLUS_INCLUDE_PATH="${CPLUS_INCLUDE_PATH}:${RUN_DIR}/include"
-
 # add X11 path so glxinfo can be found
 export PATH="${PATH}:/opt/X11/bin"
 
 # set display before cmake
-# search for Xquartz instance owned by jenkins
+# search for Xquartz instance owned by current user
 export DISPLAY=$(ps ax \
   | grep '[[:digit:]]*:[[:digit:]][[:digit:]].[[:digit:]][[:digit:]] /opt/X11/bin/Xquartz' \
-  | grep 'auth /Users/jenkins/' \
+  | grep "auth /Users/$(whoami)/" \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
+echo '# END SECTION'
 
-${RUN_DIR}/bin/cmake ${WORKSPACE}/${PROJECT_PATH} \
-      -DCMAKE_INSTALL_PREFIX=${RUN_DIR}/Cellar/${PROJECT}/HEAD \
-      -DCMAKE_PREFIX_PATH=${RUN_DIR} \
-      -DCMAKE_FRAMEWORK_PATH=${RUN_DIR}/lib \
-      -DBOOST_ROOT=${RUN_DIR}
+echo "# BEGIN SECTION: configure ${PROJECT}"
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+      -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT}/HEAD \
+     ${WORKSPACE}/${PROJECT_PATH}
+echo '# END SECTION'
 
+echo "# BEGIN SECTION: compile and install ${PROJECT}"
 make -j${MAKE_JOBS} ${MAKE_VERBOSE_STR} install
-${RUN_DIR}/bin/brew link ${PROJECT}
+brew link ${PROJECT}
+echo '# END SECTION'
 
-cat > test_run.sh << DELIM
-cd $WORKSPACE/build/
-export PKG_CONFIG_PATH=${RUN_DIR}/lib/pkgconfig
-export DYLD_FALLBACK_LIBRARY_PATH=${RUN_DIR}/lib
-export BOOST_ROOT=${RUN_DIR}
-export PATH="${PATH}:${RUN_DIR}/bin"
-export CMAKE_PREFIX_PATH=${RUN_DIR}
+echo "#BEGIN SECTION: brew doctor analysis"
+brew doctor
+echo '# END SECTION'
 
+echo "# BEGIN SECTION: run tests"
 # Need to clean up models before run tests (issue 27)
-rm -fr \$HOME/.gazebo/models
-make test ARGS="-VV" || true
-DELIM
+rm -fr \$HOME/.gazebo/models test_results*
 
-chmod +x test_run.sh
-sudo  ./test_run.sh
+# Run `make test`
+# If it has any failures, then rerun the failed tests one time
+# and merge the junit results
+if ! make test ARGS="-VV" && [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
+  mv test_results test_results0
+  mkdir test_results
+  # we can't just run ctest --rerun-failed
+  # because that might not run the check_test_ran for failed tests
+  echo Failed tests:
+  ctest -N --rerun-failed
+  FAILED_TESTS=$(ctest -N --rerun-failed \
+    | grep 'Test  *#[0-9][0-9]*:' \
+    | sed -e 's@^ *Test  *#[0-9]*: *@@' \
+  )
+  for i in ${FAILED_TESTS}; do
+    make test ARGS="-VV -R ${i}\$$" || true
+  done
+  mkdir test_results_tmp
+  for i in $(ls test_results); do
+    echo looking for flaky tests in test_results0/$i and test_results/$i
+    python ${WORKSPACE}/scripts/jenkins-scripts/tools/flaky_junit_merge.py \
+      test_results0/$i test_results/$i \
+      > test_results_tmp/$i
+    mv test_results_tmp/$i test_results0
+  done
+  mv test_results test_results1
+  mv test_results0 test_results
+fi
+echo '# END SECTION'
 
-# Step 5. Clean up
-rm -fr ${RUN_DIR}
+echo "# BEGIN SECTION: re-add group write permissions"
+sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
+echo '# END SECTION'

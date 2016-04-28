@@ -15,7 +15,9 @@ class OSRFLinuxInstall extends OSRFLinuxBase
 
     job.with
     {
-      priority 100
+      properties {
+        priority 300
+      }
 
       logRotator {
         numToKeep(15)

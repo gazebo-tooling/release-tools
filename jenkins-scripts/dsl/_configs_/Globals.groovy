@@ -18,7 +18,7 @@ class Globals
       if (extra_emails != '')
       {
         return default_emails + ', ' + extra_emails
-      }
+     }
 
       return default_emails
    }

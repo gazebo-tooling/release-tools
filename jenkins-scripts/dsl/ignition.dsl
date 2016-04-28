@@ -2,7 +2,7 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
-def ignition_software         = [ 'transport', 'math' ]
+def ignition_software         = [ 'transport', 'math', 'msgs' ]
 def ignition_transport_series = '' // empty for a unversioned -dev package
 def ignition_math_series      = '2'
 
@@ -20,6 +20,8 @@ def all_supported_distros = ci_distro + other_supported_distros
 abi_job_names = [:]
 
 Globals.extra_emails = "caguero@osrfoundation.org"
+
+String ci_distro_str = ci_distro[0]
 
 // ABI Checker job
 // Need to be the before ci-pr_any so the abi job name is defined
@@ -59,9 +61,16 @@ ignition_software.each { ign_sw ->
 ignition_software.each { ign_sw ->
   ci_distro.each { distro ->
     supported_arches.each { arch ->
+      // 1. Create the default ci jobs
+      def ignition_ci_job_name = "ignition_${ign_sw}-ci-pr_any-${distro}-${arch}"
+      // --------------------------------------------------------------
+      // 0. Main CI workflow
+      def ign_ci_main = workflowJob("ignition_${ign_sw}-ci-pr_any")
+      OSRFCIWorkFlow.create(ign_ci_main, ignition_ci_job_name)
+
       // --------------------------------------------------------------
       // 1. Create the default ci jobs
-      def ignition_ci_job = job("ignition_${ign_sw}-ci-default-${distro}-${arch}")
+      def ignition_ci_job = job(ignition_ci_job_name)
       OSRFLinuxCompilation.create(ignition_ci_job)
       ignition_ci_job.with
       {
@@ -234,10 +243,8 @@ ignition_software.each { ign_sw ->
               """.stripIndent())
       }
   }
-}
 
-// 2. default
-ignition_software.each { ign_sw ->
+  // 2. default
   def ignition_brew_ci_job = job("ignition_${ign_sw}-ci-default-homebrew-amd64")
   OSRFBrewCompilation.create(ignition_brew_ci_job)
 
@@ -281,10 +288,8 @@ ignition_software.each { ign_sw ->
               """.stripIndent())
       }
   }
-}
 
-// 2. default
-ignition_software.each { ign_sw ->
+  // 2. default
   def ignition_win_ci_job = job("ignition_${ign_sw}-ci-default-windows7-amd64")
   OSRFWinCompilation.create(ignition_win_ci_job)
 
