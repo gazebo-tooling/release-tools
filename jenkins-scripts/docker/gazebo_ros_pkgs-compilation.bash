@@ -19,4 +19,4 @@ if [[ -z ${ROS_DISTRO} ]]; then
   exit 1
 fi
 
-. ${SCRIPT_DIR}/lib/ros_gazebo_pkgs-base.bash
+. ${SCRIPT_DIR}/lib/gazebo_ros_pkgs-base.bash

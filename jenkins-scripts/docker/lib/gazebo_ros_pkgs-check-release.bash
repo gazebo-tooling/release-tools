@@ -7,7 +7,7 @@ export GPU_SUPPORT_NEEDED=true
 # testing jobs and seems to be slow at the end of jenkins jobs
 export ENABLE_REAPER=false
 
-DOCKER_JOB_NAME="ros_gazebo_pkgs_ci"
+DOCKER_JOB_NAME="gazebo_ros_pkgs_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 # Generate the first part of the build.sh file for ROS
@@ -30,25 +30,10 @@ cd ${CATKIN_WS}/gazebo_ros_demos/
 export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$PWD
 cd ${CATKIN_WS}
 
-# Precise coreutils does not support preserve-status
-if [ $DISTRO = 'precise' ]; then
-  # TODO: all the testing on precise X in our jenkins is currently segfaulting
-  # docker can not run on Precise without altering the base packages
-  # Previous attemps to get GPU acceleration for intel in chroot:
-  # http://build.osrfoundation.org/job/ros_gazebo_pkgs-release-testing-broken-intel/
-  roslaunch gazebo_ros shapes_world.launch extra_gazebo_args:="--verbose" &
-
-  sleep 180
-  # Install psmisc for killall while running
-  apt-get install -y psmisc 
-  killall -9 roslaunch || true
-  killall -9 gzserver || true 
-else
-  timeout --preserve-status 180 roslaunch rrbot_gazebo rrbot_world.launch headless:=true extra_gazebo_args:="--verbose"
-  if [ $? != 0 ]; then
-    echo "Failure response in the launch command" 
-    exit 1
-  fi
+timeout --preserve-status 180 roslaunch rrbot_gazebo rrbot_world.launch headless:=true extra_gazebo_args:="--verbose"
+if [ $? != 0 ]; then
+  echo "Failure response in the launch command" 
+  exit 1
 fi
 
 echo "180 testing seconds finished successfully"

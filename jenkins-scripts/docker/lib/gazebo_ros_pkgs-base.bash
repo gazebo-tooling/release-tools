@@ -7,7 +7,7 @@ export GPU_SUPPORT_NEEDED=true
 # testing jobs and seems to be slow at the end of jenkins jobs
 export ENABLE_REAPER=false
 
-DOCKER_JOB_NAME="ros_gazebo_pkgs_ci"
+DOCKER_JOB_NAME="gazebo_ros_pkgs_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 # Generate the first part of the build.sh file for ROS
