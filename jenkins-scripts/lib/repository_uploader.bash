@@ -159,7 +159,8 @@ if [[ ${UPLOAD_TO_REPO} == 'only_s3_upload' ]]; then
 fi
 
 # REPREPRO debian packages
-repo_path="/var/packages/gazebo/ubuntu-${UPLOAD_TO_REPO}"
+LINUX_DISTRO=${LINUX_DISTRO:-ubuntu}
+repo_path="/var/packages/gazebo/${LINUX_DISTRO}-${UPLOAD_TO_REPO}"
 
 if [[ ! -d ${repo_path} ]]; then
     echo "Repo directory ${repo_path} not found in server"
