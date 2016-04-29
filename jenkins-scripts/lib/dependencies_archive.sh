@@ -270,6 +270,8 @@ else
                                 ros-${ROS_DISTRO}-camera-info-manager     \\
                                 ros-${ROS_DISTRO}-cmake-modules           \\
                                 ros-${ROS_DISTRO}-controller-manager      \\
+                                ros-${ROS_DISTRO}-control-toolbox         \\
+                                ros-${ROS_DISTRO}-tf                      \\
                                 ros-${ROS_DISTRO}-cv-bridge               \\
                                 ros-${ROS_DISTRO}-diagnostic-updater      \\
                                 ros-${ROS_DISTRO}-dynamic-reconfigure     \\
