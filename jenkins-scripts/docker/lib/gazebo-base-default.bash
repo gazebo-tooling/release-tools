@@ -26,6 +26,7 @@ cat > build.sh << DELIM
 # Make project-specific changes here
 #
 set -ex
+source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
 
 # Step 2: configure and build
 # Check for DART
