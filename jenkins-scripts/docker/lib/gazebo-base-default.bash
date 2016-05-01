@@ -60,12 +60,14 @@ cmake ${GAZEBO_BASE_CMAKE_ARGS}      \\
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: Gazebo compilation'
+init_stopwatch COMPILATION
 make -j${MAKE_JOBS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: Gazebo installation'
 make install
 . /usr/share/gazebo/setup.sh
+stop_stopwatch COMPILATION
 echo '# END SECTION'
 
 # Need to clean up from previous built
@@ -78,6 +80,7 @@ if [ `expr length "${GAZEBO_BASE_TESTS_HOOK} "` -gt 1 ]; then
   : # keep this line, needed if the variable is empty
 else
   # Run default
+  init_stopwatch TEST
   echo '# BEGIN SECTION: UNIT testing'
   make test ARGS="-VV -R UNIT_*" || true
   echo '# END SECTION'
@@ -89,15 +92,18 @@ else
   echo '# END SECTION'
   echo '# BEGIN SECTION: EXAMPLE testing'
   make test ARGS="-VV -R EXAMPLE_*" || true
+  stop_stopwatch TEST
   echo '# END SECTION'
 fi
 
 # Only run cppcheck on trusty
 if [ "$DISTRO" = "trusty" ] || [ "$DISTRO" = "wily" ]; then
   echo '# BEGIN SECTION: running cppcheck'
+  init_stopwatch CPPCHECK
   # Step 3: code check
   cd $WORKSPACE/gazebo
   sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+  stop_stopwatch CPPCHECK
   echo '# END SECTION'
 else
   mkdir -p $WORKSPACE/build/cppcheck_results/
