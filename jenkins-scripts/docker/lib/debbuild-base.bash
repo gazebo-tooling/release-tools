@@ -132,7 +132,7 @@ fi
 
 if $NEED_C11_COMPILER || $NEED_GCC48_COMPILER; then
 echo '# BEGIN SECTION: install C++11 compiler'
-apt-get install -y python-software-propertie ssoftware-properties-common || true
+apt-get install -y python-software-propertie software-properties-common || true
 add-apt-repository ppa:ubuntu-toolchain-r/test
 apt-get update
 apt-get install -y gcc-4.8 g++-4.8
