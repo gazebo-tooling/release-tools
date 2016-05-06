@@ -15,7 +15,7 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-common"
-export BUILDING_DEPENDENCIES="libfreeimage-dev libignition-math2-dev uuid-dev"
+export BUILDING_DEPENDENCIES="IGN_COMMON_DEPENDENCIES"
 export BUILDING_JOB_REPOSITORIES="stable"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
