@@ -46,19 +46,6 @@ mkdir workspace
 cd workspace
 echo # END SECTION
 
-echo # BEGIN SECTION: downloading and unzip dependencies: %DEPENDENCY_PKG%
-REM Todo: support multiple dependencies
-if defined DEPENDENCY_PKG (
-  call %win_lib% :download_7za
-
-  for %%p in (%DEPENDENCY_PKG%) do (
-    echo "Downloading %%p"
-    call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%%p %%p || goto :error
-    call %win_lib% :unzip_7za %%p %%p > install.log || goto:error
-  )
-)
-echo # END SECTION
-
 echo # BEGIN SECTION: compile and install ign-math
 set IGN_MATH_DIR=%WORKSPACE%\workspace\ign-math
 if EXIST %IGN_MATH_DIR% ( rmdir /s /q %IGN_MATH_DIR% )
@@ -70,6 +57,20 @@ call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
 copy %WORKSPACE%\workspace\jom.exe .
 jom
 nmake install
+cd %WORKSPACE%\workspace
+echo # END SECTION
+
+echo # BEGIN SECTION: downloading and unzip dependencies: %DEPENDENCY_PKG%
+REM Todo: support multiple dependencies
+if defined DEPENDENCY_PKG (
+  call %win_lib% :download_7za
+
+  for %%p in (%DEPENDENCY_PKG%) do (
+    echo "Downloading %%p"
+    call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%%p %%p || goto :error
+    call %win_lib% :unzip_7za %%p %%p > install.log || goto:error
+  )
+)
 echo # END SECTION
 
 echo # BEGIN SECTION: move %VCS_DIRECTORY% source to workspace
