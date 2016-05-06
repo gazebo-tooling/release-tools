@@ -51,11 +51,11 @@ echo # END SECTION
   echo # END SECTION
 )
 
-echo # BEGIN SECTION: compile and install sdformat
-set SDFORMAT_DIR=%WORKSPACE%\workspace\sdformat 
-if EXIST %SDFORMAT_DIR% ( rmdir /s /q %SDFORMAT_DIR% )
-hg clone https://bitbucket.org/osrf/sdformat %SDFORMAT_DIR%
-cd %SDFORMAT_DIR%
+echo # BEGIN SECTION: compile and install ign-math
+set IGN_MATH_DIR=%WORKSPACE%\workspace\ign-math
+if EXIST %IGN_MATH_DIR% ( rmdir /s /q %IGN_MATH_DIR% )
+hg clone https://bitbucket.org/ignitionrobotics/ign-math %IGN_MATH_DIR%
+cd %IGN_MATH_DIR%
 mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
@@ -64,11 +64,11 @@ jom
 nmake install
 echo # END SECTION
 
-echo # BEGIN SECTION: compile and install ign-math
-set IGN_MATH_DIR=%WORKSPACE%\workspace\ign-math
-if EXIST %IGN_MATH_DIR% ( rmdir /s /q %IGN_MATH_DIR% )
-hg clone https://bitbucket.org/ignitionrobotics/ign-math %IGN_MATH_DIR%
-cd %IGN_MATH_DIR%
+echo # BEGIN SECTION: compile and install sdformat
+set SDFORMAT_DIR=%WORKSPACE%\workspace\sdformat 
+if EXIST %SDFORMAT_DIR% ( rmdir /s /q %SDFORMAT_DIR% )
+hg clone https://bitbucket.org/osrf/sdformat %SDFORMAT_DIR%
+cd %SDFORMAT_DIR%
 mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
