@@ -17,7 +17,8 @@ packages['debian-science'] = ['console-bridge',
                               'urdfdom',
                               'urdfdom-headers' ]
 
-packages['collab-maint']   = ['peak-linux-driver']
+packages['collab-maint']   = ['peak-linux-driver',
+                              'peak-pcan-basic']
 
 packages.each { repo_name, pkgs ->
  pkgs.each { pkg ->
@@ -69,7 +70,9 @@ packages.each { repo_name, pkgs ->
         scm('@daily')
       }
 
-      priority 300
+      properties {
+        priority 300
+      }
 
       logRotator {
         artifactNumToKeep(10)

@@ -52,18 +52,8 @@ case ${ARCH} in
   'amd64')
      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      ;;
-  'i386')
-     # There are no i386 official images. Only 14.04 (trusty) is available
-     # https://registry.hub.docker.com/u/32bit/ubuntu/tags/manage/
-     if [[ $DISTRO == 'trusty' ]]; then
-       FROM_VALUE=32bit/ubuntu:14.04
-     fi
-
-     # Other images are not official.
-     FROM_VALUE=mcandre/docker-${LINUX_DISTRO}-32bit:${DISTRO}
-     ;;
- 'armhf')
-     FROM_VALUE=osrf/ubuntu_armhf:${DISTRO}
+  'i386' | 'armhf' | 'arm64' )
+     FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
      ;;
   *)
      echo "Arch unknown"
@@ -151,7 +141,7 @@ done
 if ${USE_ROS_REPO}; then
 cat >> Dockerfile << DELIM_ROS_REPO
 RUN echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > \\
-                                                /etc/apt/sources.list.d/ros.list && \\
+                                                /etc/apt/sources.list.d/ros.list
 RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
 DELIM_ROS_REPO
 fi

@@ -7,11 +7,7 @@ class Globals
    static extra_emails   = ''
 
    static gpu_by_distro  = [ trusty : [ 'nvidia', 'intel' ],
-                             vivid  : [ 'intel' ] ]
-
-   static bitbucket_build_status_job_name  = '_bitbucket-create_build_status_file'
-   static bitbucket_build_status_file_name = 'config_pybitbucket.yml'
-   static bitbucket_build_status_file_path = '$WORKSPACE/'+"${bitbucket_build_status_file_name}"
+                             xenial  : [ 'intel' ] ]
 
    static String get_emails()
    {
@@ -47,7 +43,7 @@ class Globals
 
    static ArrayList get_other_supported_distros()
    {
-     return [ 'vivid', 'wily' ]
+     return [ 'wily', 'xenial' ]
    }
 
    static ArrayList get_supported_arches()
