@@ -27,6 +27,34 @@ if %IGN_CLEAN_WORKSPACE% == true (
 mkdir %WORKSPACE%\workspace || echo "The workspace already exists. Fine"
 cd %WORKSPACE%\workspace || goto :error
 
+echo # BEGIN SECTION: compile and install ign-math
+set IGN_MATH_DIR=%WORKSPACE%\workspace\ign-math
+if EXIST %IGN_MATH_DIR% ( rmdir /s /q %IGN_MATH_DIR% )
+hg clone https://bitbucket.org/ignitionrobotics/ign-math %IGN_MATH_DIR%
+cd %IGN_MATH_DIR%
+mkdir build
+cd build
+call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
+copy %WORKSPACE%\workspace\jom.exe .
+jom
+nmake install
+cd %WORKSPACE%\workspace
+echo # END SECTION
+
+echo # BEGIN SECTION: compile and install ign-msgs
+set IGN_MSGS_DIR=%WORKSPACE%\workspace\ign-msgs
+if EXIST %IGN_MSGS_DIR% ( rmdir /s /q %IGN_MSGS_DIR% )
+hg clone https://bitbucket.org/ignitionrobotics/ign-msgs %IGN_MSGS_DIR%
+cd %IGN_MSGS_DIR%
+mkdir build
+cd build
+call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
+copy %WORKSPACE%\workspace\jom.exe .
+jom
+nmake install
+cd %WORKSPACE%\workspace
+echo # END SECTION
+
 echo # BEGIN SECTION: downloading ign-transport dependencies and unzip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-win%BITNESS%-vc12.zip protobuf-2.6.0-win%BITNESS%-vc12.zip
