@@ -7,4 +7,4 @@ set PLATFORM_TO_BUILD=x86_amd64
 set IGN_CLEAN_WORKSPACE=true
 set DEPENDENCY_PKG=FreeImage-vc12-x64-release-debug.zip,ign-math2.zip
 
-call "%SCRIPT_DIR%/lib/project-default-devel-windows.bat"
+call "%SCRIPT_DIR%/lib/ign_common-base-windows.bat"
