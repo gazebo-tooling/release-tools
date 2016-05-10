@@ -53,11 +53,12 @@ fi
 echo '# END SECTION'
 
 BREW=${PWD}/linuxbrew/bin/brew
+whoami
 ${BREW} up
 
 # tap dev-tools to get brew ruby command
 ${BREW} tap homebrew/dev-tools
-ls -Rl ${PWD}/linuxbrew/Library/Taps/
+ls -aRl ${PWD}/linuxbrew/Library/Taps/
 ${BREW} ruby -e "puts 'success'"
 
 # tap osrf/simulation
