@@ -53,12 +53,16 @@ fi
 echo '# END SECTION'
 
 BREW=${PWD}/linuxbrew/bin/brew
+${BREW} up
 
 # tap dev-tools to get brew ruby command
 ${BREW} tap homebrew/dev-tools
+ls -Rl ${PWD}/linuxbrew/Library/Taps/
+${BREW} ruby -e "puts 'success'"
+
+# tap osrf/simulation
 ${BREW} tap osrf/simulation
 TAP_PREFIX=${PWD}/linuxbrew/Library/Taps/osrf/homebrew-simulation
-ls -Rl ${PWD}/linuxbrew/Library/Taps/
 
 echo '# BEGIN SECTION: check if the formula exists'
 echo
