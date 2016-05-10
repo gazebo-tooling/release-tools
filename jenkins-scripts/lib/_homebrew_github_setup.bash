@@ -58,6 +58,7 @@ BREW=${PWD}/linuxbrew/bin/brew
 ${BREW} tap homebrew/dev-tools
 ${BREW} tap osrf/simulation
 TAP_PREFIX=${PWD}/linuxbrew/Library/Taps/osrf/homebrew-simulation
+ls -Rl ${PWD}/linuxbrew/Library/Taps/
 
 echo '# BEGIN SECTION: check if the formula exists'
 echo
