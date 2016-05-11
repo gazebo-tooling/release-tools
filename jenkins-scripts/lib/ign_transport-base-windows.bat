@@ -44,7 +44,7 @@ hg clone https://bitbucket.org/ignitionrobotics/ign-math %IGN_MATH_DIR%
 cd %IGN_MATH_DIR%
 mkdir build
 cd build
-call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
+call "..\configure.bat" %BUILD_TYPE% %BITNESS% || goto %win_lib% :error
 copy %WORKSPACE%\workspace\jom.exe .
 jom
 nmake install
@@ -58,7 +58,7 @@ hg clone https://bitbucket.org/ignitionrobotics/ign-msgs %IGN_MSGS_DIR%
 cd %IGN_MSGS_DIR%
 mkdir build
 cd build
-call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
+call "..\configure.bat" %BUILD_TYPE% %BITNESS% || goto %win_lib% :error
 copy %WORKSPACE%\workspace\jom.exe .
 jom
 nmake install
