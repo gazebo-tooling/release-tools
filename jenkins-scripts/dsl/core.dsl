@@ -90,7 +90,7 @@ release_job.with
    publishers
    {
      // Added the checker result parser (UNSTABLE if not compatible)
-     // IMPORTANT: the order of the steps here is important. Leave the confiure
+     // IMPORTANT: the order of the steps here is important. Leave the configure
      // block first.
      configure { project ->
        project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
