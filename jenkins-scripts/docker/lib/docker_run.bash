@@ -42,7 +42,9 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
     sudo rm -fr ${WORKSPACE}/build
     # Mimic old layout of exported test results
     mkdir ${WORKSPACE}/build
-    for d in $(find ${WORKSPACE} -name '*_results' -type d); do
+    # maxdepth is need to avoid problems finding build directories with
+    # _results in the name
+    for d in $(find ${WORKSPACE} -maxdepth 1 -name '*_results' -type d); do
        sudo mv ${d} ${WORKSPACE}/build/
     done
     
