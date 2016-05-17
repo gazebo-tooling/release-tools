@@ -58,5 +58,5 @@ PR_URL=$(${HUB} -C ${TAP_PREFIX} pull-request \
 
 echo "Pull request created: ${PR_URL}"
 # Exporting URL as an artifact (it will be used in other jobs)
-echo "PULL_REQUEST_URL=${PR_URL}" >> ${PR_URL_export_file}
+echo "PULL_REQUEST_URL=${PR_URL}" > ${PR_URL_export_file}
 echo '# END SECTION'
