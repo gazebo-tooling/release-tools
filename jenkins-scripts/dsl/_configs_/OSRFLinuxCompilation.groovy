@@ -25,6 +25,7 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
             includePattern('build/*_results/')
             includePattern('*_results/')
             deleteDirectories()
+        }
       }
 
       publishers
