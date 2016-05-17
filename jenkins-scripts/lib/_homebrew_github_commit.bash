@@ -4,6 +4,9 @@
 # - PACKAGE_ALIAS
 # - VERSION
 
+# Can be defined outside the script. if not, default value is set
+PR_URL_export_file=${PR_URL_export_file:-${WORKSPACE}/pull_request_created.properties}
+
 GIT="git -C ${TAP_PREFIX}"
 
 DIFF_LENGTH=`${GIT} diff | wc -l`
@@ -55,5 +58,5 @@ PR_URL=$(${HUB} -C ${TAP_PREFIX} pull-request \
 
 echo "Pull request created: ${PR_URL}"
 # Exporting URL as an artifact (it will be used in other jobs)
-echo "PULL_REQUEST_URL=${PR_URL}" >> ${WORKSPACE}/pull_request_created.properties
+echo "PULL_REQUEST_URL=${PR_URL}" > ${PR_URL_export_file}
 echo '# END SECTION'
