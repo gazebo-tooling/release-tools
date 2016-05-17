@@ -20,6 +20,14 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
 
     job.with
     {
+      wrappers {
+        preBuildCleanup {
+            includePattern('build/*_results/')
+            includePattern('*_results/')
+            deleteDirectories()
+        }
+      }
+
       publishers
       {
          // compilers warnings
