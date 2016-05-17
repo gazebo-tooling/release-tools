@@ -48,6 +48,8 @@ abi_distro.each { distro ->
     OSRFLinuxABI.create(abi_job, "http://bitbucket.org/osrf/gazebo")
     abi_job.with
     {
+      label "large-memory"
+
       steps {
         shell("""\
               #!/bin/bash -xe
