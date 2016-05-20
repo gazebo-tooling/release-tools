@@ -257,6 +257,7 @@ if $ENABLE_CCACHE; then
 cat >> Dockerfile << DELIM_CCACHE
 ENV PATH /usr/lib/ccache:\$PATH
 ENV CCACHE_DIR ${CCACHE_DIR}"
+ENV CCACHE_MAXSIZE ${CCACHE_MAXSIZE}
 DELIM_CCACHE
 
 # Add the statistics about ccache at the beggining of the build
