@@ -33,7 +33,7 @@ class Globals
 
    static ArrayList get_abi_distro()
    {
-     return [ 'vivid' ]
+     return [ 'xenial' ]
    }
 
    static ArrayList get_ci_gpu()
