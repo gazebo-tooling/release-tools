@@ -67,11 +67,18 @@ abi_distro.each { distro ->
 // Create the main CI worf flow job
 def gazebo_ci_main = workflowJob("gazebo-ci-pr_any")
 OSRFCIWorkFlow.create(gazebo_ci_main, ci_build_any_job_name)
+
 // CI JOBS @ SCM/5 min
 ci_gpu_include_gpu_none = ci_gpu + [ 'none' ]
 ci_distro.each { distro ->
   ci_gpu_include_gpu_none.each { gpu ->
     supported_arches.each { arch ->
+      // Temporary workaround to use Xenial as distro for gpu-none
+      if (gpu == 'none')
+      {
+        distro = "xenial"
+      }
+       
       // --------------------------------------------------------------
       // 1. Create the any job
       def gazebo_ci_any_job = job("gazebo-ci-pr_any-${distro}-${arch}-gpu-${gpu}")
