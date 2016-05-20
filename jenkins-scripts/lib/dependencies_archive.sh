@@ -174,12 +174,19 @@ fi
 GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                           ${sdformat_pkg}"
 
-GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
-                           libavformat-dev  \\
+GAZEBO_EXTRA_DEPENDENCIES="libavformat-dev  \\
                            libavcodec-dev   \\
                            libgraphviz-dev  \\
                            libswscale-dev   \\
                            ruby-ronn"
+
+# Player was removed starting from xenial
+if [[ ${DISTRO} == 'precise' ]] || \
+   [[ ${DISTRO} == 'trusty' ]] || \
+   [[ ${DISTRO} == 'wily' ]]; then
+  GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} robot-player-dev"
+fi
+
 
 # cegui is deprecated in gazebo 6
 if [[ ${GAZEBO_MAJOR_VERSION} -le 6 ]]; then
