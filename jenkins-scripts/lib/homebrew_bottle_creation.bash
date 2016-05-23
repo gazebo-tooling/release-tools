@@ -25,7 +25,7 @@ echo '# BEGIN SECTION: run test-bot'
 # mercurial to keep the slave working
 brew test-bot --tap=osrf/simulation \
               --ci-pr ${PULL_REQUEST_URL} \
-	     || { brew install hg; exit -1 }
+	     || { brew install hg; exit -1; }
 brew install hg
 echo '# END SECTION'
 
