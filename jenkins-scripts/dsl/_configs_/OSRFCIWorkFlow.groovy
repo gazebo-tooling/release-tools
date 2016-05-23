@@ -40,6 +40,7 @@ class OSRFCIWorkFlow
                  currentBuild.description =  "\$JOB_DESCRIPTION"
                  def archive_number = ""
                  def compilation_job = null
+                 def result_URL = env.JENKINS_URL + '/job/'
 
                  stage 'checkout for the mercurial hash'
                  node("lightweight-linux") {
@@ -76,6 +77,8 @@ class OSRFCIWorkFlow
                           [\$class: 'StringParameterValue',  name: 'DEST_BRANCH',     value: "\$DEST_BRANCH"]]
                 }
 
+                result_URL = result_URL + compilation_job.getNumber()
+
                 publish_result = 'failed'
                 if (compilation_job.getResult() == 'SUCCESS')
                 {
@@ -91,7 +94,7 @@ class OSRFCIWorkFlow
                        [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_REPO',     value: "\$SRC_REPO"],
                        [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_HG_HASH',  value: env.MERCURIAL_REVISION_SHORT],
                        [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_JOB_NAME', value: env.JOB_NAME],
-                       [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_URL',      value: env.BUILD_URL],
+                       [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_URL',      value: result_URL],
                        [\$class: 'StringParameterValue', name: 'BITBUCKET_STATUS',       value: publish_result ]]
                 }
 
