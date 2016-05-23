@@ -40,7 +40,7 @@ class OSRFCIWorkFlow
                  currentBuild.description =  "\$JOB_DESCRIPTION"
                  def archive_number = ""
                  def compilation_job = null
-                 def result_URL = env.JENKINS_URL + '/job/' + build_any_job_name + '/'
+                 def result_URL = env.JENKINS_URL + '/job/${build_any_job_name}/'
 
                  stage 'checkout for the mercurial hash'
                  node("lightweight-linux") {
