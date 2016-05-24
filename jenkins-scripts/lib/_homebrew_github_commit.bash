@@ -7,6 +7,25 @@
 # Can be defined outside the script. if not, default value is set
 PR_URL_export_file=${PR_URL_export_file:-${WORKSPACE}/pull_request_created.properties}
 
+echo '# BEGIN SECTION: check variables'
+if [ -z "${BRANCH}" ]; then
+  echo BRANCH not specified
+  exit -1
+fi
+if [ -z "${PACKAGE_ALIAS}" ]; then
+  echo PACKAGE_ALIAS not specified
+  exit -1
+fi
+if [ -z "${TAP_PREFIX}" ]; then
+  echo TAP_PREFIX not specified
+  exit -1
+fi
+if [ -z "${VERSION}" ]; then
+  echo VERSION not specified
+  exit -1
+fi
+echo '# END SECTION'
+
 GIT="git -C ${TAP_PREFIX}"
 
 DIFF_LENGTH=`${GIT} diff | wc -l`
@@ -21,13 +40,15 @@ echo '# END SECTION'
 
 echo
 echo '# BEGIN SECTION: commit and pull request creation'
-${GIT} remote add fork git@github.com:osrfbuild/homebrew-simulation.git
-# unshallow to get a full clone able to push
-${GIT} fetch --unshallow
 ${GIT} config user.name "OSRF Build Bot"
 ${GIT} config user.email "osrfbuild@osrfoundation.org"
 ${GIT} remote -v
-${GIT} checkout -b ${BRANCH}
+# check if branch already exists
+if git rev-parse --verify ${BRANCH} ; then
+  ${GIT} checkout ${BRANCH}
+else
+  ${GIT} checkout -b ${BRANCH}
+fi
 ${GIT} commit ${FORMULA_PATH} -m "${PACKAGE_ALIAS} ${VERSION}"
 echo
 ${GIT} status
@@ -54,9 +75,10 @@ fi
 PR_URL=$(${HUB} -C ${TAP_PREFIX} pull-request \
   -b osrf:master \
   -h osrfbuild:${BRANCH} \
-  -m "${PACKAGE_ALIAS} ${VERSION}")
+  -m "${PACKAGE_ALIAS} ${VERSION}${COMMIT_MESSAGE_SUFFIX}")
 
 echo "Pull request created: ${PR_URL}"
 # Exporting URL as an artifact (it will be used in other jobs)
 echo "PULL_REQUEST_URL=${PR_URL}" > ${PR_URL_export_file}
+echo "BRANCH=${BRANCH}" >> ${PR_URL_export_file}
 echo '# END SECTION'

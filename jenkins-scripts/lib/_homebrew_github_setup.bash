@@ -62,6 +62,10 @@ ${BREW} ruby -e "puts 'brew ruby success'"
 # tap osrf/simulation
 ${BREW} tap osrf/simulation
 TAP_PREFIX=${PWD}/linuxbrew/Library/Taps/osrf/homebrew-simulation
+GIT="git -C ${TAP_PREFIX}"
+${GIT} remote add fork git@github.com:osrfbuild/homebrew-simulation.git
+# unshallow to get a full clone able to push
+${GIT} fetch --unshallow
 
 echo '# BEGIN SECTION: check if the formula exists'
 echo

@@ -18,6 +18,11 @@ get_osX_distribution()
 }
 
 echo '# BEGIN SECTION: check variables'
+if [ -z "${BRANCH}" ]; then
+  echo BRANCH not specified
+  exit -1
+fi
+
 if [ -z "${PACKAGE_ALIAS}" ]; then
   echo PACKAGE_ALIAS not specified
   exit -1
@@ -45,13 +50,23 @@ if [ -z "${FORMULA_PATH}" ]; then
   exit -1
 fi
 
+if [ -z "${TAP_PREFIX}" ]; then
+  echo TAP_PREFIX not specified
+  exit -1
+fi
+
+echo '# BEGIN SECTION: checkout pull request branch'
+GIT="git -C ${TAP_PREFIX}"
+${GIT} checkout ${BRANCH}
+echo '# END SECTION'
+
 echo '# BEGIN SECTION: update hash in formula'
 NEW_HASH_LINE=$(grep 'sha256[[:space:]]*.* => :' ${FILE_WITH_NEW_HASH})
 DISTRO=$(get_osX_distribution "${NEW_HASH_LINE}")
 CURRENT_HASH=$(sed -n "s/sha256[[:space:]]*\"\(.*\)\".*=>.*${DISTRO}.*/\1/p" ${FORMULA_PATH} | sed 's/^ *//')
 # NEW_HASH_LINE has double quotes. Do not include it in double quotes :)
-sed -i -e 's/sha256.*=>.*'"${DISTRO}/${NEW_HASH_LINE}/"'g' ${FORMULA_PATH}
-cat ${FORMULA_PATH}
+sed -i -e 's/^ *sha256.*=>.*'"${DISTRO}/${NEW_HASH_LINE}/"'g' ${FORMULA_PATH}
 echo '# END SECTION'
 
+COMMIT_MESSAGE_SUFFIX=" bottle"
 . ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash

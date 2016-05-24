@@ -135,6 +135,8 @@ bottle_job_builder.with
 
    parameters
    {
+     stringParam("BRANCH", '',
+                 'Branch in fork (osrfbuild/simulation) hosting pull request changes.')
      stringParam("PULL_REQUEST_URL", '',
                  'Pull request URL (osrf/simulation) pointing to a pull request.')
    }
