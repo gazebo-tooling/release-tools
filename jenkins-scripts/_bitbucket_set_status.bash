@@ -84,7 +84,6 @@ echo "BEGIN SECTION: build status in bitbucket: ${BITBUCKET_STATUS} (hidden)"
 set +x # keep password secret
 BITBUCKET_USER_PASS=$(cat ${BITBUCKET_USER_PASS_FILE})
 BITBUCKET_API_RESULT=true
-# real run of the script
 ${WORKSPACE}/scripts/jenkins-scripts/python-bitbucket/set_status_from_file.py \
     --user "osrf_jenkins"  \
     --pass "${BITBUCKET_USER_PASS}" \

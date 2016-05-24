@@ -86,8 +86,6 @@ class OSRFBitbucketClient:
         except: # fallback to use 40 first chars of job_name
             key = build_data.jenkins_data.job_name[0:39]
 
-        print status_data.build_description
-
         build_status = BuildStatus.create_buildstatus(
             owner           = build_data.source_data.owner,
             repository_name = build_data.source_data.repo_short_name,
