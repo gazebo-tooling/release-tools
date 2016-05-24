@@ -59,7 +59,7 @@ class OSRFCIWorkFlow
         stage 'set bitbucket status: ${args.build_status}'
          node("lightweight-linux")
          {
-             build job: _bitbucket-set_status,
+             build job: "_bitbucket-set_status",
                propagate: false, wait: true,
                   parameters:
                     [[\$class: 'StringParameterValue', name: 'RTOOLS_BRANCH',          value: "\$RTOOLS_BRANCH"],
