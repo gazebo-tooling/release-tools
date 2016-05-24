@@ -36,6 +36,11 @@ class BuildData:
         self.source_data  = build_source_data
         self.jenkins_data = build_jenkins_data
 
+class StatusData:
+    def __init__(self, status, build_description = ""):
+        self.status            = status
+        self.build_description = build_description
+
 class OSRFBitbucketClient:
     def __init__(self, user, password):
         self.client = Client(
@@ -71,7 +76,7 @@ class OSRFBitbucketClient:
                     BuildJenkinsData(src_data["name"],
                                      src_data["url"]))
 
-    def send_build_status(self, build_data, status):
+    def send_build_status(self, build_data, status_data):
 
         # Define key as the first 40 chars (bitbucket limit) of the 
         # job-name just after -ci-pr_any-. This should leave the
@@ -81,6 +86,8 @@ class OSRFBitbucketClient:
         except: # fallback to use 40 first chars of job_name
             key = build_data.jenkins_data.job_name[0:39]
 
+        print status_data.build_description
+
         build_status = BuildStatus.create_buildstatus(
             owner           = build_data.source_data.owner,
             repository_name = build_data.source_data.repo_short_name,
@@ -88,8 +95,8 @@ class OSRFBitbucketClient:
             key             = key,
             name            = build_data.jenkins_data.build_name,
             url             = build_data.jenkins_data.build_url,
-            description     = build_data.jenkins_data.build_description,
-            state           = status,
+            description     = status_data.build_description,
+            state           = status_data.status,
             client          = self.client)
 
         pprint(build_status)
