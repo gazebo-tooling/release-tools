@@ -17,6 +17,7 @@ class OSRFCIWorkFlowSingleAny
       return """\
          stage 'compiling + QA'
           def result_URL = env.JENKINS_URL + '/job/${job_name}/'
+          def compilation_job = null
 
           node("lightweight-linux")
           {
@@ -33,10 +34,18 @@ class OSRFCIWorkFlowSingleAny
 
           result_URL = result_URL + compilation_job.getNumber()
 
-          publish_result = 'failed'
-          if (compilation_job.getResult() == 'SUCCESS')
+          // asumming success by default when no job run
+          if (compilation_job.getResult() != 'SUCCESS')
           {
-            publish_result = 'ok'
+            // any non success is a failure in bitbucket status
+            bitbucket_publish_result = 'failed'
+
+            // Only if the prev status was UNSTABLE we keep a possible
+            // UNSTABLE result. Otherwise FAILURE
+            if (jenkins_pipeline_result == 'UNSTABLE')
+                jenkins_pipeline_result = compilation_job.getResult()
+            else
+                jenkins_pipeline_result = 'FAILURE'
           }
       """
    }
@@ -67,7 +76,7 @@ class OSRFCIWorkFlowSingleAny
                                                      build_desc   : '"Testing in progress"',
                                                      build_name   : "'${build_any_job_name}'") + // different order of quotes!
                  OSRFCIWorkFlowSingleAny.script_code_build_any(build_any_job_name) +
-                 OSRFCIWorkFlow.script_code_set_code(build_status : '"$publish_result"',
+                 OSRFCIWorkFlow.script_code_set_code(build_status : '"$bitbucket_publish_result"',
                                                      build_desc   : '"Testing is finished"',
                                                      build_name   : "'${build_any_job_name}'", // different order of quotes!
                                                      build_url    : '"$result_URL"') +

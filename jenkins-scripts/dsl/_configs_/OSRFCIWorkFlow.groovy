@@ -13,7 +13,8 @@ class OSRFCIWorkFlow
    {
      return """\
        currentBuild.description =  "\$JOB_DESCRIPTION"
-       def publish_result  = ""
+       def bitbucket_publish_result  = 'ok'
+       def jenkins_pipeline_result   = 'SUCCESS'
        def compilation_job = null
 
        stage 'checkout for the mercurial hash'
@@ -30,7 +31,7 @@ class OSRFCIWorkFlow
    static String script_code_end_hook()
    {
      return """\
-       currentBuild.result = publish_result
+       currentBuild.result = jenkins_pipeline_result
      """
    }
 
