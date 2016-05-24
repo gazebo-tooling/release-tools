@@ -250,6 +250,8 @@ set_status.with
                  'Branch of SRC_REPO to test')
      stringParam('JENKINS_BUILD_URL','',
                  'Link to jenkins main ci job')
+     stringParam('JENKINS_BUILD_DESC','',
+                 'Description about building events')
      stringParam('BITBUCKET_STATUS',
                  '',
                  'inprogress | fail | ok')

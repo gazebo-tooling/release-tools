@@ -49,6 +49,7 @@ class OSRFCIWorkFlow
                      [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_HG_HASH',  value: env.MERCURIAL_REVISION_SHORT],
                      [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_JOB_NAME', value: env.JOB_NAME],
                      [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_URL',      value: env.BUILD_URL],
+                     [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_DESC',     value: ""],
                      [\$class: 'StringParameterValue', name: 'BITBUCKET_STATUS',       value: "${status}"]]
          }
      """

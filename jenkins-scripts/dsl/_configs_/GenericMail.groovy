@@ -57,6 +57,7 @@ class GenericMail
               sendTo {
                 developers()
                 requester()
+                recipientList()
               }
             }
 
