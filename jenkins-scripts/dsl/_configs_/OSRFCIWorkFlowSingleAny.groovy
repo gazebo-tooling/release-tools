@@ -40,12 +40,9 @@ class OSRFCIWorkFlowSingleAny
             // any non success is a failure in bitbucket status
             bitbucket_publish_result = 'failed'
 
-            // Only if the prev status was UNSTABLE we keep a possible
-            // UNSTABLE result. Otherwise FAILURE
-            if (jenkins_pipeline_result == 'UNSTABLE')
+            // If previous value was FAILURE, keep it, otherwise get the new status
+            if (jenkins_pipeline_result != 'FAILURE')
                 jenkins_pipeline_result = compilation_job.getResult()
-            else
-                jenkins_pipeline_result = 'FAILURE'
           }
       """
    }
