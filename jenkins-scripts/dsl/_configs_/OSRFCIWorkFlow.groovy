@@ -15,7 +15,6 @@ class OSRFCIWorkFlow
        currentBuild.description =  "\$JOB_DESCRIPTION"
        def bitbucket_publish_result  = 'ok'
        def jenkins_pipeline_result   = 'SUCCESS'
-       def compilation_job = null
 
        stage 'checkout for the mercurial hash'
        node("lightweight-linux") {

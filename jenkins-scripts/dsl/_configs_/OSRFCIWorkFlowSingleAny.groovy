@@ -17,7 +17,7 @@ class OSRFCIWorkFlowSingleAny
       return """\
          stage 'compiling + QA'
           def result_URL = env.JENKINS_URL + '/job/${job_name}/'
-          def compilation_job = null
+          compilation_job = null
 
           node("lightweight-linux")
           {
