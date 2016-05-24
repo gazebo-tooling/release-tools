@@ -69,7 +69,7 @@ class OSRFCIWorkFlowSingleAny
                  OSRFCIWorkFlow.script_code_set_code(build_status : '$publish_result',
                                                      build_desc   : 'Testing is finished',
                                                      build_name   : build_any_job_name,
-                                                     build_url    : 'result_URL') +
+                                                     build_url    : '$result_URL') +
                  OSRFCIWorkFlow.script_code_end_hook().stripIndent()
             )
           } // end of cps
