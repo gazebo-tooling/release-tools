@@ -34,7 +34,11 @@ class OSRFCIWorkFlow
      """
    }
 
-   static String script_code_set_code(String status)
+
+   static String script_code_set_code(String build_status, 
+                                      String build_desc = "",
+                                      String build_name = 'ENV.JOB_NAME',
+                                      String build_url  = 'ENV.BUILD_URL')
    {
      return """\
 
@@ -47,10 +51,9 @@ class OSRFCIWorkFlow
                     [[\$class: 'StringParameterValue', name: 'RTOOLS_BRANCH',          value: "\$RTOOLS_BRANCH"],
                      [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_REPO',     value: "\$SRC_REPO"],
                      [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_HG_HASH',  value: env.MERCURIAL_REVISION_SHORT],
-                     [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_JOB_NAME', value: env.JOB_NAME],
-                     [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_URL',      value: env.BUILD_URL],
-                     [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_DESC',     value: ""],
-                     [\$class: 'StringParameterValue', name: 'BITBUCKET_STATUS',       value: "${status}"]]
+                     [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_JOB_NAME', value: ${build_name}],
+                     [\$class: 'StringParameterValue', name: 'JENKINS_BUILD_URL',      value: ${build_url}],
+                     [\$class: 'StringParameterValue', name: 'BITBUCKET_STATUS',       value: ${build_status}"]]
          }
      """
    }

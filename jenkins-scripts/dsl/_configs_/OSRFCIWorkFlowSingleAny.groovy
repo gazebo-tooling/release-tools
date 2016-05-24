@@ -16,6 +16,8 @@ class OSRFCIWorkFlowSingleAny
    {
       return """\
          stage 'compiling + QA'
+          def result_URL = env.JENKINS_URL + '/job/${job_name}/'
+
           node("lightweight-linux")
           {
             compilation_job = build job: '${job_name}',
@@ -28,6 +30,8 @@ class OSRFCIWorkFlowSingleAny
                   [\$class: 'StringParameterValue',  name: 'JOB_DESCRIPTION', value: "\$JOB_DESCRIPTION"],
                   [\$class: 'StringParameterValue',  name: 'DEST_BRANCH',     value: "\$DEST_BRANCH"]]
           }
+
+          result_URL = result_URL + compilation_job.getNumber()
 
           publish_result = 'failed'
           if (compilation_job.getResult() == 'SUCCESS')
@@ -59,9 +63,13 @@ class OSRFCIWorkFlowSingleAny
             sandbox()
             script(
                  OSRFCIWorkFlow.script_code_init_hook() +
-                 OSRFCIWorkFlow.script_code_set_code("inprogress") +
+                 OSRFCIWorkFlow.script_code_set_code(build_status = 'inprogress',
+                                                     build_desc   = 'Testing in progress') +
                  OSRFCIWorkFlowSingleAny.script_code_build_any(build_any_job_name) +
-                 OSRFCIWorkFlow.script_code_set_code('$publish_result') +
+                 OSRFCIWorkFlow.script_code_set_code(build_status = '$publish_result',
+                                                     build_desc   = 'Testing is finished',
+                                                     build_name   = build_any_job_name,
+                                                     build_url    = 'result_URL') +
                  OSRFCIWorkFlow.script_code_end_hook().stripIndent()
             )
           } // end of cps
