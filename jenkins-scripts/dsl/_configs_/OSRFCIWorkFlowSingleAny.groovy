@@ -63,13 +63,13 @@ class OSRFCIWorkFlowSingleAny
             sandbox()
             script(
                  OSRFCIWorkFlow.script_code_init_hook() +
-                 OSRFCIWorkFlow.script_code_set_code(build_status = 'inprogress',
-                                                     build_desc   = 'Testing in progress') +
+                 OSRFCIWorkFlow.script_code_set_code(build_status : 'inprogress',
+                                                     build_desc   : 'Testing in progress') +
                  OSRFCIWorkFlowSingleAny.script_code_build_any(build_any_job_name) +
-                 OSRFCIWorkFlow.script_code_set_code(build_status = '$publish_result',
-                                                     build_desc   = 'Testing is finished',
-                                                     build_name   = build_any_job_name,
-                                                     build_url    = 'result_URL') +
+                 OSRFCIWorkFlow.script_code_set_code(build_status : '$publish_result',
+                                                     build_desc   : 'Testing is finished',
+                                                     build_name   : build_any_job_name,
+                                                     build_url    : 'result_URL') +
                  OSRFCIWorkFlow.script_code_end_hook().stripIndent()
             )
           } // end of cps
