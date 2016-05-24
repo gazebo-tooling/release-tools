@@ -64,7 +64,8 @@ class OSRFCIWorkFlowSingleAny
             script(
                  OSRFCIWorkFlow.script_code_init_hook() +
                  OSRFCIWorkFlow.script_code_set_code(build_status : '"inprogress"',
-                                                     build_desc   : '"Testing in progress"') +
+                                                     build_desc   : '"Testing in progress"',
+                                                     build_name   : "'${build_any_job_name}'") + // different order of quotes!
                  OSRFCIWorkFlowSingleAny.script_code_build_any(build_any_job_name) +
                  OSRFCIWorkFlow.script_code_set_code(build_status : '"$publish_result"',
                                                      build_desc   : '"Testing is finished"',
