@@ -44,7 +44,7 @@ ${GIT} config user.name "OSRF Build Bot"
 ${GIT} config user.email "osrfbuild@osrfoundation.org"
 ${GIT} remote -v
 # check if branch already exists
-if git rev-parse --verify ${PULL_REQUEST_BRANCH} ; then
+if ${GIT} rev-parse --verify ${PULL_REQUEST_BRANCH} ; then
   ${GIT} checkout ${PULL_REQUEST_BRANCH}
 else
   ${GIT} checkout -b ${PULL_REQUEST_BRANCH}
