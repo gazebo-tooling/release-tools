@@ -145,6 +145,9 @@ bottle_job_builder.with
    steps {
         systemGroovyCommand("""\
           build.setDescription(
+          '<b>' + build.buildVariableResolver.resolve('PACKAGE_ALIAS') + '-' +
+           build.buildVariableResolver.resolve('VERSION') + '</b>' +
+          '<br />' +
           'pull request:<b> <a href="' + build.buildVariableResolver.resolve('PULL_REQUEST_URL') +
           '">' + build.buildVariableResolver.resolve('PULL_REQUEST_URL') + '</a></b>' +
           '<br />' +
