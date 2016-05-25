@@ -139,7 +139,7 @@ bottle_job_builder.with
                  'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
      stringParam("PULL_REQUEST_BRANCH", '',
                  'Note! not used in the build but in the call to bottle hash updating. ' +
-                 'Branch in fork (osrf/homebrew-simulation) hosting pull request changes.')
+                 'Branch in fork (osrfbuild/homebrew-simulation) hosting pull request changes.')
    }
 
    steps {
@@ -212,7 +212,7 @@ bottle_job_hash_updater.with
   {
     // reuse the pull request created by homebrew_pull_request_updater in step 1
     stringParam("PULL_REQUEST_BRANCH", '',
-                'Branch in fork (osrf/homebrew-simulation) hosting pull request changes.')
+                'Branch in fork (osrfbuild/homebrew-simulation) hosting pull request changes.')
   }
  
   steps
