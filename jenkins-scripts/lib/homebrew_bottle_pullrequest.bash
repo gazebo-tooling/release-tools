@@ -18,8 +18,8 @@ get_osX_distribution()
 }
 
 echo '# BEGIN SECTION: check variables'
-if [ -z "${BRANCH}" ]; then
-  echo BRANCH not specified
+if [ -z "${PULL_REQUEST_BRANCH}" ]; then
+  echo PULL_REQUEST_BRANCH not specified
   exit -1
 fi
 
@@ -57,7 +57,7 @@ fi
 
 echo '# BEGIN SECTION: checkout pull request branch'
 GIT="git -C ${TAP_PREFIX}"
-${GIT} checkout ${BRANCH}
+${GIT} checkout ${PULL_REQUEST_BRANCH}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: update hash in formula'

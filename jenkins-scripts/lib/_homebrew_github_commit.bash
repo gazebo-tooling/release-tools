@@ -1,6 +1,6 @@
 # parameters:
 # - TAP_PREFIX
-# - BRANCH
+# - PULL_REQUEST_BRANCH
 # - PACKAGE_ALIAS
 # - VERSION
 
@@ -8,8 +8,8 @@
 PR_URL_export_file=${PR_URL_export_file:-${WORKSPACE}/pull_request_created.properties}
 
 echo '# BEGIN SECTION: check variables'
-if [ -z "${BRANCH}" ]; then
-  echo BRANCH not specified
+if [ -z "${PULL_REQUEST_BRANCH}" ]; then
+  echo PULL_REQUEST_BRANCH not specified
   exit -1
 fi
 if [ -z "${PACKAGE_ALIAS}" ]; then
@@ -44,10 +44,10 @@ ${GIT} config user.name "OSRF Build Bot"
 ${GIT} config user.email "osrfbuild@osrfoundation.org"
 ${GIT} remote -v
 # check if branch already exists
-if git rev-parse --verify ${BRANCH} ; then
-  ${GIT} checkout ${BRANCH}
+if git rev-parse --verify ${PULL_REQUEST_BRANCH} ; then
+  ${GIT} checkout ${PULL_REQUEST_BRANCH}
 else
-  ${GIT} checkout -b ${BRANCH}
+  ${GIT} checkout -b ${PULL_REQUEST_BRANCH}
 fi
 ${GIT} commit ${FORMULA_PATH} -m "${PACKAGE_ALIAS} ${VERSION}"
 echo
@@ -55,7 +55,7 @@ ${GIT} status
 echo
 ${GIT} show HEAD
 echo
-${GIT} push -u fork ${BRANCH}
+${GIT} push -u fork ${PULL_REQUEST_BRANCH}
 
 
 # Check for hub command
@@ -74,11 +74,11 @@ fi
 
 PR_URL=$(${HUB} -C ${TAP_PREFIX} pull-request \
   -b osrf:master \
-  -h osrfbuild:${BRANCH} \
+  -h osrfbuild:${PULL_REQUEST_BRANCH} \
   -m "${PACKAGE_ALIAS} ${VERSION}${COMMIT_MESSAGE_SUFFIX}")
 
 echo "Pull request created: ${PR_URL}"
 # Exporting URL as an artifact (it will be used in other jobs)
 echo "PULL_REQUEST_URL=${PR_URL}" > ${PR_URL_export_file}
-echo "BRANCH=${BRANCH}" >> ${PR_URL_export_file}
+echo "PULL_REQUEST_BRANCH=${PULL_REQUEST_BRANCH}" >> ${PR_URL_export_file}
 echo '# END SECTION'

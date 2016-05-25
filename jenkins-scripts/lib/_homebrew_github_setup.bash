@@ -2,6 +2,7 @@
 # - PACKAGE_ALIAS [mandatory] name of package including major version
 # Return:
 # -> FORMULA_PATH
+# -> TAP_PREFIX
 
 if [ -z ${PACKAGE_ALIAS} ]; then
     echo "PACKAGE_ALIAS variables is empty"
