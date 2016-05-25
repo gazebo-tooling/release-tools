@@ -58,27 +58,33 @@ echo
 ${GIT} push -u fork ${PULL_REQUEST_BRANCH}
 
 
-# Check for hub command
-HUB=hub
-if ! which ${HUB} ; then
-  if [ ! -s hub-linux-amd64-2.2.3.tgz ]; then
-    echo
-    echo Downloading hub...
-    wget -q https://github.com/github/hub/releases/download/v2.2.3/hub-linux-amd64-2.2.3.tgz
-    echo Downloaded
+# Create a pull request if one doesn't yet exist
+if [ -z "${PULL_REQUEST_URL}" ]; then
+  # Check for hub command
+  HUB=hub
+  if ! which ${HUB} ; then
+    if [ ! -s hub-linux-amd64-2.2.3.tgz ]; then
+      echo
+      echo Downloading hub...
+      wget -q https://github.com/github/hub/releases/download/v2.2.3/hub-linux-amd64-2.2.3.tgz
+      echo Downloaded
+    fi
+    HUB=`tar tf hub-linux-amd64-2.2.3.tgz | grep /hub$`
+    tar xf hub-linux-amd64-2.2.3.tgz ${HUB}
+    HUB=${PWD}/${HUB}
   fi
-  HUB=`tar tf hub-linux-amd64-2.2.3.tgz | grep /hub$`
-  tar xf hub-linux-amd64-2.2.3.tgz ${HUB}
-  HUB=${PWD}/${HUB}
+
+  PR_URL=$(${HUB} -C ${TAP_PREFIX} pull-request \
+    -b osrf:master \
+    -h osrfbuild:${PULL_REQUEST_BRANCH} \
+    -m "${PACKAGE_ALIAS} ${VERSION}")
+
+  echo "Pull request created: ${PR_URL}"
+
+  # Exporting URL as an artifact (it will be used in other jobs)
+  echo "PULL_REQUEST_URL=${PR_URL}" > ${PR_URL_export_file}
+  echo "PULL_REQUEST_BRANCH=${PULL_REQUEST_BRANCH}" >> ${PR_URL_export_file}
+else
+  echo "Pull request updated: ${PULL_REQUEST_URL}"
 fi
-
-PR_URL=$(${HUB} -C ${TAP_PREFIX} pull-request \
-  -b osrf:master \
-  -h osrfbuild:${PULL_REQUEST_BRANCH} \
-  -m "${PACKAGE_ALIAS} ${VERSION}")
-
-echo "Pull request created: ${PR_URL}"
-# Exporting URL as an artifact (it will be used in other jobs)
-echo "PULL_REQUEST_URL=${PR_URL}" > ${PR_URL_export_file}
-echo "PULL_REQUEST_BRANCH=${PULL_REQUEST_BRANCH}" >> ${PR_URL_export_file}
 echo '# END SECTION'
