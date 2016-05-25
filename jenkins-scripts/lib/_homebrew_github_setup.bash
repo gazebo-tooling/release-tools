@@ -67,6 +67,7 @@ GIT="git -C ${TAP_PREFIX}"
 ${GIT} remote add fork git@github.com:osrfbuild/homebrew-simulation.git
 # unshallow to get a full clone able to push
 ${GIT} fetch --unshallow
+${GIT} fetch fork
 
 echo '# BEGIN SECTION: check if the formula exists'
 echo
