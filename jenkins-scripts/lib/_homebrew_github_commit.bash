@@ -49,7 +49,7 @@ if ${GIT} rev-parse --verify ${PULL_REQUEST_BRANCH} ; then
 else
   ${GIT} checkout -b ${PULL_REQUEST_BRANCH}
 fi
-${GIT} commit ${FORMULA_PATH} -m "${PACKAGE_ALIAS} ${VERSION}"
+${GIT} commit ${FORMULA_PATH} -m "${PACKAGE_ALIAS} ${VERSION}${COMMIT_MESSAGE_SUFFIX}"
 echo
 ${GIT} status
 echo
@@ -75,7 +75,7 @@ fi
 PR_URL=$(${HUB} -C ${TAP_PREFIX} pull-request \
   -b osrf:master \
   -h osrfbuild:${PULL_REQUEST_BRANCH} \
-  -m "${PACKAGE_ALIAS} ${VERSION}${COMMIT_MESSAGE_SUFFIX}")
+  -m "${PACKAGE_ALIAS} ${VERSION}")
 
 echo "Pull request created: ${PR_URL}"
 # Exporting URL as an artifact (it will be used in other jobs)
