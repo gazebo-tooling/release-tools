@@ -3,7 +3,7 @@
 :: Parameters:
 ::   - VCS_DIRECTORY : WORKSPACE/VCS_DIRECTORY should contain the sources
 ::   - BUILD_TYPE    : (default Release) [ Release | Debug ] Build type to use
-::   - DEPEN_PKGS    : (optional) one package as dependency (only one is supported by now)
+::   - DEPEN_PKGS    : (optional) list of dependencies (separted by spaces)
 ::   - KEEP_WORKSPACE: (optional) true | false. Clean workspace at the end
 ::
 :: Actions
