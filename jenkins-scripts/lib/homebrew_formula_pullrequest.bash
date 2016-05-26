@@ -75,6 +75,6 @@ echo on line number ${SHA_LINE}
 sed -i -e "${SHA_LINE}c\  sha256 \"${SOURCE_TARBALL_SHA}\"" ${FORMULA_PATH}
 
 # create branch with name and sanitized version string
-BRANCH="${PACKAGE_ALIAS}_`echo ${VERSION} | tr ' ~:^?*[' '_'`"
+PULL_REQUEST_BRANCH="${PACKAGE_ALIAS}_`echo ${VERSION} | tr ' ~:^?*[' '_'`"
 
 . ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash

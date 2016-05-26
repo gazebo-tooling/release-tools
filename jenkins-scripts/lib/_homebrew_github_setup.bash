@@ -2,6 +2,7 @@
 # - PACKAGE_ALIAS [mandatory] name of package including major version
 # Return:
 # -> FORMULA_PATH
+# -> TAP_PREFIX
 
 if [ -z ${PACKAGE_ALIAS} ]; then
     echo "PACKAGE_ALIAS variables is empty"
@@ -62,6 +63,11 @@ ${BREW} ruby -e "puts 'brew ruby success'"
 # tap osrf/simulation
 ${BREW} tap osrf/simulation
 TAP_PREFIX=${PWD}/linuxbrew/Library/Taps/osrf/homebrew-simulation
+GIT="git -C ${TAP_PREFIX}"
+${GIT} remote add fork git@github.com:osrfbuild/homebrew-simulation.git
+# unshallow to get a full clone able to push
+${GIT} fetch --unshallow
+${GIT} fetch fork
 
 echo '# BEGIN SECTION: check if the formula exists'
 echo
