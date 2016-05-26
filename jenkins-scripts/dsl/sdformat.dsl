@@ -15,6 +15,9 @@ def all_supported_distros   = Globals.get_all_supported_distros()
 def supported_arches        = Globals.get_supported_arches()
 def experimental_arches     = Globals.get_experimental_arches()
 
+String ci_distro_str = ci_distro[0]
+String ci_build_any_job_name = "sdformat-ci-pr_any-${ci_distro_str}-amd64"
+
 // Need to be used in ci_pr
 String abi_job_name = ''
 
@@ -59,7 +62,11 @@ abi_distro.each { distro ->
   } // end of arch
 } // end of distro
 
-// MAIN CI JOBS @ SCM/5 min
+// MAIN CI job
+// Create the main CI worf flow job
+def sdformat_ci_main = workflowJob("sdformat-ci-pr_any")
+OSRFCIWorkFlowSingleAny.create(sdformat_ci_main, ci_build_any_job_name)
+// CI JOBS @ SCM/5 min
 ci_distro.each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
@@ -92,9 +99,10 @@ ci_distro.each { distro ->
 
     // --------------------------------------------------------------
     // 2. Create the any job
-    def sdformat_ci_any_job = job("sdformat-ci-pr_any-${distro}-${arch}")
-    OSRFLinuxCompilationAny.create(sdformat_ci_any_job,
-				  "http://bitbucket.org/osrf/sdformat")
+    String sdf_repo = "http://bitbucket.org/osrf/sdformat"
+
+    def sdformat_ci_any_job = job(ci_build_any_job_name)
+    OSRFLinuxCompilationAny.create(sdformat_ci_any_job, sdf_repo)
     sdformat_ci_any_job.with
     {
       steps

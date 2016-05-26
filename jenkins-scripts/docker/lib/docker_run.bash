@@ -32,7 +32,7 @@ sudo docker stop ${CID} || true
 sudo docker rm ${CID} || true
 
 # Export results out of build directory, to WORKSPACE
-for d in $(find ${WORKSPACE}/build -name '*_results' -type d); do
+for d in $(find ${WORKSPACE}/build -maxdepth 1 -name '*_results' -type d); do
     sudo mv ${d} ${WORKSPACE}/
     sudo chown -R jenkins ${WORKSPACE}/*_results
 done
@@ -42,7 +42,9 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
     sudo rm -fr ${WORKSPACE}/build
     # Mimic old layout of exported test results
     mkdir ${WORKSPACE}/build
-    for d in $(find ${WORKSPACE} -name '*_results' -type d); do
+    # maxdepth is need to avoid problems finding build directories with
+    # _results in the name
+    for d in $(find ${WORKSPACE} -maxdepth 1 -name '*_results' -type d); do
        sudo mv ${d} ${WORKSPACE}/build/
     done
     

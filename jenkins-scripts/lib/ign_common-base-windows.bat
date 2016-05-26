@@ -3,13 +3,13 @@
 :: Parameters:
 ::   - VCS_DIRECTORY : WORKSPACE/VCS_DIRECTORY should contain the sources
 ::   - BUILD_TYPE    : (default Release) [ Release | Debug ] Build type to use
-::   - DEPEN_PKGS    : (optional) one package as dependency (only one is supported by now)
+::   - DEPENDENCY_PKG: (optional) comma separated list of packages as dependencies
 ::   - KEEP_WORKSPACE: (optional) true | false. Clean workspace at the end
 ::
 :: Actions
 ::   - Configure the compiler
 ::   - Clean and create the WORKSPACE/workspace
-::   - Download and unzip the DEPEN_PKGS
+::   - Download and unzip the DEPENDENCY_PKG (if any)
 ::   - configure, compile and install
 ::   - run tests
 
@@ -46,11 +46,30 @@ mkdir workspace
 cd workspace
 echo # END SECTION
 
-for %%p in (%DEPEN_PKGS%) do (
-  echo # BEGIN SECTION: downloading and unzip dependency %%p
+echo # BEGIN SECTION: compile and install ign-math
+set IGN_MATH_DIR=%WORKSPACE%\workspace\ign-math
+if EXIST %IGN_MATH_DIR% ( rmdir /s /q %IGN_MATH_DIR% )
+hg clone https://bitbucket.org/ignitionrobotics/ign-math %IGN_MATH_DIR%
+cd %IGN_MATH_DIR%
+mkdir build
+cd build
+call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
+copy %WORKSPACE%\workspace\jom.exe .
+jom
+nmake install
+cd %WORKSPACE%\workspace
+echo # END SECTION
+
+echo # BEGIN SECTION: downloading and unzip dependencies: %DEPENDENCY_PKG%
+REM Todo: support multiple dependencies
+if defined DEPENDENCY_PKG (
   call %win_lib% :download_7za
-  call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%%p %%p || goto :error
-  call %win_lib% :unzip_7za %%p %%p > install.log || goto:error
+
+  for %%p in (%DEPENDENCY_PKG%) do (
+    echo "Downloading %%p"
+    call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%%p %%p || goto :error
+    call %win_lib% :unzip_7za %%p %%p > install.log || goto:error
+  )
 )
 echo # END SECTION
 
@@ -62,8 +81,8 @@ cd build
 echo # END SECTION
 
 if exist ..\configure.bat (
-  echo # BEGIN SECTION: configuring %VCS_DIRECTORY% in %BUILD_TYPE% / %BITNESS%
-  call ..\configure.bat %BUILD_TYPE% %BITNESS% || goto :error
+  echo # BEGIN SECTION: configuring %VCS_DIRECTORY% in %BUILD_TYPE%
+  call ..\configure.bat %BUILD_TYPE% || goto :error
 ) else (
   echo # BEGIN SECTION: configuring %VCS_DIRECTORY% using cmake 
   cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS% || goto :error
@@ -74,7 +93,7 @@ cmake .. -DENABLE_TESTS_COMPILATION:BOOL=True || echo "second run of cmake for e
 echo # END SECTION
 
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
-nmake VERBOSE=1 || goto %win_lib% :error
+nmake || goto %win_lib% :error
 echo # END SECTION
 echo # BEGIN SECTION: installing %VCS_DIRECTORY%
 nmake install || goto %win_lib% :error
