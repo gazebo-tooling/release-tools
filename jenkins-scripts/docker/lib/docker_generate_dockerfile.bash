@@ -263,9 +263,14 @@ DELIM_CCACHE
 # Add the statistics about ccache at the beggining of the build
 # first 3 lines: bash, set and space
 sed -i '4iecho "# BEGIN SECTION: starting ccache statistics"' build.sh
-sed -i '5iccache -s' build.sh
-sed -i '6iecho # "END SECTION"' build.sh
-sed -i '7echo ""' build.sh
+sed -i '5set | grep CCACHE_' build.sh
+sed -i '6iccache -s' build.sh
+sed -i "7export CCACHE_MAXSIZE=${CCACHE_MAXSIZE}" build.sh
+sed -i '8iccache -s' build.sh
+sed -i "9iccache -M ${CCACHE_MAXSIZE}" build.sh
+sed -i '10iccache -s' build.sh
+sed -i '11iecho # "END SECTION"' build.sh
+sed -i '12echo ""' build.sh
 
 # Add the statistics about ccache at the end
 cat >> build.sh << BUILDSH_CCACHE
