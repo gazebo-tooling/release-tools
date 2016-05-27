@@ -8,6 +8,8 @@ def supported_arches = [ 'amd64' ]
 
 Globals.extra_emails = "caguero@osrfoundation.org"
 
+// Early testing shows that xenial jobs can be run on a
+// trusty host with good results.
 void include_gpu_label(Job job, String distro)
 {
   job.with
