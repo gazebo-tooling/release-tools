@@ -68,6 +68,7 @@ if ${BREW} ruby -e \
   "exit (\"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select
         { |d| d.value?(${DISTRO}) }).length == 1"
 then
+  echo bottle specification for distro ${DISTRO} found
 else
   echo bottle specification for distro ${DISTRO} not found
   echo unable to update formula
