@@ -63,7 +63,17 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: update hash in formula'
 NEW_HASH_LINE=$(grep 'sha256[[:space:]]*.* => :' ${FILE_WITH_NEW_HASH})
 DISTRO=$(get_osX_distribution "${NEW_HASH_LINE}")
-CURRENT_HASH=$(sed -n "s/sha256[[:space:]]*\"\(.*\)\".*=>.*${DISTRO}.*/\1/p" ${FORMULA_PATH} | sed 's/^ *//')
+# Check if formula has existing bottle entry for this DISTRO
+if ${BREW} ruby -e \
+  "exit (\"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select
+        { |d| d.value?(${DISTRO}) }).length == 1"
+then
+  echo bottle specification for distro ${DISTRO} found
+else
+  echo bottle specification for distro ${DISTRO} not found
+  echo unable to update formula
+  exit -1
+fi
 # NEW_HASH_LINE has double quotes. Do not include it in double quotes :)
 sed -i -e 's/^ *sha256.*=>.*'"${DISTRO}/${NEW_HASH_LINE}/"'g' ${FORMULA_PATH}
 echo '# END SECTION'
