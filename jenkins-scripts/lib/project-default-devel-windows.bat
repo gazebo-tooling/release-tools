@@ -3,13 +3,13 @@
 :: Parameters:
 ::   - VCS_DIRECTORY : WORKSPACE/VCS_DIRECTORY should contain the sources
 ::   - BUILD_TYPE    : (default Release) [ Release | Debug ] Build type to use
-::   - DEPENDENCY_PKG: (optional) comma separated list of packages as dependencies
+::   - DEPEN_PKGS    : (optional) list of dependencies (separted by spaces)
 ::   - KEEP_WORKSPACE: (optional) true | false. Clean workspace at the end
 ::
 :: Actions
 ::   - Configure the compiler
 ::   - Clean and create the WORKSPACE/workspace
-::   - Download and unzip the DEPENDENCY_PKG (if any)
+::   - Download and unzip the DEPEN_PKGS
 ::   - configure, compile and install
 ::   - run tests
 
@@ -46,16 +46,11 @@ mkdir workspace
 cd workspace
 echo # END SECTION
 
-echo # BEGIN SECTION: downloading and unzip dependencies: %DEPENDENCY_PKG%
-REM Todo: support multiple dependencies
-if defined DEPENDENCY_PKG (
+for %%p in (%DEPEN_PKGS%) do (
+  echo # BEGIN SECTION: downloading and unzip dependency %%p
   call %win_lib% :download_7za
-
-  for %%p in (%DEPENDENCY_PKG%) do (
-    echo "Downloading %%p"
-    call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%%p %%p || goto :error
-    call %win_lib% :unzip_7za %%p %%p > install.log || goto:error
-  )
+  call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%%p %%p || goto :error
+  call %win_lib% :unzip_7za %%p %%p > install.log || goto:error
 )
 echo # END SECTION
 
@@ -67,8 +62,8 @@ cd build
 echo # END SECTION
 
 if exist ..\configure.bat (
-  echo # BEGIN SECTION: configuring %VCS_DIRECTORY% in %BUILD_TYPE%
-  call ..\configure.bat %BUILD_TYPE% || goto :error
+  echo # BEGIN SECTION: configuring %VCS_DIRECTORY% in %BUILD_TYPE% / %BITNESS%
+  call ..\configure.bat %BUILD_TYPE% %BITNESS% || goto :error
 ) else (
   echo # BEGIN SECTION: configuring %VCS_DIRECTORY% using cmake 
   cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS% || goto :error
@@ -79,7 +74,7 @@ cmake .. -DENABLE_TESTS_COMPILATION:BOOL=True || echo "second run of cmake for e
 echo # END SECTION
 
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
-nmake || goto %win_lib% :error
+nmake VERBOSE=1 || goto %win_lib% :error
 echo # END SECTION
 echo # BEGIN SECTION: installing %VCS_DIRECTORY%
 nmake install || goto %win_lib% :error
