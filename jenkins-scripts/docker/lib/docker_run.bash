@@ -21,7 +21,9 @@ if $ENABLE_CCACHE; then
                     -v ${CCACHE_DIR}:${CCACHE_DIR}:rw"
 fi
 
+# DOCKER_FIX is for workaround https://github.com/docker/docker/issues/14203
 sudo docker run $EXTRA_PARAMS_STR  \
+            -e DOCKER_FIX=''  \
             --cidfile=${CIDFILE} \
             -v ${WORKSPACE}:${WORKSPACE} \
             --tty \
