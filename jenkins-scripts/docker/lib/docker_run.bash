@@ -22,6 +22,8 @@ if $ENABLE_CCACHE; then
 fi
 
 sudo docker run $EXTRA_PARAMS_STR  \
+            # workaround for https://github.com/docker/docker/issues/14203
+            -e DOCKER_FIX=''  \
             --cidfile=${CIDFILE} \
             -v ${WORKSPACE}:${WORKSPACE} \
             --tty \
