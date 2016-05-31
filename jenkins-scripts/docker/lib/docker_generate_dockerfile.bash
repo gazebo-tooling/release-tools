@@ -243,6 +243,33 @@ ENV LANGUAGE en_GB
 ENV QT_X11_NO_MITSHM 1
 DELIM_WORKAROUND_91
 
+if $ENABLE_CCACHE; then
+cat >> Dockerfile << DELIM_CCACHE
+ENV PATH /usr/lib/ccache:\$PATH
+ENV CCACHE_DIR ${CCACHE_DIR}
+ENV CCACHE_MAXSIZE ${CCACHE_MAXSIZE}
+DELIM_CCACHE
+
+# Add the statistics about ccache at the beggining of the build
+# first 3 lines: bash, set and space
+sed -i '4iecho "# BEGIN SECTION: starting ccache statistics"' build.sh
+sed -i "5iccache -M ${CCACHE_MAXSIZE}" build.sh
+sed -i '6iccache -s' build.sh
+sed -i '7iecho # "END SECTION"' build.sh
+sed -i '8iecho ""' build.sh
+
+# Add the statistics about ccache at the end
+cat >> build.sh << BUILDSH_CCACHE
+echo '# BEGIN SECTION: starting ccache statistics'
+ccache -s
+echo '# END SECTION'
+BUILDSH_CCACHE
+fi
+
+echo '# BEGIN SECTION: see build.sh script'
+cat build.sh
+echo '# END SECTION'
+
 cat >> Dockerfile << DELIM_DOCKER4
 COPY build.sh build.sh
 RUN chmod +x build.sh
