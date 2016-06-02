@@ -21,38 +21,39 @@ check_forked() {
 
     # Check if the command has exited successfully, it means we're in a forked distro
     if [ "$lsb_release_exit_code" = "0" ]; then
-      # Print info about current distro
-      cat <<-EOF
-      You're using '$lsb_dist' version '$dist_version'.
-      EOF
+        # respect the tabs for proper EOF and formatting
+	cat <<-EOF
+	You're using '$lsb_dist' version '$dist_version'.
+	EOF
 
-      # Get the upstream release info
-      lsb_dist=$(lsb_release -a -u 2>&1 | tr '[:upper:]' '[:lower:]' | grep -E 'id' | cut -d ':' -f 2 | tr -d '[[:space:]]')
-      dist_version=$(lsb_release -a -u 2>&1 | tr '[:upper:]' '[:lower:]' | grep -E 'codename' | cut -d ':' -f 2 | tr -d '[[:space:]]')
+	# Get the upstream release info
+	lsb_dist=$(lsb_release -a -u 2>&1 | tr '[:upper:]' '[:lower:]' | grep -E 'id' | cut -d ':' -f 2 | tr -d '[[:space:]]')
+	dist_version=$(lsb_release -a -u 2>&1 | tr '[:upper:]' '[:lower:]' | grep -E 'codename' | cut -d ':' -f 2 | tr -d '[[:space:]]')
 
-      # Print info about upstream distro
-      cat <<-EOF
-      Upstream release is '$lsb_dist' version '$dist_version'.
-      EOF
+        # respect the tabs for proper EOF and formatting
+	cat <<-EOF
+	Upstream release is '$lsb_dist' version '$dist_version'.
+	EOF
     fi
   fi
 }
 
 do_install() {
   if command_exists gazebo; then
-    cat >&2 <<-'EOF'
-      Warning: the "gazebo" command appears to already exist on this system.
+        # respect the tabs for proper EOF and formatting
+	cat >&2 <<-'EOF'
+		Warning: the "gazebo" command appears to already exist on this system.
 
-      If you already have gazebo installed, this script can cause trouble, which is
-      why we're displaying this warning and provide the opportunity to cancel the
-      installation.
+		If you already have gazebo installed, this script can cause trouble, which is
+		why we're displaying this warning and provide the opportunity to cancel the
+		installation.
 
-      If you installed the current robocup3ds gazebo package using this script and
-      are using it again to update the simulator, you can safely ignore this message.
+		If you installed the current robocup3ds gazebo package using this script and
+		are using it again to update the simulator, you can safely ignore this message.
 
-      You may press Ctrl+C now to abort this script.
-    EOF
-    ( set -x; sleep 20 )
+		You may press Ctrl+C now to abort this script.
+	EOF
+	( set -x; sleep 20 )
   fi
 
   user="$(id -un 2>/dev/null || true)"
@@ -64,11 +65,12 @@ do_install() {
     elif command_exists su; then
       sh_c='su -c'
     else
-      cat >&2 <<-'EOF'
-      Error: this installer needs the ability to run commands as root.
-      We are unable to find either "sudo" or "su" available to make this happen.
-      EOF
-      exit 1
+        # respect the tabs for proper EOF and formatting
+	cat >&2 <<-'EOF'
+		Error: this installer needs the ability to run commands as root.
+		We are unable to find either "sudo" or "su" available to make this happen.
+	EOF
+	exit 1
     fi
   fi
 
@@ -208,17 +210,17 @@ do_install() {
    ;;
 
    *)
-      # intentionally mixed spaces and tabs here -- tabs are stripped by "<<-'EOF'", spaces are kept in the output
-      cat >&2 <<- EOF
+     # intentionally mixed spaces and tabs here -- tabs are stripped by "<<-'EOF'", spaces are kept in the output
+	cat >&2 <<- EOF
 
-      Your distribution ${lsb_dist}-${dist_version} is unsupported
-      by the robocup3ds project.
+	  Your distribution ${lsb_dist}-${dist_version} is unsupported 
+	  by the robocup3ds project.
 
-      Current supported distributions:
-        - Ubuntu Trusty
-        - Ubuntu Xenial
-      EOF
-      exit 1
+	  Current supported distributions:
+	    - Ubuntu Trusty
+	    - Ubuntu Xenial
+	EOF
+        exit 1
    ;;
   esac
 }
