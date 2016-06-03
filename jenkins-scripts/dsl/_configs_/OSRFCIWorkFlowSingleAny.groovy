@@ -119,8 +119,9 @@ class OSRFCIWorkFlowSingleAny
         {
           cps
           {
-            // run script in sandbox groovy
-            sandbox()
+            // Disable sandbox until the bug/issue is resolved
+            // https://issues.jenkins-ci.org/browse/JENKINS-28178
+            sandbox(false)
             script(
                  (OSRFCIWorkFlow.script_code_init_hook() +
                  build_jobs_with_status +
