@@ -13,8 +13,8 @@ class OSRFCIWorkFlow
    {
      return """\
        currentBuild.description =  "\$JOB_DESCRIPTION"
-       def bitbucket_publish_result  = 'ok'
-       def jenkins_pipeline_result   = 'SUCCESS'
+       def bitbucket_publish_job_result  = [ : ]
+       def jenkins_pipeline_job_result   = [ : ]
 
        stage 'checkout for the mercurial hash'
        node("lightweight-linux") {
@@ -30,7 +30,26 @@ class OSRFCIWorkFlow
    static String script_code_end_hook()
    {
      return """\
-       currentBuild.result = jenkins_pipeline_result
+          bitbucket_publish_final_result = 'ok'
+          bitbucket_publish_job_result.each { result ->
+            if (result == 'failed') {
+              bitbucket_publish_final_result = 'failed'
+            }
+          }
+         
+          jenkins_pipeline_final_result = 'SUCCESS'
+          jenkins_pipeline_job_result.each { result ->
+            // ABORTED is handled like a failure in the worflow job
+            if (result == 'ABORTED') {
+              result = 'FAILURE'
+            }
+            // If previous value was FAILURE, keep it, otherwise get the new status
+            if (result != 'FAILURE') {
+              jenkins_pipeline_final_result = result
+            }
+          }
+
+          currentBuild.result = jenkins_pipeline_final_result
      """
    }
 

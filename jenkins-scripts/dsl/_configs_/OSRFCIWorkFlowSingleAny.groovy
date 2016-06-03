@@ -17,6 +17,9 @@ class OSRFCIWorkFlowSingleAny
       return """\
          stage 'compiling + QA'
           def result_URL = env.JENKINS_URL + '/job/${job_name}/'
+          def bitbucket_publish_job_result[$job_name : 'ok']
+          def jenkins_pipeline_job_result[$job_name : 'SUCCESS']
+
           compilation_job = null
 
           node("lightweight-linux")
@@ -34,15 +37,11 @@ class OSRFCIWorkFlowSingleAny
 
           result_URL = result_URL + compilation_job.getNumber()
 
-          // asumming success by default when no job run
           if (compilation_job.getResult() != 'SUCCESS')
           {
             // any non success is a failure in bitbucket status
-            bitbucket_publish_result = 'failed'
-
-            // If previous value was FAILURE, keep it, otherwise get the new status
-            if (jenkins_pipeline_result != 'FAILURE')
-                jenkins_pipeline_result = compilation_job.getResult()
+            bitbucket_publish_job_result[$job_name : 'failed']
+            jenkins_pipeline_job_result[$job_name : compilation_job.getResult()]
           }
       """
    }
@@ -52,22 +51,51 @@ class OSRFCIWorkFlowSingleAny
       OSRFCIWorkFlowSingleAny.create(job, [build_any_job_name])
    }
 
+   static String build_stage_name(String ci_job_name)
+   {
+      try
+      {
+        return ci_job_name.split("-ci-pr_any-")[1]
+      }
+      catch (java.lang.ArrayIndexOutOfBoundsException e)
+      {
+        return ci_job_name
+      }
+   }
+
    static void create(Job job, ArrayList any_job_name_list)
    {
       OSRFCIWorkFlow.create(job)
 
       String build_jobs_with_status = "";
 
-      any_job_name_list.each { build_any_job_name ->
-        build_jobs_with_status = build_jobs_with_status +
+      any_job_name_list.eachWithIndex { build_any_job_name, index ->
+          // Handle job parallelization
+          String stage_name = build_stage_name(build_any_job_name)
+
+          String parallel_init = "parallel ${stage_name} : {"
+          if (index > 0)
+          {
+            parallel_init = build_jobs_with_status + "${stage_name} : {"
+          }
+
+          String parallel_end = "}"
+          if (index != any_job_name_list.size() - 1)
+          {
+            parallel_end = parallel_end + ","
+          }
+          parallel_end = parallel_end + "\n"
+
+          build_jobs_with_status = parallel_init +
           OSRFCIWorkFlow.script_code_set_code(build_status : '"inprogress"',
                                                build_desc   : '"Testing in progress"',
                                                build_name   : "'${build_any_job_name}'") + // different order of quotes!
           OSRFCIWorkFlowSingleAny.script_code_build_any(build_any_job_name) +
-          OSRFCIWorkFlow.script_code_set_code(build_status : '"$bitbucket_publish_result"',
-                                               build_desc   : '"Testing is finished"',
-                                               build_name   : "'${build_any_job_name}'", // different order of quotes!
-                                               build_url    : '"$result_URL"')
+          OSRFCIWorkFlow.script_code_set_code(build_status : '"$bitbucket_publish_final_result "',
+                                               build_desc  : '"Testing is finished"',
+                                               build_name  : "'${build_any_job_name}'", // different order of quotes!
+                                               build_url   : '"$result_URL"') +
+          parallel_end
       }
 
       job.with
@@ -88,9 +116,9 @@ class OSRFCIWorkFlowSingleAny
             // run script in sandbox groovy
             sandbox()
             script(
-                 OSRFCIWorkFlow.script_code_init_hook() +
+                 (OSRFCIWorkFlow.script_code_init_hook() +
                  build_jobs_with_status +
-                 OSRFCIWorkFlow.script_code_end_hook().stripIndent()
+                 OSRFCIWorkFlow.script_code_end_hook()).stripIndent()
             )
           } // end of cps
         } // end of definition
