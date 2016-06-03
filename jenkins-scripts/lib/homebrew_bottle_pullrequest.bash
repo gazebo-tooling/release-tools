@@ -63,9 +63,8 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: update hash in formula'
 DISTRO=yosemite
 # Check if json has existing bottle entry for this DISTRO
-NEW_HASH=$(${BREW} ruby -e \
-  "puts Utils::JSON.load(IO.read(\"${FILE_WITH_NEW_HASH}\") \
-                        ).values[0]['bottle']['tags'][\"${DISTRO}\"]")
+NEW_HASH=$(${BREW} ruby -e "puts Utils::JSON.load(IO.read(\"${FILE_WITH_NEW_HASH}\")).values[0]['bottle']['tags'][\"${DISTRO}\"]")
+echo NEW_HASH: ${NEW_HASH}
 # Check if formula has existing bottle entry for this DISTRO
 if ${BREW} ruby -e \
   "exit (\"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select
@@ -80,6 +79,7 @@ else
   echo unable to update formula
   exit -1
 fi
+echo OLD_HASH: ${OLD_HASH}
 SED_FIND___="sha256 \"${OLD_HASH}\" => :${DISTRO}"
 SED_REPLACE="sha256 \"${NEW_HASH}\" => :${DISTRO}"
 sed -i -e "s@${SED_FIND___}@${SED_REPLACE}@" ${FORMULA_PATH}
