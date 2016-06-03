@@ -63,7 +63,7 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: update hash in formula'
 DISTRO=yosemite
 # Check if json has existing bottle entry for this DISTRO
-NEW_HASH=$(${BREW} ruby -e "puts Utils::JSON.load(IO.read(\"${FILE_WITH_NEW_HASH}\")).values[0]['bottle']['tags'][\"${DISTRO}\"]")
+NEW_HASH=$(${BREW} ruby -e "puts Utils::JSON.load(IO.read(\"${FILE_WITH_NEW_HASH}\")).values[0]['bottle']['tags'][\"${DISTRO}\"]['sha256']")
 echo NEW_HASH: ${NEW_HASH}
 # Check if formula has existing bottle entry for this DISTRO
 if ${BREW} ruby -e \
