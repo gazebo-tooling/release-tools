@@ -17,8 +17,8 @@ class OSRFCIWorkFlowSingleAny
       return """\
          stage 'compiling + QA'
           def result_URL = env.JENKINS_URL + '/job/${job_name}/'
-          def bitbucket_publish_job_result[$job_name : 'ok']
-          def jenkins_pipeline_job_result[$job_name : 'SUCCESS']
+          jenkins_pipeline_job_result['$job_name']  = 'SUCCESS'
+          String bitbucket_publish_job_result = 'ok'
 
           compilation_job = null
 
@@ -35,13 +35,13 @@ class OSRFCIWorkFlowSingleAny
                   [\$class: 'StringParameterValue',  name: 'DEST_BRANCH',     value: "\$DEST_BRANCH"]]
           }
 
-          result_URL = result_URL + compilation_job.getNumber()
+          String result_URL = result_URL + compilation_job.getNumber()
 
           if (compilation_job.getResult() != 'SUCCESS')
           {
             // any non success is a failure in bitbucket status
-            bitbucket_publish_job_result[$job_name : 'failed']
-            jenkins_pipeline_job_result[$job_name : compilation_job.getResult()]
+            jenkins_pipeline_job_result['$job_name'] = compilation_job.getResult()
+            bitbucket_publish_job_result = 'failed'
           }
       """
    }
@@ -73,25 +73,31 @@ class OSRFCIWorkFlowSingleAny
           // Handle job parallelization
           String stage_name = build_stage_name(build_any_job_name)
 
-          String parallel_init = "parallel ${stage_name} : {"
-          if (index > 0)
-          {
-            parallel_init = build_jobs_with_status + "${stage_name} : {"
+          String parallel_init = ""
+          if (index == 0) {
+            parallel_init = "def jobs = [ \n"
           }
+          parallel_init = build_jobs_with_status + parallel_init + "'${stage_name}' : {"
 
           String parallel_end = "}"
-          if (index != any_job_name_list.size() - 1)
-          {
-            parallel_end = parallel_end + ","
+          if (index == any_job_name_list.size() - 1) {
+            String end_of_map_and_call = """\
+                                         ]
+
+                                        parallel jobs
+                                        """
+            parallel_end = parallel_end + end_of_map_and_call
+          } else {
+            // not the last element in map
+            parallel_end = parallel_end + ",\n"
           }
-          parallel_end = parallel_end + "\n"
 
           build_jobs_with_status = parallel_init +
           OSRFCIWorkFlow.script_code_set_code(build_status : '"inprogress"',
                                                build_desc   : '"Testing in progress"',
                                                build_name   : "'${build_any_job_name}'") + // different order of quotes!
           OSRFCIWorkFlowSingleAny.script_code_build_any(build_any_job_name) +
-          OSRFCIWorkFlow.script_code_set_code(build_status : '"$bitbucket_publish_final_result "',
+          OSRFCIWorkFlow.script_code_set_code(build_status : '"$bitbucket_publish_job_result"',
                                                build_desc  : '"Testing is finished"',
                                                build_name  : "'${build_any_job_name}'", // different order of quotes!
                                                build_url   : '"$result_URL"') +

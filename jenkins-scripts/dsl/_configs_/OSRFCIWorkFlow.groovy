@@ -13,7 +13,7 @@ class OSRFCIWorkFlow
    {
      return """\
        currentBuild.description =  "\$JOB_DESCRIPTION"
-       def bitbucket_publish_job_result  = [ : ]
+       def stepsForParallel              = [ : ]
        def jenkins_pipeline_job_result   = [ : ]
 
        stage 'checkout for the mercurial hash'
@@ -30,14 +30,7 @@ class OSRFCIWorkFlow
    static String script_code_end_hook()
    {
      return """\
-          bitbucket_publish_final_result = 'ok'
-          bitbucket_publish_job_result.each { result ->
-            if (result == 'failed') {
-              bitbucket_publish_final_result = 'failed'
-            }
-          }
-         
-          jenkins_pipeline_final_result = 'SUCCESS'
+          String jenkins_pipeline_final_result = 'SUCCESS'
           jenkins_pipeline_job_result.each { result ->
             // ABORTED is handled like a failure in the worflow job
             if (result == 'ABORTED') {
