@@ -37,6 +37,6 @@ if [[ $(find . -name '*.bottle.*' | wc -l | sed 's/^ *//') != 2 ]]; then
 fi
 
 mv *.bottle.tar.gz ${PKG_DIR}
-mv *.bottle.rb ${PKG_DIR}
+mv *.bottle.json ${PKG_DIR}
 
 echo '# END SECTION'
