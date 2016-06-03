@@ -16,6 +16,13 @@ S3_upload()
     [[ -z ${pkg} ]] && echo "pkg is empty" && exit 1
     [[ -z ${s3_destination_path} ]] && echo "s3_destination_path is empty" && exit 1
 
+    # handle canonical paths if needed
+    if $S3_UPLOAD_CANONICAL_PATH; then
+      s3_destination_path=$(sed -e 's@[[:digit:]]*$@@' <<< "${s3_destination_path}")
+      # S3_UPLOAD_PATH can be composed by "pkg1/releases/"
+      s3_destination_path=$(sed -e 's@[[:digit:]]*/@/@' <<< "${s3_destination_path}")
+    fi
+
     S3_DIR=$(mktemp -d ${HOME}/s3.XXXX)
     pushd ${S3_DIR}
     # Hack for not failing when github is down
@@ -50,13 +57,10 @@ upload_package()
     local pkg=${1}
     [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
 
-    # Get the canonical package name (i.e. gazebo2 -> gazebo)
-    pkg_root_name=${PACKAGE%[[:digit:]]}
-
     sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
 
     # The path will end up being: s3://osrf-distributions/$pkg_root_name/releases/
-    S3_upload ${pkg} $pkg_root_name/releases/
+    S3_upload ${pkg} ${pkg}/releases/
 }
 
 upload_dsc_package()
@@ -138,7 +142,7 @@ for pkg in `ls $pkgs_path/*.zip`; do
   fi
   
   # Seems important to upload the path with a final slash
-  S3_upload ${pkg} "${S3_UPLOAD_PATH}/"
+  S3_upload ${pkg} "${S3_UPLOAD_PATH}"
 done
 
 # .bottle | brew binaries
@@ -150,7 +154,7 @@ for pkg in `ls $pkgs_path/*.bottle.tar.gz`; do
   fi
   
   # Seems important to upload the path with a final slash
-  S3_upload ${pkg} "${S3_UPLOAD_PATH}/"
+  S3_upload ${pkg} "${S3_UPLOAD_PATH}"
 done
 
 # Check for no reprepro uploads to finish here
