@@ -16,7 +16,7 @@ class OSRFCIWorkFlowSingleAny
    {
       return """\
          stage 'compiling + QA'
-          def result_URL = env.JENKINS_URL + '/job/${job_name}/'
+          String result_URL = env.JENKINS_URL + '/job/${job_name}/'
           jenkins_pipeline_job_result['$job_name']  = 'SUCCESS'
           String bitbucket_publish_job_result = 'ok'
 
@@ -35,7 +35,7 @@ class OSRFCIWorkFlowSingleAny
                   [\$class: 'StringParameterValue',  name: 'DEST_BRANCH',     value: "\$DEST_BRANCH"]]
           }
 
-          String result_URL = result_URL + compilation_job.getNumber()
+          result_URL = result_URL + compilation_job.getNumber()
 
           if (compilation_job.getResult() != 'SUCCESS')
           {
