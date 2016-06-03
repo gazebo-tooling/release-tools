@@ -70,12 +70,12 @@ echo NEW_HASH: ${NEW_HASH}
 # Check if formula has existing bottle entry for this DISTRO
 if ${BREW} ruby -e \
   "exit (\"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select \
-        { |d| d.value?(${DISTRO}) }).length == 1"
+        { |d| d.value?(:${DISTRO}) }).length == 1"
 then
   echo bottle specification for distro ${DISTRO} found
   OLD_HASH=$(${BREW} ruby -e \
     "puts \"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select \
-          { |d| d.value?(${DISTRO}) }[0].keys[0]")
+          { |d| d.value?(:${DISTRO}) }[0].keys[0]")
 else
   echo bottle specification for distro ${DISTRO} not found
   echo unable to update formula
