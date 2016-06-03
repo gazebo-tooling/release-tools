@@ -15,7 +15,7 @@ void include_gpu_label(Job job, String distro)
   job.with
   {
     if (distro == 'xenial')
-      label "gpu-reliable-${distro} gpu-reliable-trusty"
+      label "gpu-reliable-${distro} || gpu-reliable-trusty"
     else
       label "gpu-reliable-${distro}"
   }
