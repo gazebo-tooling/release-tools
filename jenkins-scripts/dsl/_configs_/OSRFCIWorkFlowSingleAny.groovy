@@ -49,7 +49,27 @@ class OSRFCIWorkFlowSingleAny
 
    static void create(Job job, String build_any_job_name)
    {
+      OSRFCIWorkFlowSingleAny.create(job, [build_any_job_name])
+   }
+
+   static void create(Job job, ArrayList any_job_name_list)
+   {
       OSRFCIWorkFlow.create(job)
+
+      String build_jobs_with_status = "";
+
+      any_job_name_list.each { build_any_job_name ->
+        build_jobs_with_status = build_jobs_with_status +
+          OSRFCIWorkFlow.script_code_set_code(build_status : '"inprogress"',
+                                               build_desc   : '"Testing in progress"',
+                                               build_name   : "'${build_any_job_name}'") + // different order of quotes!
+          OSRFCIWorkFlowSingleAny.script_code_build_any(build_any_job_name) +
+          OSRFCIWorkFlow.script_code_set_code(build_status : '"$bitbucket_publish_result"',
+                                               build_desc   : '"Testing is finished"',
+                                               build_name   : "'${build_any_job_name}'", // different order of quotes!
+                                               build_url    : '"$result_URL"')
+      }
+
       job.with
       {
         // TODO: share parameters with ci-py_any- jobs
@@ -69,14 +89,7 @@ class OSRFCIWorkFlowSingleAny
             sandbox()
             script(
                  OSRFCIWorkFlow.script_code_init_hook() +
-                 OSRFCIWorkFlow.script_code_set_code(build_status : '"inprogress"',
-                                                     build_desc   : '"Testing in progress"',
-                                                     build_name   : "'${build_any_job_name}'") + // different order of quotes!
-                 OSRFCIWorkFlowSingleAny.script_code_build_any(build_any_job_name) +
-                 OSRFCIWorkFlow.script_code_set_code(build_status : '"$bitbucket_publish_result"',
-                                                     build_desc   : '"Testing is finished"',
-                                                     build_name   : "'${build_any_job_name}'", // different order of quotes!
-                                                     build_url    : '"$result_URL"') +
+                 build_jobs_with_status +
                  OSRFCIWorkFlow.script_code_end_hook().stripIndent()
             )
           } // end of cps
