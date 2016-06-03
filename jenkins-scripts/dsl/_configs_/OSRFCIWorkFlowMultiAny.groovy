@@ -10,7 +10,7 @@ import javaposse.jobdsl.dsl.Job
      - definition (pipeline plugin)
 */
 
-class OSRFCIWorkFlowSingleAny
+class OSRFCIWorkFlowMultiAny
 {
    static String script_code_build_any(String job_name)
    {
@@ -48,7 +48,7 @@ class OSRFCIWorkFlowSingleAny
 
    static void create(Job job, String build_any_job_name)
    {
-      OSRFCIWorkFlowSingleAny.create(job, [build_any_job_name])
+      OSRFCIWorkFlowMultiAny.create(job, [build_any_job_name])
    }
 
    static String build_stage_name(String ci_job_name)
@@ -96,7 +96,7 @@ class OSRFCIWorkFlowSingleAny
           OSRFCIWorkFlow.script_code_set_code(build_status : '"inprogress"',
                                                build_desc   : '"Testing in progress"',
                                                build_name   : "'${build_any_job_name}'") + // different order of quotes!
-          OSRFCIWorkFlowSingleAny.script_code_build_any(build_any_job_name) +
+          OSRFCIWorkFlowMultiAny.script_code_build_any(build_any_job_name) +
           OSRFCIWorkFlow.script_code_set_code(build_status : '"$bitbucket_publish_job_result"',
                                                build_desc  : '"Testing is finished"',
                                                build_name  : "'${build_any_job_name}'", // different order of quotes!

@@ -175,7 +175,7 @@ ci_distro.each { distro ->
 
 // Create the main CI worf flow job
 def gazebo_ci_main = workflowJob("gazebo-ci-pr_any")
-OSRFCIWorkFlowSingleAny.create(gazebo_ci_main,
+OSRFCIWorkFlowMultiAny.create(gazebo_ci_main,
                               [ci_build_any_job_name, ci_build_any_job_name_no_gpu])
 
 // OTHER CI SUPPORTED JOBS (default branch) @ SCM/DAILY
