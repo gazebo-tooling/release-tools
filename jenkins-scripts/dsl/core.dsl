@@ -231,7 +231,7 @@ bottle_job_hash_updater.with
     )
 
     copyArtifacts(bottle_builder_job_name) {
-      includePatterns('pkgs/*.rb')
+      includePatterns('pkgs/*.json')
       excludePatterns('pkgs/*.tar.gz')
       targetDirectory(directory_for_bottles)
       flatten()
