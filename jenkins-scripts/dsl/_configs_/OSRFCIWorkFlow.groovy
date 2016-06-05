@@ -31,17 +31,20 @@ class OSRFCIWorkFlow
    {
      return """\
           String jenkins_pipeline_final_result = 'SUCCESS'
-          jenkins_pipeline_job_result.each { result ->
-            // ABORTED is handled like a failure in the worflow job
-            if (result == 'ABORTED') {
-              result = 'FAILURE'
+          for (item in jenkins_pipeline_job_result) {
+            result = item.value
+
+            // If failed, exit and report
+            if (result == 'ABORTED' || result == 'FAILURE') {
+              jenkins_pipeline_final_result = 'FAILURE'
+              break
             }
-            // If previous value was FAILURE, keep it, otherwise get the new status
-            if (result != 'FAILURE') {
+
+            if (result == 'UNSTABLE') {
               jenkins_pipeline_final_result = result
             }
           }
-
+          
           currentBuild.result = jenkins_pipeline_final_result
      """
    }
