@@ -35,8 +35,8 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
              echo "Workaround for cleaning up workspace"
              echo "check: https://bitbucket.org/osrf/release-tools/issues/75"
 
-             sudo rm -fr '\${WORKSPACE}/build/*_results'
-             sudo rm -fr '\${WORKSPACE}/*_results'
+             sudo rm -fr "\${WORKSPACE}/build/*_results"
+             sudo rm -fr "\${WORKSPACE}/*_results"
              """.stripIndent())
       }
     }
