@@ -10,13 +10,6 @@ set -e
 # TODO: send the directory from the DSL
 BOTTLE_JSON_DIR=${WORKSPACE}/pkgs
 
-get_osX_distribution()
-{
-  local hash_line=${1}
-
-  echo ${hash_line/*:}
-}
-
 echo '# BEGIN SECTION: check variables'
 if [ -z "${PULL_REQUEST_BRANCH}" ]; then
   echo PULL_REQUEST_BRANCH not specified
