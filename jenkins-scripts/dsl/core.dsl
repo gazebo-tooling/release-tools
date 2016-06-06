@@ -190,6 +190,7 @@ bottle_job_builder.with
           parameters {
             currentBuild()
               predefinedProp("PULL_REQUEST_BRANCH", "\${PULL_REQUEST_BRANCH}")
+              predefinedProp("PULL_REQUEST_URL", "\${PULL_REQUEST_URL}")
           }
         }
      }
@@ -217,6 +218,8 @@ bottle_job_hash_updater.with
     // reuse the pull request created by homebrew_pull_request_updater in step 1
     stringParam("PULL_REQUEST_BRANCH", '',
                 'Branch in fork (osrfbuild/homebrew-simulation) hosting pull request changes.')
+    stringParam("PULL_REQUEST_URL", '',
+                'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
   }
  
   steps
@@ -231,7 +234,7 @@ bottle_job_hash_updater.with
     )
 
     copyArtifacts(bottle_builder_job_name) {
-      includePatterns('pkgs/*.rb')
+      includePatterns('pkgs/*.json')
       excludePatterns('pkgs/*.tar.gz')
       targetDirectory(directory_for_bottles)
       flatten()
