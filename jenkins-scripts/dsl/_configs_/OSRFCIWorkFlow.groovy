@@ -71,7 +71,6 @@ class OSRFCIWorkFlow
 
      return """\
 
-        stage "set bitbucket status:" + ${args.build_status}
          node("lightweight-linux")
          {
              build job: "_bitbucket-set_status",

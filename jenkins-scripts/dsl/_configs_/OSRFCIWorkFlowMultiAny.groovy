@@ -15,7 +15,6 @@ class OSRFCIWorkFlowMultiAny
    static String script_code_build_any(String job_name)
    {
       return """\
-         stage 'compiling + QA'
           String result_URL = env.JENKINS_URL + '/job/${job_name}/'
           jenkins_pipeline_job_result['$job_name']  = 'SUCCESS'
           String bitbucket_publish_job_result = 'ok'
