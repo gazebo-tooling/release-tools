@@ -20,12 +20,24 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
 
     job.with
     {
-      wrappers {
-        preBuildCleanup {
-            includePattern('build/*_results/')
-            includePattern('*_results/')
-            deleteDirectories()
-        }
+      // preclean of build/*_results. Please checkout
+      // https://bitbucket.org/osrf/release-tools/issues/75
+      // to see why preBuildCleanup is not working and the use
+      // of shell as workaround
+      // wrappers {
+      //      preBuildCleanup {
+      //          includePattern('build/*_results/')
+      //          includePattern('*_results/')
+      //          deleteDirectories()
+      //      }
+      // workaround
+      steps {
+        shell("""\
+             #!/bin/bash -xe
+
+             sudo rm -fr '${WORKSPACE}/build/*_results'
+             sudo rm -fr '${WORKSPACE}/*_results'
+             """.stripIndent())
       }
 
       publishers
