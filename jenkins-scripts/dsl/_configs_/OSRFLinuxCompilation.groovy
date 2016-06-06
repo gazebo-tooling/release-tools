@@ -15,14 +15,11 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
   {
     OSRFLinuxBase.create(job)
 
-    /* Properties from generic compilations */
-    GenericCompilation.create(job, enable_testing)
-
     job.with
     {
-      // preclean of build/*_results. Please checkout
-      // https://bitbucket.org/osrf/release-tools/issues/75
-      // to see why preBuildCleanup is not working and the use
+      // preclean of build/*_results. Please see
+      // https://bitbucket.org/osrf/release-tools/issues/75"
+      // to know why preBuildCleanup is not working and the use
       // of shell as workaround
       // wrappers {
       //      preBuildCleanup {
@@ -35,11 +32,20 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
         shell("""\
              #!/bin/bash -xe
 
-             sudo rm -fr '${WORKSPACE}/build/*_results'
-             sudo rm -fr '${WORKSPACE}/*_results'
+             echo "Workaround for cleaning up workspace"
+             echo "check: https://bitbucket.org/osrf/release-tools/issues/75"
+
+             sudo rm -fr '\${WORKSPACE}/build/*_results'
+             sudo rm -fr '\${WORKSPACE}/*_results'
              """.stripIndent())
       }
+    }
 
+    /* Properties from generic compilations */
+    GenericCompilation.create(job, enable_testing)
+
+    job.with
+    {
       publishers
       {
          // compilers warnings
