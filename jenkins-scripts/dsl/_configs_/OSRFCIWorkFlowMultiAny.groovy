@@ -83,6 +83,7 @@ class OSRFCIWorkFlowMultiAny
             String end_of_map_and_call = """\
                                          ]
 
+                                        stage "Executing testing jobs"
                                         parallel jobs
                                         """
             parallel_end = parallel_end + end_of_map_and_call
