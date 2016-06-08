@@ -63,7 +63,7 @@ abi_distro.each { distro ->
 } // end of distro
 
 // MAIN CI job
-// Create the main CI worf flow job
+// Create the main CI work flow job
 def sdformat_ci_main = workflowJob("sdformat-ci-pr_any")
 OSRFCIWorkFlowMultiAny.create(sdformat_ci_main, ci_build_any_job_name)
 // CI JOBS @ SCM/5 min

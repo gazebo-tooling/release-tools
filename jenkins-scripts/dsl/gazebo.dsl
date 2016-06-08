@@ -173,7 +173,7 @@ ci_distro.each { distro ->
   } // end of arch
 } // end of distro
 
-// Create the main CI worf flow job
+// Create the main CI work flow job
 def gazebo_ci_main = workflowJob("gazebo-ci-pr_any")
 OSRFCIWorkFlowMultiAny.create(gazebo_ci_main,
                               [ci_build_any_job_name, ci_build_any_job_name_no_gpu])
