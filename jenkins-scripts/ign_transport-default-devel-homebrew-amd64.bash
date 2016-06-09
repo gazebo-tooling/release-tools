@@ -6,7 +6,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 # Identify IGNITION_TRANSPORT_MAJOR_VERSION to help with dependency resolution
 IGNITION_TRANSPORT_MAJOR_VERSION=`\
-  grep 'set.*IGNITION_TRANSPORT_MAJOR_VERSION ' ${WORKSPACE}/gazebo/CMakeLists.txt | \
+  grep 'set.*IGNITION_TRANSPORT_MAJOR_VERSION ' ${WORKSPACE}/ign-transport/CMakeLists.txt | \
   tr -d 'a-zA-Z _()'`
 # Drop version number if it is 1 (ignition-transport 1.X is in ignition-transport.rb)
 if [ $IGNITION_TRANSPORT_MAJOR_VERSION -eq 1 ]; then
