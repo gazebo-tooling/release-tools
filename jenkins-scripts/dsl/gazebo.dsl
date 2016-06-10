@@ -64,9 +64,7 @@ abi_distro.each { distro ->
 } // end of distro
 
 // MAIN CI job
-// Create the main CI worf flow job
-def gazebo_ci_main = workflowJob("gazebo-ci-pr_any")
-OSRFCIWorkFlowSingleAny.create(gazebo_ci_main, ci_build_any_job_name)
+ci_build_any_job_name_no_gpu = ""
 
 // CI JOBS @ SCM/5 min
 ci_gpu_include_gpu_none = ci_gpu + [ 'none' ]
@@ -81,7 +79,8 @@ ci_distro.each { distro ->
        
       // --------------------------------------------------------------
       // 1. Create the any job
-      def gazebo_ci_any_job = job("gazebo-ci-pr_any-${distro}-${arch}-gpu-${gpu}")
+      def gazebo_ci_any_job_name = "gazebo-ci-pr_any-${distro}-${arch}-gpu-${gpu}"
+      def gazebo_ci_any_job      = job(gazebo_ci_any_job_name)
       OSRFLinuxCompilationAny.create(gazebo_ci_any_job,
                                     "http://bitbucket.org/osrf/gazebo")
       gazebo_ci_any_job.with
@@ -117,6 +116,8 @@ ci_distro.each { distro ->
            String gpu_needed = 'true'
            if (gpu == 'none') {
               gpu_needed = 'false'
+              // save the name to be used in the Workflow job
+              ci_build_any_job_name_no_gpu = gazebo_ci_any_job_name
            }
 
            shell("""\
@@ -172,6 +173,10 @@ ci_distro.each { distro ->
   } // end of arch
 } // end of distro
 
+// Create the main CI work flow job
+def gazebo_ci_main = workflowJob("gazebo-ci-pr_any")
+OSRFCIWorkFlowMultiAny.create(gazebo_ci_main,
+                              [ci_build_any_job_name, ci_build_any_job_name_no_gpu])
 
 // OTHER CI SUPPORTED JOBS (default branch) @ SCM/DAILY
 other_supported_distros.each { distro ->

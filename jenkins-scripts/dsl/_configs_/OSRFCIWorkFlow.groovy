@@ -13,8 +13,8 @@ class OSRFCIWorkFlow
    {
      return """\
        currentBuild.description =  "\$JOB_DESCRIPTION"
-       def bitbucket_publish_result  = 'ok'
-       def jenkins_pipeline_result   = 'SUCCESS'
+       def stepsForParallel              = [ : ]
+       def jenkins_pipeline_job_result   = [ : ]
 
        stage 'checkout for the mercurial hash'
        node("lightweight-linux") {
@@ -30,7 +30,22 @@ class OSRFCIWorkFlow
    static String script_code_end_hook()
    {
      return """\
-       currentBuild.result = jenkins_pipeline_result
+          String jenkins_pipeline_final_result = 'SUCCESS'
+          for (item in jenkins_pipeline_job_result) {
+            result = item.value
+
+            // If failed, exit and report
+            if (result == 'ABORTED' || result == 'FAILURE') {
+              jenkins_pipeline_final_result = 'FAILURE'
+              break
+            }
+
+            if (result == 'UNSTABLE') {
+              jenkins_pipeline_final_result = result
+            }
+          }
+          
+          currentBuild.result = jenkins_pipeline_final_result
      """
    }
 
@@ -56,7 +71,6 @@ class OSRFCIWorkFlow
 
      return """\
 
-        stage "set bitbucket status:" + ${args.build_status}
          node("lightweight-linux")
          {
              build job: "_bitbucket-set_status",

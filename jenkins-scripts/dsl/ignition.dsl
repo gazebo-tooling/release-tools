@@ -66,7 +66,7 @@ ignition_software.each { ign_sw ->
       // --------------------------------------------------------------
       // 0. Main CI workflow
       def ign_ci_main = workflowJob("ignition_${ign_sw}-ci-pr_any")
-      OSRFCIWorkFlowSingleAny.create(ign_ci_main, ignition_ci_job_name)
+      OSRFCIWorkFlowMultiAny.create(ign_ci_main, ignition_ci_job_name)
 
       // --------------------------------------------------------------
       // 1. Create the default ci jobs
