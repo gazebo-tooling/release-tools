@@ -1,5 +1,6 @@
 # Parameters:
 # - PACKAGE_ALIAS [mandatory] name of package including major version
+# - PULL_REQUEST_BRANCH [optional] branch to use in existing pull request 
 # Return:
 # -> FORMULA_PATH
 # -> TAP_PREFIX
@@ -68,6 +69,10 @@ ${GIT} remote add fork git@github.com:osrfbuild/homebrew-simulation.git
 # unshallow to get a full clone able to push
 ${GIT} fetch --unshallow
 ${GIT} fetch fork
+# change to pull request branch in case new formula is being added
+if [ -n "${PULL_REQUEST_BRANCH}" ]; then
+  ${GIT} checkout ${PULL_REQUEST_BRANCH}
+fi
 
 echo '# BEGIN SECTION: check if the formula exists'
 echo
