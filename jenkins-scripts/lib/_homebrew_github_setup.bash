@@ -1,5 +1,6 @@
 # Parameters:
 # - PACKAGE_ALIAS [mandatory] name of package including major version
+# - PULL_REQUEST_BRANCH [optional] branch to use in existing pull request 
 # Return:
 # -> FORMULA_PATH
 # -> TAP_PREFIX
