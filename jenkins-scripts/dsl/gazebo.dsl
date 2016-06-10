@@ -1,9 +1,11 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def gazebo_supported_branches = [ 'gazebo_2.2', 'gazebo_4.1', 'gazebo5', 'gazebo6' ]
+def gazebo_supported_branches = [ 'gazebo5', 'gazebo6', 'gazebo7' ]
 def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
-def nightly_gazebo_branch = [ 'gazebo7' ]
+// nightly_gazebo_branch is not the branch used to get the code from but 
+// the one used to generate the corresponding debbuild job.
+def nightly_gazebo_branch = [ 'gazebo8' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -17,6 +19,10 @@ def all_supported_distros   = Globals.get_all_supported_distros()
 def supported_arches        = Globals.get_supported_arches()
 def experimental_arches     = Globals.get_experimental_arches()
 def all_supported_gpus      = Globals.get_all_supported_gpus()
+
+String ci_distro_str = ci_distro[0]
+String ci_gpu_str = ci_gpu[0]
+String ci_build_any_job_name = "gazebo-ci-pr_any-${ci_distro_str}-amd64-gpu-${ci_gpu_str}"
 
 // Need to be used in ci_pr
 String abi_job_name = ''
@@ -42,6 +48,8 @@ abi_distro.each { distro ->
     OSRFLinuxABI.create(abi_job, "http://bitbucket.org/osrf/gazebo")
     abi_job.with
     {
+      label "large-memory"
+
       steps {
         shell("""\
               #!/bin/bash -xe
@@ -56,71 +64,72 @@ abi_distro.each { distro ->
   } // end of arch
 } // end of distro
 
-// MAIN CI JOBS @ SCM/5 min
-ci_any_build_types = [ 'RelWithDebInfo', 'Coverage' ]
+// MAIN CI job
+ci_build_any_job_name_no_gpu = ""
+
+// CI JOBS @ SCM/5 min
 ci_gpu_include_gpu_none = ci_gpu + [ 'none' ]
 ci_distro.each { distro ->
   ci_gpu_include_gpu_none.each { gpu ->
     supported_arches.each { arch ->
+      // Temporary workaround to use Xenial as distro for gpu-none
+      if (gpu == 'none')
+      {
+        distro = "xenial"
+      }
+       
       // --------------------------------------------------------------
       // 1. Create the any job
-      ci_any_build_types.each { build_type ->
-        if (build_type == 'RelWithDebInfo')
+      def gazebo_ci_any_job_name = "gazebo-ci-pr_any-${distro}-${arch}-gpu-${gpu}"
+      def gazebo_ci_any_job      = job(gazebo_ci_any_job_name)
+      OSRFLinuxCompilationAny.create(gazebo_ci_any_job,
+                                    "http://bitbucket.org/osrf/gazebo")
+      gazebo_ci_any_job.with
+      {
+        if (gpu != 'none')
         {
-          def gazebo_ci_any_job = job("gazebo-ci-pr_any-${distro}-${arch}-gpu-${gpu}")
+          label "gpu-${gpu}-${distro}"
         }
-        else
+
+        steps
         {
-          def gazebo_ci_any_job = job("gazebo-ci-pr_any-BT${build_type}-${distro}-${arch}-gpu-${gpu}")
-        }
-        OSRFLinuxCompilationAny.create(gazebo_ci_any_job,
-                                      "http://bitbucket.org/osrf/gazebo")
-        gazebo_ci_any_job.with
-        {
-          if (gpu != 'none')
-          {
-            label "gpu-${gpu}-${distro}"
-          }
+           conditionalSteps
+           {
+             condition
+             {
+               not {
+                 expression('${ENV, var="DEST_BRANCH"}', 'default')
+               }
 
-          steps
-          {
-            conditionalSteps
-            {
-              condition
-              {
-                not {
-                  expression('${ENV, var="DEST_BRANCH"}', 'default')
-                }
+               steps {
+                 downstreamParameterized {
+                   trigger("${abi_job_name}") {
+                     parameters {
+                       predefinedProp("ORIGIN_BRANCH", '$DEST_BRANCH')
+                       predefinedProp("TARGET_BRANCH", '$SRC_BRANCH')
+                     }
+                   }
+                 }
+               }
+             }
+           }
 
-                steps {
-                  downstreamParameterized {
-                    trigger("${abi_job_name}") {
-                      parameters {
-                        predefinedProp("ORIGIN_BRANCH", '$DEST_BRANCH')
-                        predefinedProp("TARGET_BRANCH", '$SRC_BRANCH')
-                      }
-                    }
-                  }
-                }
-              }
-            }
+           String gpu_needed = 'true'
+           if (gpu == 'none') {
+              gpu_needed = 'false'
+              // save the name to be used in the Workflow job
+              ci_build_any_job_name_no_gpu = gazebo_ci_any_job_name
+           }
 
-            String gpu_needed = 'true'
-            if (gpu == 'none') {
-               gpu_needed = 'false'
-            }
+           shell("""\
+           #!/bin/bash -xe
 
-            shell("""\
-            #!/bin/bash -xe
-
-            export DISTRO=${distro}
-            export ARCH=${arch}
-            export GAZEBO_BASE_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=${build_type}"
-            export GPU_SUPPORT_NEEDED=${gpu_needed}
-            /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
-            """.stripIndent())
-          }
-        }
+           export DISTRO=${distro}
+           export ARCH=${arch}
+           export GPU_SUPPORT_NEEDED=${gpu_needed}
+           /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
+           """.stripIndent())
+         }
       }
 
       // --------------------------------------------------------------
@@ -165,6 +174,10 @@ ci_distro.each { distro ->
   } // end of arch
 } // end of distro
 
+// Create the main CI work flow job
+def gazebo_ci_main = workflowJob("gazebo-ci-pr_any")
+OSRFCIWorkFlowMultiAny.create(gazebo_ci_main,
+                              [ci_build_any_job_name, ci_build_any_job_name_no_gpu])
 
 // OTHER CI SUPPORTED JOBS (default branch) @ SCM/DAILY
 other_supported_distros.each { distro ->

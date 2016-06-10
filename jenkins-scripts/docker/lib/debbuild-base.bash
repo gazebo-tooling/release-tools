@@ -113,7 +113,7 @@ cd \`find $WORKSPACE/build -mindepth 1 -type d |head -n 1\`
 # If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
 if $NIGHTLY_MODE; then
   rm -fr .hg*
-  echo | dh_make -s --createorig -p ${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+hg\${TIMESTAMP}r\${REV} > /dev/null
+  echo | dh_make -y -s --createorig -p ${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+hg\${TIMESTAMP}r\${REV} > /dev/null
 fi
 
 # Adding extra directories to code. debian has no problem but some extra directories
@@ -132,14 +132,15 @@ fi
 
 if $NEED_C11_COMPILER || $NEED_GCC48_COMPILER; then
 echo '# BEGIN SECTION: install C++11 compiler'
-apt-get install -y python-software-properties
+if [ ${DISTRO} = 'precise' ]; then
+apt-get install -y python-software-propertie software-properties-common || true
 add-apt-repository ppa:ubuntu-toolchain-r/test
 apt-get update
+fi
 apt-get install -y gcc-4.8 g++-4.8
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
 update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
 g++ --version
-chmod a+x \$PBUILD_DIR/A20_install_gcc11
 echo '# END SECTION'
 fi
 

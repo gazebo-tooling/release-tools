@@ -18,7 +18,7 @@ DOCKER_JOB_NAME="gazebo_ci"
 [ -z ${COVERAGE_ENABLED} ] && COVERAGE_ENABLED=false
 
 # If Coverage build type was supplied in GAZEBO_BASE_CMAKE_ARGS, add lcov
-# package. This is not for bulleseyes coverage, but for lcov.
+# package.
 if [[ ${GAZEBO_BASE_CMAKE_ARGS} != ${GAZEBO_BASE_CMAKE_ARGS/Coverage} ]]; then
   EXTRA_PACKAGES="${EXTRA_PACKAGES} lcov" 
 fi
@@ -38,12 +38,12 @@ if ${COVERAGE_ENABLED} ; then
   EXTRA_PACKAGES="${EXTRA_PACKAGES} wget"
 fi
 
-
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
 #
 set -ex
+source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
 
 if ${COVERAGE_ENABLED} ; then
   echo '# BEGIN SECTION: setup bulleyes coverage'
@@ -111,12 +111,14 @@ cmake ${GAZEBO_BASE_CMAKE_ARGS}      \\
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: Gazebo compilation'
+init_stopwatch COMPILATION
 make -j${MAKE_JOBS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: Gazebo installation'
 make install
 . /usr/share/gazebo/setup.sh
+stop_stopwatch COMPILATION
 echo '# END SECTION'
 
 # Need to clean up from previous built
@@ -129,6 +131,7 @@ if [ `expr length "${GAZEBO_BASE_TESTS_HOOK} "` -gt 1 ]; then
   : # keep this line, needed if the variable is empty
 else
   # Run default
+  init_stopwatch TEST
   echo '# BEGIN SECTION: UNIT testing'
   make test ARGS="-VV -R UNIT_*" || true
   echo '# END SECTION'
@@ -140,6 +143,7 @@ else
   echo '# END SECTION'
   echo '# BEGIN SECTION: EXAMPLE testing'
   make test ARGS="-VV -R EXAMPLE_*" || true
+  stop_stopwatch TEST
   echo '# END SECTION'
 fi
 
@@ -173,6 +177,13 @@ else
   mkdir -p $WORKSPACE/build/cppcheck_results/
   echo "<results></results>" >> $WORKSPACE/build/cppcheck_results/empty.xml 
 fi
+
+echo '# BEGIN SECTION: running cppcheck'
+init_stopwatch CPPCHECK
+# Step 3: code check
+cd $WORKSPACE/gazebo
+sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+stop_stopwatch CPPCHECK
 echo '# END SECTION'
 DELIM
 

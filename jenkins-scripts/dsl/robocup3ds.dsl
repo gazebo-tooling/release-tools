@@ -2,11 +2,24 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 def ci_distro = [ 'trusty' ]
-def other_supported_distros = [ 'vivid' ]
+def other_supported_distros = [ 'xenial' ]
 def all_supported_distros = ci_distro + other_supported_distros
 def supported_arches = [ 'amd64' ]
 
 Globals.extra_emails = "caguero@osrfoundation.org"
+
+// Early testing shows that xenial jobs can be run on a
+// trusty host with good results.
+void include_gpu_label(Job job, String distro)
+{
+  job.with
+  {
+    if (distro == 'xenial')
+      label "gpu-reliable-${distro} || gpu-reliable-trusty"
+    else
+      label "gpu-reliable-${distro}"
+  }
+}
 
 // MAIN CI JOBS
 ci_distro.each { distro ->
@@ -17,11 +30,11 @@ ci_distro.each { distro ->
 
     // Use the linux compilation as base
     OSRFLinuxCompilation.create(robocup3ds_ci_job)
+    // GPU label
+    include_gpu_label(robocup3ds_ci_job, distro)
 
     robocup3ds_ci_job.with
     {
-        label "gpu-reliable-${distro}"
-
         scm {
           hg('http://bitbucket.org/osrf/robocup3ds') {
             branch('default')
@@ -48,6 +61,9 @@ ci_distro.each { distro ->
     def ignition_ci_any_job = job("robocup3ds-ci-pr_any-${distro}-${arch}")
     OSRFLinuxCompilationAny.create(ignition_ci_any_job,
                                   'http://bitbucket.org/osrf/robocup3ds')
+    // GPU label
+    include_gpu_label(ignition_ci_any_job, distro)
+
     ignition_ci_any_job.with
     {
         steps {
@@ -58,8 +74,6 @@ ci_distro.each { distro ->
                 /bin/bash -xe ./scripts/jenkins-scripts/docker/robocup3ds-compilation.bash
                 """.stripIndent())
         }
-
-        label "gpu-reliable-${distro}"
     }
 
   }
@@ -75,11 +89,11 @@ other_supported_distros.each { distro ->
 
     // Use the linux compilation as base
     OSRFLinuxCompilation.create(robocup3ds_ci_job)
+    // GPU label
+    include_gpu_label(robocup3ds_ci_job, distro)
 
     robocup3ds_ci_job.with
     {
-        label "gpu-reliable-${distro}"
-
         scm {
           hg('http://bitbucket.org/osrf/robocup3ds') {
             branch('default')
@@ -110,13 +124,14 @@ all_supported_distros.each { distro ->
     // --------------------------------------------------------------
     def install_default_job = job("robocup3ds-install-one_liner-${distro}-${arch}")
     OSRFLinuxInstall.create(install_default_job)
+    // GPU label
+    include_gpu_label(install_default_job, distro)
+
     install_default_job.with
     {
        triggers {
          cron('@daily')
        }
-
-       label "gpu-reliable-${distro}"
 
        steps {
         shell("""\

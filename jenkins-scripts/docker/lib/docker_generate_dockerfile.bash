@@ -2,14 +2,15 @@
 # Script to generate the dockerfile needed for running the build.sh script
 #
 # Inputs used:
-#   - DISTRO            : base distribution (ex: vivid)
-#   - LINUX_DISTRO      : [default ubuntu] base linux distribution (ex: debian)
-#   - ARCH              : [default amd64] base arquitecture (ex: amd64)
-#   - OSRF_REPOS_TO_USE : [default empty] space separated list of osrf repos to add to sourcess.list
-#   - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
-#   - DEPENDENCY_PKGS   : (optional) packages to be installed in the image
-#   - SOFTWARE_DIR      : (optional) directory to copy inside the image
-#   - NEED_PRERELEASE   : (optional) use prerelease OSRF repo
+# - DISTRO            : base distribution (ex: vivid)
+# - LINUX_DISTRO      : [default ubuntu] base linux distribution (ex: debian)
+# - ARCH              : [default amd64] base arquitecture (ex: amd64)
+# - OSRF_REPOS_TO_USE : [default empty] space separated list of osrf repos to add to sourcess.list
+# - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
+# - DEPENDENCY_PKGS   : (optional) packages to be installed in the image
+# - SOFTWARE_DIR      : (optional) directory to copy inside the image
+# - DOCKER_POSTINSTALL_HOOK : (optional) bash code to run after installing  DEPENDENCY_PKGS.
+#                       It can be used for gem ruby installations or pip python
 
 #   - USE_OSRF_REPO     : deprecated! [default false] true|false if true, add the stable osrf repo to sources.list
 
@@ -51,18 +52,8 @@ case ${ARCH} in
   'amd64')
      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      ;;
-  'i386')
-     # There are no i386 official images. Only 14.04 (trusty) is available
-     # https://registry.hub.docker.com/u/32bit/ubuntu/tags/manage/
-     if [[ $DISTRO == 'trusty' ]]; then
-       FROM_VALUE=32bit/ubuntu:14.04
-     fi
-
-     # Other images are not official.
-     FROM_VALUE=mcandre/docker-${LINUX_DISTRO}-32bit:${DISTRO}
-     ;;
- 'armhf')
-     FROM_VALUE=osrf/ubuntu_armhf:${DISTRO}
+  'i386' | 'armhf' | 'arm64' )
+     FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
      ;;
   *)
      echo "Arch unknown"
@@ -78,13 +69,6 @@ if [[ -z ${OSRF_REPOS_TO_USE} ]]; then
   if ${USE_OSRF_REPO}; then
      OSRF_REPOS_TO_USE="stable"
   fi
-fi
-
-# Handle the NEED_PRERELEASE variable
-[[ -z ${NEED_PRERELEASE} ]] && NEED_PRERELEASE=false
-
-if ${NEED_PRERELEASE}; then
-  OSRF_REPOS_TO_USE="${OSRF_REPOS_TO_USE} prerelease"
 fi
 
 echo '# BEGIN SECTION: create the Dockerfile'
@@ -111,7 +95,7 @@ DELIM_DEBIAN_APT
 fi
 
 if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
-  if [[ ${ARCH} != 'armhf' ]]; then
+  if [[ ${ARCH} != 'armhf' && ${ARCH} != 'arm64' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_ARCH
   # Note that main,restricted and universe are not here, only multiverse
   # main, restricted and unvierse are already setup in the original image
@@ -157,7 +141,7 @@ done
 if ${USE_ROS_REPO}; then
 cat >> Dockerfile << DELIM_ROS_REPO
 RUN echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > \\
-                                                /etc/apt/sources.list.d/ros.list && \\
+                                                /etc/apt/sources.list.d/ros.list
 RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
 DELIM_ROS_REPO
 fi
@@ -240,6 +224,13 @@ RUN CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\
        exit 1 \\
    fi
 DELIM_DISPLAY
+fi
+
+if [ `expr length "${DOCKER_POSTINSTALL_HOOK}"` -gt 1 ]; then
+cat >> Dockerfile << DELIM_WORKAROUND_POST_HOOK
+RUN ${DOCKER_POSTINSTALL_HOOK}
+DELIM_WORKAROUND_POST_HOOK
+fi
 
 cat >> Dockerfile << DELIM_WORKAROUND_91
 # Workaround to issue:
@@ -251,7 +242,33 @@ ENV LANGUAGE en_GB
 # Docker has problems with Qt X11 MIT-SHM extension
 ENV QT_X11_NO_MITSHM 1
 DELIM_WORKAROUND_91
+
+if $ENABLE_CCACHE; then
+cat >> Dockerfile << DELIM_CCACHE
+ENV PATH /usr/lib/ccache:\$PATH
+ENV CCACHE_DIR ${CCACHE_DIR}
+ENV CCACHE_MAXSIZE ${CCACHE_MAXSIZE}
+DELIM_CCACHE
+
+# Add the statistics about ccache at the beggining of the build
+# first 3 lines: bash, set and space
+sed -i '4iecho "# BEGIN SECTION: starting ccache statistics"' build.sh
+sed -i "5iccache -M ${CCACHE_MAXSIZE}" build.sh
+sed -i '6iccache -s' build.sh
+sed -i '7iecho # "END SECTION"' build.sh
+sed -i '8iecho ""' build.sh
+
+# Add the statistics about ccache at the end
+cat >> build.sh << BUILDSH_CCACHE
+echo '# BEGIN SECTION: starting ccache statistics'
+ccache -s
+echo '# END SECTION'
+BUILDSH_CCACHE
 fi
+
+echo '# BEGIN SECTION: see build.sh script'
+cat build.sh
+echo '# END SECTION'
 
 cat >> Dockerfile << DELIM_DOCKER4
 COPY build.sh build.sh

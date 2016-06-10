@@ -207,19 +207,13 @@ make test ARGS="-VV -R EXAMPLE_*" || true
 stop_stopwatch EXAMPLE_TESTING
 echo '# END SECTION'
 
-# Only run cppcheck on trusty
-if [ "$DISTRO" = "trusty" ]; then 
-  echo '# BEGIN SECTION: running cppcheck'
-  init_stopwatch CPPCHECK
-  # Step 3: code check
-  cd $WORKSPACE/gazebo
-  sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
-  stop_stopwatch CPPCHECK
-  echo '# END SECTION'
-else
-  mkdir -p $WORKSPACE/build/cppcheck_results/
-  echo "<results></results>" >> $WORKSPACE/build/cppcheck_results/empty.xml 
-fi
+echo '# BEGIN SECTION: running cppcheck'
+init_stopwatch CPPCHECK
+# Step 3: code check
+cd $WORKSPACE/gazebo
+sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
+stop_stopwatch CPPCHECK
+echo '# END SECTION'
 
 # Step 4: generate code coverage if enabled
 if ${COVERAGE_ENABLED} ; then

@@ -1,6 +1,80 @@
 #!/bin/bash -x
 set -ex
 
+# S3 Amazon upload
+S3_upload()
+{
+    local pkg=${1} s3_destination_path=${2}
+
+    if ! $ENABLE_S3_UPLOAD; then
+        echo '# BEGIN SECTION: S3 upload is DISABLED'
+	echo "S3 upload is disabled"
+	echo '# END SECTION'
+	return
+    fi
+
+    [[ -z ${pkg} ]] && echo "pkg is empty" && exit 1
+    [[ -z ${s3_destination_path} ]] && echo "s3_destination_path is empty" && exit 1
+
+    # handle canonical paths if needed
+    if $S3_UPLOAD_CANONICAL_PATH; then
+      s3_destination_path=$(sed -e 's@[[:digit:]]*$@@' <<< "${s3_destination_path}")
+      # S3_UPLOAD_PATH can be composed by "pkg1/releases/"
+      s3_destination_path=$(sed -e 's@[[:digit:]]*/@/@' <<< "${s3_destination_path}")
+    fi
+
+    S3_DIR=$(mktemp -d ${HOME}/s3.XXXX)
+    pushd ${S3_DIR}
+    # Hack for not failing when github is down
+    update_done=false
+    seconds_waiting=0
+    while (! $update_done); do
+      wget https://github.com/s3tools/s3cmd/archive/v1.5.0-rc1.tar.gz -O foo.tar.gz && update_done=true
+      sleep 1
+      seconds_waiting=$((seconds_waiting+1))
+      [ $seconds_waiting -gt 60 ] && exit 1
+    done
+    tar xzf foo.tar.gz
+    cd s3cmd-*
+    ./s3cmd put $pkg s3://osrf-distributions/${s3_destination_path}
+    popd
+    rm -fr ${S3_DIR}
+}
+
+dsc_package_exists()
+{
+    local pkg=${1} # name, no full path
+
+    if [[ -n $(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro ls ${pkg} | grep source) ]]; then
+	return 0 # exists, true
+    fi
+
+    return 1 # do not exits, false
+}
+
+upload_package()
+{
+    local pkg=${1}
+    [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
+
+    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
+
+    # The path will end up being: s3://osrf-distributions/$pkg_root_name/releases/
+    S3_upload ${pkg} ${pkg}/releases/
+}
+
+upload_dsc_package()
+{
+    local pkg=${1}
+    [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
+
+    # .dsc sometimes does not include priority or section, 
+    # try to upload and if failed, specify the values
+    # see: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=768046
+    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg} || \
+	sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg}
+}
+
 NEEDED_HOST_PACKAGES="reprepro openssh-client"
 QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
 if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
@@ -48,103 +122,16 @@ case ${UPLOAD_TO_REPO} in
 	# No uploads for nightly packages
 	ENABLE_S3_UPLOAD=false
 	;;
+    "only_s3_upload")
+        # This should be fine, no repo, only s3 upload
+        ENABLE_S3_UPLOAD=true
+        ;;
     *)
 	# Here we could find project repositories uploads or error values.
 	# Error values for UPLOAD_TO_REPO will be get in the next directory check
 	# some lines below so we do nothing.
 	;;
 esac
-
-repo_path="/var/packages/gazebo/ubuntu-${UPLOAD_TO_REPO}"
-
-if [[ ! -d ${repo_path} ]]; then
-    echo "Repo directory ${repo_path} not found in server"
-    exit 1
-fi
-
-# Place in reprepro directory
-cd ${repo_path}
-
-# S3 Amazon upload
-S3_upload()
-{
-    local pkg=${1} s3_destination_path=${2}
-
-    if ! $ENABLE_S3_UPLOAD; then
-        echo '# BEGIN SECTION: S3 upload is DISABLED'
-	echo "S3 upload is disabled"
-	echo '# END SECTION'
-	return
-    fi
-
-    [[ -z ${pkg} ]] && echo "pkg is empty" && exit 1
-    [[ -z ${s3_destination_path} ]] && echo "s3_destination_path is empty" && exit 1
-
-    S3_DIR=$(mktemp -d ${HOME}/s3.XXXX)
-    pushd ${S3_DIR}
-    # Hack for not failing when github is down
-    update_done=false
-    seconds_waiting=0
-    while (! $update_done); do
-      wget https://github.com/s3tools/s3cmd/archive/v1.5.0-rc1.tar.gz -O foo.tar.gz && update_done=true
-      sleep 1
-      seconds_waiting=$((seconds_waiting+1))
-      [ $seconds_waiting -gt 60 ] && exit 1
-    done
-    tar xzf foo.tar.gz
-    cd s3cmd-*
-    ./s3cmd put $pkg s3://osrf-distributions/${s3_destination_path}
-    popd
-    rm -fr ${S3_DIR}
-}
-
-dsc_package_exists()
-{
-    local pkg=${1} # name, no full path
-
-    if [[ -n $(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro ls ${pkg} | grep source) ]]; then
-	return 0 # exists, true
-    fi
-
-    return 1 # do not exits, false
-}
-
-upload_package()
-{
-    local pkg=${1}
-    [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
-
-    # Get the canonical package name (i.e. gazebo2 -> gazebo)
-    pkg_root_name=${PACKAGE%[[:digit:]]}
-
-    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
-
-    # The path will end up being: s3://osrf-distributions/$pkg_root_name/releases/
-    S3_upload ${pkg} $pkg_root_name/releases/
-}
-
-upload_dsc_package()
-{
-    local pkg=${1}
-    [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
-
-    # .dsc sometimes does not include priority or section, 
-    # try to upload and if failed, specify the values
-    # see: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=768046
-    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg} || \
-	sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg}
-}
-
-upload_zip_file()
-{
-    local pkg=${1} s3_path=${2}
-
-    [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
-    [[ -z ${s3_path} ]] && echo "Bad parameter s3_path" && exit 1
-
-    S3_upload ${pkg} ${s3_path}
-}
-
 
 # .zip | (mostly) windows packages
 for pkg in `ls $pkgs_path/*.zip`; do
@@ -155,8 +142,37 @@ for pkg in `ls $pkgs_path/*.zip`; do
   fi
   
   # Seems important to upload the path with a final slash
-  upload_zip_file ${pkg} "${S3_UPLOAD_PATH}/"
+  S3_upload ${pkg} "${S3_UPLOAD_PATH}"
 done
+
+# .bottle | brew binaries
+for pkg in `ls $pkgs_path/*.bottle.tar.gz`; do
+  # S3_UPLOAD_PATH should be send by the upstream job
+  if [[ -z ${S3_UPLOAD_PATH} ]]; then
+    echo "S3_UPLOAD_PATH was not defined. Not uploading"
+    exit 1
+  fi
+  
+  # Seems important to upload the path with a final slash
+  S3_upload ${pkg} "${S3_UPLOAD_PATH}"
+done
+
+# Check for no reprepro uploads to finish here
+if [[ ${UPLOAD_TO_REPO} == 'only_s3_upload' ]]; then
+  exit 0
+fi
+
+# REPREPRO debian packages
+LINUX_DISTRO=${LINUX_DISTRO:-ubuntu}
+repo_path="/var/packages/gazebo/${LINUX_DISTRO}-${UPLOAD_TO_REPO}"
+
+if [[ ! -d ${repo_path} ]]; then
+    echo "Repo directory ${repo_path} not found in server"
+    exit 1
+fi
+
+# Place in reprepro directory
+cd ${repo_path}
 
 # .dsc | source debian packages
 for pkg in `ls $pkgs_path/*.dsc`; do

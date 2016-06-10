@@ -27,6 +27,7 @@ fi
 # mesa-utils for dri checks, xsltproc for qtest->junit conversion and
 # python-psutil for memory testing
 # netcat-openbsd (nc command) for squid-deb-proxy checking
+# net-tools (route command) for squid-deb-proxy checking
 BASE_DEPENDENCIES="build-essential \\
                    cmake           \\
                    debhelper       \\
@@ -36,7 +37,8 @@ BASE_DEPENDENCIES="build-essential \\
                    python-psutil   \\
                    python          \\
                    bc              \\
-                   netcat-openbsd"
+                   netcat-openbsd  \\
+                   net-tools"
 
 BREW_BASE_DEPENDCIES="mercurial git cmake"
 
@@ -76,7 +78,7 @@ fi
 
 # GAZEBO related dependencies
 if [[ -z ${GAZEBO_MAJOR_VERSION} ]]; then
-    GAZEBO_MAJOR_VERSION=6
+    GAZEBO_MAJOR_VERSION=7
 fi
 
 if [[ -z $GAZEBO_DEB_PACKAGE ]];then
@@ -154,7 +156,12 @@ fi
 
 if [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
     GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                              libignition-transport0-dev"
+                              libignition-transport-dev"
+fi
+
+if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
+    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                         libqwt-dev"
 fi
 
 # libtinyxml2-dev is not on precise
@@ -167,12 +174,19 @@ fi
 GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                           ${sdformat_pkg}"
 
-GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
-                           libavformat-dev  \\
+GAZEBO_EXTRA_DEPENDENCIES="libavformat-dev  \\
                            libavcodec-dev   \\
                            libgraphviz-dev  \\
                            libswscale-dev   \\
                            ruby-ronn"
+
+# Player was removed starting from xenial
+if [[ ${DISTRO} == 'precise' ]] || \
+   [[ ${DISTRO} == 'trusty' ]] || \
+   [[ ${DISTRO} == 'wily' ]]; then
+  GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} robot-player-dev"
+fi
+
 
 # cegui is deprecated in gazebo 6
 if [[ ${GAZEBO_MAJOR_VERSION} -le 6 ]]; then
@@ -330,7 +344,16 @@ IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             protobuf-compiler    \\
                             uuid-dev             \\
                             libzmq3-dev          \\
+                            libignition-msgs-dev \\
                             libczmq-dev"
+
+IGN_COMMON_DEPENDENCIES="pkg-config            \\
+                         python                \\
+                         ruby-ronn             \\
+                         uuid-dev              \\
+                         libignition-math2-dev \\
+                         libfreeimage-dev      \\
+                         uuid-dev"
 
 #
 # HAPTIX
@@ -342,13 +365,14 @@ HAPTIX_COMM_DEPENDENCIES_WITHOUT_IGN="pkg-config  \\
                           protobuf-compiler       \\
                           liboctave-dev"
 HAPTIX_COMM_DEPENDENCIES="${HAPTIX_COMM_DEPENDENCIES_WITHOUT_IGN} \\
-                          libignition-transport0-dev"
+                          libignition-transport-dev"
 #
 # HANDSIM
 #
 HANDSIM_DEPENDENCIES_WITHOUT_HAPTIX="libgazebo7-haptix-dev \\
                                      liboctave-dev"
 HANDSIM_DEPENDENCIES="${HANDSIM_DEPENDENCIES_WITHOUT_HAPTIX} \\
+                      libignition-transport-dev              \\
                       libhaptix-comm-dev"
 
 #
