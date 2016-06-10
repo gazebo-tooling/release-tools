@@ -11,12 +11,12 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFBrewCompilation extends OSRFOsXBase
 {
-  static void create(Job job)
+  static void create(Job job, enable_testing = true)
   {
     OSRFOsXBase.create(job)
 
     /* Properties from generic compilations */
-    GenericCompilation.create(job)
+    GenericCompilation.create(job, enable_testing)
 
     job.with
     {

@@ -27,7 +27,7 @@ class GenericCompilation
      '''.stripIndent()
    }
 
-   static void create(Job job)
+   static void create(Job job, boolean enable_testing = true)
    {
 
      GenericMail.update_field(job, 'defaultContent',
@@ -35,23 +35,25 @@ class GenericCompilation
 
      job.with
      {
-        priority 100
+        properties {
+          priority 100
+        }
 
         logRotator {
           numToKeep(15)
         }
 
-        publishers
+        if (enable_testing)
         {
-           // junit plugin is not implemented. Use configure for it
-           configure { project ->
-              project / publishers << 'hudson.tasks.junit.JUnitResultArchiver' {
-                   testResults('build/test_results/*.xml')
-                   keepLongStdio false
-                   testDataPublishers()
+          publishers
+          {
+            archiveJunit('build/test_results/*.xml') {
+              testDataPublishers {
+                publishFlakyTestsReport()
               }
-          }
-        } // end of publishers
+            }
+          } // end of publishers
+        } // end of enable_testing
       } // end of job
    } // end of create
 } // end of class

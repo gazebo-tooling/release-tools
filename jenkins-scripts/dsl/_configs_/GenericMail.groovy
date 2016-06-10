@@ -4,9 +4,29 @@ import javaposse.jobdsl.dsl.Job
 
 class GenericMail
 {
+  static void include_external_contributors_mail(Job job, String subject, String content)
+  {
+    GenericMail._include_mail_recipients(job, subject, content)
+    GenericMail.update_field(job, "presendScript",
+                             GenericMail.get_base_presend_script())
+  }
+
+  static void include_mail(Job job, String subject, String content)
+  {
+    GenericMail._include_mail_recipients(job, subject, content)
+    GenericMail.update_field(job, "presendScript",
+                             GenericMail.get_base_presend_script() +
+                             GenericMail.get_OSRF_filter_presend_script())
+  }
+
   static void include_mail(Job job)
   {
     include_mail(job,'$DEFAULT_SUBJECT','$DEFAULT_CONTENT')
+  }
+
+  static void include_external_contributors_mail(Job job)
+  {
+    include_external_contributors_mail(job,'$DEFAULT_SUBJECT','$DEFAULT_CONTENT')
   }
 
   static void update_field(Job job, String field, String new_value)
@@ -19,69 +39,97 @@ class GenericMail
     }
   }
 
-  static void include_mail(Job job, String subject, String content)
+  static void _include_mail_recipients(Job job, String subject, String content)
   {
     job.with
     {
       publishers
       {
-        extendedEmail(Globals.get_emails(),
-                      subject,
-                      content)
-       {
-          trigger(triggerName: 'Failure',
-                  subject: null, body: null, recipientList: null,
-                  sendToDevelopers: true,
-                  sendToRequester: true,
-                  includeCulprits: false,
-                  sendToRecipientList: true)
-          trigger(triggerName: 'Unstable',
-                  subject: null, body: null, recipientList: null,
-                  sendToDevelopers: true,
-                  sendToRequester: true,
-                  includeCulprits: false,
-                  sendToRecipientList: true)
-          trigger(triggerName: 'Fixed',
-                  subject: null, body: null, recipientList: null,
-                  sendToDevelopers: true,
-                  sendToRequester: true,
-                  includeCulprits: false,
-                  sendToRecipientList: true)
-          configure { node ->
-            node / presendScript << """
-              boolean final_cancel_answer = false
-              String logFilePath = build.getLogFile().getPath();
-              String logContent = new File(logFilePath).text;
+        extendedEmail
+        {
+          recipientList(Globals.get_emails())
+          defaultSubject(subject)
+          defaultContent(content)
 
-              // 1. Check if NO_MAILS is enabled
-              boolean no_mail = build.getEnvVars()['NO_MAILS'].toBoolean()
-              if (no_mail)
-              {
-                logger.println("NO_MAILS parameter enable. Not sending mails! ")
-                final_cancel_answer = true;
+          triggers
+          {
+            failure {
+              sendTo {
+                developers()
+                requester()
+                recipientList()
               }
+            }
 
-              // 2. MSVC internal compiler error
-              // Let's assume does only very rarely several
-              // Naginator plugin does not provide a way to know if MAX got
-              // reach withput unsuccessful build
-              // https://issues.jenkins-ci.org/browse/JENKINS-21241
-              try {
-                  if (logContent.find(/INTERNAL COMPILER ERROR/))
-                  {
-                    logger.println("INTERNAL COMPILER ERROR detected. Not sending mails!")
-                    final_cancel_answer = true;
-                  }
+            unstable {
+              sendTo {
+                developers()
+                requester()
+                recipientList()
               }
-              catch (all)
-              {
-              }
+            }
 
-              cancel = final_cancel_answer
-              """.stripIndent()
-          } // end of configure
+            fixed {
+              sendTo {
+                developers()
+                requester()
+                recipientList()
+              }
+            }
+          }
         }
       }
     }
-  } // end of include_mail
+  }
+
+  static String get_base_presend_script()
+  {
+     return("""
+            boolean final_cancel_answer = false
+            String logFilePath = build.getLogFile().getPath();
+            String logContent = new File(logFilePath).text;
+
+            // 1. Check if NO_MAILS is enabled
+            boolean no_mail = build.getEnvVars()['NO_MAILS'].toBoolean()
+            if (no_mail)
+            {
+              logger.println("NO_MAILS parameter enable. Not sending mails! ")
+              final_cancel_answer = true;
+            }
+
+            // 2. MSVC internal compiler error
+            // Let's assume does only very rarely several
+            // Naginator plugin does not provide a way to know if MAX got
+            // reach withput unsuccessful build
+            // https://issues.jenkins-ci.org/browse/JENKINS-21241
+            try {
+                if (logContent.find(/INTERNAL COMPILER ERROR/))
+                {
+                  logger.println("INTERNAL COMPILER ERROR detected. Not sending mails!")
+                  final_cancel_answer = true;
+                }
+            }
+            catch (all)
+            {
+            }
+
+            cancel = final_cancel_answer
+            """.stripIndent())
+  }
+
+  static String get_OSRF_filter_presend_script()
+  {
+    return("""
+           // 3. Filter mail to get only OSRF
+           recipients =
+              msg.getRecipients(javax.mail.Message.RecipientType.TO)
+           filtered =
+              recipients.findAll { addr -> addr.toString().contains('@osrfoundation.org') }
+           msg.setRecipients(javax.mail.Message.RecipientType.TO,
+                             filtered as javax.mail.Address[])
+
+           // always need to be the last line to cancel email when needed
+           cancel = final_cancel_answer
+        """.stripIndent())
+  }
 } // end of class

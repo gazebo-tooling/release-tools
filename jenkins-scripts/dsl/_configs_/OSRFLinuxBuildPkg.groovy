@@ -32,7 +32,9 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
 
     job.with
     {
-      priority 300
+      properties {
+        priority 300
+      }
 
       logRotator {
         artifactNumToKeep(10)

@@ -83,7 +83,7 @@ if $NEED_C11_COMPILER; then
   fi
 fi
 
-# Useful for running tests properly in ros based software
+# Useful for running tests properly integrated ros based software
 if ${ENABLE_ROS}; then
   export ROS_HOSTNAME=localhost
   export ROS_MASTER_URI=http://localhost:11311
@@ -98,11 +98,25 @@ fi
 . ${SCRIPT_DIR}/../lib/check_graphic_card.bash
 . ${SCRIPT_DIR}/../lib/dependencies_archive.sh
 
+# After dependencies_archive.sh call to get the rest of BASE_DEPENDENCIES
+if [ -z "${ENABLE_CCACHE}" ]; then
+  ENABLE_CCACHE=true
+  BASE_DEPENDENCIES="${BASE_DEPENDENCIES} ccache"
+  CCACHE_DIR="/srv/ccache"
+  CCACHE_MAXSIZE=5G
+  # create the host cache dir to be shared across all docker images
+  if [[ ! -d ${CCACHE_DIR} ]]; then
+    sudo mkdir -p ${CCACHE_DIR}
+    sudo chmod o+w ${CCACHE_DIR}
+  fi
+fi
+
+
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
 # TODO: Check for docker package
-NEEDED_HOST_PACKAGES="mercurial python-setuptools python-psutil qemu-user-static gpgv"
+NEEDED_HOST_PACKAGES="mercurial python-setuptools python-psutil qemu-user-static gpgv squid-deb-proxy"
 # python-argparse is integrated in libpython2.7-stdlib since raring
 # Check for precise in the HOST system (not valid DISTRO variable)
 if [[ $(lsb_release -sr | cut -c 1-5) == '12.04' ]]; then

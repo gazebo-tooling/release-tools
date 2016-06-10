@@ -7,14 +7,14 @@ class Globals
    static extra_emails   = ''
 
    static gpu_by_distro  = [ trusty : [ 'nvidia', 'intel' ],
-                             vivid  : [ 'intel' ] ]
+                             xenial  : [ 'intel' ] ]
 
    static String get_emails()
    {
       if (extra_emails != '')
       {
         return default_emails + ', ' + extra_emails
-      }
+     }
 
       return default_emails
    }
@@ -33,7 +33,7 @@ class Globals
 
    static ArrayList get_abi_distro()
    {
-     return [ 'vivid' ]
+     return [ 'xenial' ]
    }
 
    static ArrayList get_ci_gpu()
@@ -43,7 +43,7 @@ class Globals
 
    static ArrayList get_other_supported_distros()
    {
-     return [ 'vivid', 'wily' ]
+     return [ 'wily', 'xenial' ]
    }
 
    static ArrayList get_supported_arches()

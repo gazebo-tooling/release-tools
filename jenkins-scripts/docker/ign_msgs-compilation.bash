@@ -14,10 +14,9 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export GPU_SUPPORT_NEEDED=true
-
-export BUILDING_SOFTWARE_DIRECTORY="robocup3ds"
-export BUILDING_DEPENDENCIES="libgazebo7-dev libqt4-dev libboost-dev"
-export BUILDING_JOB_REPOSITORIES="stable prerelease"
+export BUILDING_SOFTWARE_DIRECTORY="ign-msgs"
+export BUILDING_DEPENDENCIES="libprotobuf-dev libprotoc-dev protobuf-compiler ruby1.9.1-dev libignition-math2-dev"
+export DOCKER_POSTINSTALL_HOOK="gem install protobuf"
+export BUILDING_JOB_REPOSITORIES="stable"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

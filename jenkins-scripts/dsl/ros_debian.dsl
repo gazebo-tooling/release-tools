@@ -12,6 +12,8 @@ supported_arches.each { arch ->
       distros.each { distro ->
         def ci_job = job("ros_debian_science-ci-default-${distro}-${arch}")
         OSRFLinuxBase.create(ci_job)
+        // Explicit enable external contributors mail
+        GenericMail.include_external_contributors_mail(ci_job)
         ci_job.with
         {
           authorization
@@ -22,10 +24,6 @@ supported_arches.each { arch ->
 
           steps
           {
-              triggers {
-                cron('@daily')
-              }
-
               shell("""\
                     #!/bin/bash -xe
 
