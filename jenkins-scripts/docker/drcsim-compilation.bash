@@ -20,5 +20,6 @@ export GAZEBO_DEB_PACKAGE=${GAZEBO_DEB_PACKAGE:-"libgazebo4-dev"}
 export BUILDING_SOFTWARE_DIRECTORY="drcsim"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="DRCSIM_FULL_DEPENDENCIES"
 export BUILDING_JOB_REPOSITORIES="stable"
+export USE_ROS_REPO=true
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
