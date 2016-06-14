@@ -16,9 +16,12 @@ ros_distros.each { ros_distro ->
     default_ci_job.with
     {
       scm {
-        git("https://github.com/ros-simulation/gazebo_ros_pkgs") {
+        git {
+          remote {
+            github("ros-simulation/gazebo_ros_pkgs")
+          }
           branch("${ros_distro}-devel")
-          subdirectory("gazebo_ros_pkgs")
+          relativeTargetDir("gazebo_ros_pkgs")
         }
       }
 
