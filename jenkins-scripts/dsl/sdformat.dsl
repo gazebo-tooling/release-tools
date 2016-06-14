@@ -63,9 +63,9 @@ abi_distro.each { distro ->
 } // end of distro
 
 // MAIN CI job
-// Create the main CI worf flow job
+// Create the main CI work flow job
 def sdformat_ci_main = workflowJob("sdformat-ci-pr_any")
-OSRFCIWorkFlow.create(sdformat_ci_main, ci_build_any_job_name)
+OSRFCIWorkFlowMultiAny.create(sdformat_ci_main, ci_build_any_job_name)
 // CI JOBS @ SCM/5 min
 ci_distro.each { distro ->
   supported_arches.each { arch ->

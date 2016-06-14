@@ -23,9 +23,10 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: run test-bot'
 # The test-bot makes a full cleanup of all installed pkgs. Be sure of install back
 # mercurial to keep the slave working
+export HOMEBREW_DEVELOPER=1
 brew test-bot --tap=osrf/simulation \
               --ci-pr ${PULL_REQUEST_URL} \
-	     || { brew install hg; exit -1 }
+            || { brew install hg; exit -1; }
 brew install hg
 echo '# END SECTION'
 
@@ -36,6 +37,6 @@ if [[ $(find . -name '*.bottle.*' | wc -l | sed 's/^ *//') != 2 ]]; then
 fi
 
 mv *.bottle.tar.gz ${PKG_DIR}
-mv *.bottle.rb ${PKG_DIR}
+mv *.bottle.json ${PKG_DIR}
 
 echo '# END SECTION'

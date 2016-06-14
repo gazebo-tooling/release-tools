@@ -85,10 +85,11 @@ set +x # keep password secret
 BITBUCKET_USER_PASS=$(cat ${BITBUCKET_USER_PASS_FILE})
 BITBUCKET_API_RESULT=true
 ${WORKSPACE}/scripts/jenkins-scripts/python-bitbucket/set_status_from_file.py \
-    --user osrf_jenkins  \
-    --pass ${BITBUCKET_USER_PASS} \
-    --status ${BITBUCKET_STATUS} \
-    --load_from_file ${BITBUCKET_BUILD_STATUS_FILE} >& ${BITBUCKET_LOG_FILE} || BITBUCKET_API_RESULT=false
+    --user "osrf_jenkins"  \
+    --pass "${BITBUCKET_USER_PASS}" \
+    --desc "${JENKINS_BUILD_DESC}" \
+    --status "${BITBUCKET_STATUS}" \
+    --load_from_file "${BITBUCKET_BUILD_STATUS_FILE}" >& ${BITBUCKET_LOG_FILE} || BITBUCKET_API_RESULT=false
 set -x # back to debug
 echo '# END SECTION'
 

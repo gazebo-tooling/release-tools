@@ -2,7 +2,7 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
-def ignition_software         = [ 'transport', 'math', 'msgs' ]
+def ignition_software         = [ 'transport', 'math', 'msgs', 'common' ]
 def ignition_transport_series = '' // empty for a unversioned -dev package
 def ignition_math_series      = '2'
 
@@ -66,7 +66,7 @@ ignition_software.each { ign_sw ->
       // --------------------------------------------------------------
       // 0. Main CI workflow
       def ign_ci_main = workflowJob("ignition_${ign_sw}-ci-pr_any")
-      OSRFCIWorkFlow.create(ign_ci_main, ignition_ci_job_name)
+      OSRFCIWorkFlowMultiAny.create(ign_ci_main, ignition_ci_job_name)
 
       // --------------------------------------------------------------
       // 1. Create the default ci jobs
@@ -155,6 +155,10 @@ ignition_software.each { ign_sw ->
 
          if ("${ign_sw}" == "math")
           dev_package = "libignition-${ign_sw}${ignition_math_series}-dev"
+
+         // common and msgs don't have packages yet
+         if (("${ign_sw}" == "common") || ("${ign_sw}" == "msgs"))
+          disabled()
 
          steps {
           shell("""\
