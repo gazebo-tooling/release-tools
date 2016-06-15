@@ -13,14 +13,9 @@ DOCKER_JOB_NAME="gazebo_ros_pkgs_ci"
 # Generate the first part of the build.sh file for ROS
 . ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash "gazebo_ros_pkgs"
 
-cat >> build.sh << DELIM
-catkin_make -j${MAKE_JOBS} tests
-DELIM
-
 # don't have rosdep at this point and want gazebo to be cached by docker
-
-USE_ROS_REPO=true
 DEPENDENCY_PKGS="${ROS_GAZEBO_PKGS_DEPENDENCIES} ${GZ_PKG}"
+USE_ROS_REPO=true
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash

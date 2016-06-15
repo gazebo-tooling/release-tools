@@ -207,6 +207,18 @@ if [[ -z $ROS_DISTRO ]]; then
   echo "skipping ROS related variables"
   echo "------------------------------------------------------------"
 else
+  ROS_CATKIN_BASE="python-dev              \\
+                  python-catkin-pkg        \\
+                  python-rosdep            \\
+                  python-wstool            \\
+                  ros-${ROS_DISTRO}-catkin \\
+                  ros-${ROS_DISTRO}-ros    \\
+                  python-rosinstall        \\
+                  python-catkin-tools      \\
+                  python-catkin-pkg        \\
+                  python-rospkg            \\
+                  python-vcstools"
+
   # DRCSIM_DEPENDENCIES
   #
   # image-transport-plugins is needed to properly advertise compressed image topics
@@ -268,7 +280,8 @@ else
   #
   # ROS_GAZEBO_PKGS DEPENDECIES
   #
-  ROS_GAZEBO_PKGS_DEPENDENCIES="libtinyxml-dev                            \\
+  ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_CATKIN_BASE}                        \\
+                                libtinyxml-dev                            \\
                                 ros-${ROS_DISTRO}-catkin                  \\
                                 ros-${ROS_DISTRO}-pluginlib               \\
                                 ros-${ROS_DISTRO}-roscpp                  \\

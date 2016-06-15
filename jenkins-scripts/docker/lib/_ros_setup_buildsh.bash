@@ -18,6 +18,7 @@ cat >> build.sh << DELIM
 #
 set -ex
 
+echo '# BEGIN SECTION: run rosdep'
 # Step 2: configure and build
 rosdep init 
 # Hack for not failing when github is down
@@ -36,14 +37,24 @@ SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
 # Seems like there is no failure in runs on precise pbuilder in
 # our trusty machine. So we do not check for GRAPHIC_TESTS=true
 mkdir -p \$HOME/.gazebo
+echo '# END SECTION'
 
-# Create the catkin workspace
+echo '# BEGIN SECTION: create the catkin workspace
 rm -fr ${CATKIN_WS}/src
-mkdir -p ${CATKIN_WS}/src
+mkdir -p ${CATKIN_WS}
+catkin config --init --mkdirs
 cd ${CATKIN_WS}/src
-catkin_init_workspace
-cp -a "${WORKSPACE}/${SOFTWARE_DIR}" .
+rospack profile
+ln -s "${WORKSPACE}/${SOFTWARE_DIR}" .
 cd ${CATKIN_WS}
-catkin_make -j${MAKE_JOBS}
-SHELL=/bin/sh . $WORKSPACE/ws/devel/setup.sh
+catkin build -j${MAKE_JOBS} --verbose --sumary
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: running tests'
+catkin run_tests -j1 || true
+catkin_test_results
+echo '# END SECTION'
+
+# link test results to usual place
+mv ${CATKIN_WS}/build/test_results ${WORKSPACE}/build/
 DELIM
