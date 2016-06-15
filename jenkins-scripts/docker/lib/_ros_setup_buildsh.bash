@@ -12,10 +12,7 @@ fi
 
 export CATKIN_WS="${WORKSPACE}/ws"
 
-cat >> build.sh << DELIM
-###################################################
-# Make project-specific changes here
-#
+cat > build.sh << DELIM
 set -ex
 
 echo '# BEGIN SECTION: run rosdep'
@@ -53,8 +50,8 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: running tests'
 catkin run_tests -j1 || true
 catkin_test_results
-echo '# END SECTION'
 
 # link test results to usual place
 mv ${CATKIN_WS}/build/test_results ${WORKSPACE}/build/
+echo '# END SECTION'
 DELIM
