@@ -39,7 +39,7 @@ SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
 mkdir -p \$HOME/.gazebo
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: create the catkin workspace
+echo '# BEGIN SECTION: create the catkin workspace'
 rm -fr ${CATKIN_WS}/src
 mkdir -p ${CATKIN_WS}
 catkin config --init --mkdirs
