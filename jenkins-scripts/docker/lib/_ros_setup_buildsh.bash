@@ -38,7 +38,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: create the catkin workspace'
 rm -fr ${CATKIN_WS}/src
-mkdir -p ${CATKIN_WS}
+mkdir -p ${CATKIN_WS}/src
 catkin config --init --mkdirs
 cd ${CATKIN_WS}/src
 rospack profile
