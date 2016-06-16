@@ -41,9 +41,7 @@ rm -fr ${CATKIN_WS}/src
 mkdir -p ${CATKIN_WS}/src
 catkin config --init --mkdirs
 cd ${CATKIN_WS}/src
-rospack profile
-ln -s "${WORKSPACE}/${SOFTWARE_DIR}" .
-cd ${CATKIN_WS}
+ln -s "${WORKSPACE}/${SOFTWARE_DIR}" "${CATKIN_WS}/src/${SOFTWARE_DIR}"
 catkin build -j${MAKE_JOBS} --verbose --summary
 echo '# END SECTION'
 
