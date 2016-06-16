@@ -44,7 +44,7 @@ cd ${CATKIN_WS}/src
 rospack profile
 ln -s "${WORKSPACE}/${SOFTWARE_DIR}" .
 cd ${CATKIN_WS}
-catkin build -j${MAKE_JOBS} --verbose --sumary
+catkin build -j${MAKE_JOBS} --verbose --summary
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: running tests'
