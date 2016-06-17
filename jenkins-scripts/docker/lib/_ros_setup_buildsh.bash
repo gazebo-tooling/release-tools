@@ -17,7 +17,7 @@ set -ex
 
 echo '# BEGIN SECTION: run rosdep'
 # Step 2: configure and build
-rosdep init 
+rosdep init
 # Hack for not failing when github is down
 update_done=false
 seconds_waiting=0
@@ -39,9 +39,10 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: create the catkin workspace'
 rm -fr ${CATKIN_WS}/src
 mkdir -p ${CATKIN_WS}/src
+cd ${CATKIN_WS}
 catkin config --init --mkdirs
-cd ${CATKIN_WS}/src
 ln -s "${WORKSPACE}/${SOFTWARE_DIR}" "${CATKIN_WS}/src/${SOFTWARE_DIR}"
+catkin list
 catkin build -j${MAKE_JOBS} --verbose --summary
 echo '# END SECTION'
 
