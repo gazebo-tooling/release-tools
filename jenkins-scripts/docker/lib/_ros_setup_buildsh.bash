@@ -37,7 +37,7 @@ mkdir -p \$HOME/.gazebo
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create the catkin workspace'
-rm -fr ${CATKIN_WS}/src
+rm -fr ${CATKIN_WS}
 mkdir -p ${CATKIN_WS}/src
 cd ${CATKIN_WS}
 catkin config --init --mkdirs
