@@ -3,13 +3,11 @@
     <testcase name="Rand1" status="run" time="0" classname="RandTest">
       <failure message="src/Rand_TEST.cc:34&#10;Expected: (d) &gt;= (1.5), actual: 1.13947 vs 1.5" type="">src/Rand_TEST.cc:34
 Expected: (d) &gt;= (1.5), actual: 1.13947 vs 1.5</failure>
-    <rerunFailure message="src/Rand_TEST.cc:34&#10;Expected: (d) &gt;= (1.5), actual: 1.44269 vs 1.5" type="">src/Rand_TEST.cc:34
-Expected: (d) &gt;= (1.5), actual: 1.44269 vs 1.5</rerunFailure>
+    <rerunFailure message="src/Rand_TEST.cc:34&#10;Expected: (d) &gt;= (1.5), actual: 1.13947 vs 1.5" type="">src/Rand_TEST.cc:34
+Expected: (d) &gt;= (1.5), actual: 1.13947 vs 1.5</rerunFailure>
     </testcase>
     <testcase name="Rand2" status="run" time="0" classname="RandTest"/>
-    <testcase name="Rand" status="run" time="0" classname="RandTest"><flakyFailure message="src/Rand_TEST.cc:58&#10;Expected: (d) &gt;= (1.5), actual: 1.30572 vs 1.5" type="">src/Rand_TEST.cc:58
-Expected: (d) &gt;= (1.5), actual: 1.30572 vs 1.5</flakyFailure>
-    </testcase>
+    <testcase name="Rand" status="run" time="0" classname="RandTest"/>
     <testcase name="SetSeed" status="run" time="0.001" classname="RandTest"/>
   </testsuite>
 </testsuites>

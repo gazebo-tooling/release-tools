@@ -41,7 +41,9 @@ class OSRFLinuxABI
 
     job.with
     {
-      priority 100
+      properties {
+        priority 100
+      }
 
       logRotator {
         artifactNumToKeep(10)

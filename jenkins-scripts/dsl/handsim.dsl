@@ -333,7 +333,8 @@ supported_arches_windows.each { arch ->
           parameters {
             currentBuild()
             predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-            predefinedProp("S3_UPLOAD_PATH", "haptix")
+            predefinedProp("S3_UPLOAD_PATH", "haptix/")
+            predefinedProp("S3_UPLOAD_CANONICAL_PATH", "false")
             predefinedProp("UPLOAD_TO_REPO", "stable")
             predefinedProp("PACKAGE_ALIAS" , "handsim-sdk")
             predefinedProp("DISTRO",         "win7")

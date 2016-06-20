@@ -14,10 +14,8 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export GPU_SUPPORT_NEEDED=true
-
-export BUILDING_SOFTWARE_DIRECTORY="robocup3ds"
-export BUILDING_DEPENDENCIES="libgazebo7-dev libqt4-dev libboost-dev"
-export BUILDING_JOB_REPOSITORIES="stable prerelease"
+export BUILDING_SOFTWARE_DIRECTORY="ign-common"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_COMMON_DEPENDENCIES"
+export BUILDING_JOB_REPOSITORIES="stable"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

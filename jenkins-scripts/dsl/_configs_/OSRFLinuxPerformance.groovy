@@ -19,7 +19,9 @@ class OSRFLinuxPerformance
 
     job.with
     {
-      priority 100
+      properties {
+        priority 300
+      }
 
       logRotator {
         artifactNumToKeep(10)
