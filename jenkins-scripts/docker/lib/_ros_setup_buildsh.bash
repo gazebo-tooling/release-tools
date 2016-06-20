@@ -48,9 +48,15 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: running tests'
 catkin run_tests -j1 || true
-catkin_test_results
+catkin_test_results --all --verbose || true
 
 # link test results to usual place
-mv ${CATKIN_WS}/build/test_results ${WORKSPACE}/build/
+mkdir -p ${WORKSPACE}/build/test_results
+DIRS=\$(find . -name test_results -type d)
+for d in \$DIRS; do
+  for t in \$(find \$d -name "*.xml" -type f) ; do
+     mv \$t ${WORKSPACE}/build/test_results
+ done
+done
 echo '# END SECTION'
 DELIM
