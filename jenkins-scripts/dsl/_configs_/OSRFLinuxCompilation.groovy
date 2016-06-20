@@ -54,7 +54,7 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
              thresholds(unstableTotal: [all: 0])
          }
 
-         if (enable_testing)
+         if (enable_cppcheck)
          {
            // cppcheck is not implemented. Use configure for it
            configure { project ->
@@ -94,7 +94,7 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
                } // end of configGraph
              } // end of cppcheckconfig
            } // end of configure
-         } // end of enable_testing 
+         } // end of enable_cppcheck
       } // end of publishers
     } // end of job
   } // end of method createJob
