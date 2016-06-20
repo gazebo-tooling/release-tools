@@ -12,7 +12,8 @@ ros_distros.each { ros_distro ->
     // --------------------------------------------------------------
     // 1. Create the default ci jobs
     def default_ci_job = job("ros_gazebo_pkgs-ci-default_${ros_distro}-${ubuntu_distro}-${ci_arch}")
-    OSRFLinuxCompilation.create(default_ci_job)
+    // Enable testing but not cppcheck
+    OSRFLinuxCompilation.create(default_ci_job, true, false)
     default_ci_job.with
     {
       scm {
@@ -38,7 +39,7 @@ ros_distros.each { ros_distro ->
               export ROS_DISTRO=${ros_distro}
               export DISTRO=${ubuntu_distro}
               export ARCH=${ci_arch}
-              /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo_ros_pkgs-compilation.bash  
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo_ros_pkgs-compilation.bash
               """.stripIndent())
       }
     }
