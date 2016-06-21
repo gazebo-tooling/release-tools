@@ -285,7 +285,6 @@ else
                                 ros-${ROS_DISTRO}-catkin                  \\
                                 ros-${ROS_DISTRO}-pluginlib               \\
                                 ros-${ROS_DISTRO}-roscpp                  \\
-                                ros-${ROS_DISTRO}-driver-base             \\
                                 ros-${ROS_DISTRO}-angles                  \\
                                 ros-${ROS_DISTRO}-camera-info-manager     \\
                                 ros-${ROS_DISTRO}-cmake-modules           \\
@@ -336,6 +335,11 @@ else
 
   ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
                                 ${GZ_PACKAGE_TO_USE_IN_ROS}"
+
+  if [[ ${ROS_DISTRO} == 'indigo' ]] || [[ ${ROS_DISTRO} == 'jade' ]]; then
+  ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
+                                ros-${ROS_DISTRO}-driver-base"
+  fi
 
   if [[ ${ROS_DISTRO} == 'indigo' ]]; then
   # These dependencies are for testing the ros_gazebo_pkgs
