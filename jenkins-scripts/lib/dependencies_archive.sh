@@ -322,10 +322,14 @@ else
         GZ_PACKAGE_TO_USE_IN_ROS="gazebo2"
       ;;
       jade)
-        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo5-dev"
+        # both packages see  http://answers.ros.org/question/217970
+        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo5-dev \\
+                                  gazebo5"
       ;;
       kinetic)
-        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo7-dev"
+        # both packages see  http://answers.ros.org/question/217970
+        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo7-dev \\
+                                  gazebo7"
       ;;
     esac
   fi
