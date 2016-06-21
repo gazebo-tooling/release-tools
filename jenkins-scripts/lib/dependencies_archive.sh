@@ -122,6 +122,15 @@ if [[ ${DISTRO} == 'precise' ]] || \
     bullet_pkg="libbullet2.82-dev"
 fi
 
+# gazebo8 and above use qt5
+if [[ ${GAZEBO_MAJOR_VERSION} -le 7 ]]; then
+  gazebo_qt_dependencies="libqt4-dev \\
+                          libqtwebkit-dev"
+else
+  gazebo_qt_dependencies="qtbase5-dev \\
+                          libqt5webkit5-dev"
+fi
+
 GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
                           libprotoc-dev                    \\
                           libprotobuf-dev                  \\
@@ -134,8 +143,7 @@ GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
                           ${ogre_pkg}                      \\
                           libxml2-dev                      \\
                           pkg-config                       \\
-                          qtbase5-dev                      \\
-                          libqt5webkit5-dev                \\
+                          ${gazebo_qt_dependencies}        \\
                           libltdl-dev                      \\
                           libgts-dev                       \\
                           libboost-thread-dev              \\
