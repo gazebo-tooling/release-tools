@@ -345,6 +345,7 @@ IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             uuid-dev             \\
                             libzmq3-dev          \\
                             libignition-msgs-dev \\
+                            libignition-math2-dev \\
                             libczmq-dev"
 
 IGN_COMMON_DEPENDENCIES="pkg-config            \\
