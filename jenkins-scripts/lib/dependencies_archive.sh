@@ -128,9 +128,7 @@ if [[ ${GAZEBO_MAJOR_VERSION} -le 7 ]]; then
                           libqtwebkit-dev"
 else
   gazebo_qt_dependencies="libqt4-dev \\
-                          libqtwebkit-dev \\
-                          qtbase5-dev \\
-                          libqt5webkit5-dev"
+                          qtbase5-dev"
 fi
 
 GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
