@@ -125,7 +125,9 @@ fi
 # gazebo8 and above use qt5
 if [[ ${GAZEBO_MAJOR_VERSION} -le 7 ]]; then
   gazebo_qt_dependencies="libqt4-dev \\
-                          libqtwebkit-dev"
+                          libqtwebkit-dev \\
+                          qtbase5-dev \\
+                          libqt5webkit5-dev"
 else
   gazebo_qt_dependencies="qtbase5-dev \\
                           libqt5webkit5-dev"
