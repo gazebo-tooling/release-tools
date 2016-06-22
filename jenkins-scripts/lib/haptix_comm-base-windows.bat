@@ -17,7 +17,7 @@ set KEEP_WORKSPACE=TRUE
 set IGN_CLEAN_WORKSPACE=FALSE
 
 set zeromq_zip_name=zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip
-set protobuf_zip_name=protobuf-2.6.0-win%BITNESS%-vc12.zip
+set protobuf_zip_name=protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip
 
 cd %WORKSPACE%
 IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
