@@ -296,4 +296,12 @@ set_status.with
           /bin/bash -xe ./scripts/jenkins-scripts/_bitbucket_set_status.bash
           """.stripIndent())
   }
+
+  configure { project ->
+    project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+      unstableOnWarning true
+      failBuildOnError false
+      parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+    }
+  } // end of configure
 }
