@@ -92,11 +92,13 @@ release_job.with
      // Added the checker result parser (UNSTABLE if not compatible)
      // IMPORTANT: the order of the steps here is important. Leave the configure
      // block first.
-     logParSerpublisher {
-        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
-        failBuildOnError(false)
-        unstableOnWarning(true)
-     }
+     configure { project ->
+       project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+          unstableOnWarning true
+          failBuildOnError false
+          parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+       }
+     } // end of configure
 
      archiveArtifacts
      {
@@ -295,12 +297,11 @@ set_status.with
           """.stripIndent())
   }
 
-  publishers
-  {
-     logParSerpublisher {
-        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
-        failBuildOnError(false)
-        unstableOnWarning(true)
-     }
-  }
+  configure { project ->
+    project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+      unstableOnWarning true
+      failBuildOnError false
+      parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+    }
+  } // end of configure
 }
