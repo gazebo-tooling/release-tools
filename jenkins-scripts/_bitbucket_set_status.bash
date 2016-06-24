@@ -93,10 +93,21 @@ ${WORKSPACE}/scripts/jenkins-scripts/python-bitbucket/set_status_from_file.py \
 set -x # back to debug
 echo '# END SECTION'
 
+REPO_ORG=${REPO_SHORT_NAME/*}
+
+
 if ! $BITBUCKET_API_RESULT; then
+  # Check if we expect the failure due to lack of permissions
+  if [[ ${REPO_ORG} == 'osrf' ]] || [[ ${REPO_ORG} == 'ignitionrobotics' ]]; then
+    if [[ -n $(grep '403 Client Error: FORBIDDEN' ${BITBUCKET_LOG_FILE}) ]]
+      echo "MARK_AS_UNSTABLE"
+      exit 0
+    fi
+  fi
+
   echo 'BEGIN SECTION: build status FAILED'
   echo 'The call from the python client to bitbucket to set the build status failed'
   echo "Please check out the workspace for the file: ${BITBUCKET_LOG_FILE}"
   echo '# END SECTION'
-  return 1
+  exit 1
 fi

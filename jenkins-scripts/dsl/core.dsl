@@ -92,13 +92,11 @@ release_job.with
      // Added the checker result parser (UNSTABLE if not compatible)
      // IMPORTANT: the order of the steps here is important. Leave the configure
      // block first.
-     configure { project ->
-       project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
-          unstableOnWarning true
-          failBuildOnError false
-          parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
-       }
-     } // end of configure
+     logParSerpublisher {
+        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+        failBuildOnError(false)
+        unstableOnWarning(true)
+     }
 
      archiveArtifacts
      {
@@ -295,5 +293,14 @@ set_status.with
 
           /bin/bash -xe ./scripts/jenkins-scripts/_bitbucket_set_status.bash
           """.stripIndent())
+  }
+
+  publishers
+  {
+     logParSerpublisher {
+        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+        failBuildOnError(false)
+        unstableOnWarning(true)
+     }
   }
 }
