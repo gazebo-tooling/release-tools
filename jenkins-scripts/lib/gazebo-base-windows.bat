@@ -60,7 +60,20 @@ mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
 copy %WORKSPACE%\workspace\jom.exe .
-jom
+jom || goto %win_lib% :error
+nmake install
+echo # END SECTION
+
+echo # BEGIN SECTION: compile and install ign-transport
+set IGN_TRANSPORT_DIR=%WORKSPACE%\workspace\ign-transport
+if EXIST %IGN_TRANSPORT_DIR% ( rmdir /s /q %IGN_TRANSPORT_DIR% )
+hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_DIR%
+cd %IGN_TRANSPORT_DIR%
+mkdir build
+cd build
+call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
+copy %WORKSPACE%\workspace\jom.exe .
+jom || goto :error
 nmake install
 echo # END SECTION
 
@@ -73,7 +86,7 @@ mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
 copy %WORKSPACE%\workspace\jom.exe .
-jom
+jom || goto :error
 nmake install
 echo # END SECTION
 
