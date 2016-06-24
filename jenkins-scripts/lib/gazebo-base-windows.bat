@@ -64,6 +64,19 @@ jom || goto %win_lib% :error
 nmake install
 echo # END SECTION
 
+echo # BEGIN SECTION: compile and install ign-msgs
+set IGN_MSGS_DIR=%WORKSPACE%\workspace\ign-msgs
+if EXIST %IGN_MSGS_DIR% ( rmdir /s /q %IGN_MSGS_DIR% )
+hg clone https://bitbucket.org/ignitionrobotics/ign-msgs %IGN_MSGS_DIR%
+cd %IGN_MSGS_DIR%
+mkdir build
+cd build
+call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
+copy %WORKSPACE%\workspace\jom.exe .
+jom || goto %win_lib% :error
+nmake install
+echo # END SECTION
+
 echo # BEGIN SECTION: compile and install ign-transport
 set IGN_TRANSPORT_DIR=%WORKSPACE%\workspace\ign-transport
 if EXIST %IGN_TRANSPORT_DIR% ( rmdir /s /q %IGN_TRANSPORT_DIR% )
