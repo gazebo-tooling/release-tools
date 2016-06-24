@@ -38,31 +38,17 @@ call %win_lib% :unzip_7za protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip > protob
 call %win_lib% :unzip_7za zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip > zeromq_7z.log || goto :error
 
 echo # BEGIN SECTION: compile and install ign-math
-set IGN_MATH_DIR=%WORKSPACE%\workspace\ign-math
-if EXIST %IGN_MATH_DIR% ( rmdir /s /q %IGN_MATH_DIR% )
-hg clone https://bitbucket.org/ignitionrobotics/ign-math %IGN_MATH_DIR%
-cd %IGN_MATH_DIR%
-mkdir build
-cd build
-call "..\configure.bat" %BUILD_TYPE% %BITNESS% || goto %win_lib% :error
-copy %WORKSPACE%\workspace\jom.exe .
-jom
-nmake install
-cd %WORKSPACE%\workspace
+set VCS_DIRECTORY=ign-math
+set KEEP_WORKSPACE=TRUE
+set ENABLE_TESTS=FALSE
+call "%SCRIPT_DIR%/lib/project-default-devel-windows.bat"
 echo # END SECTION
 
 echo # BEGIN SECTION: compile and install ign-msgs
-set IGN_MSGS_DIR=%WORKSPACE%\workspace\ign-msgs
-if EXIST %IGN_MSGS_DIR% ( rmdir /s /q %IGN_MSGS_DIR% )
-hg clone https://bitbucket.org/ignitionrobotics/ign-msgs %IGN_MSGS_DIR%
-cd %IGN_MSGS_DIR%
-mkdir build
-cd build
-call "..\configure.bat" %BUILD_TYPE% %BITNESS% || goto %win_lib% :error
-copy %WORKSPACE%\workspace\jom.exe .
-jom
-nmake install
-cd %WORKSPACE%\workspace
+set VCS_DIRECTORY=ign-msgs
+set KEEP_WORKSPACE=TRUE
+set ENABLE_TESTS=FALSE
+call "%SCRIPT_DIR%/lib/project-default-devel-windows.bat"
 echo # END SECTION
 
 echo # BEGIN SECTION: move sources so we agree with configure.bat layout
