@@ -26,7 +26,7 @@ ros_distros.each { ros_distro ->
         }
       }
 
-      label "gpu-reliable-${ci_gpu}"
+      label "gpu-reliable-${ubuntu_distro}"
 
       triggers {
         scm('*/5 * * * *')
