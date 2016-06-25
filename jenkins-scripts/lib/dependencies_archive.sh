@@ -207,6 +207,18 @@ if [[ -z $ROS_DISTRO ]]; then
   echo "skipping ROS related variables"
   echo "------------------------------------------------------------"
 else
+  ROS_CATKIN_BASE="python-dev              \\
+                  python-catkin-pkg        \\
+                  python-rosdep            \\
+                  python-wstool            \\
+                  ros-${ROS_DISTRO}-catkin \\
+                  ros-${ROS_DISTRO}-ros    \\
+                  python-rosinstall        \\
+                  python-catkin-tools      \\
+                  python-catkin-pkg        \\
+                  python-rospkg            \\
+                  python-vcstools"
+
   # DRCSIM_DEPENDENCIES
   #
   # image-transport-plugins is needed to properly advertise compressed image topics
@@ -268,17 +280,23 @@ else
   #
   # ROS_GAZEBO_PKGS DEPENDECIES
   #
-  ROS_GAZEBO_PKGS_DEPENDENCIES="libtinyxml-dev                            \\
+  ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_CATKIN_BASE}                        \\
+                                libtinyxml-dev                            \\
                                 ros-${ROS_DISTRO}-catkin                  \\
                                 ros-${ROS_DISTRO}-pluginlib               \\
                                 ros-${ROS_DISTRO}-roscpp                  \\
-                                ros-${ROS_DISTRO}-driver-base             \\
                                 ros-${ROS_DISTRO}-angles                  \\
+                                ros-${ROS_DISTRO}-camera-info-manager     \\
+                                ros-${ROS_DISTRO}-cmake-modules           \\
+                                ros-${ROS_DISTRO}-controller-manager      \\
+                                ros-${ROS_DISTRO}-control-toolbox         \\
+                                ros-${ROS_DISTRO}-tf                      \\
                                 ros-${ROS_DISTRO}-cv-bridge               \\
                                 ros-${ROS_DISTRO}-diagnostic-updater      \\
                                 ros-${ROS_DISTRO}-dynamic-reconfigure     \\
                                 ros-${ROS_DISTRO}-geometry-msgs           \\
                                 ros-${ROS_DISTRO}-image-transport         \\
+                                ros-${ROS_DISTRO}-joint-limits-interface  \\
                                 ros-${ROS_DISTRO}-message-generation      \\
                                 ros-${ROS_DISTRO}-nav-msgs                \\
                                 ros-${ROS_DISTRO}-nodelet                 \\
@@ -290,15 +308,38 @@ else
                                 ros-${ROS_DISTRO}-sensor-msgs             \\
                                 ros-${ROS_DISTRO}-std-srvs                \\
                                 ros-${ROS_DISTRO}-tf                      \\
+                                ros-${ROS_DISTRO}-tf2-ros                 \\
                                 ros-${ROS_DISTRO}-trajectory-msgs         \\
+                                ros-${ROS_DISTRO}-transmission-interface  \\
                                 ros-${ROS_DISTRO}-urdf                    \\
-                                ros-${ROS_DISTRO}-xacro                   \\
-                                ros-${ROS_DISTRO}-cmake-modules           \\
-                                ros-${ROS_DISTRO}-controller-manager      \\
-                                ros-${ROS_DISTRO}-joint-limits-interface  \\
-                                ros-${ROS_DISTRO}-transmission-interface"
+                                ros-${ROS_DISTRO}-xacro"
 
 
+  if [[ -z ${GZ_PACKAGE_TO_USE_IN_ROS} ]]; then
+    case ${ROS_DISTRO} in
+      indigo)
+        GZ_PACKAGE_TO_USE_IN_ROS="gazebo2"
+      ;;
+      jade)
+        # both packages see  http://answers.ros.org/question/217970
+        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo5-dev \\
+                                  gazebo5"
+      ;;
+      kinetic)
+        # both packages see  http://answers.ros.org/question/217970
+        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo7-dev \\
+                                  gazebo7"
+      ;;
+    esac
+  fi
+
+  ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
+                                ${GZ_PACKAGE_TO_USE_IN_ROS}"
+
+  if [[ ${ROS_DISTRO} == 'indigo' ]] || [[ ${ROS_DISTRO} == 'jade' ]]; then
+  ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
+                                ros-${ROS_DISTRO}-driver-base"
+  fi
 
   if [[ ${ROS_DISTRO} == 'indigo' ]]; then
   # These dependencies are for testing the ros_gazebo_pkgs

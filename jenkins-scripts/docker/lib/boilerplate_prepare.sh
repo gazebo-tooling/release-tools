@@ -46,7 +46,7 @@ if [ -z ${DISTRO} ]; then
 fi
 
 if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=hydro
+  ROS_DISTRO=indigo
 fi
 
 # Define making jobs by default if not present
