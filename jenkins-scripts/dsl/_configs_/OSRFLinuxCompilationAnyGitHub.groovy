@@ -44,7 +44,7 @@ class OSRFLinuxCompilationAnyGitHub
             useGitHubHooks()
             allowMembersOfWhitelistedOrgsAsAdmin()
             // Only will be triggered in supported_ros_branches
-            whiteListTargetBranches(supported_ros_branches)
+            whiteListTargetBranches("${supported_ros_branches}")
             permitAll(true)
             extensions {
                 commitStatus {
