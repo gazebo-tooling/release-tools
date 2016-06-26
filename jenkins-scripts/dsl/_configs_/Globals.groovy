@@ -13,6 +13,22 @@ class Globals
                      'jade'    : ['trusty'] ,
                      'kinetic' : ['xenial']]
 
+   static gz_pkg_by_distro = [ 'indigo'  : ['gazebo2'] ,
+                               'jade'    : ['gazebo5'] ,
+                               'kinetic' : ['gazebo7']]
+
+   static ArrayList get_ros_distros_by_ubuntu_distro(String ubuntu_distro)
+   {
+      ArrayList result = []
+
+      ros_ci.each { ros_distro ->
+        if (ros_ci[ros_distro] == "${ubuntu_distro}")
+          result.add(ros_distro)
+      }
+
+      return result
+   }
+
    static String get_emails()
    {
       if (extra_emails != '')
