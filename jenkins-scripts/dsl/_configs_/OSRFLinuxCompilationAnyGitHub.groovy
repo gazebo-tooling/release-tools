@@ -23,7 +23,7 @@ class OSRFLinuxCompilationAnyGitHub
 
     job.with
     {
-      scm 
+      scm
       {
         git {
           remote {
@@ -38,12 +38,11 @@ class OSRFLinuxCompilationAnyGitHub
       triggers {
         githubPullRequest {
             admin('osrf-jenkins')
-            cron('H/5 * * * *')
-            triggerPhrase('OK to test')
             useGitHubHooks()
-            autoCloseFailedPullRequests()
             allowMembersOfWhitelistedOrgsAsAdmin()
+            // Only will be triggered in supported_ros_branches
             whiteListTargetBranches(supported_ros_branches)
+            permitAll(true)
             extensions {
                 commitStatus {
                     context('deploy to staging site')

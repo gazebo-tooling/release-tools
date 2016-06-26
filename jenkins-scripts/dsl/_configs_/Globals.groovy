@@ -21,9 +21,12 @@ class Globals
    {
       ArrayList result = []
 
-      ros_ci.each { ros_distro ->
-        if (ros_ci[ros_distro] == "${ubuntu_distro}")
-          result.add(ros_distro)
+      ros_ci.each { ros_distro, ubuntu_distros_in_ci ->
+        ubuntu_distros_in_ci.each { ub_distro_in_ci ->
+          if ("${ub_distro_in_ci}" == "${ubuntu_distro}") {
+            result.add(ros_distro)
+          }
+        }
       }
 
       return result
