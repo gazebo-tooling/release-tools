@@ -29,8 +29,11 @@ class OSRFLinuxCompilationAnyGitHub
           remote {
             github("ros-simulation/gazebo_ros_pkgs")
             refspec('+refs/pull/*:refs/remotes/origin/pr/*')
-            relativeTargetDirectory('gazebo_ros_pkgs')
           }
+          extensions {
+            relativeTargetDirectory("gazebo_ros_pkgs")
+          }
+
           branch('${sha1}')
         }
       }
