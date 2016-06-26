@@ -16,10 +16,12 @@ class OSRFLinuxCompilationAnyGitHub
   {
     OSRFLinuxCompilation.create(job, enable_testing, enable_cppcheck)
 
-    ArrayList supported_ros_branches = []
+    String supported_ros_branches = ""
     supported_ros_distros.each { ros_distro ->
-      supported_ros_branches.add("${ros_distro}-devel")
+      supported_ros_branches = "${supported_ros_branches}${ros_distro}-devel,"
     }
+
+    supported_ros_branches = supported_ros_branches.length() - 2
 
     job.with
     {
@@ -44,7 +46,7 @@ class OSRFLinuxCompilationAnyGitHub
             useGitHubHooks()
             allowMembersOfWhitelistedOrgsAsAdmin()
             // Only will be triggered in supported_ros_branches
-            whiteListTargetBranches(supported_ros_branches.toString())
+            whiteListTargetBranches("${supported_ros_branches}")
             permitAll(true)
             extensions {
                 commitStatus {
