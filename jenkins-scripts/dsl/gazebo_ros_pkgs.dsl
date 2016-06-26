@@ -21,9 +21,9 @@ ros_distros.each { ros_distro ->
         git {
           remote {
             github("ros-simulation/gazebo_ros_pkgs")
+            relativeTargetDirectory("gazebo_ros_pkgs")
           }
           branch("${ros_distro}-devel")
-          relativeTargetDir("gazebo_ros_pkgs")
         }
       }
 
