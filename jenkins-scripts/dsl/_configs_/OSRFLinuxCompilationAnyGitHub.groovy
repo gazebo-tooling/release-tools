@@ -18,6 +18,8 @@ class OSRFLinuxCompilationAnyGitHub
 
     ArrayList supported_ros_branches = []
     supported_ros_distros.each { ros_distro ->
+      // Keep the toString method to be sure that String is used and not
+      // GStringImp whihc will make the whole thing to fail.
       supported_ros_branches.add("${ros_distro}-devel".toString())
     }
 
@@ -42,6 +44,7 @@ class OSRFLinuxCompilationAnyGitHub
         githubPullRequest {
             admin('osrf-jenkins')
             useGitHubHooks()
+            cron('')
             allowMembersOfWhitelistedOrgsAsAdmin()
             // Only will be triggered in supported_ros_branches
             whiteListTargetBranches(supported_ros_branches)
