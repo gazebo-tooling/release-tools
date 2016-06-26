@@ -19,9 +19,11 @@ class OSRFLinuxCompilationAnyGitHub
     String supported_ros_branches = ""
     supported_ros_distros.each { ros_distro ->
       supported_ros_branches = "${supported_ros_branches}${ros_distro}-devel,"
+    print "********** ${supported_ros_branches}"
     }
 
     supported_ros_branches = supported_ros_branches.length() - 2
+    print "********** ${supported_ros_branches}"
 
     job.with
     {
@@ -46,7 +48,7 @@ class OSRFLinuxCompilationAnyGitHub
             useGitHubHooks()
             allowMembersOfWhitelistedOrgsAsAdmin()
             // Only will be triggered in supported_ros_branches
-            whiteListTargetBranches("${supported_ros_branches}")
+            whiteListTargetBranches(supported_ros_branches)
             permitAll(true)
             extensions {
                 commitStatus {
