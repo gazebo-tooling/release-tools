@@ -44,7 +44,7 @@ class OSRFLinuxCompilationAnyGitHub
 
       triggers {
         githubPullRequest {
-            admin(['osrf-jenkins', 'j-rivero'])
+            admins(['osrf-jenkins', 'j-rivero'])
             useGitHubHooks()
             cron('')
             triggerPhrase('run test please')
