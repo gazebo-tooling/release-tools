@@ -65,12 +65,12 @@ class OSRFLinuxCompilationAnyGitHub
             }
         }
       } // end of triggers
-    } // end of with
 
-    // remove the systemgroovy scripts (assuming that it sets the description)
-    // since github pull request builder plugin set its own description
-    configure { project ->
-        project.remove(project / builders << "hudson.plugins.groovy.SystemGroovy")
-    }
+      // remove the systemgroovy scripts (assuming that it sets the description)
+      // since github pull request builder plugin set its own description
+      configure { project ->
+          project.remove(project / builders << "hudson.plugins.groovy.SystemGroovy")
+      }
+    } // end of with
   } // end of create method
 } // end of class
