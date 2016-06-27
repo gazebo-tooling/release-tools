@@ -16,7 +16,11 @@ class OSRFLinuxCompilationAnyGitHub
                               boolean enable_testing  = true,
                               boolean enable_cppcheck = false)
   {
+    // Do not include description from LinuxBase since the github pull request
+    // builder set its own
+    Globals.rtools_description = false
     OSRFLinuxCompilation.create(job, enable_testing, enable_cppcheck)
+    Globals.rtools_description = true
 
     ArrayList supported_ros_branches = []
     supported_ros_distros.each { ros_distro ->
@@ -65,12 +69,6 @@ class OSRFLinuxCompilationAnyGitHub
             }
         }
       } // end of triggers
-
-      // remove the systemgroovy scripts (assuming that it sets the description)
-      // since github pull request builder plugin set its own description
-      configure { project ->
-          project.remove(project / builders << "hudson.plugins.groovy.SystemGroovy")
-      }
     } // end of with
   } // end of create method
 } // end of class

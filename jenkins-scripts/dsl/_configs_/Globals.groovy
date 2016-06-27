@@ -6,6 +6,8 @@ class Globals
    static default_emails = '$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org'
    static extra_emails   = ''
 
+   static rtools_description = true
+
    static gpu_by_distro  = [ trusty : [ 'nvidia', 'intel' ],
                              xenial  : [ 'intel' ] ]
 
