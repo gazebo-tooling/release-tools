@@ -7,6 +7,8 @@ import javaposse.jobdsl.dsl.Job
 
   Implements:
    - github scm with pr integration
+   - github pull request builder
+   - remove groovy scripts for description. github plugin set its own
 */
 class OSRFLinuxCompilationAnyGitHub
 {
@@ -42,27 +44,33 @@ class OSRFLinuxCompilationAnyGitHub
 
       triggers {
         githubPullRequest {
-            admin('osrf-jenkins')
+            admin(['osrf-jenkins', 'j-rivero'])
             useGitHubHooks()
             cron('')
+            triggerPhrase('run test please')
             allowMembersOfWhitelistedOrgsAsAdmin()
             // Only will be triggered in supported_ros_branches
             whiteListTargetBranches(supported_ros_branches)
             permitAll(true)
             extensions {
                 commitStatus {
-                    context('deploy to staging site')
-                    triggeredStatus('starting deployment to staging site...')
-                    startedStatus('deploying to staging site...')
-                    statusUrl('http://mystatussite.com/prs')
+                    context('${JOB_NAME}')
+                    triggeredStatus('starting deployment to build.osrfoundation.org')
+                    startedStatus('deploying to build.osrfoundation.org')
                     completedStatus('SUCCESS', 'All is well')
-                    completedStatus('FAILURE', 'Something went wrong. Investigate!')
+                    completedStatus('FAILURE', 'Something went wrong')
                     completedStatus('PENDING', 'still in progress...')
-                    completedStatus('ERROR', 'Something went really wrong. Investigate!')
+                    completedStatus('ERROR', 'Something went really wrong. Contact with the admin to solve the problem.')
                 }
             }
         }
       } // end of triggers
     } // end of with
+
+    // remove the systemgroovy scripts (assuming that it sets the description)
+    // since github pull request builder plugin set its own description
+    configure { project ->
+        project.remove(project / builders << "hudson.plugins.groovy.SystemGroovy")
+    }
   } // end of create method
 } // end of class
