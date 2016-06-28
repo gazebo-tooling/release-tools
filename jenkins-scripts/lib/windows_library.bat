@@ -95,9 +95,12 @@ goto :EOF
 :: ##################################
 :download_7za - Download the unzip utility from osrfoundation.org
 ::
-IF exist 7za.exe ( del 7za.exe )
+IF exist 7za.exe ( 
+  echo "remove 7za tool" 
+  del 7za.exe 
+)
 call :wget http://packages.osrfoundation.org/win32/deps/7za.exe 7za.exe || goto :error
-
+echo "Downloading 7za.exe complete"
 goto :EOF
 
 :: ##################################
