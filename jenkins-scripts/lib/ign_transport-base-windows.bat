@@ -39,7 +39,7 @@ call %win_lib% :unzip_7za zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip > zeromq_7z.log |
 echo # END SECTION
 
 echo # BEGIN SECTION: compile and install ign-math
-set IGN_MATH_DIR=%WORKSPACE%\workspace\ign-math
+set IGN_MATH_DIR=%WORKSPACE%\ign-math
 if EXIST %IGN_MATH_DIR% ( rmdir /s /q %IGN_MATH_DIR% )
 hg clone https://bitbucket.org/ignitionrobotics/ign-math %IGN_MATH_DIR%
 set VCS_DIRECTORY=ign-math
@@ -49,7 +49,7 @@ call "%SCRIPT_DIR%/lib/project-default-devel-windows.bat"
 echo # END SECTION
 
 echo # BEGIN SECTION: compile and install ign-msgs
-set IGN_MSGS_DIR=%WORKSPACE%\workspace\ign-msgs
+set IGN_MSGS_DIR=%WORKSPACE%\ign-msgs
 if EXIST %IGN_MSGS_DIR% ( rmdir /s /q %IGN_MSGS_DIR% )
 hg clone https://bitbucket.org/ignitionrobotics/ign-msgs %IGN_MSGS_DIR%
 set VCS_DIRECTORY=ign-msgs
