@@ -33,22 +33,26 @@ call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zeromq-4.0.4-%PLATFORM_TO_BUILD%.zip zeromq-4.0.4-%PLATFORM_TO_BUILD%.zip
 
 call %win_lib% :download_7za 
-echo "unzip cppzmq"
 call %win_lib% :unzip_7za cppzmq-noarch.zip > cppzmq_7z.log || goto :error
-echo "unzip protobuf"
 call %win_lib% :unzip_7za protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip > protobuf_7z.log || goto :error
-echo "unzip zeromq"
 call %win_lib% :unzip_7za zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip > zeromq_7z.log || goto :error
+echo # END SECTION
 
 echo # BEGIN SECTION: compile and install ign-math
-set VCS_DIRECTORY=ign-math
+set IGN_MATH_DIR=%WORKSPACE%\workspace\ign-math
+if EXIST %IGN_MATH_DIR% ( rmdir /s /q %IGN_MATH_DIR% )
+hg clone https://bitbucket.org/ignitionrobotics/ign-math %IGN_MATH_DIR%
+set VCS_DIRECTORY=%IGN_MATH_DIR%
 set KEEP_WORKSPACE=TRUE
 set ENABLE_TESTS=FALSE
 call "%SCRIPT_DIR%/lib/project-default-devel-windows.bat"
 echo # END SECTION
 
 echo # BEGIN SECTION: compile and install ign-msgs
-set VCS_DIRECTORY=ign-msgs
+set IGN_MSGS_DIR=%WORKSPACE%\workspace\ign-msgs
+if EXIST %IGN_MSGS_DIR% ( rmdir /s /q %IGN_MSGS_DIR% )
+hg clone https://bitbucket.org/ignitionrobotics/ign-msgs %IGN_MSGS_DIR%
+set VCS_DIRECTORY=%IGN_MSGS_DIR%
 set KEEP_WORKSPACE=TRUE
 set ENABLE_TESTS=FALSE
 call "%SCRIPT_DIR%/lib/project-default-devel-windows.bat"
