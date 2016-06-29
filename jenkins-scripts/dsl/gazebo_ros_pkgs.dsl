@@ -76,7 +76,7 @@ ros_distros.each { ros_distro ->
           String use_non_official_gazebo_package = ""
           if (gz_package != "gazebo") {
             use_non_official_gazebo_package = """\
-                                              export GZ_PACKAGE_TO_USE_IN_ROS=${gz_package}
+                                              export GZ_PACKAGE_TO_USE_IN_ROS="${gz_package} lib${gz_package}-dev"
                                               export OSRF_REPOS_TO_USE="stable"
                                               """.stripIndent()
           }
