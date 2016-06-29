@@ -62,7 +62,7 @@ goto :EOF
 :: arg1 - File to unzip
 echo Uncompressing %~1 
 IF NOT exist %~1 ( echo "Zip file does not exists: %~1" && goto :error )
-7za.exe x %~1 /aoa || goto :error
+7za.exe x %~1 -aoa || goto :error
 goto :EOF
 
 :: ##################################
