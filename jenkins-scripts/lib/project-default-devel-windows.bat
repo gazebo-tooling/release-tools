@@ -1,7 +1,7 @@
 :: Windows standard file to build Visual Studio projects
 ::
 :: Parameters:
-::   - VCS_DIRECTORY : WORKSPACE/VCS_DIRECTORY should contain the sources
+::   - VCS_DIRECTORY : relative path to WORKSPACE containing the sources
 ::   - BUILD_TYPE    : (default Release) [ Release | Debug ] Build type to use
 ::   - DEPEN_PKGS    : (optional) list of dependencies (separted by spaces)
 ::   - KEEP_WORKSPACE: (optional) true | false. Clean workspace at the end
