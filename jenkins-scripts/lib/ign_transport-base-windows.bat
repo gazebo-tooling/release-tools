@@ -42,7 +42,7 @@ echo # BEGIN SECTION: compile and install ign-math
 set IGN_MATH_DIR=%WORKSPACE%\workspace\ign-math
 if EXIST %IGN_MATH_DIR% ( rmdir /s /q %IGN_MATH_DIR% )
 hg clone https://bitbucket.org/ignitionrobotics/ign-math %IGN_MATH_DIR%
-set VCS_DIRECTORY=%IGN_MATH_DIR%
+set VCS_DIRECTORY=ign-math
 set KEEP_WORKSPACE=TRUE
 set ENABLE_TESTS=FALSE
 call "%SCRIPT_DIR%/lib/project-default-devel-windows.bat"
@@ -52,7 +52,7 @@ echo # BEGIN SECTION: compile and install ign-msgs
 set IGN_MSGS_DIR=%WORKSPACE%\workspace\ign-msgs
 if EXIST %IGN_MSGS_DIR% ( rmdir /s /q %IGN_MSGS_DIR% )
 hg clone https://bitbucket.org/ignitionrobotics/ign-msgs %IGN_MSGS_DIR%
-set VCS_DIRECTORY=%IGN_MSGS_DIR%
+set VCS_DIRECTORY=ign-msgs
 set KEEP_WORKSPACE=TRUE
 set ENABLE_TESTS=FALSE
 call "%SCRIPT_DIR%/lib/project-default-devel-windows.bat"
