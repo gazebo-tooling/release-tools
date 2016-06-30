@@ -11,7 +11,8 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFLinuxCompilation extends OSRFLinuxBase
 {
-  static void create(Job job, enable_testing = true)
+  static void create(Job job, enable_testing = true,
+                              enable_cppcheck = true)
   {
     OSRFLinuxBase.create(job)
 
@@ -53,8 +54,10 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
              thresholds(unstableTotal: [all: 0])
          }
 
-         // cppcheck is not implemented. Use configure for it
-         configure { project ->
+         if (enable_cppcheck)
+         {
+           // cppcheck is not implemented. Use configure for it
+           configure { project ->
              project / publishers / 'org.jenkinsci.plugins.cppcheck.CppcheckPublisher' / cppcheckConfig {
                pattern('build/cppcheck_results/*.xml')
                ignoreBlankFiles true
@@ -91,6 +94,7 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
                } // end of configGraph
              } // end of cppcheckconfig
            } // end of configure
+         } // end of enable_cppcheck
       } // end of publishers
     } // end of job
   } // end of method createJob

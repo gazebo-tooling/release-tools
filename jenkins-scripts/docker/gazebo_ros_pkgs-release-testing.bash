@@ -13,4 +13,4 @@ if [[ -z $ROS_DISTRO ]]; then
     [[ $DISTRO = 'vivid'   ]] && export ROS_DISTRO=jade
 fi
 
-. ${SCRIPT_DIR}/lib/ros_gazebo_pkgs-check-release.bash
+. ${SCRIPT_DIR}/lib/gazebo_ros_pkgs-check-release.bash

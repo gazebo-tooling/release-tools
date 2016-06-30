@@ -16,7 +16,7 @@ def supported_arches        = Globals.get_supported_arches()
 def experimental_arches     = Globals.get_experimental_arches()
 
 String ci_distro_str = ci_distro[0]
-String ci_build_any_job_name = "sdformat-ci-pr_any-${ci_distro_str}-amd64"
+String ci_build_any_job_name_linux = "sdformat-ci-pr_any-${ci_distro_str}-amd64"
 
 // Need to be used in ci_pr
 String abi_job_name = ''
@@ -63,9 +63,6 @@ abi_distro.each { distro ->
 } // end of distro
 
 // MAIN CI job
-// Create the main CI work flow job
-def sdformat_ci_main = workflowJob("sdformat-ci-pr_any")
-OSRFCIWorkFlowMultiAny.create(sdformat_ci_main, ci_build_any_job_name)
 // CI JOBS @ SCM/5 min
 ci_distro.each { distro ->
   supported_arches.each { arch ->
@@ -101,7 +98,7 @@ ci_distro.each { distro ->
     // 2. Create the any job
     String sdf_repo = "http://bitbucket.org/osrf/sdformat"
 
-    def sdformat_ci_any_job = job(ci_build_any_job_name)
+    def sdformat_ci_any_job = job(ci_build_any_job_name_linux)
     OSRFLinuxCompilationAny.create(sdformat_ci_any_job, sdf_repo)
     sdformat_ci_any_job.with
     {
@@ -330,7 +327,8 @@ all_debbuild_branches.each { branch ->
 // BREW: CI jobs
 
 // 1. ANY job @ SCM/5min
-def sdformat_brew_ci_any_job = job("sdformat-ci-pr_any-homebrew-amd64")
+String ci_build_any_job_name_brew = "sdformat-ci-pr_any-homebrew-amd64"
+def sdformat_brew_ci_any_job = job(ci_build_any_job_name_brew)
 OSRFBrewCompilationAny.create(sdformat_brew_ci_any_job,
                               "http://bitbucket.org/osrf/sdformat")
 sdformat_brew_ci_any_job.with
@@ -377,7 +375,8 @@ all_branches.each { branch ->
 // WINDOWS: CI job
 
 // 1. any
-  def sdformat_win_ci_any_job = job("sdformat-ci-pr_any-windows7-amd64")
+  String ci_build_any_job_name_win7 = "sdformat-ci-pr_any-windows7-amd64"
+  def sdformat_win_ci_any_job = job(ci_build_any_job_name_win7)
   OSRFWinCompilationAny.create(sdformat_win_ci_any_job,
                                 "http://bitbucket.org/osrf/sdformat")
   sdformat_win_ci_any_job.with
@@ -415,3 +414,10 @@ all_branches.each { branch ->
       }
   }
 }
+
+// Create the main CI work flow job
+def sdformat_ci_main = workflowJob("sdformat-ci-pr_any")
+OSRFCIWorkFlowMultiAny.create(sdformat_ci_main,
+                                    [ci_build_any_job_name_linux,
+                                     ci_build_any_job_name_brew,
+                                     ci_build_any_job_name_win7])

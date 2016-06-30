@@ -26,9 +26,12 @@ class OSRFBase
           booleanParam('NO_MAILS',false,'do not send any notification by mail')
         }
 
-        steps
+        if (Globals.rtools_description)
         {
-           systemGroovyCommand("build.setDescription('RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));")
+          steps
+          {
+             systemGroovyCommand("build.setDescription('RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));")
+          }
         }
       }
     }
