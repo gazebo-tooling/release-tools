@@ -6,12 +6,33 @@ class Globals
    static default_emails = '$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org'
    static extra_emails   = ''
 
+   static rtools_description = true
+
    static gpu_by_distro  = [ trusty : [ 'nvidia', 'intel' ],
                              xenial  : [ 'intel' ] ]
 
    static ros_ci = [ 'indigo'  : ['trusty'] ,
                      'jade'    : ['trusty'] ,
                      'kinetic' : ['xenial']]
+
+   static gz_pkg_by_distro = [ 'indigo'  : ['gazebo2'] ,
+                               'jade'    : ['gazebo5'] ,
+                               'kinetic' : ['gazebo7']]
+
+   static ArrayList get_ros_distros_by_ubuntu_distro(String ubuntu_distro)
+   {
+      ArrayList result = []
+
+      ros_ci.each { ros_distro, ubuntu_distros_in_ci ->
+        ubuntu_distros_in_ci.each { ub_distro_in_ci ->
+          if ("${ub_distro_in_ci}" == "${ubuntu_distro}") {
+            result.add(ros_distro)
+          }
+        }
+      }
+
+      return result
+   }
 
    static String get_emails()
    {
