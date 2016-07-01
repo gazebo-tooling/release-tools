@@ -44,7 +44,11 @@ echo # END SECTION
 
 echo # BEGIN SECTION: setup workspace
 cd %WORKSPACE%
-IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
+if NOT DEFINED KEEP_WORKSPACE (
+  echo # BEGIN SECTION: preclean workspace
+  IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
+  echo # END SECTION
+)
 mkdir workspace
 cd workspace
 echo # END SECTION
