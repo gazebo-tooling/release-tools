@@ -49,7 +49,7 @@ if NOT DEFINED KEEP_WORKSPACE (
   IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto :error
   echo # END SECTION
 )
-mkdir %LOCAL_WS% || goto :error
+mkdir %LOCAL_WS% || echo "Workspace already exists!"
 echo # END SECTION
 
 for %%p in (%DEPEN_PKGS%) do (
