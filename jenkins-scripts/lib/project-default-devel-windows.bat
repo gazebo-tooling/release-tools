@@ -17,6 +17,7 @@
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 set TEST_RESULT_PATH=%WORKSPACE%\test_results
 set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
+set LOCAL_WS=%WORKSPACE%\workspace
 
 :: default values
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
@@ -43,27 +44,25 @@ call %win_lib% :configure_msvc_compiler
 echo # END SECTION
 
 echo # BEGIN SECTION: setup workspace
-cd %WORKSPACE%
 if NOT DEFINED KEEP_WORKSPACE (
   echo # BEGIN SECTION: preclean workspace
-  IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
+  IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto :error
   echo # END SECTION
 )
-mkdir workspace
-cd workspace
+mkdir %LOCAL_WS% || goto :error
 echo # END SECTION
 
 for %%p in (%DEPEN_PKGS%) do (
   echo # BEGIN SECTION: downloading and unzip dependency %%p
-  call %win_lib% :download_7za
+  call %win_lib% :download_7za || goto :error
   call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%%p %%p || goto :error
   call %win_lib% :unzip_7za %%p %%p > install.log || goto:error
 )
 echo # END SECTION
 
 echo # BEGIN SECTION: move %VCS_DIRECTORY% source to workspace
-xcopy %WORKSPACE%\%VCS_DIRECTORY% %VCS_DIRECTORY% /s /e /i > xcopy.log || goto :error
-cd %VCS_DIRECTORY% || goto :error
+xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS%\%VCS_DIRECTORY% /s /e /i || goto :error
+cd %LOCAL_WS% || goto :error
 mkdir build
 cd build
 echo # END SECTION
@@ -89,7 +88,7 @@ echo # END SECTION
 
 if %ENABLE_TESTS% == "TRUE" (
     echo # BEGIN SECTION: running tests
-    cd %WORKSPACE%\workspace\haptix-comm\build
+    cd %LOCAL_WS%\build
     REM nmake test is not working test/ directory exists and nmake is not
     REM able to handle it.
     ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV  || echo "tests failed"
@@ -106,8 +105,7 @@ if %ENABLE_TESTS% == "TRUE" (
 
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
-   cd %WORKSPACE%
-   rmdir /s /q %WORKSPACE%\workspace || goto :error
+   rmdir /s /q %LOCAL_WS% || goto :error
    echo # END SECTION
 )
 goto :EOF
