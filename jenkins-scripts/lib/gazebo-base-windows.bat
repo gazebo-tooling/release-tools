@@ -54,7 +54,10 @@ echo # END SECTION
 echo # BEGIN SECTION: compile and install ign-transport
 set KEEP_WORKSPACE=TRUE
 set IGN_TEST_DISABLE=FALSE
-call "%SCRIPT_DIR%/lib/ign_transport-base-windows.bat"
+set IGN_TRANSPORT_DIR=%WORKSPACE%\workspace\ign-transport
+if EXIST %IGN_TRANSPORT_DIR% ( rmdir /s /q %IGN_TRANSPORT_DIR% )
+hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_DIR%
+call "%SCRIPT_DIR%/lib/ign_transport-base-windows.bat" || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: compile and install sdformat
