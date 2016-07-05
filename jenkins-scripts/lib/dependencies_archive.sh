@@ -213,20 +213,23 @@ if [[ -z $ROS_DISTRO ]]; then
   echo "------------------------------------------------------------"
 else
 
-  if [[ -z ${GZ_PACKAGE_TO_USE_IN_ROS} ]]; then
+  if [[ -z ${GZ_PACKAGES_TO_USE_IN_ROS} ]]; then
     case ${ROS_DISTRO} in
       indigo)
-        GZ_PACKAGE_TO_USE_IN_ROS="gazebo2"
+        GZ_PACKAGES_TO_USE_IN_ROS="gazebo2"
+        GZ_VERSION_TO_USE_IN_ROS="2"
       ;;
       jade)
         # both packages see  http://answers.ros.org/question/217970
-        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo5-dev \\
+        GZ_PACKAGES_TO_USE_IN_ROS="libgazebo5-dev \\
                                   gazebo5"
+        GZ_VERSION_TO_USE_IN_ROS="5"
       ;;
       kinetic)
         # both packages see  http://answers.ros.org/question/217970
-        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo7-dev \\
+        GZ_PACKAGES_TO_USE_IN_ROS="libgazebo7-dev \\
                                   gazebo7"
+        GZ_VERSION_TO_USE_IN_ROS="7"
       ;;
     esac
   fi
@@ -253,7 +256,6 @@ else
                             ros-${ROS_DISTRO}-geometry-experimental             \\
                             ros-${ROS_DISTRO}-image-pipeline                    \\
                             ros-${ROS_DISTRO}-image-transport-plugins           \\
-                            ros-${ROS_DISTRO}-gazebo4-plugins                   \\
                             ros-${ROS_DISTRO}-compressed-depth-image-transport  \\
                             ros-${ROS_DISTRO}-compressed-image-transport        \\
                             ros-${ROS_DISTRO}-theora-image-transport            \\
@@ -261,7 +263,7 @@ else
                             ros-${ROS_DISTRO}-robot-model                       \\
                             ros-${ROS_DISTRO}-robot-state-publisher             \\
                             ros-${ROS_DISTRO}-control-toolbox                   \\
-                            ${GZ_PACKAGE_TO_USE_IN_ROS}
+                            ${GZ_PACKAGES_TO_USE_IN_ROS}
 
   if [[ $ROS_DISTRO == 'hydro' ]]; then
     DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
@@ -285,8 +287,8 @@ else
                             sandia-hand${ROS_POSTFIX}         \\
                             osrf-common${ROS_POSTFIX}         \\
                             ros-${ROS_DISTRO}-laser-assembler \\
-                            ros-${ROS_DISTRO}-gazebo4-plugins \\
-                            ros-${ROS_DISTRO}-gazebo4-ros     \\
+                            ros-${ROS_DISTRO}-gazebo${GZ_PACKAGES_TO_USE_IN_ROS}-plugins \\
+                            ros-${ROS_DISTRO}-gazebo${GZ_PACKAGES_TO_USE_IN_ROS}-ros     \\
                             ${GAZEBO_DEB_PACKAGE}"
   #
   # SANDIA_HAND DEPENDECIES
@@ -339,7 +341,7 @@ else
                                 ros-${ROS_DISTRO}-xacro"
 
   ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
-                                ${GZ_PACKAGE_TO_USE_IN_ROS}"
+                                ${GZ_PACKAGES_TO_USE_IN_ROS}"
 
   if [[ ${ROS_DISTRO} == 'indigo' ]] || [[ ${ROS_DISTRO} == 'jade' ]]; then
   ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
