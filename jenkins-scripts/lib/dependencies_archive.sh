@@ -263,7 +263,7 @@ else
                             ros-${ROS_DISTRO}-robot-model                       \\
                             ros-${ROS_DISTRO}-robot-state-publisher             \\
                             ros-${ROS_DISTRO}-control-toolbox                   \\
-                            ${GZ_PACKAGES_TO_USE_IN_ROS}
+                            ${GZ_PACKAGES_TO_USE_IN_ROS}"
 
   if [[ $ROS_DISTRO == 'hydro' ]]; then
     DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
