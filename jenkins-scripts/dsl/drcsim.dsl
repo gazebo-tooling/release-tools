@@ -50,7 +50,7 @@ drcsim_packages.each { pkg ->
 
                   export DISTRO=${distro}
                   export ARCH=${arch}
-                  export GAZEBO_DEB_PACKAGE=${gazebo_deb_pkg}
+                  export GZ_PACKAGE_TO_USE_IN_ROS=${gazebo_deb_pkg}
 
                   /bin/bash -xe ./scripts/jenkins-scripts/docker/drcsim-compilation.bash
                   """.stripIndent())
@@ -74,7 +74,7 @@ drcsim_packages.each { pkg ->
             shell("""\
                   export DISTRO=${distro}
                   export ARCH=${arch}
-                  export GAZEBO_DEB_PACKAGE=${gazebo_deb_pkg}
+                  export GZ_PACKAGE_TO_USE_IN_ROS=${gazebo_deb_pkg}
 
                   /bin/bash -xe ./scripts/jenkins-scripts/docker/drcsim-compilation.bash
                   """.stripIndent())

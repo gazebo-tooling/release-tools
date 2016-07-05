@@ -81,10 +81,6 @@ if [[ -z ${GAZEBO_MAJOR_VERSION} ]]; then
     GAZEBO_MAJOR_VERSION=7
 fi
 
-if [[ -z $GAZEBO_DEB_PACKAGE ]];then
-    GAZEBO_DEB_PACKAGE=libgazebo${GAZEBO_MAJOR_VERSION}-dev
-fi
-
 # Need to explicit define to use old sdformat package
 if [[ -z ${USE_OLD_SDFORMAT} ]]; then
     USE_OLD_SDFORMAT=false
@@ -216,6 +212,25 @@ if [[ -z $ROS_DISTRO ]]; then
   echo "skipping ROS related variables"
   echo "------------------------------------------------------------"
 else
+
+  if [[ -z ${GZ_PACKAGE_TO_USE_IN_ROS} ]]; then
+    case ${ROS_DISTRO} in
+      indigo)
+        GZ_PACKAGE_TO_USE_IN_ROS="gazebo2"
+      ;;
+      jade)
+        # both packages see  http://answers.ros.org/question/217970
+        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo5-dev \\
+                                  gazebo5"
+      ;;
+      kinetic)
+        # both packages see  http://answers.ros.org/question/217970
+        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo7-dev \\
+                                  gazebo7"
+      ;;
+    esac
+  fi
+
   ROS_CATKIN_BASE="python-dev              \\
                   python-catkin-pkg        \\
                   python-rosdep            \\
@@ -246,7 +261,7 @@ else
                             ros-${ROS_DISTRO}-robot-model                       \\
                             ros-${ROS_DISTRO}-robot-state-publisher             \\
                             ros-${ROS_DISTRO}-control-toolbox                   \\
-                            ${GAZEBO_DEB_PACKAGE}"
+                            ${GZ_PACKAGE_TO_USE_IN_ROS}
 
   if [[ $ROS_DISTRO == 'hydro' ]]; then
     DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
@@ -322,25 +337,6 @@ else
                                 ros-${ROS_DISTRO}-transmission-interface  \\
                                 ros-${ROS_DISTRO}-urdf                    \\
                                 ros-${ROS_DISTRO}-xacro"
-
-
-  if [[ -z ${GZ_PACKAGE_TO_USE_IN_ROS} ]]; then
-    case ${ROS_DISTRO} in
-      indigo)
-        GZ_PACKAGE_TO_USE_IN_ROS="gazebo2"
-      ;;
-      jade)
-        # both packages see  http://answers.ros.org/question/217970
-        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo5-dev \\
-                                  gazebo5"
-      ;;
-      kinetic)
-        # both packages see  http://answers.ros.org/question/217970
-        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo7-dev \\
-                                  gazebo7"
-      ;;
-    esac
-  fi
 
   ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
                                 ${GZ_PACKAGE_TO_USE_IN_ROS}"
