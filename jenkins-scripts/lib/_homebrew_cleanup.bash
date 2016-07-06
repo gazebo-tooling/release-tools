@@ -1,8 +1,11 @@
 #/bin/bash +x
 set -e
 
+BREW_BINARY_DIR=/usr/local/bin
+BREW_BINARY=${BREW_BINARY_DIR}/brew
+
 # Backup brew executable.
-mv /usr/local/bin/brew /tmp/brew
+mv ${BREW_BINARY} /tmp/brew
 
 # Clear all installed homebrew packages, links, taps, and kegs
 rm -rf /usr/local/Cellar/*
@@ -13,7 +16,7 @@ rm -rf /usr/local/Library/Taps/*
 rm -rf /usr/local/Library/LinkedKegs/*
 
 # Restore brew executable.
-mv /tmp/brew /usr/local/bin/brew
+mv /tmp/brew ${BREW_BINARY}
 
 # Restore the basic stuff
 if [[ -n ${SCRIPT_LIBDIR} ]]; then
@@ -25,8 +28,8 @@ else
   exit -1
 fi
 
-brew update
-brew install ${BREW_BASE_DEPENDCIES}
+${BREW_BINARY} update
+${BREW_BINARY} install ${BREW_BASE_DEPENDCIES}
 
 # Fix perms in /Library/Caches to work with admin group
 sudo chgrp -R admin /Library/Caches/Homebrew/
