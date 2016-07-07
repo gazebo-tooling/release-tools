@@ -4,6 +4,18 @@ import javaposse.jobdsl.dsl.Job
 
 class GenericMail
 {
+  static String get_default_content()
+  {
+     return '''\
+     $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
+
+     ${BUILD_FAILURE_ANALYZER, includeTitle=true, includeIndications=true, useHtmlFormat=false}
+
+     Full log: $BUILD_URL/$BUILD_NUMBER/consoleFull
+     Retry   : $BUILD_URL/$BUILD_NUMBER/retry
+     '''.stripIndent()
+  }
+
   static void include_external_contributors_mail(Job job, String subject, String content)
   {
     GenericMail._include_mail_recipients(job, subject, content)
@@ -21,12 +33,14 @@ class GenericMail
 
   static void include_mail(Job job)
   {
-    include_mail(job,'$DEFAULT_SUBJECT','$DEFAULT_CONTENT')
+    include_mail(job,'$DEFAULT_SUBJECT', GenericMail.get_default_content())
   }
 
   static void include_external_contributors_mail(Job job)
   {
-    include_external_contributors_mail(job,'$DEFAULT_SUBJECT','$DEFAULT_CONTENT')
+    include_external_contributors_mail(job,
+                                       '$DEFAULT_SUBJECT',
+                                       GenericMail.get_default_content())
   }
 
   static void update_field(Job job, String field, String new_value)
