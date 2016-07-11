@@ -229,11 +229,11 @@ else
 
   case ${GAZEBO_VERSION_FOR_ROS} in
     "2")
-      GZ_ROS_PACKAGES="gazebo2"
+      _GZ_ROS_PACKAGES="gazebo2"
     ;;
      *)
       # both packages see  http://answers.ros.org/question/217970
-      GZ_ROS_PACKAGES="libgazebo${GAZEBO_VERSION_FOR_ROS}-dev \\
+      _GZ_ROS_PACKAGES="libgazebo${GAZEBO_VERSION_FOR_ROS}-dev \\
                        gazebo${GAZEBO_VERSION_FOR_ROS}"
     ;;
   esac
@@ -267,7 +267,7 @@ else
                             ros-${ROS_DISTRO}-robot-model                       \\
                             ros-${ROS_DISTRO}-robot-state-publisher             \\
                             ros-${ROS_DISTRO}-control-toolbox                   \\
-                            ${GZ_ROS_PACKAGES}"
+                            ${_GZ_ROS_PACKAGES}"
 
   if [[ $ROS_DISTRO == 'hydro' ]]; then
     DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
@@ -291,8 +291,8 @@ else
                             sandia-hand${ROS_POSTFIX}         \\
                             osrf-common${ROS_POSTFIX}         \\
                             ros-${ROS_DISTRO}-laser-assembler \\
-                            ros-${ROS_DISTRO}-gazebo${GZ_ROS_VERSION}-plugins \\
-                            ros-${ROS_DISTRO}-gazebo${GZ_ROS_VERSION}-ros     \\
+                            ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-plugins \\
+                            ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros     \\
                             ${GAZEBO_DEB_PACKAGE}"
   #
   # SANDIA_HAND DEPENDECIES
@@ -345,7 +345,7 @@ else
                                 ros-${ROS_DISTRO}-xacro"
 
   ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
-                                ${GZ_ROS_PACKAGES}"
+                                ${_GZ_ROS_PACKAGES}"
 
   if [[ ${ROS_DISTRO} == 'indigo' ]] || [[ ${ROS_DISTRO} == 'jade' ]]; then
   ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
