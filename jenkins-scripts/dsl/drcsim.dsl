@@ -11,15 +11,15 @@ drcsim_packages.each { pkg ->
 
   if ("${pkg}" == "drcsim")
   {
-     gazebo_deb_pkg = "libgazebo4-dev"
+     gazebo_version = "4"
   }
   else if ("${pkg}" == "drcsim5")
   {
-     gazebo_deb_pkg = "libgazebo5-dev"
+     gazebo_version = "5"
   }
   else if ("${pkg}" == "drcsim7")
   {
-     gazebo_deb_pkg = "libgazebo7-dev"
+     gazebo_version = "7"
   }
 
   supported_distros.each { distro ->
@@ -50,7 +50,7 @@ drcsim_packages.each { pkg ->
 
                   export DISTRO=${distro}
                   export ARCH=${arch}
-                  export GZ_PACKAGE_TO_USE_IN_ROS=${gazebo_deb_pkg}
+                  export GAZEBO_VERSION_FOR_ROS=${gazebo_version}
 
                   /bin/bash -xe ./scripts/jenkins-scripts/docker/drcsim-compilation.bash
                   """.stripIndent())
@@ -74,7 +74,7 @@ drcsim_packages.each { pkg ->
             shell("""\
                   export DISTRO=${distro}
                   export ARCH=${arch}
-                  export GZ_PACKAGE_TO_USE_IN_ROS=${gazebo_deb_pkg}
+                  export GAZEBO_VERSION_FOR_ROS=${gazebo_version}
 
                   /bin/bash -xe ./scripts/jenkins-scripts/docker/drcsim-compilation.bash
                   """.stripIndent())

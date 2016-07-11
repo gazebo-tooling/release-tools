@@ -212,27 +212,31 @@ if [[ -z $ROS_DISTRO ]]; then
   echo "skipping ROS related variables"
   echo "------------------------------------------------------------"
 else
-
-  if [[ -z ${GZ_ROS_PACKAGES} ]]; then
+  # default versions for every ROS distribution
+  if [[ -z ${GAZEBO_VERSION_FOR_ROS} ]]; then
     case ${ROS_DISTRO} in
       indigo)
-        GZ_ROS_PACKAGES="gazebo2"
-        GZ_ROS_VERSION="2"
+        GAZEBO_VERSION_FOR_ROS="2"
       ;;
       jade)
-        # both packages see  http://answers.ros.org/question/217970
-        GZ_ROS_PACKAGES="libgazebo5-dev \\
-                         gazebo5"
-        GZ_ROS_VERSION="5"
+        GAZEBO_VERSION_FOR_ROS="5"
       ;;
       kinetic)
-        # both packages see  http://answers.ros.org/question/217970
-        GZ_ROS_PACKAGES="libgazebo7-dev \\
-                         gazebo7"
-        GZ_ROS_VERSION="7"
+        GAZEBO_VERSION_FOR_ROS="7"
       ;;
     esac
   fi
+
+  case ${GAZEBO_VERSION_FOR_ROS} in
+    "2")
+      GZ_ROS_PACKAGES="gazebo2"
+    ;;
+     *)
+      # both packages see  http://answers.ros.org/question/217970
+      GZ_ROS_PACKAGES="libgazebo${GAZEBO_VERSION_FOR_ROS}-dev \\
+                       gazebo${GAZEBO_VERSION_FOR_ROS}"
+    ;;
+  esac
 
   ROS_CATKIN_BASE="python-dev              \\
                   python-catkin-pkg        \\
