@@ -14,12 +14,6 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export GPU_SUPPORT_NEEDED=true
-
 export GAZEBO_VERSION_FOR_ROS=${GAZEBO_VERSION_FOR_ROS:-"4"}
-export BUILDING_SOFTWARE_DIRECTORY="drcsim"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="DRCSIM_FULL_DEPENDENCIES"
-export BUILDING_JOB_REPOSITORIES="stable"
-export USE_ROS_REPO=true
 
-. ${SCRIPT_DIR}/lib/generic-building-base.bash
+. ${SCRIPT_DIR}/lib/drcsim-base.bash
