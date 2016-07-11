@@ -253,7 +253,8 @@ else
   # DRCSIM_DEPENDENCIES
   #
   # image-transport-plugins is needed to properly advertise compressed image topics
-  DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-std-msgs                          \\
+  DRCSIM_BASE_DEPENDENCIES="${ROS_CATKIN_BASE}                                  \\
+                            ros-${ROS_DISTRO}-std-msgs                          \\
                             ros-${ROS_DISTRO}-common-msgs                       \\
                             ros-${ROS_DISTRO}-image-common                      \\
                             ros-${ROS_DISTRO}-geometry                          \\
