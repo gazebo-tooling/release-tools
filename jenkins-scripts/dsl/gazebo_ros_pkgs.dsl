@@ -50,8 +50,7 @@ ros_distros.each { ros_distro ->
     // --------------------------------------------------------------
     // 2. Create the default ci pr-any jobs
     // Note: this package are independent of the ROS distro used. It is guess
-    // from target branch at runtime, handled by
-    // gazebo_ros_pkgs-compilation.bash
+    // from target branch at runtime, handled by gazebo_ros_pkgs-compilation.bash
 
     // TODO: these set of jobs will be created probably several times if
     // different ROS versions support same ubuntu platforms.
@@ -64,6 +63,9 @@ ros_distros.each { ros_distro ->
       // be created using plain 'gazebo' name.
       if (Globals.gz_version_by_rosdistro[ros_distro] != gz_version)
       {
+        if (gz_version == "default")
+          gz_version=""
+
         def any_job_name = "ros_gazebo${gz_version}_pkgs-ci-pr_any-${ubuntu_distro}-${ci_arch}"
         def any_job = job(any_job_name)
 
@@ -74,7 +76,7 @@ ros_distros.each { ros_distro ->
         any_job.with
         {
           String use_non_official_gazebo_package = ""
-          if (gz_package != "gazebo") {
+          if (gz_version != "default") {
             use_non_official_gazebo_package = """\
                                               export GAZEBO_VERSION_FOR_ROS="${gz_version}"
                                               export OSRF_REPOS_TO_USE="stable"
