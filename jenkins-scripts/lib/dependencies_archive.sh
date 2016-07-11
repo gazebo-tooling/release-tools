@@ -293,7 +293,7 @@ else
                             ros-${ROS_DISTRO}-laser-assembler \\
                             ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-plugins \\
                             ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros     \\
-                            ${GAZEBO_DEB_PACKAGE}"
+                            ${_GZ_ROS_PACKAGES}"
   #
   # SANDIA_HAND DEPENDECIES
   #

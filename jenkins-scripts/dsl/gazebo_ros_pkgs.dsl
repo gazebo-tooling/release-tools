@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 def ros_distros           = Globals.get_ros_suported_distros()
 def ci_arch               = 'amd64'
 // version to test more than the official one in each ROS distro
-def extra_gazebo_versions = ['gazebo7']
+def extra_gazebo_versions = ['7']
 
 ros_distros.each { ros_distro ->
   ubuntu_distros = Globals.ros_ci[ros_distro]
@@ -57,14 +57,14 @@ ros_distros.each { ros_distro ->
     // different ROS versions support same ubuntu platforms.
 
     // Assume that gazebo means official version chose by ROS on every distribution
-    gazebo_packages = [ 'gazebo' ] + extra_gazebo_versions
+    gazebo_versions = [ 'default' ] + extra_gazebo_versions
 
-    gazebo_packages.each { gz_package ->
+    gazebo_versions.each { gz_version ->
       // Do not generate special jobs for official supported package. They will
       // be created using plain 'gazebo' name.
-      if (Globals.gz_pkg_by_distro[ros_distro] != gz_package)
+      if (Globals.gz_version_by_rosdistro[ros_distro] != gz_version)
       {
-        def any_job_name = "ros_${gz_package}_pkgs-ci-pr_any-${ubuntu_distro}-${ci_arch}"
+        def any_job_name = "ros_gazebo${gz_version}_pkgs-ci-pr_any-${ubuntu_distro}-${ci_arch}"
         def any_job = job(any_job_name)
 
         // Use generic any but remove hg
@@ -76,7 +76,7 @@ ros_distros.each { ros_distro ->
           String use_non_official_gazebo_package = ""
           if (gz_package != "gazebo") {
             use_non_official_gazebo_package = """\
-                                              export GZ_ROS_PACKAGES="${gz_package} lib${gz_package}-dev"
+                                              export GAZEBO_VERSION_FOR_ROS="${gz_version}"
                                               export OSRF_REPOS_TO_USE="stable"
                                               """.stripIndent()
           }
