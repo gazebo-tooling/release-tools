@@ -16,6 +16,7 @@ DOCKER_JOB_NAME="drcsim_ci"
 # don't have rosdep at this point and want gazebo to be cached by docker
 DEPENDENCY_PKGS="${DRCSIM_FULL_DEPENDENCIES}"
 USE_ROS_REPO=true
+OSRF_REPOS_TO_USE="stable"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
