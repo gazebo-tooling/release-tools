@@ -13,8 +13,7 @@ class GenericCompilation
 
    static String get_compilation_mail_content()
    {
-      return '''\
-     $DEFAULT_CONTENT
+      return GenericMail.get_default_content() + '''\
 
      ${BUILD_LOG_REGEX, regex="^.*: (fatal ){0,1}error.*$",  linesBefore="5", linesAfter="5", maxMatches=0, showTruncatedLines=false}
 
