@@ -61,10 +61,6 @@ class OSRFLinuxCompilationAnyGitHub
                     context('${JOB_NAME}')
                     triggeredStatus('starting deployment to build.osrfoundation.org')
                     startedStatus('deploying to build.osrfoundation.org')
-                    completedStatus('SUCCESS', 'All is well')
-                    completedStatus('FAILURE', 'Something went wrong')
-                    completedStatus('PENDING', 'still in progress...')
-                    completedStatus('ERROR', 'Something went really wrong. Contact with the admin to solve the problem.')
                 }
             }
         }
