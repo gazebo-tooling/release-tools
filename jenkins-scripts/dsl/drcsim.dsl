@@ -27,7 +27,8 @@ drcsim_packages.each { pkg ->
       // --------------------------------------------------------------
       // 1. Create the default ci jobs
       def drcsim_ci_job = job("${pkg}-ci-default-${distro}-${arch}")
-      OSRFLinuxCompilation.create(drcsim_ci_job)
+      // not testing, no cppcheck
+      OSRFLinuxCompilation.create(drcsim_ci_job, false, false)
 
       drcsim_ci_job.with
       {
@@ -61,7 +62,7 @@ drcsim_packages.each { pkg ->
       // 2. Create the ANY job
       def drcsim_ci_any_job = job("${pkg}-ci_any-default-${distro}-${arch}")
       OSRFLinuxCompilationAny.create(drcsim_ci_any_job,
-                                    "http://bitbucket.org/osrf/drcsim")
+                                    "http://bitbucket.org/osrf/drcsim", false)
       drcsim_ci_any_job.with
       {
           if ("${pkg}" == 'drcsim')
