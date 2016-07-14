@@ -92,7 +92,7 @@ drcsim_packages.each { pkg ->
          label "gpu-reliable-${distro}"
 
          triggers {
-            cron('@daily')
+            cron('@weekly')
          }
 
           steps {

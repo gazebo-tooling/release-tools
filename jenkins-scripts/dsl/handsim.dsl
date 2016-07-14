@@ -153,7 +153,7 @@ supported_distros.each { distro ->
        label "gpu-reliable-${distro}"
 
        triggers {
-          cron('@daily')
+          cron('@weekly')
        }
 
         steps {
@@ -266,7 +266,7 @@ haptix_win_ci_job.with
     }
 
     triggers {
-      scm('@daily')
+      scm('@weekly')
     }
 
     steps {
