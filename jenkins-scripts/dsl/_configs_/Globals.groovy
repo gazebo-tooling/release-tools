@@ -15,9 +15,10 @@ class Globals
                      'jade'    : ['trusty'] ,
                      'kinetic' : ['xenial']]
 
-   static gz_pkg_by_distro = [ 'indigo'  : ['gazebo2'] ,
-                               'jade'    : ['gazebo5'] ,
-                               'kinetic' : ['gazebo7']]
+   // This should be in sync with archive_library
+   static gz_version_by_rosdistro = [ 'indigo'  : ['2'] ,
+                                      'jade'    : ['5'] ,
+                                      'kinetic' : ['7']]
 
    static ArrayList get_ros_distros_by_ubuntu_distro(String ubuntu_distro)
    {

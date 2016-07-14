@@ -81,10 +81,6 @@ if [[ -z ${GAZEBO_MAJOR_VERSION} ]]; then
     GAZEBO_MAJOR_VERSION=7
 fi
 
-if [[ -z $GAZEBO_DEB_PACKAGE ]];then
-    GAZEBO_DEB_PACKAGE=libgazebo${GAZEBO_MAJOR_VERSION}-dev
-fi
-
 # Need to explicit define to use old sdformat package
 if [[ -z ${USE_OLD_SDFORMAT} ]]; then
     USE_OLD_SDFORMAT=false
@@ -215,6 +211,32 @@ if [[ -z $ROS_DISTRO ]]; then
   echo "skipping ROS related variables"
   echo "------------------------------------------------------------"
 else
+  # default versions for every ROS distribution
+  if [[ -z ${GAZEBO_VERSION_FOR_ROS} ]]; then
+    case ${ROS_DISTRO} in
+      indigo)
+        GAZEBO_VERSION_FOR_ROS="2"
+      ;;
+      jade)
+        GAZEBO_VERSION_FOR_ROS="5"
+      ;;
+      kinetic)
+        GAZEBO_VERSION_FOR_ROS="7"
+      ;;
+    esac
+  fi
+
+  case ${GAZEBO_VERSION_FOR_ROS} in
+    "2")
+      _GZ_ROS_PACKAGES="gazebo2"
+    ;;
+     *)
+      # both packages see  http://answers.ros.org/question/217970
+      _GZ_ROS_PACKAGES="libgazebo${GAZEBO_VERSION_FOR_ROS}-dev \\
+                       gazebo${GAZEBO_VERSION_FOR_ROS}"
+    ;;
+  esac
+
   ROS_CATKIN_BASE="python-dev              \\
                   python-catkin-pkg        \\
                   python-rosdep            \\
@@ -230,14 +252,14 @@ else
   # DRCSIM_DEPENDENCIES
   #
   # image-transport-plugins is needed to properly advertise compressed image topics
-  DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-std-msgs                          \\
+  DRCSIM_BASE_DEPENDENCIES="${ROS_CATKIN_BASE}                                  \\
+                            ros-${ROS_DISTRO}-std-msgs                          \\
                             ros-${ROS_DISTRO}-common-msgs                       \\
                             ros-${ROS_DISTRO}-image-common                      \\
                             ros-${ROS_DISTRO}-geometry                          \\
                             ros-${ROS_DISTRO}-geometry-experimental             \\
                             ros-${ROS_DISTRO}-image-pipeline                    \\
                             ros-${ROS_DISTRO}-image-transport-plugins           \\
-                            ros-${ROS_DISTRO}-gazebo4-plugins                   \\
                             ros-${ROS_DISTRO}-compressed-depth-image-transport  \\
                             ros-${ROS_DISTRO}-compressed-image-transport        \\
                             ros-${ROS_DISTRO}-theora-image-transport            \\
@@ -245,7 +267,7 @@ else
                             ros-${ROS_DISTRO}-robot-model                       \\
                             ros-${ROS_DISTRO}-robot-state-publisher             \\
                             ros-${ROS_DISTRO}-control-toolbox                   \\
-                            ${GAZEBO_DEB_PACKAGE}"
+                            ${_GZ_ROS_PACKAGES}"
 
   if [[ $ROS_DISTRO == 'hydro' ]]; then
     DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
@@ -269,9 +291,9 @@ else
                             sandia-hand${ROS_POSTFIX}         \\
                             osrf-common${ROS_POSTFIX}         \\
                             ros-${ROS_DISTRO}-laser-assembler \\
-                            ros-${ROS_DISTRO}-gazebo4-plugins \\
-                            ros-${ROS_DISTRO}-gazebo4-ros     \\
-                            ${GAZEBO_DEB_PACKAGE}"
+                            ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-plugins \\
+                            ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros     \\
+                            ${_GZ_ROS_PACKAGES}"
   #
   # SANDIA_HAND DEPENDECIES
   #
@@ -322,27 +344,8 @@ else
                                 ros-${ROS_DISTRO}-urdf                    \\
                                 ros-${ROS_DISTRO}-xacro"
 
-
-  if [[ -z ${GZ_PACKAGE_TO_USE_IN_ROS} ]]; then
-    case ${ROS_DISTRO} in
-      indigo)
-        GZ_PACKAGE_TO_USE_IN_ROS="gazebo2"
-      ;;
-      jade)
-        # both packages see  http://answers.ros.org/question/217970
-        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo5-dev \\
-                                  gazebo5"
-      ;;
-      kinetic)
-        # both packages see  http://answers.ros.org/question/217970
-        GZ_PACKAGE_TO_USE_IN_ROS="libgazebo7-dev \\
-                                  gazebo7"
-      ;;
-    esac
-  fi
-
   ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
-                                ${GZ_PACKAGE_TO_USE_IN_ROS}"
+                                ${_GZ_ROS_PACKAGES}"
 
   if [[ ${ROS_DISTRO} == 'indigo' ]] || [[ ${ROS_DISTRO} == 'jade' ]]; then
   ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
