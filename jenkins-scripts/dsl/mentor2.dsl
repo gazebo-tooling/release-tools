@@ -110,7 +110,7 @@ supported_distros.each { distro ->
     install_default_job.with
     {
         triggers {
-          cron('@daily')
+          cron('@weekly')
         }
 
         steps {
