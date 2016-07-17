@@ -235,6 +235,7 @@ fi
 cat >> Dockerfile << DELIM_WORKAROUND_91
 # Workaround to issue:
 # https://bitbucket.org/osrf/handsim/issue/91
+RUN echo "en_GB.utf8 UTF-8" >> /etc/locale.gen
 RUN locale-gen en_GB.utf8
 ENV LC_ALL en_GB.utf8
 ENV LANG en_GB.utf8
