@@ -405,6 +405,7 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          uuid-dev              \\
                          libignition-math2-dev \\
                          libfreeimage-dev      \\
+                         libgts-dev            \\
                          uuid-dev"
 
 #
