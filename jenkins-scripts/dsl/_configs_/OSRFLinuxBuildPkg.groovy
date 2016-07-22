@@ -33,7 +33,7 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
     job.with
     {
       properties {
-        priority 300
+        priority 100
       }
 
       logRotator {

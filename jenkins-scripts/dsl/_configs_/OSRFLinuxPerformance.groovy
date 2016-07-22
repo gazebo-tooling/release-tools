@@ -20,7 +20,7 @@ class OSRFLinuxPerformance
     job.with
     {
       properties {
-        priority 300
+        priority 400
       }
 
       logRotator {
