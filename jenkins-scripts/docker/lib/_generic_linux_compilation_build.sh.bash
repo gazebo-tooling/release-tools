@@ -67,5 +67,4 @@ if $GENERIC_ENABLE_CPPCHECK; then
 else
   echo "Requested: no ccpcheck run"
 fi
-cp ${SCRIPT_DIR}/lib/_generic_linux_compilation.bash build.sh
 DELIM
