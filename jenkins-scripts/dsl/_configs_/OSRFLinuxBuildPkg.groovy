@@ -7,7 +7,7 @@ import javaposse.jobdsl.dsl.Job
   -> GenericRemoteToken
 
   Implements:
-    - priorioty 300
+    - priority 300
     - keep only 10 last artifacts
     - parameters:
         - PACKAGE

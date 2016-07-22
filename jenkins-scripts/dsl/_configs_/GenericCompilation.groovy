@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 
 /*
   Implements:
-    - priorioty 100
+    - priority 100
     - keep only 15 builds
     - mail with test results
 */

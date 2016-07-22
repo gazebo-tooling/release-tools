@@ -6,7 +6,7 @@ import javaposse.jobdsl.dsl.Job
   -> OSRFLinuxBase
 
   Implements:
-    - pritority 300
+    - priority 300
     - logrotator
     - concurrent builds
     - parameter: ORIGIN_BRANCH, TARGET_BRANCH

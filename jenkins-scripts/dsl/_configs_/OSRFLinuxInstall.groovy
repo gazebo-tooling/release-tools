@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 
 /*
   Implements:
-    - priorioty 300
+    - priority 300
     - keep only 15 builds
 */
 class OSRFLinuxInstall extends OSRFLinuxBase
