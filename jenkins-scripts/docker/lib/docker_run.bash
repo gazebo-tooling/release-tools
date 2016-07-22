@@ -9,6 +9,10 @@ sudo mkdir -p ${WORKSPACE}/build
 sudo docker build --tag ${DOCKER_TAG} .
 stop_stopwatch CREATE_TESTING_ENVIROMENT
 
+echo '# BEGIN SECTION: see build.sh script'
+cat build.sh
+echo '# END SECTION'
+
 if $USE_GPU_DOCKER; then
   EXTRA_PARAMS_STR="--privileged \
                     -e DISPLAY=unix$DISPLAY \
@@ -24,10 +28,11 @@ fi
 # DOCKER_FIX is for workaround https://github.com/docker/docker/issues/14203
 sudo docker run $EXTRA_PARAMS_STR  \
             -e DOCKER_FIX=''  \
+            -e WORKSPACE=${WORKSPACE} \
             --cidfile=${CIDFILE} \
             -v ${WORKSPACE}:${WORKSPACE} \
             --tty \
-	    ${DOCKER_TAG} \
+            ${DOCKER_TAG} \
             /bin/bash build.sh
 
 CID=$(cat ${CIDFILE})
