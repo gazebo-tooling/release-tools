@@ -6,7 +6,7 @@ import javaposse.jobdsl.dsl.Job
   -> OSRFLinuxBase
 
   Implements:
-    - priority 100
+    - priority 400
     - logrotator
     - performance plugin
 */
