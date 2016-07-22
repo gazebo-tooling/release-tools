@@ -6,6 +6,10 @@
 #  - GENERIC_ENABLE_TESTS (optional) [default true] run tests
 
 cat > build.sh <<- DELIM
+#!/bin/bash
+set -ex
+source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
+
 if [[ -z ${SOFTWARE_DIR} ]]; then
     echo "SOFTWARE_DIR variable is unset. Please fix the code"
     exit 1
@@ -17,15 +21,7 @@ fi
 
 if [[ -z $GENERIC_ENABLE_TESTS ]]; then
   GENERIC_ENABLE_TESTS=true
-fi
-
-
-#!/bin/bash
-###################################################
-# Make project-specific changes here
-#
-set -ex
-source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
+ff
 
 echo '# BEGIN SECTION: configure'
 # Step 2: configure and build
