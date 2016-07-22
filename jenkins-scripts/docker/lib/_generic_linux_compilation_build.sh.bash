@@ -5,11 +5,6 @@
 #  - GENERIC_ENABLE_CPPCHECK (optional) [default true] run cppcheck
 #  - GENERIC_ENABLE_TESTS (optional) [default true] run tests
 
-cat > build.sh <<- DELIM
-#!/bin/bash
-set -ex
-source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
-
 if [[ -z ${SOFTWARE_DIR} ]]; then
     echo "SOFTWARE_DIR variable is unset. Please fix the code"
     exit 1
@@ -21,7 +16,12 @@ fi
 
 if [[ -z $GENERIC_ENABLE_TESTS ]]; then
   GENERIC_ENABLE_TESTS=true
-ff
+fi
+
+cat > build.sh << DELIM
+#!/bin/bash
+set -ex
+source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
 
 echo '# BEGIN SECTION: configure'
 # Step 2: configure and build
