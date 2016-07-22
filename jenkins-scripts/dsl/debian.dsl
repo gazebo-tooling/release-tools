@@ -71,7 +71,7 @@ packages.each { repo_name, pkgs ->
       }
 
       properties {
-        priority 300
+        priority 350
       }
 
       logRotator {

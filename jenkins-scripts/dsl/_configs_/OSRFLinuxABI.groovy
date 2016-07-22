@@ -6,7 +6,7 @@ import javaposse.jobdsl.dsl.Job
   -> OSRFLinuxBase
 
   Implements:
-    - pritority 100
+    - priority 300
     - logrotator
     - concurrent builds
     - parameter: ORIGIN_BRANCH, TARGET_BRANCH
@@ -42,7 +42,7 @@ class OSRFLinuxABI
     job.with
     {
       properties {
-        priority 100
+        priority 300
       }
 
       logRotator {

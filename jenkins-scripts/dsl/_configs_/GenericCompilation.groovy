@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 
 /*
   Implements:
-    - priorioty 100
+    - priority 300
     - keep only 15 builds
     - mail with test results
 */
@@ -35,7 +35,7 @@ class GenericCompilation
      job.with
      {
         properties {
-          priority 100
+          priority 300
         }
 
         logRotator {

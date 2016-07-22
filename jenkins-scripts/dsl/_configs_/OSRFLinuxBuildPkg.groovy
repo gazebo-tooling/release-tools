@@ -7,7 +7,7 @@ import javaposse.jobdsl.dsl.Job
   -> GenericRemoteToken
 
   Implements:
-    - priorioty 300
+    - priority 100
     - keep only 10 last artifacts
     - parameters:
         - PACKAGE
@@ -33,7 +33,7 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
     job.with
     {
       properties {
-        priority 300
+        priority 100
       }
 
       logRotator {
