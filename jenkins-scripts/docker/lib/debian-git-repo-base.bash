@@ -82,7 +82,8 @@ cp ../*.debian.* $WORKSPACE/pkgs
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create deb packages'
-rm ../*.deb $WORKSPACE/pkgs
+rm -f $WORKSPACE/pkgs/*.deb
+rm -f ../*.deb
 ${GBP_COMMAND}
 echo '# END SECTION'
 
