@@ -6,17 +6,23 @@ export ENABLE_REAPER=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
-# If no value for MULTIARCH_SUPPORT was submitted and
-# distro is precise, disable the multiarch, this is generally
-# since the use of GNUINSTALLDIRs
-if [[ -z ${MULTIARCH_SUPPORT} ]]; then
-  if [[ $DISTRO == 'precise' ]]; then
-    MULTIARCH_SUPPORT=false
-  fi
+# The git plugin leaves a repository copy with a detached HEAD
+# state. gbp does not like it thus the need of using --git-ignore-branch
+export GBP_COMMAND="gbp buildpackage -j${MAKE_JOBS} --git-ignore-new --git-ignore-branch -uc -us"
+export REPO_PATH="$WORKSPACE/repo"
+
+# Historically the job run git clone. New version leave it for jenkins
+# but we keep backwards compatibility with the following checks:
+export CLONE_NEEDED=true
+if [[ -d ${REPO_PATH} ]]; then
+  export CLONE_NEEDED=false
 fi
 
-# Use defaul branch if not sending BRANCH parameter
-[[ -z ${BRANCH} ]] && export BRANCH=master
+# Respect BRANCH parameter if set. Disable checkout if not BRANCh is set
+if [[ -z ${BRANCH} ]]; then
+  export BRANCH=master
+  export CLONE_NEEDED=false
+fi
 
 cat > build.sh << DELIM
 ###################################################
@@ -25,12 +31,16 @@ cat > build.sh << DELIM
 #!/usr/bin/env bash
 set -ex
 
+if ${CLONE_NEEDED}; then
 echo '# BEGIN SECTION: clone the git repo'
-rm -fr $WORKSPACE/repo
-git clone $GIT_REPOSITORY $WORKSPACE/repo
-cd $WORKSPACE/repo
+rm -fr ${REPO_PATH}
+git clone $GIT_REPOSITORY ${REPO_PATH}
+cd ${REPO_PATH}
 git checkout ${BRANCH}
 echo '# END SECTION'
+fi
+
+cd ${REPO_PATH}
 
 echo '# BEGIN SECTION: install build dependencies'
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
@@ -62,7 +72,8 @@ rm -fr debian/*.symbols
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: create source package \${OSRF_VERSION}"
-gbp buildpackage -j${MAKE_JOBS} --git-ignore-new -S -uc -us
+rm -f ../*.orig.*
+${GBP_COMMAND} -S
 
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.tar.gz $WORKSPACE/pkgs
@@ -71,7 +82,8 @@ cp ../*.debian.* $WORKSPACE/pkgs
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create deb packages'
-gbp buildpackage -j${MAKE_JOBS} --git-ignore-new -uc -us
+rm ../*.deb $WORKSPACE/pkgs
+${GBP_COMMAND}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
@@ -85,6 +97,11 @@ for pkg in \${PKGS}; do
 done
 # check at least one upload
 test \$FOUND_PKG -eq 1 || exit 1
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: clean up git build'
+cd $REPO_PATH
+git clean -f -d
 echo '# END SECTION'
 DELIM
 
