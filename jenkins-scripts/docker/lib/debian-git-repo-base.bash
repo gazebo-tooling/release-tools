@@ -92,7 +92,7 @@ PKGS=\`find ../ -name *.deb || true\`
 FOUND_PKG=0
 for pkg in \${PKGS}; do
     echo "found \$pkg"
-    cp \${pkg} $WORKSPACE/pkgs
+    cp -f \${pkg} $WORKSPACE/pkgs || true
     FOUND_PKG=1
 done
 # check at least one upload
