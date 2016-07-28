@@ -1,7 +1,9 @@
 # TODO: run inside docker as a normal user and replace the sudo calls
 # This are usually for debbuilders
-sudo rm -fr ${WORKSPACE}/pkgs
-sudo mkdir -p ${WORKSPACE}/pkgs
+export PACKAGE_DIR="${WORKSPACE}/pkgs"
+
+sudo rm -fr ${PACKAGE_DIR}
+sudo mkdir -p ${PACKAGE_DIR}
 # This are usually for continous integration jobs
 sudo rm -fr ${WORKSPACE}/build
 sudo mkdir -p ${WORKSPACE}/build
@@ -57,5 +59,6 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
        sudo mv ${d} ${WORKSPACE}/build/
     done
     
+    [[ -d ${PACKAGE_DIR} ]] && sudo chown -R jenkins ${PACKAGE_DIR}
     sudo chown jenkins -R ${WORKSPACE}/build/
 fi
