@@ -23,6 +23,7 @@ packages['collab-maint']   = ['peak-linux-driver',
 
 packages.each { repo_name, pkgs ->
  pkgs.each { pkg ->
+
   // --------------------------------------------------------------
   // 1. Create the job that tries to install packages
   def install_job = job("${pkg}-install-pkg-debian_sid-amd64")
@@ -32,6 +33,12 @@ packages.each { repo_name, pkgs ->
      triggers {
        cron('@weekly')
      }
+
+    // No accepted in Sid yet
+    if (pkg == 'kido') || (pkg == 'ignition-msgs')
+    {
+      disabled()
+    }
 
      steps {
       shell("""\
