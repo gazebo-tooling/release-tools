@@ -2,8 +2,11 @@
 # This are usually for debbuilders
 export PACKAGE_DIR="${WORKSPACE}/pkgs"
 
-sudo rm -fr ${PACKAGE_DIR}
+# Do not delete packages from the scripts since some of them can be
+# run twice from the same jenkins job and generate different pkgs
+# If you want to do it, better do it from the DSL jenkins configuration
 sudo mkdir -p ${PACKAGE_DIR}
+
 # This are usually for continous integration jobs
 sudo rm -fr ${WORKSPACE}/build
 sudo mkdir -p ${WORKSPACE}/build
