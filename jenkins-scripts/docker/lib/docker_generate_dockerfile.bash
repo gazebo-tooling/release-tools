@@ -52,13 +52,16 @@ case ${ARCH} in
   'amd64')
      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      ;;
-  'i386' | 'armhf' | 'arm64' )
+  'i386')
      if [[ ${LINUX_DISTRO} == 'debian' ]]; then
        echo "There is no debian/jessie i386 docker image available"
        exit 1
      else
        FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
      fi
+     ;;
+   'armhf' | 'arm64' )
+       FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
      ;;
   *)
      echo "Arch unknown"
