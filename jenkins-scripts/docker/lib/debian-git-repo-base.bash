@@ -46,10 +46,20 @@ echo '# BEGIN SECTION: install build dependencies'
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: build version and distribution'
 VERSION=\$(dpkg-parsechangelog  | grep Version | awk '{print \$2}')
 VERSION_NO_REVISION=\$(echo \$VERSION | sed 's:-.*::')
 OSRF_VERSION=\$VERSION\osrf${RELEASE_VERSION}~${DISTRO}${RELEASE_ARCH_VERSION}
+
+echo "# BEGIN SECTION: check that pristine-tar is updated"
+git checkout pristine-tar || echo "W: probably 
+if [[ -z $(git log | grep \${VERSION_NO_REVISION}) ]]; then
+   echo "W: \${VERSION_NO_REVISION} commit was not found in pristine-tar"
+   exit 1
+fi
+git checkout master
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: build version and distribution'
 sed -i -e "s:\$VERSION:\$OSRF_VERSION:g" debian/changelog
 
 # Use current distro (unstable or experimental are in debian)
@@ -79,15 +89,6 @@ cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.tar.gz $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
 cp ../*.debian.* $WORKSPACE/pkgs
-echo '# END SECTION'
-
-echo "# BEGIN SECTION: check that pristine-tar is updated"
-git checkout pristine-tar
-if [[ -z $(git log | grep \${VERSION_NO_REVISION}) ]]; then
-   echo "W: \${VERSION_NO_REVISION} commit was not found in pristine-tar"
-   exit 1
-fi
-git checkout master
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create deb packages'
