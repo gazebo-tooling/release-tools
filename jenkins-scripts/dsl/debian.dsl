@@ -35,7 +35,7 @@ packages.each { repo_name, pkgs ->
      }
 
     // No accepted in Sid yet
-    if (pkg == 'kido') || (pkg == 'ignition-msgs')
+    if ((pkg == 'kido') || (pkg == 'ignition-msgs'))
     {
       disabled()
     }
