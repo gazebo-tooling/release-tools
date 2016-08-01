@@ -88,6 +88,7 @@ ${GBP_COMMAND}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
+lintian -l -i ../*.changes
 PKGS=\`find ../ -name *.deb || true\`
 
 FOUND_PKG=0
