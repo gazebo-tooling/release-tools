@@ -165,6 +165,7 @@ fi
 
 if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
     GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                         libignition-msgs-dev \\
                                          libqwt-dev"
 fi
 
