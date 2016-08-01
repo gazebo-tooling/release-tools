@@ -81,6 +81,14 @@ cp ../*.orig.* $WORKSPACE/pkgs
 cp ../*.debian.* $WORKSPACE/pkgs
 echo '# END SECTION'
 
+echo "# BEGIN SECTION: check that pristine-tar is updated"
+git checkout pristine-tar
+if [[ -z $(git log | grep \${VERSION_NO_REVISION}) ]]; then
+   echo "W: \${VERSION_NO_REVISION} commit was not found in pristine-tar"
+   exit 1
+fi
+git checkout master
+
 echo '# BEGIN SECTION: create deb packages'
 rm -f $WORKSPACE/pkgs/*.deb
 rm -f ../*.deb
@@ -88,7 +96,7 @@ ${GBP_COMMAND}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
-lintian -L -i ../*.changes
+lintian -I -i ../*.changes || true
 PKGS=\`find ../ -name *.deb || true\`
 
 FOUND_PKG=0
