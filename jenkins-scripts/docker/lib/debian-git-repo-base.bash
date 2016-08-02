@@ -51,7 +51,7 @@ VERSION_NO_REVISION=\$(echo \$VERSION | sed 's:-.*::')
 OSRF_VERSION=\$VERSION\osrf${RELEASE_VERSION}~${DISTRO}${RELEASE_ARCH_VERSION}
 
 echo "# BEGIN SECTION: check that pristine-tar is updated"
-git checkout pristine-tar || echo "W: probably 
+git checkout pristine-tar || { echo "W: probably miss the pristine-tar branch" && exit 1; }
 if [[ -z \$(git log | grep \${VERSION_NO_REVISION}) ]]; then
    echo "W: \${VERSION_NO_REVISION} commit was not found in pristine-tar"
    exit 1
