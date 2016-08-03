@@ -57,6 +57,7 @@ if [[ -z \$(git log | grep \${VERSION_NO_REVISION}) ]]; then
    exit 1
 fi
 git checkout master
+git pull
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: build version and distribution'
