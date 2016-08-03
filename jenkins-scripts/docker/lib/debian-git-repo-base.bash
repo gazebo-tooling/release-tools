@@ -86,7 +86,7 @@ rm -f ../*.orig.*
 ${GBP_COMMAND} -S
 
 cp ../*.dsc $WORKSPACE/pkgs
-cp ../*.tar.gz $WORKSPACE/pkgs
+cp ../*.tar.* $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
 cp ../*.debian.* $WORKSPACE/pkgs
 echo '# END SECTION'
