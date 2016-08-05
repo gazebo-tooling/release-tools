@@ -106,9 +106,8 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean up git build'
 cd $REPO_PATH
-git reset --hard
-git clean -f -d
 git reset --hard HEAD
+git clean -f -d
 echo '# END SECTION'
 DELIM
 
