@@ -69,6 +69,9 @@ supported_distros.each { distro ->
                 sudo chown -R jenkins \${WORKSPACE}/repo
                 """.stripIndent())
         }
+
+        onlyIfBuildSucceeds(false)
+        onlyIfBuildFails(false)
       }
     }
   }
