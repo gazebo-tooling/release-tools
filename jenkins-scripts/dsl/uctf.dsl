@@ -60,6 +60,16 @@ supported_distros.each { distro ->
       publishers {
         archiveArtifacts('pkgs/*')
       }
+
+      postBuildScripts {
+        steps {
+          shell("""\
+                #!/bin/bash -xe
+
+                sudo chown -R jenkins \${WORKSPACE}/repo
+                """.stripIndent())
+        }
+      }
     }
   }
 }
