@@ -12,7 +12,7 @@ supported_distros.each { distro ->
     scm {
       git {
         remote {
-	  github('osrf/uctf-debian', 'ssh')
+	  github('osrf/uctf-debian', 'http')
 	  credentials('923bb60c-535f-4fb9-8768-44d4d0cd11dd')
         }
 
