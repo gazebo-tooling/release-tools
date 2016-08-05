@@ -6,6 +6,7 @@ def supported_distros = [ 'xenial' ]
 // LINUX
 supported_distros.each { distro ->
   def build_pkg_job = job("uctf-debbuilder")
+  OSRFLinuxBase.create(build_pkg_job)
 
   build_pkg_job.with
   {
