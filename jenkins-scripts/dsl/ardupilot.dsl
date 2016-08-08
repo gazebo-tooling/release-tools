@@ -18,7 +18,7 @@ supported_distros.each { distro ->
 	  scm {
             git {
               remote {
-                github('iche033/ardupilot.git', 'https')
+                github('iche033/ardupilot', 'https')
 	        branch('gazebo_sitl_irlock')
               }
 
