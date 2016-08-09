@@ -22,9 +22,6 @@ supported_distros.each { distro ->
           extensions {
             cleanBeforeCheckout()
             relativeTargetDirectory('repo')
-            submoduleOptions {
-              recursive(true)
-            }
           }
         }
       }
