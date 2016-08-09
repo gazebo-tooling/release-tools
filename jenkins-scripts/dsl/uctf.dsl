@@ -40,11 +40,6 @@ supported_distros.each { distro ->
         maxTotal(5)
       }
 
-      parameters {
-        textParam("RELEASE_VERSION", null, "osrfX, OSRF postix version")
-        textParam("RELEASE_ARCH_VERSION", null, "~ARCH-X, release version")
-      }
-
       wrappers {
         preBuildCleanup {
             includePattern('pkgs/*')
