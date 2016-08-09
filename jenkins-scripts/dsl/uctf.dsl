@@ -42,6 +42,7 @@ supported_distros.each { distro ->
             includePattern('pkgs/*')
             deleteDirectories()
             deleteCommand('sudo rm -rf %s')
+        }
       }
 
       steps {
@@ -91,5 +92,25 @@ supported_distros.each { distro ->
         }
       }
     }
+  }
+  // --------------------------------------------------------------
+  // 2. Create the install test job
+  def install_default_job = job("uctf-install-pkg-${distro}-${arch}")
+
+  // Use the linux install as base
+  OSRFLinuxInstall.create(install_default_job)
+
+  install_default_job.with
+  {
+      triggers {
+        cron('@weekly')
+      }
+
+      steps {
+        shell("""#!/bin/bash -xe
+
+              /bin/bash -x ./scripts/jenkins-scripts/docker/uctf-install-test-job.bash
+              """.stripIndent())
+     }
   }
 }
