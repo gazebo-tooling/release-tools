@@ -42,7 +42,11 @@ supported_distros.each { distro ->
       wrappers {
         preBuildCleanup {
             includePattern('pkgs/*')
-            includePattern('*')
+            includePattern('*.build')
+            includePattern('*.changes')
+            includePattern('*.debian.tar.*')
+            includePattern('*.dsc')
+            includePattern('*.deb')
             deleteCommand('sudo rm -rf %s')
         }
       }
