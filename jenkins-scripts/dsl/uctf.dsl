@@ -42,7 +42,7 @@ supported_distros.each { distro ->
       wrappers {
         preBuildCleanup {
             includePattern('pkgs/*')
-            deleteDirectories()
+            includePattern('*')
             deleteCommand('sudo rm -rf %s')
         }
       }
