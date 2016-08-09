@@ -5,6 +5,8 @@ DOCKER_JOB_NAME="ardupilot_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 echo '# END SECTION'
 
+export OSRF_REPOS_TO_USE=stable
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
