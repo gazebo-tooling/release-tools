@@ -52,8 +52,16 @@ case ${ARCH} in
   'amd64')
      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      ;;
-  'i386' | 'armhf' | 'arm64' )
-     FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
+  'i386')
+     if [[ ${LINUX_DISTRO} == 'debian' ]]; then
+       echo "There is no debian/jessie i386 docker image available"
+       exit 1
+     else
+       FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
+     fi
+     ;;
+   'armhf' | 'arm64' )
+       FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
      ;;
   *)
      echo "Arch unknown"
@@ -142,7 +150,8 @@ done
 
 if ${USE_ROS_REPO}; then
 cat >> Dockerfile << DELIM_ROS_REPO
-RUN echo "deb http://packages.ros.org/ros/${LINUX_DISTRO} ${DISTRO} main" > \\
+# Note that ROS uses ubuntu hardcoded in the paths of repositories
+RUN echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
 RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
 DELIM_ROS_REPO
