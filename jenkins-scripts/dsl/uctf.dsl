@@ -76,8 +76,6 @@ supported_distros.each { distro ->
               parameters {
                 currentBuild()
                 predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-                predefinedProp("S3_UPLOAD_PATH", "uctf/")
-                predefinedProp("S3_UPLOAD_CANONICAL_PATH", "false")
                 predefinedProp("UPLOAD_TO_REPO", "stable")
                 predefinedProp("PACKAGE_ALIAS" , "uctf")
                 predefinedProp("DISTRO",         "${distro}")
