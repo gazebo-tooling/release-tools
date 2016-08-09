@@ -7,6 +7,8 @@ def supported_arches = [ 'amd64' ]
 // LINUX
 supported_distros.each { distro ->
   supported_arches.each { arch ->
+    // --------------------------------------------------------------
+    // 1. Create the deb build job
     def build_pkg_job = job("uctf-debbuilder")
     OSRFLinuxBase.create(build_pkg_job)
 
@@ -92,25 +94,25 @@ supported_distros.each { distro ->
         }
       }
     }
-  }
-  // --------------------------------------------------------------
-  // 2. Create the install test job
-  def install_default_job = job("uctf-install-pkg-${distro}-${arch}")
+    // --------------------------------------------------------------
+    // 2. Create the install test job
+    def install_default_job = job("uctf-install-pkg-${distro}-${arch}")
 
-  // Use the linux install as base
-  OSRFLinuxInstall.create(install_default_job)
+    // Use the linux install as base
+    OSRFLinuxInstall.create(install_default_job)
 
-  install_default_job.with
-  {
-      triggers {
-        cron('@weekly')
-      }
+    install_default_job.with
+    {
+        triggers {
+          cron('@weekly')
+        }
 
-      steps {
-        shell("""#!/bin/bash -xe
+        steps {
+          shell("""#!/bin/bash -xe
 
-              /bin/bash -x ./scripts/jenkins-scripts/docker/uctf-install-test-job.bash
-              """.stripIndent())
-     }
+                /bin/bash -x ./scripts/jenkins-scripts/docker/uctf-install-test-job.bash
+                """.stripIndent())
+       }
+    }
   }
 }
