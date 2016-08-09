@@ -36,6 +36,13 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
         priority 100
       }
 
+      wrappers {
+        preBuildCleanup {
+            includePattern('pkgs/*')
+            deleteCommand('sudo rm -rf %s')
+        }
+      }
+
       logRotator {
         artifactNumToKeep(10)
       }
