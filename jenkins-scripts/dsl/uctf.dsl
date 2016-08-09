@@ -109,6 +109,10 @@ supported_distros.each { distro ->
         steps {
           shell("""#!/bin/bash -xe
 
+                export LINUX_DISTRO=ubuntu
+                export ARCH=${arch}
+                export DISTRO=${distro}
+
                 /bin/bash -x ./scripts/jenkins-scripts/docker/uctf-install-test-job.bash
                 """.stripIndent())
        }
