@@ -65,7 +65,7 @@ rm -fr debian/*.symbols
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: create source package \${OSRF_VERSION}"
-rm -f ../*.orig.*
+rm -f ../*.orig.* ../*.dsc ../*.debian.* ../*.deb ../*.changes ../*.build
 ${GBP_COMMAND} -S
 
 cp ../*.dsc $WORKSPACE/pkgs
