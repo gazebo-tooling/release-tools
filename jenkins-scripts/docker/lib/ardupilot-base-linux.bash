@@ -12,6 +12,7 @@ cat > build.sh << DELIM
 set -ex
 
 echo '#BEGIN SECTION: install special branch of gazebo'
+rm -fr ${WORKSPACE}/gazebo
 mkdir -p ${WORKSPACE}/gazebo/build
 hg clone https://bitbucket.org/osrf/gazebo -b aero_apm_irlock ${WORKSPACE}/gazebo
 cd ${WORKSPACE}/gazebo/build
@@ -21,6 +22,7 @@ make install
 echo '#END SECTION'
 
 echo '#BEGIN SECTION: install special branch of gazebo models'
+rm -fr ${WORKSPACE}/models
 mkdir -p \$HOME/.gazebo/models
 mkdir -p ${WORKSPACE}/models/build
 hg clone https://bitbucket.org/osrf/gazebo_models -b aero_testing_john ${WORKSPACE}/models
@@ -48,6 +50,7 @@ pip install dronekit
 export PATH=\$PATH:${WORKSPACE}/ardupilot/Tools/autotest
 
 echo '# BEGIN SECTION: running tests'
+rm -fr ${WORKSPACE}/gazebo_apm_sitl
 mkdir -p ${WORKSPACE}/gazebo_apm_sitl
 hg clone https://bitbucket.org/iche033/gazebo_apm_sitl ${WORKSPACE}/gazebo_apm_sitl
 mkdir -p $WORKSPACE/gazebo_apm_sitl/build
