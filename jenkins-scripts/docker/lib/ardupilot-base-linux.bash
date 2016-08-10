@@ -69,6 +69,7 @@ DEPENDENCY_PKGS="${BASE_DEPENDENCIES} \
 		 python-matplotlib \
 		 python-pygame \
 		 python-lxml \
+		 mercurial \
 		 ssh"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
