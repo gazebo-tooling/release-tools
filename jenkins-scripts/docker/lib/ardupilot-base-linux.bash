@@ -13,8 +13,8 @@ set -ex
 
 echo '#BEGIN SECTION: install special branch of gazebo'
 rm -fr ${WORKSPACE}/gazebo
-mkdir -p ${WORKSPACE}/gazebo/build
 hg clone https://bitbucket.org/osrf/gazebo -b aero_apm_irlock ${WORKSPACE}/gazebo
+mkdir -p ${WORKSPACE}/gazebo/build
 cd ${WORKSPACE}/gazebo/build
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_TESTS_COMPILATION=False ..
 make -j${MAKE_JOBS}
@@ -24,8 +24,8 @@ echo '#END SECTION'
 echo '#BEGIN SECTION: install special branch of gazebo models'
 rm -fr ${WORKSPACE}/models
 mkdir -p \$HOME/.gazebo/models
-mkdir -p ${WORKSPACE}/models/build
 hg clone https://bitbucket.org/osrf/gazebo_models -b aero_testing_john ${WORKSPACE}/models
+mkdir -p ${WORKSPACE}/models/build
 cp -r ${WORKSPACE}/models/gazebo_models/iris \${HOME}/.gazebo/models
 cp -r ${WORKSPACE}/models/gazebo_models/gimbal_small_2d \${HOME}/.gazebo/models
 echo '#END SECTION'
@@ -51,7 +51,6 @@ export PATH=\$PATH:${WORKSPACE}/ardupilot/Tools/autotest
 
 echo '# BEGIN SECTION: running tests'
 rm -fr ${WORKSPACE}/gazebo_apm_sitl
-mkdir -p ${WORKSPACE}/gazebo_apm_sitl
 hg clone https://bitbucket.org/iche033/gazebo_apm_sitl ${WORKSPACE}/gazebo_apm_sitl
 mkdir -p $WORKSPACE/gazebo_apm_sitl/build
 cd $WORKSPACE/gazebo_apm_sitl/build
