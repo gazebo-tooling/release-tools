@@ -85,6 +85,7 @@ supported_distros.each { distro ->
                   #!/bin/bash -xe
 
                   sudo chown -R jenkins \${WORKSPACE}/repo
+                  sudo chown -R jenkins \${WORKSPACE}/pkgs
                   """.stripIndent())
           }
 
