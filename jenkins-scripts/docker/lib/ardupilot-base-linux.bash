@@ -13,7 +13,7 @@ set -ex
 
 echo '#BEGIN SECTION: install special branch of gazebo'
 export GZ_BRANCH=aero_apm_irlock
-if [[ -d ${WORKSPACE}/gazebo/build ]]; then
+if [[ -d ${WORKSPACE}/gazebo ]]; then
   cd $WORKSPACE/gazebo
   hg pull
   hg up \$GZ_BRANCH --clean
