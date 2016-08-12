@@ -24,7 +24,7 @@ build_pkg_job.with
       shell("""\
             #!/bin/bash -xe
 
-            /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-no-ros-debbuild.bash
+            /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
             """.stripIndent())
     }
   }
