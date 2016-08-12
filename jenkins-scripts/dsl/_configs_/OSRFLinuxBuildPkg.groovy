@@ -88,6 +88,19 @@ class OSRFLinuxBuildPkg extends OSRFLinuxBase
 	    }
 	  }
         }
+
+        postBuildScripts {
+          steps {
+            shell("""\
+                  #!/bin/bash -xe
+
+                  sudo chown -R jenkins \${WORKSPACE}/pkgs
+                  """.stripIndent())
+          }
+
+          onlyIfBuildSucceeds(false)
+          onlyIfBuildFails(false)
+        }
       }
     } // end of job
   } // end of method createJob
