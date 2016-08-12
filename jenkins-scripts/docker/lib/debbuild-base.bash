@@ -6,6 +6,9 @@ if [ "${UPLOAD_TO_REPO}" = "nightly" ]; then
    NIGHTLY_MODE=true
 fi
 
+# Option to use $WORKSPACE/repo as container (git or hg) for the nightly source
+[[ -z ${USE_REPO_DIRECTORY_FOR_NIGHTLY} ]] && USE_REPO_DIRECTORY_FOR_NIGHTLY=false
+
 # Do not use the subprocess_reaper in debbuild. Seems not as needed as in
 # testing jobs and seems to be slow at the end of jenkins jobs
 export ENABLE_REAPER=false
@@ -31,11 +34,21 @@ REAL_PACKAGE_NAME=$(echo $PACKAGE | sed 's:[0-9]*$::g')
 
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
-  hg clone https://bitbucket.org/${BITBUCKET_REPO}/\$REAL_PACKAGE_NAME -r default
+  if ${USE_REPO_DIRECTORY_FOR_NIGHTLY}; then
+    mv ${WORKSPACE}/repo \$REAL_PACKAGE_NAME
+  else
+    hg clone https://bitbucket.org/${BITBUCKET_REPO}/\$REAL_PACKAGE_NAME -r default
+  fi
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME
   cd \$REAL_PACKAGE_NAME
   # Store revision for use in version
-  REV=\$(hg parents --template="{node|short}\n")
+  if [[ -d .hg ]]; then
+    REV=\$(hg parents --template="{node|short}\n")
+  elif [[ -d .git ]]; then
+    REV=\$(git rev-parse HEAD)
+  else
+    REV=0
+  fi
 else
   wget --quiet -O $PACKAGE_ALIAS\_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
   rm -rf \$REAL_PACKAGE_NAME\-$VERSION

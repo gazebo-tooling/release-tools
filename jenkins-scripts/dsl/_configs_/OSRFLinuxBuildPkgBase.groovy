@@ -35,7 +35,7 @@ class OSRFLinuxBuildPkgBase
             shell("""\
               #!/bin/bash -xe
 
-              sudo chown -R jenkins \${WORKSPACE}/pkgs
+              [[ -d \${WORKSPACE}/pkgs ]] && sudo chown -R jenkins \${WORKSPACE}/pkgs
               """.stripIndent())
           }
 

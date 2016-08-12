@@ -12,10 +12,18 @@ OSRFLinuxBuildPkg.create(build_pkg_job)
 
 build_pkg_job.with
 {
+
   scm {
-    hg('http://bitbucket.org/osrf/gear') {
-      branch('default')
-      subdirectory('gear')
+    git {
+      remote {
+        url('git@bitbucket.org:osrf/gear.git')
+        credentials('65cd22d1-f3d5-4ff4-b18f-1d88efa13a02')
+      }
+
+      extensions {
+        cleanBeforeCheckout()
+        relativeTargetDirectory('repo')
+      }
     }
   }
 
@@ -24,6 +32,7 @@ build_pkg_job.with
       shell("""\
             #!/bin/bash -xe
 
+            export USE_REPO_DIRECTORY_FOR_NIGHTLY=true
             /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
             """.stripIndent())
     }
@@ -58,3 +67,5 @@ supported_distros.each { distro ->
     }
   }
 }
+
+
