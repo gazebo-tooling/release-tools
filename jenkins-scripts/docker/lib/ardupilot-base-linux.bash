@@ -26,8 +26,8 @@ rm -fr ${WORKSPACE}/models
 mkdir -p \$HOME/.gazebo/models
 hg clone https://bitbucket.org/osrf/gazebo_models -b aero_testing_john ${WORKSPACE}/models
 mkdir -p ${WORKSPACE}/models/build
-cp -r ${WORKSPACE}/models/gazebo_models/iris \${HOME}/.gazebo/models
-cp -r ${WORKSPACE}/models/gazebo_models/gimbal_small_2d \${HOME}/.gazebo/models
+cp -r ${WORKSPACE}/models/iris_with_standoffs \${HOME}/.gazebo/model
+cp -r ${WORKSPACE}/models/gimbal_small_2d \${HOME}/.gazebo/models
 echo '#END SECTION'
 
 echo '# BEGIN SECTION: configuring'
