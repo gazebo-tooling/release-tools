@@ -12,9 +12,16 @@ cat > build.sh << DELIM
 set -ex
 
 echo '#BEGIN SECTION: install special branch of gazebo'
-rm -fr ${WORKSPACE}/gazebo
-hg clone https://bitbucket.org/osrf/gazebo -b aero_apm_irlock ${WORKSPACE}/gazebo
-mkdir -p ${WORKSPACE}/gazebo/build
+export GZ_BRANCH=aero_apm_irlock
+if [[ -d ${WORKSPACE}/gazebo/build ]]; then
+  cd $WORKSPACE/gazebo
+  hg pull
+  hg up \$GZ_BRANCH --clean
+else
+  rm -fr ${WORKSPACE}/gazebo
+  hg clone https://bitbucket.org/osrf/gazebo -b \$GZ_BRANCH ${WORKSPACE}/gazebo
+  mkdir -p ${WORKSPACE}/gazebo/build
+fi
 cd ${WORKSPACE}/gazebo/build
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_TESTS_COMPILATION=False ..
 make -j${MAKE_JOBS}
@@ -22,10 +29,16 @@ make install
 echo '#END SECTION'
 
 echo '#BEGIN SECTION: install special branch of gazebo models'
-rm -fr ${WORKSPACE}/models
-mkdir -p \$HOME/.gazebo/models
-hg clone https://bitbucket.org/osrf/gazebo_models -b aero_testing_john ${WORKSPACE}/models
-mkdir -p ${WORKSPACE}/models/build
+export GZ_MODEL_BRANCH=aero_testing_john
+if [[ -d ${WORKSPACE}/models ]]; then
+  cd ${WORKSPACE}/models
+  hg pull
+  hg up \$GZ_MODEL_BRANCH --clean
+else
+  rm -fr ${WORKSPACE}/models
+  mkdir -p \$HOME/.gazebo/models
+  hg clone https://bitbucket.org/osrf/gazebo_models -b aero_testing_john ${WORKSPACE}/models
+fi
 cp -r ${WORKSPACE}/models/iris_with_standoffs \${HOME}/.gazebo/model
 cp -r ${WORKSPACE}/models/gimbal_small_2d \${HOME}/.gazebo/models
 echo '#END SECTION'
