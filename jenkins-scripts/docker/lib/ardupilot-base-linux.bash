@@ -43,23 +43,12 @@ cp -r ${WORKSPACE}/models/iris_with_standoffs \${HOME}/.gazebo/model
 cp -r ${WORKSPACE}/models/gimbal_small_2d \${HOME}/.gazebo/models
 echo '#END SECTION'
 
-echo '# BEGIN SECTION: configuring'
-mkdir -p $WORKSPACE/build
-cd $WORKSPACE/build
-echo '# END SECTION'
-
-echo '# BEGIN SECTION: compiling'
-make -j${MAKE_JOBS}
-echo '# END SECTION'
-
-echo '# BEGIN SECTION: installing'
-make install
-echo '# END SECTION'
-
 pip install MAVProxy
 pip install dronekit
 
 . /usr/share/gazebo/setup.sh
+export GAZEBO_RESOURCE_PATH=$GAZEBO_RESOURCE_PATH:\$HOME/.gazebo/models
+export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:\$HOME/.gazebo/models
 export PATH=\$PATH:${WORKSPACE}/ardupilot/Tools/autotest
 
 echo '# BEGIN SECTION: running tests'
