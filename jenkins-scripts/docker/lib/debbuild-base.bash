@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-NIGHTLY_MODE=false
+NIGHTLY_MODE=${NIGHTLY_MODE:-false}
 if [ "${UPLOAD_TO_REPO}" = "nightly" ]; then
    OSRF_REPOS_TO_USE="stable nightly"
    NIGHTLY_MODE=true
@@ -195,7 +195,8 @@ DEPENDENCY_PKGS="devscripts \
 		 ca-certificates \
 		 equivs \
 		 dh-make \
-		 mercurial"
+		 mercurial \
+		 git"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
