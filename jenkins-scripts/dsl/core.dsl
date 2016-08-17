@@ -25,7 +25,9 @@ void include_common_params(Job job)
 {
   job.with
   {
-    priority 100
+    properties {
+      priority 100
+    }
 
     parameters
     {
