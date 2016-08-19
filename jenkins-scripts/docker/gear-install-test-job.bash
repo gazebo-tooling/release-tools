@@ -13,7 +13,6 @@ export USE_ROS_REPO=true
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: testing by running gear launch file'
 . /opt/ros/indigo/setup.bash
-. /usr/share/gear/setup.sh
 
 TEST_START=\`date +%s\`
 timeout --preserve-status 180 roslaunch osrf_gear ur10_example_world.launch || true
