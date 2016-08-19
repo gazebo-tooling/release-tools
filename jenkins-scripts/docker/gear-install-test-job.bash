@@ -7,7 +7,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 export GPU_SUPPORT_NEEDED=true
 
 export INSTALL_JOB_PKG="uctf"
-export INSTALL_JOB_REPOS="stable"
+export INSTALL_JOB_REPOS="stable nightly"
 export USE_ROS_REPO=true
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
