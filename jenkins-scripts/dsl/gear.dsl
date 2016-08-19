@@ -35,13 +35,13 @@ build_pkg_job.with
             # Gear only uses a subdirectory as package
             cp -a \$WORKSPACE/repo/osrf_gear \$WORKSPACE/osrf_gear
             mv \$WORKSPACE/repo \$WORKSPACE/repo_backup
-            mv \$WORKSPACE/osrf_gear \$WORKSPACE\repo
+            mv \$WORKSPACE/osrf_gear \$WORKSPACE/repo
 
             export USE_REPO_DIRECTORY_FOR_NIGHTLY=true
             /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
           
             rm -fr \$WORKSPACE/repo
-            mv \$WORKSPACE\repo_backup \$WORKSPACE\repo
+            mv \$WORKSPACE/repo_backup \$WORKSPACE/repo
             """.stripIndent())
     }
   }
