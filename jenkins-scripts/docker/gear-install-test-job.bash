@@ -6,12 +6,12 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export GPU_SUPPORT_NEEDED=true
 
-export INSTALL_JOB_PKG="uctf"
+export INSTALL_JOB_PKG="gear"
 export INSTALL_JOB_REPOS="stable nightly"
 export USE_ROS_REPO=true
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
-echo '# BEGIN SECTION: testing by running uctf launch file'
+echo '# BEGIN SECTION: testing by running gear launch file'
 . /opt/ros/indigo/setup.bash
 . /usr/share/gear/setup.sh
 
