@@ -41,6 +41,7 @@ if ${NIGHTLY_MODE}; then
   fi
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME
   cd \$REAL_PACKAGE_NAME
+  ls -las *
   # Store revision for use in version
   if [[ -d .hg ]]; then
     REV=\$(hg parents --template="{node|short}\n")
