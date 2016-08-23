@@ -39,6 +39,7 @@ build_pkg_job.with
             mv \$WORKSPACE/repo \$WORKSPACE/repo_backup
             mv \$WORKSPACE/osrf_gear \$WORKSPACE/repo
 
+            export NIGHTLY_MODE=true
             export USE_REPO_DIRECTORY_FOR_NIGHTLY=true
             /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
           
