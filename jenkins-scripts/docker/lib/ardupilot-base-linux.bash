@@ -30,14 +30,14 @@ echo '#END SECTION'
 
 echo '#BEGIN SECTION: install special branch of gazebo models'
 export GZ_MODEL_BRANCH=aero_testing_john
+mkdir -p \$HOME/.gazebo/models
 if [[ -d ${WORKSPACE}/models ]]; then
   cd ${WORKSPACE}/models
   hg pull
   hg up \$GZ_MODEL_BRANCH --clean
 else
   rm -fr ${WORKSPACE}/models
-  mkdir -p \$HOME/.gazebo/models
-  hg clone https://bitbucket.org/osrf/gazebo_models -b aero_testing_john ${WORKSPACE}/models
+  hg clone https://bitbucket.org/osrf/gazebo_models -b \$GZ_MODEL_BRANCH ${WORKSPACE}/models
 fi
 cp -r ${WORKSPACE}/models/iris_with_standoffs \${HOME}/.gazebo/model
 cp -r ${WORKSPACE}/models/gimbal_small_2d \${HOME}/.gazebo/models
