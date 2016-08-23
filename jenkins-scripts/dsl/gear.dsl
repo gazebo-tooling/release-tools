@@ -33,6 +33,8 @@ build_pkg_job.with
             #!/bin/bash -xe
 
             # Gear only uses a subdirectory as package
+            rm -fr \$WORKSPACE/repo_backup
+            rm -fr \$WORKSPACE/osrf_gear
             cp -a \$WORKSPACE/repo/osrf_gear \$WORKSPACE/osrf_gear
             mv \$WORKSPACE/repo \$WORKSPACE/repo_backup
             mv \$WORKSPACE/osrf_gear \$WORKSPACE/repo
