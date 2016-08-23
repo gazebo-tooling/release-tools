@@ -45,6 +45,8 @@ if ${NIGHTLY_MODE}; then
   # Store revision for use in version
   if [[ -d .hg ]]; then
     REV=\$(hg parents --template="{node|short}\n")
+  elif [[ -n $GIT_COMMIT ]]; then
+    REV=$GIT_COMMIT
   elif [[ -d .git ]]; then
     REV=\$(git rev-parse HEAD)
   else
