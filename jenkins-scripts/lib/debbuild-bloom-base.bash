@@ -30,6 +30,8 @@ set -ex
 # ccache is sometimes broken and has now reason to be used here
 # http://lists.debian.org/debian-devel/2012/05/msg00240.html
 echo "unset CCACHEDIR" >> /etc/pbuilderrc
+PBUILD_DIR=\$HOME/.pbuilder
+mkdir -p \$PBUILD_DIR
 
 # Install deb-building tools
 apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-tools mercurial git debhelper wget cdbs 
@@ -78,8 +80,6 @@ ls ..
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
 debuild --no-tgz-check -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 
-PBUILD_DIR=\$HOME/.pbuilder
-mkdir -p \$PBUILD_DIR
 cat > \$PBUILD_DIR/A10_run_rosdep << DELIM_ROS_DEP
 #!/bin/sh
 if [ -f /usr/bin/rosdep ]; then
