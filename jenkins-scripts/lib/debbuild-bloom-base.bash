@@ -102,11 +102,6 @@ PKG_NAME=ros-${ROS_DISTRO}-${PACKAGE}_${VERSION}-${RELEASE_VERSION}${DISTRO}_${A
 mkdir -p $WORKSPACE/pkgs
 rm -fr $WORKSPACE/pkgs/*
 
-find / -name *_result* || true
-find / -name \$PKG_NAME
-ls ../
-find ../ -name *.deb
-
 PKGS=\`find \$HOME/pbuilder/*_result* -name *.deb || true\`
 
 FOUND_PKG=0
