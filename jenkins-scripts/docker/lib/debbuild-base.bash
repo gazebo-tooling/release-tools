@@ -41,13 +41,17 @@ if ${NIGHTLY_MODE}; then
   fi
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME
   cd \$REAL_PACKAGE_NAME
+  TIMESTAMP=\$(date '+%Y%m%d')
   # Store revision for use in version
   if [[ -d .hg ]]; then
     REV=\$(hg parents --template="{node|short}\n")
+    TIMESTAMP="hg\$TIMESTAMP"
   elif [[ -n $GIT_COMMIT ]]; then
     REV=$GIT_COMMIT
+    TIMESTAMP="git\$TIMESTAMP"
   elif [[ -d .git ]]; then
     REV=\$(git rev-parse HEAD)
+    TIMESTAMP="git\$TIMESTAMP"
   else
     REV=0
   fi
@@ -113,8 +117,7 @@ cd /tmp/$PACKAGE-release/${DISTRO}
 
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
-  TIMESTAMP=\$(date '+%Y%m%d')
-  NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}+hg\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}~${DISTRO}
+  NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}+\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}~${DISTRO}
   debchange --package ${PACKAGE} \\
               --newversion \${NIGHTLY_VERSION_SUFFIX} \\
               --distribution ${DISTRO} \\
@@ -128,7 +131,7 @@ cd \`find $WORKSPACE/build -mindepth 1 -type d |head -n 1\`
 # If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
 if $NIGHTLY_MODE; then
   rm -fr .hg*
-  echo | dh_make -y -s --createorig -p ${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+hg\${TIMESTAMP}r\${REV} > /dev/null
+  echo | dh_make -y -s --createorig -p ${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}r\${REV} > /dev/null
 fi
 
 # Adding extra directories to code. debian has no problem but some extra directories
