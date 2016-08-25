@@ -46,10 +46,21 @@ echo '# BEGIN SECTION: install build dependencies'
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: build version and distribution'
 VERSION=\$(dpkg-parsechangelog  | grep Version | awk '{print \$2}')
 VERSION_NO_REVISION=\$(echo \$VERSION | sed 's:-.*::')
 OSRF_VERSION=\$VERSION\osrf${RELEASE_VERSION}~${DISTRO}${RELEASE_ARCH_VERSION}
+
+echo "# BEGIN SECTION: check that pristine-tar is updated"
+git checkout pristine-tar || { echo "W: probably miss the pristine-tar branch" && exit 1; }
+if [[ -z \$(git log | grep \${VERSION_NO_REVISION}) ]]; then
+   echo "W: \${VERSION_NO_REVISION} commit was not found in pristine-tar"
+   exit 1
+fi
+git checkout master
+git pull
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: build version and distribution'
 sed -i -e "s:\$VERSION:\$OSRF_VERSION:g" debian/changelog
 
 # Use current distro (unstable or experimental are in debian)
@@ -69,7 +80,7 @@ rm -f ../*.orig.* ../*.dsc ../*.debian.* ../*.deb ../*.changes ../*.build
 ${GBP_COMMAND} -S
 
 cp ../*.dsc $WORKSPACE/pkgs
-cp ../*.tar.gz $WORKSPACE/pkgs
+cp ../*.tar.* $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
 cp ../*.debian.* $WORKSPACE/pkgs
 echo '# END SECTION'
@@ -80,6 +91,7 @@ ${GBP_COMMAND}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
+lintian -I -i ../*.changes || true
 PKGS=\`find ../ -name *.deb || true\`
 
 FOUND_PKG=0
@@ -94,7 +106,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean up git build'
 cd $REPO_PATH
-git reset --hard
+git reset --hard HEAD
 git clean -f -d
 echo '# END SECTION'
 DELIM
