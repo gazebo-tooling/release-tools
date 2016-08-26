@@ -58,7 +58,7 @@ mkdir -p $WORKSPACE/gazebo_apm_sitl/build
 cd $WORKSPACE/gazebo_apm_sitl/build
 cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
 make -j${MAKE_JOBS}
-make test ARGS="-VV
+make test ARGS="-VV"
 echo '# END SECTION'
 DELIM
 
