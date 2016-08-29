@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+. ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
+
 echo '# BEGIN SECTION: setup the testing enviroment'
 DOCKER_JOB_NAME="ardupilot_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
