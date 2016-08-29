@@ -18,6 +18,7 @@ set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 set TEST_RESULT_PATH=%WORKSPACE%\test_results
 set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
 set LOCAL_WS=%WORKSPACE%\workspace
+set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS%\%VCS_DIRECTORY%
 
 :: default values
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
@@ -61,7 +62,6 @@ for %%p in (%DEPEN_PKGS%) do (
 echo # END SECTION
 
 echo # BEGIN SECTION: move %VCS_DIRECTORY% source to workspace
-set LOCAL_WS_SOFTWARE_DIR=%WORKSPACE%\%VCS_DIRECTORY%
 if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
 xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i || goto :error
 cd %LOCAL_WS_SOFTWARE_DIR% || goto :error
