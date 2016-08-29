@@ -35,7 +35,7 @@ call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zeromq-4.0.4-%
 call %win_lib% :download_7za 
 call %win_lib% :unzip_7za cppzmq-noarch.zip > cppzmq_7z.log || goto :error
 call %win_lib% :unzip_7za protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip > protobuf_7z.log || goto :error
-call %win_lib% :unzip_7za zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip > zeromq_7z.log || goto :error
+call %win_lib% :unzip_7za zeromq-4.0.4-%PLATFORM_TO_BUILD%.zip > zeromq_7z.log || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: compile and install ign-math
