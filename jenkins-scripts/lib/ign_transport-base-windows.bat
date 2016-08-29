@@ -55,10 +55,10 @@ hg clone https://bitbucket.org/ignitionrobotics/ign-msgs %IGN_MSGS_DIR%
 set VCS_DIRECTORY=ign-msgs
 set KEEP_WORKSPACE=TRUE
 set ENABLE_TESTS=FALSE
-call "%SCRIPT_DIR%/lib/project-default-devel-windows.bat"
+call "%SCRIPT_DIR%/lib/project-default-devel-windows.bat" || goto :error
 echo # END SECTION
 
-echo # BEGIN SECTION: move sources so we agree with configure.bat layout
+echo # BEGIN SECTION: move ign-transport sources so we agree with configure.bat layout
 :: Remove code copy
 IF EXIST %WORKSPACE%\workspace\ign-transport ( rmdir /s /q %WORKSPACE%\workspace\ign-transport ) || goto :error
 xcopy %WORKSPACE%\ign-transport %WORKSPACE%\workspace\ign-transport /s /i /e > xcopy.log || goto :error
