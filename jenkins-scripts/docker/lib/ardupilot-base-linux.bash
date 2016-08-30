@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+. ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
+
 echo '# BEGIN SECTION: setup the testing enviroment'
 DOCKER_JOB_NAME="ardupilot_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
@@ -39,7 +41,7 @@ else
   rm -fr ${WORKSPACE}/models
   hg clone https://bitbucket.org/osrf/gazebo_models -b \$GZ_MODEL_BRANCH ${WORKSPACE}/models
 fi
-cp -r ${WORKSPACE}/models/iris_with_standoffs \${HOME}/.gazebo/model
+cp -r ${WORKSPACE}/models/iris_with_standoffs \${HOME}/.gazebo/models
 cp -r ${WORKSPACE}/models/gimbal_small_2d \${HOME}/.gazebo/models
 echo '#END SECTION'
 
