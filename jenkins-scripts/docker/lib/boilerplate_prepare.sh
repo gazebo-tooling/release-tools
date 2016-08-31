@@ -69,6 +69,11 @@ if [ -z ${NEED_C11_COMPILER} ]; then
   NEED_C11_COMPILER=false
 fi
 
+# By default, do not use ROS
+if [ -z ${ENABLE_ROS} ]; then
+  ENABLE_ROS=false
+fi
+
 # Transition for 4.8 -> 4.9 makes some optimization in the linking
 # which can break some software. Use it as a workaround in this case
 if [ -z ${NEED_GCC48_COMPILER} ]; then
