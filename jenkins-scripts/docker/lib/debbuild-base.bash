@@ -46,7 +46,7 @@ if ${NIGHTLY_MODE}; then
   if [[ -d .hg ]]; then
     REV=\$(hg parents --template="{node|short}\n")
     TIMESTAMP="hg\$TIMESTAMP"
-  elif [[ -n $GIT_COMMIT ]]; then
+  elif [[ -n "$GIT_COMMIT" ]]; then
     REV=$GIT_COMMIT
     TIMESTAMP="git\$TIMESTAMP"
   elif [[ -d .git ]]; then
