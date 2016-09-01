@@ -39,7 +39,7 @@ BASE_DEPENDENCIES="build-essential \\
                    python          \\
                    bc              \\
                    netcat-openbsd  \\
-                   gnupg           \\
+                   gnupg2          \\
                    net-tools"
 
 BREW_BASE_DEPENDCIES="mercurial git cmake"
