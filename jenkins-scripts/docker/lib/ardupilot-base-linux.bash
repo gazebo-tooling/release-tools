@@ -67,6 +67,14 @@ cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
 make -j${MAKE_JOBS}
 make test ARGS="-VV"
 echo '# END SECTION'
+
+echo '# BEGIN SECTION: clean up arducopter logs'
+# clean up ArduCopter dir otherwise subsequent jobs will not be able to update
+# the repo due to permission issue
+cd ${WORKSPACE}/ardupilot/ArduCopter
+rm -fr logs terrain
+echo '# END SECTION'
+
 DELIM
 
 SOFTWARE_DIR="ardupilot"
