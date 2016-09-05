@@ -128,19 +128,6 @@ packages.each { repo_name, pkgs ->
            }
          }
       }
-
-      postBuildScripts {
-        steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                sudo chown -R jenkins \${WORKSPACE}/repo
-                """.stripIndent())
-        }
-
-        onlyIfBuildSucceeds(false)
-        onlyIfBuildFails(false)
-      }
     }
   }
 }
