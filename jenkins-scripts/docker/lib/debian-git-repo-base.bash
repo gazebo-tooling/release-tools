@@ -113,7 +113,6 @@ DELIM
 
 OSRF_REPOS_TO_USE="stable"
 DEPENDENCY_PKGS="devscripts \
-		 python-apt \
 		 ubuntu-dev-tools \
 		 debhelper \
 		 wget \
