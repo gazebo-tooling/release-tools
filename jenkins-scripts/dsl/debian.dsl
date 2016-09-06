@@ -64,7 +64,7 @@ packages.each { repo_name, pkgs ->
   }
 
   def ci_job = job("${pkg}-pkg_builder-master-debian_sid-amd64")
-  OSRFLinuxBase.create(ci_job)
+  OSRFLinuxBuildPkgBase.create(ci_job)
   ci_job.with
   {
      scm {
@@ -87,17 +87,6 @@ packages.each { repo_name, pkgs ->
         priority 350
       }
 
-      logRotator {
-        artifactNumToKeep(10)
-      }
-
-      concurrentBuild(true)
-
-      throttleConcurrentBuilds {
-	maxPerNode(1)
-	maxTotal(5)
-      }
-
       parameters {
         textParam("RELEASE_VERSION", null, "osrfX, OSRF postix version")
         textParam("RELEASE_ARCH_VERSION", null, "~ARCH-X, release version")
@@ -116,9 +105,19 @@ packages.each { repo_name, pkgs ->
 
       publishers
       {
-        publishers {
-          archiveArtifacts('pkgs/*')
+        postBuildScripts {
+          steps {
+            shell("""\
+              #!/bin/bash -xe
+
+              [[ -d \${WORKSPACE}/repo ]] && sudo chown -R jenkins \${WORKSPACE}/repo
+              """.stripIndent())
+          }
+
+          onlyIfBuildSucceeds(false)
+          onlyIfBuildFails(false)
         }
+
 
          // Added the lintian parser
          configure { project ->

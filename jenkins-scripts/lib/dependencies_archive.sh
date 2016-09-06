@@ -28,6 +28,7 @@ fi
 # python-psutil for memory testing
 # netcat-openbsd (nc command) for squid-deb-proxy checking
 # net-tools (route command) for squid-deb-proxy checking
+# gnupg apt-key requires gnupg, gnupg2 or gnupg1
 BASE_DEPENDENCIES="build-essential \\
                    cmake           \\
                    debhelper       \\
@@ -38,6 +39,7 @@ BASE_DEPENDENCIES="build-essential \\
                    python          \\
                    bc              \\
                    netcat-openbsd  \\
+                   gnupg2          \\
                    net-tools"
 
 BREW_BASE_DEPENDCIES="mercurial git cmake"
