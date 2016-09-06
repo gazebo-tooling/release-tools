@@ -45,6 +45,11 @@ cp -r ${WORKSPACE}/models/iris_with_standoffs \${HOME}/.gazebo/models
 cp -r ${WORKSPACE}/models/gimbal_small_2d \${HOME}/.gazebo/models
 echo '#END SECTION'
 
+echo '#BEGIN SECTION: compile ArduCopter in SITL mode'
+cd ${WORKSPACE}/ardupilot/ArduCopter
+make sitl
+echo '#END SECTION'
+
 pip install MAVProxy
 pip install dronekit
 
@@ -62,6 +67,14 @@ cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
 make -j${MAKE_JOBS}
 make test ARGS="-VV"
 echo '# END SECTION'
+
+echo '# BEGIN SECTION: clean up arducopter logs'
+# clean up ArduCopter dir otherwise subsequent jobs will not be able to update
+# the repo due to permission issue
+cd ${WORKSPACE}/ardupilot/ArduCopter
+rm -fr logs terrain
+echo '# END SECTION'
+
 DELIM
 
 SOFTWARE_DIR="ardupilot"
@@ -69,6 +82,7 @@ OSRF_REPOS_TO_USE="stable"
 DEPENDENCY_PKGS="${BASE_DEPENDENCIES} \
                  ${GAZEBO_BASE_DEPENDENCIES} \
 		 ${GAZEBO_EXTRA_DEPENDENCIES} \
+		 gawk \
 		 python-setuptools \
 		 python-dev \
 		 python-opencv \
