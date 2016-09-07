@@ -34,10 +34,10 @@ build_pkg_job.with
 
             # ariac only uses a subdirectory as package
             rm -fr \$WORKSPACE/repo_backup
-            rm -fr \$WORKSPACE/osrf_ariac
-            cp -a \$WORKSPACE/repo/osrf_ariac \$WORKSPACE/osrf_ariac
+            rm -fr \$WORKSPACE/osrf_gear
+            cp -a \$WORKSPACE/repo/osrf_gear \$WORKSPACE/osrf_gear
             mv \$WORKSPACE/repo \$WORKSPACE/repo_backup
-            mv \$WORKSPACE/osrf_ariac \$WORKSPACE/repo
+            mv \$WORKSPACE/osrf_gear \$WORKSPACE/repo
 
             export NIGHTLY_MODE=true
             export USE_REPO_DIRECTORY_FOR_NIGHTLY=true
