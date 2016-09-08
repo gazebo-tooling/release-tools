@@ -17,7 +17,7 @@ rosdep init
 rosdep update
 
 TEST_START=\`date +%s\`
-timeout --preserve-status 180 roslaunch osrf_ariac ur10_example_world.launch || true
+timeout --preserve-status 180 roslaunch osrf_gear ur10_example_world.launch || true
 TEST_END=\`date +%s\`
 DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
 
