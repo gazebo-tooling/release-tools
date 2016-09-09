@@ -86,7 +86,7 @@ mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
 copy %WORKSPACE%\workspace\jom.exe .
-jom || goto :error
+jom -j %MAKE_JOBS% || goto :error
 nmake install
 echo # END SECTION
 
