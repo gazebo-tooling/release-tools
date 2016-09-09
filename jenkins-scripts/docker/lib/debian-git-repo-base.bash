@@ -106,7 +106,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: run tests'
 cd $WORKSPACE/pkgs
-autopkgtest -B *.deb *.dsc
+autopkgtest -B *.deb *.dsc -- lxc test-container
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean up git build'
