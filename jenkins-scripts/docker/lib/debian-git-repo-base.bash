@@ -106,7 +106,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: run tests'
 cd $WORKSPACE/pkgs
-autopkgtest -B *.deb *.dsc -- lxc test-container
+autopkgtest -B *.deb *.dsc -- null
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean up git build'
@@ -125,8 +125,7 @@ DEPENDENCY_PKGS="devscripts \
 		 equivs \
 		 git \
 		 git-buildpackage \
-		 autopkgtest \
-		 lxc"
+		 autopkgtest"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
