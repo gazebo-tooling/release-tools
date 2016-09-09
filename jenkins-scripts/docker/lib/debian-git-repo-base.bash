@@ -104,6 +104,11 @@ done
 test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 
+echo '# BEGIN SECTION: run tests'
+cd $WORKSPACE/pkgs
+autopkgtest *.dsc *.deb
+echo '# END SECTION'
+
 echo '# BEGIN SECTION: clean up git build'
 cd $REPO_PATH
 git reset --hard HEAD
@@ -119,7 +124,8 @@ DEPENDENCY_PKGS="devscripts \
 		 ca-certificates \
 		 equivs \
 		 git \
-		 git-buildpackage"
+		 git-buildpackage \
+		 autopkgtest"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
