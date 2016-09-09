@@ -32,7 +32,7 @@ call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zeromq-4.0.4-%PLATFORM_TO_BUILD%.zip zeromq-4.0.4-%PLATFORM_TO_BUILD%.zip
 
-call %win_lib% :download_7za 
+call %win_lib% :download_7za
 call %win_lib% :unzip_7za cppzmq-noarch.zip > cppzmq_7z.log || goto :error
 call %win_lib% :unzip_7za protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip > protobuf_7z.log || goto :error
 call %win_lib% :unzip_7za zeromq-4.0.4-%PLATFORM_TO_BUILD%.zip > zeromq_7z.log || goto :error
@@ -89,7 +89,7 @@ if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   REM able to handle it.
   ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV  || echo "tests failed"
   echo # END SECTION
-  
+
   echo # BEGIN SECTION: export testing results
   rmdir /q /s %TEST_RESULT_PATH%
   if exist %TEST_RESULT_PATH_LEGACY% ( rmdir /q /s %TEST_RESULT_PATH_LEGACY% )
