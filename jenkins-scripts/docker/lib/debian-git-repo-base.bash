@@ -125,7 +125,8 @@ DEPENDENCY_PKGS="devscripts \
 		 equivs \
 		 git \
 		 git-buildpackage \
-		 autopkgtest"
+		 autopkgtest \
+		 lxc"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
