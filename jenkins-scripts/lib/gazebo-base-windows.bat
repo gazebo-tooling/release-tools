@@ -63,6 +63,20 @@ hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_DIR
 call "%SCRIPT_DIR%/lib/ign_transport-base-windows.bat" || goto :error
 echo # END SECTION
 
+:: compile ign-math if needed. ign-transport will probably do it first
+set IGN_MATH_WS_DIR=%WORKSPACE%\workspace\ign-math
+if EXIST %IGN_MATH_WS_DIR% (
+  echo # BEGIN SECTION: ign-math already found
+  echo # END SECTION
+) ELSE (
+  echo # BEGIN SECTION: compile and install ign-math
+  set VCS_DIRECTORY=ign-math
+  set KEEP_WORKSPACE=TRUE
+  set ENABLE_TESTS=FALSE
+  call "%SCRIPT_DIR%/lib/ign_transport-base-windows.bat" || goto :error
+  echo # END SECTION
+)
+
 echo # BEGIN SECTION: compile and install sdformat
 set SDFORMAT_DIR=%WORKSPACE%\workspace\sdformat 
 if EXIST %SDFORMAT_DIR% ( rmdir /s /q %SDFORMAT_DIR% )
@@ -72,7 +86,7 @@ mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
 copy %WORKSPACE%\workspace\jom.exe .
-jom || goto :error
+jom -j %MAKE_JOBS% || goto :error
 nmake install
 echo # END SECTION
 
