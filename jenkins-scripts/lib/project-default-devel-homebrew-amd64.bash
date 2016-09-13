@@ -1,6 +1,8 @@
 #!/bin/bash -x
 set -e
 
+[[ -L ${0} ]] && SCRIPT_LIBDIR=$(readlink ${0}) || SCRIPT_LIBDIR=${0}
+SCRIPT_LIBDIR="${SCRIPT_LIBDIR%/*}"
 export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 
 # Get project name as first argument to this script
@@ -25,18 +27,10 @@ fi
 
 # Step 1. Set up homebrew
 echo "# BEGIN SECTION: clean up ${HOMEBREW_PREFIX}"
-sudo chown -R $(whoami):admin ${HOMEBREW_PREFIX}
-sudo chmod -R ug+rwx ${HOMEBREW_PREFIX}
-cd ${HOMEBREW_PREFIX}
-[[ -f .git ]] && git clean -fdx
-rm -rf ${HOMEBREW_CELLAR} ${HOMEBREW_PREFIX}/.git
+. ${SCRIPT_LIBDIR}/_homebrew_cleanup.bash
 brew cleanup || echo "brew cleanup couldn't be run"
 mkdir -p ${HOMEBREW_CELLAR}
 sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
-echo '# END SECTION'
-
-echo '# BEGIN SECTION: install latest homebrew'
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: brew information'
