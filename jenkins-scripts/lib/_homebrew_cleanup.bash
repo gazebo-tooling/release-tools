@@ -5,7 +5,10 @@ BREW_BINARY_DIR=/usr/local/bin
 BREW_BINARY=${BREW_BINARY_DIR}/brew
 
 # Clear all installed homebrew packages, links, taps, and kegs
-${BREW_BINARY} remove --force $(${BREW_BINARY} list)
+BREW_LIST=$(${BREW_BINARY} list)
+if [[ -n "${BREW_LIST}" ]]; then
+  ${BREW_BINARY} remove --force ${BREW_LIST}
+fi
 rm -rf /usr/local/lib/python2.7/site-packages
 ${BREW_BINARY} untap $(${BREW_BINARY} tap)
 
