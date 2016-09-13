@@ -10,7 +10,9 @@ if [[ -n "${BREW_LIST}" ]]; then
   ${BREW_BINARY} remove --force ${BREW_LIST}
 fi
 rm -rf /usr/local/lib/python2.7/site-packages
-${BREW_BINARY} untap $(${BREW_BINARY} tap)
+for t in $(${BREW_BINARY} tap | grep -v '^homebrew/core$'); do
+  ${BREW_BINARY} untap $t
+done
 
 # Restore the basic stuff
 if [[ -n ${SCRIPT_LIBDIR} ]]; then
