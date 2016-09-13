@@ -185,6 +185,8 @@ GAZEBO_EXTRA_DEPENDENCIES="libavformat-dev  \\
                            libavcodec-dev   \\
                            libgraphviz-dev  \\
                            libswscale-dev   \\
+                           libavutil-dev   \\
+                           libavdevice-dev   \\
                            ruby-ronn"
 
 # Player was removed starting from xenial
