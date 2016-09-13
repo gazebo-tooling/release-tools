@@ -26,6 +26,7 @@ fi
 # Step 1. Set up homebrew
 echo "# BEGIN SECTION: clean up ${HOMEBREW_PREFIX}"
 . ${SCRIPT_DIR}/lib/_homebrew_cleanup.bash
+. ${SCRIPT_DIR}/lib/_homebrew_base_setup.bash
 brew cleanup || echo "brew cleanup couldn't be run"
 mkdir -p ${HOMEBREW_CELLAR}
 sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
