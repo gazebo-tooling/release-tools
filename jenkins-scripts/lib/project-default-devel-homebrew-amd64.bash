@@ -1,8 +1,6 @@
 #!/bin/bash -x
 set -e
 
-[[ -L ${0} ]] && SCRIPT_LIBDIR=$(readlink ${0}) || SCRIPT_LIBDIR=${0}
-SCRIPT_LIBDIR="${SCRIPT_LIBDIR%/*}"
 export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 
 # Get project name as first argument to this script
@@ -27,7 +25,7 @@ fi
 
 # Step 1. Set up homebrew
 echo "# BEGIN SECTION: clean up ${HOMEBREW_PREFIX}"
-. ${SCRIPT_LIBDIR}/_homebrew_cleanup.bash
+. ${SCRIPT_DIR}/lib/_homebrew_cleanup.bash
 brew cleanup || echo "brew cleanup couldn't be run"
 mkdir -p ${HOMEBREW_CELLAR}
 sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
