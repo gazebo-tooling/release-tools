@@ -25,18 +25,11 @@ fi
 
 # Step 1. Set up homebrew
 echo "# BEGIN SECTION: clean up ${HOMEBREW_PREFIX}"
-sudo chown -R $(whoami):admin ${HOMEBREW_PREFIX}
-sudo chmod -R ug+rwx ${HOMEBREW_PREFIX}
-cd ${HOMEBREW_PREFIX}
-[[ -f .git ]] && git clean -fdx
-rm -rf ${HOMEBREW_CELLAR} ${HOMEBREW_PREFIX}/.git
+. ${SCRIPT_DIR}/lib/_homebrew_cleanup.bash
+. ${SCRIPT_DIR}/lib/_homebrew_base_setup.bash
 brew cleanup || echo "brew cleanup couldn't be run"
 mkdir -p ${HOMEBREW_CELLAR}
 sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
-echo '# END SECTION'
-
-echo '# BEGIN SECTION: install latest homebrew'
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: brew information'
