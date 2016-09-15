@@ -106,7 +106,11 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: run tests'
 cd $WORKSPACE/pkgs
+set +e
 autopkgtest -B *.deb *.dsc -- null
+# autopkgtest will return 0 if there are successful tests and 2 if there are no tests
+[[ $? > 2]] && exit 1
+set -e
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean up git build'
