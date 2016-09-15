@@ -4,36 +4,15 @@ set -e
 BREW_BINARY_DIR=/usr/local/bin
 BREW_BINARY=${BREW_BINARY_DIR}/brew
 
-# Backup brew executable.
-mv ${BREW_BINARY} /tmp/brew
-
 # Clear all installed homebrew packages, links, taps, and kegs
-rm -rf /usr/local/Cellar/*
-rm -rf /usr/local/bin/*
-rm -rf /usr/local/lib/*
-rm -rf /usr/local/include/*
-rm -rf /usr/local/Library/Taps/*
-rm -rf /usr/local/Library/LinkedKegs/*
-
-# Restore brew executable.
-mv /tmp/brew ${BREW_BINARY}
-
-# Restore the basic stuff
-if [[ -n ${SCRIPT_LIBDIR} ]]; then
-  . ${SCRIPT_LIBDIR}/dependencies_archive.sh
-elif [[ -n ${SCRIPT_DIR} ]]; then
-  . ${SCRIPT_DIR}/lib/dependencies_archive.sh
-else
-  echo "Can not find the dependencies_archive.sh"
-  exit -1
+BREW_LIST=$(${BREW_BINARY} list)
+if [[ -n "${BREW_LIST}" ]]; then
+  ${BREW_BINARY} remove --force ${BREW_LIST}
 fi
-
-${BREW_BINARY} update
-${BREW_BINARY} install ${BREW_BASE_DEPENDCIES}
-
-# Fix perms in /Library/Caches to work with admin group
-sudo chgrp -R admin /Library/Caches/Homebrew/
-sudo chmod -R g+w /Library/Caches/Homebrew/
+rm -rf /usr/local/lib/python2.7/site-packages
+for t in $(${BREW_BINARY} tap | grep -v '^homebrew/core$'); do
+  ${BREW_BINARY} untap $t
+done
 
 # test-bot needs variables and does not work just with config not sure why
 export GIT_AUTHOR_NAME="OSRF Build Bot"
