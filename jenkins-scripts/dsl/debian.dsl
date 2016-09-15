@@ -76,6 +76,8 @@ packages.each { repo_name, pkgs ->
             cleanBeforeCheckout()
             relativeTargetDirectory('repo')
           }
+
+          branch('refs/heads/master')
         }
       }
 
