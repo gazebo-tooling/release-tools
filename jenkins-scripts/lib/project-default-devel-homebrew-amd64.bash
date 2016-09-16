@@ -55,7 +55,7 @@ fi
 echo "# BEGIN SECTION: install ${PROJECT} dependencies"
 # Process the package dependencies
 brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
-brew install curl
+brew install curl --with-ssh2
 echo '# END SECTION'
 
 if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
