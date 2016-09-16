@@ -10,7 +10,9 @@ if [[ -n "${BREW_LIST}" ]]; then
   ${BREW_BINARY} remove --force ${BREW_LIST}
 fi
 rm -rf /usr/local/lib/python2.7/site-packages
-for t in $(${BREW_BINARY} tap | grep -v '^homebrew/core$'); do
+# redirect error to /dev/null to avoid temporal problems detected by
+# brew tap
+for t in $(${BREW_BINARY} tap 2>/dev/null | grep -v '^homebrew/core$'); do
   ${BREW_BINARY} untap $t
 done
 
