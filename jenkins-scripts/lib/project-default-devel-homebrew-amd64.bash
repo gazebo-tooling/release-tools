@@ -96,6 +96,7 @@ echo '# END SECTION'
 echo "# BEGIN SECTION: configure ${PROJECT}"
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT}/HEAD \
+      -DPKG_CONFIG_PATH:${PKG_CONFIG_PATH}:/usr/local/opt/curl/lib/pkgconfig \
      ${WORKSPACE}/${PROJECT_PATH}
 echo '# END SECTION'
 
