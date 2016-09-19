@@ -23,8 +23,9 @@ call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/bzip2-1.0.6-vc
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/dlfcn-win32-vc12-x64-release-debug.zip dlfcn-win32-vc12-x64-release-debug.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/freetype-2.4.0-vc12-x64-release-debug.zip freetype-2.4.0-vc12-x64-release-debug.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/libcurl-vc12-x64-release-debug-static-ipv6-sspi-winssl.zip libcurl-vc12-x64-release-debug-static-ipv6-sspi-winssl.zip	
-call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/ogre_src_v1-8-1-vc12-x64-release-debug.zip ogre_src_v1-8-1-vc12-x64-release-debug.zip
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/OGRE-SDK-1.9.0-vc120-x64-12.03.2016.zip OGRE-SDK-1.9.0-vc120-x64-12.03.2016.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/qwt_6.1.0~github_zalf_lsa.zip qwt_6.1.0~github_zalf_lsa.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/tbb43_20141023oss_win.zip tbb43_20141023oss_win.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zziplib-0.13.62-vc12-x64-release-debug.zip zziplib-0.13.62-vc12-x64-release-debug.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zlib-1.2.8-vc12-x64-release-debug.zip zlib-1.2.8-vc12-x64-release-debug.zip
@@ -37,8 +38,9 @@ call %win_lib% :unzip_7za bzip2-1.0.6-vc12-x64-release-debug.zip
 call %win_lib% :unzip_7za dlfcn-win32-vc12-x64-release-debug.zip
 call %win_lib% :unzip_7za freetype-2.4.0-vc12-x64-release-debug.zip
 call %win_lib% :unzip_7za libcurl-vc12-x64-release-debug-static-ipv6-sspi-winssl.zip
-call %win_lib% :unzip_7za ogre_src_v1-8-1-vc12-x64-release-debug.zip
+call %win_lib% :unzip_7za OGRE-SDK-1.9.0-vc120-x64-12.03.2016.zip
 call %win_lib% :unzip_7za protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip
+call %win_lib% :unzip_7za qwt_6.1.0~github_zalf_lsa.zip
 call %win_lib% :unzip_7za tbb43_20141023oss_win.zip
 call %win_lib% :unzip_7za zlib-1.2.8-vc12-x64-release-debug.zip
 call %win_lib% :unzip_7za zziplib-0.13.62-vc12-x64-release-debug.zip
@@ -51,18 +53,29 @@ echo # END SECTION
   echo # END SECTION
 )
 
-echo # BEGIN SECTION: compile and install ign-math
-set IGN_MATH_DIR=%WORKSPACE%\workspace\ign-math
-if EXIST %IGN_MATH_DIR% ( rmdir /s /q %IGN_MATH_DIR% )
-hg clone https://bitbucket.org/ignitionrobotics/ign-math %IGN_MATH_DIR%
-cd %IGN_MATH_DIR%
-mkdir build
-cd build
-call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
-copy %WORKSPACE%\workspace\jom.exe .
-jom
-nmake install
+echo # BEGIN SECTION: compile and install ign-transport
+set KEEP_WORKSPACE=TRUE
+set IGN_TEST_DISABLE=TRUE
+set IGN_TRANSPORT_DIR=%WORKSPACE%\ign-transport
+if EXIST %IGN_TRANSPORT_DIR% ( rmdir /s /q %IGN_TRANSPORT_DIR% )
+echo "REMOVE THE BRANCH AS SOON AS IT IS MERGED"
+hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_DIR% -b zmq_4_0_4
+call "%SCRIPT_DIR%/lib/ign_transport-base-windows.bat" || goto :error
 echo # END SECTION
+
+:: compile ign-math if needed. ign-transport will probably do it first
+set IGN_MATH_WS_DIR=%WORKSPACE%\workspace\ign-math
+if EXIST %IGN_MATH_WS_DIR% (
+  echo # BEGIN SECTION: ign-math already found
+  echo # END SECTION
+) ELSE (
+  echo # BEGIN SECTION: compile and install ign-math
+  set VCS_DIRECTORY=ign-math
+  set KEEP_WORKSPACE=TRUE
+  set ENABLE_TESTS=FALSE
+  call "%SCRIPT_DIR%/lib/ign_transport-base-windows.bat" || goto :error
+  echo # END SECTION
+)
 
 echo # BEGIN SECTION: compile and install sdformat
 set SDFORMAT_DIR=%WORKSPACE%\workspace\sdformat 
@@ -73,7 +86,7 @@ mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
 copy %WORKSPACE%\workspace\jom.exe .
-jom
+jom -j %MAKE_JOBS% || goto :error
 nmake install
 echo # END SECTION
 
