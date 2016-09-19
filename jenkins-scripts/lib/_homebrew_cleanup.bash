@@ -17,7 +17,7 @@ for t in $(${BREW_BINARY} tap 2>/dev/null | grep -v '^homebrew/core$'); do
   ${BREW_BINARY} untap $t
 done
 
-pushd ${HOMEBREW_PREFIX}/Homebrew/Library 2> /dev/null
+pushd $(brew --prefix)/Homebrew/Library 2> /dev/null
 git stash && git clean -d -f
 popd 2> /dev/null
 
