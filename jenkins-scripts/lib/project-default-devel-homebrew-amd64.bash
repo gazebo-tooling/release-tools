@@ -55,7 +55,6 @@ fi
 echo "# BEGIN SECTION: install ${PROJECT} dependencies"
 # Process the package dependencies
 brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
-brew install curl --with-ssh2
 echo '# END SECTION'
 
 if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
@@ -96,7 +95,6 @@ echo '# END SECTION'
 echo "# BEGIN SECTION: configure ${PROJECT}"
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT}/HEAD \
-      -DPKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/opt/curl/lib/pkgconfig \
      ${WORKSPACE}/${PROJECT_PATH}
 echo '# END SECTION'
 
