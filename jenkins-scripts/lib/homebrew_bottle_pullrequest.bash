@@ -11,10 +11,15 @@ set -e
 BOTTLE_JSON_DIR=${WORKSPACE}/pkgs
 
 echo '# BEGIN SECTION: check variables'
-if [ -z "${PULL_REQUEST_BRANCH}" ]; then
-  echo PULL_REQUEST_BRANCH not specified
+if [ -z "${PULL_REQUEST_URL}" ]; then
+  echo PULL_REQUEST_URL not specified
   exit -1
 fi
+PULL_REQUEST_API_URL=$(echo ${PULL_REQUEST_URL} \
+  | sed -e 's@^https://github\.com/@https://api.github.com/@' \
+        -e 's@/pull/\([0-9]\+\)/*$@/pulls/\1@')
+PULL_REQUEST_BRANCH=$(curl ${PULL_REQUEST_API_URL} \
+  | brew ruby -e "puts Utils::JSON.load(ARGF.read)['head']['ref']")
 
 if [ -z "${PACKAGE_ALIAS}" ]; then
   echo PACKAGE_ALIAS not specified
