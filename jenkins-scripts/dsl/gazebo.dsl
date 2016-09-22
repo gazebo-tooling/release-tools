@@ -259,7 +259,7 @@ gazebo_supported_branches.each { branch ->
         // ci_default job for the rest of arches / scm@daily
         def gazebo_ci_job = job("gazebo-ci-${branch}-${distro}-${arch}-gpu-${gpu}")
         OSRFLinuxCompilation.create(gazebo_ci_job)
-        OSRFBitbucketHg.create(gazebo_ci_job, "http://bitbucket.org/osrf/gazebo")
+        OSRFBitbucketHg.create(gazebo_ci_job, "http://bitbucket.org/osrf/gazebo", branch)
 
         gazebo_ci_job.with
         {
@@ -501,7 +501,7 @@ all_branches = gazebo_supported_branches + 'default' - 'gazebo2'
 all_branches.each { branch ->
   def gazebo_brew_ci_job = job("gazebo-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(gazebo_brew_ci_job)
-  OSRFBitbucketHg.create(gazebo_brew_ci_job, "http://bitbucket.org/osrf/gazebo")
+  OSRFBitbucketHg.create(gazebo_ci_job, "http://bitbucket.org/osrf/gazebo", branch)
 
   gazebo_brew_ci_job.with
   {
@@ -541,7 +541,7 @@ all_branches = gazebo_supported_branches + 'default' - 'gazebo_2.2' - 'gazebo_4.
 all_branches.each { branch ->
   def gazebo_win_ci_job = job("gazebo-ci-${branch}-windows7-amd64")
   OSRFWinCompilation.create(gazebo_win_ci_job)
-  OSRFBitbucketHg.create(gazebo_win_ci_job, "http://bitbucket.org/osrf/gazebo")
+  OSRFBitbucketHg.create(gazebo_ci_job, "http://bitbucket.org/osrf/gazebo", branch)
 
   gazebo_win_ci_job.with
   {
