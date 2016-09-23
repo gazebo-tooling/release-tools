@@ -39,16 +39,10 @@ abi_distro.each { distro ->
     abi_job_name = "sdformat-abichecker-any_to_any-${distro}-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABI.create(abi_job)
+    OSRFBitbucketHg.create(abi_job, "http://bitbucket.org/osrf/sdformat")
+
     abi_job.with
     {
-      scm
-      {
-        hg("http://bitbucket.org/osrf/sdformat") {
-          branch('default')
-          subdirectory("sdformat")
-        }
-      }
-
       steps {
         shell("""\
               #!/bin/bash -xe
@@ -70,15 +64,10 @@ ci_distro.each { distro ->
     // 1. Create the default ci jobs
     def sdformat_ci_job = job("sdformat-ci-default-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
+    OSRFBitbucketHg.create(sdformat_ci_job, "http://bitbucket.org/osrf/sdformat")
+
     sdformat_ci_job.with
     {
-      scm {
-        hg("http://bitbucket.org/osrf/sdformat") {
-          branch('default')
-          subdirectory("sdformat")
-        }
-      }
-
       triggers {
       	scm('*/5 * * * *')
       }
@@ -143,15 +132,10 @@ other_supported_distros.each { distro ->
     // ci_default job for the rest of arches / scm@daily
     def sdformat_ci_job = job("sdformat-ci-default-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
+    OSRFBitbucketHg.create(sdformat_ci_job, "http://bitbucket.org/osrf/sdformat")
+
     sdformat_ci_job.with
     {
-      scm {
-        hg("http://bitbucket.org/osrf/sdformat") {
-          branch('default')
-          subdirectory("sdformat")
-        }
-      }
-
       triggers {
         scm('@daily')
       }
@@ -176,16 +160,11 @@ sdformat_supported_branches.each { branch ->
       // ci_default job for the rest of arches / scm@daily
       def sdformat_ci_job = job("sdformat-ci-${branch}-${distro}-${arch}")
       OSRFLinuxCompilation.create(sdformat_ci_job)
+      OSRFBitbucketHg.create(sdformat_ci_job,
+                             "http://bitbucket.org/osrf/sdformat",
+                             get_sdformat_branch_name(branch))
       sdformat_ci_job.with
       {
-        scm
-        {
-          // The usual form using branch in the clousure does not work
-          hg("http://bitbucket.org/osrf/sdformat",
-             get_sdformat_branch_name(branch),
-             { node -> node / subdir << "sdformat" })
-        }
-
         triggers {
           scm('@daily')
         }
@@ -210,16 +189,10 @@ ci_distro.each { distro ->
   experimental_arches.each { arch ->
     def sdformat_ci_job = job("sdformat-ci-default-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
+    OSRFBitbucketHg.create(sdformat_ci_job, "http://bitbucket.org/osrf/sdformat")
+
     sdformat_ci_job.with
     {
-      scm
-      {
-        hg("http://bitbucket.org/osrf/sdformat") {
-          branch('default')
-          subdirectory("sdformat")
-        }
-      }
-
       triggers {
         scm('@weekly')
       }
@@ -274,17 +247,11 @@ ci_distro.each { distro ->
   supported_arches.each { arch ->
     def performance_job = job("sdformat-performance-default-${distro}-${arch}")
     OSRFLinuxPerformance.create(performance_job)
+    OSRFBitbucketHg.create(performance_job, "http://bitbucket.org/osrf/sdformat")
+
     performance_job.with
     {
       label "${performance_box}"
-
-      scm
-      {
-        hg("http://bitbucket.org/osrf/sdformat") {
-          branch('default')
-          subdirectory("sdformat")
-        }
-      }
 
       triggers {
         scm('@daily')
@@ -348,15 +315,12 @@ all_branches = sdformat_supported_branches + 'default' - 'sdformat2'
 all_branches.each { branch ->
   def sdformat_brew_ci_job = job("sdformat-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(sdformat_brew_ci_job)
-
+  OSRFBitbucketHg.create(sdformat_brew_ci_job,
+                         "http://bitbucket.org/osrf/sdformat",
+                         get_sdformat_branch_name(branch))
+ 
   sdformat_brew_ci_job.with
   {
-      scm {
-        hg("http://bitbucket.org/osrf/sdformat",
-           get_sdformat_branch_name(branch),
-           { node -> node / subdir << "sdformat" })
-      }
-
       triggers {
         scm('@daily')
       }
@@ -393,16 +357,10 @@ all_branches = sdformat_supported_branches + 'default'
 all_branches.each { branch ->
   def sdformat_win_ci_job = job("sdformat-ci-${branch}-windows7-amd64")
   OSRFWinCompilation.create(sdformat_win_ci_job)
+  OSRFBitbucketHg.create(sdformat_win_ci_job, "http://bitbucket.org/osrf/sdformat")
 
   sdformat_win_ci_job.with
   {
-      scm
-      {
-        hg("http://bitbucket.org/osrf/sdformat",
-           'default',
-           { node -> node / subdir << "sdformat" })
-      }
-
       triggers {
         scm('@daily')
       }

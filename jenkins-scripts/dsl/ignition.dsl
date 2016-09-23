@@ -37,18 +37,14 @@ ignition_software.each { ign_sw ->
     supported_arches.each { arch ->
       abi_job_names[ign_sw] = "ignition_${ign_sw}-abichecker-any_to_any-${distro}-${arch}"
       def abi_job = job(abi_job_names[ign_sw])
+      checkout_subdir = "ign-${ign_sw}"
+
       OSRFLinuxABI.create(abi_job)
+      OSRFBitbucketHg.create(abi_job,
+                            "http://bitbucket.org/ignitionrobotics/ign-${ign_sw}/", 
+                            "default", checkout_subdir)
       abi_job.with
       {
-        checkout_subdir = "ign-${ign_sw}"
-
-        scm {
-          hg("http://bitbucket.org/ignitionrobotics/ign-${ign_sw}") {
-            branch('default')
-            subdirectory(checkout_subdir)
-          }
-        }
-
         steps {
           shell("""\
                 #!/bin/bash -xe
@@ -161,15 +157,12 @@ ignition_software.each { ign_sw ->
       // ci_default job for the rest of arches / scm@daily
       def ignition_ci_job = job("ignition_${ign_sw}-ci-default-${distro}-${arch}")
       OSRFLinuxCompilation.create(ignition_ci_job)
+      OSRFBitbucketHg.create(ignition_ci_job,
+                            "http://bitbucket.org/ignitionrobotics/ign-${ign_sw}/", 
+                            "default", "ign-${ign_sw}")
+
       ignition_ci_job.with
       {
-          scm {
-            hg("http://bitbucket.org/ignitionrobotics/ign-${ign_sw}") {
-              branch('default')
-              subdirectory("ign-${ign_sw}")
-            }
-          }
-
           triggers {
             scm('@daily')
           }
@@ -232,17 +225,11 @@ ignition_software.each { ign_sw ->
   // 2. default
   def ignition_brew_ci_job = job("ignition_${ign_sw}-ci-default-homebrew-amd64")
   OSRFBrewCompilation.create(ignition_brew_ci_job)
-
+  OSRFBitbucketHg.create(ignition_brew_ci_job,
+                            "http://bitbucket.org/ignitionrobotics/ign-${ign_sw}/", 
+                            "default", "ign-${ign_sw}")
   ignition_brew_ci_job.with
   {
-      scm {
-        hg("http://bitbucket.org/ignitionrobotics/ign-${ign_sw}") {
-          branch('default')
-          // in brew use ign-math to match OSRFBrewCompilationAny mechanism
-          subdirectory("ign-${ign_sw}")
-        }
-      }
-
       triggers {
         scm('@daily')
       }
@@ -281,17 +268,12 @@ ignition_software.each { ign_sw ->
   // 2. default
   def ignition_win_ci_job = job("ignition_${ign_sw}-ci-default-windows7-amd64")
   OSRFWinCompilation.create(ignition_win_ci_job)
-
+  OSRFBitbucketHg.create(ignition_win_ci_job,
+                            "http://bitbucket.org/ignitionrobotics/ign-${ign_sw}/", 
+                            "default", "ign-${ign_sw}")
+ 
   ignition_win_ci_job.with
   {
-      scm {
-        hg("http://bitbucket.org/ignitionrobotics/ign-${ign_sw}") {
-          branch('default')
-          // in win use ign-math to match OSRFWinCompilationAny mechanism
-          subdirectory("ign-${ign_sw}")
-        }
-      }
-
       triggers {
         scm('@daily')
       }
