@@ -414,6 +414,7 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          libavcodec-dev        \\
                          libswscale-dev        \\
                          libavutil-dev         \\
+                         libavdevice-dev       \\
                          uuid-dev"
 
 #
