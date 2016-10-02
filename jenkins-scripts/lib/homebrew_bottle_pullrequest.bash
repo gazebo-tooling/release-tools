@@ -16,10 +16,10 @@ if [ -z "${PULL_REQUEST_URL}" ]; then
   exit -1
 fi
 PULL_REQUEST_API_URL=$(echo ${PULL_REQUEST_URL} \
-  | sed -e 's@^https://github\.com/@https://api.github.com/@' \
+  | sed -e 's@^https://github\.com/@https://api.github.com/repos/@' \
         -e 's@/pull/\([0-9]\+\)/*$@/pulls/\1@')
 PULL_REQUEST_BRANCH=$(curl ${PULL_REQUEST_API_URL} \
-  | brew ruby -e "puts Utils::JSON.load(ARGF.read)['head']['ref']")
+  | python -c 'import json, sys; print(json.loads(sys.stdin.read())["head"]["ref"])')
 
 if [ -z "${PACKAGE_ALIAS}" ]; then
   echo PACKAGE_ALIAS not specified

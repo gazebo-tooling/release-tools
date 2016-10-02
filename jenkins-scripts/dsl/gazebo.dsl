@@ -135,15 +135,10 @@ ci_distro.each { distro ->
       // 2. Create the default ci jobs
       def gazebo_ci_job = job("gazebo-ci-default-${distro}-${arch}-gpu-${gpu}")
       OSRFLinuxCompilation.create(gazebo_ci_job)
+      OSRFBitbucketHg.create(gazebo_ci_job, "http://bitbucket.org/osrf/gazebo")
+      
       gazebo_ci_job.with
       {
-        scm {
-          hg("http://bitbucket.org/osrf/gazebo") {
-            branch('default')
-            subdirectory("gazebo")
-          }
-        }
-
         if (gpu != 'none')
         {
           label "gpu-${gpu}-${distro}"
@@ -186,14 +181,10 @@ other_supported_distros.each { distro ->
       // ci_default job for the rest of arches / scm@daily
       def gazebo_ci_job = job("gazebo-ci-default-${distro}-${arch}-gpu-${gpu}")
       OSRFLinuxCompilation.create(gazebo_ci_job)
+      OSRFBitbucketHg.create(gazebo_ci_job, "http://bitbucket.org/osrf/gazebo")
+
       gazebo_ci_job.with
       {
-        scm {
-          hg("http://bitbucket.org/osrf/gazebo") {
-            branch('default')
-            subdirectory("gazebo")
-          }
-        }
 
         if (gpu != 'none')
         {
@@ -268,16 +259,10 @@ gazebo_supported_branches.each { branch ->
         // ci_default job for the rest of arches / scm@daily
         def gazebo_ci_job = job("gazebo-ci-${branch}-${distro}-${arch}-gpu-${gpu}")
         OSRFLinuxCompilation.create(gazebo_ci_job)
+        OSRFBitbucketHg.create(gazebo_ci_job, "http://bitbucket.org/osrf/gazebo", branch)
+
         gazebo_ci_job.with
         {
-          scm
-          {
-            // The usual form using branch in the clousure does not work
-            hg("http://bitbucket.org/osrf/gazebo",
-               branch,
-               { node -> node / subdir << "gazebo" })
-          }
-
           label "gpu-${gpu}-${distro}"
 
           triggers {
@@ -305,16 +290,10 @@ ci_distro.each { distro ->
   experimental_arches.each { arch ->
     def gazebo_ci_job = job("gazebo-ci-default-${distro}-${arch}-gpu-none")
     OSRFLinuxCompilation.create(gazebo_ci_job)
+    OSRFBitbucketHg.create(gazebo_ci_job, "http://bitbucket.org/osrf/gazebo")
+
     gazebo_ci_job.with
     {
-      scm
-      {
-        hg("http://bitbucket.org/osrf/gazebo") {
-          branch('default')
-          subdirectory("gazebo")
-        }
-      }
-
       triggers {
         scm('@weekly')
       }
@@ -338,16 +317,10 @@ ci_distro.each { distro ->
     gazebo_supported_build_types.each { build_type ->
       def gazebo_ci_job = job("gazebo-ci_BT${build_type}-default-${distro}-${arch}-gpu-none")
       OSRFLinuxCompilation.create(gazebo_ci_job)
+      OSRFBitbucketHg.create(gazebo_ci_job, "http://bitbucket.org/osrf/gazebo")
+
       gazebo_ci_job.with
       {
-        scm
-        {
-          hg("http://bitbucket.org/osrf/gazebo") {
-            branch('default')
-            subdirectory("gazebo")
-          }
-        }
-
         triggers {
           scm('@daily')
         }
@@ -439,17 +412,11 @@ ci_distro.each { distro ->
   supported_arches.each { arch ->
     def performance_job = job("gazebo-performance-default-${distro}-${arch}")
     OSRFLinuxPerformance.create(performance_job)
+    OSRFBitbucketHg.create(performance_job, "http://bitbucket.org/osrf/gazebo")
+
     performance_job.with
     {
       label "${performance_box}"
-
-      scm
-      {
-        hg("http://bitbucket.org/osrf/gazebo") {
-          branch('default')
-          subdirectory("gazebo")
-        }
-      }
 
       label "gpu-" + ci_gpu[0] + "-${distro}"
 
@@ -534,15 +501,10 @@ all_branches = gazebo_supported_branches + 'default' - 'gazebo2'
 all_branches.each { branch ->
   def gazebo_brew_ci_job = job("gazebo-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(gazebo_brew_ci_job)
+  OSRFBitbucketHg.create(gazebo_brew_ci_job, "http://bitbucket.org/osrf/gazebo", branch)
 
   gazebo_brew_ci_job.with
   {
-      scm {
-        hg("http://bitbucket.org/osrf/gazebo",
-           branch,
-           { node -> node / subdir << "gazebo" })
-      }
-
       triggers {
         scm('@daily')
       }
@@ -579,16 +541,10 @@ all_branches = gazebo_supported_branches + 'default' - 'gazebo_2.2' - 'gazebo_4.
 all_branches.each { branch ->
   def gazebo_win_ci_job = job("gazebo-ci-${branch}-windows7-amd64")
   OSRFWinCompilation.create(gazebo_win_ci_job)
+  OSRFBitbucketHg.create(gazebo_win_ci_job, "http://bitbucket.org/osrf/gazebo", branch)
 
   gazebo_win_ci_job.with
   {
-      scm
-      {
-        hg("http://bitbucket.org/osrf/gazebo",
-           'default',
-           { node -> node / subdir << "gazebo" })
-      }
-
       triggers {
         scm('@daily')
       }
