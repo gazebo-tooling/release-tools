@@ -44,7 +44,7 @@ for F_WITH_NEW_HASH in ${FILES_WITH_NEW_HASH}; do
 	# FORMULA_FULL_NAME is osrf/similation/$package_name
 	PACKAGE_ALIAS=${FORMULA_FULL_NAME##*/}
 	# Use it to get the formula path
-	. ${SCRIPT_LIBDIR}/_homebrew_github_get_formula_path
+	. ${SCRIPT_LIBDIR}/_homebrew_github_get_formula_path.bash
 
 	if [ -z "${FORMULA_PATH}" ]; then
 		echo FORMULA_PATH not specified
