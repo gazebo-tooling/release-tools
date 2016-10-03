@@ -38,7 +38,9 @@ if [ -z "${TAP_PREFIX}" ]; then
 fi
 
 for F_WITH_NEW_HASH in ${FILES_WITH_NEW_HASH}; do
-  # Need to get the formula name from json	
+  # Need to get the formula name and version from json
+  VERSION=$(${BREW} ruby -e \
+		"puts Utils::JSON.load(IO.read(\"${F_WITH_NEW_HASH}\")).values[0]['formula']['pkg_version']")
 	FORMULA_FULL_NAME=$(${BREW} ruby -e \
 		"puts Utils::JSON.load(IO.read(\"${F_WITH_NEW_HASH}\")).keys[0]")
 	# FORMULA_FULL_NAME is osrf/similation/$package_name
@@ -56,7 +58,7 @@ for F_WITH_NEW_HASH in ${FILES_WITH_NEW_HASH}; do
 	${GIT} checkout ${PULL_REQUEST_BRANCH}
 	echo '# END SECTION'
 
-	echo '# BEGIN SECTION: update hash in formula'
+	echo "# BEGIN SECTION: update hash in formula ${PACKAGE_ALIAS}"
 	DISTRO=yosemite
 	# Check if json has existing bottle entry for this DISTRO
 	NEW_HASH=$(${BREW} ruby -e \
