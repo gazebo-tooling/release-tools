@@ -25,11 +25,6 @@ if [ -z "${PACKAGE_ALIAS}" ]; then
   echo PACKAGE_ALIAS not specified
   exit -1
 fi
-
-if [[ $(ls ${BOTTLE_JSON_DIR}/*.json | wc -l) != 1 ]]; then
-  echo "There is more than one .json file in ${BOTTLE_JSON_DIR}"
-  exit -1
-fi
 echo '# END SECTION'
 
 FILES_WITH_NEW_HASH="$(ls ${BOTTLE_JSON_DIR}/*.json)"
