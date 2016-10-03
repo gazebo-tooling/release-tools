@@ -410,6 +410,11 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          libignition-math2-dev \\
                          libfreeimage-dev      \\
                          libgts-dev            \\
+                         libavformat-dev       \\
+                         libavcodec-dev        \\
+                         libswscale-dev        \\
+                         libavutil-dev         \\
+                         libavdevice-dev       \\
                          uuid-dev"
 
 #
