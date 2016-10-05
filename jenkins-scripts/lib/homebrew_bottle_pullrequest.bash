@@ -20,11 +20,6 @@ PULL_REQUEST_API_URL=$(echo ${PULL_REQUEST_URL} \
         -e 's@/pull/\([0-9]\+\)/*$@/pulls/\1@')
 PULL_REQUEST_BRANCH=$(curl ${PULL_REQUEST_API_URL} \
   | python -c 'import json, sys; print(json.loads(sys.stdin.read())["head"]["ref"])')
-
-if [ -z "${PACKAGE_ALIAS}" ]; then
-  echo PACKAGE_ALIAS not specified
-  exit -1
-fi
 echo '# END SECTION'
 
 FILES_WITH_NEW_HASH="$(ls ${BOTTLE_JSON_DIR}/*.json)"
