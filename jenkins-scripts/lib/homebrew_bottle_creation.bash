@@ -31,12 +31,12 @@ brew install hg
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export bottle'
-if [[ $(find . -name '*.bottle.*' | wc -l | sed 's/^ *//') != 2 ]]; then
-  echo "Can not find the two bottle files"
+if [[ $(find . -name '*.bottle.*' | wc -l | sed 's/^ *//') -lt 2 ]]; then
+  echo "Can not find at least two bottle files. Something went wrong."
   exit -1
 fi
 
-mv *.bottle.tar.gz ${PKG_DIR}
+mv *.bottle*.tar.gz ${PKG_DIR}
 mv *.bottle.json ${PKG_DIR}
 
 echo '# END SECTION'
