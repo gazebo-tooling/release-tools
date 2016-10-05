@@ -215,9 +215,9 @@ ignition_software.each { ign_sw ->
               #!/bin/bash -xe
 
               export HOMEBREW_SCRIPT="./scripts/jenkins-scripts/ign_${ign_sw}-default-devel-homebrew-amd64.bash"
-              if [ -s "${HOMEBREW_SCRIPT}" ]
+              if [ -s "$HOMEBREW_SCRIPT" ]
               then
-                /bin/bash -xe "${HOMEBREW_SCRIPT}"
+                /bin/bash -xe "$HOMEBREW_SCRIPT"
               else
                 /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash ignition-${ign_sw}"
               fi
