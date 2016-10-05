@@ -35,51 +35,51 @@ fi
 for F_WITH_NEW_HASH in ${FILES_WITH_NEW_HASH}; do
   # Need to get the formula name and version from json
   VERSION=$(${BREW} ruby -e \
-	"puts Utils::JSON.load(IO.read(\"${F_WITH_NEW_HASH}\")).values[0]['formula']['pkg_version']")
-	FORMULA_FULL_NAME=$(${BREW} ruby -e \
-		"puts Utils::JSON.load(IO.read(\"${F_WITH_NEW_HASH}\")).keys[0]")
-	# FORMULA_FULL_NAME is osrf/similation/$package_name
-	PACKAGE_ALIAS=${FORMULA_FULL_NAME##*/}
-	# Use it to get the formula path
-	. ${SCRIPT_LIBDIR}/_homebrew_github_get_formula_path.bash
+  puts Utils::JSON.load(IO.read(\"${F_WITH_NEW_HASH}\")).values[0]['formula']['pkg_version']")
+  FORMULA_FULL_NAME=$(${BREW} ruby -e \
+    "puts Utils::JSON.load(IO.read(\"${F_WITH_NEW_HASH}\")).keys[0]")
+  # FORMULA_FULL_NAME is osrf/similation/$package_name
+  PACKAGE_ALIAS=${FORMULA_FULL_NAME##*/}
+  # Use it to get the formula path
+  . ${SCRIPT_LIBDIR}/_homebrew_github_get_formula_path.bash
 
-	if [ -z "${FORMULA_PATH}" ]; then
-		echo FORMULA_PATH not specified
-		exit -1
-	fi
+  if [ -z "${FORMULA_PATH}" ]; then
+    echo FORMULA_PATH not specified
+    exit -1
+  fi
 
-	echo '# BEGIN SECTION: checkout pull request branch'
-	GIT="git -C ${TAP_PREFIX}"
-	${GIT} checkout ${PULL_REQUEST_BRANCH}
-	echo '# END SECTION'
+  echo '# BEGIN SECTION: checkout pull request branch'
+  GIT="git -C ${TAP_PREFIX}"
+  ${GIT} checkout ${PULL_REQUEST_BRANCH}
+  echo '# END SECTION'
 
-	echo "# BEGIN SECTION: update hash in formula ${PACKAGE_ALIAS}"
-	DISTRO=yosemite
-	# Check if json has existing bottle entry for this DISTRO
-	NEW_HASH=$(${BREW} ruby -e \
-		"puts Utils::JSON.load(IO.read(\"${F_WITH_NEW_HASH}\") \
-				).values[0]['bottle']['tags'][\"${DISTRO}\"]['sha256']")
-	echo NEW_HASH: ${NEW_HASH}
-	# Check if formula has existing bottle entry for this DISTRO
-	if ${BREW} ruby -e \
-		"exit (\"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select \
-		{ |d| d.value?(:${DISTRO}) }).length == 1"
-	then
-		echo bottle specification for distro ${DISTRO} found
-		OLD_HASH=$(${BREW} ruby -e \
-			"puts \"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select \
-			{ |d| d.value?(:${DISTRO}) }[0].keys[0]")
-	else
-		echo bottle specification for distro ${DISTRO} not found
-		echo unable to update formula
-		exit -1
-	fi
-	echo OLD_HASH: ${OLD_HASH}
-	SED_FIND___="sha256 \"${OLD_HASH}\" => :${DISTRO}"
-	SED_REPLACE="sha256 \"${NEW_HASH}\" => :${DISTRO}"
-	sed -i -e "s@${SED_FIND___}@${SED_REPLACE}@" ${FORMULA_PATH}
-	echo '# END SECTION'
+  echo "# BEGIN SECTION: update hash in formula ${PACKAGE_ALIAS}"
+  DISTRO=yosemite
+  # Check if json has existing bottle entry for this DISTRO
+  NEW_HASH=$(${BREW} ruby -e \
+    "puts Utils::JSON.load(IO.read(\"${F_WITH_NEW_HASH}\") \
+        ).values[0]['bottle']['tags'][\"${DISTRO}\"]['sha256']")
+  echo NEW_HASH: ${NEW_HASH}
+  # Check if formula has existing bottle entry for this DISTRO
+  if ${BREW} ruby -e \
+    "exit (\"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select \
+    { |d| d.value?(:${DISTRO}) }).length == 1"
+  then
+    echo bottle specification for distro ${DISTRO} found
+    OLD_HASH=$(${BREW} ruby -e \
+      "puts \"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select \
+      { |d| d.value?(:${DISTRO}) }[0].keys[0]")
+  else
+    echo bottle specification for distro ${DISTRO} not found
+    echo unable to update formula
+    exit -1
+  fi
+  echo OLD_HASH: ${OLD_HASH}
+  SED_FIND___="sha256 \"${OLD_HASH}\" => :${DISTRO}"
+  SED_REPLACE="sha256 \"${NEW_HASH}\" => :${DISTRO}"
+  sed -i -e "s@${SED_FIND___}@${SED_REPLACE}@" ${FORMULA_PATH}
+  echo '# END SECTION'
 
-	COMMIT_MESSAGE_SUFFIX=" bottle"
-	. ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
+  COMMIT_MESSAGE_SUFFIX=" bottle"
+  . ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
 done
