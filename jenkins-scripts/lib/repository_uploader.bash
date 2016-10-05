@@ -149,7 +149,8 @@ done
 for pkg in `ls $pkgs_path/*.bottle.tar.gz`; do
   # There could be more than one bottle exported so do not relay on variables
   # and extract information from bottles filenames
-  pkg_name=${pkg%-*} # remove from the last - until the end
+  pkg_filename=${pkg##*/} # leave file name only
+  pkg_name=${pkg_filename%-*} # remove from the last - until the end
   pkg_canonical_name=${pkg_name/[0-9]*} # remove all version from name
   s3_directory=${pkg_canonical_name/ignition/ign} # use short version ignition
 
