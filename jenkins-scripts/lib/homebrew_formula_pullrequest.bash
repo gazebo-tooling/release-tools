@@ -74,6 +74,16 @@ SHA_LINE=`awk "/${SHA}/ {print FNR}" ${FORMULA_PATH} | head -1`
 echo on line number ${SHA_LINE}
 sed -i -e "${SHA_LINE}c\  sha256 \"${SOURCE_TARBALL_SHA}\"" ${FORMULA_PATH}
 
+echo
+# revision line if it's nonzero
+FORMULA_REVISION=$(${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.pkg_version.revision")
+if [ "$FORMULA_REVISION" -gt 0 ]; then
+  echo Deleting formula revision $FORMULA_REVISION
+  FORMULA_REVISION_LINE=$(awk "/  revision ${FORMULA_REVISION}/ {print FNR}" ${FORMULA_PATH} | head -1)
+  echo on line number ${FORMULA_REVISION_LINE}
+  sed -i -e "${FORMULA_REVISION_LINE}d" ${FORMULA_PATH}
+fi
+
 # create branch with name and sanitized version string
 PULL_REQUEST_BRANCH="${PACKAGE_ALIAS}_`echo ${VERSION} | tr ' ~:^?*[' '_'`"
 
