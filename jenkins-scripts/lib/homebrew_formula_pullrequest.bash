@@ -27,6 +27,7 @@ fi
 echo '# END SECTION'
 
 . ${SCRIPT_LIBDIR}/_homebrew_github_setup.bash
+. ${SCRIPT_LIBDIR}/_homebrew_github_get_formula_path.bash
 
 echo '# BEGIN SECTION: calculating the SHA hash and changing the formula'
 # get stable uri and its line number

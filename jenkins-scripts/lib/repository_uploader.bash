@@ -147,14 +147,20 @@ done
 
 # .bottle | brew binaries
 for pkg in `ls $pkgs_path/*.bottle.tar.gz`; do
-  # S3_UPLOAD_PATH should be send by the upstream job
-  if [[ -z ${S3_UPLOAD_PATH} ]]; then
-    echo "S3_UPLOAD_PATH was not defined. Not uploading"
+  # There could be more than one bottle exported so do not relay on variables
+  # and extract information from bottles filenames
+  pkg_filename=${pkg##*/} # leave file name only
+  pkg_name=${pkg_filename%-*} # remove from the last - until the end
+  pkg_canonical_name=${pkg_name/[0-9]*} # remove all version from name
+  s3_directory=${pkg_canonical_name/ignition/ign} # use short version ignition
+
+  if [[ -z ${s3_directory} ]]; then
+    echo "Failed to infer s3 directory from bottle filename: ${pkg}"
     exit 1
   fi
   
   # Seems important to upload the path with a final slash
-  S3_upload ${pkg} "${S3_UPLOAD_PATH}"
+  S3_upload ${pkg} "${s3_directory}/releases/"
 done
 
 # Check for no reprepro uploads to finish here

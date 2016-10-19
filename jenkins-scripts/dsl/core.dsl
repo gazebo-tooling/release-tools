@@ -174,8 +174,6 @@ bottle_job_builder.with
           parameters {
             currentBuild()
               predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-              predefinedProp("S3_UPLOAD_PATH", "\${PACKAGE}/releases/")
-              predefinedProp("S3_UPLOAD_CANONICAL_PATH", "true")
               predefinedProp("UPLOAD_TO_REPO", "only_s3_upload")
               predefinedProp("ARCH",           "64bits")
           }
