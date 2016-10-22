@@ -115,6 +115,68 @@ other_supported_distros.each { distro ->
                 """.stripIndent())
         }
      }
+
+    // --------------------------------------------------------------
+    // 2. Create the deb build for ihmc-valyrie-ros
+    def build_pkg_job = job("ihmc_valkyrie_ros-debbuilder")
+    OSRFLinuxBuildPkgBase.create(build_pkg_job)
+
+    build_pkg_job.with
+    {
+      scm {
+        git {
+          remote {
+            github('j-rivero/ihmc_valkyrie_ros-debian', 'https')
+          }
+
+          extensions {
+            cleanBeforeCheckout()
+            relativeTargetDirectory('repo')
+          }
+        }
+      }
+
+      concurrentBuild(true)
+
+      throttleConcurrentBuilds {
+        maxPerNode(1)
+        maxTotal(5)
+      }
+
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export LINUX_DISTRO=ubuntu
+              export ARCH=${arch}
+              export DISTRO=${distro}
+              export USE_ROS_REPO=true
+
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/debian-git-debbuild.bash
+              """.stripIndent())
+      }
+
+      publishers
+      {
+        publishers {
+          archiveArtifacts('pkgs/*')
+
+          downstreamParameterized {
+            trigger('repository_uploader_ng') {
+              condition('SUCCESS')
+              parameters {
+                currentBuild()
+                predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+                predefinedProp("UPLOAD_TO_REPO", "stable")
+                predefinedProp("PACKAGE_ALIAS" , "ihmc_valkyrie_ros")
+                predefinedProp("DISTRO",         "${distro}")
+                predefinedProp("ARCH",           "${arch}")
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
 
