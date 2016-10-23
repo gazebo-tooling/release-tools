@@ -121,7 +121,7 @@ other_supported_distros.each { distro ->
 all_supported_distros.each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
-    // 2. Install pkg testing
+    // 1. Install srcsim testing pkg testing
     def install_default_job = job("srcim-install_pkg-${distro}-${arch}")
     OSRFLinuxInstall.create(install_default_job)
     install_default_job.with
@@ -142,6 +142,29 @@ all_supported_distros.each { distro ->
             """.stripIndent())
       }
     } // end of with
+
+    // 2. Install ihmc-ros-valkyrie testing pkg testing
+    def ihmc_install_default_job = job("ihmc_valkyrie_ros-install_pkg-${distro}-${arch}")
+    OSRFLinuxInstall.create(ihmc_install_default_job)
+    ihmc_install_default_job.with
+    {
+      triggers {
+        cron('@daily')
+      }
+
+      steps {
+        shell("""\
+            #!/bin/bash -xe
+
+            export DISTRO=${distro}
+            export ARCH=${arch}
+            export INSTALL_JOB_PKG=ros-indigo-ihmc-valkyrie-ros
+            export INSTALL_JOB_REPOS=stable
+            /bin/bash -x. /scripts/jenkins-scripts/docker/srcsim-install-test-job.bash
+            """.stripIndent())
+      }
+    } // end of with
+
   }
 }
 
@@ -212,6 +235,7 @@ ihmc_build_pkg.with
     publishers {
       archiveArtifacts('pkgs/*')
 
+      /* temporary hosted in external server
       downstreamParameterized {
         trigger('repository_uploader_ng') {
           condition('SUCCESS')
@@ -224,7 +248,7 @@ ihmc_build_pkg.with
             predefinedProp("ARCH",           "${ihmc_arch}")
           }
         }
-      }
+      } */
     }
   }
 }
