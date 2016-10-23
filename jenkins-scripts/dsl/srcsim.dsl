@@ -138,7 +138,7 @@ all_supported_distros.each { distro ->
             export ARCH=${arch}
             export INSTALL_JOB_PKG=srcsim
             export INSTALL_JOB_REPOS=stable
-            /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+            /bin/bash -x. /scripts/jenkins-scripts/docker/srcsim-install-test-job.bash
             """.stripIndent())
       }
     } // end of with
