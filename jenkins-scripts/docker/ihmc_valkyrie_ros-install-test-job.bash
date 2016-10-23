@@ -16,9 +16,7 @@ sudo apt-get update
 """
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
-echo '# BEGIN SECTION: testing by running  launch file'
-wget -O /tmp/control.tar.gz http://models.gazebosim.org/control_console/model.tar.gz && tar xvf /tmp/control.tar.gz -C ~/.gazebo/models
-
+echo '# BEGIN SECTION: testing by running ihmc_valkyrie_ros launch file'
 . /opt/ros/indigo/setup.bash
 
 TEST_START=\`date +%s\`
