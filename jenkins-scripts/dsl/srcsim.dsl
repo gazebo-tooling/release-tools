@@ -75,7 +75,6 @@ ci_distro.each { distro ->
                 """.stripIndent())
         }
     }
-
   }
 }
 
@@ -122,28 +121,27 @@ other_supported_distros.each { distro ->
 all_supported_distros.each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
-    def install_default_job = job("srcsim-install-one_liner-${distro}-${arch}")
+    // 2. Install pkg testing
+    def install_default_job = job("srcim-install_pkg-${distro}-${arch}")
     OSRFLinuxInstall.create(install_default_job)
-    // GPU label
-    include_gpu_label(install_default_job, distro)
-
     install_default_job.with
     {
-       triggers {
-         cron('@daily')
-       }
-
-       steps {
-        shell("""\
-              #!/bin/bash -xe
-
-              export DISTRO=${distro}
-              export ARCH=${arch}
-
-              /bin/bash -x ./scripts/jenkins-scripts/docker/srcsim-install-test-job.bash
-              """.stripIndent())
+      triggers {
+        cron('@daily')
       }
-    }
+
+      steps {
+        shell("""\
+            #!/bin/bash -xe
+
+            export DISTRO=${distro}
+            export ARCH=${arch}
+            export INSTALL_JOB_PKG=srcsim
+            export INSTALL_JOB_REPOS=stable
+            /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+            """.stripIndent())
+      }
+    } // end of with
   }
 }
 

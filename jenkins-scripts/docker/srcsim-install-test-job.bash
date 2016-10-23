@@ -10,26 +10,13 @@ export GPU_SUPPORT_NEEDED=true
 export INSTALL_JOB_PKG=""
 export INSTALL_JOB_REPOS=""
 
-INSTALL_JOB_POSTINSTALL_HOOK="""
-echo '# BEGIN SECTION: run the one-liner installation'
-curl -ssL http://get.srcsim.gazebosim.org | sh
-echo '# END SECTION'
-
-
-echo '# BEGIN SECTION: test the script'
-TEST_START=\`date +%s\`
-timeout --preserve-status 180 TODOOOOOO --verbose || true
-TEST_END=\`date +%s\`
-DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
-
-if [ \$DIFF -lt 180 ]; then
-   echo 'The test took less than 180s. Something bad happened'
-   exit 1
-fi
-echo '# END SECTION'
+INSTALL_JOB_PREINSTALL_HOOK="""
+# import the SRC repo
+echo \"deb http://52.53.157.231/src ${DISTRO} main\" >\\
+                                           /etc/apt/sources.list.d/src.list
+apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
+wget -qO - http://52.53.157.231/src/src.key | sudo apt-key add -
+sudo apt-get update
 """
-
-# Need bc to proper testing and parsing the time
-export DEPENDENCY_PKGS DEPENDENCY_PKGS="bc"
 
 . ${SCRIPT_DIR}/lib/generic-install-base.bash
