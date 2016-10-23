@@ -21,7 +21,7 @@ mkdir -p ~/.gazebo/models
 wget -O /tmp/control.tar.gz http://models.gazebosim.org/control_console/model.tar.gz && tar xvf /tmp/control.tar.gz -C ~/.gazebo/models
 
 . /opt/ros/indigo/setup.bash
-export ROS_PACKAGE_PATH=\${ROS_PACKAGE_PATH}:/opt/nasa/indigo/share:/opt/nasa/indigo/stacks
+. /opt/nasa/indigo/setup.bash
 
 TEST_START=\`date +%s\`
 timeout --preserve-status 180 roslaunch srcsim qual1.launch extra_gazebo_args:=\"-r\" init:=\"true\" || true

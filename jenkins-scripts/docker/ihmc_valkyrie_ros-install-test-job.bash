@@ -18,6 +18,7 @@ sudo apt-get update
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: testing by running ihmc_valkyrie_ros launch file'
 . /opt/ros/indigo/setup.bash
+. /opt/nasa/indigo/setup.bash
 
 TEST_START=\`date +%s\`
 timeout --preserve-status 180 roslaunch ihmc_valkyrie_ros ihmc_valkyrie_scs.launch extra_gazebo_args:=\"--verbose\" || true
