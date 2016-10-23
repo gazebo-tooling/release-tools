@@ -255,6 +255,19 @@ ihmc_build_pkg.with
         }
       } */
     }
+
+    postBuildScripts {
+      steps {
+        shell("""\
+          #!/bin/bash -xe
+
+          [[ -d \${WORKSPACE}/repo ]] && sudo chown -R jenkins \${WORKSPACE}/repo
+          """.stripIndent())
+      }
+
+      onlyIfBuildSucceeds(false)
+      onlyIfBuildFails(false)
+    }
   }
 }
 
