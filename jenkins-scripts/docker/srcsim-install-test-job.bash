@@ -6,10 +6,6 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export GPU_SUPPORT_NEEDED=true
 
-# Both empty, the one line script should handle all the stuff
-export INSTALL_JOB_PKG=""
-export INSTALL_JOB_REPOS=""
-
 INSTALL_JOB_PREINSTALL_HOOK="""
 # import the SRC repo
 echo \"deb http://52.53.157.231/src ${DISTRO} main\" >\\
