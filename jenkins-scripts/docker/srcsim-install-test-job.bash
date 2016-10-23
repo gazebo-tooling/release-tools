@@ -15,4 +15,24 @@ curl http://52.53.157.231/src/src.key | sudo apt-key add -
 sudo apt-get update
 """
 
+INSTALL_JOB_POSTINSTALL_HOOK="""
+echo '# BEGIN SECTION: testing by running qual1 launch file'
+wget -O /tmp/control.tar.gz http://models.gazebosim.org/control_console/model.tar.gz && tar xvf /tmp/control.tar.gz -C ~/.gazebo/models
+
+. /opt/ros/indigo/setup.bash
+
+TEST_START=\`date +%s\`
+timeout --preserve-status 180 roslaunch srcsim qual1.launch extra_gazebo_args:=\"-r\" init:=\"true\" || true
+TEST_END=\`date +%s\`
+DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
+
+if [ \$DIFF -lt 180 ]; then
+   echo 'The test took less than 180s. Something bad happened'
+   exit 1
+fi
+echo '# END SECTION'
+"""
+# Need bc to proper testing and parsing the time
+export DEPENDENCY_PKGS DEPENDENCY_PKGS="wget bc"
+
 . ${SCRIPT_DIR}/lib/generic-install-base.bash
