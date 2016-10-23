@@ -2,7 +2,7 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 def ci_distro = [ 'trusty' ]
-def other_supported_distros = [ 'xenial' ]
+// def other_supported_distros = [ 'xenial' ]
 def all_supported_distros = ci_distro + other_supported_distros
 def supported_arches = [ 'amd64' ]
 
