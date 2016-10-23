@@ -168,10 +168,10 @@ build_pkg_job.with
 
 // --------------------------------------------------------------
 // ihmc-valyrie-ros package builder
-def build_pkg_job = job("ihmc_valkyrie_ros-debbuilder")
-OSRFLinuxBuildPkgBase.create(build_pkg_job)
+def ihmc_build_pkg = job("ihmc_valkyrie_ros-debbuilder")
+OSRFLinuxBuildPkgBase.create(ihmc_build_pkg)
 
-build_pkg_job.with
+ihmc_build_pkg.with
 {
   scm {
     git {
