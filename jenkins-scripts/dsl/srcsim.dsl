@@ -206,6 +206,7 @@ ihmc_build_pkg.with
     git {
       remote {
         github('j-rivero/ihmc_valkyrie_ros-debian', 'https')
+        branch('refs/heads/master')
       }
 
       extensions {
