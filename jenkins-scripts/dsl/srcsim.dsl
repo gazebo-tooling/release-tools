@@ -173,6 +173,10 @@ OSRFLinuxBuildPkgBase.create(ihmc_build_pkg)
 
 ihmc_build_pkg.with
 {
+  // TODO: convert into parameteres. Maybe in the OSRFLinuxBuildPkgBase class?
+  def ihmc_distro = 'trusty'
+  def ihmc_arch   = 'amd64'
+
   scm {
     git {
       remote {
@@ -197,9 +201,8 @@ ihmc_build_pkg.with
     shell("""\
           #!/bin/bash -xe
 
-          export LINUX_DISTRO=ubuntu
-          export ARCH=${arch}
-          export DISTRO=${distro}
+          export ARCH=${ihmc_arch}
+          export DISTRO=${ihmc_distro}
           export USE_ROS_REPO=true
 
           /bin/bash -xe ./scripts/jenkins-scripts/docker/debian-git-debbuild.bash
@@ -219,8 +222,8 @@ ihmc_build_pkg.with
             predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
             predefinedProp("UPLOAD_TO_REPO", "stable")
             predefinedProp("PACKAGE_ALIAS" , "ihmc_valkyrie_ros")
-            predefinedProp("DISTRO",         "${distro}")
-            predefinedProp("ARCH",           "${arch}")
+            predefinedProp("DISTRO",         "${ihmc_distro}")
+            predefinedProp("ARCH",           "${ihmc_arch}")
           }
         }
       }
