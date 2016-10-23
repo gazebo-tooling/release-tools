@@ -58,13 +58,13 @@ ci_distro.each { distro ->
      }
     // --------------------------------------------------------------
     // 2. Create the any job
-    def ignition_ci_any_job = job("srcsim-ci-pr_any-${distro}-${arch}")
-    OSRFLinuxCompilationAny.create(ignition_ci_any_job,
+    def srcsim_ci_any_job = job("srcsim-ci-pr_any-${distro}-${arch}")
+    OSRFLinuxCompilationAny.create(srcsim_ci_any_job,
                                   'http://bitbucket.org/osrf/srcsim')
     // GPU label
-    include_gpu_label(ignition_ci_any_job, distro)
+    include_gpu_label(srcsim_ci_any_job, distro)
 
-    ignition_ci_any_job.with
+    srcsim_ci_any_job.with
     {
         steps {
           shell("""\
@@ -124,6 +124,8 @@ all_supported_distros.each { distro ->
     // 1. Install srcsim testing pkg testing
     def install_default_job = job("srcim-install_pkg-${distro}-${arch}")
     OSRFLinuxInstall.create(install_default_job)
+    // GPU label
+    include_gpu_label(install_default_job, distro)
     install_default_job.with
     {
       triggers {
@@ -146,6 +148,8 @@ all_supported_distros.each { distro ->
     // 2. Install ihmc-ros-valkyrie testing pkg testing
     def ihmc_install_default_job = job("ihmc_valkyrie_ros-install_pkg-${distro}-${arch}")
     OSRFLinuxInstall.create(ihmc_install_default_job)
+    // GPU label
+    include_gpu_label(ihmc_install_default_job, distro)
     ihmc_install_default_job.with
     {
       triggers {
@@ -160,7 +164,7 @@ all_supported_distros.each { distro ->
             export ARCH=${arch}
             export INSTALL_JOB_PKG=ros-indigo-ihmc-valkyrie-ros
             export INSTALL_JOB_REPOS=stable
-            /bin/bash -x. /scripts/jenkins-scripts/docker/srcsim-install-test-job.bash
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/ihmc_valkyrie_ros-install-test-job.bash
             """.stripIndent())
       }
     } // end of with
