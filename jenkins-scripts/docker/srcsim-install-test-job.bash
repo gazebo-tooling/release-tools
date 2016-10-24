@@ -24,12 +24,12 @@ wget -O /tmp/control.tar.gz http://models.gazebosim.org/control_console/model.ta
 . /opt/nasa/indigo/setup.bash
 
 TEST_START=\`date +%s\`
-timeout --preserve-status 180 roslaunch srcsim qual1.launch extra_gazebo_args:=\"-r\" init:=\"true\" || true
+timeout --preserve-status 400 roslaunch srcsim qual1.launch extra_gazebo_args:=\"-r\" init:=\"true\" || true
 TEST_END=\`date +%s\`
 DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
 
-if [ \$DIFF -lt 180 ]; then
-   echo 'The test took less than 180s. Something bad happened'
+if [ \$DIFF -lt 400 ]; then
+   echo 'The test took less than 400s. Something bad happened'
    exit 1
 fi
 echo '# END SECTION'
