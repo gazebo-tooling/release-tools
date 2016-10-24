@@ -37,13 +37,12 @@ export BUILDING_DEPENDENCIES="ros-${ROS_DISTRO}-gazebo${PKG_VERSION}-plugins \\
                               ros-${ROS_DISTRO}-message-runtime \\
                               ros-${ROS_DISTRO}-xacro"
 # Use src temporary repo
-export DOCKER_POSTINSTALL_HOOK="""
-# import the SRC repo
-echo \"deb http://52.53.157.231/src ${DISTRO} main\" > \\
-                                           /etc/apt/sources.list.d/src.list && \\
+export DOCKER_POSTINSTALL_HOOK="""\
+echo \"deb http://52.53.157.231/src ${DISTRO} main\" > /etc/apt/sources.list.d/src.list && \\
 wget -qO - http://52.53.157.231/src/src.key | sudo apt-key add - && \\
 apt-get update
 """
+
 export BUILDING_JOB_REPOSITORIES="stable"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
