@@ -231,7 +231,7 @@ ihmc_build_pkg.with
           export DISTRO=${ihmc_distro}
           export USE_ROS_REPO=true
 
-          /bin/bash -xe ./scripts/jenkins-scripts/docker/srcsim-debbuild.bash
+          /bin/bash -xe ./scripts/jenkins-scripts/docker/ihmc_valkyrie_ros-debbuild.bash
           """.stripIndent())
   }
 
