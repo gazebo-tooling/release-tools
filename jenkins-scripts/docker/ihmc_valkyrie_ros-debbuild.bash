@@ -14,4 +14,4 @@ wget -qO - http://52.53.157.231/src/src.key | sudo apt-key add - && \\
 apt-get update
 """
 
-. ${SCRIPT_DIR}/lib/debian-git-debbuild.bash
+. ${SCRIPT_DIR}/lib/debian-git-repo-base.bash
