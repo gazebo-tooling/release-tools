@@ -5,7 +5,7 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export RELEASE_REPO_DIRECTORY=${DISTRO}
-export ENABLE_ROS=true
+export ENABLE_ROS=false
 
 # Use src temporary repo
 export DOCKER_POSTINSTALL_HOOK="""\
