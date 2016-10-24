@@ -186,7 +186,7 @@ build_pkg_job.with
       shell("""\
             #!/bin/bash -xe
 
-            /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
+            /bin/bash -x ./scripts/jenkins-scripts/docker/srcsim-debbuild.bash
             """.stripIndent())
     }
 }

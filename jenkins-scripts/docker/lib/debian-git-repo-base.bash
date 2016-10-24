@@ -31,13 +31,6 @@ cat > build.sh << DELIM
 #!/usr/bin/env bash
 set -ex
 
-# import the SRC repo
-echo "deb http://52.53.157.231/src ${DISTRO} main" >\\
-                                           /etc/apt/sources.list.d/src.list
-apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
-wget -qO - http://52.53.157.231/src/src.key | sudo apt-key add -
-sudo apt-get update
-
 if ${CLONE_NEEDED}; then
 echo '# BEGIN SECTION: clone the git repo'
 rm -fr ${REPO_PATH}
