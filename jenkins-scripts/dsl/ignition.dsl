@@ -219,7 +219,7 @@ ignition_software.each { ign_sw ->
               then
                 /bin/bash -xe "\$HOMEBREW_SCRIPT"
               else
-                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash ignition-${ign_sw}"
+                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "ignition-${ign_sw}"
               fi
               """.stripIndent())
       }
