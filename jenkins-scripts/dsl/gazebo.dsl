@@ -20,6 +20,8 @@ def supported_arches        = Globals.get_supported_arches()
 def experimental_arches     = Globals.get_experimental_arches()
 def all_supported_gpus      = Globals.get_all_supported_gpus()
 
+def DISABLE_TESTS = false
+
 String ci_distro_str = ci_distro[0]
 String ci_gpu_str = ci_gpu[0]
 String ci_build_any_job_name_linux = "gazebo-ci-pr_any-${ci_distro_str}-amd64-gpu-${ci_gpu_str}"
@@ -526,7 +528,8 @@ all_branches.each { branch ->
   String ci_build_any_job_name_win7 = "gazebo-ci-pr_any-windows7-amd64"
   def gazebo_win_ci_any_job = job(ci_build_any_job_name_win7)
   OSRFWinCompilationAny.create(gazebo_win_ci_any_job,
-                                "http://bitbucket.org/osrf/gazebo")
+                               "http://bitbucket.org/osrf/gazebo",
+                               DISABLE_TESTS)
   gazebo_win_ci_any_job.with
   {
       steps {
@@ -540,7 +543,7 @@ all_branches.each { branch ->
 all_branches = gazebo_supported_branches + 'default' - 'gazebo_2.2' - 'gazebo_4.1' - 'gazebo5' - 'gazebo6'
 all_branches.each { branch ->
   def gazebo_win_ci_job = job("gazebo-ci-${branch}-windows7-amd64")
-  OSRFWinCompilation.create(gazebo_win_ci_job)
+  OSRFWinCompilation.create(gazebo_win_ci_job, DISABLE_TESTS)
   OSRFBitbucketHg.create(gazebo_win_ci_job, "http://bitbucket.org/osrf/gazebo", branch)
 
   gazebo_win_ci_job.with
