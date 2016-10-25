@@ -2,8 +2,10 @@
 set -e
 
 # Knowing Script dir beware of symlink
-[[ -z "${SCRIPT_DIR}" ]] && [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
-SCRIPT_DIR="${SCRIPT_DIR%/*}"
+if [[ -z "${SCRIPT_DIR}" ]]; then
+  [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
+  SCRIPT_DIR="${SCRIPT_DIR%/lib/*}"
+fi
 
 export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 
