@@ -3,6 +3,7 @@ set -e
 
 BREW_BINARY_DIR=/usr/local/bin
 BREW_BINARY=${BREW_BINARY_DIR}/brew
+export HOMEBREW_UPDATE_TO_TAG=1
 ${BREW_BINARY} up
 
 # Clear all installed homebrew packages, links, taps, and kegs
