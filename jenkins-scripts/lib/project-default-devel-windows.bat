@@ -88,7 +88,7 @@ echo # BEGIN SECTION: installing %VCS_DIRECTORY%
 nmake install || goto %win_lib% :error
 echo # END SECTION
 
-if %ENABLE_TESTS% == "TRUE" (
+if "%ENABLE_TESTS%" == "TRUE" (
     echo # BEGIN SECTION: running tests
     cd %LOCAL_WS%\build
     REM nmake test is not working test/ directory exists and nmake is not
@@ -107,6 +107,7 @@ if %ENABLE_TESTS% == "TRUE" (
 
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
+   cd %WORKSPACE%
    rmdir /s /q %LOCAL_WS% || goto :error
    echo # END SECTION
 )
