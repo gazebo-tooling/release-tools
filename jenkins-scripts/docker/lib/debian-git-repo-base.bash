@@ -105,8 +105,10 @@ test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run tests'
-cd $WORKSPACE/pkgs
-autopkgtest -B *.deb *.dsc -- null
+if hash autopkgtest 2>/dev/null; then
+  cd $WORKSPACE/pkgs
+  autopkgtest -B *.deb *.dsc -- null
+fi
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean up git build'
