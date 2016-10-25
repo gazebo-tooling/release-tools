@@ -54,6 +54,21 @@ def print_success(msg):
 def get_canonical_package_name(pkg_name):
      return pkg_name.rstrip('1234567890')
 
+def is_catkin_package():
+    return os.path.isfile("package.xml")
+
+def generate_package_source(srcdir, builddir):
+    cmake_cmd = ["cmake"]
+
+    if is_catkin_package():
+        cmake_cmd = cmake_cmd + ['-DCATKIN_BUILD_BINARY_PACKAGE="1"']
+
+    # configure and make package_source
+    os.mkdir(builddir)
+    os.chdir(builddir)
+    check_call(cmake_cmd + [srcdir])
+    check_call(['make', 'package_source'])
+
 def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
@@ -315,11 +330,8 @@ def generate_upload_tarball(args):
         # Assume that it's git and that we'll just use the CWD
         srcdir = os.getcwd()
 
-    # configure and make package_source
-    os.mkdir(builddir)
-    os.chdir(builddir)
-    check_call(['cmake', srcdir])
-    check_call(['make', 'package_source'])
+    # use cmake to generate package_source
+    generate_package_source(srcdir, builddir)
 
     # Upload tarball. Do not include versions in tarballs
     tarball_name = re.sub(r'[0-9]$','', args.package)
