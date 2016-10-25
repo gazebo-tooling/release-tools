@@ -122,7 +122,7 @@ all_supported_distros.each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
     // 1. Install srcsim testing pkg testing
-    def install_default_job = job("srcim-install_pkg-${distro}-${arch}")
+    def install_default_job = job("srcsim-install_pkg-${distro}-${arch}")
     OSRFLinuxInstall.create(install_default_job)
     // GPU label
     include_gpu_label(install_default_job, distro)
