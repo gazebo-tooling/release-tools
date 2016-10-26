@@ -219,7 +219,7 @@ ignition_software.each { ign_sw ->
               then
                 /bin/bash -xe "\$HOMEBREW_SCRIPT"
               else
-                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash ignition-${ign_sw}"
+                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "ignition-${ign_sw}"
               fi
               """.stripIndent())
       }
@@ -244,7 +244,13 @@ ignition_software.each { ign_sw ->
         shell("""\
               #!/bin/bash -xe
 
-              /bin/bash -xe ./scripts/jenkins-scripts/ign_${ign_sw}-default-devel-homebrew-amd64.bash
+              export HOMEBREW_SCRIPT="./scripts/jenkins-scripts/ign_${ign_sw}-default-devel-homebrew-amd64.bash"
+              if [ -s "\$HOMEBREW_SCRIPT" ]
+              then
+                /bin/bash -xe "\$HOMEBREW_SCRIPT"
+              else
+                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "ignition-${ign_sw}"
+              fi
               """.stripIndent())
       }
   }
