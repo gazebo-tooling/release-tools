@@ -69,7 +69,7 @@ class Globals
 
    static ArrayList get_other_supported_distros()
    {
-     return [ 'wily', 'xenial' ]
+     return [ 'xenial' ]
    }
 
    static ArrayList get_supported_arches()
