@@ -35,7 +35,7 @@ drcsim_packages.each { pkg ->
           label "gpu-reliable-${distro}"
 
           scm {
-            hg("http://bitbucket.org/osrf/drcsim") {
+            hg("https://bitbucket.org/osrf/drcsim") {
               branch('default')
               subdirectory("drcsim")
             }
@@ -62,7 +62,7 @@ drcsim_packages.each { pkg ->
       // 2. Create the ANY job
       def drcsim_ci_any_job = job("${pkg}-ci_any-default-${distro}-${arch}")
       OSRFLinuxCompilationAny.create(drcsim_ci_any_job,
-                                    "http://bitbucket.org/osrf/drcsim", false)
+                                    "https://bitbucket.org/osrf/drcsim", false)
       drcsim_ci_any_job.with
       {
           if ("${pkg}" == 'drcsim')

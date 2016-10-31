@@ -36,7 +36,7 @@ ci_distro.each { distro ->
     robocup3ds_ci_job.with
     {
         scm {
-          hg('http://bitbucket.org/osrf/robocup3ds') {
+          hg('https://bitbucket.org/osrf/robocup3ds') {
             branch('default')
             subdirectory('robocup3ds')
           }
@@ -60,7 +60,7 @@ ci_distro.each { distro ->
     // 2. Create the any job
     def ignition_ci_any_job = job("robocup3ds-ci-pr_any-${distro}-${arch}")
     OSRFLinuxCompilationAny.create(ignition_ci_any_job,
-                                  'http://bitbucket.org/osrf/robocup3ds')
+                                  'https://bitbucket.org/osrf/robocup3ds')
     // GPU label
     include_gpu_label(ignition_ci_any_job, distro)
 
@@ -95,7 +95,7 @@ other_supported_distros.each { distro ->
     robocup3ds_ci_job.with
     {
         scm {
-          hg('http://bitbucket.org/osrf/robocup3ds') {
+          hg('https://bitbucket.org/osrf/robocup3ds') {
             branch('default')
             subdirectory('robocup3ds')
           }
