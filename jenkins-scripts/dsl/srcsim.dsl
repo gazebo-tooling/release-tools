@@ -36,7 +36,7 @@ ci_distro.each { distro ->
     srcsim_ci_job.with
     {
         scm {
-          hg('http://bitbucket.org/osrf/srcsim') {
+          hg('https://bitbucket.org/osrf/srcsim') {
             branch('default')
             subdirectory('srcsim')
           }
@@ -60,7 +60,7 @@ ci_distro.each { distro ->
     // 2. Create the any job
     def srcsim_ci_any_job = job("srcsim-ci-pr_any-${distro}-${arch}")
     OSRFLinuxCompilationAny.create(srcsim_ci_any_job,
-                                  'http://bitbucket.org/osrf/srcsim')
+                                  'https://bitbucket.org/osrf/srcsim')
     // GPU label
     include_gpu_label(srcsim_ci_any_job, distro)
 
@@ -94,7 +94,7 @@ other_supported_distros.each { distro ->
     srcsim_ci_job.with
     {
         scm {
-          hg('http://bitbucket.org/osrf/srcsim') {
+          hg('https://bitbucket.org/osrf/srcsim') {
             branch('default')
             subdirectory('srcsim')
           }
