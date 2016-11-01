@@ -160,13 +160,14 @@ if [[ ${GAZEBO_MAJOR_VERSION} -ge 6 ]]; then
                                          libignition-math2-dev"
 fi
 
-if [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
+if [[ ${GAZEBO_MAJOR_VERSION} -eq 7 ]]; then
     GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                               libignition-transport-dev"
 fi
 
 if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
     GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                         libignition-transport2-dev \\
                                          libignition-msgs-dev \\
                                          libqwt-dev"
 fi
