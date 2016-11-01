@@ -78,9 +78,10 @@ if [[ ${SDFORMAT_MAJOR_VERSION} -ge 3 ]]; then
                                 libignition-math2-dev"
 fi
 
-# GAZEBO related dependencies
+# GAZEBO related dependencies. Default value points to the development version
+# of gazebo, it is being used by compile from source tutorial
 if [[ -z ${GAZEBO_MAJOR_VERSION} ]]; then
-    GAZEBO_MAJOR_VERSION=7
+    GAZEBO_MAJOR_VERSION=8
 fi
 
 # Need to explicit define to use old sdformat package
