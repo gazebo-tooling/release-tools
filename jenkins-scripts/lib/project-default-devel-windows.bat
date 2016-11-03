@@ -51,6 +51,7 @@ if NOT DEFINED KEEP_WORKSPACE (
   echo # END SECTION
 )
 mkdir %LOCAL_WS% || echo "Workspace already exists!"
+cd %LOCAL_WS%
 echo # END SECTION
 
 for %%p in (%DEPEN_PKGS%) do (
