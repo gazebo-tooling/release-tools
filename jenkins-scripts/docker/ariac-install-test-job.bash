@@ -29,6 +29,7 @@ cd ~/helloworld_ws/src/ariac_example/config
 wget https://bitbucket.org/osrf/ariac/raw/master/gear_example/config/sample_gear_conf.yaml
 
 mkdir -p ~/helloworld_ws/src/ariac_example/src
+cd -p ~/helloworld_ws/src/ariac_example/src
 wget https://bitbucket.org/osrf/ariac/raw/master/gear_example/src/gear_example_node.cpp
 
 cd ~/helloworld_ws
