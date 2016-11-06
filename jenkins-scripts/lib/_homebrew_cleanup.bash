@@ -14,6 +14,7 @@ fi
 rm -rf /usr/local/lib/python2.7/site-packages
 # redirect error to /dev/null to avoid temporal problems detected by
 # brew tap
+HOMEBREW_NO_AUTO_UPDATE=1 \
 for t in $(${BREW_BINARY} tap 2>/dev/null | grep '^[^/]\+/[^/]\+$' | grep -v '^homebrew/core$'); do
   ${BREW_BINARY} untap $t
 done
