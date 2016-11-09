@@ -99,14 +99,19 @@ mkdir -p $WORKSPACE/install $WORKSPACE/build
 cd $WORKSPACE/build
 cmake ${GAZEBO_BASE_CMAKE_ARGS}      \\
     -DCMAKE_INSTALL_PREFIX=/usr      \\
-    -DENABLE_SCREEN_TESTS:BOOL=False \\
-    -DENABLE_TESTS_COMPILATION:BOOL=True \\
+    -DENABLE_SCREEN_TESTS:BOOL=False
   $WORKSPACE/gazebo
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: Gazebo compilation'
 init_stopwatch COMPILATION
 make -j${MAKE_JOBS}
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: Tests compilation
+init_startwatch TEST_COMPILATION
+make -j${MAKE_JOBS} tests
+init_stopwatch TEST_COMPILATION
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: Gazebo installation'
