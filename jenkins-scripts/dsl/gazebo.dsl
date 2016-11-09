@@ -501,6 +501,9 @@ install_brew_job.with
 // No gazebo2 for brew
 all_branches = gazebo_supported_branches + 'default' - 'gazebo2'
 all_branches.each { branch ->
+  if (branch == 'default' ||  branch == 'gazebo7')
+    Globals.extra_emails = Globals.build_cop_email
+  
   def gazebo_brew_ci_job = job("gazebo-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(gazebo_brew_ci_job)
   OSRFBitbucketHg.create(gazebo_brew_ci_job, "https://bitbucket.org/osrf/gazebo", branch)
@@ -519,6 +522,9 @@ all_branches.each { branch ->
               """.stripIndent())
       }
   }
+
+  // reset build cop email in global list of mails
+  Globals.extra_emails = ""
 }
 
 // --------------------------------------------------------------
