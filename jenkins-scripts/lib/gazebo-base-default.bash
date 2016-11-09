@@ -181,6 +181,12 @@ make install
 stop_stopwatch COMPILATION
 echo '# END SECTION'
 
+init_stopwatch TEST_COMPILATION
+echo '# BEGIN SECTION: Tests compilation
+make -j${MAKE_JOBS} tests
+echo '# END SECTION'
+init_startwatch TEST_COMPILATION
+
 # Need to clean up from previous built
 rm -fr $WORKSPACE/cppcheck_results
 rm -fr $WORKSPACE/test_results
