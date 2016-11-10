@@ -99,7 +99,7 @@ mkdir -p $WORKSPACE/install $WORKSPACE/build
 cd $WORKSPACE/build
 cmake ${GAZEBO_BASE_CMAKE_ARGS}      \\
     -DCMAKE_INSTALL_PREFIX=/usr      \\
-    -DENABLE_SCREEN_TESTS:BOOL=False
+    -DENABLE_SCREEN_TESTS:BOOL=False \\
   $WORKSPACE/gazebo
 echo '# END SECTION'
 
