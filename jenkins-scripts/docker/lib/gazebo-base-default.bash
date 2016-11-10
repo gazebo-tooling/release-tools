@@ -108,10 +108,10 @@ init_stopwatch COMPILATION
 make -j${MAKE_JOBS}
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: Tests compilation
-init_startwatch TEST_COMPILATION
+echo '# BEGIN SECTION: Tests compilation'
+init_startwatch TESTS_COMPILATION
 make -j${MAKE_JOBS} tests
-init_stopwatch TEST_COMPILATION
+init_stopwatch TESTS_COMPILATION
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: Gazebo installation'
