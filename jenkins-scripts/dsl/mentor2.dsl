@@ -21,7 +21,7 @@ supported_distros.each { distro ->
         label "gpu-reliable-trusty"
 
         scm {
-          hg('http://bitbucket.org/osrf/gazebo') {
+          hg('https://bitbucket.org/osrf/gazebo') {
             branch('mentor2_v2')
             subdirectory('gazebo')
           }
@@ -52,7 +52,7 @@ supported_distros.each { distro ->
         label "gpu-reliable-trusty"
 
         scm {
-          hg('http://bitbucket.org/osrf/sdformat') {
+          hg('https://bitbucket.org/osrf/sdformat') {
             branch('mentor2_v2')
             subdirectory('sdformat')
           }
@@ -82,7 +82,7 @@ supported_distros.each { distro ->
         label "gpu-reliable-trusty"
 
         scm {
-          hg('http://bitbucket.org/osrf/mentor2') {
+          hg('https://bitbucket.org/osrf/mentor2') {
             branch('default')
             subdirectory('mentor2')
           }

@@ -100,6 +100,7 @@ cd $WORKSPACE/build
 cmake ${GAZEBO_BASE_CMAKE_ARGS}      \\
     -DCMAKE_INSTALL_PREFIX=/usr      \\
     -DENABLE_SCREEN_TESTS:BOOL=False \\
+    -DENABLE_TESTS_COMPILATION:BOOL=True \\
   $WORKSPACE/gazebo
 echo '# END SECTION'
 

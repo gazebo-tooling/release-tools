@@ -36,6 +36,8 @@ sudo docker run $EXTRA_PARAMS_STR  \
             -e WORKSPACE=${WORKSPACE} \
             --cidfile=${CIDFILE} \
             -v ${WORKSPACE}:${WORKSPACE} \
+            -v /dev/log:/dev/log:ro \
+            -v /run/log:/run/log:ro \
             --tty \
             ${DOCKER_TAG} \
             /bin/bash build.sh

@@ -141,9 +141,6 @@ bottle_job_builder.with
    {
      stringParam("PULL_REQUEST_URL", '',
                  'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
-     stringParam("PULL_REQUEST_BRANCH", '',
-                 'Note! not used in the build but in the call to bottle hash updating. ' +
-                 'Branch in fork (osrfbuild/homebrew-simulation) hosting pull request changes.')
    }
 
    steps {
@@ -177,8 +174,6 @@ bottle_job_builder.with
           parameters {
             currentBuild()
               predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-              predefinedProp("S3_UPLOAD_PATH", "\${PACKAGE}/releases/")
-              predefinedProp("S3_UPLOAD_CANONICAL_PATH", "true")
               predefinedProp("UPLOAD_TO_REPO", "only_s3_upload")
               predefinedProp("ARCH",           "64bits")
           }
@@ -193,7 +188,6 @@ bottle_job_builder.with
           condition('SUCCESS')
           parameters {
             currentBuild()
-              predefinedProp("PULL_REQUEST_BRANCH", "\${PULL_REQUEST_BRANCH}")
               predefinedProp("PULL_REQUEST_URL", "\${PULL_REQUEST_URL}")
           }
         }
@@ -220,8 +214,6 @@ bottle_job_hash_updater.with
   parameters
   {
     // reuse the pull request created by homebrew_pull_request_updater in step 1
-    stringParam("PULL_REQUEST_BRANCH", '',
-                'Branch in fork (osrfbuild/homebrew-simulation) hosting pull request changes.')
     stringParam("PULL_REQUEST_URL", '',
                 'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
   }

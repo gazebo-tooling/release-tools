@@ -78,9 +78,10 @@ if [[ ${SDFORMAT_MAJOR_VERSION} -ge 3 ]]; then
                                 libignition-math2-dev"
 fi
 
-# GAZEBO related dependencies
+# GAZEBO related dependencies. Default value points to the development version
+# of gazebo, it is being used by compile from source tutorial
 if [[ -z ${GAZEBO_MAJOR_VERSION} ]]; then
-    GAZEBO_MAJOR_VERSION=7
+    GAZEBO_MAJOR_VERSION=8
 fi
 
 # Need to explicit define to use old sdformat package
@@ -160,13 +161,14 @@ if [[ ${GAZEBO_MAJOR_VERSION} -ge 6 ]]; then
                                          libignition-math2-dev"
 fi
 
-if [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
+if [[ ${GAZEBO_MAJOR_VERSION} -eq 7 ]]; then
     GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                               libignition-transport-dev"
 fi
 
 if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
     GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                         libignition-transport2-dev \\
                                          libignition-msgs-dev \\
                                          libqwt-dev"
 fi
@@ -185,6 +187,7 @@ GAZEBO_EXTRA_DEPENDENCIES="libavformat-dev  \\
                            libavcodec-dev   \\
                            libgraphviz-dev  \\
                            libswscale-dev   \\
+                           libavdevice-dev   \\
                            ruby-ronn"
 
 # Player was removed starting from xenial
@@ -409,6 +412,11 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          libignition-math2-dev \\
                          libfreeimage-dev      \\
                          libgts-dev            \\
+                         libavformat-dev       \\
+                         libavcodec-dev        \\
+                         libswscale-dev        \\
+                         libavutil-dev         \\
+                         libavdevice-dev       \\
                          uuid-dev"
 
 #

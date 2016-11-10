@@ -14,5 +14,6 @@ else
   exit -1
 fi
 
+export HOMEBREW_UPDATE_TO_TAG=1
 ${BREW_BINARY} update
 ${BREW_BINARY} install ${BREW_BASE_DEPENDCIES}

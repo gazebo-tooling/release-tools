@@ -1,6 +1,12 @@
 #!/bin/bash -x
 set -e
 
+# Knowing Script dir beware of symlink
+if [[ -z "${SCRIPT_DIR}" ]]; then
+  [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
+  SCRIPT_DIR="${SCRIPT_DIR%/lib/*}"
+fi
+
 export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 
 # Get project name as first argument to this script

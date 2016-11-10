@@ -11,8 +11,9 @@ class GenericMail
 
      ${BUILD_FAILURE_ANALYZER, includeTitle=true, includeIndications=true, useHtmlFormat=false}
 
-     Full log: $BUILD_URL/consoleFull
-     Retry   : $BUILD_URL/retry
+     Build summary: $BUILD_URL
+     Full log     : $BUILD_URL/consoleFull
+     Retry        : $BUILD_URL/retry
      '''.stripIndent()
   }
 
