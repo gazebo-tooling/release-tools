@@ -106,19 +106,20 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: Gazebo compilation'
 init_stopwatch COMPILATION
 make -j${MAKE_JOBS}
+stop_stopwatch COMPILATION
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: Tests compilation'
-init_startwatch TESTS_COMPILATION
-make -j${MAKE_JOBS} tests
 init_stopwatch TESTS_COMPILATION
+make -j${MAKE_JOBS} tests
+stop_stopwatch TESTS_COMPILATION
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: Gazebo installation'
 make install
 . /usr/share/gazebo/setup.sh
-stop_stopwatch COMPILATION
 echo '# END SECTION'
+
 
 # Need to clean up from previous built
 rm -fr $WORKSPACE/cppcheck_results
