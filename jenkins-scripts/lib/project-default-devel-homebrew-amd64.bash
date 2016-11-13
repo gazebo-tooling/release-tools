@@ -113,6 +113,10 @@ echo "#BEGIN SECTION: brew doctor analysis"
 brew doctor
 echo '# END SECTION'
 
+if [ `expr length "${PRE_TESTS_EXECUTION_HOOK} "` -gt 1 ]; then
+${PRE_TESTS_EXECUTION_HOOK}
+fi
+
 echo "# BEGIN SECTION: run tests"
 # Need to clean up models before run tests (issue 27)
 rm -fr \$HOME/.gazebo/models test_results*
