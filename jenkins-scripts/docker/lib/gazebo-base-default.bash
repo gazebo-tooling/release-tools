@@ -27,6 +27,10 @@ if [[ ${GAZEBO_BASE_CMAKE_ARGS} != ${GAZEBO_BASE_CMAKE_ARGS/Coverage} ]]; then
   EXTRA_PACKAGES="${EXTRA_PACKAGES} lcov" 
 fi
 
+if [[ $GAZEBO_MAJOR_VERSION -lt 8 ]]; then
+  GAZEBO_BASE_CMAKE_ARGS="${GAZEBO_BASE_CMAKE_ARGS} -DENABLE_TESTS_COMPILATION=True"
+fi
+
 cat > build.sh << DELIM_DART
 ###################################################
 # Make project-specific changes here
@@ -109,17 +113,18 @@ make -j${MAKE_JOBS}
 stop_stopwatch COMPILATION
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: Tests compilation'
-init_stopwatch TESTS_COMPILATION
-make -j${MAKE_JOBS} tests
-stop_stopwatch TESTS_COMPILATION
-echo '# END SECTION'
+if [[ $GAZEBO_MAJOR_VERSION -ge 8 ]]; then
+  echo '# BEGIN SECTION: Tests compilation'
+  init_stopwatch TESTS_COMPILATION
+  make -j${MAKE_JOBS} tests
+  stop_stopwatch TESTS_COMPILATION
+  echo '# END SECTION'
+fi
 
 echo '# BEGIN SECTION: Gazebo installation'
 make install
 . /usr/share/gazebo/setup.sh
 echo '# END SECTION'
-
 
 # Need to clean up from previous built
 rm -fr $WORKSPACE/cppcheck_results
