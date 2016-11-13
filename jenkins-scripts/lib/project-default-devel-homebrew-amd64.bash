@@ -113,7 +113,8 @@ echo "#BEGIN SECTION: brew doctor analysis"
 brew doctor
 echo '# END SECTION'
 
-if [ `expr length "${PRE_TESTS_EXECUTION_HOOK} "` -gt 1 ]; then
+# expr length is not portable and does not work on mac. Use wc -c, returns 1 on empty str
+if [ `echo "${PRE_TESTS_EXECUTION_HOOK}" | wc -c` -gt 1 ]; then
 ${PRE_TESTS_EXECUTION_HOOK}
 fi
 
