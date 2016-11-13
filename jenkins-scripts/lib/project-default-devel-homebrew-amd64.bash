@@ -113,9 +113,16 @@ echo "#BEGIN SECTION: brew doctor analysis"
 brew doctor
 echo '# END SECTION'
 
-# expr length is not portable and does not work on mac. Use wc -c, returns 1 on empty str
+# CHECK PRE_TESTS_EXECUTION_HOOK AND RUN
+# expr length is not portable. wc -c, returns 1 on empty str
 if [ `echo "${PRE_TESTS_EXECUTION_HOOK}" | wc -c` -gt 1 ]; then
-${PRE_TESTS_EXECUTION_HOOK}
+  # to be able to handle hooks in a pure multiline form, this dirty hack
+  TMPFILE_HOOK=$(mktemp /tmp/.XXXX_brew_pretesthook)
+  cat > ${TMPFILE_HOOK} <<-DELIM
+  ${PRE_TESTS_EXECUTION_HOOK}
+DELIM
+  . ${TMPFILE_HOOK}
+  rm ${TMPFILE_HOOK}
 fi
 
 echo "# BEGIN SECTION: run tests"
