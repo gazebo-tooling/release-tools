@@ -279,7 +279,7 @@ gazebo_supported_branches.each { branch ->
         def gazebo_ci_job = job("gazebo-ci-${branch}-${distro}-${arch}-gpu-${gpu}")
         // note that we are already using the CI refernce GPU and distro, no
         // need to check for build_cop email
-        if (is_watched_by_buildcop(branch))
+        if (is_watched_by_buildcop(branch, distro, gpu))
           Globals.extra_emails = Globals.build_cop_email
         OSRFLinuxCompilation.create(gazebo_ci_job)
         OSRFBitbucketHg.create(gazebo_ci_job, "https://bitbucket.org/osrf/gazebo", branch)
