@@ -284,6 +284,7 @@ do_install() {
 				exit 1
 			  fi
 
+			  export PATH=/usr/local/bin:${PATH}
 			  if ! command_exists brew; then
 				echo "Installing Homebrew:"
 				ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
