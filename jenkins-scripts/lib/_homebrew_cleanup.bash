@@ -9,7 +9,7 @@ ${BREW_BINARY} up
 # Clear all installed homebrew packages, links, taps, and kegs
 BREW_LIST=$(${BREW_BINARY} list)
 if [[ -n "${BREW_LIST}" ]]; then
-  ${BREW_BINARY} remove --force ${BREW_LIST}
+  ${BREW_BINARY} remove --force --ignore-dependencies ${BREW_LIST}
 fi
 rm -rf /usr/local/lib/python2.7/site-packages
 # redirect error to /dev/null to avoid temporal problems detected by
