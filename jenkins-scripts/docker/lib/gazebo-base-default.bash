@@ -157,5 +157,10 @@ DEPENDENCY_PKGS="${BASE_DEPENDENCIES} \
 		 ${GAZEBO_EXTRA_DEPENDENCIES} \
 		 ${EXTRA_PACKAGES}"
 
+# Need for cmake DISPLAY check (it uses xwininfo command)
+if [[ $USE_GPU_DOCKER ]]; then
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} x11-utils"
+fi
+
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
