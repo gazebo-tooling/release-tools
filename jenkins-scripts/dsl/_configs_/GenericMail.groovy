@@ -137,11 +137,13 @@ class GenericMail
     return("""
            // 3. Filter mail to get only OSRF
            recipients =
-              msg.getRecipients(javax.mail.Message.RecipientType.TO)
+              msg.getAllRecipients(javax.mail.Message.RecipientType.TO)
            filtered =
               recipients.findAll { addr -> addr.toString().contains('@osrfoundation.org') }
            msg.setRecipients(javax.mail.Message.RecipientType.TO,
                              filtered as javax.mail.Address[])
+           logger.println("Final list of recipients after filtering:");
+           logger.println(recipients);
 
            // always need to be the last line to cancel email when needed
            cancel = final_cancel_answer
