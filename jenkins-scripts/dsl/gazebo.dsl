@@ -596,5 +596,5 @@ def gazebo_ci_main = workflowJob("gazebo-ci-pr_any")
 OSRFCIWorkFlowMultiAny.create(gazebo_ci_main,
                                    [ci_build_any_job_name_linux,
                                     ci_build_any_job_name_linux_no_gpu,
-// disable win until the build runs ci_build_any_job_name_win7,
+                                    ci_build_any_job_name_win7,
                                     ci_build_any_job_name_brew])
