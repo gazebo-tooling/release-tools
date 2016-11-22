@@ -10,7 +10,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 mkdir -p ${WORKSPACE}/info
 
 # Update the current aptly mirror
-${APLTY_MIRROR_NAME} mirror update ${APLTY_MIRROR_NAME} 
+${APLTY_CMD} mirror update ${APLTY_MIRROR_NAME} 
 
 # Create a snapshot
 timestamp=$(date '+%Y_%m_%d')
