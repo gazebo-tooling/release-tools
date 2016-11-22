@@ -8,6 +8,8 @@ def snapshot_job = job("tri_ros_mirror-create_ROS_repo_snapshot")
 OSRFLinuxBase.create(snapshot_job)
 snapshot_job.with
 {
+  label "tri_ros_mirror.trusty"
+
   wrappers {
     preBuildCleanup {
        includePattern('info/*')
@@ -42,6 +44,9 @@ snapshot_publish_job.with
 {
   steps
   {
+
+    label "tri_ros_mirror.trusty"
+
     parameters
     {
       stringParam('SNAPSHOT_NAME', '', 'Internal snapshot name to publish as external repo')
