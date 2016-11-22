@@ -4,6 +4,8 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
+export USE_APTLY_MANAGEMENT=true
+
 # TRI ROS Mirror common library
 . ${SCRIPT_DIR}/lib/_tri_ros_mirror_lib.bash
 
