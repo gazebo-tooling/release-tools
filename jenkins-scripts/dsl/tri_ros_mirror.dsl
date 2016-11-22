@@ -55,7 +55,7 @@ snapshot_publish_job.with
     shell("""\
       #!/bin/bash -xe
 
-      /bin/bash -xe ./scripts/jenkins-scripts/docker/tri_ros_mirror_create_snapshot.bash
+      /bin/bash -xe ./scripts/jenkins-scripts/docker/tri_ros_mirror_publish_snapshot.bash
       """.stripIndent())
   }
 
