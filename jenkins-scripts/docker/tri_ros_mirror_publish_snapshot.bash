@@ -16,4 +16,6 @@ fi
 
 # Switch the snapshot published
 ${APLTY_CMD} publish switch ${DISTRO} ${APLTY_PUBLISH_REPO_PREFIX} ${SNAPSHOT_NAME}
+
+mkdir -p ${WORKSPACE}/info
 generate_snapshot_info ${SNAPSHOT_NAME}
