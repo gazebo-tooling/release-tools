@@ -21,7 +21,7 @@ fi
 
 generate_snapshot_info()
 {
-  local snapshots_name=${1}
+  local snapshot_name=${1}
 
   # export list of availabe snapshots and other information
   ${APLTY_CMD} snapshot list > ${WORKSPACE}/info/snapshot_list
