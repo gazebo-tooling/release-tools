@@ -6,7 +6,7 @@ def supported_arches  = [ 'amd64' ]
 
 def snapshot_job = job("tri_ros_mirror-create_ROS_repo_snapshot")
 OSRFLinuxBase.create(snapshot_job)
-job.with
+snapshot_job.with
 {
   wrappers {
     preBuildCleanup {
@@ -30,12 +30,15 @@ job.with
       """.stripIndent())
   }
 
-  archiveArtifacts('info/*')
+  publishers
+  {
+    archiveArtifacts('info/*')
+  }
 }
 
-def snapshot_job = job("tri_ros_mirror-publish_snapshot")
-OSRFLinuxBase.create(snapshot_job)
-job.with
+def snapshot_publish_job = job("tri_ros_mirror-publish_snapshot")
+OSRFLinuxBase.create(snapshot_publish_job)
+snapshot_publish_job.with
 {
   steps
   {
@@ -50,13 +53,18 @@ job.with
       /bin/bash -xe ./scripts/jenkins-scripts/tri_ros_mirror/create_snapshot.bash
       """.stripIndent())
   }
+
+  publishers
+  {
+    archiveArtifacts('info/*')
+  }
 }
 
 supported_distros.each { distro ->
   supported_arches.each { arch ->
-    def snapshot_job = job("tri_ros_mirror-install-${distro}-${arch}")
-    OSRFLinuxBase.create(snapshot_job)
-    job.with
+    def install_job = job("tri_ros_mirror-install-${distro}-${arch}")
+    OSRFLinuxBase.create(install_job)
+    install_job.with
     {
       steps
       {
