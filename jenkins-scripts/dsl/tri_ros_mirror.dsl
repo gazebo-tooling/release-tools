@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 def supported_distros = [ 'trusty']
 def supported_arches  = [ 'amd64' ]
 
-def snapshot_job = job("tri_ros_mirror-create_ROS_repo_snapshot")
+def snapshot_job = job("tri_ros_mirror-create_snapshot")
 OSRFLinuxBase.create(snapshot_job)
 snapshot_job.with
 {
