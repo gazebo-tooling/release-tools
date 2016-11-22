@@ -16,8 +16,8 @@ INSTALL_JOB_PREINSTALL_HOOK="""
 # import the TRI ROS mirror
 
 export URL='http://54.183.148.69:8080/${APLTY_PUBLISH_REPO_PREFIX}'
-wget http://\${URL}/repo.key -O - | apt-key add -
-echo \"deb http://\${URL}/ ${DISTRO} main\" >\\
+wget \${URL}/repo.key -O - | apt-key add -
+echo \"deb \${URL}/ ${DISTRO} main\" >\\
                         /etc/apt/sources.list.d/tri_ros_mirror.list
 sudo apt-get update
 """
