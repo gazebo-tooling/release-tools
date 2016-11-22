@@ -26,7 +26,7 @@ generate_snapshot_info()
   # export list of availabe snapshots and other information
   ${APLTY_CMD} snapshot list > ${WORKSPACE}/info/snapshot_list
   # get the package list from snapshot
-  ${APLTY_CMD} snapshot show ${snapshot_name} > ${WORKSPACE}/info/snapshot_pkgs
+  ${APLTY_CMD} snapshot show --with-packages ${snapshot_name} > ${WORKSPACE}/info/snapshot_pkgs
   # run verify exploring missing ros- packages
-  ${APLTY_CMD} snapshot verify ${snapshot_name} > ${WORKSPACE}/info/verify_snapshot || true
+  ${APLTY_CMD} snapshot verify ${snapshot_name} | grep "ros-" > ${WORKSPACE}/info/verify_snapshot || true
 }
