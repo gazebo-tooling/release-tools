@@ -5,7 +5,7 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 # TRI ROS Mirror common library
-. ${SCRIPT_DIR}/_common_library.bash
+. ${SCRIPT_DIR}/lib/_tri_ros_mirror_lib.bash
 
 # Isolated repo
 export INSTALL_JOB_PKG="ros-indigo-desktop-full"

@@ -26,7 +26,7 @@ snapshot_job.with
     shell("""\
       #!/bin/bash -xe
 
-      /bin/bash -xe ./scripts/jenkins-scripts/tri_ros_mirror/create_snapshot.bash
+      /bin/bash -xe ./scripts/jenkins-scripts/docker/tri_ros_mirror_create_snapshot.bash
       """.stripIndent())
   }
 
@@ -50,7 +50,7 @@ snapshot_publish_job.with
     shell("""\
       #!/bin/bash -xe
 
-      /bin/bash -xe ./scripts/jenkins-scripts/tri_ros_mirror/create_snapshot.bash
+      /bin/bash -xe ./scripts/jenkins-scripts/docker/tri_ros_mirror_create_snapshot.bash
       """.stripIndent())
   }
 
@@ -73,7 +73,7 @@ supported_distros.each { distro ->
 
 	      export DISTRO=${distro}
               export ARCH=${arch}
-	      /bin/bash -xe ./scripts/jenkins-scripts/tri_ros_mirror/desktop_full_install.bash
+	      /bin/bash -xe ./scripts/jenkins-scripts/docker/tri_ros_mirror_desktop_full_install.bash
 	      """.stripIndent())
       }
     }
