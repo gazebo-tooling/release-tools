@@ -6,7 +6,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 DISTRO=${DISTRO:-trusty}
 ARCH=${ARCH:-amd64}
-APLTY_CMD="sudo aptly"
+APLTY_CMD="sudo aptly -config=/etc/aptly.conf"
 APLTY_MIRROR_NAME="ros_stable"
 APLTY_PUBLISH_REPO_PREFIX="ros-stable-trusty-pkgs"
 
