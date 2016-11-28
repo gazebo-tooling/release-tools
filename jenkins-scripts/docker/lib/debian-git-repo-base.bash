@@ -109,7 +109,7 @@ cd $WORKSPACE/pkgs
 set +e
 autopkgtest -B *.deb *.dsc -- null
 # autopkgtest will return 0 if there are successful tests and 8 if there are no tests
-if [[ \$? != 0 ]] || [[ \$? != 8 ]]; then
+if [[ \$? != 0 ]] && [[ \$? != 8 ]]; then
   echo "Problem in running autopkgtest: \$?"
   exit 1
 fi
