@@ -43,7 +43,7 @@ sudo ${docker_cmd} run $EXTRA_PARAMS_STR  \
             -v /dev/log:/dev/log:ro \
             -v /run/log:/run/log:ro \
             --tty \
-	    --rm \
+            --rm \
             ${DOCKER_TAG} \
             /bin/bash build.sh
 
