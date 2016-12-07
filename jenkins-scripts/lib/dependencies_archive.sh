@@ -135,8 +135,8 @@ else
     gazebo_qt_dependencies="qtbase5-dev \\
                             libqwt-qt5-dev"
     # Install qt4 as well for gazebo8 until its release
-    # 20160125 release date of gazebo8
-    if [[ $(date +%Y%m%d) -le 20160125 ]]; then
+    # 20170125 release date of gazebo8
+    if [[ $(date +%Y%m%d) -le 20170125 ]]; then
       gazebo_qt_dependencies="${gazebo_qt_dependencies} \\
                               libqt4-dev \\
                               libqwt-dev"
