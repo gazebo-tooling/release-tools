@@ -173,6 +173,13 @@ if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
                                          libqwt-dev"
 fi
 
+# Player was removed starting from xenial
+if [[ ${DISTRO} == 'xenial' ]] && \
+   [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
+    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                         libqwt-qt5-dev"
+fi
+
 # libtinyxml2-dev is not on precise
 # it is needed by gazebo7, which isn't supported on precise
 if [[ ${DISTRO} != 'precise' ]]; then
