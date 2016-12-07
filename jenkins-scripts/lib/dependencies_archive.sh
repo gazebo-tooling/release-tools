@@ -126,8 +126,22 @@ if [[ ${GAZEBO_MAJOR_VERSION} -le 7 ]]; then
   gazebo_qt_dependencies="libqt4-dev \\
                           libqtwebkit-dev"
 else
-  gazebo_qt_dependencies="libqt4-dev \\
-                          qtbase5-dev"
+  if [[ ${DISTRO} == 'trusty' ]]; then
+    gazebo_qt_dependencies="libqt4-dev \\
+                            libqwt-dev \\
+                            qtbase5-dev"
+  else
+    # After gazebo8 is released, these two lines should be all that remain
+    gazebo_qt_dependencies="qtbase5-dev \\
+                            libqwt-qt5-dev"
+    # Install qt4 as well for gazebo8 until its release
+    # 20160125 release date of gazebo8
+    if [[ $(date +%Y%m%d) -le 20160125 ]]; then
+      gazebo_qt_dependencies="${gazebo_qt_dependencies} \\
+                              libqt4-dev \\
+                              libqwt-dev"
+    fi
+  fi
 fi
 
 GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
@@ -169,15 +183,7 @@ fi
 if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
     GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                                          libignition-transport2-dev \\
-                                         libignition-msgs-dev \\
-                                         libqwt-dev"
-fi
-
-# Player was removed starting from xenial
-if [[ ${DISTRO} == 'xenial' ]] && \
-   [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
-    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                                         libqwt-qt5-dev"
+                                         libignition-msgs-dev"
 fi
 
 # libtinyxml2-dev is not on precise
