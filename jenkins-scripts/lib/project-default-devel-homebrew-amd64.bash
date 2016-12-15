@@ -117,7 +117,7 @@ echo '# END SECTION'
 # expr length is not portable. wc -c, returns 1 on empty str
 if [ `echo "${PRE_TESTS_EXECUTION_HOOK}" | wc -c` -gt 1 ]; then
   # to be able to handle hooks in a pure multiline form, this dirty hack
-  TMPFILE_HOOK=$(mktemp /tmp/.XXXX_brew_pretesthook)
+  TMPFILE_HOOK=$(mktemp /tmp/.brew_pretesthook_XXXX)
   cat > ${TMPFILE_HOOK} <<-DELIM
   ${PRE_TESTS_EXECUTION_HOOK}
 DELIM
