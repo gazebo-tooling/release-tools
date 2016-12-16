@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 // IGNITION PACKAGES
 ignition_software           = [ 'transport', 'math', 'msgs', 'common' ]
 ignition_debbuild           = ignition_software + [ 'transport2', 'transport3' ]
-// no registered branches in ignition_branches means only serie 0 or 1
+// no registered branches in ignition_branches means only series 0 or 1
 ignition_branches           = [ transport : [ '2', '3' ],
                                 math      : [ '2' ]]
 // Main platform using for quick CI
