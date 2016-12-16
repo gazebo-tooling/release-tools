@@ -2,10 +2,11 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
-def ignition_software         = [ 'transport', 'math', 'msgs', 'common' ]
-def ignition_transport_series = '' // empty for a unversioned -dev package
-def ignition_math_series      = '2'
-
+ignition_software           = [ 'transport', 'math', 'msgs', 'common' ]
+ignition_debbuild           = ignition_software + [ 'transport2', 'transport3' ]
+// no registered branches in ignition_branches means only series 0 or 1
+ignition_branches           = [ transport : [ '2', '3' ],
+                                math      : [ '2' ]]
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
 def abi_distro              = Globals.get_abi_distro()
@@ -28,6 +29,18 @@ ci_pr_any_list = [:]
 ignition_software.each { ign_sw ->
   def list_empty = []
   ci_pr_any_list[ign_sw] = list_empty
+}
+
+// return major versions supported or empty if just 0,1 series under
+// -dev package.
+ArrayList supported_branches(String ign_software)
+{
+   major_versions_registered = ignition_branches["${ign_software}"]
+
+   if (major_versions_registered == null)
+     return [ '' ]
+
+   return major_versions_registered
 }
 
 // ABI Checker job
@@ -115,34 +128,33 @@ ignition_software.each { ign_sw ->
 ignition_software.each { ign_sw ->
   all_supported_distros.each { distro ->
     supported_arches.each { arch ->
-      // --------------------------------------------------------------
-      def install_default_job = job("ignition_${ign_sw}-install-pkg-${distro}-${arch}")
-      OSRFLinuxInstall.create(install_default_job)
-      install_default_job.with
-      {
-         triggers {
-           cron('@daily')
-         }
+      supported_branches(ign_sw).each { major_version ->
+        // --------------------------------------------------------------
+        def install_default_job = job("ignition_${ign_sw}${major_version}-install-pkg-${distro}-${arch}")
+        OSRFLinuxInstall.create(install_default_job)
+        install_default_job.with
+        {
+           triggers {
+             cron('@daily')
+           }
 
-         def dev_package = "libignition-${ign_sw}${ignition_transport_series}-dev"
+           def dev_package = "libignition-${ign_sw}${major_version}-dev"
 
-         if ("${ign_sw}" == "math")
-          dev_package = "libignition-${ign_sw}${ignition_math_series}-dev"
+           // common and msgs don't have packages yet
+           if (("${ign_sw}" == "common") || ("${ign_sw}" == "msgs"))
+            disabled()
 
-         // common and msgs don't have packages yet
-         if (("${ign_sw}" == "common") || ("${ign_sw}" == "msgs"))
-          disabled()
+           steps {
+            shell("""\
+                  #!/bin/bash -xe
 
-         steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                export DISTRO=${distro}
-                export ARCH=${arch}
-                export INSTALL_JOB_PKG=${dev_package}
-                export INSTALL_JOB_REPOS=stable
-                /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
-                """.stripIndent())
+                  export DISTRO=${distro}
+                  export ARCH=${arch}
+                  export INSTALL_JOB_PKG=${dev_package}
+                  export INSTALL_JOB_REPOS=stable
+                  /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+                  """.stripIndent())
+          }
         }
       }
     }
@@ -184,18 +196,20 @@ ignition_software.each { ign_sw ->
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
 ignition_software.each { ign_sw ->
-  def build_pkg_job = job("ign-${ign_sw}-debbuilder")
-  OSRFLinuxBuildPkg.create(build_pkg_job)
+  supported_branches("${ign_sw}").each { major_version ->
+    def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
+    OSRFLinuxBuildPkg.create(build_pkg_job)
 
-  build_pkg_job.with
-  {
-      steps {
-        shell("""\
-              #!/bin/bash -xe
+    build_pkg_job.with
+    {
+        steps {
+          shell("""\
+                #!/bin/bash -xe
 
-              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
-              """.stripIndent())
-      }
+                /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
+                """.stripIndent())
+        }
+    }
   }
 }
 
