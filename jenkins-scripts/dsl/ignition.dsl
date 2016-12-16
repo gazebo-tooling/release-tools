@@ -3,6 +3,7 @@ import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
 def ignition_software         = [ 'transport', 'math', 'msgs', 'common' ]
+def ignition_debbuild         = ignition_software + [ 'transport2', 'transport3' ]
 def ignition_transport_series = '' // empty for a unversioned -dev package
 def ignition_math_series      = '2'
 
@@ -183,7 +184,7 @@ ignition_software.each { ign_sw ->
 
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
-ignition_software.each { ign_sw ->
+ignition_debbuild.each { ign_sw ->
   def build_pkg_job = job("ign-${ign_sw}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
 
