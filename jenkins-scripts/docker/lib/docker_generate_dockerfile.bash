@@ -140,6 +140,14 @@ RUN dpkg-divert --rename --add /usr/sbin/invoke-rc.d \\
 DELIM_DOCKER_PAM_BUG
 fi
 
+# dirmngr from Yaketty on needed by apt-key
+if [[ $DISTRO != 'trusty' ]] || [[ $DISTRO != 'xenial' ]]; then
+cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
+RUN apt-get update && \\
+    apt-get install -y dirmngr
+DELIM_DOCKER_DIRMNGR
+fi
+
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
 RUN echo "deb http://packages.osrfoundation.org/gazebo/${LINUX_DISTRO}-${repo} ${DISTRO} main" >\\
