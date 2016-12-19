@@ -41,6 +41,10 @@ BASE_DEPENDENCIES="build-essential \\
                    netcat-openbsd  \\
                    gnupg2          \\
                    net-tools"
+# dirmngr from Yaketty on needed by apt-key
+if [[ $DISTRO != 'trusty' ]] || [[ $DISTRO != 'xenial' ]]; then
+  BASE_DEPENDENCIES="${BASE_DEPENDENCIES} dirmngr"
+fi
 
 BREW_BASE_DEPENDCIES="mercurial git cmake"
 
