@@ -137,7 +137,7 @@ class GenericMail
     return("""
            // 3. Filter mail to get only OSRF
            recipients =
-              msg.getAllRecipients(javax.mail.Message.RecipientType.TO)
+              msg.getAllRecipients()
            filtered =
               recipients.findAll { addr -> addr.toString().contains('@osrfoundation.org') }
            msg.setRecipients(javax.mail.Message.RecipientType.TO,
