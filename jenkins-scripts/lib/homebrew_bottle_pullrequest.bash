@@ -54,7 +54,10 @@ for F_WITH_NEW_HASH in ${FILES_WITH_NEW_HASH}; do
   echo '# END SECTION'
 
   echo "# BEGIN SECTION: update hash in formula ${PACKAGE_ALIAS}"
-  DISTRO=yosemite
+  DISTRO=$(${BREW} ruby -e \
+    "puts Utils::JSON.load(IO.read(\"${F_WITH_NEW_HASH}\") \
+        ).values[0]['bottle']['tags']")
+  echo DISTRO: ${DISTRO}
   # Check if json has existing bottle entry for this DISTRO
   NEW_HASH=$(${BREW} ruby -e \
     "puts Utils::JSON.load(IO.read(\"${F_WITH_NEW_HASH}\") \
