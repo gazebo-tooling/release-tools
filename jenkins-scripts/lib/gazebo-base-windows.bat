@@ -58,8 +58,7 @@ set KEEP_WORKSPACE=TRUE
 set IGN_TEST_DISABLE=TRUE
 set IGN_TRANSPORT_DIR=%WORKSPACE%\ign-transport
 if EXIST %IGN_TRANSPORT_DIR% ( rmdir /s /q %IGN_TRANSPORT_DIR% )
-echo "REMOVE THE BRANCH AS SOON AS IT IS MERGED"
-hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_DIR% -b zmq_4_0_4
+hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_DIR%
 call "%SCRIPT_DIR%/lib/ign_transport-base-windows.bat" || goto :error
 echo # END SECTION
 
