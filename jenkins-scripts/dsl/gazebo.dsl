@@ -41,6 +41,16 @@ String gazebo_branch_to_major_version(String branch)
    return branch
 }
 
+boolean is_watched_by_buildcop(branch, distro = 'trusty', gpu = 'nvidia')
+
+{
+  if (branch == 'default' ||  branch == 'gazebo7')
+    if (gpu == 'nvidia' && distro == 'trusty')
+      return true
+
+  return false
+}
+
 // ABI Checker job
 // Need to be the before ci-pr_any so the abi job name is defined
 abi_distro.each { distro ->
@@ -136,9 +146,13 @@ ci_distro.each { distro ->
       // --------------------------------------------------------------
       // 2. Create the default ci jobs
       def gazebo_ci_job = job("gazebo-ci-default-${distro}-${arch}-gpu-${gpu}")
+      if (is_watched_by_buildcop('default', distro, gpu))
+      {
+        Globals.extra_emails = Globals.build_cop_email
+      }
       OSRFLinuxCompilation.create(gazebo_ci_job)
       OSRFBitbucketHg.create(gazebo_ci_job, "https://bitbucket.org/osrf/gazebo")
-      
+
       gazebo_ci_job.with
       {
         if (gpu != 'none')
@@ -166,6 +180,9 @@ ci_distro.each { distro ->
                 """.stripIndent())
         }
       }
+
+      // reset build cop email in global list of mails
+      Globals.extra_emails = ''
     } // end of gpu
   } // end of arch
 } // end of distro
@@ -260,6 +277,10 @@ gazebo_supported_branches.each { branch ->
       ci_gpu.each { gpu ->
         // ci_default job for the rest of arches / scm@daily
         def gazebo_ci_job = job("gazebo-ci-${branch}-${distro}-${arch}-gpu-${gpu}")
+        // note that we are already using the CI refernce GPU and distro, no
+        // need to check for build_cop email
+        if (is_watched_by_buildcop(branch, distro, gpu))
+          Globals.extra_emails = Globals.build_cop_email
         OSRFLinuxCompilation.create(gazebo_ci_job)
         OSRFBitbucketHg.create(gazebo_ci_job, "https://bitbucket.org/osrf/gazebo", branch)
 
@@ -282,6 +303,9 @@ gazebo_supported_branches.each { branch ->
             """.stripIndent())
           }
         }
+
+        // reset build cop email in global list of mails
+        Globals.extra_emails = ""
       } // end of gpu
     } // end of arch
   } // end of distro
@@ -501,9 +525,9 @@ install_brew_job.with
 // No gazebo2 for brew
 all_branches = gazebo_supported_branches + 'default' - 'gazebo2'
 all_branches.each { branch ->
-  if (branch == 'default' ||  branch == 'gazebo7')
+  if (is_watched_by_buildcop(branch))
     Globals.extra_emails = Globals.build_cop_email
-  
+
   def gazebo_brew_ci_job = job("gazebo-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(gazebo_brew_ci_job)
   OSRFBitbucketHg.create(gazebo_brew_ci_job, "https://bitbucket.org/osrf/gazebo", branch)
@@ -572,5 +596,5 @@ def gazebo_ci_main = workflowJob("gazebo-ci-pr_any")
 OSRFCIWorkFlowMultiAny.create(gazebo_ci_main,
                                    [ci_build_any_job_name_linux,
                                     ci_build_any_job_name_linux_no_gpu,
-// disable win until the build runs ci_build_any_job_name_win7,
+                                    ci_build_any_job_name_win7,
                                     ci_build_any_job_name_brew])

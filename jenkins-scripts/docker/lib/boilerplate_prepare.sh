@@ -16,19 +16,21 @@ fi
 #  *  Containers that exited more than 5 days ago are removed.
 #  *  Images that don't belong to any remaining container after that are removed
 if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
+    # get the mount point of the docker directory, not always /
+    docker_mount_point=$(df '/var/lib/docker' | awk '{ print $6 }' | tail -n 1)
     # in seconds: 5 days = 432000s
-    PERCENT_ROOT_USED=$(df -h | grep /$ | sed 's:.* \([0-9]*\)%.*:\1:')
-    if [[ $PERCENT_ROOT_USED -gt 90 ]]; then
-        echo "Space left is low: ${PERCENT_ROOT_USED}% used"
+    PERCENT_DISK_USED=$(df -h | grep ${docker_mount_point}$ | sed 's:.* \([0-9]*\)%.*:\1:')
+    if [[ $PERCENT_DISK_USED -gt 90 ]]; then
+        echo "Space left is low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
         wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
         sudo bash -c "GRACE_PERIOD_SECONDS=432000 bash docker-gc"
     fi
 
     # if not enough, run again with 1 day = 86400s
-    PERCENT_ROOT_USED=$(df -h | grep /$ | sed 's:.* \([0-9]*\)%.*:\1:')
-    if [[ $PERCENT_ROOT_USED -gt 90 ]]; then
-        echo "Space left is low: ${PERCENT_ROOT_USED}% used"
+    PERCENT_DISK_USED=$(df -h | grep ${docker_mount_point}$ | sed 's:.* \([0-9]*\)%.*:\1:')
+    if [[ $PERCENT_DISK_USED -gt 90 ]]; then
+        echo "Space left is low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
         wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
         sudo bash -c "GRACE_PERIOD_SECONDS=86400 bash docker-gc"
