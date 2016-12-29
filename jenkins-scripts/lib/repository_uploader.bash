@@ -146,7 +146,7 @@ for pkg in `ls $pkgs_path/*.zip`; do
 done
 
 # .bottle | brew binaries
-for pkg in `ls $pkgs_path/*.bottle.tar.gz`; do
+for pkg in `ls $pkgs_path/*.bottle*.tar.gz`; do
   # There could be more than one bottle exported so do not relay on variables
   # and extract information from bottles filenames
   pkg_filename=${pkg##*/} # leave file name only
