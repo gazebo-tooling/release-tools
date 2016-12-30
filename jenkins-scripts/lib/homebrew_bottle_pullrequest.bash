@@ -83,6 +83,6 @@ for F_WITH_NEW_HASH in ${FILES_WITH_NEW_HASH}; do
   sed -i -e "s@${SED_FIND___}@${SED_REPLACE}@" ${FORMULA_PATH}
   echo '# END SECTION'
 
-  COMMIT_MESSAGE_SUFFIX=" bottle"
+  COMMIT_MESSAGE_SUFFIX=" ${DISTRO} bottle"
   . ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
 done
