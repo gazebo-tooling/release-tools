@@ -17,6 +17,7 @@ sudo apt-get update
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: testing by running ihmc_valkyrie_ros launch file'
+mkdir ~/valkyrie
 . /opt/ros/indigo/setup.bash
 . /opt/nasa/indigo/setup.bash
 
