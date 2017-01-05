@@ -6,7 +6,7 @@ ignition_software           = [ 'transport', 'math', 'msgs', 'common' ]
 ignition_debbuild           = ignition_software + [ 'transport2', 'transport3' ]
 // no registered branches in ignition_branches means only series 0 or 1
 ignition_branches           = [ transport : [ '2', '3' ],
-                                math      : [ '2' ]]
+                                math      : [ '2', '3' ]]
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
 def abi_distro              = Globals.get_abi_distro()
