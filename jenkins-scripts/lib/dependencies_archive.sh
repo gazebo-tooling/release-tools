@@ -184,6 +184,7 @@ if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
     GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                                          libignition-transport2-dev \\
                                          libignition-transport3-dev \\
+                                         libignition-math3-dev \\
                                          libignition-msgs-dev"
 fi
 
