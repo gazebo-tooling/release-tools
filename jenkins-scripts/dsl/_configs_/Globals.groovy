@@ -55,7 +55,7 @@ class Globals
    // Main CI platform
    static ArrayList get_ci_distro()
    {
-    return [ 'trusty' ]
+    return [ 'xenial' ]
    }
 
    static ArrayList get_abi_distro()
@@ -70,7 +70,7 @@ class Globals
 
    static ArrayList get_other_supported_distros()
    {
-     return [ 'xenial', 'yakkety' ]
+     return [ 'trusty', 'yakkety' ]
    }
 
    static ArrayList get_supported_arches()
