@@ -21,16 +21,16 @@ apt-get install -y wget python-catkin-tools
 # Follow tutorial: http://wiki.ros.org/ariac/Tutorials/HelloWorld
 mkdir -p ~/helloworld_ws/src/ariac_example
 cd ~/helloworld_ws/src/ariac_example
-wget https://bitbucket.org/osrf/ariac/raw/master/gear_example/package.xml 
-wget https://bitbucket.org/osrf/ariac/raw/master/gear_example/CMakeLists.txt
+wget https://bitbucket.org/osrf/ariac/raw/master/ariac_example/package.xml 
+wget https://bitbucket.org/osrf/ariac/raw/master/ariac_example/CMakeLists.txt
 
 mkdir -p ~/helloworld_ws/src/ariac_example/config
 cd ~/helloworld_ws/src/ariac_example/config
-wget https://bitbucket.org/osrf/ariac/raw/master/gear_example/config/sample_gear_conf.yaml
+wget https://bitbucket.org/osrf/ariac/raw/master/ariac_example/config/sample_gear_conf.yaml
 
 mkdir -p ~/helloworld_ws/src/ariac_example/src
 cd ~/helloworld_ws/src/ariac_example/src
-wget https://bitbucket.org/osrf/ariac/raw/master/gear_example/src/gear_example_node.cpp
+wget https://bitbucket.org/osrf/ariac/raw/master/ariac_example/src/ariac_example_node.cpp
 
 cd ~/helloworld_ws
 catkin build
