@@ -3,6 +3,7 @@ set -e
 
 BREW_BINARY_DIR=/usr/local/bin
 BREW_BINARY=${BREW_BINARY_DIR}/brew
+git -C $(${BREW_BINARY} --repo) fsck
 export HOMEBREW_UPDATE_TO_TAG=1
 ${BREW_BINARY} up
 
