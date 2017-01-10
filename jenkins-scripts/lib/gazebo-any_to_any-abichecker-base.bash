@@ -26,6 +26,11 @@ fi
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
+if [[ $GAZEBO_MAJOR_VERSION -lt 8 ]]; then
+  GAZEBO_BASE_CMAKE_ARGS="${GAZEBO_BASE_CMAKE_ARGS} -DENABLE_TESTS_COMPILATION=True"
+fi
+
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
@@ -56,7 +61,7 @@ hg up $GAZEBO_ORIGIN_BRANCH
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-cmake -DENABLE_TESTS_COMPILATION:BOOL=False \\
+cmake ${GAZEBO_BASE_CMAKE_ARGS}      \\
       -DCMAKE_INSTALL_PREFIX=/usr/local/origin_branch \\
   /tmp/gazebo
 make -j${MAKE_JOBS}
@@ -71,7 +76,7 @@ hg pull --rev ${GAZEBO_TARGET_BRANCH}
 hg up $GAZEBO_TARGET_BRANCH
 # Normal cmake routine for Gazebo
 cd $WORKSPACE/build
-cmake -DENABLE_TESTS_COMPILATION:BOOL=False \\
+cmake ${GAZEBO_BASE_CMAKE_ARGS}      \\
       -DCMAKE_INSTALL_PREFIX=/usr/local/target_branch \\
   /tmp/gazebo
 make -j${MAKE_JOBS}
