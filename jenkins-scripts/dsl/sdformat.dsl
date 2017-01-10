@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def sdformat_supported_branches = [ 'sdformat2', 'sdformat3', 'sdformat4' ]
+def sdformat_supported_branches = [ 'sdformat3', 'sdformat4' ]
 def nightly_sdformat_branch = [ 'sdformat4' ]
 
 // Main platform using for quick CI
@@ -25,9 +25,6 @@ String abi_job_name = ''
 String get_sdformat_branch_name(String full_branch_name)
 {
   String sdf_branch = full_branch_name.replace("ormat",'')
-
-  if ("${full_branch_name}" == 'sdformat2')
-     sdf_branch = 'sdf_2.3'
 
   return sdf_branch
 }
@@ -212,7 +209,13 @@ ci_distro.each { distro ->
 
 // INSTALL LINUX -DEV PACKAGES ALL PLATFORMS @ CRON/DAILY
 sdformat_supported_branches.each { branch ->
-  ci_distro.each { distro ->
+  // select distro for testing the different packages
+  if (branch == 'sdformat3')
+    testing_distro = [ 'trusty' ]
+  else
+    testing_distro = ci_distro
+
+  testing_distro.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       def install_default_job = job("sdformat-install-${branch}_pkg-${distro}-${arch}")
@@ -310,8 +313,7 @@ sdformat_brew_ci_any_job.with
 }
 
 // 2. default in all branches @SCM/daily
-// No sdformat2 for brew
-all_branches = sdformat_supported_branches + 'default' - 'sdformat2'
+all_branches = sdformat_supported_branches + 'default'
 all_branches.each { branch ->
   def sdformat_brew_ci_job = job("sdformat-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(sdformat_brew_ci_job)
