@@ -288,6 +288,7 @@ else
                             ros-${ROS_DISTRO}-robot-model                       \\
                             ros-${ROS_DISTRO}-robot-state-publisher             \\
                             ros-${ROS_DISTRO}-control-toolbox                   \\
+                            libtinyxml2-dev                                     \\
                             ${_GZ_ROS_PACKAGES}"
 
   if [[ $ROS_DISTRO == 'hydro' ]]; then
