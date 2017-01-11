@@ -1,4 +1,6 @@
 job('roscygwin-ci_daily-cygwin64') {
+    disabled()
+
     label('cygwin')
     
     scm {

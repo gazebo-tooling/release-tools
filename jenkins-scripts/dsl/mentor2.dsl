@@ -1,6 +1,10 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
+//
+// Project currently disabled
+//
+
 def supported_distros = [ 'trusty' ]
 def supported_arches = [ 'amd64' ]
 
@@ -18,6 +22,7 @@ supported_distros.each { distro ->
 
     gazebo_ci_job.with
     {
+        disabled()
         label "gpu-reliable-trusty"
 
         scm {
@@ -49,6 +54,7 @@ supported_distros.each { distro ->
 
     sdformat_ci_job.with
     {
+        disabled()
         label "gpu-reliable-trusty"
 
         scm {
@@ -79,6 +85,7 @@ supported_distros.each { distro ->
 
     mentor2_ci_job.with
     {
+        disabled()
         label "gpu-reliable-trusty"
 
         scm {
@@ -109,6 +116,7 @@ supported_distros.each { distro ->
 
     install_default_job.with
     {
+        disabled()
         triggers {
           cron('@weekly')
         }
@@ -135,6 +143,7 @@ OSRFLinuxBuildPkg.create(build_pkg_job)
 
 build_pkg_job.with
 {
+    disabled()
     steps {
       shell("""\
             #!/bin/bash -xe
