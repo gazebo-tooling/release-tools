@@ -203,8 +203,15 @@ RUN echo "${MONTH_YEAR_STR}"
 # The rm command will minimize the layer size
 RUN apt-get update && \
     apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} && \
-    rm -rf /var/lib/apt/lists/*
-
+    rm -rf /var/lib/apt/lists/* || ENABLE_WORKAROUND_FOR_FAILING_APT=1
+# workaround to deal with the error:
+# Could not open file *_Packages.diff_Index - open (2: No such file or directory)
+RUN if [ -n \${ENABLE_WORKAROUND_FOR_FAILING_APT} ]; then \
+	rm -rf /var/lib/apt/lists/*
+	apt-get update && \
+	apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} && \
+	rm -rf /var/lib/apt/lists/* \
+    fi
 # This is killing the cache so we get the most recent packages if there
 # was any update
 RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))"
