@@ -16,7 +16,7 @@ fi
 
 # Identify SDFORMAT_MAJOR_VERSION to help with dependency resolution
 SDFORMAT_MAJOR_VERSION=`\
-  grep 'set.*SDFORMAT_MAJOR_VERSION ' ${WORKSPACE}/sdformat/CMakeLists.txt | \
+  grep 'set.*SDF_MAJOR_VERSION ' ${WORKSPACE}/sdformat/CMakeLists.txt | \
   tr -d 'a-zA-Z _()'`
 
 # Check SDFORMAT version is integer
