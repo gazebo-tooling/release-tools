@@ -50,8 +50,8 @@ call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.z
 call %win_lib% :download_7za
 call %win_lib% :unzip_7za boost_1_56_0.zip > install_boost.log
 IF %USE_IGNITION_ZIP% == TRUE (
-  call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/ign-math2.zip ign-math2.zip
-  call %win_lib% :unzip_7za ign-math2.zip
+  call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/ign-math3.zip ign-math3.zip
+  call %win_lib% :unzip_7za ign-math3.zip
 )
 echo # END SECTION
 
