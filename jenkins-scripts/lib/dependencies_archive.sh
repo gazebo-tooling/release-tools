@@ -69,7 +69,7 @@ fi
 
 # SDFORMAT related dependencies
 if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
-    SDFORMAT_MAJOR_VERSION=3
+    SDFORMAT_MAJOR_VERSION=5
 fi
 
 if [[ ${SDFORMAT_MAJOR_VERSION} -ge 5 ]]; then
@@ -175,7 +175,7 @@ GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
                           ${bullet_pkg}                    \\
                           libsimbody-dev                   \\
                           ${dart_pkg}"
-                   
+
 if [[ ${GAZEBO_MAJOR_VERSION} -ge 6 ]]; then
     GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                                          libignition-math2-dev"
