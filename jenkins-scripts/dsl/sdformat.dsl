@@ -368,7 +368,7 @@ all_branches.each { branch ->
         scm('@daily')
       }
 
-      if (${branch} == 'sdformat4')
+      if (branch == 'sdformat4')
         String ign_math_v="2"
       else
         String ign_math_v="3"
