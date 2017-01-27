@@ -16,8 +16,6 @@ echo '# BEGIN SECTION: testing by running ariac launch file'
 rosdep init
 rosdep update
 
-apt-get install -y wget python-catkin-tools
-
 # Follow tutorial: http://wiki.ros.org/ariac/Tutorials/HelloWorld
 mkdir -p ~/helloworld_ws/src/ariac_example
 cd ~/helloworld_ws/src/ariac_example
@@ -36,7 +34,7 @@ cd ~/helloworld_ws
 catkin build
 
 TEST_START=\`date +%s\`
-timeout --preserve-status 180 rosrun osrf_gear gear.py -f \$(rospack find osrf_gear)/config/comp_conf2.yaml \
+timeout --preserve-status 180 rosrun osrf_gear gear.py -f \$(rospack find osrf_gear)/config/comp_conf1.yaml \
     ~/helloworld_ws/src/ariac_example/config/sample_gear_conf.yaml -o /tmp || true
 TEST_END=\`date +%s\`
 DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
