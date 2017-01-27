@@ -29,6 +29,7 @@ call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/qwt_6.1.0~gith
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/tbb43_20141023oss_win.zip tbb43_20141023oss_win.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zziplib-0.13.62-vc12-x64-release-debug.zip zziplib-0.13.62-vc12-x64-release-debug.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zlib-1.2.8-vc12-x64-release-debug.zip zlib-1.2.8-vc12-x64-release-debug.zip
+call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/qt5-x64-static-release.zip qt5-x64-static-release.zip
 call %win_lib% :wget http://download.qt-project.org/official_releases/jom/jom.zip jom.zip
 
 call %win_lib% :download_7za
@@ -44,7 +45,7 @@ call %win_lib% :unzip_7za qwt_6.1.0~github_zalf_lsa.zip
 call %win_lib% :unzip_7za tbb43_20141023oss_win.zip
 call %win_lib% :unzip_7za zlib-1.2.8-vc12-x64-release-debug.zip
 call %win_lib% :unzip_7za zziplib-0.13.62-vc12-x64-release-debug.zip
-call %win_lib% :unzip_7za jom.zip
+call %win_lib% :unzip_7za jom.zip qt5-x64-static-release.zip
 echo # END SECTION
 ) ELSE (
   echo # BEGIN SECTION: reusing workspace 
