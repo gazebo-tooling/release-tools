@@ -369,9 +369,9 @@ all_branches.each { branch ->
       }
 
       if (branch == 'sdformat4')
-        String ign_math_v="2"
+        ign_math_v="2"
       else
-        String ign_math_v="3"
+        ign_math_v="3"
 
       steps {
         batchFile("""\
