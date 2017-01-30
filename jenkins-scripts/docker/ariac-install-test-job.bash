@@ -36,13 +36,24 @@ cd ~/helloworld_ws
 catkin_make
 
 TEST_START=\`date +%s\`
-timeout --preserve-status 180 rosrun osrf_gear gear.py -f \$(rospack find osrf_gear)/config/comp_conf1.yaml \
-    ~/helloworld_ws/src/ariac_example/config/sample_gear_conf.yaml & \
-    sleep 5 && . ~/helloworld_ws/devel/setup.bash && rosrun ariac_example ariac_example_node || true
+# Run ARIAC simulation
+rosrun osrf_gear gear.py -f \$(rospack find osrf_gear)/config/comp_conf1.yaml \
+    ~/helloworld_ws/src/ariac_example/config/sample_gear_conf.yaml &
+# Run the example node
+sleep 10 && . ~/helloworld_ws/devel/setup.bash && \
+   timeout --preserve-status 180 rosrun ariac_example ariac_example_node || true
 
 TEST_END=\`date +%s\`
 DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
 
+# Kill the simulation
+kill %%
+if [ $? != 0 ]; then
+   echo 'The ARIAC simulation had already died when trying to kill it. Something bad happened'
+   exit 1
+fi
+
+# Check the test run-time
 if [ \$DIFF -lt 180 ]; then
    echo 'The test took less than 180s. Something bad happened'
    exit 1
