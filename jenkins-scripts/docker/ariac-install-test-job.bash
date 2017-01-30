@@ -37,7 +37,9 @@ catkin_make
 
 TEST_START=\`date +%s\`
 timeout --preserve-status 180 rosrun osrf_gear gear.py -f \$(rospack find osrf_gear)/config/comp_conf1.yaml \
-    ~/helloworld_ws/src/ariac_example/config/sample_gear_conf.yaml -o /tmp || true
+    ~/helloworld_ws/src/ariac_example/config/sample_gear_conf.yaml & \
+    sleep 5 && . ~/helloworld_ws/devel/setup.bash && rosrun ariac_example ariac_example_node || true
+
 TEST_END=\`date +%s\`
 DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
 
