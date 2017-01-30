@@ -200,11 +200,12 @@ cat >> Dockerfile << DELIM_DOCKER3
 # The expection of updates is low and anyway it is cathed by the next
 # update command below
 RUN echo "${MONTH_YEAR_STR}"
+# The rm after the fail of apt-get update is a workaround to deal with the error:
+# Could not open file *_Packages.diff_Index - open (2: No such file or directory)
+RUN apt-get update ||  rm -rf /var/lib/apt/lists/* && apt-get update
 # The rm command will minimize the layer size
-RUN apt-get update && \
-    apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} && \
-    rm -rf /var/lib/apt/lists/*
-
+RUN apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} && \
+    rm -rf /var/lib/apt/lists/* 
 # This is killing the cache so we get the most recent packages if there
 # was any update
 RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))"
