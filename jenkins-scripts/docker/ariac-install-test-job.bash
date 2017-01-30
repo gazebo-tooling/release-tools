@@ -16,6 +16,8 @@ echo '# BEGIN SECTION: testing by running ariac launch file'
 rosdep init
 rosdep update
 
+apt-get install -y wget
+
 # Follow tutorial: http://wiki.ros.org/ariac/Tutorials/HelloWorld
 mkdir -p ~/helloworld_ws/src/ariac_example
 cd ~/helloworld_ws/src/ariac_example
