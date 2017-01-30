@@ -33,7 +33,7 @@ cd ~/helloworld_ws/src/ariac_example/src
 wget https://bitbucket.org/osrf/ariac/raw/master/ariac_example/src/ariac_example_node.cpp
 
 cd ~/helloworld_ws
-catkin build
+catkin_make
 
 TEST_START=\`date +%s\`
 timeout --preserve-status 180 rosrun osrf_gear gear.py -f \$(rospack find osrf_gear)/config/comp_conf1.yaml \
