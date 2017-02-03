@@ -359,16 +359,24 @@ all_branches = sdformat_supported_branches + 'default'
 all_branches.each { branch ->
   def sdformat_win_ci_job = job("sdformat-ci-${branch}-windows7-amd64")
   OSRFWinCompilation.create(sdformat_win_ci_job)
-  OSRFBitbucketHg.create(sdformat_win_ci_job, "https://bitbucket.org/osrf/sdformat")
-
+  OSRFBitbucketHg.create(sdformat_win_ci_job,
+                         "https://bitbucket.org/osrf/sdformat",
+                         get_sdformat_branch_name(branch))
   sdformat_win_ci_job.with
   {
       triggers {
         scm('@daily')
       }
 
+      if (branch == 'sdformat4')
+        ign_math_v="2"
+      else
+        ign_math_v="3"
+
       steps {
         batchFile("""\
+              set USE_IGNITION_ZIP=false
+              set IGNMATH_BRANCH=ign-math${ign_math_v}
               call "./scripts/jenkins-scripts/sdformat-default-devel-windows-amd64.bat"
               """.stripIndent())
       }
@@ -376,7 +384,7 @@ all_branches.each { branch ->
 }
 
 // Create the main CI work flow job
-def sdformat_ci_main = workflowJob("sdformat-ci-pr_any")
+def sdformat_ci_main = pipelineJob("sdformat-ci-pr_any")
 OSRFCIWorkFlowMultiAny.create(sdformat_ci_main,
                                     [ci_build_any_job_name_linux,
                                      ci_build_any_job_name_brew,
