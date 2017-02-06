@@ -199,18 +199,20 @@ cat >> Dockerfile << DELIM_DOCKER3
 # This is the firt big installation of packages on top of the raw image.
 # The expection of updates is low and anyway it is cathed by the next
 # update command below
-RUN echo "${MONTH_YEAR_STR}"
 # The rm after the fail of apt-get update is a workaround to deal with the error:
 # Could not open file *_Packages.diff_Index - open (2: No such file or directory)
-RUN apt-get update ||  rm -rf /var/lib/apt/lists/* && apt-get update
-# The rm command will minimize the layer size
-RUN apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} && \
-    rm -rf /var/lib/apt/lists/* 
+RUN echo "${MONTH_YEAR_STR}" \
+ && apt-get update \
+ && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
+ && apt-get clean \
+ && ( rm -rf /var/lib/apt/lists/*  || true )
 # This is killing the cache so we get the most recent packages if there
 # was any update
-RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))"
-RUN apt-get update && \
-    apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES}
+RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))" \
+ && apt-get update \
+ && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
+ && apt-get clean \
+ && ( rm -rf /var/lib/apt/lists/*  || true )
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
 DELIM_DOCKER3
