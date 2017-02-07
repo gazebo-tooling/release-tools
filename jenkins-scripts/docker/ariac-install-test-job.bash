@@ -10,9 +10,22 @@ export INSTALL_JOB_PKG="ariac"
 export INSTALL_JOB_REPOS="stable"
 export USE_ROS_REPO=true
 
+case "$DISTRO" in
+  'trusty')
+    export ROS_DISTRO=indigo
+    ;;
+  'xenial')
+    export ROS_DISTRO=kinetic
+    ;;
+  *)
+    echo "Only trusty+indigo and xenial+kinetic are supported"
+    exit 1
+    ;;
+esac
+
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: testing by running ariac launch file'
-. /opt/ros/indigo/setup.bash
+. /opt/ros/\$ROS_DISTRO/setup.bash
 rosdep init
 rosdep update
 
