@@ -6,7 +6,7 @@
 set -e
 
 # The installation script is heavy based on get.gazebo.io script
-# 
+#
 # Modfied by jrivero@osrfoundation.org
 
 GZ_VER=8
@@ -52,7 +52,7 @@ do_install() {
 	GAZEBO INSTALLATION SCRIPT
 	=======================================================
 
-	This script is installing the latest stable version of 
+	This script is installing the latest stable version of
 	Gazebo Simulator available from your package manager
 
 	EOF_INIT
@@ -142,6 +142,11 @@ do_install() {
 
 	case "$lsb_dist" in
 
+		linuxmint)
+			lsb_dist="$(. /etc/os-release && echo "$ID_LIKE")"
+			dist_version="$(. /etc/os-release && echo "$UBUNTU_CODENAME")"
+		;;
+
 		ubuntu)
 			if command_exists lsb_release; then
 				dist_version="$(lsb_release --codename | cut -f2)"
@@ -229,7 +234,7 @@ do_install() {
 			)
 			exit 0
 			;;
-                        
+
 		ubuntu)
 			export DEBIAN_FRONTEND=noninteractive
 
