@@ -20,6 +20,8 @@ build_pkg_job.with
         credentials('65cd22d1-f3d5-4ff4-b18f-1d88efa13a02')
       }
 
+      branch('master') 
+
       extensions {
         cleanBeforeCheckout()
         relativeTargetDirectory('repo')
