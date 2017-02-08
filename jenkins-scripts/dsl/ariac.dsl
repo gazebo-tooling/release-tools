@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def supported_distros = [ 'trusty' ]
+def supported_distros = [ 'trusty', 'xenial' ]
 def supported_arches = [ 'amd64' ]
 
 // LINUX
@@ -66,6 +66,8 @@ supported_distros.each { distro ->
         triggers {
           cron('@weekly')
         }
+
+        label "gpu-reliable-${distro}"
 
         steps {
           shell("""#!/bin/bash -xe
