@@ -38,7 +38,7 @@ export BUILDING_DEPENDENCIES="ros-${ROS_DISTRO}-gazebo${PKG_VERSION}-plugins \\
                               ros-${ROS_DISTRO}-xacro"
 # Use src temporary repo
 export DOCKER_PREINSTALL_HOOK="""\
-apt-get install -y wget
+apt-get install -y wget && \\
 echo \"deb http://srcsim.gazebosim.org/src ${DISTRO} main\" > /etc/apt/sources.list.d/src.list && \\
 wget -qO - http://srcsim.gazebosim.org/src/src.key | sudo apt-key add - && \\
 apt-get update
