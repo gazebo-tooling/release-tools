@@ -9,6 +9,8 @@
 # - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
 # - DEPENDENCY_PKGS   : (optional) packages to be installed in the image
 # - SOFTWARE_DIR      : (optional) directory to copy inside the image
+# - DOCKER_PREINSTALL_HOOK : (optional) bash code to run before installing  DEPENDENCY_PKGS.
+#                       It can be used for installing extra repositories needed for DEPENDENCY_PKGS
 # - DOCKER_POSTINSTALL_HOOK : (optional) bash code to run after installing  DEPENDENCY_PKGS.
 #                       It can be used for gem ruby installations or pip python
 
@@ -163,6 +165,11 @@ RUN echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
 RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
 DELIM_ROS_REPO
+
+if [ `expr length "${DOCKER_PREINSTALL_HOOK}"` -gt 1 ]; then
+cat >> Dockerfile << DELIM_WORKAROUND_PRE_HOOK
+RUN ${DOCKER_PREINSTALL_HOOK}
+DELIM_WORKAROUND_PRE_HOOK
 fi
 
 # Dart repositories
