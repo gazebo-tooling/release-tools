@@ -25,7 +25,7 @@ esac
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: testing by running ariac launch file'
-. /opt/ros/\$ROS_DISTRO/setup.bash
+. /opt/ros/$ROS_DISTRO/setup.bash
 rosdep init
 rosdep update
 
