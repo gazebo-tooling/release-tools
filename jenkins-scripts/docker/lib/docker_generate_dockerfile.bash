@@ -97,6 +97,16 @@ ENV DEBFULLNAME "OSRF Jenkins"
 ENV DEBEMAIL "build@osrfoundation.org"
 DELIM_DOCKER
 
+# Handle special INVALIDATE_DOCKER_CACHE keyword by set a random
+if [[ -n ${INVALIDATE_DOCKER_CACHE} ]]; then
+cat >> Dockerfile << DELIM_DOCKER_INVALIDATE
+RUN echo 'BEGIN SECTION: invalidate full docker cache'
+RUN echo "Detecting content in INVALIDATE_DOCKER_CACHE. Invalidating it"
+RUN echo "Invalidate cache enabled. ${DOCKER_RND_ID}"
+RUN echo 'END SECTION'
+DELIM_DOCKER_INVALIDATE
+fi
+
 # The redirection fails too many times using us ftp
 if [[ ${LINUX_DISTRO} == 'debian' ]]; then
 cat >> Dockerfile << DELIM_DEBIAN_APT
@@ -182,16 +192,6 @@ RUN apt-add-repository -y ppa:libccd-debs
 RUN apt-add-repository -y ppa:fcl-debs
 RUN apt-add-repository -y ppa:dartsim
 DELIM_DOCKER_DART_PKGS
-fi
-
-# Handle special INVALIDATE_DOCKER_CACHE keyword by set a random
-if [[ -n ${INVALIDATE_DOCKER_CACHE} ]]; then
-cat >> Dockerfile << DELIM_DOCKER_INVALIDATE
-RUN echo 'BEGIN SECTION: invalidate full docker cache'
-RUN echo "Detecting content in INVALIDATE_DOCKER_CACHE. Invalidating it"
-RUN echo "Invalidate cache enabled. ${DOCKER_RND_ID}"
-RUN echo 'END SECTION'
-DELIM_DOCKER_INVALIDATE
 fi
 
 # Packages that will be installed and cached by docker. In a non-cache
