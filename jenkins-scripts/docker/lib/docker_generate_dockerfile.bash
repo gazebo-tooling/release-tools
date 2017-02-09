@@ -206,8 +206,10 @@ RUN echo "${MONTH_YEAR_STR}" \
  && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
+
 # This is killing the cache so we get the most recent packages if there
-# was any update
+# was any update. Note that we don't remove the apt/lists file here since
+# it will make to run apt-get update again
 RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))" \
  && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
  && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
