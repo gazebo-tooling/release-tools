@@ -211,8 +211,8 @@ RUN echo "${MONTH_YEAR_STR}" \
 RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))" \
  && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
  && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+ && apt-get clean
+
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
 DELIM_DOCKER3
