@@ -95,6 +95,16 @@ ENV DEBFULLNAME "OSRF Jenkins"
 ENV DEBEMAIL "build@osrfoundation.org"
 DELIM_DOCKER
 
+# Handle special INVALIDATE_DOCKER_CACHE keyword by set a random
+if [[ -n ${INVALIDATE_DOCKER_CACHE} ]]; then
+cat >> Dockerfile << DELIM_DOCKER_INVALIDATE
+RUN echo 'BEGIN SECTION: invalidate full docker cache'
+RUN echo "Detecting content in INVALIDATE_DOCKER_CACHE. Invalidating it"
+RUN echo "Invalidate cache enabled. ${DOCKER_RND_ID}"
+RUN echo 'END SECTION'
+DELIM_DOCKER_INVALIDATE
+fi
+
 # The redirection fails too many times using us ftp
 if [[ ${LINUX_DISTRO} == 'debian' ]]; then
 cat >> Dockerfile << DELIM_DEBIAN_APT
@@ -176,16 +186,6 @@ RUN apt-add-repository -y ppa:dartsim
 DELIM_DOCKER_DART_PKGS
 fi
 
-# Handle special INVALIDATE_DOCKER_CACHE keyword by set a random
-if [[ -n ${INVALIDATE_DOCKER_CACHE} ]]; then
-cat >> Dockerfile << DELIM_DOCKER_INVALIDATE
-RUN echo 'BEGIN SECTION: invalidate full docker cache'
-RUN echo "Detecting content in INVALIDATE_DOCKER_CACHE. Invalidating it"
-RUN echo "Invalidate cache enabled. ${DOCKER_RND_ID}"
-RUN echo 'END SECTION'
-DELIM_DOCKER_INVALIDATE
-fi
-
 # Packages that will be installed and cached by docker. In a non-cache
 # run below, the docker script will check for the latest updates
 PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS}"
@@ -206,13 +206,15 @@ RUN echo "${MONTH_YEAR_STR}" \
  && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
+
 # This is killing the cache so we get the most recent packages if there
-# was any update
+# was any update. Note that we don't remove the apt/lists file here since
+# it will make to run apt-get update again
 RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))" \
  && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
  && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+ && apt-get clean
+
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
 DELIM_DOCKER3
