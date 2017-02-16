@@ -16,6 +16,7 @@ DOCKER_JOB_NAME="gazebo_ros_pkgs_ci"
 # don't have rosdep at this point and want gazebo to be cached by docker
 DEPENDENCY_PKGS="${ROS_GAZEBO_PKGS_DEPENDENCIES} ${_GZ_ROS_PACKAGES}"
 USE_ROS_REPO=true
+CATKIN_EXTRA_ARGS="--cmake-args -DENABLE_DISPLAY_TESTS:BOOL=ON"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash

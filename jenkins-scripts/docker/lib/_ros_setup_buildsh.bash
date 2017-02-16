@@ -43,7 +43,7 @@ cd ${CATKIN_WS}
 catkin config --init --mkdirs
 ln -s "${WORKSPACE}/${SOFTWARE_DIR}" "${CATKIN_WS}/src/${SOFTWARE_DIR}"
 catkin list
-catkin build -j${MAKE_JOBS} --verbose --summary
+catkin build -j${MAKE_JOBS} --verbose --summary ${CATKIN_EXTRA_ARGS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: running tests'
