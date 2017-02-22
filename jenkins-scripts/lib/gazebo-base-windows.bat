@@ -82,7 +82,7 @@ if EXIST %IGN_MATH_WS_DIR% (
 echo # BEGIN SECTION: compile and install sdformat
 set SDFORMAT_DIR=%WORKSPACE%\workspace\sdformat
 if EXIST %SDFORMAT_DIR% ( rmdir /s /q %SDFORMAT_DIR% )
-hg clone https://bitbucket.org/osrf/sdformat %SDFORMAT_DIR%
+hg clone https://bitbucket.org/osrf/sdformat %SDFORMAT_DIR% -b sdf5
 cd %SDFORMAT_DIR%
 mkdir build
 cd build
