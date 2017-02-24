@@ -21,6 +21,19 @@ void include_gpu_label(Job job, String distro)
   }
 }
 
+void include_parselog(Job job)
+{
+  job.with
+  {
+    publishers {
+        consoleParsing {
+            globalRules('/var/lib/jenkins/logparser_error_on_roslaunch_failed')
+            failBuildOnError()
+        }
+    }
+  }
+}
+
 // MAIN CI JOBS
 ci_distro.each { distro ->
   supported_arches.each { arch ->
@@ -30,8 +43,9 @@ ci_distro.each { distro ->
 
     // Use the linux compilation as base
     OSRFLinuxCompilation.create(srcsim_ci_job)
-    // GPU label
+    // GPU label and parselog
     include_gpu_label(srcsim_ci_job, distro)
+    include_parselog(srcsim_ci_job)
 
     srcsim_ci_job.with
     {
@@ -61,8 +75,9 @@ ci_distro.each { distro ->
     def srcsim_ci_any_job = job("srcsim-ci-pr_any-${distro}-${arch}")
     OSRFLinuxCompilationAny.create(srcsim_ci_any_job,
                                   'https://bitbucket.org/osrf/srcsim')
-    // GPU label
+    // GPU label and parselog
     include_gpu_label(srcsim_ci_any_job, distro)
+    include_parselog(srcsim_ci_any_job)
 
     srcsim_ci_any_job.with
     {
@@ -88,8 +103,9 @@ other_supported_distros.each { distro ->
 
     // Use the linux compilation as base
     OSRFLinuxCompilation.create(srcsim_ci_job)
-    // GPU label
+    // GPU label and parselog
     include_gpu_label(srcsim_ci_job, distro)
+    include_parselog(srcsim_ci_job)
 
     srcsim_ci_job.with
     {
@@ -124,8 +140,10 @@ all_supported_distros.each { distro ->
     // 1. Install srcsim testing pkg testing
     def install_default_job = job("srcsim-install_pkg-${distro}-${arch}")
     OSRFLinuxInstall.create(install_default_job)
-    // GPU label
+    // GPU label and parselog
     include_gpu_label(install_default_job, distro)
+    include_parselog(install_default_job)
+
     install_default_job.with
     {
       triggers {
@@ -150,6 +168,8 @@ all_supported_distros.each { distro ->
     OSRFLinuxInstall.create(ihmc_install_default_job)
     // GPU label
     include_gpu_label(ihmc_install_default_job, distro)
+    include_parselog(ihmc_install_default_job)
+
     ihmc_install_default_job.with
     {
       triggers {

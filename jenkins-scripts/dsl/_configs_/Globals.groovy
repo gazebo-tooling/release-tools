@@ -17,9 +17,9 @@ class Globals
                      'kinetic' : ['xenial']]
 
    // This should be in sync with archive_library
-   static gz_version_by_rosdistro = [ 'indigo'  : ['2'] ,
+   static gz_version_by_rosdistro = [ 'indigo'  : ['2', '7'] ,
                                       'jade'    : ['5'] ,
-                                      'kinetic' : ['7']]
+                                      'kinetic' : ['7', '8']]
 
    static ArrayList get_ros_distros_by_ubuntu_distro(String ubuntu_distro)
    {
