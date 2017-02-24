@@ -17,6 +17,7 @@ sudo apt-get update
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: testing by running qual1 launch file'
+update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 mkdir -p ~/.gazebo/models
 mkdir ~/valkyrie
 wget -O /tmp/control.tar.gz http://models.gazebosim.org/control_console/model.tar.gz && tar xvf /tmp/control.tar.gz -C ~/.gazebo/models
