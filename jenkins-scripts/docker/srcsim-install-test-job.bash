@@ -26,7 +26,7 @@ chown -R \$USER:\$USER /opt/ros/indigo/share/ihmc_ros_java_adapter
 
 mkdir -p ~/.ihmc; curl https://raw.githubusercontent.com/ihmcrobotics/ihmc_ros_core/0.8.0/ihmc_ros_common/configurations/IHMCNetworkParametersTemplate.ini > ~/.ihmc/IHMCNetworkParameters.ini
 
-echo '@ros - rtprio 99' > /etc/security/limits.d/ros-rtprio.conf'
+echo '@ros - rtprio 99' > /etc/security/limits.d/ros-rtprio.conf
 groupadd ros
 usermod -a -G ros \$USER
 
