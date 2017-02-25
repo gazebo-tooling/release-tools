@@ -18,15 +18,35 @@ sudo apt-get update
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: testing by running qual1 launch file'
 update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-mkdir -p ~/.gazebo/models
-mkdir ~/valkyrie
-wget -O /tmp/control.tar.gz http://models.gazebosim.org/control_console/model.tar.gz && tar xvf /tmp/control.tar.gz -C ~/.gazebo/models
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export IS_GAZEBO=true
+export ROS_IP=127.0.0.1
 
-. /opt/ros/indigo/setup.bash
-. /opt/nasa/indigo/setup.bash
+chown -R \$USER:\$USER /opt/ros/indigo/share/ihmc_ros_java_adapter
+
+mkdir -p ~/.ihmc; curl https://raw.githubusercontent.com/ihmcrobotics/ihmc_ros_core/0.8.0/ihmc_ros_common/configurations/IHMCNetworkParametersTemplate.ini > ~/.ihmc/IHMCNetworkParameters.ini
+
+echo '@ros - rtprio 99' > /etc/security/limits.d/ros-rtprio.conf'
+groupadd ros
+usermod -a -G ros \$USER
+
+wget -P /tmp/ http://gazebosim.org/distributions/srcsim/valkyrie_controller.tar.gz
+tar -xvf /tmp/valkyrie_controller.tar.gz -C \$HOME
+rm /tmp/valkyrie_controller.tar.gz
+
+mkdir ~/valkyrie
+
+wget -P /tmp/ https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz
+mkdir -p ~/.gazebo/models
+tar -xvf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
+rm /tmp/default.tar.gz
+
+# pre-built cache
+source  /opt/nasa/indigo/setup.bash
+roslaunch ihmc_valkyrie_ros valkyrie_warmup_gradle_cache.launch
 
 TEST_START=\`date +%s\`
-timeout --preserve-status 400 roslaunch srcsim qual1.launch extra_gazebo_args:=\"-r\" init:=\"true\" || true
+timeout --preserve-status 400 roslaunch srcsim qual2.launch extra_gazebo_args:=\"-r\" init:=\"true\" walk_test:=true || true
 TEST_END=\`date +%s\`
 DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
 
