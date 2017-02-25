@@ -32,8 +32,6 @@ wget -P /tmp/ http://gazebosim.org/distributions/srcsim/valkyrie_controller.tar.
 tar -xvf /tmp/valkyrie_controller.tar.gz -C ~/
 rm /tmp/valkyrie_controller.tar.gz
 
-mkdir ~/valkyrie
-
 wget -P /tmp/ https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz
 mkdir -p ~/.gazebo/models
 tar -xvf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
