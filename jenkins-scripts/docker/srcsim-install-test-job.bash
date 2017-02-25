@@ -22,16 +22,14 @@ export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 export IS_GAZEBO=true
 export ROS_IP=127.0.0.1
 
-chown -R \$USER:\$USER /opt/ros/indigo/share/ihmc_ros_java_adapter
-
 mkdir -p ~/.ihmc; curl https://raw.githubusercontent.com/ihmcrobotics/ihmc_ros_core/0.8.0/ihmc_ros_common/configurations/IHMCNetworkParametersTemplate.ini > ~/.ihmc/IHMCNetworkParameters.ini
 
 echo '@ros - rtprio 99' > /etc/security/limits.d/ros-rtprio.conf
 groupadd ros
-usermod -a -G ros \$USER
+usermod -a -G ros root
 
 wget -P /tmp/ http://gazebosim.org/distributions/srcsim/valkyrie_controller.tar.gz
-tar -xvf /tmp/valkyrie_controller.tar.gz -C \$HOME
+tar -xvf /tmp/valkyrie_controller.tar.gz -C ~/
 rm /tmp/valkyrie_controller.tar.gz
 
 mkdir ~/valkyrie
