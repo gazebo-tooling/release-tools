@@ -1,7 +1,7 @@
 # Whole SRCSIM setup
 SRCSIM_SETUP="""
 update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-update-alternatives --set javac /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/javac
+#update-alternatives --set javac /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/javac
 rm /usr/lib/jvm/default-java
 sudo ln -s /usr/lib/jvm/java-8-openjdk-amd64 /usr/lib/jvm/default-java
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
