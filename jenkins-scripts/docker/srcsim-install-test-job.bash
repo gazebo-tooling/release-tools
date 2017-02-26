@@ -6,6 +6,9 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export GPU_SUPPORT_NEEDED=true
 
+# Import library
+. ${SCRIPT_DIR}/lib/_srcsim_lib.bash
+
 INSTALL_JOB_PREINSTALL_HOOK="""
 # import the SRC repo
 echo \"deb http://srcsim.gazebosim.org/src ${DISTRO} main\" >\\
@@ -17,37 +20,15 @@ sudo apt-get update
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: testing by running qual1 launch file'
-update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-export IS_GAZEBO=true
-export ROS_IP=127.0.0.1
-
-mkdir -p ~/.ihmc; curl https://raw.githubusercontent.com/ihmcrobotics/ihmc_ros_core/0.8.0/ihmc_ros_common/configurations/IHMCNetworkParametersTemplate.ini > ~/.ihmc/IHMCNetworkParameters.ini
-
-echo '@ros - rtprio 99' > /etc/security/limits.d/ros-rtprio.conf
-groupadd ros
-usermod -a -G ros root
-
-wget -P /tmp/ http://gazebosim.org/distributions/srcsim/valkyrie_controller.tar.gz
-tar -xvf /tmp/valkyrie_controller.tar.gz -C ~/
-rm /tmp/valkyrie_controller.tar.gz
-
-wget -P /tmp/ https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz
-mkdir -p ~/.gazebo/models
-tar -xvf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
-rm /tmp/default.tar.gz
-
-# pre-built cache
-source  /opt/nasa/indigo/setup.bash
-roslaunch ihmc_valkyrie_ros valkyrie_warmup_gradle_cache.launch
+${SRCSIM_SETUP}
 
 TEST_START=\`date +%s\`
 timeout --preserve-status 400 roslaunch srcsim qual2.launch extra_gazebo_args:=\"-r\" init:=\"true\" walk_test:=true || true
 TEST_END=\`date +%s\`
 DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
 
-if [ \$DIFF -lt 400 ]; then
-   echo 'The test took less than 400s. Something bad happened'
+if [ \$DIFF -lt 800 ]; then
+   echo 'The test took less than 800s. Something bad happened'
    exit 1
 fi
 echo '# END SECTION'
