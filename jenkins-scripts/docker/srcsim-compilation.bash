@@ -30,6 +30,9 @@ esac
 
 export GPU_SUPPORT_NEEDED=true
 
+# Import library
+. ${SCRIPT_DIR}/lib/_srcsim_lib.bash
+
 export BUILDING_SOFTWARE_DIRECTORY="srcsim"
 export BUILDING_DEPENDENCIES="ros-${ROS_DISTRO}-gazebo${PKG_VERSION}-plugins \\
                               ros-${ROS_DISTRO}-gazebo${PKG_VERSION}-ros \\
