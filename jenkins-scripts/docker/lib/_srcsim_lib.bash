@@ -1,5 +1,16 @@
-# Whole SRCSIM setup
-SRCSIM_SETUP="""
+# SRCSim repositories
+SRCSIM_SETUP_REPOSITORIES=
+"""
+# import the SRC repo
+echo \"deb http://srcsim.gazebosim.org/src ${DISTRO} main\" >\\
+                                           /etc/apt/sources.list.d/src.list
+apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
+wget -qO - http://srcsim.gazebosim.org/src/src.key | sudo apt-key add -
+sudo apt-get update
+"""
+
+# Whole SRCSIM setup the testing enviroment
+SRCSIM_SETUP_TESTING="""
 update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 #update-alternatives --set javac /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/javac
 rm /usr/lib/jvm/default-java

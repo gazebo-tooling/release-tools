@@ -10,17 +10,12 @@ export GPU_SUPPORT_NEEDED=true
 . ${SCRIPT_DIR}/lib/_srcsim_lib.bash
 
 INSTALL_JOB_PREINSTALL_HOOK="""
-# import the SRC repo
-echo \"deb http://srcsim.gazebosim.org/src ${DISTRO} main\" >\\
-                                           /etc/apt/sources.list.d/src.list
-apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
-wget -qO - http://srcsim.gazebosim.org/src/src.key | sudo apt-key add -
-sudo apt-get update
+${SRCSIM_SETUP_REPOSITORIES}
 """
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: testing by running qual1 launch file'
-${SRCSIM_SETUP}
+${SRCSIM_SETUP_TESTING}
 
 TEST_START=\`date +%s\`
 timeout --preserve-status 400 roslaunch srcsim qual2.launch extra_gazebo_args:=\"-r\" init:=\"true\" walk_test:=true || true
