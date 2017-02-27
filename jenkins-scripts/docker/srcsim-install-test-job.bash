@@ -6,6 +6,9 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export GPU_SUPPORT_NEEDED=true
 
+# Import library
+. ${SCRIPT_DIR}/lib/_srcsim_lib.bash
+
 INSTALL_JOB_PREINSTALL_HOOK="""
 # import the SRC repo
 echo \"deb http://srcsim.gazebosim.org/src ${DISTRO} main\" >\\
@@ -17,20 +20,15 @@ sudo apt-get update
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: testing by running qual1 launch file'
-mkdir -p ~/.gazebo/models
-mkdir ~/valkyrie
-wget -O /tmp/control.tar.gz http://models.gazebosim.org/control_console/model.tar.gz && tar xvf /tmp/control.tar.gz -C ~/.gazebo/models
-
-. /opt/ros/indigo/setup.bash
-. /opt/nasa/indigo/setup.bash
+${SRCSIM_SETUP}
 
 TEST_START=\`date +%s\`
-timeout --preserve-status 400 roslaunch srcsim qual1.launch extra_gazebo_args:=\"-r\" init:=\"true\" || true
+timeout --preserve-status 400 roslaunch srcsim qual2.launch extra_gazebo_args:=\"-r\" init:=\"true\" walk_test:=true || true
 TEST_END=\`date +%s\`
 DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
 
-if [ \$DIFF -lt 400 ]; then
-   echo 'The test took less than 400s. Something bad happened'
+if [ \$DIFF -lt 800 ]; then
+   echo 'The test took less than 800s. Something bad happened'
    exit 1
 fi
 echo '# END SECTION'
