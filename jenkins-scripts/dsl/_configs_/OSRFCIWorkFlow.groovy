@@ -35,13 +35,15 @@ class OSRFCIWorkFlow
             result = item.value
 
             // If failed, exit and report
+            // Note that the results can not use Strings directly see:
+            // https://issues.jenkins-ci.org/browse/JENKINS-35352
             if (result == 'ABORTED' || result == 'FAILURE') {
-              jenkins_pipeline_final_result = 'FAILURE'
+              jenkins_pipeline_final_result = hudson.model.Result.FAILURE.toString()
               break
             }
 
             if (result == 'UNSTABLE') {
-              jenkins_pipeline_final_result = result
+              jenkins_pipeline_final_result = hudson.model.Result.UNSTABLE.toString()
             }
           }
           
