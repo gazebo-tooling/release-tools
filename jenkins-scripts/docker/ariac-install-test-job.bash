@@ -35,7 +35,7 @@ apt-get install -y wget
 mkdir -p ~/helloworld_ws/src/ariac_example
 cd ~/helloworld_ws/src/ariac_example
 wget https://bitbucket.org/osrf/ariac/raw/master/ariac_example/package.xml 
-wget https://bitbucket.org/osrf/ariac/no_catkin_python_setup/master/ariac_example/CMakeLists.txt
+wget https://bitbucket.org/osrf/ariac/raw/no_catkin_python_setup/ariac_example/CMakeLists.txt
 
 mkdir -p ~/helloworld_ws/src/ariac_example/config
 cd ~/helloworld_ws/src/ariac_example/config
