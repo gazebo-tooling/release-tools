@@ -6,7 +6,9 @@ def ci_arch               = 'amd64'
 // version to test more than the official one in each ROS distro
 def extra_gazebo_versions = ['7']
 
-Job create_common_compilation(String job_name, String ubuntu_distro)
+Job create_common_compilation(String job_name, 
+                              String ubuntu_distro, 
+                              String gz_version)
 {
    def job = job(job_name)
 
@@ -87,7 +89,9 @@ ros_distros.each { ros_distro ->
           gz_version=""
 
         def any_job_name = "ros_gazebo${gz_version}_pkgs-ci-pr_any-${ubuntu_distro}-${ci_arch}"
-        def any_job = create_common_compilation(any_job_name, ubuntu_distro)
+        def any_job = create_common_compilation(any_job_name,
+                                                ubuntu_distro,
+                                                gz_version)
 
         any_job.with
         {         
@@ -107,7 +111,9 @@ ros_distros.each { ros_distro ->
         // --------------------------------------------------------------
         // 2. Create the regressions ci pr-any jobs
         def regression_job_name = "ros_gazebo${gz_version}_pkgs-ci-pr_any-${ubuntu_distro}-${ci_arch}"
-        def regression_job = create_common_compilation(regression_job_name, ubuntu_distro)
+        def regression_job = create_common_compilation(regression_job_name,
+                                                       ubuntu_distro,
+                                                       gz_version)
 
         regression_job.with
         {
