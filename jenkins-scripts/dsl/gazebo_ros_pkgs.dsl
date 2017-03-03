@@ -6,6 +6,26 @@ def ci_arch               = 'amd64'
 // version to test more than the official one in each ROS distro
 def extra_gazebo_versions = ['7']
 
+Job create_common_compilation(String job_name, String ubuntu_distro)
+{
+   def job = job(job_name)
+
+   OSRFLinuxCompilationAnyGitHub.create(job,
+              Globals.get_ros_distros_by_ubuntu_distro(ubuntu_distro))
+
+   job.with {
+      String use_non_official_gazebo_package = ""
+      if (gz_version != "default") {
+        use_non_official_gazebo_package = """\
+                                          export GAZEBO_VERSION_FOR_ROS="${gz_version}"
+                                          export OSRF_REPOS_TO_USE="stable"
+                                          """.stripIndent()
+      }
+
+      label "gpu-reliable-${ubuntu_distro}"
+   }
+}
+
 ros_distros.each { ros_distro ->
   ubuntu_distros = Globals.ros_ci[ros_distro]
 
@@ -67,24 +87,10 @@ ros_distros.each { ros_distro ->
           gz_version=""
 
         def any_job_name = "ros_gazebo${gz_version}_pkgs-ci-pr_any-${ubuntu_distro}-${ci_arch}"
-        def any_job = job(any_job_name)
-
-        // Use generic any but remove hg
-        ros_distros = Globals.get_ros_distros_by_ubuntu_distro(ubuntu_distro)
-        OSRFLinuxCompilationAnyGitHub.create(any_job, ros_distros)
+        def any_job = create_common_compilation(any_job_name, ubuntu_distro)
 
         any_job.with
-        {
-          String use_non_official_gazebo_package = ""
-          if (gz_version != "default") {
-            use_non_official_gazebo_package = """\
-                                              export GAZEBO_VERSION_FOR_ROS="${gz_version}"
-                                              export OSRF_REPOS_TO_USE="stable"
-                                              """.stripIndent()
-          }
-
-          label "gpu-reliable-${ubuntu_distro}"
-
+        {         
           steps {
             shell("""\
                   #!/bin/bash -xe
@@ -94,6 +100,26 @@ ros_distros.each { ros_distro ->
                   export DISTRO=${ubuntu_distro}
                   export ARCH=${ci_arch}
                   /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo_ros_pkgs-compilation.bash
+                  """.stripIndent())
+          }
+        }
+
+        // --------------------------------------------------------------
+        // 2. Create the regressions ci pr-any jobs
+        def regression_job_name = "ros_gazebo${gz_version}_pkgs-ci-pr_any-${ubuntu_distro}-${ci_arch}"
+        def regression_job = create_common_compilation(regression_job_name, ubuntu_distro)
+
+        regression_job.with
+        {
+          steps {
+            shell("""\
+                  #!/bin/bash -xe
+
+                  ${use_non_official_gazebo_package}
+
+                  export DISTRO=${ubuntu_distro}
+                  export ARCH=${ci_arch}
+                  /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo_ros_pkgs-compilation_regression.bash
                   """.stripIndent())
           }
         }

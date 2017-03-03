@@ -12,7 +12,7 @@ fi
 
 export CATKIN_WS="${WORKSPACE}/ws"
 
-cat > build.sh << DELIM
+cat > build.sh << DELIM_CONFIG
 set -ex
 
 echo '# BEGIN SECTION: run rosdep'
@@ -42,6 +42,15 @@ mkdir -p ${CATKIN_WS}/src
 cd ${CATKIN_WS}
 catkin config --init --mkdirs
 ln -s "${WORKSPACE}/${SOFTWARE_DIR}" "${CATKIN_WS}/src/${SOFTWARE_DIR}"
+DELIM_CONFIG
+
+if [ `expr length "${ROS_WS_PREBUILD_HOOK} "` -gt 1 ]; then
+cat > build.sh << DELIM_PREBUILD_HOOK
+${ROS_WS_PREBUILD_HOOK}
+DELIM_PREBUILD_HOOK
+fi
+
+cat > build.sh << DELIM_COMPILATION
 catkin list
 catkin build -j${MAKE_JOBS} --verbose --summary
 echo '# END SECTION'
@@ -59,4 +68,4 @@ for d in \$DIRS; do
  done
 done
 echo '# END SECTION'
-DELIM
+DELIM_COMPILATION
