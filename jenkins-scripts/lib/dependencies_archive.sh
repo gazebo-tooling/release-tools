@@ -340,6 +340,7 @@ else
   #
   ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_CATKIN_BASE}                        \\
                                 libtinyxml-dev                            \\
+                                ros-${ROS_DISTRO}-ros-base                \\
                                 ros-${ROS_DISTRO}-catkin                  \\
                                 ros-${ROS_DISTRO}-pluginlib               \\
                                 ros-${ROS_DISTRO}-roscpp                  \\
