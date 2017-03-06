@@ -110,15 +110,16 @@ ros_distros.each { ros_distro ->
                                                 ubuntu_distro,
                                                 gz_version,
                                                 "gazebo_ros_pkgs-compilation")
-
-        // --------------------------------------------------------------
-        // 2. Create the regressions ci pr-any jobs
-        def regression_job_name = "ros_gazebo${gz_version}_pkgs-ci-pr_regression_any-${ubuntu_distro}-${ci_arch}"
-        Job regression_job = create_common_compilation(regression_job_name,
-                                                       ubuntu_distro,
-                                                       gz_version,
-                                                       "gazebo_ros_pkgs-compilation_regression")
       }
-    } // end of gazebo_packages
+    } // end of gazebo_versions
+
+
+    // --------------------------------------------------------------
+    // 2. Create the regressions ci pr-any jobs
+    def regression_job_name = "ros_gazebo_pkgs-ci-pr_regression_any-${ubuntu_distro}-${ci_arch}"
+    Job regression_job = create_common_compilation(regression_job_name,
+                                                   ubuntu_distro,
+                                                   "default",
+                                                   "gazebo_ros_pkgs-compilation_regression")
   } // end of ubuntu_distros
 } // end of ros_distros
