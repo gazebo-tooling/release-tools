@@ -1,10 +1,13 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
+import groovy.transform.Field
 
-ros_distros           = Globals.get_ros_suported_distros()
-ci_arch               = 'amd64'
+@Field
+ArrayList ros_distros        = Globals.get_ros_suported_distros()
+@Field
+String ci_arch               = 'amd64'
 // version to test more than the official one in each ROS distro
-extra_gazebo_versions = ['7']
+ArrayList extra_gazebo_versions = ['7']
 
 Job create_common_compilation(String job_name, 
                               String ubuntu_distro, 
