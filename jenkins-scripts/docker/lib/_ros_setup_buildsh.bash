@@ -55,7 +55,7 @@ fi
 cat >> build.sh << DELIM_COMPILATION
 echo '# END SECTION'
 
-echo '# BEGIN SECTION 
+echo '# BEGIN SECTION install the system dependencies'
 catkin list
 rosdep install --from-paths . --ignore-src --rosdistro=${ROS_DISTRO}'
 echo '# END SECTION'
