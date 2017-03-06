@@ -113,7 +113,7 @@ ros_distros.each { ros_distro ->
 
         // --------------------------------------------------------------
         // 2. Create the regressions ci pr-any jobs
-        def regression_job_name = "ros_gazebo${gz_version}_pkgs-ci-pr_any-${ubuntu_distro}-${ci_arch}"
+        def regression_job_name = "ros_gazebo${gz_version}_pkgs-ci-pr_regression_any-${ubuntu_distro}-${ci_arch}"
         Job regression_job = create_common_compilation(regression_job_name,
                                                        ubuntu_distro,
                                                        gz_version,
