@@ -25,6 +25,6 @@ if [[ -z ${ROS_DISTRO} ]]; then
 fi
 
 ROS_WS_PREBUILD_HOOK="""
-git clone https://github.com/tu-darmstadt-ros-pkg/hector_gazebo
+git clone https://github.com/tu-darmstadt-ros-pkg/hector_gazebo -b ${ROS_DISTRO}-devel
 """
 . ${SCRIPT_DIR}/lib/gazebo_ros_pkgs-base.bash
