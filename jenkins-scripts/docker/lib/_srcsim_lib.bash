@@ -13,6 +13,7 @@ mkdir -p ~/.ihmc; curl https://raw.githubusercontent.com/ihmcrobotics/ihmc_ros_c
 echo '@ros - rtprio 99' > /etc/security/limits.d/ros-rtprio.conf
 groupadd ros
 usermod -a -G ros root
+chown -R root:root /opt/ros/indigo/share/ihmc_ros_java_adapter
 
 wget -P /tmp/ http://gazebosim.org/distributions/srcsim/valkyrie_controller.tar.gz
 tar -xvf /tmp/valkyrie_controller.tar.gz -C ~/
