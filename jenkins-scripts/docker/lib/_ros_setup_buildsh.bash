@@ -46,7 +46,9 @@ DELIM_CONFIG
 
 if [ `expr length "${ROS_WS_PREBUILD_HOOK} "` -gt 1 ]; then
 cat >> build.sh << DELIM_PREBUILD_HOOK
+cd ${CATKIN_WS}/src
 ${ROS_WS_PREBUILD_HOOK}
+cd ${CATKIN_WS}
 DELIM_PREBUILD_HOOK
 fi
 
