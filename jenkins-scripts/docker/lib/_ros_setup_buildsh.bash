@@ -45,12 +45,12 @@ ln -s "${WORKSPACE}/${SOFTWARE_DIR}" "${CATKIN_WS}/src/${SOFTWARE_DIR}"
 DELIM_CONFIG
 
 if [ `expr length "${ROS_WS_PREBUILD_HOOK} "` -gt 1 ]; then
-cat > build.sh << DELIM_PREBUILD_HOOK
+cat >> build.sh << DELIM_PREBUILD_HOOK
 ${ROS_WS_PREBUILD_HOOK}
 DELIM_PREBUILD_HOOK
 fi
 
-cat > build.sh << DELIM_COMPILATION
+cat >> build.sh << DELIM_COMPILATION
 catkin list
 catkin build -j${MAKE_JOBS} --verbose --summary
 echo '# END SECTION'
