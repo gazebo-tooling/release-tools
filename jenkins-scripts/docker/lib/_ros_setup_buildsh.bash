@@ -60,7 +60,7 @@ catkin list
 rosdep install --from-paths . --ignore-src --rosdistro=${ROS_DISTRO}'
 echo '# END SECTION'
 
-echo '# BEGIN SECTION compile the catkin workspace
+echo '# BEGIN SECTION compile the catkin workspace'
 catkin build -j${MAKE_JOBS} --verbose --summary
 echo '# END SECTION'
 
