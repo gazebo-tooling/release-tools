@@ -1,10 +1,10 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def ros_distros           = Globals.get_ros_suported_distros()
-def ci_arch               = 'amd64'
+ros_distros           = Globals.get_ros_suported_distros()
+ci_arch               = 'amd64'
 // version to test more than the official one in each ROS distro
-def extra_gazebo_versions = ['7']
+extra_gazebo_versions = ['7']
 
 Job create_common_compilation(String job_name, 
                               String ubuntu_distro, 
