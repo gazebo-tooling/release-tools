@@ -26,18 +26,20 @@ export DEBFULLNAME="OSRF Jenkins"
 export DEBEMAIL="build@osrfoundation.org"
 
 echo '# BEGIN SECTION: generating the backport (${DEST_UBUNTU_DISTRO}/${ARCH})'
-backportpackage --dont-sign -s ${SOURCE_UBUNTU_DISTRO} -d ${DEST_UBUNTU_DISTRO} -w . ${PACKAGE}
+pbuilder create
+backportpackage --dont-sign -b -s ${SOURCE_UBUNTU_DISTRO} -d ${DEST_UBUNTU_DISTRO} -w . ${PACKAGE}
+ls
+ls ../
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
 mkdir -p $WORKSPACE/pkgs
-cp ../*.dsc $WORKSPACE/pkgs
-cp ../*.orig.* $WORKSPACE/pkgs
-cp ../*.tar.* $WORKSPACE/pkgs
+cp *.tar.* $WORKSPACE/pkgs
+cp buildresult/*.dsc $WORKSPACE/pkgs
 # debian is only generated in quilt format, native does not have it
 cp ../*.debian.* $WORKSPACE/pkgs || true
 
-PKGS=\`find .. -name '*.deb' || true\`
+PKGS=\`find buildresult/ -name '*.deb' || true\`
 
 FOUND_PKG=0
 for pkg in \${PKGS}; do
