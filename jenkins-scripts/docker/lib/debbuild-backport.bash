@@ -26,7 +26,7 @@ export DEBFULLNAME="OSRF Jenkins"
 export DEBEMAIL="build@osrfoundation.org"
 
 echo '# BEGIN SECTION: generating the backport (${DEST_UBUNTU_DISTRO}/${ARCH})'
-pbuilder create
+pbuilder create || cat /var/cache/pbuilder/build/10/./debootstrap/debootstrap.log
 backportpackage --dont-sign -b -s ${SOURCE_UBUNTU_DISTRO} -d ${DEST_UBUNTU_DISTRO} -w . ${PACKAGE}
 ls
 ls ../
