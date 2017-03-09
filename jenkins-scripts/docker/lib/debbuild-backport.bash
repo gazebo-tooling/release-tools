@@ -1,5 +1,9 @@
 #!/bin/bash -x
 
+# Knowing Script dir beware of symlink
+[[ -L ${0} ]] && SCRIPT_LIBDIR=$(readlink ${0}) || SCRIPT_LIBDIR=${0}
+SCRIPT_LIBDIR="${SCRIPT_LIBDIR%/*}"
+
 NIGHTLY_MODE=false
 if [ "${UPLOAD_TO_REPO}" = "nightly" ]; then
    OSRF_REPOS_TO_USE="stable nightly"
@@ -10,7 +14,7 @@ fi
 # testing jobs and seems to be slow at the end of jenkins jobs
 export ENABLE_REAPER=false
 
-. ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_LIBDIR}/boilerplate_prepare.sh
 
 cat > build.sh << DELIM
 ###################################################
@@ -60,5 +64,5 @@ DEPENDENCY_PKGS="devscripts \
 		 equivs \
 		 dh-make"
 
-. ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
-. ${SCRIPT_DIR}/lib/docker_run.bash
+. ${SCRIPT_LIBDIR}/docker_generate_dockerfile.bash
+. ${SCRIPT_LIBDIR}/docker_run.bash
