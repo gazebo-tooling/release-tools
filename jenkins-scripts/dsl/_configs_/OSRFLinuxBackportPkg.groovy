@@ -20,7 +20,7 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFLinuxBackportPkg
 
-{  
+{
   static void create(Job job)
   {
     OSRFLinuxBase.create(job)
@@ -41,14 +41,14 @@ class OSRFLinuxBackportPkg
         stringParam("ARCHES", null, "Architectures to build packages for")
         stringParam("SOURCE_UBUNTU_DISTRO", null, "Distribution to get theç package from")
         stringParam("DEST_UBUNTU_DISTRO", null, "Distribution to generate the new package")
-        stringParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to")
+        stringParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to. None will skip the upload")
         stringParam("OSRF_REPOS_TO_USE", null, "OSRF repos name to use when building the package")
       }
 
       steps {
         systemGroovyCommand("""\
           build.setDescription(
-          '<b>' + build.buildVariableResolver.resolve('PACKAGE') + '-' + 
+          '<b>' + build.buildVariableResolver.resolve('PACKAGE') + '-' +
           build.buildVariableResolver.resolve('SOURCE_UBUNTU_DISTRO') + ' -> ' +
           build.buildVariableResolver.resolve('DEST_UBUNTU_DISTRO') + ' -> ' +
           '(' + build.buildVariableResolver.resolve('ARCHES') + ')' +
@@ -63,16 +63,31 @@ class OSRFLinuxBackportPkg
       publishers {
         archiveArtifacts('pkgs/*')
 
-        downstreamParameterized {
-	  trigger('repository_uploader_ng') {
-	    condition('SUCCESS')
-	    parameters {
-	      currentBuild()
-	      predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-	    }
+        conditionalAction {
+          /* Upload if SUCCESS and UPLOAD_TO_REPO is not empty or none  */
+          condition {
+            and {
+              status('SUCCESS')
+            } {
+              not {
+                expression('none|^$','${ENV,var="UPLOAD_TO_REPO"}')
+              }
+            }
+          }
+
+          publishers {
+            downstreamParameterized {
+              trigger('repository_uploader_ng') {
+                parameters {
+                  currentBuild()
+                  predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+                }
+              }
+            }
 	  }
         }
       }
+
     } // end of job
   } // end of method createJob
 } // end of class
