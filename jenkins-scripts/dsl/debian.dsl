@@ -7,7 +7,10 @@ packages = [:]
 packages['debian-science'] = ['console-bridge',
                               'gazebo',
                               'fcl',
+                              'ignition-common',
                               'ignition-math2',
+                              'ignition-math3',
+                              'ignition-msgs',
                               'ignition-transport',
                               'kido',
                               'libccd',
@@ -22,6 +25,7 @@ packages['collab-maint']   = ['peak-linux-driver',
 
 packages.each { repo_name, pkgs ->
  pkgs.each { pkg ->
+
   // --------------------------------------------------------------
   // 1. Create the job that tries to install packages
   def install_job = job("${pkg}-install-pkg-debian_sid-amd64")
@@ -31,6 +35,12 @@ packages.each { repo_name, pkgs ->
      triggers {
        cron('@weekly')
      }
+
+    // No accepted in Sid yet
+    if ((pkg == 'kido') || (pkg == 'ignition-msgs'))
+    {
+      disabled()
+    }
 
      steps {
       shell("""\
@@ -56,14 +66,21 @@ packages.each { repo_name, pkgs ->
   }
 
   def ci_job = job("${pkg}-pkg_builder-master-debian_sid-amd64")
-  OSRFLinuxBase.create(ci_job)
+  OSRFLinuxBuildPkgBase.create(ci_job)
   ci_job.with
   {
-      scm {
-	git("${git_repo}") {
-	  branch('master')
-	  subdirectory("${pkg}")
-	}
+     scm {
+        git {
+          remote {
+            url("${git_repo}")
+          }
+          extensions {
+            cleanBeforeCheckout()
+            relativeTargetDirectory('repo')
+          }
+
+          branch('refs/heads/master')
+        }
       }
 
       triggers {
@@ -71,18 +88,7 @@ packages.each { repo_name, pkgs ->
       }
 
       properties {
-        priority 300
-      }
-
-      logRotator {
-        artifactNumToKeep(10)
-      }
-
-      concurrentBuild(true)
-
-      throttleConcurrentBuilds {
-	maxPerNode(1)
-	maxTotal(5)
+        priority 350
       }
 
       parameters {
@@ -96,7 +102,6 @@ packages.each { repo_name, pkgs ->
 
               export LINUX_DISTRO=debian
               export DISTRO=sid
-              export GIT_REPOSITORY="${git_repo}"
 
               /bin/bash -xe ./scripts/jenkins-scripts/docker/debian-git-debbuild.bash
               """.stripIndent())
@@ -104,6 +109,20 @@ packages.each { repo_name, pkgs ->
 
       publishers
       {
+        postBuildScripts {
+          steps {
+            shell("""\
+              #!/bin/bash -xe
+
+              [[ -d \${WORKSPACE}/repo ]] && sudo chown -R jenkins \${WORKSPACE}/repo
+              """.stripIndent())
+          }
+
+          onlyIfBuildSucceeds(false)
+          onlyIfBuildFails(false)
+        }
+
+
          // Added the lintian parser
          configure { project ->
            project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {

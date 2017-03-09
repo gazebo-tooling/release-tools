@@ -1,12 +1,7 @@
 # Parameters:
-# - PACKAGE_ALIAS [mandatory] name of package including major version
+# - PULL_REQUEST_BRANCH [optional] branch to use in existing pull request 
 # Return:
-# -> FORMULA_PATH
-
-if [ -z ${PACKAGE_ALIAS} ]; then
-    echo "PACKAGE_ALIAS variables is empty"
-    exit -1
-fi
+# -> TAP_PREFIX
 
 echo '# BEGIN SECTION: check github perms'
 # Github autentication. git access is provided by public key access
@@ -34,7 +29,7 @@ echo '# BEGIN SECTION: download linuxbrew'
 # comment out the following two lines for faster debugging if it has already been cloned
 BREW_PREFIX="${PWD}/linuxbrew"
 GIT="git -C ${BREW_PREFIX}"
-if ${GIT} remote -v | grep linuxbrew.git ; then
+if ${GIT} remote -v | grep Linuxbrew/brew.git ; then
   # copying cleanup_before git commands from test-bot.rb
   echo "Cleaning up existing linuxbrew repository"
   ${GIT} gc --auto
@@ -47,32 +42,27 @@ if ${GIT} remote -v | grep linuxbrew.git ; then
   ${GIT} pull
 else
   echo "Cloning new copy of linuxbrew repository"
-  rm -rf linuxbrew
-  git clone https://github.com/Homebrew/linuxbrew.git
+  rm -rf brew
+  git clone https://github.com/Linuxbrew/brew.git
 fi
 echo '# END SECTION'
 
-BREW=${PWD}/linuxbrew/bin/brew
+BREW=${PWD}/brew/bin/brew
+${BREW} up
 
 # tap dev-tools to get brew ruby command
 ${BREW} tap homebrew/dev-tools
+${BREW} ruby -e "puts 'brew ruby success'"
+
+# tap osrf/simulation
 ${BREW} tap osrf/simulation
-TAP_PREFIX=${PWD}/linuxbrew/Library/Taps/osrf/homebrew-simulation
-
-echo '# BEGIN SECTION: check if the formula exists'
-echo
-if [ -s ${TAP_PREFIX}/${PACKAGE_ALIAS}.rb ]; then
-  FORMULA=${TAP_PREFIX}/${PACKAGE_ALIAS}.rb
-elif [ -s ${TAP_PREFIX}/Aliases/${PACKAGE_ALIAS} ]; then
-  FORMULA=${TAP_PREFIX}/Aliases/${PACKAGE_ALIAS}
-else
-  echo Formula for ${PACKAGE_ALIAS} not found
-  [[ -d homebrew-simulation ]] && ls homebrew-simulation/*
-  exit 0
+TAP_PREFIX=${PWD}/brew/Library/Taps/osrf/homebrew-simulation
+GIT="git -C ${TAP_PREFIX}"
+${GIT} remote add fork git@github.com:osrfbuild/homebrew-simulation.git
+# unshallow to get a full clone able to push
+${GIT} fetch --unshallow
+${GIT} fetch fork
+# change to pull request branch in case new formula is being added
+if [ -n "${PULL_REQUEST_BRANCH}" ]; then
+  ${GIT} checkout ${PULL_REQUEST_BRANCH}
 fi
-echo '# END SECTION'
-
-echo '# BEGIN SECTION: export formula path'
-export FORMULA_PATH=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.path"`
-echo Modifying ${FORMULA_PATH}
-echo '# END SECTION'

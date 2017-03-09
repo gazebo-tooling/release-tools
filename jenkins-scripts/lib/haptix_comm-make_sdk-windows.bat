@@ -41,7 +41,7 @@ mkdir "%tmpdir%"
 cd "%tmpdir%"
 
 set zeromq_zip_name=zeromq-3.2.4-%PLATFORM_TO_BUILD%.zip
-set protobuf_zip_name=protobuf-2.6.0-win%BITNESS%-vc12.zip
+set protobuf_zip_name=protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip
 echo # END SECTION
 
 echo # BEGIN SECTION: Download dependencies and unzip

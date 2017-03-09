@@ -25,6 +25,10 @@ void include_common_params(Job job)
 {
   job.with
   {
+    properties {
+      priority 100
+    }
+
     parameters
     {
      stringParam("PACKAGE", '',
@@ -46,6 +50,9 @@ GenericRemoteToken.create(release_job)
 include_common_params(release_job)
 release_job.with
 {
+   String PR_URL_export_file_name = 'pull_request_created.properties'
+   String PR_URL_export_file = '${WORKSPACE}/' + PR_URL_export_file_name
+
    label "master"
 
    wrappers {
@@ -78,6 +85,7 @@ release_job.with
     shell("""\
           #!/bin/bash -xe
 
+          export PR_URL_export_file=${PR_URL_export_file}
           /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_formula_pullrequest.bash
           """.stripIndent())
    }
@@ -85,6 +93,23 @@ release_job.with
    // call to the bottle
    publishers
    {
+     // Added the checker result parser (UNSTABLE if not compatible)
+     // IMPORTANT: the order of the steps here is important. Leave the configure
+     // block first.
+     configure { project ->
+       project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+          unstableOnWarning true
+          failBuildOnError false
+          parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+       }
+     } // end of configure
+
+     archiveArtifacts
+     {
+       pattern("${PR_URL_export_file_name}")
+       allowEmpty()
+     }
+
      downstreamParameterized
      {
         trigger(bottle_builder_job_name)
@@ -92,6 +117,7 @@ release_job.with
           condition('SUCCESS')
           parameters {
             currentBuild()
+            propertiesFile("${PR_URL_export_file_name}")
           }
         }
      }
@@ -114,12 +140,15 @@ bottle_job_builder.with
    parameters
    {
      stringParam("PULL_REQUEST_URL", '',
-                 'Pull request URL (osrf/simulation) pointing to a pull request.')
+                 'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
    }
 
    steps {
         systemGroovyCommand("""\
           build.setDescription(
+          '<b>' + build.buildVariableResolver.resolve('PACKAGE_ALIAS') + '-' +
+           build.buildVariableResolver.resolve('VERSION') + '</b>' +
+          '<br />' +
           'pull request:<b> <a href="' + build.buildVariableResolver.resolve('PULL_REQUEST_URL') +
           '">' + build.buildVariableResolver.resolve('PULL_REQUEST_URL') + '</a></b>' +
           '<br />' +
@@ -145,7 +174,6 @@ bottle_job_builder.with
           parameters {
             currentBuild()
               predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-              predefinedProp("S3_UPLOAD_PATH", "\${PACKAGE}/releases")
               predefinedProp("UPLOAD_TO_REPO", "only_s3_upload")
               predefinedProp("ARCH",           "64bits")
           }
@@ -160,6 +188,7 @@ bottle_job_builder.with
           condition('SUCCESS')
           parameters {
             currentBuild()
+              predefinedProp("PULL_REQUEST_URL", "\${PULL_REQUEST_URL}")
           }
         }
      }
@@ -182,6 +211,13 @@ bottle_job_hash_updater.with
     preBuildCleanup()
   }
 
+  parameters
+  {
+    // reuse the pull request created by homebrew_pull_request_updater in step 1
+    stringParam("PULL_REQUEST_URL", '',
+                'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
+  }
+ 
   steps
   {
     systemGroovyCommand("""\
@@ -194,7 +230,7 @@ bottle_job_hash_updater.with
     )
 
     copyArtifacts(bottle_builder_job_name) {
-      includePatterns('pkgs/*.rb')
+      includePatterns('pkgs/*.json')
       excludePatterns('pkgs/*.tar.gz')
       targetDirectory(directory_for_bottles)
       flatten()
@@ -228,6 +264,8 @@ set_status.with
                  'Branch of SRC_REPO to test')
      stringParam('JENKINS_BUILD_URL','',
                  'Link to jenkins main ci job')
+     stringParam('JENKINS_BUILD_DESC','',
+                 'Description about building events')
      stringParam('BITBUCKET_STATUS',
                  '',
                  'inprogress | fail | ok')
@@ -254,4 +292,12 @@ set_status.with
           /bin/bash -xe ./scripts/jenkins-scripts/_bitbucket_set_status.bash
           """.stripIndent())
   }
+
+  configure { project ->
+    project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+      unstableOnWarning true
+      failBuildOnError false
+      parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+    }
+  } // end of configure
 }

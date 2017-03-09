@@ -4,17 +4,44 @@ class Globals
 {
    // Notifications for email ext plugin
    static default_emails = '$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org'
+   static build_cop_email = 'buildcop@osrfoundation.org'  
    static extra_emails   = ''
 
+   static rtools_description = true
+
    static gpu_by_distro  = [ trusty : [ 'nvidia', 'intel' ],
-                             vivid  : [ 'intel' ] ]
+                             xenial  : [ 'intel' ] ]
+
+   static ros_ci = [ 'indigo'  : ['trusty'] ,
+                     'jade'    : ['trusty'] ,
+                     'kinetic' : ['xenial']]
+
+   // This should be in sync with archive_library
+   static gz_version_by_rosdistro = [ 'indigo'  : ['2'] ,
+                                      'jade'    : ['5'] ,
+                                      'kinetic' : ['7']]
+
+   static ArrayList get_ros_distros_by_ubuntu_distro(String ubuntu_distro)
+   {
+      ArrayList result = []
+
+      ros_ci.each { ros_distro, ubuntu_distros_in_ci ->
+        ubuntu_distros_in_ci.each { ub_distro_in_ci ->
+          if ("${ub_distro_in_ci}" == "${ubuntu_distro}") {
+            result.add(ros_distro)
+          }
+        }
+      }
+
+      return result
+   }
 
    static String get_emails()
    {
       if (extra_emails != '')
       {
         return default_emails + ', ' + extra_emails
-     }
+      }
 
       return default_emails
    }
@@ -28,12 +55,12 @@ class Globals
    // Main CI platform
    static ArrayList get_ci_distro()
    {
-    return [ 'trusty' ]
+    return [ 'xenial' ]
    }
 
    static ArrayList get_abi_distro()
    {
-     return [ 'vivid' ]
+     return [ 'xenial' ]
    }
 
    static ArrayList get_ci_gpu()
@@ -43,7 +70,7 @@ class Globals
 
    static ArrayList get_other_supported_distros()
    {
-     return [ 'vivid', 'wily' ]
+     return [ 'trusty', 'yakkety' ]
    }
 
    static ArrayList get_supported_arches()
@@ -64,5 +91,10 @@ class Globals
    static ArrayList get_all_supported_gpus()
    {
     return get_ci_gpu() + [ 'intel' ]
+   }
+
+   static ArrayList get_ros_suported_distros()
+   {
+     return [ 'indigo', 'jade', 'kinetic' ]
    }
 }

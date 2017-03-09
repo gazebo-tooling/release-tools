@@ -28,7 +28,7 @@ case ${LINUX_DISTRO} in
   'ubuntu')
     SOURCE_LIST_URL="http://archive.ubuntu.com/ubuntu"
     ;;
-    
+
   'debian')
     # Currently not needed
     # SOURCE_LIST_URL="http://ftp.us.debian.org/debian"
@@ -52,8 +52,16 @@ case ${ARCH} in
   'amd64')
      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      ;;
-  'i386' | 'armhf' | 'arm64' )
-     FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
+  'i386')
+     if [[ ${LINUX_DISTRO} == 'debian' ]]; then
+       echo "There is no debian/jessie i386 docker image available"
+       exit 1
+     else
+       FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
+     fi
+     ;;
+   'armhf' | 'arm64' )
+       FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
      ;;
   *)
      echo "Arch unknown"
@@ -87,15 +95,27 @@ ENV DEBFULLNAME "OSRF Jenkins"
 ENV DEBEMAIL "build@osrfoundation.org"
 DELIM_DOCKER
 
+# Handle special INVALIDATE_DOCKER_CACHE keyword by set a random
+if [[ -n ${INVALIDATE_DOCKER_CACHE} ]]; then
+cat >> Dockerfile << DELIM_DOCKER_INVALIDATE
+RUN echo 'BEGIN SECTION: invalidate full docker cache'
+RUN echo "Detecting content in INVALIDATE_DOCKER_CACHE. Invalidating it"
+RUN echo "Invalidate cache enabled. ${DOCKER_RND_ID}"
+RUN echo 'END SECTION'
+DELIM_DOCKER_INVALIDATE
+fi
+
 # The redirection fails too many times using us ftp
 if [[ ${LINUX_DISTRO} == 'debian' ]]; then
 cat >> Dockerfile << DELIM_DEBIAN_APT
   RUN sed -i -e 's:httpredir:ftp.us:g' /etc/apt/sources.list
+  RUN echo "deb-src http://ftp.us.debian.org/debian ${DISTRO} main" \\
+                                                         >> /etc/apt/sources.list
 DELIM_DEBIAN_APT
 fi
 
 if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
-  if [[ ${ARCH} != 'armhf' ]]; then
+  if [[ ${ARCH} != 'armhf' && ${ARCH} != 'arm64' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_ARCH
   # Note that main,restricted and universe are not here, only multiverse
   # main, restricted and unvierse are already setup in the original image
@@ -130,6 +150,14 @@ RUN dpkg-divert --rename --add /usr/sbin/invoke-rc.d \\
 DELIM_DOCKER_PAM_BUG
 fi
 
+# dirmngr from Yaketty on needed by apt-key
+if [[ $DISTRO != 'trusty' ]] || [[ $DISTRO != 'xenial' ]]; then
+cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
+RUN apt-get update && \\
+    apt-get install -y dirmngr
+DELIM_DOCKER_DIRMNGR
+fi
+
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
 RUN echo "deb http://packages.osrfoundation.org/gazebo/${LINUX_DISTRO}-${repo} ${DISTRO} main" >\\
@@ -140,6 +168,7 @@ done
 
 if ${USE_ROS_REPO}; then
 cat >> Dockerfile << DELIM_ROS_REPO
+# Note that ROS uses ubuntu hardcoded in the paths of repositories
 RUN echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
 RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
@@ -157,16 +186,6 @@ RUN apt-add-repository -y ppa:dartsim
 DELIM_DOCKER_DART_PKGS
 fi
 
-# Handle special INVALIDATE_DOCKER_CACHE keyword by set a random
-if [[ -n ${INVALIDATE_DOCKER_CACHE} ]]; then
-cat >> Dockerfile << DELIM_DOCKER_INVALIDATE
-RUN echo 'BEGIN SECTION: invalidate full docker cache'
-RUN echo "Detecting content in INVALIDATE_DOCKER_CACHE. Invalidating it"
-RUN echo "Invalidate cache enabled. ${DOCKER_RND_ID}"
-RUN echo 'END SECTION'
-DELIM_DOCKER_INVALIDATE
-fi
-
 # Packages that will be installed and cached by docker. In a non-cache
 # run below, the docker script will check for the latest updates
 PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS}"
@@ -180,17 +199,22 @@ cat >> Dockerfile << DELIM_DOCKER3
 # This is the firt big installation of packages on top of the raw image.
 # The expection of updates is low and anyway it is cathed by the next
 # update command below
-RUN echo "${MONTH_YEAR_STR}"
-# The rm command will minimize the layer size
-RUN apt-get update && \
-    apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} && \
-    rm -rf /var/lib/apt/lists/*
+# The rm after the fail of apt-get update is a workaround to deal with the error:
+# Could not open file *_Packages.diff_Index - open (2: No such file or directory)
+RUN echo "${MONTH_YEAR_STR}" \
+ && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
+ && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
 # This is killing the cache so we get the most recent packages if there
-# was any update
-RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))"
-RUN apt-get update && \
-    apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES}
+# was any update. Note that we don't remove the apt/lists file here since
+# it will make to run apt-get update again
+RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))" \
+ && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
+ && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
+ && apt-get clean
+
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
 DELIM_DOCKER3
@@ -212,9 +236,16 @@ DELIM_DOCKER4
 fi
 
 if $USE_GPU_DOCKER; then
+ if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
+ # NVIDIA is using nvidia_docker integration
+cat >> Dockerfile << DELIM_NVIDIA_GPU
+LABEL com.nvidia.volumes.needed="nvidia_driver"
+ENV PATH /usr/local/nvidia/bin:${PATH}
+ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}
+DELIM_NVIDIA_GPU
+  else
+  # No NVIDIA cards needs to have the same X stack than the host
 cat >> Dockerfile << DELIM_DISPLAY
-ENV DISPLAY ${DISPLAY}
-
 # Check to be sure version of kernel graphic card support is the same.
 # It will kill DRI otherwise
 RUN CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\ " | awk '{ print \$3 }' | sed 's:-.*::') \\
@@ -224,6 +255,7 @@ RUN CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\
        exit 1 \\
    fi
 DELIM_DISPLAY
+  fi
 fi
 
 if [ `expr length "${DOCKER_POSTINSTALL_HOOK}"` -gt 1 ]; then
@@ -235,6 +267,7 @@ fi
 cat >> Dockerfile << DELIM_WORKAROUND_91
 # Workaround to issue:
 # https://bitbucket.org/osrf/handsim/issue/91
+RUN echo "en_GB.utf8 UTF-8" >> /etc/locale.gen
 RUN locale-gen en_GB.utf8
 ENV LC_ALL en_GB.utf8
 ENV LANG en_GB.utf8
@@ -242,6 +275,33 @@ ENV LANGUAGE en_GB
 # Docker has problems with Qt X11 MIT-SHM extension
 ENV QT_X11_NO_MITSHM 1
 DELIM_WORKAROUND_91
+
+if $ENABLE_CCACHE; then
+cat >> Dockerfile << DELIM_CCACHE
+ENV PATH /usr/lib/ccache:\$PATH
+ENV CCACHE_DIR ${CCACHE_DIR}
+ENV CCACHE_MAXSIZE ${CCACHE_MAXSIZE}
+DELIM_CCACHE
+
+# Add the statistics about ccache at the beggining of the build
+# first 3 lines: bash, set and space
+sed -i '4iecho "# BEGIN SECTION: starting ccache statistics"' build.sh
+sed -i "5iccache -M ${CCACHE_MAXSIZE}" build.sh
+sed -i '6iccache -s' build.sh
+sed -i '7iecho # "END SECTION"' build.sh
+sed -i '8iecho ""' build.sh
+
+# Add the statistics about ccache at the end
+cat >> build.sh << BUILDSH_CCACHE
+echo '# BEGIN SECTION: starting ccache statistics'
+ccache -s
+echo '# END SECTION'
+BUILDSH_CCACHE
+fi
+
+echo '# BEGIN SECTION: see build.sh script'
+cat build.sh
+echo '# END SECTION'
 
 cat >> Dockerfile << DELIM_DOCKER4
 COPY build.sh build.sh

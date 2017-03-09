@@ -28,6 +28,7 @@ fi
 # python-psutil for memory testing
 # netcat-openbsd (nc command) for squid-deb-proxy checking
 # net-tools (route command) for squid-deb-proxy checking
+# gnupg apt-key requires gnupg, gnupg2 or gnupg1
 BASE_DEPENDENCIES="build-essential \\
                    cmake           \\
                    debhelper       \\
@@ -38,6 +39,7 @@ BASE_DEPENDENCIES="build-essential \\
                    python          \\
                    bc              \\
                    netcat-openbsd  \\
+                   gnupg2          \\
                    net-tools"
 
 BREW_BASE_DEPENDCIES="mercurial git cmake"
@@ -67,22 +69,23 @@ fi
 
 # SDFORMAT related dependencies
 if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
-    SDFORMAT_MAJOR_VERSION=3
+    SDFORMAT_MAJOR_VERSION=5
 fi
 
-if [[ ${SDFORMAT_MAJOR_VERSION} -ge 3 ]]; then
+if [[ ${SDFORMAT_MAJOR_VERSION} -ge 5 ]]; then
+    # sdformat5 requires ignition-math3
+    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES}          \\
+                                libignition-math3-dev"
+elif [[ ${SDFORMAT_MAJOR_VERSION} -ge 3 ]]; then
     # sdformat3 requires ignition-math2
     SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES}          \\
                                 libignition-math2-dev"
 fi
 
-# GAZEBO related dependencies
+# GAZEBO related dependencies. Default value points to the development version
+# of gazebo, it is being used by compile from source tutorial
 if [[ -z ${GAZEBO_MAJOR_VERSION} ]]; then
-    GAZEBO_MAJOR_VERSION=7
-fi
-
-if [[ -z $GAZEBO_DEB_PACKAGE ]];then
-    GAZEBO_DEB_PACKAGE=libgazebo${GAZEBO_MAJOR_VERSION}-dev
+    GAZEBO_MAJOR_VERSION=8
 fi
 
 # Need to explicit define to use old sdformat package
@@ -92,6 +95,8 @@ fi
 
 if ${USE_OLD_SDFORMAT}; then
     sdformat_pkg="sdformat"
+elif [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
+    sdformat_pkg="libsdformat5-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
     sdformat_pkg="libsdformat4-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 6 ]]; then
@@ -122,6 +127,29 @@ if [[ ${DISTRO} == 'precise' ]] || \
     bullet_pkg="libbullet2.82-dev"
 fi
 
+# gazebo8 and above use qt5
+if [[ ${GAZEBO_MAJOR_VERSION} -le 7 ]]; then
+  gazebo_qt_dependencies="libqt4-dev \\
+                          libqtwebkit-dev"
+else
+  if [[ ${DISTRO} == 'trusty' ]]; then
+    gazebo_qt_dependencies="libqt4-dev \\
+                            libqwt-dev \\
+                            qtbase5-dev"
+  else
+    # After gazebo8 is released, these two lines should be all that remain
+    gazebo_qt_dependencies="qtbase5-dev \\
+                            libqwt-qt5-dev"
+    # Install qt4 as well for gazebo8 until its release
+    # 20170125 release date of gazebo8
+    if [[ $(date +%Y%m%d) -le 20170125 ]]; then
+      gazebo_qt_dependencies="${gazebo_qt_dependencies} \\
+                              libqt4-dev \\
+                              libqwt-dev"
+    fi
+  fi
+fi
+
 GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
                           libprotoc-dev                    \\
                           libprotobuf-dev                  \\
@@ -134,8 +162,7 @@ GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
                           ${ogre_pkg}                      \\
                           libxml2-dev                      \\
                           pkg-config                       \\
-                          libqt4-dev                       \\
-                          libqtwebkit-dev                  \\
+                          ${gazebo_qt_dependencies}        \\
                           libltdl-dev                      \\
                           libgts-dev                       \\
                           libboost-thread-dev              \\
@@ -148,20 +175,23 @@ GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
                           ${bullet_pkg}                    \\
                           libsimbody-dev                   \\
                           ${dart_pkg}"
-                   
-if [[ ${GAZEBO_MAJOR_VERSION} -ge 6 ]]; then
+
+if [[ ${GAZEBO_MAJOR_VERSION} -eq 6 ]]; then
     GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                                          libignition-math2-dev"
 fi
 
-if [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
+if [[ ${GAZEBO_MAJOR_VERSION} -eq 7 ]]; then
     GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                               libignition-transport-dev"
 fi
 
 if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
     GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                                         libqwt-dev"
+                                         libignition-transport2-dev \\
+                                         libignition-transport3-dev \\
+                                         libignition-math3-dev \\
+                                         libignition-msgs-dev"
 fi
 
 # libtinyxml2-dev is not on precise
@@ -174,12 +204,20 @@ fi
 GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                           ${sdformat_pkg}"
 
-GAZEBO_EXTRA_DEPENDENCIES="robot-player-dev \\
-                           libavformat-dev  \\
+GAZEBO_EXTRA_DEPENDENCIES="libavformat-dev  \\
                            libavcodec-dev   \\
                            libgraphviz-dev  \\
                            libswscale-dev   \\
+                           libavdevice-dev   \\
                            ruby-ronn"
+
+# Player was removed starting from xenial
+if [[ ${DISTRO} == 'precise' ]] || \
+   [[ ${DISTRO} == 'trusty' ]] || \
+   [[ ${DISTRO} == 'wily' ]]; then
+  GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} robot-player-dev"
+fi
+
 
 # cegui is deprecated in gazebo 6
 if [[ ${GAZEBO_MAJOR_VERSION} -le 6 ]]; then
@@ -200,17 +238,55 @@ if [[ -z $ROS_DISTRO ]]; then
   echo "skipping ROS related variables"
   echo "------------------------------------------------------------"
 else
+  # default versions for every ROS distribution
+  if [[ -z ${GAZEBO_VERSION_FOR_ROS} ]]; then
+    case ${ROS_DISTRO} in
+      indigo)
+        GAZEBO_VERSION_FOR_ROS="2"
+      ;;
+      jade)
+        GAZEBO_VERSION_FOR_ROS="5"
+      ;;
+      kinetic)
+        GAZEBO_VERSION_FOR_ROS="7"
+      ;;
+    esac
+  fi
+
+  case ${GAZEBO_VERSION_FOR_ROS} in
+    "2")
+      _GZ_ROS_PACKAGES="gazebo2"
+    ;;
+     *)
+      # both packages see  http://answers.ros.org/question/217970
+      _GZ_ROS_PACKAGES="libgazebo${GAZEBO_VERSION_FOR_ROS}-dev \\
+                       gazebo${GAZEBO_VERSION_FOR_ROS}"
+    ;;
+  esac
+
+  ROS_CATKIN_BASE="python-dev              \\
+                  python-catkin-pkg        \\
+                  python-rosdep            \\
+                  python-wstool            \\
+                  ros-${ROS_DISTRO}-catkin \\
+                  ros-${ROS_DISTRO}-ros    \\
+                  python-rosinstall        \\
+                  python-catkin-tools      \\
+                  python-catkin-pkg        \\
+                  python-rospkg            \\
+                  python-vcstools"
+
   # DRCSIM_DEPENDENCIES
   #
   # image-transport-plugins is needed to properly advertise compressed image topics
-  DRCSIM_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-std-msgs                          \\
+  DRCSIM_BASE_DEPENDENCIES="${ROS_CATKIN_BASE}                                  \\
+                            ros-${ROS_DISTRO}-std-msgs                          \\
                             ros-${ROS_DISTRO}-common-msgs                       \\
                             ros-${ROS_DISTRO}-image-common                      \\
                             ros-${ROS_DISTRO}-geometry                          \\
                             ros-${ROS_DISTRO}-geometry-experimental             \\
                             ros-${ROS_DISTRO}-image-pipeline                    \\
                             ros-${ROS_DISTRO}-image-transport-plugins           \\
-                            ros-${ROS_DISTRO}-gazebo4-plugins                   \\
                             ros-${ROS_DISTRO}-compressed-depth-image-transport  \\
                             ros-${ROS_DISTRO}-compressed-image-transport        \\
                             ros-${ROS_DISTRO}-theora-image-transport            \\
@@ -218,7 +294,8 @@ else
                             ros-${ROS_DISTRO}-robot-model                       \\
                             ros-${ROS_DISTRO}-robot-state-publisher             \\
                             ros-${ROS_DISTRO}-control-toolbox                   \\
-                            ${GAZEBO_DEB_PACKAGE}"
+                            libtinyxml2-dev                                     \\
+                            ${_GZ_ROS_PACKAGES}"
 
   if [[ $ROS_DISTRO == 'hydro' ]]; then
     DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
@@ -242,9 +319,9 @@ else
                             sandia-hand${ROS_POSTFIX}         \\
                             osrf-common${ROS_POSTFIX}         \\
                             ros-${ROS_DISTRO}-laser-assembler \\
-                            ros-${ROS_DISTRO}-gazebo4-plugins \\
-                            ros-${ROS_DISTRO}-gazebo4-ros     \\
-                            ${GAZEBO_DEB_PACKAGE}"
+                            ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-plugins \\
+                            ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros     \\
+                            ${_GZ_ROS_PACKAGES}"
   #
   # SANDIA_HAND DEPENDECIES
   #
@@ -261,17 +338,24 @@ else
   #
   # ROS_GAZEBO_PKGS DEPENDECIES
   #
-  ROS_GAZEBO_PKGS_DEPENDENCIES="libtinyxml-dev                            \\
+  ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_CATKIN_BASE}                        \\
+                                libtinyxml-dev                            \\
+                                ros-${ROS_DISTRO}-ros-base                \\
                                 ros-${ROS_DISTRO}-catkin                  \\
                                 ros-${ROS_DISTRO}-pluginlib               \\
                                 ros-${ROS_DISTRO}-roscpp                  \\
-                                ros-${ROS_DISTRO}-driver-base             \\
                                 ros-${ROS_DISTRO}-angles                  \\
+                                ros-${ROS_DISTRO}-camera-info-manager     \\
+                                ros-${ROS_DISTRO}-cmake-modules           \\
+                                ros-${ROS_DISTRO}-controller-manager      \\
+                                ros-${ROS_DISTRO}-control-toolbox         \\
+                                ros-${ROS_DISTRO}-tf                      \\
                                 ros-${ROS_DISTRO}-cv-bridge               \\
                                 ros-${ROS_DISTRO}-diagnostic-updater      \\
                                 ros-${ROS_DISTRO}-dynamic-reconfigure     \\
                                 ros-${ROS_DISTRO}-geometry-msgs           \\
                                 ros-${ROS_DISTRO}-image-transport         \\
+                                ros-${ROS_DISTRO}-joint-limits-interface  \\
                                 ros-${ROS_DISTRO}-message-generation      \\
                                 ros-${ROS_DISTRO}-nav-msgs                \\
                                 ros-${ROS_DISTRO}-nodelet                 \\
@@ -283,15 +367,19 @@ else
                                 ros-${ROS_DISTRO}-sensor-msgs             \\
                                 ros-${ROS_DISTRO}-std-srvs                \\
                                 ros-${ROS_DISTRO}-tf                      \\
+                                ros-${ROS_DISTRO}-tf2-ros                 \\
                                 ros-${ROS_DISTRO}-trajectory-msgs         \\
+                                ros-${ROS_DISTRO}-transmission-interface  \\
                                 ros-${ROS_DISTRO}-urdf                    \\
-                                ros-${ROS_DISTRO}-xacro                   \\
-                                ros-${ROS_DISTRO}-cmake-modules           \\
-                                ros-${ROS_DISTRO}-controller-manager      \\
-                                ros-${ROS_DISTRO}-joint-limits-interface  \\
-                                ros-${ROS_DISTRO}-transmission-interface"
+                                ros-${ROS_DISTRO}-xacro"
 
+  ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
+                                ${_GZ_ROS_PACKAGES}"
 
+  if [[ ${ROS_DISTRO} == 'indigo' ]] || [[ ${ROS_DISTRO} == 'jade' ]]; then
+  ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
+                                ros-${ROS_DISTRO}-driver-base"
+  fi
 
   if [[ ${ROS_DISTRO} == 'indigo' ]]; then
   # These dependencies are for testing the ros_gazebo_pkgs
@@ -337,7 +425,22 @@ IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             protobuf-compiler    \\
                             uuid-dev             \\
                             libzmq3-dev          \\
+                            libignition-msgs-dev \\
                             libczmq-dev"
+
+IGN_COMMON_DEPENDENCIES="pkg-config            \\
+                         python                \\
+                         ruby-ronn             \\
+                         uuid-dev              \\
+                         libignition-math3-dev \\
+                         libfreeimage-dev      \\
+                         libgts-dev            \\
+                         libavformat-dev       \\
+                         libavcodec-dev        \\
+                         libswscale-dev        \\
+                         libavutil-dev         \\
+                         libavdevice-dev       \\
+                         uuid-dev"
 
 #
 # HAPTIX

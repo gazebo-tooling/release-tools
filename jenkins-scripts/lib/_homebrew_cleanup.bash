@@ -1,36 +1,31 @@
 #/bin/bash +x
 set -e
 
-# Backup brew executable.
-mv /usr/local/bin/brew /tmp/brew
+BREW_BINARY_DIR=/usr/local/bin
+BREW_BINARY=${BREW_BINARY_DIR}/brew
+git -C $(${BREW_BINARY} --repo) fsck
+export HOMEBREW_UPDATE_TO_TAG=1
+${BREW_BINARY} up
 
 # Clear all installed homebrew packages, links, taps, and kegs
-rm -rf /usr/local/Cellar/*
-rm -rf /usr/local/bin/*
-rm -rf /usr/local/lib/*
-rm -rf /usr/local/include/*
-rm -rf /usr/local/Library/Taps/*
-rm -rf /usr/local/Library/LinkedKegs/*
-
-# Restore brew executable.
-mv /tmp/brew /usr/local/bin/brew
-
-# Restore the basic stuff
-if [[ -n ${SCRIPT_LIBDIR} ]]; then
-  . ${SCRIPT_LIBDIR}/dependencies_archive.sh
-elif [[ -n ${SCRIPT_DIR} ]]; then
-  . ${SCRIPT_DIR}/lib/dependencies_archive.sh
-else
-  echo "Can not find the dependencies_archive.sh"
-  exit -1
+BREW_LIST=$(${BREW_BINARY} list)
+if [[ -n "${BREW_LIST}" ]]; then
+  ${BREW_BINARY} remove --force --ignore-dependencies ${BREW_LIST}
 fi
+rm -rf /usr/local/lib/python2.7/site-packages
+hash -r
+# redirect error to /dev/null to avoid temporal problems detected by
+# brew tap
+for t in $(HOMEBREW_NO_AUTO_UPDATE=1 \
+          ${BREW_BINARY} tap 2>/dev/null \
+          | grep '^[^/]\+/[^/]\+$' \
+          | grep -v '^homebrew/core$'); do
+  ${BREW_BINARY} untap $t
+done
 
-brew update
-brew install ${BREW_BASE_DEPENDCIES}
-
-# Fix perms in /Library/Caches to work with admin group
-sudo chgrp -R admin /Library/Caches/Homebrew/
-sudo chmod -R g+w /Library/Caches/Homebrew/
+pushd $(${BREW_BINARY} --prefix)/Homebrew/Library 2> /dev/null
+git stash && git clean -d -f
+popd 2> /dev/null
 
 # test-bot needs variables and does not work just with config not sure why
 export GIT_AUTHOR_NAME="OSRF Build Bot"

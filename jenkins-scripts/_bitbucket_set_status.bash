@@ -85,17 +85,32 @@ set +x # keep password secret
 BITBUCKET_USER_PASS=$(cat ${BITBUCKET_USER_PASS_FILE})
 BITBUCKET_API_RESULT=true
 ${WORKSPACE}/scripts/jenkins-scripts/python-bitbucket/set_status_from_file.py \
-    --user osrf_jenkins  \
-    --pass ${BITBUCKET_USER_PASS} \
-    --status ${BITBUCKET_STATUS} \
-    --load_from_file ${BITBUCKET_BUILD_STATUS_FILE} >& ${BITBUCKET_LOG_FILE} || BITBUCKET_API_RESULT=false
+    --user "osrf_jenkins"  \
+    --pass "${BITBUCKET_USER_PASS}" \
+    --desc "${JENKINS_BUILD_DESC}" \
+    --status "${BITBUCKET_STATUS}" \
+    --load_from_file "${BITBUCKET_BUILD_STATUS_FILE}" >& ${BITBUCKET_LOG_FILE} || BITBUCKET_API_RESULT=false
 set -x # back to debug
 echo '# END SECTION'
 
+REPO_ORG=${REPO_SHORT_NAME%/*}
+
 if ! $BITBUCKET_API_RESULT; then
+  # Check if we expect the failure due to lack of permissions
+  case ${REPO_ORG} in
+   'osrf' | 'ignitionrobotics')
+       # let the job to fail. It should not be problem with osrf repositories
+       ;;
+    *)
+      if [[ -n $(grep '403 Client Error: Forbidden' ${BITBUCKET_LOG_FILE}) ]]; then
+        echo "MARK_AS_UNSTABLE"
+        exit 0
+      fi
+  esac
+
   echo 'BEGIN SECTION: build status FAILED'
   echo 'The call from the python client to bitbucket to set the build status failed'
   echo "Please check out the workspace for the file: ${BITBUCKET_LOG_FILE}"
   echo '# END SECTION'
-  return 1
+  exit 1
 fi
