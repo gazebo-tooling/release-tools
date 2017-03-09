@@ -12,7 +12,7 @@ fi
 
 export CATKIN_WS="${WORKSPACE}/ws"
 
-cat > build.sh << DELIM
+cat > build.sh << DELIM_CONFIG
 set -ex
 
 echo '# BEGIN SECTION: run rosdep'
@@ -42,7 +42,25 @@ mkdir -p ${CATKIN_WS}/src
 cd ${CATKIN_WS}
 catkin config --init --mkdirs
 ln -s "${WORKSPACE}/${SOFTWARE_DIR}" "${CATKIN_WS}/src/${SOFTWARE_DIR}"
+DELIM_CONFIG
+
+if [ `expr length "${ROS_WS_PREBUILD_HOOK} "` -gt 1 ]; then
+cat >> build.sh << DELIM_PREBUILD_HOOK
+cd ${CATKIN_WS}/src
+${ROS_WS_PREBUILD_HOOK}
+cd ${CATKIN_WS}
+DELIM_PREBUILD_HOOK
+fi
+
+cat >> build.sh << DELIM_COMPILATION
+echo '# END SECTION'
+
+echo '# BEGIN SECTION install the system dependencies'
 catkin list
+rosdep install --from-paths . --ignore-src --rosdistro=${ROS_DISTRO} --as-root apt:false 
+echo '# END SECTION'
+
+echo '# BEGIN SECTION compile the catkin workspace'
 catkin build -j${MAKE_JOBS} --verbose --summary
 echo '# END SECTION'
 
@@ -59,4 +77,4 @@ for d in \$DIRS; do
  done
 done
 echo '# END SECTION'
-DELIM
+DELIM_COMPILATION
