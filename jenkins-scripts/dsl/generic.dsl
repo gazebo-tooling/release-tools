@@ -11,7 +11,7 @@ build_pkg_job.with
             #!/bin/bash -xe
 
             for ARCH in \${ARCHES}; do
-              /bin/bash -x ./scripts/jenkins-scripts/docker/lib/debbuild-backport.bash
+              /bin/bash -x ./scripts/jenkins-scripts/docker/generic_backport-debbuild.bash
             done
             """.stripIndent())
     }
