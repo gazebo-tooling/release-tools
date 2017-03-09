@@ -63,31 +63,33 @@ class OSRFLinuxBackportPkg
       publishers {
         archiveArtifacts('pkgs/*')
 
-        conditionalAction {
-          /* Upload if SUCCESS and UPLOAD_TO_REPO is not empty or none  */
-          condition {
-            and {
-              status('SUCCESS')
-            } {
-              not {
-                expression('none|^$','${ENV,var="UPLOAD_TO_REPO"}')
-              }
-            }
-          }
-
-          publishers {
-            downstreamParameterized {
-              trigger('repository_uploader_ng') {
-                parameters {
-                  currentBuild()
-                  predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+        flexiblePublish
+        {
+          conditionalAction {
+            /* Upload if SUCCESS and UPLOAD_TO_REPO is not empty or none  */
+            condition {
+              and {
+                status('SUCCESS','SUCCESS')
+              } {
+                not {
+                  expression('none|^$','${ENV,var="UPLOAD_TO_REPO"}')
                 }
               }
             }
-	  }
-        }
-      }
 
+            publishers {
+              downstreamParameterized {
+                trigger('repository_uploader_ng') {
+                  parameters {
+                    currentBuild()
+                    predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+                  }
+                }
+              }
+            }
+          }
+        }
+      } // end of publishers
     } // end of job
   } // end of method createJob
 } // end of class
