@@ -26,7 +26,7 @@ export DEBFULLNAME="OSRF Jenkins"
 export DEBEMAIL="build@osrfoundation.org"
 
 echo '# BEGIN SECTION: generating the backport (${DEST_UBUNTU_DISTRO}/${ARCH})'
-pbuilder create || cat /var/cache/pbuilder/build/10/./debootstrap/debootstrap.log
+pbuilder create
 backportpackage --dont-sign -b -s ${SOURCE_UBUNTU_DISTRO} -d ${DEST_UBUNTU_DISTRO} -w . ${PACKAGE}
 ls
 ls ../
@@ -54,6 +54,8 @@ test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 DELIM
 
+# Workaround to invoke the --priveleged option in docker, needed for pbuilder
+USE_GPU_DOCKER=true
 OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
 DEPENDENCY_PKGS="devscripts \
 		 ubuntu-dev-tools \
