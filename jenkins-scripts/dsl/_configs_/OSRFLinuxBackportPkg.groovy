@@ -11,7 +11,7 @@ import javaposse.jobdsl.dsl.Job
     - keep only 10 last artifacts
     - parameters:
         - PACKAGE
-        - ARCH
+        - ARCHES
         - SOURCE_UBUNTU_DISTRO
         - DEST_UBUNTU_DISTRO
         - UPLOAD_TO_REPO
@@ -38,7 +38,7 @@ class OSRFLinuxBackportPkg
 
       parameters {
         stringParam("PACKAGE",null,"Package name to be built")
-        stringParam("ARCH", null, "Architecture to build packages for")
+        stringParam("ARCHES", null, "Space separated list of architectures to build packages for")
         stringParam("SOURCE_UBUNTU_DISTRO", null, "Distribution to get theç package from")
         stringParam("DEST_UBUNTU_DISTRO", null, "Distribution to generate the new package")
         stringParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to. None will skip the upload")
