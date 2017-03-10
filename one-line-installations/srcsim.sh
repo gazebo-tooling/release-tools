@@ -158,7 +158,7 @@ do_install() {
   esac
 
   # Check if this is a forked Linux distro
-  heck_forked
+  check_forked
 
   # Run setup for each distro accordingly
   case "$lsb_dist" in
