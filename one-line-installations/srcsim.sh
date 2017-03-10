@@ -214,7 +214,7 @@ do_install() {
           $sh_c "chown -R $USER:$USER /opt/ros/indigo/share/ihmc_ros_java_adapter"
           # 4. Add the ros group and add the user to it
           if ! getent group ros; then
-		    $sh_c "groupadd ros"
+	    $sh_c "groupadd ros"
           fi
           if ! groups ${USER} | grep -q ros; then 
             $sh_c "usermod -a -G ros $USER"
