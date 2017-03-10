@@ -48,7 +48,7 @@ class OSRFLinuxBackportPkg
       steps {
         systemGroovyCommand("""\
           build.setDescription(
-          '<b>' + build.buildVariableResolver.resolve('PACKAGE') + '-' +
+          '<b>' + build.buildVariableResolver.resolve('PACKAGE') + ' ' +
           build.buildVariableResolver.resolve('SOURCE_UBUNTU_DISTRO') + ' -> ' +
           build.buildVariableResolver.resolve('DEST_UBUNTU_DISTRO') + ' -> ' +
           '(' + build.buildVariableResolver.resolve('ARCHES') + ')' +
@@ -72,7 +72,7 @@ class OSRFLinuxBackportPkg
                 status('SUCCESS','SUCCESS')
               } {
                 not {
-                  expression('none|^$','${ENV,var="UPLOAD_TO_REPO"}')
+                  expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
                 }
               }
             }
