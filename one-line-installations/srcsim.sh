@@ -175,7 +175,7 @@ do_install() {
 
           if [ -z "$curl" ]; then
             apt_get_update
-            ( set -x; $sh_c 'sleep 3; apt-get install -y -q wget curl ca-certificates' )
+            ( set -x; $sh_c 'sleep 3; apt-get install -y -q curl ca-certificates' )
             curl='curl -sSL'
           fi
 
@@ -197,14 +197,15 @@ do_install() {
 			EOF_INSTALL
 		  ( set -x; sleep 20 )
 
-		  # 1. Install repositories
+	  # 1. Install repositories
+          $sh_c 'apt-get update; apt-get install -y -q wget'
           $sh_c "mkdir -p /etc/apt/sources.list.d"
           $sh_c "apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys D2486D2DD83DB69272AFE98867170598AF249743"
           $sh_c "echo deb http://packages.osrfoundation.org/gazebo/${lsb_dist} ${dist_version} main > /etc/apt/sources.list.d/gazebo-stable.list"
-		  $sh_c "wget -O - http://srcsim.gazebosim.org/src/src.key | sudo apt-key add -"
+	  $sh_c "wget -O - http://srcsim.gazebosim.org/src/src.key | sudo apt-key add -"
           $sh_c "echo deb http://srcsim.gazebosim.org/src ${dist_version} main > /etc/apt/sources.list.d/src-latest.list"
           # 2. Install the SRCSim package
-          $sh_c 'sleep 3; apt-get update; apt-get install -y -q srcsim'
+          $sh_c 'apt-get install -y -q srcsim'
           # 3. Change owner of ihmc_ros_java_adapter
           $sh_c "chown -R $USER:$USER /opt/ros/indigo/share/ihmc_ros_java_adapter"
 		  # 3. Add the ros group and add the user to it
