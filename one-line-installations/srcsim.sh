@@ -230,8 +230,6 @@ do_install() {
           if [ ! -d "${HOME}/valkyrie" ]; then
             wget -qO- http://gazebosim.org/distributions/srcsim/valkyrie_controller.tar.gz | tar xvz -C ${HOME}
           fi
-          # 2. Install the SRCSim package
-          $sh_c 'apt-get update; apt-get install -y -q srcsim'
           )
           exit 0
         ;;
