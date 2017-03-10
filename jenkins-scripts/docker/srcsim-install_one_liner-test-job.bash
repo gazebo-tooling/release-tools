@@ -15,6 +15,7 @@ export INSTALL_JOB_REPOS=""
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: run the one-liner installation'
+export USER=root
 # curl -ssL http://get.srcsim.gazebosim.org | sh
 # TODO: temporary testing method
 sh ${WORKSPACE}/scripts/one-line-installations/srcsim.sh
