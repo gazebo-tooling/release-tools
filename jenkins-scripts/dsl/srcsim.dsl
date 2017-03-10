@@ -209,11 +209,10 @@ all_supported_distros.each { distro ->
               export DISTRO=${distro}
               export ARCH=${arch}
 
-              /bin/bash -x ./scripts/jenkins-scripts/docker/srcsim-one_liner-install-test-job.bash
+              /bin/bash -x ./scripts/jenkins-scripts/docker/srcsim-install_one_liner-test-job.bash
               """.stripIndent())
       }
     }
-
   }
 }
 
