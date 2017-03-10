@@ -22,7 +22,16 @@ sh ${WORKSPACE}/scripts/one-line-installations/srcsim.sh
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: testing by running qual2 launch file'
-${SRCSIM_SETUP}
+# TODO: remove when setup.bash from srcsim is merged
+update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+update-alternatives --set javac /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/javac
+rm /usr/lib/jvm/default-java
+sudo ln -s /usr/lib/jvm/java-8-openjdk-amd64 /usr/lib/jvm/default-java
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export IS_GAZEBO=true
+export ROS_IP=127.0.0.1
+
+mkdir -p ~/.ihmc; curl https://raw.githubusercontent.com/ihmcrobotics/ihmc_ros_core/0.8.0/ihmc_ros_common/configurations/IHMCNetworkParametersTemplate.ini > ~/.ihmc/IHMCNetworkParameters.ini
 
 TEST_START=\`date +%s\`
 timeout --preserve-status 400 roslaunch srcsim qual2.launch extra_gazebo_args:=\"-r\" init:=\"true\" walk_test:=true || true
