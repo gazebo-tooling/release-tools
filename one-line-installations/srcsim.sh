@@ -158,7 +158,7 @@ do_install() {
   esac
 
   # Check if this is a forked Linux distro
-  check_forked
+  heck_forked
 
   # Run setup for each distro accordingly
   case "$lsb_dist" in
@@ -196,7 +196,11 @@ do_install() {
 
 			EOF_INSTALL
 		  ( set -x; sleep 20 )
-
+          # 0. Safety Checks
+          if [ -z $USER ]; then
+            echo 'The $USER env variable is empty, it should not'
+            exit 1
+          fi
 	  # 1. Install repositories
           $sh_c 'apt-get update; apt-get install -y -q wget'
           $sh_c "mkdir -p /etc/apt/sources.list.d"
