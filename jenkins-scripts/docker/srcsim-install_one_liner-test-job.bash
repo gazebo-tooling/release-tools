@@ -13,11 +13,8 @@ export INSTALL_JOB_REPOS=""
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: run the one-liner installation'
 # curl -ssL http://get.srcsim.gazebosim.org | sh
-# Temporary testing method
-apt-get install -y mercurial
-hg clone https://bitbucket.org/osrf/release-tools
-hg up srcsim_oneliner
-sh release-tools/one-line-installations/srcsim.sh
+# TODO: temporary testing method
+sh ${WORKSPACE}/scripts/one-line-installations/srcsim.sh
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: testing by running qual2 launch file'
