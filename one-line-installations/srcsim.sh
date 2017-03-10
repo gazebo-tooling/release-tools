@@ -208,20 +208,22 @@ do_install() {
           $sh_c "echo deb http://packages.osrfoundation.org/gazebo/${lsb_dist} ${dist_version} main > /etc/apt/sources.list.d/gazebo-stable.list"
 	  $sh_c "wget -O - http://srcsim.gazebosim.org/src/src.key | sudo apt-key add -"
           $sh_c "echo deb http://srcsim.gazebosim.org/src ${dist_version} main > /etc/apt/sources.list.d/src-latest.list"
+          # 2. Install the SRCSim package
+          $sh_c 'apt-get update; apt-get install -y -q srcsim'
           # 3. Change owner of ihmc_ros_java_adapter
           $sh_c "chown -R $USER:$USER /opt/ros/indigo/share/ihmc_ros_java_adapter"
-	  # 3. Add the ros group and add the user to it
+          # 4. Add the ros group and add the user to it
           if ! getent group ros; then
 		    $sh_c "groupadd ros"
           fi
           if ! groups ${USER} | grep -q ros; then 
             $sh_c "usermod -a -G ros $USER"
           fi
-	  # 4. Limit file
+	  # 5. Limit file
           if [ ! -f /etc/security/limits.d/ros-rtprio.conf ]; then
             $sh_c "sudo bash -c 'echo \"@ros - rtprio 99\" > /etc/security/limits.d/ros-rtprio.conf'"
           fi
-          # 5. Install a copy of gazebo_models
+          # 6. Install a copy of gazebo_models
           if [ ! -d "${HOME}/.gazebo/models" ]; then
             mkdir -p "${HOME}/.gazebo/models"
 			wget -qO- https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz | tar xvz --strip 1 -C ${HOME}/.gazebo/models
