@@ -38,10 +38,10 @@ class OSRFLinuxBackportPkg
 
       parameters {
         stringParam("PACKAGE",null,"Package name to be built")
-        stringParam("ARCHES", null, "Space separated list of architectures to build packages for")
+        stringParam("ARCHES", "amd64", "Space separated list of architectures to build packages for")
         stringParam("SOURCE_UBUNTU_DISTRO", null, "Distribution to get theç package from")
         stringParam("DEST_UBUNTU_DISTRO", null, "Distribution to generate the new package")
-        stringParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to. None will skip the upload")
+        stringParam("UPLOAD_TO_REPO", "none", "(CAUTION!! be sure before uploading package to a repository) OSRF repo name to upload the package to. none will skip the upload and leave artifacts available in jenkins")
         stringParam("OSRF_REPOS_TO_USE", null, "OSRF repos name to use when building the package")
       }
 
