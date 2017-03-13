@@ -63,7 +63,7 @@ DEPENDENCY_PKGS="devscripts \
 		 wget \
 		 ca-certificates \
 		 equivs \
-		 dh-make
+		 dh-make \
                  cowbuilder"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
