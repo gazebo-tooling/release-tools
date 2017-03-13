@@ -26,8 +26,10 @@ export DEBFULLNAME="OSRF Jenkins"
 export DEBEMAIL="build@osrfoundation.org"
 
 echo '# BEGIN SECTION: generating the backport (${DEST_UBUNTU_DISTRO}/${ARCH})'
-pbuilder create
-backportpackage --dont-sign -b -s ${SOURCE_UBUNTU_DISTRO} -d ${DEST_UBUNTU_DISTRO} -w . ${PACKAGE}
+cowbuilder --create --distribution ${DEST_UBUNTU_DISTRO} --components "main restricted universe multiverse" \
+  --basepath=/var/lib/pbuilder/${DEST_UBUNTU_DISTRO}-base.cow
+BASEPATH=/var/lib/pbuilder/${DEST_UBUNTU_DISTRO}-base.cow \
+  backportpackage --dont-sign cowbuilder -b -s ${SOURCE_UBUNTU_DISTRO} -d ${DEST_UBUNTU_DISTRO} -w . ${PACKAGE}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
@@ -61,7 +63,8 @@ DEPENDENCY_PKGS="devscripts \
 		 wget \
 		 ca-certificates \
 		 equivs \
-		 dh-make"
+		 dh-make
+                 cowbuilder"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
