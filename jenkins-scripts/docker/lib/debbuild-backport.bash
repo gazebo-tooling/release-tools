@@ -27,7 +27,7 @@ export DEBEMAIL="build@osrfoundation.org"
 
 echo '# BEGIN SECTION: generating the backport (${DEST_UBUNTU_DISTRO}/${ARCH})'
 export COWBUILDER_BASE_PATH=/var/lib/pbuilder/${DEST_UBUNTU_DISTRO}-base.cow
-mkdir -p \${COWBUILDER_BASE_PATH}
+mkdir -p /var/lib/pbuilder/
 cowbuilder --create \
            --distribution ${DEST_UBUNTU_DISTRO} \
 	   --components "main restricted universe multiverse" \
