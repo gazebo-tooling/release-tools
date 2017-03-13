@@ -34,9 +34,9 @@ cowbuilder --create \
            --basepath=\${COWBUILDER_BASE_PATH}
 
 BASEPATH=\${COWBUILDER_BASE_PATH} \
-  backportpackage cowbuilder \
-                  --dont-sign \
+  backportpackage --dont-sign \
 		  -b \
+                  --builder cowbuilder \
 		  -s ${SOURCE_UBUNTU_DISTRO} -d ${DEST_UBUNTU_DISTRO} \
 		  -w . ${PACKAGE}
 echo '# END SECTION'
