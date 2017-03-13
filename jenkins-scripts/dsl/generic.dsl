@@ -12,7 +12,7 @@ build_pkg_job.with
 
             for a in \${ARCHES}; do
               export ARCH=\$a
-              export DISTRO=\$SOURCE_UBUNTU_DISTRO
+              export DISTRO=\$DEST_UBUNTU_DISTRO
               /bin/bash -x ./scripts/jenkins-scripts/docker/generic_backport-debbuild.bash
             done
             """.stripIndent())
