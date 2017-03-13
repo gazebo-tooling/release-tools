@@ -26,10 +26,19 @@ export DEBFULLNAME="OSRF Jenkins"
 export DEBEMAIL="build@osrfoundation.org"
 
 echo '# BEGIN SECTION: generating the backport (${DEST_UBUNTU_DISTRO}/${ARCH})'
-cowbuilder --create --distribution ${DEST_UBUNTU_DISTRO} --components "main restricted universe multiverse" \
-  --basepath=/var/lib/pbuilder/${DEST_UBUNTU_DISTRO}-base.cow
-BASEPATH=/var/lib/pbuilder/${DEST_UBUNTU_DISTRO}-base.cow \
-  backportpackage --dont-sign cowbuilder -b -s ${SOURCE_UBUNTU_DISTRO} -d ${DEST_UBUNTU_DISTRO} -w . ${PACKAGE}
+export COWBUILDER_BASE_PATH=/var/lib/pbuilder/${DEST_UBUNTU_DISTRO}-base.cow
+mkdir -p \${COWBUILDER_BASE_PATH}
+cowbuilder --create \
+           --distribution ${DEST_UBUNTU_DISTRO} \
+	   --components "main restricted universe multiverse" \
+           --basepath=\${COWBUILDER_BASE_PATH}
+
+BASEPATH=\${COWBUILDER_BASE_PATH} \
+  backportpackage cowbuilder \
+                  --dont-sign \
+		  -b \
+		  -s ${SOURCE_UBUNTU_DISTRO} -d ${DEST_UBUNTU_DISTRO} \
+		  -w . ${PACKAGE}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
