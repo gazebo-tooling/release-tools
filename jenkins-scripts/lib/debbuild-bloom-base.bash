@@ -81,7 +81,7 @@ dh_make -h | grep -q -- -y && \
 
 if \$DH_MAKE_Y
 then
-  dh_make -y --createorig -p ros-$ROS_DISTRO-${PACKAGE}_${VERSION}
+  dh_make -y -s --createorig -p ros-$ROS_DISTRO-${PACKAGE}_${VERSION}
 else
   echo | dh_make -s --createorig -p ros-$ROS_DISTRO-${PACKAGE}_${VERSION} || true
 fi
