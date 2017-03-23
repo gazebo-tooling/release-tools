@@ -81,7 +81,8 @@ dh_make -h | grep -q -- -y && \
 
 if \$DH_MAKE_Y
 then
-  dh_make -y -s --createorig --defaultless -p ros-$ROS_DISTRO-${PACKAGE}_${VERSION}
+  # true is to avoid the error on already debian/ directory
+  dh_make -y -s --createorig -p ros-$ROS_DISTRO-${PACKAGE}_${VERSION} || true
 else
   echo | dh_make -s --createorig -p ros-$ROS_DISTRO-${PACKAGE}_${VERSION} || true
 fi
