@@ -209,7 +209,7 @@ for pkg in `ls $pkgs_path/*.deb`; do
   pkg_version=${pkg_version/_*} # remove package suffix
 
   case ${pkg_suffix} in
-      i386.deb | amd64.deb | armhf.deb)
+      i386.deb | amd64.deb | armhf.deb | arm64.deb)
 	  upload_package ${pkg} ${PACKAGE_ALIAS}
       ;;
       all.deb)
