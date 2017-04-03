@@ -114,7 +114,7 @@ ros_distros.each { ros_distro ->
     gazebo_versions.each { gz_version ->
       // Do not generate special jobs for official supported package. They will
       // be created using plain 'gazebo' name.
-      if (Globals.gz_version_by_rosdistro[ros_distro] != gz_version)
+      if (gz_version in Globals.gz_version_by_rosdistro[ros_distro])
       {
         if (gz_version == "default")
           gz_version=""
