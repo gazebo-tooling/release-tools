@@ -9,8 +9,8 @@ String ci_arch               = 'amd64'
 // version to test more than the official one in each ROS distro
 ArrayList extra_gazebo_versions = ['7']
 
-Job create_common_compilation(String job_name, 
-                              String ubuntu_distro, 
+Job create_common_compilation(String job_name,
+                              String ubuntu_distro,
                               String gz_version,
                               String script_name)
 {
@@ -19,7 +19,19 @@ Job create_common_compilation(String job_name,
    OSRFLinuxCompilationAnyGitHub.create(comp_job,
               Globals.get_ros_distros_by_ubuntu_distro(ubuntu_distro))
 
-   comp_job.with 
+   include_common_params(comp_job,
+                         ubuntu_distro,
+                         gz_version,
+                         script_name)
+   return comp_job
+}
+
+void include_common_params(Job gazebo_ros_pkgs_job,
+                           String ubuntu_distro,
+                           String gz_version,
+                           String script_name)
+{
+   gazebo_ros_pkgs_job.with
    {
       String use_non_official_gazebo_package = ""
       if (gz_version != "default") {
@@ -121,5 +133,21 @@ ros_distros.each { ros_distro ->
                                                    ubuntu_distro,
                                                    "default",
                                                    "gazebo_ros_pkgs-compilation_regression")
+
+    // --------------------------------------------------------------
+    // 3. Testing packages jobs install_pkg
+    def install_default_job = job("srcsim-install_pkg-${distro}-${arch}")
+    OSRFLinuxInstall.create(install_default_job)
+    include_common_params(install_default_job,
+                          ubuntu_distro,
+                          gz_version,
+                          "gazebo_ros_pkgs-check-release.bash")
+
+    install_default_job.with
+    {
+      triggers {
+        cron('@daily')
+      }
+    } // end of with
   } // end of ubuntu_distros
 } // end of ros_distros
