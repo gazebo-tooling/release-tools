@@ -124,7 +124,7 @@ ros_distros.each { ros_distro ->
                                                 "gazebo_ros_pkgs-compilation")
         // --------------------------------------------------------------
         // 3. Testing packages jobs install_pkg
-        def install_default_job = job("srcsim-install_pkg-${ubuntu_distro}-${ci_arch}")
+        def install_default_job = job("ros_gazebo${gz_version}-install_pkg-${ubuntu_distro}-${ci_arch}")
         OSRFLinuxInstall.create(install_default_job)
         include_common_params(install_default_job,
                               ubuntu_distro,
