@@ -129,7 +129,7 @@ ros_distros.each { ros_distro ->
         include_common_params(install_default_job,
                               ubuntu_distro,
                               gz_version,
-                              "gazebo_ros_pkgs-check-release.bash")
+                              "gazebo_ros_pkgs-check-release")
         install_default_job.with
         {
           triggers {
