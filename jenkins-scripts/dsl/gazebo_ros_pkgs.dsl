@@ -136,7 +136,7 @@ ros_distros.each { ros_distro ->
 
     // --------------------------------------------------------------
     // 3. Testing packages jobs install_pkg
-    def install_default_job = job("srcsim-install_pkg-${distro}-${arch}")
+    def install_default_job = job("srcsim-install_pkg-${ubuntu_distro}-${ci_arch}")
     OSRFLinuxInstall.create(install_default_job)
     include_common_params(install_default_job,
                           ubuntu_distro,
