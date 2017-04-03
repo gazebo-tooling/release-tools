@@ -7,7 +7,9 @@ ArrayList ros_distros        = Globals.get_ros_suported_distros()
 @Field
 String ci_arch               = 'amd64'
 // version to test more than the official one in each ROS distro
-ArrayList extra_gazebo_versions = ['7']
+extra_gazebo_versions = [ 'indigo'  :  ['7'],
+                          'jade'    :  ['7'],
+                          'kinetic' :  ['8']]
 
 Job create_common_compilation(String job_name,
                               String ubuntu_distro,
@@ -65,9 +67,11 @@ ros_distros.each { ros_distro ->
   ubuntu_distros = Globals.ros_ci[ros_distro]
 
   ubuntu_distros.each { ubuntu_distro ->
+    suffix_triplet="${ros_distro}-${ubuntu_distro}-${ci_arch}"
+
     // --------------------------------------------------------------
     // 1. Create the default ci jobs
-    def default_ci_job = job("ros_gazebo_pkgs-ci-default_${ros_distro}-${ubuntu_distro}-${ci_arch}")
+    def default_ci_job = job("ros_gazebo_pkgs-ci-default_$suffix_triplet")
     // Enable testing but not cppcheck
     OSRFLinuxCompilation.create(default_ci_job, true, false)
     default_ci_job.with
@@ -102,34 +106,29 @@ ros_distros.each { ros_distro ->
       }
     }
 
-    // Note: this package are independent of the ROS distro used. It is guess
-    // from target branch at runtime, handled by gazebo_ros_pkgs-compilation.bash
+    // --------------------------------------------------------------
+    // 2. Create the default ci pr-any jobs
+    def any_job_name = "ros_gazebo_pkgs-ci-pr_any_${suffix_triplet}"
+    Job any_job = create_common_compilation(any_job_name,
+                                            ubuntu_distro,
+                                            ros_distro,
+                                            "default",
+                                            "gazebo_ros_pkgs-compilation")
 
-    // TODO: these set of jobs will be created probably several times if
-    // different ROS versions support same ubuntu platforms.
 
     // Assume that gazebo means official version chose by ROS on every distribution
-    gazebo_versions = [ 'default' ] + extra_gazebo_versions
+    gazebo_unofficial_versions = extra_gazebo_versions[ros_distro]
+    println gazebo_unofficial_versions
+    println ros_distro
 
-    gazebo_versions.each { gz_version ->
+    gazebo_unofficial_versions.each { gz_version ->
       // Do not generate special jobs for official supported package. They will
       // be created using plain 'gazebo' name.
-      if (gz_version in Globals.gz_version_by_rosdistro[ros_distro])
+      if (! (gz_version in Globals.gz_version_by_rosdistro[ros_distro]))
       {
-        if (gz_version == "default")
-          gz_version=""
-
-        // --------------------------------------------------------------
-        // 2. Create the default ci pr-any jobs
-        def any_job_name = "ros_gazebo${gz_version}_pkgs-ci-pr_any-${ubuntu_distro}-${ci_arch}"
-        Job any_job = create_common_compilation(any_job_name,
-                                                ubuntu_distro,
-                                                ros_distro,
-                                                gz_version,
-                                                "gazebo_ros_pkgs-compilation")
         // --------------------------------------------------------------
         // 3. Testing packages jobs install_pkg
-        def install_default_job = job("ros_gazebo${gz_version}-install_pkg-${ubuntu_distro}-${ci_arch}")
+        def install_default_job = job("ros_gazebo${gz_version}_pkgs-install_pkg_${suffix_triplet}")
         OSRFLinuxInstall.create(install_default_job)
         include_common_params(install_default_job,
                               ubuntu_distro,
@@ -148,7 +147,7 @@ ros_distros.each { ros_distro ->
 
     // --------------------------------------------------------------
     // 2. Create the regressions ci pr-any jobs
-    def regression_job_name = "ros_gazebo_pkgs-ci-pr_regression_any-${ubuntu_distro}-${ci_arch}"
+    def regression_job_name = "ros_gazebo_pkgs-ci-pr_regression_any_${suffix_triplet}"
     Job regression_job = create_common_compilation(regression_job_name,
                                                    ubuntu_distro,
                                                    ros_distro,
