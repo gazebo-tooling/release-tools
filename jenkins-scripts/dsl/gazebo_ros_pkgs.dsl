@@ -11,6 +11,7 @@ ArrayList extra_gazebo_versions = ['7']
 
 Job create_common_compilation(String job_name,
                               String ubuntu_distro,
+                              String ros_distro,
                               String gz_version,
                               String script_name)
 {
@@ -21,6 +22,7 @@ Job create_common_compilation(String job_name,
 
    include_common_params(comp_job,
                          ubuntu_distro,
+                         ros_distro,
                          gz_version,
                          script_name)
    return comp_job
@@ -28,6 +30,7 @@ Job create_common_compilation(String job_name,
 
 void include_common_params(Job gazebo_ros_pkgs_job,
                            String ubuntu_distro,
+                           String ros_distro,
                            String gz_version,
                            String script_name)
 {
@@ -51,6 +54,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
 
               export DISTRO=${ubuntu_distro}
               export ARCH=${ci_arch}
+              export ROS_DISTRO=${ros_distro}
               /bin/bash -xe ./scripts/jenkins-scripts/docker/${script_name}.bash
               """.stripIndent())
       }
@@ -120,6 +124,7 @@ ros_distros.each { ros_distro ->
         def any_job_name = "ros_gazebo${gz_version}_pkgs-ci-pr_any-${ubuntu_distro}-${ci_arch}"
         Job any_job = create_common_compilation(any_job_name,
                                                 ubuntu_distro,
+                                                ros_distro,
                                                 gz_version,
                                                 "gazebo_ros_pkgs-compilation")
         // --------------------------------------------------------------
@@ -128,6 +133,7 @@ ros_distros.each { ros_distro ->
         OSRFLinuxInstall.create(install_default_job)
         include_common_params(install_default_job,
                               ubuntu_distro,
+                              ros_distro,
                               gz_version,
                               "gazebo_ros_pkgs-release-testing")
         install_default_job.with
@@ -145,6 +151,7 @@ ros_distros.each { ros_distro ->
     def regression_job_name = "ros_gazebo_pkgs-ci-pr_regression_any-${ubuntu_distro}-${ci_arch}"
     Job regression_job = create_common_compilation(regression_job_name,
                                                    ubuntu_distro,
+                                                   ros_distro,
                                                    "default",
                                                    "gazebo_ros_pkgs-compilation_regression")
   } // end of ubuntu_distros
