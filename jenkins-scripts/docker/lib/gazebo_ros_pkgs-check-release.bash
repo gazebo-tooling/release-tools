@@ -39,14 +39,7 @@ fi
 echo "180 testing seconds finished successfully"
 DELIM
 
-USE_ROS_REPO=${USE_ROS_REPO:-true}
-OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:-stable}
-
-# Let's try to install all the packages and check the example
-ROS_GAZEBO_PKGS="ros-$ROS_DISTRO-$PACKAGE_ALIAS-msgs \
-	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-plugins \
-	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros \
-	         ros-$ROS_DISTRO-$PACKAGE_ALIAS-ros-pkgs"
+USE_ROS_REPO=true
 
 DEPENDENCY_PKGS="${ROS_GAZEBO_PKGS} ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS} git"
 
