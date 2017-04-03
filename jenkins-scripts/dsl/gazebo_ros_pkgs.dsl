@@ -98,8 +98,6 @@ ros_distros.each { ros_distro ->
       }
     }
 
-    // --------------------------------------------------------------
-    // 2. Create the default ci pr-any jobs
     // Note: this package are independent of the ROS distro used. It is guess
     // from target branch at runtime, handled by gazebo_ros_pkgs-compilation.bash
 
@@ -117,11 +115,27 @@ ros_distros.each { ros_distro ->
         if (gz_version == "default")
           gz_version=""
 
+        // --------------------------------------------------------------
+        // 2. Create the default ci pr-any jobs
         def any_job_name = "ros_gazebo${gz_version}_pkgs-ci-pr_any-${ubuntu_distro}-${ci_arch}"
         Job any_job = create_common_compilation(any_job_name,
                                                 ubuntu_distro,
                                                 gz_version,
                                                 "gazebo_ros_pkgs-compilation")
+        // --------------------------------------------------------------
+        // 3. Testing packages jobs install_pkg
+        def install_default_job = job("srcsim-install_pkg-${ubuntu_distro}-${ci_arch}")
+        OSRFLinuxInstall.create(install_default_job)
+        include_common_params(install_default_job,
+                              ubuntu_distro,
+                              gz_version,
+                              "gazebo_ros_pkgs-check-release.bash")
+        install_default_job.with
+        {
+          triggers {
+            cron('@daily')
+          }
+        } // end of with
       }
     } // end of gazebo_versions
 
@@ -133,21 +147,5 @@ ros_distros.each { ros_distro ->
                                                    ubuntu_distro,
                                                    "default",
                                                    "gazebo_ros_pkgs-compilation_regression")
-
-    // --------------------------------------------------------------
-    // 3. Testing packages jobs install_pkg
-    def install_default_job = job("srcsim-install_pkg-${ubuntu_distro}-${ci_arch}")
-    OSRFLinuxInstall.create(install_default_job)
-    include_common_params(install_default_job,
-                          ubuntu_distro,
-                          gz_version,
-                          "gazebo_ros_pkgs-check-release.bash")
-
-    install_default_job.with
-    {
-      triggers {
-        cron('@daily')
-      }
-    } // end of with
   } // end of ubuntu_distros
 } // end of ros_distros
