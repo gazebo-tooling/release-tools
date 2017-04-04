@@ -12,7 +12,7 @@ fi
 
 export CATKIN_WS="${WORKSPACE}/ws"
 
-cat > build.sh << DELIM_CONFIG
+cat >> build.sh << DELIM_CONFIG
 set -ex
 
 echo '# BEGIN SECTION: run rosdep'
