@@ -15,7 +15,8 @@ ${SRCSIM_SETUP_REPOSITORIES}
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: testing by running qual1 launch file'
-${SRCSIM_SETUP_TESTING}
+${SRCSIM_INIT_SETUP}
+${SRCSIM_ENV_SETUP}
 
 TEST_START=\`date +%s\`
 timeout --preserve-status 400 roslaunch srcsim qual2.launch extra_gazebo_args:=\"-r\" init:=\"true\" walk_test:=true || true
@@ -30,5 +31,6 @@ echo '# END SECTION'
 """
 # Need bc to proper testing and parsing the time
 export DEPENDENCY_PKGS="wget bc"
+export INSTALL_JOB_PKG="srcsim"
 
 . ${SCRIPT_DIR}/lib/generic-install-base.bash
