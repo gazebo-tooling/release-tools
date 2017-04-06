@@ -1,4 +1,9 @@
 # Whole SRCSIM setup
+SRCSIM_SETUP_REPOSITORIES="""
+wget -O - http://srcsim.gazebosim.org/src/src.key | sudo apt-key add -
+echo \"deb http://srcsim.gazebosim.org/src ${DISTRO} main\" > /etc/apt/sources.list.d/src-latest.list
+"""
+
 SRCSIM_INIT_SETUP="""
 echo '@ros - rtprio 99' > /etc/security/limits.d/ros-rtprio.conf
 groupadd ros

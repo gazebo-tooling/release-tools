@@ -32,7 +32,10 @@ ${SRCSIM_SETUP_REPOSITORIES}
 apt-get install -y ros-${ROS_DISTRO}-ros-base ${ROS_CATKIN_BASE}
 """
 
-export ROS_SETUP_POSTINSTALL_HOOK=${SRCSIM_SETUP_TESTING}
+export ROS_SETUP_POSTINSTALL_HOOK="""
+${SRCSIM_INIT_SETUP}
+${SRCSIM_ENV_SETUP}
+"""
 
 # Generate the first part of the build.sh file for ROS
 . ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash "srcsim"
