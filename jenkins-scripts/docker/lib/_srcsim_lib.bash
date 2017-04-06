@@ -1,6 +1,6 @@
 # Whole SRCSIM setup
 SRCSIM_SETUP_REPOSITORIES="""
-wget -O - http://srcsim.gazebosim.org/src/src.key | sudo apt-key add -
+curl http://srcsim.gazebosim.org/src/src.key | sudo apt-key add -
 echo \"deb http://srcsim.gazebosim.org/src ${DISTRO} main\" > /etc/apt/sources.list.d/src-latest.list
 """
 
