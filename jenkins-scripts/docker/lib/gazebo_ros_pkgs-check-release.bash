@@ -45,7 +45,10 @@ DELIM
 
 USE_ROS_REPO=true
 
-DEPENDENCY_PKGS="${ROS_GAZEBO_PKGS} ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS} git"
+DEPENDENCY_PKGS="${ROS_CATKIN_BASE} git \
+                 ${ROS_GAZEBO_PKGS} \
+                 ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS}"
+                 
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
