@@ -15,6 +15,12 @@ export CATKIN_WS="${WORKSPACE}/ws"
 cat > build.sh << DELIM
 set -ex
 
+if [ `expr length "${ROS_SETUP_PREINSTALL_HOOK} "` -gt 1 ]; then
+echo '# BEGIN SECTION: running pre install hook'
+${ROS_SETUP_PREINSTALL_HOOK}
+echo '# END SECTION'
+fi
+
 echo '# BEGIN SECTION: run rosdep'
 # Step 2: configure and build
 rosdep init
@@ -43,6 +49,13 @@ cd ${CATKIN_WS}
 catkin config --init --mkdirs
 ln -s "${WORKSPACE}/${SOFTWARE_DIR}" "${CATKIN_WS}/src/${SOFTWARE_DIR}"
 catkin list
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: install missing packages'
+rosdep install --from-paths . --ignore-src --rosdistro=kinetic --as-root apt:false
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: compilate catkin packages'
 catkin build -j${MAKE_JOBS} --verbose --summary
 echo '# END SECTION'
 
@@ -59,4 +72,10 @@ for d in \$DIRS; do
  done
 done
 echo '# END SECTION'
+
+if [ `expr length "${ROS_SETUP_POSTINSTALL_HOOK} "` -gt 1 ]; then
+echo '# BEGIN SECTION: running pre TEST hook'
+${ROS_SETUP_POSTINSTALL_HOOK}
+echo '# END SECTION'
+fi
 DELIM

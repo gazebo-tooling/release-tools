@@ -9,7 +9,7 @@ export GPU_SUPPORT_NEEDED=true
 # Import library
 . ${SCRIPT_DIR}/lib/_srcsim_lib.bash
 
-INSTALL_JOB_PREINSTALL_HOOK="""
+INSTALL_JOB_PREINSTALL_HOOK="""\
 ${SRCSIM_SETUP_REPOSITORIES}
 """
 
