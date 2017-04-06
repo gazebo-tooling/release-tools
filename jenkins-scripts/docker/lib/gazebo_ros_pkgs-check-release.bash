@@ -19,6 +19,7 @@ cat > build.sh << DELIM_CHECKOUT
 #
 set -ex
 
+[[ -d ${WORKSPACE}/gazebo_ros_demos ]] && rm -fr ${WORKSPACE}/gazebo_ros_demos
 git clone https://github.com/ros-simulation/gazebo_ros_demos ${WORKSPACE}/gazebo_ros_demos
 DELIM_CHECKOUT
 
