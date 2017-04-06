@@ -24,6 +24,10 @@ DELIM_CHECKOUT
 
 # Generate the first part of the build.sh file for ROS
 . ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash "gazebo_ros_demos"
+# SOFTWARE_DIR is set by _ros_setup_buildsh.bash. In this job we are getting 
+# the gazebo_ros_demos in the build.sh so we need to avoid the variable to 
+# reach the docker file generation (it will try to copy it to the container)
+[[ -n ${SOFTWARE_DIR} ]] && unset SOFTWARE_DIR
 
 cat >> build.sh << DELIM
 cd ${CATKIN_WS}/gazebo_ros_demos/
