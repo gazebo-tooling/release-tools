@@ -118,9 +118,6 @@ ros_distros.each { ros_distro ->
 
     // Assume that gazebo means official version chose by ROS on every distribution
     gazebo_unofficial_versions = extra_gazebo_versions[ros_distro]
-    println gazebo_unofficial_versions
-    println ros_distro
-
     gazebo_unofficial_versions.each { gz_version ->
       // Do not generate special jobs for official supported package. They will
       // be created using plain 'gazebo' name.
