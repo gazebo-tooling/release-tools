@@ -32,7 +32,7 @@ DELIM_CHECKOUT
 
 cat >> build.sh << DELIM
 cd ${CATKIN_WS}/src/gazebo_ros_demos/
-export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$PWD
+export ROS_PACKAGE_PATH=\$ROS_PACKAGE_PATH:$PWD
 cd ${CATKIN_WS}
 
 timeout --preserve-status 180 roslaunch rrbot_gazebo rrbot_world.launch headless:=true extra_gazebo_args:="--verbose"
