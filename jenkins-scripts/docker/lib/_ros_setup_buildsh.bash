@@ -57,7 +57,11 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION install the system dependencies'
 catkin list
-rosdep install --from-paths . --ignore-src --rosdistro=${ROS_DISTRO} --as-root apt:false 
+rosdep install --from-paths . \
+               --ignore-src   \
+               --rosdistro=${ROS_DISTRO} \
+               --default-yes \
+               --as-root apt:false
 echo '# END SECTION'
 
 echo '# BEGIN SECTION compile the catkin workspace'
