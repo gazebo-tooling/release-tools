@@ -31,7 +31,7 @@ DELIM_CHECKOUT
 [[ -n ${SOFTWARE_DIR} ]] && unset SOFTWARE_DIR
 
 cat >> build.sh << DELIM
-cd ${CATKIN_WS}/gazebo_ros_demos/
+cd ${CATKIN_WS}/src/gazebo_ros_demos/
 export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$PWD
 cd ${CATKIN_WS}
 
