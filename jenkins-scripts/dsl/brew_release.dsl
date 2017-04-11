@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
+Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 
 brew_supported_distros         = [ "yosemite", "elcapitan" ] 
 bottle_hash_updater_job_name   = 'generic-release-homebrew_pr_bottle_hash_updater'
