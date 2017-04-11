@@ -275,7 +275,9 @@ def discover_distros(args, repo_dir):
 
     subdirs =  os.walk(repo_dir).next()[1]
     subdirs.remove('.hg')
+    # remove ubuntu (common stuff) and debian (new supported distro at top level)
     if 'ubuntu' in subdirs: subdirs.remove('ubuntu')
+    if 'debian' in subdirs: subdirs.remove('debian')
     # Some releasing methods use patches/ in root
     if 'patches' in subdirs: subdirs.remove('patches')
 
