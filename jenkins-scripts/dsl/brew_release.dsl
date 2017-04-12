@@ -256,6 +256,7 @@ bottle_job_hash_updater.with
       copyArtifacts(bottle_creator_job_name) {
         includePatterns('pkgs/*.json')
         excludePatterns('pkgs/*.tar.gz')
+        optional()
         targetDirectory(directory_for_bottles)
         flatten()
         buildSelector {
