@@ -137,11 +137,11 @@ ros_distros.each { ros_distro ->
           triggers {
             cron('@daily')
           }
-        }
+        } 
 
         // --------------------------------------------------------------
         // 2.2 Extra ci pr-any jobs
-        def ci_pr_job_name = job("ros_gazebo${gz_version}_pkgs-ci-pr_any_${suffix_triplet}")
+        def ci_pr_job_name = "ros_gazebo${gz_version}_pkgs-ci-pr_any_${suffix_triplet}"
         Job ci_pr_job = create_common_compilation(ci_pr_job_name,
                                             ubuntu_distro,
                                             ros_distro,
