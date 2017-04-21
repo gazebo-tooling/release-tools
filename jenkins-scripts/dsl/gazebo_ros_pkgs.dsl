@@ -124,7 +124,7 @@ ros_distros.each { ros_distro ->
       if (! (gz_version in Globals.gz_version_by_rosdistro[ros_distro]))
       {
         // --------------------------------------------------------------
-        // 3. Testing packages jobs install_pkg
+        // 1.2 Testing packages jobs install_pkg
         def install_default_job = job("ros_gazebo${gz_version}_pkgs-install_pkg_${suffix_triplet}")
         OSRFLinuxInstall.create(install_default_job)
         include_common_params(install_default_job,
@@ -137,7 +137,16 @@ ros_distros.each { ros_distro ->
           triggers {
             cron('@daily')
           }
-        } // end of with
+        }
+
+        // --------------------------------------------------------------
+        // 2.2 Extra ci pr-any jobs
+        def ci_pr_job_name = job("ros_gazebo${gz_version}_pkgs-ci-pr_any_${suffix_triplet}")
+        Job ci_pr_job = create_common_compilation(ci_pr_job_name,
+                                            ubuntu_distro,
+                                            ros_distro,
+                                            gz_version,
+                                            "gazebo_ros_pkgs-compilation")
       }
     } // end of gazebo_versions
 
