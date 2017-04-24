@@ -52,7 +52,7 @@ catkin list
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install missing packages'
-rosdep install --from-paths . --ignore-src --rosdistro=${ROS_DISTRO} --as-root apt:false
+rosdep install -y --from-paths . --ignore-src --rosdistro=${ROS_DISTRO} --as-root apt:false
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: compilate catkin packages'
