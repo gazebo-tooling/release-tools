@@ -4,6 +4,8 @@ apt-get install -y wget
 curl http://srcsim.gazebosim.org/src/src.key | sudo apt-key add -
 echo \"deb http://srcsim.gazebosim.org/src ${DISTRO} main\" > /etc/apt/sources.list.d/src-latest.list
 apt-get update
+
+wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gazebo7/00-gazebo7.list -O /etc/ros/rosdep/sources.list.d/00-gazebo7.list
 """
 
 SRCSIM_INIT_SETUP="""
