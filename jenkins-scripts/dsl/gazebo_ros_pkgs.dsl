@@ -42,6 +42,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
       if (gz_version != "default") {
         use_non_official_gazebo_package = """\
                                           export GAZEBO_VERSION_FOR_ROS="${gz_version}"
+                                          export USE_GZ_VERSION_ROSDEP=true
                                           export OSRF_REPOS_TO_USE="stable"
                                           """.stripIndent()
       }

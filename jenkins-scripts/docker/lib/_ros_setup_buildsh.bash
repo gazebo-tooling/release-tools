@@ -10,10 +10,17 @@ if [ -z ${ROS_DISTRO} ]; then
   exit -1
 fi
 
+[[ -z ${USE_GZ_VERSION_ROSDEP} ]] && USE_GZ_VERSION_ROSDEP=false
+
 export CATKIN_WS="${WORKSPACE}/ws"
 
 cat >> build.sh << DELIM_CONFIG
 set -ex
+
+if ${USE_GZ_VERSION_ROSDEP}; then
+  mkdir -p /etc/ros/rosdep/sources.list.d/
+  wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gazebo${GAZEBO_VERSION_FOR_ROS}/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list -O /etc/ros/rosdep/sources.list.d/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list
+fi
 
 echo '# BEGIN SECTION: run rosdep'
 # Step 2: configure and build
