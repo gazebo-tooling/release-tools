@@ -18,6 +18,7 @@ cat >> build.sh << DELIM_CONFIG
 set -ex
 
 if ${USE_GZ_VERSION_ROSDEP}; then
+  apt-get install -y wget
   mkdir -p /etc/ros/rosdep/sources.list.d/
   wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gazebo${GAZEBO_VERSION_FOR_ROS}/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list -O /etc/ros/rosdep/sources.list.d/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list
 fi
