@@ -19,8 +19,7 @@ Job create_common_compilation(String job_name,
 {
    def comp_job = job(job_name)
 
-   OSRFLinuxCompilationAnyGitHub.create(comp_job,
-              Globals.get_ros_distros_by_ubuntu_distro(ubuntu_distro))
+   OSRFLinuxCompilationAnyGitHub.create(comp_job, [ "${ros_distro}" ])
 
    include_common_params(comp_job,
                          ubuntu_distro,
