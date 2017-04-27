@@ -51,7 +51,7 @@ class OSRFLinuxCompilationAnyGitHub
             admins(['osrf-jenkins', 'j-rivero'])
             useGitHubHooks()
             cron('')
-            triggerPhrase('.*(re)?run tests.*')
+            triggerPhrase('.*(re)?run test(s).*')
             allowMembersOfWhitelistedOrgsAsAdmin()
             // Only will be triggered in supported_ros_branches
             whiteListTargetBranches(supported_ros_branches)
