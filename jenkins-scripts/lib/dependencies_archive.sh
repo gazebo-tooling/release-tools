@@ -363,7 +363,6 @@ else
                                 ros-${ROS_DISTRO}-nav-msgs                \\
                                 ros-${ROS_DISTRO}-nodelet                 \\
                                 ros-${ROS_DISTRO}-pcl-conversions         \\
-                                ros-${ROS_DISTRO}-pcl-ros                 \\
                                 ros-${ROS_DISTRO}-polled-camera           \\
                                 ros-${ROS_DISTRO}-rosconsole              \\
                                 ros-${ROS_DISTRO}-rosgraph-msgs           \\
@@ -375,6 +374,13 @@ else
                                 ros-${ROS_DISTRO}-transmission-interface  \\
                                 ros-${ROS_DISTRO}-urdf                    \\
                                 ros-${ROS_DISTRO}-xacro"
+
+  if [[ ${ROS_DISTRO} == 'indigo'  ]] ||
+     [[ ${ROS_DISTRO} == 'jade'    ]] ||
+     [[ ${ROS_DISTRO} == 'kinetic' ]]; then
+     ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
+                                   ros-${ROS_DISTRO}-pcl-ros"
+  fi
 
   ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
                                 ${_GZ_ROS_PACKAGES}"
