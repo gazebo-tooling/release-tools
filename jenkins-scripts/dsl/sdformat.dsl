@@ -375,7 +375,7 @@ all_branches.each { branch ->
 
       steps {
         batchFile("""\
-              set USE_IGNITION_ZIP=false
+              set USE_IGNITION_ZIP=FALSE
               set IGNMATH_BRANCH=ign-math${ign_math_v}
               call "./scripts/jenkins-scripts/sdformat-default-devel-windows-amd64.bat"
               """.stripIndent())

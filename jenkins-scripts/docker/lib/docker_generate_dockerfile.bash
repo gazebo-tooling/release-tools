@@ -37,11 +37,6 @@ case ${LINUX_DISTRO} in
 
     # debian does not ship locales by default
     export DEPENDENCY_PKGS="locales ${DEPENDENCY_PKGS}"
-
-    if [[ -n ${OSRF_REPOS_TO_USE} ]]; then
-      echo "WARN!! OSRF has no debian repositories yet!"
-      OSRF_REPOS_TO_USE=""
-    fi
     ;;
 
   *)
@@ -55,11 +50,10 @@ case ${ARCH} in
      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      ;;
   'i386')
-     if [[ ${LINUX_DISTRO} == 'debian' ]]; then
-       echo "There is no debian/jessie i386 docker image available"
-       exit 1
-     else
+     if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
        FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
+     else
+       FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      fi
      ;;
    'armhf' | 'arm64' )
@@ -132,7 +126,7 @@ DELIM_DOCKER_ARCH
 fi
 
 # i386 image only have main by default
-if [[ ${ARCH} == 'i386' ]]; then
+if [[ ${LINUX_DISTRO} == 'ubuntu' && ${ARCH} == 'i386' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_I386_APT
 RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} restricted universe" \\
                                                        >> /etc/apt/sources.list

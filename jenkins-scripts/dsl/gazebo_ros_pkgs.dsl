@@ -1,18 +1,77 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
+import groovy.transform.Field
 
-def ros_distros           = Globals.get_ros_suported_distros()
-def ci_arch               = 'amd64'
+@Field
+ArrayList ros_distros        = Globals.get_ros_suported_distros()
+@Field
+String ci_arch               = 'amd64'
 // version to test more than the official one in each ROS distro
-def extra_gazebo_versions = ['7']
+extra_gazebo_versions = [ 'indigo'  :  ['7'],
+                          'jade'    :  ['7'],
+                          'kinetic' :  ['8']]
+
+Job create_common_compilation(String job_name,
+                              String ubuntu_distro,
+                              String ros_distro,
+                              String gz_version,
+                              String script_name)
+{
+   def comp_job = job(job_name)
+
+   OSRFLinuxCompilationAnyGitHub.create(comp_job, [ "${ros_distro}" ])
+
+   include_common_params(comp_job,
+                         ubuntu_distro,
+                         ros_distro,
+                         gz_version,
+                         script_name)
+   return comp_job
+}
+
+void include_common_params(Job gazebo_ros_pkgs_job,
+                           String ubuntu_distro,
+                           String ros_distro,
+                           String gz_version,
+                           String script_name)
+{
+   gazebo_ros_pkgs_job.with
+   {
+      String use_non_official_gazebo_package = ""
+      if (gz_version != "default") {
+        use_non_official_gazebo_package = """\
+                                          export GAZEBO_VERSION_FOR_ROS="${gz_version}"
+                                          export USE_GZ_VERSION_ROSDEP=true
+                                          export OSRF_REPOS_TO_USE="stable"
+                                          """.stripIndent()
+      }
+
+      label "gpu-reliable-${ubuntu_distro}"
+
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              ${use_non_official_gazebo_package}
+
+              export DISTRO=${ubuntu_distro}
+              export ARCH=${ci_arch}
+              export ROS_DISTRO=${ros_distro}
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/${script_name}.bash
+              """.stripIndent())
+      }
+   }
+}
 
 ros_distros.each { ros_distro ->
   ubuntu_distros = Globals.ros_ci[ros_distro]
 
   ubuntu_distros.each { ubuntu_distro ->
+    suffix_triplet="${ros_distro}-${ubuntu_distro}-${ci_arch}"
+
     // --------------------------------------------------------------
     // 1. Create the default ci jobs
-    def default_ci_job = job("ros_gazebo_pkgs-ci-default_${ros_distro}-${ubuntu_distro}-${ci_arch}")
+    def default_ci_job = job("ros_gazebo_pkgs-ci-default_$suffix_triplet")
     // Enable testing but not cppcheck
     OSRFLinuxCompilation.create(default_ci_job, true, false)
     default_ci_job.with
@@ -49,55 +108,56 @@ ros_distros.each { ros_distro ->
 
     // --------------------------------------------------------------
     // 2. Create the default ci pr-any jobs
-    // Note: this package are independent of the ROS distro used. It is guess
-    // from target branch at runtime, handled by gazebo_ros_pkgs-compilation.bash
+    def any_job_name = "ros_gazebo_pkgs-ci-pr_any_${suffix_triplet}"
+    Job any_job = create_common_compilation(any_job_name,
+                                            ubuntu_distro,
+                                            ros_distro,
+                                            "default",
+                                            "gazebo_ros_pkgs-compilation")
 
-    // TODO: these set of jobs will be created probably several times if
-    // different ROS versions support same ubuntu platforms.
 
     // Assume that gazebo means official version chose by ROS on every distribution
-    gazebo_versions = [ 'default' ] + extra_gazebo_versions
-
-    gazebo_versions.each { gz_version ->
+    gazebo_unofficial_versions = extra_gazebo_versions[ros_distro]
+    gazebo_unofficial_versions.each { gz_version ->
       // Do not generate special jobs for official supported package. They will
       // be created using plain 'gazebo' name.
-      if (Globals.gz_version_by_rosdistro[ros_distro] != gz_version)
+      if (! (gz_version in Globals.gz_version_by_rosdistro[ros_distro]))
       {
-        if (gz_version == "default")
-          gz_version=""
-
-        def any_job_name = "ros_gazebo${gz_version}_pkgs-ci-pr_any-${ubuntu_distro}-${ci_arch}"
-        def any_job = job(any_job_name)
-
-        // Use generic any but remove hg
-        ros_distros = Globals.get_ros_distros_by_ubuntu_distro(ubuntu_distro)
-        OSRFLinuxCompilationAnyGitHub.create(any_job, ros_distros)
-
-        any_job.with
+        // --------------------------------------------------------------
+        // 1.2 Testing packages jobs install_pkg
+        def install_default_job = job("ros_gazebo${gz_version}_pkgs-install_pkg_${suffix_triplet}")
+        OSRFLinuxInstall.create(install_default_job)
+        include_common_params(install_default_job,
+                              ubuntu_distro,
+                              ros_distro,
+                              gz_version,
+                              "gazebo_ros_pkgs-release-testing")
+        install_default_job.with
         {
-          String use_non_official_gazebo_package = ""
-          if (gz_version != "default") {
-            use_non_official_gazebo_package = """\
-                                              export GAZEBO_VERSION_FOR_ROS="${gz_version}"
-                                              export OSRF_REPOS_TO_USE="stable"
-                                              """.stripIndent()
+          triggers {
+            cron('@daily')
           }
+        } 
 
-          label "gpu-reliable-${ubuntu_distro}"
-
-          steps {
-            shell("""\
-                  #!/bin/bash -xe
-
-                  ${use_non_official_gazebo_package}
-
-                  export DISTRO=${ubuntu_distro}
-                  export ARCH=${ci_arch}
-                  /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo_ros_pkgs-compilation.bash
-                  """.stripIndent())
-          }
-        }
+        // --------------------------------------------------------------
+        // 2.2 Extra ci pr-any jobs
+        def ci_pr_job_name = "ros_gazebo${gz_version}_pkgs-ci-pr_any_${suffix_triplet}"
+        Job ci_pr_job = create_common_compilation(ci_pr_job_name,
+                                            ubuntu_distro,
+                                            ros_distro,
+                                            gz_version,
+                                            "gazebo_ros_pkgs-compilation")
       }
-    } // end of gazebo_packages
+    } // end of gazebo_versions
+
+
+    // --------------------------------------------------------------
+    // 2. Create the regressions ci pr-any jobs
+    def regression_job_name = "ros_gazebo_pkgs-ci-pr_regression_any_${suffix_triplet}"
+    Job regression_job = create_common_compilation(regression_job_name,
+                                                   ubuntu_distro,
+                                                   ros_distro,
+                                                   "default",
+                                                   "gazebo_ros_pkgs-compilation_regression")
   } // end of ubuntu_distros
 } // end of ros_distros

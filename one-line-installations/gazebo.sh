@@ -307,6 +307,7 @@ do_install() {
 			  brew tap osrf/simulation
 			  brew update
 			  brew install ${BREW_PKG_NAME}
+			  brew audit ${BREW_PKG_NAME} || true
 			  brew test ${BREW_PKG_NAME}
 			)
 

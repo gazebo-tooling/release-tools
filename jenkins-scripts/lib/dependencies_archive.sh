@@ -250,6 +250,9 @@ else
       kinetic)
         GAZEBO_VERSION_FOR_ROS="7"
       ;;
+      lunar)
+        GAZEBO_VERSION_FOR_ROS="8"
+      ;;
     esac
   fi
 
@@ -340,6 +343,7 @@ else
   #
   ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_CATKIN_BASE}                        \\
                                 libtinyxml-dev                            \\
+                                ros-${ROS_DISTRO}-ros                     \\
                                 ros-${ROS_DISTRO}-catkin                  \\
                                 ros-${ROS_DISTRO}-pluginlib               \\
                                 ros-${ROS_DISTRO}-roscpp                  \\
@@ -359,7 +363,6 @@ else
                                 ros-${ROS_DISTRO}-nav-msgs                \\
                                 ros-${ROS_DISTRO}-nodelet                 \\
                                 ros-${ROS_DISTRO}-pcl-conversions         \\
-                                ros-${ROS_DISTRO}-pcl-ros                 \\
                                 ros-${ROS_DISTRO}-polled-camera           \\
                                 ros-${ROS_DISTRO}-rosconsole              \\
                                 ros-${ROS_DISTRO}-rosgraph-msgs           \\
@@ -371,6 +374,14 @@ else
                                 ros-${ROS_DISTRO}-transmission-interface  \\
                                 ros-${ROS_DISTRO}-urdf                    \\
                                 ros-${ROS_DISTRO}-xacro"
+
+  if [[ ${ROS_DISTRO} == 'indigo'  ]] ||
+     [[ ${ROS_DISTRO} == 'jade'    ]] ||
+     [[ ${ROS_DISTRO} == 'kinetic' ]]; then
+     ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
+                                   ros-${ROS_DISTRO}-ros-base \\
+                                   ros-${ROS_DISTRO}-pcl-ros"
+  fi
 
   ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
                                 ${_GZ_ROS_PACKAGES}"
@@ -388,6 +399,12 @@ else
 
   ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-xacro \\
                                ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS}"
+
+  ROS_GAZEBO_PKGS="ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-msgs \
+                   ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-plugins \
+                   ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros \
+                   ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros-pkgs \
+                   ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros-control"
 fi
 
 #

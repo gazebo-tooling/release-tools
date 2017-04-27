@@ -73,7 +73,20 @@ if [ -f debian/control ]; then
 cat debian/control
 fi
 
-echo | dh_make -s --createorig -p ros-$ROS_DISTRO-${PACKAGE}_${VERSION} || true
+# Handle the dh_make -y option (new in Xenial) or workaround using old method
+# original idea: https://github.com/scarygliders/X11RDP-o-Matic/pull/61
+
+dh_make -h | grep -q -- -y && \
+    DH_MAKE_Y=true || DH_MAKE_Y=false
+
+if \$DH_MAKE_Y
+then
+  # true is to avoid the error on already debian/ directory
+  dh_make -y -s --createorig -p ros-$ROS_DISTRO-${PACKAGE}_${VERSION} || true
+else
+  echo | dh_make -s --createorig -p ros-$ROS_DISTRO-${PACKAGE}_${VERSION} || true
+fi
+
 ls ..
 
 # Step 5: use debuild to create source package
