@@ -30,8 +30,9 @@ export ROS_SETUP_PREINSTALL_HOOK="""
 ${SRCSIM_SETUP_REPOSITORIES}
 # Needed for rosdep
 apt-get install -y ros-${ROS_DISTRO}-ros-base ${ROS_CATKIN_BASE}
-# Need to get all srcsim dependencies (from package)
-apt-get build-dep -y srcsim
+# Need to get all srcsim dependencies (from package) No source pkg so
+# can not use build-dep
+apt-get install -y srcsim && apt-get remove -y srcsim
 """
 
 export ROS_SETUP_POSTINSTALL_HOOK="""
