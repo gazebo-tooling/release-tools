@@ -250,6 +250,9 @@ else
       kinetic)
         GAZEBO_VERSION_FOR_ROS="7"
       ;;
+      lunar)
+        GAZEBO_VERSION_FOR_ROS="8"
+      ;;
     esac
   fi
 
