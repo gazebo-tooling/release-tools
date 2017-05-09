@@ -18,13 +18,15 @@ echo '# BEGIN SECTION: testing by running qual1 launch file'
 ${SRCSIM_INIT_SETUP}
 ${SRCSIM_ENV_SETUP}
 
+TEST_TIMEOUT=400
+
 TEST_START=\`date +%s\`
-timeout --preserve-status 400 roslaunch srcsim qual2.launch extra_gazebo_args:=\"-r\" init:=\"true\" walk_test:=true || true
+timeout --preserve-status \$TEST_TIMEOUT roslaunch srcsim qual2.launch extra_gazebo_args:=\"-r\" init:=\"true\" walk_test:=true || true
 TEST_END=\`date +%s\`
 DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
 
-if [ \$DIFF -lt 800 ]; then
-   echo 'The test took less than 800s. Something bad happened'
+if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
+   echo 'The test took less than \$TEST_TIMEOUT. Something bad happened'
    exit 1
 fi
 echo '# END SECTION'
