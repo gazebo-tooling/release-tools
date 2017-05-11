@@ -55,7 +55,7 @@ ${GIT} status
 echo
 ${GIT} show HEAD
 echo
-${GIT} push -u fork ${PULL_REQUEST_BRANCH}
+${GIT} push -u pr_head ${PULL_REQUEST_BRANCH}
 
 
 # Create a pull request if one doesn't yet exist
@@ -76,7 +76,7 @@ if [ -z "${PULL_REQUEST_URL}" ]; then
 
   PR_URL=$(${HUB} -C ${TAP_PREFIX} pull-request \
     -b osrf:master \
-    -h osrfbuild:${PULL_REQUEST_BRANCH} \
+    -h pr_head:${PULL_REQUEST_BRANCH} \
     -m "${PACKAGE_ALIAS} ${VERSION}")
 
   echo "Pull request created: ${PR_URL}"

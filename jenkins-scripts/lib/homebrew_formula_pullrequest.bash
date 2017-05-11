@@ -26,6 +26,8 @@ if [ -z "${SOURCE_TARBALL_SHA}" ]; then
 fi
 echo '# END SECTION'
 
+PULL_REQUEST_HEAD_REPO=git@github.com:osrfbuild/homebrew-simulation.git
+
 . ${SCRIPT_LIBDIR}/_homebrew_github_setup.bash
 . ${SCRIPT_LIBDIR}/_homebrew_github_get_formula_path.bash
 
