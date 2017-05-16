@@ -19,12 +19,6 @@ cat > build.sh << DELIM_CHECKOUT
 #
 set -ex
 
-timeout --preserve-status 180 roslaunch gazebo_ros empty_world.launch extra_gazebo_args:="--verbose"
-if [ $? != 0 ]; then
-  echo "Failure response in the launch command" 
-  exit 1
-fi
-
 [[ -d ${WORKSPACE}/gazebo_ros_demos ]] && rm -fr ${WORKSPACE}/gazebo_ros_demos
 git clone https://github.com/ros-simulation/gazebo_ros_demos ${WORKSPACE}/gazebo_ros_demos
 DELIM_CHECKOUT
@@ -37,6 +31,12 @@ DELIM_CHECKOUT
 [[ -n ${SOFTWARE_DIR} ]] && unset SOFTWARE_DIR
 
 cat >> build.sh << DELIM
+timeout --preserve-status 180 roslaunch gazebo_ros empty_world.launch extra_gazebo_args:="--verbose"
+if [ $? != 0 ]; then
+  echo "Failure response in the launch command" 
+  exit 1
+fi
+
 cd ${CATKIN_WS}/src/gazebo_ros_demos/
 export ROS_PACKAGE_PATH=\$ROS_PACKAGE_PATH:$PWD
 cd ${CATKIN_WS}
