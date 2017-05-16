@@ -31,23 +31,34 @@ DELIM_CHECKOUT
 [[ -n ${SOFTWARE_DIR} ]] && unset SOFTWARE_DIR
 
 cat >> build.sh << DELIM
-timeout --preserve-status 90 roslaunch gazebo_ros empty_world.launch extra_gazebo_args:="--verbose"
-if [ $? != 0 ]; then
-  echo "Failure response in the launch command" 
-  exit 1
+
+TEST_TIMEOUT=90
+
+TEST_START=\`date +%s\`
+timeout --preserve-status \$TEST_TIMEOUT roslaunch gazebo_ros empty_world.launchh extra_gazebo_args:=\"--verbose\" || true
+TEST_END=\`date +%s\`
+DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
+
+if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
+   echo 'The test took less than \$TEST_TIMEOUT. Something bad happened'
+   exit 1
 fi
 
 cd ${CATKIN_WS}/src/gazebo_ros_demos/
 export ROS_PACKAGE_PATH=\$ROS_PACKAGE_PATH:$PWD
 cd ${CATKIN_WS}
 
-timeout --preserve-status 180 roslaunch rrbot_gazebo rrbot_world.launch headless:=true extra_gazebo_args:="--verbose"
-if [ $? != 0 ]; then
-  echo "Failure response in the launch command" 
-  exit 1
-fi
+TEST_TIMEOUT=180
 
-echo "180 testing seconds finished successfully"
+TEST_START=\`date +%s\`
+timeout --preserve-status \$TEST_TIMEOUT roslaunch rrbot_gazebo rrbot_world.launch headless:=true extra_gazebo_args:="--verbose"
+TEST_END=\`date +%s\`
+DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
+
+if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
+   echo 'The test took less than \$TEST_TIMEOUT. Something bad happened'
+   exit 1
+fi
 DELIM
 
 USE_ROS_REPO=true
