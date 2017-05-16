@@ -19,7 +19,7 @@ cat > build.sh << DELIM_CHECKOUT
 #
 set -ex
 
-timeout --preserve-status 180 gazebo --verbose 
+timeout --preserve-status 180 roslaunch gazebo_ros empty_world.launch extra_gazebo_args:="--verbose"
 if [ $? != 0 ]; then
   echo "Failure response in the launch command" 
   exit 1
