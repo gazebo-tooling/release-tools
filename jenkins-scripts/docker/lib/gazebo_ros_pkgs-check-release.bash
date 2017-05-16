@@ -19,6 +19,12 @@ cat > build.sh << DELIM_CHECKOUT
 #
 set -ex
 
+timeout --preserve-status 180 gazebo --verbose 
+if [ $? != 0 ]; then
+  echo "Failure response in the launch command" 
+  exit 1
+fi
+
 [[ -d ${WORKSPACE}/gazebo_ros_demos ]] && rm -fr ${WORKSPACE}/gazebo_ros_demos
 git clone https://github.com/ros-simulation/gazebo_ros_demos ${WORKSPACE}/gazebo_ros_demos
 DELIM_CHECKOUT
