@@ -456,6 +456,7 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          libswscale-dev        \\
                          libavutil-dev         \\
                          libavdevice-dev       \\
+                         libtinyxml2-dev       \\
                          uuid-dev"
 
 #
