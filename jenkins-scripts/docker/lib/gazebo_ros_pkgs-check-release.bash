@@ -31,7 +31,7 @@ DELIM_CHECKOUT
 [[ -n ${SOFTWARE_DIR} ]] && unset SOFTWARE_DIR
 
 cat >> build.sh << DELIM
-timeout --preserve-status 180 roslaunch gazebo_ros empty_world.launch --verbose
+timeout --preserve-status 90 roslaunch gazebo_ros empty_world.launch extra_gazebo_args:="--verbose"
 if [ $? != 0 ]; then
   echo "Failure response in the launch command" 
   exit 1
