@@ -19,6 +19,12 @@ cat > build.sh << DELIM_CHECKOUT
 #
 set -ex
 
+timeout --preserve-status 180 gazebo --verbose 
+if [ $? != 0 ]; then
+  echo "Failure response in the launch command" 
+  exit 1
+fi
+
 [[ -d ${WORKSPACE}/gazebo_ros_demos ]] && rm -fr ${WORKSPACE}/gazebo_ros_demos
 git clone https://github.com/ros-simulation/gazebo_ros_demos ${WORKSPACE}/gazebo_ros_demos
 DELIM_CHECKOUT
@@ -46,9 +52,15 @@ DELIM
 
 USE_ROS_REPO=true
 
+# To be sure about getting the latest versions of all dependencies:
+# gazebo, sdformat, ignition ... we need to add them as packages in
+# DEPENDENCY_PKGS. They would be automatically pulled by ROS_GAZEBO_PKGS
+# but won't be updated if docker cache is in use. Adding them to the
+# list will do it.
 DEPENDENCY_PKGS="${ROS_CATKIN_BASE} git \
                  ${ROS_GAZEBO_PKGS} \
-                 ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS}"
+                 ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS} \
+                 ${_GZ_ROS_PACKAGES}"
                  
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
