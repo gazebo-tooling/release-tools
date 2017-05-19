@@ -21,7 +21,7 @@ class Globals
    static gz_version_by_rosdistro = [ 'indigo'  : ['2'] ,
                                       'jade'    : ['5'] ,
                                       'kinetic' : ['7'] ,
-                                      'lunar'   : ['8']]
+                                      'lunar'   : ['7']]
 
    static ArrayList get_ros_distros_by_ubuntu_distro(String ubuntu_distro)
    {
