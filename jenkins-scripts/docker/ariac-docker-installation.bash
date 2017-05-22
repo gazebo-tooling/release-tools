@@ -15,10 +15,7 @@ fi
 INSTALL_JOB_PREINSTALL_HOOK="""
 # run the test to install team system
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-add-apt-repository \
-   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-   $(lsb_release -cs) \
-   stable"
+add-apt-repository \"deb https://download.docker.com/linux/ubuntu ${DISTRO} stable\"
 apt-get update
 apt-get install -y docker-ce
 
