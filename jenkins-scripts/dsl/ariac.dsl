@@ -100,10 +100,10 @@ supported_distros.each { distro ->
       scm {
         git {
           remote {
-            github("ros-simulation/gazebo_ros_pkgs")
+            github("osrf/ariac-docker")
           }
           extensions {
-            relativeTargetDirectory("gazebo_ros_pkgs")
+            relativeTargetDirectory("ariac-docker")
           }
           branch("ariac_docker")
         }
