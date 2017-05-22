@@ -118,7 +118,7 @@ supported_distros.each { distro ->
               export DISTRO=${distro}
               export ROS_DISTRO=${ros_distro}
 
-              /bin/bash -xe ./scripts/jenkins-scripts/docker/ariac_docker_installation.bash
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/ariac-docker-installation.bash
               """.stripIndent())
       }
     }
