@@ -14,6 +14,8 @@ fi
 
 INSTALL_JOB_PREINSTALL_HOOK="""
 # run the test to install team system
+# Needed policy to run docker daemon
+echo \"exit 101\" > /usr/sbin/policy-rc.d
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository \"deb https://download.docker.com/linux/ubuntu ${DISTRO} stable\"
 apt-get update
