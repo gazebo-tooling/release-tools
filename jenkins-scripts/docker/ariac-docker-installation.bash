@@ -13,19 +13,29 @@ if [[ -z ${ROS_DISTRO} ]]; then
 fi
 
 INSTALL_JOB_PREINSTALL_HOOK="""
-# run the test to install team system
+echo '# BEGIN SECTION: install docker inside docker'
 # Needed policy to run docker daemon
 echo \"exit 0\" > /usr/sbin/policy-rc.d
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository \"deb https://download.docker.com/linux/ubuntu ${DISTRO} stable\"
 apt-get update
 apt-get install -y docker-ce
+echo '# END SECTION'
 
+echo '# BEGIN SECTION: run the prepare_ariac_system script'
 cd ${WORKSPACE}/ariac-docker
 bash -x ./prepare_ariac_system.bash ${ROS_DISTRO}
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: run the prepare_team_system script'
+cd ${WORKSPACE}/ariac-docker
+bash -x ./prepare_team_system.bash example_team ${ROS_DISTRO}
+echo '# END SECTION'
+
 """
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
+
 """
 
 # Need bc to proper testing and parsing the time
