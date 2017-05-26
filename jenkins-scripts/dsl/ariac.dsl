@@ -97,6 +97,8 @@ supported_distros.each { distro ->
 
     install_docker_default_job.with
     {
+      label "large-disk"
+
       scm {
         git {
           remote {
