@@ -14,11 +14,18 @@ fi
 
 INSTALL_JOB_PREINSTALL_HOOK="""
 echo '# BEGIN SECTION: install docker inside docker'
+
 # Needed policy to run docker daemon
 echo \"exit 0\" > /usr/sbin/policy-rc.d
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository \"deb https://download.docker.com/linux/ubuntu ${DISTRO} stable\"
 apt-get update
+# Workaround for trusty
+if [[ ${ROS_DISTRO} == 'trusty' ]]; then
+ touch /etc/init/cgroup-lite.conf 
+ apt-get install cgroup-lite 
+ rm /etc/init/cgroup-lite.conf
+fi
 apt-get install -y docker-ce
 echo '# END SECTION'
 
