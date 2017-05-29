@@ -32,6 +32,11 @@ cd ${WORKSPACE}/ariac-docker
 bash -x ./prepare_team_system.bash example_team ${ROS_DISTRO}
 echo '# END SECTION'
 
+echo '# BEGIN SECTION: run the prepare_team_system script'
+cd ${WORKSPACE}/ariac-docker
+bash -x ./run_all_trials
+echo '# END SECTION'
+
 """
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
