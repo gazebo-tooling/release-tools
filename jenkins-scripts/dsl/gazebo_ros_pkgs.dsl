@@ -141,14 +141,14 @@ ros_distros.each { ros_distro ->
       {
         // --------------------------------------------------------------
         // 1.2 Testing packages jobs install_pkg
-        def install_default_job = job("ros_gazebo${gz_version}_pkgs-install_pkg_${suffix_triplet}")
-        OSRFLinuxInstall.create(install_default_job)
-        include_common_params(install_default_job,
+        def install_alternative_job = job("ros_gazebo${gz_version}_pkgs-install_pkg_${suffix_triplet}")
+        OSRFLinuxInstall.create(install_alternative_job)
+        include_common_params(install_alternative_job,
                               ubuntu_distro,
                               ros_distro,
                               gz_version,
                               "gazebo_ros_pkgs-release-testing")
-        install_default_job.with
+        install_alternative_job.with
         {
           triggers {
             cron('@daily')
