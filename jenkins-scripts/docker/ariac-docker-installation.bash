@@ -26,7 +26,7 @@ apt-get update
 # Workaround for trusty
 if [[ ${DISTRO} == 'trusty' ]]; then
  touch /etc/init/cgroup-lite.conf 
- apt-get install cgroup-lite 
+ apt-get install -y cgroup-lite 
  rm /etc/init/cgroup-lite.conf
 fi
 apt-get install -y docker-ce
