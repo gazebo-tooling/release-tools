@@ -21,7 +21,7 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository \"deb https://download.docker.com/linux/ubuntu ${DISTRO} stable\"
 apt-get update
 # Workaround for trusty
-if [[ ${ROS_DISTRO} == 'trusty' ]]; then
+if [[ ${DISTRO} == 'trusty' ]]; then
  touch /etc/init/cgroup-lite.conf 
  apt-get install cgroup-lite 
  rm /etc/init/cgroup-lite.conf
