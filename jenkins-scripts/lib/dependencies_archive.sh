@@ -243,7 +243,6 @@ else
   GAZEBO_BASE_DEPENDENCIES="libgflags-dev            \\
                             pkg-config               \\
                             libignition-common-dev   \\
-                            libignition-gui-dev      \\
                             libignition-msgs-dev     \\
                             libignition-transport3-dev"
 fi
