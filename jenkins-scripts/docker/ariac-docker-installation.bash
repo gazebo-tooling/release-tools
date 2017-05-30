@@ -44,7 +44,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: run all trials runtime tests'
 cd ${WORKSPACE}/ariac-docker
-bash -x ./run_all_trials
+bash -x ./run_all_trials.bash
 echo '# END SECTION'
 
 """
