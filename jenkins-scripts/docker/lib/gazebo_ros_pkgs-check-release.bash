@@ -35,9 +35,9 @@ cat >> build.sh << DELIM
 TEST_TIMEOUT=90
 
 TEST_START=\`date +%s\`
-timeout --preserve-status \$TEST_TIMEOUT roslaunch gazebo_ros empty_world.launchh extra_gazebo_args:=\"--verbose\" || true
+timeout --preserve-status \$TEST_TIMEOUT roslaunch gazebo_ros empty_world.launch verbose:=true || true
 TEST_END=\`date +%s\`
-DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
+DIFF=\$(expr \$TEST_END - \$TEST_START\)
 
 if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
    echo 'The test took less than \$TEST_TIMEOUT. Something bad happened'
@@ -53,7 +53,7 @@ TEST_TIMEOUT=180
 TEST_START=\`date +%s\`
 timeout --preserve-status \$TEST_TIMEOUT roslaunch rrbot_gazebo rrbot_world.launch headless:=true extra_gazebo_args:="--verbose"
 TEST_END=\`date +%s\`
-DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
+DIFF=\$(expr \$TEST_END - \$TEST_START\)
 
 if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
    echo 'The test took less than \$TEST_TIMEOUT. Something bad happened'
@@ -72,7 +72,6 @@ DEPENDENCY_PKGS="${ROS_CATKIN_BASE} git \
                  ${ROS_GAZEBO_PKGS} \
                  ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS} \
                  ${_GZ_ROS_PACKAGES}"
-                 
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
