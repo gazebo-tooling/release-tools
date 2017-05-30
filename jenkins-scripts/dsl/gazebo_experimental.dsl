@@ -66,7 +66,8 @@ ci_distro.each { distro ->
       // 2. Create the default ci jobs
       def gazebo_ci_job = job("gazebo_experimental-ci-default-${distro}-${arch}-gpu-${gpu}")
       OSRFLinuxCompilation.create(gazebo_ci_job)
-      OSRFBitbucketHg.create(gazebo_ci_job, "https://bitbucket.org/osrf/gazebo_experimental")
+      OSRFBitbucketHg.create(gazebo_ci_job,
+                             "https://bitbucket.org/osrf/gazebo_experimental", "gazebo")
 
       gazebo_ci_job.with
       {
@@ -165,7 +166,8 @@ all_branches = ['default']
 all_branches.each { branch ->
   def gazebo_brew_ci_job = job("gazebo_experimental-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(gazebo_brew_ci_job)
-  OSRFBitbucketHg.create(gazebo_brew_ci_job, "https://bitbucket.org/osrf/gazebo_experimental", branch)
+  OSRFBitbucketHg.create(gazebo_brew_ci_job,
+                         "https://bitbucket.org/osrf/gazebo_experimental", "gazebo")
 
   gazebo_brew_ci_job.with
   {
@@ -209,7 +211,8 @@ all_branches = ['default']
 all_branches.each { branch ->
   def gazebo_win_ci_job = job("gazebo_experimental-ci-${branch}-windows7-amd64")
   OSRFWinCompilation.create(gazebo_win_ci_job, DISABLE_TESTS)
-  OSRFBitbucketHg.create(gazebo_win_ci_job, "https://bitbucket.org/osrf/gazebo_experimental", branch)
+  OSRFBitbucketHg.create(gazebo_win_ci_job,
+                         "https://bitbucket.org/osrf/gazebo_experimental", "gazebo")
 
   gazebo_win_ci_job.with
   {
