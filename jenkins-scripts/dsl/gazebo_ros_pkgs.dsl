@@ -115,6 +115,22 @@ ros_distros.each { ros_distro ->
                                             "default",
                                             "gazebo_ros_pkgs-compilation")
 
+    // --------------------------------------------------------------
+    // 3. Create the default install
+    def install_default_job = job("ros_gazebo_pkgs-install_pkg_${suffix_triplet}")
+    OSRFLinuxInstall.create(install_default_job)
+    include_common_params(install_default_job,
+                          ubuntu_distro,
+                          ros_distro,
+                          "default",
+                          "gazebo_ros_pkgs-release-testing")
+    install_default_job.with
+    {
+      triggers {
+        cron('@daily')
+      }
+    } 
+
 
     // Assume that gazebo means official version chose by ROS on every distribution
     gazebo_unofficial_versions = extra_gazebo_versions[ros_distro]
