@@ -56,7 +56,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
         shell("""\
               #!/bin/bash -xe
 
-              ${use_non_official_gazebo_package}
+              ${gz_package_version_str}
 
               export DISTRO=${ubuntu_distro}
               export ARCH=${ci_arch}
