@@ -76,7 +76,7 @@ if [ -z "${PULL_REQUEST_URL}" ]; then
 
   PR_URL=$(${HUB} -C ${TAP_PREFIX} pull-request \
     -b osrf:master \
-    -h pr_head:${PULL_REQUEST_BRANCH} \
+    -h osrfbuild:${PULL_REQUEST_BRANCH} \
     -m "${PACKAGE_ALIAS} ${VERSION}")
 
   echo "Pull request created: ${PR_URL}"

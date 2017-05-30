@@ -251,7 +251,7 @@ else
         GAZEBO_VERSION_FOR_ROS="7"
       ;;
       lunar)
-        GAZEBO_VERSION_FOR_ROS="8"
+        GAZEBO_VERSION_FOR_ROS="7"
       ;;
     esac
   fi
@@ -456,6 +456,7 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          libswscale-dev        \\
                          libavutil-dev         \\
                          libavdevice-dev       \\
+                         libtinyxml2-dev       \\
                          uuid-dev"
 
 #

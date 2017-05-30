@@ -175,9 +175,11 @@ ignition_software.each { ign_sw ->
             scm('@daily')
           }
 
-          // msgs does not work on trusty 
+          // msgs amd common does not work on trusty
           // https://bitbucket.org/ignitionrobotics/ign-msgs/issues/8
           if (("${ign_sw}" == "msgs") && ("${distro}" == "trusty"))
+            disabled()
+          if (("${ign_sw}" == "common") && ("${distro}" == "trusty"))
             disabled()
 
           steps {

@@ -1,4 +1,14 @@
 # Whole SRCSIM setup
+SRCSIM_SETUP_REPOSITORIES="""
+apt-get install -y wget
+wget http://srcsim.gazebosim.org/src/src.key -O - | sudo apt-key add -
+echo \"deb http://srcsim.gazebosim.org/src ${DISTRO} main\" > /etc/apt/sources.list.d/src-latest.list
+apt-get update
+
+mkdir -p /etc/ros/rosdep/sources.list.d/
+wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gazebo7/00-gazebo7.list -O /etc/ros/rosdep/sources.list.d/00-gazebo7.list
+"""
+
 SRCSIM_INIT_SETUP="""
 echo '@ros - rtprio 99' > /etc/security/limits.d/ros-rtprio.conf
 groupadd ros

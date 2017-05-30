@@ -23,6 +23,12 @@ if ${USE_GZ_VERSION_ROSDEP}; then
   wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gazebo${GAZEBO_VERSION_FOR_ROS}/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list -O /etc/ros/rosdep/sources.list.d/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list
 fi
 
+if [ `expr length "${ROS_SETUP_PREINSTALL_HOOK} "` -gt 1 ]; then
+echo '# BEGIN SECTION: running pre install hook'
+${ROS_SETUP_PREINSTALL_HOOK}
+echo '# END SECTION'
+fi
+
 echo '# BEGIN SECTION: run rosdep'
 # Step 2: configure and build
 rosdep init
@@ -50,6 +56,8 @@ mkdir -p ${CATKIN_WS}/src
 cd ${CATKIN_WS}
 catkin config --init --mkdirs
 ln -s "${WORKSPACE}/${SOFTWARE_DIR}" "${CATKIN_WS}/src/${SOFTWARE_DIR}"
+catkin list
+echo '# END SECTION'
 DELIM_CONFIG
 
 if [ `expr length "${ROS_WS_PREBUILD_HOOK} "` -gt 1 ]; then
@@ -89,4 +97,10 @@ for d in \$DIRS; do
  done
 done
 echo '# END SECTION'
+
+if [ `expr length "${ROS_SETUP_POSTINSTALL_HOOK} "` -gt 1 ]; then
+echo '# BEGIN SECTION: running pre TEST hook'
+${ROS_SETUP_POSTINSTALL_HOOK}
+echo '# END SECTION'
+fi
 DELIM_COMPILATION
