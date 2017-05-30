@@ -107,7 +107,7 @@ supported_distros.each { distro ->
           extensions {
             relativeTargetDirectory("ariac-docker")
           }
-          branch("kinetic_version")
+          branch("refs/heads/master")
         }
       }
 
