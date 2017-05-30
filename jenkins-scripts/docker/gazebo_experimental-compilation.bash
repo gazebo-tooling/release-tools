@@ -14,6 +14,8 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-GAZEBO_EXPERIMENTAL_BUILD=true
+export GAZEBO_EXPERIMENTAL_BUILD=true
+export GAZEBO_BUILD_IGN_GUI=true
+
 
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash
