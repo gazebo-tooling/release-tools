@@ -9,6 +9,7 @@
 # - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
 # - DEPENDENCY_PKGS   : (optional) packages to be installed in the image
 # - SOFTWARE_DIR      : (optional) directory to copy inside the image
+# - DOCKER_DO_NOT_CACHE : (optional) do not cache docker intermediate images
 # - DOCKER_PREINSTALL_HOOK : (optional) bash code to run before installing  DEPENDENCY_PKGS.
 #                       It can be used for installing extra repositories needed for DEPENDENCY_PKGS
 # - DOCKER_POSTINSTALL_HOOK : (optional) bash code to run after installing  DEPENDENCY_PKGS.

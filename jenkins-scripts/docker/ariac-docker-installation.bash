@@ -12,6 +12,9 @@ if [[ -z ${ROS_DISTRO} ]]; then
     exit
 fi
 
+# Avoid caching all intermediate containers
+export DOCKER_DO_NOT_CACHE=true
+
 INSTALL_JOB_PREINSTALL_HOOK="""
 echo '# BEGIN SECTION: install docker inside docker'
 
