@@ -37,13 +37,17 @@ void include_common_params(Job gazebo_ros_pkgs_job,
 {
    gazebo_ros_pkgs_job.with
    {
-      String use_non_official_gazebo_package = ""
       if (gz_version != "default") {
-        use_non_official_gazebo_package = """\
-                                          export GAZEBO_VERSION_FOR_ROS="${gz_version}"
-                                          export USE_GZ_VERSION_ROSDEP=true
-                                          export OSRF_REPOS_TO_USE="stable"
-                                          """.stripIndent()
+        gz_package_version_str = """\
+                                export GAZEBO_VERSION_FOR_ROS="${gz_version}"
+                                export USE_GZ_VERSION_ROSDEP=true
+                                export OSRF_REPOS_TO_USE="stable"
+                                """.stripIndent()
+      } else {
+        gz_package_version_str = """\
+                                export USE_DEFAULT_GAZEBO_VERSION_FOR_ROS=true
+                                export OSRF_REPOS_TO_USE="stable"
+                                """.stripIndent()
       }
 
       label "gpu-reliable-${ubuntu_distro}"
