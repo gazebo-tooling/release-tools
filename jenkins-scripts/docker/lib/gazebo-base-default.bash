@@ -12,6 +12,8 @@
 #stop on error
 set -e
 
+[[ -z ${GAZEBO_EXPERIMENTAL_BUILD} ]] && GAZEBO_EXPERIMENTAL_BUILD=false
+
 GAZEBO_OSRF_DEPS="SDFORMAT IGN_MATH IGN_TRANSPORT"
 
 . ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash

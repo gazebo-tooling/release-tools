@@ -57,7 +57,7 @@ ci_distro.each { distro ->
            export DISTRO=${distro}
            export ARCH=${arch}
            export GPU_SUPPORT_NEEDED=${gpu_needed}
-           /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
+           /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo_experimental-compilation.bash
            """.stripIndent())
          }
       }
@@ -91,7 +91,7 @@ ci_distro.each { distro ->
                 export DISTRO=${distro}
                 export ARCH=${arch}
                 export GPU_SUPPORT_NEEDED=${gpu_needed}
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo_experimental-compilation.bash
                 """.stripIndent())
         }
       }
@@ -130,7 +130,7 @@ ci_distro.each { distro ->
             export GAZEBO_BUILD_SDFORMAT=true
             export GAZEBO_BUILD_IGN_MATH=true
             export GAZEBO_BUILD_IGN_TRANSPORT=true
-            /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo_experimental-compilation.bash
             """.stripIndent())
         }
       }
