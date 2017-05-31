@@ -2,7 +2,7 @@
 
 # Knowing Script dir beware of symlink
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
-SCRIPT_DIR="${SCRIPT_DIR%/*}"
+export SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 if [[ -z ${ARCH} ]]; then
   echo "ARCH variable not set!"
