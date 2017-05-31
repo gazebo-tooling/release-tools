@@ -91,7 +91,7 @@ cat >> build.sh << DELIM_BUILD_DEPS
     GENERIC_ENABLE_TESTS=false 
     SOFTWARE_DIR=$dep
     cd $WORKSPACE
-    . ${SCRIPT_DIR}/lib/_generic_linux_compilation.bash
+    . ${SCRIPT_DIR}/lib/_generic_linux_compilation.bash ${SCRIPT_DIR}
     cd $WORKSPACE &&  rm -fr $WORKSPACE/build
 DELIM_BUILD_DEPS
   fi
