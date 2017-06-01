@@ -17,7 +17,6 @@ export DOCKER_DO_NOT_CACHE=true
 
 INSTALL_JOB_PREINSTALL_HOOK="""
 echo '# BEGIN SECTION: workaround on docker ip overlaping'
-docker network ls
 find ${WORKSPACE}/ariac-docker -name '*.bash' -exec sed -i -e 's:172\.18:172.19:g' {} \\;
 grep 172.19 ${WORKSPACE}/ariac-docker/ariac-server/run_container.bash 
 echo '# END SECTION'
@@ -36,6 +35,7 @@ if [[ ${DISTRO} == 'trusty' ]]; then
  rm /etc/init/cgroup-lite.conf
 fi
 apt-get install -y docker-ce
+docker network ls
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run the ariac_system script'
