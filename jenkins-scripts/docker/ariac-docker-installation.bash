@@ -43,6 +43,8 @@ bash -x ./prepare_team_system.bash example_team ${ROS_DISTRO}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run all trials runtime tests'
+cd ${WORKSPACE}/ariac-docker/ariac-competitor
+bash -x ./ariac_network.bash
 cd ${WORKSPACE}/ariac-docker
 bash -x ./run_all_trials.bash
 echo '# END SECTION'
