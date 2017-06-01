@@ -16,6 +16,11 @@ fi
 export DOCKER_DO_NOT_CACHE=true
 
 INSTALL_JOB_PREINSTALL_HOOK="""
+echo '# BEGIN SECTION: workaround on docker ip overlaping'
+find ${WORKSPACE}/ariac-docker -name '*.bash' -exec sed -i -e 's:172\.18:172.19:g' {} \\;
+grep 172.19 ${WORKSPACE}/ariac-docker/ariac-server/run_container.bash 
+echo '# END SECTION'
+
 echo '# BEGIN SECTION: install docker inside docker'
 
 # Needed policy to run docker daemon
