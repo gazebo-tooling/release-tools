@@ -31,25 +31,47 @@ DELIM_CHECKOUT
 [[ -n ${SOFTWARE_DIR} ]] && unset SOFTWARE_DIR
 
 cat >> build.sh << DELIM
+
+TEST_TIMEOUT=90
+
+TEST_START=\`date +%s\`
+timeout --preserve-status \$TEST_TIMEOUT roslaunch gazebo_ros empty_world.launch verbose:=true || true
+TEST_END=\`date +%s\`
+DIFF=\$(expr \$TEST_END - \$TEST_START)
+
+if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
+   echo 'The test took less than \$TEST_TIMEOUT. Something bad happened'
+   exit 1
+fi
+
 cd ${CATKIN_WS}/src/gazebo_ros_demos/
 export ROS_PACKAGE_PATH=\$ROS_PACKAGE_PATH:$PWD
 cd ${CATKIN_WS}
 
-timeout --preserve-status 180 roslaunch rrbot_gazebo rrbot_world.launch headless:=true extra_gazebo_args:="--verbose"
-if [ $? != 0 ]; then
-  echo "Failure response in the launch command" 
-  exit 1
-fi
+TEST_TIMEOUT=180
 
-echo "180 testing seconds finished successfully"
+TEST_START=\`date +%s\`
+timeout --preserve-status \$TEST_TIMEOUT roslaunch rrbot_gazebo rrbot_world.launch headless:=true extra_gazebo_args:="--verbose"
+TEST_END=\`date +%s\`
+DIFF=\$(expr \$TEST_END - \$TEST_START)
+
+if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
+   echo 'The test took less than \$TEST_TIMEOUT. Something bad happened'
+   exit 1
+fi
 DELIM
 
 USE_ROS_REPO=true
 
+# To be sure about getting the latest versions of all dependencies:
+# gazebo, sdformat, ignition ... we need to add them as packages in
+# DEPENDENCY_PKGS. They would be automatically pulled by ROS_GAZEBO_PKGS
+# but won't be updated if docker cache is in use. Adding them to the
+# list will do it.
 DEPENDENCY_PKGS="${ROS_CATKIN_BASE} git \
                  ${ROS_GAZEBO_PKGS} \
-                 ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS}"
-                 
+                 ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS} \
+                 ${_GZ_ROS_PACKAGES}"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
