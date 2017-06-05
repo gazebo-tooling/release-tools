@@ -38,13 +38,17 @@ void include_common_params(Job gazebo_ros_pkgs_job,
 {
    gazebo_ros_pkgs_job.with
    {
-      String use_non_official_gazebo_package = ""
       if (gz_version != "default") {
-        use_non_official_gazebo_package = """\
-                                          export GAZEBO_VERSION_FOR_ROS="${gz_version}"
-                                          export USE_GZ_VERSION_ROSDEP=true
-                                          export OSRF_REPOS_TO_USE="stable"
-                                          """.stripIndent()
+        gz_package_version_str = """\
+                                export GAZEBO_VERSION_FOR_ROS="${gz_version}"
+                                export USE_GZ_VERSION_ROSDEP=true
+                                export OSRF_REPOS_TO_USE="stable"
+                                """.stripIndent()
+      } else {
+        gz_package_version_str = """\
+                                export USE_DEFAULT_GAZEBO_VERSION_FOR_ROS=true
+                                export OSRF_REPOS_TO_USE="stable"
+                                """.stripIndent()
       }
 
       label "gpu-reliable-${ubuntu_distro}"
@@ -53,7 +57,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
         shell("""\
               #!/bin/bash -xe
 
-              ${use_non_official_gazebo_package}
+              ${gz_package_version_str}
 
               export DISTRO=${ubuntu_distro}
               export ARCH=${ci_arch}
@@ -116,6 +120,22 @@ ros_distros.each { ros_distro ->
                                             "default",
                                             "gazebo_ros_pkgs-compilation")
 
+    // --------------------------------------------------------------
+    // 3. Create the default install
+    def install_default_job = job("ros_gazebo_pkgs-install_pkg_${suffix_triplet}")
+    OSRFLinuxInstall.create(install_default_job)
+    include_common_params(install_default_job,
+                          ubuntu_distro,
+                          ros_distro,
+                          "default",
+                          "gazebo_ros_pkgs-release-testing")
+    install_default_job.with
+    {
+      triggers {
+        cron('@daily')
+      }
+    } 
+
 
     // Assume that gazebo means official version chose by ROS on every distribution
     gazebo_unofficial_versions = extra_gazebo_versions[ros_distro]
@@ -126,14 +146,14 @@ ros_distros.each { ros_distro ->
       {
         // --------------------------------------------------------------
         // 1.2 Testing packages jobs install_pkg
-        def install_default_job = job("ros_gazebo${gz_version}_pkgs-install_pkg_${suffix_triplet}")
-        OSRFLinuxInstall.create(install_default_job)
-        include_common_params(install_default_job,
+        def install_alternative_job = job("ros_gazebo${gz_version}_pkgs-install_pkg_${suffix_triplet}")
+        OSRFLinuxInstall.create(install_alternative_job)
+        include_common_params(install_alternative_job,
                               ubuntu_distro,
                               ros_distro,
                               gz_version,
                               "gazebo_ros_pkgs-release-testing")
-        install_default_job.with
+        install_alternative_job.with
         {
           triggers {
             cron('@daily')
