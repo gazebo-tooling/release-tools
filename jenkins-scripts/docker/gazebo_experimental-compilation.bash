@@ -17,5 +17,4 @@ fi
 export GAZEBO_EXPERIMENTAL_BUILD=true
 export GAZEBO_BUILD_IGN_GUI=true
 
-
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash

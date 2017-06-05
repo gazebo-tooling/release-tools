@@ -33,6 +33,11 @@ if [[ $GAZEBO_MAJOR_VERSION -lt 8 ]]; then
   GAZEBO_BASE_CMAKE_ARGS="${GAZEBO_BASE_CMAKE_ARGS} -DENABLE_TESTS_COMPILATION=True"
 fi
 
+SOFTWARE_DIR="gazebo"
+if ${GAZEBO_EXPERIMENTAL_BUILD}; then
+  SOFTWARE_DIR="${SOFTWARE_DIR}_experimental"
+fi
+
 cat > build.sh << DELIM_DART
 ###################################################
 # Make project-specific changes here
@@ -87,6 +92,7 @@ cat >> build.sh << DELIM_BUILD_DEPS
     hg clone http://bitbucket.org/\$bitbucket_repo -b ${dep_branch} \
 	$WORKSPACE/$dep 
 
+    GENERIC_ENABLE_TIMING=false
     GENERIC_ENABLE_CPPCHECK=false
     GENERIC_ENABLE_TESTS=false 
     SOFTWARE_DIR=$dep
@@ -106,7 +112,7 @@ cd $WORKSPACE/build
 cmake ${GAZEBO_BASE_CMAKE_ARGS}      \\
     -DCMAKE_INSTALL_PREFIX=/usr      \\
     -DENABLE_SCREEN_TESTS:BOOL=False \\
-  $WORKSPACE/gazebo
+  $WORKSPACE/${SOFTWARE_DIR}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: Gazebo compilation'
@@ -125,7 +131,6 @@ fi
 
 echo '# BEGIN SECTION: Gazebo installation'
 make install
-. /usr/share/gazebo/setup.sh
 echo '# END SECTION'
 
 # Need to clean up from previous built
@@ -157,21 +162,21 @@ fi
 echo '# BEGIN SECTION: running cppcheck'
 init_stopwatch CPPCHECK
 # Step 3: code check
-cd $WORKSPACE/gazebo
+cd $WORKSPACE/${SOFTWARE_DIR}
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
 stop_stopwatch CPPCHECK
 echo '# END SECTION'
 DELIM
 
 USE_OSRF_REPO=true
-SOFTWARE_DIR="gazebo"
-if ${GAZEBO_EXPERIMENTAL_BUILD}; then
-  SOFTWARE_DIR="${SOFTWARE_DIR}_experimental"
-fi
 DEPENDENCY_PKGS="${BASE_DEPENDENCIES} \
                  ${GAZEBO_BASE_DEPENDENCIES} \
 		 ${GAZEBO_EXTRA_DEPENDENCIES} \
 		 ${EXTRA_PACKAGES}"
+
+if $GAZEBO_BUILD_IGN_GUI; then
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${IGN_GUI_DEPENDENCIES}"
+fi
 
 # Need for cmake DISPLAY check (it uses xwininfo command)
 if [[ $USE_GPU_DOCKER ]]; then

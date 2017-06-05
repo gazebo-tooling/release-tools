@@ -40,7 +40,8 @@ BASE_DEPENDENCIES="build-essential \\
                    bc              \\
                    netcat-openbsd  \\
                    gnupg2          \\
-                   net-tools"
+                   net-tools       \\
+                   locales"
 
 BREW_BASE_DEPENDCIES="mercurial git cmake"
 
@@ -242,6 +243,9 @@ else
   # --------------------------------------
   GAZEBO_BASE_DEPENDENCIES="libgflags-dev            \\
                             pkg-config               \\
+                            libprotoc-dev            \\
+                            libprotobuf-dev          \\
+                            protobuf-compiler        \\
                             libignition-common-dev   \\
                             libignition-msgs-dev     \\
                             libignition-transport3-dev"
@@ -474,6 +478,9 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          libavdevice-dev       \\
                          libtinyxml2-dev       \\
                          uuid-dev"
+
+IGN_GUI_DEPENDENCIES="qtbase5-dev \\
+                      libqwt-qt5-dev"
 
 #
 # HAPTIX
