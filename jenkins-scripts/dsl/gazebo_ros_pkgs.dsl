@@ -8,7 +8,6 @@ ArrayList ros_distros        = Globals.get_ros_suported_distros()
 String ci_arch               = 'amd64'
 // version to test more than the official one in each ROS distro
 extra_gazebo_versions = [ 'indigo'  :  ['7'],
-                          'jade'    :  ['7'],
                           'kinetic' :  ['8'],
                           'lunar'   :  ['8']]
 
