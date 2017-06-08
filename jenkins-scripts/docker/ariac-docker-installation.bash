@@ -38,21 +38,36 @@ apt-get install -y docker-ce
 docker network ls
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: run the ariac_system script'
+echo '# BEGIN SECTION: run the ariac_system script for indigo'
 cd ${WORKSPACE}/ariac-docker
-bash -x ./prepare_ariac_system.bash ${ROS_DISTRO}
+bash -x ./prepare_ariac_system.bash indigo
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: run the team_system script'
+echo '# BEGIN SECTION: run the ariac_system script for kinetic'
 cd ${WORKSPACE}/ariac-docker
-bash -x ./prepare_team_system.bash example_team ${ROS_DISTRO}
+bash -x ./prepare_ariac_system.bash kinetic
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: run all trials runtime tests'
+echo '# BEGIN SECTION: run the team_system script for indigo team'
+cd ${WORKSPACE}/ariac-docker
+bash -x ./prepare_team_system.bash example_team
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: run the team_system script for kinetic team'
+cd ${WORKSPACE}/ariac-docker
+bash -x ./prepare_team_system.bash example_team2
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: run all trials for example_team runtime tests'
 cd ${WORKSPACE}/ariac-docker/ariac-competitor
 bash -x ./ariac_network.bash
 cd ${WORKSPACE}/ariac-docker
-bash -x ./run_all_trials.bash
+bash -x ./run_all_trials.bash example_team
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: run all trials for all teams runtime tests'
+cd ${WORKSPACE}/ariac-docker
+bash -x ./run_all_teams.bash
 echo '# END SECTION'
 
 """
