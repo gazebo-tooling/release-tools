@@ -52,6 +52,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: run the team_system script for ${ROS_DISTRO} team'
 cd ${WORKSPACE}/ariac-docker
+echo ${ROS_DISTRO} > team_configs/example_team/ros_distro.txt
 bash -x ./prepare_team_system.bash example_team
 df -h
 echo '# END SECTION'
@@ -62,11 +63,6 @@ bash -x ./ariac_network.bash
 cd ${WORKSPACE}/ariac-docker
 bash -x ./run_all_trials.bash example_team
 df -h
-echo '# END SECTION'
-
-echo '# BEGIN SECTION: run all trials for all teams runtime tests'
-cd ${WORKSPACE}/ariac-docker
-bash -x ./run_all_teams.bash
 echo '# END SECTION'
 """
 
