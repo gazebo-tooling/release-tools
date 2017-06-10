@@ -79,6 +79,7 @@ INSTALL_JOB_POSTINSTALL_HOOK="""
 export DEPENDENCY_PKGS DEPENDENCY_PKGS="apt-transport-https \
     ca-certificates \
     curl \
+    wget \
     software-properties-common"
 
 . ${SCRIPT_DIR}/lib/generic-install-base.bash
