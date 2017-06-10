@@ -124,5 +124,30 @@ supported_distros.each { distro ->
               """.stripIndent())
       }
     }
+
+    // --------------------------------------------------------------
+    // 4. -any- PR integration
+    def install_docker_any_job = job("ariac-ci-pr_any-docker_${ros_distro}-${distro}-${arch}")
+
+    // Use the linux install_docker as base
+    OSRFLinuxCompilationAnyGitHub.create(install_docker_any_job, [ "${ros_distro}" ])
+
+    install_docker_any_job.with
+    {
+      label "large-disk"
+
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export LINUX_DISTRO=ubuntu
+              export ARCH=${arch}
+              export DISTRO=${distro}
+              export ROS_DISTRO=${ros_distro}
+
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/ariac-docker-installation.bash
+              """.stripIndent())
+      }
+    }
   }
 }
