@@ -17,7 +17,7 @@ export DOCKER_DO_NOT_CACHE=true
 
 echo '# BEGIN SECTION: clean docker cache to get disk space'
 wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
-sudo bash -c \"GRACE_PERIOD_SECONDS=86400 bash docker-gc\"
+sudo bash -c "GRACE_PERIOD_SECONDS=86400 bash docker-gc"
 df -h
 echo '# END SECTION'
 
