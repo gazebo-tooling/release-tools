@@ -38,23 +38,15 @@ apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-t
 
 # get ROS repo's key, to be used in creating the pbuilder chroot (to allow it to install packages from that repo)
 sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $DISTRO main" > /etc/apt/sources.list.d/ros-latest.list'
-wget --no-check-certificate https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | apt-key add -
+wget --no-check-certificate https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | apt-key add --keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg  -
 # Also get drc repo's key, to be used in getting Gazebo
 sh -c 'echo "deb http://packages.osrfoundation.org/drc/ubuntu $DISTRO main" > /etc/apt/sources.list.d/drc-latest.list'
-wget http://packages.osrfoundation.org/drc.key -O - | apt-key add -
+wget http://packages.osrfoundation.org/drc.key -O - | apt-key add --keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg  -
+
 apt-get update
 
-# Hack to avoid problem with non updated 
-if [ $DISTRO = 'precise' ]; then
-  echo "Skipping pbuilder check for outdated info"
-  #sed -i -e 's:UbuntuDistroInfo().devel():self.target_distro:g' /usr/bin/pbuilder-dist
-fi
-
-apt-key adv --keyserver keyserver.ubuntu.com --recv-key  3B4FE6ACC0B21F32
-
 # Step 0: create/update distro-specific pbuilder environment
-#OTHERMIRROR='deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main' pbuilder-dist $DISTRO $ARCH create --keyring /etc/apt/trusted.gpg --debootstrapopts --keyring=/etc/apt/trusted.gpg
-OTHERMIRROR='deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main' pbuilder-dist $DISTRO $ARCH create
+OTHERMIRROR='deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main' pbuilder-dist $DISTRO $ARCH create --keyring /usr/share/keyrings/ubuntu-archive-keyring.gpg --debootstrapopts --keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg  -
 
 # Step 0: Clean up
 rm -rf $WORKSPACE/build
