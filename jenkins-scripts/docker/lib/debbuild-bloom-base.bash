@@ -105,6 +105,7 @@ echo '# END SECTION'
 DELIM
 
 OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
+USE_ROS_REPO=true
 DEPENDENCY_PKGS="devscripts \
 		 ubuntu-dev-tools \
                  ubuntu-keyring \
@@ -117,7 +118,8 @@ DEPENDENCY_PKGS="devscripts \
 		 mercurial \
 		 git \
                  python-openssl \
-                 ca-certificates"
+                 ca-certificates \
+ 		 python-rosdep"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash

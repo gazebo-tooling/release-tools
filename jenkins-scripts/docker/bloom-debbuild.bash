@@ -19,7 +19,4 @@ if [[ -z ${ROS_DISTRO} ]]; then
   exit 1
 fi
 
-export ENABLE_ROS=true
-export OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
-
 . ${SCRIPT_DIR}/lib/debbuild-bloom-base.bash
