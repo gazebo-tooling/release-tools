@@ -46,7 +46,7 @@ wget http://packages.osrfoundation.org/drc.key -O - | apt-key add --keyring=/usr
 apt-get update
 
 # Step 0: create/update distro-specific pbuilder environment
-OTHERMIRROR='deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main' pbuilder-dist $DISTRO $ARCH create --keyring /usr/share/keyrings/ubuntu-archive-keyring.gpg --debootstrapopts --keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg  -
+OTHERMIRROR='deb http://packages.ros.org/ros/ubuntu $DISTRO main|deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main' pbuilder-dist $DISTRO $ARCH create --keyring /usr/share/keyrings/ubuntu-archive-keyring.gpg --keyring=/etc/apt/trusted.gpg --debootstrapopts --keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg --keyring=/etc/apt/trusted.gpg -
 
 # Step 0: Clean up
 rm -rf $WORKSPACE/build
@@ -88,7 +88,6 @@ ls ..
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
 debuild --no-tgz-check -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS} --keyring /usr/share/keyrings/ubuntu-archive-keyring.gpg --debootstrapopts --keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg 
 
-
 cat > \$PBUILD_DIR/A10_run_rosdep << DELIM_ROS_DEP
 #!/bin/sh
 if [ -f /usr/bin/rosdep ]; then
@@ -103,7 +102,7 @@ chmod a+x \$PBUILD_DIR/A10_run_rosdep
 echo "HOOKDIR=\$PBUILD_DIR" > \$HOME/.pbuilderrc
 
 # Step 6: use pbuilder-dist to create binary package(s)
-pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS} --keyring /usr/share/keyrings/ubuntu-archive-keyring.gpg --debootstrapopts --keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg 
+pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
 # Set proper package names
 PKG_NAME=ros-${ROS_DISTRO}-${PACKAGE}_${VERSION}-${RELEASE_VERSION}${DISTRO}_${ARCH}.deb
 
