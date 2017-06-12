@@ -86,7 +86,8 @@ ls ..
 
 # Step 5: use debuild to create source package
 #TODO: create non-passphrase-protected keys and remove the -uc and -us args to debuild
-debuild --no-tgz-check -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
+debuild --no-tgz-check -S -uc -us --source-option=--include-binaries -j${MAKE_JOBS} --keyring /usr/share/keyrings/ubuntu-archive-keyring.gpg --debootstrapopts --keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg 
+
 
 cat > \$PBUILD_DIR/A10_run_rosdep << DELIM_ROS_DEP
 #!/bin/sh
