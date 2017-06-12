@@ -102,8 +102,7 @@ chmod a+x \$PBUILD_DIR/A10_run_rosdep
 echo "HOOKDIR=\$PBUILD_DIR" > \$HOME/.pbuilderrc
 
 # Step 6: use pbuilder-dist to create binary package(s)
-pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS}
-
+pbuilder-dist $DISTRO $ARCH build ../*.dsc -j${MAKE_JOBS} --keyring /usr/share/keyrings/ubuntu-archive-keyring.gpg --debootstrapopts --keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg 
 # Set proper package names
 PKG_NAME=ros-${ROS_DISTRO}-${PACKAGE}_${VERSION}-${RELEASE_VERSION}${DISTRO}_${ARCH}.deb
 
