@@ -22,7 +22,9 @@ class OSRFUNIXBase extends OSRFBase
              #!/bin/bash -xe
 
              [[ -d ./scripts ]] &&  rm -fr ./scripts
-             hg clone https://bitbucket.org/osrf/release-tools scripts -b \${RTOOLS_BRANCH}
+             mkdir ./scripts
+             curl https://bitbucket.org/osrf/release-tools/get/\${RTOOLS_BRANCH}.tar.gz > scripts.tar.gz
+             tar xf scripts.tar.gz --strip 1 -C ./scripts/
              """.stripIndent())
       }
     }
