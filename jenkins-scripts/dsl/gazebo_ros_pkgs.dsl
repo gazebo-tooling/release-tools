@@ -11,6 +11,8 @@ extra_gazebo_versions = [ 'indigo'  :  ['7'],
                           'kinetic' :  ['8'],
                           'lunar'   :  ['8']]
 
+bloom_debbuild_jobs = [ 'gazebo-dev', 'gazebo-msgs', 'gazebo-plugins', 'gazebo-ros', 'gazebo-ros-control', 'gazebo-ros-pkgs' ]
+
 Job create_common_compilation(String job_name,
                               String ubuntu_distro,
                               String ros_distro,
@@ -133,7 +135,7 @@ ros_distros.each { ros_distro ->
       triggers {
         cron('@daily')
       }
-    } 
+    }
 
 
     // Assume that gazebo means official version chose by ROS on every distribution
@@ -157,7 +159,7 @@ ros_distros.each { ros_distro ->
           triggers {
             cron('@daily')
           }
-        } 
+        }
 
         // --------------------------------------------------------------
         // 2.2 Extra ci pr-any jobs
@@ -181,3 +183,71 @@ ros_distros.each { ros_distro ->
                                                    "gazebo_ros_pkgs-compilation_regression")
   } // end of ubuntu_distros
 } // end of ros_distros
+
+
+bloom_debbuild_jobs.each { bloom_pkg ->
+
+  def build_pkg_job = job("${bloom_pkg}-debbuilder")
+
+  // Use the linux install as base
+  OSRFLinuxBuildPkgBase.create(build_pkg_job)
+  GenericRemoteToken.create(build_pkg_job)
+
+  build_pkg_job.with
+  {
+      properties {
+        priority 100
+      }
+
+      parameters {
+        stringParam("PACKAGE","${bloom_pkg}","Package name to be built")
+        stringParam("VERSION",null,"Packages version to be built")
+        stringParam("RELEASE_VERSION", null, "Packages release version")
+        stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
+        stringParam("DISTRO", null, "Linux release inside LINUX_DISTRO to build packages for")
+        stringParam("ARCH", null, "Architecture to build packages for")
+        stringParam('ROS_DISTRO', '','ROS DISTRO to build pakcages for')
+        stringParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to")
+        stringParam('UPSTREAM_RELEASE_REPO', '', 'https://github.com/ros-gbp/gazebo_ros_pkgs-release')
+      }
+
+      steps {
+        systemGroovyCommand("""\
+          build.setDescription(
+          '<b>' + build.buildVariableResolver.resolve('ROS_DISTRO') + '-'
+                + build.buildVariableResolver.resolve('VERSION') + '-'
+                + build.buildVariableResolver.resolve('RELEASE_VERSION') + '</b>' +
+          '(' + build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
+                build.buildVariableResolver.resolve('DISTRO') + '::' +
+                build.buildVariableResolver.resolve('ARCH') + ')' +
+          '<br />' +
+          'upload to: ' + build.buildVariableResolver.resolve('UPLOAD_TO_REPO') +
+          '<br />' +
+          'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+          """.stripIndent()
+        )
+      }
+
+      publishers {
+        downstreamParameterized {
+	  trigger('repository_uploader_ng') {
+	    condition('SUCCESS')
+	    parameters {
+	      currentBuild()
+	      predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+	      predefinedProp("PACKAGE_ALIAS", "\${JOB_NAME}")
+	    }
+	  }
+        }
+      }
+
+
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              /bin/bash -x ./scripts/jenkins-scripts/docker/bloom-debbuild.bash
+              """.stripIndent())
+      }
+  }
+}
