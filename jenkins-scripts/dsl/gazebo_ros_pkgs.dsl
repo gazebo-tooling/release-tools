@@ -212,14 +212,14 @@ bloom_debbuild_jobs.each { bloom_pkg ->
       }
 
       // Blocks to control dependencies
-      if (${bloom_pkg} == 'gazebo-ros')
+      if ("${bloom_pkg}" == 'gazebo-ros')
         blockOn(['gazebo-dev','gazebo-msgs'])
-      else if (${bloom_pkg} == 'gazebo-plugins')
+      else if ("${bloom_pkg}" == 'gazebo-plugins')
         blockOn(['gazebo-dev','gazebo-msgs'])
-      else if (${bloom_pkg} == 'gazebo-ros-control')
+      else if ("${bloom_pkg}" == 'gazebo-ros-control')
         blockOn(['gazebo-dev','gazebo-msgs','gazebo-ros'])
-      else if (${bloom_pkg} == 'gazebo-ros-pkgs')
-        blockOn(['gazebo-dev','gazebo-msgs','gazebo-ros','gazebo-plugins'])
+      else if ("${bloom_pkg}" == 'gazebo-ros-pkgs')
+        blockOn(['gazebo-dev','gazebo-msgs','gazebo-ros'])
 
       steps {
         systemGroovyCommand("""\
