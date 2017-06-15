@@ -187,7 +187,8 @@ ros_distros.each { ros_distro ->
 
 bloom_debbuild_jobs.each { bloom_pkg ->
 
-  def build_pkg_job = job("${bloom_pkg}-bloom-debbuilder")
+  postfix_job_str = "bloom-debbuilder
+  def build_pkg_job = job("${bloom_pkg}-${postfix_job_str}")
 
   // Use the linux install as base
   OSRFLinuxBuildPkgBase.create(build_pkg_job)
@@ -213,13 +214,13 @@ bloom_debbuild_jobs.each { bloom_pkg ->
 
       // Blocks to control dependencies
       if ("${bloom_pkg}" == 'gazebo-ros')
-        blockOn(['gazebo-dev','gazebo-msgs'])
+        blockOn(["gazebo-dev-${postfix_job_str}","gazebo-msgs-${postfix_job_str}"])
       else if ("${bloom_pkg}" == 'gazebo-plugins')
-        blockOn(['gazebo-dev','gazebo-msgs'])
+        blockOn(["gazebo-dev-${postfix_job_str}","gazebo-msgs-${postfix_job_str}"])
       else if ("${bloom_pkg}" == 'gazebo-ros-control')
-        blockOn(['gazebo-dev','gazebo-msgs','gazebo-ros'])
+        blockOn(["gazebo-dev-${postfix_job_str}","gazebo-msgs-${postfix_job_str}","gazebo-ros-${postfix_job_str}"])
       else if ("${bloom_pkg}" == 'gazebo-ros-pkgs')
-        blockOn(['gazebo-dev','gazebo-msgs','gazebo-ros'])
+        blockOn(["gazebo-dev-${postfix_job_str}","gazebo-msgs-${postfix_job_str}","gazebo-ros-${postfix_job_str}"])
 
       steps {
         systemGroovyCommand("""\
