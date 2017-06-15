@@ -187,7 +187,7 @@ ros_distros.each { ros_distro ->
 
 bloom_debbuild_jobs.each { bloom_pkg ->
 
-  def build_pkg_job = job("${bloom_pkg}-debbuilder")
+  def build_pkg_job = job("${bloom_pkg}-bloom-debbuilder")
 
   // Use the linux install as base
   OSRFLinuxBuildPkgBase.create(build_pkg_job)
