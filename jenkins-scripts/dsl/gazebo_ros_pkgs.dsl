@@ -187,7 +187,7 @@ ros_distros.each { ros_distro ->
 
 bloom_debbuild_jobs.each { bloom_pkg ->
 
-  postfix_job_str = "bloom-debbuilder
+  postfix_job_str = "bloom-debbuilder"
   def build_pkg_job = job("${bloom_pkg}-${postfix_job_str}")
 
   // Use the linux install as base
