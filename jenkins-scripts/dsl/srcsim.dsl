@@ -176,6 +176,8 @@ all_supported_distros.each { distro ->
         cron('@daily')
       }
 
+      disabled()
+
       steps {
         shell("""\
             #!/bin/bash -xe
