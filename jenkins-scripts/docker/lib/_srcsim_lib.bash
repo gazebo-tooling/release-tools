@@ -5,7 +5,7 @@ wget http://srcsim.gazebosim.org/src/src.key -O - | sudo apt-key add -
 echo \"deb http://srcsim.gazebosim.org/src ${DISTRO} main\" > /etc/apt/sources.list.d/src-latest.list
 apt-get update
 # workaround by the lack of state pub
-apt-get install ros-${ROS_DISTRO}-joint-state-publisher
+apt-get install ros-trusty-joint-state-publisher
 
 mkdir -p /etc/ros/rosdep/sources.list.d/
 wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gazebo7/00-gazebo7.list -O /etc/ros/rosdep/sources.list.d/00-gazebo7.list
