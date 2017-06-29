@@ -19,6 +19,12 @@ cat > build.sh << DELIM_CHECKOUT
 #
 set -ex
 
+timeout --preserve-status 180 gazebo --verbose 
+if [ $? != 0 ]; then
+  echo "Failure response in the launch command" 
+  exit 1
+fi
+
 [[ -d ${WORKSPACE}/gazebo_ros_demos ]] && rm -fr ${WORKSPACE}/gazebo_ros_demos
 git clone https://github.com/ros-simulation/gazebo_ros_demos ${WORKSPACE}/gazebo_ros_demos
 DELIM_CHECKOUT
@@ -59,6 +65,8 @@ if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
    echo 'The test took less than \$TEST_TIMEOUT. Something bad happened'
    exit 1
 fi
+
+echo "180 testing seconds finished successfully"
 DELIM
 
 USE_ROS_REPO=true
