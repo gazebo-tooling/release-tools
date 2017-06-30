@@ -2,7 +2,7 @@
 
 # Knowing Script dir beware of symlink
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
-SCRIPT_DIR="${SCRIPT_DIR%/*}"
+export SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 if [[ -z ${ARCH} ]]; then
   echo "ARCH variable not set!"
@@ -14,8 +14,7 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-GAZEBO_EXPERIMENTAL_BUILD=false
+export GAZEBO_EXPERIMENTAL_BUILD=true
+export GAZEBO_BUILD_IGN_GUI=true
 
-# Can not use generic compilation since we host the DART instalation and some
-# other logic based of every gazebo version
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash
