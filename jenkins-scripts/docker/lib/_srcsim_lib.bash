@@ -27,7 +27,7 @@ rm /tmp/default.tar.gz
 
 SRCSIM_ENV_SETUP="""
 # workaround by the lack of state pub
-apt-get install ros-trusty-joint-state-publisher
+apt-get install -y ros-indigo-joint-state-publisher
 
 update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 #update-alternatives --set javac /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/javac
