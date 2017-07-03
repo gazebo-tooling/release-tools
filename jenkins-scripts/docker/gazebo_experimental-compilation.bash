@@ -18,6 +18,4 @@ export GAZEBO_EXPERIMENTAL_BUILD=true
 export GAZEBO_BUILD_IGN_GUI=true
 export GAZEBO_BUILD_SDFORMAT=true
 
-export DEPENDENCY_PKGS="$SDFORMAT_BASE_DEPENDENCIES"
-
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash
