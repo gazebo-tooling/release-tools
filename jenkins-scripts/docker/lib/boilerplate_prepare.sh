@@ -213,6 +213,8 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
         sudo rm -fr ${d}
     done
 fi
-
+# Cleanup dockerfile and build.sh if exists from previous runs
 rm -fr Dockerfile
+rm -fr ${WORKSPACE}/build.sh
+
 cd ${WORKSPACE}

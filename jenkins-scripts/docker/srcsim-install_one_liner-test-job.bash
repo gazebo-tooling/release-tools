@@ -9,13 +9,19 @@ export GPU_SUPPORT_NEEDED=true
 # Import library
 . ${SCRIPT_DIR}/lib/_srcsim_lib.bash
 
-INSTALL_JOB_PREINSTALL_HOOK="""\
-${SRCSIM_SETUP_REPOSITORIES}
-"""
+# Both empty, the one line script should handle all the stuff
+export INSTALL_JOB_PKG=""
+export INSTALL_JOB_REPOS=""
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
-echo '# BEGIN SECTION: testing by running qual1 launch file'
-${SRCSIM_INIT_SETUP}
+echo '# BEGIN SECTION: run the one-liner installation'
+export USER=root
+# curl -ssL http://get.srcsim.gazebosim.org | sh
+# TODO: temporary testing method
+sh ${WORKSPACE}/scripts/one-line-installations/srcsim.sh
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: testing by running qual2 launch file'
 ${SRCSIM_ENV_SETUP}
 
 TEST_TIMEOUT=400
@@ -31,8 +37,8 @@ if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
 fi
 echo '# END SECTION'
 """
+
 # Need bc to proper testing and parsing the time
-export DEPENDENCY_PKGS="wget bc"
-export INSTALL_JOB_PKG="srcsim"
+export DEPENDENCY_PKGS DEPENDENCY_PKGS="bc"
 
 . ${SCRIPT_DIR}/lib/generic-install-base.bash

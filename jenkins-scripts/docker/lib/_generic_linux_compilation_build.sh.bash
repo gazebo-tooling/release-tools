@@ -4,6 +4,7 @@
 #  - SOFTWARE_DIR: directory relative path to find sources
 #  - GENERIC_ENABLE_CPPCHECK (optional) [default true] run cppcheck
 #  - GENERIC_ENABLE_TESTS (optional) [default true] run tests
+#  - BUILDING_EXTRA_CMAKE_PARAMS (optional) extra cmake params
 
 if [[ -z ${SOFTWARE_DIR} ]]; then
     echo "SOFTWARE_DIR variable is unset. Please fix the code"
@@ -28,7 +29,7 @@ echo '# BEGIN SECTION: configure'
 cd $WORKSPACE
 [[ ! -d $WORKSPACE/build ]] && mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-cmake $WORKSPACE/${SOFTWARE_DIR} \
+cmake $WORKSPACE/${SOFTWARE_DIR} ${BUILDING_EXTRA_CMAKE_PARAMS} \
     -DCMAKE_INSTALL_PREFIX=/usr
 echo '# END SECTION'
 

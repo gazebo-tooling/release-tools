@@ -9,6 +9,8 @@
 # - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
 # - DEPENDENCY_PKGS   : (optional) packages to be installed in the image
 # - SOFTWARE_DIR      : (optional) directory to copy inside the image
+# - DOCKER_PREINSTALL_HOOK : (optional) bash code to run before installing  DEPENDENCY_PKGS.
+#                       It can be used for installing extra repositories needed for DEPENDENCY_PKGS
 # - DOCKER_POSTINSTALL_HOOK : (optional) bash code to run after installing  DEPENDENCY_PKGS.
 #                       It can be used for gem ruby installations or pip python
 
@@ -27,6 +29,8 @@ fi
 case ${LINUX_DISTRO} in
   'ubuntu')
     SOURCE_LIST_URL="http://archive.ubuntu.com/ubuntu"
+    # zesty does not ship locales by default
+    export DEPENDENCY_PKGS="locales ${DEPENDENCY_PKGS}"
     ;;
 
   'debian')
@@ -35,11 +39,6 @@ case ${LINUX_DISTRO} in
 
     # debian does not ship locales by default
     export DEPENDENCY_PKGS="locales ${DEPENDENCY_PKGS}"
-
-    if [[ -n ${OSRF_REPOS_TO_USE} ]]; then
-      echo "WARN!! OSRF has no debian repositories yet!"
-      OSRF_REPOS_TO_USE=""
-    fi
     ;;
 
   *)
@@ -53,11 +52,10 @@ case ${ARCH} in
      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      ;;
   'i386')
-     if [[ ${LINUX_DISTRO} == 'debian' ]]; then
-       echo "There is no debian/jessie i386 docker image available"
-       exit 1
-     else
+     if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
        FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
+     else
+       FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      fi
      ;;
    'armhf' | 'arm64' )
@@ -130,7 +128,7 @@ DELIM_DOCKER_ARCH
 fi
 
 # i386 image only have main by default
-if [[ ${ARCH} == 'i386' ]]; then
+if [[ ${LINUX_DISTRO} == 'ubuntu' && ${ARCH} == 'i386' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_I386_APT
 RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} restricted universe" \\
                                                        >> /etc/apt/sources.list
@@ -173,6 +171,12 @@ RUN echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
 RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
 DELIM_ROS_REPO
+fi
+
+if [ `expr length "${DOCKER_PREINSTALL_HOOK}"` -gt 1 ]; then
+cat >> Dockerfile << DELIM_WORKAROUND_PRE_HOOK
+RUN ${DOCKER_PREINSTALL_HOOK}
+DELIM_WORKAROUND_PRE_HOOK
 fi
 
 # Dart repositories

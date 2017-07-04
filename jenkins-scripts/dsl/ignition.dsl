@@ -2,7 +2,7 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
-ignition_software           = [ 'transport', 'math', 'msgs', 'common' ]
+ignition_software           = [ 'transport', 'math', 'msgs', 'common', 'rndf' ]
 ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3' ]
 // no registered branches in ignition_branches means only series 0 or 1
 ignition_branches           = [ transport : [ '2', '3' ],
@@ -175,9 +175,11 @@ ignition_software.each { ign_sw ->
             scm('@daily')
           }
 
-          // msgs does not work on trusty 
+          // msgs amd common does not work on trusty
           // https://bitbucket.org/ignitionrobotics/ign-msgs/issues/8
           if (("${ign_sw}" == "msgs") && ("${distro}" == "trusty"))
+            disabled()
+          if (("${ign_sw}" == "common") && ("${distro}" == "trusty"))
             disabled()
 
           steps {
