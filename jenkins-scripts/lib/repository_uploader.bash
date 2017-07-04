@@ -54,13 +54,14 @@ dsc_package_exists()
 
 upload_package()
 {
-    local pkg=${1}
+    local pkg=${1} pkg_name=${2}
     [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
+    [[ -z ${pkg_name} ]] && echo "Bad parameter pkg_name" && exit 1
 
     sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
 
     # The path will end up being: s3://osrf-distributions/$pkg_root_name/releases/
-    S3_upload ${pkg} ${pkg}/releases/
+    S3_upload ${pkg} ${pkg_name}/releases/
 }
 
 upload_dsc_package()
@@ -208,8 +209,8 @@ for pkg in `ls $pkgs_path/*.deb`; do
   pkg_version=${pkg_version/_*} # remove package suffix
 
   case ${pkg_suffix} in
-      i386.deb | amd64.deb | armhf.deb)
-	  upload_package ${pkg}
+      i386.deb | amd64.deb | armhf.deb | arm64.deb)
+	  upload_package ${pkg} ${PACKAGE_ALIAS}
       ;;
       all.deb)
 	# Check if the package already exists. i386 and amd64 generates the same binaries.
@@ -220,7 +221,7 @@ for pkg in `ls $pkgs_path/*.deb`; do
 	    echo "SKIP UPLOAD"
 	    continue
 	fi
-	upload_package ${pkg}
+	upload_package ${pkg} ${PACKAGE_ALIAS}
       ;;
       *)
 	  echo "ERROR: unknown pkg_suffix: ${pkg_suffix}"

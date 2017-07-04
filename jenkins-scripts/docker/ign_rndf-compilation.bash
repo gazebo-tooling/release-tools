@@ -14,4 +14,8 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-. ${SCRIPT_DIR}/lib/srcsim-compilation-base.bash
+export BUILDING_SOFTWARE_DIRECTORY="ign-rndf"
+export BUILDING_DEPENDENCIES="libignition-math3-dev"
+export BUILDING_JOB_REPOSITORIES="stable"
+
+. ${SCRIPT_DIR}/lib/generic-building-base.bash

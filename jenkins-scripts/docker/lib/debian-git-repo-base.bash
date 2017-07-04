@@ -104,6 +104,8 @@ done
 test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 
+# Trusty has no autopkgtest command
+if $DISTRO != 'trusty'; then
 echo '# BEGIN SECTION: run tests'
 cd $WORKSPACE/pkgs
 set +e
@@ -116,6 +118,7 @@ if [[ \$testret != 0 ]] && [[ \$testret != 8 ]]; then
 fi
 set -e
 echo '# END SECTION'
+fi
 
 echo '# BEGIN SECTION: clean up git build'
 cd $REPO_PATH

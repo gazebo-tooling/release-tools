@@ -9,13 +9,20 @@
 ::                   
 
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
-@if "%USE_IGNITION_ZIP%" == "" set USE_IGNITION_ZIP=TRUE
 
-@if "%IGNMATH_BRANCH%" == "" (
-  set IGNMATH_BRANCH=default
-) else (
-  :: When passing a value, we always go for compilation not zip
-  set USE_IGNITION_ZIP=FALSE
+:: Get the requirement of ign-math from SearchForStuff
+findstr /r "set(IGNITION-MATH_REQUIRED_MAJOR_VERSION" %WORKSPACE%\sdformat\cmake\SearchForStuff.cmake > version.txt
+set /p IGN_MATH_REQUIRED_VERSION=<version.txt
+set IGN_MATH_REQUIRED_VERSION=%IGN_MATH_REQUIRED_VERSION:~41,1%
+set IGNMATH_BRANCH="ign-math%IGN_MATH_REQUIRED_VERSION%"
+@if "%USE_IGNITION_ZIP%" == "" set USE_IGNITION_ZIP=FALSE
+set IGNMATH_ZIP=%IGNMATH_BRANCH% :: should not be needed
+
+:: When CI is run on the default branch use the .zip. Otherwise compile ign-math
+@if "%SRC_BRANCH%" == "default" (
+  set IGNMATH_BRANCH="default"
+  set IGNMATH_ZIP="ign-math3"
+  @if "%USE_IGNITION_ZIP%" == "" set USE_IGNITION_ZIP=TRUE
 )
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
@@ -50,8 +57,8 @@ call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.z
 call %win_lib% :download_7za
 call %win_lib% :unzip_7za boost_1_56_0.zip > install_boost.log
 IF %USE_IGNITION_ZIP% == TRUE (
-  call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/ign-math3.zip ign-math3.zip
-  call %win_lib% :unzip_7za ign-math3.zip
+  call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%IGNMATH_ZIP%.zip %IGNMATH_ZIP%.zip
+  call %win_lib% :unzip_7za %IGNMATH_ZIP%.zip
 )
 echo # END SECTION
 

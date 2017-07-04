@@ -9,6 +9,8 @@
 # - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
 # - DEPENDENCY_PKGS   : (optional) packages to be installed in the image
 # - SOFTWARE_DIR      : (optional) directory to copy inside the image
+# - DOCKER_PREINSTALL_HOOK : (optional) bash code to run before installing  DEPENDENCY_PKGS.
+#                       It can be used for installing extra repositories needed for DEPENDENCY_PKGS
 # - DOCKER_POSTINSTALL_HOOK : (optional) bash code to run after installing  DEPENDENCY_PKGS.
 #                       It can be used for gem ruby installations or pip python
 
@@ -27,6 +29,8 @@ fi
 case ${LINUX_DISTRO} in
   'ubuntu')
     SOURCE_LIST_URL="http://archive.ubuntu.com/ubuntu"
+    # zesty does not ship locales by default
+    export DEPENDENCY_PKGS="locales ${DEPENDENCY_PKGS}"
     ;;
 
   'debian')
@@ -35,11 +39,6 @@ case ${LINUX_DISTRO} in
 
     # debian does not ship locales by default
     export DEPENDENCY_PKGS="locales ${DEPENDENCY_PKGS}"
-
-    if [[ -n ${OSRF_REPOS_TO_USE} ]]; then
-      echo "WARN!! OSRF has no debian repositories yet!"
-      OSRF_REPOS_TO_USE=""
-    fi
     ;;
 
   *)
@@ -53,11 +52,10 @@ case ${ARCH} in
      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      ;;
   'i386')
-     if [[ ${LINUX_DISTRO} == 'debian' ]]; then
-       echo "There is no debian/jessie i386 docker image available"
-       exit 1
-     else
+     if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
        FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
+     else
+       FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      fi
      ;;
    'armhf' | 'arm64' )
@@ -95,6 +93,16 @@ ENV DEBFULLNAME "OSRF Jenkins"
 ENV DEBEMAIL "build@osrfoundation.org"
 DELIM_DOCKER
 
+# Handle special INVALIDATE_DOCKER_CACHE keyword by set a random
+if [[ -n ${INVALIDATE_DOCKER_CACHE} ]]; then
+cat >> Dockerfile << DELIM_DOCKER_INVALIDATE
+RUN echo 'BEGIN SECTION: invalidate full docker cache'
+RUN echo "Detecting content in INVALIDATE_DOCKER_CACHE. Invalidating it"
+RUN echo "Invalidate cache enabled. ${DOCKER_RND_ID}"
+RUN echo 'END SECTION'
+DELIM_DOCKER_INVALIDATE
+fi
+
 # The redirection fails too many times using us ftp
 if [[ ${LINUX_DISTRO} == 'debian' ]]; then
 cat >> Dockerfile << DELIM_DEBIAN_APT
@@ -120,7 +128,7 @@ DELIM_DOCKER_ARCH
 fi
 
 # i386 image only have main by default
-if [[ ${ARCH} == 'i386' ]]; then
+if [[ ${LINUX_DISTRO} == 'ubuntu' && ${ARCH} == 'i386' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_I386_APT
 RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} restricted universe" \\
                                                        >> /etc/apt/sources.list
@@ -165,6 +173,12 @@ RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 421C365BD9FF1
 DELIM_ROS_REPO
 fi
 
+if [ `expr length "${DOCKER_PREINSTALL_HOOK}"` -gt 1 ]; then
+cat >> Dockerfile << DELIM_WORKAROUND_PRE_HOOK
+RUN ${DOCKER_PREINSTALL_HOOK}
+DELIM_WORKAROUND_PRE_HOOK
+fi
+
 # Dart repositories
 if ${DART_FROM_PKGS} || ${DART_COMPILE_FROM_SOURCE}; then
 cat >> Dockerfile << DELIM_DOCKER_DART_PKGS
@@ -174,16 +188,6 @@ RUN apt-add-repository -y ppa:libccd-debs
 RUN apt-add-repository -y ppa:fcl-debs
 RUN apt-add-repository -y ppa:dartsim
 DELIM_DOCKER_DART_PKGS
-fi
-
-# Handle special INVALIDATE_DOCKER_CACHE keyword by set a random
-if [[ -n ${INVALIDATE_DOCKER_CACHE} ]]; then
-cat >> Dockerfile << DELIM_DOCKER_INVALIDATE
-RUN echo 'BEGIN SECTION: invalidate full docker cache'
-RUN echo "Detecting content in INVALIDATE_DOCKER_CACHE. Invalidating it"
-RUN echo "Invalidate cache enabled. ${DOCKER_RND_ID}"
-RUN echo 'END SECTION'
-DELIM_DOCKER_INVALIDATE
 fi
 
 # Packages that will be installed and cached by docker. In a non-cache
@@ -199,17 +203,22 @@ cat >> Dockerfile << DELIM_DOCKER3
 # This is the firt big installation of packages on top of the raw image.
 # The expection of updates is low and anyway it is cathed by the next
 # update command below
-RUN echo "${MONTH_YEAR_STR}"
-# The rm command will minimize the layer size
-RUN apt-get update && \
-    apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} && \
-    rm -rf /var/lib/apt/lists/*
+# The rm after the fail of apt-get update is a workaround to deal with the error:
+# Could not open file *_Packages.diff_Index - open (2: No such file or directory)
+RUN echo "${MONTH_YEAR_STR}" \
+ && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
+ && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
 # This is killing the cache so we get the most recent packages if there
-# was any update
-RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))"
-RUN apt-get update && \
-    apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES}
+# was any update. Note that we don't remove the apt/lists file here since
+# it will make to run apt-get update again
+RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))" \
+ && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
+ && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
+ && apt-get clean
+
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
 DELIM_DOCKER3

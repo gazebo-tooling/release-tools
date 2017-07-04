@@ -46,7 +46,7 @@ goto :EOF
 :: arg1 URL to download
 :: arg2 filename (not including the path, just the filename)
 echo Downloading %~1
-bitsadmin /transfer mydownloadjob /download /priority high %~1 %cd%\%~2 || goto :error
+wget %~1 %cd%\%~2 || goto :error
 goto :EOF
 
 :: ##################################

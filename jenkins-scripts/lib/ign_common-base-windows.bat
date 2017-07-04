@@ -49,7 +49,7 @@ echo # END SECTION
 echo # BEGIN SECTION: compile and install ign-math
 set IGN_MATH_DIR=%WORKSPACE%\workspace\ign-math
 if EXIST %IGN_MATH_DIR% ( rmdir /s /q %IGN_MATH_DIR% )
-hg clone https://bitbucket.org/ignitionrobotics/ign-math %IGN_MATH_DIR%
+hg clone https://bitbucket.org/ignitionrobotics/ign-math -b ign-math3 %IGN_MATH_DIR%
 cd %IGN_MATH_DIR%
 mkdir build
 cd build
@@ -84,7 +84,7 @@ if exist ..\configure.bat (
   echo # BEGIN SECTION: configuring %VCS_DIRECTORY% in %BUILD_TYPE%
   call ..\configure.bat %BUILD_TYPE% || goto :error
 ) else (
-  echo # BEGIN SECTION: configuring %VCS_DIRECTORY% using cmake 
+  echo # BEGIN SECTION: configuring %VCS_DIRECTORY% using cmake
   cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS% || goto :error
 )
 
