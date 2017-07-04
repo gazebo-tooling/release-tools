@@ -59,6 +59,8 @@ if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
    echo 'The test took less than \$TEST_TIMEOUT. Something bad happened'
    exit 1
 fi
+
+echo "180 testing seconds finished successfully"
 DELIM
 
 USE_ROS_REPO=true
