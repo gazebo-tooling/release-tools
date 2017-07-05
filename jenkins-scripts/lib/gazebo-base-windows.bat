@@ -46,7 +46,6 @@ call %win_lib% :unzip_7za qwt_6.1.0~github_zalf_lsa.zip
 call %win_lib% :unzip_7za tbb43_20141023oss_win.zip
 call %win_lib% :unzip_7za zlib-1.2.8-vc12-x64-release-debug.zip
 call %win_lib% :unzip_7za zziplib-0.13.62-vc12-x64-release-debug.zip
-call %win_lib% :unzip_7za qt5-x64-static-release.zip
 call %win_lib% :unzip_7za jom.zip
 echo # END SECTION
 ) ELSE (
