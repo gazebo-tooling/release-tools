@@ -1,5 +1,5 @@
 # Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
-if ${GAZEBO_EXPERIMENTAL_BUILD}; then
+if [ "${GAZEBO_EXPERIMENTAL_BUILD}" = true ]; then
   # Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
   GAZEBO_MAJOR_VERSION=0
 else

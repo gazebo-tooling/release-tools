@@ -34,7 +34,7 @@ if [[ $GAZEBO_MAJOR_VERSION -lt 8 ]]; then
 fi
 
 SOFTWARE_DIR="gazebo"
-if ${GAZEBO_EXPERIMENTAL_BUILD}; then
+if [ "${GAZEBO_EXPERIMENTAL_BUILD}" = true ]; then
   SOFTWARE_DIR="${SOFTWARE_DIR}_experimental"
 fi
 
