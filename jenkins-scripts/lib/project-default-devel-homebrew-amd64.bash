@@ -1,6 +1,12 @@
 #!/bin/bash -x
 set -e
 
+# Knowing Script dir beware of symlink
+if [[ -z "${SCRIPT_DIR}" ]]; then
+  [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
+  SCRIPT_DIR="${SCRIPT_DIR%/lib/*}"
+fi
+
 export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 
 # Get project name as first argument to this script
@@ -106,6 +112,18 @@ echo '# END SECTION'
 echo "#BEGIN SECTION: brew doctor analysis"
 brew doctor
 echo '# END SECTION'
+
+# CHECK PRE_TESTS_EXECUTION_HOOK AND RUN
+# expr length is not portable. wc -c, returns 1 on empty str
+if [ `echo "${PRE_TESTS_EXECUTION_HOOK}" | wc -c` -gt 1 ]; then
+  # to be able to handle hooks in a pure multiline form, this dirty hack
+  TMPFILE_HOOK=$(mktemp /tmp/.brew_pretesthook_XXXX)
+  cat > ${TMPFILE_HOOK} <<-DELIM
+  ${PRE_TESTS_EXECUTION_HOOK}
+DELIM
+  . ${TMPFILE_HOOK}
+  rm ${TMPFILE_HOOK}
+fi
 
 echo "# BEGIN SECTION: run tests"
 # Need to clean up models before run tests (issue 27)

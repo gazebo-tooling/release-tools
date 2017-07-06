@@ -1,14 +1,16 @@
 # Parameters:
-# - PACKAGE_ALIAS [mandatory] name of package including major version
 # - PULL_REQUEST_BRANCH [optional] branch to use in existing pull request 
+# - PULL_REQUEST_HEAD_REPO [optional] repository with head of pull request
 # Return:
-# -> FORMULA_PATH
 # -> TAP_PREFIX
 
-if [ -z ${PACKAGE_ALIAS} ]; then
-    echo "PACKAGE_ALIAS variables is empty"
-    exit -1
+echo '# BEGIN SECTION: check variables'
+if [ -z "${PULL_REQUEST_HEAD_REPO}" ]; then
+  echo PULL_REQUEST_HEAD_REPO not specified, setting to osrfbuild
+  echo
+  PULL_REQUEST_HEAD_REPO=git@github.com:osrfbuild/homebrew-simulation.git
 fi
+echo '# END SECTION'
 
 echo '# BEGIN SECTION: check github perms'
 # Github autentication. git access is provided by public key access
@@ -65,31 +67,11 @@ ${BREW} ruby -e "puts 'brew ruby success'"
 ${BREW} tap osrf/simulation
 TAP_PREFIX=${PWD}/brew/Library/Taps/osrf/homebrew-simulation
 GIT="git -C ${TAP_PREFIX}"
-${GIT} remote add fork git@github.com:osrfbuild/homebrew-simulation.git
+${GIT} remote add pr_head ${PULL_REQUEST_HEAD_REPO}
 # unshallow to get a full clone able to push
 ${GIT} fetch --unshallow
-${GIT} fetch fork
+${GIT} fetch pr_head
 # change to pull request branch in case new formula is being added
 if [ -n "${PULL_REQUEST_BRANCH}" ]; then
   ${GIT} checkout ${PULL_REQUEST_BRANCH}
 fi
-
-echo '# BEGIN SECTION: check if the formula exists'
-echo
-if [ -s ${TAP_PREFIX}/${PACKAGE_ALIAS}.rb ]; then
-  FORMULA=${TAP_PREFIX}/${PACKAGE_ALIAS}.rb
-elif [ -s ${TAP_PREFIX}/Aliases/${PACKAGE_ALIAS} ]; then
-  FORMULA=${TAP_PREFIX}/Aliases/${PACKAGE_ALIAS}
-else
-  echo Formula for ${PACKAGE_ALIAS} not found
-  [[ -d homebrew-simulation ]] && ls homebrew-simulation/*
-  # Mark the build as unstable (using logparser plugin)
-  echo "MARK_AS_UNSTABLE"
-  exit 0
-fi
-echo '# END SECTION'
-
-echo '# BEGIN SECTION: export formula path'
-export FORMULA_PATH=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.path"`
-echo Modifying ${FORMULA_PATH}
-echo '# END SECTION'

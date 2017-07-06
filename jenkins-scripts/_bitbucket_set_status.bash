@@ -102,7 +102,7 @@ if ! $BITBUCKET_API_RESULT; then
        # let the job to fail. It should not be problem with osrf repositories
        ;;
     *)
-      if [[ -n $(grep '403 Client Error: FORBIDDEN' ${BITBUCKET_LOG_FILE}) ]]; then
+      if [[ -n $(grep '403 Client Error: Forbidden' ${BITBUCKET_LOG_FILE}) ]]; then
         echo "MARK_AS_UNSTABLE"
         exit 0
       fi

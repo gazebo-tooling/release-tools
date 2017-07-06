@@ -55,7 +55,7 @@ ${GIT} status
 echo
 ${GIT} show HEAD
 echo
-${GIT} push -u fork ${PULL_REQUEST_BRANCH}
+${GIT} push -u pr_head ${PULL_REQUEST_BRANCH}
 
 
 # Create a pull request if one doesn't yet exist

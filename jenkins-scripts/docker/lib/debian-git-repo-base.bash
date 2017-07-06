@@ -104,10 +104,21 @@ done
 test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 
+# Trusty has no autopkgtest command
+if $DISTRO != 'trusty'; then
 echo '# BEGIN SECTION: run tests'
 cd $WORKSPACE/pkgs
+set +e
 autopkgtest -B *.deb *.dsc -- null
+# autopkgtest will return 0 if there are successful tests and 8 if there are no tests
+testret=\$?
+if [[ \$testret != 0 ]] && [[ \$testret != 8 ]]; then
+  echo "Problem in running autopkgtest: \$testret"
+  exit 1
+fi
+set -e
 echo '# END SECTION'
+fi
 
 echo '# BEGIN SECTION: clean up git build'
 cd $REPO_PATH

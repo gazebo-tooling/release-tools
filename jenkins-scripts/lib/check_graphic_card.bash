@@ -28,14 +28,8 @@ fi
 # First try to get the display variable
 export_display_variable
 
-# Check for Nvidia stuff
+# Check for Nvidia stuff. Using nvidia-docker no installation needed
 if [ -n "$(lspci -v | grep nvidia | head -n 2 | grep "Kernel driver in use: nvidia")" ]; then
-    export GRAPHIC_CARD_PKG=$(dpkg -l | egrep "^ii[[:space:]]* nvidia-[0-9]{3} " | awk '{ print $2 }' | tail -1)
-    if [ -z "${GRAPHIC_CARD_PKG}" ]; then
-      echo "Nvidia support found but not the module in use"
-      exit 1
-    fi
-    # Check for host installed version
     export GRAPHIC_CARD_NAME="Nvidia"
     export GRAPHIC_CARD_FOUND=true
 fi
@@ -80,7 +74,11 @@ if $GPU_SUPPORT_NEEDED; then
     fi
 fi
 
-# Get version of package 
-export GRAPHIC_CARD_PKG_VERSION=$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\ " | awk '{ print $3 }' | sed 's:-.*::')
-echo "${GRAPHIC_CARD_NAME} found using package ${GRAPHIC_CARD_PKG} (${GRAPHIC_CARD_PKG_VERSION})"
 
+# Get version of package if needed
+if [[ $GRAPHIC_CARD_NAME != "Nvidia" ]];then
+  export GRAPHIC_CARD_PKG_VERSION=$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\ " | awk '{ print $3 }' | sed 's:-.*::')
+  echo "${GRAPHIC_CARD_NAME} found using package ${GRAPHIC_CARD_PKG} (${GRAPHIC_CARD_PKG_VERSION})"
+else
+  echo "${GRAPHIC_CARD_NAME} found using docker-nvidia wrapper"
+fi

@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def supported_distros = [ 'trusty' ]
+def supported_distros = [ 'trusty', 'xenial' ]
 def supported_arches = [ 'amd64' ]
 
 // LINUX
@@ -19,6 +19,8 @@ build_pkg_job.with
         url('git@bitbucket.org:osrf/ariac.git')
         credentials('65cd22d1-f3d5-4ff4-b18f-1d88efa13a02')
       }
+
+      branch('master') 
 
       extensions {
         cleanBeforeCheckout()
@@ -64,6 +66,8 @@ supported_distros.each { distro ->
         triggers {
           cron('@weekly')
         }
+
+        label "gpu-reliable-${distro}"
 
         steps {
           shell("""#!/bin/bash -xe
