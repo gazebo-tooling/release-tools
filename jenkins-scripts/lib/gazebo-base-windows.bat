@@ -42,7 +42,7 @@ call %win_lib% :unzip_7za libcurl-vc12-x64-release-debug-static-ipv6-sspi-winssl
 call %win_lib% :unzip_7za OGRE-SDK-1.9.0-vc120-x64-12.03.2016.zip
 call %win_lib% :unzip_7za protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip
 call %win_lib% :unzip_7za qt5-x64-static-release.zip
-call %win_lib% :unzip_7za qwt_6.1.0~github_zalf_lsa.zip
+call %win_lib% :unzip_7za qwt_6.1.2~osrf_qt5.zip
 call %win_lib% :unzip_7za tbb43_20141023oss_win.zip
 call %win_lib% :unzip_7za zlib-1.2.8-vc12-x64-release-debug.zip
 call %win_lib% :unzip_7za zziplib-0.13.62-vc12-x64-release-debug.zip
