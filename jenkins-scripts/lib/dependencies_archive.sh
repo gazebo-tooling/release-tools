@@ -151,6 +151,8 @@ else
   fi
 fi
 
+# By default, the stable version of gazebo
+[[ -z ${GAZEBO_EXPERIMENTAL_BUILD} ]] && GAZEBO_EXPERIMENTAL_BUILD=false
 if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
   # --------------------------------------
   # GAZEBO - current version
