@@ -14,8 +14,6 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-GAZEBO_EXPERIMENTAL_BUILD=false
-
 # Can not use generic compilation since we host the DART instalation and some
 # other logic based of every gazebo version
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash
