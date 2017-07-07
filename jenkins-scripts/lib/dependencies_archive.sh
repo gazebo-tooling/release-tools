@@ -246,6 +246,7 @@ else
                             libprotoc-dev            \\
                             libprotobuf-dev          \\
                             protobuf-compiler        \\
+                            python-protobuf          \\
                             libignition-common-dev   \\
                             libignition-msgs-dev     \\
                             libignition-transport3-dev"
