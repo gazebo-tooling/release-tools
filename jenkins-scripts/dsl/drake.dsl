@@ -18,6 +18,7 @@ supported_distros.each { distro ->
         git {
           remote {
             github('osrf/drake-release', 'https')
+            branch('refs/heads/master')
           }
 
           extensions {
