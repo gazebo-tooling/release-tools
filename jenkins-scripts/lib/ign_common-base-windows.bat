@@ -62,14 +62,11 @@ echo # END SECTION
 
 echo # BEGIN SECTION: downloading and unzip dependencies: %DEPENDENCY_PKG%
 REM Todo: support multiple dependencies
-if defined DEPENDENCY_PKG (
-  call %win_lib% :download_7za
-
-  for %%p in (%DEPENDENCY_PKG%) do (
-    echo "Downloading %%p"
-    call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%%p %%p || goto :error
-    call %win_lib% :unzip_7za %%p %%p > install.log || goto:error
-  )
+for %%p in (%DEPEN_PKGS%) do (
+  echo # BEGIN SECTION: downloading and unzip dependency %%p
+  call %win_lib% :download_7za || goto :error
+  call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%%p %%p || goto :error
+  call %win_lib% :unzip_7za %%p %%p > install.log || goto:error
 )
 echo # END SECTION
 

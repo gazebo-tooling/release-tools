@@ -40,7 +40,8 @@ BASE_DEPENDENCIES="build-essential \\
                    bc              \\
                    netcat-openbsd  \\
                    gnupg2          \\
-                   net-tools"
+                   net-tools       \\
+                   locales"
 
 BREW_BASE_DEPENDCIES="mercurial git cmake"
 
@@ -150,87 +151,109 @@ else
   fi
 fi
 
-GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
-                          libprotoc-dev                    \\
-                          libprotobuf-dev                  \\
-                          protobuf-compiler                \\
-                          freeglut3-dev                    \\
-                          libcurl4-openssl-dev             \\
-                          libtinyxml-dev                   \\
-                          libtar-dev                       \\
-                          libtbb-dev                       \\
-                          ${ogre_pkg}                      \\
-                          libxml2-dev                      \\
-                          pkg-config                       \\
-                          ${gazebo_qt_dependencies}        \\
-                          libltdl-dev                      \\
-                          libgts-dev                       \\
-                          libboost-thread-dev              \\
-                          libboost-signals-dev             \\
-                          libboost-system-dev              \\
-                          libboost-filesystem-dev          \\
-                          libboost-program-options-dev     \\
-                          libboost-regex-dev               \\
-                          libboost-iostreams-dev           \\
-                          ${bullet_pkg}                    \\
-                          libsimbody-dev                   \\
-                          ${dart_pkg}"
+# By default, the stable version of gazebo
+[[ -z ${GAZEBO_EXPERIMENTAL_BUILD} ]] && GAZEBO_EXPERIMENTAL_BUILD=false
+if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
+  # --------------------------------------
+  # GAZEBO - current version
+  # --------------------------------------
 
-if [[ ${GAZEBO_MAJOR_VERSION} -eq 6 ]]; then
-    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                                         libignition-math2-dev"
+  GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
+                            libprotoc-dev                    \\
+                            libprotobuf-dev                  \\
+                            protobuf-compiler                \\
+                            freeglut3-dev                    \\
+                            libcurl4-openssl-dev             \\
+                            libtinyxml-dev                   \\
+                            libtar-dev                       \\
+                            libtbb-dev                       \\
+                            ${ogre_pkg}                      \\
+                            libxml2-dev                      \\
+                            pkg-config                       \\
+                            ${gazebo_qt_dependencies}        \\
+                            libltdl-dev                      \\
+                            libgts-dev                       \\
+                            libboost-thread-dev              \\
+                            libboost-signals-dev             \\
+                            libboost-system-dev              \\
+                            libboost-filesystem-dev          \\
+                            libboost-program-options-dev     \\
+                            libboost-regex-dev               \\
+                            libboost-iostreams-dev           \\
+                            ${bullet_pkg}                    \\
+                            libsimbody-dev                   \\
+                            ${dart_pkg}"
+
+  if [[ ${GAZEBO_MAJOR_VERSION} -eq 6 ]]; then
+      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                           libignition-math2-dev"
+  fi
+
+  if [[ ${GAZEBO_MAJOR_VERSION} -eq 7 ]]; then
+      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                libignition-transport-dev"
+  fi
+
+  if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
+      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                           libignition-transport2-dev \\
+                                           libignition-transport3-dev \\
+                                           libignition-math3-dev \\
+                                           libignition-msgs-dev"
+  fi
+
+  # libtinyxml2-dev is not on precise
+  # it is needed by gazebo7, which isn't supported on precise
+  if [[ ${DISTRO} != 'precise' ]]; then
+      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                libtinyxml2-dev"
+  fi
+
+  GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                            ${sdformat_pkg}"
+
+  GAZEBO_EXTRA_DEPENDENCIES="libavformat-dev  \\
+                             libavcodec-dev   \\
+                             libgraphviz-dev  \\
+                             libswscale-dev   \\
+                             libavdevice-dev   \\
+                             ruby-ronn"
+
+  # Player was removed starting from xenial
+  if [[ ${DISTRO} == 'precise' ]] || \
+     [[ ${DISTRO} == 'trusty' ]] || \
+     [[ ${DISTRO} == 'wily' ]]; then
+    GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} robot-player-dev"
+  fi
+
+
+  # cegui is deprecated in gazebo 6
+  if [[ ${GAZEBO_MAJOR_VERSION} -le 6 ]]; then
+      GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} \\
+                                 libcegui-mk2-dev"
+  fi
+
+  # gdal is not working on precise
+  # it was added in gazebo5, which does not support precise
+  if [[ ${DISTRO} != 'precise' ]]; then
+      GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} \\
+                                 libgdal-dev"
+  fi
+else
+  # --------------------------------------
+  # GAZEBO - experimental version
+  # --------------------------------------
+  GAZEBO_BASE_DEPENDENCIES="libgflags-dev            \\
+                            pkg-config               \\
+                            libprotoc-dev            \\
+                            libprotobuf-dev          \\
+                            protobuf-compiler        \\
+                            python-protobuf          \\
+                            libignition-common-dev   \\
+                            libignition-msgs-dev     \\
+                            libignition-transport3-dev"
 fi
 
-if [[ ${GAZEBO_MAJOR_VERSION} -eq 7 ]]; then
-    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                              libignition-transport-dev"
-fi
-
-if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
-    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                                         libignition-transport2-dev \\
-                                         libignition-transport3-dev \\
-                                         libignition-math3-dev \\
-                                         libignition-msgs-dev"
-fi
-
-# libtinyxml2-dev is not on precise
-# it is needed by gazebo7, which isn't supported on precise
-if [[ ${DISTRO} != 'precise' ]]; then
-    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                              libtinyxml2-dev"
-fi
-
-GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                          ${sdformat_pkg}"
-
-GAZEBO_EXTRA_DEPENDENCIES="libavformat-dev  \\
-                           libavcodec-dev   \\
-                           libgraphviz-dev  \\
-                           libswscale-dev   \\
-                           libavdevice-dev   \\
-                           ruby-ronn"
-
-# Player was removed starting from xenial
-if [[ ${DISTRO} == 'precise' ]] || \
-   [[ ${DISTRO} == 'trusty' ]] || \
-   [[ ${DISTRO} == 'wily' ]]; then
-  GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} robot-player-dev"
-fi
-
-
-# cegui is deprecated in gazebo 6
-if [[ ${GAZEBO_MAJOR_VERSION} -le 6 ]]; then
-    GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} \\
-                               libcegui-mk2-dev"
-fi
-
-# gdal is not working on precise
-# it was added in gazebo5, which does not support precise
-if [[ ${DISTRO} != 'precise' ]]; then
-    GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} \\
-                               libgdal-dev"
-fi
 
 if [[ -z $ROS_DISTRO ]]; then
   echo "------------------------------------------------------------"
@@ -468,6 +491,9 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          libtinyxml2-dev       \\
                          uuid-dev"
 
+IGN_GUI_DEPENDENCIES="qtbase5-dev \\
+                      libqwt-qt5-dev"
+
 #
 # HAPTIX
 #
@@ -496,4 +522,3 @@ MENTOR2_DEPENDENCIES="libgazebo6-dev    \\
                       libprotobuf-dev   \\
                       libboost1.54-dev  \\
                       libqt4-dev"
-

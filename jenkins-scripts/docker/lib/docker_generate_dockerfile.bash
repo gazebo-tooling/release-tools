@@ -32,15 +32,10 @@ case ${LINUX_DISTRO} in
     # zesty does not ship locales by default
     export DEPENDENCY_PKGS="locales ${DEPENDENCY_PKGS}"
     ;;
-
   'debian')
-    # Currently not needed
-    # SOURCE_LIST_URL="http://ftp.us.debian.org/debian"
-
     # debian does not ship locales by default
     export DEPENDENCY_PKGS="locales ${DEPENDENCY_PKGS}"
     ;;
-
   *)
     echo "Unknow linux distribution: ${LINUX_DISTRO}"
     exit 1
