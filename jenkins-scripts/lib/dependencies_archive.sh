@@ -492,6 +492,7 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          uuid-dev"
 
 IGN_GUI_DEPENDENCIES="qtbase5-dev \\
+                      libtinyxml2-dev \\
                       libqwt-qt5-dev"
 
 #
