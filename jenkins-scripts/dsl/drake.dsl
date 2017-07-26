@@ -1,3 +1,6 @@
+import _configs_.*
+import javaposse.jobdsl.dsl.Job
+
 def supported_distros = [ 'xenial' ]
 def supported_arches = [ 'amd64' ]
 
