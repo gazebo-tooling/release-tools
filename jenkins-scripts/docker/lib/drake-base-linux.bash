@@ -1,5 +1,8 @@
 #!/bin/bash -x
 
+# Drake can not wokr with ccache
+export ENABLE_CCACHE=false
+
 echo '# BEGIN SECTION: setup the testing enviroment'
 DOCKER_JOB_NAME="drake_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
