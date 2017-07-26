@@ -19,14 +19,15 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: compilation'
 cd ${WORKSPACE}/repo
-bazel run :install -- ${WORKSPACE}/install
+bazel run :install --jobs=${MAKE_JOBS} -- ${WORKSPACE}/install
 echo '# END SECTION'
 DELIM
 
 SOFTWARE_DIR="repo"
 OSRF_REPOS_TO_USE="stable"
 DEPENDENCY_PKGS="${BASE_DEPENDENCIES} \
-                 openjdk-8-jdk "
+                 openjdk-8-jdk \
+                 python2.7"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
