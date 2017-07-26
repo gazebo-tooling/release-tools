@@ -75,5 +75,40 @@ supported_distros.each { distro ->
         }
       }
     }
+
+    // --------------------------------------------------------------
+    // 2. Create the compilation job
+    def drake_ci_job = job("drake-ci-default-${distro}-${arch}")
+    OSRFLinuxCompilation.create(drake_ci_job, false, false)
+
+    drake_ci_job.with
+    {
+      scm {
+        git {
+          remote {
+            github('osrf/drake-release', 'https')
+
+            extensions {
+              relativeTargetDirectory('repo')
+            }
+          }
+        }
+      }
+
+      triggers {
+        scm('*/5 * * * *')
+      }
+
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export DISTRO=${distro}
+              export ARCH=${arch}
+
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/drake-compilation.bash
+              """.stripIndent())
+      }
+    }
   }
 }
