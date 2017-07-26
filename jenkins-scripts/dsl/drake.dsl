@@ -54,6 +54,7 @@ supported_distros.each { distro ->
               export ARCH=${arch}
               export DISTRO=${distro}
               export USE_ROS_REPO=true
+              export ENABLE_CCACHE=false
 
               /bin/bash -xe ./scripts/jenkins-scripts/docker/debian-git-debbuild.bash
               """.stripIndent())
