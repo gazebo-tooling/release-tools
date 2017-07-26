@@ -532,6 +532,7 @@ DRAKE_DEPENDENCIES="alien               \\
                     bash-completion     \\
                     bison               \\
                     clang-format        \\
+                    clang-3.9           \\
                     doxygen             \\
                     fakeroot            \\
                     flex                \\
