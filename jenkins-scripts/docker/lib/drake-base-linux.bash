@@ -19,7 +19,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: compilation'
 cd ${WORKSPACE}/repo
-bazel build
+bazel run :install -- ${WORKSPACE}/install
 echo '# END SECTION'
 DELIM
 
