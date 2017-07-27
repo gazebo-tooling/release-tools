@@ -522,3 +522,64 @@ MENTOR2_DEPENDENCIES="libgazebo6-dev    \\
                       libprotobuf-dev   \\
                       libboost1.54-dev  \\
                       libqt4-dev"
+
+#
+# DRAKE
+#
+DRAKE_DEPENDENCIES="alien               \\
+                    autoconf            \\
+                    automake            \\
+                    bash-completion     \\
+                    bison               \\
+                    clang-format        \\
+                    clang-3.9           \\
+                    doxygen             \\
+                    fakeroot            \\
+                    flex                \\
+                    freeglut3-dev       \\
+                    g++                 \\
+                    g++-5               \\
+                    g++-5-multilib      \\
+                    gdb                 \\
+                    gfortran            \\
+                    gfortran-5          \\
+                    gfortran-5-multilib \\
+                    git                 \\
+                    graphviz            \\
+                    libboost-dev        \\
+                    libgtk2.0-dev       \\
+                    libmpfr-dev         \\
+                    libpng12-dev        \\
+                    libqt4-dev          \\
+                    libqt4-opengl-dev   \\
+                    libqt5multimedia5   \\
+                    libqt5opengl5-dev   \\
+                    libqt5x11extras5    \\
+                    libqwt-dev          \\
+                    libtinyxml-dev      \\
+                    libtool             \\
+                    libvtk-java         \\
+                    libvtk5-dev         \\
+                    libvtk5-qt4-dev     \\
+                    libxmu-dev          \\
+                    make                \\
+                    ninja-build         \\
+                    openjdk-8-jdk       \\
+                    patchutils          \\
+                    perl                \\
+                    pkg-config          \\
+                    python-bs4          \\
+                    python-dev          \\
+                    python-gtk2         \\
+                    python-html5lib     \\
+                    python-lxml         \\
+                    python-numpy        \\
+                    python-pygame       \\
+                    python-scipy        \\
+                    python-sphinx       \\
+                    python-vtk          \\
+                    python-yaml         \\
+                    unzip               \\
+                    valgrind            \\
+                    zip                 \\
+                    zlib1g-dev"
