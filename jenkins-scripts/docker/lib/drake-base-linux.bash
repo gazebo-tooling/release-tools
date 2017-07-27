@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-# Drake can not wokr with ccache
+# Drake can not work with ccache
 export ENABLE_CCACHE=false
 
 echo '# BEGIN SECTION: setup the testing enviroment'
