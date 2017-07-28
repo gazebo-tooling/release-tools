@@ -36,11 +36,11 @@ echo '# BEGIN SECTION: clone the git repo'
 rm -fr ${REPO_PATH}
 git clone $GIT_REPOSITORY ${REPO_PATH}
 cd ${REPO_PATH}
-git checkout ${BRANCH}
 echo '# END SECTION'
 fi
 
 cd ${REPO_PATH}
+git checkout ${BRANCH}
 
 echo '# BEGIN SECTION: install build dependencies'
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'

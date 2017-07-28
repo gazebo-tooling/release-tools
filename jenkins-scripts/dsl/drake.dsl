@@ -16,7 +16,7 @@ supported_distros.each { distro ->
     {
       parameters
       {
-         stringParam('REPO_BRANCH','master',
+         stringParam('BRANCH','master',
                      'Drake-release branch to test')
       }
 
@@ -54,10 +54,6 @@ supported_distros.each { distro ->
       steps {
         shell("""\
               #!/bin/bash -xe
-
-              cd \${WORKSPACE}/repo
-              git checkout \${REPO_BRANCH}
-              cd \${WORKSPACE}
 
               export LINUX_DISTRO=ubuntu
               export ARCH=${arch}
