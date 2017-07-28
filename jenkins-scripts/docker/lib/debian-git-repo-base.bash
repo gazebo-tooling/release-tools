@@ -56,8 +56,6 @@ if [[ -z \$(git tag | grep upstream/\${VERSION_NO_REVISION}) ]]; then
    echo "W: \${VERSION_NO_REVISION} commit was not found in pristine-tar"
    exit 1
 fi
-git checkout master
-git pull
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: build version and distribution'
