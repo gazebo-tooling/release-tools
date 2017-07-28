@@ -5,7 +5,7 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 # Needs it own script to be able to install basel as prehook
-DOCKER_PREINSTALL_HOOK="""
+DOCKER_PREINSTALL_HOOK="""\
 echo '# BEGIN SECTION: install bazel'
 echo \"deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8\" | tee /etc/apt/sources.list.d/bazel.list
 curl https://bazel.build/bazel-release.pub.gpg | apt-key add -
