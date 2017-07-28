@@ -65,7 +65,7 @@ supported_distros.each { distro ->
               export USE_ROS_REPO=true
               export ENABLE_CCACHE=false
 
-              /bin/bash -xe ./scripts/jenkins-scripts/drake-debbuild.bash
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/drake-debbuild.bash
               """.stripIndent())
       }
 
