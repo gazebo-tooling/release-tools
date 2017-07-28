@@ -8,7 +8,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 DOCKER_POSTINSTALL_HOOK="""\
 echo '# BEGIN SECTION: install bazel' && \\
 echo \"deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8\" | tee /etc/apt/sources.list.d/bazel.list && \\
-wget -q0 - https://bazel.build/bazel-release.pub.gpg | apt-key add - && \\
+wget -qO - https://bazel.build/bazel-release.pub.gpg | apt-key add - && \\
 apt-get update && \\
 apt-get install -y bazel && \\
 echo '# END SECTION'
