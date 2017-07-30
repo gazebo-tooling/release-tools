@@ -39,7 +39,10 @@ echo '# END SECTION'
 fi
 
 cd ${REPO_PATH}
+git checkout upstream
+ls
 git checkout ${BRANCH}
+git pull
 
 echo '# BEGIN SECTION: install build dependencies'
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
