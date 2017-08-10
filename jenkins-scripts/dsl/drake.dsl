@@ -4,6 +4,10 @@ import javaposse.jobdsl.dsl.Job
 def supported_distros = [ 'xenial' ]
 def supported_arches = [ 'amd64' ]
 
+
+Globals.default_emails = "jrivero@osrfoundation.org, steven@osrfoundation.org"
+
+
 // LINUX
 supported_distros.each { distro ->
   supported_arches.each { arch ->
@@ -91,6 +95,7 @@ supported_distros.each { distro ->
             github('osrf/drake-release', 'https')
             branch('refs/heads/master')
 
+Globals.default_emails = "jrivero@osrfoundation.org"
             extensions {
               relativeTargetDirectory('repo')
             }

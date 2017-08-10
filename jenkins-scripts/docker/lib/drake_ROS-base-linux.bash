@@ -8,17 +8,15 @@ DOCKER_JOB_NAME="drake_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 echo '# END SECTION'
 
+# Import drake lib
+. ${SCRIPT_DIR}/lib/_drake_lib.bash
+
 cat > build.sh << DELIM
 ###################################################
 #
 set -ex
 
-echo '# BEGIN SECTION: install bazel'
-echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | tee /etc/apt/sources.list.d/bazel.list
-curl https://bazel.build/bazel-release.pub.gpg | apt-key add -
-apt-get update
-apt-get install -y bazel
-echo '# END SECTION'
+${DRAKE_BAZEL_INSTALL}
 
 echo '# BEGIN SECTION: install Drake dependencies'
 export INSTALL_PREREQS_FILE=${WORKSPACE}/repo/setup/ubuntu/16.04/install_prereqs.sh
