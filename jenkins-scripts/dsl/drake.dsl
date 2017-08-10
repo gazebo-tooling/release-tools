@@ -95,7 +95,6 @@ supported_distros.each { distro ->
             github('osrf/drake-release', 'https')
             branch('refs/heads/master')
 
-Globals.default_emails = "jrivero@osrfoundation.org"
             extensions {
               relativeTargetDirectory('repo')
             }
