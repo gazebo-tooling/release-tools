@@ -113,5 +113,42 @@ supported_distros.each { distro ->
               """.stripIndent())
       }
     }
+    // --------------------------------------------------------------
+    // 3. Create the testing job of drake + ROS
+    def drake_ci_job = job("drake-ci-default_ROS+MoveIt+Navstak-kinetic-${distro}-${arch}")
+    OSRFLinuxCompilation.create(drake_ci_job, false, false)
+
+    drake_ci_job.with
+    {
+      scm {
+        git {
+          remote {
+            github('osrf/drake-release', 'https')
+            branch('refs/heads/master')
+
+            extensions {
+              relativeTargetDirectory('repo')
+            }
+          }
+        }
+      }
+
+      triggers {
+        scm('*/5 * * * *')
+      }
+
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export DISTRO=${distro}
+              export ARCH=${arch}
+              export ROS_DISTRO=kinetic
+
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/drake-ROS-install.bash
+              """.stripIndent())
+      }
+    }
+
   }
 }
