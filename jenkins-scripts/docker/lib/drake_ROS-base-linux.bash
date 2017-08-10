@@ -16,7 +16,7 @@ cat > build.sh << DELIM
 #
 set -ex
 
-# TODO: Enable Drake install
+${DRAKE_BAZEL_INSTALL}
 
 echo '# BEGIN SECTION: install Drake dependencies'
 export INSTALL_PREREQS_FILE="${WORKSPACE}/repo/setup/ubuntu/16.04/install_prereqs.sh"
