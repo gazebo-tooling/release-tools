@@ -153,5 +153,27 @@ supported_distros.each { distro ->
               """.stripIndent())
       }
     }
+    // --------------------------------------------------------------
+    // 4. Install ROS Kinetic + MoveIt + NavStack
+    def drake_ros_install_job = job("drake-install-ROS+MoveIt+Navstak-kinetic-${distro}-${arch}")
+    OSRFLinuxCompilation.create(drake_ros_install_job, false, false)
+
+    drake_ros_install_job.with
+    {
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export DISTRO=${distro}
+              export ARCH=${arch}
+              export ROS_DISTRO=kinetic
+              export INSTALL_JOB_PKG="ros-kinetic-moveit ros-kinetic-navigation ros-kinetic-desktop"
+              export INSTALL_JOB_REPOS=stable
+              export USE_ROS=true
+ 
+              /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+              """.stripIndent())
+      }
+    }
   }
 }
