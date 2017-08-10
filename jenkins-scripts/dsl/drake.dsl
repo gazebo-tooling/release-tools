@@ -115,10 +115,10 @@ supported_distros.each { distro ->
     }
     // --------------------------------------------------------------
     // 3. Create the testing job of drake + ROS
-    def drake_ci_job = job("drake-ci-default_ROS+MoveIt+Navstak-kinetic-${distro}-${arch}")
-    OSRFLinuxCompilation.create(drake_ci_job, false, false)
+    def drake_ros_ci_job = job("drake-ci-default_ROS+MoveIt+Navstak-kinetic-${distro}-${arch}")
+    OSRFLinuxCompilation.create(drake_ros_ci_job, false, false)
 
-    drake_ci_job.with
+    drake_ros_ci_job.with
     {
       scm {
         git {
@@ -149,6 +149,5 @@ supported_distros.each { distro ->
               """.stripIndent())
       }
     }
-
   }
 }
