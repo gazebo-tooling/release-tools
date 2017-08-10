@@ -25,7 +25,7 @@ sed -i -e '/# TODO\(jamiesnape\).*/,\$d' \$INSTALL_PREREQS_FILE
 # Install automatically all apt commands
 sed -i -e 's:no-install-recommends:no-install-recommends -y:g' \$INSTALL_PREREQS_FILE
 # Remove question to user
-sed -i -e 's:.* read .*:yn=Y' \$INSTALL_PREREQS_FILE
+sed -i -e 's:.* read .*:yn=Y:g' \$INSTALL_PREREQS_FILE
 chmod +x \$INSTALL_PREREQS_FILE
 bash \$INSTALL_PREREQS_FILE
 echo '# END SECTION'
