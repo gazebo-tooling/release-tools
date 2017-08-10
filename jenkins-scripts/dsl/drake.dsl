@@ -169,7 +169,7 @@ supported_distros.each { distro ->
               export ROS_DISTRO=kinetic
               export INSTALL_JOB_PKG="ros-kinetic-moveit ros-kinetic-navigation ros-kinetic-desktop"
               export INSTALL_JOB_REPOS=stable
-              export USE_ROS=true
+              export USE_ROS_REPO=true
  
               /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
               """.stripIndent())
