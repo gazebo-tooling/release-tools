@@ -40,11 +40,12 @@ fi
 
 cd ${REPO_PATH}
 git checkout upstream
-ls
 git checkout ${BRANCH}
 git pull
+git branch
 
 echo '# BEGIN SECTION: install build dependencies'
+cat debian/changelog
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
 echo '# END SECTION'
 
@@ -79,7 +80,6 @@ rm -fr debian/*.symbols
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: create source package \${OSRF_VERSION}"
-cat debian/changelog
 rm -f ../*.orig.* ../*.dsc ../*.debian.* ../*.deb ../*.changes ../*.build
 # Fix the real problems with lintian and remove true
 ${GBP_COMMAND} -S || true
