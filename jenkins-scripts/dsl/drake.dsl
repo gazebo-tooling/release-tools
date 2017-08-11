@@ -67,6 +67,10 @@ supported_distros.each { distro ->
 
       publishers
       {
+        publishers {
+          archiveArtifacts('pkgs/*')
+        }
+
         postBuildScripts {
           steps {
             shell("""\
