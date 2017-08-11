@@ -32,6 +32,12 @@ sed -i -e 's:.* read .*:yn=Y:g' \$INSTALL_PREREQS_FILE
 chmod +x \$INSTALL_PREREQS_FILE
 bash \$INSTALL_PREREQS_FILE
 echo '# END SECTION'
+
+echo '# BEGIN SECTION: install ROS dependencies'
+apt-get install -y ros-kinetic-moveit ros-kinetic-navigation ros-kinetic-desktop || true
+apt-get install -y -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes ros-kinetic-moveit ros-kinetic-navigation ros-kinetic-desktop
+echo '# END SECTION'
+
 DELIM
 
 SOFTWARE_DIR="repo"
