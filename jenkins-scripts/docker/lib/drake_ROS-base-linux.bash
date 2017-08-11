@@ -19,7 +19,10 @@ set -ex
 ${DRAKE_BAZEL_INSTALL}
 
 echo '# BEGIN SECTION: install Drake dependencies'
-export INSTALL_PREREQS_FILE="${WORKSPACE}/repo/setup/ubuntu/16.04/install_prereqs.sh"
+INSTALL_PREREQS_DIR="${WORKSPACE}/repo/setup/ubuntu/16.04"
+INSTALL_PREREQS_FILE="\$INSTALL_PREREQS_DIR/install_prereqs.sh"
+# Remove sudo command from ccache
+sed -i -e 's:sudo : :g' \$INSTALL_PREREQS_DIR/ccache-bazel-wrapper-mkdeb.sh
 # Remove last cmake dependencies
 sed -i -e '/# TODO\(jamiesnape\).*/,\$d' \$INSTALL_PREREQS_FILE
 # Install automatically all apt commands
