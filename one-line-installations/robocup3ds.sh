@@ -199,7 +199,7 @@ do_install() {
 
           (
           set -x
-          $sh_c "apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys D2486D2DD83DB69272AFE98867170598AF249743"
+          $sh_c "apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D2486D2DD83DB69272AFE98867170598AF249743"
           $sh_c "mkdir -p /etc/apt/sources.list.d"
           $sh_c "echo deb http://packages.osrfoundation.org/gazebo/${lsb_dist} ${dist_version} main > /etc/apt/sources.list.d/gazebo-stable.list"
           $sh_c 'sleep 3; apt-get update; apt-get install -y -q gazebo7-robocup3ds'
