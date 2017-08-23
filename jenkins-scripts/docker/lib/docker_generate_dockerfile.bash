@@ -178,11 +178,17 @@ fi
 if ${DART_FROM_PKGS} || ${DART_COMPILE_FROM_SOURCE}; then
 cat >> Dockerfile << DELIM_DOCKER_DART_PKGS
 # Install dart from pkgs
-RUN apt-get install -y apt-utils software-properties-common
-RUN apt-add-repository -y ppa:libccd-debs
-RUN apt-add-repository -y ppa:fcl-debs
+RUN apt-get update \\
+ && apt-get install -y apt-utils software-properties-common \\
+ && rm -rf /var/lib/apt/lists/*
 RUN apt-add-repository -y ppa:dartsim
 DELIM_DOCKER_DART_PKGS
+  if [[ "${DISTRO}" == "trusty" ]]; then
+cat >> Dockerfile << DELIM_DOCKER_DART_PKGS
+RUN apt-add-repository -y ppa:libccd-debs
+RUN apt-add-repository -y ppa:fcl-debs
+DELIM_DOCKER_DART_PKGS
+  fi
 fi
 
 # Packages that will be installed and cached by docker. In a non-cache
