@@ -126,7 +126,8 @@ if $DART_FROM_PKGS; then
        dart_pkg="libdart6-utils-urdf-dev"
     elif [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
        dart_pkg="libdart-core5-dev"
-    elif [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
+    elif [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]] && \
+         [[ ${DISTRO} == 'trusty' ]]; then
        dart_pkg="libdart-core4-dev"
     fi
 fi
