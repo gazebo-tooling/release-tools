@@ -6,7 +6,7 @@
 #                           piece of code to run in the testing section
 #  - GAZEBO_BUILD_$DEP      (optional) [default false]
 #                           build dependencies from source.
-#                           DEP = SDFORMAT | IGN_MATH | IGN_TRANSPORT
+#                           DEP = SDFORMAT | IGN_MATH | IGN_TRANSPORT | IGN_GUI | IGN_COMMON
 #                           branch parameter = $DEP_BRANCH
 
 #stop on error

@@ -18,9 +18,9 @@ export BUILDING_SOFTWARE_DIRECTORY="ign-gui"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_GUI_DEPENDENCIES"
 export BUILDING_JOB_REPOSITORIES="stable"
 
-export GAZEBO_BUILD_IGN_MATH=true
-export GAZEBO_BUILD_IGN_COMMON=true
-export GAZEBO_BUILD_IGN_MSGS=true
-export GAZEBO_BUILD_IGN_TRANSPORT=true
+export BUILD_IGN_MATH=true
+export BUILD_IGN_COMMON=true
+export BUILD_IGN_MSGS=true
+export BUILD_IGN_TRANSPORT=true
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
