@@ -18,6 +18,11 @@ fi
 
 echo "YOU'RE HERE!"
 
+cat > build.sh << DELIM_HEADER
+#!/bin/bash
+set -ex
+DELIM_HEADER
+
 # Process the source build of dependencies if needed
 OSRF_DEPS="SDFORMAT IGN_MATH IGN_TRANSPORT IGN_GUI IGN_COMMON"
 for dep_uppercase in $OSRF_DEPS; do
@@ -59,9 +64,7 @@ DELIM_BUILD_DEPS
   fi
 done
 
-cat > build.sh << DELIM
-#!/bin/bash
-set -ex
+cat >> build.sh << DELIM
 if $GENERIC_ENABLE_TIMING; then
   source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
 fi
