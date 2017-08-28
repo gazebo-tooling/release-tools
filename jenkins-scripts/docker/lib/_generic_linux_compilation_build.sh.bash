@@ -16,12 +16,18 @@ fi
 [[ -z $GENERIC_ENABLE_CPPCHECK ]] && GENERIC_ENABLE_CPPCHECK=true
 [[ -z $GENERIC_ENABLE_TESTS ]] && GENERIC_ENABLE_TESTS=true
 
+echo "YOU'RE HERE!"
+
 # Process the source build of dependencies if needed
 OSRF_DEPS="SDFORMAT IGN_MATH IGN_TRANSPORT IGN_GUI IGN_COMMON"
 for dep_uppercase in $OSRF_DEPS; do
+echo "NOW HERE!"
+echo "MATH? $BUILD_IGN_MATH"
+echo "COMMON? $BUILD_IGN_COMMON"
+echo "MSGS? $BUILD_IGN_MSGS"
   dep=`echo $dep_uppercase | tr '[:upper:]' '[:lower:]'`
   EXTRA_PACKAGES="${EXTRA_PACKAGES} mercurial"
-  eval dependecy_installation=true #"\$BUILD_$dep_uppercase"
+  dependecy_installation=true #"\$BUILD_$dep_uppercase"
 
   if [[ -n ${dependecy_installation} ]] && ${dependecy_installation}; then
       # Handle the depedency BRANCH
