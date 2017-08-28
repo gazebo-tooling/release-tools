@@ -21,7 +21,7 @@ OSRF_DEPS="SDFORMAT IGN_MATH IGN_TRANSPORT IGN_GUI IGN_COMMON"
 for dep_uppercase in $OSRF_DEPS; do
   dep=`echo $dep_uppercase | tr '[:upper:]' '[:lower:]'`
   EXTRA_PACKAGES="${EXTRA_PACKAGES} mercurial"
-  eval dependecy_installation="\$BUILD_$dep_uppercase"
+  eval dependecy_installation=true #"\$BUILD_$dep_uppercase"
 
   if [[ -n ${dependecy_installation} ]] && ${dependecy_installation}; then
       # Handle the depedency BRANCH
