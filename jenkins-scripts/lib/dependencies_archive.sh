@@ -16,14 +16,6 @@ if ${DART_COMPILE_FROM_SOURCE}; then
     DART_FROM_PKGS=false
 fi
 
-if $DART_FROM_PKGS; then
-    if $DART_USE_4_VERSION; then
-       dart_pkg="libdart-core4-dev"
-    else
-       dart_pkg="libdart-core3-dev"
-    fi
-fi
-
 # mesa-utils for dri checks, xsltproc for qtest->junit conversion and
 # python-psutil for memory testing
 # netcat-openbsd (nc command) for squid-deb-proxy checking
@@ -126,6 +118,18 @@ bullet_pkg="libbullet-dev"
 if [[ ${DISTRO} == 'precise' ]] || \
    [[ ${DISTRO} == 'trusty' ]]; then
     bullet_pkg="libbullet2.82-dev"
+fi
+
+# choose dart version
+if $DART_FROM_PKGS; then
+    if [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
+       dart_pkg="libdart6-utils-urdf-dev"
+    elif [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
+       dart_pkg="libdart-core5-dev"
+    elif [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]] && \
+         [[ ${DISTRO} == 'trusty' ]]; then
+       dart_pkg="libdart-core4-dev"
+    fi
 fi
 
 # gazebo8 and above use qt5
