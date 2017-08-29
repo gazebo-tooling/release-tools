@@ -43,6 +43,15 @@ ArrayList supported_branches(String ign_software)
    return major_versions_registered
 }
 
+void include_gpu_label_if_needed(Job job, String ign_software_name, String distro)
+{
+  job.with
+  {
+    if (ign_software_name == 'gui')
+      label "gpu-reliable-${distro}"
+  }
+}
+
 // ABI Checker job
 // Need to be the before ci-pr_any so the abi job name is defined
 ignition_software.each { ign_sw ->
@@ -83,6 +92,7 @@ ignition_software.each { ign_sw ->
       def ignition_ci_any_job = job(ignition_ci_job_name)
       OSRFLinuxCompilationAny.create(ignition_ci_any_job,
                                     "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}")
+      include_gpu_label_if_needed(ignition_ci_any_job, ign_sw, distro)
       ignition_ci_any_job.with
       {
         steps
@@ -132,6 +142,8 @@ ignition_software.each { ign_sw ->
         // --------------------------------------------------------------
         def install_default_job = job("ignition_${ign_sw}${major_version}-install-pkg-${distro}-${arch}")
         OSRFLinuxInstall.create(install_default_job)
+        include_gpu_label_if_needed(install_default_job, ign_sw, distro)
+
         install_default_job.with
         {
            triggers {
@@ -168,6 +180,7 @@ ignition_software.each { ign_sw ->
       OSRFBitbucketHg.create(ignition_ci_job,
                             "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
                             "default", "ign-${ign_sw}")
+      include_gpu_label_if_needed(ignition_ci_job, ign_sw, distro)
 
       ignition_ci_job.with
       {
