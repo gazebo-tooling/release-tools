@@ -2,7 +2,7 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
-ignition_software           = [ 'transport', 'math', 'msgs', 'common' ]
+ignition_software           = [ 'transport', 'math', 'msgs', 'common', 'rndf' ]
 ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3' ]
 // no registered branches in ignition_branches means only series 0 or 1
 ignition_branches           = [ transport : [ '2', '3' ],
@@ -139,11 +139,7 @@ ignition_software.each { ign_sw ->
            }
 
            def dev_package = "libignition-${ign_sw}${major_version}-dev"
-
-           // common and msgs don't have packages yet
-           if (("${ign_sw}" == "common") || ("${ign_sw}" == "msgs"))
-            disabled()
-
+           
            steps {
             shell("""\
                   #!/bin/bash -xe
@@ -178,6 +174,13 @@ ignition_software.each { ign_sw ->
           triggers {
             scm('@daily')
           }
+
+          // msgs amd common does not work on trusty
+          // https://bitbucket.org/ignitionrobotics/ign-msgs/issues/8
+          if (("${ign_sw}" == "msgs") && ("${distro}" == "trusty"))
+            disabled()
+          if (("${ign_sw}" == "common") && ("${distro}" == "trusty"))
+            disabled()
 
           steps {
             shell("""\
@@ -314,6 +317,7 @@ ignition_software.each { ign_sw ->
 
 // Main CI workflow
 ignition_software.each { ign_sw ->
-  def ign_ci_main = workflowJob("ignition_${ign_sw}-ci-pr_any")
+  def String ci_main_name = "ignition_${ign_sw}-ci-pr_any"
+  def ign_ci_main = pipelineJob(ci_main_name)
   OSRFCIWorkFlowMultiAny.create(ign_ci_main, ci_pr_any_list[ign_sw])
 }

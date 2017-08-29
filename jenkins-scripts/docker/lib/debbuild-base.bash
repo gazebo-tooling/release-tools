@@ -75,6 +75,13 @@ fi
 
 hg up $RELEASE_REPO_BRANCH
 
+# Should the case of new distros supported like debian
+PACKAGE_RELEASE_DIR="/tmp/${PACKAGE}-release/${LINUX_DISTRO}/${DISTRO}/"
+# Ubuntu special case from legacy reasons
+if [[ ! -d \${PACKAGE_RELEASE_DIR} ]]; then
+  PACKAGE_RELEASE_DIR="/tmp/${PACKAGE}-release/${DISTRO}"
+fi
+
 # Handle build metadata
 if [ ! -f build.metadata.bash ]; then
     BUILD_METHOD="LEGACY"
@@ -107,13 +114,14 @@ case \${BUILD_METHOD} in
 	cd /tmp
 	rm -fr /tmp/$PACKAGE-release
         mv /tmp/base_$PACKAGE-release /tmp/$PACKAGE-release
+	PACKAGE_RELEASE_DIR="/tmp/$PACKAGE-release/${DISTRO}"
 	;;
     "LEGACY")
 	echo "Legacy in place. Nothing needs to be done"
 	;;
 esac
 
-cd /tmp/$PACKAGE-release/${DISTRO}
+cd \${PACKAGE_RELEASE_DIR}
 
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
@@ -137,7 +145,7 @@ fi
 # Adding extra directories to code. debian has no problem but some extra directories
 # handled by symlinks (like cmake) in the repository can not be copied directly.
 # Need special care to copy, using first a --dereference
-cp -a --dereference /tmp/$PACKAGE-release/${DISTRO}/* .
+cp -a --dereference \${PACKAGE_RELEASE_DIR}/* .
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install build dependencies'

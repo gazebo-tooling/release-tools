@@ -14,4 +14,4 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-. ${SCRIPT_DIR}/lib/srcsim-compilation-base.bash
+. ${SCRIPT_DIR}/lib/drake-base-linux.bash

@@ -14,4 +14,9 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-. ${SCRIPT_DIR}/lib/srcsim-compilation-base.bash
+if [[ -z ${ROS_DISTRO} ]]; then
+  echo "ROS_DISTRO variable not set!"
+  exit 1
+fi
+
+. ${SCRIPT_DIR}/lib/debbuild-bloom-base.bash

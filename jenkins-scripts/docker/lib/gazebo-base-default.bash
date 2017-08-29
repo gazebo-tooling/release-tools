@@ -12,7 +12,7 @@
 #stop on error
 set -e
 
-GAZEBO_OSRF_DEPS="SDFORMAT IGN_MATH IGN_TRANSPORT"
+GAZEBO_OSRF_DEPS="SDFORMAT IGN_MATH IGN_TRANSPORT IGN_GUI IGN_COMMON"
 
 . ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
 
@@ -29,6 +29,11 @@ fi
 
 if [[ $GAZEBO_MAJOR_VERSION -lt 8 ]]; then
   GAZEBO_BASE_CMAKE_ARGS="${GAZEBO_BASE_CMAKE_ARGS} -DENABLE_TESTS_COMPILATION=True"
+fi
+
+SOFTWARE_DIR="gazebo"
+if [ "${GAZEBO_EXPERIMENTAL_BUILD}" = true ]; then
+  SOFTWARE_DIR="${SOFTWARE_DIR}_experimental"
 fi
 
 cat > build.sh << DELIM_DART
@@ -85,11 +90,12 @@ cat >> build.sh << DELIM_BUILD_DEPS
     hg clone http://bitbucket.org/\$bitbucket_repo -b ${dep_branch} \
 	$WORKSPACE/$dep 
 
+    GENERIC_ENABLE_TIMING=false
     GENERIC_ENABLE_CPPCHECK=false
     GENERIC_ENABLE_TESTS=false 
     SOFTWARE_DIR=$dep
     cd $WORKSPACE
-    . ${SCRIPT_DIR}/lib/_generic_linux_compilation.bash
+    . ${SCRIPT_DIR}/lib/_generic_linux_compilation.bash ${SCRIPT_DIR}
     cd $WORKSPACE &&  rm -fr $WORKSPACE/build
 DELIM_BUILD_DEPS
   fi
@@ -104,7 +110,7 @@ cd $WORKSPACE/build
 cmake ${GAZEBO_BASE_CMAKE_ARGS}      \\
     -DCMAKE_INSTALL_PREFIX=/usr      \\
     -DENABLE_SCREEN_TESTS:BOOL=False \\
-  $WORKSPACE/gazebo
+  $WORKSPACE/${SOFTWARE_DIR}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: Gazebo compilation'
@@ -123,7 +129,6 @@ fi
 
 echo '# BEGIN SECTION: Gazebo installation'
 make install
-. /usr/share/gazebo/setup.sh
 echo '# END SECTION'
 
 # Need to clean up from previous built
@@ -155,18 +160,32 @@ fi
 echo '# BEGIN SECTION: running cppcheck'
 init_stopwatch CPPCHECK
 # Step 3: code check
-cd $WORKSPACE/gazebo
+cd $WORKSPACE/${SOFTWARE_DIR}
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
 stop_stopwatch CPPCHECK
 echo '# END SECTION'
 DELIM
 
 USE_OSRF_REPO=true
-SOFTWARE_DIR="gazebo"
 DEPENDENCY_PKGS="${BASE_DEPENDENCIES} \
                  ${GAZEBO_BASE_DEPENDENCIES} \
 		 ${GAZEBO_EXTRA_DEPENDENCIES} \
 		 ${EXTRA_PACKAGES}"
+
+[[ -z ${GAZEBO_BUILD_IGN_GUI} ]] && GAZEBO_BUILD_IGN_GUI=false
+if $GAZEBO_BUILD_IGN_GUI; then
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${IGN_GUI_DEPENDENCIES}"
+fi
+
+[[ -z ${GAZEBO_BUILD_IGN_COMMON} ]] && GAZEBO_BUILD_IGN_COMMON=false
+if $GAZEBO_BUILD_IGN_COMMON; then
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${IGN_COMMON_DEPENDENCIES}"
+fi
+
+[[ -z ${GAZEBO_BUILD_SDFORMAT} ]] && GAZEBO_BUILD_SDFORMAT=false
+if $GAZEBO_BUILD_SDFORMAT; then
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${SDFORMAT_BASE_DEPENDENCIES}"
+fi
 
 # Need for cmake DISPLAY check (it uses xwininfo command)
 if [[ $USE_GPU_DOCKER ]]; then

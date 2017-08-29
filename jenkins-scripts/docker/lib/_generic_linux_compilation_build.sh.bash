@@ -2,33 +2,33 @@
 #  - WORKSPACE
 #  - TIMING_DIR
 #  - SOFTWARE_DIR: directory relative path to find sources
+#  - GENERIC_ENABLE_TIMING (optional) [default true]
 #  - GENERIC_ENABLE_CPPCHECK (optional) [default true] run cppcheck
 #  - GENERIC_ENABLE_TESTS (optional) [default true] run tests
+#  - BUILDING_EXTRA_CMAKE_PARAMS (optional) extra cmake params
 
 if [[ -z ${SOFTWARE_DIR} ]]; then
     echo "SOFTWARE_DIR variable is unset. Please fix the code"
     exit 1
 fi
 
-if [[ -z $GENERIC_ENABLE_CPPCHECK ]]; then
-  GENERIC_ENABLE_CPPCHECK=true
-fi
-
-if [[ -z $GENERIC_ENABLE_TESTS ]]; then
-  GENERIC_ENABLE_TESTS=true
-fi
+[[ -z $GENERIC_ENABLE_TIMING ]] && GENERIC_ENABLE_TIMING=true
+[[ -z $GENERIC_ENABLE_CPPCHECK ]] && GENERIC_ENABLE_CPPCHECK=true
+[[ -z $GENERIC_ENABLE_TESTS ]] && GENERIC_ENABLE_TESTS=true
 
 cat > build.sh << DELIM
 #!/bin/bash
 set -ex
-source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
+if $GENERIC_ENABLE_TIMING; then
+  source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
+fi
 
 echo '# BEGIN SECTION: configure'
 # Step 2: configure and build
 cd $WORKSPACE
 [[ ! -d $WORKSPACE/build ]] && mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-cmake $WORKSPACE/${SOFTWARE_DIR} \
+cmake $WORKSPACE/${SOFTWARE_DIR} ${BUILDING_EXTRA_CMAKE_PARAMS} \
     -DCMAKE_INSTALL_PREFIX=/usr
 echo '# END SECTION'
 

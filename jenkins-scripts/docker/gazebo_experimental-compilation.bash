@@ -2,7 +2,7 @@
 
 # Knowing Script dir beware of symlink
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
-SCRIPT_DIR="${SCRIPT_DIR%/*}"
+export SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 if [[ -z ${ARCH} ]]; then
   echo "ARCH variable not set!"
@@ -14,4 +14,9 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-. ${SCRIPT_DIR}/lib/srcsim-compilation-base.bash
+export GAZEBO_EXPERIMENTAL_BUILD=true
+export GAZEBO_BUILD_IGN_GUI=true
+export GAZEBO_BUILD_IGN_COMMON=true
+export GAZEBO_BUILD_SDFORMAT=true
+
+. ${SCRIPT_DIR}/lib/gazebo-base-default.bash
