@@ -23,10 +23,17 @@ DELIM_HEADER
 
 # Process the source build of dependencies if needed
 OSRF_DEPS="SDFORMAT IGN_MATH IGN_TRANSPORT IGN_GUI IGN_COMMON"
+OSRF_DEPS_DONE=""
 for dep_uppercase in $OSRF_DEPS; do
   dep=`echo $dep_uppercase | tr '[:upper:]' '[:lower:]'`
   DEPENDENCY_PKGS="${DEPENDENCY_PKGS} mercurial"
-  dependecy_installation=true #"\$BUILD_$dep_uppercase"
+  eval dependecy_installation="\$BUILD_$dep_uppercase"
+
+  # Prevent multiple builds of same dep
+  if grep -q "$dep_uppercase" <<< "$OSRF_DEPS_DONE"; then
+    continue
+  fi
+  OSRF_DEPS_DONE="${OSRF_DEPS_DONE} $dep_uppercase"
 
   if [[ -n ${dependecy_installation} ]] && ${dependecy_installation}; then
       # Handle the depedency BRANCH
