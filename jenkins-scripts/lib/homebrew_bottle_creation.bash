@@ -25,12 +25,8 @@ echo '# BEGIN SECTION: run test-bot'
 # mercurial to keep the slave working
 export HOMEBREW_DEVELOPER=1
 brew tap homebrew/test-bot
-if [ -n "${TEST_BOT_REPO}" ] && \
-   [ -n "${TEST_BOT_BRANCH}" ]; then
-    brew tap homebrew/test-bot
-    git -C $(brew --repo)/Library/Taps/homebrew/homebrew-test-bot \
-      pull ${TEST_BOT_REPO} ${TEST_BOT_BRANCH}
-fi
+git -C $(brew --repo)/Library/Taps/homebrew/homebrew-test-bot \
+    pull ${TEST_BOT_REPO} ${TEST_BOT_BRANCH}
 brew test-bot --tap=osrf/simulation \
               --ci-pr ${PULL_REQUEST_URL} \
             || { brew install hg; exit -1; }

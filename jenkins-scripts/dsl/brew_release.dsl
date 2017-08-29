@@ -163,9 +163,9 @@ brew_supported_distros.each { distro ->
      {
        stringParam("PULL_REQUEST_URL", '',
                    'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
-       stringParam("TEST_BOT_REPO", '',
+       stringParam("TEST_BOT_REPO", 'https://github.com/homebrew/homebrew-test-bot.git',
                    'Repository for fork of homebrew/homebrew-test-bot.')
-       stringParam("TEST_BOT_BRANCH", '',
+       stringParam("TEST_BOT_BRANCH", 'master',
                    'Branch of homebrew-test-bot repository to use.')
      }
 
