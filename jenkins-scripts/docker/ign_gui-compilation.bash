@@ -23,4 +23,6 @@ export BUILD_IGN_COMMON=true
 export BUILD_IGN_MSGS=true
 export BUILD_IGN_TRANSPORT=true
 
+export GPU_SUPPORT_NEEDED=true
+
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
