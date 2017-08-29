@@ -19,6 +19,10 @@ fi
 cat > build.sh << DELIM_HEADER
 #!/bin/bash
 set -ex
+
+if $GENERIC_ENABLE_TIMING; then
+  source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
+fi
 DELIM_HEADER
 
 # Process the source build of dependencies if needed
@@ -66,10 +70,6 @@ DELIM_BUILD_DEPS
 done
 
 cat >> build.sh << DELIM
-if $GENERIC_ENABLE_TIMING; then
-  source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
-fi
-
 echo '# BEGIN SECTION: configure'
 # Step 2: configure and build
 cd $WORKSPACE
