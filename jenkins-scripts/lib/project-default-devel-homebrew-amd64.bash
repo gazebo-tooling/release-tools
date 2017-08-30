@@ -132,7 +132,7 @@ rm -fr \$HOME/.gazebo/models test_results*
 # Run `make test`
 # If it has any failures, then rerun the failed tests one time
 # and merge the junit results
-. ${SCRIPT_DIR}/lib/make_test_rerun_failed.bash
+. ${WORKSPACE}/scripts/jenkins-scripts/lib/make_test_rerun_failed.bash
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: re-add group write permissions"
