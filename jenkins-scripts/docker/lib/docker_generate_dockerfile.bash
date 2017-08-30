@@ -155,7 +155,7 @@ for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
 RUN echo "deb http://packages.osrfoundation.org/gazebo/${LINUX_DISTRO}-${repo} ${DISTRO} main" >\\
                                                 /etc/apt/sources.list.d/osrf.${repo}.list
-RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
 DELIM_OSRF_REPO
 done
 
@@ -164,7 +164,7 @@ cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
 RUN echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
-RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
 DELIM_ROS_REPO
 fi
 
@@ -178,11 +178,17 @@ fi
 if ${DART_FROM_PKGS} || ${DART_COMPILE_FROM_SOURCE}; then
 cat >> Dockerfile << DELIM_DOCKER_DART_PKGS
 # Install dart from pkgs
-RUN apt-get install -y apt-utils software-properties-common
-RUN apt-add-repository -y ppa:libccd-debs
-RUN apt-add-repository -y ppa:fcl-debs
+RUN apt-get update \\
+ && apt-get install -y apt-utils software-properties-common \\
+ && rm -rf /var/lib/apt/lists/*
 RUN apt-add-repository -y ppa:dartsim
 DELIM_DOCKER_DART_PKGS
+  if [[ "${DISTRO}" == "trusty" ]]; then
+cat >> Dockerfile << DELIM_DOCKER_DART_PKGS
+RUN apt-add-repository -y ppa:libccd-debs
+RUN apt-add-repository -y ppa:fcl-debs
+DELIM_DOCKER_DART_PKGS
+  fi
 fi
 
 # Packages that will be installed and cached by docker. In a non-cache
