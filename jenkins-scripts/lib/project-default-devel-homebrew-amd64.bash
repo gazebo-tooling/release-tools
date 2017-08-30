@@ -100,7 +100,7 @@ export DISPLAY=$(ps ax \
 
 # set CMAKE_PREFIX_PATH if we are using qt5 (aka qt)
 brew tap homebrew/dev-tools
-if brew ruby -e "exit '${PROJECT}'.deps.map(&:name).keep_if { |d| d == 'qt' }"; then
+if brew ruby -e "exit '${PROJECT}'.f.deps.map(&:name).keep_if { |d| d == 'qt' }"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/qt
 fi
 
