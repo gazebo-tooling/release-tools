@@ -18,11 +18,16 @@ supported_distros.each { distro ->
 
     build_pkg_job.with
     {
+      parameters
+      {
+         stringParam('BRANCH','master',
+                     'Drake-release branch to test')
+      }
+
       scm {
         git {
           remote {
             github('osrf/drake-release', 'https')
-            branch('refs/heads/master')
           }
 
           extensions {
@@ -60,12 +65,16 @@ supported_distros.each { distro ->
               export USE_ROS_REPO=true
               export ENABLE_CCACHE=false
 
-              /bin/bash -xe ./scripts/jenkins-scripts/docker/debian-git-debbuild.bash
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/drake-debbuild.bash
               """.stripIndent())
       }
 
       publishers
       {
+        publishers {
+          archiveArtifacts('pkgs/*')
+        }
+
         postBuildScripts {
           steps {
             shell("""\
