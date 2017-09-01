@@ -101,7 +101,7 @@ supported_distros.each { distro ->
       scm {
         git {
           remote {
-            github('osrf/drake-release', 'https')
+            github('osrf/drake', 'https')
             branch('refs/heads/master')
 
             extensions {
@@ -136,7 +136,7 @@ supported_distros.each { distro ->
       scm {
         git {
           remote {
-            github('osrf/drake-release', 'https')
+            github('osrf/drake', 'https')
             branch('refs/heads/master')
 
             extensions {
