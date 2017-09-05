@@ -69,6 +69,10 @@ cat > pkg.xml << CURRENT_DELIM
  <gcc_options>
      -std=c++11
  </gcc_options>
+
+ <libs>
+   /usr/local/origin_branch/lib/
+ </libs>
 CURRENT_DELIM
 
 cat > devel.xml << DEVEL_DELIM
@@ -83,6 +87,10 @@ cat > devel.xml << DEVEL_DELIM
  <gcc_options>
      -std=c++11
  </gcc_options>
+
+ <libs>
+   /usr/local/target_branch/lib/
+ </libs>
 DEVEL_DELIM
 echo '# END SECTION'
 
