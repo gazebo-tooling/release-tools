@@ -105,7 +105,7 @@ test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 
 # Trusty has no autopkgtest command
-if $DISTRO != 'trusty'; then
+if [ "$DISTRO" != "trusty" ]; then
 echo '# BEGIN SECTION: run tests'
 cd $WORKSPACE/pkgs
 set +e
