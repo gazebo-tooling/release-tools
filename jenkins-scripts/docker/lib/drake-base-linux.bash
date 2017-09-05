@@ -8,6 +8,8 @@ DOCKER_JOB_NAME="drake_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 echo '# END SECTION'
 
+. ${SCRIPT_DIR}/lib/_drake_lib.bash
+
 cat > build.sh << DELIM
 ###################################################
 #
