@@ -69,7 +69,7 @@ cat > pkg.xml << CURRENT_DELIM
  <gcc_options>
      -std=c++11
  </gcc_options>
-CURRENT_DELIM_LIBS
+CURRENT_DELIM
 
 cat > devel.xml << DEVEL_DELIM
  <version>
@@ -83,7 +83,7 @@ cat > devel.xml << DEVEL_DELIM
  <gcc_options>
      -std=c++11
  </gcc_options>
-DEVEL_DELIM_LIBS
+DEVEL_DELIM
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: display the xml configuration'
