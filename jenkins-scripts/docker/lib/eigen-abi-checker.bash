@@ -38,6 +38,7 @@ echo '# BEGIN SECTION: download the Ubuntu Xenial sources'
 mkdir  /tmp/xenial_eigen
 cd /tmp/xenial_eigen
 apt-get source eigen3
+cd eigen3*
 mkdir build
 cd build
 cmake -DCMAKE_INSTALL_PREFIX=/usr/local/target_branch ..
