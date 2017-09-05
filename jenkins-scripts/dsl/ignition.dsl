@@ -2,7 +2,7 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
-ignition_software           = [ 'transport', 'math', 'msgs', 'common', 'rndf', 'gui' ]
+ignition_software           = [ 'transport', 'math', 'msgs', 'common', 'rndf', 'gui' , 'sensors']
 ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3' ]
 // no registered branches in ignition_branches means only series 0 or 1
 ignition_branches           = [ transport : [ '2', '3' ],
@@ -47,7 +47,7 @@ void include_gpu_label_if_needed(Job job, String ign_software_name, String distr
 {
   job.with
   {
-    if (ign_software_name == 'gui')
+    if (ign_software_name == 'gui' || ign_software_name == 'sensors')
       label "gpu-reliable-${distro}"
   }
 }
@@ -193,6 +193,9 @@ ignition_software.each { ign_sw ->
           if (("${ign_sw}" == "msgs") && ("${distro}" == "trusty"))
             disabled()
           if (("${ign_sw}" == "common") && ("${distro}" == "trusty"))
+            disabled()
+          // Sensors does not support trusty because CMake version is too old
+          if (("${ign_sw}" == "sensors") && ("${distro}" == "trusty"))
             disabled()
 
           steps {
