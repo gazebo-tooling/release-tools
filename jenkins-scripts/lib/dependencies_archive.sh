@@ -499,6 +499,8 @@ IGN_GUI_DEPENDENCIES="qtbase5-dev \\
                       libtinyxml2-dev \\
                       libqwt-qt5-dev"
 
+IGN_RENDERING_DEPENDENCIES="${ogre_pkg}"
+
 #
 # HAPTIX
 #
