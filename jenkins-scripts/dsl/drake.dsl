@@ -197,6 +197,7 @@ supported_distros.each { distro ->
               """.stripIndent())
       }
     }
+
     // --------------------------------------------------------------
     // 5. Install ROS Kinetic + MoveIt + NavStack
     def drake_ros_install_job = job("drake-install-ROS+MoveIt+Navstak-kinetic-${distro}-${arch}")
@@ -218,6 +219,25 @@ supported_distros.each { distro ->
               /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
               """.stripIndent())
       }
+    }
+
+    // --------------------------------------------------------------
+    // 5. Eigen ABI checker
+    abi_job_name = "sdformat-abichecker-any_to_any-${distro}-${arch}"
+    def abi_job = job(abi_job_name)
+    OSRFLinuxABI.create(abi_job)
+
+    abi_job.with
+    {
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export DISTRO=${distro}
+              export ARCH=${arch}
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/eigen-abichecker.bash
+	      """.stripIndent())
+      } // end of steps
     }
   }
 }
