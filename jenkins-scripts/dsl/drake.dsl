@@ -223,7 +223,7 @@ supported_distros.each { distro ->
 
     // --------------------------------------------------------------
     // 5. Eigen ABI checker
-    abi_job_name = "sdformat-abichecker-any_to_any-${distro}-${arch}"
+    abi_job_name = "eigen3-abichecker-333_to_33beta1-${distro}-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABI.create(abi_job)
 
