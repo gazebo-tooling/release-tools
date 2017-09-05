@@ -19,7 +19,7 @@ ${DRAKE_BAZEL_INSTALL}
 
 echo '# BEGIN SECTION: compilation'
 cd ${WORKSPACE}/repo
-bazel build --jobs=${MAKE_JOBS}//...
+bazel build --jobs=${MAKE_JOBS} //...
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: tests'
