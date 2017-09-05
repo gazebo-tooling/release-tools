@@ -31,6 +31,7 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr/local/origin_branch ..
 make -j${MAKE_JOBS}
 make install
 ORIGIN_DIR=\$(find /usr/local/origin_branch/include -name eigen-* -type d | sed -e 's:.*/::')
+mkdir /usr/local/origin_branch/lib/
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: download the Ubuntu Xenial sources'
@@ -45,6 +46,7 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr/local/target_branch ..
 make -j${MAKE_JOBS}
 make install
 TARGET_DIR=\$(find /usr/local/target_branch/include -name eigen-* -type d | sed -e 's:.*/::')
+mkdir /usr/local/target_branch/lib/
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install the ABI checker'
