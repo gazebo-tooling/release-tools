@@ -113,6 +113,7 @@ find  /usr/local -name *Metis*   -d -exec rm {} \;
 find  /usr/local -name *SPQR*    -d -exec rm {} \;
 find  /usr/local -name *Pardiso* -d -exec rm {} \;
 find  /usr/local -name *Adolc*   -d -exec rm {} \;
+find  /usr/local -name *MPReal*  -d -exec rm {} \;
 # clean previous reports
 REPORTS_DIR=$WORKSPACE/reports/
 rm -fr \${REPORTS_DIR} && mkdir -p \${REPORTS_DIR}
