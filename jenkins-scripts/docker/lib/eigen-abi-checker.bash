@@ -109,7 +109,7 @@ REPORTS_DIR=$WORKSPACE/reports/
 rm -fr \${REPORTS_DIR} && mkdir -p \${REPORTS_DIR}
 rm -fr compat_reports/
 # run report tool
-abi-compliance-checker -headers-only -old pkg.xml -new devel.xml || true
+abi-compliance-checker -l eigen -headers-only -old pkg.xml -new devel.xml || true
 
 # copy method version independant ( cp ... /*/ ... was not working)
 find compat_reports/ -name compat_report.html -exec cp {} \${REPORTS_DIR} \;
