@@ -4,6 +4,10 @@ import javaposse.jobdsl.dsl.Job
 def supported_distros = [ 'xenial' ]
 def supported_arches = [ 'amd64' ]
 
+
+Globals.default_emails = "jrivero@osrfoundation.org, steven@osrfoundation.org"
+
+
 // LINUX
 supported_distros.each { distro ->
   supported_arches.each { arch ->
@@ -14,11 +18,16 @@ supported_distros.each { distro ->
 
     build_pkg_job.with
     {
+      parameters
+      {
+         stringParam('BRANCH','master',
+                     'Drake-release branch to test')
+      }
+
       scm {
         git {
           remote {
             github('osrf/drake-release', 'https')
-            branch('refs/heads/master')
           }
 
           extensions {
@@ -56,12 +65,16 @@ supported_distros.each { distro ->
               export USE_ROS_REPO=true
               export ENABLE_CCACHE=false
 
-              /bin/bash -xe ./scripts/jenkins-scripts/docker/debian-git-debbuild.bash
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/drake-debbuild.bash
               """.stripIndent())
       }
 
       publishers
       {
+        publishers {
+          archiveArtifacts('pkgs/*')
+        }
+
         postBuildScripts {
           steps {
             shell("""\
@@ -110,6 +123,64 @@ supported_distros.each { distro ->
               export ARCH=${arch}
 
               /bin/bash -xe ./scripts/jenkins-scripts/docker/drake-compilation.bash
+              """.stripIndent())
+      }
+    }
+    // --------------------------------------------------------------
+    // 3. Create the testing job of drake + ROS
+    def drake_ros_ci_job = job("drake-ci-default_ROS+MoveIt+Navstak-kinetic-${distro}-${arch}")
+    OSRFLinuxCompilation.create(drake_ros_ci_job, false, false)
+
+    drake_ros_ci_job.with
+    {
+      scm {
+        git {
+          remote {
+            github('osrf/drake-release', 'https')
+            branch('refs/heads/master')
+
+            extensions {
+              relativeTargetDirectory('repo')
+            }
+          }
+        }
+      }
+
+      triggers {
+        scm('*/5 * * * *')
+      }
+
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export DISTRO=${distro}
+              export ARCH=${arch}
+              export ROS_DISTRO=kinetic
+
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/drake-ROS-install.bash
+              """.stripIndent())
+      }
+    }
+    // --------------------------------------------------------------
+    // 4. Install ROS Kinetic + MoveIt + NavStack
+    def drake_ros_install_job = job("drake-install-ROS+MoveIt+Navstak-kinetic-${distro}-${arch}")
+    OSRFLinuxCompilation.create(drake_ros_install_job, false, false)
+
+    drake_ros_install_job.with
+    {
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export DISTRO=${distro}
+              export ARCH=${arch}
+              export ROS_DISTRO=kinetic
+              export INSTALL_JOB_PKG="ros-kinetic-moveit ros-kinetic-navigation ros-kinetic-desktop"
+              export INSTALL_JOB_REPOS=stable
+              export USE_ROS_REPO=true
+ 
+              /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
               """.stripIndent())
       }
     }
