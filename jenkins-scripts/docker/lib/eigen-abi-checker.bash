@@ -130,7 +130,8 @@ OSRF_REPOS_TO_USE="stable"
 DEPENDENCY_PKGS=" git \
                   exuberant-ctags \
                   mercurial \
-                  ca-certificates"
+                  ca-certificates \
+		  mesa-common-dev"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
