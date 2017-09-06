@@ -108,7 +108,7 @@ echo '# BEGIN SECTION: run the ABI checker'
 find  /usr/local -name *Cholmod* -d -exec rm {} \;
 # find  /usr/local -name *SuperLU* -d -exec rm {} \;
 # find  /usr/local -name *UmfPack* -d -exec rm {} \;
-# find  /usr/local -name *PaStiX*  -d -exec rm {} \;
+find  /usr/local -name *PaStiX*  -d -exec rm {} \;
 find  /usr/local -name *Metis*   -d -exec rm {} \;
 find  /usr/local -name *SPQR*    -d -exec rm {} \;
 find  /usr/local -name *Pardiso* -d -exec rm {} \;
