@@ -14,7 +14,7 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-. ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
+. ${SCRIPT_DIR}/lib/_sdformat_version_hook.bash
 
 export ABI_JOB_SOFTWARE_NAME="sdformat"
 export ABI_JOB_REPOS="stable"
