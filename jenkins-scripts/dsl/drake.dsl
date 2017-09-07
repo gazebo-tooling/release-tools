@@ -239,5 +239,24 @@ supported_distros.each { distro ->
 	      """.stripIndent())
       } // end of steps
     }
+
+    // --------------------------------------------------------------
+    // 6. PCL/Eigen ABI checker
+    abi_job_pcl_name = "pcl_eigen3-abichecker-333_to_33beta1-${distro}-${arch}"
+    def abi_job_pcl = job(abi_job_pcl_name)
+    OSRFLinuxABI.create(abi_job_pcl)
+
+    abi_job_pcl.with
+    {
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export DISTRO=${distro}
+              export ARCH=${arch}
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/eigen_pcl-abichecker.bash
+	      """.stripIndent())
+      } // end of steps
+    }
   }
 }
