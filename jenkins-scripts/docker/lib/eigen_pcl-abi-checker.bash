@@ -114,6 +114,11 @@ cat pkg.xml
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run the ABI checker'
+# gcc-5.4 segfaults
+add-apt-repository -y ppa:ubuntu-toolchain-r/test
+apt-get update
+apt-get install -y gcc-6 g++-6
+g++ --version
 # cleanup
 find  /usr/local -name hv_go.* -exec rm {} \;
 # clean previous reports
