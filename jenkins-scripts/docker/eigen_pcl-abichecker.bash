@@ -14,4 +14,4 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-. ${SCRIPT_DIR}/lib/eigen-abi-checker.bash
+. ${SCRIPT_DIR}/lib/eigen_pcl-abi-checker.bash
