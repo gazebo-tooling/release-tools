@@ -114,6 +114,8 @@ cat pkg.xml
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run the ABI checker'
+# cleanup
+find  /usr/local -name hv_go.h -exec rm {} \;
 # clean previous reports
 REPORTS_DIR=$WORKSPACE/reports/
 rm -fr \${REPORTS_DIR} && mkdir -p \${REPORTS_DIR}
