@@ -23,7 +23,7 @@ apt-get remove -y .*pcl.*
 mkdir /tmp/xenial_pcl_eigen
 cd /tmp/xenial_pcl_eigen
 apt-get source pcl
-cd xenial_pcl_eigen
+cd pcl-*
 mkdir build
 cd build
 cmake -DCMAKE_INSTALL_PREFIX=/usr/local/origin_branch ..
@@ -50,7 +50,7 @@ echo '# BEGIN SECTION: compile and install pcl with eigen 3.3.3'
 mkdir /tmp/xenial_pcl_eigen33
 cd /tmp/xenial_pcl_eigen33
 apt-get source pcl
-cd xenial_pcl_eigen33
+cd pcl-*
 mkdir build
 cd build
 cmake -DCMAKE_INSTALL_PREFIX=/usr/local/target_branch ..
