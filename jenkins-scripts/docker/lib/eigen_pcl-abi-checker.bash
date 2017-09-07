@@ -18,6 +18,13 @@ cat > build.sh << DELIM
 #
 set -ex
 
+# gcc-5.4 segfaults on abi-checker
+add-apt-repository -y ppa:ubuntu-toolchain-r/test
+apt-get update
+apt-get install -y gcc-6 g++-6
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 60 --slave /usr/bin/g++ g++ /usr/bin/g++-6
+g++ --version
+
 echo '# BEGIN SECTION: compile and install pcl with eigen 3.3~beta1'
 apt-get remove -y .*pcl.*
 mkdir /tmp/xenial_pcl_eigen
@@ -114,11 +121,6 @@ cat pkg.xml
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run the ABI checker'
-# gcc-5.4 segfaults
-add-apt-repository -y ppa:ubuntu-toolchain-r/test
-apt-get update
-apt-get install -y gcc-6 g++-6
-g++ --version
 # cleanup
 find  /usr/local -name hv_go.* -exec rm {} \;
 # clean previous reports
