@@ -139,7 +139,8 @@ DEPENDENCY_PKGS=" git \
                   mercurial \
                   ca-certificates \
 		  mesa-common-dev \
-		  libpcl-dev"
+		  libpcl-dev \
+		  software-properties-common"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
