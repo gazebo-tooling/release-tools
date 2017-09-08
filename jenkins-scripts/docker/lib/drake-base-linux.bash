@@ -58,6 +58,7 @@ DELIM
 
 SOFTWARE_DIR="repo"
 OSRF_REPOS_TO_USE="stable"
+USE_ROS_REPO="true" # Needed for libfcl-0.5-dev package
 DEPENDENCY_PKGS="git \
                  ${BASE_DEPENDENCIES} \
                  ${DRAKE_DEPENDENCIES}"
