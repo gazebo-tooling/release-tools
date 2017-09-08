@@ -107,6 +107,7 @@ supported_distros.each { distro ->
     // 2. Create the compilation job
     def drake_ci_job = job("drake-ci-default-${distro}-${arch}")
     OSRFLinuxCompilation.create(drake_ci_job, false, false)
+    include_bazel_parselog(drake_ci_job)
 
     drake_ci_job.with
     {
@@ -145,6 +146,7 @@ supported_distros.each { distro ->
     // Use stub to supply a fake bitbucket repository. It is overwritten by the
     // git scm section below
     OSRFLinuxCompilationAny.create(drake_any_job ,'stub')
+    include_bazel_parselog(drake_any_job)
 
     drake_any_job.with
     {
