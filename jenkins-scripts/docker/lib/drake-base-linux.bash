@@ -36,7 +36,7 @@ bazel build --jobs=${MAKE_JOBS} //...
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: tests'
-bazel test //...
+bazel test //... || true
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install'

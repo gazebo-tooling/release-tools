@@ -7,6 +7,18 @@ def supported_arches = [ 'amd64' ]
 
 Globals.default_emails = "jrivero@osrfoundation.org, steven@osrfoundation.org"
 
+void include_bazel_parselog(Job job)
+{
+  job.with
+  {
+    publishers {
+        consoleParsing {
+            projectRules('bazel.parser')
+            unstableOnWarning()
+        }
+    }
+  }
+}
 
 // LINUX
 supported_distros.each { distro ->
