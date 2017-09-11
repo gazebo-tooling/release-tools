@@ -48,7 +48,7 @@ void include_gpu_label_if_needed(Job job, String ign_software_name, String distr
   job.with
   {
     if (ign_software_name == 'gui')
-      label "gpu-reliable-${distro}"
+      label "gpu-reliable"
   }
 }
 
