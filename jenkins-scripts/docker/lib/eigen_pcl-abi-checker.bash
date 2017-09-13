@@ -85,17 +85,17 @@ cat > pkg.xml << CURRENT_DELIM
    /usr/local/origin_branch/include/\$ORIGIN_DIR
  </headers>
 
- <ignore_headers>
-    /usr/local/origin_branch/include/pcl-1.7/pcl/common/impl
-    /usr/local/origin_branch/include/pcl-1.7/pcl/features/impl
-    /usr/local/origin_branch/include/pcl-1.7/pcl/filters/impl
-    /usr/local/origin_branch/include/pcl-1.7/pcl/impl
-    /usr/local/origin_branch/include/pcl-1.7/pcl/io/impl
-    /usr/local/origin_branch/include/pcl-1.7/pcl/range_image/impl
-    /usr/local/origin_branch/include/pcl-1.7/pcl/recognition/impl
-    /usr/local/origin_branch/include/pcl-1.7/pcl/registration/impl
-    /usr/local/origin_branch/include/pcl-1.7/pcl/tracking/impl
- </ignore_headers>
+ <skip_headers>
+    /usr/local/origin_branch/include/pcl-1.7/pcl/common/impl/
+    /usr/local/origin_branch/include/pcl-1.7/pcl/features/impl/
+    /usr/local/origin_branch/include/pcl-1.7/pcl/filters/impl/
+    /usr/local/origin_branch/include/pcl-1.7/pcl/impl/
+    /usr/local/origin_branch/include/pcl-1.7/pcl/io/impl/
+    /usr/local/origin_branch/include/pcl-1.7/pcl/range_image/impl/
+    /usr/local/origin_branch/include/pcl-1.7/pcl/recognition/impl/
+    /usr/local/origin_branch/include/pcl-1.7/pcl/registration/impl/
+    /usr/local/origin_branch/include/pcl-1.7/pcl/tracking/impl/
+ </skip_headers>
 
  <gcc_options>
      -std=c++11
@@ -115,17 +115,17 @@ cat > devel.xml << DEVEL_DELIM
    /usr/local/target_branch/include/\$TARGET_DIR
  </headers>
 
- <ignore_headers>
-    /usr/local/target_branch/include/pcl-1.7/pcl/common/impl
-    /usr/local/target_branch/include/pcl-1.7/pcl/features/impl
-    /usr/local/target_branch/include/pcl-1.7/pcl/filters/impl
-    /usr/local/target_branch/include/pcl-1.7/pcl/impl
-    /usr/local/target_branch/include/pcl-1.7/pcl/io/impl
-    /usr/local/target_branch/include/pcl-1.7/pcl/range_image/impl
-    /usr/local/target_branch/include/pcl-1.7/pcl/recognition/impl
-    /usr/local/target_branch/include/pcl-1.7/pcl/registration/impl
-    /usr/local/target_branch/include/pcl-1.7/pcl/tracking/impl
- </ignore_headers>
+ <skip_headers>
+    /usr/local/target_branch/include/pcl-1.7/pcl/common/impl/
+    /usr/local/target_branch/include/pcl-1.7/pcl/features/impl/
+    /usr/local/target_branch/include/pcl-1.7/pcl/filters/impl/
+    /usr/local/target_branch/include/pcl-1.7/pcl/impl/
+    /usr/local/target_branch/include/pcl-1.7/pcl/io/impl/
+    /usr/local/target_branch/include/pcl-1.7/pcl/range_image/impl/
+    /usr/local/target_branch/include/pcl-1.7/pcl/recognition/impl/
+    /usr/local/target_branch/include/pcl-1.7/pcl/registration/impl/
+    /usr/local/target_branch/include/pcl-1.7/pcl/tracking/impl/
+ </skip_headers>
 
  <gcc_options>
      -std=c++11
