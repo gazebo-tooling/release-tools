@@ -163,34 +163,70 @@ ignition_software.each { ign_sw ->
      supported_arches.each { arch ->
       // --------------------------------------------------------------
       // ci_default job for the rest of arches / scm@daily
-      def ignition_ci_job = job("ignition_${ign_sw}-ci-default-${distro}-${arch}")
-      OSRFLinuxCompilation.create(ignition_ci_job)
-      OSRFBitbucketHg.create(ignition_ci_job,
-                            "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/", 
-                            "default", "ign-${ign_sw}")
-
-      ignition_ci_job.with
       {
-          triggers {
-            scm('@daily')
-          }
+        def ignition_ci_job = job("ignition_${ign_sw}-ci-default-${distro}-${arch}")
+        OSRFLinuxCompilation.create(ignition_ci_job)
+        OSRFBitbucketHg.create(ignition_ci_job,
+                              "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
+                              "default", "ign-${ign_sw}")
 
-          // msgs amd common does not work on trusty
-          // https://bitbucket.org/ignitionrobotics/ign-msgs/issues/8
-          if (("${ign_sw}" == "msgs") && ("${distro}" == "trusty"))
-            disabled()
-          if (("${ign_sw}" == "common") && ("${distro}" == "trusty"))
-            disabled()
+        ignition_ci_job.with
+        {
+            triggers {
+              scm('@daily')
+            }
 
-          steps {
-            shell("""\
-                  #!/bin/bash -xe
+            // msgs amd common does not work on trusty
+            // https://bitbucket.org/ignitionrobotics/ign-msgs/issues/8
+            if (("${ign_sw}" == "msgs") && ("${distro}" == "trusty"))
+              disabled()
+            if (("${ign_sw}" == "common") && ("${distro}" == "trusty"))
+              disabled()
 
-                  export DISTRO=${distro}
-                  export ARCH=${arch}
-                  /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
-                  """.stripIndent())
-          }
+            steps {
+              shell("""\
+                    #!/bin/bash -xe
+
+                    export DISTRO=${distro}
+                    export ARCH=${arch}
+                    /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
+                    """.stripIndent())
+            }
+        }
+      }
+
+      // --------------------------------------------------------------
+      // branches CI job scm@daily
+      supported_branches("${ign_sw}").each { major_version ->
+        def ignition_ci_job = job("ignition_${ign_sw}-ci-ign-${ign_sw}${major_version}-${distro}-${arch}")
+        OSRFLinuxCompilation.create(ignition_ci_job)
+        OSRFBitbucketHg.create(ignition_ci_job,
+                              "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
+                              "ign-${ign_sw}${major_version}", "ign-${ign_sw}")
+
+        ignition_ci_job.with
+        {
+            triggers {
+              scm('@daily')
+            }
+
+            // msgs amd common does not work on trusty
+            // https://bitbucket.org/ignitionrobotics/ign-msgs/issues/8
+            if (("${ign_sw}" == "msgs") && ("${distro}" == "trusty"))
+              disabled()
+            if (("${ign_sw}" == "common") && ("${distro}" == "trusty"))
+              disabled()
+
+            steps {
+              shell("""\
+                    #!/bin/bash -xe
+
+                    export DISTRO=${distro}
+                    export ARCH=${arch}
+                    /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
+                    """.stripIndent())
+            }
+        }
       }
     }
   }
