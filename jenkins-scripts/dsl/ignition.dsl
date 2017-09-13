@@ -163,7 +163,7 @@ ignition_software.each { ign_sw ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       // ci_default job for the rest of arches / scm@daily
-      {
+      default: {
         def ignition_ci_job = job("ignition_${ign_sw}-ci-default-${distro}-${arch}")
         OSRFLinuxCompilation.create(ignition_ci_job)
         OSRFBitbucketHg.create(ignition_ci_job,
