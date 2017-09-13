@@ -94,7 +94,11 @@ cat > pkg.xml << CURRENT_DELIM
     /usr/local/origin_branch/include/pcl-1.7/pcl/range_image/impl/
     /usr/local/origin_branch/include/pcl-1.7/pcl/recognition/impl/
     /usr/local/origin_branch/include/pcl-1.7/pcl/registration/impl/
+    pairwise_graph_registration.hpp
     /usr/local/origin_branch/include/pcl-1.7/pcl/tracking/impl/
+    /usr/local/origin_branch/include/pcl-1.7/pcl/keypoints/impl/
+    /usr/local/origin_branch/include/pcl-1.7/pcl/pcl_tests.h
+    /usr/local/origin_branch/include/pcl-1.7/pcl/surface/3rdparty/
  </skip_headers>
 
  <gcc_options>
@@ -124,7 +128,11 @@ cat > devel.xml << DEVEL_DELIM
     /usr/local/target_branch/include/pcl-1.7/pcl/range_image/impl/
     /usr/local/target_branch/include/pcl-1.7/pcl/recognition/impl/
     /usr/local/target_branch/include/pcl-1.7/pcl/registration/impl/
+    pairwise_graph_registration.hpp
     /usr/local/target_branch/include/pcl-1.7/pcl/tracking/impl/
+    /usr/local/target_branch/include/pcl-1.7/pcl/keypoints/impl/
+    /usr/local/target_branch/include/pcl-1.7/pcl/pcl_tests.h
+    /usr/local/target_branch/include/pcl-1.7/pcl/surface/3rdparty/
  </skip_headers>
 
  <gcc_options>
