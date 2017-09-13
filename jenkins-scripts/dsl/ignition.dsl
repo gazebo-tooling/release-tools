@@ -159,7 +159,7 @@ ignition_software.each { ign_sw ->
 
 // OTHER CI SUPPORTED JOBS / DAILY
 ignition_software.each { ign_sw ->
-  other_supported_distros.each { distro ->
+  all_supported_distros.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       // ci_default job for the rest of arches / scm@daily
