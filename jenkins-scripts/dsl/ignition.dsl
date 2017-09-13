@@ -54,7 +54,7 @@ ignition_software.each { ign_sw ->
 
       OSRFLinuxABI.create(abi_job)
       OSRFBitbucketHg.create(abi_job,
-                            "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/", 
+                            "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
                             "default", checkout_subdir)
       abi_job.with
       {
@@ -139,7 +139,7 @@ ignition_software.each { ign_sw ->
            }
 
            def dev_package = "libignition-${ign_sw}${major_version}-dev"
-           
+
            steps {
             shell("""\
                   #!/bin/bash -xe
@@ -249,7 +249,7 @@ ignition_software.each { ign_sw ->
   def ignition_brew_ci_job = job("ignition_${ign_sw}-ci-default-homebrew-amd64")
   OSRFBrewCompilation.create(ignition_brew_ci_job)
   OSRFBitbucketHg.create(ignition_brew_ci_job,
-                            "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/", 
+                            "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
                             "default", "ign-${ign_sw}")
   ignition_brew_ci_job.with
   {
@@ -298,9 +298,9 @@ ignition_software.each { ign_sw ->
   def ignition_win_ci_job = job("ignition_${ign_sw}-ci-default-windows7-amd64")
   OSRFWinCompilation.create(ignition_win_ci_job)
   OSRFBitbucketHg.create(ignition_win_ci_job,
-                            "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/", 
+                            "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
                             "default", "ign-${ign_sw}")
- 
+
   ignition_win_ci_job.with
   {
       triggers {
