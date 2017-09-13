@@ -198,7 +198,7 @@ ignition_software.each { ign_sw ->
       // --------------------------------------------------------------
       // branches CI job scm@daily
       supported_branches("${ign_sw}").each { major_version ->
-        if (${major_version}) {
+        if ("${major_version}") {
           def ignition_ci_job = job("ignition_${ign_sw}-ci-ign-${ign_sw}${major_version}-${distro}-${arch}")
           OSRFLinuxCompilation.create(ignition_ci_job)
           OSRFBitbucketHg.create(ignition_ci_job,
