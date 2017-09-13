@@ -89,6 +89,7 @@ cat > pkg.xml << CURRENT_DELIM
     /usr/local/origin_branch/include/pcl-1.7/pcl/common/impl/
     /usr/local/origin_branch/include/pcl-1.7/pcl/features/impl/
     /usr/local/origin_branch/include/pcl-1.7/pcl/filters/impl/
+    box_clipper3D.hpp
     /usr/local/origin_branch/include/pcl-1.7/pcl/impl/
     /usr/local/origin_branch/include/pcl-1.7/pcl/io/impl/
     /usr/local/origin_branch/include/pcl-1.7/pcl/range_image/impl/
@@ -99,6 +100,8 @@ cat > pkg.xml << CURRENT_DELIM
     /usr/local/origin_branch/include/pcl-1.7/pcl/keypoints/impl/
     /usr/local/origin_branch/include/pcl-1.7/pcl/pcl_tests.h
     /usr/local/origin_branch/include/pcl-1.7/pcl/surface/3rdparty/
+    /usr/local/origin_branch/include/pcl-1.7/pcl/geometry/get_boundary.h
+    /usr/local/origin_branch/include/pcl-1.7/pcl/recognition/color_gradient_dot_modality.h
  </skip_headers>
 
  <gcc_options>
@@ -123,6 +126,7 @@ cat > devel.xml << DEVEL_DELIM
     /usr/local/target_branch/include/pcl-1.7/pcl/common/impl/
     /usr/local/target_branch/include/pcl-1.7/pcl/features/impl/
     /usr/local/target_branch/include/pcl-1.7/pcl/filters/impl/
+    box_clipper3D.hpp
     /usr/local/target_branch/include/pcl-1.7/pcl/impl/
     /usr/local/target_branch/include/pcl-1.7/pcl/io/impl/
     /usr/local/target_branch/include/pcl-1.7/pcl/range_image/impl/
@@ -133,6 +137,8 @@ cat > devel.xml << DEVEL_DELIM
     /usr/local/target_branch/include/pcl-1.7/pcl/keypoints/impl/
     /usr/local/target_branch/include/pcl-1.7/pcl/pcl_tests.h
     /usr/local/target_branch/include/pcl-1.7/pcl/surface/3rdparty/
+    /usr/local/target_branch/include/pcl-1.7/pcl/geometry/get_boundary.h
+    /usr/local/target_branch/include/pcl-1.7/pcl/recognition/color_gradient_dot_modality.h
  </skip_headers>
 
  <gcc_options>
