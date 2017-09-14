@@ -36,7 +36,7 @@ abi_distro.each { distro ->
     abi_job_name = "sdformat-abichecker-any_to_any-${distro}-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABI.create(abi_job)
-    OSRFBitbucketHg.create(abi_job, "https://bitbucket.org/osrf/sdformat", "sdformat", "HomeBrew")
+    OSRFBitbucketHg.create(abi_job, "https://bitbucket.org/osrf/sdformat")
 
     abi_job.with
     {
@@ -319,7 +319,8 @@ all_branches.each { branch ->
   OSRFBrewCompilation.create(sdformat_brew_ci_job)
   OSRFBitbucketHg.create(sdformat_brew_ci_job,
                          "https://bitbucket.org/osrf/sdformat",
-                         get_sdformat_branch_name(branch))
+                         get_sdformat_branch_name(branch),
+                         "sdformat", "HomeBrew")
  
   sdformat_brew_ci_job.with
   {
