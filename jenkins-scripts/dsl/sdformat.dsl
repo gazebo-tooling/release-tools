@@ -319,7 +319,8 @@ all_branches.each { branch ->
   OSRFBrewCompilation.create(sdformat_brew_ci_job)
   OSRFBitbucketHg.create(sdformat_brew_ci_job,
                          "https://bitbucket.org/osrf/sdformat",
-                         get_sdformat_branch_name(branch))
+                         get_sdformat_branch_name(branch),
+                         "sdformat", "HomeBrew")
  
   sdformat_brew_ci_job.with
   {
