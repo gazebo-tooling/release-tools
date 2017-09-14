@@ -250,7 +250,7 @@ ignition_software.each { ign_sw ->
   OSRFBrewCompilation.create(ignition_brew_ci_job)
   OSRFBitbucketHg.create(ignition_brew_ci_job,
                             "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/", 
-                            "default", "ign-${ign_sw}")
+                            "default", "ign-${ign_sw}", "HomeBrew")
   ignition_brew_ci_job.with
   {
       triggers {
