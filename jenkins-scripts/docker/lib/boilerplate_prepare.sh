@@ -16,19 +16,21 @@ fi
 #  *  Containers that exited more than 5 days ago are removed.
 #  *  Images that don't belong to any remaining container after that are removed
 if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
+    # get the mount point of the docker directory, not always /
+    docker_mount_point=$(df '/var/lib/docker' | awk '{ print $6 }' | tail -n 1)
     # in seconds: 5 days = 432000s
-    PERCENT_ROOT_USED=$(df -h | grep /$ | sed 's:.* \([0-9]*\)%.*:\1:')
-    if [[ $PERCENT_ROOT_USED -gt 90 ]]; then
-        echo "Space left is low: ${PERCENT_ROOT_USED}% used"
+    PERCENT_DISK_USED=$(df -h | grep ${docker_mount_point}$ | sed 's:.* \([0-9]*\)%.*:\1:')
+    if [[ $PERCENT_DISK_USED -gt 90 ]]; then
+        echo "Space left is low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
         wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
         sudo bash -c "GRACE_PERIOD_SECONDS=432000 bash docker-gc"
     fi
 
     # if not enough, run again with 1 day = 86400s
-    PERCENT_ROOT_USED=$(df -h | grep /$ | sed 's:.* \([0-9]*\)%.*:\1:')
-    if [[ $PERCENT_ROOT_USED -gt 90 ]]; then
-        echo "Space left is low: ${PERCENT_ROOT_USED}% used"
+    PERCENT_DISK_USED=$(df -h | grep ${docker_mount_point}$ | sed 's:.* \([0-9]*\)%.*:\1:')
+    if [[ $PERCENT_DISK_USED -gt 90 ]]; then
+        echo "Space left is low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
         wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
         sudo bash -c "GRACE_PERIOD_SECONDS=86400 bash docker-gc"
@@ -46,7 +48,7 @@ if [ -z ${DISTRO} ]; then
 fi
 
 if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=hydro
+  ROS_DISTRO=indigo
 fi
 
 # Define making jobs by default if not present
@@ -69,6 +71,11 @@ if [ -z ${NEED_C11_COMPILER} ]; then
   NEED_C11_COMPILER=false
 fi
 
+# By default, do not use ROS
+if [ -z ${ENABLE_ROS} ]; then
+  ENABLE_ROS=false
+fi
+
 # Transition for 4.8 -> 4.9 makes some optimization in the linking
 # which can break some software. Use it as a workaround in this case
 if [ -z ${NEED_GCC48_COMPILER} ]; then
@@ -85,6 +92,7 @@ fi
 
 # Useful for running tests properly integrated ros based software
 if ${ENABLE_ROS}; then
+  export USE_ROS_REPO=true
   export ROS_HOSTNAME=localhost
   export ROS_MASTER_URI=http://localhost:11311
   export ROS_IP=127.0.0.1
@@ -103,7 +111,7 @@ if [ -z "${ENABLE_CCACHE}" ]; then
   ENABLE_CCACHE=true
   BASE_DEPENDENCIES="${BASE_DEPENDENCIES} ccache"
   CCACHE_DIR="/srv/ccache"
-  CCACHE_MAXSIZE=5G
+  CCACHE_MAXSIZE=${CCACHE_MAXSIZE:-5G}
   # create the host cache dir to be shared across all docker images
   if [[ ! -d ${CCACHE_DIR} ]]; then
     sudo mkdir -p ${CCACHE_DIR}
@@ -205,6 +213,8 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
         sudo rm -fr ${d}
     done
 fi
-
+# Cleanup dockerfile and build.sh if exists from previous runs
 rm -fr Dockerfile
+rm -fr ${WORKSPACE}/build.sh
+
 cd ${WORKSPACE}

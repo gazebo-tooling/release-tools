@@ -158,6 +158,12 @@ sudo apt-get update -c $aptconffile
 if [[ ! -f /usr/share/debootstrap/scripts/trusty ]]; then
     sudo ln -s /usr/share/debootstrap/scripts/gutsy /usr/share/debootstrap/scripts/trusty
 fi
+if [[ ! -f /usr/share/debootstrap/scripts/zesty ]]; then
+    sudo ln -s /usr/share/debootstrap/scripts/gutsy /usr/share/debootstrap/scripts/zesty
+fi
+if [[ ! -f /usr/share/debootstrap/scripts/yakkety ]]; then
+    sudo ln -s /usr/share/debootstrap/scripts/gutsy /usr/share/debootstrap/scripts/yakkety
+fi
 
 # Setup the pbuilder environment if not existing, or update
 if [ ! -e $basetgz ] || [ ! -s $basetgz ] 

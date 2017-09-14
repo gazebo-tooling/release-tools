@@ -24,6 +24,9 @@ echo '# BEGIN SECTION: run test-bot'
 # The test-bot makes a full cleanup of all installed pkgs. Be sure of install back
 # mercurial to keep the slave working
 export HOMEBREW_DEVELOPER=1
+brew tap homebrew/test-bot
+git -C $(brew --repo)/Library/Taps/homebrew/homebrew-test-bot \
+    pull ${TEST_BOT_REPO} ${TEST_BOT_BRANCH}
 brew test-bot --tap=osrf/simulation \
               --ci-pr ${PULL_REQUEST_URL} \
             || { brew install hg; exit -1; }
@@ -31,12 +34,12 @@ brew install hg
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export bottle'
-if [[ $(find . -name '*.bottle.*' | wc -l | sed 's/^ *//') != 2 ]]; then
-  echo "Can not find the two bottle files"
+if [[ $(find . -name '*.bottle.*' | wc -l | sed 's/^ *//') -lt 2 ]]; then
+  echo "Can not find at least two bottle files. Something went wrong."
   exit -1
 fi
 
-mv *.bottle.tar.gz ${PKG_DIR}
+mv *.bottle*.tar.gz ${PKG_DIR}
 mv *.bottle.json ${PKG_DIR}
 
 echo '# END SECTION'

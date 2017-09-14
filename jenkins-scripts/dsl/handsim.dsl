@@ -90,7 +90,7 @@ handsim_packages.each { pkg ->
           }
 
           scm {
-            hg("http://bitbucket.org/osrf/${pkg}") {
+            hg("https://bitbucket.org/osrf/${pkg}") {
               branch('default')
               subdirectory("${pkg}")
             }
@@ -116,7 +116,7 @@ handsim_packages.each { pkg ->
       // 2. Create the ANY job
       def handsim_ci_any_job = job("${pkg_name}-ci-pr_any-${distro}-${arch}")
       OSRFLinuxCompilationAny.create(handsim_ci_any_job,
-                                    "http://bitbucket.org/osrf/${pkg}")
+                                    "https://bitbucket.org/osrf/${pkg}")
       handsim_ci_any_job.with
       {
           if ("${pkg}" == 'handsim')
@@ -153,7 +153,7 @@ supported_distros.each { distro ->
        label "gpu-reliable-${distro}"
 
        triggers {
-          cron('@daily')
+          cron('@weekly')
        }
 
         steps {
@@ -240,7 +240,7 @@ supported_distros.each { distro ->
 // 1. Windows any for haptix
 def haptix_win_ci_any_job = job("haptix_comm-ci-pr_any-windows7-amd64")
 OSRFWinCompilationAny.create(haptix_win_ci_any_job,
-                              "http://bitbucket.org/osrf/haptix-comm")
+                              "https://bitbucket.org/osrf/haptix-comm")
 haptix_win_ci_any_job.with
 {
     steps {
@@ -258,7 +258,7 @@ OSRFWinCompilation.create(haptix_win_ci_job)
 haptix_win_ci_job.with
 {
     scm {
-      hg("http://bitbucket.org/osrf/haptix-comm") {
+      hg("https://bitbucket.org/osrf/haptix-comm") {
         branch('default')
         // in win use ign-math to match OSRFWinCompilationAny mechanism
         subdirectory("haptix-comm")
@@ -266,7 +266,7 @@ haptix_win_ci_job.with
     }
 
     triggers {
-      scm('@daily')
+      scm('@weekly')
     }
 
     steps {

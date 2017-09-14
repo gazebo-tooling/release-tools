@@ -1,10 +1,13 @@
 #!/bin/bash -x
 
-NIGHTLY_MODE=false
+NIGHTLY_MODE=${NIGHTLY_MODE:-false}
 if [ "${UPLOAD_TO_REPO}" = "nightly" ]; then
    OSRF_REPOS_TO_USE="stable nightly"
    NIGHTLY_MODE=true
 fi
+
+# Option to use $WORKSPACE/repo as container (git or hg) for the nightly source
+[[ -z ${USE_REPO_DIRECTORY_FOR_NIGHTLY} ]] && USE_REPO_DIRECTORY_FOR_NIGHTLY=false
 
 # Do not use the subprocess_reaper in debbuild. Seems not as needed as in
 # testing jobs and seems to be slow at the end of jenkins jobs
@@ -31,11 +34,27 @@ REAL_PACKAGE_NAME=$(echo $PACKAGE | sed 's:[0-9]*$::g')
 
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
-  hg clone https://bitbucket.org/${BITBUCKET_REPO}/\$REAL_PACKAGE_NAME -r default
+  if ${USE_REPO_DIRECTORY_FOR_NIGHTLY}; then
+    mv ${WORKSPACE}/repo \$REAL_PACKAGE_NAME
+  else
+    hg clone https://bitbucket.org/${BITBUCKET_REPO}/\$REAL_PACKAGE_NAME -r default
+  fi
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME
   cd \$REAL_PACKAGE_NAME
+  TIMESTAMP=\$(date '+%Y%m%d')
   # Store revision for use in version
-  REV=\$(hg parents --template="{node|short}\n")
+  if [[ -d .hg ]]; then
+    REV=\$(hg parents --template="{node|short}\n")
+    TIMESTAMP="hg\$TIMESTAMP"
+  elif [[ -n "$GIT_COMMIT" ]]; then
+    REV=$GIT_COMMIT
+    TIMESTAMP="git\$TIMESTAMP"
+  elif [[ -d .git ]]; then
+    REV=\$(git rev-parse HEAD)
+    TIMESTAMP="git\$TIMESTAMP"
+  else
+    REV=0
+  fi
 else
   wget --quiet -O $PACKAGE_ALIAS\_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
   rm -rf \$REAL_PACKAGE_NAME\-$VERSION
@@ -55,6 +74,13 @@ if $NIGHTLY_MODE; then
 fi
 
 hg up $RELEASE_REPO_BRANCH
+
+# Should the case of new distros supported like debian
+PACKAGE_RELEASE_DIR="/tmp/${PACKAGE}-release/${LINUX_DISTRO}/${DISTRO}/"
+# Ubuntu special case from legacy reasons
+if [[ ! -d \${PACKAGE_RELEASE_DIR} ]]; then
+  PACKAGE_RELEASE_DIR="/tmp/${PACKAGE}-release/${DISTRO}"
+fi
 
 # Handle build metadata
 if [ ! -f build.metadata.bash ]; then
@@ -88,18 +114,18 @@ case \${BUILD_METHOD} in
 	cd /tmp
 	rm -fr /tmp/$PACKAGE-release
         mv /tmp/base_$PACKAGE-release /tmp/$PACKAGE-release
+	PACKAGE_RELEASE_DIR="/tmp/$PACKAGE-release/${DISTRO}"
 	;;
     "LEGACY")
 	echo "Legacy in place. Nothing needs to be done"
 	;;
 esac
 
-cd /tmp/$PACKAGE-release/${DISTRO}
+cd \${PACKAGE_RELEASE_DIR}
 
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
-  TIMESTAMP=\$(date '+%Y%m%d')
-  NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}+hg\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}~${DISTRO}
+  NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}+\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}~${DISTRO}
   debchange --package ${PACKAGE} \\
               --newversion \${NIGHTLY_VERSION_SUFFIX} \\
               --distribution ${DISTRO} \\
@@ -113,13 +139,13 @@ cd \`find $WORKSPACE/build -mindepth 1 -type d |head -n 1\`
 # If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
 if $NIGHTLY_MODE; then
   rm -fr .hg*
-  echo | dh_make -y -s --createorig -p ${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+hg\${TIMESTAMP}r\${REV} > /dev/null
+  echo | dh_make -y -s --createorig -p ${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}r\${REV} > /dev/null
 fi
 
 # Adding extra directories to code. debian has no problem but some extra directories
 # handled by symlinks (like cmake) in the repository can not be copied directly.
 # Need special care to copy, using first a --dereference
-cp -a --dereference /tmp/$PACKAGE-release/${DISTRO}/* .
+cp -a --dereference \${PACKAGE_RELEASE_DIR}/* .
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install build dependencies'
@@ -182,7 +208,8 @@ DEPENDENCY_PKGS="devscripts \
 		 ca-certificates \
 		 equivs \
 		 dh-make \
-		 mercurial"
+		 mercurial \
+		 git"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash

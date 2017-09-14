@@ -6,10 +6,10 @@
 set -e
 
 # The installation script is heavy based on get.gazebo.io script
-# 
+#
 # Modfied by jrivero@osrfoundation.org
 
-GZ_VER=7
+GZ_VER=8
 DEB_PKG_NAME=libgazebo$GZ_VER-dev
 BREW_PKG_NAME=gazebo${GZ_VER}
 
@@ -52,7 +52,7 @@ do_install() {
 	GAZEBO INSTALLATION SCRIPT
 	=======================================================
 
-	This script is installing the latest stable version of 
+	This script is installing the latest stable version of
 	Gazebo Simulator available from your package manager
 
 	EOF_INIT
@@ -142,6 +142,11 @@ do_install() {
 
 	case "$lsb_dist" in
 
+		linuxmint)
+			lsb_dist="$(. /etc/os-release && echo "$ID_LIKE")"
+			dist_version="$(. /etc/os-release && echo "$UBUNTU_CODENAME")"
+		;;
+
 		ubuntu)
 			if command_exists lsb_release; then
 				dist_version="$(lsb_release --codename | cut -f2)"
@@ -229,7 +234,7 @@ do_install() {
 			)
 			exit 0
 			;;
-                        
+
 		ubuntu)
 			export DEBIAN_FRONTEND=noninteractive
 
@@ -252,7 +257,7 @@ do_install() {
 
 			(
 			set -x
-			$sh_c "apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys D2486D2DD83DB69272AFE98867170598AF249743"
+			$sh_c "apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D2486D2DD83DB69272AFE98867170598AF249743"
 			$sh_c "mkdir -p /etc/apt/sources.list.d"
 			$sh_c "echo deb http://packages.osrfoundation.org/gazebo/$lsb_dist $dist_version main > /etc/apt/sources.list.d/gazebo-stable.list"
 			$sh_c "sleep 3; apt-get update; apt-get install -y -q $DEB_PKG_NAME"
@@ -284,6 +289,7 @@ do_install() {
 				exit 1
 			  fi
 
+			  export PATH=/usr/local/bin:${PATH}
 			  if ! command_exists brew; then
 				echo "Installing Homebrew:"
 				ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -301,6 +307,7 @@ do_install() {
 			  brew tap osrf/simulation
 			  brew update
 			  brew install ${BREW_PKG_NAME}
+			  brew audit ${BREW_PKG_NAME} || true
 			  brew test ${BREW_PKG_NAME}
 			)
 

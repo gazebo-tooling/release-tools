@@ -8,4 +8,3 @@ export RELEASE_REPO_DIRECTORY=${DISTRO}
 export ENABLE_ROS=true
 
 . ${SCRIPT_DIR}/lib/debbuild-base.bash
-

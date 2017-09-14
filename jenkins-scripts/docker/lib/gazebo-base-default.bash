@@ -4,9 +4,15 @@
 #  - GAZEBO_BASE_CMAKE_ARGS (optional) extra arguments to pass to cmake
 #  - GAZEBO_BASE_TESTS_HOOK (optional) [default to run UNIT, INTEGRATION, REGRESSION, EXAMPLE]
 #                           piece of code to run in the testing section
+#  - GAZEBO_BUILD_$DEP      (optional) [default false] 
+#                           build dependencies from source. 
+#                           DEP = SDFORMAT | IGN_MATH | IGN_TRANSPORT
+#                           branch parameter = $DEP_BRANCH
 
 #stop on error
 set -e
+
+GAZEBO_OSRF_DEPS="SDFORMAT IGN_MATH IGN_TRANSPORT IGN_GUI IGN_COMMON"
 
 . ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
 
@@ -38,7 +44,16 @@ if ${COVERAGE_ENABLED} ; then
   EXTRA_PACKAGES="${EXTRA_PACKAGES} wget"
 fi
 
-cat > build.sh << DELIM
+if [[ $GAZEBO_MAJOR_VERSION -lt 8 ]]; then
+  GAZEBO_BASE_CMAKE_ARGS="${GAZEBO_BASE_CMAKE_ARGS} -DENABLE_TESTS_COMPILATION=True"
+fi
+
+SOFTWARE_DIR="gazebo"
+if [ "${GAZEBO_EXPERIMENTAL_BUILD}" = true ]; then
+  SOFTWARE_DIR="${SOFTWARE_DIR}_experimental"
+fi
+
+cat > build.sh << DELIM_DART
 ###################################################
 # Make project-specific changes here
 #
@@ -98,27 +113,72 @@ if $DART_COMPILE_FROM_SOURCE; then
   make install
   echo '# END SECTION'
 fi
+DELIM_DART
 
+# Process the source build of dependencies if needed
+for dep_uppercase in $GAZEBO_OSRF_DEPS; do
+  dep=`echo $dep_uppercase | tr '[:upper:]' '[:lower:]'`
+  EXTRA_PACKAGES="${EXTRA_PACKAGES} mercurial"
+  eval dependecy_installation="\$GAZEBO_BUILD_$dep_uppercase"
+
+  if [[ -n ${dependecy_installation} ]] && ${dependecy_installation}; then
+      # Handle the depedency BRANCH
+      eval dep_branch=\$$dep_uppercase\_BRANCH
+      [[ -z ${dep_branch} ]] && dep_branch='default'
+cat >> build.sh << DELIM_BUILD_DEPS  
+    echo "# BEGIN SECTION: building dependency: ${dep} (${dep_branch})"
+    echo '# END SECTION'
+    rm -fr $WORKSPACE/$dep
+
+    if [[ ${dep/ign} == ${dep} ]]; then
+      bitbucket_repo="osrf/${dep}"
+    else
+      # need to replace _ by -
+      bitbucket_repo="ignitionrobotics/${dep/_/-}"
+    fi
+
+    hg clone http://bitbucket.org/\$bitbucket_repo -b ${dep_branch} \
+	$WORKSPACE/$dep 
+
+    GENERIC_ENABLE_TIMING=false
+    GENERIC_ENABLE_CPPCHECK=false
+    GENERIC_ENABLE_TESTS=false 
+    SOFTWARE_DIR=$dep
+    cd $WORKSPACE
+    . ${SCRIPT_DIR}/lib/_generic_linux_compilation.bash ${SCRIPT_DIR}
+    cd $WORKSPACE &&  rm -fr $WORKSPACE/build
+DELIM_BUILD_DEPS
+  fi
+done
+
+cat >> build.sh << DELIM
 # Normal cmake routine for Gazebo
 echo '# BEGIN SECTION: Gazebo configuration'
 rm -rf $WORKSPACE/install
-mkdir -p $WORKSPACE/install
+mkdir -p $WORKSPACE/install $WORKSPACE/build
 cd $WORKSPACE/build
 cmake ${GAZEBO_BASE_CMAKE_ARGS}      \\
     -DCMAKE_INSTALL_PREFIX=/usr      \\
     -DENABLE_SCREEN_TESTS:BOOL=False \\
-  $WORKSPACE/gazebo
+  $WORKSPACE/${SOFTWARE_DIR}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: Gazebo compilation'
 init_stopwatch COMPILATION
 make -j${MAKE_JOBS}
+stop_stopwatch COMPILATION
 echo '# END SECTION'
+
+if [[ $GAZEBO_MAJOR_VERSION -ge 8 ]]; then
+  echo '# BEGIN SECTION: Tests compilation'
+  init_stopwatch TESTS_COMPILATION
+  make -j${MAKE_JOBS} tests
+  stop_stopwatch TESTS_COMPILATION
+  echo '# END SECTION'
+fi
 
 echo '# BEGIN SECTION: Gazebo installation'
 make install
-. /usr/share/gazebo/setup.sh
-stop_stopwatch COMPILATION
 echo '# END SECTION'
 
 # Need to clean up from previous built
@@ -169,18 +229,37 @@ fi
 echo '# BEGIN SECTION: running cppcheck'
 init_stopwatch CPPCHECK
 # Step 3: code check
-cd $WORKSPACE/gazebo
+cd $WORKSPACE/${SOFTWARE_DIR}
 sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
 stop_stopwatch CPPCHECK
 echo '# END SECTION'
 DELIM
 
 USE_OSRF_REPO=true
-SOFTWARE_DIR="gazebo"
 DEPENDENCY_PKGS="${BASE_DEPENDENCIES} \
                  ${GAZEBO_BASE_DEPENDENCIES} \
 		 ${GAZEBO_EXTRA_DEPENDENCIES} \
 		 ${EXTRA_PACKAGES}"
+
+[[ -z ${GAZEBO_BUILD_IGN_GUI} ]] && GAZEBO_BUILD_IGN_GUI=false
+if $GAZEBO_BUILD_IGN_GUI; then
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${IGN_GUI_DEPENDENCIES}"
+fi
+
+[[ -z ${GAZEBO_BUILD_IGN_COMMON} ]] && GAZEBO_BUILD_IGN_COMMON=false
+if $GAZEBO_BUILD_IGN_COMMON; then
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${IGN_COMMON_DEPENDENCIES}"
+fi
+
+[[ -z ${GAZEBO_BUILD_SDFORMAT} ]] && GAZEBO_BUILD_SDFORMAT=false
+if $GAZEBO_BUILD_SDFORMAT; then
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${SDFORMAT_BASE_DEPENDENCIES}"
+fi
+
+# Need for cmake DISPLAY check (it uses xwininfo command)
+if [[ $USE_GPU_DOCKER ]]; then
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} x11-utils"
+fi
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash

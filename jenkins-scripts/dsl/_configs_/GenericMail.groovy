@@ -4,6 +4,19 @@ import javaposse.jobdsl.dsl.Job
 
 class GenericMail
 {
+  static String get_default_content()
+  {
+     return '''\
+     $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
+
+     ${BUILD_FAILURE_ANALYZER, includeTitle=true, includeIndications=true, useHtmlFormat=false}
+
+     Build summary: $BUILD_URL
+     Full log     : $BUILD_URL/consoleFull
+     Retry        : $BUILD_URL/retry
+     '''.stripIndent()
+  }
+
   static void include_external_contributors_mail(Job job, String subject, String content)
   {
     GenericMail._include_mail_recipients(job, subject, content)
@@ -21,12 +34,14 @@ class GenericMail
 
   static void include_mail(Job job)
   {
-    include_mail(job,'$DEFAULT_SUBJECT','$DEFAULT_CONTENT')
+    include_mail(job,'$DEFAULT_SUBJECT', GenericMail.get_default_content())
   }
 
   static void include_external_contributors_mail(Job job)
   {
-    include_external_contributors_mail(job,'$DEFAULT_SUBJECT','$DEFAULT_CONTENT')
+    include_external_contributors_mail(job,
+                                       '$DEFAULT_SUBJECT',
+                                       GenericMail.get_default_content())
   }
 
   static void update_field(Job job, String field, String new_value)
@@ -122,11 +137,13 @@ class GenericMail
     return("""
            // 3. Filter mail to get only OSRF
            recipients =
-              msg.getRecipients(javax.mail.Message.RecipientType.TO)
+              msg.getAllRecipients()
            filtered =
               recipients.findAll { addr -> addr.toString().contains('@osrfoundation.org') }
            msg.setRecipients(javax.mail.Message.RecipientType.TO,
                              filtered as javax.mail.Address[])
+           logger.println("Final list of recipients after filtering:");
+           logger.println(recipients);
 
            // always need to be the last line to cancel email when needed
            cancel = final_cancel_answer
