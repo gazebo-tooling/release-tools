@@ -108,9 +108,9 @@ copy %WORKSPACE%\workspace\jom.exe .
 jom -j%MAKE_JOBS% || goto :error
 echo # END SECTION
 
-:: echo # BEGIN SECTION: compiling test suite
-:: jom -j%MAKE_JOBS% tests || goto :error
-:: echo # END SECTION
+echo # BEGIN SECTION: compiling test suite
+jom -j%MAKE_JOBS% tests || goto :error
+echo # END SECTION
 
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace

@@ -35,14 +35,17 @@ if ${CLONE_NEEDED}; then
 echo '# BEGIN SECTION: clone the git repo'
 rm -fr ${REPO_PATH}
 git clone $GIT_REPOSITORY ${REPO_PATH}
-cd ${REPO_PATH}
-git checkout ${BRANCH}
 echo '# END SECTION'
 fi
 
 cd ${REPO_PATH}
+git checkout upstream
+git checkout ${BRANCH}
+git pull
+git branch
 
 echo '# BEGIN SECTION: install build dependencies'
+cat debian/changelog
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
 echo '# END SECTION'
 
@@ -51,13 +54,14 @@ VERSION_NO_REVISION=\$(echo \$VERSION | sed 's:-.*::')
 OSRF_VERSION=\$VERSION\osrf${RELEASE_VERSION}~${DISTRO}${RELEASE_ARCH_VERSION}
 
 echo "# BEGIN SECTION: check that pristine-tar is updated"
-git checkout pristine-tar || { echo "W: probably miss the pristine-tar branch" && exit 1; }
+git checkout -f pristine-tar || { echo "W: probably miss the pristine-tar branch" && exit 1; }
 if [[ -z \$(git tag | grep upstream/\${VERSION_NO_REVISION}) ]]; then
    echo "W: \${VERSION_NO_REVISION} commit was not found in pristine-tar"
    exit 1
 fi
-git checkout master
-git pull
+# Back to leave the repo in the correct branch
+cd ${REPO_PATH}
+git checkout ${BRANCH}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: build version and distribution'
@@ -77,7 +81,8 @@ echo '# END SECTION'
 
 echo "# BEGIN SECTION: create source package \${OSRF_VERSION}"
 rm -f ../*.orig.* ../*.dsc ../*.debian.* ../*.deb ../*.changes ../*.build
-${GBP_COMMAND} -S
+# Fix the real problems with lintian and remove true
+${GBP_COMMAND} -S || true
 
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.tar.* $WORKSPACE/pkgs
@@ -105,7 +110,7 @@ test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 
 # Trusty has no autopkgtest command
-if $DISTRO != 'trusty'; then
+if [ "$DISTRO" != "trusty" ]; then
 echo '# BEGIN SECTION: run tests'
 cd $WORKSPACE/pkgs
 set +e

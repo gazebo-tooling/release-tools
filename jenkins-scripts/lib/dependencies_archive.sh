@@ -16,14 +16,6 @@ if ${DART_COMPILE_FROM_SOURCE}; then
     DART_FROM_PKGS=false
 fi
 
-if $DART_FROM_PKGS; then
-    if $DART_USE_4_VERSION; then
-       dart_pkg="libdart-core4-dev"
-    else
-       dart_pkg="libdart-core3-dev"
-    fi
-fi
-
 # mesa-utils for dri checks, xsltproc for qtest->junit conversion and
 # python-psutil for memory testing
 # netcat-openbsd (nc command) for squid-deb-proxy checking
@@ -128,6 +120,18 @@ if [[ ${DISTRO} == 'precise' ]] || \
     bullet_pkg="libbullet2.82-dev"
 fi
 
+# choose dart version
+if $DART_FROM_PKGS; then
+    if [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
+       dart_pkg="libdart6-utils-urdf-dev"
+    elif [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
+       dart_pkg="libdart-core5-dev"
+    elif [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]] && \
+         [[ ${DISTRO} == 'trusty' ]]; then
+       dart_pkg="libdart-core4-dev"
+    fi
+fi
+
 # gazebo8 and above use qt5
 if [[ ${GAZEBO_MAJOR_VERSION} -le 7 ]]; then
   gazebo_qt_dependencies="libqt4-dev \\
@@ -196,7 +200,6 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
 
   if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
       GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                                           libignition-transport2-dev \\
                                            libignition-transport3-dev \\
                                            libignition-math3-dev \\
                                            libignition-msgs-dev"
@@ -522,3 +525,64 @@ MENTOR2_DEPENDENCIES="libgazebo6-dev    \\
                       libprotobuf-dev   \\
                       libboost1.54-dev  \\
                       libqt4-dev"
+
+#
+# DRAKE
+#
+DRAKE_DEPENDENCIES="alien               \\
+                    autoconf            \\
+                    automake            \\
+                    bash-completion     \\
+                    bison               \\
+                    clang-format        \\
+                    clang-3.9           \\
+                    doxygen             \\
+                    fakeroot            \\
+                    flex                \\
+                    freeglut3-dev       \\
+                    g++                 \\
+                    g++-5               \\
+                    g++-5-multilib      \\
+                    gdb                 \\
+                    gfortran            \\
+                    gfortran-5          \\
+                    gfortran-5-multilib \\
+                    git                 \\
+                    graphviz            \\
+                    libboost-dev        \\
+                    libgtk2.0-dev       \\
+                    libmpfr-dev         \\
+                    libpng12-dev        \\
+                    libqt4-dev          \\
+                    libqt4-opengl-dev   \\
+                    libqt5multimedia5   \\
+                    libqt5opengl5-dev   \\
+                    libqt5x11extras5    \\
+                    libqwt-dev          \\
+                    libtinyxml-dev      \\
+                    libtool             \\
+                    libvtk-java         \\
+                    libvtk5-dev         \\
+                    libvtk5-qt4-dev     \\
+                    libxmu-dev          \\
+                    make                \\
+                    ninja-build         \\
+                    openjdk-8-jdk       \\
+                    patchutils          \\
+                    perl                \\
+                    pkg-config          \\
+                    python-bs4          \\
+                    python-dev          \\
+                    python-gtk2         \\
+                    python-html5lib     \\
+                    python-lxml         \\
+                    python-numpy        \\
+                    python-pygame       \\
+                    python-scipy        \\
+                    python-sphinx       \\
+                    python-vtk          \\
+                    python-yaml         \\
+                    unzip               \\
+                    valgrind            \\
+                    zip                 \\
+                    zlib1g-dev"
