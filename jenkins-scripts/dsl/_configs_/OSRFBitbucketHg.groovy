@@ -7,7 +7,7 @@ class OSRFBitbucketHg
   static void create(Job job, String repo,
                               String rev    = 'default',
                               String subdir = 'NOT-DEFINED-USE-DEFAULT',
-                              String installation = 'NOT-DEFINED-USE-DEFAULT')
+                              String installation = '')
   {
     String software_name = repo.tokenize('/').last()
 
