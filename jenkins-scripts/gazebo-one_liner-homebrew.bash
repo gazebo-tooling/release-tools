@@ -11,3 +11,7 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: run the one-liner installation'
 curl -ssL https://bitbucket.org/osrf/release-tools/raw/default/one-line-installations/gazebo.sh | sh -x
 echo '# END SECTION'
+
+echo '# BEGIN SECTION: re-install mercurial'
+brew install hg
+echo '# END SECTION'
