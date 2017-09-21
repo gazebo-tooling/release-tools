@@ -46,7 +46,7 @@ ArrayList supported_branches(String ign_software)
 // return all ci branch names
 ArrayList all_branches(String ign_software)
 {
-  List<String> branches = new ArrayList,String>();
+  List<String> branches = new ArrayList<String>();
   supported_branches("${ign_software}").each { major_version ->
     if ("${major_version}") {
       branches.add("ign-${ign_software}${major_version}")
