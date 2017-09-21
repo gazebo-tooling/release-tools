@@ -47,9 +47,9 @@ ArrayList supported_branches(String ign_software)
 ArrayList all_branches(String ign_software)
 {
   ArrayList branches;
-  supported_branches("${ign_sw}").each { major_version ->
+  supported_branches("${ign_software}").each { major_version ->
     if ("${major_version}") {
-      branches.add("ign-${ign_sw}${major_version}")
+      branches.add("ign-${ign_software}${major_version}")
     }
   }
   branches.add('default')
