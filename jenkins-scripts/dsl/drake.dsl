@@ -150,6 +150,9 @@ supported_distros.each { distro ->
 
     drake_any_job.with
     {
+      // use only the most powerful nodes
+      label "large-memory"
+
       scm {
         git {
           remote {
