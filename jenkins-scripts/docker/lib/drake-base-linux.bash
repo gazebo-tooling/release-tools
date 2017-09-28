@@ -47,6 +47,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: particle test'
 cd ${WORKSPACE}
+[[ -d drake-shambhala ]] && rm -fr drake-shambhala
 git clone https://github.com/RobotLocomotion/drake-shambhala
 cd drake-shambhala/drake_cmake_installed
 mkdir build
