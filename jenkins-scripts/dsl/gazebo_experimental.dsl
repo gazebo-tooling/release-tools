@@ -165,7 +165,8 @@ all_branches = ['default']
 all_branches.each { branch ->
   def gazebo_brew_ci_job = job("gazebo_experimental-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(gazebo_brew_ci_job)
-  OSRFBitbucketHg.create(gazebo_brew_ci_job, "https://bitbucket.org/osrf/gazebo_experimental", branch)
+  OSRFBitbucketHg.create(gazebo_brew_ci_job, "https://bitbucket.org/osrf/gazebo_experimental", branch,
+                                             "gazebo_experimental", "HomeBrew")
 
   gazebo_brew_ci_job.with
   {

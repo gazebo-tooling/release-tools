@@ -269,7 +269,7 @@ gazebo_supported_branches.each { branch ->
       ci_gpu.each { gpu ->
         // ci_default job for the rest of arches / scm@daily
         def gazebo_ci_job = job("gazebo-ci-${branch}-${distro}-${arch}-gpu-${gpu}")
-        // note that we are already using the CI refernce GPU and distro, no
+        // note that we are already using the CI reference GPU and distro, no
         // need to check for build_cop email
         if (is_watched_by_buildcop(branch, distro, gpu))
           Globals.extra_emails = Globals.build_cop_email
@@ -517,7 +517,7 @@ all_branches.each { branch ->
 
   def gazebo_brew_ci_job = job("gazebo-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(gazebo_brew_ci_job)
-  OSRFBitbucketHg.create(gazebo_brew_ci_job, "https://bitbucket.org/osrf/gazebo", branch)
+  OSRFBitbucketHg.create(gazebo_brew_ci_job, "https://bitbucket.org/osrf/gazebo", branch, "gazebo", "HomeBrew")
 
   gazebo_brew_ci_job.with
   {

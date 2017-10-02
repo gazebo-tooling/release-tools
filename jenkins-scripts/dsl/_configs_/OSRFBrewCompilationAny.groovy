@@ -16,6 +16,6 @@ class OSRFBrewCompilationAny
     OSRFBrewCompilation.create(job, enable_testing)
 
     /* Properties from generic any */
-    GenericAnyJob.create(job, repo)
+    GenericAnyJob.create(job, repo, 'HomeBrew')
   }
 }
