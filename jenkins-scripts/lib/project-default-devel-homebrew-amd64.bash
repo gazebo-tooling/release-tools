@@ -103,6 +103,10 @@ brew tap homebrew/dev-tools
 if brew ruby -e "exit ! '${PROJECT}'.f.deps.map(&:name).keep_if { |d| d == 'qt' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/qt
 fi
+# if we are using gts, need to add gettext library path since it is keg-only
+if brew ruby -e "exit ! '${PROJECT}'.f.deps.map(&:name).keep_if { |d| d == 'gts' }.empty?"; then
+  export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/gettext/lib
+fi
 
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT}/HEAD \
