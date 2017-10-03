@@ -100,11 +100,11 @@ export DISPLAY=$(ps ax \
 
 # set CMAKE_PREFIX_PATH if we are using qt5 (aka qt)
 brew tap homebrew/dev-tools
-if brew ruby -e "exit ! '${PROJECT}'.f.deps.map(&:name).keep_if { |d| d == 'qt' }.empty?"; then
+if brew ruby -e "exit ! '${PROJECT}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/qt
 fi
 # if we are using gts, need to add gettext library path since it is keg-only
-if brew ruby -e "exit ! '${PROJECT}'.f.deps.map(&:name).keep_if { |d| d == 'gts' }.empty?"; then
+if brew ruby -e "exit ! '${PROJECT}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'gettext' }.empty?"; then
   export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/gettext/lib
 fi
 
