@@ -4,6 +4,7 @@ import javaposse.jobdsl.dsl.Job
 // IGNITION PACKAGES
 ignition_software           = [ 'transport', 'math', 'msgs', 'common', 'rndf', 'gui' ]
 ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3' ]
+ignition_gpu                = [ 'gui' ]
 // no registered branches in ignition_branches means only series 0 or 1
 ignition_branches           = [ transport : [ '3' ],
                                 math      : [ '2', '3' ]]
@@ -61,8 +62,10 @@ void include_gpu_label_if_needed(Job job, String ign_software_name, String distr
 {
   job.with
   {
-    if (ign_software_name == 'gui')
-      label "gpu-reliable"
+    ignition_gpu.each { ign_each ->
+      if (ign_software_name == ign_each)
+        label "gpu-reliable"
+    }
   }
 }
 
