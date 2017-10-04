@@ -21,7 +21,7 @@ export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_TRANSPORT_DEPENDENCIES"
 export DOCKER_POSTINSTALL_HOOK="""\
 apt-get update && \\
 apt-get install -y mercurial && \\
-hg clone https://bitbucket.org/osrf/ign-tools &&  \\
+hg clone https://bitbucket.org/ignitionrobotics/ign-tools &&  \\
 mkdir ign-tools/build && \\
 cd ign-tools/build &&  \\
 cmake .. && \\
