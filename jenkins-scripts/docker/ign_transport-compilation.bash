@@ -19,6 +19,7 @@ export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_TRANSPORT_DEPENDENCIES"
 # Install Ignition Tools while we release a .deb package.
 # ToDo: Remove this env variable after releasing Ignition Tools.
 export DOCKER_POSTINSTALL_HOOK="""\
+apt-get update && \\
 apt-get install -y mercurial && \\
 hg clone https://bitbucket.org/osrf/ign-tools &&  \\
 mkdir ign-tools/build && \\
