@@ -195,6 +195,8 @@ ignition_software.each { ign_sw ->
             disabled()
           if (("${ign_sw}" == "common") && ("${distro}" == "trusty"))
             disabled()
+          if (("${ign_sw}" == "math") && ("${distro}" == "trusty") && ("${branch}" == "default"))
+            disabled()
 
           steps {
             shell("""\
