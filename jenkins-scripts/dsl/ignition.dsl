@@ -59,7 +59,7 @@ ArrayList all_branches(String ign_software)
 }
 
 
-void include_gpu_label_if_needed(Job job, String ign_software_name, String distro)
+void include_gpu_label_if_needed(Job job, String ign_software_name)
 {
   job.with
   {
@@ -110,7 +110,7 @@ ignition_software.each { ign_sw ->
       def ignition_ci_any_job = job(ignition_ci_job_name)
       OSRFLinuxCompilationAny.create(ignition_ci_any_job,
                                     "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}")
-      include_gpu_label_if_needed(ignition_ci_any_job, ign_sw, distro)
+      include_gpu_label_if_needed(ignition_ci_any_job, ign_sw)
       ignition_ci_any_job.with
       {
         steps
@@ -160,7 +160,7 @@ ignition_software.each { ign_sw ->
         // --------------------------------------------------------------
         def install_default_job = job("ignition_${ign_sw}${major_version}-install-pkg-${distro}-${arch}")
         OSRFLinuxInstall.create(install_default_job)
-        include_gpu_label_if_needed(install_default_job, ign_sw, distro)
+        include_gpu_label_if_needed(install_default_job, ign_sw)
 
         install_default_job.with
         {
