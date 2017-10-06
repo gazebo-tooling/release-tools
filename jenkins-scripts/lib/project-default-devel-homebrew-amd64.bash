@@ -27,7 +27,7 @@ if grep 'ign_configure_project *( *[a-z][a-z]* [0-9]' \
 then
   PROJECT_FORMULA=${PROJECT//[0-9]}$(\
     grep ign_configure_project ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt | \
-    sed -e 's@.* \([0-9]\).*@\1@')
+    sed -e 's@.* \([0-9][0-9]*\).*@\1@')
 fi
 
 export HOMEBREW_PREFIX=/usr/local
