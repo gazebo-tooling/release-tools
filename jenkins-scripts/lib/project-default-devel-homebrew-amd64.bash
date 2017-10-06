@@ -19,6 +19,17 @@ if [[ ${PROJECT/ignition} != ${PROJECT} ]]; then
     PROJECT_PATH="ign${PROJECT/ignition}"
 fi
 
+# Check for major version number in ignition projects that use ignition-cmake
+# the PROJECT_FORMULA variable is only used for dependency resolution
+PROJECT_FORMULA=${PROJECT}
+if grep 'ign_configure_project *( *[a-z][a-z]* [0-9]' \
+        ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt
+then
+  PROJECT_FORMULA=${PROJECT//[0-9]}$(\
+    grep ign_configure_project ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt | \
+    sed -e 's@.* \([0-9][0-9]*\).*@\1@')
+fi
+
 export HOMEBREW_PREFIX=/usr/local
 export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
 export PATH=${HOMEBREW_PREFIX}/bin:$PATH
@@ -58,9 +69,9 @@ if $IS_A_HEAD_PROJECT; then
     HEAD_STR="--HEAD"
 fi
 
-echo "# BEGIN SECTION: install ${PROJECT} dependencies"
+echo "# BEGIN SECTION: install ${PROJECT_FORMULA} dependencies"
 # Process the package dependencies
-brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
+brew install ${HEAD_STR} ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies
 
 if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   # Install lxml for flaky_junit_merge.py
@@ -100,11 +111,11 @@ export DISPLAY=$(ps ax \
 
 # set CMAKE_PREFIX_PATH if we are using qt5 (aka qt)
 brew tap homebrew/dev-tools
-if brew ruby -e "exit ! '${PROJECT}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt' }.empty?"; then
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/qt
 fi
 # if we are using gts, need to add gettext library path since it is keg-only
-if brew ruby -e "exit ! '${PROJECT}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'gettext' }.empty?"; then
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'gettext' }.empty?"; then
   export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/gettext/lib
 fi
 
