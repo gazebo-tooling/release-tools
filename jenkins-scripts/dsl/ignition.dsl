@@ -2,11 +2,13 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
-ignition_software           = [ 'transport', 'math', 'msgs', 'common', 'rndf' ]
-ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3' ]
+ignition_software           = [ 'transport', 'math', 'msgs', 'common', 'rndf', 'gui' ]
+ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3', 'msgs1' ]
+ignition_gpu                = [ 'gui' ]
 // no registered branches in ignition_branches means only series 0 or 1
 ignition_branches           = [ transport : [ '3' ],
-                                math      : [ '2', '3' ]]
+                                math      : [ '2', '3' ],
+                                msgs      : [ '1']]
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
 def abi_distro              = Globals.get_abi_distro()
@@ -56,6 +58,18 @@ ArrayList all_branches(String ign_software)
   return branches
 }
 
+
+void include_gpu_label_if_needed(Job job, String ign_software_name)
+{
+  job.with
+  {
+    ignition_gpu.each { ign_each ->
+      if (ign_software_name == ign_each)
+        label "gpu-reliable"
+    }
+  }
+}
+
 // ABI Checker job
 // Need to be the before ci-pr_any so the abi job name is defined
 ignition_software.each { ign_sw ->
@@ -96,6 +110,7 @@ ignition_software.each { ign_sw ->
       def ignition_ci_any_job = job(ignition_ci_job_name)
       OSRFLinuxCompilationAny.create(ignition_ci_any_job,
                                     "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}")
+      include_gpu_label_if_needed(ignition_ci_any_job, ign_sw)
       ignition_ci_any_job.with
       {
         steps
@@ -145,6 +160,8 @@ ignition_software.each { ign_sw ->
         // --------------------------------------------------------------
         def install_default_job = job("ignition_${ign_sw}${major_version}-install-pkg-${distro}-${arch}")
         OSRFLinuxInstall.create(install_default_job)
+        include_gpu_label_if_needed(install_default_job, ign_sw)
+
         install_default_job.with
         {
            triggers {

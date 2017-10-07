@@ -11,9 +11,12 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFLinuxCompilationAny
 {
-  static void create(Job job, String repo, boolean enable_testing = true)
+  static void create(Job job,
+                     String repo,
+                     boolean enable_testing = true,
+                     boolean enable_cppcheck = true)
   {
-    OSRFLinuxCompilation.create(job)
+    OSRFLinuxCompilation.create(job, enable_testing, enable_cppcheck)
 
     /* Properties from generic any */
     GenericAnyJob.create(job, repo)
