@@ -18,6 +18,7 @@ export BUILDING_SOFTWARE_DIRECTORY="ign-sensors"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_SENSORS_DEPENDENCIES"
 export BUILDING_JOB_REPOSITORIES="stable"
 
+# TODO: stop building dependencies from source after there's a release
 export BUILD_SDFORMAT=true
 export BUILD_IGN_MATH=true
 export BUILD_IGN_COMMON=true
