@@ -6,3 +6,8 @@ apt-get update
 apt-get install -o Dpkg::Options::=\"--force-overwrite\" -y openjdk-8-jdk bazel
 echo '# END SECTION'
 """
+
+# Bazel test result parsing
+cat > ${WORKSPACE}/bazel.parser << DELIM_PARSER
+warning /^TIMEOUT: /
+DELIM_PARSER

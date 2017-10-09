@@ -3,10 +3,12 @@ import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
 ignition_software           = [ 'transport', 'math', 'msgs', 'common', 'rndf', 'gui' , 'sensors']
-ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3' ]
+ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3', 'msgs1' ]
+ignition_gpu                = [ 'gui', 'sensors' ]
 // no registered branches in ignition_branches means only series 0 or 1
 ignition_branches           = [ transport : [ '3' ],
-                                math      : [ '2', '3' ]]
+                                math      : [ '2', '3' ],
+                                msgs      : [ '1']]
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
 def abi_distro              = Globals.get_abi_distro()
@@ -56,12 +58,15 @@ ArrayList all_branches(String ign_software)
   return branches
 }
 
-void include_gpu_label_if_needed(Job job, String ign_software_name, String distro)
+
+void include_gpu_label_if_needed(Job job, String ign_software_name)
 {
   job.with
   {
-    if (ign_software_name == 'gui' || ign_software_name == 'sensors')
-      label "gpu-reliable"
+    ignition_gpu.each { ign_each ->
+      if (ign_software_name == ign_each)
+        label "gpu-reliable"
+    }
   }
 }
 
@@ -105,7 +110,7 @@ ignition_software.each { ign_sw ->
       def ignition_ci_any_job = job(ignition_ci_job_name)
       OSRFLinuxCompilationAny.create(ignition_ci_any_job,
                                     "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}")
-      include_gpu_label_if_needed(ignition_ci_any_job, ign_sw, distro)
+      include_gpu_label_if_needed(ignition_ci_any_job, ign_sw)
       ignition_ci_any_job.with
       {
         steps
@@ -155,7 +160,7 @@ ignition_software.each { ign_sw ->
         // --------------------------------------------------------------
         def install_default_job = job("ignition_${ign_sw}${major_version}-install-pkg-${distro}-${arch}")
         OSRFLinuxInstall.create(install_default_job)
-        include_gpu_label_if_needed(install_default_job, ign_sw, distro)
+        include_gpu_label_if_needed(install_default_job, ign_sw)
 
         install_default_job.with
         {
@@ -194,7 +199,6 @@ ignition_software.each { ign_sw ->
         OSRFBitbucketHg.create(ignition_ci_job,
                               "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
                               "${branch}", "ign-${ign_sw}")
-        include_gpu_label_if_needed(ignition_ci_job, ign_sw, distro)
 
         ignition_ci_job.with
         {
