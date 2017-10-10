@@ -164,22 +164,29 @@ ignition_software.each { ign_sw ->
 
         install_default_job.with
         {
-           triggers {
-             cron('@daily')
-           }
+          triggers {
+            cron('@daily')
+          }
 
-           def dev_package = "libignition-${ign_sw}${major_version}-dev"
+          // only a few release branches support trusty anymore
+          if (("${distro}" == "trusty") && !(
+              ("${branch}" == "ign-math2") ||
+              ("${branch}" == "ign-math3") ||
+              ("${branch}" == "ign-transport3")))
+            disabled()
 
-           steps {
-            shell("""\
-                  #!/bin/bash -xe
+          def dev_package = "libignition-${ign_sw}${major_version}-dev"
 
-                  export DISTRO=${distro}
-                  export ARCH=${arch}
-                  export INSTALL_JOB_PKG=${dev_package}
-                  export INSTALL_JOB_REPOS=stable
-                  /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
-                  """.stripIndent())
+          steps {
+           shell("""\
+                 #!/bin/bash -xe
+
+                 export DISTRO=${distro}
+                 export ARCH=${arch}
+                 export INSTALL_JOB_PKG=${dev_package}
+                 export INSTALL_JOB_REPOS=stable
+                 /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+                 """.stripIndent())
           }
         }
       }
