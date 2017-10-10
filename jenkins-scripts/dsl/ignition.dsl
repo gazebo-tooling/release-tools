@@ -170,9 +170,9 @@ ignition_software.each { ign_sw ->
 
           // only a few release branches support trusty anymore
           if (("${distro}" == "trusty") && !(
-              ("${branch}" == "ign-math2") ||
-              ("${branch}" == "ign-math3") ||
-              ("${branch}" == "ign-transport3")))
+              (("${ign_sw}" == "math") && (${major_version} == "2")) ||
+              (("${ign_sw}" == "math") && (${major_version} == "3")) ||
+              (("${ign_sw}" == "transport") && (${major_version} == "3"))))
             disabled()
 
           def dev_package = "libignition-${ign_sw}${major_version}-dev"
