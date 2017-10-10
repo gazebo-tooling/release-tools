@@ -206,11 +206,10 @@ ignition_software.each { ign_sw ->
             scm('@daily')
           }
 
-          // msgs amd common does not work on trusty
-          // https://bitbucket.org/ignitionrobotics/ign-msgs/issues/8
-          if (("${ign_sw}" == "msgs") && ("${distro}" == "trusty"))
-            disabled()
-          if (("${ign_sw}" == "common") && ("${distro}" == "trusty"))
+          // only a few release branches support trusty anymore
+          if (!(("${distro}" == "trusty") && ("${branch}" == "ign-math2")) &&
+              !(("${distro}" == "trusty") && ("${branch}" == "ign-math3")) &&
+              !(("${distro}" == "trusty") && ("${branch}" == "ign-transport3")))
             disabled()
 
           steps {
