@@ -15,7 +15,11 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-math"
+export BUILDING_JOB_REPOSITORIES="stable"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_MATH_DEPENDENCIES"
-export BUILDING_JOB_REPOSITORIES="prerelease"
+if [[ $(date +%Y%m%d) -le 20171201 ]]; then
+  ## need prerelease repo to get ignition-cmake during the development cycle
+  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
+fi
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
