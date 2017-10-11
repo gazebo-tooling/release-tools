@@ -468,6 +468,8 @@ fi
 # IGNITION
 #
 
+IGN_MATH_DEPENDENCIES="libignition-cmake-dev"
+
 IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             python               \\
                             ruby-ronn            \\
