@@ -47,7 +47,8 @@ for F_WITH_NEW_HASH in ${FILES_WITH_NEW_HASH}; do
 
   if [ -z "${FORMULA_PATH}" ]; then
     echo FORMULA_PATH not specified
-    exit -1
+    echo "MARK_AS_UNSTABLE"
+    continue
   fi
 
   echo '# BEGIN SECTION: checkout pull request branch'
@@ -80,7 +81,8 @@ for F_WITH_NEW_HASH in ${FILES_WITH_NEW_HASH}; do
   else
     echo bottle specification for distro ${DISTRO} not found
     echo unable to update formula
-    exit -1
+    echo "MARK_AS_UNSTABLE"
+    continue
   fi
   echo bottle specification for distro ${DISTRO_SYMBOL} found
   OLD_HASH=$(${BREW} ruby -e \
