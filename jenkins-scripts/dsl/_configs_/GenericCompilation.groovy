@@ -17,13 +17,13 @@ class GenericCompilation
 
      ${BUILD_LOG_REGEX, regex="^.*: (fatal ){0,1}error.*$",  linesBefore="5", linesAfter="5", maxMatches=0, showTruncatedLines=false}
 
-     <a href="$BUILD_URL/warningsResult">Compiler warnings</a>:
+     Compiler warnings: $BUILD_URL/warningsResult
      ------------------
       * Total of ${WARNINGS_COUNT} warnings : ${WARNINGS_NEW} new and ${WARNINGS_FIXED} fixed
 
-     <a href="$BUILD_URL/testReport">Test summary</a>:
+     Test summary: $BUILD_URL/testReport
      -------------
-      * Total of ${TEST_COUNTS, var="total"} tests : ${TEST_COUNTS, var="fail"} failed and ${TEST_COUNTS, var="skip"}
+      * Total of ${TEST_COUNTS, var="total"} tests : ${TEST_COUNTS, var="fail"} failed and ${TEST_COUNTS, var="skip"} skipped
 
      Data log:
      ${FAILED_TESTS}
