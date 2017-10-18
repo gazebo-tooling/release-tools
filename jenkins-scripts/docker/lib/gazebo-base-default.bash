@@ -141,15 +141,18 @@ if [ `expr length "${GAZEBO_BASE_TESTS_HOOK} "` -gt 1 ]; then
   : # keep this line, needed if the variable is empty
 else
   # Run default
+  RERUN_FAILED_TESTS=1
   init_stopwatch TEST
   echo '# BEGIN SECTION: UNIT testing'
   make test ARGS="-VV -R UNIT_*" || true
   echo '# END SECTION'
   echo '# BEGIN SECTION: INTEGRATION testing'
   make test ARGS="-VV -R INTEGRATION_*" || true
+  . ${SCRIPT_DIR}/lib/make_test_rerun_failed.bash "-VV -R INTEGRATION_*"
   echo '# END SECTION'
   echo '# BEGIN SECTION: REGRESSION testing'
   make test ARGS="-VV -R REGRESSION_*" || true
+  . ${SCRIPT_DIR}/lib/make_test_rerun_failed.bash "-VV -R REGRESSION_*"
   echo '# END SECTION'
   echo '# BEGIN SECTION: EXAMPLE testing'
   make test ARGS="-VV -R EXAMPLE_*" || true

@@ -4,10 +4,10 @@ set -e
 # Run `make test`
 # If it has any failures and RERUN_FAILED_TESTS is nonzero,
 # then rerun the failed tests one time and merge the junit results
-# The MAKE_TEST_RERUN_ARGS variable holds extra make ARGS,
-# such as -R UNIT_*
+# The MAKE_TEST_RERUN_ARGS variable and any arguments to this script
+# hold extra make ARGS, such as -R UNIT_*
 # Note that flaky_junit_merge.py requires lxml python package
-if ! make test ARGS="-VV ${MAKE_TEST_RERUN_ARGS}" \
+if ! make test ARGS="-VV ${MAKE_TEST_RERUN_ARGS} $@" \
     && [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   mv test_results test_results_merged
   mkdir test_results
