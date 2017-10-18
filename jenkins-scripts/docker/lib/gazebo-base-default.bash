@@ -147,10 +147,10 @@ else
   make test ARGS="-VV -R UNIT_*" || true
   echo '# END SECTION'
   echo '# BEGIN SECTION: INTEGRATION testing'
-  . ${SCRIPT_DIR}/lib/make_test_rerun_failed.bash "-VV -R INTEGRATION_*"
+  . ${SCRIPT_DIR}/../lib/make_test_rerun_failed.bash "-VV -R INTEGRATION_*"
   echo '# END SECTION'
   echo '# BEGIN SECTION: REGRESSION testing'
-  . ${SCRIPT_DIR}/lib/make_test_rerun_failed.bash "-VV -R REGRESSION_*"
+  . ${SCRIPT_DIR}/../lib/make_test_rerun_failed.bash "-VV -R REGRESSION_*"
   echo '# END SECTION'
   echo '# BEGIN SECTION: EXAMPLE testing'
   make test ARGS="-VV -R EXAMPLE_*" || true
