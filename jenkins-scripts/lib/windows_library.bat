@@ -8,7 +8,7 @@ exit /b
 ::
 
 :: See: https://issues.jenkins-ci.org/browse/JENKINS-11992
-set path=%path:"=%
+@set path=%path:"=%
 
 :: By default should be the same
 set MSVC_KEYWORD=%PLATFORM_TO_BUILD%
@@ -41,7 +41,8 @@ IF exist "%MSVC_ON_WIN64%" (
 goto :EOF
 
 :: ##################################
-:wget - Download an URL to the current directory
+:: Download an URL to the current directory
+:wget
 :: 
 :: arg1 URL to download
 :: arg2 filename (not including the path, just the filename)
@@ -50,13 +51,15 @@ wget %~1 -O %cd%\%~2 || goto :error
 goto :EOF
 
 :: ##################################
-:download_7za - Download the unzip utility from osrfoundation.org
+:: Download the unzip utility from osrfoundation.org
+:download_7za
 ::
 if not exist 7za.exe (call :wget http://packages.osrfoundation.org/win32/deps/7za.exe 7za.exe || goto :error)
 goto :EOF
 
 :: ##################################
-:unzip_7za - Unzip using 7za
+:: Unzip using 7za
+:unzip_7za
 ::
 :: arg1 - File to unzip
 echo Uncompressing %~1 
@@ -65,7 +68,8 @@ IF NOT exist %~1 ( echo "Zip file does not exist: %~1" && goto :error )
 goto :EOF
 
 :: ##################################
-:unzip_install - Unzip using 7za and then install
+:: Unzip using 7za and then install
+:unzip_install
 ::
 echo Uncompressing %~1 to %~d0\install
 IF NOT exist %~1 ( echo "Zip file does not exist: %~1" && goto :error )
@@ -73,7 +77,8 @@ IF NOT exist %~1 ( echo "Zip file does not exist: %~1" && goto :error )
 goto :EOF
 
 :: ##################################
-:download_unzip_install - Download some prebuilt package, unzip it using 7za, and then install
+:: Download some prebuilt package from our repository, unzip it using 7za, and then install it
+:download_unzip_install
 ::
 echo # BEGIN SECTION: downloading, unzipping, and installing dependency %1
 call :download_7za || goto :error
@@ -82,6 +87,7 @@ call :unzip_install %1 > install.log || goto :error
 goto :EOF
 
 :: ##################################
+:: Install an ignition project from source
 :install_ign_project
 ::
 :: arg1: Name of the ignition project (e.g. ign-cmake, ign-math)

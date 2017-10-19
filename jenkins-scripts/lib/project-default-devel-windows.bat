@@ -21,23 +21,19 @@ set LOCAL_WS=%WORKSPACE%\workspace
 set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS%\%VCS_DIRECTORY%
 set WORKSPACE_INSTALL_DIR=%LOCAL_WS%\install
 
-:: Set the PATH variable so that dependencies installed inside this workspace
-:: are visible to the build system and the run time.
-set PATH=%WORKSPACE_INSTALL_DIR%;%WORKSPACE_INSTALL_DIR%\bin;%WORKSPACE_INSTALL_DIR%\lib;%WORKSPACE_INSTALL_DIR%\include;%WORKSPACE_INSTALL_DIR%\share;%PATH%
-
 :: default values
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
 @if "%ENABLE_TESTS%" == "" set ENABLE_TESTS=TRUE
 
 :: safety checks
-if not defined VCS_DIRECTORY (
+@if not defined VCS_DIRECTORY (
   echo # BEGIN SECTION: ERROR: VCS_DIRECTORY is not set
   echo VCS_DIRECTORY variable was not set. Please set it before calling this script
   echo # END SECTION
   exit 1
 )
 
-if not exist %WORKSPACE%\%VCS_DIRECTORY% (
+@if not exist %WORKSPACE%\%VCS_DIRECTORY% (
   echo # BEGIN SECTION: ERROR: %VCS_DIRECTORY% does not exist
   echo VCS_DIRECTORY variable points to %WORKSPACE%\%VCS_DIRECTORY% but it does not exists
   echo # END SECTION
@@ -48,6 +44,14 @@ if not exist %WORKSPACE%\%VCS_DIRECTORY% (
 echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc_compiler
 echo # END SECTION
+
+
+:: Set the PATH variable so that dependencies installed inside this workspace
+:: are visible to the build system and the run time.
+:: NOTE: This should be called after %win_lib% :configure_msvc_compiler so
+::       that we benefit from its fix to the quotes around the PATH variable
+@set PATH=%WORKSPACE_INSTALL_DIR%;%WORKSPACE_INSTALL_DIR%\bin;%WORKSPACE_INSTALL_DIR%\lib;%WORKSPACE_INSTALL_DIR%\include;%WORKSPACE_INSTALL_DIR%\share;%PATH%
+
 
 echo # BEGIN SECTION: Setup Workspace
 if not DEFINED KEEP_WORKSPACE (
@@ -62,7 +66,7 @@ echo # END SECTION
 
 echo # BEGIN SECTION: move %VCS_DIRECTORY% source to workspace
 if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
-xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i || goto :error
+@xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i || goto :error
 cd %LOCAL_WS_SOFTWARE_DIR% || goto :error
 echo # END SECTION
 
