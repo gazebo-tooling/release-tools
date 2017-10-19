@@ -147,11 +147,9 @@ else
   make test ARGS="-VV -R UNIT_*" || true
   echo '# END SECTION'
   echo '# BEGIN SECTION: INTEGRATION testing'
-  echo "SCRIPT_DIR ${SCRIPT_DIR}"
   . ${WORKSPACE}/scripts/jenkins-scripts/lib/make_test_rerun_failed.bash "-VV -R INTEGRATION_*"
   echo '# END SECTION'
   echo '# BEGIN SECTION: REGRESSION testing'
-  echo "SCRIPT_DIR ${SCRIPT_DIR}"
   . ${WORKSPACE}/scripts/jenkins-scripts/lib/make_test_rerun_failed.bash "-VV -R REGRESSION_*"
   echo '# END SECTION'
   echo '# BEGIN SECTION: EXAMPLE testing'
