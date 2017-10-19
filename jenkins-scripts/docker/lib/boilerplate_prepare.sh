@@ -124,7 +124,7 @@ output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
 # TODO: Check for docker package
-NEEDED_HOST_PACKAGES="mercurial python-setuptools python-lxml python-psutil qemu-user-static gpgv squid-deb-proxy"
+NEEDED_HOST_PACKAGES="mercurial python-setuptools python-psutil qemu-user-static gpgv squid-deb-proxy"
 # python-argparse is integrated in libpython2.7-stdlib since raring
 # Check for precise in the HOST system (not valid DISTRO variable)
 if [[ $(lsb_release -sr | cut -c 1-5) == '12.04' ]]; then
