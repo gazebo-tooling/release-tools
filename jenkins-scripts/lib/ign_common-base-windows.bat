@@ -13,6 +13,10 @@
 ::   - configure, compile and install
 ::   - run tests
 
+set WORKSPACE_INSTALL_DIR=%WORKSPACE%\install
+:: Set path variables so that dependencies installed inside this workspace
+:: are visible to the build system and the run time.
+set PATH=%WORKSPACE_INSTALL_DIR%;%WORKSPACE_INSTALL_DIR%\bin;%WORKSPACE_INSTALL_DIR%\lib;%WORKSPACE_INSTALL_DIR%\include;%WORKSPACE_INSTALL_DIR%\share;%PATH%
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 set TEST_RESULT_PATH=%WORKSPACE%\test_results
 set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
@@ -29,7 +33,7 @@ if not defined VCS_DIRECTORY (
 
 if not exist %WORKSPACE%\%VCS_DIRECTORY% (
   echo # BEGIN SECTION: ERROR: %VCS_DIRECTORY% does not exist
-  echo VCS_DIRECTORY variable points to %WORKSPACE%\%VCS_DIRECTORY% but it does not exists
+  echo VCS_DIRECTORY variable points to %WORKSPACE%\%VCS_DIRECTORY% but it does not exist
   echo # END SECTION
   exit 1
 )
@@ -63,10 +67,10 @@ echo # END SECTION
 echo # BEGIN SECTION: downloading and unzip dependencies: %DEPENDENCY_PKG%
 REM Todo: support multiple dependencies
 for %%p in (%DEPEN_PKGS%) do (
-  echo # BEGIN SECTION: downloading and unzip dependency %%p
+  echo # BEGIN SECTION: downloading, unzipping, and installing dependency %%p
   call %win_lib% :download_7za || goto :error
-  call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%%p %%p || goto :error
-  call %win_lib% :unzip_7za %%p %%p > install.log || goto:error
+  call %win_lib% :wget http://gazebosim.org/distributions/win32/deps/%%p %%p || goto :error
+  call %win_lib% :unzip_install %%p %%p > install.log || goto:error
 )
 echo # END SECTION
 
@@ -97,7 +101,6 @@ nmake install || goto %win_lib% :error
 echo # END SECTION
 
 echo # BEGIN SECTION: running tests
-cd %WORKSPACE%\workspace\haptix-comm\build
 REM nmake test is not working test/ directory exists and nmake is not
 REM able to handle it.
 ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV  || echo "tests failed"

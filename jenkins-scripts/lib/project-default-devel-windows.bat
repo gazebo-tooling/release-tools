@@ -19,6 +19,11 @@ set TEST_RESULT_PATH=%WORKSPACE%\test_results
 set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
 set LOCAL_WS=%WORKSPACE%\workspace
 set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS%\%VCS_DIRECTORY%
+set WORKSPACE_INSTALL_DIR=%LOCAL_WS%\install
+
+:: Set the PATH variable so that dependencies installed inside this workspace
+:: are visible to the build system and the run time.
+set PATH=%WORKSPACE_INSTALL_DIR%;%WORKSPACE_INSTALL_DIR%\bin;%WORKSPACE_INSTALL_DIR%\lib;%WORKSPACE_INSTALL_DIR%\include;%WORKSPACE_INSTALL_DIR%\share;%PATH%
 
 :: default values
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
@@ -44,70 +49,61 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc_compiler
 echo # END SECTION
 
-echo # BEGIN SECTION: setup workspace
-if NOT DEFINED KEEP_WORKSPACE (
-  echo # BEGIN SECTION: preclean workspace
-  IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto :error
+echo # BEGIN SECTION: Setup Workspace
+if not DEFINED KEEP_WORKSPACE (
+  echo # BEGIN SECTION: Preclean Workspace
+  if exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto :error
   echo # END SECTION
 )
 mkdir %LOCAL_WS% || echo "Workspace already exists!"
 cd %LOCAL_WS%
 echo # END SECTION
 
-for %%p in (%DEPEN_PKGS%) do (
-  echo # BEGIN SECTION: downloading and unzip dependency %%p
-  call %win_lib% :download_7za || goto :error
-  call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%%p %%p || goto :error
-  call %win_lib% :unzip_7za %%p %%p > install.log || goto:error
-)
-echo # END SECTION
 
 echo # BEGIN SECTION: move %VCS_DIRECTORY% source to workspace
 if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
 xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i || goto :error
 cd %LOCAL_WS_SOFTWARE_DIR% || goto :error
-mkdir build
-cd build
 echo # END SECTION
 
-if exist ..\configure.bat (
-  echo # BEGIN SECTION: configuring %VCS_DIRECTORY% in %BUILD_TYPE% / %BITNESS%
-  call ..\configure.bat %BUILD_TYPE% %BITNESS% || goto :error
+
+if exist configure.bat (
+  echo # BEGIN SECTION: Configuring %VCS_DIRECTORY% using its configure.bat script
+  call configure.bat || goto :error
 ) else (
-  echo # BEGIN SECTION: configuring %VCS_DIRECTORY% using cmake 
-  cmake .. %VS_CMAKE_GEN% %VS_DEFAULT_CMAKE_FLAGS% %ARG_CMAKE_FLAGS% || goto :error
+  echo # BEGIN SECTION: Configuring %VCS_DIRECTORY% using cmake
+  md build
+  cd build
+  cmake .. -G "NMake Makefiles" -DCMAKE_INSTALL_PREFIX="%WORKSPACE_INSTALL_DIR%" || goto :error
 )
 
-echo "Workaround: to always enable the test compilation (configure.bat usually set it to false)
-cmake .. -DENABLE_TESTS_COMPILATION:BOOL=%ENABLE_TESTS% || echo "second run of cmake for enable tests failed"
+:: We want to make sure that tests are enabled for this project's build
+cmake .. -DENABLE_TESTS_COMPILATION:BOOL=%ENABLE_TESTS% || echo "Second run of cmake (for enabling the tests) failed"
 echo # END SECTION
 
-echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
+echo # BEGIN SECTION: Compiling %VCS_DIRECTORY%
 nmake VERBOSE=1 || goto %win_lib% :error
 echo # END SECTION
-echo # BEGIN SECTION: installing %VCS_DIRECTORY%
+echo # BEGIN SECTION: Installing %VCS_DIRECTORY%
 nmake install || goto %win_lib% :error
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
     echo # BEGIN SECTION: running tests
     cd %LOCAL_WS%\build
-    REM nmake test is not working test/ directory exists and nmake is not
-    REM able to handle it.
+    :: nmake test is not working test/ directory exists and nmake is not able to handle it.
     ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV  || echo "tests failed"
     echo # END SECTION
 
-    echo # BEGIN SECTION: export testing results
+    echo # BEGIN SECTION: Export Testing Results
     if exist %TEST_RESULT_PATH% ( rmdir /q /s %TEST_RESULT_PATH% )
     if exist %TEST_RESULT_PATH_LEGACY% ( rmdir /q /s %TEST_RESULT_PATH_LEGACY% )
-    mkdir %WORKSPACE%\build\
     xcopy test_results %TEST_RESULT_PATH% /s /i /e || goto :error
-    xcopy %TEST_RESULT_PATH% %TEST_RESULT_PATH_LEGACY% /s /e /i
     echo # END SECTION
 )
 
 if NOT DEFINED KEEP_WORKSPACE (
-   echo # BEGIN SECTION: clean up workspace
+   echo # BEGIN SECTION: Clean Up Workspace
    cd %WORKSPACE%
    rmdir /s /q %LOCAL_WS% || goto :error
    echo # END SECTION
