@@ -7,4 +7,4 @@ set IGN_CLEAN_WORKSPACE=true
 :: The ign-cmake CI does not currently support testing
 set ENABLE_TESTS=FALSE
 
-call "%SCRIPT_DIR%/lib/project-default-devel-windows.bat"
+call "%SCRIPT_DIR%/lib/generic-default-devel-windows.bat"
