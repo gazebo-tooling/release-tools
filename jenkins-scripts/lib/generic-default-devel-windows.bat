@@ -104,6 +104,7 @@ if "%ENABLE_TESTS%" == "TRUE" (
     if exist %TEST_RESULT_PATH% ( rmdir /q /s %TEST_RESULT_PATH% )
     if exist %TEST_RESULT_PATH_LEGACY% ( rmdir /q /s %TEST_RESULT_PATH_LEGACY% )
     xcopy test_results %TEST_RESULT_PATH% /s /i /e || goto :error
+    xcopy test_results %TEST_RESULT_PATH_LEGACY% /s /i /e || goto :error
     echo # END SECTION
 )
 
