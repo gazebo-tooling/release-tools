@@ -73,6 +73,7 @@ goto :EOF
 ::
 echo Uncompressing %~1 to %~d0\install
 IF NOT exist %~1 ( echo "Zip file does not exist: %~1" && goto :error )
+call :download_7za || goto :error
 7za.exe x %~1 -aoa -o%WORKSPACE_INSTALL_DIR% || goto :error
 goto :EOF
 
@@ -81,9 +82,8 @@ goto :EOF
 :download_unzip_install
 ::
 echo # BEGIN SECTION: downloading, unzipping, and installing dependency %1
-call :download_7za || goto :error
 call :wget http://gazebosim.org/distributions/win32/deps/%1 %1 || goto :error
-call :unzip_install %1 > install.log || goto :error
+call :unzip_install %1 || goto :error
 goto :EOF
 
 :: ##################################

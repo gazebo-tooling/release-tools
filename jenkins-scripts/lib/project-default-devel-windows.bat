@@ -66,14 +66,14 @@ echo # END SECTION
 
 echo # BEGIN SECTION: move %VCS_DIRECTORY% source to workspace
 if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
-@xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i || goto :error
+xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i /q || goto :error
 cd %LOCAL_WS_SOFTWARE_DIR% || goto :error
 echo # END SECTION
 
 
-if exist configure.bat (
+if exist .\configure.bat (
   echo # BEGIN SECTION: Configuring %VCS_DIRECTORY% using its configure.bat script
-  call configure.bat || goto :error
+  call .\configure.bat || goto :error
 ) else (
   echo # BEGIN SECTION: Configuring %VCS_DIRECTORY% using cmake
   md build
