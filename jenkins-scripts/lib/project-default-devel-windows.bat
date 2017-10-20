@@ -59,15 +59,16 @@ if not DEFINED KEEP_WORKSPACE (
   if exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto :error
   echo # END SECTION
 )
+
 mkdir %LOCAL_WS% || echo "Workspace already exists!"
-cd %LOCAL_WS%
+cd /d %LOCAL_WS%
 echo # END SECTION
 
 
 echo # BEGIN SECTION: move %VCS_DIRECTORY% source to workspace
 if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
 xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i /q || goto :error
-cd %LOCAL_WS_SOFTWARE_DIR% || goto :error
+cd /d %LOCAL_WS_SOFTWARE_DIR% || goto :error
 echo # END SECTION
 
 
@@ -77,7 +78,7 @@ if exist .\configure.bat (
 ) else (
   echo # BEGIN SECTION: Configuring %VCS_DIRECTORY% using cmake
   md build
-  cd build
+  cd /d build
   cmake .. -G "NMake Makefiles" -DCMAKE_INSTALL_PREFIX="%WORKSPACE_INSTALL_DIR%" || goto :error
 )
 
@@ -94,7 +95,7 @@ echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
     echo # BEGIN SECTION: running tests
-    cd %LOCAL_WS%\build
+    cd /d %LOCAL_WS%\build
     :: nmake test is not working test/ directory exists and nmake is not able to handle it.
     ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV  || echo "tests failed"
     echo # END SECTION
@@ -108,7 +109,7 @@ if "%ENABLE_TESTS%" == "TRUE" (
 
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: Clean Up Workspace
-   cd %WORKSPACE%
+   cd /d %WORKSPACE%
    rmdir /s /q %LOCAL_WS% || goto :error
    echo # END SECTION
 )

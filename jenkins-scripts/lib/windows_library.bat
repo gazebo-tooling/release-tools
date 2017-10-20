@@ -38,6 +38,7 @@ IF exist "%MSVC_ON_WIN64%" (
    echo "Could not find the vcvarsall.bat file"
    exit -1
 )
+
 goto :EOF
 
 :: ##################################
@@ -47,7 +48,11 @@ goto :EOF
 :: arg1 URL to download
 :: arg2 filename (not including the path, just the filename)
 echo Downloading %~1
-wget %~1 -O %cd%\%~2 || goto :error
+:: Note that http://gazebosim.org/distributions/win32/deps/ redirects to an https
+:: version of the website shown below. However the jenkins machine fails to validate
+:: the secure https version, so we use the --no-check-certificate option to get around
+:: that issue.
+wget %~1 --no-check-certificate -O %cd%\%~2 || goto :error
 goto :EOF
 
 :: ##################################
@@ -82,11 +87,7 @@ goto :EOF
 :download_unzip_install
 ::
 echo # BEGIN SECTION: downloading, unzipping, and installing dependency %1
-:: Note that http://gazebosim.org/distributions/win32/deps/ redirects to an https
-:: version of the website shown below. However the jenkins machine fails to validated
-:: the secure https version, so we use the non-https non-redirectoring version of the
-:: website.
-call :wget http://osrf-distributions.s3.amazonaws.com/distributions/win32/deps/%1 %1 || goto :error
+call :wget http://gazebosim.org/distributions/win32/deps/%1 %1 || goto :error
 call :unzip_install %1 || goto :error
 goto :EOF
 
@@ -101,13 +102,13 @@ set IGN_PROJECT_DEPENDENCY_DIR=%LOCAL_WS%\%1
 if exist %IGN_PROJECT_DEPENDENCY_DIR% ( rmdir /s /q %IGN_PROJECT_DEPENDENCY_DIR% )
 if "%2"=="" (
   echo Installing default branch of %1
-  hg clone https://bitbucket.org/ignitionrobotics/%1 -b default %IGN_PROJECT_DEPENDENCY_DIR%
+  hg clone https://bitbucket.org/ignitionrobotics/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b default
 ) else (
   echo Installing branch %2 of %1
-  hg clone https://bitbucket.org/ignitionrobotics/%1 -b %2 %IGN_PROJECT_DEPENDENCY_DIR%
+  hg clone https://bitbucket.org/ignitionrobotics/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b %2
 )
 cd %IGN_PROJECT_DEPENDENCY_DIR%
-call configure.bat
+call .\configure.bat
 nmake || goto :error
 nmake install || goto :error
 goto :EOF
