@@ -82,7 +82,11 @@ goto :EOF
 :download_unzip_install
 ::
 echo # BEGIN SECTION: downloading, unzipping, and installing dependency %1
-call :wget http://gazebosim.org/distributions/win32/deps/%1 %1 || goto :error
+:: Note that http://gazebosim.org/distributions/win32/deps/ redirects to an https
+:: version of the website shown below. However the jenkins machine fails to validated
+:: the secure https version, so we use the non-https non-redirectoring version of the
+:: website.
+call :wget http://osrf-distributions.s3.amazonaws.com/distributions/win32/deps/%1 %1 || goto :error
 call :unzip_install %1 || goto :error
 goto :EOF
 
