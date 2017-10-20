@@ -107,7 +107,7 @@ if "%2"=="" (
   echo Installing branch %2 of %1
   hg clone https://bitbucket.org/ignitionrobotics/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b %2
 )
-cd %IGN_PROJECT_DEPENDENCY_DIR%
+cd /d %IGN_PROJECT_DEPENDENCY_DIR%
 call .\configure.bat
 nmake || goto :error
 nmake install || goto :error
