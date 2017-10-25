@@ -49,9 +49,9 @@ goto :EOF
 :: arg2 filename (not including the path, just the filename)
 echo Downloading %~1
 :: Note that http://gazebosim.org/distributions/win32/deps/ redirects to an https
-:: version of the website shown below. However the jenkins machine fails to validate
-:: the secure https version, so we use the --no-check-certificate option to get around
-:: that issue.
+:: version of the website. However the jenkins machine fails to validate the secure
+:: https version, so we use the --no-check-certificate option to prevent wget from
+:: quitting prematurely.
 wget %~1 --no-check-certificate -O %cd%\%~2 || goto :error
 goto :EOF
 
@@ -59,7 +59,7 @@ goto :EOF
 :: Download the unzip utility from osrfoundation.org
 :download_7za
 ::
-if not exist 7za.exe (call :wget http://packages.osrfoundation.org/win32/deps/7za.exe 7za.exe || goto :error)
+if not exist 7za.exe (call :wget http://gazebosim.org/distributions/win32/deps/7za.exe 7za.exe || goto :error)
 goto :EOF
 
 :: ##################################
