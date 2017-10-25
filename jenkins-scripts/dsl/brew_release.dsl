@@ -275,5 +275,19 @@ bottle_job_hash_updater.with
           /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_bottle_pullrequest.bash
           """.stripIndent())
   }
+
+  publishers
+  {
+    // Added the checker result parser (UNSTABLE if not compatible)
+    // IMPORTANT: the order of the steps here is important. Leave the configure
+    // block first.
+    configure { project ->
+      project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+        unstableOnWarning true
+        failBuildOnError false
+        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+      }
+    } // end of configure
+  }
 }
 

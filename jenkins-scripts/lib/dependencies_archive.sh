@@ -468,7 +468,9 @@ fi
 # IGNITION
 #
 
-IGN_MATH_DEPENDENCIES="libignition-cmake-dev"
+if [[ ${DISTRO} != 'trusty' ]]; then
+  IGN_MATH_DEPENDENCIES="libignition-cmake-dev"
+fi
 
 IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             python               \\

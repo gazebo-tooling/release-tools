@@ -120,13 +120,13 @@ if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name
 fi
 
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-      -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT}/HEAD \
+      -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT_FORMULA}/HEAD \
      ${WORKSPACE}/${PROJECT_PATH}
 echo '# END SECTION'
 
-echo "# BEGIN SECTION: compile and install ${PROJECT}"
+echo "# BEGIN SECTION: compile and install ${PROJECT_FORMULA}"
 make -j${MAKE_JOBS} ${MAKE_VERBOSE_STR} install
-brew link ${PROJECT}
+brew link ${PROJECT_FORMULA}
 echo '# END SECTION'
 
 echo "#BEGIN SECTION: brew doctor analysis"
