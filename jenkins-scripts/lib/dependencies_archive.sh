@@ -468,6 +468,10 @@ fi
 # IGNITION
 #
 
+if [[ ${DISTRO} != 'trusty' ]]; then
+  IGN_MATH_DEPENDENCIES="libignition-cmake-dev"
+fi
+
 IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             python               \\
                             ruby-ronn            \\
@@ -483,7 +487,8 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          python                \\
                          ruby-ronn             \\
                          uuid-dev              \\
-                         libignition-math3-dev \\
+                         libignition-cmake-dev \\
+                         libignition-math4-dev \\
                          libfreeimage-dev      \\
                          libgts-dev            \\
                          libavformat-dev       \\
