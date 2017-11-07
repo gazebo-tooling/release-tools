@@ -53,7 +53,7 @@ git clone https://github.com/RobotLocomotion/drake-shambhala
 cd drake-shambhala/drake_cmake_installed
 mkdir build
 cd build
-cmake ..
+cmake -Ddrake_DIR=/opt/drake/lib/cmake/drake ..
 make -j${MAKE_JOBS}
 cd src/particles
 timeout --preserve-status 5 ./uniformly_accelerated_particle_demo
