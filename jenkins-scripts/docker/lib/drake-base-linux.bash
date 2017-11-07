@@ -1,5 +1,8 @@
 #!/bin/bash -x
 
+#stop on error
+set -e
+
 # Drake can not work with ccache
 export ENABLE_CCACHE=false
 
