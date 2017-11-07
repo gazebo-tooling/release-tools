@@ -588,6 +588,7 @@ DRAKE_DEPENDENCIES="alien               \\
                     python-sphinx       \\
                     python-vtk          \\
                     python-yaml         \\
+                    ros-kinetic-octomap \\
                     unzip               \\
                     valgrind            \\
                     zip                 \\
