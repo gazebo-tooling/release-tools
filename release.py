@@ -342,9 +342,10 @@ def generate_upload_tarball(args):
     if args.package == "mentor2":
         tarball_name = "mentor2"
 
-    # For ignition, we use the alias as package name
+    # For ignition, we use the alias without version numbers as package name
     if IGN_REPO:
         tarball_name = args.package_alias
+        tarball_name = re.sub(r'[0-9]$','', args.package)
 
     # TODO: we're assuming a particular naming scheme and a particular compression tool
     tarball_fname = '%s-%s.tar.bz2'%(tarball_name, args.version)
