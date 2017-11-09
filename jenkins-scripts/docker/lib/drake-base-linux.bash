@@ -55,7 +55,7 @@ cd build
 cmake ..
 make -j${MAKE_JOBS}
 cd src/particles
-timeout --preserve-status 5 ./uniformly_accelerated_particle_demo
+./uniformly_accelerated_particle_demo -simulation_time 5
 echo '# END SECTION'
 DELIM
 
