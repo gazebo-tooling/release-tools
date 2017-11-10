@@ -39,6 +39,13 @@ class OSRFLinuxABI
   {
     OSRFLinuxBase.create(job)
 
+    GenericMail.update_field(job, 'defaultSubject',
+                    '$PROJECT_NAME - Branches: $ORIGIN_BRANCH, $TARGET_BRANCH (#$BUILD_NUMBER) - $BUILD_STATUS!')
+    GenericMail.update_field(job, 'defaultContent',
+                    '$JOB_DESCRIPTION \n' +
+                    GenericMail.get_default_content() + '\n' +
+                    'ABI report   : $BUILD_URL/API_ABI_report/\n')
+
     job.with
     {
       properties {
@@ -52,8 +59,8 @@ class OSRFLinuxABI
       concurrentBuild(true)
 
       throttleConcurrentBuilds {
-	maxPerNode(1)
-	maxTotal(5)
+        maxPerNode(1)
+        maxTotal(5)
       }
 
       parameters {
@@ -61,17 +68,25 @@ class OSRFLinuxABI
                     'Branch to use as base for the comparison')
         stringParam("TARGET_BRANCH", null,
                     'Branch to use to compare against ORIGIN_BRANCH')
+        stringParam("JOB_DESCRIPTION", "",
+                    'Description of the job for informational purposes.')
       }
 
       steps {
         systemGroovyCommand("""\
-          build.setDescription(
-            'origin branch: ' +
-            '<b>' + build.buildVariableResolver.resolve('ORIGIN_BRANCH') + '</b><br />' +
-            'target branch: ' +
-            '<b>' + build.buildVariableResolver.resolve('TARGET_BRANCH') + '</b><br />' +
-            '<br />' +
-            'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+          job_description = build.buildVariableResolver.resolve("JOB_DESCRIPTION")
+
+          if (job_description == "")
+          {
+            job_description = 'origin branch: ' +
+              '<b>' + build.buildVariableResolver.resolve('ORIGIN_BRANCH') + '</b><br />' +
+              'target branch: ' +
+              '<b>' + build.buildVariableResolver.resolve('TARGET_BRANCH') + '</b><br />' +
+              '<br />' +
+              'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH');
+          }
+
+          build.setDescription(job_description)
           """.stripIndent()
         )
       }
