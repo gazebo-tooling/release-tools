@@ -47,8 +47,8 @@ bazel run :install --jobs=${MAKE_JOBS} -- /opt/drake
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: find symbols'
-nm -D /opt/drake/lib/libdrake.so | grep fcl
-nm -D /opt/drake/lib/libdrake.so | grep ' ccd'
+nm -D /opt/drake/lib/libdrake.so | grep fcl || true
+nm -D /opt/drake/lib/libdrake.so | grep ' ccd' || true
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: particle test'
