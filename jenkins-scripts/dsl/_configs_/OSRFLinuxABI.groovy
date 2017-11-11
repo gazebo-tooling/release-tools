@@ -43,6 +43,9 @@ class OSRFLinuxABI
                     '$PROJECT_NAME - Branches: $ORIGIN_BRANCH, $TARGET_BRANCH (#$BUILD_NUMBER) - $BUILD_STATUS!')
     GenericMail.update_field(job, 'defaultContent',
                     '$JOB_DESCRIPTION \n' +
+                    'origin branch: $ORIGIN_BRANCH \n' +
+                    'target branch: $TARGET_BRANCH \n' +
+                    'RTOOLS branch: $RTOOLS_BRANCH \n' +
                     GenericMail.get_default_content() + '\n' +
                     'ABI report   : $BUILD_URL/API_ABI_report/\n')
 
