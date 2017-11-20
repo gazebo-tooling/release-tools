@@ -7,6 +7,7 @@ packages = [:]
 packages['debian-science'] = ['console-bridge',
                               'gazebo',
                               'fcl',
+                              'ignition-cmake',
                               'ignition-common',
                               'ignition-math2',
                               'ignition-math3',
