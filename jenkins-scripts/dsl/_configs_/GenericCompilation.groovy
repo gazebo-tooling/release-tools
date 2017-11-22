@@ -22,6 +22,7 @@ class GenericCompilation
       * Total of ${WARNINGS_COUNT} warnings : ${WARNINGS_NEW} new and ${WARNINGS_FIXED} fixed
       * $BUILD_URL/warningsResult
 
+
      Test summary:
      -------------
       * Total of ${TEST_COUNTS, var="total"} tests : ${TEST_COUNTS, var="fail"} failed and ${TEST_COUNTS, var="skip"} skipped
