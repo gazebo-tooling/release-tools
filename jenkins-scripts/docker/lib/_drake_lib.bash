@@ -1,9 +1,13 @@
 DRAKE_BAZEL_INSTALL="""
 echo '# BEGIN SECTION: install bazel'
-echo \"deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8\" | tee /etc/apt/sources.list.d/bazel.list
-curl https://bazel.build/bazel-release.pub.gpg | apt-key add -
-apt-get update
-apt-get install -o Dpkg::Options::=\"--force-overwrite\" -y openjdk-8-jdk bazel
+# Install Bazel. Part of the install_prereq.sh script from Drake. They are not using the latest version of bazel
+wget -O /tmp/bazel_0.6.1-linux-x86_64.deb https://github.com/bazelbuild/bazel/releases/download/0.6.1/bazel_0.6.1-linux-x86_64.deb
+if echo '5012d064a6e95836db899fec0a2ee2209d2726fae4a79b08c8ceb61049a115cd /tmp/bazel_0.6.1-linux-x86_64.deb' | sha256sum -c -; then
+  dpkg -i /tmp/bazel_0.6.1-linux-x86_64.deb
+else
+  echo 'The Bazel deb does not have the expected SHA256.  Not installing Bazel.'
+  exit -1
+fi
 echo '# END SECTION'
 """
 
