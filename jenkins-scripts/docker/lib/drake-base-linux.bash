@@ -37,7 +37,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: compilation'
 cd ${WORKSPACE}/repo
-bazel build --jobs=${MAKE_JOBS} //...
+bazel build --compiler=gcc-5 --jobs=${MAKE_JOBS} //...
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: tests'
