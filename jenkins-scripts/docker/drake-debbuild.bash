@@ -13,12 +13,12 @@ echo '# BEGIN SECTION: install bazel' && \\
 echo \"deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8\" | tee /etc/apt/sources.list.d/bazel.list && \\
 wget -qO - https://bazel.build/bazel-release.pub.gpg | apt-key add - && \\
 apt-get update && \\
-apt-get install -o Dpkg::Options::=\"--force-overwrite\" -y openjdk-8-jdk && \\
+apt-get install -o Dpkg::Options::=\"--force-overwrite\" -y openjdk-8-jdk bash-completion zlib1g-dev  && \\
 update-alternatives --install \"/usr/bin/java\" \"java\" \"/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java\" 1 && \\
 update-alternatives --install \"/usr/bin/javac\" \"javac\" \"/usr/lib/jvm/java-8-openjdk-amd64/bin/javac\" 1 && \\
 update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java && \\
 wget -O /tmp/bazel_0.6.1-linux-x86_64.deb https://github.com/bazelbuild/bazel/releases/download/0.6.1/bazel_0.6.1-linux-x86_64.deb && \\
-dpkg -i /tmp/bazel_0.6.1-linux-x86_64.deb && \\
+dpkg -i /tmp/bazel_0.6.1-linux-x86_64.deb || apt-get install -y -f && \\
 echo '# END SECTION'
 """
 
