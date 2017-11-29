@@ -13,7 +13,7 @@ echo '# BEGIN SECTION: install bazel' && \\
 echo \"deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8\" | tee /etc/apt/sources.list.d/bazel.list && \\
 wget -qO - https://bazel.build/bazel-release.pub.gpg | apt-key add - && \\
 apt-get update && \\
-apt-get install -o Dpkg::Options::=\"--force-overwrite\" -y openjdk-8-jdk bazel && \\
+apt-get install -o Dpkg::Options::=\"--force-overwrite\" -y openjdk-8-jdk && \\
 update-alternatives --install \"/usr/bin/java\" \"java\" \"/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java\" 1 && \\
 update-alternatives --install \"/usr/bin/javac\" \"javac\" \"/usr/lib/jvm/java-8-openjdk-amd64/bin/javac\" 1 && \\
 update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java && \\
