@@ -44,6 +44,12 @@ git checkout ${BRANCH}
 git pull
 git branch
 
+if [ `expr length "${DEBIAN_GIT_PREINSTALL_HOOK} "` -gt 1 ]; then
+echo '# BEGIN SECTION: running pre install hook'
+${DEBIAN_GIT_PREINSTALL_HOOK}
+echo '# END SECTION'
+fi
+
 echo '# BEGIN SECTION: install build dependencies'
 cat debian/changelog
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
