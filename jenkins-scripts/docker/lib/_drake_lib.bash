@@ -1,7 +1,7 @@
 DRAKE_BAZEL_INSTALL="""
 echo '# BEGIN SECTION: install bazel'
 apt-get update
-apt-get install -o Dpkg::Options::=\"--force-overwrite\" -y openjdk-8-jdk
+apt-get install -o Dpkg::Options::=\"--force-overwrite\" -y openjdk-8-jdk bash-completion zlib1g-dev
 update-alternatives --install \"/usr/bin/java\" \"java\" \"/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java\" 1
 update-alternatives --install \"/usr/bin/javac\" \"javac\" \"/usr/lib/jvm/java-8-openjdk-amd64/bin/javac\" 1
 update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
