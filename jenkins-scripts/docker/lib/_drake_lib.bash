@@ -1,5 +1,10 @@
 DRAKE_BAZEL_INSTALL="""
 echo '# BEGIN SECTION: install bazel'
+apt-get update
+apt-get install -o Dpkg::Options::=\"--force-overwrite\" -y openjdk-8-jdk
+update-alternatives --install \"/usr/bin/java\" \"java\" \"/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java\" 1
+update-alternatives --install \"/usr/bin/javac\" \"javac\" \"/usr/lib/jvm/java-8-openjdk-amd64/bin/javac\" 1
+update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 # Install Bazel. Part of the install_prereq.sh script from Drake. They are not using the latest version of bazel
 wget -O /tmp/bazel_0.6.1-linux-x86_64.deb https://github.com/bazelbuild/bazel/releases/download/0.6.1/bazel_0.6.1-linux-x86_64.deb
 if echo '5012d064a6e95836db899fec0a2ee2209d2726fae4a79b08c8ceb61049a115cd /tmp/bazel_0.6.1-linux-x86_64.deb' | sha256sum -c -; then
