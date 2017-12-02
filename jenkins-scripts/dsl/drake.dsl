@@ -30,6 +30,9 @@ supported_distros.each { distro ->
 
     build_pkg_job.with
     {
+      // use only the most powerful nodes
+      label "large-memory"
+
       parameters
       {
          stringParam('BRANCH','master',
