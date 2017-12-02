@@ -22,7 +22,7 @@ fi
 # Check for major version number in ignition projects that use ignition-cmake
 # the PROJECT_FORMULA variable is only used for dependency resolution
 PROJECT_FORMULA=${PROJECT}
-if grep 'ign_configure_project *( *[a-z][a-z]* [0-9]' \
+if grep 'ign_configure_project *(' \
         ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt
 then
   PROJECT_FORMULA=${PROJECT//[0-9]}$(\
