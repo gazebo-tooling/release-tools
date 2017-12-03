@@ -10,9 +10,6 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 # remove them. Dependencies come from control/debian
 DEBIAN_GIT_PREINSTALL_HOOK="""\
 ${DRAKE_BAZEL_INSTALL}
-
-apt-get update
-apt-get install -y \${DRAKE_DEPENDENCIES}
 """
 
 . ${SCRIPT_DIR}/lib/debian-git-repo-base.bash
