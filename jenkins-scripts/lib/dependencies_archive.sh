@@ -202,7 +202,7 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
       GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                                            libignition-transport3-dev \\
                                            libignition-math3-dev \\
-                                           libignition-msgs-dev"
+                                           libignition-msgs0-dev"
   fi
 
   # libtinyxml2-dev is not on precise
@@ -468,7 +468,7 @@ IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             protobuf-compiler    \\
                             uuid-dev             \\
                             libzmq3-dev          \\
-                            libignition-msgs-dev \\
+                            libignition-msgs0-dev \\
                             libczmq-dev"
 
 IGN_COMMON_DEPENDENCIES="pkg-config            \\
