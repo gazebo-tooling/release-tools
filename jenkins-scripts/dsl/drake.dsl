@@ -87,6 +87,18 @@ supported_distros.each { distro ->
           archiveArtifacts('pkgs/*')
         }
 
+        downstreamParameterized {
+	  trigger('repository_uploader_ng') {
+	    condition('SUCCESS')
+	    parameters {
+	      currentBuild()
+	      predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+	      predefinedProp("UPLOAD_TO_REPO", "drake")
+	      predefinedProp("PACKAGE_ALIAS", "drake")
+	    }
+	  }
+        }
+
         postBuildScripts {
           steps {
             shell("""\
