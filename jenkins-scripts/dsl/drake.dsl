@@ -93,6 +93,8 @@ supported_distros.each { distro ->
 	    parameters {
 	      currentBuild()
 	      predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+	      predefinedProp("DISTRO", "${distro}")
+	      predefinedProp("ARCH", "${arch}")
 	      predefinedProp("UPLOAD_TO_REPO", "drake")
 	      predefinedProp("PACKAGE_ALIAS", "drake")
 	    }
