@@ -20,7 +20,7 @@ cat > build.sh << DELIM_CHECKOUT
 set -ex
 
 [[ -d ${WORKSPACE}/kumonoito ]] && rm -fr ${WORKSPACE}/kumonoito
-git clone https://github.com/naveenoid/kumonoito ${WORKSPACE}/kumonoito
+git clone https://github.com/osrf/kumonoito -b use_ros_drake ${WORKSPACE}/kumonoito
 DELIM_CHECKOUT
 
 # Generate the first part of the build.sh file for ROS
