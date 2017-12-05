@@ -21,10 +21,8 @@ set -ex
 
 # Temporary branch in osrf-rosdep
 rosdep init
-echo "yaml https://github.com/osrf/osrf-rosdep/raw/rosdep_drake/drake/drake.yaml" > /etc/ros/rosdep/sources.list.d/00-drake-list
-echo "yaml https://github.com/osrf/osrf-rosdep/raw/rosdep_drake/drake/releases/kinetic.yaml $ROS_DISTRO" >> /etc/ros/rosdep/sources.list.d/00-drake-list
-ls  /etc/ros/rosdep/sources.list.d/
-cat /etc/ros/rosdep/sources.list.d/00-drake-list
+echo "yaml https://github.com/osrf/osrf-rosdep/raw/rosdep_drake/drake/drake.yaml" > /etc/ros/rosdep/sources.list.d/00-drake.list
+echo "yaml https://github.com/osrf/osrf-rosdep/raw/rosdep_drake/drake/releases/kinetic.yaml $ROS_DISTRO" >> /etc/ros/rosdep/sources.list.d/00-drake.list
 
 [[ -d ${WORKSPACE}/kumonoito ]] && rm -fr ${WORKSPACE}/kumonoito
 git clone https://github.com/osrf/kumonoito -b use_ros_drake ${WORKSPACE}/kumonoito
