@@ -115,8 +115,8 @@ done
 test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 
-# Trusty has no autopkgtest command
-if [ "$DISTRO" != "trusty" ]; then
+# Ubuntu has no autopkgtest command in the autopkgtest package
+if [ "$LINUX_DISTRO" != "ubuntu" ]; then
 echo '# BEGIN SECTION: run tests'
 cd $WORKSPACE/pkgs
 set +e
