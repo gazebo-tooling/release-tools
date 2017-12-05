@@ -52,7 +52,7 @@ DELIM
 
 USE_ROS_REPO=true
 OSRF_REPOS_TO_USE="drake"
-DEPENDENCY_PKGS="ros-kinetic-ros-drake"
+DEPENDENCY_PKGS="${ROS_CATKIN_BASE} git ros-kinetic-ros-drake"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
