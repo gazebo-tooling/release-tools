@@ -297,7 +297,7 @@ supported_distros.each { distro ->
 }
 
 // Bloom for ros_drake
-def build_pkg_job = job("drake-bloom-debbuilder")
+def build_pkg_job = job("ros_drake-bloom-debbuilder")
 
 // Use the linux install as base
 OSRFLinuxBuildPkgBase.create(build_pkg_job)
@@ -310,7 +310,7 @@ build_pkg_job.with
     }
 
     parameters {
-      stringParam("PACKAGE","drake","Package name to be built")
+      stringParam("PACKAGE","ros_drake","Package name to be built")
       stringParam("VERSION",null,"Packages version to be built")
       stringParam("RELEASE_VERSION", null, "Packages release version")
       stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
