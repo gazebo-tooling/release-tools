@@ -234,7 +234,7 @@ supported_distros.each { distro ->
     }
 
     // --------------------------------------------------------------
-    // 5. Install ROS Kinetic + MoveIt + NavStack
+    // 6. Install ROS Kinetic + MoveIt + NavStack
     def drake_ros_install_job = job("drake-install-ROS+MoveIt+Navstak-kinetic-${distro}-${arch}")
     OSRFLinuxCompilation.create(drake_ros_install_job, false, false)
 
@@ -256,8 +256,25 @@ supported_distros.each { distro ->
       }
     }
 
+    // 7. Create the install ros_drake
+    def install_ros_drake_job = job("ros_drake-install-${distro}-${arch}")
+    OSRFLinuxInstall.create(install_ros_drake_job)
+
+    install_ros_drake_job.with
+    {
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export DISTRO=${distro}
+              export ARCH=${arch}
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/ros_drake-release-testing.bash
+	      """.stripIndent())
+      }
+    }
+
     // --------------------------------------------------------------
-    // 5. Eigen ABI checker
+    // 8. Eigen ABI checker
     abi_job_name = "eigen3-abichecker-333_to_33beta1-${distro}-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABI.create(abi_job)
@@ -276,7 +293,7 @@ supported_distros.each { distro ->
     }
 
     // --------------------------------------------------------------
-    // 6. PCL/Eigen ABI checker
+    // 9. PCL/Eigen ABI checker
     abi_job_pcl_name = "pcl_eigen3-abichecker-333_to_33beta1-${distro}-${arch}"
     def abi_job_pcl = job(abi_job_pcl_name)
     OSRFLinuxABI.create(abi_job_pcl)
