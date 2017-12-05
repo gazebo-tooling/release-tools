@@ -268,6 +268,7 @@ supported_distros.each { distro ->
 
               export DISTRO=${distro}
               export ARCH=${arch}
+              export ROS_DISTRO=kinetic
               /bin/bash -xe ./scripts/jenkins-scripts/docker/ros_drake-release-testing.bash
 	      """.stripIndent())
       }
