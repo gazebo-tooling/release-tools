@@ -1,7 +1,9 @@
 @echo on
 
 set SCRIPT_DIR=%~dp0
+
+set VCS_DIRECTORY=ign-transport
 set PLATFORM_TO_BUILD=amd64
 set IGN_CLEAN_WORKSPACE=true
 
-call %SCRIPT_DIR%/lib/ign_transport-base-windows.bat
+call %SCRIPT_DIR%/lib/generic-default-devel-windows.bat
