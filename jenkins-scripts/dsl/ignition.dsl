@@ -154,6 +154,11 @@ ignition_software.each { ign_sw ->
 
 // INSTALL PACKAGE ALL PLATFORMS / DAILY
 ignition_software.each { ign_sw ->
+
+  // No packages for fuel-tools yet
+  if (ign_sw == 'fuel-tools')
+    return
+
   all_supported_distros.each { distro ->
     supported_arches.each { arch ->
       supported_branches(ign_sw).each { major_version ->
