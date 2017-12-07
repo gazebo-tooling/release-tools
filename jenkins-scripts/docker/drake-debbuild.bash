@@ -6,8 +6,6 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 . ${SCRIPT_DIR}/lib/_drake_lib.bash
 
-# TODO: Install the DRAKE_DEPENDENCIES to debug what is missing in the build
-# remove them. Dependencies come from control/debian
 DEBIAN_GIT_PREINSTALL_HOOK="""\
 ${DRAKE_BAZEL_INSTALL}
 """
