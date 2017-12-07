@@ -2,7 +2,7 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
-ignition_software           = [ 'transport', 'math', 'msgs', 'cmake', 'common', 'rndf', 'gui' ]
+ignition_software           = [ 'transport', 'math', 'msgs', 'cmake', 'common', 'rndf', 'gui', 'fuel-tools' ]
 ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3', 'msgs0' ]
 ignition_gpu                = [ 'gui' ]
 // no registered branches in ignition_branches means only series 0 or 1
@@ -260,6 +260,11 @@ ignition_debbuild.each { ign_sw ->
 
 // 1. any job
 ignition_software.each { ign_sw ->
+
+  // No brew for fuel-tools yet
+  if (ign_sw == 'fuel-tools')
+    continue
+
   String ignition_brew_ci_any_job_name = "ignition_${ign_sw}-ci-pr_any-homebrew-amd64"
   def ignition_brew_ci_any_job = job(ignition_brew_ci_any_job_name)
   OSRFBrewCompilationAny.create(ignition_brew_ci_any_job,
@@ -317,6 +322,11 @@ ignition_software.each { ign_sw ->
 
 // 1. any
 ignition_software.each { ign_sw ->
+
+  // No windows for fuel-tools yet
+  if (ign_sw == 'fuel-tools')
+    continue
+
   String ignition_win_ci_any_job_name = "ignition_${ign_sw}-ci-pr_any-windows7-amd64"
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAny.create(ignition_win_ci_any_job,
