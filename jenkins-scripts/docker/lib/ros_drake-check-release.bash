@@ -28,7 +28,7 @@ echo "yaml https://github.com/osrf/osrf-rosdep/raw/rosdep_drake/drake/releases/k
 git clone https://github.com/osrf/kumonoito -b use_ros_drake ${WORKSPACE}/kumonoito
 
 nm -D /opt/drake/lib/libdrake.so | grep get_position_name | grep RigidBody
-cc -version
+cc --version
 DELIM_CHECKOUT
 
 # Generate the first part of the build.sh file for ROS
