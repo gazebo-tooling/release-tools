@@ -15,7 +15,7 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-fuel-tools"
-export BUILDING_DEPENDENCIES="libignition-common0-dev libzip-dev libjsoncpp libcurl"
+export BUILDING_DEPENDENCIES="libignition-common-dev libzip-dev libjsoncpp-dev libcurl-dev"
 export BUILDING_JOB_REPOSITORIES="stable"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
