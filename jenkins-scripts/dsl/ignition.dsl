@@ -155,8 +155,24 @@ ignition_software.each { ign_sw ->
 // INSTALL PACKAGE ALL PLATFORMS / DAILY
 ignition_software.each { ign_sw ->
   all_supported_distros.each { distro ->
+
+    // msgs amd common does not work on trusty
+    // https://bitbucket.org/ignitionrobotics/ign-msgs/issues/8
+    if (("${ign_sw}" == "msgs") && ("${distro}" == "trusty"))
+      return
+    if (("${ign_sw}" == "common") && ("${distro}" == "trusty"))
+      return
+
     supported_arches.each { arch ->
       supported_branches(ign_sw).each { major_version ->
+
+        // only a few release branches support trusty anymore
+        if (("${distro}" == "trusty") && !(
+            (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
+            (("${ign_sw}" == "math") && ("${major_version}" == "3")) ||
+            (("${ign_sw}" == "transport") && ("${major_version}" == "3"))))
+          return
+
         // --------------------------------------------------------------
         def install_default_job = job("ignition_${ign_sw}${major_version}-install-pkg-${distro}-${arch}")
         OSRFLinuxInstall.create(install_default_job)
@@ -164,22 +180,22 @@ ignition_software.each { ign_sw ->
 
         install_default_job.with
         {
-           triggers {
-             cron('@daily')
-           }
+          triggers {
+            cron('@daily')
+          }
 
-           def dev_package = "libignition-${ign_sw}${major_version}-dev"
+          def dev_package = "libignition-${ign_sw}${major_version}-dev"
 
-           steps {
-            shell("""\
-                  #!/bin/bash -xe
+          steps {
+           shell("""\
+                 #!/bin/bash -xe
 
-                  export DISTRO=${distro}
-                  export ARCH=${arch}
-                  export INSTALL_JOB_PKG=${dev_package}
-                  export INSTALL_JOB_REPOS=stable
-                  /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
-                  """.stripIndent())
+                 export DISTRO=${distro}
+                 export ARCH=${arch}
+                 export INSTALL_JOB_PKG=${dev_package}
+                 export INSTALL_JOB_REPOS=stable
+                 /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+                 """.stripIndent())
           }
         }
       }
@@ -206,11 +222,11 @@ ignition_software.each { ign_sw ->
             scm('@daily')
           }
 
-          // msgs amd common does not work on trusty
-          // https://bitbucket.org/ignitionrobotics/ign-msgs/issues/8
-          if (("${ign_sw}" == "msgs") && ("${distro}" == "trusty"))
-            disabled()
-          if (("${ign_sw}" == "common") && ("${distro}" == "trusty"))
+          // only a few release branches support trusty anymore
+          if (("${distro}" == "trusty") && !(
+              ("${branch}" == "ign-math2") ||
+              ("${branch}" == "ign-math3") ||
+              ("${branch}" == "ign-transport3")))
             disabled()
 
           steps {
@@ -230,7 +246,7 @@ ignition_software.each { ign_sw ->
 
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
-ignition_software.each { ign_sw ->
+ignition_debbuild.each { ign_sw ->
   supported_branches("${ign_sw}").each { major_version ->
     def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
     OSRFLinuxBuildPkg.create(build_pkg_job)
