@@ -63,15 +63,9 @@ echo '# BEGIN SECTION: setup the osrf/simulation tap'
 brew tap osrf/simulation
 echo '# END SECTION'
 
-IS_A_HEAD_FORMULA=${IS_A_HEAD_PROJECT:-false}
-HEAD_STR=""
-if $IS_A_HEAD_PROJECT; then
-    HEAD_STR="--HEAD"
-fi
-
 echo "# BEGIN SECTION: install ${PROJECT_FORMULA} dependencies"
 # Process the package dependencies
-brew install ${HEAD_STR} ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies
+brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies
 
 if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   # Install lxml for flaky_junit_merge.py

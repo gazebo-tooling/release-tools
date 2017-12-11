@@ -494,6 +494,12 @@ IGN_GUI_DEPENDENCIES="qtbase5-dev \\
                       libtinyxml2-dev \\
                       libqwt-qt5-dev"
 
+IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
+                            freeglut3-dev\\
+                            libx11-dev"
+
+IGN_SENSORS_DEPENDENCIES="libignition-math4-dev      \\
+                          libignition-transport3-dev"
 #
 # MENTOR2
 #

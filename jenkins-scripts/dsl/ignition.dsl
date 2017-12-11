@@ -2,10 +2,9 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
-ignition_software           = [ 'transport', 'math', 'msgs', 'cmake', 'common', 'rndf', 'gui', 'fuel-tools' ]
+ignition_software           = [ 'transport', 'fuel-tools', 'math', 'msgs', 'cmake', 'common', 'rndf', 'gui', 'sensors']
 ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3', 'msgs0' ]
-ignition_gpu                = [ 'gui' ]
-// no registered branches in ignition_branches means only series 0 or 1
+ignition_gpu                = [ 'gui', 'sensors' ]// no registered branches in ignition_branches means only series 0 or 1
 ignition_branches           = [ transport : [ '3' ],
                                 math      : [ '2', '3' ],
                                 msgs      : [ '1']]
@@ -162,6 +161,14 @@ ignition_software.each { ign_sw ->
   all_supported_distros.each { distro ->
     supported_arches.each { arch ->
       supported_branches(ign_sw).each { major_version ->
+
+        // only a few release branches support trusty anymore
+        if (("${distro}" == "trusty") && !(
+            (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
+            (("${ign_sw}" == "math") && ("${major_version}" == "3")) ||
+            (("${ign_sw}" == "transport") && ("${major_version}" == "3"))))
+          return
+
         // --------------------------------------------------------------
         def install_default_job = job("ignition_${ign_sw}${major_version}-install-pkg-${distro}-${arch}")
         OSRFLinuxInstall.create(install_default_job)
@@ -265,11 +272,6 @@ ignition_debbuild.each { ign_sw ->
 
 // 1. any job
 ignition_software.each { ign_sw ->
-
-  // No brew for fuel-tools yet
-  if (ign_sw == 'fuel-tools')
-    return
-
   String ignition_brew_ci_any_job_name = "ignition_${ign_sw}-ci-pr_any-homebrew-amd64"
   def ignition_brew_ci_any_job = job(ignition_brew_ci_any_job_name)
   OSRFBrewCompilationAny.create(ignition_brew_ci_any_job,
