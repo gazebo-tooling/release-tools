@@ -18,7 +18,7 @@ export BUILDING_SOFTWARE_DIRECTORY="ign-msgs"
 export BUILDING_DEPENDENCIES="libprotobuf-dev libprotoc-dev protobuf-compiler ruby ruby-dev libignition-math4-dev"
 export DOCKER_POSTINSTALL_HOOK="gem install protobuf"
 export BUILDING_JOB_REPOSITORIES="stable"
-if [[ $(date +%Y%m%d) -le 20171201 ]]; then
+if [[ $(date +%Y%m%d) -le 20171215 ]]; then
   ## need prerelease repo to get ignition-cmake during the development cycle
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
 fi

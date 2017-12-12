@@ -30,7 +30,9 @@ popd 2> /dev/null
 # test-bot needs variables and does not work just with config not sure why
 export GIT_AUTHOR_NAME="OSRF Build Bot"
 export GIT_COMMITTER_NAME=${GIT_AUTHOR_NAME}
+export HOMEBREW_GIT_NAME=${GIT_AUTHOR_NAME}
 export GIT_AUTHOR_EMAIL="osrfbuild@osrfoundation.org"
 export GIT_COMMITTER_EMAIL=${GIT_AUTHOR_EMAIL}
+export HOMEBREW_GIT_EMAIL=${GIT_AUTHOR_EMAIL}
 git config --global user.name "${GIT_AUTHOR_NAME}"
 git config --global user.email "${GIT_AUTHOR_EMAIL}"
