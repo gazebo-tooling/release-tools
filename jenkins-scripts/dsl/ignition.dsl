@@ -169,8 +169,7 @@ ignition_software.each { ign_sw ->
         // only a few release branches support trusty anymore
         if (("${distro}" == "trusty") && !(
             (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
-            (("${ign_sw}" == "math") && ("${major_version}" == "3")) ||
-            (("${ign_sw}" == "transport") && ("${major_version}" == "3"))))
+            (("${ign_sw}" == "math") && ("${major_version}" == "3"))))
           return
 
         // --------------------------------------------------------------
