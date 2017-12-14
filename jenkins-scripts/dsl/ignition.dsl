@@ -2,9 +2,9 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
-ignition_software           = [ 'transport', 'math', 'msgs', 'cmake', 'common', 'rndf', 'gui' ]
-ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3', 'msgs1' ]
-ignition_gpu                = [ 'gui' ]
+ignition_software           = [ 'transport', 'fuel-tools', 'math', 'msgs', 'cmake', 'common', 'rndf', 'gui', 'sensors' ]
+ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3', 'msgs0' ]
+ignition_gpu                = [ 'gui', 'sensors' ]
 // no registered branches in ignition_branches means only series 0 or 1
 ignition_branches           = [ transport : [ '3' ],
                                 math      : [ '2', '3' ],
@@ -154,9 +154,21 @@ ignition_software.each { ign_sw ->
 
 // INSTALL PACKAGE ALL PLATFORMS / DAILY
 ignition_software.each { ign_sw ->
+
+  // No packages for fuel-tools yet
+  if (ign_sw == 'fuel-tools')
+    return
+
   all_supported_distros.each { distro ->
     supported_arches.each { arch ->
       supported_branches(ign_sw).each { major_version ->
+
+        // only a few release branches support trusty anymore
+        if (("${distro}" == "trusty") && !(
+            (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
+            (("${ign_sw}" == "math") && ("${major_version}" == "3"))))
+          return
+
         // --------------------------------------------------------------
         def install_default_job = job("ignition_${ign_sw}${major_version}-install-pkg-${distro}-${arch}")
         OSRFLinuxInstall.create(install_default_job)
@@ -167,13 +179,6 @@ ignition_software.each { ign_sw ->
           triggers {
             cron('@daily')
           }
-
-          // only a few release branches support trusty anymore
-          if (("${distro}" == "trusty") && !(
-              (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
-              (("${ign_sw}" == "math") && ("${major_version}" == "3")) ||
-              (("${ign_sw}" == "transport") && ("${major_version}" == "3"))))
-            disabled()
 
           def dev_package = "libignition-${ign_sw}${major_version}-dev"
 
@@ -237,7 +242,7 @@ ignition_software.each { ign_sw ->
 
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
-ignition_software.each { ign_sw ->
+ignition_debbuild.each { ign_sw ->
   supported_branches("${ign_sw}").each { major_version ->
     def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
     OSRFLinuxBuildPkg.create(build_pkg_job)

@@ -17,6 +17,10 @@ fi
 export BUILDING_SOFTWARE_DIRECTORY="ign-transport"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_TRANSPORT_DEPENDENCIES"
 export BUILDING_JOB_REPOSITORIES="stable"
+if [[ $(date +%Y%m%d) -le 20171215 ]]; then
+  ## need prerelease repo to get ignition-cmake during the development cycle
+  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
+fi
 # Install Ignition Tools while we release a .deb package.
 # ToDo: Remove this env variable after releasing Ignition Tools.
 export DOCKER_POSTINSTALL_HOOK="""\
