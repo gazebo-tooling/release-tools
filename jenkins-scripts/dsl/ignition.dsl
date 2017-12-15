@@ -221,8 +221,7 @@ ignition_software.each { ign_sw ->
           // only a few release branches support trusty anymore
           if (("${distro}" == "trusty") && !(
               ("${branch}" == "ign-math2") ||
-              ("${branch}" == "ign-math3") ||
-              ("${branch}" == "ign-transport3")))
+              ("${branch}" == "ign-math3")))
             disabled()
 
           steps {
