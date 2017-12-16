@@ -42,7 +42,7 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: install needed software'
 NEEDED_HOST_PACKAGES="python-pip"
 
-REPO_SHORT_NAME=`echo ${JENKINS_BUILD_REPO} | sed s:.*\.org/::`
+REPO_SHORT_NAME=`echo ${JENKINS_BUILD_REPO} | sed -e 's:.*\.org/::' -e 's:/*$::'`
 
 echo "Generating requirements.txt for pip"
 cat > ${WORKSPACE}/requirements.txt <<- REQ

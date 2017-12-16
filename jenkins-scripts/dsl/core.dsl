@@ -22,7 +22,7 @@ set_status.with
                  'Description about building events')
      stringParam('BITBUCKET_STATUS',
                  '',
-                 'inprogress | fail | ok')
+                 'inprogress | failed | ok')
   }
 
   wrappers {
