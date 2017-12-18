@@ -17,7 +17,7 @@ fi
 export BUILDING_SOFTWARE_DIRECTORY="ign-fuel-tools"
 export BUILDING_DEPENDENCIES="libignition-common-dev libzip-dev libjsoncpp-dev libcurl4-openssl-dev"
 export BUILDING_JOB_REPOSITORIES="stable"
-if [[ $(date +%Y%m%d) -le 20171215 ]]; then
+if [[ $(date +%Y%m%d) -le 20171222 ]]; then
   ## need prerelease repo to get ignition-cmake during the development cycle
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
 fi
