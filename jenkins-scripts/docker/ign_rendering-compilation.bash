@@ -17,7 +17,7 @@ fi
 export BUILDING_SOFTWARE_DIRECTORY="ign-rendering"
 export BUILDING_JOB_REPOSITORIES="stable"
 export BUILDING_DEPENDENCIES="libignition-common-dev libignition-math4-dev libfreeimage-dev libogre-1.9-dev"
-if [[ $(date +%Y%m%d) -le 20171215 ]]; then
+if [[ $(date +%Y%m%d) -le 20180115 ]]; then
   ## need prerelease repo to get ignition-cmake during the development cycle
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
 fi
