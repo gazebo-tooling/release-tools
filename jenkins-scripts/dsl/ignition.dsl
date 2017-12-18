@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 // IGNITION PACKAGES
 ignition_software           = [ 'transport', 'fuel-tools', 'math', 'msgs', 'cmake', 'common', 'rndf', 'gui', 'rendering', 'sensors' ]
 ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3', 'msgs0' ]
-ignition_gpu                = [ 'gui', 'sensors' ]
+ignition_gpu                = [ 'gui', 'rendering', 'sensors' ]
 // no registered branches in ignition_branches means only series 0 or 1
 ignition_branches           = [ transport : [ '3' ],
                                 math      : [ '2', '3' ],
