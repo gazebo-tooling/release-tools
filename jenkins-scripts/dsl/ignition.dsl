@@ -211,6 +211,7 @@ ignition_software.each { ign_sw ->
         OSRFBitbucketHg.create(ignition_ci_job,
                               "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
                               "${branch}", "ign-${ign_sw}")
+        include_gpu_label_if_needed(ignition_ci_job, ign_sw)
 
         ignition_ci_job.with
         {
