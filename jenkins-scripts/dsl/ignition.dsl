@@ -5,6 +5,7 @@ import javaposse.jobdsl.dsl.Job
 ignition_software           = [ 'transport', 'fuel-tools', 'math', 'msgs', 'cmake', 'common', 'rndf', 'gui', 'sensors' ]
 ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3', 'msgs0' ]
 ignition_gpu                = [ 'gui', 'sensors' ]
+ignition_no_pkg_yet         = [ 'gui', 'fuel-tools', 'sensors' ]
 // no registered branches in ignition_branches means only series 0 or 1
 ignition_branches           = [ transport : [ '3' ],
                                 math      : [ '2', '3' ],
@@ -156,7 +157,7 @@ ignition_software.each { ign_sw ->
 ignition_software.each { ign_sw ->
 
   // No packages for fuel-tools yet
-  if (ign_sw == 'fuel-tools')
+  if (ign_sw in ignition_no_pkg_yet)
     return
 
   all_supported_distros.each { distro ->
