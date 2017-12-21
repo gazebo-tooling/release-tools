@@ -21,7 +21,9 @@ IGN_TRANSPORT_MAJOR_VERSION=`\
 
 # ign-cmake has a different line for the version
 if [[ -z ${IGN_TRANSPORT_MAJOR_VERSION} ]]; then
-  IGN_TRANSPORT_MAJOR_VERSION=$(grep project.*VERSION CMakeLists.txt | sed -n 's:.*\([0-9]\).[0-9].[0-9])$*:\1:p')
+  IGN_TRANSPORT_MAJOR_VERSION=`\
+    grep project.*VERSION ${WORKSPACE}/ign-transport/CMakeLists.txt | \
+    sed -n 's:.*\([0-9]\).[0-9].[0-9])$*:\1:p'`
 fi
 
 # Check IGN_TRANSPORT version is integer
