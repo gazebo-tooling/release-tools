@@ -480,7 +480,7 @@ if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 4 ]]; then
     IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
                                 libignition-cmake-dev \\
                                 libignition-msgs-dev"
-else; then
+else
     IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
                                 libignition-msgs0-dev"
 fi
