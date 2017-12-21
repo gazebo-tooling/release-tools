@@ -28,7 +28,10 @@ echo "yaml https://github.com/osrf/osrf-rosdep/raw/rosdep_drake/drake/releases/k
 git clone https://github.com/osrf/kumonoito -b use_ros_drake ${WORKSPACE}/kumonoito
 
 nm -D /opt/drake/lib/libdrake.so | grep get_position_name | grep RigidBody
-cc --version
+c++ --version
+
+update-alternatives --set c++ /usr/bin/clang++
+update-alternatives --set cc /usr/bin/clang
 DELIM_CHECKOUT
 
 # Generate the first part of the build.sh file for ROS
@@ -60,7 +63,8 @@ DELIM
 
 USE_ROS_REPO=true
 OSRF_REPOS_TO_USE="drake"
-DEPENDENCY_PKGS="${ROS_CATKIN_BASE} git ros-kinetic-ros-drake"
+# Clang is needed to be able to have the same CXX11 ABI produced in the drake package
+DEPENDENCY_PKGS="${ROS_CATKIN_BASE} git ros-kinetic-ros-drake clang"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
