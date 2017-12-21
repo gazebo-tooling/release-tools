@@ -14,6 +14,17 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
+# Identify IGN_TRANSPORT_MAJOR_VERSION to help with dependency resolution
+IGN_TRANSPORT_MAJOR_VERSION=`\
+  grep 'set.*PROJECT_MAJOR_VERSION ' ${WORKSPACE}/ign-transport/CMakeLists.txt | \
+  tr -d 'a-zA-Z _()'`
+
+# Check IGN_TRANSPORT version is integer
+if ! [[ ${IGN_TRANSPORT_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+  echo "Error! IGN_TRANSPORT_MAJOR_VERSION is not an integer, check the detection"
+  exit -1
+fi
+
 export BUILDING_SOFTWARE_DIRECTORY="ign-transport"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_TRANSPORT_DEPENDENCIES"
 export BUILDING_JOB_REPOSITORIES="stable"
