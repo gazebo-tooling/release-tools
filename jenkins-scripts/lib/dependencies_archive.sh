@@ -463,7 +463,7 @@ fi
 # IGN_TRANSPORT related dependencies. Default value points to the development
 # version
 if [[ -z ${IGN_TRANSPORT_MAJOR_VERSION} ]]; then
-    IGN_TRANSPORT_MAJOR_VERSION=8
+    IGN_TRANSPORT_MAJOR_VERSION=5
 fi
 
 IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
