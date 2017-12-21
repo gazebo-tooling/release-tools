@@ -27,9 +27,7 @@ echo "yaml https://github.com/osrf/osrf-rosdep/raw/rosdep_drake/drake/releases/k
 [[ -d ${WORKSPACE}/kumonoito ]] && rm -fr ${WORKSPACE}/kumonoito
 git clone https://github.com/osrf/kumonoito -b use_ros_drake ${WORKSPACE}/kumonoito
 
-nm -D /opt/drake/lib/libdrake.so | grep get_position_name | grep RigidBody
-c++ --version
-
+# Need to use clang to match ABI
 update-alternatives --set c++ /usr/bin/clang++
 update-alternatives --set cc /usr/bin/clang
 DELIM_CHECKOUT
