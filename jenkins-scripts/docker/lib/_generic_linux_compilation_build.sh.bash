@@ -27,7 +27,7 @@ fi
 DELIM_HEADER
 
 # Process the source build of dependencies if needed
-OSRF_DEPS="SDFORMAT IGN_MATH IGN_MSGS IGN_TRANSPORT IGN_COMMON IGN_GUI"
+OSRF_DEPS="SDFORMAT IGN_MATH IGN_MSGS IGN_TRANSPORT IGN_COMMON IGN_RENDERING IGN_SENSORS IGN_GUI"
 OSRF_DEPS_DONE=""
 for dep_uppercase in $OSRF_DEPS; do
   dep=`echo $dep_uppercase | tr '[:upper:]' '[:lower:]'`
