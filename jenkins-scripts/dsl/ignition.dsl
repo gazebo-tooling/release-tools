@@ -242,7 +242,6 @@ ignition_software.each { ign_sw ->
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
 ignition_debbuild.each { ign_sw ->
-  println(" generating .... ${ign_sw}")
   supported_branches("${ign_sw}").each { major_version ->
     def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
     OSRFLinuxBuildPkg.create(build_pkg_job)
