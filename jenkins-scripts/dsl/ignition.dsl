@@ -8,8 +8,7 @@ ignition_gpu                = [ 'gui', 'sensors' ]
 ignition_no_pkg_yet         = [ 'gui', 'fuel-tools', 'sensors' ]
 // no registered branches in ignition_branches means only series 0 or 1
 ignition_branches           = [ transport : [ '3' ],
-                                math      : [ '2', '3' ],
-                                msgs      : [ '1']]
+                                math      : [ '2', '3' ]]
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
 def abi_distro              = Globals.get_abi_distro()
@@ -243,6 +242,7 @@ ignition_software.each { ign_sw ->
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
 ignition_debbuild.each { ign_sw ->
+  println(" generating .... ${ign_sw}")
   supported_branches("${ign_sw}").each { major_version ->
     def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
     OSRFLinuxBuildPkg.create(build_pkg_job)
