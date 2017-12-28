@@ -8,7 +8,7 @@ ignition_gpu                = [ 'gui', 'sensors' ]
 ignition_no_pkg_yet         = [ 'gui', 'fuel-tools', 'sensors' ]
 // no registered branches in ignition_branches means only series 0 or 1
 ignition_branches           = [ transport : [ '3' ],
-                                math      : [ '2', '3' ]]
+                                math      : [ '2', '3','4' ]]
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
 def abi_distro              = Globals.get_abi_distro()
