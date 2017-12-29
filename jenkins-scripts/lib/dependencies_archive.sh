@@ -27,6 +27,7 @@ BASE_DEPENDENCIES="build-essential \\
                    mesa-utils      \\
                    cppcheck        \\
                    xsltproc        \\
+                   python-lxml     \\
                    python-psutil   \\
                    python          \\
                    bc              \\
