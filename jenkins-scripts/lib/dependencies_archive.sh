@@ -27,6 +27,7 @@ BASE_DEPENDENCIES="build-essential \\
                    mesa-utils      \\
                    cppcheck        \\
                    xsltproc        \\
+                   python-lxml     \\
                    python-psutil   \\
                    python          \\
                    bc              \\
@@ -460,6 +461,12 @@ if [[ ${DISTRO} != 'trusty' ]]; then
   IGN_MATH_DEPENDENCIES="libignition-cmake-dev"
 fi
 
+# IGN_TRANSPORT related dependencies. Default value points to the development
+# version
+if [[ -z ${IGN_TRANSPORT_MAJOR_VERSION} ]]; then
+    IGN_TRANSPORT_MAJOR_VERSION=5
+fi
+
 IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             python               \\
                             ruby-ronn            \\
@@ -468,8 +475,16 @@ IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             protobuf-compiler    \\
                             uuid-dev             \\
                             libzmq3-dev          \\
-                            libignition-msgs0-dev \\
                             libczmq-dev"
+
+if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 4 ]]; then
+    IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
+                                libignition-cmake-dev \\
+                                libignition-msgs-dev"
+else
+    IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
+                                libignition-msgs0-dev"
+fi
 
 IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          python                \\

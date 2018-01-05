@@ -32,5 +32,4 @@ fi
 # clear the heightmap paging cache
 rm -rf $HOME/.gazebo/paging
 
-. ${SCRIPT_DIR}/lib/project-default-devel-homebrew-amd64.bash ${gazeboN} \
-  "--with-ffmpeg --with-bullet --with-simbody"
+. ${SCRIPT_DIR}/lib/project-default-devel-homebrew-amd64.bash ${gazeboN}
