@@ -15,7 +15,7 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-rndf"
-export BUILDING_DEPENDENCIES="libignition-math4-dev libignition-cmake-dev"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_RNDF_DEPENDENCIES"
 export BUILDING_JOB_REPOSITORIES="stable"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
