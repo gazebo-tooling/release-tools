@@ -23,7 +23,6 @@ if [[ $(date +%Y%m%d) -le 20171229 ]]; then
 fi
 
 # TODO: stop building dependencies from source after there's a release
-export BUILD_IGN_COMMON=true
 export BUILD_IGN_TRANSPORT=true
 export BUILD_IGN_RENDERING=true
 
