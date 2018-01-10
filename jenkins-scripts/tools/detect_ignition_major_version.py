@@ -13,9 +13,8 @@ txt = f.read()
 f.close()
 
 old_version = re.search('set *\( *PROJECT_MAJOR_VERSION +(\d+)', txt)
+ign_cmake_version = re.search('project *\( *ignition-[a-z\-]+(\d+)', txt)
 if old_version:
     print(old_version.group(1) )
-
-ign_cmake_version = re.search('project *\( *ignition-[a-z\-]+(\d+)', txt)
-if ign_cmake_version:
+elif ign_cmake_version:
     print(ign_cmake_version.group(1))
