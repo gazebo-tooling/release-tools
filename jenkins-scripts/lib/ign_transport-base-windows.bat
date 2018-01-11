@@ -5,6 +5,7 @@
 set TEST_RESULT_PATH="%WORKSPACE%\test_results"
 set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
+set LOCAL_WS=%WORKSPACE%\ws
 
 :: Call vcvarsall and all the friends
 echo # BEGIN SECTION: configure the MSVC compiler
@@ -16,16 +17,16 @@ if "%IGN_CLEAN_WORKSPACE%" == "" set IGN_CLEAN_WORKSPACE=false
 
 if %IGN_CLEAN_WORKSPACE% == true (
   echo # BEGIN SECTION: preclean of workspace
-  IF exist workspace ( rmdir /s /q workspace ) || goto :error
+  IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto :error
   echo # END SECTION
 ) else (
   echo # BEGIN SECTION: delete old sources
-  IF exist workspace\ign-transport ( rmdir /s /q workspace\ign-transport ) || goto :error
+  IF exist %LOCAL_WS%\ign-transport ( rmdir /s /q %LOCAL_WS%\ign-transport ) || goto :error
   echo # END SECTION
 )
 
-mkdir %WORKSPACE%\workspace || echo "The workspace already exists. Fine"
-cd %WORKSPACE%\workspace || goto :error
+mkdir %LOCAL_WS% || echo "The workspace already exists. Fine"
+cd %LOCAL_WS% || goto :error
 
 echo # BEGIN SECTION: downloading ign-transport dependencies and unzip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip
@@ -60,17 +61,17 @@ echo # END SECTION
 
 echo # BEGIN SECTION: move ign-transport sources so we agree with configure.bat layout
 :: Remove code copy
-IF EXIST %WORKSPACE%\workspace\ign-transport ( rmdir /s /q %WORKSPACE%\workspace\ign-transport ) || goto :error
-xcopy %WORKSPACE%\ign-transport %WORKSPACE%\workspace\ign-transport /s /i /e > xcopy.log || goto :error
+IF EXIST %LOCAL_WS%\ign-transport ( rmdir /s /q %LOCAL_WS%\ign-transport ) || goto :error
+xcopy %WORKSPACE%\ign-transport %LOCAL_WS%\ign-transport /s /i /e > xcopy.log || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: add zeromq to PATH for dll load
 REM Add path for zeromq dynamic library .ddl
-set PATH=%PATH%;%WORKSPACE%\workspace\ZeroMQ 4.0.4\bin\
+set PATH=%PATH%;%LOCAL_WS%\ZeroMQ 4.0.4\bin\
 echo # END SECTION
 
 echo # BEGIN SECTION: ign-transport compilation in %BUILD_TYPE%
-cd %WORKSPACE%\workspace\ign-transport || goto :error
+cd %LOCAL_WS%\ign-transport || goto :error
 mkdir build
 cd build
 call "..\configure.bat" %BUILD_TYPE% %BITNESS% || goto :error
@@ -102,7 +103,7 @@ if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
    cd %WORKSPACE%
-   rmdir /s /q %WORKSPACE%\workspace || goto :error
+   rmdir /s /q %LOCAL_WS% || goto :error
    echo # END SECTION
 )
 

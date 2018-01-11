@@ -1,12 +1,12 @@
 :: sdformat base script
 ::
 :: Parameters:
-::  - USE_IGNITION_ZIP : (default true) [true | false]. Use zip to install ignition 
+::  - USE_IGNITION_ZIP : (default true) [true | false]. Use zip to install ignition
 ::                       instead of compile
 ::  - BUILD_TYPE       : (default Release) [ Release | Debug ] Build type to use
 ::  - IGNMATH_BRANCH   : (default default) [optional]. Ignition math branch to
 ::                       compile. If in use, USE_IGNITION_ZIP will be false
-::                   
+::
 
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
 
@@ -30,6 +30,7 @@ set IGNMATH_ZIP=%IGNMATH_BRANCH% :: should not be needed
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 set TEST_RESULT_PATH="%WORKSPACE%\test_results"
 set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
+set LOCAL_WS=%WORKSPACE%\ws
 
 :: Call vcvarsall and all the friends
 echo # BEGIN SECTION: configure the MSVC compiler
@@ -37,9 +38,9 @@ call %win_lib% :configure_msvc_compiler
 echo # END SECTION
 
 echo # BEGIN SECTION: preclean of workspace
-IF exist %WORKSPACE%\workspace ( rmdir /s /q workspace ) || goto :error
-mkdir %WORKSPACE%\workspace 
-cd %WORKSPACE%\workspace
+IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto :error
+mkdir %LOCAL_WS%
+cd %LOCAL_WS%
 echo # END SECTION
 
 IF %USE_IGNITION_ZIP% == FALSE (
@@ -53,7 +54,7 @@ IF %USE_IGNITION_ZIP% == FALSE (
 )
 
 echo # BEGIN SECTION: download and uncompress dependencies
-cd %WORKSPACE%\workspace
+cd %LOCAL_WS%
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip
 
 call %win_lib% :download_7za
@@ -65,11 +66,11 @@ IF %USE_IGNITION_ZIP% == TRUE (
 echo # END SECTION
 
 echo # BEGIN SECTION: move sources so we agree with configure.bat layout
-xcopy %WORKSPACE%\sdformat %WORKSPACE%\workspace\sdformat /s /i /e > xcopy.log || goto :error
+xcopy %WORKSPACE%\sdformat %LOCAL_WS%\sdformat /s /i /e > xcopy.log || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: configure in %BUILD_TYPE%
-cd %WORKSPACE%\workspace\sdformat
+cd %LOCAL_WS%\sdformat
 mkdir build
 cd build
 call "..\configure.bat" %BUILD_TYPE% %BITNESS% || goto :error
@@ -100,12 +101,12 @@ echo # END SECTION
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
    cd %WORKSPACE%
-   rmdir /s /q %WORKSPACE%\workspace || goto :error
+   rmdir /s /q %LOCAL_WS% || goto :error
    echo # END SECTION
 )
 
 goto :EOF
 
 :error:error
-echo "The program is stopping with errors! Check the log" 
+echo "The program is stopping with errors! Check the log"
 exit /b %errorlevel%
