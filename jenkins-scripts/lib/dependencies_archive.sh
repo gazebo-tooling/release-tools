@@ -502,6 +502,13 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          libtinyxml2-dev       \\
                          uuid-dev"
 
+IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
+                             libignition-common-dev \\
+                             libcurl4-openssl-dev   \\
+                             libjsoncpp-dev         \\
+                             libyaml-dev            \\
+                             libzip-dev"
+
 IGN_GUI_DEPENDENCIES="qtbase5-dev \\
                       libignition-cmake-dev \\
                       libignition-math4-dev \\
