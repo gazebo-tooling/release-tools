@@ -18,3 +18,5 @@ if old_version:
     print(old_version.group(1) )
 elif ign_cmake_version:
     print(ign_cmake_version.group(1))
+else:
+    sys.exit("could not detect the major version")
