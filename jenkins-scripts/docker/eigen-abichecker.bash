@@ -14,10 +14,4 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export GPU_SUPPORT_NEEDED=true
-
-export BUILDING_SOFTWARE_DIRECTORY="robocup3ds"
-export BUILDING_DEPENDENCIES="libgazebo7-dev libqt4-dev libboost-dev"
-export BUILDING_JOB_REPOSITORIES="stable prerelease"
-
-. ${SCRIPT_DIR}/lib/generic-building-base.bash
+. ${SCRIPT_DIR}/lib/eigen_pcl-abi-checker.bash

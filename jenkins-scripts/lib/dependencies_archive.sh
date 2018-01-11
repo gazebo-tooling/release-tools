@@ -16,14 +16,6 @@ if ${DART_COMPILE_FROM_SOURCE}; then
     DART_FROM_PKGS=false
 fi
 
-if $DART_FROM_PKGS; then
-    if $DART_USE_4_VERSION; then
-       dart_pkg="libdart-core4-dev"
-    else
-       dart_pkg="libdart-core3-dev"
-    fi
-fi
-
 # mesa-utils for dri checks, xsltproc for qtest->junit conversion and
 # python-psutil for memory testing
 # netcat-openbsd (nc command) for squid-deb-proxy checking
@@ -35,12 +27,14 @@ BASE_DEPENDENCIES="build-essential \\
                    mesa-utils      \\
                    cppcheck        \\
                    xsltproc        \\
+                   python-lxml     \\
                    python-psutil   \\
                    python          \\
                    bc              \\
                    netcat-openbsd  \\
                    gnupg2          \\
-                   net-tools"
+                   net-tools       \\
+                   locales"
 
 BREW_BASE_DEPENDCIES="mercurial git cmake"
 
@@ -127,6 +121,18 @@ if [[ ${DISTRO} == 'precise' ]] || \
     bullet_pkg="libbullet2.82-dev"
 fi
 
+# choose dart version
+if $DART_FROM_PKGS; then
+    if [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
+       dart_pkg="libdart6-utils-urdf-dev"
+    elif [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
+       dart_pkg="libdart-core5-dev"
+    elif [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]] && \
+         [[ ${DISTRO} == 'trusty' ]]; then
+       dart_pkg="libdart-core4-dev"
+    fi
+fi
+
 # gazebo8 and above use qt5
 if [[ ${GAZEBO_MAJOR_VERSION} -le 7 ]]; then
   gazebo_qt_dependencies="libqt4-dev \\
@@ -150,87 +156,108 @@ else
   fi
 fi
 
-GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
-                          libprotoc-dev                    \\
-                          libprotobuf-dev                  \\
-                          protobuf-compiler                \\
-                          freeglut3-dev                    \\
-                          libcurl4-openssl-dev             \\
-                          libtinyxml-dev                   \\
-                          libtar-dev                       \\
-                          libtbb-dev                       \\
-                          ${ogre_pkg}                      \\
-                          libxml2-dev                      \\
-                          pkg-config                       \\
-                          ${gazebo_qt_dependencies}        \\
-                          libltdl-dev                      \\
-                          libgts-dev                       \\
-                          libboost-thread-dev              \\
-                          libboost-signals-dev             \\
-                          libboost-system-dev              \\
-                          libboost-filesystem-dev          \\
-                          libboost-program-options-dev     \\
-                          libboost-regex-dev               \\
-                          libboost-iostreams-dev           \\
-                          ${bullet_pkg}                    \\
-                          libsimbody-dev                   \\
-                          ${dart_pkg}"
+# By default, the stable version of gazebo
+[[ -z ${GAZEBO_EXPERIMENTAL_BUILD} ]] && GAZEBO_EXPERIMENTAL_BUILD=false
+if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
+  # --------------------------------------
+  # GAZEBO - current version
+  # --------------------------------------
 
-if [[ ${GAZEBO_MAJOR_VERSION} -eq 6 ]]; then
-    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                                         libignition-math2-dev"
+  GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
+                            libprotoc-dev                    \\
+                            libprotobuf-dev                  \\
+                            protobuf-compiler                \\
+                            freeglut3-dev                    \\
+                            libcurl4-openssl-dev             \\
+                            libtinyxml-dev                   \\
+                            libtar-dev                       \\
+                            libtbb-dev                       \\
+                            ${ogre_pkg}                      \\
+                            libxml2-dev                      \\
+                            pkg-config                       \\
+                            ${gazebo_qt_dependencies}        \\
+                            libltdl-dev                      \\
+                            libgts-dev                       \\
+                            libboost-thread-dev              \\
+                            libboost-signals-dev             \\
+                            libboost-system-dev              \\
+                            libboost-filesystem-dev          \\
+                            libboost-program-options-dev     \\
+                            libboost-regex-dev               \\
+                            libboost-iostreams-dev           \\
+                            ${bullet_pkg}                    \\
+                            libsimbody-dev                   \\
+                            ${dart_pkg}"
+
+  if [[ ${GAZEBO_MAJOR_VERSION} -eq 6 ]]; then
+      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                           libignition-math2-dev"
+  fi
+
+  if [[ ${GAZEBO_MAJOR_VERSION} -eq 7 ]]; then
+      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                libignition-transport-dev"
+  fi
+
+  if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
+      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                           libignition-transport3-dev \\
+                                           libignition-math3-dev \\
+                                           libignition-msgs0-dev"
+  fi
+
+  # libtinyxml2-dev is not on precise
+  # it is needed by gazebo7, which isn't supported on precise
+  if [[ ${DISTRO} != 'precise' ]]; then
+      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                libtinyxml2-dev"
+  fi
+
+  GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                            ${sdformat_pkg}"
+
+  GAZEBO_EXTRA_DEPENDENCIES="libavformat-dev  \\
+                             libavcodec-dev   \\
+                             libgraphviz-dev  \\
+                             libswscale-dev   \\
+                             libavdevice-dev   \\
+                             ruby-ronn"
+
+  # Player was removed starting from xenial
+  if [[ ${DISTRO} == 'precise' ]] || \
+     [[ ${DISTRO} == 'trusty' ]] || \
+     [[ ${DISTRO} == 'wily' ]]; then
+    GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} robot-player-dev"
+  fi
+
+
+  # cegui is deprecated in gazebo 6
+  if [[ ${GAZEBO_MAJOR_VERSION} -le 6 ]]; then
+      GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} \\
+                                 libcegui-mk2-dev"
+  fi
+
+  # gdal is not working on precise
+  # it was added in gazebo5, which does not support precise
+  if [[ ${DISTRO} != 'precise' ]]; then
+      GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} \\
+                                 libgdal-dev"
+  fi
+else
+  # --------------------------------------
+  # GAZEBO - experimental version
+  # --------------------------------------
+  GAZEBO_BASE_DEPENDENCIES="libgflags-dev            \\
+                            pkg-config               \\
+                            libprotoc-dev            \\
+                            libprotobuf-dev          \\
+                            protobuf-compiler        \\
+                            python-protobuf          \\
+                            libignition-common-dev   \\
+                            libignition-msgs-dev     \\
+                            libignition-transport3-dev"
 fi
 
-if [[ ${GAZEBO_MAJOR_VERSION} -eq 7 ]]; then
-    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                              libignition-transport-dev"
-fi
-
-if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
-    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                                         libignition-transport2-dev \\
-                                         libignition-transport3-dev \\
-                                         libignition-math3-dev \\
-                                         libignition-msgs-dev"
-fi
-
-# libtinyxml2-dev is not on precise
-# it is needed by gazebo7, which isn't supported on precise
-if [[ ${DISTRO} != 'precise' ]]; then
-    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                              libtinyxml2-dev"
-fi
-
-GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                          ${sdformat_pkg}"
-
-GAZEBO_EXTRA_DEPENDENCIES="libavformat-dev  \\
-                           libavcodec-dev   \\
-                           libgraphviz-dev  \\
-                           libswscale-dev   \\
-                           libavdevice-dev   \\
-                           ruby-ronn"
-
-# Player was removed starting from xenial
-if [[ ${DISTRO} == 'precise' ]] || \
-   [[ ${DISTRO} == 'trusty' ]] || \
-   [[ ${DISTRO} == 'wily' ]]; then
-  GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} robot-player-dev"
-fi
-
-
-# cegui is deprecated in gazebo 6
-if [[ ${GAZEBO_MAJOR_VERSION} -le 6 ]]; then
-    GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} \\
-                               libcegui-mk2-dev"
-fi
-
-# gdal is not working on precise
-# it was added in gazebo5, which does not support precise
-if [[ ${DISTRO} != 'precise' ]]; then
-    GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} \\
-                               libgdal-dev"
-fi
 
 if [[ -z $ROS_DISTRO ]]; then
   echo "------------------------------------------------------------"
@@ -325,18 +352,6 @@ else
                             ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-plugins \\
                             ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros     \\
                             ${_GZ_ROS_PACKAGES}"
-  #
-  # SANDIA_HAND DEPENDECIES
-  #
-  SANDIA_HAND_BASE_DEPENDENCIES="ros-${ROS_DISTRO}-xacro              \\
-                                 ros-${ROS_DISTRO}-ros                \\
-                                 ros-${ROS_DISTRO}-image-common       \\
-                                 ros-${ROS_DISTRO}-ros-comm           \\
-                                 ros-${ROS_DISTRO}-common-msgs        \\
-                                 ros-${ROS_DISTRO}-message-generation \\
-                                 libboost-dev                         \\
-                                 libqt4-dev                           \\
-                                 osrf-common${ROS_POSTFIX}"
 
   #
   # ROS_GAZEBO_PKGS DEPENDECIES
@@ -442,6 +457,16 @@ fi
 # IGNITION
 #
 
+if [[ ${DISTRO} != 'trusty' ]]; then
+  IGN_MATH_DEPENDENCIES="libignition-cmake-dev"
+fi
+
+# IGN_TRANSPORT related dependencies. Default value points to the development
+# version
+if [[ -z ${IGN_TRANSPORT_MAJOR_VERSION} ]]; then
+    IGN_TRANSPORT_MAJOR_VERSION=5
+fi
+
 IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             python               \\
                             ruby-ronn            \\
@@ -450,14 +475,23 @@ IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             protobuf-compiler    \\
                             uuid-dev             \\
                             libzmq3-dev          \\
-                            libignition-msgs-dev \\
                             libczmq-dev"
+
+if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 4 ]]; then
+    IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
+                                libignition-cmake-dev \\
+                                libignition-msgs-dev"
+else
+    IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
+                                libignition-msgs0-dev"
+fi
 
 IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          python                \\
                          ruby-ronn             \\
                          uuid-dev              \\
-                         libignition-math3-dev \\
+                         libignition-cmake-dev \\
+                         libignition-math4-dev \\
                          libfreeimage-dev      \\
                          libgts-dev            \\
                          libavformat-dev       \\
@@ -468,26 +502,23 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          libtinyxml2-dev       \\
                          uuid-dev"
 
-#
-# HAPTIX
-#
-HAPTIX_COMM_DEPENDENCIES_WITHOUT_IGN="pkg-config  \\
-                          libboost-system-dev     \\
-                          libprotoc-dev           \\
-                          libprotobuf-dev         \\
-                          protobuf-compiler       \\
-                          liboctave-dev"
-HAPTIX_COMM_DEPENDENCIES="${HAPTIX_COMM_DEPENDENCIES_WITHOUT_IGN} \\
-                          libignition-transport-dev"
-#
-# HANDSIM
-#
-HANDSIM_DEPENDENCIES_WITHOUT_HAPTIX="libgazebo7-haptix-dev \\
-                                     liboctave-dev"
-HANDSIM_DEPENDENCIES="${HANDSIM_DEPENDENCIES_WITHOUT_HAPTIX} \\
-                      libignition-transport-dev              \\
-                      libhaptix-comm-dev"
+IGN_GUI_DEPENDENCIES="qtbase5-dev \\
+                      libignition-cmake-dev \\
+                      libignition-math4-dev \\
+                      libignition-msgs-dev \\
+                      libignition-common-dev \\
+                      libtinyxml2-dev \\
+                      libqwt-qt5-dev"
 
+IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
+                            freeglut3-dev\\
+                            libx11-dev"
+
+IGN_SENSORS_DEPENDENCIES="libignition-math4-dev      \\
+                          libignition-transport3-dev"
+
+IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
+                       libignition-math4-dev"
 #
 # MENTOR2
 #
@@ -497,3 +528,63 @@ MENTOR2_DEPENDENCIES="libgazebo6-dev    \\
                       libboost1.54-dev  \\
                       libqt4-dev"
 
+#
+# DRAKE
+#
+DRAKE_DEPENDENCIES="alien               \\
+                    autoconf            \\
+                    automake            \\
+                    bash-completion     \\
+                    bison               \\
+                    clang-format        \\
+                    clang-3.9           \\
+                    doxygen             \\
+                    fakeroot            \\
+                    flex                \\
+                    freeglut3-dev       \\
+                    g++                 \\
+                    g++-5               \\
+                    g++-5-multilib      \\
+                    gdb                 \\
+                    gfortran            \\
+                    gfortran-5          \\
+                    gfortran-5-multilib \\
+                    git                 \\
+                    graphviz            \\
+                    libboost-dev        \\
+                    libgtk2.0-dev       \\
+                    libmpfr-dev         \\
+                    libpng12-dev        \\
+                    libqt4-dev          \\
+                    libqt4-opengl-dev   \\
+                    libqt5multimedia5   \\
+                    libqt5opengl5-dev   \\
+                    libqt5x11extras5    \\
+                    libqwt-dev          \\
+                    libtinyxml-dev      \\
+                    libtool             \\
+                    libvtk-java         \\
+                    libvtk5-dev         \\
+                    libvtk5-qt4-dev     \\
+                    libxmu-dev          \\
+                    make                \\
+                    ninja-build         \\
+                    openjdk-8-jdk       \\
+                    patchutils          \\
+                    perl                \\
+                    pkg-config          \\
+                    python-bs4          \\
+                    python-dev          \\
+                    python-gtk2         \\
+                    python-html5lib     \\
+                    python-lxml         \\
+                    python-numpy        \\
+                    python-pygame       \\
+                    python-scipy        \\
+                    python-sphinx       \\
+                    python-vtk          \\
+                    python-yaml         \\
+                    unzip               \\
+                    valgrind            \\
+                    zip                 \\
+                    zlib1g-dev"

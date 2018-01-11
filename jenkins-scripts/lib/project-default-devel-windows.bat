@@ -9,7 +9,7 @@
 ::
 :: Actions
 ::   - Configure the compiler
-::   - Clean and create the WORKSPACE/workspace
+::   - Clean and create the WORKSPACE/ws
 ::   - Download and unzip the DEPEN_PKGS
 ::   - configure, compile and install
 ::   - run tests
@@ -17,7 +17,7 @@
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 set TEST_RESULT_PATH=%WORKSPACE%\test_results
 set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
-set LOCAL_WS=%WORKSPACE%\workspace
+set LOCAL_WS=%WORKSPACE%\ws
 set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS%\%VCS_DIRECTORY%
 
 :: default values

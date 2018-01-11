@@ -14,6 +14,4 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export GPU_SUPPORT_NEEDED=true
-
-. ${SCRIPT_DIR}/lib/ardupilot-base-linux.bash
+. ${SCRIPT_DIR}/lib/drake_ROS-base-linux.bash

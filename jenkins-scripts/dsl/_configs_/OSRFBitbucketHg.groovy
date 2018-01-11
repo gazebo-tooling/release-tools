@@ -6,7 +6,8 @@ class OSRFBitbucketHg
 {
   static void create(Job job, String repo,
                               String rev    = 'default',
-                              String subdir = 'NOT-DEFINED-USE-DEFAULT')
+                              String subdir = 'NOT-DEFINED-USE-DEFAULT',
+                              String installName = 'Default')
   {
     String software_name = repo.tokenize('/').last()
 
@@ -22,6 +23,7 @@ class OSRFBitbucketHg
       scm {
         hg(repo) {
           branch(rev)
+          installation(installName)
           subdirectory(subdir)
         configure { project ->
            project / browser(class: 'hudson.plugins.mercurial.browser.BitBucket') / "url" << repo

@@ -4,7 +4,10 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
-export DISTRO=precise
-export ROS_DISTRO=hydro
+. ${SCRIPT_DIR}/lib/_drake_lib.bash
 
-. ${SCRIPT_DIR}/lib/osrf-common-default.bash
+DEBIAN_GIT_PREINSTALL_HOOK="""\
+${DRAKE_BAZEL_INSTALL}
+"""
+
+. ${SCRIPT_DIR}/lib/debian-git-repo-base.bash

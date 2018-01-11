@@ -209,7 +209,7 @@ MONTH_YEAR_STR=$(date +%m%y)
 # Clean previous results in the workspace if any
 if [[ -z ${KEEP_WORKSPACE} ]]; then
     # Clean previous results, need to next mv command not to fail
-    for d in $(find ${WORKSPACE} -name '*_results' -type d); do
+    for d in $(find ${WORKSPACE} -maxdepth 1 -name '*_results' -type d); do
         sudo rm -fr ${d}
     done
 fi

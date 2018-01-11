@@ -204,7 +204,7 @@ do_install() {
 	  # 1. Install repositories
           $sh_c 'apt-get update; apt-get install -y -q wget'
           $sh_c "mkdir -p /etc/apt/sources.list.d"
-          $sh_c "apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys D2486D2DD83DB69272AFE98867170598AF249743"
+          $sh_c "apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D2486D2DD83DB69272AFE98867170598AF249743"
           $sh_c "echo deb http://packages.osrfoundation.org/gazebo/${lsb_dist} ${dist_version} main > /etc/apt/sources.list.d/gazebo-stable.list"
 	  $sh_c "wget -O - http://srcsim.gazebosim.org/src/src.key | sudo apt-key add -"
           $sh_c "echo deb http://srcsim.gazebosim.org/src ${dist_version} main > /etc/apt/sources.list.d/src-latest.list"
