@@ -516,6 +516,13 @@ IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
 
 IGN_SENSORS_DEPENDENCIES="libignition-math4-dev      \\
                           libignition-transport3-dev"
+
+IGN_FUEL_TOOLS_DEPENDENCIES="libignition-common-dev \\
+                             libcurl4-openssl-dev   \\
+                             libjsoncpp-dev         \\
+                             libyaml-dev            \\
+                             libzip-dev"
+#
 #
 # MENTOR2
 #
