@@ -20,16 +20,11 @@ if [[ ${PROJECT/ignition} != ${PROJECT} ]]; then
     PROJECT_PATH="${PROJECT_PATH/[0-9]*}"
 fi
 
-# Check for major version number in ignition projects that use ignition-cmake
+# Check for major version number
 # the PROJECT_FORMULA variable is only used for dependency resolution
-PROJECT_FORMULA=${PROJECT}
-if grep 'ign_configure_project *(' \
-        ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt
-then
-  PROJECT_FORMULA=${PROJECT//[0-9]}$(\
-    grep '^project.*VERSION' ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt | \
-    sed -e 's@.* VERSION \([0-9][0-9]*\).*@\1@')
-fi
+PROJECT_FORMULA=${PROJECT//[0-9]}$(\
+  python ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
+  ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt)
 
 export HOMEBREW_PREFIX=/usr/local
 export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
