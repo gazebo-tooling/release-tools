@@ -1,6 +1,6 @@
 # Identify SDFORMAT_MAJOR_VERSION to help with dependency resolution
 SDFORMAT_MAJOR_VERSION=$(\
-  python ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
+  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/sdformat/CMakeLists.txt)
 
 # Check SDFORMAT version is integer

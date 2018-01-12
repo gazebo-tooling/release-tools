@@ -4,7 +4,7 @@ if [ "${GAZEBO_EXPERIMENTAL_BUILD}" = true ]; then
   GAZEBO_MAJOR_VERSION=0
 else
   GAZEBO_MAJOR_VERSION=$(\
-    python ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
+    python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
     ${WORKSPACE}/gazebo/CMakeLists.txt)
 fi
 
