@@ -467,6 +467,14 @@ if [[ -z ${IGN_TRANSPORT_MAJOR_VERSION} ]]; then
     IGN_TRANSPORT_MAJOR_VERSION=5
 fi
 
+IGN_MSGS_DEPENDENCIES="protobuf-compiler     \\
+                       libprotobuf-dev       \\
+                       libprotoc-dev         \\
+                       ruby                  \\
+                       ruby-dev              \\
+                       libignition-math4-dev \\
+                       libignition-cmake-dev"
+
 IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             python               \\
                             ruby-ronn            \\
