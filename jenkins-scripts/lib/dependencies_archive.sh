@@ -467,14 +467,6 @@ if [[ -z ${IGN_TRANSPORT_MAJOR_VERSION} ]]; then
     IGN_TRANSPORT_MAJOR_VERSION=5
 fi
 
-IGN_MSGS_DEPENDENCIES="protobuf-compiler     \\
-                       libprotobuf-dev       \\
-                       libprotoc-dev         \\
-                       ruby                  \\
-                       ruby-dev              \\
-                       libignition-math4-dev \\
-                       libignition-cmake-dev"
-
 IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             python               \\
                             ruby-ronn            \\
@@ -529,7 +521,7 @@ IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev\\
                             libx11-dev"
 
-IGN_SENSORS_DEPENDENCIES="libignition-common-dev    \\
+IGN_SENSORS_DEPENDENCIES="libignition-common-dev     \\
                           libignition-math4-dev      \\
                           libignition-msgs-dev       \\
                           libignition-transport3-dev"
