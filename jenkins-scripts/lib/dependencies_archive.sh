@@ -521,7 +521,10 @@ IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev\\
                             libx11-dev"
 
-IGN_SENSORS_DEPENDENCIES="libignition-common-dev     \\
+IGN_SENSORS_DEPENDENCIES="protobuf-compiler          \\
+                          libprotobuf-dev            \\
+                          libprotoc-dev              \\
+                          libignition-common-dev     \\
                           libignition-math4-dev      \\
                           libignition-msgs-dev       \\
                           libignition-transport3-dev"
