@@ -7,8 +7,10 @@ ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 
 ignition_gpu                = [ 'gui', 'sensors' ]
 ignition_no_pkg_yet         = [ 'gui', 'fuel-tools', 'sensors' ]
 // no registered branches in ignition_branches means only series 0 or 1
-ignition_branches           = [ transport : [ '3' ],
-                                math      : [ '2', '3','4' ]]
+ignition_branches           = [ math      : [ '2', '3','4' ],
+                                transport : [ '3' ]]
+ignition1_branches          = [ common    : [ '1' ],
+                              [ msgs      : [ '1' ]]
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
 def abi_distro              = Globals.get_abi_distro()
@@ -51,6 +53,11 @@ ArrayList all_branches(String ign_software)
   List<String> branches = new ArrayList<String>();
   supported_branches("${ign_software}").each { major_version ->
     if ("${major_version}") {
+      branches.add("ign-${ign_software}${major_version}")
+    }
+  }
+  ignition1_branches["${ign_software}"].each { major_version ->
+    if (major_version) {
       branches.add("ign-${ign_software}${major_version}")
     }
   }
