@@ -10,7 +10,7 @@ ignition_no_pkg_yet         = [ 'gui', 'fuel-tools', 'sensors' ]
 ignition_branches           = [ math      : [ '2', '3','4' ],
                                 transport : [ '3' ]]
 ignition1_branches          = [ common    : [ '1' ],
-                              [ msgs      : [ '1' ]]
+                                msgs      : [ '1' ]]
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
 def abi_distro              = Globals.get_abi_distro()
