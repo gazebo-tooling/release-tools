@@ -10,4 +10,6 @@ DEBIAN_GIT_PREINSTALL_HOOK="""\
 ${DRAKE_BAZEL_INSTALL}
 """
 
+OSRF_REPOS_TO_USE="drake"
+
 . ${SCRIPT_DIR}/lib/debian-git-repo-base.bash
