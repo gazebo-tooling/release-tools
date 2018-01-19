@@ -10,7 +10,7 @@ ignition_no_pkg_yet         = [ 'gui', 'fuel-tools', 'sensors' ]
 ignition_branches           = [ common    : [ '1' ],
                                 math      : [ '2', '3','4' ],
                                 msgs      : [ '1' ],
-                                transport : [ '3' ]]
+                                transport : [ '3','4' ]]
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
 def abi_distro              = Globals.get_abi_distro()
@@ -157,7 +157,7 @@ ignition_software.each { ign_sw ->
 // INSTALL PACKAGE ALL PLATFORMS / DAILY
 ignition_software.each { ign_sw ->
 
-  // Exclusion list
+  // No packages for fuel-tools yet
   if (ign_sw in ignition_no_pkg_yet)
     return
 
@@ -170,9 +170,6 @@ ignition_software.each { ign_sw ->
             (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
             (("${ign_sw}" == "math") && ("${major_version}" == "3"))))
           return
-        // No 1-dev packages, unversioned
-        if ("${major_version}" == "1")
-          major_version = ""
 
         // --------------------------------------------------------------
         def install_default_job = job("ignition_${ign_sw}${major_version}-install-pkg-${distro}-${arch}")
@@ -248,12 +245,9 @@ ignition_software.each { ign_sw ->
 // DEBBUILD: linux package builder
 ignition_debbuild.each { ign_sw ->
   supported_branches("${ign_sw}").each { major_version ->
-    // No 1-debbuild versions, they use the unversioned job
-    if ("${major_version}" == "1")
-      major_version = ""
-
     def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
     OSRFLinuxBuildPkg.create(build_pkg_job)
+
     build_pkg_job.with
     {
         steps {
