@@ -210,7 +210,7 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
       GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                                            libignition-transport4-dev \\
                                            libignition-math4-dev \\
-                                           libignition-msgs1-dev"
+                                           libignition-msgs-dev"
   fi
 
   # libtinyxml2-dev is not on precise
