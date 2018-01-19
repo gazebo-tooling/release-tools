@@ -165,14 +165,14 @@ ignition_software.each { ign_sw ->
     supported_arches.each { arch ->
       supported_branches(ign_sw).each { major_version ->
 
-        // No 1-dev packages
-        if ("${major_version}" == "1")
-          return
         // only a few release branches support trusty anymore
         if (("${distro}" == "trusty") && !(
             (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
             (("${ign_sw}" == "math") && ("${major_version}" == "3"))))
           return
+        // No 1-dev packages, unversioned
+        if ("${major_version}" == "1")
+          major_version = ""
 
         // --------------------------------------------------------------
         def install_default_job = job("ignition_${ign_sw}${major_version}-install-pkg-${distro}-${arch}")
@@ -250,7 +250,7 @@ ignition_debbuild.each { ign_sw ->
   supported_branches("${ign_sw}").each { major_version ->
     // No 1-debbuild versions, they use the unversioned job
     if ("${major_version}" == "1")
-      return
+      major_version = ""
 
     def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
     OSRFLinuxBuildPkg.create(build_pkg_job)
