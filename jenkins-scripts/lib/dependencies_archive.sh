@@ -521,7 +521,9 @@ IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev\\
                             libx11-dev"
 
-IGN_SENSORS_DEPENDENCIES="libignition-math4-dev      \\
+IGN_SENSORS_DEPENDENCIES="libignition-common-dev     \\
+                          libignition-math4-dev      \\
+                          libignition-msgs-dev       \\
                           libignition-transport3-dev"
 
 IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
