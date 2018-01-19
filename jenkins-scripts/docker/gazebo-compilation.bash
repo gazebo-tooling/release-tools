@@ -17,7 +17,7 @@ fi
 export DART_FROM_PKGS=true
 
 OSRF_REPOS_TO_USE="stable"
-if [[ $(date +%Y%m%d) -le 2018201 ]]; then
+if [[ $(date +%Y%m%d) -le 20180201 ]]; then
    ## need prerelease repo to get ignition-cmake during the development cycle
    OSRF_REPOS_TO_USE="${OSRF_REPOS_TO_USE} prerelease"
 fi
