@@ -199,11 +199,18 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
                                 libignition-transport-dev"
   fi
 
-  if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
+  if [[ ${GAZEBO_MAJOR_VERSION} -eq 8 ]]; then
       GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                                            libignition-transport3-dev \\
                                            libignition-math3-dev \\
                                            libignition-msgs0-dev"
+  fi
+
+  if [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
+      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                           libignition-transport4-dev \\
+                                           libignition-math4-dev \\
+                                           libignition-msgs1-dev"
   fi
 
   # libtinyxml2-dev is not on precise
