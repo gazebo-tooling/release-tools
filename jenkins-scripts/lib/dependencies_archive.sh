@@ -89,6 +89,8 @@ fi
 
 if ${USE_OLD_SDFORMAT}; then
     sdformat_pkg="sdformat"
+elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
+    sdformat_pkg="libsdformat6-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
     sdformat_pkg="libsdformat5-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
