@@ -512,6 +512,7 @@ IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
 IGN_GUI_DEPENDENCIES="qtbase5-dev \\
                       libignition-cmake-dev \\
                       libignition-math4-dev \\
+                      libignition-transport4-dev \\
                       libignition-msgs-dev \\
                       libignition-common-dev \\
                       libtinyxml2-dev \\
