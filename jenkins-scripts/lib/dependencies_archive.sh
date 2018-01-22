@@ -89,6 +89,8 @@ fi
 
 if ${USE_OLD_SDFORMAT}; then
     sdformat_pkg="sdformat"
+elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
+    sdformat_pkg="libsdformat6-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
     sdformat_pkg="libsdformat5-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
@@ -199,11 +201,20 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
                                 libignition-transport-dev"
   fi
 
-  if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
+  if [[ ${GAZEBO_MAJOR_VERSION} -eq 8 ]]; then
       GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                                            libignition-transport3-dev \\
                                            libignition-math3-dev \\
                                            libignition-msgs0-dev"
+  fi
+
+  if [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
+      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                           libignition-common-dev \\
+                                           libignition-fuel-tools-dev \\
+                                           libignition-transport4-dev \\
+                                           libignition-math4-dev \\
+                                           libignition-msgs-dev"
   fi
 
   # libtinyxml2-dev is not on precise
