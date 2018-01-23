@@ -17,7 +17,6 @@ packages['science-team'] = ['console-bridge',
                             'kido',
                             'libccd',
                             'octomap',
-                            'robot-player',
                             'sdformat',
                             'sdformat6',
                             'simbody',
@@ -41,7 +40,7 @@ packages.each { repo_name, pkgs ->
      }
 
     // No accepted in Sid yet
-    if ((pkg == 'kido') || (pkg == 'ignition-msgs'))
+    if ((pkg == 'sdformat6') || (pkg == 'ignition-transport4'))
     {
       disabled()
     }
