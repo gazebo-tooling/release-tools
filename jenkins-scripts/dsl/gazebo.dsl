@@ -518,6 +518,8 @@ OSRFBrewCompilationAny.create(gazebo_brew_ci_any_job,
                               "https://bitbucket.org/osrf/gazebo")
 gazebo_brew_ci_any_job.with
 {
+    label "osx_gazebo"
+
     steps {
       shell("""\
             #!/bin/bash -xe
@@ -557,6 +559,8 @@ all_branches.each { branch ->
 
   gazebo_brew_ci_job.with
   {
+      label "osx_gazebo"
+
       triggers {
         scm('@daily')
       }
