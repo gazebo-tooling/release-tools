@@ -1,11 +1,11 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def gazebo_supported_branches = [ 'gazebo7', 'gazebo8' ]
+def gazebo_supported_branches = [ 'gazebo7', 'gazebo8', 'gazebo9' ]
 def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
 // nightly_gazebo_branch is not the branch used to get the code from but
 // the one used to generate the corresponding debbuild job.
-def nightly_gazebo_branch = [ 'gazebo8' ]
+def nightly_gazebo_branch = [ 'gazebo10' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
