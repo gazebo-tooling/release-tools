@@ -351,6 +351,10 @@ ci_distro.each { distro ->
           scm('@daily')
         }
 
+        // Problem with the compilation of Gazebo under bullseyes
+        // See: https://bitbucket.org/osrf/release-tools/issues/129
+        disabled()
+
         steps {
           shell("""\
           #!/bin/bash -xe
