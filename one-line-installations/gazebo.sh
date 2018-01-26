@@ -9,7 +9,7 @@ set -e
 #
 # Modfied by jrivero@osrfoundation.org
 
-GZ_VER=8
+GZ_VER=9
 DEB_PKG_NAME=libgazebo$GZ_VER-dev
 BREW_PKG_NAME=gazebo${GZ_VER}
 
