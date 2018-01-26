@@ -15,16 +15,9 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 # Identify IGN_TRANSPORT_MAJOR_VERSION to help with dependency resolution
-IGN_TRANSPORT_MAJOR_VERSION=`\
-  grep 'set.*PROJECT_MAJOR_VERSION ' ${WORKSPACE}/ign-transport/CMakeLists.txt | \
-  tr -d 'a-zA-Z _()'`
-
-# ign-cmake has a different line for the version
-if [[ -z ${IGN_TRANSPORT_MAJOR_VERSION} ]]; then
-  IGN_TRANSPORT_MAJOR_VERSION=`\
-    grep project.*VERSION ${WORKSPACE}/ign-transport/CMakeLists.txt | \
-    sed -n 's:.*\([0-9]\).[0-9].[0-9])$*:\1:p'`
-fi
+IGN_TRANSPORT_MAJOR_VERSION=$(\
+  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  ${WORKSPACE}/ign-transport/CMakeLists.txt)
 
 # Check IGN_TRANSPORT version is integer
 if ! [[ ${IGN_TRANSPORT_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
