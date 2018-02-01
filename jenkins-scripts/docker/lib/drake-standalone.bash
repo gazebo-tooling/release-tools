@@ -8,8 +8,6 @@ cat > build.sh << DELIM
 #
 set -ex
 
-${DRAKE_BAZEL_INSTALL}
-
 echo '# Download drake-release repo'
 [[ -d ${WORKSPACE}/drake-release-tools ]] && rm -fr ${WORKSPACE}/drake-release-tools
 git clone https://github.com/j-rivero/drake-release-tools ${WORKSPACE}/drake-release-tools
