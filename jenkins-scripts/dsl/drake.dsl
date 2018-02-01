@@ -323,6 +323,9 @@ supported_distros.each { distro ->
 
     standalone_job.with
     {
+      // use only the most powerful nodes
+      label "large-memory"
+
       steps {
         shell("""\
               #!/bin/bash -xe
