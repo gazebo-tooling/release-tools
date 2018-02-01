@@ -24,7 +24,7 @@ cd ${WORKSPACE}/drake-release-tools
 echo '# END SECTION'
 DELIM
 
-OSRF_REPOS_TO_USE="stable drake"
+OSRF_REPOS_TO_USE="drake"
 DEPENDENCY_PKGS="sudo \
 		 bash \
 		 git"
