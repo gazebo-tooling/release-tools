@@ -9,17 +9,17 @@ cat > build.sh << DELIM
 set -ex
 
 echo '# Download drake-release repo'
-[[ -d ${WORKSPACE}/drake-release ]] && rm -fr drake-release
-git clone https://github.com/j-rivero/drake-release ${WORKSPACE}/drake-release
+[[ -d ${WORKSPACE}/drake-release-tools ]] && rm -fr drake-release-tools
+git clone https://github.com/j-rivero/drake-release-tools ${WORKSPACE}/drake-release-tools
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run setup.bash'
-cd ${WORKSPACE}/drake-release
+cd ${WORKSPACE}/drake-release-tools
 ./setup.bash
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run setup.bash'
-cd ${WORKSPACE}/drake-release
+cd ${WORKSPACE}/drake-release-tools
 ./release-new-snapshot.bash
 echo '# END SECTION'
 DELIM
