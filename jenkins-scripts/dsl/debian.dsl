@@ -12,13 +12,11 @@ packages['science-team'] = ['console-bridge',
                             'ignition-math2',
                             'ignition-math4',
                             'ignition-msgs',
-                            'ignition-transport',
-                            'ignition-transport4',
+                            'ignition-transport', // version 4
                             'kido',
                             'libccd',
                             'octomap',
-                            'sdformat',
-                            'sdformat6',
+                            'sdformat', // version 6
                             'simbody',
                             'urdfdom',
                             'urdfdom-headers' ]
