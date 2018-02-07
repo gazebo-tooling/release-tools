@@ -8,6 +8,10 @@ cat > build.sh << DELIM
 #
 set -ex
 
+echo '# Install docker (in docker)'
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+echo '# END SECTION'
+
 echo '# Download drake-release repo'
 [[ -d ${WORKSPACE}/drake-release-tools ]] && rm -fr ${WORKSPACE}/drake-release-tools
 git clone https://github.com/j-rivero/drake-release-tools ${WORKSPACE}/drake-release-tools
