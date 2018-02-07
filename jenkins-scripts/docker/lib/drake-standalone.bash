@@ -13,11 +13,6 @@ echo '# Download drake-release repo'
 git clone https://github.com/j-rivero/drake-release-tools ${WORKSPACE}/drake-release-tools
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: run setup'
-cd ${WORKSPACE}/drake-release-tools
-./setup.bash
-echo '# END SECTION'
-
 echo '# BEGIN SECTION: run release new snapshot'
 cd ${WORKSPACE}/drake-release-tools
 /bin/bash -e builder/release-new-snapshot.bash
