@@ -383,7 +383,7 @@ build_pkg_job.with
 }
 
 // Bloom for catkin
-def catkin_build_pkg_job = job("catkin-bloom-debcatkin_builder")
+def catkin_build_pkg_job = job("catkin-bloom-debbuilder")
 
 // Use the linux install as base
 OSRFLinuxBuildPkgBase.create(catkin_build_pkg_job)
