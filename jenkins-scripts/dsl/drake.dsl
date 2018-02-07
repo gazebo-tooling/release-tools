@@ -396,14 +396,14 @@ catkin_build_pkg_job.with
     }
 
     parameters {
-      stringParam("PACKAGE","ros-drake","Package name to be built")
+      stringParam("PACKAGE","catkin","Package name to be built")
       stringParam("VERSION",null,"Packages version to be built")
       stringParam("RELEASE_VERSION", null, "Packages release version")
       stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
       stringParam("DISTRO", "xenial", "Linux release inside LINUX_DISTRO to build packages for")
       stringParam("ARCH", "amd64", "Architecture to build packages for")
       stringParam('ROS_DISTRO', 'kinetic','ROS DISTRO to build pakcages for')
-      stringParam('UPSTREAM_RELEASE_REPO', '', 'https://github.com/ros-gbp/gazebo_ros_pkgs-release')
+      stringParam('UPSTREAM_RELEASE_REPO', 'https://github.com/ros-gbp/catkin-release', 'release repo to use')
     }
 
     steps {
