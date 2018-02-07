@@ -380,6 +380,7 @@ build_pkg_job.with
             /bin/bash -x ./scripts/jenkins-scripts/docker/bloom-debbuild.bash
             """.stripIndent())
     }
+}
 
 // Bloom for catkin
 def catkin_build_pkg_job = job("catkin-bloom-debcatkin_builder")
