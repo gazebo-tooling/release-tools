@@ -20,7 +20,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: run release new snapshot'
 cd ${WORKSPACE}/drake-release-tools
-./release-new-snapshot.bash
+/bin/bash -e builder/release-new-snapshot.bash
 echo '# END SECTION'
 DELIM
 
