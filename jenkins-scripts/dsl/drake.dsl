@@ -386,7 +386,7 @@ build_pkg_job.with
 def catkin_build_pkg_job = job("catkin-bloom-debbuilder")
 
 // Use the linux install as base
-OSRFLinuxBuildPkgBase.create(catkin_build_pkg_job)
+OSRFLinuxbuildPkgBase.create(catkin_build_pkg_job)
 GenericRemoteToken.create(catkin_build_pkg_job)
 
 catkin_build_pkg_job.with
