@@ -381,3 +381,51 @@ build_pkg_job.with
             """.stripIndent())
     }
 }
+
+// Bloom for catkin
+def catkin_build_pkg_job = job("catkin-bloom-debbuilder")
+
+// Use the linux install as base
+OSRFLinuxBuildPkgBase.create(catkin_build_pkg_job)
+GenericRemoteToken.create(catkin_build_pkg_job)
+
+catkin_build_pkg_job.with
+{
+    properties {
+      priority 100
+    }
+
+    parameters {
+      stringParam("PACKAGE","catkin","Package name to be built")
+      stringParam("VERSION",null,"Packages version to be built")
+      stringParam("RELEASE_VERSION", null, "Packages release version")
+      stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
+      stringParam("DISTRO", "xenial", "Linux release inside LINUX_DISTRO to build packages for")
+      stringParam("ARCH", "amd64", "Architecture to build packages for")
+      stringParam('ROS_DISTRO', 'kinetic','ROS DISTRO to build pakcages for')
+      stringParam('UPSTREAM_RELEASE_REPO', 'https://github.com/ros-gbp/catkin-release', 'release repo to use')
+    }
+
+    steps {
+      systemGroovyCommand("""\
+        build.setDescription(
+        '<b>' + build.buildVariableResolver.resolve('ROS_DISTRO') + '-'
+              + build.buildVariableResolver.resolve('VERSION') + '-'
+              + build.buildVariableResolver.resolve('RELEASE_VERSION') + '</b>' +
+        '(' + build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
+              build.buildVariableResolver.resolve('DISTRO') + '::' +
+              build.buildVariableResolver.resolve('ARCH') + ')' +
+        '<br />' +
+        'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+        """.stripIndent()
+      )
+    }
+
+    steps {
+      shell("""\
+            #!/bin/bash -xe
+
+            /bin/bash -x ./scripts/jenkins-scripts/docker/bloom-debbuild.bash
+            """.stripIndent())
+    }
+}
