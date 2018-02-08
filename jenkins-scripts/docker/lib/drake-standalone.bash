@@ -8,6 +8,10 @@ cat > build.sh << DELIM
 #
 set -ex
 
+echo '# Map exported pkgs to drake-release/drake-pkgs'
+ln -s ${WORKSPACE}/drake-release-tools/drake-pkgs ${WORKSPACE}/pkgs/drake-pkgs
+echo '# END SECTION'
+
 echo '# Install docker (in docker)'
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 add-apt-repository \
