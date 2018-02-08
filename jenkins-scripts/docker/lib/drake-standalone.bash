@@ -10,6 +10,12 @@ set -ex
 
 echo '# Install docker (in docker)'
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+apt-get update
+apt-get install -y docker-ce
 echo '# END SECTION'
 
 echo '# Download drake-release repo'
@@ -26,7 +32,11 @@ DELIM
 OSRF_REPOS_TO_USE="drake"
 DEPENDENCY_PKGS="sudo \
 		 bash \
-		 git"
+		 git \
+                 apt-transport-https \
+                 ca-certificates \
+                 curl \
+                 software-properties-common"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
