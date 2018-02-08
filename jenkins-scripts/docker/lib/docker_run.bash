@@ -19,10 +19,16 @@ echo '# BEGIN SECTION: see build.sh script'
 cat build.sh
 echo '# END SECTION'
 
+if $USE_DOCKER_IN_DOCKER; then
+ EXTRA_PARAMS_STR="--privileged \
+                    -v /var/run/docker.sock:/var/run/docker.sock"
+fi
+
 if $USE_GPU_DOCKER; then
   EXTRA_PARAMS_STR="--privileged \
                     -e DISPLAY=unix$DISPLAY \
                     -v /sys:/sys:ro         \
+                    -v /var/run/docker.sock:/var/run/docker.sock \
                     -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
 
   if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
@@ -64,7 +70,7 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
     for d in $(find ${WORKSPACE} -maxdepth 1 -name '*_results' -type d); do
        sudo mv ${d} ${WORKSPACE}/build/
     done
-    
+
     [[ -d ${PACKAGE_DIR} ]] && sudo chown -R jenkins ${PACKAGE_DIR}
     sudo chown jenkins -R ${WORKSPACE}/build/
 fi

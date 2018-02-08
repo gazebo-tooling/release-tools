@@ -29,8 +29,7 @@ cd ${WORKSPACE}/drake-release-tools
 echo '# END SECTION'
 DELIM
 
-
-USE_GPU_DOCKER=true # workaround for getting privileged
+USE_DOCKER_IN_DOCKER=true
 OSRF_REPOS_TO_USE="drake"
 DEPENDENCY_PKGS="sudo \
 		 bash \
