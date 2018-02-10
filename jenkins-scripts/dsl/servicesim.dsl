@@ -32,7 +32,7 @@ void include_parselog(Job job) {
 }
 
 // Add servicesim compilation script to job
-void include_compilation_script_step(Job job) {
+void include_compilation_script_step(Job job, distro, arch) {
   job.with {
     steps {
       shell("""
@@ -60,7 +60,6 @@ ci_distro.each { distro ->
       scm {
         hg('https://bitbucket.org/osrf/servicesim') {
           branch('default')
-          subdir('servicesim') // Steven!: Is this the repository directory name?
         }
       }
 
@@ -68,7 +67,7 @@ ci_distro.each { distro ->
         scm('*/5 * * * *')
       }
     }
-    include_compilation_script_step(servicesim_ci_job)
+    include_compilation_script_step(servicesim_ci_job, distro, arch)
 
 
     // 2. Create pull request jobs
@@ -79,7 +78,7 @@ ci_distro.each { distro ->
     include_gpu_label(servicesim_ci_job, distro)
     include_parselog(servicesim_ci_job)
 
-    include_compilation_script_step(servicesim_ci_any_job)
+    include_compilation_script_step(servicesim_ci_any_job, distro, arch)
   } // end: supported_arches
 } // end: ci_distro
 
