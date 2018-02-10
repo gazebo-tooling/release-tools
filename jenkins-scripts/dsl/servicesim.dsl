@@ -53,7 +53,7 @@ ci_distro.each { distro ->
     def servicesim_ci_job = job("servicesim-ci-${distro}-${arch}")
     OSRFLinuxCompilation.create(servicesim_ci_job)
     // GPU label and parselog
-    include_gpu_label(servicesim_ci_job)
+    include_gpu_label(servicesim_ci_job, distro)
     include_parselog(servicesim_ci_job)
 
     servicesim_ci_job.with {
@@ -76,7 +76,7 @@ ci_distro.each { distro ->
     OSRFLinuxCompilationAny.create(servicesim_ci_any_job,
                                    'https://bitbucket.org/osrf/servicesim')
     // GPU label and parselog
-    include_gpu_label(servicesim_ci_job)
+    include_gpu_label(servicesim_ci_job, distro)
     include_parselog(servicesim_ci_job)
 
     include_compilation_script_step(servicesim_ci_any_job)
