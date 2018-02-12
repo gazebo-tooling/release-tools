@@ -159,7 +159,7 @@ if [[ -z $(ps aux | grep squid-deb-proxy.conf | grep -v grep | awk '{ print $2}'
 fi
 
 if ${NEED_SQUID_WORKAROUND}; then
-  sudo service squid-deb-proxy start
+  sudo service squid-deb-proxy restart
 fi
 
 # Docker checking
