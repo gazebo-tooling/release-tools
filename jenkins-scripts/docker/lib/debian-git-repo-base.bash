@@ -105,6 +105,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
 lintian -I -i ../*.changes || true
+lintian -I -i ../*.dsc || true
 PKGS=\`find ../ -name *.deb || true\`
 
 FOUND_PKG=0
