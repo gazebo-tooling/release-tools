@@ -26,6 +26,11 @@ esac
 
 export GPU_SUPPORT_NEEDED=true
 
+## Gazebo installation and configuration info
+## Used in _ros_setup_catkin_make_isolated_buildsh.bash
+export USE_GZ_VERSION_ROSDEP=true
+export GAZEBO_VERSION_FOR_ROS="8"
+
 # Do not use the subprocess_reaper in debbuild. Seems not as needed as in
 # testing jobs and seems to be slow at the end of jenkins jobs
 export ENABLE_REAPER=false
