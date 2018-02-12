@@ -90,6 +90,9 @@ if $NEED_C11_COMPILER; then
   fi
 fi
 
+# in some machines squid is returning
+[ -z ${NEED_SQUID_WORKAROUND} ] && NEED_SQUID_WORKAROUND=false
+
 # Useful for running tests properly integrated ros based software
 if ${ENABLE_ROS}; then
   export USE_ROS_REPO=true
@@ -153,6 +156,10 @@ fi
 # Check if squid-deb-proxy is running or start it otherwise
 if [[ -z $(ps aux | grep squid-deb-proxy.conf | grep -v grep | awk '{ print $2}') ]]; then
   sudo service squid-deb-proxy start
+fi
+
+if ${NEED_SQUID_WORKAROUND}; then
+  sudo service squid-deb-proxy restart
 fi
 
 # Docker checking
