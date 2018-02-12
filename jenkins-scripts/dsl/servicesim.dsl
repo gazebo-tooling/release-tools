@@ -51,7 +51,8 @@ ci_distro.each { distro ->
   supported_arches.each { arch ->
     // 1. Create default branch jobs
     def servicesim_ci_job = job("servicesim-ci-${distro}-${arch}")
-    OSRFLinuxCompilation.create(servicesim_ci_job)
+    // enable testing, disable cppcheck (for now)
+    OSRFLinuxCompilation.create(servicesim_ci_job, true, false)
     // GPU label and parselog
     include_gpu_label(servicesim_ci_job, distro)
     include_parselog(servicesim_ci_job)
@@ -73,8 +74,10 @@ ci_distro.each { distro ->
 
     // 2. Create pull request jobs
     def servicesim_ci_any_job = job("servicesim-ci-pr-any-${distro}-${arch}")
+    // enable testing, disable cppcheck (for now)
     OSRFLinuxCompilationAny.create(servicesim_ci_any_job,
-                                   'https://bitbucket.org/osrf/servicesim')
+                                   'https://bitbucket.org/osrf/servicesim',
+                                   true, false)
     // GPU label and parselog
     include_gpu_label(servicesim_ci_job, distro)
     include_parselog(servicesim_ci_job)

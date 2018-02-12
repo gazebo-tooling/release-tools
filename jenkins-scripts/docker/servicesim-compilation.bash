@@ -40,7 +40,7 @@ export ROS_SETUP_PREINSTALL_HOOK="""
 #${SERVICESIM_SETUP_REPOSITORIES} # currently in progress
 ## Needed for rosdep
 apt-get install -y ros-${ROS_DISTRO}-ros-base ${ROS_CATKIN_BASE}
-## Need to get all srcsim dependencies (from package) No source pkg so
+## Need to get all servicesim dependencies (from package) No source pkg so
 ## can not use build-dep
 #apt-get install -y servicesim && apt-get remove -y servicesim # currently in progress
 """
