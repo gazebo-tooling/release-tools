@@ -54,7 +54,7 @@ export ROS_SETUP_POSTINSTALL_HOOK="""
 # don't have rosdep at this point and want gazebo to be cached by docker
 DEPENDENCY_PKGS="libgazebo${PKG_VERSION}-dev"
 USE_ROS_REPO=true
-SRF_REPOS_TO_USE="stable"
+OSRF_REPOS_TO_USE="stable"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
