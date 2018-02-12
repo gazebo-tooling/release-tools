@@ -82,7 +82,7 @@ class Globals
 
    static ArrayList get_experimental_arches()
    {
-     return [ 'i386', 'armhf' ]
+     return [ 'i386' ]
    }
 
    static ArrayList get_all_supported_distros()
