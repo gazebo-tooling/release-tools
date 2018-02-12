@@ -60,6 +60,7 @@ ci_distro.each { distro ->
       scm {
         hg('https://bitbucket.org/osrf/servicesim') {
           branch('default')
+          subdirectory('servicesim')
         }
       }
 
