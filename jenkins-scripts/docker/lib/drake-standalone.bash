@@ -9,7 +9,8 @@ cat > build.sh << DELIM
 set -ex
 
 echo '# Map exported pkgs to drake-release/drake-pkgs'
-ln -s ${WORKSPACE}/drake-release-tools/drake-pkgs ${WORKSPACE}/pkgs/drake-pkgs
+rm -fr ${WORKSPACE}/pkgs
+ln -s ${WORKSPACE}/drake-release-tools/drake-pkgs ${WORKSPACE}/pkgs
 echo '# END SECTION'
 
 echo '# Install docker (in docker)'
