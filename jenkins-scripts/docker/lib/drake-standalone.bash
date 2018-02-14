@@ -8,6 +8,8 @@ cat > build.sh << DELIM
 #
 set -ex
 
+export MAKE_JOBS=${MAKE_JOBS}
+
 echo '# Map exported pkgs to drake-release/drake-pkgs'
 rm -fr ${WORKSPACE}/pkgs
 ln -s ${WORKSPACE}/drake-release-tools/drake-pkgs ${WORKSPACE}/pkgs
