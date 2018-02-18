@@ -122,7 +122,7 @@ servicesim_packages.each { pkg ->
         stringParam("DISTRO", "xenial", "Linux release inside LINUX_DISTRO to build packages for")
         stringParam("ARCH", "amd64", "Architecture to build packages for")
         stringParam('ROS_DISTRO', 'kinetic','ROS DISTRO to build pakcages for')
-        stringParam("UPLOAD_TO_REPO", 'servicesim', "OSRF repo name to upload the package to")
+        stringParam("UPLOAD_TO_REPO", 'prerelease', "OSRF repo name to upload the package to")
         stringParam('UPSTREAM_RELEASE_REPO', 'https://bitbucket.org/osrf/servicesim-release', 'Release repository url')
     }
 
