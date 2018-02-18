@@ -86,6 +86,12 @@ ci_distro.each { distro ->
     // GPU label and parselog
     include_gpu_label(servicesim_ci_job, distro)
     include_parselog(servicesim_ci_job)
+    servicesim_ci_any_job.with {
+      parameters {
+        // Override RTOOLS_BRANCH pending PR merge.
+        stringParam('RTOOLS_BRANCH', 'add-servicesim', 'release-tools branch to use.')
+      }
+    }
 
     include_compilation_script_step(servicesim_ci_any_job, distro, arch)
   } // end: supported_arches
