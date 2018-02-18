@@ -59,6 +59,10 @@ ci_distro.each { distro ->
     include_parselog(servicesim_ci_job)
 
     servicesim_ci_job.with {
+      parameters {
+        // Override RTOOLS_BRANCH pending PR merge.
+        stringParam('RTOOLS_BRANCH', 'add-servicesim', 'release-tools branch to use.')
+      }
       scm {
         hg('https://bitbucket.org/osrf/servicesim') {
           branch('default')
@@ -149,7 +153,9 @@ servicesim_packages.each { pkg ->
 
     steps {
       shell("""\
-#!/bin/bash -xe
+          #!/bin/bash -xe
+
+          export OSRF_REPOS_TO_USE='stable prerelease'
 
           /bin/bash -x ./scripts/jenkins-scripts/docker/bloom-debbuild.bash
           """.stripIndent())
