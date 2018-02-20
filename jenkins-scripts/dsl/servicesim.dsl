@@ -8,18 +8,6 @@ def ci_distro = [ 'xenial' ]
 def supported_arches = [ 'amd64' ]
 def servicesim_packages = [ 'servicebot_2dnav', 'servicebot_control', 'servicebot_description', 'servicesim', 'servicesim_competition', 'servicesim_example_python_solution' ]
 
-// ## Method adapted from srcsim.dsl
-void include_gpu_label(Job job, String distro) {
-  job.with {
-    // Early testing shows that xenial jobs can be run on a
-    // trusty host with good results.
-    if (distro == 'xenial')
-      label "gpu-reliable-${distro} || gpu-reliable-trusty"
-    else
-      label "gpu-reliable-${distro}"
-  }
-}
-
 // ## Method copied from srcsim.dsl
 void include_parselog(Job job) {
   job.with {
@@ -54,11 +42,11 @@ ci_distro.each { distro ->
     def servicesim_ci_job = job("servicesim-ci-${distro}-${arch}")
     // enable testing, disable cppcheck (for now)
     OSRFLinuxCompilation.create(servicesim_ci_job, true, false)
-    // GPU label and parselog
-    include_gpu_label(servicesim_ci_job, distro)
     include_parselog(servicesim_ci_job)
 
     servicesim_ci_job.with {
+      label "gpu-reliable"
+      
       parameters {
         // Override RTOOLS_BRANCH pending PR merge.
         stringParam('RTOOLS_BRANCH', 'add-servicesim', 'release-tools branch to use.')
@@ -83,10 +71,10 @@ ci_distro.each { distro ->
     OSRFLinuxCompilationAny.create(servicesim_ci_any_job,
                                    'https://bitbucket.org/osrf/servicesim',
                                    true, false)
-    // GPU label and parselog
-    include_gpu_label(servicesim_ci_job, distro)
     include_parselog(servicesim_ci_job)
     servicesim_ci_any_job.with {
+      label "gpu-reliable"
+      
       parameters {
         // Override RTOOLS_BRANCH pending PR merge.
         stringParam('RTOOLS_BRANCH', 'add-servicesim', 'release-tools branch to use.')
