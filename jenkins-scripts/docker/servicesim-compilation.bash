@@ -52,6 +52,25 @@ export ROS_SETUP_POSTINSTALL_HOOK="""
 # Generate the first part of the build.sh file for ROS
 . ${SCRIPT_DIR}/lib/_ros_setup_catkin_make_isolated_buildsh.bash "servicesim"
 
+# Add "smoke test" of system launch file to build.sh
+cat >> build.sh << SMOKE_TEST_DELIM
+echo '# BEGIN SECTION: smoke test'
+TEST_TIMEOUT=90
+
+TEST_START=\$(date +%s)
+timeout --preserve-status \$TEST_TIMEOUT roslaunch servicesim servicesim.launch headless:=true extra_gazebo_args:="--verbose"
+TEST_END=\$(date +%s)
+DIFF=\$(expr \$TEST_END - \$TEST_START)
+
+if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
+  echo "The test took less than \$TEST_TIMEOUT. Something bad happened."
+  exit 1
+fi
+
+echo "Smoke testing completed successfully."
+echo '# END SECTION'
+SMOKE_TEST_DELIM
+
 # don't have rosdep at this point and want gazebo to be cached by docker
 DEPENDENCY_PKGS="libgazebo${PKG_VERSION}-dev"
 USE_ROS_REPO=true
