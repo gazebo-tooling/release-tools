@@ -27,7 +27,7 @@ echo '# END SECTION'
 
 echo '# Download drake-release repo'
 [[ -d ${WORKSPACE}/drake-release-tools ]] && rm -fr ${WORKSPACE}/drake-release-tools
-git clone https://github.com/j-rivero/drake-release-tools ${WORKSPACE}/drake-release-tools
+git clone https://github.com/osrf/drake-release-tools ${WORKSPACE}/drake-release-tools
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run release new snapshot'
