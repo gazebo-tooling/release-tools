@@ -57,6 +57,8 @@ cat >> build.sh << SMOKE_TEST_DELIM
 echo '# BEGIN SECTION: smoke test'
 TEST_TIMEOUT=90
 
+. ./devel_isolated/setup.bash
+
 TEST_START=\$(date +%s)
 timeout --preserve-status \$TEST_TIMEOUT roslaunch servicesim servicesim.launch headless:=true extra_gazebo_args:="--verbose"
 TEST_END=\$(date +%s)
