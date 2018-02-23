@@ -46,11 +46,7 @@ ci_distro.each { distro ->
 
     servicesim_ci_job.with {
       label "gpu-reliable"
-      
-      parameters {
-        // Override RTOOLS_BRANCH pending PR merge.
-        stringParam('RTOOLS_BRANCH', 'add-servicesim', 'release-tools branch to use.')
-      }
+
       scm {
         hg('https://bitbucket.org/osrf/servicesim') {
           branch('default')
@@ -74,11 +70,6 @@ ci_distro.each { distro ->
     include_parselog(servicesim_ci_job)
     servicesim_ci_any_job.with {
       label "gpu-reliable"
-      
-      parameters {
-        // Override RTOOLS_BRANCH pending PR merge.
-        stringParam('RTOOLS_BRANCH', 'add-servicesim', 'release-tools branch to use.')
-      }
     }
 
     include_compilation_script_step(servicesim_ci_any_job, distro, arch)
