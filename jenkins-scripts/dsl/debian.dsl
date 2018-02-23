@@ -12,6 +12,7 @@ packages['science-team'] = ['console-bridge',
                             'ignition-math2',
                             'ignition-math4',
                             'ignition-msgs',
+                            'ignition-tools',
                             'ignition-transport', // version 4
                             'kido',
                             'libccd',
