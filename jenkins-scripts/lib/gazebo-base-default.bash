@@ -14,9 +14,9 @@ fi
 [ -z ${COVERAGE_ENABLED} ] && COVERAGE_ENABLED=false
 
 # Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
-GAZEBO_MAJOR_VERSION=`\
-  grep 'set.*GAZEBO_MAJOR_VERSION ' ${WORKSPACE}/gazebo/CMakeLists.txt | \
-  tr -d 'a-zA-Z _()'`
+GAZEBO_MAJOR_VERSION=$(\
+  python ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
+  ${WORKSPACE}/gazebo/CMakeLists.txt)
 
 # Check gazebo version is integer
 if ! [[ ${GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then

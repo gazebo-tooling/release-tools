@@ -30,10 +30,19 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
     # if not enough, run again with 1 day = 86400s
     PERCENT_DISK_USED=$(df -h | grep ${docker_mount_point}$ | sed 's:.* \([0-9]*\)%.*:\1:')
     if [[ $PERCENT_DISK_USED -gt 90 ]]; then
-        echo "Space left is low: ${PERCENT_DISK_USED}% used"
+        echo "Space left is still low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
         wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
         sudo bash -c "GRACE_PERIOD_SECONDS=86400 bash docker-gc"
+    fi
+
+    # if not enough, kill the whole cache
+    PERCENT_DISK_USED=$(df -h | grep ${docker_mount_point}$ | sed 's:.* \([0-9]*\)%.*:\1:')
+    if [[ $PERCENT_DISK_USED -gt 90 ]]; then
+        echo "Space left is low again: ${PERCENT_DISK_USED}% used"
+        echo "Kill the whole docker cache !!"
+        sudo docker kill $(sudo docker ps -q)
+        sudo docker rmi $(sudo docker images -a -q)
     fi
 fi
 
@@ -89,6 +98,9 @@ if $NEED_C11_COMPILER; then
       NEED_C11_COMPILER=false
   fi
 fi
+
+# in some machines squid is returning
+[ -z ${NEED_SQUID_WORKAROUND} ] && NEED_SQUID_WORKAROUND=false
 
 # Useful for running tests properly integrated ros based software
 if ${ENABLE_ROS}; then
@@ -153,6 +165,10 @@ fi
 # Check if squid-deb-proxy is running or start it otherwise
 if [[ -z $(ps aux | grep squid-deb-proxy.conf | grep -v grep | awk '{ print $2}') ]]; then
   sudo service squid-deb-proxy start
+fi
+
+if ${NEED_SQUID_WORKAROUND}; then
+  sudo service squid-deb-proxy restart
 fi
 
 # Docker checking

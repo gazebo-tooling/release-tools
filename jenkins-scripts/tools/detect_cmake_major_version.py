@@ -13,9 +13,15 @@ txt = f.read()
 f.close()
 
 old_version = re.search('set *\( *PROJECT_MAJOR_VERSION +(\d+)', txt)
-ign_cmake_version = re.search('project *\( *ignition-[a-z\-]+(\d+)', txt)
+gazebo_version = re.search('set *\( *GAZEBO_MAJOR_VERSION +(\d+)', txt)
+sdformat_version = re.search('set *\( *SDF_MAJOR_VERSION +(\d+)', txt)
+ign_cmake_version = re.search('project *\( *ignition-[a-z\-_]+(\d+)', txt)
 if old_version:
     print(old_version.group(1) )
+elif gazebo_version:
+    print(gazebo_version.group(1))
+elif sdformat_version:
+    print(sdformat_version.group(1))
 elif ign_cmake_version:
     print(ign_cmake_version.group(1))
 else:

@@ -89,6 +89,8 @@ fi
 
 if ${USE_OLD_SDFORMAT}; then
     sdformat_pkg="sdformat"
+elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
+    sdformat_pkg="libsdformat6-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
     sdformat_pkg="libsdformat5-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
@@ -199,11 +201,20 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
                                 libignition-transport-dev"
   fi
 
-  if [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
+  if [[ ${GAZEBO_MAJOR_VERSION} -eq 8 ]]; then
       GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                                            libignition-transport3-dev \\
                                            libignition-math3-dev \\
                                            libignition-msgs0-dev"
+  fi
+
+  if [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
+      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                           libignition-common-dev \\
+                                           libignition-fuel-tools-dev \\
+                                           libignition-transport4-dev \\
+                                           libignition-math4-dev \\
+                                           libignition-msgs-dev"
   fi
 
   # libtinyxml2-dev is not on precise
@@ -477,9 +488,15 @@ IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             libzmq3-dev          \\
                             libczmq-dev"
 
-if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 4 ]]; then
+if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 4 ]]; then
     IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
                                 libignition-cmake-dev \\
+                                libignition-msgs-dev"
+elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 5 ]]; then
+    IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
+                                libignition-cmake-dev \\
+                                libsqlite3-dev \\
+                                ruby-ffi \\
                                 libignition-msgs-dev"
 else
     IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
@@ -502,9 +519,17 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          libtinyxml2-dev       \\
                          uuid-dev"
 
+IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
+                             libignition-common-dev \\
+                             libcurl4-openssl-dev   \\
+                             libjsoncpp-dev         \\
+                             libyaml-dev            \\
+                             libzip-dev"
+
 IGN_GUI_DEPENDENCIES="qtbase5-dev \\
                       libignition-cmake-dev \\
                       libignition-math4-dev \\
+                      libignition-transport4-dev \\
                       libignition-msgs-dev \\
                       libignition-common-dev \\
                       libtinyxml2-dev \\
@@ -514,8 +539,11 @@ IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev\\
                             libx11-dev"
 
-IGN_SENSORS_DEPENDENCIES="libignition-math4-dev      \\
-                          libignition-transport3-dev"
+IGN_SENSORS_DEPENDENCIES="libignition-common-dev     \\
+                          libignition-math4-dev      \\
+                          libignition-msgs-dev       \\
+                          libignition-transport4-dev \\
+                          libsdformat6-dev"
 
 IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
                        libignition-math4-dev"

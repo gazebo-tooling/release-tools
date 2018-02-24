@@ -12,12 +12,12 @@ packages['science-team'] = ['console-bridge',
                             'ignition-math2',
                             'ignition-math4',
                             'ignition-msgs',
-                            'ignition-transport',
-                            'ignition-transport3',
+                            'ignition-tools',
+                            'ignition-transport', // version 4
                             'kido',
                             'libccd',
-                            'robot-player',
-                            'sdformat',
+                            'octomap',
+                            'sdformat', // version 6
                             'simbody',
                             'urdfdom',
                             'urdfdom-headers' ]
@@ -39,7 +39,7 @@ packages.each { repo_name, pkgs ->
      }
 
     // No accepted in Sid yet
-    if ((pkg == 'kido') || (pkg == 'ignition-msgs'))
+    if ((pkg == 'sdformat6') || (pkg == 'ignition-transport4'))
     {
       disabled()
     }
