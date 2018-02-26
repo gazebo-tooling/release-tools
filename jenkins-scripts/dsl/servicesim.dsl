@@ -7,13 +7,14 @@ import javaposse.jobdsl.dsl.Job
 def ci_distro = [ 'xenial' ]
 def supported_arches = [ 'amd64' ]
 def servicesim_packages = [
+  'rqt_servicebot_pan_tilt',
+  'rqt_servicesim_score',
   'servicebot_2dnav',
   'servicebot_control',
   'servicebot_description',
   'servicesim',
   'servicesim_competition',
   'servicesim_example_python_solution'
-  'servicesim_rqt_plugins',
 ]
 
 // ## Method copied from srcsim.dsl
