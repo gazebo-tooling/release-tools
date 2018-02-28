@@ -15,6 +15,8 @@ else
 fi
 
 git -C $(${BREW_BINARY} --repo) fsck
-export HOMEBREW_UPDATE_TO_TAG=1
+# disable update to tag for now since `brew ruby` is broken
+#export HOMEBREW_UPDATE_TO_TAG=1
+unset HOMEBREW_UPDATE_TO_TAG
 ${BREW_BINARY} update
 ${BREW_BINARY} install ${BREW_BASE_DEPENDCIES}
