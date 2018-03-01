@@ -16,5 +16,6 @@ fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-math"
 export BUILDING_JOB_REPOSITORIES="stable"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_MATH_DEPENDENCIES"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

@@ -47,7 +47,8 @@ for F_WITH_NEW_HASH in ${FILES_WITH_NEW_HASH}; do
 
   if [ -z "${FORMULA_PATH}" ]; then
     echo FORMULA_PATH not specified
-    exit -1
+    echo "MARK_AS_UNSTABLE"
+    continue
   fi
 
   echo '# BEGIN SECTION: checkout pull request branch'
@@ -60,7 +61,7 @@ for F_WITH_NEW_HASH in ${FILES_WITH_NEW_HASH}; do
     "puts JSON.load(IO.read(\"${F_WITH_NEW_HASH}\") \
         ).values[0]['bottle']['tags'].keys[0]")
   echo DISTRO: ${DISTRO}
-  # Check if json has existing bottle entry for this DISTRO
+  # Print sha256 for this DISTRO's bottle
   NEW_HASH=$(${BREW} ruby -e \
     "puts JSON.load(IO.read(\"${F_WITH_NEW_HASH}\") \
         ).values[0]['bottle']['tags'][\"${DISTRO}\"]['sha256']")
@@ -70,21 +71,29 @@ for F_WITH_NEW_HASH in ${FILES_WITH_NEW_HASH}; do
     "exit (\"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select \
     { |d| d.value?(:${DISTRO}) }).length == 1"
   then
-    echo bottle specification for distro ${DISTRO} found
-    OLD_HASH=$(${BREW} ruby -e \
-      "puts \"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select \
-      { |d| d.value?(:${DISTRO}) }[0].keys[0]")
+    DISTRO_SYMBOL=${DISTRO}
+  # Check if formula has existing bottle entry for this DISTRO_or_later
+  elif ${BREW} ruby -e \
+    "exit (\"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select \
+    { |d| d.value?(:${DISTRO}_or_later) }).length == 1"
+  then
+    DISTRO_SYMBOL=${DISTRO}_or_later
   else
     echo bottle specification for distro ${DISTRO} not found
     echo unable to update formula
-    exit -1
+    echo "MARK_AS_UNSTABLE"
+    continue
   fi
+  echo bottle specification for distro ${DISTRO_SYMBOL} found
+  OLD_HASH=$(${BREW} ruby -e \
+    "puts \"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select \
+    { |d| d.value?(:${DISTRO_SYMBOL}) }[0].keys[0]")
   echo OLD_HASH: ${OLD_HASH}
-  SED_FIND___="sha256 \"${OLD_HASH}\" => :${DISTRO}"
-  SED_REPLACE="sha256 \"${NEW_HASH}\" => :${DISTRO}"
+  SED_FIND___="sha256 \"${OLD_HASH}\" => :${DISTRO_SYMBOL}"
+  SED_REPLACE="sha256 \"${NEW_HASH}\" => :${DISTRO_SYMBOL}"
   sed -i -e "s@${SED_FIND___}@${SED_REPLACE}@" ${FORMULA_PATH}
   echo '# END SECTION'
 
-  COMMIT_MESSAGE_SUFFIX=" ${DISTRO} bottle"
+  COMMIT_MESSAGE_SUFFIX=" ${DISTRO_SYMBOL} bottle"
   . ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
 done

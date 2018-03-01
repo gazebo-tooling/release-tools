@@ -44,27 +44,28 @@ echo on line number ${URI_LINE}
 sed -i -e "${URI_LINE}c\  url \"${SOURCE_TARBALL_URI}\"" ${FORMULA_PATH}
 
 echo
-# check if formula has auto-detected version field
-if ${BREW} ruby -e "exit \"${PACKAGE_ALIAS}\".f.stable.version.detected_from_url?"
+# get line with formula version
+VERSION_LINE=$(awk \
+  "/^  version ['\"]/ {print FNR}" ${FORMULA_PATH} | head -1)
+# check if version can be correctly auto-detected from url
+if ${BREW} ruby -e "exit Version.parse(\"${SOURCE_TARBALL_URI}\").to_s == \"${VERSION}\""
 then
-  # check if auto-detected version is correct
-  if ${BREW} ruby -e "exit \"${PACKAGE_ALIAS}\".f.stable.version.to_s == \"${VERSION}\""
-  then
-    echo Version is correctly auto-detected from URL
-  else
-    # Need to insert explicit version tag after url
-    sed -i -e "${URI_LINE}a\  version \"${VERSION}\"" ${FORMULA_PATH}
+  echo Version can be correctly auto-detected from URL
+  if [ -n "${VERSION_LINE}" ]; then
+    echo remove explicit version on line number ${VERSION_LINE}
+    sed -i -e "${VERSION_LINE}d" ${FORMULA_PATH}
   fi
 else
-  # get version and line number
-  FORMULA_VERSION=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.version"`
-  echo Changing version from
-  echo ${FORMULA_VERSION} to
-  echo ${VERSION}
-  VERSION_LINE=`awk \
-    "/version .${FORMULA_VERSION}/ {print FNR}" ${FORMULA_PATH} | head -1`
-  echo on line number ${VERSION_LINE}
-  sed -i -e "${VERSION_LINE}c\  version \"${VERSION}\"" ${FORMULA_PATH}
+  if [ -z "${VERSION_LINE}" ]; then
+    # Need to insert explicit version tag after url
+    echo Adding explicit version tag after URL
+    sed -i -e "${URI_LINE}a\  version \"${VERSION}\"" ${FORMULA_PATH}
+  else
+    echo Changing version to
+    echo ${VERSION}
+    echo on line number ${VERSION_LINE}
+    sed -i -e "${VERSION_LINE}c\  version \"${VERSION}\"" ${FORMULA_PATH}
+  fi
 fi
 
 echo

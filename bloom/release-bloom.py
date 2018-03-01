@@ -15,8 +15,9 @@ JOB_NAME_PATTERN = '%s-bloom-debbuilder'
 
 UBUNTU_ARCHS = ['amd64']
 # not releasing for precise by default
-ROS_DISTROS_IN_UBUNTU = { 'wily'    : ['kinetic'],
-                          'xenial'  : ['kinetic'] }
+ROS_DISTROS_IN_UBUNTU = { 'zesty'    : ['lunar'],
+                          'yakkety'  : ['lunar'] }
+#                          'xenial'   : ['lunar'] }
 DRY_RUN = False
 
 def parse_args(argv):
@@ -84,8 +85,8 @@ def go(argv):
                 sys.exit(1)
 
             for r in ROS_DISTROS:
-                if r == 'jade' and args.package == 'gazebo-ros-control':
-                    print ("!! No gazebo-ros-control in jade, skipping")
+                if r == 'indigo' and args.package == 'gazebo-dev':
+                    print ("!! No gazebo-dev in indigo, skipping")
                     continue
 
                 url = '%s&ARCH=%s&DISTRO=%s&ROS_DISTRO=%s'%(base_url, a, d, r)

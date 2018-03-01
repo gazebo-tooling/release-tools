@@ -12,7 +12,7 @@ import javaposse.jobdsl.dsl.Job
 
 class GenericAnyJob
 {
-   static void create(Job job, String repo)
+   static void create(Job job, String repo, String hgInstallName = 'Default')
    {
      // setup special mail subject
      GenericMail.update_field(job, 'defaultSubject',
@@ -50,6 +50,7 @@ class GenericAnyJob
         scm {
           hg('${SRC_REPO}') {
             branch('${SRC_BRANCH}')
+            installation(hgInstallName)
             subdirectory(subdirectoy)
           }
         }

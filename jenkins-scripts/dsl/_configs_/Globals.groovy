@@ -72,7 +72,7 @@ class Globals
 
    static ArrayList get_other_supported_distros()
    {
-     return [ 'trusty', 'yakkety' ]
+     return [ 'trusty', 'artful' ]
    }
 
    static ArrayList get_supported_arches()
@@ -82,7 +82,7 @@ class Globals
 
    static ArrayList get_experimental_arches()
    {
-     return [ 'i386', 'armhf' ]
+     return [ 'i386' ]
    }
 
    static ArrayList get_all_supported_distros()
@@ -97,6 +97,6 @@ class Globals
 
    static ArrayList get_ros_suported_distros()
    {
-     return [ 'indigo', 'jade', 'kinetic', 'lunar' ]
+     return [ 'indigo', 'kinetic', 'lunar' ]
    }
 }
