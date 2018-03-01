@@ -7,7 +7,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 export GPU_SUPPORT_NEEDED=true
 
 export INSTALL_JOB_PKG="ariac2"
-export INSTALL_JOB_REPOS="prerelease"
+export INSTALL_JOB_REPOS="stable"
 export USE_ROS_REPO=true
 
 case "$DISTRO" in
