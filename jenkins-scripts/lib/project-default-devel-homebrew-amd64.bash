@@ -48,6 +48,9 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: brew information'
 # Run brew update to get latest versions of formulae
 brew update
+# Don't let brew auto-update any more for this session
+# to ensure consistency
+export HOMEBREW_NO_AUTO_UPDATE=1
 # Run brew config to print system information
 brew config
 # Run brew doctor to check for problems with the system
