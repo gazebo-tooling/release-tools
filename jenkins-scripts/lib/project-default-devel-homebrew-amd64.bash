@@ -73,8 +73,7 @@ fi
 
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   brew install python
-  export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
-  pip2 install ${PIP_PACKAGES_NEEDED}
+  pip install ${PIP_PACKAGES_NEEDED}
 fi
 
 if [[ -z "${DISABLE_CCACHE}" ]]; then
