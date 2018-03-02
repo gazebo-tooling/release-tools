@@ -59,8 +59,6 @@ echo '# END SECTION'
 BREW=${PWD}/brew/bin/brew
 ${BREW} up
 
-# tap dev-tools to get brew ruby command
-${BREW} tap homebrew/dev-tools
 ${BREW} ruby -e "puts 'brew ruby success'"
 
 # tap osrf/simulation
