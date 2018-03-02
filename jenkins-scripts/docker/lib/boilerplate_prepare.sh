@@ -41,8 +41,8 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
     if [[ $PERCENT_DISK_USED -gt 90 ]]; then
         echo "Space left is low again: ${PERCENT_DISK_USED}% used"
         echo "Kill the whole docker cache !!"
-        sudo docker kill $(sudo docker ps -q)
-        sudo docker rmi $(sudo docker images -a -q)
+        [[ -n $(sudo docker ps -q) ]] && sudo docker kill $(sudo docker ps -q)
+        [[ -n $(sudo docker images -a -q) ]] && sudo docker rmi $(sudo docker images -a -q)
     fi
 fi
 
