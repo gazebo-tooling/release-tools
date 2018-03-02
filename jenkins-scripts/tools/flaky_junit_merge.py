@@ -34,7 +34,7 @@ def one_less_failure(element, expectedTag):
 def open_xml(fileName):
     f = open(fileName, 'r')
     try:
-      xml = etree.fromstring(f.read())
+      xml = etree.fromstring(f.read().encode())
     except etree.XMLSyntaxError as err:
         print("error parsing %s as xml, writing generic test_ran failure" % (fileName), file=sys.stderr)
         testName = os.path.basename(fileName)
@@ -156,5 +156,5 @@ for ts in testsuiteArray:
 
 # This script modifies the content of both files, and either could be printed.
 # This script prints the first one, but the second one could also be printed.
-print(etree.tostring(xml1))
+print(etree.tostring(xml1).decode())
 # print(etree.tostring(xml2))
