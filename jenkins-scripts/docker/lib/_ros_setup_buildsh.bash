@@ -81,7 +81,7 @@ rosdep install --from-paths . \
 echo '# END SECTION'
 
 echo '# BEGIN SECTION compile the catkin workspace'
-catkin build -j${MAKE_JOBS} --verbose --summary
+catkin build -j${MAKE_JOBS} --verbose --summary ${CATKIN_EXTRA_ARGS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: running tests'
