@@ -109,6 +109,11 @@ fi
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'gettext' }.empty?"; then
   export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/gettext/lib
 fi
+# if we are using protobuf, need to make sure python is installed due to a bug in homebrew
+# https://github.com/Homebrew/homebrew-core/issues/24815
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'protobuf' }.empty?"; then
+  brew install python || true
+fi
 
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT_FORMULA}/HEAD \
