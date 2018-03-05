@@ -73,8 +73,7 @@ fi
 
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   brew install python
-  export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
-  pip2 install ${PIP_PACKAGES_NEEDED}
+  pip install ${PIP_PACKAGES_NEEDED}
 fi
 
 if [[ -z "${DISABLE_CCACHE}" ]]; then
@@ -109,6 +108,11 @@ fi
 # if we are using gts, need to add gettext library path since it is keg-only
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'gettext' }.empty?"; then
   export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/gettext/lib
+fi
+# if we are using protobuf, need to make sure python is installed due to a bug in homebrew
+# https://github.com/Homebrew/homebrew-core/issues/24815
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'protobuf' }.empty?"; then
+  brew install python || true
 fi
 
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \

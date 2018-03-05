@@ -4,7 +4,9 @@ set -e
 BREW_BINARY_DIR=/usr/local/bin
 BREW_BINARY=${BREW_BINARY_DIR}/brew
 git -C $(${BREW_BINARY} --repo) fsck
-export HOMEBREW_UPDATE_TO_TAG=1
+# disable update to tag for now since `brew doctor` is broken with python3
+#export HOMEBREW_UPDATE_TO_TAG=1
+unset HOMEBREW_UPDATE_TO_TAG
 ${BREW_BINARY} up
 
 # Clear all installed homebrew packages, links, taps, and kegs
@@ -12,7 +14,7 @@ BREW_LIST=$(${BREW_BINARY} list)
 if [[ -n "${BREW_LIST}" ]]; then
   ${BREW_BINARY} remove --force --ignore-dependencies ${BREW_LIST}
 fi
-rm -rf /usr/local/lib/python2.7/site-packages
+rm -rf /usr/local/lib/python*/site-packages
 hash -r
 # redirect error to /dev/null to avoid temporal problems detected by
 # brew tap
