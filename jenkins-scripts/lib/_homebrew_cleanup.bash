@@ -4,7 +4,7 @@ set -e
 BREW_BINARY_DIR=/usr/local/bin
 BREW_BINARY=${BREW_BINARY_DIR}/brew
 git -C $(${BREW_BINARY} --repo) fsck
-# disable update to tag for now since `brew ruby` is broken
+# disable update to tag for now since `brew doctor` is broken with python3
 #export HOMEBREW_UPDATE_TO_TAG=1
 unset HOMEBREW_UPDATE_TO_TAG
 ${BREW_BINARY} up
