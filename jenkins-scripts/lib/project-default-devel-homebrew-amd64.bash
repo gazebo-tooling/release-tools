@@ -72,7 +72,7 @@ if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
 fi
 
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
-  brew install python
+  brew install python@2
   pip install ${PIP_PACKAGES_NEEDED}
 fi
 
@@ -108,11 +108,6 @@ fi
 # if we are using gts, need to add gettext library path since it is keg-only
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'gettext' }.empty?"; then
   export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/gettext/lib
-fi
-# if we are using protobuf, need to make sure python is installed due to a bug in homebrew
-# https://github.com/Homebrew/homebrew-core/issues/24815
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'protobuf' }.empty?"; then
-  brew install python || true
 fi
 
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \

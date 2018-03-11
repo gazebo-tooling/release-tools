@@ -15,8 +15,6 @@ else
 fi
 
 git -C $(${BREW_BINARY} --repo) fsck
-# disable update to tag for now since `brew doctor` is broken with python3
-#export HOMEBREW_UPDATE_TO_TAG=1
-unset HOMEBREW_UPDATE_TO_TAG
+export HOMEBREW_UPDATE_TO_TAG=1
 ${BREW_BINARY} update
 ${BREW_BINARY} install ${BREW_BASE_DEPENDCIES}
