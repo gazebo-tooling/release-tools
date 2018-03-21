@@ -442,7 +442,8 @@ gazebo_supported_branches.each { branch ->
            cron('@daily')
          }
 
-         def dev_package = "lib${branch}-dev"
+         // Branch is exatly in the form of gazeboN
+         def dev_packages = "lib${branch}-dev ${branch}"
 
          steps {
           shell("""\
@@ -450,7 +451,7 @@ gazebo_supported_branches.each { branch ->
 
                 export DISTRO=${distro}
                 export ARCH=${arch}
-                export INSTALL_JOB_PKG=${dev_package}
+                export INSTALL_JOB_PKG=\"${dev_packages}\"
                 export INSTALL_JOB_REPOS=stable
                 /bin/bash -x ./scripts/jenkins-scripts/docker/gazebo-install-test-job.bash
                 """.stripIndent())
