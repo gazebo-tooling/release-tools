@@ -452,7 +452,7 @@ gazebo_supported_branches.each { branch ->
                 export ARCH=${arch}
                 export INSTALL_JOB_PKG=${dev_package}
                 export INSTALL_JOB_REPOS=stable
-                /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+                /bin/bash -x ./scripts/jenkins-scripts/docker/gazebo-install-test-job.bash
                 """.stripIndent())
           }
       } // end of with
