@@ -10,7 +10,7 @@ export GPU_SUPPORT_NEEDED=true
 export INSTALL_JOB_PKG=""
 export INSTALL_JOB_REPOS=""
 
-. ${SCRIPT_DIR}/lib/_gazebo_models.bash
+. ${SCRIPT_DIR}/lib/_gazebo_utils.bash
 
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: run the one-liner installation'
