@@ -20,14 +20,10 @@ if [[ -z ${ABI_JOB_SOFTWARE_NAME} ]]; then
   exit 1
 fi
 
-case ${ABI_JOB_SOFTWARE_NAME} in
-  "ign-transport")
-    ABI_JOB_PKG_DEPENDENCIES_VAR_NAME="IGN_TRANSPORT_DEPENDENCIES"
-    break;;
-  "ign-common")
-    ABI_JOB_PKG_DEPENDENCIES_VAR_NAME="IGN_COMMON_DEPENDENCIES"
-    break;;
-esac
+# convert from ign-package to IGN_PACKAGE_DEPENDENCIES
+ABI_JOB_PKG_DEPENDENCIES_VAR_NAME=$(\
+  echo ${ABI_JOB_SOFTWARE_NAME} \
+  | tr '[:lower:]-' '[:upper:]_')_DEPENDENCIES
 
 export ABI_JOB_REPOS="stable"
 

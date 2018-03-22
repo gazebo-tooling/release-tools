@@ -5,12 +5,13 @@ import javaposse.jobdsl.dsl.Job
 ignition_software           = [ 'transport', 'fuel-tools', 'math', 'msgs', 'cmake', 'common', 'rndf', 'gui', 'sensors' ]
 ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3', 'math4', 'msgs0' ]
 ignition_gpu                = [ 'gui', 'sensors' ]
-ignition_no_pkg_yet         = [ 'gui', 'fuel-tools', 'sensors' ]
+ignition_no_pkg_yet         = [ 'gui', 'sensors' ]
 // no branches in ignition_branches means no released branches
-ignition_branches           = [ common    : [ '1' ],
-                                math      : [ '2', '3','4' ],
-                                msgs      : [ '1' ],
-                                transport : [ '3','4' ]]
+ignition_branches           = [ 'common'     : [ '1' ],
+                                'fuel-tools' : [ '1' ],
+                                'math'       : [ '2', '3','4' ],
+                                'msgs'       : [ '1' ],
+                                'transport'  : [ '3','4' ]]
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
 def abi_distro              = Globals.get_abi_distro()
