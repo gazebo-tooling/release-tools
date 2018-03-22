@@ -445,6 +445,9 @@ gazebo_supported_branches.each { branch ->
          // Branch is exatly in the form of gazeboN
          def dev_packages = "lib${branch}-dev ${branch}"
 
+         // Need gpu for running the runtime test
+         label "gpu-" + ci_gpu[0] + "-${distro}"
+
          steps {
           shell("""\
                 #!/bin/bash -xe
