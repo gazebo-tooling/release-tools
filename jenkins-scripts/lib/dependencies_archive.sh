@@ -469,7 +469,10 @@ fi
 #
 
 if [[ ${DISTRO} != 'trusty' ]]; then
-  IGN_MATH_DEPENDENCIES="libignition-cmake-dev"
+  if [[ ${IGN_MATH_MAJOR_VERSION} -lt 5 ]]; then
+    IGN_MATH_DEPENDENCIES="libignition-cmake-dev"
+  else
+    IGN_MATH_DEPENDENCIES="libignition-cmake1-dev"
 fi
 
 # IGN_TRANSPORT related dependencies. Default value points to the development
