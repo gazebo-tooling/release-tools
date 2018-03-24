@@ -10,7 +10,7 @@ set -e
 # Modfied by jrivero@osrfoundation.org
 
 GZ_VER=9
-DEB_PKG_NAME=libgazebo$GZ_VER-dev
+DEB_PKG_NAME="libgazebo$GZ_VER-dev gazebo$GZ_VER"
 BREW_PKG_NAME=gazebo${GZ_VER}
 
 command_exists() {
@@ -157,15 +157,24 @@ do_install() {
 		;;
 
 		debian)
-			dist_version="$(cat /etc/debian_version | sed 's/\/.*//' | sed 's/\..*//')"
-			case "$dist_version" in
-				8)
-					dist_version="jessie"
-				;;
-				7)
-					dist_version="wheezy"
-				;;
-			esac
+ 	        if command_exists lsb_release; then
+		      if [ "$(lsb_release -rs)" = "unstable" ]; then
+				  dist_version="sid"
+			  else
+				dist_version="$(cat /etc/debian_version | sed 's/\/.*//' | sed 's/\..*//')"
+				case "$dist_version" in
+					9)
+						dist_version="stretch"
+					;;
+					8)
+						dist_version="jessie"
+					;;
+					7)
+						dist_version="wheezy"
+					;;
+				esac
+			fi
+		  fi
 		;;
 
 		oracleserver)
@@ -216,9 +225,25 @@ do_install() {
 			echo_gazebo_as_nonroot
 			exit 0
 			;;
+		debian)
+			case "$dist_version" in
+				"sid" | 9 )
+					;;
+				*)
+					echo "Your version of Debian ${dist_version} is not supported"
+					;;
+			esac
 
-                debian)
-	                export DEBIAN_FRONTEND=noninteractive
+			export DEBIAN_FRONTEND=noninteractive
+
+			# TODO: we really want this or install the latest stable
+			# release from the system?
+			cat >&2 <<-'EOF'
+
+			In Debian this script will setup the osrfoundation
+			repository to install the latest package available
+
+			EOF
 
 			did_apt_get_update=
 			apt_get_update() {
@@ -228,8 +253,11 @@ do_install() {
 				fi
 			}
 
-                        (
+			(
 			set -x
+			$sh_c "apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D2486D2DD83DB69272AFE98867170598AF249743"
+			$sh_c "mkdir -p /etc/apt/sources.list.d"
+			$sh_c "echo deb http://packages.osrfoundation.org/gazebo/$lsb_dist\-stable $dist_version main > /etc/apt/sources.list.d/gazebo-stable.list"
 			$sh_c "sleep 3; apt-get update; apt-get install -y -q $DEB_PKG_NAME"
 			)
 			exit 0
