@@ -25,6 +25,7 @@ BASE_DEPENDENCIES="build-essential \\
                    cmake           \\
                    debhelper       \\
                    mesa-utils      \\
+                   pkg-config      \\
                    cppcheck        \\
                    xsltproc        \\
                    python-lxml     \\
