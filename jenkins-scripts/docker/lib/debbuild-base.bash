@@ -126,7 +126,7 @@ cd \${PACKAGE_RELEASE_DIR}
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
   NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}+\${TIMESTAMP}r\${REV}-${RELEASE_VERSION}~${DISTRO}
-  debchange --package ${PACKAGE} \\
+  debchange --package ${PACKAGE_ALIAS} \\
               --newversion \${NIGHTLY_VERSION_SUFFIX} \\
               --distribution ${DISTRO} \\
               --force-distribution \\
