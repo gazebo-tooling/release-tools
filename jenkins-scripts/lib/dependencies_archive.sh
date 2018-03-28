@@ -534,7 +534,7 @@ IGN_MSGS_DEPENDENCIES="libprotobuf-dev       \\
                        libprotoc-dev         \\
                        protobuf-compiler     \\
                        ruby                  \\
-                       ruby-dev"              \\
+                       ruby-dev"
 
 if [[ ${IGN_MSGS_MAJOR_VERSION} -eq 0 ]]; then
     IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
