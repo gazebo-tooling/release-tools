@@ -530,6 +530,25 @@ IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
                              libyaml-dev            \\
                              libzip-dev"
 
+IGN_MSGS_DEPENDENCIES="libprotobuf-dev       \\
+                       libprotoc-dev         \\
+                       protobuf-compiler     \\
+                       ruby                  \\
+                       ruby-dev"
+
+if [[ ${IGN_MSGS_MAJOR_VERSION} -le 0 ]]; then
+    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
+                           libignition-math3-dev"
+elif [[ ${IGN_MSGS_MAJOR_VERSION} -eq 1 ]]; then
+    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
+                           libignition-cmake-dev \\
+                           libignition-math4-dev"
+else
+    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
+                           libignition-cmake1-dev \\
+                           libignition-math5-dev"
+fi
+
 IGN_GUI_DEPENDENCIES="qtbase5-dev \\
                       libignition-cmake1-dev \\
                       libignition-math4-dev \\
