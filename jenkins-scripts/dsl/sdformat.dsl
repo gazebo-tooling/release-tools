@@ -303,6 +303,12 @@ OSRFBrewCompilationAny.create(sdformat_brew_ci_any_job,
                               "https://bitbucket.org/osrf/sdformat")
 sdformat_brew_ci_any_job.with
 {
+    parameters
+    {
+      stringParam("PULL_REQUEST_URL", '',
+                  'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
+    }
+
     steps {
       shell("""\
             #!/bin/bash -xe
