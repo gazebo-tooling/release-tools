@@ -536,7 +536,10 @@ IGN_MSGS_DEPENDENCIES="libprotobuf-dev       \\
                        ruby                  \\
                        ruby-dev"
 
-if [[ ${IGN_MSGS_MAJOR_VERSION} -le 1 ]]; then
+if [[ ${IGN_MSGS_MAJOR_VERSION} -le 0 ]]; then
+    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
+                           libignition-math3-dev"
+elif [[ ${IGN_MSGS_MAJOR_VERSION} -eq 1 ]]; then
     IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
                            libignition-cmake-dev \\
                            libignition-math4-dev"
