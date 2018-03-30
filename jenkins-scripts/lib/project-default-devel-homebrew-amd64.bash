@@ -63,7 +63,7 @@ brew tap osrf/simulation
 echo '# END SECTION'
 
 if [[ -n "${PULL_REQUEST_URL}" ]]; then
-  echo '# BEGIN SECTION: pulling ${PULL_REQUEST_URL}'
+  echo "# BEGIN SECTION: pulling ${PULL_REQUEST_URL}"
   brew pull ${PULL_REQUEST_URL}
   echo '# END SECTION'
 fi
