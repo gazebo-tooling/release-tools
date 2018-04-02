@@ -86,7 +86,7 @@ ignition_software.each { ign_sw ->
       OSRFLinuxABI.create(abi_job)
       OSRFBitbucketHg.create(abi_job,
                             "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
-                            "default", checkout_subdir)
+                            '${TARGET_BRANCH}', checkout_subdir)
       abi_job.with
       {
         steps {
