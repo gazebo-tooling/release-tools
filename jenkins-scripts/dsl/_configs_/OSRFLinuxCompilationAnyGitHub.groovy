@@ -31,6 +31,11 @@ class OSRFLinuxCompilationAnyGitHub
 
     job.with
     {
+      parameters
+      {
+        stringParam('sha1', '', 'commit or refname to build')
+      }
+
       scm
       {
         git {

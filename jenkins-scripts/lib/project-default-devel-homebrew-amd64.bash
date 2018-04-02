@@ -17,18 +17,14 @@ PROJECT_ARGS=${2}
 PROJECT_PATH=${PROJECT}
 if [[ ${PROJECT/ignition} != ${PROJECT} ]]; then
     PROJECT_PATH="ign${PROJECT/ignition}"
+    PROJECT_PATH="${PROJECT_PATH/[0-9]*}"
 fi
 
-# Check for major version number in ignition projects that use ignition-cmake
+# Check for major version number
 # the PROJECT_FORMULA variable is only used for dependency resolution
-PROJECT_FORMULA=${PROJECT}
-if grep 'ign_configure_project *(' \
-        ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt
-then
-  PROJECT_FORMULA=${PROJECT//[0-9]}$(\
-    grep '^project.*VERSION' ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt | \
-    sed -e 's@.* VERSION \([0-9][0-9]*\).*@\1@')
-fi
+PROJECT_FORMULA=${PROJECT//[0-9]}$(\
+  python ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
+  ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt)
 
 export HOMEBREW_PREFIX=/usr/local
 export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
@@ -52,6 +48,9 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: brew information'
 # Run brew update to get latest versions of formulae
 brew update
+# Don't let brew auto-update any more for this session
+# to ensure consistency
+export HOMEBREW_NO_AUTO_UPDATE=1
 # Run brew config to print system information
 brew config
 # Run brew doctor to check for problems with the system
@@ -73,9 +72,8 @@ if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
 fi
 
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
-  brew install python
-  export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
-  pip2 install ${PIP_PACKAGES_NEEDED}
+  brew install python@2
+  pip install ${PIP_PACKAGES_NEEDED}
 fi
 
 if [[ -z "${DISABLE_CCACHE}" ]]; then
@@ -104,7 +102,6 @@ export DISPLAY=$(ps ax \
 )
 
 # set CMAKE_PREFIX_PATH if we are using qt5 (aka qt)
-brew tap homebrew/dev-tools
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/qt
 fi

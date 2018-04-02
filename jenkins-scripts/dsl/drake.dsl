@@ -90,6 +90,20 @@ supported_distros.each { distro ->
           archiveArtifacts('pkgs/*')
         }
 
+        downstreamParameterized {
+	  trigger('repository_uploader_ng') {
+	    condition('SUCCESS')
+	    parameters {
+	      currentBuild()
+	      predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+	      predefinedProp("DISTRO", "${distro}")
+	      predefinedProp("ARCH", "${arch}")
+	      predefinedProp("UPLOAD_TO_REPO", "drake")
+	      predefinedProp("PACKAGE_ALIAS", "drake")
+	    }
+	  }
+        }
+
         postBuildScripts {
           steps {
             shell("""\
@@ -223,7 +237,7 @@ supported_distros.each { distro ->
     }
 
     // --------------------------------------------------------------
-    // 5. Install ROS Kinetic + MoveIt + NavStack
+    // 6. Install ROS Kinetic + MoveIt + NavStack
     def drake_ros_install_job = job("drake-install-ROS+MoveIt+Navstak-kinetic-${distro}-${arch}")
     OSRFLinuxCompilation.create(drake_ros_install_job, false, false)
 
@@ -245,8 +259,26 @@ supported_distros.each { distro ->
       }
     }
 
+    // 7. Create the install ros_drake
+    def install_ros_drake_job = job("ros_drake-install-${distro}-${arch}")
+    OSRFLinuxInstall.create(install_ros_drake_job)
+
+    install_ros_drake_job.with
+    {
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export DISTRO=${distro}
+              export ARCH=${arch}
+              export ROS_DISTRO=kinetic
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/ros_drake-release-testing.bash
+	      """.stripIndent())
+      }
+    }
+
     // --------------------------------------------------------------
-    // 5. Eigen ABI checker
+    // 8. Eigen ABI checker
     abi_job_name = "eigen3-abichecker-333_to_33beta1-${distro}-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABI.create(abi_job)
@@ -265,7 +297,7 @@ supported_distros.each { distro ->
     }
 
     // --------------------------------------------------------------
-    // 6. PCL/Eigen ABI checker
+    // 9. PCL/Eigen ABI checker
     abi_job_pcl_name = "pcl_eigen3-abichecker-333_to_33beta1-${distro}-${arch}"
     def abi_job_pcl = job(abi_job_pcl_name)
     OSRFLinuxABI.create(abi_job_pcl)
@@ -282,5 +314,140 @@ supported_distros.each { distro ->
 	      """.stripIndent())
       } // end of steps
     }
+
+    // --------------------------------------------------------------
+    // 10. Autobuilder
+    standalone_job_name = "drake-standalone-debbuilder-${distro}-${arch}"
+    def standalone_job = job(standalone_job_name)
+    OSRFLinuxBase.create(standalone_job)
+
+    standalone_job.with
+    {
+      // use only the most powerful nodes
+      label "large-memory"
+
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export DISTRO=${distro}
+              export ARCH=${arch}
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/drake-standalone-release.bash
+	      """.stripIndent())
+      } // end of steps
+    }
   }
+}
+
+// Bloom for ros_drake
+def build_pkg_job = job("ros-drake-bloom-debbuilder")
+
+// Use the linux install as base
+OSRFLinuxBuildPkgBase.create(build_pkg_job)
+GenericRemoteToken.create(build_pkg_job)
+
+build_pkg_job.with
+{
+    properties {
+      priority 100
+    }
+
+    parameters {
+      stringParam("PACKAGE","ros-drake","Package name to be built")
+      stringParam("VERSION",null,"Packages version to be built")
+      stringParam("RELEASE_VERSION", null, "Packages release version")
+      stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
+      stringParam("DISTRO", "xenial", "Linux release inside LINUX_DISTRO to build packages for")
+      stringParam("ARCH", "amd64", "Architecture to build packages for")
+      stringParam('ROS_DISTRO', 'kinetic','ROS DISTRO to build pakcages for')
+      stringParam("UPLOAD_TO_REPO", 'drake', "OSRF repo name to upload the package to")
+      stringParam('UPSTREAM_RELEASE_REPO', '', 'https://github.com/ros-gbp/gazebo_ros_pkgs-release')
+    }
+
+    steps {
+      systemGroovyCommand("""\
+        build.setDescription(
+        '<b>' + build.buildVariableResolver.resolve('ROS_DISTRO') + '-'
+              + build.buildVariableResolver.resolve('VERSION') + '-'
+              + build.buildVariableResolver.resolve('RELEASE_VERSION') + '</b>' +
+        '(' + build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
+              build.buildVariableResolver.resolve('DISTRO') + '::' +
+              build.buildVariableResolver.resolve('ARCH') + ')' +
+        '<br />' +
+        'upload to: ' + build.buildVariableResolver.resolve('UPLOAD_TO_REPO') +
+        '<br />' +
+        'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+        """.stripIndent()
+      )
+    }
+
+    publishers {
+      downstreamParameterized {
+        trigger('repository_uploader_ng') {
+          condition('SUCCESS')
+          parameters {
+            currentBuild()
+            predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+            predefinedProp("PACKAGE_ALIAS", "\${JOB_NAME}")
+          }
+        }
+      }
+    }
+
+
+    steps {
+      shell("""\
+            #!/bin/bash -xe
+
+            /bin/bash -x ./scripts/jenkins-scripts/docker/bloom-debbuild.bash
+            """.stripIndent())
+    }
+}
+
+// Bloom for catkin
+def catkin_build_pkg_job = job("catkin-bloom-debbuilder")
+
+// Use the linux install as base
+OSRFLinuxBuildPkgBase.create(catkin_build_pkg_job)
+GenericRemoteToken.create(catkin_build_pkg_job)
+
+catkin_build_pkg_job.with
+{
+    properties {
+      priority 100
+    }
+
+    parameters {
+      stringParam("PACKAGE","catkin","Package name to be built")
+      stringParam("VERSION",null,"Packages version to be built")
+      stringParam("RELEASE_VERSION", null, "Packages release version")
+      stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
+      stringParam("DISTRO", "xenial", "Linux release inside LINUX_DISTRO to build packages for")
+      stringParam("ARCH", "amd64", "Architecture to build packages for")
+      stringParam('ROS_DISTRO', 'kinetic','ROS DISTRO to build pakcages for')
+      stringParam('UPSTREAM_RELEASE_REPO', 'https://github.com/ros-gbp/catkin-release', 'release repo to use')
+    }
+
+    steps {
+      systemGroovyCommand("""\
+        build.setDescription(
+        '<b>' + build.buildVariableResolver.resolve('ROS_DISTRO') + '-'
+              + build.buildVariableResolver.resolve('VERSION') + '-'
+              + build.buildVariableResolver.resolve('RELEASE_VERSION') + '</b>' +
+        '(' + build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
+              build.buildVariableResolver.resolve('DISTRO') + '::' +
+              build.buildVariableResolver.resolve('ARCH') + ')' +
+        '<br />' +
+        'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+        """.stripIndent()
+      )
+    }
+
+    steps {
+      shell("""\
+            #!/bin/bash -xe
+
+            /bin/bash -x ./scripts/jenkins-scripts/docker/bloom-debbuild.bash
+            """.stripIndent())
+    }
 }

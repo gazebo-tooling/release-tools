@@ -1,7 +1,7 @@
 # Identify SDFORMAT_MAJOR_VERSION to help with dependency resolution
-SDFORMAT_MAJOR_VERSION=`\
-  grep 'set.*SDF_MAJOR_VERSION ' ${WORKSPACE}/sdformat/CMakeLists.txt | \
-  tr -d 'a-zA-Z _()'`
+SDFORMAT_MAJOR_VERSION=$(\
+  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  ${WORKSPACE}/sdformat/CMakeLists.txt)
 
 # Check SDFORMAT version is integer
 if ! [[ ${SDFORMAT_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then

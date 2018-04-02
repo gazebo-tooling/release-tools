@@ -54,9 +54,7 @@ echo '# BEGIN SECTION: create the catkin workspace'
 rm -fr ${CATKIN_WS}
 mkdir -p ${CATKIN_WS}/src
 cd ${CATKIN_WS}
-catkin config --init --mkdirs
 ln -s "${WORKSPACE}/${SOFTWARE_DIR}" "${CATKIN_WS}/src/${SOFTWARE_DIR}"
-catkin list
 echo '# END SECTION'
 DELIM_CONFIG
 
@@ -72,7 +70,6 @@ cat >> build.sh << DELIM_COMPILATION
 echo '# END SECTION'
 
 echo '# BEGIN SECTION install the system dependencies'
-catkin list
 rosdep install --from-paths . \
                --ignore-src   \
                --rosdistro=${ROS_DISTRO} \
@@ -81,11 +78,11 @@ rosdep install --from-paths . \
 echo '# END SECTION'
 
 echo '# BEGIN SECTION compile the catkin workspace'
-catkin build -j${MAKE_JOBS} --verbose --summary ${CATKIN_EXTRA_ARGS}
+catkin_make_isolated -j${MAKE_JOBS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: running tests'
-catkin run_tests -j1 || true
+catkin_make_isolated --catkin-make-args run_tests -j1 || true
 catkin_test_results --all --verbose || true
 
 # link test results to usual place

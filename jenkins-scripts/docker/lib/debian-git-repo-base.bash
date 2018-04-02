@@ -44,6 +44,12 @@ git checkout ${BRANCH}
 git pull
 git branch
 
+if [ `expr length "${DEBIAN_GIT_PREINSTALL_HOOK} "` -gt 1 ]; then
+echo '# BEGIN SECTION: running pre install hook'
+${DEBIAN_GIT_PREINSTALL_HOOK}
+echo '# END SECTION'
+fi
+
 echo '# BEGIN SECTION: install build dependencies'
 cat debian/changelog
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
@@ -55,8 +61,10 @@ OSRF_VERSION=\$VERSION\osrf${RELEASE_VERSION}~${DISTRO}${RELEASE_ARCH_VERSION}
 
 echo "# BEGIN SECTION: check that pristine-tar is updated"
 git checkout -f pristine-tar || { echo "W: probably miss the pristine-tar branch" && exit 1; }
-if [[ -z \$(git tag | grep upstream/\${VERSION_NO_REVISION}) ]]; then
-   echo "W: \${VERSION_NO_REVISION} commit was not found in pristine-tar"
+# The tilde (~) is not allow in git tag and changed to underscore (_)
+PRISTINE_VERSION_NO_REVISION=\$(echo \${VERSION_NO_REVISION} | sed 's:~:_:')
+if [[ -z \$(git tag | grep upstream/\${PRISTINE_VERSION_NO_REVISION}) ]]; then
+   echo "W: \${PRISTINE_VERSION_NO_REVISION} commit was not found in pristine-tar"
    exit 1
 fi
 # Back to leave the repo in the correct branch
@@ -95,8 +103,12 @@ rm -f ../*.deb
 ${GBP_COMMAND}
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: export pkgs'
+echo '# BEGIN SECTION: lintian QA'
 lintian -I -i ../*.changes || true
+lintian -I -i ../*.dsc || true
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: export pkgs'
 PKGS=\`find ../ -name *.deb || true\`
 
 FOUND_PKG=0
@@ -109,8 +121,8 @@ done
 test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 
-# Trusty has no autopkgtest command
-if [ "$DISTRO" != "trusty" ]; then
+# Ubuntu has no autopkgtest command in the autopkgtest package
+if [ "$LINUX_DISTRO" != "ubuntu" ]; then
 echo '# BEGIN SECTION: run tests'
 cd $WORKSPACE/pkgs
 set +e

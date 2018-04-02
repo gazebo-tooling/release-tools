@@ -3,8 +3,6 @@
 # Knowing Script dir beware of symlink
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
+export GPU_SUPPORT_NEEDED=true
 
-PIP_PACKAGES_NEEDED="psutil"
-
-. ${SCRIPT_DIR}/lib/project-default-devel-homebrew-amd64.bash sdformat
-
+. ${SCRIPT_DIR}/lib/ros_drake-check-release.bash

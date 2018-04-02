@@ -6,7 +6,6 @@ import javaposse.jobdsl.dsl.Job
   Implements:
   - run on win
   - checkout release-tools on windows
-  - Retry once on internal error in MSVC
 */
 class OSRFWinBase extends OSRFBase
 {
@@ -23,17 +22,6 @@ class OSRFWinBase extends OSRFBase
                 IF exist scripts ( rmdir scripts /s /q )
                 hg clone https://bitbucket.org/osrf/release-tools scripts -b %RTOOLS_BRANCH%
                 """.stripIndent())
-        }
-
-        /* retry plugin exists in DSL but does not support regexpForRerun */
-        configure { project ->
-           project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' {
-             regexpForRerun '/INTERNAL COMPILER ERROR/'
-             rerunIfUnstable false
-             rerunMatrixPart false
-             checkRegexp false
-             maxSchedule 2
-           }
         }
      }
    }

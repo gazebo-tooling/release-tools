@@ -1,4 +1,5 @@
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
+set LOCAL_WS=%WORKSPACE%\ws
 
 :: Let's keep the workspace by default
 set KEEP_WORKSPACE=0
@@ -8,13 +9,13 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc_compiler
 echo # END SECTION
 
-:: IF exist workspace ( rmdir /s /q workspace ) || goto %win_lib% :error
+:: IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto %win_lib% :error
 :: reusing the workspace
 
-IF NOT exist %WORKSPACE%\workspace (
+IF NOT exist %LOCAL_WS% (
 
-mkdir %WORKSPACE%\workspace
-cd %WORKSPACE%\workspace
+mkdir %LOCAL_WS%
+cd %LOCAL_WS%
 
 echo # BEGIN SECTION: downloading gazebo dependencies and unip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/FreeImage-vc12-x64-release-debug.zip FreeImage-vc12-x64-release-debug.zip
@@ -51,7 +52,7 @@ echo # END SECTION
 ) ELSE (
   echo # BEGIN SECTION: reusing workspace
   :: Remove gazebo copy
-  IF EXIST %WORKSPACE%\workspace\gazebo ( rmdir /s /q %WORKSPACE%\workspace\gazebo ) || goto :error
+  IF EXIST %LOCAL_WS%\gazebo ( rmdir /s /q %LOCAL_WS%\gazebo ) || goto :error
   echo # END SECTION
 )
 
@@ -60,12 +61,12 @@ set KEEP_WORKSPACE=TRUE
 set IGN_TEST_DISABLE=TRUE
 set IGN_TRANSPORT_DIR=%WORKSPACE%\ign-transport
 if EXIST %IGN_TRANSPORT_DIR% ( rmdir /s /q %IGN_TRANSPORT_DIR% )
-hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_DIR%
+hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_DIR% -b ign-transport3
 call "%SCRIPT_DIR%/lib/ign_transport-base-windows.bat" || goto :error
 echo # END SECTION
 
 :: compile ign-math if needed. ign-transport will probably do it first
-set IGN_MATH_WS_DIR=%WORKSPACE%\workspace\ign-math
+set IGN_MATH_WS_DIR=%LOCAL_WS%\ign-math
 if EXIST %IGN_MATH_WS_DIR% (
   echo # BEGIN SECTION: ign-math already found
   echo # END SECTION
@@ -79,22 +80,22 @@ if EXIST %IGN_MATH_WS_DIR% (
 )
 
 echo # BEGIN SECTION: compile and install sdformat
-set SDFORMAT_DIR=%WORKSPACE%\workspace\sdformat
+set SDFORMAT_DIR=%LOCAL_WS%\sdformat
 if EXIST %SDFORMAT_DIR% ( rmdir /s /q %SDFORMAT_DIR% )
 hg clone https://bitbucket.org/osrf/sdformat %SDFORMAT_DIR% -b sdf5
 cd %SDFORMAT_DIR%
 mkdir build
 cd build
 call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
-copy %WORKSPACE%\workspace\jom.exe .
+copy %LOCAL_WS%\jom.exe .
 jom -j %MAKE_JOBS% || goto :error
 nmake install
 echo # END SECTION
 
 echo # BEGIN SECTION: copy gazebo sources to workspace
 :: Note that your jenkins job should put source in %WORKSPACE%/ign-transport
-xcopy %WORKSPACE%\gazebo %WORKSPACE%\workspace\gazebo /s /i /e > xcopy.log
-cd %WORKSPACE%\workspace\gazebo
+xcopy %WORKSPACE%\gazebo %LOCAL_WS%\gazebo /s /i /e > xcopy.log
+cd %LOCAL_WS%\gazebo
 echo # END SECTION
 
 echo # BEGIN SECTION: configure gazebo
@@ -104,7 +105,7 @@ call "..\configure.bat" Release %BITNESS% || goto %win_lib% :error
 echo # END SECTION
 
 echo # BEGIN SECTION: compiling gazebo
-copy %WORKSPACE%\workspace\jom.exe .
+copy %LOCAL_WS%\jom.exe .
 jom -j%MAKE_JOBS% || goto :error
 echo # END SECTION
 
@@ -115,7 +116,7 @@ echo # END SECTION
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
    cd %WORKSPACE%
-   rmdir /s /q %WORKSPACE%\workspace || goto :error
+   rmdir /s /q %LOCAL_WS% || goto :error
    echo # END SECTION
 )
 

@@ -3,12 +3,16 @@ import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
 ignition_software           = [ 'transport', 'fuel-tools', 'math', 'msgs', 'cmake', 'common', 'rndf', 'gui', 'rendering', 'sensors' ]
-ignition_debbuild           = ignition_software + [ 'transport2', 'transport3', 'math3', 'msgs0' ]
+ignition_debbuild           = ignition_software + [ 'transport2', 'transport3',
+'math3', 'math4', 'math5', 'msgs0' ]
 ignition_gpu                = [ 'gui', 'rendering', 'sensors' ]
-// no registered branches in ignition_branches means only series 0 or 1
-ignition_branches           = [ transport : [ '3' ],
-                                math      : [ '2', '3' ],
-                                msgs      : [ '1']]
+ignition_no_pkg_yet         = [ 'gui', 'rendering', 'sensors' ]
+// no branches in ignition_branches means no released branches
+ignition_branches           = [ 'common'     : [ '1' ],
+                                'fuel-tools' : [ '1' ],
+                                'math'       : [ '2', '3','4' ],
+                                'msgs'       : [ '1' ],
+                                'transport'  : [ '3','4' ]]
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
 def abi_distro              = Globals.get_abi_distro()
@@ -155,8 +159,8 @@ ignition_software.each { ign_sw ->
 // INSTALL PACKAGE ALL PLATFORMS / DAILY
 ignition_software.each { ign_sw ->
 
-  // No packages for fuel-tools yet
-  if (ign_sw == 'fuel-tools')
+  // Exclusion list
+  if (ign_sw in ignition_no_pkg_yet)
     return
 
   all_supported_distros.each { distro ->
@@ -168,6 +172,9 @@ ignition_software.each { ign_sw ->
             (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
             (("${ign_sw}" == "math") && ("${major_version}" == "3"))))
           return
+        // No 1-dev packages, unversioned
+        if ("${major_version}" == "1")
+          major_version = ""
 
         // --------------------------------------------------------------
         def install_default_job = job("ignition_${ign_sw}${major_version}-install-pkg-${distro}-${arch}")
@@ -211,7 +218,6 @@ ignition_software.each { ign_sw ->
         OSRFBitbucketHg.create(ignition_ci_job,
                               "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
                               "${branch}", "ign-${ign_sw}")
-        include_gpu_label_if_needed(ignition_ci_job, ign_sw)
 
         ignition_ci_job.with
         {
@@ -244,9 +250,12 @@ ignition_software.each { ign_sw ->
 // DEBBUILD: linux package builder
 ignition_debbuild.each { ign_sw ->
   supported_branches("${ign_sw}").each { major_version ->
+    // No 1-debbuild versions, they use the unversioned job
+    if ("${major_version}" == "1")
+      major_version = ""
+
     def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
     OSRFLinuxBuildPkg.create(build_pkg_job)
-
     build_pkg_job.with
     {
         steps {
@@ -289,31 +298,33 @@ ignition_software.each { ign_sw ->
   // add ci-pr_any to the list for CIWorkflow
   ci_pr_any_list[ign_sw] << ignition_brew_ci_any_job_name
 
-  // 2. default
-  def ignition_brew_ci_job = job("ignition_${ign_sw}-ci-default-homebrew-amd64")
-  OSRFBrewCompilation.create(ignition_brew_ci_job)
-  OSRFBitbucketHg.create(ignition_brew_ci_job,
-                            "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
-                            "default", "ign-${ign_sw}", "HomeBrew")
-  ignition_brew_ci_job.with
-  {
-      triggers {
-        scm('@daily')
-      }
+  // 2. default, release branches
+  all_branches("${ign_sw}").each { branch ->
+    def ignition_brew_ci_job = job("ignition_${ign_sw}-ci-${branch}-homebrew-amd64")
+    OSRFBrewCompilation.create(ignition_brew_ci_job)
+    OSRFBitbucketHg.create(ignition_brew_ci_job,
+                              "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
+                              "${branch}", "ign-${ign_sw}", "HomeBrew")
+    ignition_brew_ci_job.with
+    {
+        triggers {
+          scm('@daily')
+        }
 
-      steps {
-        shell("""\
-              #!/bin/bash -xe
+        steps {
+          shell("""\
+                #!/bin/bash -xe
 
-              export HOMEBREW_SCRIPT="./scripts/jenkins-scripts/ign_${ign_sw}-default-devel-homebrew-amd64.bash"
-              if [ -s "\$HOMEBREW_SCRIPT" ]
-              then
-                /bin/bash -xe "\$HOMEBREW_SCRIPT"
-              else
-                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "ignition-${ign_sw}"
-              fi
-              """.stripIndent())
-      }
+                export HOMEBREW_SCRIPT="./scripts/jenkins-scripts/ign_${ign_sw}-default-devel-homebrew-amd64.bash"
+                if [ -s "\$HOMEBREW_SCRIPT" ]
+                then
+                  /bin/bash -xe "\$HOMEBREW_SCRIPT"
+                else
+                  /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "ignition-${ign_sw}"
+                fi
+                """.stripIndent())
+        }
+    }
   }
 }
 
@@ -338,24 +349,26 @@ ignition_software.each { ign_sw ->
   // add ci-pr_any to the list for CIWorkflow
   ci_pr_any_list[ign_sw] << ignition_win_ci_any_job_name
 
-  // 2. default
-  def ignition_win_ci_job = job("ignition_${ign_sw}-ci-default-windows7-amd64")
-  OSRFWinCompilation.create(ignition_win_ci_job)
-  OSRFBitbucketHg.create(ignition_win_ci_job,
-                            "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
-                            "default", "ign-${ign_sw}")
+  // 2. default, release branches
+  all_branches("${ign_sw}").each { branch ->
+    def ignition_win_ci_job = job("ignition_${ign_sw}-ci-${branch}-windows7-amd64")
+    OSRFWinCompilation.create(ignition_win_ci_job)
+    OSRFBitbucketHg.create(ignition_win_ci_job,
+                              "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
+                              "${branch}", "ign-${ign_sw}")
 
-  ignition_win_ci_job.with
-  {
-      triggers {
-        scm('@daily')
-      }
+    ignition_win_ci_job.with
+    {
+        triggers {
+          scm('@daily')
+        }
 
-      steps {
-        batchFile("""\
-              call "./scripts/jenkins-scripts/ign_${ign_sw}-default-devel-windows-amd64.bat"
-              """.stripIndent())
-      }
+        steps {
+          batchFile("""\
+                call "./scripts/jenkins-scripts/ign_${ign_sw}-default-devel-windows-amd64.bat"
+                """.stripIndent())
+        }
+    }
   }
 }
 
