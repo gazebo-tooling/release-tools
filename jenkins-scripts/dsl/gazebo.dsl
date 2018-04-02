@@ -524,12 +524,6 @@ gazebo_brew_ci_any_job.with
 {
     label "osx_gazebo"
 
-    parameters
-    {
-      stringParam("PULL_REQUEST_URL", '',
-                  'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
-    }
-
     steps {
       shell("""\
             #!/bin/bash -xe

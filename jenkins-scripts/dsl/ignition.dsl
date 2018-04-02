@@ -280,12 +280,6 @@ ignition_software.each { ign_sw ->
                                 "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}")
   ignition_brew_ci_any_job.with
   {
-      parameters
-      {
-        stringParam("PULL_REQUEST_URL", '',
-                    'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
-      }
-
       steps {
         shell("""\
               #!/bin/bash -xe
