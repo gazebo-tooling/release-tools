@@ -2,7 +2,16 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
-ignition_software           = [ 'transport', 'fuel-tools', 'math', 'msgs', 'cmake', 'common', 'rndf', 'gui', 'rendering', 'sensors' ]
+ignition_software           = [ 'cmake',
+                                'common',
+                                'fuel-tools',
+                                'gui',
+                                'math',
+                                'msgs',
+                                'rendering',
+                                'rndf',
+                                'sensors',
+                                'transport' ]
 ignition_debbuild           = ignition_software + [ 'transport2', 'transport3',
 'math3', 'math4', 'math5', 'msgs0' ]
 ignition_gpu                = [ 'gui', 'rendering', 'sensors' ]
