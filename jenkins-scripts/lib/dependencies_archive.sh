@@ -511,8 +511,6 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          python                \\
                          ruby-ronn             \\
                          uuid-dev              \\
-                         libignition-cmake-dev \\
-                         libignition-math4-dev \\
                          libfreeimage-dev      \\
                          libgts-dev            \\
                          libavformat-dev       \\
@@ -522,6 +520,16 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          libavdevice-dev       \\
                          libtinyxml2-dev       \\
                          uuid-dev"
+
+if [[ ${IGN_COMMON_MAJOR_VERSION} -le 1 ]]; then
+    IGN_COMMON_DEPENDENCIES="${IGN_COMMON_DEPENDENCIES} \\
+                         libignition-cmake-dev \\
+                         libignition-math4-dev"
+else
+    IGN_COMMON_DEPENDENCIES="${IGN_COMMON_DEPENDENCIES} \\
+                         libignition-cmake1-dev \\
+                         libignition-math5-dev"
+fi
 
 IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
                              libignition-common-dev \\
