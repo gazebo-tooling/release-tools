@@ -16,6 +16,6 @@ fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-cmake"
 export BUILDING_JOB_REPOSITORIES="stable"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_CMAKE_DEPENDENCIES"
+export BUILDING_DEPENDENCIES="pkg-config"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
