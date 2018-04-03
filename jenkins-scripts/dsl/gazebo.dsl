@@ -442,7 +442,7 @@ gazebo_supported_branches.each { branch ->
            cron('@daily')
          }
 
-         // Branch is exatly in the form of gazeboN
+         // Branch is exactly in the form of gazeboN
          def dev_packages = "lib${branch}-dev ${branch}"
 
          // Need gpu for running the runtime test
