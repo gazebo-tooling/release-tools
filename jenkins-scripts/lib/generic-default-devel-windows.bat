@@ -74,7 +74,7 @@ echo # END SECTION
 
 if exist .\configure.bat (
   echo # BEGIN SECTION: Configuring %VCS_DIRECTORY% using its configure.bat script
-  call .\configure.bat || goto :error
+  call .\configure.bat "%BUILD_TYPE%" || goto :error
 ) else (
   echo # BEGIN SECTION: Configuring %VCS_DIRECTORY% using cmake
   md build
