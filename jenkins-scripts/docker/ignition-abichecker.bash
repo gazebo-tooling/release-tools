@@ -21,10 +21,21 @@ if [[ -z ${ABI_JOB_SOFTWARE_NAME} ]]; then
 fi
 
 # convert from ign-package to IGN_PACKAGE_DEPENDENCIES
-ABI_JOB_PKG_DEPENDENCIES_VAR_NAME=$(\
-  echo ${ABI_JOB_SOFTWARE_NAME} \
-  | tr '[:lower:]-' '[:upper:]_')_DEPENDENCIES
+IGN_NAME_PREFIX=$(\
+  echo ${ABI_JOB_SOFTWARE_NAME} | tr '[:lower:]-' '[:upper:]_')
+ABI_JOB_PKG_DEPENDENCIES_VAR_NAME=${IGN_NAME_PREFIX}_DEPENDENCIES
+
+# Identify IGN_MSGS_MAJOR_VERSION to help with dependency resolution
+export ${IGN_NAME_PREFIX}_MAJOR_VERSION=$(\
+  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  ${WORKSPACE}/ign-msgs/CMakeLists.txt)
 
 export ABI_JOB_REPOS="stable"
+
+# To get ign-cmake1 package in prerelease
+if [[ $(date +%Y%m%d) -le 20180415 ]]; then
+  ## need prerelease repo to get ignition-cmake1 for ign-rendering
+  export ABI_JOB_REPOS="${ABI_JOB_REPOS} prerelease"
+fi
 
 . ${SCRIPT_DIR}/lib/generic-abi-base.bash
