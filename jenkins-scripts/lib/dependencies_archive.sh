@@ -559,11 +559,16 @@ IGN_GUI_DEPENDENCIES="qtbase5-dev \\
                       libqwt-qt5-dev"
 
 IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
-                            freeglut3-dev\\
+                            libfreeimage-dev \\
+                            libglew-dev \\
                             libignition-cmake1-dev \\
                             libignition-common-dev \\
                             libignition-math4-dev \\
-                            libx11-dev"
+                            libx11-dev \\
+                            libogre-1.9-dev \\
+                            freeglut3-dev \\
+                            mesa-common-dev \\
+                            mesa-utils"
 
 IGN_SENSORS_DEPENDENCIES="libignition-common-dev     \\
                           libignition-math4-dev      \\
