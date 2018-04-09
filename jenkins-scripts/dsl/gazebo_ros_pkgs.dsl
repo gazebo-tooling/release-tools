@@ -52,7 +52,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
                                 """.stripIndent()
       }
 
-      label "gpu-reliable-${ubuntu_distro}"
+      label "gpu-reliable"
 
       steps {
         shell("""\
@@ -94,7 +94,7 @@ ros_distros.each { ros_distro ->
         }
       }
 
-      label "gpu-reliable-${ubuntu_distro}"
+      label "gpu-reliable"
 
       triggers {
         scm('*/5 * * * *')
