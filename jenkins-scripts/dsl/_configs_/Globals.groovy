@@ -97,6 +97,6 @@ class Globals
 
    static ArrayList get_ros_suported_distros()
    {
-     return [ 'indigo', 'kinetic', 'lunar' ]
+     return [ 'indigo', 'kinetic', 'lunar', 'melodic' ]
    }
 }
