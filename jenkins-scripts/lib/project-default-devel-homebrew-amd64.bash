@@ -127,7 +127,7 @@ brew link ${PROJECT_FORMULA}
 echo '# END SECTION'
 
 echo "#BEGIN SECTION: brew doctor analysis"
-brew doctor
+#brew doctor
 echo '# END SECTION'
 
 # CHECK PRE_TESTS_EXECUTION_HOOK AND RUN
