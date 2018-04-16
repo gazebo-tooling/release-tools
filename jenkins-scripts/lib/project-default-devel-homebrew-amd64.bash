@@ -127,6 +127,7 @@ brew link ${PROJECT_FORMULA}
 echo '# END SECTION'
 
 echo "#BEGIN SECTION: brew doctor analysis"
+brew missing || brew install $(brew missing | awk '{print $2}') && brew missing
 brew doctor
 echo '# END SECTION'
 
