@@ -70,8 +70,8 @@ if [[ ${SDFORMAT_MAJOR_VERSION} -ge 6 ]]; then
     # sdformat6 requires ignition-math4 and
     # uses ignition-tools for a test
     SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES}  \\
-                                ignition-tools                 \\
-                                libignition-math4-dev"
+                                libignition-math4-dev          \\
+                                libignition-tools-dev"
 elif [[ ${SDFORMAT_MAJOR_VERSION} -ge 5 ]]; then
     # sdformat5 requires ignition-math3
     SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES}          \\
@@ -491,7 +491,7 @@ fi
 IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             python               \\
                             ruby-ronn            \\
-                            ignition-tools       \\
+                            libignition-tools-dev \\
                             libprotoc-dev        \\
                             libprotobuf-dev      \\
                             protobuf-compiler    \\
@@ -538,15 +538,15 @@ else
                          libignition-math5-dev"
 fi
 
-IGN_FUEL_TOOLS_DEPENDENCIES="ignition-tools         \\
-                             libignition-cmake-dev  \\
+IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
                              libignition-common-dev \\
+                             libignition-tools-dev  \\
                              libcurl4-openssl-dev   \\
                              libjsoncpp-dev         \\
                              libyaml-dev            \\
                              libzip-dev"
 
-IGN_MSGS_DEPENDENCIES="ignition-tools        \\
+IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
                        libprotobuf-dev       \\
                        libprotoc-dev         \\
                        protobuf-compiler     \\
