@@ -33,7 +33,7 @@ export ${IGN_NAME_PREFIX}_MAJOR_VERSION=$(\
 export ABI_JOB_REPOS="stable"
 
 # To get ign-cmake1 package in prerelease
-if [[ $(date +%Y%m%d) -le 20180415 ]]; then
+if [[ $(date +%Y%m%d) -le 20180831 ]]; then
   ## need prerelease repo to get ignition-cmake1 for ign-rendering
   export ABI_JOB_REPOS="${ABI_JOB_REPOS} prerelease"
 fi
