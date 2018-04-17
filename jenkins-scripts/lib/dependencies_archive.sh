@@ -66,7 +66,13 @@ if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
     SDFORMAT_MAJOR_VERSION=5
 fi
 
-if [[ ${SDFORMAT_MAJOR_VERSION} -ge 5 ]]; then
+if [[ ${SDFORMAT_MAJOR_VERSION} -ge 6 ]]; then
+    # sdformat6 requires ignition-math4 and
+    # uses ignition-tools for a test
+    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES}  \\
+                                libignition-math4-dev          \\
+                                libignition-tools-dev"
+elif [[ ${SDFORMAT_MAJOR_VERSION} -ge 5 ]]; then
     # sdformat5 requires ignition-math3
     SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES}          \\
                                 libignition-math3-dev"
@@ -485,6 +491,7 @@ fi
 IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             python               \\
                             ruby-ronn            \\
+                            libignition-tools-dev \\
                             libprotoc-dev        \\
                             libprotobuf-dev      \\
                             protobuf-compiler    \\
@@ -533,12 +540,14 @@ fi
 
 IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
                              libignition-common-dev \\
+                             libignition-tools-dev  \\
                              libcurl4-openssl-dev   \\
                              libjsoncpp-dev         \\
                              libyaml-dev            \\
                              libzip-dev"
 
-IGN_MSGS_DEPENDENCIES="libprotobuf-dev       \\
+IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
+                       libprotobuf-dev       \\
                        libprotoc-dev         \\
                        protobuf-compiler     \\
                        ruby                  \\
@@ -560,6 +569,7 @@ fi
 IGN_GUI_DEPENDENCIES="qtbase5-dev \\
                       libignition-cmake1-dev \\
                       libignition-math4-dev \\
+                      libignition-tools-dev \\
                       libignition-transport4-dev \\
                       libignition-msgs-dev \\
                       libignition-common-dev \\
