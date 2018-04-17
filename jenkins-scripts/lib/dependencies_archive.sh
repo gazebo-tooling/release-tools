@@ -569,6 +569,7 @@ fi
 IGN_GUI_DEPENDENCIES="qtbase5-dev \\
                       libignition-cmake1-dev \\
                       libignition-math4-dev \\
+                      libignition-tools-dev \\
                       libignition-transport4-dev \\
                       libignition-msgs-dev \\
                       libignition-common-dev \\
