@@ -16,6 +16,7 @@ fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-tools"
 export BUILDING_JOB_REPOSITORIES="stable"
+export BUILDING_DEPENDENCIES="ruby"
 
 export GPU_SUPPORT_NEEDED=true
 
