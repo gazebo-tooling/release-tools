@@ -32,16 +32,5 @@ if [[ $(date +%Y%m%d) -le 20180201 ]]; then
   ## need prerelease repo to get ignition-cmake during the development cycle
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
 fi
-# Install Ignition Tools while we release a .deb package.
-# ToDo: Remove this env variable after releasing Ignition Tools.
-export DOCKER_POSTINSTALL_HOOK="""\
-  apt-get update && \\
-  apt-get install -y mercurial && \\
-  hg clone https://bitbucket.org/ignitionrobotics/ign-tools &&  \\
-  mkdir ign-tools/build && \\
-  cd ign-tools/build &&  \\
-  cmake .. && \\
-  make install
-"""
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
