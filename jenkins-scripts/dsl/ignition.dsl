@@ -358,7 +358,7 @@ ignition_software.each { ign_sw ->
   String ignition_win_ci_any_job_name = "ignition_${ign_sw}-ci-pr_any-windows7-amd64"
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAny.create(ignition_win_ci_any_job,
-                                "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}",
+                               "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}",
                                enable_testing(ign_sw))
   ignition_win_ci_any_job.with
   {
