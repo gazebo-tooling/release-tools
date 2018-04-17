@@ -469,7 +469,11 @@ fi
 #
 
 if [[ ${DISTRO} != 'trusty' ]]; then
-  IGN_MATH_DEPENDENCIES="libignition-cmake-dev"
+  if [[ ${IGN_MATH_MAJOR_VERSION} -lt 5 ]]; then
+    IGN_MATH_DEPENDENCIES="libignition-cmake-dev"
+  else
+    IGN_MATH_DEPENDENCIES="libignition-cmake1-dev"
+  fi
 fi
 
 # IGN_TRANSPORT related dependencies. Default value points to the development
@@ -507,8 +511,6 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          python                \\
                          ruby-ronn             \\
                          uuid-dev              \\
-                         libignition-cmake-dev \\
-                         libignition-math4-dev \\
                          libfreeimage-dev      \\
                          libgts-dev            \\
                          libavformat-dev       \\
@@ -519,6 +521,16 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          libtinyxml2-dev       \\
                          uuid-dev"
 
+if [[ ${IGN_COMMON_MAJOR_VERSION} -le 1 ]]; then
+    IGN_COMMON_DEPENDENCIES="${IGN_COMMON_DEPENDENCIES} \\
+                         libignition-cmake-dev \\
+                         libignition-math4-dev"
+else
+    IGN_COMMON_DEPENDENCIES="${IGN_COMMON_DEPENDENCIES} \\
+                         libignition-cmake1-dev \\
+                         libignition-math5-dev"
+fi
+
 IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
                              libignition-common-dev \\
                              libcurl4-openssl-dev   \\
@@ -526,8 +538,27 @@ IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
                              libyaml-dev            \\
                              libzip-dev"
 
+IGN_MSGS_DEPENDENCIES="libprotobuf-dev       \\
+                       libprotoc-dev         \\
+                       protobuf-compiler     \\
+                       ruby                  \\
+                       ruby-dev"
+
+if [[ ${IGN_MSGS_MAJOR_VERSION} -le 0 ]]; then
+    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
+                           libignition-math3-dev"
+elif [[ ${IGN_MSGS_MAJOR_VERSION} -eq 1 ]]; then
+    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
+                           libignition-cmake-dev \\
+                           libignition-math4-dev"
+else
+    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
+                           libignition-cmake1-dev \\
+                           libignition-math5-dev"
+fi
+
 IGN_GUI_DEPENDENCIES="qtbase5-dev \\
-                      libignition-cmake-dev \\
+                      libignition-cmake1-dev \\
                       libignition-math4-dev \\
                       libignition-transport4-dev \\
                       libignition-msgs-dev \\
@@ -535,9 +566,26 @@ IGN_GUI_DEPENDENCIES="qtbase5-dev \\
                       libtinyxml2-dev \\
                       libqwt-qt5-dev"
 
+IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
+                          dart6-data \\
+                          libdart6-dev \\
+                          libdart6-utils-urdf-dev \\
+                          libignition-cmake1-dev \\
+                          libignition-math5-dev"
+                          # add to list after release
+                          # libignition-common2-dev \\
+
 IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
-                            freeglut3-dev\\
-                            libx11-dev"
+                            freeglut3-dev \\
+                            libfreeimage-dev \\
+                            libglew-dev \\
+                            libignition-cmake1-dev \\
+                            libignition-common-dev \\
+                            libignition-math4-dev \\
+                            libogre-1.9-dev \\
+                            libx11-dev \\
+                            mesa-common-dev \\
+                            mesa-utils"
 
 IGN_SENSORS_DEPENDENCIES="libignition-common-dev     \\
                           libignition-math4-dev      \\

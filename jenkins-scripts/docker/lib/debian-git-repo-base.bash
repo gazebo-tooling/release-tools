@@ -103,9 +103,12 @@ rm -f ../*.deb
 ${GBP_COMMAND}
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: export pkgs'
+echo '# BEGIN SECTION: lintian QA'
 lintian -I -i ../*.changes || true
 lintian -I -i ../*.dsc || true
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: export pkgs'
 PKGS=\`find ../ -name *.deb || true\`
 
 FOUND_PKG=0

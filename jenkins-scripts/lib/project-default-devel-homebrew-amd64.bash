@@ -48,6 +48,9 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: brew information'
 # Run brew update to get latest versions of formulae
 brew update
+# Don't let brew auto-update any more for this session
+# to ensure consistency
+export HOMEBREW_NO_AUTO_UPDATE=1
 # Run brew config to print system information
 brew config
 # Run brew doctor to check for problems with the system
@@ -59,6 +62,12 @@ echo '# BEGIN SECTION: setup the osrf/simulation tap'
 brew tap osrf/simulation
 echo '# END SECTION'
 
+if [[ -n "${PULL_REQUEST_URL}" ]]; then
+  echo "# BEGIN SECTION: pulling ${PULL_REQUEST_URL}"
+  brew pull ${PULL_REQUEST_URL}
+  echo '# END SECTION'
+fi
+
 echo "# BEGIN SECTION: install ${PROJECT_FORMULA} dependencies"
 # Process the package dependencies
 brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies
@@ -69,9 +78,8 @@ if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
 fi
 
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
-  brew install python
-  export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
-  pip2 install ${PIP_PACKAGES_NEEDED}
+  brew install python@2
+  pip install ${PIP_PACKAGES_NEEDED}
 fi
 
 if [[ -z "${DISABLE_CCACHE}" ]]; then
@@ -100,7 +108,6 @@ export DISPLAY=$(ps ax \
 )
 
 # set CMAKE_PREFIX_PATH if we are using qt5 (aka qt)
-brew tap homebrew/dev-tools
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/qt
 fi
@@ -120,6 +127,7 @@ brew link ${PROJECT_FORMULA}
 echo '# END SECTION'
 
 echo "#BEGIN SECTION: brew doctor analysis"
+brew missing || brew install $(brew missing | awk '{print $2}') && brew missing
 brew doctor
 echo '# END SECTION'
 

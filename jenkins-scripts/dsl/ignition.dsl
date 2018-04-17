@@ -8,21 +8,21 @@ ignition_software = [ 'cmake',
                       'gui',
                       'math',
                       'msgs',
+                      'physics',
+                      'rendering',
                       'rndf',
                       'sensors',
                       'tools',
                       'transport' ]
+ignition_debbuild  = ignition_software + [ 'transport2', 'transport3', 'math3', 'math4', 'math5', 'msgs0' ]
+ignition_gpu                = [ 'gui', 'rendering', 'sensors' ]
+ignition_no_pkg_yet         = [ 'gui', 'physics', 'rendering', 'sensors' ]
 // no branches in ignition_branches means no released branches
-ignition_branches           = [ common    : [ '1' ],
-                                math      : [ '2', '3','4' ],
-                                msgs      : [ '1' ],
-                                transport : [ '3','4' ]]
-ignition_gpu                = [ 'gui', 'sensors' ]
-ignition_no_pkg_yet         = [ 'gui', 'fuel-tools', 'sensors' ]
-// only add special cases no covered by the combination of
-// ignition_software + ignition_branches
-ignition_debbuild = ignition_software + [ 'msgs0' ]
-
+ignition_branches           = [ 'common'     : [ '1' ],
+                                'fuel-tools' : [ '1' ],
+                                'math'       : [ '2', '3','4' ],
+                                'msgs'       : [ '1' ],
+                                'transport'  : [ '3','4' ]]
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
 def abi_distro              = Globals.get_abi_distro()
@@ -96,7 +96,7 @@ ignition_software.each { ign_sw ->
       OSRFLinuxABI.create(abi_job)
       OSRFBitbucketHg.create(abi_job,
                             "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
-                            "default", checkout_subdir)
+                            '${TARGET_BRANCH}', checkout_subdir)
       abi_job.with
       {
         steps {
@@ -229,6 +229,7 @@ ignition_software.each { ign_sw ->
                               "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
                               "${branch}", "ign-${ign_sw}")
 
+        include_gpu_label_if_needed(ignition_ci_job, ign_sw)
         ignition_ci_job.with
         {
           triggers {

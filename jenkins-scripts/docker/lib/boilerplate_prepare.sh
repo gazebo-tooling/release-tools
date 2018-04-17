@@ -30,10 +30,19 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
     # if not enough, run again with 1 day = 86400s
     PERCENT_DISK_USED=$(df -h | grep ${docker_mount_point}$ | sed 's:.* \([0-9]*\)%.*:\1:')
     if [[ $PERCENT_DISK_USED -gt 90 ]]; then
-        echo "Space left is low: ${PERCENT_DISK_USED}% used"
+        echo "Space left is still low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
         wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
         sudo bash -c "GRACE_PERIOD_SECONDS=86400 bash docker-gc"
+    fi
+
+    # if not enough, kill the whole cache
+    PERCENT_DISK_USED=$(df -h | grep ${docker_mount_point}$ | sed 's:.* \([0-9]*\)%.*:\1:')
+    if [[ $PERCENT_DISK_USED -gt 90 ]]; then
+        echo "Space left is low again: ${PERCENT_DISK_USED}% used"
+        echo "Kill the whole docker cache !!"
+        [[ -n $(sudo docker ps -q) ]] && sudo docker kill $(sudo docker ps -q)
+        [[ -n $(sudo docker images -a -q) ]] && sudo docker rmi $(sudo docker images -a -q)
     fi
 fi
 

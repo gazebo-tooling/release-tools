@@ -314,6 +314,28 @@ supported_distros.each { distro ->
 	      """.stripIndent())
       } // end of steps
     }
+
+    // --------------------------------------------------------------
+    // 10. Autobuilder
+    standalone_job_name = "drake-standalone-debbuilder-${distro}-${arch}"
+    def standalone_job = job(standalone_job_name)
+    OSRFLinuxBase.create(standalone_job)
+
+    standalone_job.with
+    {
+      // use only the most powerful nodes
+      label "large-memory"
+
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export DISTRO=${distro}
+              export ARCH=${arch}
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/drake-standalone-release.bash
+	      """.stripIndent())
+      } // end of steps
+    }
   }
 }
 

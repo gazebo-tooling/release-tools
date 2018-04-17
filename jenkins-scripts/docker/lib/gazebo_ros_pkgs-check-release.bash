@@ -9,6 +9,11 @@ export ENABLE_REAPER=false
 
 DOCKER_JOB_NAME="gazebo_ros_pkgs_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_gazebo_utils.sh
+
+ROS_SETUP_PREINSTALL_HOOK="""
+${GAZEBO_MODEL_INSTALLATION}
+"""
 
 # Generate the first part of the build.sh file for ROS
 . ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash ""

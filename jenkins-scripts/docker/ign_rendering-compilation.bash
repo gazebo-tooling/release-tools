@@ -14,16 +14,14 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-gui"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_GUI_DEPENDENCIES"
+export BUILDING_SOFTWARE_DIRECTORY="ign-rendering"
 export BUILDING_JOB_REPOSITORIES="stable"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_RENDERING_DEPENDENCIES"
+
 if [[ $(date +%Y%m%d) -le 20180831 ]]; then
-  ## need prerelease repo to get ignition-cmake1 for ign-rendering
+  ## need prerelease repo to get ignition-cmake during the development cycle
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
 fi
-
-# TODO: stop building dependencies from source after there's a release
-export BUILD_IGN_RENDERING=true
 
 export GPU_SUPPORT_NEEDED=true
 
