@@ -66,7 +66,13 @@ if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
     SDFORMAT_MAJOR_VERSION=5
 fi
 
-if [[ ${SDFORMAT_MAJOR_VERSION} -ge 5 ]]; then
+if [[ ${SDFORMAT_MAJOR_VERSION} -ge 6 ]]; then
+    # sdformat6 requires ignition-math4 and
+    # uses ignition-tools for a test
+    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES}  \\
+                                libignition-math4-dev          \\
+                                libignition-tools-dev"
+elif [[ ${SDFORMAT_MAJOR_VERSION} -ge 5 ]]; then
     # sdformat5 requires ignition-math3
     SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES}          \\
                                 libignition-math3-dev"
@@ -469,7 +475,11 @@ fi
 #
 
 if [[ ${DISTRO} != 'trusty' ]]; then
-  IGN_MATH_DEPENDENCIES="libignition-cmake-dev"
+  if [[ ${IGN_MATH_MAJOR_VERSION} -lt 5 ]]; then
+    IGN_MATH_DEPENDENCIES="libignition-cmake-dev"
+  else
+    IGN_MATH_DEPENDENCIES="libignition-cmake1-dev"
+  fi
 fi
 
 # IGN_TRANSPORT related dependencies. Default value points to the development
@@ -481,6 +491,7 @@ fi
 IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
                             python               \\
                             ruby-ronn            \\
+                            libignition-tools-dev \\
                             libprotoc-dev        \\
                             libprotobuf-dev      \\
                             protobuf-compiler    \\
@@ -507,8 +518,6 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          python                \\
                          ruby-ronn             \\
                          uuid-dev              \\
-                         libignition-cmake-dev \\
-                         libignition-math4-dev \\
                          libfreeimage-dev      \\
                          libgts-dev            \\
                          libavformat-dev       \\
@@ -519,25 +528,74 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          libtinyxml2-dev       \\
                          uuid-dev"
 
+if [[ ${IGN_COMMON_MAJOR_VERSION} -le 1 ]]; then
+    IGN_COMMON_DEPENDENCIES="${IGN_COMMON_DEPENDENCIES} \\
+                         libignition-cmake-dev \\
+                         libignition-math4-dev"
+else
+    IGN_COMMON_DEPENDENCIES="${IGN_COMMON_DEPENDENCIES} \\
+                         libignition-cmake1-dev \\
+                         libignition-math5-dev"
+fi
+
 IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
                              libignition-common-dev \\
+                             libignition-tools-dev  \\
                              libcurl4-openssl-dev   \\
                              libjsoncpp-dev         \\
                              libyaml-dev            \\
                              libzip-dev"
 
+IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
+                       libprotobuf-dev       \\
+                       libprotoc-dev         \\
+                       protobuf-compiler     \\
+                       ruby                  \\
+                       ruby-dev"
+
+if [[ ${IGN_MSGS_MAJOR_VERSION} -le 0 ]]; then
+    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
+                           libignition-math3-dev"
+elif [[ ${IGN_MSGS_MAJOR_VERSION} -eq 1 ]]; then
+    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
+                           libignition-cmake-dev \\
+                           libignition-math4-dev"
+else
+    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
+                           libignition-cmake1-dev \\
+                           libignition-math5-dev"
+fi
+
 IGN_GUI_DEPENDENCIES="qtbase5-dev \\
-                      libignition-cmake-dev \\
+                      libignition-cmake1-dev \\
                       libignition-math4-dev \\
+                      libignition-tools-dev \\
                       libignition-transport4-dev \\
                       libignition-msgs-dev \\
                       libignition-common-dev \\
                       libtinyxml2-dev \\
                       libqwt-qt5-dev"
 
+IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
+                          dart6-data \\
+                          libdart6-dev \\
+                          libdart6-utils-urdf-dev \\
+                          libignition-cmake1-dev \\
+                          libignition-math5-dev"
+                          # add to list after release
+                          # libignition-common2-dev \\
+
 IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
-                            freeglut3-dev\\
-                            libx11-dev"
+                            freeglut3-dev \\
+                            libfreeimage-dev \\
+                            libglew-dev \\
+                            libignition-cmake1-dev \\
+                            libignition-common-dev \\
+                            libignition-math4-dev \\
+                            libogre-1.9-dev \\
+                            libx11-dev \\
+                            mesa-common-dev \\
+                            mesa-utils"
 
 IGN_SENSORS_DEPENDENCIES="libignition-common-dev     \\
                           libignition-math4-dev      \\

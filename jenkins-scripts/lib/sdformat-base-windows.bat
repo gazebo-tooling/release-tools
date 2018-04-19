@@ -10,10 +10,10 @@
 
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
 
-:: Get the requirement of ign-math from SearchForStuff
-findstr /r "set(IGNITION-MATH_REQUIRED_MAJOR_VERSION" %WORKSPACE%\sdformat\cmake\SearchForStuff.cmake > version.txt
+:: Get the requirement of ign-math from SeachForStuff
+findstr /r /b "find_package(ignition-math" %WORKSPACE%\sdformat\cmake\SearchForStuff.cmake > version.txt
 set /p IGN_MATH_REQUIRED_VERSION=<version.txt
-set IGN_MATH_REQUIRED_VERSION=%IGN_MATH_REQUIRED_VERSION:~41,1%
+set IGN_MATH_REQUIRED_VERSION=%IGN_MATH_REQUIRED_VERSION:~26,1%
 set IGNMATH_BRANCH="ign-math%IGN_MATH_REQUIRED_VERSION%"
 :: hard-code ign-math3 for now until we fix configure scripts
 @if %IGN_MATH_REQUIRED_VERSION% EQU 4 set IGNMATH_BRANCH="ign-math3"

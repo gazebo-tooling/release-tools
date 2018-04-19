@@ -183,6 +183,10 @@ sdformat_supported_branches.each { branch ->
 
 // EXPERIMENTAL ARCHES @ SCM/WEEKLY
 ci_distro.each { distro ->
+  // default doesn't support trusty anymore
+  if ("${distro}" == "trusty")
+    return
+
   experimental_arches.each { arch ->
     def sdformat_ci_job = job("sdformat-ci-default-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)

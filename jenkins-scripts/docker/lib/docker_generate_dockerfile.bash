@@ -50,7 +50,8 @@ case ${ARCH} in
      if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
        FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
      else
-       FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
+       # debian i386
+       FROM_VALUE=${ARCH}/${LINUX_DISTRO}:${DISTRO}
      fi
      ;;
    'armhf' | 'arm64' )
