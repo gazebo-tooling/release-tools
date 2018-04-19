@@ -21,6 +21,13 @@ set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
 set LOCAL_WS=%WORKSPACE%\ws
 set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS%\%VCS_DIRECTORY%
 
+:: import variable from library
+CMD /c "%win_lib% && set" | .{process{
+    if ($_ -match '^([^=]+)=(.*)') {
+        Set-Variable $matches[1] $matches[2]
+    }
+}}
+
 :: default values
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
 @if "%ENABLE_TESTS%" == "" set ENABLE_TESTS=TRUE
