@@ -159,15 +159,23 @@ goto :EOF
 :get_source_from_gazebodistro
 ::
 :: arg1: Name of the yaml file in the gazebodistro repro
-vcs import < "%1" || goto :error
+set gzdistro_dir=gazebodistro
+
+if not exist %gazebodistro_file% (
+  hg clone https://bitbucket.org/osrf/gazebodistro -b %gzdistro_dir%
+)
+vcs import < "%gzdistro_dir%\%1" || goto :error
+goto :EOF
 
 :: ##################################
 :build_workspace
 colcon build --event-handler console_cohesion+ || goto :error
+goto :EOF
 
 :: ##################################
 :tests_in_workspace
 colcon build --event-handler console_cohesion+ || goto :error
+goto :EOF
 
 :: ##################################
 :error - error routine

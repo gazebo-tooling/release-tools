@@ -66,7 +66,7 @@ echo # END SECTION
 
 
 echo # BEGIN SECTION: get open robotics dependencies sources into the workspace
-get_source_from_gazebodistro %GAZEBODISTRO_FILE%
+call %win_lib% get_source_from_gazebodistro %GAZEBODISTRO_FILE%
 echo # END SECTION
 
 if exist ..\configure.bat (
@@ -74,7 +74,7 @@ if exist ..\configure.bat (
 )
 
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
-build_workspace
+call %win_lib% build_workspace
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
