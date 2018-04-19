@@ -2,7 +2,8 @@
 call :%*
 exit /b
 
-call "windows_env_vars.bat"
+call "windows_env_vars.bat" || goto :error
+echo %VCPKG_CMD%
 
 :: ##################################
 :: Configure the build environment for MSVC 2017
@@ -189,7 +190,7 @@ goto :EOF
 :: ##################################
 :install_vcpkg_package
 :: arg1: package to install
-%VCPKG_CMD% install "%1"
+"%VCPKG_CMD%" install "%1"
 goto :EOF
 
 :: ##################################
