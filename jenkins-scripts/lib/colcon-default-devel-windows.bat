@@ -59,7 +59,6 @@ echo # END SECTION
 echo # BEGIN SECTION: move %VCS_DIRECTORY% source to workspace
 if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
 xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i > xcopy_vcs_directory.log || goto :error
-cd %LOCAL_WS_SOFTWARE_DIR% || goto :error
 echo # END SECTION
 
 
@@ -67,12 +66,18 @@ echo # BEGIN SECTION: get open robotics dependencies sources into the workspace
 call %win_lib% get_source_from_gazebodistro %GAZEBODISTRO_FILE% %LOCAL_WS% || goto :error
 echo # END SECTION
 
+echo # BEGIN SECTION: packages in workspace
+call %win_lib% list_workspace_pkgs || goto :error
+echo # END SECTION
+
+
 if exist ..\configure.bat (
   echo "DEPRECATED configure.bat file detected. It should be removed from upstream sources"
 )
 
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
-call %win_lib% build_workspace
+cd %LOCAL_WS%
+call %win_lib% build_workspace || goto :error
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (

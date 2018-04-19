@@ -168,6 +168,12 @@ if not exist %gzdistro_dir% (
 vcs import < "%gzdistro_dir%\%1" "%2" || goto :error
 goto :EOF
 
+
+:: ##################################
+:list_workspace_pkgs
+colcon list -g || goto :error
+goto :EOF
+
 :: ##################################
 :build_workspace
 colcon build --event-handler console_cohesion+ || goto :error
