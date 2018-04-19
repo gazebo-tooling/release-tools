@@ -162,7 +162,7 @@ goto :EOF
 set gzdistro_dir=gazebodistro
 
 if not exist %gazebodistro_file% (
-  hg clone https://bitbucket.org/osrf/gazebodistro -b %gzdistro_dir%
+  hg clone https://bitbucket.org/osrf/gazebodistro %gzdistro_dir%
 )
 vcs import < "%gzdistro_dir%\%1" || goto :error
 goto :EOF
