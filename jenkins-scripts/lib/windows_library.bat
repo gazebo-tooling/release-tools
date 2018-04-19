@@ -2,6 +2,10 @@
 call :%*
 exit /b
 
+set VCPKG_DIR="C:\vcpkg"
+set VCPKG_CMD="%VCPKG_DIR%\vcpkg.exe"
+set VCPKG_CMAKE_TOOLCHAIN_FILE="%VCPKG_DIR%/scripts/buildsystems/vcpkg.cmake"
+
 :: ##################################
 :: Configure the build environment for MSVC 2017
 :configure_msvc2017_compiler
@@ -176,12 +180,18 @@ goto :EOF
 
 :: ##################################
 :build_workspace
-colcon build --event-handler console_cohesion+ || goto :error
+colcon build --event-handler console_cohesion+ --cmake-args "\ -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" || goto :error
 goto :EOF
 
 :: ##################################
 :tests_in_workspace
 colcon build --event-handler console_cohesion+ || goto :error
+goto :EOF
+
+:: ##################################
+:install_vcpkg_package
+:: arg1: package to install
+%VCPKG_CMD% install "%1"
 goto :EOF
 
 :: ##################################
