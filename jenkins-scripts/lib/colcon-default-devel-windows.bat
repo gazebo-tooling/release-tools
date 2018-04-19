@@ -64,7 +64,7 @@ echo # END SECTION
 
 
 echo # BEGIN SECTION: get open robotics dependencies sources into the workspace
-call %win_lib% get_source_from_gazebodistro %GAZEBODISTRO_FILE% || goto :error
+call %win_lib% get_source_from_gazebodistro %GAZEBODISTRO_FILE% %LOCAL_WS% || goto :error
 echo # END SECTION
 
 if exist ..\configure.bat (

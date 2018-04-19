@@ -159,12 +159,13 @@ goto :EOF
 :get_source_from_gazebodistro
 ::
 :: arg1: Name of the yaml file in the gazebodistro repro
+:: arg2: directory destination (default .)
 set gzdistro_dir=gazebodistro
 
-if not exist %gazebodistro_file% (
+if not exist %gzdistro_dir% (
   hg clone https://bitbucket.org/osrf/gazebodistro %gzdistro_dir%
 )
-vcs import < "%gzdistro_dir%\%1" || goto :error
+vcs import < "%gzdistro_dir%\%1" "%2" || goto :error
 goto :EOF
 
 :: ##################################
