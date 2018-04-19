@@ -155,6 +155,19 @@ nmake || goto :error
 nmake install || goto :error
 goto :EOF
 
+:: ##################################
+:get_source_from_gazebodistro
+::
+:: arg1: Name of the yaml file in the gazebodistro repro
+vcs import < "%1" || goto :error
+
+:: ##################################
+:build_workspace
+colcon build --event-handler console_cohesion+ || goto :error
+
+:: ##################################
+:tests_in_workspace
+colcon build --event-handler console_cohesion+ || goto :error
 
 :: ##################################
 :error - error routine
