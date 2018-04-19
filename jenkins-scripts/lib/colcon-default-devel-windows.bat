@@ -42,7 +42,7 @@ if not exist %WORKSPACE%\%VCS_DIRECTORY% (
 
 :: Call vcvarsall and all the friends
 echo # BEGIN SECTION: configure the MSVC compiler
-call %win_lib% :configure_msvc_compiler
+call %win_lib% :configure_msvc2017_compiler
 echo # END SECTION
 
 echo # BEGIN SECTION: setup workspace
