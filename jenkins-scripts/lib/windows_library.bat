@@ -2,8 +2,10 @@
 call :%*
 exit /b
 
-call "windows_env_vars.bat" || goto :error
-echo "-----------VCPKG_CMD variable: %VCPKG_CMD% -----------"
+:: Enviroment variables (remember to call this script instead of using the functions only)
+set VCPKG_DIR="C:\vcpkg"
+set VCPKG_CMD="%VCPKG_DIR%\vcpkg.exe"
+set VCPKG_CMAKE_TOOLCHAIN_FILE="%VCPKG_DIR%/scripts/buildsystems/vcpkg.cmake"
 
 :: ##################################
 :: Configure the build environment for MSVC 2017
