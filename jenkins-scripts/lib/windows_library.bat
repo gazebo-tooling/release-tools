@@ -22,6 +22,7 @@ set MSVC_KEYWORD=%PLATFORM_TO_BUILD%
 IF %PLATFORM_TO_BUILD% == x86 (
   echo "Using 32bits VS configuration"
   set BITNESS=32
+  set VCPKG_DEFAULT_TRIPLET=x86-windows
 ) ELSE (
   REM Visual studio is accepting many keywords to compile for 64bits
   REM We need to set x86_amd64 to make express version to be able to
@@ -30,6 +31,7 @@ IF %PLATFORM_TO_BUILD% == x86 (
   set BITNESS=64
   set MSVC_KEYWORD=x86_amd64
   set PLATFORM_TO_BUILD=amd64
+  set VCPKG_DEFAULT_TRIPLET=x64-windows
 )
 
 echo "Configure the VC++ compilation"
