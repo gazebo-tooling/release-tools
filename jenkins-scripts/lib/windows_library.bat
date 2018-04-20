@@ -177,7 +177,7 @@ goto :EOF
 
 :: ##################################
 :build_workspace
-colcon build --event-handler console_cohesion+ --cmake-args "\ -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" || goto :error
+colcon build --event-handler console_cohesion+ --cmake-args "\\ -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" || goto :error
 goto :EOF
 
 :: ##################################
