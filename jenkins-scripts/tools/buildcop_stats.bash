@@ -23,9 +23,9 @@ alwaysFailsBecause["gazebo-ci-gazebo9-windows7-amd64"] = \
   "Both pending some fixes under the scope of [PR 529 in release-tools](https://bitbucket.org/osrf/release-tools/pull-requests/529/fix-windows-gazebo-build/diff)"
 alwaysFailsBecause["gazebo-performance-default-xenial-amd64"] = \
   "Performance problems documented in [gazebo issue 2320](https://bitbucket.org/osrf/gazebo/issues/2320/performance_transport_stress-test-times)"
-alwaysFailsBecause["ignition_gui-ci-default-windows7-amd64"] = "Awaiting Windows implementation. In jrivero TODO list"
+alwaysFailsBecause["ignition_gui-ci-default-windows7-amd64"]       = "Awaiting Windows implementation. In jrivero TODO list"
 alwaysFailsBecause["ignition_rendering-ci-default-windows7-amd64"] = "Awaiting Windows implementation. In jrivero TODO list"
-alwaysFailsBecause["ignition_sensors-ci-default-windows7-amd64"] = "Awaiting Windows implementation. In jrivero TODO list"
+alwaysFailsBecause["ignition_sensors-ci-default-windows7-amd64"]   = "Awaiting Windows implementation. In jrivero TODO list"
 
 print("\n### Builds with no record of passing\n")
 for j in jobs_colors["red"]:
