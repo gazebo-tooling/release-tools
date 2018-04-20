@@ -168,7 +168,7 @@ set gzdistro_dir=gazebodistro
 if not exist %gzdistro_dir% (
   hg clone https://bitbucket.org/osrf/gazebodistro %gzdistro_dir%
 )
-vcs import < "%gzdistro_dir%\%1" "%2" || goto :error
+vcs import --retry 5  < "%gzdistro_dir%\%1" "%2" || goto :error
 goto :EOF
 
 :: ##################################
