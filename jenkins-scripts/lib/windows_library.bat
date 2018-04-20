@@ -2,6 +2,7 @@
 call :%*
 exit /b
 
+
 :: ##################################
 :: Configure the build environment for MSVC 2017
 :configure_msvc2017_compiler
@@ -172,7 +173,9 @@ goto :EOF
 
 :: ##################################
 :build_workspace
-call windows_env_vars.cmd
+
+set LIB_DIR="%~dp0"
+call %LIB_DIR%\windows_env_vars.cmd
 
 colcon build --event-handler console_cohesion+ --cmake-args \ -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE% || goto :error
 goto :EOF
@@ -190,7 +193,8 @@ goto :EOF
 :: ##################################
 :install_vcpkg_package
 :: arg1: package to install
-call windows_env_vars.cmd
+set LIB_DIR="%~dp0"
+call %LIB_DIR%\windows_env_vars.cmd
 
 %VCPKG_CMD% install "%1"
 goto :EOF
