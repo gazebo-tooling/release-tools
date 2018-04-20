@@ -194,10 +194,7 @@ goto :EOF
 :install_vcpkg_package
 :: arg1: package to install
 :: TODO:_ remove variables from here
-set VCPKG_DIR="C:\vcpkg"
-set VCPKG_CMD="%VCPKG_DIR%\vcpkg.exe"
-set VCPKG_CMAKE_TOOLCHAIN_FILE="%VCPKG_DIR%/scripts/buildsystems/vcpkg.cmake"
-"%VCPKG_CMD%" install "%1"
+%VCPKG_CMD% install "%1"
 goto :EOF
 
 :: ##################################
