@@ -2,7 +2,7 @@
 curl https://build.osrfoundation.org/view/main/view/BuildCopFail/api/json 2>/dev/null | python -c '\
 import datetime, json, sys;
 print("# Build Cop Report %s\n" % datetime.date.today())
-print("## Aggregate Results\n")
+print("## Aggregate Results as of %s\n" % datetime.datetime.now())
 jobs = json.loads(sys.stdin.read())["jobs"];
 print("| Type | Count | Percent | Change |")
 print("|--|--|--|--|")
