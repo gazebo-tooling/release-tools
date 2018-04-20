@@ -5,7 +5,7 @@ set VCS_DIRECTORY=ign-rendering
 set PLATFORM_TO_BUILD=x86_amd64
 set IGN_CLEAN_WORKSPACE=true
 :: dlfcn
-set DEPEN_PKGS="dlfcn"
+set DEPEN_PKGS="dlfcn-win32"
 :: This needs to be migrated to DSL to get multi-major versions correctly
 set GAZEBODISTRO_FILE="ign-rendering0.yaml"
 
