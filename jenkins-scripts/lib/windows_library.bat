@@ -3,9 +3,9 @@ call :%*
 exit /b
 
 :: Enviroment variables (remember to call this script instead of using the functions only)
-set VCPKG_DIR="C:\vcpkg"
-set VCPKG_CMD="%VCPKG_DIR%\vcpkg.exe"
-set VCPKG_CMAKE_TOOLCHAIN_FILE="%VCPKG_DIR%/scripts/buildsystems/vcpkg.cmake"
+set VCPKG_DIR=C:\vcpkg
+set VCPKG_CMD=%VCPKG_DIR%\vcpkg.exe
+set VCPKG_CMAKE_TOOLCHAIN_FILE=%VCPKG_DIR%/scripts/buildsystems/vcpkg.cmake
 
 :: ##################################
 :: Configure the build environment for MSVC 2017
@@ -175,15 +175,14 @@ if not exist %gzdistro_dir% (
 vcs import < "%gzdistro_dir%\%1" "%2" || goto :error
 goto :EOF
 
+:: ##################################
+:build_workspace
+colcon build --event-handler console_cohesion+ --cmake-args "\ -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" || goto :error
+goto :EOF
 
 :: ##################################
 :list_workspace_pkgs
 colcon list -g || goto :error
-goto :EOF
-
-:: ##################################
-:build_workspace
-colcon build --event-handler console_cohesion+ --cmake-args "\ -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" || goto :error
 goto :EOF
 
 :: ##################################
