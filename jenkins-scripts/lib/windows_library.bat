@@ -187,7 +187,8 @@ goto :EOF
 
 :: ##################################
 :tests_in_workspace
-colcon build --event-handler console_cohesion+ || goto :error
+colcon test --event-handler console_cohesion+ || goto :error
+catkin test-result --all
 goto :EOF
 
 :: ##################################

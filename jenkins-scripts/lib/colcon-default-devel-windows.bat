@@ -16,7 +16,6 @@
 ::   - run tests
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
-
 set TEST_RESULT_PATH=%WORKSPACE%\test_results
 set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
 set LOCAL_WS=%WORKSPACE%\ws
@@ -87,7 +86,7 @@ echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
     echo # BEGIN SECTION: running tests
-    tests_in_workspace
+    call %win_lib% :tests_in_workspace
     echo # END SECTION
 
     echo # BEGIN SECTION: export testing results
