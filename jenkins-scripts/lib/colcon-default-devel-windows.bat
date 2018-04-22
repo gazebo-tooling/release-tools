@@ -18,6 +18,7 @@
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 set TEST_RESULT_PATH=%WORKSPACE%\ws\build\%COLCON_PACKAGE%\test_results
+set EXPORT_TEST_RESULT_PATH=%WORKSPACE%\test_results
 set LOCAL_WS=%WORKSPACE%\ws
 set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS%\%VCS_DIRECTORY%
 
@@ -87,6 +88,12 @@ echo # END SECTION
 if "%ENABLE_TESTS%" == "TRUE" (
     echo # BEGIN SECTION: running tests
     call %win_lib% :tests_in_workspace %COLCON_PACKAGE%
+    echo # END SECTION
+
+    echo # BEGIN SECTION: export testing results
+    if exist %EXPORT_TEST_RESULT_PATH% ( rmdir /q /s %EXPORT_TEST_RESULT_PATH% )
+    mkdir %EXPORT_TEST_RESULT_PATH%
+    xcopy %TEST_RESULT_PATH% %EXPORT_TEST_RESULT_PATH% /s /i /e || goto :error
     echo # END SECTION
 )
 
