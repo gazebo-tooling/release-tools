@@ -3,10 +3,11 @@
 :: Parameters:
 ::   - VCS_DIRECTORY : relative path to WORKSPACE containing the sources
 ::   - GAZEBODISTRO_FILE : vcs yaml file in the gazebodistro repository
-::   - BUILD_TYPE    : (default Release) [ Release | Debug ] Build type to use
-::   - DEPEN_PKGS    : (optional) list of dependencies (separted by spaces)
-::   - KEEP_WORKSPACE: (optional) true | false. Clean workspace at the end
-::   - ENABLE_TESTS  : (optional) true | false. Do not compile and run tests
+::   - COLCON_PACKAGE : package name to test in colcon ws
+::   - BUILD_TYPE     : (default Release) [ Release | Debug ] Build type to use
+::   - DEPEN_PKGS     : (optional) list of dependencies (separted by spaces)
+::   - KEEP_WORKSPACE : (optional) true | false. Clean workspace at the end
+::   - ENABLE_TESTS   : (optional) true | false. Do not compile and run tests
 ::
 :: Actions
 ::   - Configure the compiler
@@ -86,7 +87,7 @@ echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
     echo # BEGIN SECTION: running tests
-    call %win_lib% :tests_in_workspace
+    call %win_lib% :tests_in_workspace %COLCON_PACKAGE%
     echo # END SECTION
 
     echo # BEGIN SECTION: export testing results

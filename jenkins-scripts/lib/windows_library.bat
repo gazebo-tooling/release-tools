@@ -186,9 +186,11 @@ colcon list -g || goto :error
 goto :EOF
 
 :: ##################################
+:: arg1: package whitelist to test
 :tests_in_workspace
-colcon test --event-handler console_cohesion+ || goto :error
-catkin test-result --all
+
+colcon test --event-handler console_cohesion+ --package-whitelist %COLCON_PACKAGE%  || goto :error
+catkin test-result --all %1
 goto :EOF
 
 :: ##################################
