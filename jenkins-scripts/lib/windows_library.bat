@@ -190,7 +190,7 @@ goto :EOF
 :tests_in_workspace
 
 colcon test --event-handler console_cohesion+ --package-whitelist %COLCON_PACKAGE%  || goto :error
-catkin test-result --all %1
+colcon test-result --all %1
 goto :EOF
 
 :: ##################################
