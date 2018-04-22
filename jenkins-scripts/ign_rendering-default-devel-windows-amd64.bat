@@ -8,6 +8,6 @@ set IGN_CLEAN_WORKSPACE=true
 set DEPEN_PKGS="dlfcn-win32 cuda freeimage ogre"
 :: This needs to be migrated to DSL to get multi-major versions correctly
 set COLCON_PACKAGE=ignition-rendering0
-set GAZEBODISTRO_FILE=%COLCON_PACKAGE%.yaml
+set GAZEBODISTRO_FILE=ign-rendering.yaml
 
 call "%SCRIPT_DIR%\lib\colcon-default-devel-windows.bat"

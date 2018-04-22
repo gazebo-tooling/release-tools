@@ -6,6 +6,6 @@ set IGN_CLEAN_WORKSPACE=true
 
 :: This needs to be migrated to DSL to get multi-major versions correctly
 set COLCON_PACKAGE=ignition-physics0
-set GAZEBODISTRO_FILE=%COLCON_PACKAGE%.yaml
+set GAZEBODISTRO_FILE=ign-physics0.yaml
 
 call "%SCRIPT_DIR%/lib/colcon-default-devel-windows.bat"
