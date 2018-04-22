@@ -17,8 +17,7 @@
 ::   - run tests
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
-set TEST_RESULT_PATH=%WORKSPACE%\test_results
-set TEST_RESULT_PATH_LEGACY=%WORKSPACE%\build\test_results
+set TEST_RESULT_PATH=%WORKSPACE%\ws\build\%COLCON_PACKAGE%\test_results
 set LOCAL_WS=%WORKSPACE%\ws
 set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS%\%VCS_DIRECTORY%
 
@@ -92,10 +91,8 @@ if "%ENABLE_TESTS%" == "TRUE" (
 
     echo # BEGIN SECTION: export testing results
     if exist %TEST_RESULT_PATH% ( rmdir /q /s %TEST_RESULT_PATH% )
-    if exist %TEST_RESULT_PATH_LEGACY% ( rmdir /q /s %TEST_RESULT_PATH_LEGACY% )
-    mkdir %WORKSPACE%\build\
+    mkdir %TEST_RESULT_PATH%
     xcopy test_results %TEST_RESULT_PATH% /s /i /e || goto :error
-    xcopy %TEST_RESULT_PATH% %TEST_RESULT_PATH_LEGACY% /s /e /i
     echo # END SECTION
 )
 
