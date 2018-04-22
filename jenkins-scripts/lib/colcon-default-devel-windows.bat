@@ -88,12 +88,6 @@ if "%ENABLE_TESTS%" == "TRUE" (
     echo # BEGIN SECTION: running tests
     call %win_lib% :tests_in_workspace %COLCON_PACKAGE%
     echo # END SECTION
-
-    echo # BEGIN SECTION: export testing results
-    if exist %TEST_RESULT_PATH% ( rmdir /q /s %TEST_RESULT_PATH% )
-    mkdir %TEST_RESULT_PATH%
-    xcopy test_results %TEST_RESULT_PATH% /s /i /e || goto :error
-    echo # END SECTION
 )
 
 if NOT DEFINED KEEP_WORKSPACE (
