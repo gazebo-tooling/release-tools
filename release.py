@@ -346,6 +346,10 @@ def generate_upload_tarball(args):
     if IGN_REPO:
         tarball_name = re.sub(r'[0-9]$','', args.package_alias)
 
+    # ignition-fuel-tools special case
+    if args.package == "ign-fuel-tools":
+        tarball_name = "ignition-fuel_tools"
+
     # TODO: we're assuming a particular naming scheme and a particular compression tool
     tarball_fname = '%s-%s.tar.bz2'%(tarball_name, args.version)
     tarball_path = os.path.join(builddir, tarball_fname)
