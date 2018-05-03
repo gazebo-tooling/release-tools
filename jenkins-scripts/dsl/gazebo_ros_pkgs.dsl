@@ -141,7 +141,7 @@ ros_distros.each { ros_distro ->
 
     // --------------------------------------------------------------
     // 3. Create the default install using stable ROS repo
-    def install_stable_default_job = job("ros_gazebo_pkgs-install_stable_pkg_stable_ros_${suffix_triplet}")
+    def install_stable_default_job = job("ros_gazebo_pkgs-install_pkg_stable_ros_${suffix_triplet}")
     OSRFLinuxInstall.create(install_stable_default_job)
     include_common_params(install_stable_default_job,
                           ubuntu_distro,
