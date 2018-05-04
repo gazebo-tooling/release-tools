@@ -505,10 +505,10 @@ if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 4 ]]; then
                                 libignition-msgs-dev"
 elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 5 ]]; then
     IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
-                                libignition-cmake-dev \\
+                                libignition-cmake1-dev \\
+                                libignition-msgs2-dev \\
                                 libsqlite3-dev \\
-                                ruby-ffi \\
-                                libignition-msgs-dev"
+                                ruby-ffi"
 else
     IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
                                 libignition-msgs0-dev"
