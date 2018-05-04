@@ -581,9 +581,8 @@ IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           libdart6-dev \\
                           libdart6-utils-urdf-dev \\
                           libignition-cmake1-dev \\
+                          libignition-common2-dev \\
                           libignition-math5-dev"
-                          # add to list after release
-                          # libignition-common2-dev \\
 
 IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev \\

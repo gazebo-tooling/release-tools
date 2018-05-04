@@ -24,7 +24,4 @@ if [[ $(date +%Y%m%d) -le 20180831 ]]; then
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
 fi
 
-# TODO: stop building dependencies from source after there's a release
-export BUILD_IGN_COMMON=true
-
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
