@@ -31,6 +31,7 @@ mkdir -p /var/lib/pbuilder/
 cowbuilder --create \
            --distribution ${DEST_UBUNTU_DISTRO} \
 	   --components "main restricted universe multiverse" \
+	   --mirror "deb http://archive.ubuntu.com/ubuntu/ ${DEST_UBUNTU_DISTRO}-updates main restricted universe multiverse"
            --basepath=\${COWBUILDER_BASE_PATH}
 
 BASEPATH=\${COWBUILDER_BASE_PATH} \
