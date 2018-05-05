@@ -275,7 +275,9 @@ def discover_distros(args, repo_dir):
 
     subdirs =  os.walk(repo_dir).next()[1]
     subdirs.remove('.hg')
+    # remove ubuntu (common stuff) and debian (new supported distro at top level)
     if 'ubuntu' in subdirs: subdirs.remove('ubuntu')
+    if 'debian' in subdirs: subdirs.remove('debian')
     # Some releasing methods use patches/ in root
     if 'patches' in subdirs: subdirs.remove('patches')
 
@@ -340,9 +342,9 @@ def generate_upload_tarball(args):
     if args.package == "mentor2":
         tarball_name = "mentor2"
 
-    # For ignition, we use the alias as package name
+    # For ignition, we use the alias without version numbers as package name
     if IGN_REPO:
-        tarball_name = args.package_alias
+        tarball_name = re.sub(r'[0-9]$','', args.package_alias)
 
     # TODO: we're assuming a particular naming scheme and a particular compression tool
     tarball_fname = '%s-%s.tar.bz2'%(tarball_name, args.version)
@@ -363,7 +365,7 @@ def generate_upload_tarball(args):
                 shutil.copyfile(tarball_path, dest_file)
                 tarball_path = dest_file
 
-    check_call(['s3cmd', 'put', tarball_path, UPLOAD_DEST_PATTERN%get_canonical_package_name(args.package)])
+    check_call(['s3cmd', 'sync', tarball_path, UPLOAD_DEST_PATTERN%get_canonical_package_name(args.package)])
     shutil.rmtree(tmpdir)
 
     # Tag repo

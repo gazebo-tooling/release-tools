@@ -1,8 +1,8 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def sdformat_supported_branches = [ 'sdformat4', 'sdformat5' ]
-def nightly_sdformat_branch = [ 'sdformat5' ]
+def sdformat_supported_branches = [ 'sdformat4', 'sdformat5', 'sdformat6' ]
+def nightly_sdformat_branch = [ 'sdformat7' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -125,6 +125,10 @@ ci_distro.each { distro ->
 
 // OTHER CI SUPPORTED JOBS (default branch) @ SCM/DAILY
 other_supported_distros.each { distro ->
+  // default doesn't support trusty anymore
+  if ("${distro}" == "trusty")
+    return
+
   supported_arches.each { arch ->
     // ci_default job for the rest of arches / scm@daily
     def sdformat_ci_job = job("sdformat-ci-default-${distro}-${arch}")
@@ -319,7 +323,8 @@ all_branches.each { branch ->
   OSRFBrewCompilation.create(sdformat_brew_ci_job)
   OSRFBitbucketHg.create(sdformat_brew_ci_job,
                          "https://bitbucket.org/osrf/sdformat",
-                         get_sdformat_branch_name(branch))
+                         get_sdformat_branch_name(branch),
+                         "sdformat", "HomeBrew")
  
   sdformat_brew_ci_job.with
   {
@@ -375,7 +380,7 @@ all_branches.each { branch ->
 
       steps {
         batchFile("""\
-              set USE_IGNITION_ZIP=false
+              set USE_IGNITION_ZIP=FALSE
               set IGNMATH_BRANCH=ign-math${ign_math_v}
               call "./scripts/jenkins-scripts/sdformat-default-devel-windows-amd64.bat"
               """.stripIndent())

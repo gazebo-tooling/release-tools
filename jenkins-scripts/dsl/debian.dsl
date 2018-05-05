@@ -4,21 +4,23 @@ import javaposse.jobdsl.dsl.Job
 Globals.default_emails = "jrivero@osrfoundation.org"
 
 packages = [:]
-packages['debian-science'] = ['console-bridge',
-                              'gazebo',
-                              'fcl',
-                              'ignition-common',
-                              'ignition-math2',
-                              'ignition-math3',
-                              'ignition-msgs',
-                              'ignition-transport',
-                              'kido',
-                              'libccd',
-                              'robot-player',
-                              'sdformat',
-                              'simbody',
-                              'urdfdom',
-                              'urdfdom-headers' ]
+packages['science-team'] = ['console-bridge',
+                            'gazebo',
+                            'fcl',
+                            'ignition-cmake',
+                            'ignition-common',
+                            'ignition-math2',
+                            'ignition-math4',
+                            'ignition-msgs',
+                            'ignition-tools',
+                            'ignition-transport', // version 4
+                            'kido',
+                            'libccd',
+                            'octomap',
+                            'sdformat', // version 6
+                            'simbody',
+                            'urdfdom',
+                            'urdfdom-headers' ]
 
 packages['collab-maint']   = ['peak-linux-driver',
                               'peak-pcan-basic']
@@ -37,7 +39,7 @@ packages.each { repo_name, pkgs ->
      }
 
     // No accepted in Sid yet
-    if ((pkg == 'kido') || (pkg == 'ignition-msgs'))
+    if ((pkg == 'sdformat6') || (pkg == 'ignition-transport4'))
     {
       disabled()
     }
@@ -59,8 +61,8 @@ packages.each { repo_name, pkgs ->
   // --------------------------------------------------------------
   // 2. Create the job that tries to build the package and run lintian
 
-  if (repo_name == 'debian-science') {
-    git_repo = "git://anonscm.debian.org/${repo_name}/packages/${pkg}.git"
+  if (repo_name == 'science-team') {
+    git_repo = "https://salsa.debian.org/${repo_name}/${pkg}.git"
   } else {
     git_repo = "git://anonscm.debian.org/${repo_name}/${pkg}.git"
   }

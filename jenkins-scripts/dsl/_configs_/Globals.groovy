@@ -10,16 +10,18 @@ class Globals
    static rtools_description = true
 
    static gpu_by_distro  = [ trusty : [ 'nvidia', 'intel' ],
-                             xenial  : [ 'intel' ] ]
+                             xenial  : [ 'nvidia' ] ]
 
    static ros_ci = [ 'indigo'  : ['trusty'] ,
                      'jade'    : ['trusty'] ,
-                     'kinetic' : ['xenial']]
+                     'kinetic' : ['xenial'] ,
+                     'lunar'   : ['xenial']]
 
    // This should be in sync with archive_library
    static gz_version_by_rosdistro = [ 'indigo'  : ['2'] ,
                                       'jade'    : ['5'] ,
-                                      'kinetic' : ['7']]
+                                      'kinetic' : ['7'] ,
+                                      'lunar'   : ['7']]
 
    static ArrayList get_ros_distros_by_ubuntu_distro(String ubuntu_distro)
    {
@@ -70,7 +72,7 @@ class Globals
 
    static ArrayList get_other_supported_distros()
    {
-     return [ 'trusty', 'yakkety' ]
+     return [ 'trusty', 'artful' ]
    }
 
    static ArrayList get_supported_arches()
@@ -80,7 +82,7 @@ class Globals
 
    static ArrayList get_experimental_arches()
    {
-     return [ 'i386', 'armhf' ]
+     return [ 'i386' ]
    }
 
    static ArrayList get_all_supported_distros()
@@ -95,6 +97,6 @@ class Globals
 
    static ArrayList get_ros_suported_distros()
    {
-     return [ 'indigo', 'jade', 'kinetic' ]
+     return [ 'indigo', 'kinetic', 'lunar' ]
    }
 }

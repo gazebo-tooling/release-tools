@@ -176,6 +176,8 @@ all_supported_distros.each { distro ->
         cron('@daily')
       }
 
+      disabled()
+
       steps {
         shell("""\
             #!/bin/bash -xe
@@ -186,9 +188,33 @@ all_supported_distros.each { distro ->
             export INSTALL_JOB_REPOS=stable
             /bin/bash -xe ./scripts/jenkins-scripts/docker/ihmc_valkyrie_ros-install-test-job.bash
             """.stripIndent())
-      }
-    } // end of with
+        }
+      } // end of with
 
+    // 3. Run one-liner installation
+    def install_one_liner_job = job("srcsim-install-one_liner-${distro}-${arch}")
+    OSRFLinuxInstall.create(install_one_liner_job)
+    // GPU label
+    include_gpu_label(install_one_liner_job, distro)
+    include_parselog(install_one_liner_job)
+
+    install_one_liner_job.with
+    {
+       triggers {
+         cron('@daily')
+       }
+
+       steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export DISTRO=${distro}
+              export ARCH=${arch}
+
+              /bin/bash -x ./scripts/jenkins-scripts/docker/srcsim-install_one_liner-test-job.bash
+              """.stripIndent())
+      }
+    }
   }
 }
 

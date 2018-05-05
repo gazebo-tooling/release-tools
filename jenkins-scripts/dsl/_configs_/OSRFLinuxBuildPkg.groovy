@@ -13,16 +13,17 @@ import javaposse.jobdsl.dsl.Job
         - PACKAGE
         - VERSION
         - RELEASE_VERSION
+        - LINUX_DISTRO
         - DISTRO
         - ARCH
         - SOURCE_TARBALL_URI
         - RELEASE_REPO_BRANCH
-        - PACKAGE_ALIAS 
+        - PACKAGE_ALIAS
         - UPLOAD_TO_REPO
     - launch repository_ng
 */
 class OSRFLinuxBuildPkg
-{  
+{
   static void create(Job job)
   {
     OSRFLinuxBuildPkgBase.create(job)
@@ -33,12 +34,13 @@ class OSRFLinuxBuildPkg
       properties {
         priority 100
       }
-    
+
       parameters {
         stringParam("PACKAGE",null,"Package name to be built")
         stringParam("VERSION",null,"Packages version to be built")
         stringParam("RELEASE_VERSION", null, "Packages release version")
-        stringParam("DISTRO", null, "Ubuntu distribution to build packages for")
+        stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
+        stringParam("DISTRO", null, "Linux release inside LINUX_DISTRO to build packages for")
         stringParam("ARCH", null, "Architecture to build packages for")
         stringParam("SOURCE_TARBALL_URI", null, "URL to the tarball containing the package sources")
         stringParam("RELEASE_REPO_BRANCH", null, "Branch from the -release repo to be used")
@@ -50,9 +52,10 @@ class OSRFLinuxBuildPkg
       steps {
         systemGroovyCommand("""\
           build.setDescription(
-          '<b>' + build.buildVariableResolver.resolve('VERSION') + '-' + 
+          '<b>' + build.buildVariableResolver.resolve('VERSION') + '-' +
           build.buildVariableResolver.resolve('RELEASE_VERSION') + '</b>' +
-          '(' + build.buildVariableResolver.resolve('DISTRO') + '/' + 
+          '(' + build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
+                build.buildVariableResolver.resolve('DISTRO') + '::' +
                 build.buildVariableResolver.resolve('ARCH') + ')' +
           '<br />' +
           'branch: ' + build.buildVariableResolver.resolve('RELEASE_REPO_BRANCH') + ' | ' +

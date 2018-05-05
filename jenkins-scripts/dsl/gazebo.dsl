@@ -1,11 +1,11 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def gazebo_supported_branches = [ 'gazebo7', 'gazebo8' ]
+def gazebo_supported_branches = [ 'gazebo7', 'gazebo8', 'gazebo9' ]
 def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
 // nightly_gazebo_branch is not the branch used to get the code from but
 // the one used to generate the corresponding debbuild job.
-def nightly_gazebo_branch = [ 'gazebo8' ]
+def nightly_gazebo_branch = [ 'gazebo10' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -32,7 +32,7 @@ String abi_job_name = ''
 boolean is_watched_by_buildcop(branch, distro = 'trusty', gpu = 'nvidia')
 
 {
-  if (branch == 'default' ||  branch == 'gazebo7')
+  if (branch == 'default' || branch == 'gazebo7' || branch == 'gazebo8')
     if (gpu == 'nvidia' && distro == 'trusty')
       return true
 
@@ -68,6 +68,7 @@ ci_build_any_job_name_linux_no_gpu = ""
 
 // CI JOBS @ SCM/5 min
 ci_gpu_include_gpu_none = ci_gpu + [ 'none' ]
+
 ci_distro.each { distro ->
   ci_gpu_include_gpu_none.each { gpu ->
     supported_arches.each { arch ->
@@ -269,7 +270,7 @@ gazebo_supported_branches.each { branch ->
       ci_gpu.each { gpu ->
         // ci_default job for the rest of arches / scm@daily
         def gazebo_ci_job = job("gazebo-ci-${branch}-${distro}-${arch}-gpu-${gpu}")
-        // note that we are already using the CI refernce GPU and distro, no
+        // note that we are already using the CI reference GPU and distro, no
         // need to check for build_cop email
         if (is_watched_by_buildcop(branch, distro, gpu))
           Globals.extra_emails = Globals.build_cop_email
@@ -330,6 +331,47 @@ ci_distro.each { distro ->
   }
 }
 
+// COVERAGE TYPE @ SCM/DAILY
+ci_distro.each { distro ->
+  supported_arches.each { arch ->
+    ci_gpu.each { gpu ->
+      def gazebo_ci_job = job("gazebo-ci-coverage-${distro}-${arch}-gpu-${gpu}")
+      OSRFLinuxCompilation.create(gazebo_ci_job)
+      gazebo_ci_job.with
+      {
+        scm
+        {
+          hg("http://bitbucket.org/osrf/gazebo") {
+            branch('default')
+            subdirectory("gazebo")
+          }
+        }
+
+        triggers {
+          scm('@daily')
+        }
+
+        // Problem with the compilation of Gazebo under bullseyes
+        // See: https://bitbucket.org/osrf/release-tools/issues/129
+        disabled()
+
+        steps {
+          shell("""\
+          #!/bin/bash -xe
+
+          export DISTRO=${distro}
+          export ARCH=${arch}
+          export GPU_SUPPORT_NEEDED=false
+          export COVERAGE_ENABLED=true
+          /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
+          """.stripIndent())
+        }
+      }
+    }
+  }
+}
+
+// BUILD TYPES CI JOBS @ SCM/DAILY
 ci_distro.each { distro ->
   supported_arches.each { arch ->
     gazebo_supported_build_types.each { build_type ->
@@ -359,8 +401,6 @@ ci_distro.each { distro ->
     }
   }
 }
-
-// Other build types
 
 // INSTALL ONELINER
 ci_distro.each { distro ->
@@ -402,7 +442,11 @@ gazebo_supported_branches.each { branch ->
            cron('@daily')
          }
 
-         def dev_package = "lib${branch}-dev"
+         // Branch is exactly in the form of gazeboN
+         def dev_packages = "lib${branch}-dev ${branch}"
+
+         // Need gpu for running the runtime test
+         label "gpu-" + ci_gpu[0] + "-${distro}"
 
          steps {
           shell("""\
@@ -410,9 +454,9 @@ gazebo_supported_branches.each { branch ->
 
                 export DISTRO=${distro}
                 export ARCH=${arch}
-                export INSTALL_JOB_PKG=${dev_package}
+                export INSTALL_JOB_PKG=\"${dev_packages}\"
                 export INSTALL_JOB_REPOS=stable
-                /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+                /bin/bash -x ./scripts/jenkins-scripts/docker/gazebo-install-test-job.bash
                 """.stripIndent())
           }
       } // end of with
@@ -482,6 +526,8 @@ OSRFBrewCompilationAny.create(gazebo_brew_ci_any_job,
                               "https://bitbucket.org/osrf/gazebo")
 gazebo_brew_ci_any_job.with
 {
+    label "osx_gazebo"
+
     steps {
       shell("""\
             #!/bin/bash -xe
@@ -517,10 +563,12 @@ all_branches.each { branch ->
 
   def gazebo_brew_ci_job = job("gazebo-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(gazebo_brew_ci_job)
-  OSRFBitbucketHg.create(gazebo_brew_ci_job, "https://bitbucket.org/osrf/gazebo", branch)
+  OSRFBitbucketHg.create(gazebo_brew_ci_job, "https://bitbucket.org/osrf/gazebo", branch, "gazebo", "HomeBrew")
 
   gazebo_brew_ci_job.with
   {
+      label "osx_gazebo"
+
       triggers {
         scm('@daily')
       }

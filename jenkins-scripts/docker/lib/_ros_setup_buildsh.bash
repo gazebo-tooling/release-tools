@@ -10,14 +10,28 @@ if [ -z ${ROS_DISTRO} ]; then
   exit -1
 fi
 
+[[ -z ${USE_GZ_VERSION_ROSDEP} ]] && USE_GZ_VERSION_ROSDEP=false
+
 export CATKIN_WS="${WORKSPACE}/ws"
 
-cat > build.sh << DELIM_CONFIG
+cat >> build.sh << DELIM_CONFIG
 set -ex
+
+if ${USE_GZ_VERSION_ROSDEP}; then
+  apt-get install -y wget
+  mkdir -p /etc/ros/rosdep/sources.list.d/
+  wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gazebo${GAZEBO_VERSION_FOR_ROS}/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list -O /etc/ros/rosdep/sources.list.d/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list
+fi
+
+if [ `expr length "${ROS_SETUP_PREINSTALL_HOOK} "` -gt 1 ]; then
+echo '# BEGIN SECTION: running pre install hook'
+${ROS_SETUP_PREINSTALL_HOOK}
+echo '# END SECTION'
+fi
 
 echo '# BEGIN SECTION: run rosdep'
 # Step 2: configure and build
-rosdep init
+[[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]] && rosdep init
 # Hack for not failing when github is down
 update_done=false
 seconds_waiting=0
@@ -42,6 +56,8 @@ mkdir -p ${CATKIN_WS}/src
 cd ${CATKIN_WS}
 catkin config --init --mkdirs
 ln -s "${WORKSPACE}/${SOFTWARE_DIR}" "${CATKIN_WS}/src/${SOFTWARE_DIR}"
+catkin list
+echo '# END SECTION'
 DELIM_CONFIG
 
 if [ `expr length "${ROS_WS_PREBUILD_HOOK} "` -gt 1 ]; then
@@ -57,11 +73,15 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION install the system dependencies'
 catkin list
-rosdep install --from-paths . --ignore-src --rosdistro=${ROS_DISTRO} --as-root apt:false 
+rosdep install --from-paths . \
+               --ignore-src   \
+               --rosdistro=${ROS_DISTRO} \
+               --default-yes \
+               --as-root apt:false
 echo '# END SECTION'
 
 echo '# BEGIN SECTION compile the catkin workspace'
-catkin build -j${MAKE_JOBS} --verbose --summary
+catkin build -j${MAKE_JOBS} --verbose --summary ${CATKIN_EXTRA_ARGS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: running tests'
@@ -77,4 +97,10 @@ for d in \$DIRS; do
  done
 done
 echo '# END SECTION'
+
+if [ `expr length "${ROS_SETUP_POSTINSTALL_HOOK} "` -gt 1 ]; then
+echo '# BEGIN SECTION: running pre TEST hook'
+${ROS_SETUP_POSTINSTALL_HOOK}
+echo '# END SECTION'
+fi
 DELIM_COMPILATION

@@ -17,7 +17,14 @@ PROJECT_ARGS=${2}
 PROJECT_PATH=${PROJECT}
 if [[ ${PROJECT/ignition} != ${PROJECT} ]]; then
     PROJECT_PATH="ign${PROJECT/ignition}"
+    PROJECT_PATH="${PROJECT_PATH/[0-9]*}"
 fi
+
+# Check for major version number
+# the PROJECT_FORMULA variable is only used for dependency resolution
+PROJECT_FORMULA=${PROJECT//[0-9]}$(\
+  python ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
+  ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt)
 
 export HOMEBREW_PREFIX=/usr/local
 export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
@@ -41,6 +48,9 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: brew information'
 # Run brew update to get latest versions of formulae
 brew update
+# Don't let brew auto-update any more for this session
+# to ensure consistency
+export HOMEBREW_NO_AUTO_UPDATE=1
 # Run brew config to print system information
 brew config
 # Run brew doctor to check for problems with the system
@@ -52,16 +62,15 @@ echo '# BEGIN SECTION: setup the osrf/simulation tap'
 brew tap osrf/simulation
 echo '# END SECTION'
 
-IS_A_HEAD_FORMULA=${IS_A_HEAD_PROJECT:-false}
-HEAD_STR=""
-if $IS_A_HEAD_PROJECT; then
-    HEAD_STR="--HEAD"
+if [[ -n "${PULL_REQUEST_URL}" ]]; then
+  echo "# BEGIN SECTION: pulling ${PULL_REQUEST_URL}"
+  brew pull ${PULL_REQUEST_URL}
+  echo '# END SECTION'
 fi
 
-echo "# BEGIN SECTION: install ${PROJECT} dependencies"
+echo "# BEGIN SECTION: install ${PROJECT_FORMULA} dependencies"
 # Process the package dependencies
-brew install ${HEAD_STR} ${PROJECT} ${PROJECT_ARGS} --only-dependencies
-echo '# END SECTION'
+brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies
 
 if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   # Install lxml for flaky_junit_merge.py
@@ -69,8 +78,7 @@ if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
 fi
 
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
-  brew install python
-  export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
+  brew install python@2
   pip install ${PIP_PACKAGES_NEEDED}
 fi
 
@@ -78,8 +86,10 @@ if [[ -z "${DISABLE_CCACHE}" ]]; then
   brew install ccache
   export PATH=/usr/local/opt/ccache/libexec:$PATH
 fi
+echo '# END SECTION'
 
 # Step 3. Manually compile and install ${PROJECT}
+echo "# BEGIN SECTION: configure ${PROJECT}"
 cd ${WORKSPACE}/${PROJECT_PATH}
 # Need the sudo since the test are running with roots perms to access to GUI
 sudo rm -fr ${WORKSPACE}/build
@@ -96,20 +106,28 @@ export DISPLAY=$(ps ax \
   | grep "auth /Users/$(whoami)/" \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
-echo '# END SECTION'
 
-echo "# BEGIN SECTION: configure ${PROJECT}"
+# set CMAKE_PREFIX_PATH if we are using qt5 (aka qt)
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt' }.empty?"; then
+  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/qt
+fi
+# if we are using gts, need to add gettext library path since it is keg-only
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'gettext' }.empty?"; then
+  export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/gettext/lib
+fi
+
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-      -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT}/HEAD \
+      -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT_FORMULA}/HEAD \
      ${WORKSPACE}/${PROJECT_PATH}
 echo '# END SECTION'
 
-echo "# BEGIN SECTION: compile and install ${PROJECT}"
+echo "# BEGIN SECTION: compile and install ${PROJECT_FORMULA}"
 make -j${MAKE_JOBS} ${MAKE_VERBOSE_STR} install
-brew link ${PROJECT}
+brew link ${PROJECT_FORMULA}
 echo '# END SECTION'
 
 echo "#BEGIN SECTION: brew doctor analysis"
+brew missing || brew install $(brew missing | awk '{print $2}') && brew missing
 brew doctor
 echo '# END SECTION'
 
@@ -132,31 +150,7 @@ rm -fr \$HOME/.gazebo/models test_results*
 # Run `make test`
 # If it has any failures, then rerun the failed tests one time
 # and merge the junit results
-if ! make test ARGS="-VV" && [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
-  mv test_results test_results0
-  mkdir test_results
-  # we can't just run ctest --rerun-failed
-  # because that might not run the check_test_ran for failed tests
-  echo Failed tests:
-  ctest -N --rerun-failed
-  FAILED_TESTS=$(ctest -N --rerun-failed \
-    | grep 'Test  *#[0-9][0-9]*:' \
-    | sed -e 's@^ *Test  *#[0-9]*: *@@' \
-  )
-  for i in ${FAILED_TESTS}; do
-    make test ARGS="-VV -R ${i}\$$" || true
-  done
-  mkdir test_results_tmp
-  for i in $(ls test_results); do
-    echo looking for flaky tests in test_results0/$i and test_results/$i
-    python ${WORKSPACE}/scripts/jenkins-scripts/tools/flaky_junit_merge.py \
-      test_results0/$i test_results/$i \
-      > test_results_tmp/$i
-    mv test_results_tmp/$i test_results0
-  done
-  mv test_results test_results1
-  mv test_results0 test_results
-fi
+. ${WORKSPACE}/scripts/jenkins-scripts/lib/make_test_rerun_failed.bash
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: re-add group write permissions"

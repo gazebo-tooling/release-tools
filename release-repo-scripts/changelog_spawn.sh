@@ -58,9 +58,14 @@ echo ""
 changelog_files=$(find . -name changelog)
 
 for f in $changelog_files; do
+    # No changelog for debian by default
     ubuntu_distro=$(dpkg-parsechangelog -l${f}  | grep ^Version | sed 's:.*~::')
     version_txt=${version}~${ubuntu_distro}
-    echo " [x] ${f} [$version_txt]"
+    if [[ ${f} == ./debian/* ]]; then
+      echo " [!] skipped Debian ${ubuntu_distro} from toplevel releasing"
+    else
+      echo " [x] ${f} [$version_txt]"
+    fi
     debchange --package ${pkg_name} \
 	      --newversion ${version_txt}  \
 	      --distribution ${ubuntu_distro} \

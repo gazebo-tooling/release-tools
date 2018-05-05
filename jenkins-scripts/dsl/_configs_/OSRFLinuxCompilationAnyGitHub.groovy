@@ -31,6 +31,11 @@ class OSRFLinuxCompilationAnyGitHub
 
     job.with
     {
+      parameters
+      {
+        stringParam('sha1', '', 'commit or refname to build')
+      }
+
       scm
       {
         git {
@@ -51,7 +56,7 @@ class OSRFLinuxCompilationAnyGitHub
             admins(['osrf-jenkins', 'j-rivero'])
             useGitHubHooks()
             cron('')
-            triggerPhrase('run test please')
+            triggerPhrase('.*(re)?run test(s).*')
             allowMembersOfWhitelistedOrgsAsAdmin()
             // Only will be triggered in supported_ros_branches
             whiteListTargetBranches(supported_ros_branches)

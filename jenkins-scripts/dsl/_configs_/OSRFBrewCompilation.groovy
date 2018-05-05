@@ -20,6 +20,12 @@ class OSRFBrewCompilation extends OSRFOsXBase
 
     job.with
     {
+      parameters
+      {
+        stringParam("PULL_REQUEST_URL", '',
+                    'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
+      }
+
       publishers
       {
          // compilers warnings
