@@ -28,11 +28,11 @@ export DEBEMAIL="build@osrfoundation.org"
 echo '# BEGIN SECTION: generating the backport (${DEST_UBUNTU_DISTRO}/${ARCH})'
 export COWBUILDER_BASE_PATH=/var/lib/pbuilder/${DEST_UBUNTU_DISTRO}-base.cow
 export OTHERMIRROR="deb http://archive.ubuntu.com/ubuntu/ ${DEST_UBUNTU_DISTRO}-updates main restricted universe multiverse"
+echo "OTHERMIRROR=deb http://archive.ubuntu.com/ubuntu/ ${DEST_UBUNTU_DISTRO}-updates main restricted universe multiverse" >> ${HOME}/.pbuilderrc
 mkdir -p /var/lib/pbuilder/
 cowbuilder --create \
            --distribution ${DEST_UBUNTU_DISTRO} \
 	   --components "main restricted universe multiverse" \
-	   --mirror "'deb http://archive.ubuntu.com/ubuntu/ ${DEST_UBUNTU_DISTRO}-updates main restricted universe multiverse'"
            --basepath=\${COWBUILDER_BASE_PATH}
 
 BASEPATH=\${COWBUILDER_BASE_PATH} \
