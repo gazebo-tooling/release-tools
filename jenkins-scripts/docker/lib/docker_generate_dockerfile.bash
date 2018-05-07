@@ -65,6 +65,8 @@ esac
 [[ -z ${USE_OSRF_REPO} ]] && USE_OSRF_REPO=false
 [[ -z ${OSRF_REPOS_TO_USE} ]] && OSRF_REPOS_TO_USE=""
 [[ -z ${USE_ROS_REPO} ]] && USE_ROS_REPO=false
+# Default ros-shadow-fixed to internal test it and get quick fixes
+[[ -z ${ROS_REPO_NAME} ]] && ROS_REPO_NAME="ros-shadow-fixed"
 
 # depracted variable, do migration here
 if [[ -z ${OSRF_REPOS_TO_USE} ]]; then
@@ -163,7 +165,7 @@ done
 if ${USE_ROS_REPO}; then
 cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
-RUN echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > \\
+RUN echo "deb http://packages.ros.org/${ROS_REPO_NAME}/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
 DELIM_ROS_REPO
