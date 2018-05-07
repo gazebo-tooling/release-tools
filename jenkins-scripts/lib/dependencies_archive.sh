@@ -297,6 +297,9 @@ else
       lunar)
         GAZEBO_VERSION_FOR_ROS="7"
       ;;
+      melodic)
+        GAZEBO_VERSION_FOR_ROS="9"
+      ;;
     esac
   fi
 
