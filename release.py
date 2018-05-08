@@ -365,7 +365,7 @@ def generate_upload_tarball(args):
                 shutil.copyfile(tarball_path, dest_file)
                 tarball_path = dest_file
 
-    check_call(['s3cmd', 'put', tarball_path, UPLOAD_DEST_PATTERN%get_canonical_package_name(args.package)])
+    check_call(['s3cmd', 'sync', tarball_path, UPLOAD_DEST_PATTERN%get_canonical_package_name(args.package)])
     shutil.rmtree(tmpdir)
 
     # Tag repo

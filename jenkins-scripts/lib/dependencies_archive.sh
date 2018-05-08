@@ -297,6 +297,9 @@ else
       lunar)
         GAZEBO_VERSION_FOR_ROS="7"
       ;;
+      melodic)
+        GAZEBO_VERSION_FOR_ROS="9"
+      ;;
     esac
   fi
 
@@ -505,10 +508,10 @@ if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 4 ]]; then
                                 libignition-msgs-dev"
 elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 5 ]]; then
     IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
-                                libignition-cmake-dev \\
+                                libignition-cmake1-dev \\
+                                libignition-msgs2-dev \\
                                 libsqlite3-dev \\
-                                ruby-ffi \\
-                                libignition-msgs-dev"
+                                ruby-ffi"
 else
     IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
                                 libignition-msgs0-dev"
@@ -581,9 +584,8 @@ IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           libdart6-dev \\
                           libdart6-utils-urdf-dev \\
                           libignition-cmake1-dev \\
+                          libignition-common2-dev \\
                           libignition-math5-dev"
-                          # add to list after release
-                          # libignition-common2-dev \\
 
 IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev \\
