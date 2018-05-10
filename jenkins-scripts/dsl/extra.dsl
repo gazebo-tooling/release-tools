@@ -5,7 +5,7 @@ Globals.default_emails = "jrivero@osrfoundation.org"
 
 // List of repositories that have a counter part -release repo
 // under Open Robotics control that host metadata for debian builds
-release_repo_debbuilds = [ 'opensplice_test' ]
+release_repo_debbuilds = [ 'opensplice' ]
 
 release_repo_debbuilds.each { software ->
   // --------------------------------------------------------------
