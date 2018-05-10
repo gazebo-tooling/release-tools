@@ -171,6 +171,15 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 421C365BD9FF1F71781
 DELIM_ROS_REPO
 fi
 
+if [[ $ARCH == 'arm64' ]]; then
+cat >> Dockerfile << DELIM_SYSCAL_ARM64
+# Workaround for problem with syscall 277 in man-db
+ENV MAN_DISABLE_SECCOMP 1
+RUN apt-get update && \\
+    apt-get install -y man-db
+DELIM_SYSCAL_ARM64
+fi
+
 if [ `expr length "${DOCKER_PREINSTALL_HOOK}"` -gt 1 ]; then
 cat >> Dockerfile << DELIM_WORKAROUND_PRE_HOOK
 RUN ${DOCKER_PREINSTALL_HOOK}
