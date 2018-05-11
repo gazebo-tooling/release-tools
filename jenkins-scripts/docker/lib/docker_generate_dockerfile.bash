@@ -202,6 +202,7 @@ RUN apt-get update \\
  && rm -rf /var/lib/apt/lists/*
 RUN add-apt-repository ppa:j-rivero/simbody-artful
 DELIM_DOCKER_WORKAROUND_SIMBODY
+fi
 
 # Packages that will be installed and cached by docker. In a non-cache
 # run below, the docker script will check for the latest updates
