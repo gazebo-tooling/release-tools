@@ -16,7 +16,6 @@ print("\n## [Failing Builds](https://build.osrfoundation.org/view/main/view/Buil
 
 # list of reasons build might be failing
 alwaysFailsBecause = {}
-alwaysFailsBecause["gazebo-ci-default-artful-amd64-gpu-none"] = "Problems with libblas. Pending SRU in Ubuntu"
 alwaysFailsBecause["gazebo-ci-default-windows7-amd64"] = \
   "Both pending some fixes under the scope of [PR 529 in release-tools](https://bitbucket.org/osrf/release-tools/pull-requests/529/fix-windows-gazebo-build/diff)"
 alwaysFailsBecause["gazebo-ci-gazebo9-windows7-amd64"] = \
