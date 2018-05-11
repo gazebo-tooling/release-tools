@@ -194,6 +194,15 @@ DELIM_DOCKER_DART_PKGS
   fi
 fi
 
+# Workaround a problem in simbody on artful bad paths
+if [[ $DISTRO == "artful" ]]; then
+cat >> Dockerfile << DELIM_DOCKER_WORKAROUND_SIMBODY
+RUN apt-get update \\
+ && apt-get install -y apt-utils software-properties-common \\
+ && rm -rf /var/lib/apt/lists/*
+RUN add-apt-repository ppa:j-rivero/simbody-artful
+DELIM_DOCKER_WORKAROUND_SIMBODY
+
 # Packages that will be installed and cached by docker. In a non-cache
 # run below, the docker script will check for the latest updates
 PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS}"
