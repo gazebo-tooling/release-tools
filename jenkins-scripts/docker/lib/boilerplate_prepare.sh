@@ -19,7 +19,7 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
     # get the mount point of the docker directory, not always /
     docker_device=$(df '/var/lib/docker' | awk '{ print $1 }' | tail -n 1)
     # in seconds: 5 days = 432000s
-    PERCENT_DISK_USED=$(df -h | grep ${docker_device}$ | sed 's:.* \([0-9]*\)%.*:\1:')
+    PERCENT_DISK_USED=$(df -h | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
     if [[ $PERCENT_DISK_USED -gt 90 ]]; then
         echo "Space left is low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
@@ -28,7 +28,7 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
     fi
 
     # if not enough, run again with 1 day = 86400s
-    PERCENT_DISK_USED=$(df -h | grep ${docker_device}$ | sed 's:.* \([0-9]*\)%.*:\1:')
+    PERCENT_DISK_USED=$(df -h | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
     if [[ $PERCENT_DISK_USED -gt 90 ]]; then
         echo "Space left is still low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
@@ -37,7 +37,7 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
     fi
 
     # if not enough, kill the whole cache
-    PERCENT_DISK_USED=$(df -h | grep ${docker_device}$ | sed 's:.* \([0-9]*\)%.*:\1:')
+    PERCENT_DISK_USED=$(df -h | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
     if [[ $PERCENT_DISK_USED -gt 90 ]]; then
         echo "Space left is low again: ${PERCENT_DISK_USED}% used"
         echo "Kill the whole docker cache !!"
