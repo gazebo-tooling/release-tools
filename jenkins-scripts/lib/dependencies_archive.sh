@@ -576,7 +576,6 @@ IGN_GUI_DEPENDENCIES="qtbase5-dev \\
                       libignition-transport5-dev \\
                       libignition-msgs2-dev \\
                       libignition-common2-dev \\
-                      libignition-rendering0-dev \\
                       libtinyxml2-dev \\
                       libqwt-qt5-dev"
 
