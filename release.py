@@ -142,9 +142,6 @@ def download_release_repository(package, release_branch):
 
 def sanity_package_name_underscore(package, package_alias):
     # Alias is never empty. It hosts a exect copy of package if not provided
-    if '_' in package_alias and package_alias != package:
-      error("Found an underscore in package_alias. It will conflict with debian package names. May be fixed changing the underscore for a dash.")
-
     if '_' in package and package_alias == package:
       error("Found an underscore in package name without providing a package alias (-a <alias>). You probably want to match the package name in the debian changelog")
 
@@ -358,7 +355,7 @@ def generate_upload_tarball(args):
         if (not args.dry_run):
             if not os.path.isfile(tarball_path):
                 error("Failed to found the tarball: " + tarball_path +
-                      ". Please check that you don't have an underscore in the project() statement of the CMakeList.txt. In that case, change it by a dash")
+                      ". Please check that you are using the right package alias in the release.py call")
             dest_file = os.path.join(builddir, tarball_fname)
             # Do not copy if files are the same
             if not (tarball_path == dest_file):
