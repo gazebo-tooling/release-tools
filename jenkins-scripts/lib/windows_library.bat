@@ -165,9 +165,8 @@ goto :EOF
 :: arg2: directory destination (default .)
 set gzdistro_dir=gazebodistro
 
-if not exist %gzdistro_dir% (
-  hg clone https://bitbucket.org/osrf/gazebodistro %gzdistro_dir%
-)
+if exist %gzdistro_dir% (rmdir /s /q %gzdistro_dir%)
+hg clone https://bitbucket.org/osrf/gazebodistro %gzdistro_dir%
 vcs import --retry 5  < "%gzdistro_dir%\%1" "%2" || goto :error
 goto :EOF
 
