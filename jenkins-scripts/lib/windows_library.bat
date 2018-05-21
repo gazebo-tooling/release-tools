@@ -176,7 +176,7 @@ goto :EOF
 set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
 
-colcon build --event-handler console_cohesion+ --cmake-args " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" || goto :error
+colcon build --event-handler console_cohesion+ --cmake-args " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" || type %HOMEPATH%/.colcon/latest & goto :error
 goto :EOF
 
 :: ##################################
