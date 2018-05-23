@@ -686,6 +686,7 @@ SUBT_DEPENDENCIES="mercurial                                                  \\
                    git                                                        \\
                    gazebo${GAZEBO_VERSION_FOR_ROS}                            \\
                    libgazebo${GAZEBO_VERSION_FOR_ROS}-dev                     \\
+                   python-rosdep                                              \\
                    ros-${ROS_DISTRO}-ros-base                                 \\
                    ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-dev      \\
                    ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-plugins  \\
