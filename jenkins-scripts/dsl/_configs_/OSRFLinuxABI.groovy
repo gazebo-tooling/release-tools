@@ -9,7 +9,7 @@ import javaposse.jobdsl.dsl.Job
     - priority 300
     - logrotator
     - concurrent builds
-    - parameter: ORIGIN_BRANCH, TARGET_BRANCH
+    - parameter: DEST_BRANCH, SRC_BRANCH
     - set description
     - parse log for result
     - publish report in HTML
@@ -28,7 +28,7 @@ class OSRFLinuxABI
       scm
       {
         hg(repo) {
-          branch('${ORIGIN_BRANCH}')
+          branch('${DEST_BRANCH}')
           subdirectory(subdirectoy)
         }
       }
@@ -40,11 +40,11 @@ class OSRFLinuxABI
     OSRFLinuxBase.create(job)
 
     GenericMail.update_field(job, 'defaultSubject',
-                    '$PROJECT_NAME - Branches: $ORIGIN_BRANCH, $TARGET_BRANCH (#$BUILD_NUMBER) - $BUILD_STATUS!')
+                    '$PROJECT_NAME - Branches: $DEST_BRANCH, $SRC_BRANCH (#$BUILD_NUMBER) - $BUILD_STATUS!')
     GenericMail.update_field(job, 'defaultContent',
                     '$JOB_DESCRIPTION \n' +
-                    'origin branch: $ORIGIN_BRANCH \n' +
-                    'target branch: $TARGET_BRANCH \n' +
+                    'origin branch: $DEST_BRANCH \n' +
+                    'target branch: $SRC_BRANCH \n' +
                     'RTOOLS branch: $RTOOLS_BRANCH \n' +
                     GenericMail.get_default_content() + '\n' +
                     'ABI report   : $BUILD_URL/API_ABI_report/\n')
@@ -67,10 +67,10 @@ class OSRFLinuxABI
       }
 
       parameters {
-        stringParam("ORIGIN_BRANCH", null,
+        stringParam("DEST_BRANCH", null,
                     'Branch to use as base for the comparison')
-        stringParam("TARGET_BRANCH", null,
-                    'Branch to use to compare against ORIGIN_BRANCH')
+        stringParam("SRC_BRANCH", null,
+                    'Branch to use to compare against DEST_BRANCH')
         stringParam("JOB_DESCRIPTION", "",
                     'Description of the job for informational purposes.')
       }
@@ -82,9 +82,9 @@ class OSRFLinuxABI
           if (job_description == "")
           {
             job_description = 'origin branch: ' +
-              '<b>' + build.buildVariableResolver.resolve('ORIGIN_BRANCH') + '</b><br />' +
+              '<b>' + build.buildVariableResolver.resolve('DEST_BRANCH') + '</b><br />' +
               'target branch: ' +
-              '<b>' + build.buildVariableResolver.resolve('TARGET_BRANCH') + '</b><br />' +
+              '<b>' + build.buildVariableResolver.resolve('SRC_BRANCH') + '</b><br />' +
               '<br />' +
               'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH');
           }

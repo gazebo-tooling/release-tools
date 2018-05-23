@@ -150,17 +150,6 @@ ignition_software.each { ign_sw ->
                not {
                  expression('${ENV, var="DEST_BRANCH"}', 'default')
                }
-
-               steps {
-                 downstreamParameterized {
-                   trigger(abi_job_names[ign_sw]) {
-                     parameters {
-                       predefinedProp("ORIGIN_BRANCH", '$DEST_BRANCH')
-                       predefinedProp("TARGET_BRANCH", '$SRC_BRANCH')
-                     }
-                   }
-                 }
-               }
              }
            }
 
