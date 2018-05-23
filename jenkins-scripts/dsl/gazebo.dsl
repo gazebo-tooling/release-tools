@@ -100,6 +100,13 @@ ci_distro.each { distro ->
                not {
                  expression('${ENV, var="DEST_BRANCH"}', 'default')
                }
+
+               steps {
+                 downstreamParameterized {
+                   trigger("${abi_job_name}") {
+                   }
+                 }
+               }
              }
            }
 
