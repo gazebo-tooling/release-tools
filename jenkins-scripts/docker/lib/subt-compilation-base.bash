@@ -3,7 +3,7 @@
 case ${DISTRO} in
   'xenial')
     ROS_DISTRO=kinetic
-    PKG_VERSION="9"
+    GAZEBO_VERSION_FOR_ROS="9"
     ;;
   *)
     echo "Unsupported DISTRO: ${DISTRO}"
@@ -37,17 +37,7 @@ rm /tmp/default.tar.gz
 # Generate the first part of the build.sh file for ROS
 . ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash "subt"
 
-# don't have rosdep at this point and want gazebo to be cached by docker
-DEPENDENCY_PKGS="mercurial curl python git
-                 gazebo${PKG_VERSION}
-		 libgazebo${PKG_VERSION}-dev
-                 ros-${ROS_DISTRO}-ros-base
-		 ${ROS_CATKIN_BASE}
-		 ros-${ROS_DISTRO}-gazebo${PKG_VERSION}-dev
-		 ros-${ROS_DISTRO}-gazebo${PKG_VERSION}-plugins
-		 ros-${ROS_DISTRO}-gazebo${PKG_VERSION}-ros
-		 ros-${ROS_DISTRO}-gazebo${PKG_VERSION}-ros-pkgs
-		 ros-${ROS_DISTRO}-xacro"
+BUILDING_PKG_DEPENDENCIES_VAR_NAME="SUBT_DEPENDENCIES"
 # ROS packages come from the mirror in the own subt repository
 USE_ROS_REPO=true
 OSRF_REPOS_TO_USE="stable"

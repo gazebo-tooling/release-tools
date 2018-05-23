@@ -676,3 +676,19 @@ DRAKE_DEPENDENCIES="alien               \\
                     valgrind            \\
                     zip                 \\
                     zlib1g-dev"
+
+#
+# SUBT
+#
+SUBT_DEPENDENCIES="mercurial                                                  \\
+                   curl                                                       \\
+                   git                                                        \\
+                   gazebo${GAZEBO_VERSION_FOR_ROS}                            \\
+                   libgazebo${GAZEBO_VERSION_FOR_ROS}-dev                     \\
+                   ros-${ROS_DISTRO}-ros-base                                 \\
+                   ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-dev      \\
+                   ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-plugins  \\
+                   ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros      \\
+                   ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros-pkgs \\
+                   ros-${ROS_DISTRO}-xacro                                    \\
+                   ${ROS_CATKIN_BASE}"
