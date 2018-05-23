@@ -2,7 +2,7 @@
 
 case ${DISTRO} in
   'xenial')
-    ROS_DISTRO=bionic
+    ROS_DISTRO=melodic
     # GAZEBO_VERSION_FOR_ROS="9" defualt version in Bionic
     ;;
   *)
