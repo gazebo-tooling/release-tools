@@ -307,17 +307,19 @@ def check_call(cmd, ignore_dry_run = False):
         return out, err
 
 # Returns: sha, tarball file name, tarball full path
-def create_tarball_path(tarball_name, version, builddir):
+def create_tarball_path(tarball_name, version, builddir, dry_run):
     tarball_fname = '%s-%s.tar.bz2'%(tarball_name, version)
     # Try using the tarball_name as it is
     tarball_path = os.path.join(builddir, tarball_fname)
+
     if not os.path.isfile(tarball_path):
         # Try looking for special project names using underscores
         alt_tarball_name = "_".join(tarball_name.rsplit("-",1))
         alt_tarball_fname = '%s-%s.tar.bz2'%(alt_tarball_name, version)
         alt_tarball_path = os.path.join(builddir, alt_tarball_fname)
-        if not os.path.isfile(alt_tarball_path):
-            error("Can not find a tarball at: " + tarball_path + " or at " + alt_tarball_path)
+        if (not dry_run):
+            if not os.path.isfile(alt_tarball_path):
+                error("Can not find a tarball at: " + tarball_path + " or at " + alt_tarball_path)
         tarball_path = alt_tarball_path
 
     shasum_out_err = check_call(['shasum', '--algorithm', '256', tarball_path])
@@ -363,7 +365,7 @@ def generate_upload_tarball(args):
     if IGN_REPO:
         tarball_name = re.sub(r'[0-9]$','', args.package_alias)
 
-    tarball_sha, tarball_fname, tarball_path = create_tarball_path(tarball_name, args.version, builddir)
+    tarball_sha, tarball_fname, tarball_path = create_tarball_path(tarball_name, args.version, builddir, args.dry_run)
 
     # If we're releasing under a different name, then rename the tarball (the
     # package itself doesn't know anything about this).
