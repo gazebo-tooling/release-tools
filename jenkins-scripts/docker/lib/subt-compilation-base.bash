@@ -2,8 +2,8 @@
 
 case ${DISTRO} in
   'xenial')
-    ROS_DISTRO=kinetic
-    GAZEBO_VERSION_FOR_ROS="9"
+    ROS_DISTRO=bionic
+    # GAZEBO_VERSION_FOR_ROS="9" defualt version in Bionic
     ;;
   *)
     echo "Unsupported DISTRO: ${DISTRO}"
@@ -20,24 +20,33 @@ DOCKER_JOB_NAME="subt_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 
-export ROS_SETUP_PREINSTALL_HOOK="""
-mkdir -p /etc/ros/rosdep/sources.list.d/
-wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gazebo9/00-gazebo9.list -O /etc/ros/rosdep/sources.list.d/00-gazebo9.list
-"""
-
 export ROS_SETUP_POSTINSTALL_HOOK="""
+echo '# BEGIN SECTION: smoke test'
 wget -P /tmp/ https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz
 mkdir -p ~/.gazebo/models
 tar -xvf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
 rm /tmp/default.tar.gz
 
 pwd
-find ${WORKSPACE} -name setup.bash
+find . -name setup.bash
 
 # Test installation
 roslaunch subt_gazebo lava_tube.launch || true
 
-catkin env 'timeout --preserve-status 180 roslaunch subt_gazebo lava_tube.launch'
+catkin env 'timeout --preserve-status 180 roslaunch subt_gazebo lava_tube.launch extra_gazebo_args:=verbose' || true
+
+TEST_START=\$(date +%s)
+timeout --preserve-status \$TEST_TIMEOUT roslaunch servicesim servicesim.launch headless:=true extra_gazebo_args:=\"--verbose\"
+TEST_END=\$(date +%s)
+DIFF=\$(expr \$TEST_END - \$TEST_START)
+
+if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
+  echo \"The test took less than \$TEST_TIMEOUT. Something bad happened.\"
+  exit 1
+fi
+
+echo 'Smoke testing completed successfully.'
+echo '# END SECTION'
 """
 
 # Generate the first part of the build.sh file for ROS
