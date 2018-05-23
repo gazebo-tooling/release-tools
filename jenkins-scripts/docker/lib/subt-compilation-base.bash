@@ -32,16 +32,10 @@ mkdir -p ~/.gazebo/models
 tar -xvf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
 rm /tmp/default.tar.gz
 
-pwd
-find . -name setup.bash
-
-# Test installation
-roslaunch subt_gazebo lava_tube.launch || true
-
-catkin env 'timeout --preserve-status 180 roslaunch subt_gazebo lava_tube.launch extra_gazebo_args:=verbose' || true
+source ./devel/setup.bash
 
 TEST_START=\$(date +%s)
-timeout --preserve-status \$TEST_TIMEOUT roslaunch servicesim servicesim.launch headless:=true extra_gazebo_args:=\"--verbose\"
+timeout --preserve-status 180 \$TEST_TIMEOUT roslaunch subt_gazebo lava_tube.taunch extra_gazebo_args:=\"--verbose\"
 TEST_END=\$(date +%s)
 DIFF=\$(expr \$TEST_END - \$TEST_START)
 
