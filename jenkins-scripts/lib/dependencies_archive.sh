@@ -676,10 +676,9 @@ DRAKE_DEPENDENCIES="alien               \\
                     valgrind            \\
                     zip                 \\
                     zlib1g-dev"
-
 #
 # SUBT
-#
+# 
 SUBT_DEPENDENCIES="mercurial                                                  \\
                    wget                                                       \\
                    curl                                                       \\

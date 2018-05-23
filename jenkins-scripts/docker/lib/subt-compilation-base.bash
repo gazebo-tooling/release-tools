@@ -35,7 +35,7 @@ rm /tmp/default.tar.gz
 # Generate the first part of the build.sh file for ROS
 . ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash "subt"
 
-BUILDING_PKG_DEPENDENCIES_VAR_NAME="SUBT_DEPENDENCIES"
+DEPENDENCY_PKGS="${SUBT_DEPENDENCIES}"
 # ROS packages come from the mirror in the own subt repository
 USE_ROS_REPO=true
 OSRF_REPOS_TO_USE="stable"
