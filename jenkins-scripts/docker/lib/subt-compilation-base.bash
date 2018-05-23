@@ -6,9 +6,9 @@ case ${DISTRO} in
     GAZEBO_VERSION_FOR_ROS="9"
     ;;
   'bionic')
-    ROS_DISTRO=melodic
     # 9 is the default version in Bionic
-    GAZEBO_VERSION_FOR_ROS=""
+    ROS_DISTRO=melodic
+    USE_DEFAULT_GAZEBO_VERSION_FOR_ROS=true
     ;;
   *)
     echo "Unsupported DISTRO: ${DISTRO}"
