@@ -154,6 +154,9 @@ ignition_software.each { ign_sw ->
                steps {
                  downstreamParameterized {
                    trigger(abi_job_names[ign_sw]) {
+                     parameters {
+                       currentBuild()
+                     }
                    }
                  }
                }

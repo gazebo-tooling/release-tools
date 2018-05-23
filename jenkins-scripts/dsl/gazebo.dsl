@@ -104,6 +104,9 @@ ci_distro.each { distro ->
                steps {
                  downstreamParameterized {
                    trigger("${abi_job_name}") {
+                     parameters {
+                       currentBuild()
+                     }
                    }
                  }
                }
