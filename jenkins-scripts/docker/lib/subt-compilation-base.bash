@@ -19,9 +19,13 @@ export ENABLE_REAPER=false
 DOCKER_JOB_NAME="subt_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
-export ROS_SETUP_POSTINSTALL_HOOK="""
+
+export ROS_SETUP_PREINSTALL_HOOK="""
 mkdir -p /etc/ros/rosdep/sources.list.d/
 wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gazebo9/00-gazebo9.list -O /etc/ros/rosdep/sources.list.d/00-gazebo9.list
+"""
+
+export ROS_SETUP_POSTINSTALL_HOOK="""
 wget -P /tmp/ https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz
 mkdir -p ~/.gazebo/models
 tar -xvf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
