@@ -7,6 +7,7 @@ def all_supported_distros = ci_distro + other_supported_distros
 def supported_arches = [ 'amd64' ]
 
 def DISABLE_TESTS = false
+def DISABLE_CPPCHECK = false
 // Globals.extra_emails = "caguero@osrfoundation.org"
 
 void include_parselog(Job job)
@@ -30,7 +31,7 @@ ci_distro.each { distro ->
     def subt_ci_job = job("subt-ci-default-${distro}-${arch}")
 
     // Use the linux compilation as base
-    OSRFLinuxCompilation.create(subt_ci_job, DISABLE_TESTS)
+    OSRFLinuxCompilation.create(subt_ci_job, DISABLE_TESTS, DISABLE_CPPCHECK)
     // GPU label and parselog
     include_parselog(subt_ci_job)
 
@@ -64,7 +65,7 @@ ci_distro.each { distro ->
     def subt_ci_any_job = job("subt-ci-pr_any-${distro}-${arch}")
     OSRFLinuxCompilationAny.create(subt_ci_any_job,
                                   'https://bitbucket.org/osrf/subt',
-                                  DISABLE_TESTS)
+                                  DISABLE_TESTS, DISABLE_CPPCHECK)
     // GPU label and parselog
     include_parselog(subt_ci_any_job)
 
@@ -93,7 +94,7 @@ other_supported_distros.each { distro ->
     def subt_ci_job = job("subt-ci-default-${distro}-${arch}")
 
     // Use the linux compilation as base
-    OSRFLinuxCompilation.create(subt_ci_job, DISABLE_TESTS)
+    OSRFLinuxCompilation.create(subt_ci_job, DISABLE_TESTS, DISABLE_CPPCHECK)
     // GPU label and parselog
     include_parselog(subt_ci_job)
 
