@@ -1,3 +1,4 @@
+import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 def ci_distro = [ 'xenial' ]
@@ -92,7 +93,6 @@ other_supported_distros.each { distro ->
     // Use the linux compilation as base
     OSRFLinuxCompilation.create(subt_ci_job)
     // GPU label and parselog
-    include_gpu_label(subt_ci_job, distro)
     include_parselog(subt_ci_job)
 
     subt_ci_job.with
@@ -103,6 +103,8 @@ other_supported_distros.each { distro ->
             subdirectory('subt')
           }
         }
+        
+        label "gpu-reliable"
 
         triggers {
           scm('@daily')
@@ -129,7 +131,6 @@ all_supported_distros.each { distro ->
     def install_default_job = job("subt-install_pkg-${distro}-${arch}")
     OSRFLinuxInstall.create(install_default_job)
     // GPU label and parselog
-    include_gpu_label(install_default_job, distro)
     include_parselog(install_default_job)
 
     install_default_job.with
@@ -140,6 +141,8 @@ all_supported_distros.each { distro ->
 
       // no package yet
       disabled()
+
+      label "gpu-reliable"
 
       steps {
         shell("""\
