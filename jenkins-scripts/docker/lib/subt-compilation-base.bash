@@ -30,6 +30,14 @@ wget -P /tmp/ https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz
 mkdir -p ~/.gazebo/models
 tar -xvf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
 rm /tmp/default.tar.gz
+
+pwd
+find ${WORKSPACE} -name setup.bash
+
+# Test installation
+roslaunch subt_gazebo lava_tube.launch || true
+
+catkin env 'timeout --preserve-status 180 roslaunch subt_gazebo lava_tube.launch'
 """
 
 # Generate the first part of the build.sh file for ROS
