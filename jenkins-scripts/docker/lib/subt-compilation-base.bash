@@ -1,9 +1,13 @@
 #!/bin/bash -x
 
 case ${DISTRO} in
-  'xenial')
+  'kinetic')
     ROS_DISTRO=melodic
-    # GAZEBO_VERSION_FOR_ROS="9" defualt version in Bionic
+    GAZEBO_VERSION_FOR_ROS="9"
+    ;;
+  'bionic')
+    ROS_DISTRO=melodic
+    # 9 is the default version in Bionic
     ;;
   *)
     echo "Unsupported DISTRO: ${DISTRO}"
