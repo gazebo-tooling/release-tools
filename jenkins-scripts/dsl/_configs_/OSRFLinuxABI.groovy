@@ -43,9 +43,10 @@ class OSRFLinuxABI
                     '$PROJECT_NAME - Branches: $DEST_BRANCH, $SRC_BRANCH (#$BUILD_NUMBER) - $BUILD_STATUS!')
     GenericMail.update_field(job, 'defaultContent',
                     '$JOB_DESCRIPTION \n' +
-                    'origin branch: $DEST_BRANCH \n' +
-                    'target branch: $SRC_BRANCH \n' +
-                    'RTOOLS branch: $RTOOLS_BRANCH \n' +
+                    'destination branch: $DEST_BRANCH \n' +
+                    'source branch:      $SRC_BRANCH \n' +
+                    'source repository:  $SRC_REPO \n' +
+                    'RTOOLS branch:      $RTOOLS_BRANCH \n' +
                     GenericMail.get_default_content() + '\n' +
                     'ABI report   : $BUILD_URL/API_ABI_report/\n')
 
@@ -71,6 +72,8 @@ class OSRFLinuxABI
                     'Branch to use as base for the comparison')
         stringParam("SRC_BRANCH", null,
                     'Branch to use to compare against DEST_BRANCH')
+        stringParam('SRC_REPO', null,
+                    'URL pointing to repository containing SRC_BRANCH')
         stringParam("JOB_DESCRIPTION", "",
                     'Description of the job for informational purposes.')
       }
@@ -81,10 +84,12 @@ class OSRFLinuxABI
 
           if (job_description == "")
           {
-            job_description = 'origin branch: ' +
+            job_description = 'destination branch: ' +
               '<b>' + build.buildVariableResolver.resolve('DEST_BRANCH') + '</b><br />' +
-              'target branch: ' +
+              'source branch: ' +
               '<b>' + build.buildVariableResolver.resolve('SRC_BRANCH') + '</b><br />' +
+              'source repository: ' +
+              '<b>' + build.buildVariableResolver.resolve('SRC_REPO') + '</b><br />' +
               '<br />' +
               'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH');
           }
