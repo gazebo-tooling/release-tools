@@ -36,7 +36,8 @@ abi_distro.each { distro ->
     abi_job_name = "sdformat-abichecker-any_to_any-${distro}-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABI.create(abi_job)
-    OSRFBitbucketHg.create(abi_job, "https://bitbucket.org/osrf/sdformat")
+    OSRFBitbucketHg.create(abi_job, "https://bitbucket.org/osrf/sdformat",
+                                    '${DEST_BRANCH}')
 
     abi_job.with
     {
@@ -102,8 +103,7 @@ ci_distro.each { distro ->
                downstreamParameterized {
                  trigger("${abi_job_name}") {
                    parameters {
-                     predefinedProp("ORIGIN_BRANCH", '$DEST_BRANCH')
-                     predefinedProp("TARGET_BRANCH", '$SRC_BRANCH')
+                     currentBuild()
                    }
                  }
                }

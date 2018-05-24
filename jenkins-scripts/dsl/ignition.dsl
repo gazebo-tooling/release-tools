@@ -109,7 +109,7 @@ ignition_software.each { ign_sw ->
       OSRFLinuxABI.create(abi_job)
       OSRFBitbucketHg.create(abi_job,
                             "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
-                            '${TARGET_BRANCH}', checkout_subdir)
+                            '${DEST_BRANCH}', checkout_subdir)
       abi_job.with
       {
         steps {
@@ -155,8 +155,7 @@ ignition_software.each { ign_sw ->
                  downstreamParameterized {
                    trigger(abi_job_names[ign_sw]) {
                      parameters {
-                       predefinedProp("ORIGIN_BRANCH", '$DEST_BRANCH')
-                       predefinedProp("TARGET_BRANCH", '$SRC_BRANCH')
+                       currentBuild()
                      }
                    }
                  }
