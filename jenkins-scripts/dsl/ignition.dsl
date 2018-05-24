@@ -196,10 +196,14 @@ ignition_software.each { ign_sw ->
             (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
             (("${ign_sw}" == "math") && ("${major_version}" == "3"))))
           return
-        // bionic for math2 or math3
+        // no bionic for math2 or math3
         if (("${distro}" == "bionic") && (
             (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
             (("${ign_sw}" == "math") && ("${major_version}" == "3"))))
+          return
+        // no bionic for transport3
+        if (("${distro}" == "bionic") && (
+            ("${ign_sw}" == "transport") && ("${major_version}" == "3")))
           return
 
         // No 1-dev packages, unversioned
