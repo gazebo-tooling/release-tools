@@ -19,6 +19,12 @@ void include_parselog(Job job)
             globalRules('/var/lib/jenkins/logparser_error_on_roslaunch_failed')
             failBuildOnError()
         }
+        // Needed to detect problems in test compilation since at that step the
+        // return is always true (don't want to fail build on failing tests).
+        consoleParsing {
+            globalRules('/var/lib/jenkins/logparser_error_on_failed_compilation')
+            failBuildOnError()
+        }
     }
   }
 }
