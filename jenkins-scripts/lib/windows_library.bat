@@ -28,6 +28,7 @@ IF %PLATFORM_TO_BUILD% == x86 (
   set MSVC_KEYWORD=x86_amd64
   set PLATFORM_TO_BUILD=amd64
   set VCPKG_DEFAULT_TRIPLET=x64-windows
+  set PreferredToolArchitecture=x64
 )
 
 echo "Configure the VC++ compilation"
