@@ -599,10 +599,12 @@ IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
                             mesa-common-dev \\
                             mesa-utils"
 
-IGN_SENSORS_DEPENDENCIES="libignition-common-dev     \\
-                          libignition-math4-dev      \\
-                          libignition-msgs-dev       \\
-                          libignition-transport4-dev \\
+IGN_SENSORS_DEPENDENCIES="libignition-common2-dev     \\
+                          libignition-cmake1-dev \\
+                          libignition-math5-dev      \\
+                          libignition-msgs2-dev       \\
+                          libignition-tools-dev \\
+                          libignition-transport5-dev \\
                           libsdformat6-dev"
 
 IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
