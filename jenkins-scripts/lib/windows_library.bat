@@ -178,7 +178,7 @@ set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
 
 :: The CMAKE_BUILD_TYPE is needed to workaround on issue 
-colcon build --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%" " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" --event-handler console_cohesion+ || echo "%HOMEPATH%/.colcon/latest" & type "%HOMEPATH%/.colcon/latest" & goto :error
+colcon build --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%" " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" --event-handler console_cohesion+ || type %HOMEPATH%/.colcon/latest & goto :error
 goto :EOF
 
 :: ##################################
