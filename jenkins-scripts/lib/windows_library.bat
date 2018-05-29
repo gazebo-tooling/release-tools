@@ -177,7 +177,8 @@ goto :EOF
 set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
 
-colcon build --event-handler console_cohesion+ --cmake-args " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" || echo "%HOMEPATH%/.colcon/latest" & type "%HOMEPATH%/.colcon/latest" & goto :error
+:: The CMAKE_BUILD_TYPE is needed to workaround on issue https://github.com/Microsoft/vcpkg/issues/2979
+colcon build --event-handler console_cohesion+ --cmake-args "-DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" || echo "%HOMEPATH%/.colcon/latest" & type "%HOMEPATH%/.colcon/latest" & goto :error
 goto :EOF
 
 :: ##################################
