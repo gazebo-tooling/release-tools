@@ -190,7 +190,7 @@ goto :EOF
 :: arg1: package whitelist to test
 :tests_in_workspace
 
-colcon test --event-handler console_cohesion+ --package-whitelist %COLCON_PACKAGE%  || goto :error
+colcon test --event-handler console_cohesion+ --package-select %COLCON_PACKAGE%  || goto :error
 colcon test-result --all
 goto :EOF
 
