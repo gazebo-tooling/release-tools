@@ -190,8 +190,8 @@ goto :EOF
 :: arg1: package whitelist to test
 :tests_in_workspace
 
-colcon test --event-handler console_direct+ --packages-select %COLCON_PACKAGE%  || goto :error
-colcon test-result --all
+colcon test --build-base "build" --event-handler --install-base "install" --merge-install console_direct+ --packages-select %COLCON_PACKAGE% --executor sequential || goto :error
+colcon test-result --build-base "build" --all
 goto :EOF
 
 :: ##################################
