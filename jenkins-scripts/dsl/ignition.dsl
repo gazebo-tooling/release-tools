@@ -24,6 +24,10 @@ ignition_branches           = [ 'common'     : [ '1' ],
                                 'math'       : [ '2', '3','4' ],
                                 'msgs'       : [ '1' ],
                                 'transport'  : [ '3','4' ]]
+// packages using colcon for windows compilation while migrating all them to
+// this solution
+ignition_colcon_win         = [ 'physics', 'rendering', 'sensors', 'gui' ]
+
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
 def abi_distro              = Globals.get_abi_distro()
@@ -91,6 +95,14 @@ boolean enable_testing(String ign_software_name)
     return false
 
   return true
+}
+
+boolean is_a_colcon_package(String ign_software_name)
+{
+  if (ign_software_name in ignition_colcon_win)
+    return true
+
+  return false
 }
 
 // ABI Checker job
@@ -355,7 +367,13 @@ ignition_software.each { ign_sw ->
 
 // 1. any
 ignition_software.each { ign_sw ->
-  String ignition_win_ci_any_job_name = "ignition_${ign_sw}-ci-pr_any-windows7-amd64"
+  if (is_a_colcon_package(ign_sw))
+    // colcon uses long paths and windows has a hard limit of 260 chars. Keep
+    // names minimal
+    ignition_win_ci_any_job_name = "ign_${ign_sw}-pr-win"
+  else
+    ignition_win_ci_any_job_name = "ignition_${ign_sw}-ci-pr_any-windows7-amd64"
+
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAny.create(ignition_win_ci_any_job,
                                "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}",
@@ -374,12 +392,23 @@ ignition_software.each { ign_sw ->
 
   // 2. default, release branches
   all_branches("${ign_sw}").each { branch ->
-    def ignition_win_ci_job = job("ignition_${ign_sw}-ci-${branch}-windows7-amd64")
+    if (is_a_colcon_package(ign_sw)) {
+      // colcon uses long paths and windows has a hard limit of 260 chars. Keep
+      // names minimal
+      if (branch == 'default')
+        branch = "ci"
+      else
+        branch = branch - ign_sw
+      ignition_win_ci_job_name = "ign_${ign_sw}-${branch}-win"
+    } else {
+      ignition_win_ci_job_name = "ignition_${ign_sw}-ci-${branch}-windows7-amd64"
+    }
+
+    def ignition_win_ci_job = job(ignition_win_ci_job_name)
     OSRFWinCompilation.create(ignition_win_ci_job, enable_testing(ign_sw))
     OSRFBitbucketHg.create(ignition_win_ci_job,
                               "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
                               "${branch}", "ign-${ign_sw}")
-
     ignition_win_ci_job.with
     {
         triggers {
