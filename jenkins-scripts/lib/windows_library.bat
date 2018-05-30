@@ -178,7 +178,7 @@ set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
 
 :: The CMAKE_BUILD_TYPE is needed to workaround on issue 
-colcon build --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%" " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" --event-handler console_cohesion+ || type %HOMEPATH%/.colcon/latest & goto :error
+colcon build --build-base "build" --install-base "install" --merge-install --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%" " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" " -DBUILD_TESTING=1" --event-handler console_cohesion+ || type %HOMEPATH%/.colcon/latest & goto :error
 goto :EOF
 
 :: ##################################
@@ -190,7 +190,7 @@ goto :EOF
 :: arg1: package whitelist to test
 :tests_in_workspace
 
-colcon test --event-handler console_cohesion+ --package-select %COLCON_PACKAGE%  || goto :error
+colcon test --event-handler console_direct+ --packages-select %COLCON_PACKAGE%  || goto :error
 colcon test-result --all
 goto :EOF
 
