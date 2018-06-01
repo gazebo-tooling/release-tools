@@ -21,6 +21,7 @@ set TEST_RESULT_PATH=%WORKSPACE%\ws\build\%COLCON_PACKAGE%\test_results
 set EXPORT_TEST_RESULT_PATH=%WORKSPACE%\test_results
 set LOCAL_WS=%WORKSPACE%\ws
 set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS%\%VCS_DIRECTORY%
+set LOCAL_WS_BUILD=%WORKSPACE%\build
 
 :: default values
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
@@ -48,9 +49,11 @@ echo # END SECTION
 
 echo # BEGIN SECTION: setup workspace
 if NOT %KEEP_WORKSPACE% == 1 (
-  echo # BEGIN SECTION: preclean workspace
-  IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto :error
-  echo # END SECTION
+  IF exist %LOCAL_WS_BUILD% ( 
+     echo # BEGIN SECTION: preclean workspace
+     rmdir /s /q %LOCAL_WS_BUILD% || goto :error
+     echo # END SECTION
+  ) 
 )
 mkdir %LOCAL_WS% || echo "Workspace already exists!"
 cd %LOCAL_WS%
