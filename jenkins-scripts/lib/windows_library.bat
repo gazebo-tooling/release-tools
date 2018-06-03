@@ -18,7 +18,7 @@ set MSVC_KEYWORD=%PLATFORM_TO_BUILD%
 IF %PLATFORM_TO_BUILD% == x86 (
   echo "Using 32bits VS configuration"
   set BITNESS=32
-  set VCPKG_DEFAULT_TRIPLET=x86-windows
+  set VCPKG_TARGET_TRIPLET=x86-windows
 ) ELSE (
   REM Visual studio is accepting many keywords to compile for 64bits
   REM We need to set x86_amd64 to make express version to be able to
@@ -27,7 +27,7 @@ IF %PLATFORM_TO_BUILD% == x86 (
   set BITNESS=64
   set MSVC_KEYWORD=x86_amd64
   set PLATFORM_TO_BUILD=amd64
-  set VCPKG_DEFAULT_TRIPLET=x64-windows
+  set VCPKG_TARGET_TRIPLET=x64-windows
   set PreferredToolArchitecture=x64
 )
 
@@ -178,7 +178,7 @@ set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
 
 :: The CMAKE_BUILD_TYPE is needed to workaround on issue 
-colcon build --build-base "build" --install-base "install" --merge-install --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%" " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" " -DBUILD_TESTING=1" --event-handler console_cohesion+ || type %HOMEPATH%/.colcon/latest & goto :error
+colcon build --build-base "build" --install-base "install" --merge-install --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%" " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" " -DVCPKG_TARGET_TRIPLET=%VCPKG_TARGET_TRIPLET%" " -DBUILD_TESTING=1" --event-handler console_cohesion+ || type %HOMEPATH%/.colcon/latest & goto :error
 goto :EOF
 
 :: ##################################
