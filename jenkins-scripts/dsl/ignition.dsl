@@ -409,10 +409,10 @@ ignition_software.each { ign_sw ->
       // colcon uses long paths and windows has a hard limit of 260 chars. Keep
       // names minimal
       if (branch == 'default')
-        branch = "ci"
+        branch_name = "ci"
       else
-        branch = branch - ign_sw
-      ignition_win_ci_job_name = "ign_${ign_sw}-${branch}-win"
+        branch_name = branch - ign_sw
+      ignition_win_ci_job_name = "ign_${ign_sw}-${branch_name}-win"
     } else {
       ignition_win_ci_job_name = "ignition_${ign_sw}-ci-${branch}-windows7-amd64"
     }
