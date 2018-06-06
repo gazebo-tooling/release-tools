@@ -49,7 +49,7 @@ echo # END SECTION
 
 echo # BEGIN SECTION: setup workspace
 if defined KEEP_WORKSPACE (
-  if %KEEP_WORKSPACE% == "true" (
+  if "%KEEP_WORKSPACE%" == "true" (
     if exist %LOCAL_WS_BUILD% (
       echo # BEGIN SECTION: preclean workspace
       rmdir /s /q %LOCAL_WS_BUILD% || goto :error
