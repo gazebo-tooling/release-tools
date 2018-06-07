@@ -14,13 +14,17 @@ cat > build.sh << DELIM
 set -ex
 
 RESULT_DIR=${WORKSPACE}/shellcheck_results
+COMMON_OPTS="--exclude SC2034 --format checkstyle"
 
 [[ -d \${RESULT_DIR} ]] && rm -fr \${RESULT_DIR}
 mkdir \${RESULT_DIR}
 
+BASH_FILES=\$(find ${WORKSPACE}/release-tools -name '*.bash')
+SH_FILES=\$(find ${WORKSPACE}/release-tools -name '*.sh')
+
 echo '# BEGIN SECTION: run shellcheck'
-find ${WORKSPACE}/release-tools -name '*.bash' -exec shellcheck --shell=bash --exclude SC2034 {} \;
-find ${WORKSPACE}/release-tools -name '*.bash' -exec shellcheck --shell=bash --exclude SC2034 --format checkstyle -- {} \; >>  \${RESULT_DIR}/shellcheck.xml
+shellcheck --shell=bash \${COMMON_OPTS} -- \${BASH_FILES} > \${RESULT_DIR}/shellcheck_bash.xml
+shellcheck --shell=sh \${COMMON_OPTS} -- \${SH_FILES} > \${RESULT_DIR}/shellcheck_sh.xml
 echo '# END SECTION'
 DELIM
 
