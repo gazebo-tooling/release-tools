@@ -23,8 +23,8 @@ BASH_FILES=\$(find ${WORKSPACE}/release-tools -name '*.bash')
 SH_FILES=\$(find ${WORKSPACE}/release-tools -name '*.sh')
 
 echo '# BEGIN SECTION: run shellcheck'
-shellcheck --shell=bash \${COMMON_OPTS} -- \${BASH_FILES} > \${RESULT_DIR}/shellcheck_bash.xml
-shellcheck --shell=sh \${COMMON_OPTS} -- \${SH_FILES} > \${RESULT_DIR}/shellcheck_sh.xml
+shellcheck --shell=bash \${COMMON_OPTS} -- \${BASH_FILES} > \${RESULT_DIR}/shellcheck_bash.xml || true
+shellcheck --shell=sh \${COMMON_OPTS} -- \${SH_FILES} > \${RESULT_DIR}/shellcheck_sh.xml || true
 echo '# END SECTION'
 DELIM
 
