@@ -20,6 +20,16 @@ void include_default_params(Job job, String distro, String arch)
 	    /bin/bash -xe ./scripts/jenkins-scripts/docker/release-tools-checker.bash
 	    """.stripIndent())
     }
+
+    publishers {
+      checkstyle('**/shellcheck_results/*') {
+         defaultEncoding('UTF-8')
+         thresholds(
+           unstableTotal: [all: 1,  high: 0, normal: 300, low: 805],
+           unstableNew:   [all: 0,  high: 0, normal: 0, low: 0],
+           failedNew:     [all: 0,  high: 0, normal: 0, low: 0])
+      }
+    }
   }
 }
 
@@ -50,11 +60,6 @@ supported_distros.each { distro ->
     include_default_params(rtools_any_job, distro, arch)
     rtools_any_job.with
     {
-      publishers {
-        checkstyle('**/shellcheck_results/*') {
-           defaultEncoding('UTF-8')
-        }
-      }
     }
   }
 }
