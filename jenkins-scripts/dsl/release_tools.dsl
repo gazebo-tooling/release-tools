@@ -34,7 +34,7 @@ supported_distros.each { distro ->
       scm {
 	hg("https://bitbucket.org/osrf/release-tools") {
 	  branch('default')
-	  subdirectory("repo")
+	  subdirectory("release-tools")
 	}
       }
 
