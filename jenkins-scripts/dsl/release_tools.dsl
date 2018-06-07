@@ -58,8 +58,5 @@ supported_distros.each { distro ->
     OSRFLinuxCompilationAny.create(rtools_any_job,
                                     "https://bitbucket.org/osrf/release-tools", false, false)
     include_default_params(rtools_any_job, distro, arch)
-    rtools_any_job.with
-    {
-    }
   }
 }
