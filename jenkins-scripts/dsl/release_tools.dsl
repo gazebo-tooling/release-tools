@@ -6,7 +6,7 @@ Globals.default_emails = "jrivero@osrfoundation.org"
 def supported_distros = [ 'bionic' ]
 def supported_arches = [ 'amd64' ]
 
-void include_default_params(Job job)
+void include_default_params(Job job, String distro, String arch)
 {
   job.with
   {
@@ -28,7 +28,7 @@ supported_distros.each { distro ->
     // 1. ci default
     def ci_job = job("release-tools-ci-default-${distro}-${arch}")
     OSRFLinuxCompilation.create(ci_job)
-    include_default_params(ci_job)
+    include_default_params(ci_job, distro, arch)
     ci_job.with
     {
       scm {
@@ -47,6 +47,6 @@ supported_distros.each { distro ->
     def rtools_any_job = job("release-tools-ci-pr_any-${distro}-${arch}")
     OSRFLinuxCompilationAny.create(rtools_any_job,
                                     "https://bitbucket.org/osrf/release-tools", false, true)
-    include_default_params(rtools_any_job)
+    include_default_params(ci_job, distro, arch)
   }
 }
