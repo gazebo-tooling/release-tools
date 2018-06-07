@@ -19,7 +19,7 @@ RESULT_DIR=${WORKSPACE}/cppcheck_results
 mkdir \${RESULT_DIR}
 
 echo '# BEGIN SECTION: run shellcheck'
-find ${WORKSPACE}/release-tools -name '*.bash' -exec shellcheck --shell=bash --exclude SC2034 --formatcheckstyle -- {} \; >  ${RESULT_DIR}/*.xml
+find ${WORKSPACE}/release-tools -name '*.bash' -exec shellcheck --shell=bash --exclude SC2034 --format checkstyle -- {} \; >  ${RESULT_DIR}/*.xml
 echo '# END SECTION'
 DELIM
 
