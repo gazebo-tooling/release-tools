@@ -15,8 +15,8 @@ set -ex
 
 RESULT_DIR=${WORKSPACE}/cppcheck_results
 
-[[ -d ${RESULT_DIR} ]] && rm -fr ${RESULT_DIR}
-mkdir ${RESULT_DIR}
+[[ -d \${RESULT_DIR} ]] && rm -fr \${RESULT_DIR}
+mkdir \${RESULT_DIR}
 
 echo '# BEGIN SECTION: run shellcheck'
 cd ${WORKSPACE}/repo
