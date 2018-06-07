@@ -13,7 +13,7 @@ cat > build.sh << DELIM
 #!/usr/bin/env bash
 set -ex
 
-RESULT_DIR=${WORKSPACE}/cppcheck_results
+RESULT_DIR=${WORKSPACE}/shellcheck_results
 
 [[ -d \${RESULT_DIR} ]] && rm -fr \${RESULT_DIR}
 mkdir \${RESULT_DIR}
