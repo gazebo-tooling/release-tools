@@ -19,7 +19,7 @@ RESULT_DIR=${WORKSPACE}/cppcheck_results
 mkdir \${RESULT_DIR}
 
 echo '# BEGIN SECTION: run shellcheck'
-cd ${WORKSPACE}/repo
+cd ${WORKSPACE}/release-tools
 find . -name '*.bash' -exec shellcheck --shell=bash --exclude SC2034 --formatcheckstyle  --  {} \\; >  build/cppcheck_results/*.xml
 
 echo '# END SECTION'
