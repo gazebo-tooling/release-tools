@@ -23,12 +23,12 @@ find . -name '*.bash' -exec shellcheck --shell=bash --exclude SC2034 --formatche
 echo '# END SECTION'
 DELIM
 
-. ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
-. ${SCRIPT_DIR}/lib/docker_run.bash
-
 OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
 DEPENDENCY_PKGS="devscripts \
 		 ubuntu-dev-tools \
 		 debhelper \
 		 wget \
                  shellcheck"
+
+. ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
+. ${SCRIPT_DIR}/lib/docker_run.bash
