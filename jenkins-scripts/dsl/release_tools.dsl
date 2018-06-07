@@ -34,7 +34,7 @@ supported_distros.each { distro ->
       scm {
 	hg("https://bitbucket.org/osrf/release-tools") {
 	  branch('default')
-	  subdirectory("drcsim")
+	  subdirectory("release-tools")
 	}
       }
 
@@ -47,6 +47,6 @@ supported_distros.each { distro ->
     def rtools_any_job = job("release-tools-ci-pr_any-${distro}-${arch}")
     OSRFLinuxCompilationAny.create(rtools_any_job,
                                     "https://bitbucket.org/osrf/release-tools", false, true)
-    include_default_params(ci_job, distro, arch)
+    include_default_params(rtools_any_job, distro, arch)
   }
 }
