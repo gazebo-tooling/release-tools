@@ -4,6 +4,8 @@
 [[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
+. ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
@@ -23,7 +25,7 @@ find . -name '*.bash' -exec shellcheck --shell=bash --exclude SC2034 --formatche
 echo '# END SECTION'
 DELIM
 
-OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
+OSRF_REPOS_TO_USE="stable"
 DEPENDENCY_PKGS="devscripts \
 		 ubuntu-dev-tools \
 		 debhelper \
