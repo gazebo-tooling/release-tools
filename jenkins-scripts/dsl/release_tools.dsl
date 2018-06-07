@@ -46,7 +46,15 @@ supported_distros.each { distro ->
     // 2. ci-pr-any-job
     def rtools_any_job = job("release-tools-ci-pr_any-${distro}-${arch}")
     OSRFLinuxCompilationAny.create(rtools_any_job,
-                                    "https://bitbucket.org/osrf/release-tools", false, true)
+                                    "https://bitbucket.org/osrf/release-tools", false, false)
     include_default_params(rtools_any_job, distro, arch)
+    rtools_any_job.with
+    {
+      publishers {
+        checkstyle('**/shellcheck_results/*') {
+           defaultEncoding('UTF-8')
+        }
+      }
+    }
   }
 }
