@@ -18,7 +18,7 @@
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 set TEST_RESULT_PATH=%WORKSPACE%\ws\build\%COLCON_PACKAGE%\test_results
-set EXPORT_TEST_RESULT_PATH=%WORKSPACE%\test_results
+set EXPORT_TEST_RESULT_PATH=%WORKSPACE%\build\test_results
 set LOCAL_WS=%WORKSPACE%\ws
 set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS%\%VCS_DIRECTORY%
 set LOCAL_WS_BUILD=%WORKSPACE%\build
