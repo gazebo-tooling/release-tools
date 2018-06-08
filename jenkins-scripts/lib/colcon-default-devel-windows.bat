@@ -58,7 +58,7 @@ if defined KEEP_WORKSPACE (
   )
 )
 mkdir %LOCAL_WS% || echo "Workspace already exists!"
-cd %LOCAL_WS%
+cd /d %LOCAL_WS%
 echo # END SECTION
 
 echo # BEGIN SECTION: get open robotics deps (%GAZEBODISTRO_FILE%) sources into the workspace
