@@ -82,7 +82,7 @@ echo # BEGIN SECTION: packages in workspace
 call %win_lib% list_workspace_pkgs || goto :error
 echo # END SECTION
 
-if exist ..\configure.bat (
+if exist %LOCAL_WS_SOFTWARE_DIR%\configure.bat (
   echo "DEPRECATED configure.bat file detected. It should be removed from upstream sources"
 )
 
