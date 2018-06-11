@@ -172,13 +172,40 @@ vcs import --retry 5  < "%gzdistro_dir%\%1" "%2" || goto :error
 goto :EOF
 
 :: ##################################
-:build_workspace
-
+:_colcon_build_cmd
+::
+:: The CMAKE_BUILD_TYPE is needed to workaround on issue
+:: https://github.com/Microsoft/vcpkg/issues/1626
+::
+:: arg1 colcon command line extra arguments
+:: arg2 colcon cmake extra command line arguments
 set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
 
-:: The CMAKE_BUILD_TYPE is needed to workaround on issue
-colcon build --build-base "build" --install-base "install" --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%" " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%" " -DVCPKG_TARGET_TRIPLET=%VCPKG_TARGET_TRIPLET%" " -DBUILD_TESTING=1" --event-handler console_cohesion+ || type %HOMEPATH%/.colcon/latest & goto :error
+set COLCON_EXTRA_ARGS=%1
+set COLCON_EXTRA_CMAKE_ARGS=%2
+
+colcon build --build-base "build"^
+             --install-base "install"^
+             %EXTRA_COLCON_ARGS%^
+             --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
+                          " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
+                          " -DVCPKG_TARGET_TRIPLET=%VCPKG_TARGET_TRIPLET%"^
+                          %COLCON_EXTRA_CMAKE_ARGS%^
+             --event-handler console_cohesion+ || type %HOMEPATH%/.colcon/latest & goto :error
+
+:: ##################################
+::
+:: Build all the workspaces packages except the package provided in arg1
+::
+:: arg1: name of the colcon package excluded from building
+:build_workspace
+
+set COLCON_PACKAGE=%1
+:: two runs to get the dependencies built with testing and the package under
+:: test build with tests
+_colcon_build_cmd "--packages-skip %COLCON_PACKAGE%" " -DBUILD_TESTING=0"
+_colcon_build_cmd "--packages-select %COLCON_PACKAGE%" " -DBUILD_TESTING=1"
 goto :EOF
 
 :: ##################################
@@ -189,6 +216,7 @@ goto :EOF
 :: ##################################
 :: arg1: package whitelist to test
 :tests_in_workspace
+set COLCON_PACKAGE=%1
 
 colcon test --build-base "build" --event-handler console_direct+ --install-base "install" --packages-select %COLCON_PACKAGE% --executor sequential || goto :error
 colcon test-result --build-base "build" --all
