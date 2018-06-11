@@ -204,8 +204,8 @@ colcon build --build-base "build"^
 set COLCON_PACKAGE=%1
 :: two runs to get the dependencies built with testing and the package under
 :: test build with tests
-call _colcon_build_cmd "--packages-skip %COLCON_PACKAGE%" " -DBUILD_TESTING=0"
-call _colcon_build_cmd "--packages-select %COLCON_PACKAGE%" " -DBUILD_TESTING=1"
+call :_colcon_build_cmd "--packages-skip %COLCON_PACKAGE%" " -DBUILD_TESTING=0"
+call :_colcon_build_cmd "--packages-select %COLCON_PACKAGE%" " -DBUILD_TESTING=1"
 goto :EOF
 
 :: ##################################
