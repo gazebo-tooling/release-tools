@@ -265,6 +265,11 @@ ignition_software.each { ign_sw ->
               ("${branch}" == "ign-math3")))
             disabled()
 
+          // no bionic for transport3
+          if (("${distro}" == "bionic") && (
+              ("${branch}" == "ign-transport3")))
+            disabled()
+
           steps {
             shell("""\
                   #!/bin/bash -xe
