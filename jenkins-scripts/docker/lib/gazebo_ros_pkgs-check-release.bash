@@ -75,7 +75,7 @@ USE_ROS_REPO=true
 # DEPENDENCY_PKGS. They would be automatically pulled by ROS_GAZEBO_PKGS
 # but won't be updated if docker cache is in use. Adding them to the
 # list will do it.
-DEPENDENCY_PKGS="${ROS_CATKIN_BASE} git \
+DEPENDENCY_PKGS="${ROS_CATKIN_BASE} git wget \
                  ${ROS_GAZEBO_PKGS} \
                  ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS} \
                  ${_GZ_ROS_PACKAGES}"
