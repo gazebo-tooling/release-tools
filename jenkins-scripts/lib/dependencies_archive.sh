@@ -570,7 +570,14 @@ else
 fi
 
 IGN_GUI_DEPENDENCIES="qtbase5-dev \\
-                      qtquick1-5-dev \\
+                      qtdeclarative5-dev \\
+                      qtquickcontrols2-5-dev \\
+                      qml-module-qtquick2 \\
+                      qml-module-qtquick-controls \\
+                      qml-module-qtquick-controls2 \\
+                      qml-module-qtquick-dialogs \\
+                      qml-module-qtquick-layouts \\
+                      qml-module-qt-labs-folderlistmodel \\
                       libignition-cmake1-dev \\
                       libignition-math5-dev \\
                       libignition-tools-dev \\
