@@ -99,7 +99,7 @@ done
 echo '# END SECTION'
 
 if [ `expr length "${ROS_SETUP_POSTINSTALL_HOOK} "` -gt 1 ]; then
-echo '# BEGIN SECTION: running pre TEST hook'
+echo '# BEGIN SECTION: running post install hook'
 ${ROS_SETUP_POSTINSTALL_HOOK}
 echo '# END SECTION'
 fi
