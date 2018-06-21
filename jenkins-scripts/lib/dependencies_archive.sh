@@ -570,7 +570,6 @@ else
 fi
 
 IGN_GUI_DEPENDENCIES="qtbase5-dev \\
-                      qtquick1-5-dev \\
                       libignition-cmake1-dev \\
                       libignition-math5-dev \\
                       libignition-tools-dev \\
