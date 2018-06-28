@@ -182,7 +182,7 @@ ignition_software.each { ign_sw ->
 
               create_variables \${WORKSPACE}/${ignition_checkout_dir}/bitbucket-pipelines.yml
 
-              export DISTRO=${ci_distro}
+              export DISTRO=${ci_distro_str}
 
               if [[ -n \${image} ]]; then
                 echo "Bitbucket pipeline.yml detected. Default DISTRO is ${ci_distro}"
