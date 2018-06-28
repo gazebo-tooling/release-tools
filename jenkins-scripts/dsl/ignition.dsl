@@ -182,7 +182,7 @@ ignition_software.each { ign_sw ->
 
               create_variables \${WORKSPACE}/${ignition_checkout_dir}/bitbucket-pipelines.yml
 
-              if [[ -n \${imame} ]]; then
+              if [[ -n \${image} ]]; then
                 export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
                 if [[ \$distro == \${image} ]]; then
                   echo "Auto failed to detect ubuntu distro from image in bitbucket-pipelines.yml"
