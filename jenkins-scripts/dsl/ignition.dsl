@@ -141,53 +141,63 @@ ignition_software.each { ign_sw ->
 
 // MAIN CI JOBS (check every 5 minutes)
 ignition_software.each { ign_sw ->
-  ci_distro.each { distro ->
-    supported_arches.each { arch ->
-      // --------------------------------------------------------------
-      // 1. Create the any job
-      def ignition_ci_job_name = "ignition_${ign_sw}-ci-pr_any-${distro}-${arch}"
-      def ignition_ci_any_job = job(ignition_ci_job_name)
-      OSRFLinuxCompilationAny.create(ignition_ci_any_job,
-                                    "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}",
-                                    enable_testing(ign_sw))
-      include_gpu_label_if_needed(ignition_ci_any_job, ign_sw)
-      ignition_ci_any_job.with
+  supported_arches.each { arch ->
+    // --------------------------------------------------------------
+    // 1. Create the any job
+    def ignition_ci_job_name = "ignition_${ign_sw}-ci-pr_any-ubuntu_auto-${arch}"
+    def ignition_ci_any_job = job(ignition_ci_job_name)
+    def ignition_checkout_dir = "ign-${ign_sw}"
+    OSRFLinuxCompilationAny.create(ignition_ci_any_job,
+                                  "https://bitbucket.org/ignitionrobotics/${ignition_checkout_dir}",
+                                  enable_testing(ign_sw))
+    include_gpu_label_if_needed(ignition_ci_any_job, ign_sw)
+    ignition_ci_any_job.with
+    {
+      steps
       {
-        steps
-        {
-           conditionalSteps
+         conditionalSteps
+         {
+           condition
            {
-             condition
-             {
-               not {
-                 expression('${ENV, var="DEST_BRANCH"}', 'default')
-               }
+             not {
+               expression('${ENV, var="DEST_BRANCH"}', 'default')
+             }
 
-               steps {
-                 downstreamParameterized {
-                   trigger(abi_job_names[ign_sw]) {
-                     parameters {
-                       currentBuild()
-                     }
+             steps {
+               downstreamParameterized {
+                 trigger(abi_job_names[ign_sw]) {
+                   parameters {
+                     currentBuild()
                    }
                  }
                }
              }
            }
+         }
 
-           shell("""\
-                #!/bin/bash -xe
-                export DISTRO=${distro}
-                export ARCH=${arch}
+         shell("""\
+              #!/bin/bash -xe
+              wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh
+              source yaml.sh
 
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
-                """.stripIndent())
-        } // end of steps
-      } // end of ci_any_job
+              create_variables \${WORKSPACE}/${ignition_checkout_dir}/bitbucket-pipelines.yml
 
-      // add ci-pr_any to the list for CIWorkflow
-      ci_pr_any_list[ign_sw] << ignition_ci_job_name
-    }
+              if [[ -n \${image} ]]; then
+                export DISTRO=\$(echo $image | sed  's/ubuntu\\://')
+                if [[ \$distro == \${image} ]]; then
+                  echo "Auto failed to detect ubuntu distro from image in bitbucket-pipelines.yml"
+                fi
+              fi
+
+              export ARCH=${arch}
+
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
+              """.stripIndent())
+      } // end of steps
+    } // end of ci_any_job
+
+    // add ci-pr_any to the list for CIWorkflow
+    ci_pr_any_list[ign_sw] << ignition_ci_job_name
   }
 }
 
