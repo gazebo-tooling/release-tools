@@ -187,7 +187,7 @@ ignition_software.each { ign_sw ->
               if [[ -n \${image} ]]; then
                 echo "Bitbucket pipeline.yml detected. Default DISTRO is ${ci_distro}"
                 export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
-              else
+              fi
 
               export ARCH=${arch}
 
