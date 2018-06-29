@@ -216,6 +216,9 @@ ignition_software.each { ign_sw ->
         if (("${distro}" == "bionic") && (
             ("${ign_sw}" == "transport") && ("${major_version}" == "3")))
           return
+        // no rndf install
+        if ("${ign_sw}" == "rndf")
+          return
 
         // No 1-dev packages, unversioned
         if ("${major_version}" == "1")
