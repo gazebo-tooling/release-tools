@@ -46,6 +46,10 @@ gbp_repo_debbuilds.each { software ->
     {
        stringParam('BRANCH','master',
                    'ogre-2.1-release branch to test')
+       stringParam('DISTRO','bionic',
+                   'Ubuntu DISTRO to build package for')
+       stringParam('ARCH','amd64',
+                   'Architecture to be used in the built of the package')
     }
 
     scm {
@@ -84,8 +88,6 @@ gbp_repo_debbuilds.each { software ->
             #!/bin/bash -xe
 
             export LINUX_DISTRO=ubuntu
-            export ARCH=${arch}
-            export DISTRO=${distro}
 
             /bin/bash -xe ./scripts/jenkins-scripts/docker/ogre-2.1-debbuild.bash
             """.stripIndent())
@@ -103,8 +105,6 @@ gbp_repo_debbuilds.each { software ->
           parameters {
             currentBuild()
             predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-            predefinedProp("DISTRO", "${distro}")
-            predefinedProp("ARCH", "${arch}")
             predefinedProp("UPLOAD_TO_REPO", "stable")
             predefinedProp("PACKAGE_ALIAS", "ogre-2.1")
           }
