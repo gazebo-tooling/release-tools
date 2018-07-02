@@ -56,6 +56,7 @@ gbp_repo_debbuilds.each { software ->
       git {
         remote {
           github('osrf/ogre-2.1-release', 'https')
+          branch('${BRANCH}')
         }
 
         extensions {
