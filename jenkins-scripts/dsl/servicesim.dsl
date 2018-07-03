@@ -93,25 +93,18 @@ servicesim_packages.each { pkg ->
   def build_pkg_job = job("$pkg_dashed-bloom-debbuilder")
 
   // Use the linux install as base
-  OSRFLinuxBuildPkgBase.create(build_pkg_job)
+  // Do not upload since we need to pass PACKAGE_ALIAS
+  boolean NO_INCLUDE_UPLOAD = false
+  OSRFLinuxBuildPkgBase.create(build_pkg_job, NO_INCLUDE_UPLOAD)
   GenericRemoteToken.create(build_pkg_job)
 
   build_pkg_job.with
   {
-    properties {
-      priority 100
-    }
-
     parameters {
-      stringParam("PACKAGE","$pkg_dashed","Package name to be built")
-        stringParam("VERSION",null,"Packages version to be built")
-        stringParam("RELEASE_VERSION", null, "Packages release version")
-        stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
-        stringParam("DISTRO", "xenial", "Linux release inside LINUX_DISTRO to build packages for")
-        stringParam("ARCH", "amd64", "Architecture to build packages for")
-        stringParam('ROS_DISTRO', 'kinetic','ROS DISTRO to build pakcages for')
-        stringParam("UPLOAD_TO_REPO", 'stable', "OSRF repo name to upload the package to")
-        stringParam('UPSTREAM_RELEASE_REPO', 'https://bitbucket.org/osrf/servicesim-release', 'Release repository url')
+        stringParam('ROS_DISTRO', 'kinetic',
+                    'ROS DISTRO to build pakcages for')
+        stringParam('UPSTREAM_RELEASE_REPO',
+                    'https://bitbucket.org/osrf/servicesim-release', 'Release repository url')
     }
 
     steps {
@@ -143,7 +136,6 @@ servicesim_packages.each { pkg ->
         }
       }
     }
-
 
     steps {
       shell("""\

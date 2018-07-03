@@ -68,7 +68,7 @@ packages.each { repo_name, pkgs ->
   }
 
   def ci_job = job("${pkg}-pkg_builder-master-debian_sid-amd64")
-  OSRFLinuxBuildPkgBase.create(ci_job)
+  OSRFLinuxBase.create(ci_job)
   ci_job.with
   {
      scm {
@@ -83,6 +83,10 @@ packages.each { repo_name, pkgs ->
 
           branch('refs/heads/master')
         }
+      }
+
+      logRotator {
+        artifactNumToKeep(10)
       }
 
       triggers {
@@ -109,6 +113,14 @@ packages.each { repo_name, pkgs ->
               """.stripIndent())
       }
 
+      wrappers {
+        preBuildCleanup {
+          includePattern('pkgs/*')
+          // the sudo does not seems to be able to remove root owned packaged
+          deleteCommand('sudo rm -rf %s')
+        }
+      }
+
       publishers
       {
         postBuildScripts {
@@ -124,6 +136,7 @@ packages.each { repo_name, pkgs ->
           onlyIfBuildFails(false)
         }
 
+        archiveArtifacts('pkgs/*')
 
          // Added the lintian parser
          configure { project ->

@@ -7,20 +7,12 @@ import javaposse.jobdsl.dsl.Job
   -> GenericRemoteToken
 
   Implements:
-    - priority 100
-    - keep only 10 last artifacts
-    - parameters:
-        - PACKAGE
-        - VERSION
-        - RELEASE_VERSION
-        - LINUX_DISTRO
-        - DISTRO
-        - ARCH
+  parameters:
         - SOURCE_TARBALL_URI
         - RELEASE_REPO_BRANCH
         - PACKAGE_ALIAS
         - UPLOAD_TO_REPO
-    - launch repository_ng
+
 */
 class OSRFLinuxBuildPkg
 {
@@ -31,24 +23,15 @@ class OSRFLinuxBuildPkg
 
     job.with
     {
-      properties {
-        priority 100
-      }
-
       parameters {
-        stringParam("PACKAGE",null,"Package name to be built")
-        stringParam("VERSION",null,"Packages version to be built")
-        stringParam("RELEASE_VERSION", null, "Packages release version")
-        stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
-        stringParam("DISTRO", null, "Linux release inside LINUX_DISTRO to build packages for")
-        stringParam("ARCH", null, "Architecture to build packages for")
         stringParam("SOURCE_TARBALL_URI", null, "URL to the tarball containing the package sources")
         stringParam("RELEASE_REPO_BRANCH", null, "Branch from the -release repo to be used")
         stringParam("PACKAGE_ALIAS", null, "If not empty, package name to be used instead of PACKAGE")
-        stringParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to")
         stringParam("OSRF_REPOS_TO_USE", null, "OSRF repos name to use when building the package")
       }
 
+      // add RELEASE_REPO_BRANCH to the build status overriding the BuilPkgBase
+      // groovy job (they both will be in the configuration)
       steps {
         systemGroovyCommand("""\
           build.setDescription(
@@ -66,17 +49,6 @@ class OSRFLinuxBuildPkg
         )
       }
 
-      publishers {
-        downstreamParameterized {
-	  trigger('repository_uploader_ng') {
-	    condition('SUCCESS')
-	    parameters {
-	      currentBuild()
-	      predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-	    }
-	  }
-        }
-      }
     } // end of job
   } // end of method createJob
 } // end of class

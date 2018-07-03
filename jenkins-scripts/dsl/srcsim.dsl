@@ -240,11 +240,10 @@ build_pkg_job.with
 // --------------------------------------------------------------
 // ihmc-valyrie-ros package builder
 def ihmc_build_pkg = job("ihmc_valkyrie_ros-debbuilder")
-OSRFLinuxBuildPkgBase.create(ihmc_build_pkg)
+OSRFLinuxBase.create(ihmc_build_pkg)
 
 ihmc_build_pkg.with
 {
-  // TODO: convert into parameteres. Maybe in the OSRFLinuxBuildPkgBase class?
   def ihmc_distro = 'trusty'
   def ihmc_arch   = 'amd64'
 
@@ -262,11 +261,23 @@ ihmc_build_pkg.with
     }
   }
 
+  logRotator {
+    artifactNumToKeep(10)
+  }
+
   concurrentBuild(true)
 
   throttleConcurrentBuilds {
     maxPerNode(1)
     maxTotal(5)
+  }
+
+  wrappers {
+    preBuildCleanup {
+    includePattern('pkgs/*')
+    // the sudo does not seems to be able to remove root owned packaged
+    deleteCommand('sudo rm -rf %s')
+    }
   }
 
   steps {
@@ -283,24 +294,22 @@ ihmc_build_pkg.with
 
   publishers
   {
-    publishers {
-      archiveArtifacts('pkgs/*')
+    archiveArtifacts('pkgs/*')
 
-      /* temporary hosted in external server
-      downstreamParameterized {
-        trigger('repository_uploader_ng') {
-          condition('SUCCESS')
-          parameters {
-            currentBuild()
-            predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-            predefinedProp("UPLOAD_TO_REPO", "stable")
-            predefinedProp("PACKAGE_ALIAS" , "ihmc_valkyrie_ros")
-            predefinedProp("DISTRO",         "${ihmc_distro}")
-            predefinedProp("ARCH",           "${ihmc_arch}")
-          }
+    /* temporary hosted in external server
+    downstreamParameterized {
+      trigger('repository_uploader_ng') {
+        condition('SUCCESS')
+        parameters {
+          currentBuild()
+          predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+          predefinedProp("UPLOAD_TO_REPO", "stable")
+          predefinedProp("PACKAGE_ALIAS" , "ihmc_valkyrie_ros")
+          predefinedProp("DISTRO",         "${ihmc_distro}")
+          predefinedProp("ARCH",           "${ihmc_arch}")
         }
-      } */
-    }
+      }
+    } */
 
     postBuildScripts {
       steps {
@@ -316,4 +325,3 @@ ihmc_build_pkg.with
     }
   }
 }
-

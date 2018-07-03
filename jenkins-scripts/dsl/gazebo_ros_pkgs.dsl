@@ -216,75 +216,48 @@ bloom_debbuild_jobs.each { bloom_pkg ->
   postfix_job_str = "bloom-debbuilder"
   def build_pkg_job = job("${bloom_pkg}-${postfix_job_str}")
 
-  // Use the linux install as base
-  OSRFLinuxBuildPkgBase.create(build_pkg_job)
+  // Do not upload since we need to pass PACKAGE_ALIAS
+  boolean NO_INCLUDE_UPLOAD = false
+  OSRFLinuxBuildPkgBase.create(build_pkg_job, NO_INCLUDE_UPLOAD)
   GenericRemoteToken.create(build_pkg_job)
 
   build_pkg_job.with
   {
-      properties {
-        priority 100
-      }
+    parameters {
+      stringParam('UPSTREAM_RELEASE_REPO', '',
+                  'https://github.com/ros-gbp/gazebo_ros_pkgs-release')
+      stringParam('ROS_DISTRO', '','ROS DISTRO to build pakcages for')
+    }
 
-      parameters {
-        stringParam("PACKAGE","${bloom_pkg}","Package name to be built")
-        stringParam("VERSION",null,"Packages version to be built")
-        stringParam("RELEASE_VERSION", null, "Packages release version")
-        stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
-        stringParam("DISTRO", null, "Linux release inside LINUX_DISTRO to build packages for")
-        stringParam("ARCH", null, "Architecture to build packages for")
-        stringParam('ROS_DISTRO', '','ROS DISTRO to build pakcages for')
-        stringParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to")
-        stringParam('UPSTREAM_RELEASE_REPO', '', 'https://github.com/ros-gbp/gazebo_ros_pkgs-release')
-      }
+    // Blocks to control dependencies
+    if ("${bloom_pkg}" == 'gazebo-ros')
+      blockOn(["gazebo-dev-${postfix_job_str}","gazebo-msgs-${postfix_job_str}"])
+    else if ("${bloom_pkg}" == 'gazebo-plugins')
+      blockOn(["gazebo-dev-${postfix_job_str}","gazebo-msgs-${postfix_job_str}"])
+    else if ("${bloom_pkg}" == 'gazebo-ros-control')
+      blockOn(["gazebo-dev-${postfix_job_str}","gazebo-msgs-${postfix_job_str}","gazebo-ros-${postfix_job_str}"])
+    else if ("${bloom_pkg}" == 'gazebo-ros-pkgs')
+      blockOn(["gazebo-dev-${postfix_job_str}","gazebo-msgs-${postfix_job_str}","gazebo-ros-${postfix_job_str}"])
 
-      // Blocks to control dependencies
-      if ("${bloom_pkg}" == 'gazebo-ros')
-        blockOn(["gazebo-dev-${postfix_job_str}","gazebo-msgs-${postfix_job_str}"])
-      else if ("${bloom_pkg}" == 'gazebo-plugins')
-        blockOn(["gazebo-dev-${postfix_job_str}","gazebo-msgs-${postfix_job_str}"])
-      else if ("${bloom_pkg}" == 'gazebo-ros-control')
-        blockOn(["gazebo-dev-${postfix_job_str}","gazebo-msgs-${postfix_job_str}","gazebo-ros-${postfix_job_str}"])
-      else if ("${bloom_pkg}" == 'gazebo-ros-pkgs')
-        blockOn(["gazebo-dev-${postfix_job_str}","gazebo-msgs-${postfix_job_str}","gazebo-ros-${postfix_job_str}"])
-
-      steps {
-        systemGroovyCommand("""\
-          build.setDescription(
-          '<b>' + build.buildVariableResolver.resolve('ROS_DISTRO') + '-'
-                + build.buildVariableResolver.resolve('VERSION') + '-'
-                + build.buildVariableResolver.resolve('RELEASE_VERSION') + '</b>' +
-          '(' + build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
-                build.buildVariableResolver.resolve('DISTRO') + '::' +
-                build.buildVariableResolver.resolve('ARCH') + ')' +
-          '<br />' +
-          'upload to: ' + build.buildVariableResolver.resolve('UPLOAD_TO_REPO') +
-          '<br />' +
-          'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
-          """.stripIndent()
-        )
-      }
-
-      publishers {
-        downstreamParameterized {
-	  trigger('repository_uploader_ng') {
-	    condition('SUCCESS')
-	    parameters {
-	      currentBuild()
-	      predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-	      predefinedProp("PACKAGE_ALIAS", "\${JOB_NAME}")
-	    }
-	  }
+    publishers {
+      downstreamParameterized {
+        trigger('repository_uploader_ng') {
+          condition('SUCCESS')
+          parameters {
+            currentBuild()
+            predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+            predefinedProp("PACKAGE_ALIAS", "\${JOB_NAME}")
+          }
         }
       }
+    }
 
+    steps {
+      shell("""\
+            #!/bin/bash -xe
 
-      steps {
-        shell("""\
-              #!/bin/bash -xe
-
-              /bin/bash -x ./scripts/jenkins-scripts/docker/bloom-debbuild.bash
-              """.stripIndent())
-      }
+            /bin/bash -x ./scripts/jenkins-scripts/docker/bloom-debbuild.bash
+            """.stripIndent())
+    }
   }
 }
