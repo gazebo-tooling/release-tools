@@ -199,14 +199,6 @@ ros_distros.each { ros_distro ->
                                                    ros_distro,
                                                    "default",
                                                    "gazebo_ros_pkgs-compilation_regression")
-    // No melodic-devel branch in third party testing (yet)
-    if (ros_distro == 'melodic')
-    {
-      regression_job.with
-      {
-        disabled()
-      }
-    }
   } // end of ubuntu_distros
 } // end of ros_distros
 
