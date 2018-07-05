@@ -13,8 +13,8 @@
 #                         of path headers to ignore
 
 # Jenkins variables:
-# ORIGIN_BRANCH
-# TARGET_BRANCH
+# DEST_BRANCH
+# SRC_BRANCH
 
 set -e
 
@@ -43,38 +43,39 @@ ${ABI_JOB_PREABI_HOOK}
 echo '# END SECTION'
 fi
 
-echo '# BEGIN SECTION: compile and install branch: ${ORIGIN_BRANCH}'
+echo '# BEGIN SECTION: compile and install branch: ${DEST_BRANCH}'
 cp -a $WORKSPACE/${ABI_JOB_SOFTWARE_NAME} /tmp/${ABI_JOB_SOFTWARE_NAME}
 chown -R root:root /tmp/${ABI_JOB_SOFTWARE_NAME}
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
 hg pull
-hg up $ORIGIN_BRANCH
+hg up ${DEST_BRANCH}
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake ${ABI_JOB_CMAKE_PARAMS} \\
-  -DCMAKE_INSTALL_PREFIX=/usr/local/origin_branch \\
+  -DCMAKE_INSTALL_PREFIX=/usr/local/destination_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
 make install
-ORIGIN_DIR=\$(find /usr/local/origin_branch/include -name ${ABI_JOB_SOFTWARE_NAME}-* -type d | sed -e 's:.*/::')
+DEST_DIR=\$(find /usr/local/destination_branch/include -name ${ABI_JOB_SOFTWARE_NAME}-* -type d | sed -e 's:.*/::')
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: compile and install branch: ${TARGET_BRANCH}'
+echo '# BEGIN SECTION: compile and install branch: ${SRC_BRANCH}'
 # 2.2 Target branch
 # Reusing the same building and source directory to save bandwith and
 # compilation time.
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
-hg up $TARGET_BRANCH
+hg pull ${SRC_REPO} -b ${SRC_BRANCH}
+hg up ${SRC_BRANCH}
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
 cd $WORKSPACE/build
 cmake ${ABI_JOB_CMAKE_PARAMS} \\
-  -DCMAKE_INSTALL_PREFIX=/usr/local/target_branch \\
+  -DCMAKE_INSTALL_PREFIX=/usr/local/source_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
 make install
-TARGET_DIR=\$(find /usr/local/target_branch/include -name ${ABI_JOB_SOFTWARE_NAME}-* -type d | sed -e 's:.*/::')
+SRC_DIR=\$(find /usr/local/source_branch/include -name ${ABI_JOB_SOFTWARE_NAME}-* -type d | sed -e 's:.*/::')
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install the ABI checker'
@@ -89,24 +90,24 @@ mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker
 cat > pkg.xml << CURRENT_DELIM
  <version>
-     branch: $ORIGIN_BRANCH
+     branch: $DEST_BRANCH
  </version>
 
  <headers>
-   /usr/local/origin_branch/include/\$ORIGIN_DIR
+   /usr/local/destination_branch/include/\$DEST_DIR
  </headers>
 
  <skip_headers>
 CURRENT_DELIM
 
 for header in $ABI_JOB_IGNORE_HEADERS; do
-  echo "  /usr/local/origin_branch/include/\$ORIGIN_DIR/\$header" >> pkg.xml
+  echo "  /usr/local/destination_branch/include/\$DEST_DIR/\$header" >> pkg.xml
 done
 
 cat >> pkg.xml << CURRENT_DELIM_LIBS
  </skip_headers>
  <libs>
-   /usr/local/origin_branch/lib/
+   /usr/local/destination_branch/lib/
  </libs>
 
  <gcc_options>
@@ -116,25 +117,25 @@ CURRENT_DELIM_LIBS
 
 cat > devel.xml << DEVEL_DELIM
  <version>
-     branch: $TARGET_BRANCH
+     branch: $SRC_BRANCH
  </version>
 
  <headers>
-   /usr/local/target_branch/include/\$TARGET_DIR
+   /usr/local/source_branch/include/\$SRC_DIR
  </headers>
 
  <skip_headers>
 DEVEL_DELIM
 
 for header in $ABI_JOB_IGNORE_HEADERS; do
-  echo "  /usr/local/target_branch/include/\$TARGET_DIR/\$header" >> devel.xml
+  echo "  /usr/local/source_branch/include/\$SRC_DIR/\$header" >> devel.xml
 done
 
 cat >> devel.xml << DEVEL_DELIM_LIBS
  </skip_headers>
 
  <libs>
-   /usr/local/target_branch/lib/
+   /usr/local/source_branch/lib/
  </libs>
 
  <gcc_options>

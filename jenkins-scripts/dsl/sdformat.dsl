@@ -36,7 +36,8 @@ abi_distro.each { distro ->
     abi_job_name = "sdformat-abichecker-any_to_any-${distro}-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABI.create(abi_job)
-    OSRFBitbucketHg.create(abi_job, "https://bitbucket.org/osrf/sdformat")
+    OSRFBitbucketHg.create(abi_job, "https://bitbucket.org/osrf/sdformat",
+                                    '${DEST_BRANCH}')
 
     abi_job.with
     {
@@ -102,8 +103,7 @@ ci_distro.each { distro ->
                downstreamParameterized {
                  trigger("${abi_job_name}") {
                    parameters {
-                     predefinedProp("ORIGIN_BRANCH", '$DEST_BRANCH')
-                     predefinedProp("TARGET_BRANCH", '$SRC_BRANCH')
+                     currentBuild()
                    }
                  }
                }
@@ -125,6 +125,10 @@ ci_distro.each { distro ->
 
 // OTHER CI SUPPORTED JOBS (default branch) @ SCM/DAILY
 other_supported_distros.each { distro ->
+  // default doesn't support trusty anymore
+  if ("${distro}" == "trusty")
+    return
+
   supported_arches.each { arch ->
     // ci_default job for the rest of arches / scm@daily
     def sdformat_ci_job = job("sdformat-ci-default-${distro}-${arch}")
@@ -183,10 +187,6 @@ sdformat_supported_branches.each { branch ->
 
 // EXPERIMENTAL ARCHES @ SCM/WEEKLY
 ci_distro.each { distro ->
-  // default doesn't support trusty anymore
-  if ("${distro}" == "trusty")
-    return
-
   experimental_arches.each { arch ->
     def sdformat_ci_job = job("sdformat-ci-default-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)

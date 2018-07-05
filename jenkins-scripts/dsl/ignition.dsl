@@ -14,9 +14,13 @@ ignition_software = [ 'cmake',
                       'sensors',
                       'tools',
                       'transport' ]
-ignition_debbuild  = ignition_software + [ 'cmake1', 'transport2', 'transport3', 'math3', 'math4', 'math5', 'msgs0' ]
+ignition_debbuild  = ignition_software + [ 'cmake1',
+                                           'common2',
+                                           'math5',
+                                           'msgs0', 'msgs2',
+                                           'transport5' ]
 ignition_gpu                = [ 'gui', 'rendering', 'sensors' ]
-ignition_no_pkg_yet         = [ 'gui', 'physics', 'rendering', 'sensors' ]
+ignition_no_pkg_yet         = [ 'gui', 'physics', 'rendering', 'rndf', 'sensors' ]
 ignition_no_test            = [ 'tools' ]
 // no branches in ignition_branches means no released branches
 ignition_branches           = [ 'common'     : [ '1' ],
@@ -117,7 +121,7 @@ ignition_software.each { ign_sw ->
       OSRFLinuxABI.create(abi_job)
       OSRFBitbucketHg.create(abi_job,
                             "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
-                            '${TARGET_BRANCH}', checkout_subdir)
+                            '${DEST_BRANCH}', checkout_subdir)
       abi_job.with
       {
         steps {
@@ -163,8 +167,7 @@ ignition_software.each { ign_sw ->
                  downstreamParameterized {
                    trigger(abi_job_names[ign_sw]) {
                      parameters {
-                       predefinedProp("ORIGIN_BRANCH", '$DEST_BRANCH')
-                       predefinedProp("TARGET_BRANCH", '$SRC_BRANCH')
+                       currentBuild()
                      }
                    }
                  }
@@ -204,6 +207,16 @@ ignition_software.each { ign_sw ->
             (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
             (("${ign_sw}" == "math") && ("${major_version}" == "3"))))
           return
+        // no bionic for math2 or math3
+        if (("${distro}" == "bionic") && (
+            (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
+            (("${ign_sw}" == "math") && ("${major_version}" == "3"))))
+          return
+        // no bionic for transport3
+        if (("${distro}" == "bionic") && (
+            ("${ign_sw}" == "transport") && ("${major_version}" == "3")))
+          return
+
         // No 1-dev packages, unversioned
         if ("${major_version}" == "1")
           major_version = ""
@@ -262,6 +275,11 @@ ignition_software.each { ign_sw ->
           if (("${distro}" == "trusty") && !(
               ("${branch}" == "ign-math2") ||
               ("${branch}" == "ign-math3")))
+            disabled()
+
+          // no bionic for transport3
+          if (("${distro}" == "bionic") && (
+              ("${branch}" == "ign-transport3")))
             disabled()
 
           steps {
@@ -396,10 +414,10 @@ ignition_software.each { ign_sw ->
       // colcon uses long paths and windows has a hard limit of 260 chars. Keep
       // names minimal
       if (branch == 'default')
-        branch = "ci"
+        branch_name = "ci"
       else
-        branch = branch - ign_sw
-      ignition_win_ci_job_name = "ign_${ign_sw}-${branch}-win"
+        branch_name = branch - ign_sw
+      ignition_win_ci_job_name = "ign_${ign_sw}-${branch_name}-win"
     } else {
       ignition_win_ci_job_name = "ignition_${ign_sw}-ci-${branch}-windows7-amd64"
     }
@@ -409,6 +427,7 @@ ignition_software.each { ign_sw ->
     OSRFBitbucketHg.create(ignition_win_ci_job,
                               "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
                               "${branch}", "ign-${ign_sw}")
+
     ignition_win_ci_job.with
     {
         triggers {

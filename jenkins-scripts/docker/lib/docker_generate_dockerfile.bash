@@ -65,6 +65,8 @@ esac
 [[ -z ${USE_OSRF_REPO} ]] && USE_OSRF_REPO=false
 [[ -z ${OSRF_REPOS_TO_USE} ]] && OSRF_REPOS_TO_USE=""
 [[ -z ${USE_ROS_REPO} ]] && USE_ROS_REPO=false
+# Default ros-shadow-fixed to internal test it and get quick fixes
+[[ -z ${ROS_REPO_NAME} ]] && ROS_REPO_NAME="ros-shadow-fixed"
 
 # depracted variable, do migration here
 if [[ -z ${OSRF_REPOS_TO_USE} ]]; then
@@ -163,10 +165,19 @@ done
 if ${USE_ROS_REPO}; then
 cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
-RUN echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > \\
+RUN echo "deb http://packages.ros.org/${ROS_REPO_NAME}/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
 DELIM_ROS_REPO
+fi
+
+if [[ $ARCH == 'arm64' ]]; then
+cat >> Dockerfile << DELIM_SYSCAL_ARM64
+# Workaround for problem with syscall 277 in man-db
+ENV MAN_DISABLE_SECCOMP 1
+RUN apt-get update && \\
+    apt-get install -y man-db
+DELIM_SYSCAL_ARM64
 fi
 
 if [ `expr length "${DOCKER_PREINSTALL_HOOK}"` -gt 1 ]; then
@@ -190,6 +201,16 @@ RUN apt-add-repository -y ppa:libccd-debs
 RUN apt-add-repository -y ppa:fcl-debs
 DELIM_DOCKER_DART_PKGS
   fi
+fi
+
+# Workaround a problem in simbody on artful bad paths
+if [[ $DISTRO == "artful" ]]; then
+cat >> Dockerfile << DELIM_DOCKER_WORKAROUND_SIMBODY
+RUN apt-get update \\
+ && apt-get install -y apt-utils software-properties-common \\
+ && rm -rf /var/lib/apt/lists/*
+RUN add-apt-repository ppa:j-rivero/simbody-artful
+DELIM_DOCKER_WORKAROUND_SIMBODY
 fi
 
 # Packages that will be installed and cached by docker. In a non-cache

@@ -35,7 +35,8 @@ void include_common_params(Job gazebo_ros_pkgs_job,
                            String ubuntu_distro,
                            String ros_distro,
                            String gz_version,
-                           String script_name)
+                           String script_name,
+                           String ros_repo_name = "")
 {
    gazebo_ros_pkgs_job.with
    {
@@ -52,7 +53,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
                                 """.stripIndent()
       }
 
-      label "gpu-reliable-${ubuntu_distro}"
+      label "gpu-reliable"
 
       steps {
         shell("""\
@@ -63,6 +64,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
               export DISTRO=${ubuntu_distro}
               export ARCH=${ci_arch}
               export ROS_DISTRO=${ros_distro}
+              export ROS_REPO_NAME=${ros_repo_name}
               /bin/bash -xe ./scripts/jenkins-scripts/docker/${script_name}.bash
               """.stripIndent())
       }
@@ -76,7 +78,7 @@ ros_distros.each { ros_distro ->
     suffix_triplet="${ros_distro}-${ubuntu_distro}-${ci_arch}"
 
     // --------------------------------------------------------------
-    // 1. Create the default ci jobs
+    // 1. Create the default ci jobs (using ros-shadow-fixed by default)
     def default_ci_job = job("ros_gazebo_pkgs-ci-default_$suffix_triplet")
     // Enable testing but not cppcheck
     OSRFLinuxCompilation.create(default_ci_job, true, false)
@@ -94,7 +96,7 @@ ros_distros.each { ros_distro ->
         }
       }
 
-      label "gpu-reliable-${ubuntu_distro}"
+      label "gpu-reliable"
 
       triggers {
         scm('*/5 * * * *')
@@ -122,7 +124,7 @@ ros_distros.each { ros_distro ->
                                             "gazebo_ros_pkgs-compilation")
 
     // --------------------------------------------------------------
-    // 3. Create the default install
+    // 3. Create the default install (by default use ros-shadow)
     def install_default_job = job("ros_gazebo_pkgs-install_pkg_${suffix_triplet}")
     OSRFLinuxInstall.create(install_default_job)
     include_common_params(install_default_job,
@@ -137,6 +139,22 @@ ros_distros.each { ros_distro ->
       }
     }
 
+    // --------------------------------------------------------------
+    // 3. Create the default install using stable ROS repo
+    def install_stable_default_job = job("ros_gazebo_pkgs-install_pkg_stable_ros_${suffix_triplet}")
+    OSRFLinuxInstall.create(install_stable_default_job)
+    include_common_params(install_stable_default_job,
+                          ubuntu_distro,
+                          ros_distro,
+                          "default",
+                          "gazebo_ros_pkgs-release-testing",
+                          "ros")
+    install_stable_default_job.with
+    {
+      triggers {
+        cron('@daily')
+      }
+    }
 
     // Assume that gazebo means official version chose by ROS on every distribution
     gazebo_unofficial_versions = extra_gazebo_versions[ros_distro]
@@ -181,6 +199,14 @@ ros_distros.each { ros_distro ->
                                                    ros_distro,
                                                    "default",
                                                    "gazebo_ros_pkgs-compilation_regression")
+    // No melodic-devel branch in third party testing (yet)
+    if (ros_distro == 'melodic')
+    {
+      regression_job.with
+      {
+        disabled()
+      }
+    }
   } // end of ubuntu_distros
 } // end of ros_distros
 

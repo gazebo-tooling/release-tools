@@ -297,6 +297,9 @@ else
       lunar)
         GAZEBO_VERSION_FOR_ROS="7"
       ;;
+      melodic)
+        GAZEBO_VERSION_FOR_ROS="9"
+      ;;
     esac
   fi
 
@@ -505,10 +508,10 @@ if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 4 ]]; then
                                 libignition-msgs-dev"
 elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 5 ]]; then
     IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
-                                libignition-cmake-dev \\
+                                libignition-cmake1-dev \\
+                                libignition-msgs2-dev \\
                                 libsqlite3-dev \\
-                                ruby-ffi \\
-                                libignition-msgs-dev"
+                                ruby-ffi"
 else
     IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
                                 libignition-msgs0-dev"
@@ -568,11 +571,11 @@ fi
 
 IGN_GUI_DEPENDENCIES="qtbase5-dev \\
                       libignition-cmake1-dev \\
-                      libignition-math4-dev \\
+                      libignition-math5-dev \\
                       libignition-tools-dev \\
-                      libignition-transport4-dev \\
-                      libignition-msgs-dev \\
-                      libignition-common-dev \\
+                      libignition-transport5-dev \\
+                      libignition-msgs2-dev \\
+                      libignition-common2-dev \\
                       libtinyxml2-dev \\
                       libqwt-qt5-dev"
 
@@ -581,26 +584,27 @@ IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           libdart6-dev \\
                           libdart6-utils-urdf-dev \\
                           libignition-cmake1-dev \\
+                          libignition-common2-dev \\
                           libignition-math5-dev"
-                          # add to list after release
-                          # libignition-common2-dev \\
 
 IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev \\
                             libfreeimage-dev \\
                             libglew-dev \\
                             libignition-cmake1-dev \\
-                            libignition-common-dev \\
-                            libignition-math4-dev \\
+                            libignition-common2-dev \\
+                            libignition-math5-dev \\
                             libogre-1.9-dev \\
                             libx11-dev \\
                             mesa-common-dev \\
                             mesa-utils"
 
-IGN_SENSORS_DEPENDENCIES="libignition-common-dev     \\
-                          libignition-math4-dev      \\
-                          libignition-msgs-dev       \\
-                          libignition-transport4-dev \\
+IGN_SENSORS_DEPENDENCIES="libignition-common2-dev     \\
+                          libignition-cmake1-dev \\
+                          libignition-math5-dev      \\
+                          libignition-msgs2-dev       \\
+                          libignition-tools-dev \\
+                          libignition-transport5-dev \\
                           libsdformat6-dev"
 
 IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
@@ -674,3 +678,14 @@ DRAKE_DEPENDENCIES="alien               \\
                     valgrind            \\
                     zip                 \\
                     zlib1g-dev"
+#
+# SUBT
+# 
+SUBT_DEPENDENCIES="mercurial                               \\
+                   wget                                    \\
+                   curl                                    \\
+                   git                                     \\
+                   gazebo${GAZEBO_VERSION_FOR_ROS}         \\
+                   libgazebo${GAZEBO_VERSION_FOR_ROS}-dev  \\
+                   ${ROS_GAZEBO_PKGS}                      \\
+                   ${ROS_CATKIN_BASE}"

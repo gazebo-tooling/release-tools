@@ -105,8 +105,7 @@ ci_distro.each { distro ->
                  downstreamParameterized {
                    trigger("${abi_job_name}") {
                      parameters {
-                       predefinedProp("ORIGIN_BRANCH", '$DEST_BRANCH')
-                       predefinedProp("TARGET_BRANCH", '$SRC_BRANCH')
+                       currentBuild()
                      }
                    }
                  }

@@ -306,6 +306,25 @@ def check_call(cmd, ignore_dry_run = False):
             raise Exception('subprocess call failed')
         return out, err
 
+# Returns: sha, tarball file name, tarball full path
+def create_tarball_path(tarball_name, version, builddir, dry_run):
+    tarball_fname = '%s-%s.tar.bz2'%(tarball_name, version)
+    # Try using the tarball_name as it is
+    tarball_path = os.path.join(builddir, tarball_fname)
+
+    if not os.path.isfile(tarball_path):
+        # Try looking for special project names using underscores
+        alt_tarball_name = "_".join(tarball_name.rsplit("-",1))
+        alt_tarball_fname = '%s-%s.tar.bz2'%(alt_tarball_name, version)
+        alt_tarball_path = os.path.join(builddir, alt_tarball_fname)
+        if (not dry_run):
+            if not os.path.isfile(alt_tarball_path):
+                error("Can not find a tarball at: " + tarball_path + " or at " + alt_tarball_path)
+        tarball_path = alt_tarball_path
+
+    shasum_out_err = check_call(['shasum', '--algorithm', '256', tarball_path])
+    return shasum_out_err[0].split(' ')[0], tarball_fname, tarball_path
+
 def generate_upload_tarball(args):
     ###################################################
     # Platform-agnostic stuff.
@@ -346,26 +365,20 @@ def generate_upload_tarball(args):
     if IGN_REPO:
         tarball_name = re.sub(r'[0-9]$','', args.package_alias)
 
-    # TODO: we're assuming a particular naming scheme and a particular compression tool
-    tarball_fname = '%s-%s.tar.bz2'%(tarball_name, args.version)
-    tarball_path = os.path.join(builddir, tarball_fname)
-    shasum_out_err = check_call(['shasum', '--algorithm', '256', tarball_path])
-    tarball_sha = shasum_out_err[0].split(' ')[0]
+    tarball_sha, tarball_fname, tarball_path = create_tarball_path(tarball_name, args.version, builddir, args.dry_run)
+
     # If we're releasing under a different name, then rename the tarball (the
     # package itself doesn't know anything about this).
     if args.package != args.package_alias:
         tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
         if (not args.dry_run):
-            if not os.path.isfile(tarball_path):
-                error("Failed to found the tarball: " + tarball_path +
-                      ". Please check that you don't have an underscore in the project() statement of the CMakeList.txt. In that case, change it by a dash")
             dest_file = os.path.join(builddir, tarball_fname)
             # Do not copy if files are the same
             if not (tarball_path == dest_file):
                 shutil.copyfile(tarball_path, dest_file)
                 tarball_path = dest_file
 
-    check_call(['s3cmd', 'put', tarball_path, UPLOAD_DEST_PATTERN%get_canonical_package_name(args.package)])
+    check_call(['s3cmd', 'sync', tarball_path, UPLOAD_DEST_PATTERN%get_canonical_package_name(args.package)])
     shutil.rmtree(tmpdir)
 
     # Tag repo
