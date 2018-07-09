@@ -14,7 +14,7 @@ ignition_software = [ 'cmake',
                       'sensors',
                       'tools',
                       'transport' ]
-ignition_debbuild  = ignition_software + [ 'cmake1',
+ignition_debbuild  = ignition_software + [ 'cmake1','cmake2',
                                            'common2',
                                            'math5',
                                            'msgs0', 'msgs2',
