@@ -188,7 +188,7 @@ build_pkg_job.with
     shell("""\
           #!/bin/bash -xe
 
-          # ariac only uses a subdirectory as package
+          # subt only uses a subdirectory as package
           rm -fr \$WORKSPACE/repo_backup
           rm -fr \$WORKSPACE/subt_gazebo
           cp -a \$WORKSPACE/repo/subt_gazebo \$WORKSPACE/subt_gazebo
