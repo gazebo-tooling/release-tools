@@ -148,9 +148,6 @@ all_supported_distros.each { distro ->
         cron('@daily')
       }
 
-      // no package yet
-      disabled()
-
       label "gpu-reliable"
 
       steps {
@@ -160,7 +157,7 @@ all_supported_distros.each { distro ->
             export DISTRO=${distro}
             export ARCH=${arch}
             export INSTALL_JOB_PKG=subt
-            export INSTALL_JOB_REPOS=stable
+            export INSTALL_JOB_REPOS="stable prerelease"
             /bin/bash -xe ./scripts/jenkins-scripts/docker/subt-install-test-job.bash
             """.stripIndent())
       }
