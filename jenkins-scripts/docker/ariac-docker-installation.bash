@@ -21,7 +21,7 @@ sudo bash -c "GRACE_PERIOD_SECONDS=86400 bash docker-gc"
 df -h
 echo '# END SECTION'
 
-INSTALL_JOB_PREINSTALL_HOOK="""
+export INSTALL_JOB_PREINSTALL_HOOK="""
 echo '# BEGIN SECTION: workaround on docker ip overlaping'
 find ${WORKSPACE}/ariac-docker -name '*.bash' -exec sed -i -e 's:172\.18:172.19:g' {} \\;
 grep 172.19 ${WORKSPACE}/ariac-docker/ariac-server/run_container.bash 
@@ -37,7 +37,7 @@ apt-get update
 # Workaround for trusty
 if [[ ${DISTRO} == 'trusty' ]]; then
  touch /etc/init/cgroup-lite.conf 
- apt-get install -y cgroup-lite 
+ apt-get install -y o Dpkg::Options::='--force-confdef' cgroup-lite 
  rm /etc/init/cgroup-lite.conf
 fi
 apt-get install -y docker-ce
@@ -66,14 +66,10 @@ df -h
 echo '# END SECTION'
 """
 
-INSTALL_JOB_POSTINSTALL_HOOK="""
-
-"""
-
 # Need bc to proper testing and parsing the time
 export DEPENDENCY_PKGS DEPENDENCY_PKGS="apt-transport-https \
     ca-certificates \
     curl \
     software-properties-common"
 
-. ${SCRIPT_DIR}/lib/generic-install-base.bash
+. "${SCRIPT_DIR}/lib/generic-install-base.bash"
