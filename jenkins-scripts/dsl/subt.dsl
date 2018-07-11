@@ -112,7 +112,7 @@ other_supported_distros.each { distro ->
             subdirectory('subt')
           }
         }
-        
+
         label "gpu-reliable"
 
         triggers {
@@ -172,17 +172,38 @@ all_supported_distros.each { distro ->
 // --------------------------------------------------------------
 // subt package builder
 def build_pkg_job = job("subt-debbuilder")
-
-// Use the linux install as base
 OSRFLinuxBuildPkg.create(build_pkg_job)
 
 build_pkg_job.with
 {
-    steps {
-      shell("""\
-            #!/bin/bash -xe
-
-            /bin/bash -x ./scripts/jenkins-scripts/docker/subt-debbuild.bash
-            """.stripIndent())
+  scm {
+    hg("https://bitbucket.org/osrf/subt") {
+      branch('default')
+      installation('Default')
+      subdirectory('repo')
+      configure { project ->
+       project / browser(class: 'hudson.plugins.mercurial.browser.BitBucket') / "url" <<  "https://bitbucket.org/osrf/subt"
+      }
     }
+  }
+
+  steps {
+    shell("""\
+          #!/bin/bash -xe
+
+          # ariac only uses a subdirectory as package
+          rm -fr \$WORKSPACE/repo_backup
+          rm -fr \$WORKSPACE/subt_gazebo
+          cp -a \$WORKSPACE/repo/subt_gazebo \$WORKSPACE/subt_gazebo
+          mv \$WORKSPACE/repo \$WORKSPACE/repo_backup
+          mv \$WORKSPACE/subt_gazebo \$WORKSPACE/repo
+
+          export NIGHTLY_MODE=true
+          export USE_REPO_DIRECTORY_FOR_NIGHTLY=true
+          /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
+
+          rm -fr \$WORKSPACE/repo
+          mv \$WORKSPACE/repo_backup \$WORKSPACE/repo
+          """.stripIndent())
+  }
 }
