@@ -87,7 +87,7 @@ supported_distros.each { distro ->
 
     install_docker_default_job.with
     {
-      label "large-disk"
+      label "large-memory"
 
       scm {
         git {
@@ -124,7 +124,7 @@ supported_distros.each { distro ->
 
     install_docker_any_job.with
     {
-      label "large-disk"
+      label "large-memory"
 
       steps {
         shell("""\
