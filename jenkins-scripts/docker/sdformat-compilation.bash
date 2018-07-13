@@ -27,9 +27,9 @@ if [[ ${DEST_BRANCH} == 'gz11' ]] || [[ ${SRC_BRANCH} == 'gz11' ]]; then
   export BUILDING_JOB_REPOSITORIES="stable prerelease"
   export USE_GCC8=true
   export BUILD_IGN_CMAKE=true
-  export BUILD_IGN_CMAKE_BRANCH="gz11"
+  export IGN_CMAKE_BRANCH="gz11"
   export BUILD_IGN_MATH=true
-  export BUILD_IGN_MATH_BRANCH="gz11"
+  export IGN_MATH_BRANCH="gz11"
 else
   # default and major branches compilations
   export BUILDING_PKG_DEPENDENCIES_VAR_NAME="SDFORMAT_BASE_DEPENDENCIES"
