@@ -245,6 +245,10 @@ RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))" \
  && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
  && apt-get clean
 
+# Map the workspace into the container
+RUN mkdir -p ${WORKSPACE}
+DELIM_DOCKER3
+
 # Beware of moving this code since it needs to run update-alternative after
 # installing the default compiler in PACKAGES_CACHE_AND_CHECK_UPDATES
 if ${USE_GCC8}; then
@@ -255,10 +259,6 @@ cat >> Dockerfile << DELIM_GCC8
    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
 DELIM_GCC8
 fi
-
-# Map the workspace into the container
-RUN mkdir -p ${WORKSPACE}
-DELIM_DOCKER3
 
 cat >> Dockerfile << DELIM_DOCKER_SQUID
 # If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy
