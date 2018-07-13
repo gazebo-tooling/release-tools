@@ -40,24 +40,22 @@ BREW_BASE_DEPENDCIES="mercurial git cmake"
 
 # 1. SDFORMAT
 # ruby for xml_schemas generation and libxml2-utils for xmllint used in tests
-SDFORMAT_BASE_DEPENDENCIES="python                       \\
-                            libboost-system-dev          \\
-                            libboost-filesystem-dev      \\
-                            libboost-program-options-dev \\
-                            libboost-regex-dev           \\
-                            libboost-iostreams-dev       \\
-                            libtinyxml-dev               \\
-                            libxml2-utils"
+SDFORMAT_NO_IGN_DEPENDENCIES="python                       \\
+                              libboost-system-dev          \\
+                              libboost-filesystem-dev      \\
+                              libboost-program-options-dev \\
+                              libboost-regex-dev           \\
+                              libboost-iostreams-dev       \\
+                              libtinyxml-dev               \\
+                              libxml2-utils"
 
-if [[ ${DISTRO} == 'precise' ]] ||
-   [[ ${DISTRO} == 'vivid'   ]] ||
-   [[ ${DISTRO} == 'trusty'  ]]; then
-  SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES} \\
-                            ruby1.9.1-dev                   \\
+if [[ ${DISTRO} == 'trusty'  ]]; then
+  SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
+                            ruby1.9.1-dev                       \\
                             ruby1.9.1"
 else
-  SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES} \\
-                            ruby-dev                        \\
+  SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
+                            ruby-dev                            \\
                             ruby"
 fi
 
@@ -69,17 +67,19 @@ fi
 if [[ ${SDFORMAT_MAJOR_VERSION} -ge 6 ]]; then
     # sdformat6 requires ignition-math4 and
     # uses ignition-tools for a test
-    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES}  \\
-                                libignition-math4-dev          \\
+    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
+                                libignition-math4-dev           \\
                                 libignition-tools-dev"
 elif [[ ${SDFORMAT_MAJOR_VERSION} -ge 5 ]]; then
     # sdformat5 requires ignition-math3
-    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES}          \\
+    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
                                 libignition-math3-dev"
 elif [[ ${SDFORMAT_MAJOR_VERSION} -ge 3 ]]; then
     # sdformat3 requires ignition-math2
-    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_BASE_DEPENDENCIES}          \\
+    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
                                 libignition-math2-dev"
+else
+    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES}"
 fi
 
 # GAZEBO related dependencies. Default value points to the development version
