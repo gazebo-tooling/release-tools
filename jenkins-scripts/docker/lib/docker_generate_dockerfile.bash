@@ -186,7 +186,7 @@ fi
 if ${USE_GCC8}; then
 cat >> Dockerfile << DELIM_GCC8
    RUN apt-get update \\
-   && apt-get install -y g++8 \\
+   && apt-get install -y g++-8 \\
    && rm -rf /var/lib/apt/lists/* \\
    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
 DELIM_GCC8
