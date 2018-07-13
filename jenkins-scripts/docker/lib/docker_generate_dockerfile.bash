@@ -183,15 +183,6 @@ RUN apt-get update \\
 DELIM_SYSCAL_ARM64
 fi
 
-if ${USE_GCC8}; then
-cat >> Dockerfile << DELIM_GCC8
-   RUN apt-get update \\
-   && apt-get install -y g++-8 \\
-   && rm -rf /var/lib/apt/lists/* \\
-   && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
-DELIM_GCC8
-fi
-
 if [ `expr length "${DOCKER_PREINSTALL_HOOK}"` -gt 1 ]; then
 cat >> Dockerfile << DELIM_WORKAROUND_PRE_HOOK
 RUN ${DOCKER_PREINSTALL_HOOK}
@@ -253,6 +244,17 @@ RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))" \
  && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
  && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
  && apt-get clean
+
+# Beware of moving this code since it needs to run update-alternative after
+# installing the default compiler in PACKAGES_CACHE_AND_CHECK_UPDATES
+if ${USE_GCC8}; then
+cat >> Dockerfile << DELIM_GCC8
+   RUN apt-get update \\
+   && apt-get install -y g++-8 \\
+   && rm -rf /var/lib/apt/lists/* \\
+   && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
+DELIM_GCC8
+fi
 
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
