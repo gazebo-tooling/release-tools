@@ -501,11 +501,11 @@ IGN_TRANSPORT_NO_IGN_DEPENDENCIES="pkg-config           \\
                                    libzmq3-dev          \\
                                    libczmq-dev"
 
-if [[ ${IGN_TRANSPORT_NO_IGN_MAJOR_VERSION} -eq 4 ]]; then
+if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 4 ]]; then
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libignition-cmake-dev \\
                                 libignition-msgs-dev"
-elif [[ ${IGN_TRANSPORT_NO_IGN_MAJOR_VERSION} -ge 5 ]]; then
+elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 5 ]]; then
     export IGN_TRANSPORT_NO_IGN_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libsqlite3-dev \\
                                 ruby-ffi"
