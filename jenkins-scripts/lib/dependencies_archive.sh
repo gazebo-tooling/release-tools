@@ -558,14 +558,14 @@ IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
                        ruby                  \\
                        ruby-dev"
 
-if [[ ${IGN_MSGS_MAJOR_VERSION} -le 0 ]]; then
+if [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -le 0 ]]; then
     IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
                            libignition-math3-dev"
-elif [[ ${IGN_MSGS_MAJOR_VERSION} -eq 1 ]]; then
+elif [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -eq 1 ]]; then
     IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
                            libignition-cmake-dev \\
                            libignition-math4-dev"
-else
+else #default in not defined
     IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
                            libignition-cmake1-dev \\
                            libignition-math5-dev"
