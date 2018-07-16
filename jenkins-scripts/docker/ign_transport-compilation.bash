@@ -14,8 +14,6 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-. "${SCRIPT_DIR}/lib/_gz11_hook.bash"
-
 # Identify IGN_TRANSPORT_MAJOR_VERSION to help with dependency resolution
 IGN_TRANSPORT_MAJOR_VERSION=$(\
   python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
@@ -27,10 +25,12 @@ if ! [[ ${IGN_TRANSPORT_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
+. "${SCRIPT_DIR}/lib/_gz11_hook.bash"
+
 export BUILDING_SOFTWARE_DIRECTORY="ign-transport"
 
 if ${NEEDS_GZ11_SUPPORT}; then
-  export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_TRANSPORT_DEPENDENCIES"
+  export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_TRANSPORT_NO_IGN_DEPENDENCIES"
   export BUILD_IGN_CMAKE=true
   export BUILD_IGN_TOOLS=true
   export BUILD_IGN_MSGS=true
