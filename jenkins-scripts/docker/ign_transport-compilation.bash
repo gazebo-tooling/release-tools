@@ -14,6 +14,8 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
+. "${SCRIPT_DIR}/lib/_gz11_hook.bash"
+
 # Identify IGN_TRANSPORT_MAJOR_VERSION to help with dependency resolution
 IGN_TRANSPORT_MAJOR_VERSION=$(\
   python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
@@ -41,7 +43,5 @@ else
     export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
   fi
 fi
-
-
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
