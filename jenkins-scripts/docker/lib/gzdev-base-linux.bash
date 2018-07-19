@@ -40,13 +40,12 @@ while (! \$gazebo_detection); do
    [ \$seconds_waiting -gt 30 ] && exit 1
 done
 echo '# END SECTION'
-
-
 DELIM
 
 export USE_DOCKER_IN_DOCKER=true
 export OSRF_REPOS_TO_USE="stable"
-export DEPENDENCY_PKGS="bash \
+export DEPENDENCY_PKGS="python3-pip \
+                 bash \
                  apt-transport-https \
                  ca-certificates \
                  curl \
