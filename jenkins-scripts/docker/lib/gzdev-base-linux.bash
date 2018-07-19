@@ -27,7 +27,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: run gzdev for gazebo9 with nvidia'
 cd ${WORKSPACE}/gzdev
-/bin/bash -ex ./gzdev.py spawn --gzv=8 --nvidia
+./gzdev.py spawn --gzv=8 --nvidia
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: check that gazebo is running'
