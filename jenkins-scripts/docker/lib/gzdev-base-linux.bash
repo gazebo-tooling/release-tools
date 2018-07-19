@@ -9,6 +9,7 @@ cat > build.sh << DELIM
 set -ex
 
 export MAKE_JOBS=${MAKE_JOBS}
+export DISPLAY=${DISPLAY}
 
 echo '# BEGIN SECTION: install docker (in docker)'
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
