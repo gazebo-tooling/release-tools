@@ -22,7 +22,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: install pip requirements'
 cd ${WORKSPACE}/gzdev
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run gzdev for gazebo9 with nvidia'
