@@ -18,6 +18,7 @@ set MSVC_KEYWORD=%PLATFORM_TO_BUILD%
 IF %PLATFORM_TO_BUILD% == x86 (
   echo "Using 32bits VS configuration"
   set BITNESS=32
+  set VCPKG_TARGET_ARCHITECTURE=x86
   set VCPKG_TARGET_TRIPLET=x86-windows
 ) ELSE (
   REM Visual studio is accepting many keywords to compile for 64bits
@@ -28,6 +29,7 @@ IF %PLATFORM_TO_BUILD% == x86 (
   set MSVC_KEYWORD=x86_amd64
   set PLATFORM_TO_BUILD=amd64
   set VCPKG_TARGET_TRIPLET=x64-windows
+  set VCPKG_TARGET_ARCHITECTURE=x64
   set PreferredToolArchitecture=x64
 )
 
