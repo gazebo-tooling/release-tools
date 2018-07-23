@@ -41,6 +41,11 @@ while (! \$gazebo_detection); do
    [ \$seconds_waiting -gt 30 ] && exit 1
 done
 echo '# END SECTION'
+
+echo '# BEGIN SECTION: Disply log file.'
+cat ./gz8.log
+echo '# END SECTION'
+
 DELIM
 
 export USE_DOCKER_IN_DOCKER=true
