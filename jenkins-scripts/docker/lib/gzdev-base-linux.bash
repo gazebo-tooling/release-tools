@@ -42,7 +42,7 @@ gazebo_detection=false
 seconds_waiting=0
 while (! \$gazebo_detection); do
    sleep 1
-   (ps aux | pgrep gzserver) && gazebo_detection=true
+   (ps aux | pgrep gazebo) && gazebo_detection=true
    seconds_waiting=\$((seconds_waiting+1))
    [ \$seconds_waiting -gt 30 ] && exit 1
 done
