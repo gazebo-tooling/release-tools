@@ -37,6 +37,10 @@ cd ${WORKSPACE}/gzdev
 ./gzdev.py spawn --gzv=8 --nvidia
 echo '# END SECTION'
 
+echo '# BEGIN SECTION: Disply log file.'
+cat ./gz8.log
+echo '# END SECTION'
+
 echo '# BEGIN SECTION: check that gazebo is running'
 gazebo_detection=false
 seconds_waiting=0
@@ -52,9 +56,6 @@ killall -9 gazebo gzserver gzclient && true
 ! \${gazebo_detection} && exit 1
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: Disply log file.'
-cat ./gz8.log
-echo '# END SECTION'
 
 DELIM
 
