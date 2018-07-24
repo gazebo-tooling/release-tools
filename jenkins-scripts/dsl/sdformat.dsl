@@ -16,7 +16,7 @@ def supported_arches        = Globals.get_supported_arches()
 def experimental_arches     = Globals.get_experimental_arches()
 
 String ci_distro_str = ci_distro[0]
-String ci_build_any_job_name_linux = "sdformat-ci-pr_any-${ci_distro_str}-amd64"
+String ci_build_any_job_name_linux = "sdformat-ci-pr_any-ubuntu_auto-amd64"
 
 // Need to be used in ci_pr
 String abi_job_name = ''
@@ -113,8 +113,18 @@ ci_distro.each { distro ->
 
          shell("""\
          #!/bin/bash -xe
+         wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh
+         source yaml.sh
 
-         export DISTRO=${distro}
+         create_variables \${WORKSPACE}/sdformat/bitbucket-pipelines.yml
+
+         export DISTRO=${ci_distro_str}
+
+         if [[ -n \${image} ]]; then
+           echo "Bitbucket pipeline.yml detected. Default DISTRO is ${ci_distro_str}"
+           export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
+         fi
+
          export ARCH=${arch}
          /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
          """.stripIndent())

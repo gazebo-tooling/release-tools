@@ -27,6 +27,8 @@ if [[ -z ${LINUX_DISTRO} ]]; then
   export LINUX_DISTRO="ubuntu"
 fi
 
+[[ -z ${USE_GCC8} ]] && USE_GCC8=false
+
 case ${LINUX_DISTRO} in
   'ubuntu')
     SOURCE_LIST_URL="http://archive.ubuntu.com/ubuntu"
@@ -176,8 +178,9 @@ if [[ $ARCH == 'arm64' ]]; then
 cat >> Dockerfile << DELIM_SYSCAL_ARM64
 # Workaround for problem with syscall 277 in man-db
 ENV MAN_DISABLE_SECCOMP 1
-RUN apt-get update && \\
-    apt-get install -y man-db
+RUN apt-get update \\
+    && apt-get install -y man-db \\
+    && rm -rf /var/lib/apt/lists/*
 DELIM_SYSCAL_ARM64
 fi
 
@@ -246,6 +249,17 @@ RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))" \
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
 DELIM_DOCKER3
+
+# Beware of moving this code since it needs to run update-alternative after
+# installing the default compiler in PACKAGES_CACHE_AND_CHECK_UPDATES
+if ${USE_GCC8}; then
+cat >> Dockerfile << DELIM_GCC8
+   RUN apt-get update \\
+   && apt-get install -y g++-8 \\
+   && rm -rf /var/lib/apt/lists/* \\
+   && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
+DELIM_GCC8
+fi
 
 cat >> Dockerfile << DELIM_DOCKER_SQUID
 # If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy
