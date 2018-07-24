@@ -49,7 +49,7 @@ while (! \$gazebo_detection); do
 done
 # clean up gazebo instances
 killall -9 gazebo gzserver gzclient && true
-[[ ! \${gazebo_detection} ]] && exit 1
+! \${gazebo_detection} && exit 1
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: Disply log file.'
@@ -65,7 +65,8 @@ export DEPENDENCY_PKGS="python3-pip \
                  apt-transport-https \
                  ca-certificates \
                  curl \
-                 software-properties-common"
+                 software-properties-common \
+		 psmisc" # killall
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
 . "${SCRIPT_DIR}/lib/docker_run.bash"
