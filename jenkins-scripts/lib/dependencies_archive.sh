@@ -571,15 +571,16 @@ else #default in not defined
                            libignition-math5-dev"
 fi
 
-IGN_GUI_DEPENDENCIES="qtbase5-dev \\
+IGN_GUI_NO_IGN_DEPENDENCIES="qtbase5-dev \\
+                      libtinyxml2-dev \\
+                      libqwt-qt5-dev"
+IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
                       libignition-cmake1-dev \\
                       libignition-math5-dev \\
                       libignition-tools-dev \\
                       libignition-transport5-dev \\
                       libignition-msgs2-dev \\
-                      libignition-common2-dev \\
-                      libtinyxml2-dev \\
-                      libqwt-qt5-dev"
+                      libignition-common2-dev"
 
 IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           dart6-data \\
@@ -589,17 +590,19 @@ IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           libignition-common2-dev \\
                           libignition-math5-dev"
 
-IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
+IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev \\
                             libfreeimage-dev \\
                             libglew-dev \\
-                            libignition-cmake1-dev \\
-                            libignition-common2-dev \\
-                            libignition-math5-dev \\
                             libogre-1.9-dev \\
                             libx11-dev \\
                             mesa-common-dev \\
                             mesa-utils"
+
+IGN_RENDERING_DEPENDENCIES="${IGN_RENDERING_NO_IGN_DEPENDENCIES} \\
+                            libignition-cmake1-dev \\
+                            libignition-common2-dev \\
+                            libignition-math5-dev"
 
 IGN_SENSORS_DEPENDENCIES="libignition-common2-dev     \\
                           libignition-cmake1-dev \\
