@@ -8,7 +8,7 @@ print("| Type | Count | Percent | Change |")
 print("|--|--|--|--|")
 print("| total | %d | |  |" % len(jobs));
 jobs_colors = {}
-for c in ["blue", "yellow", "red", "aborted", "notbuilt"]:
+for c in ["yellow", "red", "aborted", "notbuilt"]:
     jc = [j for j in jobs if j["color"].startswith(c)]
     jobs_colors[c] = jc
     print("| %s | %d/%d | %.1f%% |  |" % (c, len(jc), len(jobs), 100*float(len(jc)) / len(jobs)))
