@@ -549,6 +549,11 @@ IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
                              libyaml-dev            \\
                              libzip-dev"
 
+# IGN_MSGS related dependencies. Default value points to the development version
+if [[ -z ${IGN_MSGS_MAJOR_VERSION} ]]; then
+    IGN_MSGS_MAJOR_VERSION=2
+fi
+
 IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
                        libprotobuf-dev       \\
                        libprotoc-dev         \\
