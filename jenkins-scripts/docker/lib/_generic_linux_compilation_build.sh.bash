@@ -7,7 +7,7 @@
 #  - GENERIC_ENABLE_TESTS (optional) [default true] run tests
 #  - BUILDING_EXTRA_CMAKE_PARAMS (optional) extra cmake params
 #  - BUILD_<lib name> (optional) build dependency from source, for example, BUILD_IGN_MATH
-#  - BUILD_<lib name>_BRANCH (optional [default: default]) branch for BUILD_<lib_name>
+#    - <lib name>_BRANCH (optional [default: default]) branch for BUILD_<lib_name>
 
 if [[ -z ${SOFTWARE_DIR} ]]; then
     echo "SOFTWARE_DIR variable is unset. Please fix the code"
