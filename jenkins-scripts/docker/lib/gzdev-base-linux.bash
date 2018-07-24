@@ -37,20 +37,25 @@ cd ${WORKSPACE}/gzdev
 ./gzdev.py spawn --gzv=8 --nvidia &
 echo '# END SECTION'
 
+echo '# BEGIN SECTION: Disply log file.'
+cat ./gz8.log
+echo '# END SECTION'
+
 echo '# BEGIN SECTION: check that gazebo is running'
 gazebo_detection=false
 seconds_waiting=0
 while (! \$gazebo_detection); do
    sleep 1
-   (ps aux | pgrep gazebo) && gazebo_detection=true
+   pgrep gazebo && gazebo_detection=true
+   pgrep gzserver && gazebo_detection=true
    seconds_waiting=\$((seconds_waiting+1))
-   [ \$seconds_waiting -gt 30 ] && exit 1
+   [ \$seconds_waiting -gt 30 ] && break
 done
+# clean up gazebo instances
+killall -9 gazebo gzserver gzclient && true
+! \${gazebo_detection} && exit 1
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: Disply log file.'
-cat ./gz8.log
-echo '# END SECTION'
 
 DELIM
 
@@ -61,7 +66,8 @@ export DEPENDENCY_PKGS="python3-pip \
                  apt-transport-https \
                  ca-certificates \
                  curl \
-                 software-properties-common"
+                 software-properties-common \
+		 psmisc" # killall
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
 . "${SCRIPT_DIR}/lib/docker_run.bash"
