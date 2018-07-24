@@ -72,7 +72,7 @@ for job_name in ci_jobs_sorted:
     print("\n## %s\n" % job_name)
     header = "| Type | Count | Percent | Change |\n"
     header += "|--|--|--|--|"
-    for c in ["yellow", "red", "aborted", "notbuilt"]:
+    for c in ["blue", "yellow", "red", "aborted", "notbuilt"]:
         jc = [j for j in ci_jobs[job_name] if j["color"].startswith(c)]
         if len(jc) > 0:
             if not header_printed:
