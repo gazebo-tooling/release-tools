@@ -21,6 +21,12 @@ apt-get update
 apt-get install -y docker-ce
 echo '# END SECTION'
 
+echo '# BEGIN SECTION: install nvidia-docker (in docker)'
+apt-get install -y wget
+wget -P /tmp https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.1/nvidia-docker_1.0.1-1_amd64.deb
+dpkg -i /tmp/nvidia-docker*.deb && rm /tmp/nvidia-docker*.deb
+echo '# END SECTION'
+
 echo '# BEGIN SECTION: install pip requirements'
 cd ${WORKSPACE}/gzdev
 pip3 install -r requirements.txt
@@ -45,6 +51,11 @@ done
 killall -9 gazebo gzserver gzclient && true
 [[ ! \${gazebo_detection} ]] && exit 1
 echo '# END SECTION'
+
+echo '# BEGIN SECTION: Disply log file.'
+cat ./gz8.log
+echo '# END SECTION'
+
 DELIM
 
 export USE_DOCKER_IN_DOCKER=true
