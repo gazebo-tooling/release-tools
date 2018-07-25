@@ -573,6 +573,7 @@ fi
 
 IGN_GUI_NO_IGN_DEPENDENCIES="qtbase5-dev \\
                       qtdeclarative5-dev \\
+                      qtquickcontrols2-5-dev \\
                       libtinyxml2-dev \\
                       libqwt-qt5-dev"
 IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
