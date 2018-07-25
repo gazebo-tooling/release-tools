@@ -32,9 +32,9 @@ cd ${WORKSPACE}/gzdev
 pip3 install -r requirements.txt
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: run gzdev for gazebo9 with nvidia'
+echo '# BEGIN SECTION: run gzdev for gazebo8 with nvidia'
 cd ${WORKSPACE}/gzdev
-./gzdev.py spawn --gzv=8 --nvidia &
+./gzdev.py spawn --gzv=8 --nvidia
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: Disply log file.'
@@ -44,14 +44,16 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: check that gazebo is running'
 gazebo_detection=false
 seconds_waiting=0
+cat gz8.log | grep "Connected to gazebo master" && gazebo_detection=true
 while (! \$gazebo_detection); do
    sleep 1
-   pgrep gazebo && gazebo_detection=true
-   pgrep gzserver && gazebo_detection=true
+   docker top gz8 | grep gazebo && gazebo_detection=true
+   docker top gz8 | grep gzserver && gazebo_detection=true
    seconds_waiting=\$((seconds_waiting+1))
    [ \$seconds_waiting -gt 30 ] && break
 done
 # clean up gazebo instances
+docker rm -f gz8
 killall -9 gazebo gzserver gzclient && true
 ! \${gazebo_detection} && exit 1
 echo '# END SECTION'
