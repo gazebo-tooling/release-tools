@@ -53,8 +53,8 @@ while (! \$gazebo_detection); do
    [ \$seconds_waiting -gt 30 ] && break
 done
 # clean up gazebo instances
-docker rm -f gz8
-killall -9 gazebo gzserver gzclient && true
+docker rm -f gz8 || true
+killall -9 gazebo gzserver gzclient || true
 ! \${gazebo_detection} && exit 1
 echo '# END SECTION'
 DELIM
