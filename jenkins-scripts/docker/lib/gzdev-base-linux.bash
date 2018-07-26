@@ -60,7 +60,7 @@ echo '# END SECTION'
 DELIM
 
 export USE_DOCKER_IN_DOCKER=true
-export GPU_SUPPORT_NEEDED=true
+export USE_GPU_DOCKER=true
 export OSRF_REPOS_TO_USE="stable"
 export DEPENDENCY_PKGS="python3-pip \
                  bash \
