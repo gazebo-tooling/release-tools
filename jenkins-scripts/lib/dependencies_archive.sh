@@ -587,6 +587,8 @@ IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           libignition-common2-dev \\
                           libignition-math5-dev"
 
+IGN_PLUGIN_DEPENDENCIES="libignition-cmake1-dev"
+
 IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev \\
                             libfreeimage-dev \\
