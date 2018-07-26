@@ -30,7 +30,7 @@ ignition_branches           = [ 'common'     : [ '1' ],
                                 'transport'  : [ '3','4' ]]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
-ignition_colcon_win         = [ 'physics', 'rendering', 'sensors', 'gui' ]
+ignition_colcon_win         = [ 'physics', 'rendering' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
