@@ -7,6 +7,7 @@
 #  - GENERIC_ENABLE_TESTS (optional) [default true] run tests
 #  - BUILDING_EXTRA_CMAKE_PARAMS (optional) extra cmake params
 #  - BUILD_<lib name> (optional) build dependency from source, for example, BUILD_IGN_MATH
+#    - <lib name>_BRANCH (optional [default: default]) branch for BUILD_<lib_name>
 
 if [[ -z ${SOFTWARE_DIR} ]]; then
     echo "SOFTWARE_DIR variable is unset. Please fix the code"
@@ -27,7 +28,7 @@ fi
 DELIM_HEADER
 
 # Process the source build of dependencies if needed
-OSRF_DEPS="SDFORMAT IGN_MATH IGN_MSGS IGN_TRANSPORT IGN_COMMON IGN_RENDERING IGN_SENSORS IGN_GUI"
+OSRF_DEPS="IGN_CMAKE IGN_TOOLS IGN_MATH IGN_MSGS IGN_TRANSPORT IGN_COMMON IGN_RENDERING IGN_SENSORS IGN_GUI SDFORMAT"
 OSRF_DEPS_DONE=""
 for dep_uppercase in $OSRF_DEPS; do
   dep=`echo $dep_uppercase | tr '[:upper:]' '[:lower:]'`
