@@ -57,11 +57,10 @@ docker rm -f gz8
 killall -9 gazebo gzserver gzclient && true
 ! \${gazebo_detection} && exit 1
 echo '# END SECTION'
-
-
 DELIM
 
 export USE_DOCKER_IN_DOCKER=true
+export GPU_SUPPORT_NEEDED=true
 export OSRF_REPOS_TO_USE="stable"
 export DEPENDENCY_PKGS="python3-pip \
                  bash \
