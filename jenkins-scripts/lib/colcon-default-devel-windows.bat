@@ -48,12 +48,14 @@ call %win_lib% :configure_msvc2017_compiler
 echo # END SECTION
 
 echo # BEGIN SECTION: setup workspace
-if NOT %KEEP_WORKSPACE% == 1 (
-  IF exist %LOCAL_WS_BUILD% ( 
-     echo # BEGIN SECTION: preclean workspace
-     rmdir /s /q %LOCAL_WS_BUILD% || goto :error
-     echo # END SECTION
-  ) 
+if defined KEEP_WORKSPACE (
+  if NOT %KEEP_WORKSPACE% == 1 (
+    IF exist %LOCAL_WS_BUILD% (
+      echo # BEGIN SECTION: preclean workspace
+      rmdir /s /q %LOCAL_WS_BUILD% || goto :error
+      echo # END SECTION
+    )
+  )
 )
 mkdir %LOCAL_WS% || echo "Workspace already exists!"
 cd %LOCAL_WS%
