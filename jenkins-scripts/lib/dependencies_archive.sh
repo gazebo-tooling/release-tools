@@ -491,31 +491,33 @@ if [[ -z ${IGN_TRANSPORT_MAJOR_VERSION} ]]; then
     IGN_TRANSPORT_MAJOR_VERSION=5
 fi
 
-IGN_TRANSPORT_DEPENDENCIES="pkg-config           \\
-                            python               \\
-                            ruby-ronn            \\
-                            libignition-tools-dev \\
-                            libprotoc-dev        \\
-                            libprotobuf-dev      \\
-                            protobuf-compiler    \\
-                            uuid-dev             \\
-                            libzmq3-dev          \\
-                            libczmq-dev"
+IGN_TRANSPORT_NO_IGN_DEPENDENCIES="pkg-config           \\
+                                   python               \\
+                                   ruby-ronn            \\
+                                   libprotoc-dev        \\
+                                   libprotobuf-dev      \\
+                                   protobuf-compiler    \\
+                                   uuid-dev             \\
+                                   libzmq3-dev          \\
+                                   libczmq-dev"
 
 if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 4 ]]; then
-    IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
+    export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libignition-cmake-dev \\
                                 libignition-msgs-dev"
 elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 5 ]]; then
-    IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
-                                libignition-cmake1-dev \\
-                                libignition-msgs2-dev \\
+    export IGN_TRANSPORT_NO_IGN_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libsqlite3-dev \\
                                 ruby-ffi"
+    export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
+                                libignition-cmake1-dev \\
+                                libignition-msgs2-dev"
 else
-    IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} \\
+    export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libignition-msgs0-dev"
 fi
+
+export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} libignition-tools-dev"
 
 IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          python                \\
@@ -556,14 +558,14 @@ IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
                        ruby                  \\
                        ruby-dev"
 
-if [[ ${IGN_MSGS_MAJOR_VERSION} -le 0 ]]; then
+if [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -le 0 ]]; then
     IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
                            libignition-math3-dev"
-elif [[ ${IGN_MSGS_MAJOR_VERSION} -eq 1 ]]; then
+elif [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -eq 1 ]]; then
     IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
                            libignition-cmake-dev \\
                            libignition-math4-dev"
-else
+else #default in not defined
     IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
                            libignition-cmake1-dev \\
                            libignition-math5-dev"
