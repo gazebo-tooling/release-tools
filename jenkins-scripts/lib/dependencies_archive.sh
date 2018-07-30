@@ -520,18 +520,18 @@ fi
 export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} libignition-tools-dev"
 
 IGN_COMMON_NO_IGN_DEPENDENCIES="pkg-config            \\
-                                python                \\
-                                ruby-ronn             \\
-                                uuid-dev              \\
-                                libfreeimage-dev      \\
-                                libgts-dev            \\
-                                libavformat-dev       \\
-                                libavcodec-dev        \\
-                                libswscale-dev        \\
-                                libavutil-dev         \\
-                                libavdevice-dev       \\
-                                libtinyxml2-dev       \\
-                                uuid-dev"
+                         python                \\
+                         ruby-ronn             \\
+                         uuid-dev              \\
+                         libfreeimage-dev      \\
+                         libgts-dev            \\
+                         libavformat-dev       \\
+                         libavcodec-dev        \\
+                         libswscale-dev        \\
+                         libavutil-dev         \\
+                         libavdevice-dev       \\
+                         libtinyxml2-dev       \\
+                         uuid-dev"
 
 if [[ ${IGN_COMMON_MAJOR_VERSION} -le 1 ]]; then
     IGN_COMMON_DEPENDENCIES="${IGN_COMMON_NO_IGN_DEPENDENCIES} \\
@@ -592,10 +592,15 @@ IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           libignition-common2-dev \\
                           libignition-math5-dev"
 
+IGN_PLUGIN_DEPENDENCIES="libignition-cmake1-dev"
+
 IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev \\
                             libfreeimage-dev \\
                             libglew-dev \\
+                            libignition-cmake1-dev \\
+                            libignition-common2-dev \\
+                            libignition-math5-dev \\
                             libogre-1.9-dev \\
                             libx11-dev \\
                             mesa-common-dev \\
