@@ -31,7 +31,7 @@ ignition_branches           = [ 'common'     : [ '1' ],
                                 'transport'  : [ '3','4' ]]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
-ignition_colcon_win         = [ 'physics' ]
+ignition_colcon_win         = [ 'physics', 'rendering' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -441,6 +441,7 @@ ignition_software.each { ign_sw ->
     OSRFBitbucketHg.create(ignition_win_ci_job,
                               "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
                               "${branch}", "ign-${ign_sw}")
+
     ignition_win_ci_job.with
     {
         triggers {
