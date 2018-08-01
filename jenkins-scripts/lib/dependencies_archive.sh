@@ -573,9 +573,14 @@ fi
 
 IGN_GUI_NO_IGN_DEPENDENCIES="qtbase5-dev \\
                       qtdeclarative5-dev \\
-                      qtquickcontrols2-5-dev \\
                       libtinyxml2-dev \\
                       libqwt-qt5-dev"
+
+if [[ ${DISTRO} != 'xenial' ]]; then
+  IGN_GUI_NO_IGN_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
+                      qtquickcontrols2-5-dev"
+fi
+
 IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
                       libignition-cmake1-dev \\
                       libignition-math5-dev \\
