@@ -24,6 +24,13 @@ export ENABLE_REAPER=false
 DOCKER_JOB_NAME="subt_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
+# Need special tarball
+# see: https://bitbucket.org/osrf/subt/wiki/tutorials/ExampleSetup
+export ROS_WS_PREBUILD_HOOK="""
+cd ..
+wget 'https://drive.google.com/a/osrfoundation.org/uc?export=download&confirm=LAVS&id=1m_cJzgbj0pOJVLzVClMsPJOZmvNj280Z' -O subt_robot_examples.tgz
+tar xvfz subt_robot_examples.tgz
+"""
 
 export ROS_SETUP_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: smoke test'
