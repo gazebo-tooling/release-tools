@@ -113,7 +113,7 @@ ci_distro.each { distro ->
 
          shell("""\
          #!/bin/bash -xe
-         wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh
+         wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
          source yaml.sh
 
          create_variables \${WORKSPACE}/sdformat/bitbucket-pipelines.yml

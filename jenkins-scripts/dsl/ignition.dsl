@@ -178,7 +178,7 @@ ignition_software.each { ign_sw ->
 
          shell("""\
               #!/bin/bash -xe
-              wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh
+              wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
               source yaml.sh
 
               create_variables \${WORKSPACE}/${ignition_checkout_dir}/bitbucket-pipelines.yml
