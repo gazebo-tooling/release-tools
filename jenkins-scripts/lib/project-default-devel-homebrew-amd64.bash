@@ -130,7 +130,9 @@ echo '# END SECTION'
 
 echo "#BEGIN SECTION: brew doctor analysis"
 brew missing || brew install $(brew missing | awk '{print $2}') && brew missing
-brew doctor
+# but ignore brew doctor on macOS 10.14 until it is released
+brew doctor \
+ || brew config | grep '^macOS: 10\.14-'
 echo '# END SECTION'
 
 # CHECK PRE_TESTS_EXECUTION_HOOK AND RUN
