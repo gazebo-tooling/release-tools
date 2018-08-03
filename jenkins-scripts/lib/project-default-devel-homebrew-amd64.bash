@@ -55,7 +55,9 @@ export HOMEBREW_NO_AUTO_UPDATE=1
 brew config
 # Run brew doctor to check for problems with the system
 # brew prune to fix some of this problems
-brew doctor || brew prune && brew doctor
+# but ignore brew doctor on macOS 10.14 until it is released
+brew doctor || brew prune && brew doctor \
+ || brew config | grep '^macOS: 10\.14-'
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: setup the osrf/simulation tap'
