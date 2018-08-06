@@ -1,6 +1,6 @@
-# calculate NEEDS_GZ11_SUPPORT
 export NEEDS_GZ11_SUPPORT=false
 
+# calculate NEEDS_GZ11_SUPPORT
 if [[ ${DEST_BRANCH} == 'gz11' ]] || [[ ${SRC_BRANCH} == 'gz11' ]]; then
   export NEEDS_GZ11_SUPPORT=true
 
