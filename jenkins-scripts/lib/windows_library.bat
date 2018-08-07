@@ -236,7 +236,7 @@ call %LIB_DIR%\windows_env_vars.bat
 echo "VCPKG_TARGET_TRIPLET=%VCPKG_TARGET_TRIPLET%"
 echo "VCPKG_TARGET_ARCHITECTURE=%VCPKG_TARGET_ARCHITECTURE%"
  
-%VCPKG_CMD% install "%1"
+%VCPKG_CMD% install --triplet %VCPKG_TARGET_TRIPLET% "%1"
 goto :EOF
 
 :: ##################################
