@@ -610,7 +610,6 @@ IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev \\
                             libfreeimage-dev \\
                             libglew-dev \\
-                            libignition-cmake1-dev \\
                             libignition-common2-dev \\
                             libignition-math5-dev \\
                             libogre-1.9-dev \\
@@ -619,7 +618,6 @@ IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
                             mesa-utils"
 
 IGN_RENDERING_DEPENDENCIES="${IGN_RENDERING_NO_IGN_DEPENDENCIES} \\
-                            libignition-cmake1-dev \\
                             libignition-common2-dev \\
                             libignition-math5-dev"
 
