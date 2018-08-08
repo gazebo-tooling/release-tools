@@ -100,7 +100,7 @@ cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT_FORMULA}/HEAD \
       ..
 make -j${MAKE_JOBS} ${MAKE_VERBOSE_STR} install
-brew link ign-cmake
+brew link ignition-cmake1
 echo '# END SECTION'
 
 # Step 3. Manually compile and install ${PROJECT}
