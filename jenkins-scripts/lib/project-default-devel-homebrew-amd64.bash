@@ -90,6 +90,18 @@ if [[ -z "${DISABLE_CCACHE}" ]]; then
 fi
 echo '# END SECTION'
 
+echo "# BEGIN SECTION: custom ign-cmake"
+brew unlink ignition-cmake1
+hg clone https://bitbucket.org/ignitionrobotics/ign-cmake -b ${IGN_CMAKE_BRANCH}
+cd ign-cmake
+mkdir build && cd build 
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+      -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT_FORMULA}/HEAD \
+      ..
+make -j${MAKE_JOBS} ${MAKE_VERBOSE_STR} install
+brew link ${PROJECT_FORMULA}
+echo '# END SECTION'
+
 # Step 3. Manually compile and install ${PROJECT}
 echo "# BEGIN SECTION: configure ${PROJECT}"
 cd ${WORKSPACE}/${PROJECT_PATH}
