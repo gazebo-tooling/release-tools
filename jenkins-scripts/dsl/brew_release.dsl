@@ -159,6 +159,10 @@ brew_supported_distros.each { distro ->
 
      label "osx_${distro}"
 
+     logRotator {
+       artifactNumToKeep(10)
+     }
+
      parameters
      {
        stringParam("PULL_REQUEST_URL", '',
