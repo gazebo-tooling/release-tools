@@ -26,10 +26,13 @@ DOCKER_JOB_NAME="subt_ci"
 
 # Need special tarball
 # see: https://bitbucket.org/osrf/subt/wiki/tutorials/ExampleSetup
+# remove subt_example and subt_gazebo since there are coming from the repo under testing
 export ROS_WS_PREBUILD_HOOK="""
 cd ..
 wget http://gazebosim.org/distributions/subt_robot_examples/releases/subt_robot_examples_latest.tgz -O subt_robot_examples.tgz
 tar xvfz subt_robot_examples.tgz
+rm -fr install/share/subt_example
+rm -fr install/share/subt_gazebo
 """
 
 export ROS_SETUP_POSTINSTALL_HOOK="""
