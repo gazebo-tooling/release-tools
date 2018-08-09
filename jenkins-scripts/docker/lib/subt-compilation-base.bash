@@ -28,7 +28,7 @@ DOCKER_JOB_NAME="subt_ci"
 # see: https://bitbucket.org/osrf/subt/wiki/tutorials/ExampleSetup
 export ROS_WS_PREBUILD_HOOK="""
 cd ..
-wget http://gazebosim.org/distributions/subt_robot_examples/releases/subt_robot_examples_20180808.tgz -O subt_robot_examples.tgz
+wget http://gazebosim.org/distributions/subt_robot_examples/releases/subt_robot_examples_latest.tgz -O subt_robot_examples.tgz
 tar xvfz subt_robot_examples.tgz
 """
 
