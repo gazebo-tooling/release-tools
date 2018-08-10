@@ -74,6 +74,7 @@ echo '# END SECTION'
 echo '# BEGIN SECTION install the system dependencies'
 catkin list
 rosdep install --from-paths . \
+               -r             \
                --ignore-src   \
                --rosdistro=${ROS_DISTRO} \
                --default-yes \
