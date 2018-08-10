@@ -33,7 +33,8 @@ wget http://gazebosim.org/distributions/subt_robot_examples/releases/subt_robot_
 tar xvfz subt_robot_examples.tgz
 rm -fr install/share/subt_example
 rm -fr install/share/subt_gazebo
-. install/setup.bash || true
+mv install devel
+. devel/setup.bash || true
 """
 
 export ROS_SETUP_POSTINSTALL_HOOK="""
