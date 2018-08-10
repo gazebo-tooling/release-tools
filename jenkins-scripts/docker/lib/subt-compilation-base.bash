@@ -44,7 +44,7 @@ mkdir -p ~/.gazebo/models
 tar -xvf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
 rm /tmp/default.tar.gz
 
-source ./devel/setup.bash
+source ./devel/setup.bash || true
 
 TEST_TIMEOUT=180
 TEST_START=\$(date +%s)
