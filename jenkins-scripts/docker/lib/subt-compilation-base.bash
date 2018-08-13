@@ -36,8 +36,6 @@ wget http://gazebosim.org/distributions/subt_robot_examples/releases/subt_robot_
 tar xvfz subt_robot_examples.tgz
 rm -fr install/share/subt_example
 rm -fr install/share/subt_gazebo
-mv install devel
-. devel/setup.bash || true
 """
 
 export ROS_SETUP_POSTINSTALL_HOOK="""
@@ -47,7 +45,7 @@ mkdir -p ~/.gazebo/models
 tar -xvf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
 rm /tmp/default.tar.gz
 
-source ./devel/setup.bash || true
+source ./install/setup.bash || true
 
 TEST_TIMEOUT=180
 TEST_START=\$(date +%s)
