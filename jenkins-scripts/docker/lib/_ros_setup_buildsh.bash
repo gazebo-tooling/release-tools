@@ -18,7 +18,7 @@ if ${USE_CATKIN_MAKE}; then
   export CMD_CATKIN_LIST=""
   export CMD_CATKIN_BUILD="catkin_make -j${MAKE_JOBS} && catkin_make install"
   export CMD_CATKIN_TEST="catkin_make run_tests -j1 || true"
-  export CMD_CATKIN_TEST_RESULTS="catkin_test_results"
+  export CMD_CATKIN_TEST_RESULTS="catkin_test_results || true"
 else
   # catkin tools
   export CMD_CATKIN_CONFIG="catkin config --init --mkdirs"
