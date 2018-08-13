@@ -11,6 +11,22 @@ if [ -z ${ROS_DISTRO} ]; then
 fi
 
 [[ -z ${USE_GZ_VERSION_ROSDEP} ]] && USE_GZ_VERSION_ROSDEP=false
+[[ -z ${USE_CATKIN_MAKE} ]] && USE_CATKIN_MAKE=false # use catkin tools by default
+
+if ${USE_CATKIN_MAKE}; then
+  export CMD_CATKIN_CONFIG=""
+  export CMD_CATKIN_LIST=""
+  export CMD_CATKIN_BUILD="catkin_make -j${MAKE_JOBS} && catkin_make install"
+  export CMD_CATKIN_TEST="catkin_make run_tests -j1 || true"
+  export CMD_CATKIN_TEST_RESULTS="catkin_test_results"
+else
+  # catkin tools
+  export CMD_CATKIN_CONFIG="catkin config --init --mkdirs"
+  export CMD_CATKIN_LIST=""
+  export CMD_CATKIN_BUILD="catkin build -j${MAKE_JOBS} --verbose --summary ${CATKIN_EXTRA_ARGS}"
+  export CMD_CATKIN_TEST="catkin run_tests -j1 || true"
+  export CMD_CATKIN_TEST_RESULTS="catkin_test_results --all --verbose"
+fi
 
 export CATKIN_WS="${WORKSPACE}/ws"
 
@@ -54,9 +70,9 @@ echo '# BEGIN SECTION: create the catkin workspace'
 rm -fr ${CATKIN_WS}
 mkdir -p ${CATKIN_WS}/src
 cd ${CATKIN_WS}
-catkin config --init --mkdirs
+${CMD_CATKIN_CONFIG}
 ln -s "${WORKSPACE}/${SOFTWARE_DIR}" "${CATKIN_WS}/src/${SOFTWARE_DIR}"
-catkin list
+${CMD_CATKIN_LIST}
 echo '# END SECTION'
 DELIM_CONFIG
 
@@ -72,7 +88,7 @@ cat >> build.sh << DELIM_COMPILATION
 echo '# END SECTION'
 
 echo '# BEGIN SECTION install the system dependencies'
-catkin list
+${CMD_CATKIN_LIST}
 rosdep install --from-paths . \
                -r             \
                --ignore-src   \
@@ -82,12 +98,12 @@ rosdep install --from-paths . \
 echo '# END SECTION'
 
 echo '# BEGIN SECTION compile the catkin workspace'
-catkin build -j${MAKE_JOBS} --verbose --summary ${CATKIN_EXTRA_ARGS}
+${CMD_CATKIN_BUILD}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: running tests'
-catkin run_tests -j1 || true
-catkin_test_results --all --verbose || true
+${CMD_CATKIN_TEST}
+${CMD_CATKIN_TEST_RESULTS}
 
 # link test results to usual place
 mkdir -p ${WORKSPACE}/build/test_results
