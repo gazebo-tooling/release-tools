@@ -17,7 +17,7 @@ ignition_software = [ 'cmake',
                       'transport' ]
 ignition_debbuild  = ignition_software + [ 'cmake1','cmake2',
                                            'common2',
-                                           'math5',
+                                           'math5','math6',
                                            'msgs0', 'msgs2',
                                            'transport5' ]
 ignition_gpu                = [ 'gui', 'rendering', 'sensors' ]
