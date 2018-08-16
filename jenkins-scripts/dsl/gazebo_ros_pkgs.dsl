@@ -227,7 +227,7 @@ ros2_distros.each { ros_distro ->
 
     // --------------------------------------------------------------
     // 1. Create the default ci jobs (using ros-shadow-fixed by default)
-    def default_ci_job = job("ros_gazebo_pkgs-ci-default_$suffix_triplet")
+    def default_ci_job = job("ros2_gazebo_pkgs-ci-default_$suffix_triplet")
     // Enable testing but not cppcheck
     OSRFLinuxCompilation.create(default_ci_job, true, false)
     default_ci_job.with
