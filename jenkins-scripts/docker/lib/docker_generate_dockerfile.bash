@@ -170,7 +170,7 @@ if ${USE_ROS_REPO}; then
 cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
 RUN echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/main ${DISTRO} main" > \\
-                                                 /etc/apt/sources.list.d/ros2-latest.list' 
+                                                 /etc/apt/sources.list.d/ros2-latest.list 
 RUN curl http://repo.ros2.org/repos.key | apt-key add -
 DELIM_ROS_REPO
   else
