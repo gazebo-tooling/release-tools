@@ -300,6 +300,10 @@ else
       melodic)
         GAZEBO_VERSION_FOR_ROS="9"
       ;;
+      # ROS 2
+      bouncy)
+        GAZEBO_VERSION_FOR_ROS="9"
+      ;;
     esac
   fi
 
