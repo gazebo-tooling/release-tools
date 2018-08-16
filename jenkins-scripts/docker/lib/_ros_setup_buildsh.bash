@@ -103,7 +103,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: running tests'
 # some tests needs to source install before running
-source install/setup.bash
+source install/setup.bash || true
 ${CMD_CATKIN_TEST}
 ${CMD_CATKIN_TEST_RESULTS}
 
