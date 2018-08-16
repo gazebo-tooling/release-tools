@@ -376,64 +376,81 @@ else
   #
   # ROS_GAZEBO_PKGS DEPENDECIES
   #
-  ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_CATKIN_BASE}                        \\
-                                libtinyxml-dev                            \\
-                                ros-${ROS_DISTRO}-ros                     \\
-                                ros-${ROS_DISTRO}-catkin                  \\
-                                ros-${ROS_DISTRO}-pluginlib               \\
-                                ros-${ROS_DISTRO}-roscpp                  \\
-                                ros-${ROS_DISTRO}-angles                  \\
-                                ros-${ROS_DISTRO}-camera-info-manager     \\
-                                ros-${ROS_DISTRO}-cmake-modules           \\
-                                ros-${ROS_DISTRO}-controller-manager      \\
-                                ros-${ROS_DISTRO}-control-toolbox         \\
-                                ros-${ROS_DISTRO}-tf                      \\
-                                ros-${ROS_DISTRO}-cv-bridge               \\
-                                ros-${ROS_DISTRO}-diagnostic-updater      \\
-                                ros-${ROS_DISTRO}-dynamic-reconfigure     \\
-                                ros-${ROS_DISTRO}-geometry-msgs           \\
-                                ros-${ROS_DISTRO}-image-transport         \\
-                                ros-${ROS_DISTRO}-joint-limits-interface  \\
-                                ros-${ROS_DISTRO}-message-generation      \\
-                                ros-${ROS_DISTRO}-nav-msgs                \\
-                                ros-${ROS_DISTRO}-nodelet                 \\
-                                ros-${ROS_DISTRO}-pcl-conversions         \\
-                                ros-${ROS_DISTRO}-polled-camera           \\
-                                ros-${ROS_DISTRO}-rosconsole              \\
-                                ros-${ROS_DISTRO}-rosgraph-msgs           \\
-                                ros-${ROS_DISTRO}-sensor-msgs             \\
-                                ros-${ROS_DISTRO}-std-srvs                \\
-                                ros-${ROS_DISTRO}-tf                      \\
-                                ros-${ROS_DISTRO}-tf2-ros                 \\
-                                ros-${ROS_DISTRO}-trajectory-msgs         \\
-                                ros-${ROS_DISTRO}-transmission-interface  \\
-                                ros-${ROS_DISTRO}-urdf                    \\
-                                ros-${ROS_DISTRO}-xacro"
+  ROS_GAZEBO_PKGS_COMMON_DEPS="ros-${ROS_DISTRO}-std-msgs        \\
+                               ros-${ROS_DISTRO}-trajectory-msgs \\
+                               ros-${ROS_DISTRO}-sensor-msgs     \\
+                               ros-${ROS_DISTRO}-geometry-msgs"
 
-  if [[ ${ROS_DISTRO} == 'indigo'  ]] ||
-     [[ ${ROS_DISTRO} == 'jade'    ]] ||
-     [[ ${ROS_DISTRO} == 'kinetic' ]]; then
-     ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
-                                   ros-${ROS_DISTRO}-ros-base \\
-                                   ros-${ROS_DISTRO}-pcl-ros"
+  if ${ROS2}; then
+    ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_COMMON_DEPS}              \\
+                                  ros-${ROS_DISTRO}-ament-cmake               \\
+                                  ros-${ROS_DISTRO}-ament-cmake-gtest         \\
+                                  ros-${ROS_DISTRO}-ament-lint-common         \\
+                                  ros-${ROS_DISTRO}-ament-lint-auto           \\
+                                  ros-${ROS_DISTRO}-builtin-interfaces        \\
+                                  ros-${ROS_DISTRO}-rclcpp                    \\
+                                  ros-${ROS_DISTRO}-rosidl-default-runtime    \\
+                                  ros-${ROS_DISTRO}-rosidl-default-generators"
+  else
+    #
+    # ROS1
+    #
+    ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_CATKIN_BASE}                        \\
+                                  libtinyxml-dev                            \\
+                                  ros-${ROS_DISTRO}-ros                     \\
+                                  ros-${ROS_DISTRO}-catkin                  \\
+                                  ros-${ROS_DISTRO}-pluginlib               \\
+                                  ros-${ROS_DISTRO}-roscpp                  \\
+                                  ros-${ROS_DISTRO}-angles                  \\
+                                  ros-${ROS_DISTRO}-camera-info-manager     \\
+                                  ros-${ROS_DISTRO}-cmake-modules           \\
+                                  ros-${ROS_DISTRO}-controller-manager      \\
+                                  ros-${ROS_DISTRO}-control-toolbox         \\
+                                  ros-${ROS_DISTRO}-tf                      \\
+                                  ros-${ROS_DISTRO}-cv-bridge               \\
+                                  ros-${ROS_DISTRO}-diagnostic-updater      \\
+                                  ros-${ROS_DISTRO}-dynamic-reconfigure     \\
+                                  ros-${ROS_DISTRO}-image-transport         \\
+                                  ros-${ROS_DISTRO}-joint-limits-interface  \\
+                                  ros-${ROS_DISTRO}-message-generation      \\
+                                  ros-${ROS_DISTRO}-nav-msgs                \\
+                                  ros-${ROS_DISTRO}-nodelet                 \\
+                                  ros-${ROS_DISTRO}-pcl-conversions         \\
+                                  ros-${ROS_DISTRO}-polled-camera           \\
+                                  ros-${ROS_DISTRO}-rosconsole              \\
+                                  ros-${ROS_DISTRO}-rosgraph-msgs           \\
+                                  ros-${ROS_DISTRO}-std-srvs                \\
+                                  ros-${ROS_DISTRO}-tf                      \\
+                                  ros-${ROS_DISTRO}-tf2-ros                 \\
+                                  ros-${ROS_DISTRO}-transmission-interface  \\
+                                  ros-${ROS_DISTRO}-urdf                    \\
+                                  ros-${ROS_DISTRO}-xacro"
+
+    if [[ ${ROS_DISTRO} == 'indigo'  ]] ||
+       [[ ${ROS_DISTRO} == 'jade'    ]] ||
+       [[ ${ROS_DISTRO} == 'kinetic' ]]; then
+       ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
+                                     ros-${ROS_DISTRO}-ros-base \\
+                                     ros-${ROS_DISTRO}-pcl-ros"
+    fi
+
+    if [[ ${ROS_DISTRO} == 'indigo' ]] || [[ ${ROS_DISTRO} == 'jade' ]]; then
+    ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
+                                  ros-${ROS_DISTRO}-driver-base"
+    fi
+
+    if [[ ${ROS_DISTRO} == 'indigo' ]]; then
+    # These dependencies are for testing the ros_gazebo_pkgs
+    ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-effort-controllers      \\
+                                  ros-${ROS_DISTRO}-joint-state-controller"
+    fi
+
+    ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-xacro \\
+                                 ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS}"
   fi
 
   ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
                                 ${_GZ_ROS_PACKAGES}"
-
-  if [[ ${ROS_DISTRO} == 'indigo' ]] || [[ ${ROS_DISTRO} == 'jade' ]]; then
-  ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
-                                ros-${ROS_DISTRO}-driver-base"
-  fi
-
-  if [[ ${ROS_DISTRO} == 'indigo' ]]; then
-  # These dependencies are for testing the ros_gazebo_pkgs
-  ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-effort-controllers      \\
-                                ros-${ROS_DISTRO}-joint-state-controller"
-  fi
-
-  ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-xacro \\
-                               ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS}"
 
   if [[ -n ${USE_DEFAULT_GAZEBO_VERSION_FOR_ROS} ]] && ${USE_DEFAULT_GAZEBO_VERSION_FOR_ROS}; then
     ROS_GAZEBO_PKGS="ros-${ROS_DISTRO}-gazebo-msgs \

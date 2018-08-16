@@ -60,6 +60,10 @@ if [ -z ${ROS_DISTRO} ]; then
   ROS_DISTRO=indigo
 fi
 
+if [ -z "${ROS2}" ]; then
+  export ROS2=false
+fi
+
 # Define making jobs by default if not present
 if [ -z ${MAKE_JOBS} ]; then
     MAKE_JOBS=1

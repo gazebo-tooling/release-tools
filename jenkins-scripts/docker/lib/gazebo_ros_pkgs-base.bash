@@ -3,16 +3,17 @@
 # Use always GPU in drcsim project
 export GPU_SUPPORT_NEEDED=true
 
-# Do not use the subprocess_reaper in debbuild. Seems not as needed as in
-# testing jobs and seems to be slow at the end of jenkins jobs
-export ENABLE_REAPER=false
-
 DOCKER_JOB_NAME="gazebo_ros_pkgs_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
+if ${ROS2}; then
+  export USE_COLCON=true
+fi
+
 # Generate the first part of the build.sh file for ROS
 CATKIN_EXTRA_ARGS="--cmake-args -DENABLE_DISPLAY_TESTS:BOOL=ON"
+
 ROS_SETUP_PREINSTALL_HOOK="""
 ${GAZEBO_MODEL_INSTALLATION}
 """

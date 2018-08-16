@@ -240,7 +240,7 @@ ros2_distros.each { ros_distro ->
           extensions {
             relativeTargetDirectory("gazebo_ros_pkgs")
           }
-          branch("${ros_distro}-devel")
+          branch("ros2")
         }
       }
 
@@ -271,7 +271,7 @@ ros2_distros.each { ros_distro ->
                                             ubuntu_distro,
                                             ros_distro,
                                             "default",
-                                            "gazebo2_ros_pkgs-compilation")
+                                            "gazebo_ros_pkgs-compilation")
   }
 }
 
