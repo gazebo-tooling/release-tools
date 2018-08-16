@@ -102,6 +102,8 @@ ${CMD_CATKIN_BUILD}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: running tests'
+# some tests needs to source install before running
+source install/setup.bash
 ${CMD_CATKIN_TEST}
 ${CMD_CATKIN_TEST_RESULTS}
 
