@@ -258,7 +258,7 @@ ros2_distros.each { ros_distro ->
               export ROS_DISTRO=${ros_distro}
               export DISTRO=${ubuntu_distro}
               export ARCH=${ci_arch}
-              /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo_ros_pkgs2-compilation.bash
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo_ros_pkgs-compilation.bash
               """.stripIndent())
       }
     }
