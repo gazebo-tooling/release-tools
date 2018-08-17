@@ -318,17 +318,29 @@ else
     ;;
   esac
 
-  ROS_CATKIN_BASE="python-dev              \\
-                  python-catkin-pkg        \\
-                  python-rosdep            \\
-                  python-wstool            \\
-                  ros-${ROS_DISTRO}-catkin \\
-                  ros-${ROS_DISTRO}-ros    \\
-                  python-rosinstall        \\
-                  python-catkin-tools      \\
-                  python-catkin-pkg        \\
-                  python-rospkg            \\
-                  python-vcstools"
+  # TODO rename the variable
+  if ${ROS2}; then
+    ROS_CATKIN_BASE="python-dev                      \\
+                    python3-colcon-common-extensions \\
+                    python-rosdep                    \\
+                    python-wstool                    \\
+                    ros-${ROS_DISTRO}-ros-core       \\
+                    python-rosinstall                \\
+                    python-rospkg                    \\
+                    python-vcstools"
+  else
+    ROS_CATKIN_BASE="python-dev              \\
+                    python-catkin-pkg        \\
+                    python-rosdep            \\
+                    python-wstool            \\
+                    ros-${ROS_DISTRO}-catkin \\
+                    ros-${ROS_DISTRO}-ros    \\
+                    python-rosinstall        \\
+                    python-catkin-tools      \\
+                    python-catkin-pkg        \\
+                    python-rospkg            \\
+                    python-vcstools"
+  fi
 
   # DRCSIM_DEPENDENCIES
   #
@@ -380,28 +392,25 @@ else
   #
   # ROS_GAZEBO_PKGS DEPENDECIES
   #
-  ROS_GAZEBO_PKGS_COMMON_DEPS="ros-${ROS_DISTRO}-std-msgs        \\
+  ROS_GAZEBO_PKGS_COMMON_DEPS="${ROS_CATKIN_BASE}                \\
+                               libtinyxml-dev                    \\
+                               ros-${ROS_DISTRO}-std-msgs        \\
                                ros-${ROS_DISTRO}-trajectory-msgs \\
                                ros-${ROS_DISTRO}-sensor-msgs     \\
                                ros-${ROS_DISTRO}-geometry-msgs"
 
   if ${ROS2}; then
+    # Most of the base deps (ament, lint, rclcpp) are already included in
+    # ROS_CATKIN_BASE. TODO: change var name
     ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_COMMON_DEPS}              \\
-                                  ros-${ROS_DISTRO}-ament-cmake               \\
-                                  ros-${ROS_DISTRO}-ament-cmake-gtest         \\
-                                  ros-${ROS_DISTRO}-ament-lint-common         \\
-                                  ros-${ROS_DISTRO}-ament-lint-auto           \\
                                   ros-${ROS_DISTRO}-builtin-interfaces        \\
-                                  ros-${ROS_DISTRO}-rclcpp                    \\
                                   ros-${ROS_DISTRO}-rosidl-default-runtime    \\
                                   ros-${ROS_DISTRO}-rosidl-default-generators"
   else
     #
     # ROS1
     #
-    ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_CATKIN_BASE}                        \\
-                                  libtinyxml-dev                            \\
-                                  ros-${ROS_DISTRO}-ros                     \\
+    ROS_GAZEBO_PKGS_DEPENDENCIES="ros-${ROS_DISTRO}-ros                     \\
                                   ros-${ROS_DISTRO}-catkin                  \\
                                   ros-${ROS_DISTRO}-pluginlib               \\
                                   ros-${ROS_DISTRO}-roscpp                  \\
