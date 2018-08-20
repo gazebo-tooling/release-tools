@@ -7,10 +7,6 @@ DOCKER_JOB_NAME="gazebo_ros_pkgs_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
-if ${ROS2}; then
-  export USE_COLCON=true
-fi
-
 # Generate the first part of the build.sh file for ROS
 CATKIN_EXTRA_ARGS="--cmake-args -DENABLE_DISPLAY_TESTS:BOOL=ON"
 

@@ -64,6 +64,10 @@ if [ -z "${ROS2}" ]; then
   export ROS2=false
 fi
 
+if ${ROS2}; then
+  export USE_COLCON=true
+fi
+
 # Define making jobs by default if not present
 if [ -z ${MAKE_JOBS} ]; then
     MAKE_JOBS=1
