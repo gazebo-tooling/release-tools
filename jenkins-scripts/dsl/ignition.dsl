@@ -15,11 +15,14 @@ ignition_software = [ 'cmake',
                       'sensors',
                       'tools',
                       'transport' ]
-ignition_debbuild  = ignition_software + [ 'cmake1','cmake2',
+ignition_debbuild  = ignition_software + [ 'cmake1',
                                            'common2',
-                                           'math5','math6',
-                                           'msgs0', 'msgs2', 'msgs3',
-                                           'transport5','transport6' ]
+                                           'math5',
+                                           'msgs0', 'msgs2',
+                                           'transport5']
+
+ignition_gz11_debbuild = [ 'cmake2', 'math6', 'msgs3', 'common3', 'transport6' ]
+
 ignition_gpu                = [ 'gui', 'rendering', 'sensors' ]
 ignition_no_pkg_yet         = [ 'gui', 'physics', 'plugin', 'rendering', 'rndf', 'sensors' ]
 ignition_no_test            = [ 'tools' ]
@@ -327,6 +330,25 @@ ignition_debbuild.each { ign_sw ->
           shell("""\
                 #!/bin/bash -xe
 
+                /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
+                """.stripIndent())
+        }
+    }
+  }
+}
+
+// --------------------------------------------------------------
+// DEBBUILD: linux package builder
+ignition_gz11_debbuild.each { ign_sw ->
+    def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
+    OSRFLinuxBuildPkg.create(build_pkg_job)
+    build_pkg_job.with
+    {
+        steps {
+          shell("""\
+                #!/bin/bash -xe
+
+                export USE_GCC8=true
                 /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
                 """.stripIndent())
         }
