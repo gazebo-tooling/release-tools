@@ -40,16 +40,16 @@ rm -fr install/share/subt_gazebo
 
 export ROS_SETUP_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: smoke test'
-wget -P /tmp/ https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz
-mkdir -p ~/.gazebo/models
-tar -xvf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
-rm /tmp/default.tar.gz
+# wget -P /tmp/ https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz
+# mkdir -p ~/.gazebo/models
+# tar -xvf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
+# rm /tmp/default.tar.gz
 
 source ./install/setup.bash || true
 
 TEST_TIMEOUT=180
 TEST_START=\$(date +%s)
-timeout --preserve-status \$TEST_TIMEOUT roslaunch subt_gazebo lava_tube.launch extra_gazebo_args:=\"--verbose\"
+timeout --preserve-status \$TEST_TIMEOUT roslaunch subt_gazebo competition.launch extra_gazebo_args:=\"--verbose\"
 TEST_END=\$(date +%s)
 DIFF=\$(expr \$TEST_END - \$TEST_START)
 
