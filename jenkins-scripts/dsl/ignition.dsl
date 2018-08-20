@@ -340,19 +340,18 @@ ignition_debbuild.each { ign_sw ->
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
 ignition_gz11_debbuild.each { ign_sw ->
-    def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
-    OSRFLinuxBuildPkg.create(build_pkg_job)
-    build_pkg_job.with
-    {
-        steps {
-          shell("""\
-                #!/bin/bash -xe
+  def build_pkg_job = job("ign-${ign_sw}-debbuilder")
+  OSRFLinuxBuildPkg.create(build_pkg_job)
+  build_pkg_job.with
+  {
+      steps {
+        shell("""\
+              #!/bin/bash -xe
 
-                export USE_GCC8=true
-                /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
-                """.stripIndent())
-        }
-    }
+              export USE_GCC8=true
+              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
+              """.stripIndent())
+      }
   }
 }
 
