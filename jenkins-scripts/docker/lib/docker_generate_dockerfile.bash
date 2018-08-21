@@ -113,7 +113,7 @@ cat >> Dockerfile << DELIM_DEBIAN_APT
 DELIM_DEBIAN_APT
 fi
 
-if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
+if [[ ${LINUX_DISTRO} == 'ubuntu' ]] && [[ ${DISTRO} == 'xenial' ]]; then
   if [[ ${ARCH} != 'armhf' && ${ARCH} != 'arm64' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_ARCH
   # Note that main,restricted and universe are not here, only multiverse
