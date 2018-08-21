@@ -172,7 +172,7 @@ fi
 
 if [[ -n $USE_GCC8 ]]; then
   if $USE_GCC8; then
-apt-get install -y g++-8
+apt-get install -y g++-8 pkg-config
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
   fi
 fi
