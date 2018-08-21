@@ -148,6 +148,13 @@ fi
 cp -a --dereference \${PACKAGE_RELEASE_DIR}/* .
 echo '# END SECTION'
 
+if [[ -n $USE_GCC8 ]]; then
+  if $USE_GCC8; then
+apt-get install -y g++-8 pkg-config
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
+  fi
+fi
+
 echo '# BEGIN SECTION: install build dependencies'
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
 echo '# END SECTION'
@@ -170,12 +177,6 @@ g++ --version
 echo '# END SECTION'
 fi
 
-if [[ -n $USE_GCC8 ]]; then
-  if $USE_GCC8; then
-apt-get install -y g++-8 pkg-config
-update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
-  fi
-fi
 
 echo '# BEGIN SECTION: create source package' \${OSRF_VERSION}
 debuild --no-tgz-check -uc -us -S --source-option=--include-binaries
