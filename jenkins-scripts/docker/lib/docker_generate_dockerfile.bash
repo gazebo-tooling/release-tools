@@ -166,12 +166,24 @@ DELIM_OSRF_REPO
 done
 
 if ${USE_ROS_REPO}; then
+  if ${ROS2}; then
+cat >> Dockerfile << DELIM_ROS_REPO
+# Note that ROS uses ubuntu hardcoded in the paths of repositories
+RUN apt-get update \\
+    && apt-get install -y curl \\
+    && rm -rf /var/lib/apt/lists/*
+RUN echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/main ${DISTRO} main" > \\
+                                                 /etc/apt/sources.list.d/ros2-latest.list 
+RUN curl http://repo.ros2.org/repos.key | apt-key add -
+DELIM_ROS_REPO
+  else
 cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
 RUN echo "deb http://packages.ros.org/${ROS_REPO_NAME}/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
 DELIM_ROS_REPO
+  fi
 fi
 
 if [[ $ARCH == 'arm64' ]]; then

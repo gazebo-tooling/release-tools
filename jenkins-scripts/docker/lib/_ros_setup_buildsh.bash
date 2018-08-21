@@ -12,8 +12,15 @@ fi
 
 [[ -z ${USE_GZ_VERSION_ROSDEP} ]] && USE_GZ_VERSION_ROSDEP=false
 [[ -z ${USE_CATKIN_MAKE} ]] && USE_CATKIN_MAKE=false # use catkin tools by default
+[[ -z ${USE_COLCON} ]] && USE_COLCON=false
 
-if ${USE_CATKIN_MAKE}; then
+if ${USE_COLCON}; then
+  export CMD_CATKIN_CONFIG=""
+  export CMD_CATKIN_LIST="colcon list -g"
+  export CMD_CATKIN_BUILD="colcon build --parallel-workers ${MAKE_JOBS} --symlink-install --event-handler console_direct+ ${CATKIN_EXTRA_ARGS}"
+  export CMD_CATKIN_TEST="colcon test --parallel-workers 1 --event-handler console_direct+"
+  export CMD_CATKIN_TEST_RESULTS="colcon test-result --verbose"
+elif ${USE_CATKIN_MAKE}; then
   export CMD_CATKIN_CONFIG=""
   export CMD_CATKIN_LIST=""
   export CMD_CATKIN_BUILD="catkin_make -j${MAKE_JOBS} && catkin_make install"
@@ -46,6 +53,9 @@ echo '# END SECTION'
 fi
 
 echo '# BEGIN SECTION: run rosdep'
+if ${ROS2}; then
+ export ROSDISTRO_INDEX_URL='https://raw.githubusercontent.com/ros2/rosdistro/ros2/index.yaml'
+fi
 # Step 2: configure and build
 [[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]] && rosdep init
 # Hack for not failing when github is down
