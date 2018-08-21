@@ -27,6 +27,9 @@ cd $WORKSPACE/build
 export DEBFULLNAME="OSRF Jenkins"
 export DEBEMAIL="build@osrfoundation.org"
 
+# Needed to install dependencies
+apt-get update
+
 echo '# BEGIN SECTION: import the debian metadata'
 
 # Remove number for packages like (sdformat2 or gazebo3)
@@ -156,8 +159,6 @@ if [ -f /usr/bin/rosdep ]; then
   rosdep init
 fi
 
-apt-get update
-
 if $NEED_C11_COMPILER || $NEED_GCC48_COMPILER; then
 echo '# BEGIN SECTION: install C++11 compiler'
 if [ ${DISTRO} = 'precise' ]; then
@@ -173,7 +174,7 @@ fi
 
 if [[ -n $USE_GCC8 ]]; then
   if $USE_GCC8; then
-apt-get install -y g++-8 pkg-config
+apt-get install -y g++-8
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
   fi
 fi
