@@ -148,13 +148,6 @@ fi
 cp -a --dereference \${PACKAGE_RELEASE_DIR}/* .
 echo '# END SECTION'
 
-if [[ -n $USE_GCC8 ]]; then
-  if $USE_GCC8; then
-apt-get install -y g++-8 pkg-config
-update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
-  fi
-fi
-
 echo '# BEGIN SECTION: install build dependencies'
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
 echo '# END SECTION'
@@ -163,12 +156,13 @@ if [ -f /usr/bin/rosdep ]; then
   rosdep init
 fi
 
+apt-get update
+
 if $NEED_C11_COMPILER || $NEED_GCC48_COMPILER; then
 echo '# BEGIN SECTION: install C++11 compiler'
 if [ ${DISTRO} = 'precise' ]; then
 apt-get install -y python-software-propertie software-properties-common || true
 add-apt-repository ppa:ubuntu-toolchain-r/test
-apt-get update
 fi
 apt-get install -y gcc-4.8 g++-4.8
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
@@ -177,6 +171,12 @@ g++ --version
 echo '# END SECTION'
 fi
 
+if [[ -n $USE_GCC8 ]]; then
+  if $USE_GCC8; then
+apt-get install -y g++-8 pkg-config
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
+  fi
+fi
 
 echo '# BEGIN SECTION: create source package' \${OSRF_VERSION}
 debuild --no-tgz-check -uc -us -S --source-option=--include-binaries
