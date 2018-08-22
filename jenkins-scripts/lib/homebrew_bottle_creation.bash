@@ -43,6 +43,11 @@ fi
 # https://github.com/Homebrew/brew/pull/4612
 for j in $(ls *.bottle.json); do
   SRC_BOTTLE=${j/%json/tar.gz}
+  # local_filename is added to the json output in
+  # https://github.com/Homebrew/brew/pull/4736
+  # uncomment the following lines when next brew release after 1.7.2 is made
+  # SRC_BOTTLE=$(brew ruby -e \
+  #   "puts JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['local_filename']")
   DEST_BOTTLE=$(brew ruby -e \
     "puts JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['filename']")
   mv ${SRC_BOTTLE} ${DEST_BOTTLE}
