@@ -39,6 +39,14 @@ if [[ $(find . -name '*.bottle.*' | wc -l | sed 's/^ *//') -lt 2 ]]; then
   exit -1
 fi
 
+# local bottle names don't match the uploaded names anymore
+# https://github.com/Homebrew/brew/pull/4612
+for j in $(ls *.bottle.json); do
+  SRC_BOTTLE=${j/%json/tar.gz}
+  DEST_BOTTLE=$(brew ruby -e \
+    "puts JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['filename']")
+  mv ${SRC_BOTTLE} ${DEST_BOTTLE}
+done
 mv *.bottle*.tar.gz ${PKG_DIR}
 mv *.bottle.json ${PKG_DIR}
 
