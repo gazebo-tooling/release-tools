@@ -28,6 +28,9 @@ echo '# END SECTION'
 if [[ "${ABI_JOB_PKG_DEPENDENCIES_VAR_NAME}" != "" ]]; then
   eval ABI_JOB_PKG_DEPENDENCIES="\$${ABI_JOB_PKG_DEPENDENCIES_VAR_NAME} ${ABI_JOB_PKG_DEPENDENCIES}"
 fi
+if [[ -n "${DART_FROM_PKGS_VAR_NAME}" ]]; then
+  eval DART_FROM_PKGS="\$${DART_FROM_PKGS_VAR_NAME}"
+fi
 
 cat > build.sh << DELIM
 #!/bin/bash
