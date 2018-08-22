@@ -193,7 +193,7 @@ set COLCON_EXTRA_CMAKE_ARGS=%2
 
 colcon build --build-base "build"^
              --install-base "install"^
-             --paralell-workers %MAKE_JOBS%^
+             --parallel-workers %MAKE_JOBS%^
              %EXTRA_COLCON_ARGS%^
              --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
                           " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
