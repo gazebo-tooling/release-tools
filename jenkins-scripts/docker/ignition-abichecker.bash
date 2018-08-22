@@ -25,6 +25,12 @@ IGN_NAME_PREFIX=$(\
   echo ${ABI_JOB_SOFTWARE_NAME} | tr '[:lower:]-' '[:upper:]_')
 ABI_JOB_PKG_DEPENDENCIES_VAR_NAME=${IGN_NAME_PREFIX}_DEPENDENCIES
 
+# check for DART_FROM_PKGS variable
+DART_FROM_PKGS_VAR_NAME=${IGN_NAME_PREFIX}_DART_FROM_PKGS
+if [[ -n ${DART_FROM_PKGS_VAR_NAME} ]]; then
+  export DART_FROM_PKGS=${DART_FROM_PKGS_VAR_NAME}
+fi
+
 # Identify IGN_MSGS_MAJOR_VERSION to help with dependency resolution
 export ${IGN_NAME_PREFIX}_MAJOR_VERSION=$(\
   python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
