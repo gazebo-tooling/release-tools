@@ -61,7 +61,7 @@ fi
 
 # SDFORMAT related dependencies
 if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
-    SDFORMAT_MAJOR_VERSION=5
+    SDFORMAT_MAJOR_VERSION=6
 fi
 
 if [[ ${SDFORMAT_MAJOR_VERSION} -ge 6 ]]; then
@@ -519,7 +519,7 @@ fi
 
 export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} libignition-tools-dev"
 
-IGN_COMMON_DEPENDENCIES="pkg-config            \\
+IGN_COMMON_NO_IGN_DEPENDENCIES="pkg-config            \\
                          python                \\
                          ruby-ronn             \\
                          uuid-dev              \\
@@ -534,11 +534,11 @@ IGN_COMMON_DEPENDENCIES="pkg-config            \\
                          uuid-dev"
 
 if [[ ${IGN_COMMON_MAJOR_VERSION} -le 1 ]]; then
-    IGN_COMMON_DEPENDENCIES="${IGN_COMMON_DEPENDENCIES} \\
+    IGN_COMMON_DEPENDENCIES="${IGN_COMMON_NO_IGN_DEPENDENCIES} \\
                          libignition-cmake-dev \\
                          libignition-math4-dev"
 else
-    IGN_COMMON_DEPENDENCIES="${IGN_COMMON_DEPENDENCIES} \\
+    IGN_COMMON_DEPENDENCIES="${IGN_COMMON_NO_IGN_DEPENDENCIES} \\
                          libignition-cmake1-dev \\
                          libignition-math5-dev"
 fi
@@ -571,15 +571,30 @@ else #default in not defined
                            libignition-math5-dev"
 fi
 
-IGN_GUI_DEPENDENCIES="qtbase5-dev \\
+IGN_GUI_NO_IGN_DEPENDENCIES="qtbase5-dev \\
+                      qtdeclarative5-dev \\
+                      libtinyxml2-dev \\
+                      libqwt-qt5-dev"
+
+if [[ ${DISTRO} != 'xenial' ]]; then
+  IGN_GUI_NO_IGN_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
+                      qml-module-qtquick2 \\
+                      qml-module-qtquick-controls \\
+                      qml-module-qtquick-controls2 \\
+                      qml-module-qtquick-dialogs \\
+                      qml-module-qtquick-layouts \\
+                      qml-module-qt-labs-folderlistmodel \\
+                      qml-module-qt-labs-settings \\
+                      qtquickcontrols2-5-dev"
+fi
+
+IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
                       libignition-cmake1-dev \\
                       libignition-math5-dev \\
                       libignition-tools-dev \\
                       libignition-transport5-dev \\
                       libignition-msgs2-dev \\
-                      libignition-common2-dev \\
-                      libtinyxml2-dev \\
-                      libqwt-qt5-dev"
+                      libignition-common2-dev"
 
 IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           dart6-data \\
@@ -591,7 +606,7 @@ IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
 
 IGN_PLUGIN_DEPENDENCIES="libignition-cmake1-dev"
 
-IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
+IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev \\
                             libfreeimage-dev \\
                             libglew-dev \\
@@ -602,6 +617,11 @@ IGN_RENDERING_DEPENDENCIES="${ogre_pkg}\\
                             libx11-dev \\
                             mesa-common-dev \\
                             mesa-utils"
+
+IGN_RENDERING_DEPENDENCIES="${IGN_RENDERING_NO_IGN_DEPENDENCIES} \\
+                            libignition-cmake1-dev \\
+                            libignition-common2-dev \\
+                            libignition-math5-dev"
 
 IGN_SENSORS_DEPENDENCIES="libignition-common2-dev     \\
                           libignition-cmake1-dev \\
@@ -684,7 +704,7 @@ DRAKE_DEPENDENCIES="alien               \\
                     zlib1g-dev"
 #
 # SUBT
-# 
+#
 SUBT_DEPENDENCIES="mercurial                               \\
                    wget                                    \\
                    curl                                    \\
