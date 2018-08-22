@@ -31,7 +31,6 @@ IF %PLATFORM_TO_BUILD% == x86 (
   set PreferredToolArchitecture=x64
 )
 
-
 echo "Configure the VC++ compilation"
 set MSVC_ON_WIN64=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat
 set MSVC_ON_WIN32=C:\Program Files\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat
