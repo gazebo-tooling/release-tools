@@ -103,8 +103,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: running tests'
 # some tests needs to source install before running
-. install/setup.sh
-source install/setup.bash
+. install/setup.bash
 echo \$LD_LIBRARY_PATH
 find . -name libRosFlashLightPlugin.so || true
 ${CMD_CATKIN_TEST}

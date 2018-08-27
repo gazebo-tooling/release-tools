@@ -37,6 +37,7 @@ wget http://gazebosim.org/distributions/subt_robot_examples/releases/subt_robot_
 tar xvfz subt_robot_examples.tgz
 rm -fr install/share/subt_example
 rm -fr install/share/subt_gazebo
+rm install/etc/catkin/profile.d/50.husky_find_mag_config.sh
 wget -P /tmp/ https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz
 mkdir -p ~/.gazebo/models
 tar -xvf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
