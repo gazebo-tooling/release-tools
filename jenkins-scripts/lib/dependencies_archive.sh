@@ -631,8 +631,10 @@ IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           libdart6-dev \\
                           libdart6-utils-urdf-dev \\
                           libignition-cmake1-dev \\
+                          libignition-cmake2-dev \\
                           libignition-common2-dev \\
                           libignition-math5-dev \\
+                          libignition-math6-dev \\
                           libignition-plugin-dev"
 IGN_PHYSICS_DART_FROM_PKGS="true"
 
