@@ -76,7 +76,7 @@ class Globals
 
    static ArrayList get_other_supported_distros()
    {
-     return [ 'trusty', 'artful', 'bionic' ]
+     return [ 'trusty', 'bionic' ]
    }
 
    static ArrayList get_supported_arches()
