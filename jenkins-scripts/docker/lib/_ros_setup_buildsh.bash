@@ -104,9 +104,9 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: running tests'
 # some tests needs to source install before running
 . install/setup.bash
-echo \$LD_LIBRARY_PATH
-echo \$GAZEBO_PLUGIN_PATH
-find . -name libRosFlashLightPlugin.so || true
+echo "LD_LIBRARY_PATH: \$LD_LIBRARY_PATH"
+echo "GAZEBO_PLUGIN_PATH: \$GAZEBO_PLUGIN_PATH"
+find . -name libmav_msgs.so || true
 ${CMD_CATKIN_TEST}
 ${CMD_CATKIN_TEST_RESULTS}
 
