@@ -38,7 +38,7 @@ tar xvfz subt_robot_examples.tgz
 rm -fr install/share/subt_example
 rm -fr install/share/subt_gazebo
 rm install/etc/catkin/profile.d/50.husky_find_mag_config.sh
-export GAZEBO_PLUGIN_PATH=\`pwd\`/install:\$GAZEBO_PLUGIN_PATH
+export GAZEBO_PLUGIN_PATH=\`pwd\`/install/lib:\$GAZEBO_PLUGIN_PATH
 
 wget -P /tmp/ https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz
 mkdir -p ~/.gazebo/models
@@ -72,7 +72,7 @@ echo '# END SECTION'
 # Generate the first part of the build.sh file for ROS
 . ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash "subt"
 
-DEPENDENCY_PKGS="${SUBT_DEPENDENCIES}"
+DEPENDENCY_PKGS="${SUBT_DEPENDENCIES} psmisc"
 # ROS packages come from the mirror in the own subt repository
 USE_ROS_REPO=true
 OSRF_REPOS_TO_USE="stable"
