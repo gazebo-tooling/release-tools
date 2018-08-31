@@ -635,6 +635,7 @@ IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           libignition-common2-dev \\
                           libignition-math5-dev \\
                           libignition-math6-dev \\
+                          libignition-math6-eigen3-dev \\
                           libignition-plugin-dev"
 IGN_PHYSICS_DART_FROM_PKGS="true"
 
