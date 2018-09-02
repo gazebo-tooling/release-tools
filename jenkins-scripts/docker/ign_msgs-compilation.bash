@@ -30,7 +30,7 @@ export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_MSGS_DEPENDENCIES"
 export BUILDING_JOB_REPOSITORIES="stable"
 export DOCKER_POSTINSTALL_HOOK="gem install protobuf"
 
-if [[ $(date +%Y%m%d) -le 20180831 ]]; then
+if [[ $(date +%Y%m%d) -le 20181231 ]]; then
   ## need prerelease repo to get ignition-math5 and ignition-cmake1
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
 fi
