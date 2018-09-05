@@ -565,8 +565,8 @@ elif [[ ${IGN_MSGS_MAJOR_VERSION} -eq 1 ]]; then
                            libignition-math4-dev"
 else
     IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
-                           libignition-cmake1-dev \\
-                           libignition-math5-dev"
+                           libignition-cmake2-dev \\
+                           libignition-math6-dev"
 fi
 
 IGN_GUI_DEPENDENCIES="qtbase5-dev \\
