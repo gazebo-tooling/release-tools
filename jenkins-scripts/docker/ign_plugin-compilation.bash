@@ -14,10 +14,9 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-physics"
+export BUILDING_SOFTWARE_DIRECTORY="ign-plugin"
 export BUILDING_JOB_REPOSITORIES="stable"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_PHYSICS_DEPENDENCIES"
-export DART_FROM_PKGS="true"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_PLUGIN_DEPENDENCIES"
 
 if [[ $(date +%Y%m%d) -le 20181231 ]]; then
   ## need prerelease repo to get ignition-cmake during the development cycle

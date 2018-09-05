@@ -12,7 +12,16 @@ sudo mkdir -p ${PACKAGE_DIR}
 sudo rm -fr ${WORKSPACE}/build
 sudo mkdir -p ${WORKSPACE}/build
 
-sudo docker build --tag ${DOCKER_TAG} .
+[[ -z ${DOCKER_DO_NOT_CACHE} ]] && DOCKER_DO_NOT_CACHE=false
+
+# Remove intermediate containers even if the build is not successful
+if $DOCKER_DO_NOT_CACHE; then
+  _DOCKER_BUILD_EXTRA_ARGS="--force-rm=true"
+fi
+
+sudo docker build ${_DOCKER_BUILD_EXTRA_ARGS} \
+                  --tag ${DOCKER_TAG} .
+
 stop_stopwatch CREATE_TESTING_ENVIROMENT
 
 echo '# BEGIN SECTION: see build.sh script'
@@ -49,6 +58,7 @@ sudo ${docker_cmd} run $EXTRA_PARAMS_STR  \
             -v ${WORKSPACE}:${WORKSPACE} \
             -v /dev/log:/dev/log:ro \
             -v /run/log:/run/log:ro \
+            -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
             --tty \
             --rm \
             ${DOCKER_TAG} \

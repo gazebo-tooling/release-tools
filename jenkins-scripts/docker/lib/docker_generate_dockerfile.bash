@@ -9,6 +9,7 @@
 # - USE_ROS_REPO      : [default false] true|false if add the packages.ros.org to the sources.list
 # - DEPENDENCY_PKGS   : (optional) packages to be installed in the image
 # - SOFTWARE_DIR      : (optional) directory to copy inside the image
+# - DOCKER_DO_NOT_CACHE : (optional) do not cache docker intermediate images
 # - DOCKER_PREINSTALL_HOOK : (optional) bash code to run before installing  DEPENDENCY_PKGS.
 #                       It can be used for installing extra repositories needed for DEPENDENCY_PKGS
 # - DOCKER_POSTINSTALL_HOOK : (optional) bash code to run after installing  DEPENDENCY_PKGS.
@@ -25,6 +26,8 @@ if [[ -z ${LINUX_DISTRO} ]]; then
   echo "Linux distro undefined, default to ubuntu"
   export LINUX_DISTRO="ubuntu"
 fi
+
+[[ -z ${USE_GCC8} ]] && USE_GCC8=false
 
 case ${LINUX_DISTRO} in
   'ubuntu')
@@ -163,20 +166,33 @@ DELIM_OSRF_REPO
 done
 
 if ${USE_ROS_REPO}; then
+  if ${ROS2}; then
+cat >> Dockerfile << DELIM_ROS_REPO
+# Note that ROS uses ubuntu hardcoded in the paths of repositories
+RUN apt-get update \\
+    && apt-get install -y curl \\
+    && rm -rf /var/lib/apt/lists/*
+RUN echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/main ${DISTRO} main" > \\
+                                                 /etc/apt/sources.list.d/ros2-latest.list 
+RUN curl http://repo.ros2.org/repos.key | apt-key add -
+DELIM_ROS_REPO
+  else
 cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
 RUN echo "deb http://packages.ros.org/${ROS_REPO_NAME}/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
 DELIM_ROS_REPO
+  fi
 fi
 
 if [[ $ARCH == 'arm64' ]]; then
 cat >> Dockerfile << DELIM_SYSCAL_ARM64
 # Workaround for problem with syscall 277 in man-db
 ENV MAN_DISABLE_SECCOMP 1
-RUN apt-get update && \\
-    apt-get install -y man-db
+RUN apt-get update \\
+    && apt-get install -y man-db \\
+    && rm -rf /var/lib/apt/lists/*
 DELIM_SYSCAL_ARM64
 fi
 
@@ -245,6 +261,17 @@ RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))" \
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
 DELIM_DOCKER3
+
+# Beware of moving this code since it needs to run update-alternative after
+# installing the default compiler in PACKAGES_CACHE_AND_CHECK_UPDATES
+if ${USE_GCC8}; then
+cat >> Dockerfile << DELIM_GCC8
+   RUN apt-get update \\
+   && apt-get install -y g++-8 \\
+   && rm -rf /var/lib/apt/lists/* \\
+   && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
+DELIM_GCC8
+fi
 
 cat >> Dockerfile << DELIM_DOCKER_SQUID
 # If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy

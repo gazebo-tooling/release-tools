@@ -11,6 +11,29 @@ if [ -z ${ROS_DISTRO} ]; then
 fi
 
 [[ -z ${USE_GZ_VERSION_ROSDEP} ]] && USE_GZ_VERSION_ROSDEP=false
+[[ -z ${USE_CATKIN_MAKE} ]] && USE_CATKIN_MAKE=false # use catkin tools by default
+[[ -z ${USE_COLCON} ]] && USE_COLCON=false
+
+if ${USE_COLCON}; then
+  export CMD_CATKIN_CONFIG=""
+  export CMD_CATKIN_LIST="colcon list -g"
+  export CMD_CATKIN_BUILD="colcon build --parallel-workers ${MAKE_JOBS} --symlink-install --event-handler console_direct+ ${CATKIN_EXTRA_ARGS}"
+  export CMD_CATKIN_TEST="colcon test --parallel-workers 1 --event-handler console_direct+"
+  export CMD_CATKIN_TEST_RESULTS="colcon test-result --verbose"
+elif ${USE_CATKIN_MAKE}; then
+  export CMD_CATKIN_CONFIG=""
+  export CMD_CATKIN_LIST=""
+  export CMD_CATKIN_BUILD="catkin_make -j${MAKE_JOBS} && catkin_make install"
+  export CMD_CATKIN_TEST="catkin_make run_tests -j1 || true"
+  export CMD_CATKIN_TEST_RESULTS="catkin_test_results || true"
+else
+  # catkin tools
+  export CMD_CATKIN_CONFIG="catkin config --init --mkdirs"
+  export CMD_CATKIN_LIST=""
+  export CMD_CATKIN_BUILD="catkin build -j${MAKE_JOBS} --verbose --summary ${CATKIN_EXTRA_ARGS}"
+  export CMD_CATKIN_TEST="catkin run_tests -j1 || true"
+  export CMD_CATKIN_TEST_RESULTS="catkin_test_results --all --verbose"
+fi
 
 export CATKIN_WS="${WORKSPACE}/ws"
 
@@ -30,6 +53,9 @@ echo '# END SECTION'
 fi
 
 echo '# BEGIN SECTION: run rosdep'
+if ${ROS2}; then
+ export ROSDISTRO_INDEX_URL='https://raw.githubusercontent.com/ros2/rosdistro/ros2/index.yaml'
+fi
 # Step 2: configure and build
 [[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]] && rosdep init
 # Hack for not failing when github is down
@@ -54,9 +80,9 @@ echo '# BEGIN SECTION: create the catkin workspace'
 rm -fr ${CATKIN_WS}
 mkdir -p ${CATKIN_WS}/src
 cd ${CATKIN_WS}
-catkin config --init --mkdirs
+${CMD_CATKIN_CONFIG}
 ln -s "${WORKSPACE}/${SOFTWARE_DIR}" "${CATKIN_WS}/src/${SOFTWARE_DIR}"
-catkin list
+${CMD_CATKIN_LIST}
 echo '# END SECTION'
 DELIM_CONFIG
 
@@ -72,8 +98,9 @@ cat >> build.sh << DELIM_COMPILATION
 echo '# END SECTION'
 
 echo '# BEGIN SECTION install the system dependencies'
-catkin list
+${CMD_CATKIN_LIST}
 rosdep install --from-paths . \
+               -r             \
                --ignore-src   \
                --rosdistro=${ROS_DISTRO} \
                --default-yes \
@@ -81,12 +108,14 @@ rosdep install --from-paths . \
 echo '# END SECTION'
 
 echo '# BEGIN SECTION compile the catkin workspace'
-catkin build -j${MAKE_JOBS} --verbose --summary ${CATKIN_EXTRA_ARGS}
+${CMD_CATKIN_BUILD}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: running tests'
-catkin run_tests -j1 || true
-catkin_test_results --all --verbose || true
+# some tests needs to source install before running
+source install/setup.bash || true
+${CMD_CATKIN_TEST}
+${CMD_CATKIN_TEST_RESULTS}
 
 # link test results to usual place
 mkdir -p ${WORKSPACE}/build/test_results

@@ -9,6 +9,7 @@ ignition_software = [ 'cmake',
                       'math',
                       'msgs',
                       'physics',
+                      'plugin',
                       'rendering',
                       'rndf',
                       'sensors',
@@ -20,7 +21,7 @@ ignition_debbuild  = ignition_software + [ 'cmake1','cmake2',
                                            'msgs0', 'msgs2', 'msgs3',
                                            'transport5' ]
 ignition_gpu                = [ 'gui', 'rendering', 'sensors' ]
-ignition_no_pkg_yet         = [ 'gui', 'physics', 'rendering', 'rndf', 'sensors' ]
+ignition_no_pkg_yet         = [ 'gui', 'physics', 'plugin', 'rendering', 'rndf', 'sensors' ]
 ignition_no_test            = [ 'tools' ]
 // no branches in ignition_branches means no released branches
 ignition_branches           = [ 'common'     : [ '1' ],
@@ -30,7 +31,7 @@ ignition_branches           = [ 'common'     : [ '1' ],
                                 'transport'  : [ '3','4' ]]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
-ignition_colcon_win         = [ 'physics' ]
+ignition_colcon_win         = [ 'physics', 'rendering' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -177,7 +178,7 @@ ignition_software.each { ign_sw ->
 
          shell("""\
               #!/bin/bash -xe
-              wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh
+              wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
               source yaml.sh
 
               create_variables \${WORKSPACE}/${ignition_checkout_dir}/bitbucket-pipelines.yml
@@ -440,6 +441,7 @@ ignition_software.each { ign_sw ->
     OSRFBitbucketHg.create(ignition_win_ci_job,
                               "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
                               "${branch}", "ign-${ign_sw}")
+
     ignition_win_ci_job.with
     {
         triggers {

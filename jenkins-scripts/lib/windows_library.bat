@@ -18,7 +18,7 @@ set MSVC_KEYWORD=%PLATFORM_TO_BUILD%
 IF %PLATFORM_TO_BUILD% == x86 (
   echo "Using 32bits VS configuration"
   set BITNESS=32
-  set VCPKG_TARGET_TRIPLET=x86-windows
+  set VCPKG_DEFAULT_TRIPLET=x86-windows
 ) ELSE (
   REM Visual studio is accepting many keywords to compile for 64bits
   REM We need to set x86_amd64 to make express version to be able to
@@ -27,13 +27,17 @@ IF %PLATFORM_TO_BUILD% == x86 (
   set BITNESS=64
   set MSVC_KEYWORD=x86_amd64
   set PLATFORM_TO_BUILD=amd64
-  set VCPKG_TARGET_TRIPLET=x64-windows
+  set VCPKG_DEFAULT_TRIPLET=x64-windows
   set PreferredToolArchitecture=x64
 )
 
 echo "Configure the VC++ compilation"
 set MSVC_ON_WIN64=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat
 set MSVC_ON_WIN32=C:\Program Files\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat
+:: libraries from vcpkg
+set LIB_DIR="%~dp0"
+call %LIB_DIR%\windows_env_vars.bat
+set PATH=%PATH%;%VCPKG_DIR%\installed\%VCPKG_DEFAULT_TRIPLET%\bin
 
 IF exist "%MSVC_ON_WIN64%" (
    call "%MSVC_ON_WIN64%" %MSVC_KEYWORD% || goto %win_lib% :error
@@ -187,10 +191,11 @@ set COLCON_EXTRA_CMAKE_ARGS=%2
 
 colcon build --build-base "build"^
              --install-base "install"^
+             --parallel-workers %MAKE_JOBS%^
              %EXTRA_COLCON_ARGS%^
              --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
                           " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
-                          " -DVCPKG_TARGET_TRIPLET=%VCPKG_TARGET_TRIPLET%"^
+                          " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
                           %COLCON_EXTRA_CMAKE_ARGS%^
              --event-handler console_cohesion+ || type %HOMEPATH%/.colcon/latest & goto :error
 

@@ -49,16 +49,14 @@ echo # END SECTION
 
 echo # BEGIN SECTION: setup workspace
 if defined KEEP_WORKSPACE (
-  if "%KEEP_WORKSPACE%" == "true" (
-    if exist %LOCAL_WS_BUILD% (
-      echo # BEGIN SECTION: preclean workspace
-      rmdir /s /q %LOCAL_WS_BUILD% || goto :error
-      echo # END SECTION
-    )
+  IF exist %LOCAL_WS_BUILD% (
+    echo # BEGIN SECTION: preclean workspace
+    rmdir /s /q %LOCAL_WS_BUILD% || goto :error
+    echo # END SECTION
   )
 )
 mkdir %LOCAL_WS% || echo "Workspace already exists!"
-cd /d %LOCAL_WS%
+cd %LOCAL_WS%
 echo # END SECTION
 
 echo # BEGIN SECTION: get open robotics deps (%GAZEBODISTRO_FILE%) sources into the workspace
