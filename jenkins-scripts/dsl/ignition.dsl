@@ -296,6 +296,12 @@ ignition_software.each { ign_sw ->
               ("${branch}" == "ign-transport3")))
             disabled()
 
+          // no xenial for ign-physics/sensors
+          if (("${distro}" == "xenial") && (
+              ("${ign_sw}" == "physics") ||
+              ("${ign_sw}" == "sensors")))
+            disabled()
+
           steps {
             shell("""\
                   #!/bin/bash -xe
