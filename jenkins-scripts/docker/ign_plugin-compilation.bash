@@ -16,7 +16,9 @@ fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-plugin"
 export BUILDING_JOB_REPOSITORIES="stable"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_PLUGIN_DEPENDENCIES"
+#export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_PLUGIN_DEPENDENCIES"
+export BUILD_IGN_CMAKE=true
+export IGN_CMAKE_BRANCH=codecheck_xml
 
 if [[ $(date +%Y%m%d) -le 20181231 ]]; then
   ## need prerelease repo to get ignition-cmake during the development cycle
