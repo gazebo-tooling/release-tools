@@ -104,17 +104,16 @@ fi
 
 if $GENERIC_ENABLE_CPPCHECK; then
   echo '# BEGIN SECTION: cppcheck'
-  cd $WORKSPACE/${SOFTWARE_DIR}
-  if [ ! -f tools/cpplint_to_cppcheckxml.py ]; then
-    mkdir -p tools
-    cp $WORKSPACE/scripts/jenkins-scripts/tools/cpplint_to_cppcheckxml.py tools/
-  fi
+  cd $WORKSPACE/build
   init_stopwatch CPPCHECK
-  if make -n codecheck_xml -f $WORKSPACE/build/Makefile; then
-    cd $WORKSPACE/build
+  if make -n codecheck_xml; then
     make codecheck_xml
-    cd -
   else
+    cd $WORKSPACE/${SOFTWARE_DIR}
+    if [ ! -f tools/cpplint_to_cppcheckxml.py ]; then
+      mkdir -p tools
+      cp $WORKSPACE/scripts/jenkins-scripts/tools/cpplint_to_cppcheckxml.py tools/
+    fi
     sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
   fi
   stop_stopwatch CPPCHECK
