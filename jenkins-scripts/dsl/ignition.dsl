@@ -29,6 +29,7 @@ ignition_branches           = [ 'common'     : [ '1' ],
                                 'fuel-tools' : [ '1' ],
                                 'math'       : [ '2', '3','4' ],
                                 'msgs'       : [ '1' ],
+                                'sensors'    : [ '0' ],
                                 'transport'  : [ '3','4' ]]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
