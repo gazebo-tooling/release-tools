@@ -149,6 +149,7 @@ cp -a --dereference \${PACKAGE_RELEASE_DIR}/* .
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install build dependencies'
+apt-get update
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
 echo '# END SECTION'
 
