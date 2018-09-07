@@ -108,6 +108,7 @@ if $GENERIC_ENABLE_CPPCHECK; then
   init_stopwatch CPPCHECK
   if make -n codecheck_xml; then
     make codecheck_xml
+    cd $WORKSPACE/${SOFTWARE_DIR}
   else
     cd $WORKSPACE/${SOFTWARE_DIR}
     if [ ! -f tools/cpplint_to_cppcheckxml.py ]; then
