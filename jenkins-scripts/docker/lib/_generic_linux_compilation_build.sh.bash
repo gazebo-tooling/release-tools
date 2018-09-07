@@ -111,7 +111,9 @@ if $GENERIC_ENABLE_CPPCHECK; then
   fi
   init_stopwatch CPPCHECK
   if make -n codecheck_xml -f $WORKSPACE/build/Makefile; then
-    make codecheck_xml -f $WORKSPACE/build/Makefile
+    cd $WORKSPACE/build
+    make codecheck_xml
+    cd -
   else
     sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
   fi
