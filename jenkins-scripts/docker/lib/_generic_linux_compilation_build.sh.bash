@@ -110,8 +110,8 @@ if $GENERIC_ENABLE_CPPCHECK; then
     cp $WORKSPACE/scripts/jenkins-scripts/tools/cpplint_to_cppcheckxml.py tools/
   fi
   init_stopwatch CPPCHECK
-  if make -n codecheck_xml; then
-    make codecheck_xml
+  if make -n codecheck_xml -f build/Makefile; then
+    make codecheck_xml -f build/Makefile
   else
     sh tools/code_check.sh -xmldir $WORKSPACE/build/cppcheck_results || true
   fi
