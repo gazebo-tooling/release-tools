@@ -658,14 +658,12 @@ if [[ -n ${IGN_RENDERING_MAJOR_VERSION} && ${IGN_RENDERING_MAJOR_VERSION} -le 0 
   IGN_RENDERING_DEPENDENCIES="${IGN_RENDERING_NO_IGN_DEPENDENCIES} \\
                               libignition-cmake1-dev \\
                               libignition-common2-dev \\
-                              libignition-math5-dev \\
-                              libignition-common2-dev"
+                              libignition-math5-dev"
 else
   IGN_RENDERING_DEPENDENCIES="${IGN_RENDERING_NO_IGN_DEPENDENCIES} \\
                               libignition-cmake2-dev \\
                               libignition-common3-dev \\
-                              libignition-math6-dev \\
-                              libignition-common3-dev"
+                              libignition-math6-dev"
 fi
 
 IGN_SENSORS_DEPENDENCIES="libignition-common2-dev     \\

@@ -19,7 +19,6 @@ ignition_debbuild  = ignition_software + [ 'cmake1','cmake2',
                                            'common2',
                                            'math5',
                                            'msgs0', 'msgs2',
-                                           'rendering1',
                                            'transport5' ]
 ignition_gpu                = [ 'gui', 'rendering', 'sensors' ]
 ignition_no_pkg_yet         = [ 'gui', 'physics', 'plugin', 'rndf', 'sensors' ]
