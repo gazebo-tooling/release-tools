@@ -14,19 +14,20 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-. "${SCRIPT_DIR}/lib/_gz11_hook.bash"
+# Identify IGN_RENDERING_MAJOR_VERSION to help with dependency resolution
+IGN_RENDERING_MAJOR_VERSION=$(\
+  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  ${WORKSPACE}/ign-rendering/CMakeLists.txt)
+
+# Check IGN_RENDERING version is integer
+if ! [[ ${IGN_RENDERING_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+  echo "Error! IGN_RENDERING_MAJOR_VERSION is not an integer, check the detection"
+  exit -1
+fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-rendering"
-
-if ${NEEDS_GZ11_SUPPORT}; then
-  export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_RENDERING_NO_IGN_DEPENDENCIES"
-  export BUILD_IGN_CMAKE=true
-  export BUILD_IGN_MATH=true
-  export BUILD_IGN_COMMON=true
-else
-  export BUILDING_JOB_REPOSITORIES="stable"
-  export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_RENDERING_DEPENDENCIES"
-fi
+export BUILDING_JOB_REPOSITORIES="stable"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_RENDERING_DEPENDENCIES"
 
 if [[ $(date +%Y%m%d) -le 20181231 ]]; then
   ## need prerelease repo to get ignition-cmake during the development cycle
