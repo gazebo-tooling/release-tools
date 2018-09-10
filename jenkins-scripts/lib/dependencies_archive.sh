@@ -654,7 +654,7 @@ IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
                             mesa-common-dev \\
                             mesa-utils"
 
-if [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -le 0 ]]; then
+if [[ -n ${IGN_RENDERING_MAJOR_VERSION} && ${IGN_RENDERING_MAJOR_VERSION} -le 0 ]]; then
   IGN_RENDERING_DEPENDENCIES="${IGN_RENDERING_NO_IGN_DEPENDENCIES} \\
                               libignition-cmake1-dev \\
                               libignition-common2-dev \\
