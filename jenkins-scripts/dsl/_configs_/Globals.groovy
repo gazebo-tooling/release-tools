@@ -16,14 +16,16 @@ class Globals
                      'jade'    : ['trusty'] ,
                      'kinetic' : ['xenial'] ,
                      'lunar'   : ['xenial'] ,
-                     'melodic' : ['bionic']]
+                     'melodic' : ['bionic'] ,
+                     'bouncy'  : ['bionic']]
 
    // This should be in sync with archive_library
    static gz_version_by_rosdistro = [ 'indigo'  : ['2'] ,
                                       'jade'    : ['5'] ,
                                       'kinetic' : ['7'] ,
                                       'lunar'   : ['7'] ,
-                                      'melodic' : ['9']]
+                                      'melodic' : ['9'] ,
+                                      'bouncy'  : ['9']]
 
    static ArrayList get_ros_distros_by_ubuntu_distro(String ubuntu_distro)
    {
@@ -74,7 +76,7 @@ class Globals
 
    static ArrayList get_other_supported_distros()
    {
-     return [ 'trusty', 'artful', 'bionic' ]
+     return [ 'trusty', 'bionic' ]
    }
 
    static ArrayList get_supported_arches()
@@ -100,5 +102,10 @@ class Globals
    static ArrayList get_ros_suported_distros()
    {
      return [ 'indigo', 'kinetic', 'lunar', 'melodic' ]
+   }
+
+   static ArrayList get_ros2_suported_distros()
+   {
+     return [ 'bouncy' ]
    }
 }

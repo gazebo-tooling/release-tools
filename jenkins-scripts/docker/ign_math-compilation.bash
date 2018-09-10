@@ -37,7 +37,7 @@ if ${NEEDS_GZ11_SUPPORT}; then
 fi
 
 # To get ign-cmake1 package in prerelease
-if [[ $(date +%Y%m%d) -le 20180831 ]]; then
+if [[ $(date +%Y%m%d) -le 20181231 ]]; then
   ## need prerelease repo to get ignition-cmake1 for ign-rendering
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
 fi
