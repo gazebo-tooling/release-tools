@@ -666,13 +666,13 @@ else
                               libignition-math6-dev"
 fi
 
-IGN_SENSORS_DEPENDENCIES="libignition-common2-dev     \\
-                          libignition-cmake1-dev \\
-                          libignition-math5-dev      \\
-                          libignition-msgs2-dev       \\
+IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
+                          libignition-cmake2-dev \\
+                          libignition-math6-dev      \\
+                          libignition-msgs3-dev       \\
                           libignition-tools-dev \\
-                          libignition-transport5-dev \\
-                          libsdformat6-dev"
+                          libignition-transport6-dev"
+#                          libsdformat8-dev"
 
 IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
                        libignition-math4-dev"
