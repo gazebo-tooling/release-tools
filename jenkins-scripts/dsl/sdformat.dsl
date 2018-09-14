@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def sdformat_supported_branches = [ 'sdformat4', 'sdformat5', 'sdformat6' ]
+def sdformat_supported_branches = [ 'sdformat4', 'sdformat5', 'sdformat6', 'sdformat8' ]
 def nightly_sdformat_branch = [ 'sdformat7' ]
 
 // Main platform using for quick CI
