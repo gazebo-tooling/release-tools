@@ -622,13 +622,23 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                       qtquickcontrols2-5-dev"
 fi
 
-IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
-                      libignition-cmake1-dev \\
-                      libignition-math5-dev \\
-                      libignition-tools-dev \\
-                      libignition-transport5-dev \\
-                      libignition-msgs2-dev \\
-                      libignition-common2-dev"
+if [[ -n ${IGN_GUI_MAJOR_VERSION} && ${IGN_GUI_MAJOR_VERSION} -eq 0 ]]; then
+  IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
+                        libignition-cmake1-dev \\
+                        libignition-math5-dev \\
+                        libignition-tools-dev \\
+                        libignition-transport5-dev \\
+                        libignition-msgs2-dev \\
+                        libignition-common2-dev"
+elif [[ -n ${IGN_GUI_MAJOR_VERSION} && ${IGN_GUI_MAJOR_VERSION} -eq 1 ]]; then
+  IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
+                        libignition-cmake2-dev \\
+                        libignition-math6-dev \\
+                        libignition-tools-dev \\
+                        libignition-transport6-dev \\
+                        libignition-msgs3-dev \\
+                        libignition-common3-dev"
+fi
 
 IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           dart6-data \\
