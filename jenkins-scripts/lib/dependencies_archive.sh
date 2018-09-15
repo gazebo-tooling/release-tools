@@ -681,8 +681,8 @@ IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
                           libignition-math6-dev      \\
                           libignition-msgs3-dev       \\
                           libignition-tools-dev \\
-                          libignition-transport6-dev \\
-                          libsdformat8-dev"
+                          libignition-transport6-dev"
+#                          libsdformat8-dev"
 
 IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
                        libignition-math4-dev"
