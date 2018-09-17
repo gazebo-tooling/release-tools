@@ -30,7 +30,7 @@ ignition_branches           = [ 'common'     : [ '1' ],
                                 'msgs'       : [ '1' ],
                                 'rendering'  : [ '1' ],
                                 'transport'  : [ '3','4' ]]
-# physics/sensors don't need to be included since they use default for gz11
+// physics/sensors don't need to be included since they use default for gz11
 ignition_prerelease_branches = [ 'cmake'     : [ 'gz11' ],
                                  'common'    : [ 'gz11' ],
                                  'gui'       : [ 'gz11' ],
