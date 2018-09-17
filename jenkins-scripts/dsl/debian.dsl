@@ -39,7 +39,7 @@ packages.each { repo_name, pkgs ->
      }
 
     // No accepted in Sid yet
-    if ((pkg == 'sdformat6') || (pkg == 'ignition-transport4'))
+    if ((pkg == 'sdformat8') || (pkg == 'sdformat6') || (pkg == 'ignition-transport4'))
     {
       disabled()
     }
