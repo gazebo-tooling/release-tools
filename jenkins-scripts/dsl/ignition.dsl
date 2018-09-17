@@ -328,6 +328,12 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "sensors")))
             disabled()
 
+          // gz11 branches don't work on trusty or xenial
+          if (("${branch}" == "gz11") && (
+              ("${distro}" == "xenial") ||
+              ("${distro}" == "trusty")))
+            disabled()
+
           steps {
             shell("""\
                   #!/bin/bash -xe
