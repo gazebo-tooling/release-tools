@@ -300,9 +300,8 @@ all_debbuild_branches.each { branch ->
       steps {
         shell("""\
               #!/bin/bash -xe
-              /bin/bash -x ./scripts/jenkins-scripts/docker/lib/_sdformat_version_hook.bash
 
-              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
+              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-sdformat-debbuild.bash
               """.stripIndent())
       }
   }
