@@ -15,6 +15,13 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 . "${SCRIPT_DIR}/lib/_sdformat_version_hook.bash"
+
+# Check IGN_MATH version is integer
+if ! [[ ${SDFORMAT_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+  echo "Error! SDFORMAT_MAJOR_VERSION is not an integer, check the detection"
+  exit -1
+fi
+
 . "${SCRIPT_DIR}/lib/_gz11_hook.bash"
 
 export BUILDING_SOFTWARE_DIRECTORY="sdformat"
