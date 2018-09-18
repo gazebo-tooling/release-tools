@@ -14,26 +14,16 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-. "${SCRIPT_DIR}/lib/_gz11_hook.bash"
-# All branches requires gz11 support
-export NEEDS_GZ11_SUPPORT=true
-
 export BUILDING_SOFTWARE_DIRECTORY="ign-sensors"
+export BUILDING_JOB_REPOSITORIES="stable"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_SENSORS_DEPENDENCIES"
 
-if ${NEEDS_GZ11_SUPPORT}; then
-  # all dependencies of ign-sensors are ignition/sdformat
-  export BUILD_IGN_CMAKE=true
-  export BUILD_IGN_TOOLS=true
-  export BUILD_IGN_MATH=true
-  export BUILD_IGN_COMMON=true
-  export BUILD_IGN_MSGS=true
-  export BUILD_IGN_TRANSPORT=true
-  export BUILD_IGN_RENDERING=true
-  export BUILD_SDFORMAT=true
-else
-  export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_SENSORS_DEPENDENCIES"
-  export BUILDING_JOB_REPOSITORIES="stable"
-fi
+export NEEDS_GZ11_SUPPORT=true
+. "${SCRIPT_DIR}/lib/_gz11_hook.bash"
+
+# all dependencies of ign-sensors are ignition/sdformat
+export BUILD_IGN_RENDERING=true
+export BUILD_SDFORMAT=true
 
 if [[ $(date +%Y%m%d) -le 20181231 ]]; then
   ## need prerelease repo to get ignition-cmake1 for ign-rendering

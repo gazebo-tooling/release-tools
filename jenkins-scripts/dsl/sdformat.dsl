@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def sdformat_supported_branches = [ 'sdformat4', 'sdformat5', 'sdformat6' ]
+def sdformat_supported_branches = [ 'sdformat4', 'sdformat5', 'sdformat6', 'sdformat8' ]
 def nightly_sdformat_branch = [ 'sdformat7' ]
 
 // Main platform using for quick CI
@@ -301,7 +301,7 @@ all_debbuild_branches.each { branch ->
         shell("""\
               #!/bin/bash -xe
 
-              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
+              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-sdformat-debbuild.bash
               """.stripIndent())
       }
   }

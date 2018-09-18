@@ -40,14 +40,18 @@ BREW_BASE_DEPENDCIES="mercurial git cmake"
 
 # 1. SDFORMAT
 # ruby for xml_schemas generation and libxml2-utils for xmllint used in tests
-SDFORMAT_NO_IGN_DEPENDENCIES="python                       \\
+SDFORMAT_NO_IGN_DEPENDENCIES="python         \\
+                              libxml2-utils  \\
+                              libtinyxml-dev"
+
+if [[ ${SDFORMAT_MAJOR_VERSION} -lt 8 ]]; then
+SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
                               libboost-system-dev          \\
                               libboost-filesystem-dev      \\
                               libboost-program-options-dev \\
                               libboost-regex-dev           \\
-                              libboost-iostreams-dev       \\
-                              libtinyxml-dev               \\
-                              libxml2-utils"
+                              libboost-iostreams-dev"
+fi
 
 if [[ ${DISTRO} == 'trusty'  ]]; then
   SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
@@ -64,7 +68,13 @@ if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
     SDFORMAT_MAJOR_VERSION=6
 fi
 
-if [[ ${SDFORMAT_MAJOR_VERSION} -ge 6 ]]; then
+if [[ ${SDFORMAT_MAJOR_VERSION} -ge 8 ]]; then
+    # sdformat8 requires ignition-math6 and
+    # uses ignition-tools for a test
+    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
+                                libignition-math6-dev           \\
+                                libignition-tools-dev"
+elif [[ ${SDFORMAT_MAJOR_VERSION} -ge 6 ]]; then
     # sdformat6 requires ignition-math4 and
     # uses ignition-tools for a test
     SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
@@ -666,13 +676,13 @@ else
                               libignition-math6-dev"
 fi
 
-IGN_SENSORS_DEPENDENCIES="libignition-common2-dev     \\
-                          libignition-cmake1-dev \\
-                          libignition-math5-dev      \\
-                          libignition-msgs2-dev       \\
+IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
+                          libignition-cmake2-dev \\
+                          libignition-math6-dev      \\
+                          libignition-msgs3-dev       \\
                           libignition-tools-dev \\
-                          libignition-transport5-dev \\
-                          libsdformat6-dev"
+                          libignition-transport6-dev"
+#                          libsdformat8-dev"
 
 IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
                        libignition-math4-dev"
