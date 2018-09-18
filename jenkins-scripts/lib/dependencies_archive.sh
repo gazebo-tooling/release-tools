@@ -518,10 +518,12 @@ fi
 #
 
 if [[ ${DISTRO} != 'trusty' ]]; then
-  if [[ ${IGN_MATH_MAJOR_VERSION} -lt 5 ]]; then
-    IGN_MATH_DEPENDENCIES="libignition-cmake-dev"
-  else
-    IGN_MATH_DEPENDENCIES="libignition-cmake1-dev"
+  IGN_MATH_DEPENDENCIES="libeigen3-dev \\
+                         libignition-cmake-dev \\
+                         libignition-cmake1-dev"
+  if [[ ${DISTRO} != 'xenial' ]]; then
+    IGN_MATH_DEPENDENCIES="${IGN_MATH_DEPENDENCIES} \\
+                           libignition-cmake2-dev"
   fi
 fi
 
@@ -653,8 +655,11 @@ IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           libignition-plugin-dev"
 IGN_PHYSICS_DART_FROM_PKGS="true"
 
-IGN_PLUGIN_DEPENDENCIES="libignition-cmake1-dev \\
-                         libignition-cmake2-dev"
+IGN_PLUGIN_DEPENDENCIES="libignition-cmake1-dev"
+if [[ ${DISTRO} != 'xenial' ]]; then
+  IGN_PLUGIN_DEPENDENCIES="${IGN_PLUGIN_DEPENDENCIES} \\
+                           libignition-cmake2-dev"
+fi
 
 IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev \\
