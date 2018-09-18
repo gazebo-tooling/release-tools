@@ -653,7 +653,8 @@ IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           libignition-plugin-dev"
 IGN_PHYSICS_DART_FROM_PKGS="true"
 
-IGN_PLUGIN_DEPENDENCIES="libignition-cmake2-dev"
+IGN_PLUGIN_DEPENDENCIES="libignition-cmake1-dev \\
+                         libignition-cmake2-dev"
 
 IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev \\
