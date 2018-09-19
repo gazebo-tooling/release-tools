@@ -554,6 +554,11 @@ elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 5 ]]; then
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libignition-cmake1-dev \\
                                 libignition-msgs2-dev"
+    if [[ ${DISTRO} != 'xenial' ]]; then
+      export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
+                                  libignition-cmake2-dev \\
+                                  libignition-msgs3-dev"
+    fi
 else
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libignition-msgs0-dev"
