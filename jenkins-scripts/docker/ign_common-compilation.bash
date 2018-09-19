@@ -14,6 +14,10 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
+export BUILDING_SOFTWARE_DIRECTORY="ign-common"
+export BUILDING_JOB_REPOSITORIES="stable"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_COMMON_DEPENDENCIES"
+
 # Identify IGN_COMMON_MAJOR_VERSION to help with dependency resolution
 IGN_COMMON_MAJOR_VERSION=$(\
   python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
@@ -25,18 +29,12 @@ if ! [[ ${IGN_COMMON_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
+if [[ ${IGN_COMMON_MAJOR_VERSION} -ge 3 ]]; then
+  export NEEDS_GZ11_SUPPORT=true
+fi
+
 . "${SCRIPT_DIR}/lib/_gz11_hook.bash"
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-common"
-
-if ${NEEDS_GZ11_SUPPORT}; then
-  export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_COMMON_NO_IGN_DEPENDENCIES"
-  export BUILD_IGN_CMAKE=true
-  export BUILD_IGN_MATH=true
-else
-  export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_COMMON_DEPENDENCIES"
-  export BUILDING_JOB_REPOSITORIES="stable"
-fi
 if [[ $(date +%Y%m%d) -le 20181231 ]]; then
   ## need prerelease repo to get ignition-cmake during the development cycle
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
