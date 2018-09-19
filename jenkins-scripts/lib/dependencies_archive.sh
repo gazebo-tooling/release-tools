@@ -648,6 +648,16 @@ IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
                       libignition-msgs2-dev \\
                       libignition-common2-dev"
 
+if [[ ${DISTRO} != 'xenial' ]]; then
+  IGN_GUI_DEPENDENCIES="${IGN_GUI_IGN_DEPENDENCIES} \\
+                        libignition-cmake2-dev \\
+                        libignition-common3-dev \\
+                        libignition-math6-dev \\
+                        libignition-msgs3-dev \\
+                        libignition-rendering-dev \\
+                        libignition-transport6-dev"
+fi
+
 IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           dart6-data \\
                           libdart6-dev \\
