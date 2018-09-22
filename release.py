@@ -473,12 +473,14 @@ def go(argv):
 
     for d in distros:
         for a in UBUNTU_ARCHS:
-            extra_params = { }
+            linux_platform_params = params.copy()
+            linux_platform_params['ARCH'] = a
+            linux_platform_params['DISTRO'] = d
 
             if (a == 'armhf' or a == 'arm64'):
                 # Need to use JENKINS_NODE_TAG parameter for large memory nodes
                 # since it runs qemu emulation
-                extra_params['JENKINS_NODE_TAG'] = 'large-memory'
+                linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
 
             if (NIGHTLY and a == 'i386'):
                 # only keep i386 for sdformat in nightly,
@@ -486,10 +488,9 @@ def go(argv):
                 if (not args.package[:-1] == 'sdformat'):
                     continue
 
-            build_params_query = params_query + urllib.urlencode(extra_params)
+            linux_platform_params_query = urllib.urlencode(linux_platform_params)
 
-            base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, build_params_query)
-            url = '%s&ARCH=%s&DISTRO=%s'%(base_url, a, d)
+            url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, linux_platform_params_query)
             print('- Linux: %s'%(url))
 
             if not DRY_RUN:
