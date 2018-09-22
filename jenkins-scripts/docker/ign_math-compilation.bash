@@ -14,6 +14,10 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
+export BUILDING_SOFTWARE_DIRECTORY="ign-math"
+export BUILDING_JOB_REPOSITORIES="stable"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_MATH_DEPENDENCIES"
+
 # Identify IGN_MATH_MAJOR_VERSION to help with dependency resolution
 IGN_MATH_MAJOR_VERSION=$(\
   python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
@@ -25,20 +29,14 @@ if ! [[ ${IGN_MATH_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-export BUILDING_JOB_REPOSITORIES="stable"
-# gz11 hook will take of adding prerelease
-. "${SCRIPT_DIR}/lib/_gz11_hook.bash"
-
-export BUILDING_SOFTWARE_DIRECTORY="ign-math"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_MATH_DEPENDENCIES"
-
-if ${NEEDS_GZ11_SUPPORT}; then
-  export BUILD_IGN_CMAKE=true
+if [[ ${IGN_MATH_MAJOR_VERSION} -ge 6 ]]; then
+  export NEEDS_GZ11_SUPPORT=true
 fi
 
-# To get ign-cmake1 package in prerelease
+. "${SCRIPT_DIR}/lib/_gz11_hook.bash"
+
 if [[ $(date +%Y%m%d) -le 20181231 ]]; then
-  ## need prerelease repo to get ignition-cmake1 for ign-rendering
+  ## need prerelease repo to get ignition-cmake[12]
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
 fi
 

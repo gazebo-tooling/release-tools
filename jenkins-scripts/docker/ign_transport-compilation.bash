@@ -14,6 +14,10 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
+export BUILDING_SOFTWARE_DIRECTORY="ign-transport"
+export BUILDING_JOB_REPOSITORIES="stable"
+  export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_TRANSPORT_DEPENDENCIES"
+
 # Identify IGN_TRANSPORT_MAJOR_VERSION to help with dependency resolution
 IGN_TRANSPORT_MAJOR_VERSION=$(\
   python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
@@ -25,24 +29,15 @@ if ! [[ ${IGN_TRANSPORT_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
+if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 6 ]]; then
+  export NEEDS_GZ11_SUPPORT=true
+fi
+
 . "${SCRIPT_DIR}/lib/_gz11_hook.bash"
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-transport"
-
-if ${NEEDS_GZ11_SUPPORT}; then
-  export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_TRANSPORT_NO_IGN_DEPENDENCIES"
-  export BUILD_IGN_CMAKE=true
-  export BUILD_IGN_TOOLS=true
-  export BUILD_IGN_MATH=true # needed for msgs
-  export BUILD_IGN_MSGS=true
-else
-  export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_TRANSPORT_DEPENDENCIES"
-  export BUILDING_JOB_REPOSITORIES="stable"
-
-  if [[ $(date +%Y%m%d) -le 20181231 ]]; then
-    # need prerelease repo to get ignition-cmake during the development cycle
-    export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
-  fi
+if [[ $(date +%Y%m%d) -le 20181231 ]]; then
+  # need prerelease repo to get ignition-cmake during the development cycle
+  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
 fi
 
 . "${SCRIPT_DIR}/lib/generic-building-base.bash"

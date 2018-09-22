@@ -518,10 +518,12 @@ fi
 #
 
 if [[ ${DISTRO} != 'trusty' ]]; then
-  if [[ ${IGN_MATH_MAJOR_VERSION} -lt 5 ]]; then
-    IGN_MATH_DEPENDENCIES="libignition-cmake-dev"
-  else
-    IGN_MATH_DEPENDENCIES="libignition-cmake1-dev"
+  IGN_MATH_DEPENDENCIES="libeigen3-dev \\
+                         libignition-cmake-dev \\
+                         libignition-cmake1-dev"
+  if [[ ${DISTRO} != 'xenial' ]]; then
+    IGN_MATH_DEPENDENCIES="${IGN_MATH_DEPENDENCIES} \\
+                           libignition-cmake2-dev"
   fi
 fi
 
@@ -552,6 +554,11 @@ elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 5 ]]; then
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libignition-cmake1-dev \\
                                 libignition-msgs2-dev"
+    if [[ ${DISTRO} != 'xenial' ]]; then
+      export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
+                                  libignition-cmake2-dev \\
+                                  libignition-msgs3-dev"
+    fi
 else
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libignition-msgs0-dev"
@@ -573,14 +580,15 @@ IGN_COMMON_NO_IGN_DEPENDENCIES="pkg-config            \\
                          libtinyxml2-dev       \\
                          uuid-dev"
 
-if [[ ${IGN_COMMON_MAJOR_VERSION} -le 1 ]]; then
-    IGN_COMMON_DEPENDENCIES="${IGN_COMMON_NO_IGN_DEPENDENCIES} \\
-                         libignition-cmake-dev \\
-                         libignition-math4-dev"
-else
-    IGN_COMMON_DEPENDENCIES="${IGN_COMMON_NO_IGN_DEPENDENCIES} \\
-                         libignition-cmake1-dev \\
-                         libignition-math5-dev"
+IGN_COMMON_DEPENDENCIES="${IGN_COMMON_NO_IGN_DEPENDENCIES} \\
+                     libignition-cmake-dev \\
+                     libignition-cmake1-dev \\
+                     libignition-math4-dev \\
+                     libignition-math5-dev"
+if [[ ${DISTRO} != 'xenial' ]]; then
+  IGN_COMMON_DEPENDENCIES="${IGN_COMMON_DEPENDENCIES} \\
+                           libignition-cmake2-dev \\
+                           libignition-math6-dev"
 fi
 
 IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
@@ -640,6 +648,16 @@ IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
                       libignition-msgs2-dev \\
                       libignition-common2-dev"
 
+if [[ ${DISTRO} != 'xenial' ]]; then
+  IGN_GUI_DEPENDENCIES="${IGN_GUI_IGN_DEPENDENCIES} \\
+                        libignition-cmake2-dev \\
+                        libignition-common3-dev \\
+                        libignition-math6-dev \\
+                        libignition-msgs3-dev \\
+                        libignition-rendering-dev \\
+                        libignition-transport6-dev"
+fi
+
 IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           dart6-data \\
                           libdart6-dev \\
@@ -650,8 +668,11 @@ IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           libignition-plugin-dev"
 IGN_PHYSICS_DART_FROM_PKGS="true"
 
-IGN_PLUGIN_DEPENDENCIES="libignition-cmake1-dev \\
-                         libignition-cmake2-dev"
+IGN_PLUGIN_DEPENDENCIES="libignition-cmake1-dev"
+if [[ ${DISTRO} != 'xenial' ]]; then
+  IGN_PLUGIN_DEPENDENCIES="${IGN_PLUGIN_DEPENDENCIES} \\
+                           libignition-cmake2-dev"
+fi
 
 IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev \\
