@@ -50,6 +50,7 @@ class OSRFLinuxBuildPkg
         nodeParam('JENKINS_NODE') {
           description('Jenkins node or group to run build')
           defaultNodes(['docker'])
+          trigger('allowMultiSelectionForConcurrentBuilds')
         }
       }
 
