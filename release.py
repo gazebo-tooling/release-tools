@@ -18,16 +18,13 @@ GENERIC_BREW_PULLREQUEST_JOB='generic-release-homebrew_pull_request_updater'
 UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
 DOWNLOAD_URI_PATTERN = 'http://gazebosim.org/distributions/%s/releases/'
 
-UBUNTU_ARCHS = ['amd64', 'i386']
+UBUNTU_ARCHS = ['amd64', 'i386', 'armhf', 'arm64']
 # Ubuntu distributions are automatically taken from the top directory of
 # the release repositories, when needed.
 UBUNTU_DISTROS = []
 # UBUNTU_DISTROS_EXTRA will be added to the discovered list of distros
 # use it if you need manual intervention
 UBUNTU_DISTROS_EXTRA = []
-
-ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
-ROS_DISTROS_IN_TRUSTY = [ 'indigo' ];
 
 OSRF_REPOS_SUPPORTED="stable prerelease nightly mentor2 haptix-pre"
 OSRF_REPOS_SELF_CONTAINED="mentor2"
@@ -459,12 +456,6 @@ def go(argv):
     else:
         job_name = JOB_NAME_PATTERN%(args.package)
 
-    # Enable new armhf jobs in sdformat2 and gazebo5
-    if (args.package == 'sdformat2' or args.package == 'gazebo5'):
-        # No prereleases
-        if (not args.release_repo_branch == 'prerelease'):
-            UBUNTU_ARCHS.append('armhf')
-
     params_query = urllib.urlencode(params)
 
     # RELEASING FOR BREW
@@ -482,45 +473,27 @@ def go(argv):
 
     for d in distros:
         for a in UBUNTU_ARCHS:
+            extra_params = { }
+
+            if (a == 'armhf' or a == 'arm64'):
+                # Need to use JENKINS_NODE parameter for large memory nodes
+                # since it runs qemu emulation
+                extra_params['JENKINS_NODE'] = 'large-memory'
+
             if (NIGHTLY and a == 'i386'):
                 # only keep i386 for sdformat in nightly,
                 # just to test CI infrastructure
                 if (not args.package[:-1] == 'sdformat'):
                     continue
 
-            # no wily for i386 in docker
-            if (d == 'wily' and a == 'i386'):
-                continue
+            build_params_query = params_query + urllib.urlencode(extra_params)
 
-            if (a == 'armhf'):
-                # Only release armhf in trusty for now
-                if (d != 'trusty'):
-                    continue
-                # armhf runs on docker, it needs a different base_url
-                base_url = '%s/job/%s-docker/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
-            else:
-                base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
+            base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, build_params_query)
+            url = '%s&ARCH=%s&DISTRO=%s'%(base_url, a, d)
+            print('- Linux: %s'%(url))
 
-            if not DRCSIM_MULTIROS:
-                url = '%s&ARCH=%s&DISTRO=%s'%(base_url, a, d)
-                print('- Linux: %s'%(url))
-
-                if not DRY_RUN:
-                    urllib.urlopen(url)
-            else:
-                if (d == 'precise'):
-                    ROS_DISTROS = ROS_DISTROS_IN_PRECISE
-                elif (d == 'trusty'):
-                    ROS_DISTROS = ROS_DISTROS_IN_TRUSTY
-                else:
-                    print ("ERROR in ROS_DISTROS: unkonwn distribution")
-                    sys.exit(1)
-
-                for r in ROS_DISTROS:
-                    url = '%s&ARCH=%s&DISTRO=%s&ROS_DISTRO=%s'%(base_url, a, d, r)
-                    print('Accessing multiros: %s'%(url))
-                    if not DRY_RUN:
-                        urllib.urlopen(url)
+            if not DRY_RUN:
+                urllib.urlopen(url)
 
     ###################################################
     # Fedora-specific stuff.
