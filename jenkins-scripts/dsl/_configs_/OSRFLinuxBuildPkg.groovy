@@ -47,10 +47,9 @@ class OSRFLinuxBuildPkg
         stringParam("PACKAGE_ALIAS", null, "If not empty, package name to be used instead of PACKAGE")
         stringParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to")
         stringParam("OSRF_REPOS_TO_USE", null, "OSRF repos name to use when building the package")
-        nodeParam('JENKINS_NODE') {
+        labelParam('JENKINS_NODE_TAG') {
           description('Jenkins node or group to run build')
-          defaultNodes(['docker'])
-          trigger('allowMultiSelectionForConcurrentBuilds')
+          defaultValue('docker')
         }
       }
 

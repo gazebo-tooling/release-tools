@@ -476,9 +476,9 @@ def go(argv):
             extra_params = { }
 
             if (a == 'armhf' or a == 'arm64'):
-                # Need to use JENKINS_NODE parameter for large memory nodes
+                # Need to use JENKINS_NODE_TAG parameter for large memory nodes
                 # since it runs qemu emulation
-                extra_params['JENKINS_NODE'] = 'large-memory'
+                extra_params['JENKINS_NODE_TAG'] = 'large-memory'
 
             if (NIGHTLY and a == 'i386'):
                 # only keep i386 for sdformat in nightly,
