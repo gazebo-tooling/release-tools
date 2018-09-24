@@ -649,7 +649,7 @@ IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
                       libignition-common2-dev"
 
 if [[ ${DISTRO} != 'xenial' ]]; then
-  IGN_GUI_DEPENDENCIES="${IGN_GUI_IGN_DEPENDENCIES} \\
+  IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
                         libignition-cmake2-dev \\
                         libignition-common3-dev \\
                         libignition-math6-dev \\
