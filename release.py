@@ -18,13 +18,12 @@ GENERIC_BREW_PULLREQUEST_JOB='generic-release-homebrew_pull_request_updater'
 UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
 DOWNLOAD_URI_PATTERN = 'http://gazebosim.org/distributions/%s/releases/'
 
-UBUNTU_ARCHS = ['amd64', 'i386', 'armhf', 'arm64']
+LINUX_DISTROS = [ 'ubuntu', 'debian' ]
+SUPPORTED_ARCHS = ['amd64', 'i386', 'armhf', 'arm64']
+
 # Ubuntu distributions are automatically taken from the top directory of
 # the release repositories, when needed.
 UBUNTU_DISTROS = []
-# UBUNTU_DISTROS_EXTRA will be added to the discovered list of distros
-# use it if you need manual intervention
-UBUNTU_DISTROS_EXTRA = []
 
 OSRF_REPOS_SUPPORTED="stable prerelease nightly mentor2 haptix-pre"
 OSRF_REPOS_SELF_CONTAINED="mentor2"
@@ -267,9 +266,7 @@ def sanity_checks(args, repo_dir):
 
     shutil.rmtree(repo_dir)
 
-def discover_distros(args, repo_dir):
-    global UBUNTU_DISTROS
-
+def discover_ubuntu_distros(args, repo_dir):
     subdirs =  os.walk(repo_dir).next()[1]
     subdirs.remove('.hg')
     # remove ubuntu (common stuff) and debian (new supported distro at top level)
@@ -283,7 +280,18 @@ def discover_distros(args, repo_dir):
 
     print('Releasing for distributions: ' + ', '.join(subdirs))
 
-    UBUNTU_DISTROS = subdirs
+    return subdirs
+
+def discover_debian_distros(args, repo_dir):
+    subdirs =  os.walk(repo_dir+ '/debian/').next()[1]
+
+    if not subdirs:
+        error('Can not find debian distributions directories in the -release repo')
+
+    print('Releasing for distributions: ' + ', '.join(subdirs))
+
+    return subdirs
+
 
 def check_call(cmd, ignore_dry_run = False):
     if ignore_dry_run:
@@ -419,7 +427,8 @@ def go(argv):
     if not UPSTREAM:
         repo_dir = download_release_repository(args.package, args.release_repo_branch)
         # The supported distros are the ones in the top level of -release repo
-        discover_distros(args, repo_dir)
+        ubuntu_distros = discover_ubuntu_distros(args, repo_dir)
+        debian_distros = discover_debian_distros(args, repo_dir)
         if not args.no_sanity_checks:
             sanity_checks(args, repo_dir)
 
@@ -467,39 +476,39 @@ def go(argv):
         urllib.urlopen(brew_url)
 
     # RELEASING FOR LINUX
-    distros = UBUNTU_DISTROS
-    if UBUNTU_DISTROS_EXTRA:
-        distros.extend(UBUNTU_DISTROS_EXTRA)
+    for l in LINUX_DISTROS:
+        if (l == 'ubuntu'):
+            distros = ubuntu_distros
+        elif (l == 'debian'):
+            distros = debian_distros
+        else:
+            error("Distro not supported in code")
 
-    for d in distros:
-        for a in UBUNTU_ARCHS:
-            linux_platform_params = params.copy()
-            linux_platform_params['ARCH'] = a
-            linux_platform_params['DISTRO'] = d
+        for d in distros:
+            for a in SUPPORTED_ARCHS:
+                linux_platform_params = params.copy()
+                linux_platform_params['ARCH'] = a
+                linux_platform_params['LINUX_DISTRO'] = l
+                linux_platform_params['DISTRO'] = d
 
-            if (a == 'armhf' or a == 'arm64'):
-                # Need to use JENKINS_NODE_TAG parameter for large memory nodes
-                # since it runs qemu emulation
-                linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
+                if (a == 'armhf' or a == 'arm64'):
+                    # Need to use JENKINS_NODE_TAG parameter for large memory nodes
+                    # since it runs qemu emulation
+                    linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
 
-            if (NIGHTLY and a == 'i386'):
-                # only keep i386 for sdformat in nightly,
-                # just to test CI infrastructure
-                if (not args.package[:-1] == 'sdformat'):
-                    continue
+                if (NIGHTLY and a == 'i386'):
+                    # only keep i386 for sdformat in nightly,
+                    # just to test CI infrastructure
+                    if (not args.package[:-1] == 'sdformat'):
+                        continue
 
-            linux_platform_params_query = urllib.urlencode(linux_platform_params)
+                linux_platform_params_query = urllib.urlencode(linux_platform_params)
 
-            url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, linux_platform_params_query)
-            print('- Linux: %s'%(url))
+                url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, linux_platform_params_query)
+                print('- Linux: %s'%(url))
 
-            if not DRY_RUN:
-                urllib.urlopen(url)
-
-    ###################################################
-    # Fedora-specific stuff.
-    # The goal is to build rpms.
-    # TODO
+                if not DRY_RUN:
+                    urllib.urlopen(url)
 
 if __name__ == '__main__':
     go(sys.argv)
