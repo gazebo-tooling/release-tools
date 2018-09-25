@@ -32,7 +32,7 @@ else
   export CMD_CATKIN_LIST=""
   export CMD_CATKIN_BUILD="catkin build -j${MAKE_JOBS} --verbose --summary ${CATKIN_EXTRA_ARGS}"
   export CMD_CATKIN_TEST="catkin run_tests -j1 || true"
-  export CMD_CATKIN_TEST_RESULTS="catkin_test_results --all --verbose"
+  export CMD_CATKIN_TEST_RESULTS="catkin_test_results --all --verbose || true"
 fi
 
 export CATKIN_WS="${WORKSPACE}/ws"
