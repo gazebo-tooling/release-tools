@@ -21,7 +21,7 @@ ignition_debbuild  = ignition_software + [ 'cmake1','cmake2',
                                            'msgs0', 'msgs2',
                                            'transport5' ]
 ignition_gpu                = [ 'gui', 'rendering', 'sensors' ]
-ignition_no_pkg_yet         = [ 'gui', 'physics', 'plugin', 'rendering', 'rndf', 'sensors' ]
+ignition_no_pkg_yet         = [ 'gui', 'physics', 'plugin', 'rndf', 'sensors' ]
 ignition_no_test            = [ 'tools' ]
 // no branches in ignition_branches means no released branches
 ignition_branches           = [ 'common'     : [ '1' ],
@@ -29,6 +29,15 @@ ignition_branches           = [ 'common'     : [ '1' ],
                                 'math'       : [ '2', '3','4' ],
                                 'msgs'       : [ '1' ],
                                 'transport'  : [ '3','4' ]]
+// physics/sensors don't need to be included since they use default for gz11
+ignition_prerelease_branches = [ 'cmake'     : [ 'gz11' ],
+                                 'common'    : [ 'gz11' ],
+                                 'gui'       : [ 'gz11' ],
+                                 'math'      : [ 'gz11' ],
+                                 'msgs'      : [ 'gz11' ],
+                                 'plugin'    : [ 'gz11' ],
+                                 'rendering' : [ 'gz11' ],
+                                 'transport' : [ 'gz11' ]]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
 ignition_colcon_win         = [ 'physics', 'rendering' ]
@@ -69,6 +78,17 @@ ArrayList supported_branches(String ign_software)
   return major_versions_registered
 }
 
+// return prerelease branch names
+ArrayList prerelease_branches(String ign_software)
+{
+  pre_branches = ignition_prerelease_branches["${ign_software}"]
+
+  if (pre_branches == null)
+    return [ '' ]
+
+  return pre_branches
+}
+
 // return all ci branch names
 ArrayList all_branches(String ign_software)
 {
@@ -79,6 +99,11 @@ ArrayList all_branches(String ign_software)
     }
   }
   branches.add('default')
+  prerelease_branches("${ign_software}").each { branch ->
+    if ("${branch}") {
+      branches.add(branch)
+    }
+  }
   return branches
 }
 
@@ -294,6 +319,18 @@ ignition_software.each { ign_sw ->
           // no bionic for transport3
           if (("${distro}" == "bionic") && (
               ("${branch}" == "ign-transport3")))
+            disabled()
+
+          // no xenial for ign-physics/sensors
+          if (("${distro}" == "xenial") && (
+              ("${ign_sw}" == "physics") ||
+              ("${ign_sw}" == "sensors")))
+            disabled()
+
+          // gz11 branches don't work on trusty or xenial
+          if (("${branch}" == "gz11") && (
+              ("${distro}" == "xenial") ||
+              ("${distro}" == "trusty")))
             disabled()
 
           steps {

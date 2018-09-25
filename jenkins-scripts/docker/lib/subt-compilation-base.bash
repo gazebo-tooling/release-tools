@@ -30,26 +30,32 @@ DOCKER_JOB_NAME="subt_ci"
 # Need special tarball
 # see: https://bitbucket.org/osrf/subt/wiki/tutorials/ExampleSetup
 # remove subt_example and subt_gazebo since there are coming from the repo under testing
+# Models are used in tests
 export ROS_WS_PREBUILD_HOOK="""
 cd ..
 wget http://gazebosim.org/distributions/subt_robot_examples/releases/subt_robot_examples_latest.tgz -O subt_robot_examples.tgz
 tar xvfz subt_robot_examples.tgz
 rm -fr install/share/subt_example
 rm -fr install/share/subt_gazebo
-"""
+rm install/etc/catkin/profile.d/50.husky_find_mag_config.sh
+export GAZEBO_PLUGIN_PATH=\`pwd\`/install/lib:\$GAZEBO_PLUGIN_PATH
 
-export ROS_SETUP_POSTINSTALL_HOOK="""
-echo '# BEGIN SECTION: smoke test'
 wget -P /tmp/ https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz
 mkdir -p ~/.gazebo/models
 tar -xvf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
 rm /tmp/default.tar.gz
+"""
+
+export ROS_SETUP_POSTINSTALL_HOOK="""
+echo '# BEGIN SECTION: smoke test'
+
+killall gazebo gzserver || true
 
 source ./install/setup.bash || true
 
 TEST_TIMEOUT=180
 TEST_START=\$(date +%s)
-timeout --preserve-status \$TEST_TIMEOUT roslaunch subt_gazebo lava_tube.launch extra_gazebo_args:=\"--verbose\"
+timeout --preserve-status \$TEST_TIMEOUT roslaunch subt_gazebo competition.launch extra_gazebo_args:=\"--verbose\"
 TEST_END=\$(date +%s)
 DIFF=\$(expr \$TEST_END - \$TEST_START)
 
@@ -66,7 +72,7 @@ echo '# END SECTION'
 # Generate the first part of the build.sh file for ROS
 . ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash "subt"
 
-DEPENDENCY_PKGS="${SUBT_DEPENDENCIES}"
+DEPENDENCY_PKGS="${SUBT_DEPENDENCIES} psmisc"
 # ROS packages come from the mirror in the own subt repository
 USE_ROS_REPO=true
 OSRF_REPOS_TO_USE="stable"

@@ -29,6 +29,10 @@ set_status.with
      preBuildCleanup()
   }
 
+  logRotator {
+    numToKeep(15)
+  }
+
   steps
   {
     systemGroovyCommand("""\
