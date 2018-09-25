@@ -5,6 +5,7 @@ import javaposse.jobdsl.dsl.Job
 ignition_software = [ 'cmake',
                       'common',
                       'fuel-tools',
+                      'gazebo',
                       'gui',
                       'math',
                       'msgs',
@@ -21,7 +22,7 @@ ignition_debbuild  = ignition_software + [ 'cmake1','cmake2',
                                            'msgs0', 'msgs2',
                                            'transport5' ]
 ignition_gpu                = [ 'gui', 'rendering', 'sensors' ]
-ignition_no_pkg_yet         = [ 'gui', 'physics', 'plugin', 'rndf', 'sensors' ]
+ignition_no_pkg_yet         = [ 'gazebo, 'gui', 'physics', 'plugin', 'rndf', 'sensors' ]
 ignition_no_test            = [ 'tools' ]
 // no branches in ignition_branches means no released branches
 ignition_branches           = [ 'common'     : [ '1' ],
@@ -322,10 +323,11 @@ ignition_software.each { ign_sw ->
               ("${branch}" == "ign-transport3")))
             disabled()
 
-          // no xenial for ign-physics/sensors
+          // no xenial for ign-physics/sensors/gazebo
           if (("${distro}" == "xenial") && (
               ("${ign_sw}" == "physics") ||
-              ("${ign_sw}" == "sensors")))
+              ("${ign_sw}" == "sensors") ||
+              ("${ign_sw}" == "gazebo")))
             disabled()
 
           // gz11 branches don't work on trusty or xenial
