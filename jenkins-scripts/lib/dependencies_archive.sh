@@ -707,6 +707,7 @@ IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
 IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev     \\
                          libignition-cmake2-dev \\
                          libignition-gui-dev \\
+                         libgflags-dev \\
                          libignition-math6-dev      \\
                          libignition-math6-eigen3-dev      \\
                          libignition-msgs3-dev       \\
