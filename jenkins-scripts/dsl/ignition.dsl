@@ -21,7 +21,7 @@ ignition_debbuild  = ignition_software + [ 'cmake1','cmake2',
                                            'math5',
                                            'msgs0', 'msgs2',
                                            'transport5' ]
-ignition_gpu                = [ 'gui', 'rendering', 'sensors' ]
+ignition_gpu                = [ 'gazebo', 'gui', 'rendering', 'sensors' ]
 ignition_no_pkg_yet         = [ 'gazebo', 'gui', 'physics', 'plugin', 'rndf', 'sensors' ]
 ignition_no_test            = [ 'tools' ]
 // no branches in ignition_branches means no released branches
