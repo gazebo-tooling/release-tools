@@ -548,7 +548,7 @@ if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 4 ]]; then
                                 libignition-cmake-dev \\
                                 libignition-msgs-dev"
 elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 5 ]]; then
-    export IGN_TRANSPORT_NO_IGN_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
+    export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libignition-cmake1-dev \\
                                 libignition-msgs2-dev \\
                                 libsqlite3-dev \\
