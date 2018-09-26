@@ -420,7 +420,8 @@ else
     #
     # ROS1
     #
-    ROS_GAZEBO_PKGS_DEPENDENCIES="ros-${ROS_DISTRO}-ros                     \\
+    ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_COMMON_DEPS}            \\
+                                  ros-${ROS_DISTRO}-ros                     \\
                                   ros-${ROS_DISTRO}-catkin                  \\
                                   ros-${ROS_DISTRO}-pluginlib               \\
                                   ros-${ROS_DISTRO}-roscpp                  \\
