@@ -36,7 +36,7 @@ ignition_prerelease_branches = [ 'cmake'     : [ 'gz11' ],
                                  'gui'       : [ 'gz11' ],
                                  'math'      : [ 'gz11' ],
                                  'msgs'      : [ 'gz11' ],
-                                 'plugin'    : [ 'gz11' ],
+                                 'plugin'    : [ 'ign-plugin1' ],
                                  'rendering' : [ 'gz11' ],
                                  'transport' : [ 'gz11' ]]
 // packages using colcon for windows compilation while migrating all them to
