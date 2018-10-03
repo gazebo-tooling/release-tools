@@ -3,7 +3,7 @@ import javaposse.jobdsl.dsl.Job
 
 Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 
-brew_supported_distros         = [ "elcapitan", "sierra", "highsierra", "mojave" ]
+brew_supported_distros         = [ "sierra", "highsierra", "mojave" ]
 bottle_hash_updater_job_name   = 'generic-release-homebrew_pr_bottle_hash_updater'
 bottle_builder_job_name_prefix = 'generic-release-homebrew_bottle_builder'
 directory_for_bottles          = 'pkgs'
