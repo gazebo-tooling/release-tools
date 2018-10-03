@@ -558,7 +558,8 @@ elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 6 ]]; then
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                   libignition-cmake2-dev \\
                                   libignition-msgs3-dev \\
-                                  libsqlite3-dev"
+                                  libsqlite3-dev \\
+                                  ruby-ffi"
 else
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libignition-msgs0-dev"
