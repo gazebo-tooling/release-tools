@@ -12,9 +12,11 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFLinuxCompilationAnyGitHub
 {
-  static void create(Job job, ArrayList supported_ros_distros,
-                              boolean enable_testing  = true,
-                              boolean enable_cppcheck = false)
+  static void create(Job job,
+                     String github_repo,
+                     ArrayList supported_ros_distros,
+                     boolean enable_testing  = true,
+                     boolean enable_cppcheck = false)
   {
     // Do not include description from LinuxBase since the github pull request
     // builder set its own
@@ -46,7 +48,7 @@ class OSRFLinuxCompilationAnyGitHub
       {
         git {
           remote {
-            github("ros-simulation/gazebo_ros_pkgs")
+            github(github_repo)
             refspec('+refs/pull/*:refs/remotes/origin/pr/*')
           }
           extensions {
