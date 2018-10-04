@@ -548,18 +548,18 @@ if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 4 ]]; then
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libignition-cmake-dev \\
                                 libignition-msgs-dev"
-elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 5 ]]; then
-    export IGN_TRANSPORT_NO_IGN_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
-                                libsqlite3-dev \\
-                                ruby-ffi"
+elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 5 ]]; then
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libignition-cmake1-dev \\
-                                libignition-msgs2-dev"
-    if [[ ${DISTRO} != 'xenial' ]]; then
-      export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
+                                libignition-msgs2-dev \\
+                                libsqlite3-dev \\
+                                ruby-ffi"
+elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 6 ]]; then
+    export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                   libignition-cmake2-dev \\
-                                  libignition-msgs3-dev"
-    fi
+                                  libignition-msgs3-dev \\
+                                  libsqlite3-dev \\
+                                  ruby-ffi"
 else
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libignition-msgs0-dev"
