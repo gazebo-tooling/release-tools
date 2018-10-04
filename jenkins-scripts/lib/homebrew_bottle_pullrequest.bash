@@ -61,11 +61,6 @@ for F_WITH_NEW_HASH in ${FILES_WITH_NEW_HASH}; do
     "puts JSON.load(IO.read(\"${F_WITH_NEW_HASH}\") \
         ).values[0]['bottle']['tags'].keys[0]")
   echo DISTRO: ${DISTRO}
-  # Print sha256 for this DISTRO's bottle
-  NEW_HASH=$(${BREW} ruby -e \
-    "puts JSON.load(IO.read(\"${F_WITH_NEW_HASH}\") \
-        ).values[0]['bottle']['tags'][\"${DISTRO}\"]['sha256']")
-  echo NEW_HASH: ${NEW_HASH}
   # Check if formula has existing bottle entry for this DISTRO
   if ${BREW} ruby -e \
     "exit (\"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select \
@@ -85,13 +80,8 @@ for F_WITH_NEW_HASH in ${FILES_WITH_NEW_HASH}; do
     continue
   fi
   echo bottle specification for distro ${DISTRO_SYMBOL} found
-  OLD_HASH=$(${BREW} ruby -e \
-    "puts \"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select \
-    { |d| d.value?(:${DISTRO_SYMBOL}) }[0].keys[0]")
-  echo OLD_HASH: ${OLD_HASH}
-  SED_FIND___="sha256 \"${OLD_HASH}\" => :${DISTRO_SYMBOL}"
-  SED_REPLACE="sha256 \"${NEW_HASH}\" => :${DISTRO_SYMBOL}"
-  sed -i -e "s@${SED_FIND___}@${SED_REPLACE}@" ${FORMULA_PATH}
+  # Merge in bottle json
+  ${BREW} bottle --merge --write --no-commit --keep-old ${F_WITH_NEW_HASH}
   echo '# END SECTION'
 
   COMMIT_MESSAGE_SUFFIX=" ${DISTRO_SYMBOL} bottle."
