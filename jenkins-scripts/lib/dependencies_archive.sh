@@ -655,7 +655,7 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                         libignition-common3-dev \\
                         libignition-math6-dev \\
                         libignition-msgs3-dev \\
-                        libignition-plugin-dev \\
+                        libignition-plugin1-dev \\
                         libignition-rendering-dev \\
                         libignition-transport6-dev"
 fi
