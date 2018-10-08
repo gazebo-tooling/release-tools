@@ -29,6 +29,7 @@ ignition_branches           = [ 'common'     : [ '1' ],
                                 'fuel-tools' : [ '1' ],
                                 'math'       : [ '2', '3','4' ],
                                 'msgs'       : [ '1' ],
+                                'plugin'     : [ '0' ],
                                 'transport'  : [ '3','4' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
@@ -38,7 +39,7 @@ ignition_prerelease_branches = [ 'cmake'     : [ 'gz11' ],
                                  'gui'       : [ 'gz11' ],
                                  'math'      : [ 'gz11' ],
                                  'msgs'      : [ 'gz11' ],
-                                 'plugin'    : [ 'gz11' ],
+                                 'plugin'    : [ 'ign-plugin1' ],
                                  'rendering' : [ 'gz11' ],
                                  'transport' : [ 'gz11' ]]
 // DESC: versioned names to generate debbuild jobs for special cases that
