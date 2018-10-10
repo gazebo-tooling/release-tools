@@ -147,6 +147,11 @@ bottle_job_builder.with
      label('label', brew_supported_distros.collect { "osx_$it" })
    }
 
+   // Arbitrary choose the first one for touchstone label
+   String touchstone_label = '"osx_' + brew_supported_distros[0] + '"'
+
+   touchStoneFilter("label == ${touchstone_label}")
+
    parameters
    {
      stringParam("PULL_REQUEST_URL", '',
