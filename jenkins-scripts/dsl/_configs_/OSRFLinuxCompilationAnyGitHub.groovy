@@ -25,7 +25,7 @@ class OSRFLinuxCompilationAnyGitHub
     Globals.rtools_description = true
 
     // Get repo name for relativeTargetDirectory
-    String github_repo_name = github_repo.substring(github_repo.lastIndexOf("/"))
+    String github_repo_name = github_repo.substring(github_repo.lastIndexOf("/") + 1)
 
     ArrayList supported_ros_branches = []
     supported_ros_distros.each { ros_distro ->
