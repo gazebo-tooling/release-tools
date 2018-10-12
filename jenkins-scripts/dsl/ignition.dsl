@@ -140,7 +140,7 @@ ArrayList supported_install_pkg_branches(String ign_software)
   major_versions_prerelease = ignition_prerelease_pkgs["${ign_software}"]
 
   if (major_versions_prerelease == null)
-    return [ '' ]
+    return supported_branches(ign_software)
 
   return supported_branches(ign_software) + major_versions_prerelease
 }
