@@ -135,7 +135,7 @@ ArrayList all_branches(String ign_software)
 
 
 // return all ci branch names
-ArrayList supported_instalpkg_branches(String ign_software)
+ArrayList supported_install_pkg_branches(String ign_software)
 {
   major_versions_prerelease = ignition_prerelease_pkgs["${ign_software}"]
 
@@ -275,7 +275,7 @@ ignition_software.each { ign_sw ->
 
   all_supported_distros.each { distro ->
     supported_arches.each { arch ->
-      supported_instalpkg_branches(ign_sw).each { major_version ->
+      supported_install_pkg_branches(ign_sw).each { major_version ->
 
         // only a few release branches support trusty anymore
         if (("${distro}" == "trusty") && !(
