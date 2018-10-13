@@ -147,9 +147,9 @@ for pkg in `ls $pkgs_path/*.zip`; do
 done
 
 # .bottle | brew binaries
-for pkg in `find "$pkgs_path" -name '*.bottle*.tar.gz'`; do
+for pkg in `find "$pkgs_path" -name '*.bottle*.json'`; do
   # Extract bottle name and root_url from json file
-  bottle_filename=$(jq -r '.[]["bottle"]["tags"][]["filename"]' < $pkg)
+  bottle_filename=$(dirname $pkg)/$(jq -r '.[]["bottle"]["tags"][]["filename"]' < $pkg)
   root_url=$(jq -r '.[]["bottle"]["root_url"]' < $pkg)
   s3_directory=${root_url#http://gazebosim\.org/distributions/}
 
@@ -160,7 +160,7 @@ for pkg in `find "$pkgs_path" -name '*.bottle*.tar.gz'`; do
   
   # Seems important to upload the path with a final slash
   s3_directory_one_slash=${s3_directory%%*(/)}/
-  S3_upload ${pkg} "${s3_directory_one_slash}"
+  S3_upload ${bottle_filename} "${s3_directory_one_slash}"
 done
 
 # Check for no reprepro uploads to finish here
