@@ -24,7 +24,8 @@ PULL_REQUEST_BRANCH=$(curl ${PULL_REQUEST_API_URL} \
   | python -c 'import json, sys; print(json.loads(sys.stdin.read())["head"]["ref"])')
 echo '# END SECTION'
 
-FILES_WITH_NEW_HASH="$(ls ${BOTTLE_JSON_DIR}/*.json)"
+# note that matrix projects use subdirectories on pkgs/ with the label of different configurations
+FILES_WITH_NEW_HASH="$(find ${BOTTLE_JSON_DIR} -name '*.json')"
 
 # call to github setup
 . ${SCRIPT_LIBDIR}/_homebrew_github_setup.bash
