@@ -655,6 +655,7 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                         libignition-common3-dev \\
                         libignition-math6-dev \\
                         libignition-msgs3-dev \\
+                        libignition-plugin-dev \\
                         libignition-rendering-dev \\
                         libignition-transport6-dev"
 fi
@@ -666,7 +667,8 @@ IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           libignition-cmake2-dev \\
                           libignition-math6-dev \\
                           libignition-math6-eigen3-dev \\
-                          libignition-plugin-dev"
+                          libignition-plugin-dev \\
+                          libsdformat8-dev"
 IGN_PHYSICS_DART_FROM_PKGS="true"
 
 IGN_PLUGIN_DEPENDENCIES="libignition-cmake1-dev"

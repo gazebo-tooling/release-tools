@@ -147,7 +147,7 @@ for pkg in `ls $pkgs_path/*.zip`; do
 done
 
 # .bottle | brew binaries
-for pkg in `ls $pkgs_path/*.bottle*.json`; do
+for pkg in `find "$pkgs_path" -name '*.bottle*.tar.gz'`; do
   # Extract bottle name and root_url from json file
   bottle_filename=$(jq -r '.[]["bottle"]["tags"][]["filename"]' < $pkg)
   root_url=$(jq -r '.[]["bottle"]["root_url"]' < $pkg)

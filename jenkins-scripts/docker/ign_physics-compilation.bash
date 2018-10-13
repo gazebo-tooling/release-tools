@@ -22,7 +22,6 @@ export NEEDS_GZ11_SUPPORT=true
 . "${SCRIPT_DIR}/lib/_gz11_hook.bash"
 
 export DART_FROM_PKGS="true"
-export BUILD_SDFORMAT=true
 
 if [[ $(date +%Y%m%d) -le 20181231 ]]; then
   ## need prerelease repo to get ignition-cmake during the development cycle
