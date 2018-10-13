@@ -35,56 +35,11 @@ if [ -z "${TAP_PREFIX}" ]; then
 	exit -1
 fi
 
-for F_WITH_NEW_HASH in ${FILES_WITH_NEW_HASH}; do
-  # Need to get the formula name and version from json
-  VERSION=$(${BREW} ruby -e \
-  "puts JSON.load(IO.read(\"${F_WITH_NEW_HASH}\")).values[0]['formula']['pkg_version']")
-  FORMULA_FULL_NAME=$(${BREW} ruby -e \
-    "puts JSON.load(IO.read(\"${F_WITH_NEW_HASH}\")).keys[0]")
-  # FORMULA_FULL_NAME is osrf/similation/$package_name
-  PACKAGE_ALIAS=${FORMULA_FULL_NAME##*/}
-  # Use it to get the formula path
-  . ${SCRIPT_LIBDIR}/_homebrew_github_get_formula_path.bash
+echo "# BEGIN SECTION: update bottle hashes"
 
-  if [ -z "${FORMULA_PATH}" ]; then
-    echo FORMULA_PATH not specified
-    echo "MARK_AS_UNSTABLE"
-    continue
-  fi
+${BREW} bottle --merge --write --no-commit ${F_WITH_NEW_HASH}
 
-  echo '# BEGIN SECTION: checkout pull request branch'
-  GIT="git -C ${TAP_PREFIX}"
-  ${GIT} checkout ${PULL_REQUEST_BRANCH}
-  echo '# END SECTION'
+echo '# END SECTION'
 
-  echo "# BEGIN SECTION: update hash in formula ${PACKAGE_ALIAS}"
-  DISTRO=$(${BREW} ruby -e \
-    "puts JSON.load(IO.read(\"${F_WITH_NEW_HASH}\") \
-        ).values[0]['bottle']['tags'].keys[0]")
-  echo DISTRO: ${DISTRO}
-  # Check if formula has existing bottle entry for this DISTRO
-  if ${BREW} ruby -e \
-    "exit (\"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select \
-    { |d| d.value?(:${DISTRO}) }).length == 1"
-  then
-    DISTRO_SYMBOL=${DISTRO}
-  # Check if formula has existing bottle entry for this DISTRO_or_later
-  elif ${BREW} ruby -e \
-    "exit (\"${PACKAGE_ALIAS}\".f.bottle_specification.checksums[:sha256].select \
-    { |d| d.value?(:${DISTRO}_or_later) }).length == 1"
-  then
-    DISTRO_SYMBOL=${DISTRO}_or_later
-  else
-    echo bottle specification for distro ${DISTRO} not found
-    echo unable to update formula
-    echo "MARK_AS_UNSTABLE"
-    continue
-  fi
-  echo bottle specification for distro ${DISTRO_SYMBOL} found
-  # Merge in bottle json
-  ${BREW} bottle --merge --write --no-commit --keep-old ${F_WITH_NEW_HASH}
-  echo '# END SECTION'
-
-  COMMIT_MESSAGE_SUFFIX=" ${DISTRO_SYMBOL} bottle."
-  . ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
-done
+COMMIT_MESSAGE_SUFFIX=" bottle."
+. ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
