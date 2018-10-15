@@ -39,6 +39,9 @@ echo "# BEGIN SECTION: update bottle hashes"
 
 ${BREW} bottle --merge --write --no-commit ${FILES_WITH_NEW_HASH}
 
+# ensure that all modified files are committed
+export FORMULA_PATH='-a'
+
 echo '# END SECTION'
 
 COMMIT_MESSAGE_SUFFIX=" bottle."
