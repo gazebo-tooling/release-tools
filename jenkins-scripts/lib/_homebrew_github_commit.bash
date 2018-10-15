@@ -12,17 +12,20 @@ if [ -z "${PULL_REQUEST_BRANCH}" ]; then
   echo PULL_REQUEST_BRANCH not specified
   exit -1
 fi
-if [ -z "${PACKAGE_ALIAS}" ]; then
-  echo PACKAGE_ALIAS not specified
-  exit -1
-fi
 if [ -z "${TAP_PREFIX}" ]; then
   echo TAP_PREFIX not specified
   exit -1
 fi
-if [ -z "${VERSION}" ]; then
-  echo VERSION not specified
-  exit -1
+# PACKAGE_ALIAS and VERSION are required if a pull request doesn't yet exist
+if [ -z "${PULL_REQUEST_URL}" ]; then
+  if [ -z "${PACKAGE_ALIAS}" ]; then
+    echo PACKAGE_ALIAS not specified
+    exit -1
+  fi
+  if [ -z "${VERSION}" ]; then
+    echo VERSION not specified
+    exit -1
+  fi
 fi
 echo '# END SECTION'
 
