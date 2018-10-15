@@ -37,7 +37,7 @@ fi
 
 echo "# BEGIN SECTION: update bottle hashes"
 
-${BREW} bottle --merge --write --no-commit ${F_WITH_NEW_HASH}
+${BREW} bottle --merge --write --no-commit ${FILES_WITH_NEW_HASH}
 
 echo '# END SECTION'
 
