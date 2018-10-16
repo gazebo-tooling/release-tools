@@ -23,8 +23,9 @@ Job create_common_compilation(String job_name,
 {
    def comp_job = job(job_name)
 
-   OSRFLinuxCompilationAnyGitHub.create(comp_job, [ "${ros_distro}" ])
-
+   OSRFLinuxCompilationAnyGitHub.create(comp_job,
+                                        "ros-simulation/gazebo_ros_pkgs",
+                                        [ "${ros_distro}" ])
    include_common_params(comp_job,
                          ubuntu_distro,
                          ros_distro,

@@ -120,7 +120,9 @@ supported_distros.each { distro ->
     def install_docker_any_job = job("ariac-ci-pr_any-docker_${ros_distro}-${distro}-${arch}")
 
     // Use the linux install_docker as base
-    OSRFLinuxCompilationAnyGitHub.create(install_docker_any_job, [ "${ros_distro}" ])
+    OSRFLinuxCompilationAnyGitHub.create(install_docker_any_job,
+                                         "osrf/ariac-docker",
+                                         [ "${ros_distro}" ])
 
     install_docker_any_job.with
     {
