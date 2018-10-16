@@ -29,15 +29,16 @@ class OSRFLinuxCompilationAnyGitHub
 
     ArrayList supported_ros_branches = []
     supported_ros_distros.each { ros_distro ->
-      if (ros_distro == 'bouncy') {
-        // during the port to ros2 the branch is using ros2 name and the
-        // ros distro is bouncy
-        supported_ros_branches.add("ros2")
-      } else {
+      // TODO(louise): re-enable for crystal
+      // if (ros_distro == 'bouncy') {
+      //   // during the port to ros2 the branch is using ros2 name and the
+      //   // ros distro is bouncy
+      //   supported_ros_branches.add("ros2")
+      // } else {
         // Keep the toString method to be sure that String is used and not
         // GStringImp which will make the whole thing to fail.
         supported_ros_branches.add("${ros_distro}-devel".toString())
-      }
+      // }
     }
 
     job.with
