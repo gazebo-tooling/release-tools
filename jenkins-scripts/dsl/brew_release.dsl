@@ -3,7 +3,7 @@ import javaposse.jobdsl.dsl.Job
 
 Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 
-# first distro in list is used as touchstone
+// first distro in list is used as touchstone
 brew_supported_distros         = [ "highsierra", "sierra", "mojave" ]
 bottle_hash_updater_job_name   = 'generic-release-homebrew_pr_bottle_hash_updater'
 bottle_builder_job_name        = 'generic-release-homebrew_bottle_builder'
