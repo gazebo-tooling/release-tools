@@ -32,7 +32,7 @@ setlocal ENABLEDELAYEDEXPANSION
 if %COLCON_AUTO_MAJOR_VERSION% == "true" (
    for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
    set COLCON_PACKAGE=%COLCON_PACKAGE%!PKG_MAJOR_VERSION!
-   echo "MAJOR_VERSION detected: %PKG_MAJOR_VERSION%"
+   echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
 )
 
 set TEST_RESULT_PATH=%WORKSPACE%\ws\build\%COLCON_PACKAGE%\test_results
@@ -104,12 +104,12 @@ if exist %LOCAL_WS_SOFTWARE_DIR%\configure.bat (
 
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
 cd %LOCAL_WS%
-call %win_lib% :build_workspace %COLCON_PACKAGE% || goto :error
+call %win_lib% :build_workspace !COLCON_PACKAGE! || goto :error
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
     echo # BEGIN SECTION: running tests
-    call %win_lib% :tests_in_workspace %COLCON_PACKAGE%
+    call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
     echo # END SECTION
 
     echo # BEGIN SECTION: export testing results
