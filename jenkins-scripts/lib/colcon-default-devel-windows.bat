@@ -30,7 +30,7 @@ set LOCAL_WS_BUILD=%WORKSPACE%\build
 
 if %COLCON_AUTO_MAJOR_VERSION% == "true" (
    for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
-   COLCON_PACKAGE=%COLCON_PACKAGE%%PKG_MAJOR_VERSION%
+   set COLCON_PACKAGE=%COLCON_PACKAGE%%PKG_MAJOR_VERSION%
    echo "MAJOR_VERSION detected: %PKG_MAJOR_VERSION%"
 )
 
