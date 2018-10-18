@@ -15,22 +15,24 @@ ignition_software = [ 'cmake',
                       'sensors',
                       'tools',
                       'transport' ]
-ignition_debbuild  = ignition_software + [ 'cmake1','cmake2',
-                                           'common2',
-                                           'math5',
-                                           'msgs0', 'msgs2',
-                                           'plugin0',
-                                           'transport5' ]
-ignition_gpu                = [ 'gui', 'rendering', 'sensors' ]
-ignition_no_pkg_yet         = [ 'gui', 'physics', 'plugin', 'rndf', 'sensors' ]
+// DESC: need gpu/display for tests
+ignition_gpu                = [ 'gui',
+                                'rendering',
+                                'sensors' ]
+// DESC: software does not have tests
 ignition_no_test            = [ 'tools' ]
-// no branches in ignition_branches means no released branches
+// DESC: major series supported and released. The branches get CI, install pkg
+// testing and debbuild job.
+// No branches in ignition_branches means no released branches (only CI on
+// default, ABI check, install pkg)
 ignition_branches           = [ 'common'     : [ '1' ],
                                 'fuel-tools' : [ '1' ],
                                 'math'       : [ '2', '3','4' ],
                                 'msgs'       : [ '1' ],
                                 'plugin'     : [ '0' ],
                                 'transport'  : [ '3','4' ]]
+// DESC: prerelease branches are managed as any other supported branches for
+// special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use default for gz11
 ignition_prerelease_branches = [ 'cmake'     : [ 'gz11' ],
                                  'common'    : [ 'gz11' ],
@@ -40,6 +42,28 @@ ignition_prerelease_branches = [ 'cmake'     : [ 'gz11' ],
                                  'plugin'    : [ 'ign-plugin1' ],
                                  'rendering' : [ 'gz11' ],
                                  'transport' : [ 'gz11' ]]
+// DESC: versioned names to generate debbuild jobs for special cases that
+// don't appear in ignition_branches
+ignition_debbuild  = ignition_software + [ 'cmake1','cmake2',
+                                           'common2',
+                                           'math5',
+                                           'msgs0', 'msgs2',
+                                           'transport5' ]
+// DESC: exclude ignition from generate any install testing job
+ignition_no_pkg_yet         = [ 'gui',
+                                'physics',
+                                'plugin',
+                                'rndf',
+                                'sensors' ]
+// DESC: major versions that has a package in the prerelease repo. Should
+// not appear in ignition_no_pkg_yet nor in ignition_branches
+ignition_prerelease_pkgs    = [ 'cmake'      : [ '1', '2' ],
+                                'common'     : [ '2', '3' ],
+                                'gui'        : [ '1' ],
+                                'math'       : [ '5', '6' ],
+                                'msgs'       : [ '2', '3' ],
+                                'rendering'  : [ '1' ],
+                                'transport'  : [ '5','6' ]]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
 ignition_colcon_win         = [ 'physics', 'rendering' ]
@@ -108,6 +132,19 @@ ArrayList all_branches(String ign_software)
   }
   return branches
 }
+
+
+// return all ci branch names
+ArrayList supported_install_pkg_branches(String ign_software)
+{
+  major_versions_prerelease = ignition_prerelease_pkgs["${ign_software}"]
+
+  if (major_versions_prerelease == null)
+    return supported_branches(ign_software)
+
+  return supported_branches(ign_software) + major_versions_prerelease
+}
+
 
 
 void include_gpu_label_if_needed(Job job, String ign_software_name)
@@ -238,7 +275,7 @@ ignition_software.each { ign_sw ->
 
   all_supported_distros.each { distro ->
     supported_arches.each { arch ->
-      supported_branches(ign_sw).each { major_version ->
+      supported_install_pkg_branches(ign_sw).each { major_version ->
 
         // only a few release branches support trusty anymore
         if (("${distro}" == "trusty") && !(
@@ -275,6 +312,10 @@ ignition_software.each { ign_sw ->
 
           def dev_package = "libignition-${ign_sw}${major_version}-dev"
 
+          extra_repos_str=""
+          if (ign_sw in ignition_prerelease_pkgs)
+            extra_repos_str="prerelease"
+
           steps {
            shell("""\
                  #!/bin/bash -xe
@@ -282,7 +323,7 @@ ignition_software.each { ign_sw ->
                  export DISTRO=${distro}
                  export ARCH=${arch}
                  export INSTALL_JOB_PKG=${dev_package}
-                 export INSTALL_JOB_REPOS=stable
+                 export INSTALL_JOB_REPOS="stable ${extra_repos_str}"
                  /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
                  """.stripIndent())
           }
