@@ -28,17 +28,19 @@ set LOCAL_WS_BUILD=%WORKSPACE%\build
 @if "%ENABLE_TESTS%" == "" set ENABLE_TESTS=TRUE
 @if "%COLCON_AUTO_MAJOR_VERSION%" == "" set COLCON_AUTO_MAJOR_VERSION=false
 
+setlocal ENABLEDELAYEDEXPANSION
 if %COLCON_AUTO_MAJOR_VERSION% == "true" (
    for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
-   set COLCON_PACKAGE=%COLCON_PACKAGE%%PKG_MAJOR_VERSION%
+   set COLCON_PACKAGE=%COLCON_PACKAGE%!PKG_MAJOR_VERSION!
    echo "MAJOR_VERSION detected: %PKG_MAJOR_VERSION%"
 )
 
 set TEST_RESULT_PATH=%WORKSPACE%\ws\build\%COLCON_PACKAGE%\test_results
 
+setlocal ENABLEDELAYEDEXPANSION
 if not defined GAZEBODISTRO_FILE (
   for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
-  set GAZEBODISTRO_FILE=%VCS_DIRECTORY%%PKG_MAJOR_VERSION%.yaml
+  set GAZEBODISTRO_FILE=%VCS_DIRECTORY%!PKG_MAJOR_VERSION!.yaml
 ) else (
   echo Using user defined GAZEBODISTRO_FILE: %GAZEBODISTRO_FILE%
 )
