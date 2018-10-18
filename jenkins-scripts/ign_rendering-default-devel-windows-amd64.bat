@@ -7,6 +7,7 @@ set IGN_CLEAN_WORKSPACE=true
 :: dlfcn
 set DEPEN_PKGS="dlfcn-win32 cuda freeimage ogre gts glib"
 :: This needs to be migrated to DSL to get multi-major versions correctly
-set COLCON_PACKAGE=ignition-rendering0
+set COLCON_PACKAGE=ignition-rendering
+set COLCON_AUTO_MAJOR_VERSION=true
 
 call "%SCRIPT_DIR%\lib\colcon-default-devel-windows.bat"

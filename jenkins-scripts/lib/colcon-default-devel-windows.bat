@@ -2,9 +2,10 @@
 ::
 :: Parameters:
 ::   - VCS_DIRECTORY : relative path to WORKSPACE containing the sources
-::   - GAZEBODISTRO_FILE : vcs yaml file in the gazebodistro repository
 ::   - COLCON_PACKAGE : package name to test in colcon ws
+::   - COLCON_AUTO_MAJOR_VERSION (default false): auto detect major version from CMakeLists
 ::   - BUILD_TYPE     : (default Release) [ Release | Debug ] Build type to use
+::   - GAZEBODISTRO_FILE : (optional) vcs yaml file in the gazebodistro repository
 ::   - DEPEN_PKGS     : (optional) list of dependencies (separted by spaces)
 ::   - KEEP_WORKSPACE : (optional) true | false. Clean workspace at the end
 ::   - ENABLE_TESTS   : (optional) true | false. Do not compile and run tests
@@ -17,26 +18,30 @@
 ::   - run tests
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
-set TEST_RESULT_PATH=%WORKSPACE%\ws\build\%COLCON_PACKAGE%\test_results
 set EXPORT_TEST_RESULT_PATH=%WORKSPACE%\build\test_results
 set LOCAL_WS=%WORKSPACE%\ws
 set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS%\%VCS_DIRECTORY%
 set LOCAL_WS_BUILD=%WORKSPACE%\build
 
-if not defined GAZEBODISTRO_FILE (
-  for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
-) else (
-  echo Using user defined GAZEBODISTRO_FILE: %GAZEBODISTRO_FILE%
-)
-
-if defined PKG_MAJOR_VERSION (
-  echo "MAJOR_VERSION detected: %PKG_MAJOR_VERSION%"
-  set GAZEBODISTRO_FILE=%VCS_DIRECTORY%%PKG_MAJOR_VERSION%.yaml
-)
-
 :: default values
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
 @if "%ENABLE_TESTS%" == "" set ENABLE_TESTS=TRUE
+@if "%COLCON_AUTO_MAJOR_VERSION%" == "" set COLCON_AUTO_MAJOR_VERSION=false
+
+if %COLCON_AUTO_MAJOR_VERSION% == "true" (
+   for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
+   COLCON_PACKAGE=%COLCON_PACKAGE%%PKG_MAJOR_VERSION%
+   echo "MAJOR_VERSION detected: %PKG_MAJOR_VERSION%"
+)
+
+set TEST_RESULT_PATH=%WORKSPACE%\ws\build\%COLCON_PACKAGE%\test_results
+
+if not defined GAZEBODISTRO_FILE (
+  for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
+  set GAZEBODISTRO_FILE=%VCS_DIRECTORY%%PKG_MAJOR_VERSION%.yaml
+) else (
+  echo Using user defined GAZEBODISTRO_FILE: %GAZEBODISTRO_FILE%
+)
 
 :: safety checks
 if not defined VCS_DIRECTORY (
