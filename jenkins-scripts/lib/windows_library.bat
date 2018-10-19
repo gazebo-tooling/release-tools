@@ -208,6 +208,7 @@ colcon build --build-base "build"^
 :build_workspace
 
 set COLCON_PACKAGE=%1
+
 :: two runs to get the dependencies built with testing and the package under
 :: test build with tests
 call :_colcon_build_cmd "--packages-skip %COLCON_PACKAGE%" " -DBUILD_TESTING=0"
@@ -223,8 +224,6 @@ goto :EOF
 :tests_in_workspace
 :: arg1: package whitelist to test
 set COLCON_PACKAGE=%1
-
-echo "*** running test on %COLCON_PACKAGE%"
 
 colcon test --build-base "build" --event-handler console_direct+ --install-base "install" --packages-select %COLCON_PACKAGE% --executor sequential || goto :error
 colcon test-result --build-base "build" --all

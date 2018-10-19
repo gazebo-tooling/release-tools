@@ -104,12 +104,12 @@ if exist %LOCAL_WS_SOFTWARE_DIR%\configure.bat (
 
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
 cd %LOCAL_WS%
-call %win_lib% :build_workspace !COLCON_PACKAGE! || goto :error
+call %win_lib% :build_workspace %COLCON_PACKAGE% || goto :error
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
-    echo # BEGIN SECTION: running tests for !COLCON_PACKAGE!
-    call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
+    echo # BEGIN SECTION: running tests for %COLCON_PACKAGE%
+    call %win_lib% :tests_in_workspace %COLCON_PACKAGE%
     echo # END SECTION
 
     echo # BEGIN SECTION: export testing results
