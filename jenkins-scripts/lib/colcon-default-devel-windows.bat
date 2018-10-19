@@ -108,7 +108,7 @@ call %win_lib% :build_workspace !COLCON_PACKAGE! || goto :error
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
-    echo # BEGIN SECTION: running tests
+    echo # BEGIN SECTION: running tests for !COLCON_PACKAGE!
     call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
     echo # END SECTION
 

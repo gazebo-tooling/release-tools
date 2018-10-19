@@ -192,6 +192,7 @@ set COLCON_EXTRA_CMAKE_ARGS=%2
 colcon build --build-base "build"^
              --install-base "install"^
              --parallel-workers %MAKE_JOBS%^
+	     --no-notify^
              %EXTRA_COLCON_ARGS%^
              --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
                           " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
@@ -222,6 +223,8 @@ goto :EOF
 :tests_in_workspace
 :: arg1: package whitelist to test
 set COLCON_PACKAGE=%1
+
+echo "*** running test on %COLCON_PACKAGE%"
 
 colcon test --build-base "build" --event-handler console_direct+ --install-base "install" --packages-select %COLCON_PACKAGE% --executor sequential || goto :error
 colcon test-result --build-base "build" --all
