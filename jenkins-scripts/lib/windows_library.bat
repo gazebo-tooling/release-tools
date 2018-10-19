@@ -197,6 +197,7 @@ colcon build --build-base "build"^
                           " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
                           " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
                           %COLCON_EXTRA_CMAKE_ARGS%^
+             --event-handler desktop_notification-^
              --event-handler console_cohesion+ || type %HOMEPATH%/.colcon/latest & goto :error
 
 :: ##################################
@@ -207,6 +208,7 @@ colcon build --build-base "build"^
 :build_workspace
 
 set COLCON_PACKAGE=%1
+
 :: two runs to get the dependencies built with testing and the package under
 :: test build with tests
 call :_colcon_build_cmd "--packages-skip %COLCON_PACKAGE%" " -DBUILD_TESTING=0"
