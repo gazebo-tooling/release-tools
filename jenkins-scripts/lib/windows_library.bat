@@ -197,7 +197,6 @@ colcon build --build-base "build"^
                           " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
                           " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
                           %COLCON_EXTRA_CMAKE_ARGS%^
-             --event-handler desktop_notification-^
              --event-handler console_cohesion+ || type %HOMEPATH%/.colcon/latest & goto :error
 
 :: ##################################
