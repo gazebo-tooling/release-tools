@@ -69,7 +69,7 @@ ignition_prerelease_pkgs    = [ 'cmake'  : [
                                    '1':  [ 'bionic' ],
                                 ],
                                 'math'   : [
-                                   '5':  [ 'bionic' ],
+                                   '5':  [ 'bionic', 'xenial' ],
                                    '6':  [ 'bionic' ],
                                 ],
                                 'msgs'   : [
