@@ -3,9 +3,10 @@ import javaposse.jobdsl.dsl.Job
 
 Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 
-brew_supported_distros         = [ "sierra", "highsierra", "mojave" ]
+// first distro in list is used as touchstone
+brew_supported_distros         = [ "highsierra", "sierra", "mojave" ]
 bottle_hash_updater_job_name   = 'generic-release-homebrew_pr_bottle_hash_updater'
-bottle_builder_job_name_prefix = 'generic-release-homebrew_bottle_builder'
+bottle_builder_job_name        = 'generic-release-homebrew_bottle_builder'
 directory_for_bottles          = 'pkgs'
 
 /*
@@ -19,22 +20,6 @@ directory_for_bottles          = 'pkgs'
         -> update bottle hash in formula
           (4. generic-release-homebrew_pr_bottle_hash_updater)
 */
-
-String get_bottle_builder_job_name(String distro)
-{
-  return bottle_builder_job_name_prefix + "-${distro}"
-}
-
-ArrayList get_all_bottle_builder_job_name(ArrayList supported_distros)
-{
-   ArrayList all_job_names = []
-
-   supported_distros.each { distro ->
-      all_job_names << get_bottle_builder_job_name(distro)
-   }
-
-   return all_job_names
-}
 
 // parameters needed by different reasons in the scripts or in the downstream
 // called jobs
@@ -127,102 +112,106 @@ release_job.with
        allowEmpty()
      }
 
-     brew_supported_distros.each { distro ->
-       downstreamParameterized
-       {
-          trigger(get_bottle_builder_job_name(distro))
-          {
-            condition('SUCCESS')
-            parameters {
-              currentBuild()
-              propertiesFile("${PR_URL_export_file_name}")
-            }
+     downstreamParameterized
+     {
+        trigger(bottle_builder_job_name)
+        {
+          condition('SUCCESS')
+          parameters {
+            currentBuild()
+            propertiesFile("${PR_URL_export_file_name}")
           }
-       }
+        }
      }
    }
 }
 
-brew_supported_distros.each { distro ->
-  // -------------------------------------------------------------------
-  // 2. BREW bottle creation job from pullrequest
-  def bottle_job_builder = job(get_bottle_builder_job_name(distro))
-  OSRFOsXBase.create(bottle_job_builder)
-  GenericRemoteToken.create(bottle_job_builder)
+// -------------------------------------------------------------------
+// 2. BREW bottle creation MATRIX job from pullrequest
+def bottle_job_builder = matrixJob(bottle_builder_job_name)
+OSRFOsXBase.create(bottle_job_builder)
+GenericRemoteToken.create(bottle_job_builder)
 
-  include_common_params(bottle_job_builder)
-  bottle_job_builder.with
-  {
-     wrappers {
-          preBuildCleanup()
-     }
+include_common_params(bottle_job_builder)
+bottle_job_builder.with
+{
+   wrappers {
+        preBuildCleanup()
+   }
 
-     label "osx_${distro}"
+   logRotator {
+     artifactNumToKeep(10)
+   }
 
-     logRotator {
-       artifactNumToKeep(10)
-     }
+   axes {
+     // use labels osx_$osxdistro  
+     label('label', brew_supported_distros.collect { "osx_$it" })
+   }
 
-     parameters
+   // Arbitrary choose the first one for touchstone label
+   String touchstone_label = '"osx_' + brew_supported_distros[0] + '"'
+
+   touchStoneFilter("label == ${touchstone_label}")
+
+   parameters
+   {
+     stringParam("PULL_REQUEST_URL", '',
+                 'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
+     stringParam("TEST_BOT_REPO", 'https://github.com/homebrew/homebrew-test-bot.git',
+                 'Repository for fork of homebrew/homebrew-test-bot.')
+     stringParam("TEST_BOT_BRANCH", 'master',
+                 'Branch of homebrew-test-bot repository to use.')
+   }
+
+   steps {
+        systemGroovyCommand("""\
+          build.setDescription(
+          '<b>' + build.buildVariableResolver.resolve('PACKAGE_ALIAS') + '-' +
+           build.buildVariableResolver.resolve('VERSION') + '</b>' +
+          '<br />' +
+          'pull request:<b> <a href="' + build.buildVariableResolver.resolve('PULL_REQUEST_URL') +
+          '">' + build.buildVariableResolver.resolve('PULL_REQUEST_URL') + '</a></b>' +
+          '<br />' +
+          'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+          """.stripIndent()
+        )
+
+        shell("""\
+              #!/bin/bash -xe
+
+              /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_bottle_creation.bash
+              """.stripIndent())
+   }
+
+   publishers {
+     archiveArtifacts("${directory_for_bottles}/*")
+
+     // call to the repository_uploader_ng to upload to S3 the binary
+     downstreamParameterized
      {
-       stringParam("PULL_REQUEST_URL", '',
-                   'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
-       stringParam("TEST_BOT_REPO", 'https://github.com/homebrew/homebrew-test-bot.git',
-                   'Repository for fork of homebrew/homebrew-test-bot.')
-       stringParam("TEST_BOT_BRANCH", 'master',
-                   'Branch of homebrew-test-bot repository to use.')
+        trigger('repository_uploader_ng') {
+          condition('SUCCESS')
+          parameters {
+            currentBuild()
+              predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+              predefinedProp("UPLOAD_TO_REPO", "only_s3_upload")
+              predefinedProp("ARCH",           "64bits")
+          }
+        }
      }
 
-     steps {
-          systemGroovyCommand("""\
-            build.setDescription(
-            '<b>' + build.buildVariableResolver.resolve('PACKAGE_ALIAS') + '-' +
-             build.buildVariableResolver.resolve('VERSION') + '</b>' +
-            '<br />' +
-            'pull request:<b> <a href="' + build.buildVariableResolver.resolve('PULL_REQUEST_URL') +
-            '">' + build.buildVariableResolver.resolve('PULL_REQUEST_URL') + '</a></b>' +
-            '<br />' +
-            'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
-            """.stripIndent()
-          )
-
-          shell("""\
-                #!/bin/bash -xe
-
-                /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_bottle_creation.bash
-                """.stripIndent())
+     // call to the bottle hash updater
+     downstreamParameterized
+     {
+        trigger(bottle_hash_updater_job_name)
+        {
+          condition('SUCCESS')
+          parameters {
+            currentBuild()
+              predefinedProp("PULL_REQUEST_URL", "\${PULL_REQUEST_URL}")
+          }
+        }
      }
-
-     publishers {
-       archiveArtifacts("${directory_for_bottles}/*")
-
-       // call to the repository_uploader_ng to upload to S3 the binary
-       downstreamParameterized
-       {
-          trigger('repository_uploader_ng') {
-            condition('SUCCESS')
-            parameters {
-              currentBuild()
-                predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-                predefinedProp("UPLOAD_TO_REPO", "only_s3_upload")
-                predefinedProp("ARCH",           "64bits")
-            }
-          }
-       }
-
-       // call to the bottle hash updater
-       downstreamParameterized
-       {
-          trigger(bottle_hash_updater_job_name)
-          {
-            condition('SUCCESS')
-            parameters {
-              currentBuild()
-                predefinedProp("PULL_REQUEST_URL", "\${PULL_REQUEST_URL}")
-            }
-          }
-       }
-    }
   }
 }
 
@@ -260,16 +249,14 @@ bottle_job_hash_updater.with
         """.stripIndent()
     )
 
-    get_all_bottle_builder_job_name(brew_supported_distros).each { bottle_creator_job_name ->
-      copyArtifacts(bottle_creator_job_name) {
-        includePatterns('pkgs/*.json')
-        excludePatterns('pkgs/*.tar.gz')
-        optional()
-        targetDirectory(directory_for_bottles)
-        flatten()
-        buildSelector {
-          upstreamBuild()
-        }
+    copyArtifacts(bottle_builder_job_name) {
+      includePatterns('pkgs/*.json')
+      excludePatterns('pkgs/*.tar.gz')
+      optional()
+      targetDirectory(directory_for_bottles)
+      flatten()
+      buildSelector {
+        upstreamBuild()
       }
     }
 
