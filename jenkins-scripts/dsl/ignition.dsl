@@ -367,7 +367,7 @@ ignition_software.each { ign_sw ->
           // no xenial for ign-physics/sensors
           if (("${distro}" == "xenial") && (
               ("${ign_sw}" == "physics") ||
-              ("${ign_sw}" == "plugin" && "${branch}" == "default") ||
+              ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
               ("${ign_sw}" == "sensors")))
             disabled()
 
