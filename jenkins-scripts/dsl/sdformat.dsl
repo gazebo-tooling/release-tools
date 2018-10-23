@@ -230,9 +230,11 @@ ci_distro.each { distro ->
 sdformat_supported_branches.each { branch ->
   // special check to modify ci_distro if the branch is part of gz11
   if (branch in sdformat_gz11_branches)
-    ci_distro = [ Globals.get_gz11_ubuntu_distro() ]
+    ref_distro = [ Globals.get_gz11_ubuntu_distro() ]
+  else
+    ref_distro = ci_distro
 
-  ci_distro.each { distro ->
+  ref_distro.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       def install_default_job = job("sdformat-install-${branch}_pkg-${distro}-${arch}")
