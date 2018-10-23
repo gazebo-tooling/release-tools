@@ -58,29 +58,29 @@ ignition_no_pkg_yet         = [ 'gui',
 // DESC: major versions that has a package in the prerelease repo. Should
 // not appear in ignition_no_pkg_yet nor in ignition_branches
 ignition_prerelease_pkgs    = [ 'cmake'  : [
-                                   '1' : [ 'bionic' ],
+                                   '1' : [ 'bionic', 'xenial' ],
                                    '2' : [ 'bionic' ],
                                 ],
                                 'common' : [
-                                   '2' : [ 'bionic' ],
+                                   '2' : [ 'bionic', 'xenial' ],
                                    '3' : [ 'bionic' ],
                                 ],
                                 'gui'    : [
                                    '1':  [ 'bionic' ],
                                 ],
                                 'math'   : [
-                                   '5':  [ 'bionic' ],
+                                   '5':  [ 'bionic', 'xenial' ],
                                    '6':  [ 'bionic' ],
                                 ],
                                 'msgs'   : [
-                                   '2':  [ 'bionic' ],
+                                   '2':  [ 'bionic', 'xenial' ],
                                    '3':  [ 'bionic' ],
                                 ],
                                 'rendering' : [
                                    '1': [ 'bionic' ],
                                 ],
                                 'transport' : [
-                                   '5': [ 'bionic' ],
+                                   '5': [ 'bionic', 'xenial' ],
                                    '6': [ 'bionic' ],
                                 ]]
 // packages using colcon for windows compilation while migrating all them to
