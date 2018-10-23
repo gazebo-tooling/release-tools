@@ -344,6 +344,12 @@ ignition_software.each { ign_sw ->
         if ("${ign_sw}" == "rndf")
           return
 
+        extra_repos_str=""
+        if ((ign_sw in ignition_prerelease_pkgs) &&
+           (major_version in ignition_prerelease_pkgs[ign_sw]) &&
+           (distro in ignition_prerelease_pkgs[ign_sw][major_version]))
+          extra_repos_str="prerelease"
+
         // No 1-dev packages, unversioned
         if ("${major_version}" == "1")
           major_version = ""
@@ -360,12 +366,6 @@ ignition_software.each { ign_sw ->
           }
 
           def dev_package = "libignition-${ign_sw}${major_version}-dev"
-
-          extra_repos_str=""
-          if ((ign_sw in ignition_prerelease_pkgs) &&
-             (major_version in ignition_prerelease_pkgs[ign_sw]) &&
-             (distro in ignition_prerelease_pkgs[ign_sw][major_version]))
-            extra_repos_str="prerelease"
 
           steps {
            shell("""\
