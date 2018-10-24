@@ -95,6 +95,10 @@ class OSRFCIWorkFlow
       job.with
       {
         label "lightweight-linux"
+
+        logRotator {
+          numToKeep(25)
+        }
       } // end of job
    } // end of create
 }
