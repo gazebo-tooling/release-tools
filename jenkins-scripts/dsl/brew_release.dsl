@@ -184,7 +184,11 @@ bottle_job_builder.with
    }
 
    publishers {
-     archiveArtifacts("${directory_for_bottles}/*")
+     archiveArtifacts
+     {
+       pattern("${directory_for_bottles}/*")
+       allowEmpty()
+     }
 
      // call to the repository_uploader_ng to upload to S3 the binary
      downstreamParameterized
