@@ -57,13 +57,32 @@ ignition_no_pkg_yet         = [ 'gui',
                                 'sensors' ]
 // DESC: major versions that has a package in the prerelease repo. Should
 // not appear in ignition_no_pkg_yet nor in ignition_branches
-ignition_prerelease_pkgs    = [ 'cmake'      : [ '1', '2' ],
-                                'common'     : [ '2', '3' ],
-                                'gui'        : [ '1' ],
-                                'math'       : [ '5', '6' ],
-                                'msgs'       : [ '2', '3' ],
-                                'rendering'  : [ '1' ],
-                                'transport'  : [ '5','6' ]]
+ignition_prerelease_pkgs    = [ 'cmake'  : [
+                                   '1' : [ 'bionic', 'xenial' ],
+                                   '2' : [ 'bionic' ],
+                                ],
+                                'common' : [
+                                   '2' : [ 'bionic', 'xenial' ],
+                                   '3' : [ 'bionic' ],
+                                ],
+                                'gui'    : [
+                                   '1':  [ 'bionic' ],
+                                ],
+                                'math'   : [
+                                   '5':  [ 'bionic', 'xenial' ],
+                                   '6':  [ 'bionic' ],
+                                ],
+                                'msgs'   : [
+                                   '2':  [ 'bionic', 'xenial' ],
+                                   '3':  [ 'bionic' ],
+                                ],
+                                'rendering' : [
+                                   '1': [ 'bionic' ],
+                                ],
+                                'transport' : [
+                                   '5': [ 'bionic', 'xenial' ],
+                                   '6': [ 'bionic' ],
+                                ]]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
 ignition_colcon_win         = [ 'physics', 'rendering' ]
@@ -76,7 +95,7 @@ def abi_distro              = Globals.get_abi_distro()
 def other_supported_distros = Globals.get_other_supported_distros()
 def supported_arches        = Globals.get_supported_arches()
 
-def all_supported_distros = ci_distro + other_supported_distros
+all_supported_distros = ci_distro + other_supported_distros
 
 // Map needed to be used in ci_pr
 abi_job_names = [:]
@@ -90,6 +109,26 @@ ci_pr_any_list = [:]
 ignition_software.each { ign_sw ->
   def list_empty = []
   ci_pr_any_list[ign_sw] = list_empty
+}
+
+/**
+ * Deeply merges the contents of each Map in sources, merging from
+ * "right to left" and returning the merged Map.
+ *
+ * The source maps will not be modified.
+ *
+ * Original source code: https://gist.github.com/robhruska/4612278
+ */
+Map merge_maps(Map[] sources) {
+    if (sources.length == 0) return [:]
+    if (sources.length == 1) return sources[0]
+
+    sources.inject([:]) { result, source ->
+        source.each { k, v ->
+            result[k] = result[k] instanceof Map ? merge(result[k], v) : v
+        }
+        result
+    }
 }
 
 // return major versions supported or empty if just 0,1 series under
@@ -135,17 +174,28 @@ ArrayList all_branches(String ign_software)
 
 
 // return all ci branch names
-ArrayList supported_install_pkg_branches(String ign_software)
+// Map with the form of: major versions as keys.
+// Lists of distros supported as values
+Map supported_install_pkg_branches(String ign_software)
 {
   major_versions_prerelease = ignition_prerelease_pkgs["${ign_software}"]
 
+  // construct a map of stable packages based on supported_branches and
+  // all_supported_distros
+  map_of_stable_versions = [:]
+  map_of_stable_versions[ign_software] = [:]
+  supported_branches(ign_software).each { major_version ->
+    new_relation = [:]
+    new_relation[major_version] = all_supported_distros
+    map_of_stable_versions[ign_software] << new_relation
+  }
+
   if (major_versions_prerelease == null)
-    return supported_branches(ign_software)
+    return map_of_stable_versions[ign_software];
 
-  return supported_branches(ign_software) + major_versions_prerelease
+  return merge_maps(map_of_stable_versions[ign_software],
+                    major_versions_prerelease)
 }
-
-
 
 void include_gpu_label_if_needed(Job job, String ign_software_name)
 {
@@ -268,14 +318,13 @@ ignition_software.each { ign_sw ->
 
 // INSTALL PACKAGE ALL PLATFORMS / DAILY
 ignition_software.each { ign_sw ->
-
   // Exclusion list
   if (ign_sw in ignition_no_pkg_yet)
     return
 
-  all_supported_distros.each { distro ->
-    supported_arches.each { arch ->
-      supported_install_pkg_branches(ign_sw).each { major_version ->
+  supported_arches.each { arch ->
+    supported_install_pkg_branches(ign_sw).each { major_version, supported_distros ->
+      supported_distros.each { distro ->
 
         // only a few release branches support trusty anymore
         if (("${distro}" == "trusty") && !(
@@ -295,6 +344,12 @@ ignition_software.each { ign_sw ->
         if ("${ign_sw}" == "rndf")
           return
 
+        extra_repos_str=""
+        if ((ign_sw in ignition_prerelease_pkgs) &&
+           (major_version in ignition_prerelease_pkgs[ign_sw]) &&
+           (distro in ignition_prerelease_pkgs[ign_sw][major_version]))
+          extra_repos_str="prerelease"
+
         // No 1-dev packages, unversioned
         if ("${major_version}" == "1")
           major_version = ""
@@ -311,10 +366,6 @@ ignition_software.each { ign_sw ->
           }
 
           def dev_package = "libignition-${ign_sw}${major_version}-dev"
-
-          extra_repos_str=""
-          if (ign_sw in ignition_prerelease_pkgs)
-            extra_repos_str="prerelease"
 
           steps {
            shell("""\

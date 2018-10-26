@@ -247,6 +247,10 @@ sdformat_supported_branches.each { branch ->
 
          def dev_package = "lib${branch}-dev"
 
+         extra_repos_str=""
+         if (branch in sdformat_gz11_branches)
+           extra_repos_str="prerelease"
+
          steps {
           shell("""\
                 #!/bin/bash -xe
@@ -254,7 +258,7 @@ sdformat_supported_branches.each { branch ->
                 export DISTRO=${distro}
                 export ARCH=${arch}
                 export INSTALL_JOB_PKG=${dev_package}
-                export INSTALL_JOB_REPOS=stable
+                export INSTALL_JOB_REPOS="stable ${extra_repos_str}"
                 /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
                 """.stripIndent())
           }
