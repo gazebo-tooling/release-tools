@@ -482,7 +482,7 @@ def go(argv):
         if (l == 'ubuntu'):
             distros = ubuntu_distros
         elif (l == 'debian'):
-            if (PRERELEASE):
+            if (PRERELEASE or NIGHTLY):
                 continue
             distros = debian_distros
         else:
@@ -490,9 +490,10 @@ def go(argv):
 
         for d in distros:
             for a in SUPPORTED_ARCHS:
-                # Genrerate prerelease only for amd64
-                if (PRERELEASE) and (a == 'armhf' or a == 'arm64'):
-                    continue
+                # Filter prerelease and nightly architectures
+                if (PRERELEASE or NIGHTLY):
+                    if (a == 'armhf' or a == 'arm64'):
+                        continue
 
                 linux_platform_params = params.copy()
                 linux_platform_params['ARCH'] = a
