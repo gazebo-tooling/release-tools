@@ -304,12 +304,17 @@ all_debbuild_branches.each { branch ->
   def build_pkg_job = job("${branch}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
 
+  extra_cmd_str = ""
+  if (branch in sdformat_gz11_branches)
+     extra_cmd_str = "export NEED_C17_COMPILER=true"
+
   build_pkg_job.with
   {
       steps {
         shell("""\
               #!/bin/bash -xe
 
+              ${extra_cmd_str}
               /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
               """.stripIndent())
       }
