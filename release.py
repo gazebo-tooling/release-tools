@@ -30,6 +30,7 @@ OSRF_REPOS_SELF_CONTAINED="mentor2"
 
 DRY_RUN = False
 NIGHTLY = False
+PRERELEASE = False
 UPSTREAM = False
 NO_SRC_FILE = False
 DRCSIM_MULTIROS = False
@@ -68,6 +69,7 @@ def generate_package_source(srcdir, builddir):
 def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
+    global PRERELEASE
     global UPSTREAM
     global NO_SRC_FILE
     global DRCSIM_MULTIROS
@@ -111,10 +113,10 @@ def parse_args(argv):
     DRCSIM_MULTIROS = args.drcsim_multiros
     IGN_REPO = args.ignition_repo
     UPLOAD_REPO = args.upload_to_repository
-    # Check for nightly releases
-    NIGHTLY = False
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
+    if args.upload_to_repository == 'prerelease':
+        PRERELEASE = True
     # Upstream and nightly do not generate a tar.bz2 file
     if args.upstream or NIGHTLY:
         NO_SRC_FILE = True
@@ -480,12 +482,19 @@ def go(argv):
         if (l == 'ubuntu'):
             distros = ubuntu_distros
         elif (l == 'debian'):
+            if (PRERELEASE or NIGHTLY):
+                continue
             distros = debian_distros
         else:
             error("Distro not supported in code")
 
         for d in distros:
             for a in SUPPORTED_ARCHS:
+                # Filter prerelease and nightly architectures
+                if (PRERELEASE or NIGHTLY):
+                    if (a == 'armhf' or a == 'arm64'):
+                        continue
+
                 linux_platform_params = params.copy()
                 linux_platform_params['ARCH'] = a
                 linux_platform_params['LINUX_DISTRO'] = l
