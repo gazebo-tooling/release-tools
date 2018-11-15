@@ -696,6 +696,7 @@ else
   IGN_RENDERING_DEPENDENCIES="${IGN_RENDERING_NO_IGN_DEPENDENCIES} \\
                               libignition-cmake2-dev \\
                               libignition-common3-dev \\
+                              libignition-plugin-dev \\
                               libignition-math6-dev"
 fi
 
