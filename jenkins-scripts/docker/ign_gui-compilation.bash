@@ -34,6 +34,7 @@ if [[ ${IGN_GUI_MAJOR_VERSION} -ge 1 ]]; then
 else
   # need to build ign-rendering0 for ign-gui0
   export BUILD_IGN_RENDERING=true
+  export IGN_RENDERING_MAJOR_VERSION=0
 fi
 
 . "${SCRIPT_DIR}/lib/_gz11_hook.bash"
