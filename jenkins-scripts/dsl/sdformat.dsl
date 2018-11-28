@@ -2,6 +2,7 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 def sdformat_supported_branches = [ 'sdformat4', 'sdformat5', 'sdformat6', 'sdformat8' ]
+def sdformat_gz11_branches = [ 'sdformat8' ]
 def nightly_sdformat_branch = [ 'sdformat7' ]
 
 // Main platform using for quick CI
@@ -167,6 +168,10 @@ other_supported_distros.each { distro ->
 // BRANCHES CI JOB @ SCM/DAILY
 sdformat_supported_branches.each { branch ->
   ci_distro.each { distro ->
+    // special check to modify ci_distro if the branch is part of gz11
+    if (branch in sdformat_gz11_branches)
+      distro = Globals.get_gz11_ubuntu_distro()
+
     supported_arches.each { arch ->
       // ci_default job for the rest of arches / scm@daily
       def sdformat_ci_job = job("sdformat-ci-${branch}-${distro}-${arch}")
@@ -223,13 +228,13 @@ ci_distro.each { distro ->
 
 // INSTALL LINUX -DEV PACKAGES ALL PLATFORMS @ CRON/DAILY
 sdformat_supported_branches.each { branch ->
-  // select distro for testing the different packages
-  if (branch == 'sdformat3')
-    testing_distro = [ 'trusty' ]
+  // special check to modify ci_distro if the branch is part of gz11
+  if (branch in sdformat_gz11_branches)
+    ref_distro = [ Globals.get_gz11_ubuntu_distro() ]
   else
-    testing_distro = ci_distro
+    ref_distro = ci_distro
 
-  testing_distro.each { distro ->
+  ref_distro.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       def install_default_job = job("sdformat-install-${branch}_pkg-${distro}-${arch}")
@@ -242,6 +247,10 @@ sdformat_supported_branches.each { branch ->
 
          def dev_package = "lib${branch}-dev"
 
+         extra_repos_str=""
+         if (branch in sdformat_gz11_branches)
+           extra_repos_str="prerelease"
+
          steps {
           shell("""\
                 #!/bin/bash -xe
@@ -249,7 +258,7 @@ sdformat_supported_branches.each { branch ->
                 export DISTRO=${distro}
                 export ARCH=${arch}
                 export INSTALL_JOB_PKG=${dev_package}
-                export INSTALL_JOB_REPOS=stable
+                export INSTALL_JOB_REPOS="stable ${extra_repos_str}"
                 /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
                 """.stripIndent())
           }
@@ -295,12 +304,17 @@ all_debbuild_branches.each { branch ->
   def build_pkg_job = job("${branch}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
 
+  extra_cmd_str = ""
+  if (branch in sdformat_gz11_branches)
+     extra_cmd_str = "export NEED_C17_COMPILER=true"
+
   build_pkg_job.with
   {
       steps {
         shell("""\
               #!/bin/bash -xe
 
+              ${extra_cmd_str}
               /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
               """.stripIndent())
       }
@@ -335,12 +349,16 @@ all_branches.each { branch ->
                          "https://bitbucket.org/osrf/sdformat",
                          get_sdformat_branch_name(branch),
                          "sdformat", "HomeBrew")
- 
+
   sdformat_brew_ci_job.with
   {
       triggers {
         scm('@daily')
       }
+
+      // special check to modify ci_distro if the branch is part of gz11
+      if (branch in sdformat_gz11_branches)
+        label "osx_" + Globals.get_gz11_mac_distro()
 
       steps {
         shell("""\

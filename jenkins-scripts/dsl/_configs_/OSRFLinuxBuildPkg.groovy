@@ -47,6 +47,10 @@ class OSRFLinuxBuildPkg
         stringParam("PACKAGE_ALIAS", null, "If not empty, package name to be used instead of PACKAGE")
         stringParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to")
         stringParam("OSRF_REPOS_TO_USE", null, "OSRF repos name to use when building the package")
+        labelParam('JENKINS_NODE_TAG') {
+          description('Jenkins node or group to run build')
+          defaultValue('docker')
+        }
       }
 
       steps {
@@ -73,6 +77,9 @@ class OSRFLinuxBuildPkg
 	    parameters {
 	      currentBuild()
 	      predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+	      // Workaround to avoid problems on repository uploader. Real
+	      // issue: https://issues.jenkins-ci.org/browse/JENKINS-45005
+	      predefinedProp("JENKINS_NODE_TAG", "master")
 	    }
 	  }
         }

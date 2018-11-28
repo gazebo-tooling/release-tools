@@ -88,6 +88,10 @@ if [ -z ${NEED_C11_COMPILER} ]; then
   NEED_C11_COMPILER=false
 fi
 
+if [ -z ${NEED_C17_COMPILER} ]; then
+  NEED_C17_COMPILER=false
+fi
+
 # By default, do not use ROS
 if [ -z ${ENABLE_ROS} ]; then
   ENABLE_ROS=false

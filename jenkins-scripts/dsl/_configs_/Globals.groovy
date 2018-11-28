@@ -108,4 +108,14 @@ class Globals
    {
      return [ 'bouncy' ]
    }
+
+   static String get_gz11_ubuntu_distro()
+   {
+     return 'bionic'
+   }
+
+   static String get_gz11_mac_distro()
+   {
+     return 'mojave'
+   }
 }

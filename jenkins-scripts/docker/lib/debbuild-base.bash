@@ -171,6 +171,14 @@ g++ --version
 echo '# END SECTION'
 fi
 
+if $NEED_C17_COMPILER; then
+echo '# BEGIN SECTION: install C++17 compiler'
+apt-get install -y gcc-8 g++-8
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
+g++ --version
+echo '# END SECTION'
+fi
+
 echo '# BEGIN SECTION: create source package' \${OSRF_VERSION}
 debuild --no-tgz-check -uc -us -S --source-option=--include-binaries
 
