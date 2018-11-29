@@ -5,6 +5,7 @@ import javaposse.jobdsl.dsl.Job
 ignition_software = [ 'cmake',
                       'common',
                       'fuel-tools',
+                      'gazebo',
                       'gui',
                       'math',
                       'msgs',
@@ -16,7 +17,8 @@ ignition_software = [ 'cmake',
                       'tools',
                       'transport' ]
 // DESC: need gpu/display for tests
-ignition_gpu                = [ 'gui',
+ignition_gpu                = [ 'gazebo',
+                                'gui',
                                 'rendering',
                                 'sensors' ]
 // DESC: software does not have tests
@@ -50,7 +52,8 @@ ignition_debbuild  = ignition_software + [ 'cmake1','cmake2',
                                            'msgs0', 'msgs2',
                                            'transport5' ]
 // DESC: exclude ignition from generate any install testing job
-ignition_no_pkg_yet         = [ 'gui',
+ignition_no_pkg_yet         = [ 'gazebo',
+                                'gui',
                                 'physics',
                                 'plugin',
                                 'rndf',
@@ -415,8 +418,9 @@ ignition_software.each { ign_sw ->
               ("${branch}" == "ign-transport3")))
             disabled()
 
-          // no xenial for ign-physics/sensors or plugin default/ign-plugin1
+          // no xenial for ign-physics/sensors/gazebo or plugin default/ign-plugin1
           if (("${distro}" == "xenial") && (
+              ("${ign_sw}" == "gazebo") ||
               ("${ign_sw}" == "physics") ||
               ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
               ("${ign_sw}" == "sensors")))
