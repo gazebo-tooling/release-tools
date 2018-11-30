@@ -26,9 +26,9 @@ fi
 
 if [[ ${SDFORMAT_MAJOR_VERSION} -ge 8 ]]; then
   export USE_GCC8=true
-  export BUILDING_JOB_REPOSITORIES="stable prerelease"
+  export ABI_JOB_REPOS="stable prerelease"
 else
-  export BUILDING_JOB_REPOSITORIES="stable"
+  export ABI_JOB_REPOS="stable"
 fi
 
 . ${SCRIPT_DIR}/lib/generic-abi-base.bash
