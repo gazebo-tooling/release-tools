@@ -8,6 +8,7 @@ class Globals
    static extra_emails   = ''
 
    static rtools_description = true
+   static gazebodistro_branch = false
 
    static gpu_by_distro  = [ trusty : [ 'nvidia', 'intel' ],
                              xenial  : [ 'nvidia' ] ]
