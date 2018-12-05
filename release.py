@@ -18,22 +18,19 @@ GENERIC_BREW_PULLREQUEST_JOB='generic-release-homebrew_pull_request_updater'
 UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
 DOWNLOAD_URI_PATTERN = 'http://gazebosim.org/distributions/%s/releases/'
 
-UBUNTU_ARCHS = ['amd64', 'i386']
+LINUX_DISTROS = [ 'ubuntu', 'debian' ]
+SUPPORTED_ARCHS = ['amd64', 'i386', 'armhf', 'arm64']
+
 # Ubuntu distributions are automatically taken from the top directory of
 # the release repositories, when needed.
 UBUNTU_DISTROS = []
-# UBUNTU_DISTROS_EXTRA will be added to the discovered list of distros
-# use it if you need manual intervention
-UBUNTU_DISTROS_EXTRA = []
-
-ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
-ROS_DISTROS_IN_TRUSTY = [ 'indigo' ];
 
 OSRF_REPOS_SUPPORTED="stable prerelease nightly mentor2 haptix-pre"
 OSRF_REPOS_SELF_CONTAINED="mentor2"
 
 DRY_RUN = False
 NIGHTLY = False
+PRERELEASE = False
 UPSTREAM = False
 NO_SRC_FILE = False
 DRCSIM_MULTIROS = False
@@ -72,6 +69,7 @@ def generate_package_source(srcdir, builddir):
 def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
+    global PRERELEASE
     global UPSTREAM
     global NO_SRC_FILE
     global DRCSIM_MULTIROS
@@ -115,10 +113,10 @@ def parse_args(argv):
     DRCSIM_MULTIROS = args.drcsim_multiros
     IGN_REPO = args.ignition_repo
     UPLOAD_REPO = args.upload_to_repository
-    # Check for nightly releases
-    NIGHTLY = False
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
+    if args.upload_to_repository == 'prerelease':
+        PRERELEASE = True
     # Upstream and nightly do not generate a tar.bz2 file
     if args.upstream or NIGHTLY:
         NO_SRC_FILE = True
@@ -270,9 +268,7 @@ def sanity_checks(args, repo_dir):
 
     shutil.rmtree(repo_dir)
 
-def discover_distros(args, repo_dir):
-    global UBUNTU_DISTROS
-
+def discover_ubuntu_distros(args, repo_dir):
     subdirs =  os.walk(repo_dir).next()[1]
     subdirs.remove('.hg')
     # remove ubuntu (common stuff) and debian (new supported distro at top level)
@@ -286,7 +282,18 @@ def discover_distros(args, repo_dir):
 
     print('Releasing for distributions: ' + ', '.join(subdirs))
 
-    UBUNTU_DISTROS = subdirs
+    return subdirs
+
+def discover_debian_distros(args, repo_dir):
+    subdirs =  os.walk(repo_dir+ '/debian/').next()[1]
+
+    if not subdirs:
+        error('Can not find debian distributions directories in the -release repo')
+
+    print('Releasing for distributions: ' + ', '.join(subdirs))
+
+    return subdirs
+
 
 def check_call(cmd, ignore_dry_run = False):
     if ignore_dry_run:
@@ -422,7 +429,8 @@ def go(argv):
     if not UPSTREAM:
         repo_dir = download_release_repository(args.package, args.release_repo_branch)
         # The supported distros are the ones in the top level of -release repo
-        discover_distros(args, repo_dir)
+        ubuntu_distros = discover_ubuntu_distros(args, repo_dir)
+        debian_distros = discover_debian_distros(args, repo_dir)
         if not args.no_sanity_checks:
             sanity_checks(args, repo_dir)
 
@@ -459,12 +467,6 @@ def go(argv):
     else:
         job_name = JOB_NAME_PATTERN%(args.package)
 
-    # Enable new armhf jobs in sdformat2 and gazebo5
-    if (args.package == 'sdformat2' or args.package == 'gazebo5'):
-        # No prereleases
-        if (not args.release_repo_branch == 'prerelease'):
-            UBUNTU_ARCHS.append('armhf')
-
     params_query = urllib.urlencode(params)
 
     # RELEASING FOR BREW
@@ -476,56 +478,46 @@ def go(argv):
         urllib.urlopen(brew_url)
 
     # RELEASING FOR LINUX
-    distros = UBUNTU_DISTROS
-    if UBUNTU_DISTROS_EXTRA:
-        distros.extend(UBUNTU_DISTROS_EXTRA)
-
-    for d in distros:
-        for a in UBUNTU_ARCHS:
-            if (NIGHTLY and a == 'i386'):
-                # only keep i386 for sdformat in nightly,
-                # just to test CI infrastructure
-                if (not args.package[:-1] == 'sdformat'):
-                    continue
-
-            # no wily for i386 in docker
-            if (d == 'wily' and a == 'i386'):
+    for l in LINUX_DISTROS:
+        if (l == 'ubuntu'):
+            distros = ubuntu_distros
+        elif (l == 'debian'):
+            if (PRERELEASE or NIGHTLY):
                 continue
+            distros = debian_distros
+        else:
+            error("Distro not supported in code")
 
-            if (a == 'armhf'):
-                # Only release armhf in trusty for now
-                if (d != 'trusty'):
-                    continue
-                # armhf runs on docker, it needs a different base_url
-                base_url = '%s/job/%s-docker/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
-            else:
-                base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
+        for d in distros:
+            for a in SUPPORTED_ARCHS:
+                # Filter prerelease and nightly architectures
+                if (PRERELEASE or NIGHTLY):
+                    if (a == 'armhf' or a == 'arm64'):
+                        continue
 
-            if not DRCSIM_MULTIROS:
-                url = '%s&ARCH=%s&DISTRO=%s'%(base_url, a, d)
+                linux_platform_params = params.copy()
+                linux_platform_params['ARCH'] = a
+                linux_platform_params['LINUX_DISTRO'] = l
+                linux_platform_params['DISTRO'] = d
+
+                if (a == 'armhf' or a == 'arm64'):
+                    # Need to use JENKINS_NODE_TAG parameter for large memory nodes
+                    # since it runs qemu emulation
+                    linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
+
+                if (NIGHTLY and a == 'i386'):
+                    # only keep i386 for sdformat in nightly,
+                    # just to test CI infrastructure
+                    if (not args.package[:-1] == 'sdformat'):
+                        continue
+
+                linux_platform_params_query = urllib.urlencode(linux_platform_params)
+
+                url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, linux_platform_params_query)
                 print('- Linux: %s'%(url))
 
                 if not DRY_RUN:
                     urllib.urlopen(url)
-            else:
-                if (d == 'precise'):
-                    ROS_DISTROS = ROS_DISTROS_IN_PRECISE
-                elif (d == 'trusty'):
-                    ROS_DISTROS = ROS_DISTROS_IN_TRUSTY
-                else:
-                    print ("ERROR in ROS_DISTROS: unkonwn distribution")
-                    sys.exit(1)
-
-                for r in ROS_DISTROS:
-                    url = '%s&ARCH=%s&DISTRO=%s&ROS_DISTRO=%s'%(base_url, a, d, r)
-                    print('Accessing multiros: %s'%(url))
-                    if not DRY_RUN:
-                        urllib.urlopen(url)
-
-    ###################################################
-    # Fedora-specific stuff.
-    # The goal is to build rpms.
-    # TODO
 
 if __name__ == '__main__':
     go(sys.argv)

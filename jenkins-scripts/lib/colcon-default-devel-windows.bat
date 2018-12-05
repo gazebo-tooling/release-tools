@@ -2,8 +2,9 @@
 ::
 :: Parameters:
 ::   - VCS_DIRECTORY : relative path to WORKSPACE containing the sources
-::   - GAZEBODISTRO_FILE : vcs yaml file in the gazebodistro repository
+::   - GAZEBODISTRO_FILE : (optional) vcs yaml file in the gazebodistro repository
 ::   - COLCON_PACKAGE : package name to test in colcon ws
+::   - COLCON_AUTO_MAJOR_VERSION (default false): auto detect major version from CMakeLists
 ::   - BUILD_TYPE     : (default Release) [ Release | Debug ] Build type to use
 ::   - DEPEN_PKGS     : (optional) list of dependencies (separted by spaces)
 ::   - KEEP_WORKSPACE : (optional) true | false. Clean workspace at the end
@@ -17,7 +18,6 @@
 ::   - run tests
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
-set TEST_RESULT_PATH=%WORKSPACE%\ws\build\%COLCON_PACKAGE%\test_results
 set EXPORT_TEST_RESULT_PATH=%WORKSPACE%\build\test_results
 set LOCAL_WS=%WORKSPACE%\ws
 set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS%\%VCS_DIRECTORY%
@@ -26,6 +26,24 @@ set LOCAL_WS_BUILD=%WORKSPACE%\build
 :: default values
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
 @if "%ENABLE_TESTS%" == "" set ENABLE_TESTS=TRUE
+@if "%COLCON_AUTO_MAJOR_VERSION%" == "" set COLCON_AUTO_MAJOR_VERSION=false
+
+setlocal ENABLEDELAYEDEXPANSION
+if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
+   for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
+   set COLCON_PACKAGE=%COLCON_PACKAGE%!PKG_MAJOR_VERSION!
+   echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
+)
+
+set TEST_RESULT_PATH=%WORKSPACE%\ws\build\%COLCON_PACKAGE%\test_results
+
+setlocal ENABLEDELAYEDEXPANSION
+if not defined GAZEBODISTRO_FILE (
+  for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
+  set GAZEBODISTRO_FILE=%VCS_DIRECTORY%!PKG_MAJOR_VERSION!.yaml
+) else (
+  echo Using user defined GAZEBODISTRO_FILE: %GAZEBODISTRO_FILE%
+)
 
 :: safety checks
 if not defined VCS_DIRECTORY (
@@ -61,7 +79,7 @@ echo # END SECTION
 
 echo # BEGIN SECTION: get open robotics deps (%GAZEBODISTRO_FILE%) sources into the workspace
 if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
-call %win_lib% get_source_from_gazebodistro %GAZEBODISTRO_FILE% %LOCAL_WS% || goto :error
+call %win_lib% :get_source_from_gazebodistro %GAZEBODISTRO_FILE% %LOCAL_WS% || goto :error
 echo # END SECTION
 
 :: this step is important since overwrite the gazebodistro file
@@ -77,7 +95,7 @@ for %%p in (%DEPEN_PKGS%) do (
 )
 
 echo # BEGIN SECTION: packages in workspace
-call %win_lib% list_workspace_pkgs || goto :error
+call %win_lib% :list_workspace_pkgs || goto :error
 echo # END SECTION
 
 if exist %LOCAL_WS_SOFTWARE_DIR%\configure.bat (
@@ -86,11 +104,11 @@ if exist %LOCAL_WS_SOFTWARE_DIR%\configure.bat (
 
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
 cd %LOCAL_WS%
-call %win_lib% build_workspace %COLCON_PACKAGE% || goto :error
+call %win_lib% :build_workspace %COLCON_PACKAGE% || goto :error
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
-    echo # BEGIN SECTION: running tests
+    echo # BEGIN SECTION: running tests for %COLCON_PACKAGE%
     call %win_lib% :tests_in_workspace %COLCON_PACKAGE%
     echo # END SECTION
 

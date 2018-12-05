@@ -3,7 +3,8 @@ import javaposse.jobdsl.dsl.Job
 
 Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 
-brew_supported_distros         = [ "sierra", "highsierra", "mojave" ]
+// first distro in list is used as touchstone
+brew_supported_distros         = [ "highsierra", "sierra", "mojave" ]
 bottle_hash_updater_job_name   = 'generic-release-homebrew_pr_bottle_hash_updater'
 bottle_builder_job_name        = 'generic-release-homebrew_bottle_builder'
 directory_for_bottles          = 'pkgs'
@@ -183,7 +184,11 @@ bottle_job_builder.with
    }
 
    publishers {
-     archiveArtifacts("${directory_for_bottles}/*")
+     archiveArtifacts
+     {
+       pattern("${directory_for_bottles}/*")
+       allowEmpty()
+     }
 
      // call to the repository_uploader_ng to upload to S3 the binary
      downstreamParameterized

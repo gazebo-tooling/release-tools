@@ -665,6 +665,7 @@ IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
                           libdart6-dev \\
                           libdart6-utils-urdf-dev \\
                           libignition-cmake2-dev \\
+                          libignition-common3-dev \\
                           libignition-math6-dev \\
                           libignition-math6-eigen3-dev \\
                           libignition-plugin-dev \\
@@ -695,6 +696,7 @@ else
   IGN_RENDERING_DEPENDENCIES="${IGN_RENDERING_NO_IGN_DEPENDENCIES} \\
                               libignition-cmake2-dev \\
                               libignition-common3-dev \\
+                              libignition-plugin-dev \\
                               libignition-math6-dev"
 fi
 
@@ -706,6 +708,20 @@ IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
                           libignition-transport6-dev \\
                           libignition-rendering-dev \\
                           libsdformat8-dev"
+
+IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev     \\
+                         libignition-cmake2-dev \\
+                         libignition-gui-dev \\
+                         libgflags-dev \\
+                         libignition-math6-dev      \\
+                         libignition-math6-eigen3-dev      \\
+                         libignition-msgs3-dev       \\
+                         libignition-physics-dev       \\
+                         libignition-plugin-dev       \\
+                         libignition-tools-dev \\
+                         libignition-transport6-dev \\
+                         libignition-rendering-dev \\
+                         libsdformat8-dev"
 
 IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
                        libignition-math4-dev"
