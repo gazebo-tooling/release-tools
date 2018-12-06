@@ -16,7 +16,7 @@ class Globals
                      'jade'    : ['trusty'] ,
                      'kinetic' : ['xenial'] ,
                      'lunar'   : ['xenial'] ,
-                     'melodic' : ['bionic'],
+                     'melodic' : ['bionic'] ,
                      'crystal'  : ['bionic']]
 
    // This should be in sync with archive_library
