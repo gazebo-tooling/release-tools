@@ -16,8 +16,8 @@ class Globals
                      'jade'    : ['trusty'] ,
                      'kinetic' : ['xenial'] ,
                      'lunar'   : ['xenial'] ,
-                     'melodic' : ['bionic'],
-                     'crystal'  : ['bionic']]
+                     'melodic' : ['bionic'] ,
+                     'crystal' : ['bionic']]
 
    // This should be in sync with archive_library
    static gz_version_by_rosdistro = [ 'indigo'  : ['2'] ,
