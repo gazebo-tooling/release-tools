@@ -157,8 +157,10 @@ RUN apt-get update && \\
 DELIM_DOCKER_DIRMNGR
 fi
 
+RUN echo "${OSRF_REPOS_TO_USE}"
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
+RUN echo "${repo}"
 RUN echo "deb http://packages.osrfoundation.org/gazebo/${LINUX_DISTRO}-${repo} ${DISTRO} main" >\\
                                                 /etc/apt/sources.list.d/osrf.${repo}.list
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
