@@ -334,7 +334,6 @@ else
                     python3-colcon-common-extensions \\
                     python-rosdep                    \\
                     python-wstool                    \\
-                    ros-${ROS_DISTRO}-ros-core       \\
                     python-rosinstall                \\
                     python-rospkg                    \\
                     python-vcstools"
