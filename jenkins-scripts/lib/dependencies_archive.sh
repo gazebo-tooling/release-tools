@@ -311,7 +311,7 @@ else
         GAZEBO_VERSION_FOR_ROS="9"
       ;;
       # ROS 2
-      bouncy)
+      crystal)
         GAZEBO_VERSION_FOR_ROS="9"
       ;;
     esac
@@ -334,7 +334,6 @@ else
                     python3-colcon-common-extensions \\
                     python-rosdep                    \\
                     python-wstool                    \\
-                    ros-${ROS_DISTRO}-ros-core       \\
                     python-rosinstall                \\
                     python-rospkg                    \\
                     python-vcstools"
