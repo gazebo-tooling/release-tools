@@ -105,6 +105,9 @@ rosdep install --from-paths . \
                --rosdistro=${ROS_DISTRO} \
                --default-yes \
                --as-root apt:false
+# Package installation could bring some local_setup.sh files with it
+# need to source it again after installation
+SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
 echo '# END SECTION'
 
 echo '# BEGIN SECTION compile the catkin workspace'
