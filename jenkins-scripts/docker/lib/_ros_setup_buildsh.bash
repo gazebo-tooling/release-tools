@@ -20,12 +20,14 @@ if ${USE_COLCON}; then
   export CMD_CATKIN_BUILD="colcon build --parallel-workers ${MAKE_JOBS} --symlink-install --event-handler console_direct+ ${CATKIN_EXTRA_ARGS}"
   export CMD_CATKIN_TEST="colcon test --parallel-workers 1 --event-handler console_direct+ || true"
   export CMD_CATKIN_TEST_RESULTS="colcon test-result --verbose || true"
+  export IGNORE_FILE="COLCON_IGNORE"
 elif ${USE_CATKIN_MAKE}; then
   export CMD_CATKIN_CONFIG=""
   export CMD_CATKIN_LIST=""
   export CMD_CATKIN_BUILD="catkin_make -j${MAKE_JOBS} && catkin_make install"
   export CMD_CATKIN_TEST="catkin_make run_tests -j1 || true"
   export CMD_CATKIN_TEST_RESULTS="catkin_test_results || true"
+  export IGNORE_FILE="CATKIN_IGNORE"
 else
   # catkin tools
   export CMD_CATKIN_CONFIG="catkin config --init --mkdirs"
@@ -33,6 +35,7 @@ else
   export CMD_CATKIN_BUILD="catkin build -j${MAKE_JOBS} --verbose --summary ${CATKIN_EXTRA_ARGS}"
   export CMD_CATKIN_TEST="catkin run_tests -j1 || true"
   export CMD_CATKIN_TEST_RESULTS="catkin_test_results --all --verbose || true"
+  export IGNORE_FILE="CATKIN_IGNORE"
 fi
 
 export CATKIN_WS="${WORKSPACE}/ws"
@@ -119,8 +122,8 @@ echo '# BEGIN SECTION: running tests'
 source install/setup.bash || true
 # need to ignore build and install directories per
 # https://github.com/ament/ament_lint/issues/48#issuecomment-320129800
-[[ -d install/ ]] && touch install/AMENT_IGNORE 
-[[ -d build/ ]] && touch build/AMENT_IGNORE
+[[ -d install/ ]] && touch install/${IGNORE_FILE}
+[[ -d build/ ]] && touch build/${IGNORE_FILE}
 ${CMD_CATKIN_TEST}
 ${CMD_CATKIN_TEST_RESULTS}
 
