@@ -114,6 +114,10 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: running tests'
 # some tests needs to source install before running
 source install/setup.bash || true
+# need to ignore build and install directories per
+# https://github.com/ament/ament_lint/issues/48#issuecomment-320129800
+[[ -d install/ ]] && touch install/AMENT_IGNORE 
+[[ -d build/ ]] && touch build/AMENT_IGNORE
 ${CMD_CATKIN_TEST}
 ${CMD_CATKIN_TEST_RESULTS}
 
