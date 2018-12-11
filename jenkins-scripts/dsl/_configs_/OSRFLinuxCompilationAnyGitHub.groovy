@@ -29,9 +29,9 @@ class OSRFLinuxCompilationAnyGitHub
 
     ArrayList supported_ros_branches = []
     supported_ros_distros.each { ros_distro ->
-      if (ros_distro == 'bouncy') {
+      if (ros_distro == 'crystal') {
         // during the port to ros2 the branch is using ros2 name and the
-        // ros distro is bouncy
+        // ros distro is crystal
         supported_ros_branches.add("ros2")
       } else {
         // Keep the toString method to be sure that String is used and not
