@@ -501,6 +501,10 @@ def go(argv):
                 linux_platform_params['DISTRO'] = d
 
                 if (a == 'armhf' or a == 'arm64'):
+                    # No sid releases for arm64/armhf lack of docker image
+                    # https://hub.docker.com/r/aarch64/debian/ fails on Jenkins
+                    if (d == 'sid'):
+                        continue
                     # Need to use JENKINS_NODE_TAG parameter for large memory nodes
                     # since it runs qemu emulation
                     linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
