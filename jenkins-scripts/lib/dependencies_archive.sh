@@ -74,6 +74,12 @@ if [[ ${SDFORMAT_MAJOR_VERSION} -ge 8 ]]; then
     SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
                                 libignition-math6-dev           \\
                                 libignition-tools-dev"
+elif [[ ${SDFORMAT_MAJOR_VERSION} -ge 7 ]]; then
+    # sdformat6 requires ignition-math5 and
+    # uses ignition-tools for a test
+    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
+                                libignition-math5-dev           \\
+                                libignition-tools-dev"
 elif [[ ${SDFORMAT_MAJOR_VERSION} -ge 6 ]]; then
     # sdformat6 requires ignition-math4 and
     # uses ignition-tools for a test
