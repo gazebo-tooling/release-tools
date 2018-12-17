@@ -535,12 +535,16 @@ ignition_software.each { ign_sw ->
 
 // 1. any
 ignition_software.each { ign_sw ->
-  if (is_a_colcon_package(ign_sw))
+
+  if (is_a_colcon_package(ign_sw)) {
     // colcon uses long paths and windows has a hard limit of 260 chars. Keep
     // names minimal
     ignition_win_ci_any_job_name = "ign_${ign_sw}-pr-win"
-  else
+    Globals.gazebodistro_branch = true
+  } else {
     ignition_win_ci_any_job_name = "ignition_${ign_sw}-ci-pr_any-windows7-amd64"
+    Globals.gazebodistro_branch = false
+  }
 
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAny.create(ignition_win_ci_any_job,
