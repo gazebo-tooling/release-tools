@@ -48,6 +48,7 @@ ignition_prerelease_branches = [ 'cmake'     : [ 'gz11' ],
 // don't appear in ignition_branches
 ignition_debbuild  = ignition_software + [ 'cmake1','cmake2',
                                            'common2',
+                                           'fuel-tools2',
                                            'math5',
                                            'msgs0', 'msgs2',
                                            'transport5' ]
