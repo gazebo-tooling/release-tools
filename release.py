@@ -285,6 +285,9 @@ def discover_ubuntu_distros(args, repo_dir):
     return subdirs
 
 def discover_debian_distros(args, repo_dir):
+    if not os.path.isdir(repo_dir + '/debian/'):
+      return None
+
     subdirs =  os.walk(repo_dir+ '/debian/').next()[1]
 
     if not subdirs:
