@@ -25,9 +25,9 @@ call %win_lib% :download_unzip_install dlfcn-win32-vc15-x64-dll-MD.zip
 call %win_lib% :download_unzip_install curl-7.57.0-vc15-x64-dll-MD.zip
 call %win_lib% :download_unzip_install protobuf-3.4.1-vc15-x64-dll-MD.zip
 call %win_lib% :download_unzip_install libzip-1.4.0_zlip-1.2.11_vc15-x64-dll-MD.zip
-call %win_lib% :download_unzip_install FreeImage-3.18.0.zip FreeImage-3.18.0.zip
-call %win_lib% :download_unzip_install boost_1_67_0.zip boost_1_67_0.zip
-call %win_lib% :download_unzip_install ogre-sdk-1.10.12-vc15-x64.zip ogre-sdk-1.10.12-vc15-x64.zip
+call %win_lib% :download_unzip_install FreeImage3180Win32Win64.zip
+call %win_lib% :download_unzip_install boost_1_67_0.zip
+call %win_lib% :download_unzip_install ogre-sdk-1.10.12-vc15-x64.zip
 call %win_lib% :download_unzip_install qt-opensource-windows-x86-msvc2015_64-5.7.0.zip
 call %win_lib% :download_unzip_install bzip2-1.0.6-vc12-x64-release-debug.zip
 call %win_lib% :download_unzip_install freetype-2.4.0-vc12-x64-release-debug.zip
