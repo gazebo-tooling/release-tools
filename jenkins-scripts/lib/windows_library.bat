@@ -246,6 +246,15 @@ call %LIB_DIR%\windows_env_vars.bat
 goto :EOF
 
 :: ##################################
+:remove_vcpkg_package
+:: arg1: package to install
+set LIB_DIR=%~dp0
+call %LIB_DIR%\windows_env_vars.bat
+
+%VCPKG_CMD% remove "%1"
+goto :EOF
+
+:: ##################################
 :error - error routine
 ::
 echo Failed with error #%errorlevel%.
