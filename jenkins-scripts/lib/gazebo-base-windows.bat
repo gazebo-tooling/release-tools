@@ -9,6 +9,9 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc2017_compiler
 echo # END SECTION
 
+:: avoid the use of protoc from vcpkg
+call %win_lib% :remove_vcpkg_package protobuf
+
 :: IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto %win_lib% :error
 :: reusing the workspace
 
