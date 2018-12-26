@@ -143,7 +143,7 @@ goto :EOF
 :download_unzip_install
 ::
 echo # BEGIN SECTION: downloading, unzipping, and installing dependency %1
-call :wget http://gazebosim.org/distributions/win32/deps/%1 %1 || goto :error
+call :wget https://s3.amazonaws.com/osrf-distributions/win32/deps/%1 %1 || goto :error
 call :unzip_install %1 || goto :error
 goto :EOF
 
