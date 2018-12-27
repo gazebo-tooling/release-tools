@@ -716,6 +716,7 @@ IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
 
 IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev     \\
                          libignition-cmake2-dev \\
+                         libignition-fuel-tools3-dev \\
                          libignition-gui-dev \\
                          libgflags-dev \\
                          libignition-math6-dev      \\
@@ -723,6 +724,7 @@ IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev     \\
                          libignition-msgs3-dev       \\
                          libignition-physics-dev       \\
                          libignition-plugin-dev       \\
+                         libignition-sensors-dev \\
                          libignition-tools-dev \\
                          libignition-transport6-dev \\
                          libignition-rendering-dev \\
