@@ -11,6 +11,7 @@ echo # END SECTION
 
 :: avoid the use of protoc from vcpkg
 call %win_lib% :remove_vcpkg_package protobuf
+call %win_lib% :remove_vcpkg_package freeimage
 
 :: IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto %win_lib% :error
 :: reusing the workspace
@@ -72,8 +73,8 @@ call "%SCRIPT_DIR%/lib/generic-default-devel-windows.bat"
 echo # END SECTION
 
 echo # BEGIN SECTION: overwrite, since sdformat downloads boost_1.67.0_any_variant_version.zip
-xcopy %WORKSPACE_INSTALL_DIR%\boost_1_67_0\boost %WORKSPACE_INSTALL_DIR%\include\boost /s /i /e /y
-xcopy %WORKSPACE_INSTALL_DIR%\boost_1_67_0\lib64-msvc-14.1 %WORKSPACE_INSTALL_DIR%\lib /s /i /e /y
+xcopy %WORKSPACE_INSTALL_DIR%\boost_1_67_0\boost %WORKSPACE_INSTALL_DIR%\include\boost /s /i /e /y > xcopy.log
+xcopy %WORKSPACE_INSTALL_DIR%\boost_1_67_0\lib64-msvc-14.1 %WORKSPACE_INSTALL_DIR%\lib /s /i /e /y > xcopy.log
 echo # END SECTION
 
 echo # BEGIN SECTION: copy gazebo sources to workspace
