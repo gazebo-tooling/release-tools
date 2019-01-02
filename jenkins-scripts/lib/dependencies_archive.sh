@@ -597,7 +597,7 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                            libignition-math6-dev"
 fi
 
-IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
+IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake2-dev \\
                              libignition-common-dev \\
                              libignition-tools-dev  \\
                              libcurl4-openssl-dev   \\
