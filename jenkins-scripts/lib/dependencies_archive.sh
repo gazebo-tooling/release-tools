@@ -604,6 +604,10 @@ IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
                              libjsoncpp-dev         \\
                              libyaml-dev            \\
                              libzip-dev"
+if [[ ${DISTRO} != 'xenial' ]]; then
+  IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
+                           libignition-cmake2-dev"
+fi
 
 IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
                        libprotobuf-dev       \\
