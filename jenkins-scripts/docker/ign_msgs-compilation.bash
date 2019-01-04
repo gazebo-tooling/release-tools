@@ -36,7 +36,7 @@ fi
 
 . "${SCRIPT_DIR}/lib/_gz11_hook.bash"
 
-if [[ $(date +%Y%m%d) -le 20181231 ]]; then
+if [[ $(date +%Y%m%d) -le 20190201 ]]; then
   ## need prerelease repo to get ignition-math5 and ignition-cmake1
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
 fi

@@ -23,7 +23,7 @@ export NEEDS_GZ11_SUPPORT=true
 
 export DART_FROM_PKGS="true"
 
-if [[ $(date +%Y%m%d) -le 20181231 ]]; then
+if [[ $(date +%Y%m%d) -le 20190201 ]]; then
   ## need prerelease repo to get ignition-cmake during the development cycle
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
 fi
