@@ -423,6 +423,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "gazebo") ||
               ("${ign_sw}" == "physics") ||
               ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
+              ("${ign_sw}" == "fuel-tools" && "${branch}" != "ign-fuel-tools1") ||
               ("${ign_sw}" == "sensors")))
             disabled()
 
