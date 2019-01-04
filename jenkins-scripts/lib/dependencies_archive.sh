@@ -606,7 +606,8 @@ IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
                              libzip-dev"
 if [[ ${DISTRO} != 'xenial' ]]; then
   IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
-                           libignition-cmake2-dev"
+                           libignition-cmake2-dev \\
+                           libignition-common3-dev"
 fi
 
 IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
