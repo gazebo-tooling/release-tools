@@ -228,11 +228,11 @@ boolean is_a_colcon_package(String ign_software_name)
 }
 
 // ABI Checker job
-// Need to be the before ci-pr_any so the abi job name is defined
+// Need to be before the ci-pr_any so the abi job name is defined
 ignition_software.each { ign_sw ->
   abi_distro.each { distro ->
     supported_arches.each { arch ->
-      abi_job_names[ign_sw] = "ignition_${ign_sw}-abichecker-any_to_any-${distro}-${arch}"
+      abi_job_names[ign_sw] = "ignition_${ign_sw}-abichecker-any_to_any-ubuntu_auto-${arch}"
       def abi_job = job(abi_job_names[ign_sw])
       checkout_subdir = "ign-${ign_sw}"
 
@@ -245,8 +245,18 @@ ignition_software.each { ign_sw ->
         steps {
           shell("""\
                 #!/bin/bash -xe
+                wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
+                source yaml.sh
+
+                create_variables \${WORKSPACE}/${checkout_subdir}/bitbucket-pipelines.yml
 
                 export DISTRO=${distro}
+
+                if [[ -n \${image} ]]; then
+                  echo "Bitbucket pipeline.yml detected. Default DISTRO is ${distro}"
+                  export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
+                fi
+
                 export ARCH=${arch}
                 export ABI_JOB_SOFTWARE_NAME=${checkout_subdir}
                 /bin/bash -xe ./scripts/jenkins-scripts/docker/ignition-abichecker.bash
