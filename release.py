@@ -102,9 +102,10 @@ def parse_args(argv):
                         help='use ignition robotics URL repositories instead of OSRF')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
+    parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
+                        help='extra OSRF repository to use in the build')
     parser.add_argument('--nightly-src-branch', dest='nightly_branch', default="default",
                         help='branch in the source code repository to build the nightly from')
-
 
     args = parser.parse_args()
     if not args.package_alias:
@@ -460,6 +461,8 @@ def go(argv):
     params['UPLOAD_TO_REPO'] = args.upload_to_repository
     # Assume that we want stable + own repo in the building
     params['OSRF_REPOS_TO_USE'] = "stable " + args.upload_to_repository
+    if args.extra_repo:
+        params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
     if args.upload_to_repository in OSRF_REPOS_SELF_CONTAINED:
         params['OSRF_REPOS_TO_USE'] = args.upload_to_repository
