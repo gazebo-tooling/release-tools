@@ -520,12 +520,6 @@ def go(argv):
                     # since it runs qemu emulation
                     linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
 
-                if (NIGHTLY and a == 'i386'):
-                    # only keep i386 for sdformat in nightly,
-                    # just to test CI infrastructure
-                    if (not args.package[:-1] == 'sdformat'):
-                        continue
-
                 linux_platform_params_query = urllib.urlencode(linux_platform_params)
 
                 url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, linux_platform_params_query)
