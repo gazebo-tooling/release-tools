@@ -10,6 +10,9 @@ fi;
 NIGHTLY_MODE=false
 if [ "${VERSION}" = "nightly" ]; then
    NIGHTLY_MODE=true
+   # SOURCE_TARBALL_URI is reused in nightly mode to indicate the branch
+   # to built nightly packages from
+   NIGHTLY_SRC_BRANCH=${SOURCE_TARBALL_URI}
 fi
 
 # Do not use the subprocess_reaper in debbuild. Seems not as needed as in
@@ -78,7 +81,7 @@ REAL_PACKAGE_NAME=$(echo $PACKAGE | sed 's:[0-9]*$::g')
 
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
-  hg clone https://bitbucket.org/${BITBUCKET_REPO}/\$REAL_PACKAGE_NAME -r default
+  hg clone https://bitbucket.org/${BITBUCKET_REPO}/\$REAL_PACKAGE_NAME -r ${NIGHTLY_SRC_BRANCH}
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME
   cd \$REAL_PACKAGE_NAME
   # Store revision for use in version

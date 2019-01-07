@@ -102,6 +102,8 @@ def parse_args(argv):
                         help='use ignition robotics URL repositories instead of OSRF')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
+    parser.add_argument('--nightly-src-branch', dest='nightly_branch', default="default",
+                        help='branch in the source code repository to build the nightly from')
 
 
     args = parser.parse_args()
@@ -115,6 +117,7 @@ def parse_args(argv):
     UPLOAD_REPO = args.upload_to_repository
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
+        NIGHTLY_BRANCH = args.nightly_branch
     if args.upload_to_repository == 'prerelease':
         PRERELEASE = True
     # Upstream and nightly do not generate a tar.bz2 file
@@ -463,7 +466,9 @@ def go(argv):
 
     if NIGHTLY:
         params['VERSION'] = 'nightly'
-        params['SOURCE_TARBALL_URI'] = ''
+        # reuse SOURCE_TARBALL_URI to indicate the nightly branch
+        # name must be modified in the future
+        params['SOURCE_TARBALL_URI'] = args.nightly_branch
 
     if UPSTREAM:
         job_name = JOB_NAME_UPSTREAM_PATTERN%(args.package)
