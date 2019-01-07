@@ -481,8 +481,8 @@ def go(argv):
     brew_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL,
                                                    GENERIC_BREW_PULLREQUEST_JOB,
                                                    params_query)
-    print('- Brew: %s'%(brew_url))
     if not DRY_RUN and not NIGHTLY:
+        print('- Brew: %s'%(brew_url))
         urllib.urlopen(brew_url)
 
     # RELEASING FOR LINUX
