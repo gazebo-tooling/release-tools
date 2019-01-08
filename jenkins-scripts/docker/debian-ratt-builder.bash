@@ -22,7 +22,7 @@ echo "deb-src http://deb.debian.org/debian experimental main" >> /etc/apt/source
 apt-get update
 mkdir /tmp/work
 apt-get source -t experimental ${DEB_PACKAGE}
-dir=\$(find . -type d -name ${DEB_PACKAGE}*)
+dir=\$(find . -type d)
 cd \$dir
 gbp buildpackage -S
 echo '# END SECTION'
