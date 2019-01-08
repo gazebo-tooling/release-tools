@@ -21,6 +21,7 @@ echo "deb http://deb.debian.org/debian experimental main" >> /etc/apt/sources.li
 echo "deb-src http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list
 apt-get update
 mkdir /tmp/work
+cd /tmp/work
 apt-get source -t experimental ${DEB_PACKAGE}
 dir=\$(find . -type d)
 cd \$dir
