@@ -16,17 +16,30 @@ cat > build.sh << DELIM
 #
 set -ex
 
+echo '# BEGIN SECTION: get source package from experimental'
+echo "deb http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list
+echo "deb-src http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list
+apt-get update
+mkdir /tmp/work
+apt-get source -d experimental ${DEB_PACKAGE}
+dir=\$(find . -type d -name ${DEB_PACKAGE}*)
+cd \$dir
+gbp buildpackage -S
+echo '# END SECTION'
+
 echo '# BEGIN SECTION: create experimental chroot'
-sbuild-createchroot experimental /srv/chroot/exp-amd64-sbuild http://deb.debian.org/debian
+sbuild-createchroot unstable /srv/chroot/exp-amd64-sbuild http://deb.debian.org/debian
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
-ratt ${DEB_PACKAGE}
+cd ..
+ratt ${DEB_PACKAGE}_*changes*
 echo '# END SECTION'
 DELIM
 
 export LINUX_DISTRO=debian
 export DISTRO=sid
-export DEPENDENCY_PKGS="ratt sbuild"
+export DEPENDENCY_PKGS="ratt sbuild git-buildpackage"
+
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
 . "${SCRIPT_DIR}/lib/docker_run.bash"
