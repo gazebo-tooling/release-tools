@@ -23,7 +23,7 @@ apt-get update
 mkdir /tmp/work
 cd /tmp/work
 apt-get source -t experimental ${DEB_PACKAGE}
-apt-get build-dep -t experimental ${DEB_PACKAGE}
+apt-get build-dep -t experimental -y ${DEB_PACKAGE}
 dir=\$(find . -maxdepth 1 -mindepth 1 -type d)
 cd \$dir
 debuild -S
