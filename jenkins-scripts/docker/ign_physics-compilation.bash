@@ -23,9 +23,9 @@ export NEEDS_GZ11_SUPPORT=true
 
 export DART_FROM_PKGS="true"
 
+# Enable prerelease and nightly repos until a certain date
 if [[ $(date +%Y%m%d) -le 20190201 ]]; then
-  ## need prerelease repo to get ignition-cmake during the development cycle
-  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
+  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
 fi
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
