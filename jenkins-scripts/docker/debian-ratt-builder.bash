@@ -23,7 +23,7 @@ apt-get update
 mkdir /tmp/work
 cd /tmp/work
 apt-get source -t experimental ${DEB_PACKAGE}
-dir=\$(find . -type d)
+dir=\$(find . -maxdepth 1 -mindepth 1 -type d)
 cd \$dir
 gbp buildpackage -S
 echo '# END SECTION'
