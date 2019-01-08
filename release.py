@@ -520,6 +520,9 @@ def go(argv):
                     # since it runs qemu emulation
                     linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
 
+                if (NIGHTLY and a == 'i386'):
+                    continue
+
                 linux_platform_params_query = urllib.urlencode(linux_platform_params)
 
                 url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, linux_platform_params_query)
