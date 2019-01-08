@@ -25,7 +25,7 @@ cd /tmp/work
 apt-get source -t experimental ${DEB_PACKAGE}
 dir=\$(find . -maxdepth 1 -mindepth 1 -type d)
 cd \$dir
-gbp buildpackage -S
+debbuild -S
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create experimental chroot'
@@ -40,7 +40,7 @@ DELIM
 
 export LINUX_DISTRO=debian
 export DISTRO=sid
-export DEPENDENCY_PKGS="ratt sbuild git-buildpackage"
+export DEPENDENCY_PKGS="ratt sbuild quilt"
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
 . "${SCRIPT_DIR}/lib/docker_run.bash"
