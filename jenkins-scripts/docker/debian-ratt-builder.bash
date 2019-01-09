@@ -26,7 +26,7 @@ apt-get source -t experimental ${DEB_PACKAGE}
 apt-get build-dep -t experimental -y ${DEB_PACKAGE}
 dir=\$(find . -maxdepth 1 -mindepth 1 -type d)
 cd \$dir
-debuild -S --no-sign --no-lintian
+debuild -S --no-sign
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create experimental chroot'
