@@ -21,10 +21,6 @@ echo '# BEGIN SECTION: get source package from experimental'
 echo "deb http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list
 echo "deb-src http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list
 apt-get update
-apt-get indextargets
-sed -i -e 's:KeepCompressed\ "true":KeepCompressed "false":g' /etc/apt/apt.conf.d/50apt-file.conf
-apt-get update
-apt-get indextargets
 mkdir /tmp/work
 cd /tmp/work
 apt-get build-dep -y ${DEB_PACKAGE}
@@ -40,7 +36,9 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
 cd ..
-ratt ${DEB_PACKAGE}_*changes*
+# need to configure unstable in the change file, not all packages are in experimental
+sed -i -e 's:experimental:unstable:g' ${DEB_PACKAGE}_*.changes
+ratt ${DEB_PACKAGE}_*.changes*
 echo '# END SECTION'
 DELIM
 
