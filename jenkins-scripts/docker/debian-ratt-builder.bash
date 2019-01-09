@@ -17,15 +17,16 @@ cat > build.sh << DELIM
 set -ex
 
 echo '# BEGIN SECTION: get source package from experimental'
+apt-get update && apt-get build-dep -y ${DEB_PACKAGE}
 echo "deb http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list
 echo "deb-src http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list
 apt-get update
 mkdir /tmp/work
 cd /tmp/work
 apt-get source -t experimental ${DEB_PACKAGE}
-apt-get build-dep -t experimental -y ${DEB_PACKAGE}
 dir=\$(find . -maxdepth 1 -mindepth 1 -type d)
 cd \$dir
+sed -i -e '/.*experimental.*/d' /etc/apt/sources.list && apt-get update
 debuild -S --no-sign
 echo '# END SECTION'
 
@@ -41,7 +42,7 @@ DELIM
 
 export LINUX_DISTRO=debian
 export DISTRO=sid
-export DEPENDENCY_PKGS="ratt sbuild quilt devscripts dose-distcheck"
+export DEPENDENCY_PKGS="ratt sbuild quilt devscripts"
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
 . "${SCRIPT_DIR}/lib/docker_run.bash"
