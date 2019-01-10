@@ -88,7 +88,7 @@ ignition_prerelease_pkgs    = [ 'cmake'  : [
                                 ]]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
-ignition_colcon_win         = [ 'physics', 'rendering', 'gui' ]
+ignition_colcon_win         = [ 'gui', 'physics', 'rendering', 'sensors' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
