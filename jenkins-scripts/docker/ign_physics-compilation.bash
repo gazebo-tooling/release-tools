@@ -21,7 +21,8 @@ export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_PHYSICS_DEPENDENCIES"
 export NEEDS_GZ11_SUPPORT=true
 . "${SCRIPT_DIR}/lib/_gz11_hook.bash"
 
-export DART_FROM_PKGS="true"
+# don't use DART PPA for now, since 6.7.0 has some issues
+# export DART_FROM_PKGS="true"
 
 # Enable prerelease and nightly repos until a certain date
 if [[ $(date +%Y%m%d) -le 20190201 ]]; then
