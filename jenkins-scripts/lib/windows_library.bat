@@ -251,7 +251,7 @@ goto :EOF
 set LIB_DIR=%~dp0
 call %LIB_DIR%\windows_env_vars.bat
 
-%VCPKG_CMD% remove "%1"
+%VCPKG_CMD% remove --recurse "%1"
 goto :EOF
 
 :: ##################################
