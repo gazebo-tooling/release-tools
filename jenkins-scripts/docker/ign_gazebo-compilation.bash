@@ -24,8 +24,8 @@ export NEEDS_GZ11_SUPPORT=true
 export BUILD_IGN_FUEL_TOOLS=true
 
 if [[ $(date +%Y%m%d) -le 20190201 ]]; then
-  ## need prerelease repo to get ignition-cmake2 for ign-gazebo
-  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
+  # Enable prerelease and nightly repos until a certain date
+  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
 fi
 
 export GPU_SUPPORT_NEEDED=true
