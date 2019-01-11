@@ -257,6 +257,7 @@ RUN echo "${MONTH_YEAR_STR}" \
 # it will make to run apt-get update again
 RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))" \
  && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
+ && apt-get upgrade -y \
  && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
  && apt-get clean
 
