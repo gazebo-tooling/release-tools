@@ -240,7 +240,7 @@ goto :EOF
 :install_vcpkg_package
 :: arg1: package to install
 set LIB_DIR=%~dp0
-call %LIB_DIR%\windows_env_vars.bat
+call %LIB_DIR%\windows_env_vars.bat || goto :error
 
 %VCPKG_CMD% install "%1"
 goto :EOF
@@ -249,10 +249,20 @@ goto :EOF
 :remove_vcpkg_package
 :: arg1: package to install
 set LIB_DIR=%~dp0
-call %LIB_DIR%\windows_env_vars.bat
+call %LIB_DIR%\windows_env_vars.bat || goto :error
 
 %VCPKG_CMD% remove --recurse "%1"
 goto :EOF
+
+:: ##################################
+:enable_vcpkg_integration
+%VCPKG_CMD% integrate install || goto :error
+goto EOF
+
+:: ##################################
+:disable_vcpkg_integration
+%VCPKG_CMD% integrate uninstall || goto :error
+goto EOF
 
 :: ##################################
 :error - error routine

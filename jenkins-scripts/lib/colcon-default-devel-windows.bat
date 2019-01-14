@@ -89,6 +89,7 @@ xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i > xcopy_vcs_d
 echo # END SECTION
 
 for %%p in (%DEPEN_PKGS%) do (
+  call %win_lib% :enable_vcpkg_integration
   echo # BEGIN SECTION: install external dependency %%p
   call %win_lib% :install_vcpkg_package %%p || goto:error
   echo # END SECTION
