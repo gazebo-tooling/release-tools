@@ -17,9 +17,10 @@ fi
 export BUILDING_SOFTWARE_DIRECTORY="ign-fuel-tools"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_FUEL_TOOLS_DEPENDENCIES"
 export BUILDING_JOB_REPOSITORIES="stable"
-if [[ $(date +%Y%m%d) -le 20180108 ]]; then
-  ## need prerelease repo to get ignition-cmake during the development cycle
-  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
+
+# Enable prerelease and nightly repos until a certain date
+if [[ $(date +%Y%m%d) -le 20190201 ]]; then
+  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
 fi
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
