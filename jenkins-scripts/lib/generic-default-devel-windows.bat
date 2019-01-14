@@ -40,6 +40,11 @@ set WORKSPACE_INSTALL_DIR=%LOCAL_WS%\install
   exit 1
 )
 
+:: Call vcvarsall and all the friends
+echo # BEGIN SECTION: configure the MSVC compiler
+call %win_lib% :configure_msvc2017_compiler
+echo # END SECTION
+
 :: Set the PATH variable so that dependencies installed inside this workspace
 :: are visible to the build system and the run time.
 :: NOTE: This should be called after %win_lib% :configure_msvc####_compiler so
