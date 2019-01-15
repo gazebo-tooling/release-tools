@@ -54,7 +54,7 @@ cat >> build.sh << DELIM_BUILD_DEPS
       bitbucket_repo="osrf/${dep}"
     else
       # need to replace _ by -
-      bitbucket_repo="ignitionrobotics/${dep/_/-}"
+      bitbucket_repo="ignitionrobotics/${dep//_/-}"
     fi
 
     hg clone http://bitbucket.org/\$bitbucket_repo -b ${dep_branch} \
