@@ -13,6 +13,7 @@ echo # END SECTION
 :: call %win_lib% :remove_vcpkg_package protobuf
 :: call %win_lib% :remove_vcpkg_package freeimage
 :: call %win_lib% :remove_vcpkg_package qt5-base
+call %win_lib% :disable_vcpkg_integration
 
 :: IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto %win_lib% :error
 :: reusing the workspace
