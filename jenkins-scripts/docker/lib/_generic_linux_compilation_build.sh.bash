@@ -52,6 +52,9 @@ cat >> build.sh << DELIM_BUILD_DEPS
 
     if [[ ${dep/ign} == ${dep} ]]; then
       bitbucket_repo="osrf/${dep}"
+    elif [[ ${dep} == "ign_fuel_tools"} ]]; then
+      # handle fuel as a special case
+      bitbucket_repo="ignitionrobotics/ign-fuel-tools"
     else
       # need to replace _ by -
       bitbucket_repo="ignitionrobotics/${dep/_/-}"
