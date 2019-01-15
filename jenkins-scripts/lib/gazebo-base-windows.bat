@@ -9,10 +9,8 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc2017_compiler
 echo # END SECTION
 
-:: avoid the use of protoc from vcpkg
-call %win_lib% :remove_vcpkg_package protobuf
-call %win_lib% :remove_vcpkg_package freeimage
-call %win_lib% :remove_vcpkg_package qt5-base
+:: avoid conflicts with vcpkg packages
+call %win_lib% :disable_vcpkg_integration
 
 :: IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto %win_lib% :error
 :: reusing the workspace

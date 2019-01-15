@@ -9,6 +9,9 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc_compiler
 echo # END SECTION
 
+:: avoid conflicts with vcpkg packages
+call %win_lib% :disable_vcpkg_integration
+
 :: IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto %win_lib% :error
 :: reusing the workspace
 
