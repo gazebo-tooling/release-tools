@@ -10,9 +10,9 @@ call %win_lib% :configure_msvc2017_compiler
 echo # END SECTION
 
 :: avoid the use of protoc from vcpkg
-call %win_lib% :remove_vcpkg_package protobuf
-call %win_lib% :remove_vcpkg_package freeimage
-call %win_lib% :remove_vcpkg_package qt5-base
+:: call %win_lib% :remove_vcpkg_package protobuf
+:: call %win_lib% :remove_vcpkg_package freeimage
+:: call %win_lib% :remove_vcpkg_package qt5-base
 
 :: IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto %win_lib% :error
 :: reusing the workspace
