@@ -240,7 +240,8 @@ goto :EOF
 :install_vcpkg_package
 :: arg1: package to install
 set LIB_DIR=%~dp0
-call %LIB_DIR%\windows_env_vars.bat || goto :error
+echo %LIB_DIR%\windows_env_vars.bat
+call %LIB_DIR%\windows_env_vars.bat
 
 %VCPKG_CMD% install "%1"
 goto :EOF
@@ -268,5 +269,5 @@ goto EOF
 :error - error routine
 ::
 echo Failed with error #%errorlevel%.
-exit /b %errorlevel%
+exit /B %errorlevel%
 goto :EOF
