@@ -54,6 +54,9 @@ IF %USE_IGNITION_ZIP% == FALSE (
 )
 
 echo # BEGIN SECTION: download and uncompress dependencies
+:: avoid conflicts with vcpkg packages
+call %win_lib% :disable_vcpkg_integration
+
 cd %LOCAL_WS%
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip
 
