@@ -28,7 +28,7 @@ fi
 DELIM_HEADER
 
 # Process the source build of dependencies if needed
-OSRF_DEPS="IGN_CMAKE IGN_TOOLS IGN_MATH IGN_MSGS IGN_TRANSPORT IGN_COMMON SDFORMAT IGN_RENDERING IGN_SENSORS IGN_GUI IGN_GAZEBO"
+OSRF_DEPS="IGN_CMAKE IGN_TOOLS IGN_MATH IGN_MSGS IGN_TRANSPORT IGN_COMMON IGN_FUEL_TOOLS SDFORMAT IGN_RENDERING IGN_SENSORS IGN_GUI IGN_GAZEBO"
 OSRF_DEPS_DONE=""
 for dep_uppercase in $OSRF_DEPS; do
   dep=`echo $dep_uppercase | tr '[:upper:]' '[:lower:]'`
@@ -54,7 +54,7 @@ cat >> build.sh << DELIM_BUILD_DEPS
       bitbucket_repo="osrf/${dep}"
     else
       # need to replace _ by -
-      bitbucket_repo="ignitionrobotics/${dep/_/-}"
+      bitbucket_repo="ignitionrobotics/${dep//_/-}"
     fi
 
     hg clone http://bitbucket.org/\$bitbucket_repo -b ${dep_branch} \

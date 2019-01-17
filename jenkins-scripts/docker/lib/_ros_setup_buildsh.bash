@@ -56,9 +56,6 @@ echo '# END SECTION'
 fi
 
 echo '# BEGIN SECTION: run rosdep'
-if ${ROS2}; then
- export ROSDISTRO_INDEX_URL='https://raw.githubusercontent.com/ros2/rosdistro/ros2/index.yaml'
-fi
 # Step 2: configure and build
 [[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]] && rosdep init
 # Hack for not failing when github is down
