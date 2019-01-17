@@ -240,8 +240,7 @@ goto :EOF
 :install_vcpkg_package
 :: arg1: package to install
 set LIB_DIR=%~dp0
-echo %LIB_DIR%\windows_env_vars.bat
-call %LIB_DIR%\windows_env_vars.bat
+call %LIB_DIR%\windows_env_vars.bat || goto :error
 
 %VCPKG_CMD% install "%1"
 goto :EOF
