@@ -28,7 +28,7 @@ ignition_no_test            = [ 'tools' ]
 // No branches in ignition_branches means no released branches (only CI on
 // default, ABI check, install pkg)
 ignition_branches           = [ 'common'     : [ '1' ],
-                                'fuel-tools' : [ '1' ],
+                                'fuel-tools' : [ '1', '2' ],
                                 'math'       : [ '2', '3','4' ],
                                 'msgs'       : [ '1' ],
                                 'plugin'     : [ '0' ],
@@ -48,7 +48,6 @@ ignition_prerelease_branches = [ 'cmake'     : [ 'gz11' ],
 // don't appear in ignition_branches
 ignition_debbuild  = ignition_software + [ 'cmake1','cmake2',
                                            'common2',
-                                           'fuel-tools2',
                                            'math5',
                                            'msgs0', 'msgs2',
                                            'transport5' ]
