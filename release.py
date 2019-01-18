@@ -369,7 +369,7 @@ def generate_upload_tarball(args):
     generate_package_source(srcdir, builddir)
 
     # Upload tarball. Do not include versions in tarballs
-    tarball_name = re.sub(r'[0-9]$','', args.package)
+    tarball_name = re.sub(r'[0-9]+$','', args.package)
 
     # Trick to make mentor job project to get proper URLs
     if args.package == "mentor2":
@@ -377,7 +377,7 @@ def generate_upload_tarball(args):
 
     # For ignition, we use the alias without version numbers as package name
     if IGN_REPO:
-        tarball_name = re.sub(r'[0-9]$','', args.package_alias)
+        tarball_name = re.sub(r'[0-9]+$','', args.package_alias)
 
     tarball_sha, tarball_fname, tarball_path = create_tarball_path(tarball_name, args.version, builddir, args.dry_run)
 
