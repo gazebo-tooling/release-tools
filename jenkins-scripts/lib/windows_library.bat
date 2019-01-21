@@ -257,16 +257,15 @@ goto :EOF
 :: ##################################
 :enable_vcpkg_integration
 %VCPKG_CMD% integrate install || goto :error
-goto EOF
+goto :EOF
 
 :: ##################################
 :disable_vcpkg_integration
 %VCPKG_CMD% integrate uninstall || goto :error
-goto EOF
+goto :EOF
 
 :: ##################################
 :error - error routine
 ::
-echo Failed with error #%errorlevel%.
-exit /b %errorlevel%
-goto :EOF
+echo Failed in windows_library with error #%errorlevel%.
+exit /B %errorlevel%

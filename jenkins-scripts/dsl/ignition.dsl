@@ -595,6 +595,10 @@ ignition_software.each { ign_sw ->
 
     ignition_win_ci_job.with
     {
+        // ign-gui default branch doesn't work on windows
+        if (("${branch}" == "default") && ("${ign_sw}" == "gui"))
+          disabled()
+
         triggers {
           scm('@daily')
         }
