@@ -46,7 +46,7 @@ ${BREW} ruby -e "puts 'brew ruby success'"
 
 # tap osrf/simulation
 ${BREW} tap osrf/simulation
-TAP_PREFIX=${BREW_PREFIX}/Homebrew/Library/Taps/osrf/homebrew-simulation
+TAP_PREFIX=$(${BREW} --repo osrf/simulation)
 GIT="git -C ${TAP_PREFIX}"
 ${GIT} remote add pr_head ${PULL_REQUEST_HEAD_REPO}
 # unshallow to get a full clone able to push
