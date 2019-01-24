@@ -48,6 +48,7 @@ ${BREW} ruby -e "puts 'brew ruby success'"
 ${BREW} tap osrf/simulation
 TAP_PREFIX=$(${BREW} --repo osrf/simulation)
 GIT="git -C ${TAP_PREFIX}"
+${GIT} remote remove pr_head || true
 ${GIT} remote add pr_head ${PULL_REQUEST_HEAD_REPO}
 # unshallow to get a full clone able to push
 ${GIT} fetch --unshallow
