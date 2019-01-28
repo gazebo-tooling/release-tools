@@ -35,35 +35,19 @@ set -x # back to debug
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: download linuxbrew'
-# comment out the following two lines for faster debugging if it has already been cloned
-BREW_PREFIX="${PWD}/linuxbrew"
-GIT="git -C ${BREW_PREFIX}"
-if ${GIT} remote -v | grep Linuxbrew/brew.git ; then
-  # copying cleanup_before git commands from test-bot.rb
-  echo "Cleaning up existing linuxbrew repository"
-  ${GIT} gc --auto
-  ${GIT} stash
-  ${GIT} am --abort
-  ${GIT} rebase --abort
-  ${GIT} reset --hard
-  ${GIT} checkout -f master
-  ${GIT} clean -ffdx
-  ${GIT} pull
-else
-  echo "Cloning new copy of linuxbrew repository"
-  rm -rf brew
-  git clone https://github.com/Linuxbrew/brew.git
-fi
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
 echo '# END SECTION'
 
-BREW=${PWD}/brew/bin/brew
+BREW_PREFIX="/home/linuxbrew/.linuxbrew"
+BREW=${BREW_PREFIX}/bin/brew
 ${BREW} up
 
 ${BREW} ruby -e "puts 'brew ruby success'"
 
 # tap osrf/simulation
+${BREW} untap osrf/simulation || true
 ${BREW} tap osrf/simulation
-TAP_PREFIX=${PWD}/brew/Library/Taps/osrf/homebrew-simulation
+TAP_PREFIX=$(${BREW} --repo osrf/simulation)
 GIT="git -C ${TAP_PREFIX}"
 ${GIT} remote add pr_head ${PULL_REQUEST_HEAD_REPO}
 # unshallow to get a full clone able to push
