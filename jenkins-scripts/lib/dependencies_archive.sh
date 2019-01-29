@@ -597,13 +597,22 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                            libignition-math6-dev"
 fi
 
-IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
-                             libignition-common-dev \\
-                             libignition-tools-dev  \\
+IGN_FUEL_TOOLS_DEPENDENCIES=" libignition-tools-dev  \\
                              libcurl4-openssl-dev   \\
                              libjsoncpp-dev         \\
                              libyaml-dev            \\
                              libzip-dev"
+
+if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -le 2 ]]; then
+  IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
+                               libignition-cmake-dev  \\
+                               libignition-common-dev"
+else
+  IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
+                               libignition-cmake2-dev  \\
+                               libignition-common3-dev
+                               libtinyxml2-dev"
+fi
 
 IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
                        libprotobuf-dev       \\
