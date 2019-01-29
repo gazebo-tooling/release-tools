@@ -615,7 +615,7 @@ if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -le 2 ]]; then
 else
   IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
                                libignition-cmake2-dev  \\
-                               libignition-common3-dev
+                               libignition-common3-dev \\
                                libtinyxml2-dev"
 fi
 
