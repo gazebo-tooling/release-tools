@@ -29,6 +29,9 @@ mkdir %LOCAL_WS% || echo "The workspace already exists. Fine"
 cd %LOCAL_WS% || goto :error
 
 echo # BEGIN SECTION: downloading ign-transport dependencies and unzip
+:: avoid conflicts with vcpkg packages
+call %win_lib% :disable_vcpkg_integration
+
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zeromq-4.0.4-%PLATFORM_TO_BUILD%.zip zeromq-4.0.4-%PLATFORM_TO_BUILD%.zip

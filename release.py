@@ -102,7 +102,10 @@ def parse_args(argv):
                         help='use ignition robotics URL repositories instead of OSRF')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
-
+    parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
+                        help='extra OSRF repository to use in the build')
+    parser.add_argument('--nightly-src-branch', dest='nightly_branch', default="default",
+                        help='branch in the source code repository to build the nightly from')
 
     args = parser.parse_args()
     if not args.package_alias:
@@ -115,6 +118,7 @@ def parse_args(argv):
     UPLOAD_REPO = args.upload_to_repository
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
+        NIGHTLY_BRANCH = args.nightly_branch
     if args.upload_to_repository == 'prerelease':
         PRERELEASE = True
     # Upstream and nightly do not generate a tar.bz2 file
@@ -365,7 +369,7 @@ def generate_upload_tarball(args):
     generate_package_source(srcdir, builddir)
 
     # Upload tarball. Do not include versions in tarballs
-    tarball_name = re.sub(r'[0-9]$','', args.package)
+    tarball_name = re.sub(r'[0-9]+$','', args.package)
 
     # Trick to make mentor job project to get proper URLs
     if args.package == "mentor2":
@@ -373,7 +377,7 @@ def generate_upload_tarball(args):
 
     # For ignition, we use the alias without version numbers as package name
     if IGN_REPO:
-        tarball_name = re.sub(r'[0-9]$','', args.package_alias)
+        tarball_name = re.sub(r'[0-9]+$','', args.package_alias)
 
     tarball_sha, tarball_fname, tarball_path = create_tarball_path(tarball_name, args.version, builddir, args.dry_run)
 
@@ -457,13 +461,17 @@ def go(argv):
     params['UPLOAD_TO_REPO'] = args.upload_to_repository
     # Assume that we want stable + own repo in the building
     params['OSRF_REPOS_TO_USE'] = "stable " + args.upload_to_repository
+    if args.extra_repo:
+        params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
     if args.upload_to_repository in OSRF_REPOS_SELF_CONTAINED:
         params['OSRF_REPOS_TO_USE'] = args.upload_to_repository
 
     if NIGHTLY:
         params['VERSION'] = 'nightly'
-        params['SOURCE_TARBALL_URI'] = ''
+        # reuse SOURCE_TARBALL_URI to indicate the nightly branch
+        # name must be modified in the future
+        params['SOURCE_TARBALL_URI'] = args.nightly_branch
 
     if UPSTREAM:
         job_name = JOB_NAME_UPSTREAM_PATTERN%(args.package)
@@ -476,8 +484,8 @@ def go(argv):
     brew_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL,
                                                    GENERIC_BREW_PULLREQUEST_JOB,
                                                    params_query)
-    print('- Brew: %s'%(brew_url))
     if not DRY_RUN and not NIGHTLY:
+        print('- Brew: %s'%(brew_url))
         urllib.urlopen(brew_url)
 
     # RELEASING FOR LINUX
@@ -504,15 +512,16 @@ def go(argv):
                 linux_platform_params['DISTRO'] = d
 
                 if (a == 'armhf' or a == 'arm64'):
+                    # No sid releases for arm64/armhf lack of docker image
+                    # https://hub.docker.com/r/aarch64/debian/ fails on Jenkins
+                    if (d == 'sid'):
+                        continue
                     # Need to use JENKINS_NODE_TAG parameter for large memory nodes
                     # since it runs qemu emulation
                     linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
 
                 if (NIGHTLY and a == 'i386'):
-                    # only keep i386 for sdformat in nightly,
-                    # just to test CI infrastructure
-                    if (not args.package[:-1] == 'sdformat'):
-                        continue
+                    continue
 
                 linux_platform_params_query = urllib.urlencode(linux_platform_params)
 

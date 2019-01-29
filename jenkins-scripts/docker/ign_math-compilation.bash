@@ -35,9 +35,9 @@ fi
 
 . "${SCRIPT_DIR}/lib/_gz11_hook.bash"
 
-if [[ $(date +%Y%m%d) -le 20181231 ]]; then
-  ## need prerelease repo to get ignition-cmake[12]
-  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
+# Enable prerelease and nightly repos until a certain date
+if [[ $(date +%Y%m%d) -le 20190201 ]]; then
+  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
 fi
 
 . "${SCRIPT_DIR}/lib/generic-building-base.bash"

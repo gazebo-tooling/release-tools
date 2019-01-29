@@ -602,6 +602,11 @@ IGN_FUEL_TOOLS_DEPENDENCIES=" libignition-tools-dev  \\
                              libjsoncpp-dev         \\
                              libyaml-dev            \\
                              libzip-dev"
+if [[ ${DISTRO} != 'xenial' ]]; then
+  IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
+                           libignition-cmake2-dev \\
+                           libignition-common3-dev"
+fi
 
 if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -le 2 ]]; then
   IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
@@ -732,6 +737,7 @@ IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev     \\
                          libignition-msgs3-dev       \\
                          libignition-physics-dev       \\
                          libignition-plugin-dev       \\
+                         libignition-sensors-dev \\
                          libignition-tools-dev \\
                          libignition-transport6-dev \\
                          libignition-rendering-dev \\

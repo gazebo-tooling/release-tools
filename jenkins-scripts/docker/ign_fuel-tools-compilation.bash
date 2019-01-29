@@ -30,8 +30,7 @@ if ! [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 if [[ $(date +%Y%m%d) -le 20190301 ]]; then
-  ## need prerelease repo to get ignition-cmake2 during the development cycle
-  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
+  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
 fi
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
