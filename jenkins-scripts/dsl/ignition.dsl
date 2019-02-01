@@ -352,7 +352,7 @@ ignition_software.each { ign_sw ->
             (("${ign_sw}" == "common")    && ("${major_version}" == "3")) ||
             (("${ign_sw}" == "math")      && ("${major_version}" == "6")) ||
             (("${ign_sw}" == "msgs")      && ("${major_version}" == "3")) ||
-            (("${ign_sw}" == "transport") && ("${major_version}" == "6")))
+            (("${ign_sw}" == "transport") && ("${major_version}" == "6"))))
           return
 
         extra_repos_str=""
