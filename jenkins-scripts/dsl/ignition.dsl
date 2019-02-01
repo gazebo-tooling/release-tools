@@ -27,7 +27,7 @@ ignition_no_test            = [ 'tools' ]
 // testing and debbuild job.
 // No branches in ignition_branches means no released branches (only CI on
 // default, ABI check, install pkg)
-ignition_branches           = [ 'cmake'      : [ '0', '1', '2' ],
+ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'common'     : [ '1' ],
                                 'fuel-tools' : [ '1', '2', '3' ],
                                 'math'       : [ '2', '3', '4', '5', '6' ],
@@ -45,7 +45,8 @@ ignition_prerelease_branches = [ 'common'    : [ 'gz11' ],
                                  'transport' : [ 'gz11' ]]
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches
-ignition_debbuild  = ignition_software + [ 'common2',
+ignition_debbuild  = ignition_software + [ 'cmake1',
+                                           'common2',
                                            'msgs0', 'msgs2',
                                            'transport5' ]
 // DESC: exclude ignition from generate any install testing job
