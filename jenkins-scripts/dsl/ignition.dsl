@@ -346,6 +346,14 @@ ignition_software.each { ign_sw ->
         // no rndf install
         if ("${ign_sw}" == "rndf")
           return
+        // no xenial support for cmake2 and things that use it
+        if (("${distro}" == "xenial") && (
+            (("${ign_sw}" == "cmake")     && ("${major_version}" == "2")) ||
+            (("${ign_sw}" == "common")    && ("${major_version}" == "3")) ||
+            (("${ign_sw}" == "math")      && ("${major_version}" == "6")) ||
+            (("${ign_sw}" == "msgs")      && ("${major_version}" == "3")) ||
+            (("${ign_sw}" == "transport") && ("${major_version}" == "6")))
+          return
 
         extra_repos_str=""
         if ((ign_sw in ignition_prerelease_pkgs) &&
