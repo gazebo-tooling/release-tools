@@ -509,6 +509,7 @@ all_debbuild_branches.each { branch ->
         shell("""\
               #!/bin/bash -xe
 
+              export ENABLE_ROS=false
               /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
               """.stripIndent())
       }
