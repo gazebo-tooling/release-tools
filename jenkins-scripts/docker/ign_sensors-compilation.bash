@@ -22,7 +22,7 @@ export NEEDS_GZ11_SUPPORT=true
 . "${SCRIPT_DIR}/lib/_gz11_hook.bash"
 
 # Enable prerelease and nightly repos until a certain date
-if [[ $(date +%Y%m%d) -le 20190201 ]]; then
+if [[ $(date +%Y%m%d) -le 20190301 ]]; then
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
 fi
 
