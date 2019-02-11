@@ -679,8 +679,7 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                         libignition-transport6-dev"
 fi
 
-IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
-                          dart6-data \\
+IGN_PHYSICS_DEPENDENCIES="dart6-data \\
                           libdart6-dev \\
                           libdart6-utils-urdf-dev \\
                           libignition-cmake2-dev \\
