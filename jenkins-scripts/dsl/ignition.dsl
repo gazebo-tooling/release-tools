@@ -39,8 +39,7 @@ ignition_branches           = [ 'cmake'      : [ '1', '2' ],
 // physics/sensors don't need to be included since they use default for gz11
 ignition_prerelease_branches = [ 'common'    : [ 'gz11' ],
                                  'gui'       : [ 'gz11' ],
-                                 'rendering' : [ 'gz11' ],
-                                 'transport' : [ 'gz11' ]]
+                                 'rendering' : [ 'gz11' ]]
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches
 ignition_debbuild  = ignition_software + [ 'cmake1',
@@ -431,7 +430,8 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "physics") ||
               ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
               ("${ign_sw}" == "fuel-tools" && "${branch}" != "ign-fuel-tools1") ||
-              ("${ign_sw}" == "sensors")))
+              ("${ign_sw}" == "sensors") ||
+              ("${ign_sw}" == "transport" && "${branch}" == "default")))
             disabled()
 
           // gz11 branches don't work on trusty or xenial
