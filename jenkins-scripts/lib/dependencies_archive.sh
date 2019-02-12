@@ -680,7 +680,7 @@ if [[ ${DISTRO} != 'xenial' ]]; then
 fi
 
 IGN_PHYSICS_DEPENDENCIES="dart6-data \\
-                          libdart6-collision-odev-de \\
+                          libdart6-collision-ode-dev \\
                           libdart6-dev \\
                           libdart6-utils-urdf-dev \\
                           libignition-cmake2-dev \\
