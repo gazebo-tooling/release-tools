@@ -422,6 +422,8 @@ ignition_software.each { ign_sw ->
           if (("${distro}" == "xenial") && (
               ("${ign_sw}" == "cmake" && "${branch}" == "ign-cmake2") ||
               ("${ign_sw}" == "cmake" && "${branch}" == "default") ||
+              ("${ign_sw}" == "common" && "${branch}" == "default") ||
+              ("${ign_sw}" == "common" && "${branch}" == "ign-common3") ||
               ("${ign_sw}" == "gazebo") ||
               ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
               ("${ign_sw}" == "math" && "${branch}" == "default") ||
@@ -429,7 +431,8 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "physics") ||
               ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
               ("${ign_sw}" == "fuel-tools" && "${branch}" != "ign-fuel-tools1") ||
-              ("${ign_sw}" == "sensors")))
+              ("${ign_sw}" == "sensors") ||
+              ("${ign_sw}" == "transport" && "${branch}" == "default")))
             disabled()
 
           // gz11 branches don't work on trusty or xenial
