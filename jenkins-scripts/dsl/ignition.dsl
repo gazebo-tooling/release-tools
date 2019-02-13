@@ -28,7 +28,7 @@ ignition_no_test            = [ 'tools' ]
 // No branches in ignition_branches means no released branches (only CI on
 // default, ABI check, install pkg)
 ignition_branches           = [ 'cmake'      : [ '1', '2' ],
-                                'common'     : [ '1', '2' ],
+                                'common'     : [ '1', '2', '3' ],
                                 'fuel-tools' : [ '1', '2', '3' ],
                                 'math'       : [ '2', '3', '4', '5', '6' ],
                                 'msgs'       : [ '1', '2' ],
