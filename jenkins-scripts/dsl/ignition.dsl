@@ -424,6 +424,7 @@ ignition_software.each { ign_sw ->
           if (("${distro}" == "xenial") && (
               ("${ign_sw}" == "cmake" && "${branch}" == "ign-cmake2") ||
               ("${ign_sw}" == "cmake" && "${branch}" == "default") ||
+              ("${ign_sw}" == "common" && "${branch}" == "ign-common3") ||
               ("${ign_sw}" == "gazebo") ||
               ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
               ("${ign_sw}" == "math" && "${branch}" == "default") ||
