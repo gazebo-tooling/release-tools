@@ -37,10 +37,8 @@ ignition_branches           = [ 'cmake'      : [ '1', '2' ],
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use default for gz11
-ignition_prerelease_branches = [ 'common'    : [ 'gz11' ],
-                                 'gui'       : [ 'gz11' ],
-                                 'rendering' : [ 'gz11' ],
-                                 'transport' : [ 'gz11' ]]
+ignition_prerelease_branches = [ 'gui'       : [ 'gz11' ],
+                                 'rendering' : [ 'gz11' ]]
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches
 ignition_debbuild  = ignition_software + [ 'cmake1',
@@ -424,7 +422,6 @@ ignition_software.each { ign_sw ->
           if (("${distro}" == "xenial") && (
               ("${ign_sw}" == "cmake" && "${branch}" == "ign-cmake2") ||
               ("${ign_sw}" == "cmake" && "${branch}" == "default") ||
-              ("${ign_sw}" == "common" && "${branch}" == "ign-common3") ||
               ("${ign_sw}" == "gazebo") ||
               ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
               ("${ign_sw}" == "math" && "${branch}" == "default") ||
