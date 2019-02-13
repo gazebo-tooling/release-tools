@@ -28,7 +28,7 @@ ignition_no_test            = [ 'tools' ]
 // No branches in ignition_branches means no released branches (only CI on
 // default, ABI check, install pkg)
 ignition_branches           = [ 'cmake'      : [ '1', '2' ],
-                                'common'     : [ '1', '2' ],
+                                'common'     : [ '1', '2', '3' ],
                                 'fuel-tools' : [ '1', '2', '3' ],
                                 'math'       : [ '2', '3', '4', '5', '6' ],
                                 'msgs'       : [ '1', '2' ],
@@ -423,6 +423,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "cmake" && "${branch}" == "ign-cmake2") ||
               ("${ign_sw}" == "cmake" && "${branch}" == "default") ||
               ("${ign_sw}" == "common" && "${branch}" == "default") ||
+              ("${ign_sw}" == "common" && "${branch}" == "ign-common3") ||
               ("${ign_sw}" == "gazebo") ||
               ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
               ("${ign_sw}" == "math" && "${branch}" == "default") ||
