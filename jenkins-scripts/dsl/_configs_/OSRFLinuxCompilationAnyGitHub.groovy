@@ -29,10 +29,11 @@ class OSRFLinuxCompilationAnyGitHub
 
     ArrayList supported_ros_branches = []
     supported_ros_distros.each { ros_distro ->
-      if (ros_distro == 'crystal') {
-        // during the port to ros2 the branch is using ros2 name and the
-        // ros distro is crystal
+      if (ros_distro == 'dashing') {
+        // Latest unreleased distro points to ros2
         supported_ros_branches.add("ros2")
+      } else if (ros_distro == 'crystal') {
+        supported_ros_branches.add("crystal")
       } else {
         // Keep the toString method to be sure that String is used and not
         // GStringImp which will make the whole thing to fail.
