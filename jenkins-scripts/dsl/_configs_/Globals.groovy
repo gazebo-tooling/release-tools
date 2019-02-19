@@ -109,7 +109,7 @@ class Globals
 
    static ArrayList get_ros2_suported_distros()
    {
-     return [ 'crystal', 'dashing' ]
+     return [ 'crystal' ]
    }
 
    static String get_gz11_ubuntu_distro()
