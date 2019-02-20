@@ -700,7 +700,7 @@ fi
 IGN_PLUGINS_DEPENDENCIES="libignition-cmake2-dev \\
                           libignition-common3-dev \\
                           libignition-gazebo-dev \\
-                          libignition-gui1-dev \\
+                          libignition-gui-dev \\
                           libignition-msgs3-dev \\
                           libignition-plugin-dev \\
                           libignition-tools-dev \\
