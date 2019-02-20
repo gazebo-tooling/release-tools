@@ -30,7 +30,7 @@ if ! [[ ${IGN_PLUGINS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 # Enable prerelease and nightly repos until a certain date
-if [[ $(date +%Y%m%d) -le 20190201 ]]; then
+if [[ $(date +%Y%m%d) -le 20190301 ]]; then
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
 fi
 
