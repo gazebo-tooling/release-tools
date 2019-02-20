@@ -697,6 +697,19 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                            libignition-cmake2-dev"
 fi
 
+IGN_PLUGINS_DEPENDENCIES="libignition-cmake2-dev \\
+                          libignition-common3-dev \\
+                          libignition-gazebo-dev \\
+                          libignition-gui1-dev \\
+                          libignition-msgs3-dev \\
+                          libignition-plugin1-dev \\
+                          libignition-tools-dev \\
+                          libignition-transport6-dev \\
+                          libsdformat8-dev \\
+                          libtinyxml2-dev  \\
+                          qtquickcontrols2-5-dev \\
+                          libqt5core5a"
+
 IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev \\
                             libfreeimage-dev \\
