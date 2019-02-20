@@ -432,6 +432,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
               ("${ign_sw}" == "fuel-tools" && "${branch}" != "ign-fuel-tools1") ||
               ("${ign_sw}" == "sensors") ||
+              ("${ign_sw}" == "tools") ||
               ("${ign_sw}" == "transport" && "${branch}" == "default")))
             disabled()
 
