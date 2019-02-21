@@ -8,4 +8,4 @@ set DEPEN_PKGS="qt5 tinyxml2"
 set COLCON_PACKAGE=ignition-plugins
 set COLCON_AUTO_MAJOR_VERSION=true
 
-call "%SCRIPT_DIR%/lib/generic-default-devel-windows.bat"
+call "%SCRIPT_DIR%\lib\colcon-default-devel-windows.bat"
