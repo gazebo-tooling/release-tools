@@ -697,7 +697,7 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                            libignition-cmake2-dev"
 fi
 
-IGN_PLUGINS_DEPENDENCIES="libignition-cmake2-dev \\
+IGN_LAUNCH_DEPENDENCIES="libignition-cmake2-dev \\
                           libignition-common3-dev \\
                           libignition-gazebo-dev \\
                           libignition-gui-dev \\

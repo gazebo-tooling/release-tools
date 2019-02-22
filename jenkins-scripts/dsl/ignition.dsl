@@ -7,11 +7,11 @@ ignition_software = [ 'cmake',
                       'fuel-tools',
                       'gazebo',
                       'gui',
+                      'launch',
                       'math',
                       'msgs',
                       'physics',
                       'plugin',
-                      'plugins',
                       'rendering',
                       'rndf',
                       'sensors',
@@ -47,9 +47,9 @@ ignition_debbuild  = ignition_software + [ 'cmake1',
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [ 'gazebo',
                                 'gui',
+                                'launch',
                                 'physics',
                                 'plugin',
-                                'plugins',
                                 'rndf',
                                 'sensors' ]
 // DESC: major versions that has a package in the prerelease repo. Should
@@ -71,7 +71,7 @@ ignition_prerelease_pkgs    = [ 'common' : [
                                 ]]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
-ignition_colcon_win         = [ 'gui', 'physics', 'plugins', 'rendering', 'sensors' ]
+ignition_colcon_win         = [ 'gui', 'physics', 'launch', 'rendering', 'sensors' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()

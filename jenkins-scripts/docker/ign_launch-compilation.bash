@@ -14,20 +14,20 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-plugins"
+export BUILDING_SOFTWARE_DIRECTORY="ign-launch"
 export BUILDING_JOB_REPOSITORIES="stable"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_PLUGINS_DEPENDENCIES"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_LAUNCH_DEPENDENCIES"
 export BUILD_IGN_TOOLS=true
 export IGN_TOOLS_BRANCH=launch_part2
 
-# Identify IGN_PLUGINS_MAJOR_VERSION to help with dependency resolution
-IGN_PLUGINS_MAJOR_VERSION=$(\
+# Identify IGN_LAUNCH_MAJOR_VERSION to help with dependency resolution
+IGN_LAUNCH_MAJOR_VERSION=$(\
   python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
-  ${WORKSPACE}/ign-plugins/CMakeLists.txt)
+  ${WORKSPACE}/ign-launch/CMakeLists.txt)
 
-# Check IGN_PLUGINS version is integer
-if ! [[ ${IGN_PLUGINS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
-  echo "Error! IGN_PLUGINS_MAJOR_VERSION is not an integer, check the detection"
+# Check IGN_LAUNCH version is integer
+if ! [[ ${IGN_LAUNCH_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+  echo "Error! IGN_LAUNCH_MAJOR_VERSION is not an integer, check the detection"
   exit -1
 fi
 
