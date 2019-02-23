@@ -21,7 +21,7 @@ case "$DISTRO" in
     export ROS_DISTRO=melodic
     ;;
   *)
-    echo "Only trusty+indigo, xenial+kinetic, ore bionic+melodic are supported"
+    echo "Only trusty+indigo, xenial+kinetic, or bionic+melodic are supported"
     exit 1
     ;;
 esac
