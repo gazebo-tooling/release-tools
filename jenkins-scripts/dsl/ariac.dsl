@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def supported_distros = [ 'xenial' ]
+def supported_distros = [ 'bionic' ]
 def supported_arches = [ 'amd64' ]
 
 // LINUX
@@ -49,6 +49,8 @@ supported_distros.each { distro ->
        ros_distro = 'indigo'
     else if (distro == 'xenial')
        ros_distro = 'kinetic'
+    else if (distro == 'bionic')
+       ros_distro = 'melodic'
 
     // --------------------------------------------------------------
     // 2. Create the install test job

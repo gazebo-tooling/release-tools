@@ -6,7 +6,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export GPU_SUPPORT_NEEDED=true
 
-export INSTALL_JOB_PKG="ariac2"
+export INSTALL_JOB_PKG="ariac3"
 export INSTALL_JOB_REPOS="stable"
 export USE_ROS_REPO=true
 
@@ -17,8 +17,11 @@ case "$DISTRO" in
   'xenial')
     export ROS_DISTRO=kinetic
     ;;
+  'bionic')
+    export ROS_DISTRO=melodic
+    ;;
   *)
-    echo "Only trusty+indigo and xenial+kinetic are supported"
+    echo "Only trusty+indigo, xenial+kinetic, ore bionic+melodic are supported"
     exit 1
     ;;
 esac
