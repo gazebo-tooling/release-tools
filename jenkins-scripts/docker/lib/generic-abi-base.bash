@@ -41,7 +41,7 @@ cat > build.sh << DELIM
 set -ex
 
 # Bug in gcc5 with eigen see: https://bitbucket.org/osrf/release-tools/issues/147
-if [[ $DISTRO == "xenial ]]; then
+if [[ $DISTRO == xenial ]]; then
   apt-get update
   apt-get install gcc-6
   update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 10
