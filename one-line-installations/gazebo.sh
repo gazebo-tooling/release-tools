@@ -309,6 +309,7 @@ do_install() {
 			  brew install ${BREW_PKG_NAME}
 			  brew audit ${BREW_PKG_NAME} || true
 			  brew test ${BREW_PKG_NAME}
+			  brew doctor
 			)
 
 			exit 0
