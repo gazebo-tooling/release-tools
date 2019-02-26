@@ -9,6 +9,7 @@ import javaposse.jobdsl.dsl.Job
      - scm check with SRC_REPO + SRC_BRANCH
 */
 
+NO_REPO = null
 
 class GenericAnyJob
 {
@@ -20,31 +21,42 @@ class GenericAnyJob
      GenericMail.update_field(job, 'defaultContent', 
                     '$JOB_DESCRIPTION \n' + GenericCompilation.get_compilation_mail_content())
 
-     String subdirectoy = repo.tokenize('/').last()
 
      job.with
      {
-        parameters { 
-	  stringParam('SRC_REPO', repo,'URL pointing to repository')
-	  stringParam('SRC_BRANCH','default','Branch of SRC_REPO to test')
-	  stringParam('JOB_DESCRIPTION','','Description of the job in course. For information proposes.')
-	}
+        if (repo != NO_REPO) {
+          String subdirectoy = repo.tokenize('/').last()
+
+          parameters { 
+            stringParam('SRC_REPO', repo,'URL pointing to repository')
+            stringParam('SRC_BRANCH','default','Branch of SRC_REPO to test')
+          }
+        }
+
+        parameters {
+          stringParam('JOB_DESCRIPTION','','Description of the job in course. For information proposes.')
+        }
 
         steps
         {
-           systemGroovyCommand("""\
+          if (repo == NO_REPO)
+             repo_line = ""
+          else
+             repo_line = "'repo: ' + build.buildVariableResolver.resolve('SRC_REPO') + '<br />'"
+            
+          systemGroovyCommand("""\
                 job_description = build.buildVariableResolver.resolve('JOB_DESCRIPTION')
 
                 if (job_description == "")
                 {
-                  job_description = 'branch: <b>' + build.buildVariableResolver.resolve('SRC_BRANCH') + '</b><br />' +
-                                    'repo: ' + build.buildVariableResolver.resolve('SRC_REPO') + '<br />' +
+                  job_description = 'branch: <b>' + build.buildVariableResolver.resolve('SRC_BRANCH') + '</b><br />' + 
+                                """ + repo_line + """
                                     'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH')
                 }
 
                 build.setDescription(job_description)
                 """.stripIndent()
-           )
+          )
         }
 
         scm {
