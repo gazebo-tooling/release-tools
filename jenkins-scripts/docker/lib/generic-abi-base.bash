@@ -44,7 +44,7 @@ set -ex
 if [[ $DISTRO == xenial ]]; then
   add-apt-repository -y ppa:ubuntu-toolchain-r/test
   apt-get update
-  apt-get install -y gcc-6 g++6
+  apt-get install -y gcc-6 g++-6
   update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 10
   update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 10
   update-alternatives --config gcc
