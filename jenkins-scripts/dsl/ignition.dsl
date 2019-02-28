@@ -31,7 +31,7 @@ ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'common'     : [ '1', '2', '3' ],
                                 'fuel-tools' : [ '1', '2', '3' ],
                                 'math'       : [ '2', '3', '4', '5', '6' ],
-                                'msgs'       : [ '1', '2' ],
+                                'msgs'       : [ '1', '2', '3' ],
                                 'plugin'     : [ '0', '1' ],
                                 'transport'  : [ '3', '4', '5' ]]
 // DESC: prerelease branches are managed as any other supported branches for
@@ -56,9 +56,6 @@ ignition_prerelease_pkgs    = [ 'common' : [
                                 ],
                                 'gui'    : [
                                    '1':  [ 'bionic' ],
-                                ],
-                                'msgs'   : [
-                                   '3':  [ 'bionic' ],
                                 ],
                                 'rendering' : [
                                    '1': [ 'bionic' ],
@@ -427,6 +424,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "gazebo") ||
               ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
               ("${ign_sw}" == "math" && "${branch}" == "default") ||
+              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs3") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "default") ||
               ("${ign_sw}" == "physics") ||
               ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
