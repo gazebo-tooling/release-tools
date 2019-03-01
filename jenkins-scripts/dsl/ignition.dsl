@@ -324,6 +324,7 @@ ignition_software.each { ign_sw ->
             (("${ign_sw}" == "cmake")      && ("${major_version}" == "2")) ||
             (("${ign_sw}" == "common")     && ("${major_version}" == "3")) ||
             (("${ign_sw}" == "fuel-tools") && ("${major_version}" == "3")) ||
+             ("${ign_sw}" == "gui")        ||
             (("${ign_sw}" == "math")       && ("${major_version}" == "6")) ||
             (("${ign_sw}" == "msgs")       && ("${major_version}" == "3")) ||
              ("${ign_sw}" == "physics")    ||
