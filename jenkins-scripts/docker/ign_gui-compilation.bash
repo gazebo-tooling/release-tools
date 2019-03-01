@@ -38,11 +38,6 @@ else
   export IGN_RENDERING_BRANCH="ign-rendering${IGN_RENDERING_MAJOR_VERSION}"
 fi
 
-# Enable prerelease and nightly repos until a certain date
-if [[ $(date +%Y%m%d) -le 20190301 ]]; then
-  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
-fi
-
 export GPU_SUPPORT_NEEDED=true
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

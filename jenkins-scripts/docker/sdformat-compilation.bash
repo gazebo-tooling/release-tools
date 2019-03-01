@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 . "${SCRIPT_DIR}/lib/_sdformat_version_hook.bash"
-. "${SCRIPT_DIR}/lib/_gz11_hook.bash"
 
 export BUILDING_SOFTWARE_DIRECTORY="sdformat"
 

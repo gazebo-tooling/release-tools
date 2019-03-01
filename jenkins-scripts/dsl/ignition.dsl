@@ -56,9 +56,6 @@ ignition_prerelease_pkgs    = [ 'gui'    : [
                                 ],
                                 'physics' : [
                                    '1':  [ 'bionic' ],
-                                ],
-                                'rendering' : [
-                                   '1': [ 'bionic' ],
                                 ]]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
