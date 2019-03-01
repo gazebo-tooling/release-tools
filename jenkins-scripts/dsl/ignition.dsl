@@ -463,6 +463,10 @@ ignition_debbuild.each { ign_sw ->
     if ("${major_version}" == "1")
       major_version = ""
 
+    extra_str = ""
+    if ("${ign_sw}" == "gazebo")
+      extra_str="export USE_GCC8=true"
+
     def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
     OSRFLinuxBuildPkg.create(build_pkg_job)
     build_pkg_job.with
@@ -471,6 +475,7 @@ ignition_debbuild.each { ign_sw ->
           shell("""\
                 #!/bin/bash -xe
 
+                ${extra_str}
                 /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
                 """.stripIndent())
         }
