@@ -311,17 +311,11 @@ ignition_software.each { ign_sw ->
 
         // only a few release branches support trusty anymore
         if (("${distro}" == "trusty") && !(
-            (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
-            (("${ign_sw}" == "math") && ("${major_version}" == "3"))))
+            (("${ign_sw}" == "math") && ("${major_version}" == "2"))))
           return
         // no bionic for math2 or math3
         if (("${distro}" == "bionic") && (
-            (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
-            (("${ign_sw}" == "math") && ("${major_version}" == "3"))))
-          return
-        // no bionic for transport3
-        if (("${distro}" == "bionic") && (
-            ("${ign_sw}" == "transport") && ("${major_version}" == "3")))
+            (("${ign_sw}" == "math") && ("${major_version}" == "2"))))
           return
         // no rndf install
         if ("${ign_sw}" == "rndf")
@@ -401,13 +395,7 @@ ignition_software.each { ign_sw ->
 
           // only a few release branches support trusty anymore
           if (("${distro}" == "trusty") && !(
-              ("${branch}" == "ign-math2") ||
-              ("${branch}" == "ign-math3")))
-            disabled()
-
-          // no bionic for transport3
-          if (("${distro}" == "bionic") && (
-              ("${branch}" == "ign-transport3")))
+              ("${branch}" == "ign-math2")))
             disabled()
 
           // no xenial for ign-physics/sensors/gazebo or plugin default/ign-plugin1
