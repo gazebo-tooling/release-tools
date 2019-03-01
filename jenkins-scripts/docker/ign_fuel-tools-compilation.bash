@@ -29,8 +29,4 @@ if ! [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-if [[ $(date +%Y%m%d) -le 20190301 ]]; then
-  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
-fi
-
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
