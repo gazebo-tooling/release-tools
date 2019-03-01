@@ -50,7 +50,9 @@ ignition_no_pkg_yet         = [ 'gazebo',
                                 'rndf' ]
 // DESC: major versions that has a package in the prerelease repo. Should
 // not appear in ignition_no_pkg_yet nor in ignition_branches
-ignition_prerelease_pkgs    = [ ]
+ignition_prerelease_pkgs    = [ 'placeholder' : [
+                                   '1':  [ 'bionic' ],
+                                ]]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
 ignition_colcon_win         = [ 'gui', 'physics', 'rendering', 'sensors' ]
