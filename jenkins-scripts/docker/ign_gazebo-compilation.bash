@@ -22,6 +22,8 @@ export NEEDS_GZ11_SUPPORT=true
 . "${SCRIPT_DIR}/lib/_gz11_hook.bash"
 
 export BUILD_IGN_FUEL_TOOLS=true
+# TODO: workaround to get fuel tools dependencies detected in the right way
+export IGN_FUEL_TOOLS_MAJOR_VERSION=3
 
 if [[ $(date +%Y%m%d) -le 20190301 ]]; then
   # Enable prerelease and nightly repos until a certain date
