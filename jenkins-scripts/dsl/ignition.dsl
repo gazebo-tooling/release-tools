@@ -31,20 +31,19 @@ ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'common'     : [ '1', '2', '3' ],
                                 'fuel-tools' : [ '1', '2', '3' ],
                                 'gui'        : [ '0' ],
-                                'math'       : [ '2', '3', '4', '5', '6' ],
+                                'math'       : [ '2', '4', '5', '6' ],
                                 'msgs'       : [ '1', '2', '3' ],
                                 'plugin'     : [ '0', '1' ],
                                 'rendering'  : [ '0', '1' ],
                                 'sensors'    : [ '1' ],
-                                'transport'  : [ '3', '4', '5', '6' ]]
+                                'transport'  : [ '4', '5', '6' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use default for gz11
 ignition_prerelease_branches = [ 'gui'       : [ 'gz11' ]]
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches
-ignition_debbuild  = ignition_software + [ 'cmake1',
-                                           'msgs0' ]
+ignition_debbuild  = ignition_software + [ 'cmake1' ]
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [ 'gazebo',
                                 'gui',
@@ -56,9 +55,6 @@ ignition_prerelease_pkgs    = [ 'gui'    : [
                                 ],
                                 'physics' : [
                                    '1':  [ 'bionic' ],
-                                ],
-                                'rendering' : [
-                                   '1': [ 'bionic' ],
                                 ]]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
