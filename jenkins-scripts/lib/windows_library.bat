@@ -200,7 +200,7 @@ set COLCON_EXTRA_CMAKE_ARGS=%2
 colcon build --build-base "build"^
              --install-base "install"^
              --parallel-workers %MAKE_JOBS%^
-             %EXTRA_COLCON_ARGS%^
+             %COLCON_EXTRA_ARGS%^
              --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
                           " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
                           " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
@@ -216,10 +216,15 @@ colcon build --build-base "build"^
 
 set COLCON_PACKAGE=%1
 
-:: two runs to get the dependencies built with testing and the package under
-:: test build with tests
-call :_colcon_build_cmd "--packages-skip %COLCON_PACKAGE%" " -DBUILD_TESTING=0"
-call :_colcon_build_cmd "--packages-select %COLCON_PACKAGE%" " -DBUILD_TESTING=1"
+if "%COLCON_PACKAGE%"=="" (
+  :: no argument means build the whole workspace
+  call :_colcon_build_cmd
+) else (
+  :: two runs to get the dependencies built with testing and the package under
+  :: test build with tests
+  call :_colcon_build_cmd "--packages-skip %COLCON_PACKAGE%" " -DBUILD_TESTING=0"
+  call :_colcon_build_cmd "--packages-select %COLCON_PACKAGE%" " -DBUILD_TESTING=1"
+)
 goto :EOF
 
 :: ##################################
