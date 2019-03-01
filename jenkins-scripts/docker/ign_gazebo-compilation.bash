@@ -21,10 +21,6 @@ export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_GAZEBO_DEPENDENCIES"
 export NEEDS_GZ11_SUPPORT=true
 . "${SCRIPT_DIR}/lib/_gz11_hook.bash"
 
-export BUILD_IGN_FUEL_TOOLS=true
-# TODO: workaround to get fuel tools dependencies detected in the right way
-export IGN_FUEL_TOOLS_MAJOR_VERSION=3
-
 if [[ $(date +%Y%m%d) -le 20190301 ]]; then
   # Enable prerelease and nightly repos until a certain date
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
