@@ -18,7 +18,7 @@ ignition_collections.each { ign_collection ->
       steps {
         batchFile("""\
               set IGNITION_COLLECTION=${ign_collection}
-              call "./scripts/jenkins-scripts/lib/ign_collection-default-devel-windows-amd64.bat"
+              call "./scripts/jenkins-scripts/lib/ign_collection-base.bat"
               """.stripIndent())
       }
   }
