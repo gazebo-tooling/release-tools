@@ -9,6 +9,11 @@ if [ "${UPLOAD_TO_REPO}" = "nightly" ]; then
    NIGHTLY_SRC_BRANCH=${SOURCE_TARBALL_URI}
 fi
 
+METAPACKAGE_MODE=${METAPACKAGE_MODE:-false}
+if [ -z ${SOURCE_TARBALL_URI} ]; then
+    METAPACKAGE_MODE=true
+fi
+
 # Option to use $WORKSPACE/repo as container (git or hg) for the nightly source
 [[ -z ${USE_REPO_DIRECTORY_FOR_NIGHTLY} ]] && USE_REPO_DIRECTORY_FOR_NIGHTLY=false
 
@@ -58,6 +63,10 @@ if ${NIGHTLY_MODE}; then
   else
     REV=0
   fi
+elif ${METAPACKAGE_MODE}; then
+  echo "Metpackage mode detected, no sources"
+  mkdir metapackage
+  cd metapackage
 else
   wget --quiet -O $PACKAGE_ALIAS\_$VERSION.orig.tar.bz2 $SOURCE_TARBALL_URI
   rm -rf \$REAL_PACKAGE_NAME\-$VERSION
