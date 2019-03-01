@@ -723,6 +723,7 @@ IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
                           libignition-cmake2-dev \\
                           libignition-math6-dev      \\
                           libignition-msgs3-dev       \\
+                          libignition-plugin-dev  \\
                           libignition-tools-dev \\
                           libignition-transport6-dev \\
                           libignition-rendering-dev \\
