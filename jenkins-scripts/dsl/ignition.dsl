@@ -30,11 +30,12 @@ ignition_no_test            = [ 'tools' ]
 ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'common'     : [ '1', '2', '3' ],
                                 'fuel-tools' : [ '1', '2', '3' ],
+                                'gui'        : [ '0' ],
                                 'math'       : [ '2', '3', '4', '5', '6' ],
                                 'msgs'       : [ '1', '2', '3' ],
                                 'plugin'     : [ '0', '1' ],
                                 'rendering'  : [ '0', '1' ],
-                                'transport'  : [ '3', '4', '5' ]]
+                                'transport'  : [ '3', '4', '5', '6' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use default for gz11
@@ -46,23 +47,18 @@ ignition_debbuild  = ignition_software + [ 'cmake1',
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [ 'gazebo',
                                 'gui',
-                                'physics',
-                                'plugin',
                                 'rndf',
                                 'sensors' ]
 // DESC: major versions that has a package in the prerelease repo. Should
 // not appear in ignition_no_pkg_yet nor in ignition_branches
-ignition_prerelease_pkgs    = [ 'common' : [
-                                   '3' : [ 'bionic' ],
+ignition_prerelease_pkgs    = [ 'gui'    : [
+                                   '1':  [ 'bionic' ],
                                 ],
-                                'gui'    : [
+                                'physics' : [
                                    '1':  [ 'bionic' ],
                                 ],
                                 'rendering' : [
                                    '1': [ 'bionic' ],
-                                ],
-                                'transport' : [
-                                   '6': [ 'bionic' ],
                                 ]]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
@@ -341,6 +337,8 @@ ignition_software.each { ign_sw ->
             (("${ign_sw}" == "fuel-tools") && ("${major_version}" == "3")) ||
             (("${ign_sw}" == "math")       && ("${major_version}" == "6")) ||
             (("${ign_sw}" == "msgs")       && ("${major_version}" == "3")) ||
+             ("${ign_sw}" == "physics")    ||
+             ("${ign_sw}" == "plugin")     ||
             (("${ign_sw}" == "transport")  && ("${major_version}" == "6"))))
           return
 
@@ -432,6 +430,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "rendering" && "${branch}" == "default") ||
               ("${ign_sw}" == "sensors") ||
               ("${ign_sw}" == "tools") ||
+              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport6") ||
               ("${ign_sw}" == "transport" && "${branch}" == "default")))
             disabled()
 
