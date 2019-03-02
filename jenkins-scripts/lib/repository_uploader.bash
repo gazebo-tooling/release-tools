@@ -151,7 +151,7 @@ for pkg in `find "$pkgs_path" -name '*.bottle*.json'`; do
   # Extract bottle name and root_url from json file
   bottle_filename=$(dirname $pkg)/$(jq -r '.[]["bottle"]["tags"][]["filename"]' < $pkg)
   root_url=$(jq -r '.[]["bottle"]["root_url"]' < $pkg)
-  s3_directory=${root_url#http://gazebosim\.org/distributions/}
+  s3_directory=${root_url#https://osrf-distributions\.s3\.amazonaws\.com/}
 
   if [[ -z ${s3_directory} ]]; then
     echo "Failed to infer s3 directory from bottle filename: ${pkg}"
