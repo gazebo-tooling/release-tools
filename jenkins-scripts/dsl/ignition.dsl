@@ -407,15 +407,14 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "common" && "${branch}" == "ign-common3") ||
               ("${ign_sw}" == "fuel-tools" && "${branch}" != "ign-fuel-tools1") ||
               ("${ign_sw}" == "gazebo") ||
-              ("${ign_sw}" == "gui" && "${branch}" == "ign-gui1") ||
-              ("${ign_sw}" == "gui" && "${branch}" == "default") ||
+              ("${ign_sw}" == "gui" && "${branch}" != "ign-gui0") ||
               ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
               ("${ign_sw}" == "math" && "${branch}" == "default") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs3") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "default") ||
               ("${ign_sw}" == "physics") ||
               ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
-              ("${ign_sw}" == "rendering" && "${branch}" == "default") ||
+              ("${ign_sw}" == "rendering" && "${branch}" != "ign-rendering0") ||
               ("${ign_sw}" == "sensors") ||
               ("${ign_sw}" == "tools") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport6") ||
