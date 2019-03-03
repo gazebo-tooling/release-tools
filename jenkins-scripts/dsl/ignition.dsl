@@ -314,9 +314,10 @@ ignition_software.each { ign_sw ->
         if (("${distro}" == "bionic") && (
             (("${ign_sw}" == "math") && ("${major_version}" == "2"))))
           return
-        // no gui0, rendering0, or rndf install
+        // no gui0, plugin0, rendering0, or rndf install
         if (("${ign_sw}" == "rndf") ||
             (("${ign_sw}" == "gui") && ("${major_version}" == "0")) ||
+            (("${ign_sw}" == "plugin") && ("${major_version}" == "0")) ||
             (("${ign_sw}" == "rendering") && ("${major_version}" == "0")))
           return
         // no xenial support for cmake2 and things that use it
