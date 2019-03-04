@@ -42,6 +42,8 @@ set -ex
 
 # Bug in gcc5 with eigen see: https://bitbucket.org/osrf/release-tools/issues/147
 if [[ $DISTRO == xenial ]]; then
+  apt-get update
+  apt-get install -y software-properties-common
   add-apt-repository -y ppa:ubuntu-toolchain-r/test
   apt-get update
   apt-get install -y gcc-6 g++-6
@@ -161,7 +163,7 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: display the xml configuration'
 cat devel.xml
 echo
-echo 
+echo
 cat pkg.xml
 echo '# END SECTION'
 
