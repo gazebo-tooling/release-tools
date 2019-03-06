@@ -99,7 +99,7 @@ cp ../*.debian.* $WORKSPACE/pkgs
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create deb packages'
-rm -f ../*.deb
+rm -f ../*.d*eb
 ${GBP_COMMAND}
 echo '# END SECTION'
 
@@ -109,7 +109,7 @@ lintian -I -i ../*.dsc || true
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
-PKGS=\`find ../ -name *.deb || true\`
+PKGS=\`find ../ -name '*.ddeb' -or -name '*.deb' || true\`
 
 FOUND_PKG=0
 for pkg in \${PKGS}; do

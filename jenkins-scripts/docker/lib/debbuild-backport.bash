@@ -48,7 +48,7 @@ cp buildresult/*.dsc $WORKSPACE/pkgs
 # debian is only generated in quilt format, native does not have it
 cp ../*.debian.* $WORKSPACE/pkgs || true
 
-PKGS=\`find buildresult/ -name '*.deb' || true\`
+PKGS=\`find buildresult/ -name '*.ddeb' -or -name '*.deb' || true\`
 
 FOUND_PKG=0
 for pkg in \${PKGS}; do

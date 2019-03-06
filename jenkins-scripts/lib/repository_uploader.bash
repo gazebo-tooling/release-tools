@@ -69,7 +69,7 @@ upload_dsc_package()
     local pkg=${1}
     [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
 
-    # .dsc sometimes does not include priority or section, 
+    # .dsc sometimes does not include priority or section,
     # try to upload and if failed, specify the values
     # see: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=768046
     sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg} || \
@@ -141,7 +141,7 @@ for pkg in `ls $pkgs_path/*.zip`; do
     echo "S3_UPLOAD_PATH was not defined. Not uploading"
     exit 1
   fi
-  
+
   # Seems important to upload the path with a final slash
   S3_upload ${pkg} "${S3_UPLOAD_PATH}"
 done
@@ -157,7 +157,7 @@ for pkg in `find "$pkgs_path" -name '*.bottle*.json'`; do
     echo "Failed to infer s3 directory from bottle filename: ${pkg}"
     exit 1
   fi
-  
+
   # Seems important to upload the path with a final slash
   s3_directory_one_slash=${s3_directory%%*(/)}/
   S3_upload ${bottle_filename} "${s3_directory_one_slash}"
@@ -182,8 +182,8 @@ cd ${repo_path}
 
 # .dsc | source debian packages
 for pkg in `ls $pkgs_path/*.dsc`; do
-  pkg_name=${pkg##*/} 
-  pkg_name=${pkg_name/_*}    
+  pkg_name=${pkg##*/}
+  pkg_name=${pkg_name/_*}
 
   if dsc_package_exists ${pkg_name}; then
     echo "Source package for ${pkg} already exists in the repo"
@@ -193,8 +193,8 @@ for pkg in `ls $pkgs_path/*.dsc`; do
   fi
 done
 
-# .deb | debian packages
-for pkg in `ls $pkgs_path/*.deb`; do
+# .deb or .ddeb | debian packages
+for pkg in `ls $pkgs_path/*.{d,dd}eb`; do
   if [[ -z ${DISTRO} ]]; then
     echo 'Error: $DISTRO parameter was not set'
     exit 1
@@ -208,10 +208,10 @@ for pkg in `ls $pkgs_path/*.deb`; do
   pkg_version=${pkg_version/_*} # remove package suffix
 
   case ${pkg_suffix} in
-      i386.deb | amd64.deb | armhf.deb | arm64.deb)
+      i386.d*eb | amd64.d*eb | armhf.d*eb | arm64.d*eb)
 	  upload_package ${pkg} ${PACKAGE_ALIAS}
       ;;
-      all.deb)
+      all.d*eb)
 	# Check if the package already exists. i386 and amd64 generates the same binaries.
 	# all should be multiarch, so supposed to work on every platform
 	existing_version=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro ls ${pkg_name} | grep ${DISTRO} | awk '{ print $3 }')
@@ -231,4 +231,4 @@ done
 
 rm -fr $WORKSPACE/pkgs/*.zip
 rm -fr $WORKSPACE/pkgs/*.dsc
-rm -fr $WORKSPACE/pkgs/*.deb
+rm -fr $WORKSPACE/pkgs/*.{d,dd}eb

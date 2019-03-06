@@ -89,7 +89,7 @@ debuild --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
-PKGS=\`find .. -name '*.deb' || true\`
+PKGS=\`find .. -name '*.ddeb' -or -name '*.deb' || true\`
 
 FOUND_PKG=0
 for pkg in \${PKGS}; do
