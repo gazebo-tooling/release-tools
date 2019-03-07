@@ -34,6 +34,7 @@ ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'gui'        : [ '0', '1'],
                                 'math'       : [ '2', '4', '5', '6' ],
                                 'msgs'       : [ '1', '2', '3' ],
+                                'physics'    : [ '1' ],
                                 'plugin'     : [ '0', '1' ],
                                 'rendering'  : [ '0', '1' ],
                                 'sensors'    : [ '1' ],
@@ -47,14 +48,10 @@ ignition_prerelease_branches = []
 ignition_debbuild  = ignition_software + [ 'cmake1' ]
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [ 'gazebo',
-                                'gui',
                                 'rndf' ]
 // DESC: major versions that has a package in the prerelease repo. Should
 // not appear in ignition_no_pkg_yet nor in ignition_branches
-ignition_prerelease_pkgs    = [ 'gui'    : [
-                                   '1':  [ 'bionic' ],
-                                ],
-                                'physics' : [
+ignition_prerelease_pkgs    = [ 'placeholder' : [
                                    '1':  [ 'bionic' ],
                                 ]]
 // packages using colcon for windows compilation while migrating all them to
@@ -318,18 +315,23 @@ ignition_software.each { ign_sw ->
         if (("${distro}" == "bionic") && (
             (("${ign_sw}" == "math") && ("${major_version}" == "2"))))
           return
-        // no rndf install
-        if ("${ign_sw}" == "rndf")
+        // no gui0, plugin0, rendering0, or rndf install
+        if (("${ign_sw}" == "rndf") ||
+            (("${ign_sw}" == "gui") && ("${major_version}" == "0")) ||
+            (("${ign_sw}" == "plugin") && ("${major_version}" == "0")) ||
+            (("${ign_sw}" == "rendering") && ("${major_version}" == "0")))
           return
         // no xenial support for cmake2 and things that use it
         if (("${distro}" == "xenial") && (
             (("${ign_sw}" == "cmake")      && ("${major_version}" == "2")) ||
             (("${ign_sw}" == "common")     && ("${major_version}" == "3")) ||
             (("${ign_sw}" == "fuel-tools") && ("${major_version}" == "3")) ||
+             ("${ign_sw}" == "gui")        ||
             (("${ign_sw}" == "math")       && ("${major_version}" == "6")) ||
             (("${ign_sw}" == "msgs")       && ("${major_version}" == "3")) ||
              ("${ign_sw}" == "physics")    ||
              ("${ign_sw}" == "plugin")     ||
+             ("${ign_sw}" == "rendering")  ||
              ("${ign_sw}" == "sensors")    ||
             (("${ign_sw}" == "transport")  && ("${major_version}" == "6"))))
           return
@@ -407,15 +409,14 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "common" && "${branch}" == "ign-common3") ||
               ("${ign_sw}" == "fuel-tools" && "${branch}" != "ign-fuel-tools1") ||
               ("${ign_sw}" == "gazebo") ||
-              ("${ign_sw}" == "gui" && "${branch}" == "ign-gui1") ||
-              ("${ign_sw}" == "gui" && "${branch}" == "default") ||
+              ("${ign_sw}" == "gui" && "${branch}" != "ign-gui0") ||
               ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
               ("${ign_sw}" == "math" && "${branch}" == "default") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs3") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "default") ||
               ("${ign_sw}" == "physics") ||
               ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
-              ("${ign_sw}" == "rendering" && "${branch}" == "default") ||
+              ("${ign_sw}" == "rendering" && "${branch}" != "ign-rendering0") ||
               ("${ign_sw}" == "sensors") ||
               ("${ign_sw}" == "tools") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport6") ||
