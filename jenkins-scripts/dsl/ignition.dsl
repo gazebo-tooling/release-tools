@@ -47,7 +47,7 @@ ignition_prerelease_branches = []
 // don't appear in ignition_branches
 ignition_debbuild  = ignition_software + [ 'cmake1' ]
 // DESC: exclude ignition from generate any install testing job
-ignition_no_pkg_yet         = [ 'gazebo',
+ignition_no_pkg_yet         = [ 'launch',
                                 'rndf' ]
 // DESC: major versions that has a package in the prerelease repo. Should
 // not appear in ignition_no_pkg_yet nor in ignition_branches
@@ -327,6 +327,7 @@ ignition_software.each { ign_sw ->
             (("${ign_sw}" == "common")     && ("${major_version}" == "3")) ||
             (("${ign_sw}" == "fuel-tools") && ("${major_version}" == "3")) ||
              ("${ign_sw}" == "gui")        ||
+             ("${ign_sw}" == "launch")     ||
             (("${ign_sw}" == "math")       && ("${major_version}" == "6")) ||
             (("${ign_sw}" == "msgs")       && ("${major_version}" == "3")) ||
              ("${ign_sw}" == "physics")    ||
@@ -410,6 +411,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "fuel-tools" && "${branch}" != "ign-fuel-tools1") ||
               ("${ign_sw}" == "gazebo") ||
               ("${ign_sw}" == "gui" && "${branch}" != "ign-gui0") ||
+              ("${ign_sw}" == "launch") ||
               ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
               ("${ign_sw}" == "math" && "${branch}" == "default") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs3") ||
