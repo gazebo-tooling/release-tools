@@ -129,7 +129,7 @@ mkdir -p ${WORKSPACE}/build/test_results
 DIRS=\$(find . -name test_results -type d)
 for d in \$DIRS; do
   for t in \$(find \$d -name "*.xml" -type f) ; do
-     mv \$t ${WORKSPACE}/build/test_results
+     mv --backup=t \$t ${WORKSPACE}/build/test_results
  done
 done
 echo '# END SECTION'
