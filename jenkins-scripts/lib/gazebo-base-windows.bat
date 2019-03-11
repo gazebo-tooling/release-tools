@@ -93,13 +93,13 @@ copy %LOCAL_WS%\jom.exe .
 jom -j%MAKE_JOBS% || goto :error
 echo # END SECTION
 
+echo # BEGIN SECTION: compiling test suite
+jom -j%MAKE_JOBS% tests || goto :error
+echo # END SECTION
+
 echo # BEGIN SECTION: run tests
 :: nmake test is not working test/ directory exists and nmake is not able to handle it.
 ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV  || echo "tests failed"
-echo # END SECTION
-
-echo # BEGIN SECTION: compiling test suite
-jom -j%MAKE_JOBS% tests || goto :error
 echo # END SECTION
 
 if NOT DEFINED KEEP_WORKSPACE (
