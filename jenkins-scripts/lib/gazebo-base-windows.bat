@@ -99,7 +99,7 @@ echo # END SECTION
 
 echo # BEGIN SECTION: run tests
 :: nmake test is not working test/ directory exists and nmake is not able to handle it.
-ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV  || echo "tests failed"
+ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV
 echo # END SECTION
 
 if NOT DEFINED KEEP_WORKSPACE (
