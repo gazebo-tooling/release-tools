@@ -495,6 +495,8 @@ def go(argv):
         elif (l == 'debian'):
             if (PRERELEASE or NIGHTLY):
                 continue
+            if not debian_distros:
+                continue
             distros = debian_distros
         else:
             error("Distro not supported in code")
