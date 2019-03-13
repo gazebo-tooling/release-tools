@@ -136,6 +136,10 @@ elif [[ ${DISTRO} == 'trusty' ]]; then
 elif [[ ${GAZEBO_MAJOR_VERSION} -le 4 ]]; then
     # Before gazebo5, ogre 1.9 was not supported
     ogre_pkg="libogre-1.8-dev"
+elif [[ ${IGN_RENDERING_MAJOR_VERSION} -ge 1 ]]; then
+    # support for both ogre-1.9 and ogre-2.1 was added in ign-rendering1
+    ogre_pkg="libogre-1.9-dev \\
+              libogre-2.1-dev"
 fi
 
 # Starting from utopic, we are using the bullet provided by ubuntu
