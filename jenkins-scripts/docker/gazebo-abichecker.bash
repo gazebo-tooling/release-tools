@@ -23,5 +23,7 @@ if [[ $GAZEBO_MAJOR_VERSION -lt 8 ]]; then
   export ABI_JOB_CMAKE_PARAMS="-DENABLE_TESTS_COMPILATION:BOOL=False"
 fi
 export ABI_JOB_IGNORE_HEADERS="gazebo/GIMPACT gazebo/opcode gazebo/test"
+# gcc6 causes gazebo ABI checker to fail
+export USE_GCC6=0
 
 . ${SCRIPT_DIR}/lib/generic-abi-base.bash

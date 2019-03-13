@@ -41,7 +41,11 @@ cat > build.sh << DELIM
 set -ex
 
 # Bug in gcc5 with eigen see: https://bitbucket.org/osrf/release-tools/issues/147
-if [[ $DISTRO == xenial ]]; then
+if [[ -z "$USE_GCC6" && $DISTRO == xenial ]]; then
+  USE_GCC6=1
+fi
+
+if [[ -n "$USE_GCC6" && $USE_GCC6 -gt 0 ]]; then
   apt-get update
   apt-get install -y software-properties-common
   add-apt-repository -y ppa:ubuntu-toolchain-r/test
