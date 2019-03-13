@@ -102,6 +102,14 @@ echo # BEGIN SECTION: run tests
 ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV
 echo # END SECTION
 
+echo # BEGIN SECTION: export testing results
+rmdir /q /s %TEST_RESULT_PATH%
+if exist %TEST_RESULT_PATH_LEGACY% ( rmdir /q /s %TEST_RESULT_PATH_LEGACY% )
+mkdir %WORKSPACE%\build\
+xcopy test_results %TEST_RESULT_PATH% /s /i /e || goto :error
+xcopy %TEST_RESULT_PATH% %TEST_RESULT_PATH_LEGACY% /s /e /i
+echo # END SECTION
+
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
    cd %WORKSPACE%
