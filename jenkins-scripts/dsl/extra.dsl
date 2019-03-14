@@ -136,6 +136,7 @@ default_params = [ PACKAGE             : "ros1_ign_bridge",
                    DISTRO              : "bionic",
                    ARCH                : "amd64",
                    RELEASE_REPO_BRANCH : "default",
+                   RELEASE_VERSION     : "1",
                    UPLOAD_TO_REPO      : "stable",
                    OSRF_REPOS_TO_USE   : "stable" ]
 
