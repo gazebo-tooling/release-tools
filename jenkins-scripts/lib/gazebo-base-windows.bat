@@ -100,8 +100,12 @@ echo # END SECTION
 echo # BEGIN SECTION: run tests
 :: path to libraries
 set PATH=%PATH%;%WORKSPACE_INSTALL_DIR%\lib;%WORKSPACE_INSTALL_DIR%\bin
+dir %WORKSPACE_INSTALL_DIR%\lib\
+dir %WORKSPACE_INSTALL_DIR%\bin
+echo %PATH%
+
 :: nmake test is not working test/ directory exists and nmake is not able to handle it.
-ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV
+ctest -C "%BUILD_TYPE%" --force-new-ctest-process -R UNIT_*
 echo # END SECTION
 
 echo # BEGIN SECTION: export testing results
