@@ -98,6 +98,8 @@ jom -j%MAKE_JOBS% tests || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: run tests
+:: path to libraries
+set PATH=%PATH%;%WORKSPACE_INSTALL_DIR%\lib;%WORKSPACE_INSTALL_DIR%\bin
 :: nmake test is not working test/ directory exists and nmake is not able to handle it.
 ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV
 echo # END SECTION
