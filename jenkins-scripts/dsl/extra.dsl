@@ -132,7 +132,7 @@ gbp_repo_debbuilds.each { software ->
 
 def bridge_job = job("ros1_ign_bridge-debbuilder")
 default_params = [ PACKAGE             : "ros1_ign_bridge",
-                   PACKAGE_ALIAS       : "ros1_ign_bridge",
+                   PACKAGE_ALIAS       : "ros1-ign-bridge",
                    DISTRO              : "bionic",
                    ARCH                : "amd64",
                    RELEASE_REPO_BRANCH : "default",
