@@ -61,7 +61,7 @@ if ${NIGHTLY_MODE}; then
 else
   wget --quiet -O orig_tarball $SOURCE_TARBALL_URI
   TARBALL_EXT=${SOURCE_TARBALL_URI/*tar./}
-  mv orig_tarball $PACKAGE_ALIAS\_$VERSION.orig.tar.${TARBALL_EXT}
+  mv orig_tarball $PACKAGE_ALIAS\_$VERSION.orig.tar.\${TARBALL_EXT}
   rm -rf \$REAL_PACKAGE_NAME\-$VERSION
   tar xf $PACKAGE_ALIAS\_$VERSION.orig.tar.*
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME-$VERSION
