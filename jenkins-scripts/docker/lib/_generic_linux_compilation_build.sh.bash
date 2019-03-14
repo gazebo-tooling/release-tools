@@ -96,6 +96,9 @@ if $GENERIC_ENABLE_TESTS; then
   init_stopwatch TEST
   mkdir -p \$HOME
   make test ARGS="-VV" || true
+  if [[ ${IGN_RENDERING_MAJOR_VERSION} -ge 1 ]]; then
+    RENDER_ENGINE_VALUES=ogre2 make test ARGS="-VV" || true
+  fi
   stop_stopwatch TEST
   echo '# END SECTION'
 else
