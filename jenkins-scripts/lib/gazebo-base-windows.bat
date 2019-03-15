@@ -90,11 +90,11 @@ echo # END SECTION
 
 echo # BEGIN SECTION: compiling gazebo
 copy %LOCAL_WS%\jom.exe .
-jom -j%MAKE_JOBS% || goto :error
+jom -j%MAKE_JOBS% UNIT_Timer_TEST || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: compiling test suite
-jom -j%MAKE_JOBS% tests || goto :error
+:: jom -j%MAKE_JOBS% tests || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: run tests
@@ -105,7 +105,8 @@ dir %WORKSPACE_INSTALL_DIR%\bin
 echo %PATH%
 
 :: nmake test is not working test/ directory exists and nmake is not able to handle it.
-ctest -C "%BUILD_TYPE%" --force-new-ctest-process -R UNIT_*
+D:\Jenkins\workspace\gazebo-ci-pr_any-windows7-amd64\ws\gazebo\build\gazebo\common\UNIT_Timer_TEST.exe
+ctest -C "%BUILD_TYPE%" --force-new-ctest-process -R UNIT_Timer_TEST
 echo # END SECTION
 
 echo # BEGIN SECTION: export testing results
