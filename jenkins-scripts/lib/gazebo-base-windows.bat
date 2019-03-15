@@ -47,34 +47,34 @@ echo # END SECTION
   :: Remove gazebo copy
   IF EXIST %LOCAL_WS%\gazebo ( rmdir /s /q %LOCAL_WS%\gazebo ) || goto :error
   echo # END SECTION
+
+	echo # BEGIN SECTION: compile and install ign-transport
+	set IGN_TRANSPORT_DIR=%WORKSPACE%\ign-transport
+	if EXIST %IGN_TRANSPORT_DIR% ( rmdir /s /q %IGN_TRANSPORT_DIR% )
+	hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_DIR% -b ign-transport4
+	set VCS_DIRECTORY=ign-transport
+	set KEEP_WORKSPACE=TRUE
+	set ENABLE_TESTS=FALSE
+	set BUILD_TYPE=Release
+	call "%SCRIPT_DIR%/lib/generic-default-devel-windows.bat"
+	echo # END SECTION
+
+	echo # BEGIN SECTION: compile and install sdformat
+	set SDFORMAT_DIR=%WORKSPACE%\sdformat
+	if EXIST %SDFORMAT_DIR% ( rmdir /s /q %SDFORMAT_DIR% )
+	hg clone https://bitbucket.org/osrf/sdformat %SDFORMAT_DIR% -b sdf6
+	set VCS_DIRECTORY=sdformat
+	set KEEP_WORKSPACE=TRUE
+	set ENABLE_TESTS=FALSE
+	set BUILD_TYPE=Release
+	call "%SCRIPT_DIR%/lib/generic-default-devel-windows.bat"
+	echo # END SECTION
+
+	echo # BEGIN SECTION: overwrite, since sdformat downloads boost_1.67.0_any_variant_version.zip
+	xcopy %WORKSPACE_INSTALL_DIR%\boost_1_67_0\boost %WORKSPACE_INSTALL_DIR%\include\boost /s /i /e /y > xcopy.log
+	xcopy %WORKSPACE_INSTALL_DIR%\boost_1_67_0\lib64-msvc-14.1 %WORKSPACE_INSTALL_DIR%\lib /s /i /e /y > xcopy.log
+	echo # END SECTION
 )
-
-echo # BEGIN SECTION: compile and install ign-transport
-set IGN_TRANSPORT_DIR=%WORKSPACE%\ign-transport
-if EXIST %IGN_TRANSPORT_DIR% ( rmdir /s /q %IGN_TRANSPORT_DIR% )
-hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_DIR% -b ign-transport4
-set VCS_DIRECTORY=ign-transport
-set KEEP_WORKSPACE=TRUE
-set ENABLE_TESTS=FALSE
-set BUILD_TYPE=Release
-call "%SCRIPT_DIR%/lib/generic-default-devel-windows.bat"
-echo # END SECTION
-
-echo # BEGIN SECTION: compile and install sdformat
-set SDFORMAT_DIR=%WORKSPACE%\sdformat
-if EXIST %SDFORMAT_DIR% ( rmdir /s /q %SDFORMAT_DIR% )
-hg clone https://bitbucket.org/osrf/sdformat %SDFORMAT_DIR% -b sdf6
-set VCS_DIRECTORY=sdformat
-set KEEP_WORKSPACE=TRUE
-set ENABLE_TESTS=FALSE
-set BUILD_TYPE=Release
-call "%SCRIPT_DIR%/lib/generic-default-devel-windows.bat"
-echo # END SECTION
-
-echo # BEGIN SECTION: overwrite, since sdformat downloads boost_1.67.0_any_variant_version.zip
-xcopy %WORKSPACE_INSTALL_DIR%\boost_1_67_0\boost %WORKSPACE_INSTALL_DIR%\include\boost /s /i /e /y > xcopy.log
-xcopy %WORKSPACE_INSTALL_DIR%\boost_1_67_0\lib64-msvc-14.1 %WORKSPACE_INSTALL_DIR%\lib /s /i /e /y > xcopy.log
-echo # END SECTION
 
 echo # BEGIN SECTION: copy gazebo sources to workspace
 :: Note that your jenkins job should put source in %WORKSPACE%/gazebo
@@ -106,7 +106,7 @@ echo %PATH%
 
 :: nmake test is not working test/ directory exists and nmake is not able to handle it.
 D:\Jenkins\workspace\gazebo-ci-pr_any-windows7-amd64\ws\gazebo\build\gazebo\common\UNIT_Timer_TEST.exe
-ctest -C "%BUILD_TYPE%" --force-new-ctest-process -R UNIT_Timer_TEST
+ctest -C "%BUILD_TYPE%" -R UNIT_Timer_TEST
 echo # END SECTION
 
 echo # BEGIN SECTION: export testing results
