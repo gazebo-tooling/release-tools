@@ -41,7 +41,7 @@ IGNORE_DRY_RUN = True
 class ErrorGitRepo(Exception):
     pass
 
-class ErrorNopermsrepo(Exception):
+class ErrorNoPermsRepo(Exception):
     pass
 
 def error(msg):
@@ -420,7 +420,7 @@ def generate_upload_tarball(args):
     except ErrorGitRepo as e:
         # do nothing for git repos (no git support is implemented)
         pass
-    except ErrorNopermsrepo as e:
+    except ErrorNoPermsRepo as e:
         print('The bitbucket server reports problems with permissions')
         print('The branch could be blocked by configuration if you have')
         print('rights to push code in default branch.')
