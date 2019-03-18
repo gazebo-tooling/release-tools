@@ -38,6 +38,12 @@ IGN_REPO = False
 
 IGNORE_DRY_RUN = True
 
+class ErrorGitRepo(Exception):
+    pass
+
+class ErrorNopermsrepo(Exception):
+    pass
+
 def error(msg):
     print("\n !! " + msg + "\n")
     sys.exit(1)
@@ -314,6 +320,13 @@ def check_call(cmd, ignore_dry_run = False):
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = po.communicate()
         if po.returncode != 0:
+            if "Permission denied" in out:
+                raise ErrorNoPermsRepo()
+            if "hg" in cmd:
+                r = subprocess.Popen(["git", "status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                if r.returncode != 0:
+                    raise ErrorGitRepo()
+            # Unkown exception
             print('Error running command (%s).'%(' '.join(cmd)))
             print('stdout: %s'%(out))
             print('stderr: %s'%(err))
@@ -361,8 +374,8 @@ def generate_upload_tarball(args):
         # sitting in the working copy
         srcdir = os.path.join(tmpdir, 'src')
         check_call(['hg', 'archive', srcdir])
-    except Exception as e:
-        # Assume that it's git and that we'll just use the CWD
+    except ErrorGitRepo as e:
+        # it's git and that we'll just use the CWD
         srcdir = os.getcwd()
 
     # use cmake to generate package_source
@@ -404,9 +417,14 @@ def generate_upload_tarball(args):
 
         # Push tag
         check_call(['hg', 'push','-b','.'])
-    except Exception as e:
-        # Assume git
+    except ErrorGitRepo as e:
+        # do nothing for git repos (no git support is implemented)
         pass
+    except ErrorNopermsrepo as e:
+        print('The bitbucket server reports problems with permissions')
+        print('The branch could be blocked by configuration if you have')
+        print('rights to push code in default branch.')
+        sys.exit(1)
 
     source_tarball_uri = DOWNLOAD_URI_PATTERN%get_canonical_package_name(args.package) + tarball_fname
 
