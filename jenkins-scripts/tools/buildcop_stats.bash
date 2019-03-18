@@ -1,5 +1,5 @@
 #!/bin/bash
-curl https://build.osrfoundation.org/view/main/view/BuildCopFail/api/json 2>/dev/null | python -c '\
+curl https://build.osrfoundation.org/view/ign-acropolis/api/json 2>/dev/null | python -c '\
 import datetime, json, re, sys;
 print("# Build Cop Report %s\n" % datetime.date.today())
 print("## Aggregate Results as of %s\n" % datetime.datetime.now())
