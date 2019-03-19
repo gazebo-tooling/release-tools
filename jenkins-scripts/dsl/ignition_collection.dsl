@@ -144,5 +144,27 @@ ignition_collections.each { ign_collection ->
 
   // Ignition dashboards
   dashboardView("DSLign-${ign_collection}")
-  {  }
+  {
+      jobs {
+          names(ignition_collection_jobs["${ign_collection}"].join(", "))
+      }
+
+      columns {
+        status()
+        weather()
+        name()
+        testResult(0)
+        lastSuccess()
+        lastFailure()
+        lastDuration()
+        buildButton()
+
+      }
+
+      bottomPortlets {
+        jenkinsJobsList {
+            displayName('Jenkins jobs list')
+        }
+      }
+   }
 }
