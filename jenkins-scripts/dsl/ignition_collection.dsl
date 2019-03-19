@@ -170,6 +170,8 @@ ignition_collections.each { ign_collection ->
       }
 
       configure { view ->
+        view / columns / 'hudson.plugins.warnings.WarningsColumnplugin' { }
+
         def topPortlets = view / NodeBuilder.newInstance().topPortlets {}
 
         topPortlets << 'hudson.plugins.view.dashboard.core.UnstableJobsPortlet' {
