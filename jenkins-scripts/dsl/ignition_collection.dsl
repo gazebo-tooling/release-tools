@@ -170,7 +170,7 @@ ignition_collections.each { ign_collection ->
       }
 
       configure { view ->
-        view / columns / 'hudson.plugins.warnings.WarningsColumnplugin' { }
+        view / columns << "hudson.plugins.warnings.WarningsColumn" (plugin: 'warnings@5.0.1')
 
         def topPortlets = view / NodeBuilder.newInstance().topPortlets {}
 
