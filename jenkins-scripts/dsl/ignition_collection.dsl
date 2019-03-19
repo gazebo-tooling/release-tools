@@ -166,5 +166,16 @@ ignition_collections.each { ign_collection ->
             displayName('Jenkins jobs list')
         }
       }
+
+      configure { view ->
+        def topPortlets = view / NodeBuilder.newInstance().topPortlets {}
+
+        topPortlets << 'hudson.plugins.view.dashboard.core.UnstableJobsPortlet' {
+            id createPortletId()
+            name 'Failing jobs'
+            showOnlyFailedJobs 'true'
+            recurse 'false'
+        }
+      }
    }
 }
