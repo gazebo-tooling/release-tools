@@ -144,40 +144,5 @@ ignition_collections.each { ign_collection ->
 
   // Ignition dashboards
   dashboardView("DSLign-${ign_collection}")
-  {
-      jobs {
-          names(ignition_collection_jobs["${ign_collection}"].join(", "))
-      }
-
-      columns {
-        status()
-        weather()
-        name()
-        testResult(0)
-        lastSuccess()
-        lastFailure()
-        lastDuration()
-        buildButton()
-
-      }
-
-      bottomPortlets {
-        jenkinsJobsList {
-            displayName('Jenkins jobs list')
-        }
-      }
-
-      configure { view ->
-        view / columns / 'hudson.plugins.warnings.WarningsColumnplugin="warnings@5.0.1"' { }
-
-        def topPortlets = view / NodeBuilder.newInstance().topPortlets {}
-
-        topPortlets << 'hudson.plugins.view.dashboard.core.UnstableJobsPortlet' {
-            id createPortletId()
-            name 'Failing jobs'
-            showOnlyFailedJobs 'true'
-            recurse 'false'
-        }
-      }
-   }
+  {  }
 }
