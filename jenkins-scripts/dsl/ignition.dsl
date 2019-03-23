@@ -31,6 +31,7 @@ ignition_no_test            = [ 'tools' ]
 ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'common'     : [ '1', '2', '3' ],
                                 'fuel-tools' : [ '1', '2', '3' ],
+                                'gazebo'     : [ '1'],
                                 'gui'        : [ '0', '1'],
                                 'math'       : [ '2', '4', '5', '6' ],
                                 'msgs'       : [ '1', '2', '3' ],
