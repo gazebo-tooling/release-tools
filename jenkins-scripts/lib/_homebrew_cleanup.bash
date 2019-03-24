@@ -22,6 +22,7 @@ for t in $(HOMEBREW_NO_AUTO_UPDATE=1 \
           | grep -v '^homebrew/core$'); do
   ${BREW_BINARY} untap $t
 done
+brew cleanup --prune-prefix
 
 pushd $(${BREW_BINARY} --prefix)/Homebrew/Library 2> /dev/null
 git stash && git clean -d -f

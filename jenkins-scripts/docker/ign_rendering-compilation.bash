@@ -30,14 +30,7 @@ if ! [[ ${IGN_RENDERING_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 if [[ ${IGN_RENDERING_MAJOR_VERSION} -ge 1 ]]; then
-  export NEEDS_GZ11_SUPPORT=true
-fi
-
-. "${SCRIPT_DIR}/lib/_gz11_hook.bash"
-
-# Enable prerelease and nightly repos until a certain date
-if [[ $(date +%Y%m%d) -le 20190201 ]]; then
-  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
+  export USE_GCC8=true
 fi
 
 export GPU_SUPPORT_NEEDED=true

@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def gazebo_supported_branches = [ 'gazebo7', 'gazebo8', 'gazebo9', 'gazebo10' ]
+def gazebo_supported_branches = [ 'gazebo7', 'gazebo9', 'gazebo10' ]
 def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
 // nightly_gazebo_branch is not the branch used to get the code from but
 // the one used to generate the corresponding debbuild job.
@@ -509,6 +509,7 @@ all_debbuild_branches.each { branch ->
         shell("""\
               #!/bin/bash -xe
 
+              export ENABLE_ROS=false
               /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
               """.stripIndent())
       }
@@ -591,9 +592,7 @@ all_branches.each { branch ->
 // 1. any
   String ci_build_any_job_name_win7 = "gazebo-ci-pr_any-windows7-amd64"
   def gazebo_win_ci_any_job = job(ci_build_any_job_name_win7)
-  OSRFWinCompilationAny.create(gazebo_win_ci_any_job,
-                               "https://bitbucket.org/osrf/gazebo",
-                               DISABLE_TESTS)
+  OSRFWinCompilationAny.create(gazebo_win_ci_any_job, "https://bitbucket.org/osrf/gazebo")
   gazebo_win_ci_any_job.with
   {
       steps {
@@ -607,7 +606,7 @@ all_branches.each { branch ->
 all_branches = gazebo_supported_branches + 'default' - 'gazebo7'
 all_branches.each { branch ->
   def gazebo_win_ci_job = job("gazebo-ci-${branch}-windows7-amd64")
-  OSRFWinCompilation.create(gazebo_win_ci_job, DISABLE_TESTS)
+  OSRFWinCompilation.create(gazebo_win_ci_job)
   OSRFBitbucketHg.create(gazebo_win_ci_job, "https://bitbucket.org/osrf/gazebo", branch)
 
   gazebo_win_ci_job.with

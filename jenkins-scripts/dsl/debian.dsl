@@ -14,7 +14,7 @@ packages['science-team'] = ['console-bridge',
                             'ignition-msgs',
                             'ignition-tools',
                             'ignition-transport', // version 4
-                            'kido',
+                            'dart',
                             'libccd',
                             'octomap',
                             'sdformat', // version 6

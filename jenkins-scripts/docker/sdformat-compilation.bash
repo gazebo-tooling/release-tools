@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 . "${SCRIPT_DIR}/lib/_sdformat_version_hook.bash"
-. "${SCRIPT_DIR}/lib/_gz11_hook.bash"
 
 export BUILDING_SOFTWARE_DIRECTORY="sdformat"
 
@@ -25,10 +24,9 @@ fi
 
 if [[ ${SDFORMAT_MAJOR_VERSION} -ge 8 ]]; then
   export USE_GCC8=true
-  export BUILDING_JOB_REPOSITORIES="stable prerelease"
-else
-  export BUILDING_JOB_REPOSITORIES="stable"
 fi
+
+export BUILDING_JOB_REPOSITORIES="stable"
 
 # default and major branches compilations
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="SDFORMAT_BASE_DEPENDENCIES"
