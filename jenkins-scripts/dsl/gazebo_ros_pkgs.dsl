@@ -223,6 +223,10 @@ ros_distros.each { ros_distro ->
 ros2_distros.each { ros_distro ->
   ubuntu_distros = Globals.ros_ci[ros_distro]
 
+  branch = ros_distro
+  if ros_distro == "dashing"
+    branch = "ros2"
+
   ubuntu_distros.each { ubuntu_distro ->
     suffix_triplet="${ros_distro}-${ubuntu_distro}-${ci_arch}"
 
@@ -241,7 +245,7 @@ ros2_distros.each { ros_distro ->
           extensions {
             relativeTargetDirectory("gazebo_ros_pkgs")
           }
-          branch("ros2")
+          branch(branch)
         }
       }
 
