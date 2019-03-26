@@ -422,7 +422,7 @@ def generate_upload_tarball(args):
         pass
     except ErrorNoPermsRepo as e:
         print('The bitbucket server reports problems with permissions')
-        print('The branch could be blocked by configuration if you have')
+        print('The branch could be blocked by configuration if you do not have')
         print('rights to push code in default branch.')
         sys.exit(1)
 
