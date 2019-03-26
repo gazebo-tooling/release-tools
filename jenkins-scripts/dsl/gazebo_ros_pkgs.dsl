@@ -8,6 +8,9 @@ ArrayList ros_distros        = Globals.get_ros_suported_distros()
 ArrayList ros2_distros       = Globals.get_ros2_suported_distros()
 @Field
 String ci_arch               = 'amd64'
+@Field
+String current_ros2_branch   = "dashing"
+
 // version to test more than the official one in each ROS distro
 extra_gazebo_versions = [ 'indigo'  :  ['7'],
                           'kinetic' :  ['8','9'],
@@ -224,7 +227,7 @@ ros2_distros.each { ros_distro ->
   ubuntu_distros = Globals.ros_ci[ros_distro]
 
   branch = ros_distro
-  if ros_distro == "dashing"
+  if (ros_distro == current_ros2_branch)
     branch = "ros2"
 
   ubuntu_distros.each { ubuntu_distro ->
