@@ -26,7 +26,7 @@ fi
 # Identify IGN_GAZEBO_MAJOR_VERSION to help with dependency resolution
 IGN_GAZEBO_MAJOR_VERSION=$(\
   python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
-  ${WORKSPACE}/ign-sensors/CMakeLists.txt)
+  ${WORKSPACE}/ign-gazebo/CMakeLists.txt)
 
 # Check IGN_GAZEBO version is integer
 if ! [[ ${IGN_GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
