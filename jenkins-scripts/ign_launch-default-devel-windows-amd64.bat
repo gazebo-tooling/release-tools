@@ -4,7 +4,7 @@ set VCS_DIRECTORY=ign-launch
 set PLATFORM_TO_BUILD=x86_amd64
 set IGN_CLEAN_WORKSPACE=true
 
-set DEPEN_PKGS="curl jsoncpp qt5 tinyxml2 yaml zip"
+set DEPEN_PKGS="curl jsoncpp qt5 tinyxml2 yaml-cpp zip"
 set COLCON_PACKAGE=ignition-launch
 set COLCON_AUTO_MAJOR_VERSION=true
 
