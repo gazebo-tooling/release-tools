@@ -8,6 +8,7 @@ ignition_linux_distros = [ 'acropolis' : [ 'bionic' ] ]
 arch = 'amd64'
 
 ignition_collection_jobs = [ 'acropolis' : [
+        'ign_gazebo-ign-1-win',
         'ign_gui-ign-1-win',
         'ign_physics-ign-1-win',
         'ign_rendering-ign-1-win',
@@ -27,7 +28,6 @@ ignition_collection_jobs = [ 'acropolis' : [
         'ignition_fuel-tools3-install-pkg-bionic-amd64',
         'ignition_gazebo-ci-ign-gazebo1-bionic-amd64',
         'ignition_gazebo-ci-ign-gazebo1-homebrew-amd64',
-        'ignition_gazebo-ci-ign-gazebo1-xenial-amd64',
         'ignition_gui-ci-ign-gui1-bionic-amd64',
         'ignition_gui-ci-ign-gui1-homebrew-amd64',
         'ignition_gui-install-pkg-bionic-amd64',
