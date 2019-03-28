@@ -570,7 +570,7 @@ all_branches.each { branch ->
       label "osx_gazebo"
 
       triggers {
-        scm('TZ=US/Pacific H H(0-17) * * *')
+        scm("TZ=US/Pacific \n H H(0-17) * * *")
       }
 
       steps {
