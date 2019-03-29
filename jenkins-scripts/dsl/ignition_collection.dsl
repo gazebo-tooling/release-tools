@@ -105,6 +105,7 @@ ignition_collections.each { ign_collection ->
               """.stripIndent())
       }
   }
+  Globals.gazebodistro_branch = false
 
   ignition_linux_distros["${ign_collection_name}"].each { distro ->
     // INSTALL JOBS:
@@ -212,6 +213,7 @@ ignition_collections.each { ign_collection ->
 // NIGHTLY GENERATION
 collection_data = []
 list_of_pkgs = ""
+
 
 collection_data = ignition_collections.find { it.get('name') == ignition_nightly }
 collection_data = collection_data.get('nightly_jobs')
