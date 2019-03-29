@@ -14,7 +14,7 @@ ignition_collections = [
     nightly_jobs: [
           'cmake'     : [ debbuild: 'ign-cmake2'    , branch: 'ign-cmake2'   ],
           'common'    : [ debbuild: 'ign-common3'   , branch: 'ign-common3'  ],
-          'fuel-tools': [ debbuild: 'fuel-tools'    , branch: 'default'      ],
+          'fuel-tools': [ debbuild: 'fuel-tools3'   , branch: 'default'      ],
           'gazebo'    : [ debbuild: 'ign-gazebo2'   , branch: 'default'      ],
           'gui'       : [ debbuild: 'ign-gui'       , branch: 'ign-gui1'     ],
           'launch'    : [ debbuild: 'ign-launch'    , branch: 'ign-launch0'  ],
