@@ -45,8 +45,8 @@ ignition_branches           = [ 'cmake'      : [ '1', '2' ],
 // physics/sensors don't need to be included since they use default for gz11
 ignition_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
-// don't appear in ignition_branches
-ignition_debbuild  = ignition_software + [ 'cmake1' ]
+// don't appear in ignition_branches (like nightly builders)
+ignition_debbuild  = ignition_software + [ 'cmake1', 'sensors2', 'rendering2', 'gazebo2' ]
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [ 'launch',
                                 'rndf' ]
