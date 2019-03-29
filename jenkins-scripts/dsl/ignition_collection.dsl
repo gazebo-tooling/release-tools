@@ -12,20 +12,20 @@ ignition_nightly = 'blueprint'
 ignition_collections = [
   [ name : 'blueprint',
     nightly_jobs: [
-          'cmake'     : [ debbuild: 'ign-cmake2'    , branch: 'ign-cmake2'   ],
-          'common'    : [ debbuild: 'ign-common3'   , branch: 'ign-common3'  ],
-          'fuel-tools': [ debbuild: 'fuel-tools3'   , branch: 'default'      ],
-          'gazebo'    : [ debbuild: 'ign-gazebo2'   , branch: 'default'      ],
-          'gui'       : [ debbuild: 'ign-gui'       , branch: 'ign-gui1'     ],
-          'launch'    : [ debbuild: 'ign-launch'    , branch: 'ign-launch0'  ],
-          'math'      : [ debbuild: 'ign-math6'     , branch: 'ign-math6'    ],
-          'msgs'      : [ debbuild: 'ign-msgs3'     , branch: 'ign-msgs3'    ],
-          'physics'   : [ debbuild: 'ign-physics'   , branch: 'ign-physics1' ],
-          'plugin'    : [ debbuild: 'ign-plugin'    , branch: 'ign-plugin1'  ],
-          'rendering' : [ debbuild: 'ign-rendering2', branch: 'default'      ],
-          'sensors'   : [ debbuild: 'ign-sensors2'  , branch: 'default'      ],
-          'sdformat'  : [ debbuild: 'sdformat8'     , branch: 'sdf8'         ],
-          'transport' : [ debbuild: 'ign-transport6', branch: 'ign-transport6']
+          'cmake'     : [ debbuild: 'ign-cmake2'    , branch: 'ign-cmake2'      ],
+          'common'    : [ debbuild: 'ign-common3'   , branch: 'ign-common3'     ],
+          'fuel-tools': [ debbuild: 'fuel-tools3'   , branch: 'ign-fuel-tools3' ],
+          'gazebo'    : [ debbuild: 'ign-gazebo2'   , branch: 'default'         ],
+          'gui'       : [ debbuild: 'ign-gui'       , branch: 'ign-gui1'        ],
+          'launch'    : [ debbuild: 'ign-launch'    , branch: 'ign-launch0'     ],
+          'math'      : [ debbuild: 'ign-math6'     , branch: 'ign-math6'       ],
+          'msgs'      : [ debbuild: 'ign-msgs3'     , branch: 'ign-msgs3'       ],
+          'physics'   : [ debbuild: 'ign-physics'   , branch: 'ign-physics1'    ],
+          'plugin'    : [ debbuild: 'ign-plugin'    , branch: 'ign-plugin1'     ],
+          'rendering' : [ debbuild: 'ign-rendering2', branch: 'default'         ],
+          'sensors'   : [ debbuild: 'ign-sensors2'  , branch: 'default'         ],
+          'sdformat'  : [ debbuild: 'sdformat8'     , branch: 'sdf8'            ],
+          'transport' : [ debbuild: 'ign-transport6', branch: 'ign-transport6'  ]
     ]
   ]
 ]
