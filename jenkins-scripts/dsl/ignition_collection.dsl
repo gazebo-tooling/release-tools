@@ -7,6 +7,28 @@ ignition_collections = [ 'acropolis' ]
 ignition_linux_distros = [ 'acropolis' : [ 'bionic' ] ]
 arch = 'amd64'
 
+ignition_nightly = 'blueprint'
+
+ignition_collections = [
+  [ name : 'blueprint',
+    nightly_jobs: [
+          'cmake'     : [ debbuild: 'ign-cmake2'    , branch: 'ign-cmake2'   ],
+          'common'    : [ debbuild: 'ign-common3'   , branch: 'ign-common3'  ],
+          'gazebo'    : [ debbuild: 'ign-gazebo2'   , branch: 'default'      ],
+          'gui'       : [ debbuild: 'ign-gui'       , branch: 'ign-gui1'     ],
+          'launch'    : [ debbuild: 'ign-launch'    , branch: 'ign-launch0'  ],
+          'math'      : [ debbuild: 'ign-math6'     , branch: 'ign-math6'    ],
+          'msgs'      : [ debbuild: 'ign-msgs3'     , branch: 'ign-msgs3'    ],
+          'physics'   : [ debbuild: 'ign-physics'   , branch: 'ign-physics1' ],
+          'plugin'    : [ debbuild: 'ign-plugin'    , branch: 'ign-plugin1'  ],
+          'rendering' : [ debbuild: 'ign-rendering2', branch: 'default'      ],
+          'sensors'   : [ debbuild: 'ign-sensors2'  , branch: 'default'      ],
+          'sdformat'  : [ debbuild: 'sdformat8'     , branch: 'sdf8'         ],
+          'transport' : [ debbuild: 'ign-transport6', branch: 'ign-transport6']
+    ]
+  ]
+]
+
 ignition_collection_jobs = [ 'acropolis' : [
         'ign_gazebo-ign-1-win',
         'ign_gui-ign-1-win',
@@ -70,23 +92,24 @@ ignition_collection_jobs = [ 'acropolis' : [
 // Testing compilation from source
 ignition_collections.each { ign_collection ->
   // COLCON - Windows
-  def ignition_win_ci_job = job("ign_${ign_collection}-ci-win")
+  ign_collection_name = ign_collection.get('name')
+  def ignition_win_ci_job = job("ign_${ign_collection_name}-ci-win")
   Globals.gazebodistro_branch = true
   OSRFWinCompilation.create(ignition_win_ci_job, false)
   ignition_win_ci_job.with
   {
       steps {
         batchFile("""\
-              set IGNITION_COLLECTION=${ign_collection}
+              set IGNITION_COLLECTION=${ign_collection_name}
               call "./scripts/jenkins-scripts/lib/ign_collection-base.bat"
               """.stripIndent())
       }
   }
 
-  ignition_linux_distros["${ign_collection}"].each { distro ->
+  ignition_linux_distros["${ign_collection_name}"].each { distro ->
     // INSTALL JOBS:
     // --------------------------------------------------------------
-    def install_default_job = job("ignition_${ign_collection}-install-pkg-${distro}-${arch}")
+    def install_default_job = job("ignition_${ign_collection_name}-install-pkg-${distro}-${arch}")
     OSRFLinuxInstall.create(install_default_job)
 
     install_default_job.with
@@ -95,7 +118,7 @@ ignition_collections.each { ign_collection ->
         cron('@daily')
       }
 
-      def dev_package = "ignition-${ign_collection}"
+      def dev_package = "ignition-${ign_collection_name}"
 
       steps {
        shell("""\
@@ -113,9 +136,9 @@ ignition_collections.each { ign_collection ->
 
   // MAC Brew
   // --------------------------------------------------------------
-  def ignition_brew_ci_job = job("ignition_${ign_collection}-ci-default-homebrew-amd64")
+  def ignition_brew_ci_job = job("ignition_${ign_collection_name}-ci-default-homebrew-amd64")
   OSRFBrewCompilationAny.create(ignition_brew_ci_job,
-                                "https://bitbucket.org/ignitionrobotics/ign-${ign_collection}",
+                                "https://bitbucket.org/ignitionrobotics/ign-${ign_collection_name}",
                                 false)
   ignition_brew_ci_job.with
   {
@@ -123,7 +146,7 @@ ignition_collections.each { ign_collection ->
         shell("""\
               #!/bin/bash -xe
 
-              /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "ignition-${ign_collection}"
+              /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "ignition-${ign_collection_name}"
               fi
               """.stripIndent())
       }
@@ -131,7 +154,7 @@ ignition_collections.each { ign_collection ->
 
   // DEBBUILD: linux package builder
   // --------------------------------------------------------------
-  def build_pkg_job = job("ign-${ign_collection}-debbuilder")
+  def build_pkg_job = job("ign-${ign_collection_name}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
   build_pkg_job.with
   {
@@ -145,10 +168,10 @@ ignition_collections.each { ign_collection ->
    }
 
   // Ignition dashboards
-  dashboardView("DSLign-${ign_collection}")
+  dashboardView("DSLign-${ign_collection_name}")
   {
       jobs {
-          ignition_collection_jobs["${ign_collection}"].each { jobname ->
+          ignition_collection_jobs["${ign_collection_name}"].each { jobname ->
             name(jobname)
           }
       }
@@ -185,3 +208,103 @@ ignition_collections.each { ign_collection ->
       }
    }
 }
+
+// NIGHTLY GENERATION
+collection_data = []
+list_of_pkgs = ""
+
+collection_data = ignition_collections.find { it.get('name') == ignition_nightly }
+collection_data = collection_data.get('nightly_jobs')
+
+collection_data.each { job ->
+  debbuild = job.getValue().get('debbuild')
+  list_of_pkgs = "${list_of_pkgs} ${debbuild}"
+}
+
+def nightly_scheduler_job = job("ignition-${ignition_nightly}-nightly-scheduler")
+OSRFLinuxBase.create(nightly_scheduler_job)
+
+nightly_scheduler_job.with
+{
+  label "master"
+
+  parameters
+  {
+     stringParam('NIGHTLY_PACKAGES',"${list_of_pkgs}",
+                 'space separated list of packages to build')
+  }
+
+  triggers {
+     scm('0   9    *    *    *')
+  }
+
+  cmake_branch = collection_data.get('cmake').get('branch')
+  common_branch = collection_data.get('common').get('branch')
+  gazebo_branch = collection_data.get('gazebo').get('branch')
+  gui_branch = collection_data.get('gui').get('branch')
+  launch_branch = collection_data.get('launch').get('branch')
+  math_branch = collection_data.get('math').get('branch')
+  msgs_branch = collection_data.get('msgs').get('branch')
+  physics_branch = collection_data.get('physics').get('branch')
+  plugin_branch = collection_data.get('plugin').get('branch')
+  rendering_branch = collection_data.get('rendering').get('branch')
+  sensors_branch = collection_data.get('sensors').get('branch')
+  sdformat_branch = collection_data.get('sdformat').get('branch')
+  transport_branch = collection_data.get('transport').get('branch')
+
+  steps {
+    shell("""\
+          #!/bin/bash -xe
+          set +x # keep password secret
+          PASS=\$(cat \$HOME/build_pass)
+          # redirect to not display the password
+          for n in \${NIGHTLY_PACKAGES}; do
+
+              # remove 0 or 1 trailing versions
+              n=\${n%[0-1]}
+
+              if [[ "\${n}" == "\${n/ign/ignition}" ]]; then
+                    alias=\${n}
+                    ignitionrepo=""
+              else
+                    alias="\${n/ign/ignition}"
+                    ignitionrepo="--ignition-repo"
+              fi
+
+              if [[ "\${n}" != "\${n/cmake/}" ]]; then
+                src_branch="${cmake_branch}"
+              elif [[ "\${n}" != "\${n/common/}" ]]; then
+                src_branch="${common_branch}"
+              elif  [[ "\${n}" != "\${n/gazebo/}" ]]; then
+                src_branch="${gazebo_branch}"
+              elif  [[ "\${n}" != "\${n/gui/}" ]]; then
+                src_branch="${gui_branch}"
+              elif [[ "\${n}" != "\${n/launch/}" ]]; then
+                src_branch="${launch_branch}"
+              elif [[ "\${n}" != "\${n/math/}" ]]; then
+                src_branch="${math_branch}"
+              elif [[ "\${n}" != "\${n/msgs/}" ]]; then
+                src_branch="${msgs_branch}"
+              elif [[ "\${n}" != "\${n/physics/}" ]]; then
+                src_branch="${physics_branch}"
+              elif [[ "\${n}" != "\${n/plugin/}" ]]; then
+                src_branch="${plugin_branch}"
+              elif [[ "\${n}" != "\${n/rendering/}" ]]; then
+                src_branch="${rendering_branch}"
+              elif [[ "\${n}" != "\${n/sensors/}" ]]; then
+                src_branch="${sensors_branch}"
+              elif [[ "\${n}" != "\${n/sdformat/}" ]]; then
+                src_branch="${sdformat_branch}"
+              elif [[ "\${n}" != "\${n/transport/}" ]]; then
+                src_branch="${transport_branch}"
+              else
+                src_branch="default"
+              fi
+
+              python ./scripts/release.py "\${n}" nightly "\${PASS}" -a \${alias} --extra-osrf-repo prerelease --nightly-src-branch \${src_branch} --upload-to-repo nightly  \${ignitionrepo} > log
+          done
+
+          """.stripIndent())
+  }
+}
+
