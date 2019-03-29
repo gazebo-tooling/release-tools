@@ -169,7 +169,7 @@ ignition_collections.each { ign_collection ->
    }
 
   // Ignition dashboards
-  dashboardView("DSLign-${ign_collection_name}")
+  dashboardView("ign-${ign_collection}")
   {
       jobs {
           ignition_collection_jobs["${ign_collection_name}"].each { jobname ->
