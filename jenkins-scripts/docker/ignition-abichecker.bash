@@ -35,7 +35,7 @@ export ABI_JOB_REPOS="stable"
 
 # Enable prerelease repos until a certain date
 if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo" ]]; then
-  if [[ $(date +%Y%m%d) -le 20190401 ]]; then
+  if [[ $(date +%Y%m%d) -le 20190501 ]]; then
     export ABI_JOB_REPOS="${ABI_JOB_REPOS} prerelease"
   fi
 fi
