@@ -19,7 +19,7 @@ export BUILDING_JOB_REPOSITORIES="stable"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_GAZEBO_DEPENDENCIES"
 
 # Enable prerelease repos until a certain date
-if [[ $(date +%Y%m%d) -le 20190401 ]]; then
+if [[ $(date +%Y%m%d) -le 20190501 ]]; then
   export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
 fi
 
