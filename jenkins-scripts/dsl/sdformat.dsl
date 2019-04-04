@@ -280,7 +280,7 @@ sdformat_supported_branches.each { branch ->
 
 // --------------------------------------------------------------
 // PERFORMANCE: linux performance test
-ci_distro.each { distro ->
+[ Globals.get_gz11_ubuntu_distro() ].each { distro ->
   supported_arches.each { arch ->
     def performance_job = job("sdformat-performance-default-${distro}-${arch}")
     OSRFLinuxPerformance.create(performance_job)
