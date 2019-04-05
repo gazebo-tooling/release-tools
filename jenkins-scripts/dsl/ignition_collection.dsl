@@ -238,7 +238,7 @@ nightly_scheduler_job.with
   }
 
   triggers {
-     scm('0   9    *    *    *')
+     cron('0   9    *    *    *')
   }
 
   cmake_branch = collection_data.get('cmake').get('branch')
