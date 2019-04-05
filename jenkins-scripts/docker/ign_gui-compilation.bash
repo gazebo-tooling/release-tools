@@ -31,7 +31,13 @@ fi
 
 if [[ ${IGN_GUI_MAJOR_VERSION} -ge 1 ]]; then
   export USE_GCC8=true
-else
+fi
+
+if [[ ${IGN_GUI_MAJOR_VERSION} -ge 2 ]]; then
+  # need ignition-rendering2, build from source for now
+  export BUILD_IGN_RENDERING=true
+  export IGN_RENDERING_BRANCH=default
+elif [[ ${IGN_GUI_MAJOR_VERSION} -eq 0 ]]; then
   # need to build ign-rendering0 for ign-gui0
   export BUILD_IGN_RENDERING=true
   export IGN_RENDERING_MAJOR_VERSION=0
