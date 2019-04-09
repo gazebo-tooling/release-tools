@@ -332,9 +332,9 @@ nightly_scheduler_job.with
           set +x # keep password secret
           PASS=\$(cat \$HOME/build_pass)
 
-          dry_run_str = ""
+          dry_run_str=""
           if \$DRY_RUN; then
-            dry_run_str = "--dry-run"
+            dry_run_str="--dry-run"
           fi
 
           # redirect to not display the password
