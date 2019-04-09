@@ -136,6 +136,9 @@ elif [[ ${DISTRO} == 'trusty' ]]; then
 elif [[ ${GAZEBO_MAJOR_VERSION} -le 4 ]]; then
     # Before gazebo5, ogre 1.9 was not supported
     ogre_pkg="libogre-1.8-dev"
+elif [[ ${IGN_RENDERING_MAJOR_VERSION} -ge 1 ]]; then
+    # support for both ogre-1.9 and ogre-2.1 was added in ign-rendering1
+    ogre_pkg="libogre-1.9-dev libogre-2.1-dev"
 fi
 
 # Starting from utopic, we are using the bullet provided by ubuntu
@@ -679,6 +682,11 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                         libignition-transport6-dev"
 fi
 
+if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 2 ]]; then
+  IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
+                        libignition-rendering2-dev"
+fi
+
 IGN_PHYSICS_DEPENDENCIES="dart6-data \\
                           libdart6-collision-ode-dev \\
                           libdart6-dev \\
@@ -742,6 +750,11 @@ IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
                           libignition-rendering-dev \\
                           libsdformat8-dev"
 
+if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 2 ]]; then
+  IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
+                        libignition-rendering2-dev"
+fi
+
 IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev     \\
                          libignition-cmake2-dev \\
                          libignition-fuel-tools3-dev \\
@@ -750,13 +763,21 @@ IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev     \\
                          libignition-math6-dev      \\
                          libignition-math6-eigen3-dev      \\
                          libignition-msgs3-dev       \\
+                         libignition-physics           \\
+                         libignition-physics-dartsim   \\
                          libignition-physics-dev       \\
                          libignition-plugin-dev       \\
+                         libignition-rendering-dev \\
                          libignition-sensors-dev \\
                          libignition-tools-dev \\
                          libignition-transport6-dev \\
-                         libignition-rendering-dev \\
                          libsdformat8-dev"
+
+if [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -ge 2 ]]; then
+  IGN_GAZEBO_DEPENDENCIES="${IGN_GAZEBO_DEPENDENCIES} \\
+                        libignition-rendering2-dev \\
+                        libignition-sensors2-dev"
+fi
 
 IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
                        libignition-math4-dev"
