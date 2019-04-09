@@ -16,24 +16,20 @@ print("\n## [Failing Builds](https://build.osrfoundation.org/view/ign-acropolis/
 
 # list of reasons build might be failing
 alwaysFailsBecause = {}
-alwaysFailsBecause["gazebo-ci-default-windows7-amd64"] = \
-  "Both pending some fixes under the scope of [PR 529 in release-tools](https://bitbucket.org/osrf/release-tools/pull-requests/529/fix-windows-gazebo-build/diff)"
-alwaysFailsBecause["gazebo-ci-gazebo9-windows7-amd64"] = \
-  "Both pending some fixes under the scope of [PR 529 in release-tools](https://bitbucket.org/osrf/release-tools/pull-requests/529/fix-windows-gazebo-build/diff)"
+alwaysFailsBecause["ign_gazebo-ign-1-win"] = \
+  "Pending fixes to build script under the scope of [PR 789 in release-tools](https://bitbucket.org/osrf/release-tools/pull-requests/789/add-ign-gazebo-colcon-script-for-windows/diff)"
+alwaysFailsBecause["ign_gazebo-ci-win"] = \
+  "Pending fixes to build script under the scope of [PR 789 in release-tools](https://bitbucket.org/osrf/release-tools/pull-requests/789/add-ign-gazebo-colcon-script-for-windows/diff)"
 alwaysFailsBecause["gazebo-performance-default-xenial-amd64"] = \
   "Performance problems documented in [gazebo issue 2320](https://bitbucket.org/osrf/gazebo/issues/2320/performance_transport_stress-test-times)"
-alwaysFailsBecause["ignition_gui-ci-default-windows7-amd64"]       = "Awaiting Windows implementation. In jrivero TODO list"
-alwaysFailsBecause["ignition_rendering-ci-default-windows7-amd64"] = "Awaiting Windows implementation. In jrivero TODO list"
-alwaysFailsBecause["ignition_sensors-ci-default-windows7-amd64"]   = "Awaiting Windows implementation. In jrivero TODO list"
 
-# do not print these for now as they are too distracting
-#print("\n### Builds with no record of passing\n")
-#for j in jobs_colors["red"]:
-#    name = j["name"]
-#    url = j["url"]
-#    if alwaysFailsBecause.has_key(name):
-#        print("\n* %s\n" % alwaysFailsBecause[name])
-#        print("    * [![Build Status](%s/badge/icon)](%s) [%s](%s)\n" % (url, url, name, url))
+print("\n### Builds with no record of passing\n")
+for j in jobs_colors["red"]:
+    name = j["name"]
+    url = j["url"]
+    if alwaysFailsBecause.has_key(name):
+        print("\n* %s\n" % alwaysFailsBecause[name])
+        print("    * [![Build Status](%s/badge/icon)](%s) [%s](%s)\n" % (url, url, name, url))
 
 print("\n### Unexpected failures\n")
 for j in jobs_colors["red"]:
