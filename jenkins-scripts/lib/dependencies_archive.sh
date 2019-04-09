@@ -775,6 +775,7 @@ IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev     \\
 
 if [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -ge 2 ]]; then
   IGN_GAZEBO_DEPENDENCIES="${IGN_GAZEBO_DEPENDENCIES} \\
+                        libignition-msgs4-dev \\
                         libignition-rendering2-dev \\
                         libignition-sensors2-dev"
 fi
