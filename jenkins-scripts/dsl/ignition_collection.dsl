@@ -16,7 +16,7 @@ ignition_collections = [
           'common'    : [ debbuild: 'ign-common3'   , branch: 'ign-common3'     ],
           'fuel-tools': [ debbuild: 'fuel-tools3'   , branch: 'ign-fuel-tools3' ],
           'gazebo'    : [ debbuild: 'ign-gazebo2'   , branch: 'default'         ],
-          'gui'       : [ debbuild: 'ign-gui'       , branch: 'ign-gui1'        ],
+          'gui'       : [ debbuild: 'ign-gui'       , branch: 'default'         ],
           'launch'    : [ debbuild: 'ign-launch'    , branch: 'ign-launch0'     ],
           'math'      : [ debbuild: 'ign-math6'     , branch: 'ign-math6'       ],
           'msgs'      : [ debbuild: 'ign-msgs3'     , branch: 'ign-msgs3'       ],
