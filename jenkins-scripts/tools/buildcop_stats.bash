@@ -12,7 +12,7 @@ for c in ["yellow", "red", "aborted", "notbuilt"]:
     jc = [j for j in jobs if j["color"].startswith(c)]
     jobs_colors[c] = jc
     print("| %s | %d/%d | %.1f%% |  |" % (c, len(jc), len(jobs), 100*float(len(jc)) / len(jobs)))
-print("\n## [Failing Builds](https://build.osrfoundation.org/view/ign-acropolis/)\n")
+print("\n## [ign-acropolis builds](https://build.osrfoundation.org/view/ign-acropolis/)\n")
 
 # list of reasons build might be failing
 alwaysFailsBecause = {}
