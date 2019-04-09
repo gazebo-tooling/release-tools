@@ -47,6 +47,18 @@ for j in jobs_colors["red"]:
         print("\n* Assigned to\n")
         print("    * [![Build Status](%s/badge/icon)](%s) [%s](%s)\n" % (url, url, name, url))
 
+yellow_jobs = list(jobs_colors["yellow"])
+yellow_jobs.sort()
+header = "\n### Unstable builds\n"
+header_printed = False
+for j in yellow_jobs:
+    if not header_printed:
+        print(header)
+        header_printed = True
+    name = j["name"]
+    url = j["url"]
+    print("* [![Build Status](%s/badge/icon)](%s) [%s](%s)\n" % (url, url, name, url))
+
 print("\n## Statistics of non-blue builds by project name\n")
 # sort by job name prefix
 ci_jobs = {}
