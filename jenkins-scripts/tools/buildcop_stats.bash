@@ -45,6 +45,7 @@ ci_jobs = {}
 install_jobs = []
 for job in jobs:
     ci_match = re.search("^.*-ci-", job["name"])
+    ign_windows_match = re.search("^ign_", job["name"])
     install_match = re.search("^.*-install-", job["name"])
     gazebo_match = re.search("^gazebo", job["name"])
     if install_match:
@@ -59,6 +60,13 @@ for job in jobs:
         if not ci_name in ci_jobs:
             ci_jobs[ci_name] = []
         ci_jobs[ci_name].append(job)
+    elif ign_windows_match:
+        win_name = ign_windows_match.group(0) + ".*-win"
+        if not win_name in ci_jobs:
+            ci_jobs[win_name] = []
+        ci_jobs[win_name].append(job)
+    else:
+        print("Unmatched: %s" % (job["name"]))
 
 ci_jobs_sorted = list(ci_jobs.keys())
 ci_jobs_sorted.sort()
