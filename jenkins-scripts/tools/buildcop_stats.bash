@@ -23,19 +23,27 @@ alwaysFailsBecause["ign_gazebo-ci-win"] = \
 alwaysFailsBecause["gazebo-performance-default-xenial-amd64"] = \
   "Performance problems documented in [gazebo issue 2320](https://bitbucket.org/osrf/gazebo/issues/2320/performance_transport_stress-test-times)"
 
-print("\n### Builds with no record of passing\n")
+header = "\n### Builds with no record of passing\n"
+header_printed = False
 for j in jobs_colors["red"]:
     name = j["name"]
     url = j["url"]
     if alwaysFailsBecause.has_key(name):
+        if not header_printed:
+            print(header)
+            header_printed = True
         print("\n* %s\n" % alwaysFailsBecause[name])
         print("    * [![Build Status](%s/badge/icon)](%s) [%s](%s)\n" % (url, url, name, url))
 
-print("\n### Unexpected failures\n")
+header = "\n### Unexpected failures\n"
+header_printed = False
 for j in jobs_colors["red"]:
     name = j["name"]
     url = j["url"]
     if not alwaysFailsBecause.has_key(name):
+        if not header_printed:
+            print(header)
+            header_printed = True
         print("\n* Assigned to\n")
         print("    * [![Build Status](%s/badge/icon)](%s) [%s](%s)\n" % (url, url, name, url))
 
