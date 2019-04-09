@@ -51,8 +51,7 @@ ignition_debbuild  = ignition_software + [ 'cmake1',
                                            'rendering2',
                                            'sensors2' ]
 // DESC: exclude ignition from generate any install testing job
-ignition_no_pkg_yet         = [ 'launch',
-                                'rndf' ]
+ignition_no_pkg_yet         = [ 'rndf' ]
 // DESC: major versions that has a package in the prerelease repo. Should
 // not appear in ignition_no_pkg_yet nor in ignition_branches
 ignition_prerelease_pkgs    = [ 'placeholder' : [
