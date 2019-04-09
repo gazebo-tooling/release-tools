@@ -80,7 +80,7 @@ header_printed = False
 header = "\n## Install jobs\n\n"
 header += "| Type | Count | Percent | Change |\n"
 header += "|--|--|--|--|"
-for c in ["yellow", "red", "aborted", "notbuilt"]:
+for c in ["blue", "yellow", "red", "aborted", "notbuilt"]:
     jc = [j for j in install_jobs if j["color"].startswith(c)]
     if len(jc) > 0:
         if not header_printed:
