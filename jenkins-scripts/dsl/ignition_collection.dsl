@@ -12,20 +12,20 @@ ignition_collections = [
   ],
   [ name : 'blueprint',
     nightly_jobs: [
-          'cmake'     : [ debbuild: 'ign-cmake2'    , branch: 'ign-cmake2'      ],
-          'common'    : [ debbuild: 'ign-common3'   , branch: 'ign-common3'     ],
-          'fuel-tools': [ debbuild: 'fuel-tools3'   , branch: 'ign-fuel-tools3' ],
-          'gazebo'    : [ debbuild: 'ign-gazebo2'   , branch: 'default'         ],
-          'gui'       : [ debbuild: 'ign-gui'       , branch: 'default'         ],
-          'launch'    : [ debbuild: 'ign-launch'    , branch: 'ign-launch0'     ],
-          'math'      : [ debbuild: 'ign-math6'     , branch: 'ign-math6'       ],
-          'msgs'      : [ debbuild: 'ign-msgs3'     , branch: 'ign-msgs3'       ],
-          'physics'   : [ debbuild: 'ign-physics'   , branch: 'ign-physics1'    ],
-          'plugin'    : [ debbuild: 'ign-plugin'    , branch: 'ign-plugin1'     ],
-          'rendering' : [ debbuild: 'ign-rendering2', branch: 'default'         ],
-          'sensors'   : [ debbuild: 'ign-sensors2'  , branch: 'default'         ],
-          'sdformat'  : [ debbuild: 'sdformat8'     , branch: 'sdf8'            ],
-          'transport' : [ debbuild: 'ign-transport6', branch: 'ign-transport6'  ]
+          'cmake'     : [ debbuild: 'ign-cmake2'     , branch: 'ign-cmake2'      ],
+          'common'    : [ debbuild: 'ign-common3'    , branch: 'ign-common3'     ],
+          'fuel-tools': [ debbuild: 'ign-fuel-tools3', branch: 'ign-fuel-tools3' ],
+          'gazebo'    : [ debbuild: 'ign-gazebo2'    , branch: 'default'         ],
+          'gui'       : [ debbuild: 'ign-gui'        , branch: 'default'        ],
+          'launch'    : [ debbuild: 'ign-launch'     , branch: 'ign-launch0'     ],
+          'math'      : [ debbuild: 'ign-math6'      , branch: 'ign-math6'       ],
+          'msgs'      : [ debbuild: 'ign-msgs3'      , branch: 'ign-msgs3'       ],
+          'physics'   : [ debbuild: 'ign-physics'    , branch: 'ign-physics1'    ],
+          'plugin'    : [ debbuild: 'ign-plugin'     , branch: 'ign-plugin1'     ],
+          'rendering' : [ debbuild: 'ign-rendering2' , branch: 'default'         ],
+          'sensors'   : [ debbuild: 'ign-sensors2'   , branch: 'default'         ],
+          'sdformat'  : [ debbuild: 'sdformat8'      , branch: 'sdf8'            ],
+          'transport' : [ debbuild: 'ign-transport6' , branch: 'ign-transport6'  ]
     ],
     distros : [ 'bionic' ],
   ]
@@ -302,6 +302,9 @@ nightly_scheduler_job.with
   {
      stringParam('NIGHTLY_PACKAGES',"${list_of_pkgs}",
                  'space separated list of packages to build')
+
+     booleanParam('DRY_RUN',false,
+                  'run a testing run with no effects')
   }
 
   triggers {
@@ -328,6 +331,12 @@ nightly_scheduler_job.with
           #!/bin/bash -xe
           set +x # keep password secret
           PASS=\$(cat \$HOME/build_pass)
+
+          dry_run_str=""
+          if \$DRY_RUN; then
+            dry_run_str="--dry-run"
+          fi
+
           # redirect to not display the password
           for n in \${NIGHTLY_PACKAGES}; do
 
@@ -374,7 +383,9 @@ nightly_scheduler_job.with
                 src_branch="default"
               fi
 
-              python ./scripts/release.py "\${n}" nightly "\${PASS}" -a \${alias} --extra-osrf-repo prerelease --nightly-src-branch \${src_branch} --upload-to-repo nightly  \${ignitionrepo} > log
+              echo "releasing \${n} (as \${alias}) from branch \${src_branch} \${ignitionrepo}"
+              python ./scripts/release.py \${dry_run_str} "\${n}" nightly "\${PASS}" -a \${alias} --extra-osrf-repo prerelease --nightly-src-branch \${src_branch} --upload-to-repo nightly  \${ignitionrepo} > log
+              echo " - done"
           done
 
           """.stripIndent())
