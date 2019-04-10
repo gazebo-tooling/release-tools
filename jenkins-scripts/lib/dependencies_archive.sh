@@ -562,10 +562,16 @@ elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 5 ]]; then
                                 libignition-msgs2-dev \\
                                 libsqlite3-dev \\
                                 ruby-ffi"
-elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 6 ]]; then
+elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 6 ]]; then
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                   libignition-cmake2-dev \\
                                   libignition-msgs3-dev \\
+                                  libsqlite3-dev \\
+                                  ruby-ffi"
+elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 7 ]]; then
+    export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
+                                  libignition-cmake2-dev \\
+                                  libignition-msgs4-dev \\
                                   libsqlite3-dev \\
                                   ruby-ffi"
 else
@@ -684,7 +690,9 @@ fi
 
 if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 2 ]]; then
   IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
-                        libignition-rendering2-dev"
+                        libignition-msgs4-dev \\
+                        libignition-rendering2-dev \\
+                        libignition-transport7-dev"
 fi
 
 IGN_PHYSICS_DEPENDENCIES="dart6-data \\
@@ -752,7 +760,9 @@ IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
 
 if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 2 ]]; then
   IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
-                        libignition-rendering2-dev"
+                        libignition-msgs4-dev \\
+                        libignition-rendering2-dev \\
+                        libignition-transport7-dev"
 fi
 
 IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev     \\
@@ -778,7 +788,8 @@ if [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -ge 2 ]]; 
                         libignition-gui2-dev \\
                         libignition-msgs4-dev \\
                         libignition-rendering2-dev \\
-                        libignition-sensors2-dev"
+                        libignition-sensors2-dev \\
+                        libignition-transport7-dev"
 fi
 
 IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\

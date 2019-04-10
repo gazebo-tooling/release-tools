@@ -25,7 +25,7 @@ ignition_collections = [
           'rendering' : [ debbuild: 'ign-rendering2' , branch: 'default'         ],
           'sensors'   : [ debbuild: 'ign-sensors2'   , branch: 'default'         ],
           'sdformat'  : [ debbuild: 'sdformat8'      , branch: 'sdf8'            ],
-          'transport' : [ debbuild: 'ign-transport6' , branch: 'ign-transport6'  ]
+          'transport' : [ debbuild: 'ign-transport7' , branch: 'default'         ]
     ],
     distros : [ 'bionic' ],
   ]
