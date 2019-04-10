@@ -75,7 +75,7 @@ supported_distros.each { distro ->
           cron('@weekly')
         }
 
-        label "gpu-reliable-${distro}"
+        label "gpu-reliable"
 
         steps {
           shell("""#!/bin/bash -xe
