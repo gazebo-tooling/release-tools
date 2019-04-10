@@ -19,7 +19,7 @@ ignition_collections = [
           'gui'       : [ debbuild: 'ign-gui'        , branch: 'ign-gui1'        ],
           'launch'    : [ debbuild: 'ign-launch'     , branch: 'ign-launch0'     ],
           'math'      : [ debbuild: 'ign-math6'      , branch: 'ign-math6'       ],
-          'msgs'      : [ debbuild: 'ign-msgs3'      , branch: 'default'         ],
+          'msgs'      : [ debbuild: 'ign-msgs4'      , branch: 'default'         ],
           'physics'   : [ debbuild: 'ign-physics'    , branch: 'ign-physics1'    ],
           'plugin'    : [ debbuild: 'ign-plugin'     , branch: 'ign-plugin1'     ],
           'rendering' : [ debbuild: 'ign-rendering2' , branch: 'default'         ],
