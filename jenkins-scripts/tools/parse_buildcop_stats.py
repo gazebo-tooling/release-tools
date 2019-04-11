@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import datetime, json, re, sys, os;
 view=os.environ["VIEW"]
 
@@ -27,7 +27,7 @@ header_printed = False
 for j in jobs_colors["red"]:
     name = j["name"]
     url = j["url"]
-    if alwaysFailsBecause.has_key(name):
+    if name in alwaysFailsBecause:
         if not header_printed:
             print(header)
             header_printed = True
@@ -39,15 +39,14 @@ header_printed = False
 for j in jobs_colors["red"]:
     name = j["name"]
     url = j["url"]
-    if not alwaysFailsBecause.has_key(name):
+    if not name in alwaysFailsBecause:
         if not header_printed:
             print(header)
             header_printed = True
         print("\n* Assigned to\n")
         print("    * [![Build Status](%s/badge/icon)](%s) [%s](%s)\n" % (url, url, name, url))
 
-yellow_jobs = list(jobs_colors["yellow"])
-yellow_jobs.sort()
+yellow_jobs = sorted(jobs_colors["yellow"], key=lambda j: j["name"])
 header = "\n### Unstable builds\n"
 header_printed = False
 for j in yellow_jobs:
