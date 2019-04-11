@@ -48,8 +48,11 @@ ignition_prerelease_branches = []
 // don't appear in ignition_branches (like nightly builders)
 ignition_debbuild  = ignition_software + [ 'cmake1',
                                            'gazebo2',
+                                           'gui2',
+                                           'msgs4',
                                            'rendering2',
-                                           'sensors2' ]
+                                           'sensors2',
+                                           'transport7' ]
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [ 'launch',
                                 'rndf' ]
