@@ -384,11 +384,22 @@ nightly_scheduler_job.with
               fi
 
               echo "releasing \${n} (as \${alias}) from branch \${src_branch} \${ignitionrepo}"
-              python ./scripts/release.py \${dry_run_str} "\${n}" nightly "\${PASS}" -a \${alias} --extra-osrf-repo prerelease --nightly-src-branch \${src_branch} --upload-to-repo nightly  \${ignitionrepo} > log
+              python ./scripts/release.py \${dry_run_str} "\${n}" nightly "\${PASS}" -a \${alias} --extra-osrf-repo prerelease --nightly-src-branch \${src_branch} --upload-to-repo nightly  \${ignitionrepo} > log || echo "MARK_AS_UNSTABLE"
               echo " - done"
           done
 
           """.stripIndent())
+  }
+
+  publishers
+  {
+     configure { project ->
+       project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+          unstableOnWarning true
+          failBuildOnError false
+          parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+        }
+     }
   }
 }
 
