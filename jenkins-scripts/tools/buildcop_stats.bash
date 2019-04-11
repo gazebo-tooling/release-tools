@@ -1,8 +1,17 @@
 #!/bin/bash
-curl https://build.osrfoundation.org/view/ign-acropolis/api/json 2>/dev/null | python -c '\
-import datetime, json, re, sys;
-print("# Build Cop Report %s\n" % datetime.date.today())
-print("## Aggregate Results as of %s\n" % datetime.datetime.now())
+
+views='ign-acropolis ign-blueprint'
+
+echo "# Build Cop Report $(date +%Y-%m-%d)"
+echo "## Aggregate Results as of $(date '+%Y-%m-%d %H:%M:%S')"
+
+
+for v in ${views}; do
+curl https://build.osrfoundation.org/view/"${v}"/api/json 2>/dev/null | VIEW=${v} python -c '\
+import datetime, json, re, sys, os;
+view=os.environ["VIEW"]
+
+print("\n## [" + view + " builds](https://build.osrfoundation.org/view/" + view + "/)\n")
 jobs = json.loads(sys.stdin.read())["jobs"];
 print("| Type | Count | Percent | Change |")
 print("|--|--|--|--|")
@@ -12,7 +21,6 @@ for c in ["yellow", "red", "aborted", "notbuilt"]:
     jc = [j for j in jobs if j["color"].startswith(c)]
     jobs_colors[c] = jc
     print("| %s | %d/%d | %.1f%% |  |" % (c, len(jc), len(jobs), 100*float(len(jc)) / len(jobs)))
-print("\n## [ign-acropolis builds](https://build.osrfoundation.org/view/ign-acropolis/)\n")
 
 # list of reasons build might be failing
 alwaysFailsBecause = {}
@@ -59,3 +67,4 @@ for j in yellow_jobs:
     url = j["url"]
     print("* [![Build Status](%s/badge/icon)](%s) [%s](%s)\n" % (url, url, name, url))
 '
+done
