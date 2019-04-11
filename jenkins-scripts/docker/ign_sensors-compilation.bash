@@ -30,9 +30,8 @@ if ! [[ ${IGN_SENSORS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 if [[ ${IGN_SENSORS_MAJOR_VERSION} -ge 2 ]]; then
-  # need ignition-rendering2 nightlies
-  if [[ $(date +%Y%m%d) -le 20190601 ]]; then
-    export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} nightly"
+  if [[ $(date +%Y%m%d) -le 20190501 ]]; then
+    export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
   fi
 fi
 

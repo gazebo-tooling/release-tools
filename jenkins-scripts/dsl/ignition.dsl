@@ -48,8 +48,11 @@ ignition_prerelease_branches = []
 // don't appear in ignition_branches (like nightly builders)
 ignition_debbuild  = ignition_software + [ 'cmake1',
                                            'gazebo2',
+                                           'gui2',
+                                           'msgs4',
                                            'rendering2',
-                                           'sensors2' ]
+                                           'sensors2',
+                                           'transport7' ]
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [ 'rndf' ]
 // DESC: major versions that has a package in the prerelease repo. Should
@@ -464,7 +467,7 @@ ignition_debbuild.each { ign_sw ->
       major_version = ""
 
     extra_str = ""
-    if ("${ign_sw}" == "gazebo")
+    if (("${ign_sw}" == "gazebo") || ("${ign_sw}" == "transport7"))
       extra_str="export USE_GCC8=true"
 
     def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
