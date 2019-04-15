@@ -196,9 +196,7 @@ echo '# END SECTION'
 
 # Enable compat level 12 to get --list-missing enabled by default, if the
 # support is found in debhelper
-dpkg -L debhelper
-grep -R 'compat 12' /usr/share/perl5/Debian/*
-if [[ -n \$(grep -R 'compat 12' /usr/share/perl5/Debian/Debhelper/Dh_Version.pm) ]]; then
+if [[ -n  \$(grep -R 'compat 12' /usr/share/perl5/Debian/Debhelper/Dh_*.pm) ]]; then
   echo 12 > debian/compat
 fi
 
