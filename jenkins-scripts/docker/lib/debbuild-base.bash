@@ -194,6 +194,12 @@ cp ../*.tar.* $WORKSPACE/pkgs
 cp ../*.debian.* $WORKSPACE/pkgs || true
 echo '# END SECTION'
 
+# Enable compat level 12 to get --list-missing enabled by default, if the
+# support is found in debhelper
+if [[ -n \$(grep -R 'compat 12' /usr/share/perl5/Debian/Debhelper/Dh_Version.pm) ]]; then
+  echo 12 > debian/compat
+fi
+
 echo '# BEGIN SECTION: create deb packages'
 debuild --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 echo '# END SECTION'
