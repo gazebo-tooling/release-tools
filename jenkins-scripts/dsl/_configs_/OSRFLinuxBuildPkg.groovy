@@ -101,7 +101,7 @@ class OSRFLinuxBuildPkg
 
         downstreamParameterized {
 	  trigger('repository_uploader_ng') {
-	    condition('SUCCESS')
+	    condition('UNSTABLE_OR_BETTER')
 	    parameters {
 	      currentBuild()
 	      predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
