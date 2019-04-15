@@ -184,8 +184,6 @@ g++ --version
 echo '# END SECTION'
 fi
 
-export DH_OPTIONS=--list-missing
-
 echo '# BEGIN SECTION: create source package' \${OSRF_VERSION}
 debuild --no-tgz-check -uc -us -S --source-option=--include-binaries
 
