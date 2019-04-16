@@ -93,9 +93,15 @@ class OSRFLinuxBuildPkg
       }
 
       publishers {
+        consoleParsing {
+            projectRules('scripts/jenkins-scripts/parser_rules/debbuild_missing.parser')
+            unstableOnWarning()
+            failBuildOnError(false)
+        }
+
         downstreamParameterized {
 	  trigger('repository_uploader_ng') {
-	    condition('SUCCESS')
+	    condition('UNSTABLE_OR_BETTER')
 	    parameters {
 	      currentBuild()
 	      predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
