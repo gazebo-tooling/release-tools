@@ -695,7 +695,8 @@ if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 2 ]]; then
                         libignition-transport7-dev"
 fi
 
-IGN_PHYSICS_DEPENDENCIES="dart6-data \\
+IGN_PHYSICS_DEPENDENCIES="libbenchmark-dev \\
+                          dart6-data \\
                           libdart6-collision-ode-dev \\
                           libdart6-dev \\
                           libdart6-utils-urdf-dev \\
@@ -789,7 +790,8 @@ if [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -ge 2 ]]; 
                         libignition-msgs4-dev \\
                         libignition-rendering2-dev \\
                         libignition-sensors2-dev \\
-                        libignition-transport7-dev"
+                        libignition-transport7-dev \\
+                        libbenchmark-dev"
 fi
 
 IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
