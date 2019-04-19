@@ -789,7 +789,8 @@ if [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -ge 2 ]]; 
                         libignition-msgs4-dev \\
                         libignition-rendering2-dev \\
                         libignition-sensors2-dev \\
-                        libignition-transport7-dev"
+                        libignition-transport7-dev \\
+                        libbenchmark-dev"
 fi
 
 IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
