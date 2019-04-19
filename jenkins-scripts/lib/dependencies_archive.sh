@@ -695,7 +695,8 @@ if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 2 ]]; then
                         libignition-transport7-dev"
 fi
 
-IGN_PHYSICS_DEPENDENCIES="dart6-data \\
+IGN_PHYSICS_DEPENDENCIES="libbenchmark-dev \\
+                          dart6-data \\
                           libdart6-collision-ode-dev \\
                           libdart6-dev \\
                           libdart6-utils-urdf-dev \\
