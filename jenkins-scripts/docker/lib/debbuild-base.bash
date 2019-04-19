@@ -130,7 +130,7 @@ cd \${PACKAGE_RELEASE_DIR}
 
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
-  NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}+\${TIMESTAMP}-${RELEASE_VERSION}~r\${REV}~${DISTRO}
+  NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV}-${RELEASE_VERSION}~${DISTRO}
   debchange --package ${PACKAGE_ALIAS} \\
               --newversion \${NIGHTLY_VERSION_SUFFIX} \\
               --distribution ${DISTRO} \\
@@ -144,7 +144,7 @@ cd \`find $WORKSPACE/build -mindepth 1 -type d |head -n 1\`
 # If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
 if $NIGHTLY_MODE; then
   rm -fr .hg*
-  echo | dh_make -y -s --createorig -p ${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}r\${REV} > /dev/null
+  echo | dh_make -y -s --createorig -p${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
 fi
 
 # Adding extra directories to code. debian has no problem but some extra directories
