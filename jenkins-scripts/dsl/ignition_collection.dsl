@@ -216,7 +216,6 @@ ignition_collections.each { ign_collection ->
               #!/bin/bash -xe
 
               /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "ignition-${ign_collection_name}"
-              fi
               """.stripIndent())
       }
   }
