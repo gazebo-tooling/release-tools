@@ -44,6 +44,9 @@ class ErrorGitRepo(Exception):
 class ErrorNoPermsRepo(Exception):
     pass
 
+class ErrorNoUsernameSupplied(Exception):
+    pass
+
 def error(msg):
     print("\n !! " + msg + "\n")
     sys.exit(1)
@@ -322,8 +325,14 @@ def check_call(cmd, ignore_dry_run = False):
         if po.returncode != 0:
             if "Permission denied" in out:
                 raise ErrorNoPermsRepo()
+            if "abort: no username supplied" in err:
+                raise ErrorNoUsernameSupplied()
             if "hg" in cmd:
-                r = subprocess.Popen(["git", "status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                try:
+                    r = subprocess.Popen(["git", "status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                except:
+                    print("Unable to run 'git status'. Is git installed?")
+                    raise
                 if r.returncode != 0:
                     raise ErrorGitRepo()
             # Unkown exception
@@ -424,6 +433,10 @@ def generate_upload_tarball(args):
         print('The bitbucket server reports problems with permissions')
         print('The branch could be blocked by configuration if you do not have')
         print('rights to push code in default branch.')
+        sys.exit(1)
+    except ErrorNoUsernameSupplied as e:
+        print('The hg tag could not be committed because you have not configured')
+        print('your username. Use "hg config --edit" to set your username.')
         sys.exit(1)
 
     source_tarball_uri = DOWNLOAD_URI_PATTERN%get_canonical_package_name(args.package) + tarball_fname
