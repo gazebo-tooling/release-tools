@@ -261,7 +261,7 @@ goto :EOF
 
 :: ##################################
 :disable_vcpkg_integration
-%VCPKG_CMD% integrate uninstall || goto :error
+%VCPKG_CMD% integrate remove || goto :error
 goto :EOF
 
 :: ##################################
