@@ -11,7 +11,7 @@ echo # END SECTION
 
 :: avoid conflicts with vcpkg packages
 call %win_lib% :disable_vcpkg_integration
-call %win_lib% :remove_vcpkg_package protobuf 
+call %win_lib% :remove_vcpkg_package protobuf qt5 qwt
 
 :: IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto %win_lib% :error
 :: reusing the workspace
