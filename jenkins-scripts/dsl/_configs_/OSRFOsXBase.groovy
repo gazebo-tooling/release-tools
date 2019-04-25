@@ -3,11 +3,10 @@ package _configs_
 import javaposse.jobdsl.dsl.Job
 
 /*
-  -> OSRFUNIXBase
+  -> OSRFOsXBase
 
   Implements:
-    - run on docker
-    - colorize ansi output
+    - run on osx
 */
 class OSRFOsXBase
 {
@@ -19,10 +18,6 @@ class OSRFOsXBase
      job.with
      {
          label "osx"
-
-         wrappers {
-           colorizeOutput()
-        }
      }
    }
 }
