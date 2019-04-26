@@ -330,7 +330,7 @@ def check_call(cmd, ignore_dry_run = False):
             if "hg" in cmd:
                 try:
                     r = subprocess.Popen(["git", "status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                except:
+                except OSError as e:
                     print("Unable to run 'git status'. Is git installed?")
                     raise
                 if r.returncode != 0:
