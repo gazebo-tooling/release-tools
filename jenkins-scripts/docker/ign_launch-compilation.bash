@@ -31,7 +31,7 @@ if ! [[ ${IGN_LAUNCH_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-if [[ ${IGN_GUI_MAJOR_VERSION} -ge 1 ]]; then
+if [[ ${IGN_LAUNCH_MAJOR_VERSION} -ge 1 ]]; then
   if [[ $(date +%Y%m%d) -le 20190501 ]]; then
     export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
   fi
