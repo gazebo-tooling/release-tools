@@ -724,7 +724,7 @@ IGN_LAUNCH_DEPENDENCIES="libignition-cmake2-dev \\
                          qtquickcontrols2-5-dev \\
                          libqt5core5a"
 
-if [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -ge 1 ]]; then
+if [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -lt 1 ]]; then
   IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_DEPENDENCIES} \\
                           libignition-gui-dev \\
                           libignition-msgs3-dev \\
