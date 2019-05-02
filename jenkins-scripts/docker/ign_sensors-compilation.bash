@@ -30,7 +30,7 @@ if ! [[ ${IGN_SENSORS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 if [[ ${IGN_SENSORS_MAJOR_VERSION} -ge 2 ]]; then
-  if [[ $(date +%Y%m%d) -le 20190501 ]]; then
+  if [[ $(date +%Y%m%d) -le 20190514 ]]; then
     export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
   fi
 fi
