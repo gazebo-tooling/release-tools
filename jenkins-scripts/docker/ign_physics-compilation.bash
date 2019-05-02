@@ -19,8 +19,8 @@ export BUILDING_JOB_REPOSITORIES="stable"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_PHYSICS_DEPENDENCIES"
 
 # Enable prerelease repos until a certain date
-if [[ $(date +%Y%m%d) -le 20190501 ]]; then
-  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
+if [[ $(date +%Y%m%d) -le 20190514 ]]; then
+  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
 fi
 
 export USE_GCC8=true
