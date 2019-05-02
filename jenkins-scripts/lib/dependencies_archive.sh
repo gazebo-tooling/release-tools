@@ -716,7 +716,6 @@ fi
 
 IGN_LAUNCH_DEPENDENCIES="libignition-cmake2-dev \\
                          libignition-common3-dev \\
-                         libignition-gazebo-dev \\
                          libignition-plugin-dev \\
                          libignition-tools-dev \\
                          libsdformat8-dev \\
@@ -726,12 +725,14 @@ IGN_LAUNCH_DEPENDENCIES="libignition-cmake2-dev \\
 
 if [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -lt 1 ]]; then
   IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_DEPENDENCIES} \\
+                          libignition-gazebo-dev \\
                           libignition-gui-dev \\
                           libignition-msgs3-dev \\
                           libignition-sensors-dev \\
                           libignition-transport6-dev"
 else
   IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_DEPENDENCIES} \\
+                           libignition-gazebo2-dev \\
                            libignition-gui2-dev \\
                            libignition-msgs4-dev \\
                            libignition-sensors2-dev  \\
