@@ -150,7 +150,7 @@ DELIM_DOCKER_PAM_BUG
 fi
 
 # dirmngr from Yaketty on needed by apt-key
-if [[ $DISTRO != 'trusty' ]] || [[ $DISTRO != 'xenial' ]]; then
+if [[ $DISTRO != 'xenial' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
 RUN apt-get update && \\
     apt-get install -y dirmngr
@@ -221,12 +221,6 @@ RUN apt-get update \\
  && rm -rf /var/lib/apt/lists/*
 RUN apt-add-repository -y ppa:dartsim
 DELIM_DOCKER_DART_PKGS
-  if [[ "${DISTRO}" == "trusty" ]]; then
-cat >> Dockerfile << DELIM_DOCKER_DART_PKGS
-RUN apt-add-repository -y ppa:libccd-debs
-RUN apt-add-repository -y ppa:fcl-debs
-DELIM_DOCKER_DART_PKGS
-  fi
 fi
 
 # Workaround a problem in simbody on artful bad paths

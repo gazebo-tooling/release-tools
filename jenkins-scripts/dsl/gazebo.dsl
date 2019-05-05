@@ -29,12 +29,11 @@ String ci_build_any_job_name_linux = "gazebo-ci-pr_any-${ci_distro_str}-amd64-gp
 // Need to be used in ci_pr
 String abi_job_name = ''
 
-boolean is_watched_by_buildcop(branch, distro = 'trusty', gpu = 'nvidia')
+boolean is_watched_by_buildcop(branch, distro = 'xenial', gpu = 'nvidia')
 
 {
   if (branch == 'default' || branch == 'gazebo7' || branch == 'gazebo8')
-    if (gpu == 'nvidia' && distro == 'trusty')
-      return true
+    return true
 
   return false
 }
@@ -177,53 +176,49 @@ ci_distro.each { distro ->
 
 // OTHER CI SUPPORTED JOBS (default branch) @ SCM/DAILY
 other_supported_distros.each { distro ->
-  // no trusty support for -default- branch
-  if (distro != 'trusty')
-  {
-    supported_arches.each { arch ->
+  supported_arches.each { arch ->
 
-      // get the supported gpus by distro
-      gpus = Globals.gpu_by_distro[distro]
-      if (gpus == null)
-        gpus = [ 'none' ]
+    // get the supported gpus by distro
+    gpus = Globals.gpu_by_distro[distro]
+    if (gpus == null)
+      gpus = [ 'none' ]
 
-      gpus.each { gpu ->
-        // ci_default job for the rest of arches / scm@daily
-        def gazebo_ci_job = job("gazebo-ci-default-${distro}-${arch}-gpu-${gpu}")
-        OSRFLinuxCompilation.create(gazebo_ci_job)
-        OSRFBitbucketHg.create(gazebo_ci_job, "https://bitbucket.org/osrf/gazebo")
+    gpus.each { gpu ->
+      // ci_default job for the rest of arches / scm@daily
+      def gazebo_ci_job = job("gazebo-ci-default-${distro}-${arch}-gpu-${gpu}")
+      OSRFLinuxCompilation.create(gazebo_ci_job)
+      OSRFBitbucketHg.create(gazebo_ci_job, "https://bitbucket.org/osrf/gazebo")
 
-        gazebo_ci_job.with
+      gazebo_ci_job.with
+      {
+
+        if (gpu != 'none')
         {
-
-          if (gpu != 'none')
-          {
-            label "gpu-${gpu}-${distro}"
-          }
-
-          triggers {
-            scm('@daily')
-          }
-
-          String gpu_needed = 'true'
-          if (gpu == 'none') {
-            gpu_needed = 'false'
-          }
-
-          steps {
-            shell("""\
-            #!/bin/bash -xe
-
-            export DISTRO=${distro}
-            export ARCH=${arch}
-            export GPU_SUPPORT_NEEDED=${gpu_needed}
-            /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
-            """.stripIndent())
-          }
+          label "gpu-${gpu}-${distro}"
         }
-      } // end of gpus
-    } // end of arch
-  } // end of trusty exception
+
+        triggers {
+          scm('@daily')
+        }
+
+        String gpu_needed = 'true'
+        if (gpu == 'none') {
+          gpu_needed = 'false'
+        }
+
+        steps {
+          shell("""\
+          #!/bin/bash -xe
+
+          export DISTRO=${distro}
+          export ARCH=${arch}
+          export GPU_SUPPORT_NEEDED=${gpu_needed}
+          /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
+          """.stripIndent())
+        }
+      }
+    } // end of gpus
+  } // end of arch
 } // end of distro
 
 // sdformat and ignition dependencies

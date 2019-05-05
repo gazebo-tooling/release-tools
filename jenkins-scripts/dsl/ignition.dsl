@@ -317,11 +317,6 @@ ignition_software.each { ign_sw ->
   supported_arches.each { arch ->
     supported_install_pkg_branches(ign_sw).each { major_version, supported_distros ->
       supported_distros.each { distro ->
-
-        // only a few release branches support trusty anymore
-        if (("${distro}" == "trusty") && !(
-            (("${ign_sw}" == "math") && ("${major_version}" == "2"))))
-          return
         // no bionic for math2 or math3
         if (("${distro}" == "bionic") && (
             (("${ign_sw}" == "math") && ("${major_version}" == "2"))))
@@ -409,11 +404,6 @@ ignition_software.each { ign_sw ->
             scm('@daily')
           }
 
-          // only a few release branches support trusty anymore
-          if (("${distro}" == "trusty") && !(
-              ("${branch}" == "ign-math2")))
-            disabled()
-
           // no xenial for ign-physics/sensors/gazebo or plugin default/ign-plugin1
           if (("${distro}" == "xenial") && (
               ("${ign_sw}" == "cmake" && "${branch}" == "ign-cmake2") ||
@@ -437,10 +427,9 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "transport" && "${branch}" == "default")))
             disabled()
 
-          // gz11 branches don't work on trusty or xenial
+          // gz11 branches don't work on xenial
           if (("${branch}" == "gz11") && (
-              ("${distro}" == "xenial") ||
-              ("${distro}" == "trusty")))
+              ("${distro}" == "xenial")
             disabled()
 
           steps {

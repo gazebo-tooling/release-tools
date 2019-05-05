@@ -53,11 +53,11 @@ init_stopwatch CREATE_TESTING_ENVIROMENT
 
 # Default values - Provide them is prefered
 if [ -z ${DISTRO} ]; then
-    DISTRO=trusty
+    DISTRO=xenial
 fi
 
 if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=indigo
+  ROS_DISTRO=kinetic
 fi
 
 if [ -z "${ROS2}" ]; then

@@ -77,19 +77,6 @@ sed -i -e "s:\$VERSION:\$OSRF_VERSION:g" debian/changelog
 changelog_distro=\$(dpkg-parsechangelog | grep Distribution | awk '{print \$2}')
 sed -i -e "1 s:\$changelog_distro:$DISTRO:" debian/changelog
 
-# When backported from Vivid (or above) to Trusty/Utopic some packages are not
-# avilable or names are different
-if [ $DISTRO = 'trusty' ]; then
-  # libbullet-dev is only 2.81 in trusty, don't build against it
-  sed -i '/bullet/d' debian/control
-  # use libogre1.8-dev in trusty per https://github.com/ros-infrastructure/rep/pull/89#issuecomment-69232117
-  sed -i -e 's:libogre-1\.9-dev:libogre-1.8-dev:g' debian/control
-fi
-if [ $DISTRO = 'trusty' ] || [ $DISTRO = 'utopic' ]; then
-  # libsdformat-dev is the name in Ubuntu, libsdformat2-dev is the one in OSRF
-  sed -i -e 's:libsdformat-dev:libsdformat2-dev:g' debian/control
-fi
-
 # In precise, no multiarch paths was implemented in GNUInstallDirs. Remove it.
 if ! $MULTIARCH_SUPPORT; then
   sed -i -e 's:/\*/:/:g' debian/*.install

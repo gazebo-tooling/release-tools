@@ -1,10 +1,6 @@
 #!/bin/bash -x
 
 case ${DISTRO} in
-  'trusty')
-    ROS_DISTRO=indigo
-    PKG_VERSION="7"
-    ;;
   'xenial')
     ROS_DISTRO=kinetic
     PKG_VERSION="" # xenial uses 7 by default

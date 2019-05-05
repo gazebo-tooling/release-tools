@@ -14,10 +14,6 @@ cat > build.sh << DELIM
 set -ex
 
 echo '# BEGIN SECTION: set up the PPA'
-if [ ${LINUX_DISTRO} == 'ubuntu' ]; then
-  apt-add-repository -y ppa:deb-rob/ros-trusty
-fi
-
 if [ ${LINUX_DISTRO} = 'debian' ]; then
   if [ ${DISTRO} = 'sid' ]; then
   echo "deb http://sir.upc.edu/debian-robotics unstable main" \\

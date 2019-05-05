@@ -10,20 +10,16 @@ class Globals
    static rtools_description = true
    static gazebodistro_branch = false
 
-   static gpu_by_distro  = [ trusty : [ 'nvidia', 'intel' ],
-                             xenial  : [ 'nvidia' ] ]
+   static gpu_by_distro  = [ xenial  : [ 'nvidia' ] ]
 
-   static ros_ci = [ 'indigo'  : ['trusty'] ,
-                     'jade'    : ['trusty'] ,
-                     'kinetic' : ['xenial'] ,
+   static ros_ci = [ 'kinetic' : ['xenial'] ,
                      'lunar'   : ['xenial'] ,
                      'melodic' : ['bionic'] ,
                      'crystal' : ['bionic'] ,
                      'dashing' : ['bionic']]
 
    // This should be in sync with archive_library
-   static gz_version_by_rosdistro = [ 'indigo'  : ['2'] ,
-                                      'jade'    : ['5'] ,
+   static gz_version_by_rosdistro = [ 'jade'    : ['5'] ,
                                       'kinetic' : ['7'] ,
                                       'lunar'   : ['7'] ,
                                       'melodic' : ['9'] ,
@@ -79,7 +75,7 @@ class Globals
 
    static ArrayList get_other_supported_distros()
    {
-     return [ 'trusty', 'bionic' ]
+     return [ 'bionic' ]
    }
 
    static ArrayList get_supported_arches()

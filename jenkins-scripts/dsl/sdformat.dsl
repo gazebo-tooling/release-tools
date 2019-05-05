@@ -146,9 +146,8 @@ abi_distro.each { distro ->
 
 // OTHER CI SUPPORTED JOBS (default branch) @ SCM/DAILY
 other_supported_distros.each { distro ->
-  // default doesn't support trusty or xenial anymore
-  if ("${distro}" == "trusty" ||
-      "${distro}" == "xenial")
+  // default doesn't support xenial anymore
+  if ("${distro}" == "xenial")
     return
 
   supported_arches.each { arch ->
