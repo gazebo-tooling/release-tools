@@ -428,8 +428,7 @@ ignition_software.each { ign_sw ->
             disabled()
 
           // gz11 branches don't work on xenial
-          if (("${branch}" == "gz11") && (
-              ("${distro}" == "xenial")
+          if (("${branch}" == "gz11") && ("${distro}" == "xenial"))
             disabled()
 
           steps {
