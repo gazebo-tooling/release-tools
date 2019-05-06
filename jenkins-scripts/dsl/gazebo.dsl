@@ -32,7 +32,7 @@ String abi_job_name = ''
 boolean is_watched_by_buildcop(branch, distro = 'xenial', gpu = 'nvidia')
 
 {
-  if (branch == 'default' || branch == 'gazebo7' || branch == 'gazebo8')
+  if (branch == 'default' || branch == 'gazebo7' || branch == 'gazebo9' || branch == 'gazebo10')
     return true
 
   return false
