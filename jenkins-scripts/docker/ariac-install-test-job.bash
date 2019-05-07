@@ -11,9 +11,6 @@ export INSTALL_JOB_REPOS="stable"
 export USE_ROS_REPO=true
 
 case "$DISTRO" in
-  'trusty')
-    export ROS_DISTRO=indigo
-    ;;
   'xenial')
     export ROS_DISTRO=kinetic
     ;;
@@ -21,7 +18,7 @@ case "$DISTRO" in
     export ROS_DISTRO=melodic
     ;;
   *)
-    echo "Only trusty+indigo, xenial+kinetic, or bionic+melodic are supported"
+    echo "Only xenial+kinetic or bionic+melodic are supported"
     exit 1
     ;;
 esac

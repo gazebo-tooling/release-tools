@@ -55,9 +55,7 @@ build_pkg_job.with
 supported_distros.each { distro ->
   supported_arches.each { arch ->
 
-    if (distro == 'trusty')
-       ros_distro = 'indigo'
-    else if (distro == 'xenial')
+    if (distro == 'xenial')
        ros_distro = 'kinetic'
     else if (distro == 'bionic')
        ros_distro = 'melodic'

@@ -53,15 +53,9 @@ SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
                               libboost-iostreams-dev"
 fi
 
-if [[ ${DISTRO} == 'trusty'  ]]; then
-  SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
-                            ruby1.9.1-dev                       \\
-                            ruby1.9.1"
-else
-  SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
-                            ruby-dev                            \\
+SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
+                            ruby-dev                          \\
                             ruby"
-fi
 
 # SDFORMAT related dependencies
 if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
@@ -125,15 +119,7 @@ fi
 
 # Old versions used libogre-dev
 ogre_pkg="libogre-1.9-dev"
-if [[ ${DISTRO} == 'precise' ]] || \
-   [[ ${DISTRO} == 'raring' ]] || \
-   [[ ${DISTRO} == 'quantal' ]]; then
-    ogre_pkg="libogre-dev"
-elif [[ ${DISTRO} == 'trusty' ]]; then
-    # All versions of gazebo (including 5) are using the
-    # ogre-1.8-dev package to keep in sync with ROS rviz
-    ogre_pkg="libogre-1.8-dev"
-elif [[ ${GAZEBO_MAJOR_VERSION} -le 4 ]]; then
+if [[ ${GAZEBO_MAJOR_VERSION} -le 4 ]]; then
     # Before gazebo5, ogre 1.9 was not supported
     ogre_pkg="libogre-1.8-dev"
 elif [[ ${IGN_RENDERING_MAJOR_VERSION} -ge 1 ]]; then
@@ -143,10 +129,6 @@ fi
 
 # Starting from utopic, we are using the bullet provided by ubuntu
 bullet_pkg="libbullet-dev"
-if [[ ${DISTRO} == 'precise' ]] || \
-   [[ ${DISTRO} == 'trusty' ]]; then
-    bullet_pkg="libbullet2.82-dev"
-fi
 
 # choose dart version
 if $DART_FROM_PKGS; then
@@ -154,9 +136,6 @@ if $DART_FROM_PKGS; then
        dart_pkg="libdart6-utils-urdf-dev"
     elif [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
        dart_pkg="libdart-core5-dev"
-    elif [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]] && \
-         [[ ${DISTRO} == 'trusty' ]]; then
-       dart_pkg="libdart-core4-dev"
     fi
 fi
 
@@ -165,21 +144,15 @@ if [[ ${GAZEBO_MAJOR_VERSION} -le 7 ]]; then
   gazebo_qt_dependencies="libqt4-dev \\
                           libqtwebkit-dev"
 else
-  if [[ ${DISTRO} == 'trusty' ]]; then
-    gazebo_qt_dependencies="libqt4-dev \\
-                            libqwt-dev \\
-                            qtbase5-dev"
-  else
-    # After gazebo8 is released, these two lines should be all that remain
-    gazebo_qt_dependencies="qtbase5-dev \\
-                            libqwt-qt5-dev"
-    # Install qt4 as well for gazebo8 until its release
-    # 20170125 release date of gazebo8
-    if [[ $(date +%Y%m%d) -le 20170125 ]]; then
-      gazebo_qt_dependencies="${gazebo_qt_dependencies} \\
-                              libqt4-dev \\
-                              libqwt-dev"
-    fi
+  # After gazebo8 is released, these two lines should be all that remain
+  gazebo_qt_dependencies="qtbase5-dev \\
+                          libqwt-qt5-dev"
+  # Install qt4 as well for gazebo8 until its release
+  # 20170125 release date of gazebo8
+  if [[ $(date +%Y%m%d) -le 20170125 ]]; then
+    gazebo_qt_dependencies="${gazebo_qt_dependencies} \\
+                            libqt4-dev \\
+                            libqwt-dev"
   fi
 fi
 
@@ -258,14 +231,6 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
                              libswscale-dev   \\
                              libavdevice-dev   \\
                              ruby-ronn"
-
-  # Player was removed starting from xenial
-  if [[ ${DISTRO} == 'precise' ]] || \
-     [[ ${DISTRO} == 'trusty' ]] || \
-     [[ ${DISTRO} == 'wily' ]]; then
-    GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} robot-player-dev"
-  fi
-
 
   # cegui is deprecated in gazebo 6
   if [[ ${GAZEBO_MAJOR_VERSION} -le 6 ]]; then
@@ -526,14 +491,9 @@ fi
 # IGNITION
 #
 
-if [[ ${DISTRO} != 'trusty' ]]; then
-  IGN_MATH_DEPENDENCIES="libeigen3-dev \\
-                         libignition-cmake-dev \\
-                         libignition-cmake1-dev"
-  if [[ ${DISTRO} != 'xenial' ]]; then
-    IGN_MATH_DEPENDENCIES="${IGN_MATH_DEPENDENCIES} \\
-                           libignition-cmake2-dev"
-  fi
+if [[ ${DISTRO} != 'xenial' ]]; then
+  IGN_MATH_DEPENDENCIES="${IGN_MATH_DEPENDENCIES} \\
+                         libignition-cmake2-dev"
 fi
 
 # IGN_TRANSPORT related dependencies. Default value points to the development
