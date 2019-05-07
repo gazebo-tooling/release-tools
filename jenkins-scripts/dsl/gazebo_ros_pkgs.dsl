@@ -12,8 +12,7 @@ String ci_arch               = 'amd64'
 String current_ros2_branch   = "dashing"
 
 // version to test more than the official one in each ROS distro
-extra_gazebo_versions = [ 'indigo'  :  ['7'],
-                          'kinetic' :  ['8','9'],
+extra_gazebo_versions = [ 'kinetic' :  ['8','9'],
                           'lunar'   :  ['8','9']]
 
 bloom_debbuild_jobs = [ 'gazebo-dev', 'gazebo-msgs', 'gazebo-plugins', 'gazebo-ros', 'gazebo-ros-control', 'gazebo-ros-pkgs' ]
