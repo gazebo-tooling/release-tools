@@ -269,12 +269,6 @@ else
   # default versions for every ROS distribution
   if [[ -z ${GAZEBO_VERSION_FOR_ROS} ]]; then
     case ${ROS_DISTRO} in
-      indigo)
-        GAZEBO_VERSION_FOR_ROS="2"
-      ;;
-      jade)
-        GAZEBO_VERSION_FOR_ROS="5"
-      ;;
       kinetic)
         GAZEBO_VERSION_FOR_ROS="7"
       ;;
@@ -324,53 +318,6 @@ else
                     python-rospkg            \\
                     python-vcstools"
   fi
-
-  # DRCSIM_DEPENDENCIES
-  #
-  # image-transport-plugins is needed to properly advertise compressed image topics
-  DRCSIM_BASE_DEPENDENCIES="${ROS_CATKIN_BASE}                                  \\
-                            ros-${ROS_DISTRO}-std-msgs                          \\
-                            ros-${ROS_DISTRO}-common-msgs                       \\
-                            ros-${ROS_DISTRO}-image-common                      \\
-                            ros-${ROS_DISTRO}-geometry                          \\
-                            ros-${ROS_DISTRO}-geometry-experimental             \\
-                            ros-${ROS_DISTRO}-image-pipeline                    \\
-                            ros-${ROS_DISTRO}-image-transport-plugins           \\
-                            ros-${ROS_DISTRO}-compressed-depth-image-transport  \\
-                            ros-${ROS_DISTRO}-compressed-image-transport        \\
-                            ros-${ROS_DISTRO}-theora-image-transport            \\
-                            ros-${ROS_DISTRO}-control-msgs                      \\
-                            ros-${ROS_DISTRO}-robot-model                       \\
-                            ros-${ROS_DISTRO}-robot-state-publisher             \\
-                            ros-${ROS_DISTRO}-control-toolbox                   \\
-                            libtinyxml2-dev                                     \\
-                            ${_GZ_ROS_PACKAGES}"
-
-  if [[ $ROS_DISTRO == 'hydro' ]]; then
-    DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
-                              ros-${ROS_DISTRO}-pr2-controllers    \\
-                              ros-${ROS_DISTRO}-pr2-mechanism"
-  else
-    DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
-                              ros-${ROS_DISTRO}-controller-manager \\
-                              ros-${ROS_DISTRO}-pr2-mechanism-msgs"
-  fi
-
-  # DRCSIM_FULL_DEPENDENCIES
-  # Need ROS postfix in precise for groovy/hydro
-  if [[ $DISTRO == 'precise' ]]; then
-     ROS_POSTFIX="-${ROS_DISTRO}"
-  else
-     ROS_POSTFIX=""
-  fi
-
-  DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}       \\
-                            sandia-hand${ROS_POSTFIX}         \\
-                            osrf-common${ROS_POSTFIX}         \\
-                            ros-${ROS_DISTRO}-laser-assembler \\
-                            ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-plugins \\
-                            ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros     \\
-                            ${_GZ_ROS_PACKAGES}"
 
   #
   # ROS_GAZEBO_PKGS DEPENDECIES
@@ -423,23 +370,10 @@ else
                                   ros-${ROS_DISTRO}-urdf                    \\
                                   ros-${ROS_DISTRO}-xacro"
 
-    if [[ ${ROS_DISTRO} == 'indigo'  ]] ||
-       [[ ${ROS_DISTRO} == 'jade'    ]] ||
-       [[ ${ROS_DISTRO} == 'kinetic' ]]; then
+    if [[ ${ROS_DISTRO} == 'kinetic' ]]; then
        ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
                                      ros-${ROS_DISTRO}-ros-base \\
                                      ros-${ROS_DISTRO}-pcl-ros"
-    fi
-
-    if [[ ${ROS_DISTRO} == 'indigo' ]] || [[ ${ROS_DISTRO} == 'jade' ]]; then
-    ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
-                                  ros-${ROS_DISTRO}-driver-base"
-    fi
-
-    if [[ ${ROS_DISTRO} == 'indigo' ]]; then
-    # These dependencies are for testing the ros_gazebo_pkgs
-    ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-effort-controllers      \\
-                                  ros-${ROS_DISTRO}-joint-state-controller"
     fi
 
     ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-xacro \\
@@ -770,14 +704,6 @@ fi
 
 IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
                        libignition-math4-dev"
-#
-# MENTOR2
-#
-MENTOR2_DEPENDENCIES="libgazebo6-dev    \\
-                      protobuf-compiler \\
-                      libprotobuf-dev   \\
-                      libboost1.54-dev  \\
-                      libqt4-dev"
 
 #
 # DRAKE
