@@ -33,7 +33,6 @@ NIGHTLY = False
 PRERELEASE = False
 UPSTREAM = False
 NO_SRC_FILE = False
-DRCSIM_MULTIROS = False
 IGN_REPO = False
 
 IGNORE_DRY_RUN = True
@@ -81,7 +80,6 @@ def parse_args(argv):
     global PRERELEASE
     global UPSTREAM
     global NO_SRC_FILE
-    global DRCSIM_MULTIROS
     global IGN_REPO
 
     parser = argparse.ArgumentParser(description='Make releases.')
@@ -101,8 +99,6 @@ def parse_args(argv):
     parser.add_argument('-r', '--release-version', dest='release_version',
                         default=None,
                         help='Release version suffix; usually 1 (e.g., 1')
-    parser.add_argument('--drcsim-multiros', dest='drcsim_multiros', action='store_true', default=False,
-                        help='To be used with drcsim, osrf-common and sandia-hand. Generate ROS_DISTRO based on drcsim support (i.e: ')
     parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
                         help='no-sanity-checks; i.e. skip sanity checks commands')
     parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
@@ -122,7 +118,6 @@ def parse_args(argv):
     DRY_RUN = args.dry_run
     UPSTREAM = args.upstream
     NO_SRC_FILE = args.no_source_file
-    DRCSIM_MULTIROS = args.drcsim_multiros
     IGN_REPO = args.ignition_repo
     UPLOAD_REPO = args.upload_to_repository
     if args.upload_to_repository == 'nightly':
@@ -239,11 +234,13 @@ def sanity_project_package_in_stable(version, repo_name):
     if repo_name != 'stable':
         return
 
-    if not '+' in version:
-        return
+    if '+' in version:
+        error("Detected stable repo upload using project versioning scheme (include '+' in the version)")
 
+    if '~pre' in version:
+        error("Detected stable repo upload using project versioning scheme (include '~pre' in the version)")
 
-    error("Detected stable repo upload using project versioning scheme (include '+' in the version)")
+    return
 
 def sanity_use_prerelease_branch(release_branch):
     if release_branch == 'prerelease':
