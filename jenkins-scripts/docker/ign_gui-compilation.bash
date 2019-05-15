@@ -34,8 +34,8 @@ if [[ ${IGN_GUI_MAJOR_VERSION} -ge 1 ]]; then
 fi
 
 if [[ ${IGN_GUI_MAJOR_VERSION} -ge 2 ]]; then
-  if [[ $(date +%Y%m%d) -le 20190514 ]]; then
-    export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease nightly"
+  if [[ $(date +%Y%m%d) -le 20190521 ]]; then
+    export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
   fi
 elif [[ ${IGN_GUI_MAJOR_VERSION} -eq 0 ]]; then
   # need to build ign-rendering0 for ign-gui0
