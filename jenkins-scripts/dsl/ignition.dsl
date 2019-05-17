@@ -31,35 +31,59 @@ ignition_no_test            = [ 'tools' ]
 ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'common'     : [ '1', '2', '3' ],
                                 'fuel-tools' : [ '1', '2', '3' ],
-                                'gazebo'     : [ '1'],
-                                'gui'        : [ '0', '1'],
+                                'gazebo'     : [ '1', '2' ],
+                                'gui'        : [ '0', '1','2' ],
+                                'launch'     : [ '1' ],
                                 'math'       : [ '2', '4', '5', '6' ],
-                                'msgs'       : [ '1', '2', '3' ],
-                                'physics'    : [ '1' ],
+                                'msgs'       : [ '1', '2', '3', '4' ],
+                                'physics'    : [ '1', '2' ],
                                 'plugin'     : [ '0', '1' ],
-                                'rendering'  : [ '0', '1' ],
-                                'sensors'    : [ '1' ],
-                                'transport'  : [ '4', '5', '6' ]]
+                                'rendering'  : [ '0', '1', '2' ],
+                                'sensors'    : [ '1', '2' ],
+                                'transport'  : [ '4', '5', '6', '7' ],
+                                'tools'      : [ '0' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use default for gz11
 ignition_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches (like nightly builders)
-ignition_debbuild  = ignition_software + [ 'cmake1',
-                                           'gazebo2',
-                                           'gui2',
-                                           'msgs4',
-                                           'rendering2',
-                                           'sensors2',
-                                           'transport7' ]
+ignition_debbuild  = ignition_software + [  ]
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [ 'rndf' ]
 // DESC: major versions that has a package in the prerelease repo. Should
 // not appear in ignition_no_pkg_yet nor in ignition_branches
 ignition_prerelease_pkgs    = [ 'placeholder' : [
-                                   '1':  [ 'bionic' ],
-                                ]]
+                                   '1':  [ 'bionic' ]],
+                                'cmake'      : [
+                                   '2':  [ 'bionic' ]],
+                                'common'     : [
+                                   '3':  [ 'bionic' ]],
+                                'fuel-tools' : [
+                                   '3':  [ 'bionic' ]],
+                                'gazebo'     : [
+                                   '2':  [ 'bionic' ]],
+                                'gui'        : [
+                                   '2':  [ 'bionic' ]],
+                                'launch'     : [
+                                   '1':  [ 'bionic' ]],
+                                'math'       : [
+                                   '6':  [ 'bionic' ]],
+                                'msgs'       : [
+                                   '4':  [ 'bionic' ]],
+                                'physics'    : [
+                                   '2':  [ 'bionic' ]],
+                                'plugin'     : [
+                                   '1':  [ 'bionic' ]],
+                                'rendering'  : [
+                                   '2':  [ 'bionic' ]],
+                                'sensors'    : [
+                                   '2':  [ 'bionic' ]],
+                                'transport'  : [
+                                   '7':  [ 'bionic' ]],
+                                'tools'  : [
+                                   '0':  [ 'bionic' ]],
+                               ]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
 ignition_colcon_win         = [ 'gazebo',
