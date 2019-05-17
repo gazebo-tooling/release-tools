@@ -36,7 +36,7 @@ ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'launch'     : [ '1' ],
                                 'math'       : [ '2', '4', '5', '6' ],
                                 'msgs'       : [ '1', '2', '3', '4' ],
-                                'physics'    : [ '1', '2' ],
+                                'physics'    : [ '1' ],
                                 'plugin'     : [ '0', '1' ],
                                 'rendering'  : [ '0', '1', '2' ],
                                 'sensors'    : [ '1', '2' ],
@@ -72,7 +72,7 @@ ignition_prerelease_pkgs    = [ 'placeholder' : [
                                 'msgs'       : [
                                    '4':  [ 'bionic' ]],
                                 'physics'    : [
-                                   '2':  [ 'bionic' ]],
+                                   '1':  [ 'bionic' ]],
                                 'plugin'     : [
                                    '1':  [ 'bionic' ]],
                                 'rendering'  : [
