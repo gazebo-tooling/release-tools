@@ -20,7 +20,7 @@ rm /tmp/default.tar.gz"""
 
 IGN_GAZEBO_RUNTIME_TEST="""
 echo '# BEGIN SECTION: test the script'
-TEST_START=\`date +%s\`
+ign fuel download --url https://fuel.ignitionrobotics.org/1.0/openrobotics/models/Camera
 timeout --preserve-status 180 ign gazebo -v -r camera.sdf || true
 TEST_END=\`date +%s\`
 DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
