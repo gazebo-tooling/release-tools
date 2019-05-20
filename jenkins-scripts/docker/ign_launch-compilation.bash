@@ -20,6 +20,7 @@ export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_LAUNCH_DEPENDENCIES"
 export BUILD_IGN_TOOLS=true
 export IGN_TOOLS_BRANCH=launch_part2
 
+export USE_GCC8=true
 export BUILD_SDFORMAT=true
 export SDFORMAT_BRANCH=install_side_by_side
 export BUILD_IGN_PHYSICS=true
