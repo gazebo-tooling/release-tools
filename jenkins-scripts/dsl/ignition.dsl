@@ -479,7 +479,7 @@ ignition_software.each { ign_sw ->
 ignition_debbuild.each { ign_sw ->
   supported_branches("${ign_sw}").each { major_version ->
     // No 1-debbuild versions, they use the unversioned job
-    if ("${major_version}" == "1")
+    if ("${major_version}" == "0"  || "${major_version}" == "1" )
       major_version = ""
 
     extra_str = ""
