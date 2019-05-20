@@ -20,6 +20,12 @@ export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_LAUNCH_DEPENDENCIES"
 export BUILD_IGN_TOOLS=true
 export IGN_TOOLS_BRANCH=launch_part2
 
+export BUILD_SDFORMAT=true
+export SDFORMAT_BRANCH=test_blueprint_sdf8_change
+export BUILD_IGN_PHYSICS=true
+export BUILD_IGN_SENSORS=true
+export BUILD_IGN_GAZEBO=true
+
 # Identify IGN_LAUNCH_MAJOR_VERSION to help with dependency resolution
 IGN_LAUNCH_MAJOR_VERSION=$(\
   python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
