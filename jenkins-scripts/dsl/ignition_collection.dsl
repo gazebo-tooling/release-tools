@@ -189,6 +189,8 @@ ignition_collections.each { ign_collection ->
 
       def dev_package = "ignition-${ign_collection_name}"
 
+      label "gpu-reliable"
+
       steps {
        shell("""\
              #!/bin/bash -xe
@@ -197,7 +199,7 @@ ignition_collections.each { ign_collection ->
              export ARCH=${arch}
              export INSTALL_JOB_PKG=${dev_package}
              export INSTALL_JOB_REPOS="stable"
-             /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+             /bin/bash -x ./scripts/jenkins-scripts/docker/ign_launch-install-test-job.bash
              """.stripIndent())
       }
     }
