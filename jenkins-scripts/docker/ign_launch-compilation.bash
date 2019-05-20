@@ -21,7 +21,7 @@ export BUILD_IGN_TOOLS=true
 export IGN_TOOLS_BRANCH=launch_part2
 
 export BUILD_SDFORMAT=true
-export SDFORMAT_BRANCH=test_blueprint_sdf8_change
+export SDFORMAT_BRANCH=install_side_by_side
 export BUILD_IGN_PHYSICS=true
 export BUILD_IGN_SENSORS=true
 export BUILD_IGN_GAZEBO=true
