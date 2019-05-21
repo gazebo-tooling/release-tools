@@ -33,11 +33,7 @@ if [[ ${IGN_GUI_MAJOR_VERSION} -ge 1 ]]; then
   export USE_GCC8=true
 fi
 
-if [[ ${IGN_GUI_MAJOR_VERSION} -ge 2 ]]; then
-  if [[ $(date +%Y%m%d) -le 20190521 ]]; then
-    export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
-  fi
-elif [[ ${IGN_GUI_MAJOR_VERSION} -eq 0 ]]; then
+if [[ ${IGN_GUI_MAJOR_VERSION} -eq 0 ]]; then
   # need to build ign-rendering0 for ign-gui0
   export BUILD_IGN_RENDERING=true
   export IGN_RENDERING_MAJOR_VERSION=0
