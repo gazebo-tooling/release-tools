@@ -36,13 +36,13 @@ export ${IGN_NAME_PREFIX}_MAJOR_VERSION=${IGN_NAME_PREFIX_MAJOR_VERSION}
 if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo" ]] || \
   [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-physics" ]] || \
   [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-sensors" ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-common"  ]] && [[ ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 3 ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gui"     ]] && [[ ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 1 ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-math"    ]] && [[ ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-msgs"    ]] && [[ ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 3 ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-plugin"  ]] && [[ ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 1 ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-rendering" ]] && [[ ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 1 ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-transport" ]] && [[ ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]]
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-common"    && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 3 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gui"       && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 1 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-math"      && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-msgs"      && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 3 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-plugin"    && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 1 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-rendering" && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 1 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-transport" && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]]
 then
   export USE_GCC8=true
 fi
