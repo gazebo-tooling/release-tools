@@ -19,6 +19,7 @@ tar -xf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
 rm /tmp/default.tar.gz"""
 
 IGN_GAZEBO_RUNTIME_TEST="""
+${GAZEBO_MODEL_INSTALLATION}
 echo '# BEGIN SECTION: test the script'
 ign fuel download --url https://fuel.ignitionrobotics.org/1.0/openrobotics/models/Camera
 timeout --preserve-status 180 ign gazebo -v -r camera.sdf || true
