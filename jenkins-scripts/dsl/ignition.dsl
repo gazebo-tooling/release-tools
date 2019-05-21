@@ -483,7 +483,8 @@ ignition_debbuild.each { ign_sw ->
       major_version = ""
 
     extra_str = ""
-    if (("${ign_sw}" == "gazebo") || ("${ign_sw}" == "transport7"))
+    if (("${ign_sw}" == "gazebo") ||
+        (("${ign_sw}" == "transport") && ("${major_version}" == "6"  || "${major_version}" == "7" )))
       extra_str="export USE_GCC8=true"
 
     def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
