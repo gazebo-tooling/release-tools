@@ -33,10 +33,4 @@ if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 6 ]]; then
   export USE_GCC8=true
 fi
 
-if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 7 ]]; then
-  if [[ $(date +%Y%m%d) -le 20190521 ]]; then
-    export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
-  fi
-fi
-
 . "${SCRIPT_DIR}/lib/generic-building-base.bash"
