@@ -214,6 +214,7 @@ fi
 
 # Dart repositories
 if ${DART_FROM_PKGS} || ${DART_COMPILE_FROM_SOURCE}; then
+if [[ $DISTRO == 'xenial' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_DART_PKGS
 # Install dart from pkgs
 RUN apt-get update \\
@@ -221,6 +222,7 @@ RUN apt-get update \\
  && rm -rf /var/lib/apt/lists/*
 #RUN apt-add-repository -y ppa:dartsim
 DELIM_DOCKER_DART_PKGS
+fi
 fi
 
 # Workaround a problem in simbody on artful bad paths
