@@ -29,6 +29,12 @@ if ! [[ ${IGN_SENSORS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
+if [[ ${IGN_SENSORS_MAJOR_VERSION} -ge 2 ]]; then
+  if [[ $(date +%Y%m%d) -le 20190528 ]]; then
+    export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
+  fi
+fi
+
 export USE_GCC8=true
 
 export GPU_SUPPORT_NEEDED=true
