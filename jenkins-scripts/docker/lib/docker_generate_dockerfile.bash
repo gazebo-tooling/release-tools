@@ -220,7 +220,7 @@ cat >> Dockerfile << DELIM_DOCKER_DART_PKGS
 RUN apt-get update \\
  && apt-get install -y apt-utils software-properties-common \\
  && rm -rf /var/lib/apt/lists/*
-#RUN apt-add-repository -y ppa:dartsim
+RUN apt-add-repository -y ppa:dartsim
 DELIM_DOCKER_DART_PKGS
 fi
 fi
