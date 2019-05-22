@@ -55,35 +55,7 @@ ignition_no_pkg_yet         = [ 'rndf' ]
 // not appear in ignition_no_pkg_yet nor in ignition_branches
 ignition_prerelease_pkgs    = [ 'placeholder' : [
                                    '1':  [ 'bionic' ]],
-                                'cmake'      : [
-                                   '2':  [ 'bionic' ]],
-                                'common'     : [
-                                   '3':  [ 'bionic' ]],
-                                'fuel-tools' : [
-                                   '3':  [ 'bionic' ]],
-                                'gazebo'     : [
-                                   '2':  [ 'bionic' ]],
-                                'gui'        : [
-                                   '2':  [ 'bionic' ]],
-                                'launch'     : [
-                                   '1':  [ 'bionic' ]],
-                                'math'       : [
-                                   '6':  [ 'bionic' ]],
-                                'msgs'       : [
-                                   '4':  [ 'bionic' ]],
-                                'physics'    : [
-                                   '1':  [ 'bionic' ]],
-                                'plugin'     : [
-                                   '1':  [ 'bionic' ]],
-                                'rendering'  : [
-                                   '2':  [ 'bionic' ]],
-                                'sensors'    : [
-                                   '2':  [ 'bionic' ]],
-                                'transport'  : [
-                                   '7':  [ 'bionic' ]],
-                                'tools'  : [
-                                   '0':  [ 'bionic' ]],
-                               ]
+                              ]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
 ignition_colcon_win         = [ 'gazebo',
