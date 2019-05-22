@@ -31,35 +31,31 @@ ignition_no_test            = [ 'tools' ]
 ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'common'     : [ '1', '2', '3' ],
                                 'fuel-tools' : [ '1', '2', '3' ],
-                                'gazebo'     : [ '1'],
-                                'gui'        : [ '0', '1'],
+                                'gazebo'     : [ '1', '2' ],
+                                'gui'        : [ '0', '1','2' ],
+                                'launch'     : [ '1' ],
                                 'math'       : [ '2', '4', '5', '6' ],
-                                'msgs'       : [ '1', '2', '3' ],
+                                'msgs'       : [ '1', '2', '3', '4' ],
                                 'physics'    : [ '1' ],
                                 'plugin'     : [ '0', '1' ],
-                                'rendering'  : [ '0', '1' ],
-                                'sensors'    : [ '1' ],
-                                'transport'  : [ '4', '5', '6' ]]
+                                'rendering'  : [ '0', '1', '2' ],
+                                'sensors'    : [ '1', '2' ],
+                                'transport'  : [ '4', '5', '6', '7' ],
+                                'tools'      : [ '0' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use default for gz11
 ignition_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches (like nightly builders)
-ignition_debbuild  = ignition_software + [ 'cmake1',
-                                           'gazebo2',
-                                           'gui2',
-                                           'msgs4',
-                                           'rendering2',
-                                           'sensors2',
-                                           'transport7' ]
+ignition_debbuild  = ignition_software + [  ]
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [ 'rndf' ]
 // DESC: major versions that has a package in the prerelease repo. Should
 // not appear in ignition_no_pkg_yet nor in ignition_branches
 ignition_prerelease_pkgs    = [ 'placeholder' : [
-                                   '1':  [ 'bionic' ],
-                                ]]
+                                   '1':  [ 'bionic' ]],
+                              ]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
 ignition_colcon_win         = [ 'gazebo',
@@ -336,12 +332,14 @@ ignition_software.each { ign_sw ->
              ("${ign_sw}" == "gui")        ||
              ("${ign_sw}" == "launch")     ||
             (("${ign_sw}" == "math")       && ("${major_version}" == "6")) ||
-            (("${ign_sw}" == "msgs")       && ("${major_version}" == "3")) ||
+            (("${ign_sw}" == "msgs")       &&
+              (("${major_version}" == "3") || ("${major_version}" == "4"))) ||
              ("${ign_sw}" == "physics")    ||
              ("${ign_sw}" == "plugin")     ||
              ("${ign_sw}" == "rendering")  ||
              ("${ign_sw}" == "sensors")    ||
-            (("${ign_sw}" == "transport")  && ("${major_version}" == "6"))))
+            (("${ign_sw}" == "transport")  &&
+              (("${major_version}" == "6") || ("${major_version}" == "7")))))
           return
 
         extra_repos_str=""
@@ -417,6 +415,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
               ("${ign_sw}" == "math" && "${branch}" == "default") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs3") ||
+              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs4") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "default") ||
               ("${ign_sw}" == "physics") ||
               ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
@@ -424,6 +423,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "sensors") ||
               ("${ign_sw}" == "tools") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport6") ||
+              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport7") ||
               ("${ign_sw}" == "transport" && "${branch}" == "default")))
             disabled()
 
@@ -451,11 +451,12 @@ ignition_software.each { ign_sw ->
 ignition_debbuild.each { ign_sw ->
   supported_branches("${ign_sw}").each { major_version ->
     // No 1-debbuild versions, they use the unversioned job
-    if ("${major_version}" == "1")
+    if ("${major_version}" == "0"  || "${major_version}" == "1" )
       major_version = ""
 
     extra_str = ""
-    if (("${ign_sw}" == "gazebo") || ("${ign_sw}" == "transport7"))
+    if (("${ign_sw}" == "gazebo") ||
+        (("${ign_sw}" == "transport") && ("${major_version}" == "6"  || "${major_version}" == "7" )))
       extra_str="export USE_GCC8=true"
 
     def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
