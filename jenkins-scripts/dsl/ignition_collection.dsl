@@ -193,6 +193,11 @@ ignition_collections.each { ign_collection ->
 
       label "gpu-reliable"
 
+      def job_name = 'ign_launch-install-test-job.bash'
+      // acropolis does not support the testing launch job
+      if (ign_collection_name == 'acropolis')
+        job_name = 'generic-install-test-job.bash'
+
       steps {
        shell("""\
              #!/bin/bash -xe
@@ -201,7 +206,7 @@ ignition_collections.each { ign_collection ->
              export ARCH=${arch}
              export INSTALL_JOB_PKG=${dev_package}
              export INSTALL_JOB_REPOS="stable"
-             /bin/bash -x ./scripts/jenkins-scripts/docker/ign_launch-install-test-job.bash
+             /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
              """.stripIndent())
       }
     }
