@@ -70,6 +70,7 @@ rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake ${ABI_JOB_CMAKE_PARAMS} \\
+  -DBUILD_TESTING=OFF \\
   -DCMAKE_INSTALL_PREFIX=/usr/local/destination_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
@@ -87,6 +88,7 @@ hg up ${SRC_BRANCH}
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
 cd $WORKSPACE/build
 cmake ${ABI_JOB_CMAKE_PARAMS} \\
+  -DBUILD_TESTING=OFF \\
   -DCMAKE_INSTALL_PREFIX=/usr/local/source_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
