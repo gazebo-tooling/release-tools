@@ -684,6 +684,7 @@ IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev     \\
                          libignition-msgs3-dev       \\
                          libignition-physics           \\
                          libignition-physics-dartsim   \\
+                         libignition-physics-dartsim-dev \\
                          libignition-physics-dev       \\
                          libignition-plugin-dev       \\
                          libignition-rendering-dev \\
