@@ -183,7 +183,7 @@ rm -fr compat_reports/
 abi-compliance-checker -lang C++ -lib ${ABI_JOB_SOFTWARE_NAME} -old pkg.xml -new devel.xml || true
 
 # if report was not generated, run again with -quick
-if !ls "compat_reports/${ABI_JOB_SOFTWARE_NAME}"
+if ! ls "compat_reports/${ABI_JOB_SOFTWARE_NAME}"
 then
   abi-compliance-checker -lang C++ -lib ${ABI_JOB_SOFTWARE_NAME} -old pkg.xml -new devel.xml -quick || true
 fi
