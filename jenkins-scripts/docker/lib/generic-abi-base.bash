@@ -180,14 +180,12 @@ REPORTS_DIR=$WORKSPACE/reports/
 rm -fr \${REPORTS_DIR} && mkdir -p \${REPORTS_DIR}
 rm -fr compat_reports/
 # run report tool
-REPORT_CMD="abi-compliance-checker \
-  -lang C++ -lib ${ABI_JOB_SOFTWARE_NAME} -old pkg.xml -new devel.xml"
-${REPORT_CMD} || true
+abi-compliance-checker -lang C++ -lib ${ABI_JOB_SOFTWARE_NAME} -old pkg.xml -new devel.xml || true
 
 # if report was not generated, run again with -quick
 if !ls "compat_reports/${ABI_JOB_SOFTWARE_NAME}"
 then
-  ${REPORT_CMD} -quick || true
+  abi-compliance-checker -lang C++ -lib ${ABI_JOB_SOFTWARE_NAME} -old pkg.xml -new devel.xml -quick || true
 fi
 
 # copy method version independant ( cp ... /*/ ... was not working)
