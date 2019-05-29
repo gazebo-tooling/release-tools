@@ -47,7 +47,8 @@ ignition_branches           = [ 'cmake'      : [ '1', '2' ],
 // physics/sensors don't need to be included since they use default for gz11
 ignition_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
-// don't appear in ignition_branches (like nightly builders)
+// don't appear in ignition_branches (like nightly builders or 0-debbuild
+// jobs for the special cases of foo0 packages)
 ignition_debbuild  = ignition_software + [  ]
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [ 'rndf' ]
@@ -317,12 +318,6 @@ ignition_software.each { ign_sw ->
         if (("${distro}" == "bionic") && (
             (("${ign_sw}" == "math") && ("${major_version}" == "2"))))
           return
-        // no gui0, plugin0, rendering0, or rndf install
-        if (("${ign_sw}" == "rndf") ||
-            (("${ign_sw}" == "gui") && ("${major_version}" == "0")) ||
-            (("${ign_sw}" == "plugin") && ("${major_version}" == "0")) ||
-            (("${ign_sw}" == "rendering") && ("${major_version}" == "0")))
-          return
         // no xenial support for cmake2 and things that use it
         if (("${distro}" == "xenial") && (
             (("${ign_sw}" == "cmake")      && ("${major_version}" == "2")) ||
@@ -348,8 +343,9 @@ ignition_software.each { ign_sw ->
            (distro in ignition_prerelease_pkgs[ign_sw][major_version]))
           extra_repos_str="prerelease"
 
-        // No 1-dev packages, unversioned
-        if ("${major_version}" == "1")
+        // No 1-dev or 0-dev packages (except special cases see
+        // ignition_debbuild variable), unversioned
+        if ("${major_version}" == "0" || "${major_version}" == "1")
           major_version = ""
 
         // --------------------------------------------------------------
