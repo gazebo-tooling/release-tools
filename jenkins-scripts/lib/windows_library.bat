@@ -265,6 +265,27 @@ goto :EOF
 goto :EOF
 
 :: ##################################
+:install_osrf_vcpkg_package
+:: arg1: package to install
+set LIB_DIR=%~dp0
+set PKG=%1
+call %LIB_DIR%\windows_env_vars.bat || goto :error
+
+cd %VCPKG_DIR%
+if NOT exist %PKG% (
+  git init || goto :error
+  git remote add -f osrf_vcpkg https://github.com/osrf/vcpkg-ports
+  git config core.sparsecheckout true
+  echo %PKG% >> .git/info/sparse-checkout || goto :error
+) else (
+  cd %PKG%
+  git pull osrf_vcpkg master || goto :error
+)
+
+call %win_lib% :install_vcpkg_package %1 || goto :error
+goto :EOF
+
+:: ##################################
 :error - error routine
 ::
 echo Failed in windows_library with error #%errorlevel%.
