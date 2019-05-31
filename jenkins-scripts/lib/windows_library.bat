@@ -269,18 +269,23 @@ goto :EOF
 :: arg1: package to install
 set LIB_DIR=%~dp0
 set PKG=%1
+set PORT_DIR=%VCPKG_DIR%\ports\%PKG%
 call %LIB_DIR%\windows_env_vars.bat || goto :error
 
-cd %VCPKG_DIR%
-if NOT exist %PKG% (
-  git init || goto :error
-  git remote add -f osrf_vcpkg https://github.com/osrf/vcpkg-ports
-  git config core.sparsecheckout true
-  echo %PKG% >> .git/info/sparse-checkout || goto :error
-) else (
-  cd %PKG%
-  git pull osrf_vcpkg master || goto :error
+if exist %PORT_DIR% (
+  rmdir /s /q %PORT_DIR% || goto :error
 )
+
+if NOT exist %VCPKG_OSRF_DIR% (
+  git clone https://github.com/osrf/vcpkg-ports %VCPKG_OSRF_DIR%
+  cd %VCPKG_OSRF_DIR%
+) else (
+  cd %VCPKG_OSRF_DIR%
+  git pull origin master || goto :error
+)
+
+:: copy port to the official tree
+xcopy %VCPKG_OSRF_DIR%\%PKG% %PORT_DIR% /s /i /e || goto :error
 
 call %win_lib% :install_vcpkg_package %1 || goto :error
 goto :EOF
