@@ -95,7 +95,7 @@ for %%p in (%DEPEN_PKGS%) do (
   echo # END SECTION
 )
 
-for %%p in (%DEPEN_PKGS%) do (
+for %%p in (%DEPEN_OSRF_PKGS%) do (
   call %win_lib% :enable_vcpkg_integration || goto :error
   echo # BEGIN SECTION: install custom Open Robotics external dependency %%p
   call %win_lib% :install_osrf_vcpkg_package %%p || goto :error
