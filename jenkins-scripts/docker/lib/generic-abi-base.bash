@@ -32,6 +32,11 @@ if [[ -n "${DART_FROM_PKGS_VAR_NAME}" ]]; then
   eval DART_FROM_PKGS="\$${DART_FROM_PKGS_VAR_NAME}"
 fi
 
+ABI_CXX_STANDARD=c++11
+if [[ "${USE_GCC8}" == "true" ]]; then
+  ABI_CXX_STANDARD=c++17
+fi
+
 cat > build.sh << DELIM
 #!/bin/bash
 
@@ -70,6 +75,7 @@ rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake ${ABI_JOB_CMAKE_PARAMS} \\
+  -DBUILD_TESTING=OFF \\
   -DCMAKE_INSTALL_PREFIX=/usr/local/destination_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
@@ -87,6 +93,7 @@ hg up ${SRC_BRANCH}
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
 cd $WORKSPACE/build
 cmake ${ABI_JOB_CMAKE_PARAMS} \\
+  -DBUILD_TESTING=OFF \\
   -DCMAKE_INSTALL_PREFIX=/usr/local/source_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
@@ -127,7 +134,7 @@ cat >> pkg.xml << CURRENT_DELIM_LIBS
  </libs>
 
  <gcc_options>
-     -std=c++11
+     -std=${ABI_CXX_STANDARD}
  </gcc_options>
 CURRENT_DELIM_LIBS
 
@@ -155,7 +162,7 @@ cat >> devel.xml << DEVEL_DELIM_LIBS
  </libs>
 
  <gcc_options>
-     -std=c++11
+     -std=${ABI_CXX_STANDARD}
  </gcc_options>
 DEVEL_DELIM_LIBS
 echo '# END SECTION'
@@ -174,6 +181,12 @@ rm -fr \${REPORTS_DIR} && mkdir -p \${REPORTS_DIR}
 rm -fr compat_reports/
 # run report tool
 abi-compliance-checker -lang C++ -lib ${ABI_JOB_SOFTWARE_NAME} -old pkg.xml -new devel.xml || true
+
+# if report was not generated, run again with -quick
+if ! ls "compat_reports/${ABI_JOB_SOFTWARE_NAME}"
+then
+  abi-compliance-checker -lang C++ -lib ${ABI_JOB_SOFTWARE_NAME} -old pkg.xml -new devel.xml -quick || true
+fi
 
 # copy method version independant ( cp ... /*/ ... was not working)
 find compat_reports/ -name compat_report.html -exec cp {} \${REPORTS_DIR} \;

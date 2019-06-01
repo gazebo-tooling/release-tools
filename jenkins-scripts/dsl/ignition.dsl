@@ -218,6 +218,9 @@ ignition_software.each { ign_sw ->
                             '${DEST_BRANCH}', checkout_subdir)
       abi_job.with
       {
+        if (ign_sw == 'physics')
+          label "huge-memory"
+
         steps {
           shell("""\
                 #!/bin/bash -xe
