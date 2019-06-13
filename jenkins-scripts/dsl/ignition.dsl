@@ -331,7 +331,8 @@ ignition_software.each { ign_sw ->
              ("${ign_sw}" == "launch")     ||
             (("${ign_sw}" == "math")       && ("${major_version}" == "6")) ||
             (("${ign_sw}" == "msgs")       &&
-              (("${major_version}" == "3") || ("${major_version}" == "4"))) ||
+              (("${major_version}" == "2") ||
+               ("${major_version}" == "3") || ("${major_version}" == "4"))) ||
              ("${ign_sw}" == "physics")    ||
              ("${ign_sw}" == "plugin")     ||
              ("${ign_sw}" == "rendering")  ||
@@ -413,6 +414,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "launch") ||
               ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
               ("${ign_sw}" == "math" && "${branch}" == "default") ||
+              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs2") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs3") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs4") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "default") ||
