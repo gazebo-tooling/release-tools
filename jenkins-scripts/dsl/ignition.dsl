@@ -182,7 +182,18 @@ void include_gpu_label_if_needed(Job job, String ign_software_name)
   {
     ignition_gpu.each { ign_each ->
       if (ign_software_name == ign_each)
+      {
         label "gpu-reliable"
+
+        // unstable build if missing valid gpu display
+        publishers {
+          consoleParsing {
+            projectRules('scripts/jenkins-scripts/parser_rules/display_missing.parser')
+            unstableOnWarning()
+            failBuildOnError(false)
+          }
+        }
+      }
     }
   }
 }
