@@ -152,7 +152,7 @@ fi
 # dirmngr from Yaketty on needed by apt-key
 cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
 RUN apt-get update && \\
-    apt-get install -y dirmngr git
+    apt-get install -y dirmngr git python3
 DELIM_DOCKER_DIRMNGR
 
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
