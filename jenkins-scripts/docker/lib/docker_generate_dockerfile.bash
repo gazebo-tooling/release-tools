@@ -150,12 +150,10 @@ DELIM_DOCKER_PAM_BUG
 fi
 
 # dirmngr from Yaketty on needed by apt-key
-if [[ $DISTRO != 'xenial' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
 RUN apt-get update && \\
     apt-get install -y dirmngr git
 DELIM_DOCKER_DIRMNGR
-fi
 
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
 cat >> Dockerfile << DELIM_OSRF_REPO_GZDEV
