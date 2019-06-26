@@ -164,7 +164,7 @@ else
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
 RUN git clone --depth 1 https://github.com/osrf/gzdev ${WORKSPACE}/gzdev
-${WORKSPACE}/gzdev/gzdev.py repository enable osrf ${repo}
+RUN ${WORKSPACE}/gzdev/gzdev.py repository enable osrf ${repo}
 DELIM_OSRF_REPO
 done
 fi
