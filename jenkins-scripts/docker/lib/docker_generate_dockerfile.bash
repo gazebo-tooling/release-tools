@@ -160,7 +160,7 @@ fi
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
 cat >> Dockerfile << DELIM_OSRF_REPO_GZDEV
 RUN git clone --depth 1 https://github.com/osrf/gzdev -b repository ${WORKSPACE}/gzdev
-${WORKSPACE}/gzdev/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME}
+RUN ${WORKSPACE}/gzdev/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME}
 DELIM_OSRF_REPO_GZDEV
 else
 for repo in ${OSRF_REPOS_TO_USE}; do
