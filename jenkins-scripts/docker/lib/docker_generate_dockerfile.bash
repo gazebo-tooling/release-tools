@@ -153,17 +153,23 @@ fi
 if [[ $DISTRO != 'xenial' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
 RUN apt-get update && \\
-    apt-get install -y dirmngr
+    apt-get install -y dirmngr git
 DELIM_DOCKER_DIRMNGR
 fi
 
+if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
+cat >> Dockerfile << DELIM_OSRF_REPO_GZDEV
+RUN git clone --depth 1 https://github.com/osrf/gzdev -b repository ${WORKSPACE}/gzdev
+${WORKSPACE}/gzdev/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME}
+DELIM_OSRF_REPO_GZDEV
+else
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
-RUN echo "deb http://packages.osrfoundation.org/gazebo/${LINUX_DISTRO}-${repo} ${DISTRO} main" >\\
-                                                /etc/apt/sources.list.d/osrf.${repo}.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
+RUN git clone --depth 1 https://github.com/osrf/gzdev ${WORKSPACE}/gzdev
+${WORKSPACE}/gzdev/gzdev.py repository enable osrf ${repo}
 DELIM_OSRF_REPO
 done
+fi
 
 if ${USE_ROS_REPO}; then
   if ${ROS2}; then
