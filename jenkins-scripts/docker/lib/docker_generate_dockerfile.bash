@@ -155,10 +155,10 @@ RUN apt-get update && \\
     apt-get install -y dirmngr git python3 python3-docopt python3-yaml
 DELIM_DOCKER_DIRMNGR
 
-if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
 cat >> Dockerfile << DELIM_OSRF_REPO_GIT
 RUN git clone --depth 1 https://github.com/osrf/gzdev -b repository ${WORKSPACE}/gzdev
 DELIM_OSRF_REPO_GIT
+if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
 cat >> Dockerfile << DELIM_OSRF_REPO_GZDEV
 RUN ${WORKSPACE}/gzdev/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME}
 DELIM_OSRF_REPO_GZDEV
