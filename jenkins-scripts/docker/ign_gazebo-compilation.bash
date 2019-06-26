@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-gazebo"
-export BUILDING_JOB_REPOSITORIES="stable"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_GAZEBO_DEPENDENCIES"
 
 # Enable prerelease repos until a certain date
@@ -35,7 +34,8 @@ if ! [[ ${IGN_GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 export USE_GCC8=true
-
 export GPU_SUPPORT_NEEDED=true
+
+export GZDEV_PROJECT_NAME="ignition-gazebo${IGN_GAZEBO_DEPENDENCIES}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
