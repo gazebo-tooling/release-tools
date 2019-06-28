@@ -17,11 +17,6 @@ fi
 export BUILDING_SOFTWARE_DIRECTORY="ign-gazebo"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_GAZEBO_DEPENDENCIES"
 
-# Enable prerelease repos until a certain date
-if [[ $(date +%Y%m%d) -le 20190619 ]]; then
-  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
-fi
-
 # Identify IGN_GAZEBO_MAJOR_VERSION to help with dependency resolution
 IGN_GAZEBO_MAJOR_VERSION=$(\
   python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
@@ -36,6 +31,6 @@ fi
 export USE_GCC8=true
 export GPU_SUPPORT_NEEDED=true
 
-export GZDEV_PROJECT_NAME="ignition-gazebo${IGN_GAZEBO_DEPENDENCIES}"
+export GZDEV_PROJECT_NAME="ignition-gazebo${IGN_GAZEBO_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

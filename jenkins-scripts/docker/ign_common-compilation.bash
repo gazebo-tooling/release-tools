@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-common"
-export BUILDING_JOB_REPOSITORIES="stable"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_COMMON_DEPENDENCIES"
 
 # Identify IGN_COMMON_MAJOR_VERSION to help with dependency resolution
@@ -32,5 +31,7 @@ fi
 if [[ ${IGN_COMMON_MAJOR_VERSION} -ge 3 ]]; then
   export USE_GCC8=true
 fi
+
+export GZDEV_PROJECT_NAME="ignition-common${IGN_COMMON_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

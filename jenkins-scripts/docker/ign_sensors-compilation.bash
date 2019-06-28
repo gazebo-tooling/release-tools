@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-sensors"
-export BUILDING_JOB_REPOSITORIES="stable"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_SENSORS_DEPENDENCIES"
 
 # Identify IGN_SENSORS_MAJOR_VERSION to help with dependency resolution
@@ -29,14 +28,9 @@ if ! [[ ${IGN_SENSORS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-if [[ ${IGN_SENSORS_MAJOR_VERSION} -ge 2 ]]; then
-  if [[ $(date +%Y%m%d) -le 20190619 ]]; then
-    export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
-  fi
-fi
-
 export USE_GCC8=true
 
 export GPU_SUPPORT_NEEDED=true
+export GZDEV_PROJECT_NAME="ignition-sensors${IGN_SENSORS_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

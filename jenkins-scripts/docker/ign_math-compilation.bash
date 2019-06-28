@@ -33,4 +33,6 @@ if [[ ${IGN_MATH_MAJOR_VERSION} -ge 6 ]]; then
   export USE_GCC8=true
 fi
 
+export GZDEV_PROJECT_NAME="ignition-math${IGN_MATH_MAJOR_VERSION}"
+
 . "${SCRIPT_DIR}/lib/generic-building-base.bash"

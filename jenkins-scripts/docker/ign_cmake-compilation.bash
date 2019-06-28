@@ -15,7 +15,19 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-cmake"
-export BUILDING_JOB_REPOSITORIES="stable"
 export BUILDING_DEPENDENCIES="pkg-config"
+
+# Identify IGN_CMAKE_MAJOR_VERSION to help with dependency resolution
+IGN_CMAKE_MAJOR_VERSION=$(\
+  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  ${WORKSPACE}/ign-CMAKE/CMakeLists.txt)
+
+# Check IGN_CMAKE version is integer
+if ! [[ ${IGN_CMAKE_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+  echo "Error! IGN_CMAKE_MAJOR_VERSION is not an integer, check the detection"
+  exit -1
+fi
+
+export GZDEV_PROJECT_NAME="ignition-cmake${IGN_CMAKE_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

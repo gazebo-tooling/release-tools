@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-gui"
-export BUILDING_JOB_REPOSITORIES="stable"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_GUI_DEPENDENCIES"
 
 # Identify IGN_GUI_MAJOR_VERSION to help with dependency resolution
@@ -41,5 +40,6 @@ if [[ ${IGN_GUI_MAJOR_VERSION} -eq 0 ]]; then
 fi
 
 export GPU_SUPPORT_NEEDED=true
+export GZDEV_PROJECT_NAME="ignition-gui${IGN_GUI_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

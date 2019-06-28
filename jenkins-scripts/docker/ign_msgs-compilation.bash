@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-msgs"
-export BUILDING_JOB_REPOSITORIES="stable"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_MSGS_DEPENDENCIES"
 export DOCKER_POSTINSTALL_HOOK="gem install protobuf"
 
@@ -33,5 +32,7 @@ fi
 if [[ ${IGN_MSGS_MAJOR_VERSION} -ge 3 ]]; then
   export USE_GCC8=true
 fi
+
+export GZDEV_PROJECT_NAME="ignition-msgs${IGN_MSGS_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
