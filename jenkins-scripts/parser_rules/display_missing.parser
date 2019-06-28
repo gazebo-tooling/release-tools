@@ -1,0 +1,1 @@
+warning /^.*Could not find 'xwininfo', which is needed for FindDRI. Please install the package 'x11-utils'.*$/

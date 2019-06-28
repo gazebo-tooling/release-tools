@@ -16,7 +16,7 @@ if ${DART_COMPILE_FROM_SOURCE}; then
     DART_FROM_PKGS=false
 fi
 
-# mesa-utils for dri checks, xsltproc for qtest->junit conversion and
+# mesa-utils, x11-utils for dri checks, xsltproc for qtest->junit conversion and
 # python-psutil for memory testing
 # netcat-openbsd (nc command) for squid-deb-proxy checking
 # net-tools (route command) for squid-deb-proxy checking
@@ -25,6 +25,7 @@ BASE_DEPENDENCIES="build-essential \\
                    cmake           \\
                    debhelper       \\
                    mesa-utils      \\
+                   x11-utils       \\
                    cppcheck        \\
                    xsltproc        \\
                    python-lxml     \\
