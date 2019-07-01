@@ -15,9 +15,7 @@ JOB_NAME_PATTERN = '%s-bloom-debbuilder'
 
 UBUNTU_ARCHS = ['amd64']
 # not releasing for precise by default
-ROS_DISTROS_IN_UBUNTU = { 'zesty'    : ['lunar'],
-                          'yakkety'  : ['lunar'] }
-#                          'xenial'   : ['lunar'] }
+ROS_DISTROS_IN_UBUNTU = { 'bionic'    : ['melodic'] }
 DRY_RUN = False
 
 def parse_args(argv):
@@ -35,6 +33,11 @@ def parse_args(argv):
                         help='Release version suffix; usually 1 (e.g., 1')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
+
+    parser.add_argument('--ros-distros', dest='upload_to_repository', default="stable",
+                        help='OSRF repo to upload: stable | prerelease | nightly')
+
+
 
     args = parser.parse_args()
     DRY_RUN = args.dry_run
