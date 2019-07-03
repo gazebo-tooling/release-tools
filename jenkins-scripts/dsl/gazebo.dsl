@@ -6,6 +6,10 @@ def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
 // nightly_gazebo_branch is not the branch used to get the code from but
 // the one used to generate the corresponding debbuild job.
 def nightly_gazebo_branch = [ 'gazebo10' ]
+// testing official packages without osrf repo
+def ubuntu_official_packages_distros = [ 'disco'  : 'gazebo9',
+                                         'bionic' : 'gazebo9',
+                                         'xenial' : 'gazebo7']
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -456,6 +460,39 @@ gazebo_supported_branches.each { branch ->
       } // end of with
     } // end of arch
   } // end of distro
+} // end of branch
+
+// INSTALL LINUX -DEV PACKAGES ALL PLATFORMS @ CRON/DAILY - ONLY UBUNTU OFFICIAL
+// PACKAGES
+ubuntu_official_packages_distros.each { distro, version ->
+    supported_arches.each { arch ->
+    // --------------------------------------------------------------
+    def install_default_job = job("gazebo-install_ubuntu_official-${version}_pkg-${distro}-${arch}")
+    OSRFLinuxInstall.create(install_default_job)
+    install_default_job.with
+    {
+       triggers {
+         cron('@daily')
+       }
+
+       // Branch is exactly in the form of gazeboN
+       def dev_packages = "lib${version}-dev ${version}"
+
+       // Need gpu for running the runtime test
+       label "gpu-reliable"
+
+       steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export DISTRO=${distro}
+              export ARCH=${arch}
+              export INSTALL_JOB_PKG=\"${dev_packages}\"
+              /bin/bash -x ./scripts/jenkins-scripts/docker/gazebo-install-test-job.bash
+              """.stripIndent())
+        }
+    } // end of with
+  } // end of arch
 } // end of branch
 
 // --------------------------------------------------------------
