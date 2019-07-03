@@ -454,6 +454,7 @@ if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 4 ]]; then
 elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 5 ]]; then
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libignition-cmake1-dev \\
+                                libignition-cmake2-dev \\
                                 libignition-msgs2-dev \\
                                 libsqlite3-dev \\
                                 ruby-ffi"
