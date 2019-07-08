@@ -17,7 +17,7 @@ fi
 export BUILDING_SOFTWARE_DIRECTORY="ign-physics"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_PHYSICS_DEPENDENCIES"
 
-# Identify IGN_CMAKE_MAJOR_VERSION to help with dependency resolution
+# Identify IGN_PHYSICS_MAJOR_VERSION to help with dependency resolution
 IGN_PHYSICS_MAJOR_VERSION=$(\
   python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-physics/CMakeLists.txt)
