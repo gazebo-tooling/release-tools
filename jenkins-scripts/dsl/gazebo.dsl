@@ -42,7 +42,7 @@ boolean is_watched_by_buildcop(branch, distro = 'xenial', gpu = 'nvidia')
   return false
 }
 
-void generate_install_job(Job job, gz_branch, distro, arch)
+void generate_install_job(Job job, gz_branch, distro, arch, osrf_repos = "")
 {
   job.with
   {
@@ -63,6 +63,7 @@ void generate_install_job(Job job, gz_branch, distro, arch)
           export DISTRO=${distro}
           export ARCH=${arch}
           export INSTALL_JOB_PKG=\"${dev_packages}\"
+          export INSTALL_JOB_REPOS=${osrf_repos}
           /bin/bash -x ./scripts/jenkins-scripts/docker/gazebo-install-test-job.bash
           """.stripIndent())
     }
@@ -469,7 +470,7 @@ gazebo_supported_branches.each { branch ->
       def install_default_job = job("gazebo-install-${branch}_pkg-${distro}-${arch}")
       OSRFLinuxInstall.create(install_default_job)
 
-      generate_install_job(install_default_job, branch, distro, arch)
+      generate_install_job(install_default_job, branch, distro, arch, "stable")
     } // end of arch
   } // end of distro
 } // end of branch
