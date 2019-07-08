@@ -61,8 +61,8 @@ ignition_prerelease_pkgs    = [ 'placeholder' : [
 // this solution
 ignition_colcon_win         = [ 'gazebo',
                                 'gui',
-                                'physics',
                                 'launch',
+                                'physics',
                                 'rendering',
                                 'sensors' ]
 
