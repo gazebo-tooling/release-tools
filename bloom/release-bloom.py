@@ -34,11 +34,6 @@ def parse_args(argv):
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
 
-    parser.add_argument('--ros-distros', dest='upload_to_repository', default="stable",
-                        help='OSRF repo to upload: stable | prerelease | nightly')
-
-
-
     args = parser.parse_args()
     DRY_RUN = args.dry_run
     return args
