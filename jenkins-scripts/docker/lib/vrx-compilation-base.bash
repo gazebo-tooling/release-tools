@@ -28,9 +28,8 @@ DOCKER_JOB_NAME="vrx_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 . ${SCRIPT_DIR}/lib/_vrx_lib.bash
 
-source ./install/setup.bash || true
-
 export ROS_SETUP_POSTINSTALL_HOOK="""
+source ./install/setup.bash || true
 ${VRX_SMOKE_TEST}
 """
 
