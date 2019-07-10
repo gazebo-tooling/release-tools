@@ -26,28 +26,12 @@ export ENABLE_REAPER=false
 
 DOCKER_JOB_NAME="vrx_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
-
-export ROS_SETUP_POSTINSTALL_HOOK="""
-echo '# BEGIN SECTION: smoke test'
-
-killall gazebo gzserver || true
+. ${SCRIPT_DIR}/lib/_vrx_lib.bash
 
 source ./install/setup.bash || true
 
-TEST_TIMEOUT=180
-TEST_START=\$(date +%s)
-timeout --preserve-status \$TEST_TIMEOUT roslaunch vrx_gazebo sandisland.launch extra_gazebo_args:=\"--verbose\"
-TEST_END=\$(date +%s)
-DIFF=\$(expr \$TEST_END - \$TEST_START)
-
-if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
-  echo \"The test took less than \$TEST_TIMEOUT. Something bad happened.\"
-  Typo
-  exit 1
-fi
-
-echo 'Smoke testing completed successfully.'
-echo '# END SECTION'
+export ROS_SETUP_POSTINSTALL_HOOK="""
+${VRX_SMOKE_TEST}
 """
 
 # Generate the first part of the build.sh file for ROS
