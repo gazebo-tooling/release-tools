@@ -6,6 +6,9 @@ def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
 // nightly_gazebo_branch is not the branch used to get the code from but
 // the one used to generate the corresponding debbuild job.
 def nightly_gazebo_branch = [ 'gazebo10' ]
+// testing official packages without osrf repo
+def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9',
+                                         'xenial' : 'gazebo7']
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -36,6 +39,41 @@ boolean is_watched_by_buildcop(branch, distro = 'xenial', gpu = 'nvidia')
     return true
 
   return false
+}
+
+void generate_install_job(Job job, gz_branch, distro, arch, osrf_repos = "")
+{
+  job.with
+  {
+    triggers {
+      cron('@daily')
+    }
+
+    // Branch is exactly in the form of gazeboN
+    def dev_packages = "lib${gz_branch}-dev ${gz_branch}"
+
+    // Need gpu for running the runtime test
+    label "gpu-reliable"
+
+    steps {
+      shell("""\
+          #!/bin/bash -xe
+
+          export DISTRO=${distro}
+          export ARCH=${arch}
+          export INSTALL_JOB_PKG=\"${dev_packages}\"
+          export INSTALL_JOB_REPOS=${osrf_repos}
+          /bin/bash -x ./scripts/jenkins-scripts/docker/gazebo-install-test-job.bash
+          """.stripIndent())
+    }
+
+    publishers {
+      consoleParsing {
+        projectRules('scripts/jenkins-scripts/parser_rules/gazebo_err.parser')
+        failBuildOnError(true)
+      }
+    }
+  }
 }
 
 // ABI Checker job
@@ -430,32 +468,22 @@ gazebo_supported_branches.each { branch ->
       // --------------------------------------------------------------
       def install_default_job = job("gazebo-install-${branch}_pkg-${distro}-${arch}")
       OSRFLinuxInstall.create(install_default_job)
-      install_default_job.with
-      {
-         triggers {
-           cron('@daily')
-         }
 
-         // Branch is exactly in the form of gazeboN
-         def dev_packages = "lib${branch}-dev ${branch}"
-
-         // Need gpu for running the runtime test
-         label "gpu-" + ci_gpu[0] + "-${distro}"
-
-         steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                export DISTRO=${distro}
-                export ARCH=${arch}
-                export INSTALL_JOB_PKG=\"${dev_packages}\"
-                export INSTALL_JOB_REPOS=stable
-                /bin/bash -x ./scripts/jenkins-scripts/docker/gazebo-install-test-job.bash
-                """.stripIndent())
-          }
-      } // end of with
+      generate_install_job(install_default_job, branch, distro, arch, "stable")
     } // end of arch
   } // end of distro
+} // end of branch
+
+// INSTALL LINUX -DEV PACKAGES ALL PLATFORMS @ CRON/DAILY - ONLY UBUNTU OFFICIAL
+// PACKAGES
+ubuntu_official_packages_distros.each { distro, branch ->
+    supported_arches.each { arch ->
+    // --------------------------------------------------------------
+    def install_default_job = job("gazebo-install_ubuntu_official-${branch}_pkg-${distro}-${arch}")
+    OSRFLinuxInstall.create(install_default_job)
+
+    generate_install_job(install_default_job, branch, distro, arch)
+  } // end of arch
 } // end of branch
 
 // --------------------------------------------------------------
