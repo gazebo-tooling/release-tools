@@ -24,6 +24,10 @@ void include_parselog(Job job)
             globalRules('/var/lib/jenkins/logparser_error_on_failed_compilation')
             failBuildOnError()
         }
+        consoleParsing {
+            projectRules('scripts/jenkins-scripts/parser_rules/gazebo_err.parser')
+            failBuildOnError()
+      }
     }
   }
 }
