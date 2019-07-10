@@ -119,7 +119,7 @@ ci_distro.each { distro, ros_distro ->
 
             export DISTRO=${distro}
             export ARCH=${arch}
-            export INSTALL_JOB_PKG=vrx
+            export INSTALL_JOB_PKG=ros-${ros_distro}-vrx-gazebo
             export INSTALL_JOB_REPOS="stable"
             /bin/bash -xe ./scripts/jenkins-scripts/docker/vrx-install-test-job.bash
             """.stripIndent())
