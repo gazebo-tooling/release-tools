@@ -1,6 +1,6 @@
 #!/bin/bash
 # Launch all the suite of ros_gazebo_pkgs:
-# Usage: ros_gazebo_pkgs <version>
+# Usage: ros1_ign_bridge-release.py.bash <version>
 #
 
 if [[ $# -lt 2 ]]; then
