@@ -22,8 +22,11 @@ packages['science-team'] = ['console-bridge',
                             'urdfdom',
                             'urdfdom-headers' ]
 
-packages['collab-maint']   = ['peak-linux-driver',
-                              'peak-pcan-basic']
+packages['collab-maint']  = ['peak-linux-driver',
+                             'peak-pcan-basic']
+
+packages['jrivero-guest'] = ['empy']
+
 
 packages.each { repo_name, pkgs ->
  pkgs.each { pkg ->
