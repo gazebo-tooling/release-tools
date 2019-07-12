@@ -15,9 +15,7 @@ JOB_NAME_PATTERN = '%s-bloom-debbuilder'
 
 UBUNTU_ARCHS = ['amd64']
 # not releasing for precise by default
-ROS_DISTROS_IN_UBUNTU = { 'zesty'    : ['lunar'],
-                          'yakkety'  : ['lunar'] }
-#                          'xenial'   : ['lunar'] }
+ROS_DISTROS_IN_UBUNTU = { 'bionic'    : ['melodic'] }
 DRY_RUN = False
 
 def parse_args(argv):
