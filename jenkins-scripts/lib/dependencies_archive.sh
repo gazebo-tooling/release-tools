@@ -283,6 +283,8 @@ else
       crystal)
         GAZEBO_VERSION_FOR_ROS="9"
       ;;
+      dashing)
+        GAZEBO_VERSION_FOR_ROS="9"
     esac
   fi
 
