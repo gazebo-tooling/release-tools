@@ -22,8 +22,11 @@ packages['science-team'] = ['console-bridge',
                             'urdfdom',
                             'urdfdom-headers' ]
 
-packages['collab-maint']   = ['peak-linux-driver',
-                              'peak-pcan-basic']
+packages['debian']  = ['peak-linux-driver',
+                       'peak-pcan-basic']
+
+packages['jrivero-guest'] = ['empy']
+
 
 packages.each { repo_name, pkgs ->
  pkgs.each { pkg ->
@@ -60,13 +63,6 @@ packages.each { repo_name, pkgs ->
 
   // --------------------------------------------------------------
   // 2. Create the job that tries to build the package and run lintian
-
-  if (repo_name == 'science-team') {
-    git_repo = "https://salsa.debian.org/${repo_name}/${pkg}.git"
-  } else {
-    git_repo = "git://anonscm.debian.org/${repo_name}/${pkg}.git"
-  }
-
   def ci_job = job("${pkg}-pkg_builder-master-debian_sid-amd64")
   OSRFLinuxBuildPkgBase.create(ci_job)
   ci_job.with
@@ -74,7 +70,7 @@ packages.each { repo_name, pkgs ->
      scm {
         git {
           remote {
-            url("${git_repo}")
+            url("https://salsa.debian.org/${repo_name}/${pkg}.git")
           }
           extensions {
             cleanBeforeCheckout()
