@@ -59,6 +59,7 @@ sudo ${docker_cmd} run $EXTRA_PARAMS_STR  \
             -v /dev/log:/dev/log:ro \
             -v /run/log:/run/log:ro \
             -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
+            --device /dev/snd \
             --tty \
             --rm \
             ${DOCKER_TAG} \
