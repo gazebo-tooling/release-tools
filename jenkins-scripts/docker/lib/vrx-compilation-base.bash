@@ -26,10 +26,12 @@ export ENABLE_REAPER=false
 
 DOCKER_JOB_NAME="vrx_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 . ${SCRIPT_DIR}/lib/_vrx_lib.bash
 
 export ROS_SETUP_POSTINSTALL_HOOK="""
 source ./install/setup.bash || true
+${GAZEBO_MODEL_INSTALLATION}
 ${VRX_SMOKE_TEST}
 """
 
