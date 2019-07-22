@@ -146,6 +146,8 @@ ratt_pkg_job.with
   {
      stringParam('DEB_PACKAGE','master',
                  'package to run ratt against (check lib transition)')
+     stringParam('TARGET_DEBIAN_DISTRIBUTION','experimental',
+                 'target platform for testing packages')
   }
 
   logRotator {

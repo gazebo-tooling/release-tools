@@ -37,7 +37,7 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
 cd ..
 # need to configure unstable in the change file, not all packages are in experimental
-sed -i -e 's:experimental:unstable:g' ${DEB_PACKAGE}_*.changes
+sed -i -e 's:${TARGET_DEBIAN_DISTRIBUTION}:unstable:g' ${DEB_PACKAGE}_*.changes
 ratt ${DEB_PACKAGE}_*.changes*
 echo '# END SECTION'
 DELIM
