@@ -27,7 +27,7 @@ apt-get build-dep -y ${DEB_PACKAGE}
 apt-get source -t experimental ${DEB_PACKAGE}
 dir=\$(find . -maxdepth 1 -mindepth 1 -type d)
 cd \$dir
-debuild -S --no-sign
+debuild -j1 --no-sign
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create experimental chroot'
@@ -37,7 +37,7 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
 cd ..
 # need to configure unstable in the change file, not all packages are in experimental
-sed -i -e 's:experimental:unstable:g' ${DEB_PACKAGE}_*.changes
+sed -i -e 's:experimental:unstable:g' ${DEB_PACKAGE}*_${ARCH}.changes
 ratt ${DEB_PACKAGE}_*.changes*
 echo '# END SECTION'
 DELIM
