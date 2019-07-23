@@ -28,6 +28,9 @@ echo '# BEGIN SECTION: see build.sh script'
 cat build.sh
 echo '# END SECTION'
 
+
+[[ -z ${USE_DOCKER_IN_DOCKER} ]] && USE_DOCKER_IN_DOCKER=false
+
 if $USE_DOCKER_IN_DOCKER; then
  EXTRA_PARAMS_STR="--privileged \
                     -v /var/run/docker.sock:/var/run/docker.sock"
