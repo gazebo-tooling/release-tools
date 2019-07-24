@@ -13,16 +13,13 @@ class Globals
    static gpu_by_distro  = [ xenial  : [ 'nvidia' ] ]
 
    static ros_ci = [ 'kinetic'  : ['xenial'] ,
-                     'lunar'    : ['xenial'] ,
                      'melodic'  : ['bionic'] ,
                      'crystal'  : ['bionic'] ,
                      'dashing'  : ['bionic'] ,
                      'eloquent' : ['bionic']]
 
    // This should be in sync with archive_library
-   static gz_version_by_rosdistro = [ 'jade'     : ['5'] ,
-                                      'kinetic'  : ['7'] ,
-                                      'lunar'    : ['7'] ,
+   static gz_version_by_rosdistro = [ 'kinetic'  : ['7'] ,
                                       'melodic'  : ['9'] ,
                                       'crystal'  : ['9'] ,
                                       'dashing'  : ['9'] ,
@@ -102,7 +99,7 @@ class Globals
 
    static ArrayList get_ros_suported_distros()
    {
-     return [ 'kinetic', 'lunar', 'melodic' ]
+     return [ 'kinetic', 'melodic' ]
    }
 
    static ArrayList get_ros2_suported_distros()
