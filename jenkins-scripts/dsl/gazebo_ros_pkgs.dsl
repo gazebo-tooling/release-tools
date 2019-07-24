@@ -9,7 +9,7 @@ ArrayList ros2_distros       = Globals.get_ros2_suported_distros()
 @Field
 String ci_arch               = 'amd64'
 @Field
-String current_ros2_branch   = "dashing"
+String current_ros2_branch   = "eloquent"
 
 // version to test more than the official one in each ROS distro
 extra_gazebo_versions = [ 'kinetic' :  ['8','9']]

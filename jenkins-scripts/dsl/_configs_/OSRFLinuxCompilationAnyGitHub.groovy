@@ -29,9 +29,11 @@ class OSRFLinuxCompilationAnyGitHub
 
     ArrayList supported_ros_branches = []
     supported_ros_distros.each { ros_distro ->
-      if (ros_distro == 'dashing') {
+      if (ros_distro == 'eloquent') {
         // Latest unreleased distro points to ros2
         supported_ros_branches.add("ros2")
+      } else if (ros_distro == 'dashing') {
+        supported_ros_branches.add("dashing")
       } else if (ros_distro == 'crystal') {
         supported_ros_branches.add("crystal")
       } else {
