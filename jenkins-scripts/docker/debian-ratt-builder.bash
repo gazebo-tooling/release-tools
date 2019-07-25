@@ -31,7 +31,7 @@ debuild -j1 --no-sign
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create experimental chroot'
-sbuild-createchroot unstable /srv/chroot/exp-amd64-sbuild http://deb.debian.org/debian
+sbuild-createchroot unstable /srv/chroot/unstable-amd64-sbuild http://deb.debian.org/debian
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
@@ -41,13 +41,15 @@ sed -i -e 's:experimental:unstable:g' ${DEB_PACKAGE}*_*.changes
 # move run to workspace to get buildlogs in jenkins
 mv ${DEB_PACKAGE}*_*.changes ${WORKSPACE}
 cd ${WORKSPACE}
-ratt ${DEB_PACKAGE}_*.changes*
+ratt ${DEB_PACKAGE}*_*.changes
 echo '# END SECTION'
 DELIM
 
 export LINUX_DISTRO=debian
 export DISTRO=sid
 export DEPENDENCY_PKGS="ratt sbuild quilt devscripts"
+export USE_DOCKER_IN_DOCKER=true
+
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
 . "${SCRIPT_DIR}/lib/docker_run.bash"

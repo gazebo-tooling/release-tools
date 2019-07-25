@@ -28,12 +28,13 @@ echo '# BEGIN SECTION: see build.sh script'
 cat build.sh
 echo '# END SECTION'
 
-
 [[ -z ${USE_DOCKER_IN_DOCKER} ]] && USE_DOCKER_IN_DOCKER=false
 
+# security options are needed to run sbuild or mount inside docker
 if $USE_DOCKER_IN_DOCKER; then
  EXTRA_PARAMS_STR="--privileged \
-                    -v /var/run/docker.sock:/var/run/docker.sock"
+                   --security-opt apparmor=unconfined --cap-add all \
+                   -v /var/run/docker.sock:/var/run/docker.sock"
 fi
 
 if $USE_GPU_DOCKER; then
