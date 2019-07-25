@@ -425,6 +425,9 @@ fi
 # IGNITION
 #
 
+IGN_MATH_DEPENDENCIES="libeigen3-dev \\
+                       libignition-cmake-dev \\
+                       libignition-cmake1-dev"
 if [[ ${DISTRO} != 'xenial' ]]; then
   IGN_MATH_DEPENDENCIES="${IGN_MATH_DEPENDENCIES} \\
                          libignition-cmake2-dev"
