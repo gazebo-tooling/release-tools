@@ -38,6 +38,9 @@ echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
 cd ..
 # need to configure unstable in the change file, not all packages are in experimental
 sed -i -e 's:experimental:unstable:g' ${DEB_PACKAGE}*_*.changes
+# move run to workspace to get buildlogs in jenkins
+mv ${DEB_PACKAGE}*_*.changes ${WORKSPACE}
+cd ${WORKSPACE}
 ratt ${DEB_PACKAGE}_*.changes*
 echo '# END SECTION'
 DELIM
