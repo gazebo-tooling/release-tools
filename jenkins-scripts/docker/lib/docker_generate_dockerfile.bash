@@ -172,10 +172,14 @@ DELIM_DOCKER_PAM_BUG
 fi
 
 # dirmngr from Yaketty on needed by apt-key
-# git and python for gzdev
+# git and python-* for gzdev
+if [[ $DISTRO != 'xenial' ]]; then
+    # not in xenial, available from Bionic on and all debians
+    extra_python_mod="python3-distro"
+fi
 cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
 RUN apt-get update && \\
-    apt-get install -y dirmngr git python3 python3-docopt python3-yaml
+    apt-get install -y dirmngr git python3 python3-docopt python3-yaml ${extra_python_mod}
 DELIM_DOCKER_DIRMNGR
 
 # Install necessary repositories using gzdev
