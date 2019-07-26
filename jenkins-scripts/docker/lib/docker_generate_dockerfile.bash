@@ -39,13 +39,15 @@ RUN rm -fr ${GZDEV_DIR}
 RUN git clone --depth 1 https://github.com/osrf/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
 DELIM_OSRF_REPO_GIT
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
+# debian sid docker images does not return correct name so we need to use
+# force-linux-distro
 cat >> Dockerfile << DELIM_OSRF_REPO_GZDEV
-RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME}
+RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO}
 DELIM_OSRF_REPO_GZDEV
 else
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
-RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo}
+RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO}
 DELIM_OSRF_REPO
 done
 fi
