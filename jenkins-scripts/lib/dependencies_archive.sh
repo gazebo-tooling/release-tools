@@ -721,6 +721,7 @@ SUBT_DEPENDENCIES="mercurial \\
                    ros-${ROS_DISTRO}-desktop \\
                    ros-${ROS_DISTRO}-tf2-sensor-msgs \\
                    ros-${ROS_DISTRO}-robot-localization \\
+                   ros-${ROS_DISTRO}-rotors-control-config \\
                    ros-${ROS_DISTRO}-ros-control \\
                    ros-${ROS_DISTRO}-twist-mux \\
                    ros-${ROS_DISTRO}-ros1-ign-bridge"
