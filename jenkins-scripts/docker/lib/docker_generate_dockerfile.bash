@@ -41,11 +41,13 @@ DELIM_OSRF_REPO_GIT
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
 cat >> Dockerfile << DELIM_OSRF_REPO_GZDEV
 RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME}
+RUN cat /etc/apt/sources.list.d/_gzdev_osrf_*.list
 DELIM_OSRF_REPO_GZDEV
 else
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
 RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo}
+RUN cat /etc/apt/sources.list.d/_gzdev_osrf_*.list
 DELIM_OSRF_REPO
 done
 fi
