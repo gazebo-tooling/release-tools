@@ -29,6 +29,28 @@ fi
 
 [[ -z ${USE_GCC8} ]] && USE_GCC8=false
 
+GZDEV_DIR=${WORKSPACE}/gzdev
+GZDEV_BRANCH=repository
+
+dockerfile_install_gzdev_repos()
+{
+cat >> Dockerfile << DELIM_OSRF_REPO_GIT
+RUN rm -fr ${GZDEV_DIR}
+RUN git clone --depth 1 https://github.com/osrf/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
+DELIM_OSRF_REPO_GIT
+if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
+cat >> Dockerfile << DELIM_OSRF_REPO_GZDEV
+RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME}
+DELIM_OSRF_REPO_GZDEV
+else
+for repo in ${OSRF_REPOS_TO_USE}; do
+cat >> Dockerfile << DELIM_OSRF_REPO
+RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo}
+DELIM_OSRF_REPO
+done
+fi
+}
+
 case ${LINUX_DISTRO} in
   'ubuntu')
     SOURCE_LIST_URL="http://archive.ubuntu.com/ubuntu"
@@ -150,20 +172,14 @@ DELIM_DOCKER_PAM_BUG
 fi
 
 # dirmngr from Yaketty on needed by apt-key
-if [[ $DISTRO != 'xenial' ]]; then
+# git and python for gzdev
 cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
 RUN apt-get update && \\
-    apt-get install -y dirmngr
+    apt-get install -y dirmngr git python3 python3-docopt python3-yaml
 DELIM_DOCKER_DIRMNGR
-fi
 
-for repo in ${OSRF_REPOS_TO_USE}; do
-cat >> Dockerfile << DELIM_OSRF_REPO
-RUN echo "deb http://packages.osrfoundation.org/gazebo/${LINUX_DISTRO}-${repo} ${DISTRO} main" >\\
-                                                /etc/apt/sources.list.d/osrf.${repo}.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
-DELIM_OSRF_REPO
-done
+# Install necessary repositories using gzdev
+dockerfile_install_gzdev_repos
 
 if ${USE_ROS_REPO}; then
   if ${ROS2}; then
@@ -256,17 +272,26 @@ RUN echo "${MONTH_YEAR_STR}" \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-# This is killing the cache so we get the most recent packages if there
-# was any update. Note that we don't remove the apt/lists file here since
-# it will make to run apt-get update again
-RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))" \
- && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
+# This is killing the cache so we get the most recent packages if there was any
+# update.
+RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))"
+DELIM_DOCKER3
+
+# A new install of gzdev is needed to update to possible recent changes in
+# configuratin and/or code and not being used since the docker cache did
+# not get them.
+dockerfile_install_gzdev_repos
+
+cat >> Dockerfile << DELIM_DOCKER31
+# Note that we don't remove the apt/lists file here since it will make
+# to run apt-get update again
+RUN (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
  && apt-get dist-upgrade -y \
  && apt-get clean
 
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
-DELIM_DOCKER3
+DELIM_DOCKER31
 
 # Beware of moving this code since it needs to run update-alternative after
 # installing the default compiler in PACKAGES_CACHE_AND_CHECK_UPDATES

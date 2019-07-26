@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-plugin"
-export BUILDING_JOB_REPOSITORIES="stable"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_PLUGIN_DEPENDENCIES"
 
 # Identify IGN_PLUGIN_MAJOR_VERSION to help with dependency resolution
@@ -32,5 +31,7 @@ fi
 if [[ ${IGN_PLUGIN_MAJOR_VERSION} -ge 6 ]]; then
   export USE_GCC8=true
 fi
+
+export GZDEV_PROJECT_NAME="ignition-plugin${IGN_PLUGIN_DEPENDENCIES}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

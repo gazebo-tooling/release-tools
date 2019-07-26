@@ -26,7 +26,7 @@ if [[ ${SDFORMAT_MAJOR_VERSION} -ge 8 ]]; then
   export USE_GCC8=true
 fi
 
-export BUILDING_JOB_REPOSITORIES="stable"
+export GZDEV_PROJECT_NAME="sdformat${SDFORMAT_MAJOR_VERSION}"
 
 # default and major branches compilations
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="SDFORMAT_BASE_DEPENDENCIES"
