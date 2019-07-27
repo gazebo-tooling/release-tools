@@ -1,4 +1,9 @@
 SUBT_COMPETITION_TEST="""
+# inject external variable into test scripts
+if [[ -n "${TEST_TIMEOUT}" ]]; then
+  export TEST_TIMEOUT=${TEST_TIMEOUT}
+fi
+
 TEST_TIMEOUT=\${TEST_TIMEOUT:-180}
 TEST_START=\$(date +%s)
 timeout --preserve-status \$TEST_TIMEOUT ign launch -v 4 competition.ign 2> >(grep -v '[QT]')
