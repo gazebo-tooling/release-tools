@@ -14,6 +14,7 @@ export ENABLE_REAPER=false
 DOCKER_JOB_NAME="subt_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
+. ${SCRIPT_DIR}/lib/_subt_utils.sh
 
 # Need special tarball
 # see: https://bitbucket.org/osrf/subt/wiki/tutorials/ExampleSetup
@@ -25,21 +26,8 @@ ${GAZEBO_MODEL_INSTALLATION}
 
 export ROS_SETUP_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: smoke test'
-
 source ./install/setup.bash || true
-
-TEST_TIMEOUT=180
-TEST_START=\$(date +%s)
-timeout --preserve-status \$TEST_TIMEOUT ign launch -v 4 competition.ign
-TEST_END=\$(date +%s)
-DIFF=\$(expr \$TEST_END - \$TEST_START)
-
-if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
-  echo \"The test took less than \$TEST_TIMEOUT. Something bad happened.\"
-  Typo
-  exit 1
-fi
-
+${SUBT_COMPETITION_TEST}
 echo 'Smoke testing completed successfully.'
 echo '# END SECTION'
 """
