@@ -13,43 +13,21 @@ export ENABLE_REAPER=false
 
 DOCKER_JOB_NAME="subt_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_gazebo_utils.sh
+. ${SCRIPT_DIR}/lib/_subt_utils.sh
 
 # Need special tarball
 # see: https://bitbucket.org/osrf/subt/wiki/tutorials/ExampleSetup
 # remove subt_example and subt_gazebo since there are coming from the repo under testing
 # Models are used in tests
 export ROS_WS_PREBUILD_HOOK="""
-cd ..
-wget http://gazebosim.org/distributions/subt_robot_examples/releases/subt_robot_examples_latest.tgz -O subt_robot_examples.tgz
-tar xvfz subt_robot_examples.tgz
-rm -fr install/share/subt_example
-rm -fr install/share/subt_gazebo
-rm install/etc/catkin/profile.d/50.husky_find_mag_config.sh
-export GAZEBO_PLUGIN_PATH=\`pwd\`/install/lib:\$GAZEBO_PLUGIN_PATH
-
-wget -P /tmp/ https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz
-mkdir -p ~/.gazebo/models
-tar -xvf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
-rm /tmp/default.tar.gz
+${GAZEBO_MODEL_INSTALLATION}
 """
 
 export ROS_SETUP_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: smoke test'
-
 source ./install/setup.bash || true
-
-TEST_TIMEOUT=180
-TEST_START=\$(date +%s)
-timeout --preserve-status \$TEST_TIMEOUT ign launch -v 4 competition.ign
-TEST_END=\$(date +%s)
-DIFF=\$(expr \$TEST_END - \$TEST_START)
-
-if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
-  echo \"The test took less than \$TEST_TIMEOUT. Something bad happened.\"
-  Typo
-  exit 1
-fi
-
+${SUBT_COMPETITION_TEST}
 echo 'Smoke testing completed successfully.'
 echo '# END SECTION'
 """
