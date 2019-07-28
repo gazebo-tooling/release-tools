@@ -21,13 +21,12 @@ DOCKER_JOB_NAME="subt_ci"
 # remove subt_example and subt_gazebo since there are coming from the repo under testing
 # Models are used in tests
 export ROS_WS_PREBUILD_HOOK="""
-${GAZEBO_MODEL_INSTALLATION}
-
 git clone --depth 1 https://github.com/husky/husky.git /tmp/huksy
 git clone --depth 1 https://github.com/jackal/jackal.git /tmp/jackal
-ls -R /tmp/husky
-mv /tmp/husky/husky/husky_description ${WORKSPACE}/subt/
-mv /tmp/jackal/jackal/jackal_description ${WORKSPACE}/subt/
+ls -R /tmp
+mv /tmp/huksy/husky_description ${WORKSPACE}/subt/
+mv /tmp/jackal/jackal_description  ${WORKSPACE}/subt/
+${GAZEBO_MODEL_INSTALLATION}
 """
 
 export ROS_SETUP_POSTINSTALL_HOOK="""
