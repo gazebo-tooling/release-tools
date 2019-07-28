@@ -18,7 +18,7 @@ DOCKER_JOB_NAME="subt_ci"
 
 # Needs pointgrey SDK (manual installation) and downloader is broken from ros-drivers.
 # manual installation from our nodes
-if [[ -d /var/lib/jenkins/.pointgrey_sdk ]]; then
+if [[ ! -d /var/lib/jenkins/.pointgrey_sdk ]]; then
     echo 'The node has not been setup for pointgrey sdk'
     exit 1
 fi
