@@ -16,16 +16,15 @@ DOCKER_JOB_NAME="subt_ci"
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 . ${SCRIPT_DIR}/lib/_subt_utils.sh
 
-# Need special tarball
-# see: https://bitbucket.org/osrf/subt/wiki/tutorials/ExampleSetup
-# remove subt_example and subt_gazebo since there are coming from the repo under testing
+# husky and jackal descriptions are used
 # Models are used in tests
 export ROS_WS_PREBUILD_HOOK="""
 git clone --depth 1 https://github.com/husky/husky.git /tmp/huksy
 git clone --depth 1 https://github.com/jackal/jackal.git /tmp/jackal
-ls -R /tmp
+git clone --depth 1 https://github.com/ros-drivers/pointgrey_camera_driver /tmp/pointgrey_camera_driver
 mv /tmp/huksy/husky_description ${WORKSPACE}/subt/
 mv /tmp/jackal/jackal_description  ${WORKSPACE}/subt/
+mv /tmp/pointgrey_camera_driver ${WORKSPACE}/subt/
 ${GAZEBO_MODEL_INSTALLATION}
 """
 
