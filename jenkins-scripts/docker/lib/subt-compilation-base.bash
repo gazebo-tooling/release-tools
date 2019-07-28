@@ -20,13 +20,14 @@ DOCKER_JOB_NAME="subt_ci"
 # Models are used in tests
 export ROS_WS_PREBUILD_HOOK="""
 rm -fr ${WORKSPACE}/subt/husky_description ${WORKSPACE}/subt/pointgrey_camera_driver ${WORKSPACE}/subt/jackal_description
-git clone --depth 1 https://github.com/husky/husky.git /tmp/huksy
-git clone --depth 1 https://github.com/jackal/jackal.git /tmp/jackal
-git clone --depth 1 https://github.com/ros-drivers/pointgrey_camera_driver /tmp/pointgrey_camera_driver
+git clone --depth 1 https://github.com/husky/husky.git /tmp/huksy > /dev/null
+git clone --depth 1 https://github.com/jackal/jackal.git /tmp/jackal > /dev/null
 mv /tmp/huksy/husky_description ${WORKSPACE}/subt/
 mv /tmp/jackal/jackal_description  ${WORKSPACE}/subt/
-mv /tmp/pointgrey_camera_driver ${WORKSPACE}/subt/
-wget https://raw.githubusercontent.com/ros-drivers/pointgrey_camera_driver/master/pointgrey_camera_driver/cmake/download_flycap
+# Needs pointgrey SDK (manual installation) and downloader is broken from ros-drivers.
+# git clone --depth 1 https://github.com/ros-drivers/pointgrey_camera_driver /tmp/pointgrey_camera_driver
+# mv /tmp/pointgrey_camera_driver ${WORKSPACE}/subt/
+# wget https://raw.githubusercontent.com/ros-drivers/pointgrey_camera_driver/master/pointgrey_camera_driver/cmake/download_flycap
 python download_flycap
 ${GAZEBO_MODEL_INSTALLATION}
 """
