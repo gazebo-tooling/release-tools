@@ -26,6 +26,8 @@ git clone --depth 1 https://github.com/ros-drivers/pointgrey_camera_driver /tmp/
 mv /tmp/huksy/husky_description ${WORKSPACE}/subt/
 mv /tmp/jackal/jackal_description  ${WORKSPACE}/subt/
 mv /tmp/pointgrey_camera_driver ${WORKSPACE}/subt/
+wget https://raw.githubusercontent.com/ros-drivers/pointgrey_camera_driver/master/pointgrey_camera_driver/cmake/download_flycap
+python download_flycap
 ${GAZEBO_MODEL_INSTALLATION}
 """
 
@@ -38,7 +40,7 @@ echo '# END SECTION'
 """
 
 # Generate the first part of the build.sh file for ROS
-. ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash "subt"
+bash -xe ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash "subt"
 
 DEPENDENCY_PKGS="${SUBT_DEPENDENCIES} psmisc"
 # ROS packages come from the mirror in the own subt repository
