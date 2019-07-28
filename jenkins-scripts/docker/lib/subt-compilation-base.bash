@@ -19,6 +19,7 @@ DOCKER_JOB_NAME="subt_ci"
 # husky and jackal descriptions are used
 # Models are used in tests
 export ROS_WS_PREBUILD_HOOK="""
+rm -fr ${WORKSPACE}/subt/husky_description ${WORKSPACE}/subt/pointgrey_camera_driver ${WORKSPACE}/subt/jackal_description
 git clone --depth 1 https://github.com/husky/husky.git /tmp/huksy
 git clone --depth 1 https://github.com/jackal/jackal.git /tmp/jackal
 git clone --depth 1 https://github.com/ros-drivers/pointgrey_camera_driver /tmp/pointgrey_camera_driver
