@@ -28,7 +28,7 @@ mv /tmp/jackal/jackal_description  ${WORKSPACE}/subt/
 # git clone --depth 1 https://github.com/ros-drivers/pointgrey_camera_driver /tmp/pointgrey_camera_driver
 # mv /tmp/pointgrey_camera_driver ${WORKSPACE}/subt/
 # wget https://raw.githubusercontent.com/ros-drivers/pointgrey_camera_driver/master/pointgrey_camera_driver/cmake/download_flycap
-python download_flycap
+# python download_flycap
 ${GAZEBO_MODEL_INSTALLATION}
 """
 
