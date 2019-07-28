@@ -23,8 +23,8 @@ DOCKER_JOB_NAME="subt_ci"
 export ROS_WS_PREBUILD_HOOK="""
 ${GAZEBO_MODEL_INSTALLATION}
 
-git clone --depth 1 https://github.com/husky/husky.git /tmp
-git clone --depth 1 https://github.com/jackal/jackal.git -b melodic-devel /tmp
+git clone --depth 1 https://github.com/husky/husky.git /tmp/huksy
+git clone --depth 1 https://github.com/jackal/jackal.git -b melodic-devel /tmp/jackal
 mv /tmp/husky/husky_description ${WORKSPACE}/subt/
 mv /tmp/jackal/jackal_description ${WORKSPACE}/subt/
 """
