@@ -125,8 +125,8 @@ mkdir -p ${WORKSPACE}/build/test_results
 DIRS=\$(find . -name test_results -type d)
 for d in \$DIRS; do
   for t in \$(find \$d -name "*.xml" -type f) ; do
-     mv \$t ${WORKSPACE}/build/test_results
- done
+     mv \$t ${WORKSPACE}/build/test_results/\$(basename \$(dirname \$t))_\$(basename \$t)
+  done
 done
 echo '# END SECTION'
 
