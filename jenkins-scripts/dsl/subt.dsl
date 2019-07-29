@@ -39,13 +39,6 @@ void common_params_compilation_job(Job job, distro, arch, test_timeout = 180)
 
     job.with
     {
-        scm {
-          hg('https://bitbucket.org/osrf/subt') {
-            branch('default')
-            subdirectory('subt')
-          }
-        }
-
         label "gpu-reliable"
 
         steps {
@@ -102,6 +95,12 @@ other_supported_distros.each { distro ->
 
     subt_ci_job.with
     {
+      scm {
+        hg('https://bitbucket.org/osrf/subt') {
+          branch('default')
+          subdirectory('subt')
+        }
+      }
         triggers {
           scm('@daily')
         }
@@ -121,6 +120,13 @@ all_supported_distros.each { distro ->
 
     long_run_job.with
     {
+      scm {
+        hg('https://bitbucket.org/osrf/subt') {
+          branch('default')
+          subdirectory('subt')
+        }
+      }
+
       triggers {
         cron('@daily')
       }

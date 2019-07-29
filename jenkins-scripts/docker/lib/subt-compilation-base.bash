@@ -16,11 +16,31 @@ DOCKER_JOB_NAME="subt_ci"
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 . ${SCRIPT_DIR}/lib/_subt_utils.sh
 
-# Need special tarball
-# see: https://bitbucket.org/osrf/subt/wiki/tutorials/ExampleSetup
-# remove subt_example and subt_gazebo since there are coming from the repo under testing
+# Needs pointgrey SDK (manual installation) and downloader is broken from ros-drivers.
+# manual installation from our nodes
+if [[ ! -d /var/lib/jenkins/.pointgrey_sdk ]]; then
+    echo 'The node has not been setup for pointgrey sdk'
+    exit 1
+fi
+
+mkdir -p "${WORKSPACE}/pointgrey/"
+for f in libflycapture-2.13.3.31_amd64.deb libflycapture-2.13.3.31_amd64-dev.deb; do
+  cp "/var/lib/jenkins/.pointgrey_sdk/$f" "${WORKSPACE}/pointgrey/"
+done
+
+# husky and jackal descriptions are used
 # Models are used in tests
 export ROS_WS_PREBUILD_HOOK="""
+# Install pointgrey sdk
+dpkg -i ${WORKSPACE}/pointgrey/libflycapture-2.13.3.31_amd64.deb
+dpkg -i ${WORKSPACE}/pointgrey/libflycapture-2.13.3.31_amd64-dev.deb
+rm -fr ${WORKSPACE}/subt/husky_description ${WORKSPACE}/subt/pointgrey_camera_driver ${WORKSPACE}/subt/jackal_description
+git clone --depth 1 https://github.com/husky/husky.git /tmp/huksy > /dev/null
+git clone --depth 1 https://github.com/jackal/jackal.git /tmp/jackal > /dev/null
+git clone --depth 1 https://github.com/ros-drivers/pointgrey_camera_driver /tmp/pointgrey_camera_driver > /dev/null
+mv /tmp/huksy/husky_description ${WORKSPACE}/subt/
+mv /tmp/jackal/jackal_description  ${WORKSPACE}/subt/
+mv /tmp/pointgrey_camera_driver ${WORKSPACE}/subt/
 ${GAZEBO_MODEL_INSTALLATION}
 """
 
@@ -32,8 +52,11 @@ echo 'Smoke testing completed successfully.'
 echo '# END SECTION'
 """
 
-# Generate the first part of the build.sh file for ROS
-. ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash "subt"
+(
+set -o errexit
+# if execute with bash instead of source, lost colors on Jenkins. SAD.
+source ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash "subt"
+)
 
 DEPENDENCY_PKGS="${SUBT_DEPENDENCIES} psmisc"
 # ROS packages come from the mirror in the own subt repository
