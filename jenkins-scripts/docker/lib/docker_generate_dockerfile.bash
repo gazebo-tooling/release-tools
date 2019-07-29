@@ -30,7 +30,7 @@ fi
 [[ -z ${USE_GCC8} ]] && USE_GCC8=false
 
 GZDEV_DIR=${WORKSPACE}/gzdev
-GZDEV_BRANCH=repository
+GZDEV_BRANCH=${GZDEV_BRANCH:-repository}
 
 dockerfile_install_gzdev_repos()
 {
@@ -39,13 +39,17 @@ RUN rm -fr ${GZDEV_DIR}
 RUN git clone --depth 1 https://github.com/osrf/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
 DELIM_OSRF_REPO_GIT
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
+# debian sid docker images does not return correct name so we need to use
+# force-linux-distro
 cat >> Dockerfile << DELIM_OSRF_REPO_GZDEV
-RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME}
+RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
+    ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} )
 DELIM_OSRF_REPO_GZDEV
 else
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
-RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo}
+RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO}  || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
+    ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} )
 DELIM_OSRF_REPO
 done
 fi
@@ -172,10 +176,14 @@ DELIM_DOCKER_PAM_BUG
 fi
 
 # dirmngr from Yaketty on needed by apt-key
-# git and python for gzdev
+# git and python-* for gzdev
+if [[ $DISTRO != 'xenial' ]]; then
+    # not in xenial, available from Bionic on and all debians
+    extra_python_mod="python3-distro"
+fi
 cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
 RUN apt-get update && \\
-    apt-get install -y dirmngr git python3 python3-docopt python3-yaml
+    apt-get install -y dirmngr git python3 python3-docopt python3-yaml ${extra_python_mod}
 DELIM_DOCKER_DIRMNGR
 
 # Install necessary repositories using gzdev
