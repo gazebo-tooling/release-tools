@@ -5,7 +5,9 @@ import javaposse.jobdsl.dsl.Job
 ignition_software = [ 'cmake',
                       'common',
                       'fuel-tools',
+                      'gazebo',
                       'gui',
+                      'launch',
                       'math',
                       'msgs',
                       'physics',
@@ -16,7 +18,8 @@ ignition_software = [ 'cmake',
                       'tools',
                       'transport' ]
 // DESC: need gpu/display for tests
-ignition_gpu                = [ 'gui',
+ignition_gpu                = [ 'gazebo',
+                                'gui',
                                 'rendering',
                                 'sensors' ]
 // DESC: software does not have tests
@@ -25,67 +28,43 @@ ignition_no_test            = [ 'tools' ]
 // testing and debbuild job.
 // No branches in ignition_branches means no released branches (only CI on
 // default, ABI check, install pkg)
-ignition_branches           = [ 'common'     : [ '1' ],
-                                'fuel-tools' : [ '1' ],
-                                'math'       : [ '2', '3','4' ],
-                                'msgs'       : [ '1' ],
-                                'plugin'     : [ '0' ],
-                                'transport'  : [ '3','4' ]]
+ignition_branches           = [ 'cmake'      : [ '1', '2' ],
+                                'common'     : [ '1', '2', '3' ],
+                                'fuel-tools' : [ '1', '2', '3' ],
+                                'gazebo'     : [ '1', '2' ],
+                                'gui'        : [ '0', '1','2' ],
+                                'launch'     : [ '1' ],
+                                'math'       : [ '2', '4', '5', '6' ],
+                                'msgs'       : [ '1', '2', '3', '4' ],
+                                'physics'    : [ '1' ],
+                                'plugin'     : [ '0', '1' ],
+                                'rendering'  : [ '0', '1', '2' ],
+                                'sensors'    : [ '1', '2' ],
+                                'transport'  : [ '4', '5', '6', '7' ],
+                                'tools'      : [ '0' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use default for gz11
-ignition_prerelease_branches = [ 'cmake'     : [ 'gz11' ],
-                                 'common'    : [ 'gz11' ],
-                                 'gui'       : [ 'gz11' ],
-                                 'math'      : [ 'gz11' ],
-                                 'msgs'      : [ 'gz11' ],
-                                 'plugin'    : [ 'ign-plugin1' ],
-                                 'rendering' : [ 'gz11' ],
-                                 'transport' : [ 'gz11' ]]
+ignition_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
-// don't appear in ignition_branches
-ignition_debbuild  = ignition_software + [ 'cmake1','cmake2',
-                                           'common2',
-                                           'math5',
-                                           'msgs0', 'msgs2',
-                                           'transport5' ]
+// don't appear in ignition_branches (like nightly builders or 0-debbuild
+// jobs for the special cases of foo0 packages)
+ignition_debbuild  = ignition_software + [  ]
 // DESC: exclude ignition from generate any install testing job
-ignition_no_pkg_yet         = [ 'gui',
-                                'physics',
-                                'plugin',
-                                'rndf',
-                                'sensors' ]
+ignition_no_pkg_yet         = [ 'rndf' ]
 // DESC: major versions that has a package in the prerelease repo. Should
 // not appear in ignition_no_pkg_yet nor in ignition_branches
-ignition_prerelease_pkgs    = [ 'cmake'  : [
-                                   '1' : [ 'bionic', 'xenial' ],
-                                   '2' : [ 'bionic' ],
-                                ],
-                                'common' : [
-                                   '2' : [ 'bionic', 'xenial' ],
-                                   '3' : [ 'bionic' ],
-                                ],
-                                'gui'    : [
-                                   '1':  [ 'bionic' ],
-                                ],
-                                'math'   : [
-                                   '5':  [ 'bionic', 'xenial' ],
-                                   '6':  [ 'bionic' ],
-                                ],
-                                'msgs'   : [
-                                   '2':  [ 'bionic', 'xenial' ],
-                                   '3':  [ 'bionic' ],
-                                ],
-                                'rendering' : [
-                                   '1': [ 'bionic' ],
-                                ],
-                                'transport' : [
-                                   '5': [ 'bionic', 'xenial' ],
-                                   '6': [ 'bionic' ],
-                                ]]
+ignition_prerelease_pkgs    = [ 'placeholder' : [
+                                   '1':  [ 'bionic' ]],
+                              ]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
-ignition_colcon_win         = [ 'physics', 'rendering' ]
+ignition_colcon_win         = [ 'gazebo',
+                                'gui',
+                                'launch',
+                                'physics',
+                                'rendering',
+                                'sensors' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -203,7 +182,18 @@ void include_gpu_label_if_needed(Job job, String ign_software_name)
   {
     ignition_gpu.each { ign_each ->
       if (ign_software_name == ign_each)
+      {
         label "gpu-reliable"
+
+        // unstable build if missing valid gpu display
+        publishers {
+          consoleParsing {
+            projectRules('scripts/jenkins-scripts/parser_rules/display_missing.parser')
+            unstableOnWarning()
+            failBuildOnError(false)
+          }
+        }
+      }
     }
   }
 }
@@ -225,11 +215,11 @@ boolean is_a_colcon_package(String ign_software_name)
 }
 
 // ABI Checker job
-// Need to be the before ci-pr_any so the abi job name is defined
+// Need to be before the ci-pr_any so the abi job name is defined
 ignition_software.each { ign_sw ->
   abi_distro.each { distro ->
     supported_arches.each { arch ->
-      abi_job_names[ign_sw] = "ignition_${ign_sw}-abichecker-any_to_any-${distro}-${arch}"
+      abi_job_names[ign_sw] = "ignition_${ign_sw}-abichecker-any_to_any-ubuntu_auto-${arch}"
       def abi_job = job(abi_job_names[ign_sw])
       checkout_subdir = "ign-${ign_sw}"
 
@@ -239,11 +229,24 @@ ignition_software.each { ign_sw ->
                             '${DEST_BRANCH}', checkout_subdir)
       abi_job.with
       {
+        if (ign_sw == 'physics')
+          label "huge-memory"
+
         steps {
           shell("""\
                 #!/bin/bash -xe
+                wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
+                source yaml.sh
+
+                create_variables \${WORKSPACE}/${checkout_subdir}/bitbucket-pipelines.yml
 
                 export DISTRO=${distro}
+
+                if [[ -n \${image} ]]; then
+                  echo "Bitbucket pipeline.yml detected. Default DISTRO is ${distro}"
+                  export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
+                fi
+
                 export ARCH=${arch}
                 export ABI_JOB_SOFTWARE_NAME=${checkout_subdir}
                 /bin/bash -xe ./scripts/jenkins-scripts/docker/ignition-abichecker.bash
@@ -325,23 +328,28 @@ ignition_software.each { ign_sw ->
   supported_arches.each { arch ->
     supported_install_pkg_branches(ign_sw).each { major_version, supported_distros ->
       supported_distros.each { distro ->
-
-        // only a few release branches support trusty anymore
-        if (("${distro}" == "trusty") && !(
-            (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
-            (("${ign_sw}" == "math") && ("${major_version}" == "3"))))
-          return
         // no bionic for math2 or math3
         if (("${distro}" == "bionic") && (
-            (("${ign_sw}" == "math") && ("${major_version}" == "2")) ||
-            (("${ign_sw}" == "math") && ("${major_version}" == "3"))))
+            (("${ign_sw}" == "math") && ("${major_version}" == "2"))))
           return
-        // no bionic for transport3
-        if (("${distro}" == "bionic") && (
-            ("${ign_sw}" == "transport") && ("${major_version}" == "3")))
-          return
-        // no rndf install
-        if ("${ign_sw}" == "rndf")
+        // no xenial support for cmake2 and things that use it
+        if (("${distro}" == "xenial") && (
+            (("${ign_sw}" == "cmake")      && ("${major_version}" == "2")) ||
+            (("${ign_sw}" == "common")     && ("${major_version}" == "3")) ||
+            (("${ign_sw}" == "fuel-tools") && ("${major_version}" == "3")) ||
+             ("${ign_sw}" == "gazebo")     ||
+             ("${ign_sw}" == "gui")        ||
+             ("${ign_sw}" == "launch")     ||
+            (("${ign_sw}" == "math")       && ("${major_version}" == "6")) ||
+            (("${ign_sw}" == "msgs")       &&
+              (("${major_version}" == "2") ||
+               ("${major_version}" == "3") || ("${major_version}" == "4"))) ||
+             ("${ign_sw}" == "physics")    ||
+             ("${ign_sw}" == "plugin")     ||
+             ("${ign_sw}" == "rendering")  ||
+             ("${ign_sw}" == "sensors")    ||
+            (("${ign_sw}" == "transport")  &&
+              (("${major_version}" == "6") || ("${major_version}" == "7")))))
           return
 
         extra_repos_str=""
@@ -350,8 +358,9 @@ ignition_software.each { ign_sw ->
            (distro in ignition_prerelease_pkgs[ign_sw][major_version]))
           extra_repos_str="prerelease"
 
-        // No 1-dev packages, unversioned
-        if ("${major_version}" == "1")
+        // No 1-dev or 0-dev packages (except special cases see
+        // ignition_debbuild variable), unversioned
+        if ("${major_version}" == "0" || "${major_version}" == "1")
           major_version = ""
 
         // --------------------------------------------------------------
@@ -404,28 +413,34 @@ ignition_software.each { ign_sw ->
             scm('@daily')
           }
 
-          // only a few release branches support trusty anymore
-          if (("${distro}" == "trusty") && !(
-              ("${branch}" == "ign-math2") ||
-              ("${branch}" == "ign-math3")))
-            disabled()
-
-          // no bionic for transport3
-          if (("${distro}" == "bionic") && (
-              ("${branch}" == "ign-transport3")))
-            disabled()
-
-          // no xenial for ign-physics/sensors or plugin default/ign-plugin1
+          // no xenial for ign-physics/sensors/gazebo or plugin default/ign-plugin1
           if (("${distro}" == "xenial") && (
+              ("${ign_sw}" == "cmake" && "${branch}" == "ign-cmake2") ||
+              ("${ign_sw}" == "cmake" && "${branch}" == "default") ||
+              ("${ign_sw}" == "common" && "${branch}" == "default") ||
+              ("${ign_sw}" == "common" && "${branch}" == "ign-common3") ||
+              ("${ign_sw}" == "fuel-tools" && "${branch}" != "ign-fuel-tools1") ||
+              ("${ign_sw}" == "gazebo") ||
+              ("${ign_sw}" == "gui" && "${branch}" != "ign-gui0") ||
+              ("${ign_sw}" == "launch") ||
+              ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
+              ("${ign_sw}" == "math" && "${branch}" == "default") ||
+              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs2") ||
+              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs3") ||
+              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs4") ||
+              ("${ign_sw}" == "msgs" && "${branch}" == "default") ||
               ("${ign_sw}" == "physics") ||
               ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
-              ("${ign_sw}" == "sensors")))
+              ("${ign_sw}" == "rendering" && "${branch}" != "ign-rendering0") ||
+              ("${ign_sw}" == "sensors") ||
+              ("${ign_sw}" == "tools") ||
+              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport6") ||
+              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport7") ||
+              ("${ign_sw}" == "transport" && "${branch}" == "default")))
             disabled()
 
-          // gz11 branches don't work on trusty or xenial
-          if (("${branch}" == "gz11") && (
-              ("${distro}" == "xenial") ||
-              ("${distro}" == "trusty")))
+          // gz11 branches don't work on xenial
+          if (("${branch}" == "gz11") && ("${distro}" == "xenial"))
             disabled()
 
           steps {
@@ -448,8 +463,13 @@ ignition_software.each { ign_sw ->
 ignition_debbuild.each { ign_sw ->
   supported_branches("${ign_sw}").each { major_version ->
     // No 1-debbuild versions, they use the unversioned job
-    if ("${major_version}" == "1")
+    if ("${major_version}" == "0"  || "${major_version}" == "1" )
       major_version = ""
+
+    extra_str = ""
+    if (("${ign_sw}" == "gazebo") ||
+        (("${ign_sw}" == "transport") && ("${major_version}" == "6"  || "${major_version}" == "7" )))
+      extra_str="export USE_GCC8=true"
 
     def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
     OSRFLinuxBuildPkg.create(build_pkg_job)
@@ -459,6 +479,7 @@ ignition_debbuild.each { ign_sw ->
           shell("""\
                 #!/bin/bash -xe
 
+                ${extra_str}
                 /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
                 """.stripIndent())
         }
@@ -531,12 +552,16 @@ ignition_software.each { ign_sw ->
 
 // 1. any
 ignition_software.each { ign_sw ->
-  if (is_a_colcon_package(ign_sw))
+
+  if (is_a_colcon_package(ign_sw)) {
     // colcon uses long paths and windows has a hard limit of 260 chars. Keep
     // names minimal
     ignition_win_ci_any_job_name = "ign_${ign_sw}-pr-win"
-  else
+    Globals.gazebodistro_branch = true
+  } else {
     ignition_win_ci_any_job_name = "ignition_${ign_sw}-ci-pr_any-windows7-amd64"
+    Globals.gazebodistro_branch = false
+  }
 
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAny.create(ignition_win_ci_any_job,

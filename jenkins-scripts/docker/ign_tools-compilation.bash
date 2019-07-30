@@ -16,8 +16,6 @@ fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-tools"
 export BUILDING_JOB_REPOSITORIES="stable"
-export BUILDING_DEPENDENCIES="ruby"
-
-export GPU_SUPPORT_NEEDED=true
+export BUILDING_DEPENDENCIES="libignition-cmake2-dev ruby"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

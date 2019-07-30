@@ -128,3 +128,28 @@ gbp_repo_debbuilds.each { software ->
     }
   }
 }
+
+
+def bridge_job = job("ros1_ign_bridge-debbuilder")
+default_params = [ PACKAGE             : "ros1_ign_bridge",
+                   PACKAGE_ALIAS       : "ros1-ign-bridge",
+                   DISTRO              : "bionic",
+                   ARCH                : "amd64",
+                   RELEASE_REPO_BRANCH : "default",
+                   RELEASE_VERSION     : "1",
+                   UPLOAD_TO_REPO      : "stable",
+                   OSRF_REPOS_TO_USE   : "stable" ]
+
+OSRFLinuxBuildPkg.create(bridge_job, default_params)
+
+bridge_job.with
+{
+    steps {
+      shell("""\
+            #!/bin/bash -xe
+
+            export ENABLE_ROS=true
+            /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
+            """.stripIndent())
+    }
+}

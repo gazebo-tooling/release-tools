@@ -16,7 +16,7 @@ if ${DART_COMPILE_FROM_SOURCE}; then
     DART_FROM_PKGS=false
 fi
 
-# mesa-utils for dri checks, xsltproc for qtest->junit conversion and
+# mesa-utils, x11-utils for dri checks, xsltproc for qtest->junit conversion and
 # python-psutil for memory testing
 # netcat-openbsd (nc command) for squid-deb-proxy checking
 # net-tools (route command) for squid-deb-proxy checking
@@ -25,6 +25,7 @@ BASE_DEPENDENCIES="build-essential \\
                    cmake           \\
                    debhelper       \\
                    mesa-utils      \\
+                   x11-utils       \\
                    cppcheck        \\
                    xsltproc        \\
                    python-lxml     \\
@@ -53,15 +54,9 @@ SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
                               libboost-iostreams-dev"
 fi
 
-if [[ ${DISTRO} == 'trusty'  ]]; then
-  SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
-                            ruby1.9.1-dev                       \\
-                            ruby1.9.1"
-else
-  SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
-                            ruby-dev                            \\
+SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
+                            ruby-dev                          \\
                             ruby"
-fi
 
 # SDFORMAT related dependencies
 if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
@@ -73,6 +68,12 @@ if [[ ${SDFORMAT_MAJOR_VERSION} -ge 8 ]]; then
     # uses ignition-tools for a test
     SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
                                 libignition-math6-dev           \\
+                                libignition-tools-dev"
+elif [[ ${SDFORMAT_MAJOR_VERSION} -ge 7 ]]; then
+    # sdformat6 requires ignition-math5 and
+    # uses ignition-tools for a test
+    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
+                                libignition-math5-dev           \\
                                 libignition-tools-dev"
 elif [[ ${SDFORMAT_MAJOR_VERSION} -ge 6 ]]; then
     # sdformat6 requires ignition-math4 and
@@ -119,25 +120,16 @@ fi
 
 # Old versions used libogre-dev
 ogre_pkg="libogre-1.9-dev"
-if [[ ${DISTRO} == 'precise' ]] || \
-   [[ ${DISTRO} == 'raring' ]] || \
-   [[ ${DISTRO} == 'quantal' ]]; then
-    ogre_pkg="libogre-dev"
-elif [[ ${DISTRO} == 'trusty' ]]; then
-    # All versions of gazebo (including 5) are using the
-    # ogre-1.8-dev package to keep in sync with ROS rviz
-    ogre_pkg="libogre-1.8-dev"
-elif [[ ${GAZEBO_MAJOR_VERSION} -le 4 ]]; then
+if [[ ${GAZEBO_MAJOR_VERSION} -le 4 ]]; then
     # Before gazebo5, ogre 1.9 was not supported
     ogre_pkg="libogre-1.8-dev"
+elif [[ ${IGN_RENDERING_MAJOR_VERSION} -ge 1 ]]; then
+    # support for both ogre-1.9 and ogre-2.1 was added in ign-rendering1
+    ogre_pkg="libogre-1.9-dev libogre-2.1-dev"
 fi
 
 # Starting from utopic, we are using the bullet provided by ubuntu
 bullet_pkg="libbullet-dev"
-if [[ ${DISTRO} == 'precise' ]] || \
-   [[ ${DISTRO} == 'trusty' ]]; then
-    bullet_pkg="libbullet2.82-dev"
-fi
 
 # choose dart version
 if $DART_FROM_PKGS; then
@@ -145,9 +137,6 @@ if $DART_FROM_PKGS; then
        dart_pkg="libdart6-utils-urdf-dev"
     elif [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
        dart_pkg="libdart-core5-dev"
-    elif [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]] && \
-         [[ ${DISTRO} == 'trusty' ]]; then
-       dart_pkg="libdart-core4-dev"
     fi
 fi
 
@@ -156,21 +145,15 @@ if [[ ${GAZEBO_MAJOR_VERSION} -le 7 ]]; then
   gazebo_qt_dependencies="libqt4-dev \\
                           libqtwebkit-dev"
 else
-  if [[ ${DISTRO} == 'trusty' ]]; then
-    gazebo_qt_dependencies="libqt4-dev \\
-                            libqwt-dev \\
-                            qtbase5-dev"
-  else
-    # After gazebo8 is released, these two lines should be all that remain
-    gazebo_qt_dependencies="qtbase5-dev \\
-                            libqwt-qt5-dev"
-    # Install qt4 as well for gazebo8 until its release
-    # 20170125 release date of gazebo8
-    if [[ $(date +%Y%m%d) -le 20170125 ]]; then
-      gazebo_qt_dependencies="${gazebo_qt_dependencies} \\
-                              libqt4-dev \\
-                              libqwt-dev"
-    fi
+  # After gazebo8 is released, these two lines should be all that remain
+  gazebo_qt_dependencies="qtbase5-dev \\
+                          libqwt-qt5-dev"
+  # Install qt4 as well for gazebo8 until its release
+  # 20170125 release date of gazebo8
+  if [[ $(date +%Y%m%d) -le 20170125 ]]; then
+    gazebo_qt_dependencies="${gazebo_qt_dependencies} \\
+                            libqt4-dev \\
+                            libqwt-dev"
   fi
 fi
 
@@ -250,14 +233,6 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
                              libavdevice-dev   \\
                              ruby-ronn"
 
-  # Player was removed starting from xenial
-  if [[ ${DISTRO} == 'precise' ]] || \
-     [[ ${DISTRO} == 'trusty' ]] || \
-     [[ ${DISTRO} == 'wily' ]]; then
-    GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} robot-player-dev"
-  fi
-
-
   # cegui is deprecated in gazebo 6
   if [[ ${GAZEBO_MAJOR_VERSION} -le 6 ]]; then
       GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} \\
@@ -295,25 +270,18 @@ else
   # default versions for every ROS distribution
   if [[ -z ${GAZEBO_VERSION_FOR_ROS} ]]; then
     case ${ROS_DISTRO} in
-      indigo)
-        GAZEBO_VERSION_FOR_ROS="2"
-      ;;
-      jade)
-        GAZEBO_VERSION_FOR_ROS="5"
-      ;;
       kinetic)
-        GAZEBO_VERSION_FOR_ROS="7"
-      ;;
-      lunar)
         GAZEBO_VERSION_FOR_ROS="7"
       ;;
       melodic)
         GAZEBO_VERSION_FOR_ROS="9"
       ;;
       # ROS 2
-      bouncy)
+      crystal)
         GAZEBO_VERSION_FOR_ROS="9"
       ;;
+      dashing)
+        GAZEBO_VERSION_FOR_ROS="9"
     esac
   fi
 
@@ -334,7 +302,6 @@ else
                     python3-colcon-common-extensions \\
                     python-rosdep                    \\
                     python-wstool                    \\
-                    ros-${ROS_DISTRO}-ros-core       \\
                     python-rosinstall                \\
                     python-rospkg                    \\
                     python-vcstools"
@@ -351,53 +318,6 @@ else
                     python-rospkg            \\
                     python-vcstools"
   fi
-
-  # DRCSIM_DEPENDENCIES
-  #
-  # image-transport-plugins is needed to properly advertise compressed image topics
-  DRCSIM_BASE_DEPENDENCIES="${ROS_CATKIN_BASE}                                  \\
-                            ros-${ROS_DISTRO}-std-msgs                          \\
-                            ros-${ROS_DISTRO}-common-msgs                       \\
-                            ros-${ROS_DISTRO}-image-common                      \\
-                            ros-${ROS_DISTRO}-geometry                          \\
-                            ros-${ROS_DISTRO}-geometry-experimental             \\
-                            ros-${ROS_DISTRO}-image-pipeline                    \\
-                            ros-${ROS_DISTRO}-image-transport-plugins           \\
-                            ros-${ROS_DISTRO}-compressed-depth-image-transport  \\
-                            ros-${ROS_DISTRO}-compressed-image-transport        \\
-                            ros-${ROS_DISTRO}-theora-image-transport            \\
-                            ros-${ROS_DISTRO}-control-msgs                      \\
-                            ros-${ROS_DISTRO}-robot-model                       \\
-                            ros-${ROS_DISTRO}-robot-state-publisher             \\
-                            ros-${ROS_DISTRO}-control-toolbox                   \\
-                            libtinyxml2-dev                                     \\
-                            ${_GZ_ROS_PACKAGES}"
-
-  if [[ $ROS_DISTRO == 'hydro' ]]; then
-    DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
-                              ros-${ROS_DISTRO}-pr2-controllers    \\
-                              ros-${ROS_DISTRO}-pr2-mechanism"
-  else
-    DRCSIM_BASE_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}          \\
-                              ros-${ROS_DISTRO}-controller-manager \\
-                              ros-${ROS_DISTRO}-pr2-mechanism-msgs"
-  fi
-
-  # DRCSIM_FULL_DEPENDENCIES
-  # Need ROS postfix in precise for groovy/hydro
-  if [[ $DISTRO == 'precise' ]]; then
-     ROS_POSTFIX="-${ROS_DISTRO}"
-  else
-     ROS_POSTFIX=""
-  fi
-
-  DRCSIM_FULL_DEPENDENCIES="${DRCSIM_BASE_DEPENDENCIES}       \\
-                            sandia-hand${ROS_POSTFIX}         \\
-                            osrf-common${ROS_POSTFIX}         \\
-                            ros-${ROS_DISTRO}-laser-assembler \\
-                            ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-plugins \\
-                            ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros     \\
-                            ${_GZ_ROS_PACKAGES}"
 
   #
   # ROS_GAZEBO_PKGS DEPENDECIES
@@ -450,23 +370,10 @@ else
                                   ros-${ROS_DISTRO}-urdf                    \\
                                   ros-${ROS_DISTRO}-xacro"
 
-    if [[ ${ROS_DISTRO} == 'indigo'  ]] ||
-       [[ ${ROS_DISTRO} == 'jade'    ]] ||
-       [[ ${ROS_DISTRO} == 'kinetic' ]]; then
+    if [[ ${ROS_DISTRO} == 'kinetic' ]]; then
        ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
                                      ros-${ROS_DISTRO}-ros-base \\
                                      ros-${ROS_DISTRO}-pcl-ros"
-    fi
-
-    if [[ ${ROS_DISTRO} == 'indigo' ]] || [[ ${ROS_DISTRO} == 'jade' ]]; then
-    ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
-                                  ros-${ROS_DISTRO}-driver-base"
-    fi
-
-    if [[ ${ROS_DISTRO} == 'indigo' ]]; then
-    # These dependencies are for testing the ros_gazebo_pkgs
-    ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-effort-controllers      \\
-                                  ros-${ROS_DISTRO}-joint-state-controller"
     fi
 
     ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-xacro \\
@@ -518,14 +425,12 @@ fi
 # IGNITION
 #
 
-if [[ ${DISTRO} != 'trusty' ]]; then
-  IGN_MATH_DEPENDENCIES="libeigen3-dev \\
-                         libignition-cmake-dev \\
-                         libignition-cmake1-dev"
-  if [[ ${DISTRO} != 'xenial' ]]; then
-    IGN_MATH_DEPENDENCIES="${IGN_MATH_DEPENDENCIES} \\
-                           libignition-cmake2-dev"
-  fi
+IGN_MATH_DEPENDENCIES="libeigen3-dev \\
+                       libignition-cmake-dev \\
+                       libignition-cmake1-dev"
+if [[ ${DISTRO} != 'xenial' ]]; then
+  IGN_MATH_DEPENDENCIES="${IGN_MATH_DEPENDENCIES} \\
+                         libignition-cmake2-dev"
 fi
 
 # IGN_TRANSPORT related dependencies. Default value points to the development
@@ -560,6 +465,12 @@ elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 6 ]]; then
                                   libignition-msgs3-dev \\
                                   libsqlite3-dev \\
                                   ruby-ffi"
+elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 7 ]]; then
+    export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
+                                  libignition-cmake2-dev \\
+                                  libignition-msgs4-dev \\
+                                  libsqlite3-dev \\
+                                  ruby-ffi"
 else
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libignition-msgs0-dev"
@@ -592,13 +503,27 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                            libignition-math6-dev"
 fi
 
-IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake-dev  \\
-                             libignition-common-dev \\
-                             libignition-tools-dev  \\
+IGN_FUEL_TOOLS_DEPENDENCIES=" libignition-tools-dev  \\
                              libcurl4-openssl-dev   \\
                              libjsoncpp-dev         \\
                              libyaml-dev            \\
                              libzip-dev"
+if [[ ${DISTRO} != 'xenial' ]]; then
+  IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
+                           libignition-cmake2-dev \\
+                           libignition-common3-dev"
+fi
+
+if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -le 2 ]]; then
+  IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
+                               libignition-cmake-dev  \\
+                               libignition-common-dev"
+else
+  IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
+                               libignition-cmake2-dev  \\
+                               libignition-common3-dev \\
+                               libtinyxml2-dev"
+fi
 
 IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
                        libprotobuf-dev       \\
@@ -614,14 +539,14 @@ elif [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -eq 1 ]]; then
     IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
                            libignition-cmake-dev \\
                            libignition-math4-dev"
-elif [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -eq 3 ]]; then
+elif [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -eq 2 ]]; then
+    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
+                           libignition-cmake1-dev \\
+                           libignition-math6-dev"
+elif [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -ge 3 ]]; then
     IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
                            libignition-cmake2-dev \\
                            libignition-math6-dev"
-else #default in not defined
-    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
-                           libignition-cmake1-dev \\
-                           libignition-math5-dev"
 fi
 
 IGN_GUI_NO_IGN_DEPENDENCIES="qtbase5-dev \\
@@ -660,8 +585,16 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                         libignition-transport6-dev"
 fi
 
-IGN_PHYSICS_DEPENDENCIES="libbullet-dev \\
+if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 2 ]]; then
+  IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
+                        libignition-msgs4-dev \\
+                        libignition-rendering2-dev \\
+                        libignition-transport7-dev"
+fi
+
+IGN_PHYSICS_DEPENDENCIES="libbenchmark-dev \\
                           dart6-data \\
+                          libdart6-collision-ode-dev \\
                           libdart6-dev \\
                           libdart6-utils-urdf-dev \\
                           libignition-cmake2-dev \\
@@ -676,6 +609,33 @@ IGN_PLUGIN_DEPENDENCIES="libignition-cmake1-dev"
 if [[ ${DISTRO} != 'xenial' ]]; then
   IGN_PLUGIN_DEPENDENCIES="${IGN_PLUGIN_DEPENDENCIES} \\
                            libignition-cmake2-dev"
+fi
+
+IGN_LAUNCH_DEPENDENCIES="libignition-cmake2-dev \\
+                         libignition-common3-dev \\
+                         libignition-plugin-dev \\
+                         libignition-tools-dev \\
+                         libsdformat8-dev \\
+                         libtinyxml2-dev  \\
+                         qtquickcontrols2-5-dev \\
+                         libqt5core5a"
+
+if [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -lt 1 ]]; then
+  IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_DEPENDENCIES} \\
+                          libignition-gazebo-dev \\
+                          libignition-gui-dev \\
+                          libignition-msgs3-dev \\
+                          libignition-sensors-dev \\
+                          libignition-transport6-dev"
+else
+  IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_DEPENDENCIES} \\
+                           libignition-gazebo2-dev \\
+                           libignition-gui2-dev \\
+                           libignition-msgs4-dev \\
+                           libignition-sensors2-dev  \\
+                           libignition-fuel-tools3-dev \\
+                           libignition-transport7-dev \\
+                           libwebsockets-dev"
 fi
 
 IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
@@ -696,6 +656,7 @@ else
   IGN_RENDERING_DEPENDENCIES="${IGN_RENDERING_NO_IGN_DEPENDENCIES} \\
                               libignition-cmake2-dev \\
                               libignition-common3-dev \\
+                              libignition-plugin-dev \\
                               libignition-math6-dev"
 fi
 
@@ -703,90 +664,64 @@ IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
                           libignition-cmake2-dev \\
                           libignition-math6-dev      \\
                           libignition-msgs3-dev       \\
+                          libignition-plugin-dev  \\
                           libignition-tools-dev \\
                           libignition-transport6-dev \\
                           libignition-rendering-dev \\
                           libsdformat8-dev"
 
+if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 2 ]]; then
+  IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
+                        libignition-msgs4-dev \\
+                        libignition-rendering2-dev \\
+                        libignition-transport7-dev"
+fi
+
+IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev     \\
+                         libignition-cmake2-dev \\
+                         libignition-fuel-tools3-dev \\
+                         libignition-gui-dev \\
+                         libgflags-dev \\
+                         libignition-math6-dev      \\
+                         libignition-math6-eigen3-dev      \\
+                         libignition-msgs3-dev       \\
+                         libignition-physics           \\
+                         libignition-physics-dartsim   \\
+                         libignition-physics-dartsim-dev \\
+                         libignition-physics-dev       \\
+                         libignition-plugin-dev       \\
+                         libignition-rendering-dev \\
+                         libignition-sensors-dev \\
+                         libignition-tools-dev \\
+                         libignition-transport6-dev \\
+                         libsdformat8-dev"
+
+if [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -ge 2 ]]; then
+  IGN_GAZEBO_DEPENDENCIES="${IGN_GAZEBO_DEPENDENCIES} \\
+                        libignition-gui2-dev \\
+                        libignition-msgs4-dev \\
+                        libignition-rendering2-dev \\
+                        libignition-sensors2-dev \\
+                        libignition-transport7-dev \\
+                        libbenchmark-dev"
+fi
+
 IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
                        libignition-math4-dev"
-#
-# MENTOR2
-#
-MENTOR2_DEPENDENCIES="libgazebo6-dev    \\
-                      protobuf-compiler \\
-                      libprotobuf-dev   \\
-                      libboost1.54-dev  \\
-                      libqt4-dev"
 
-#
-# DRAKE
-#
-DRAKE_DEPENDENCIES="alien               \\
-                    autoconf            \\
-                    automake            \\
-                    bash-completion     \\
-                    bison               \\
-                    clang-format        \\
-                    clang-3.9           \\
-                    doxygen             \\
-                    fakeroot            \\
-                    flex                \\
-                    freeglut3-dev       \\
-                    g++                 \\
-                    g++-5               \\
-                    g++-5-multilib      \\
-                    gdb                 \\
-                    gfortran            \\
-                    gfortran-5          \\
-                    gfortran-5-multilib \\
-                    git                 \\
-                    graphviz            \\
-                    libboost-dev        \\
-                    libgtk2.0-dev       \\
-                    libmpfr-dev         \\
-                    libpng12-dev        \\
-                    libqt4-dev          \\
-                    libqt4-opengl-dev   \\
-                    libqt5multimedia5   \\
-                    libqt5opengl5-dev   \\
-                    libqt5x11extras5    \\
-                    libqwt-dev          \\
-                    libtinyxml-dev      \\
-                    libtool             \\
-                    libvtk-java         \\
-                    libvtk5-dev         \\
-                    libvtk5-qt4-dev     \\
-                    libxmu-dev          \\
-                    make                \\
-                    ninja-build         \\
-                    openjdk-8-jdk       \\
-                    patchutils          \\
-                    perl                \\
-                    pkg-config          \\
-                    python-bs4          \\
-                    python-dev          \\
-                    python-gtk2         \\
-                    python-html5lib     \\
-                    python-lxml         \\
-                    python-numpy        \\
-                    python-pygame       \\
-                    python-scipy        \\
-                    python-sphinx       \\
-                    python-vtk          \\
-                    python-yaml         \\
-                    unzip               \\
-                    valgrind            \\
-                    zip                 \\
-                    zlib1g-dev"
 #
 # SUBT
 #
-SUBT_DEPENDENCIES="mercurial                               \\
-                   wget                                    \\
-                   curl                                    \\
-                   git                                     \\
-                   gazebo${GAZEBO_VERSION_FOR_ROS}         \\
-                   libgazebo${GAZEBO_VERSION_FOR_ROS}-dev  \\
-                   ${ROS_GAZEBO_PKGS}                      \\
-                   ${ROS_CATKIN_BASE}"
+SUBT_DEPENDENCIES="mercurial \\
+                   wget \\
+                   curl \\
+                   git  \\
+                   ${ROS_CATKIN_BASE} \\
+                   ignition-blueprint  \\
+                   ros-${ROS_DISTRO}-desktop \\
+                   ros-${ROS_DISTRO}-tf2-sensor-msgs \\
+                   ros-${ROS_DISTRO}-robot-localization \\
+                   ros-${ROS_DISTRO}-rotors-control \\
+                   ros-${ROS_DISTRO}-ros-control \\
+                   ros-${ROS_DISTRO}-twist-mux \\
+                   ros-${ROS_DISTRO}-ros1-ign-bridge"

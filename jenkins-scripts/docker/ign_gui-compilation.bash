@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-gui"
-export BUILDING_JOB_REPOSITORIES="stable"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_GUI_DEPENDENCIES"
 
 # Identify IGN_GUI_MAJOR_VERSION to help with dependency resolution
@@ -30,16 +29,17 @@ if ! [[ ${IGN_GUI_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 if [[ ${IGN_GUI_MAJOR_VERSION} -ge 1 ]]; then
-  export NEEDS_GZ11_SUPPORT=true
+  export USE_GCC8=true
 fi
 
-. "${SCRIPT_DIR}/lib/_gz11_hook.bash"
-
-if [[ $(date +%Y%m%d) -le 20181231 ]]; then
-  ## need prerelease repo to get ignition-cmake1 for ign-rendering
-  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
+if [[ ${IGN_GUI_MAJOR_VERSION} -eq 0 ]]; then
+  # need to build ign-rendering0 for ign-gui0
+  export BUILD_IGN_RENDERING=true
+  export IGN_RENDERING_MAJOR_VERSION=0
+  export IGN_RENDERING_BRANCH="ign-rendering${IGN_RENDERING_MAJOR_VERSION}"
 fi
 
 export GPU_SUPPORT_NEEDED=true
+export GZDEV_PROJECT_NAME="ignition-gui${IGN_GUI_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

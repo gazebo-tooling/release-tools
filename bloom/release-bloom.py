@@ -15,9 +15,7 @@ JOB_NAME_PATTERN = '%s-bloom-debbuilder'
 
 UBUNTU_ARCHS = ['amd64']
 # not releasing for precise by default
-ROS_DISTROS_IN_UBUNTU = { 'zesty'    : ['lunar'],
-                          'yakkety'  : ['lunar'] }
-#                          'xenial'   : ['lunar'] }
+ROS_DISTROS_IN_UBUNTU = { 'bionic'    : ['melodic'] }
 DRY_RUN = False
 
 def parse_args(argv):
@@ -30,7 +28,7 @@ def parse_args(argv):
     parser.add_argument('jenkins_token', help='secret token to allow access to Jenkins to start builds')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
-    parser.add_argument('-r', '--release-version', dest='release_version', 
+    parser.add_argument('-r', '--release-version', dest='release_version',
                         default=None,
                         help='Release version suffix; usually 1 (e.g., 1')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
@@ -85,10 +83,6 @@ def go(argv):
                 sys.exit(1)
 
             for r in ROS_DISTROS:
-                if r == 'indigo' and args.package == 'gazebo-dev':
-                    print ("!! No gazebo-dev in indigo, skipping")
-                    continue
-
                 url = '%s&ARCH=%s&DISTRO=%s&ROS_DISTRO=%s'%(base_url, a, d, r)
                 print('Accessing: %s'%(url))
                 if not DRY_RUN:

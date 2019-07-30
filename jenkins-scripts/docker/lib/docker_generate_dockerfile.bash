@@ -29,6 +29,32 @@ fi
 
 [[ -z ${USE_GCC8} ]] && USE_GCC8=false
 
+GZDEV_DIR=${WORKSPACE}/gzdev
+GZDEV_BRANCH=${GZDEV_BRANCH:-repository}
+
+dockerfile_install_gzdev_repos()
+{
+cat >> Dockerfile << DELIM_OSRF_REPO_GIT
+RUN rm -fr ${GZDEV_DIR}
+RUN git clone --depth 1 https://github.com/osrf/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
+DELIM_OSRF_REPO_GIT
+if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
+# debian sid docker images does not return correct name so we need to use
+# force-linux-distro
+cat >> Dockerfile << DELIM_OSRF_REPO_GZDEV
+RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
+    ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} )
+DELIM_OSRF_REPO_GZDEV
+else
+for repo in ${OSRF_REPOS_TO_USE}; do
+cat >> Dockerfile << DELIM_OSRF_REPO
+RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO}  || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
+    ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} )
+DELIM_OSRF_REPO
+done
+fi
+}
+
 case ${LINUX_DISTRO} in
   'ubuntu')
     SOURCE_LIST_URL="http://archive.ubuntu.com/ubuntu"
@@ -68,8 +94,8 @@ esac
 [[ -z ${USE_OSRF_REPO} ]] && USE_OSRF_REPO=false
 [[ -z ${OSRF_REPOS_TO_USE} ]] && OSRF_REPOS_TO_USE=""
 [[ -z ${USE_ROS_REPO} ]] && USE_ROS_REPO=false
-# Default ros-shadow-fixed to internal test it and get quick fixes
-[[ -z ${ROS_REPO_NAME} ]] && ROS_REPO_NAME="ros-shadow-fixed"
+# Default ros-testing to internal test it and get quick fixes
+[[ -z ${ROS_REPO_NAME} ]] && ROS_REPO_NAME="ros-testing"
 
 # depracted variable, do migration here
 if [[ -z ${OSRF_REPOS_TO_USE} ]]; then
@@ -150,20 +176,18 @@ DELIM_DOCKER_PAM_BUG
 fi
 
 # dirmngr from Yaketty on needed by apt-key
-if [[ $DISTRO != 'trusty' ]] || [[ $DISTRO != 'xenial' ]]; then
+# git and python-* for gzdev
+if [[ $DISTRO != 'xenial' ]]; then
+    # not in xenial, available from Bionic on and all debians
+    extra_python_mod="python3-distro"
+fi
 cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
 RUN apt-get update && \\
-    apt-get install -y dirmngr
+    apt-get install -y dirmngr git python3 python3-docopt python3-yaml ${extra_python_mod}
 DELIM_DOCKER_DIRMNGR
-fi
 
-for repo in ${OSRF_REPOS_TO_USE}; do
-cat >> Dockerfile << DELIM_OSRF_REPO
-RUN echo "deb http://packages.osrfoundation.org/gazebo/${LINUX_DISTRO}-${repo} ${DISTRO} main" >\\
-                                                /etc/apt/sources.list.d/osrf.${repo}.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
-DELIM_OSRF_REPO
-done
+# Install necessary repositories using gzdev
+dockerfile_install_gzdev_repos
 
 if ${USE_ROS_REPO}; then
   if ${ROS2}; then
@@ -173,7 +197,9 @@ RUN apt-get update \\
     && apt-get install -y curl \\
     && rm -rf /var/lib/apt/lists/*
 RUN echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/main ${DISTRO} main" > \\
-                                                 /etc/apt/sources.list.d/ros2-latest.list 
+                                                 /etc/apt/sources.list.d/ros2-latest.list
+RUN echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/testing ${DISTRO} main" > \\
+                                                 /etc/apt/sources.list.d/ros2-testing.list
 RUN curl http://repo.ros2.org/repos.key | apt-key add -
 DELIM_ROS_REPO
   else
@@ -181,8 +207,16 @@ cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
 RUN echo "deb http://packages.ros.org/${ROS_REPO_NAME}/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 DELIM_ROS_REPO
+# Need ros stable for the cases of ros-testing
+if [[ ${ROS_REPO_NAME} != "ros" ]]; then
+cat >> Dockerfile << DELIM_ROS_REPO_STABLE
+# Note that ROS uses ubuntu hardcoded in the paths of repositories
+RUN echo "deb http://packages.ros.org/ros/ubuntu ${DISTRO} main" > \\
+                                         /etc/apt/sources.list.d/ros-stable.list
+DELIM_ROS_REPO_STABLE
+fi
   fi
 fi
 
@@ -204,6 +238,7 @@ fi
 
 # Dart repositories
 if ${DART_FROM_PKGS} || ${DART_COMPILE_FROM_SOURCE}; then
+if [[ $DISTRO == 'xenial' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_DART_PKGS
 # Install dart from pkgs
 RUN apt-get update \\
@@ -211,12 +246,7 @@ RUN apt-get update \\
  && rm -rf /var/lib/apt/lists/*
 RUN apt-add-repository -y ppa:dartsim
 DELIM_DOCKER_DART_PKGS
-  if [[ "${DISTRO}" == "trusty" ]]; then
-cat >> Dockerfile << DELIM_DOCKER_DART_PKGS
-RUN apt-add-repository -y ppa:libccd-debs
-RUN apt-add-repository -y ppa:fcl-debs
-DELIM_DOCKER_DART_PKGS
-  fi
+fi
 fi
 
 # Workaround a problem in simbody on artful bad paths
@@ -250,17 +280,26 @@ RUN echo "${MONTH_YEAR_STR}" \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-# This is killing the cache so we get the most recent packages if there
-# was any update. Note that we don't remove the apt/lists file here since
-# it will make to run apt-get update again
-RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))" \
- && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
- && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
+# This is killing the cache so we get the most recent packages if there was any
+# update.
+RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))"
+DELIM_DOCKER3
+
+# A new install of gzdev is needed to update to possible recent changes in
+# configuratin and/or code and not being used since the docker cache did
+# not get them.
+dockerfile_install_gzdev_repos
+
+cat >> Dockerfile << DELIM_DOCKER31
+# Note that we don't remove the apt/lists file here since it will make
+# to run apt-get update again
+RUN (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
+ && apt-get dist-upgrade -y \
  && apt-get clean
 
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
-DELIM_DOCKER3
+DELIM_DOCKER31
 
 # Beware of moving this code since it needs to run update-alternative after
 # installing the default compiler in PACKAGES_CACHE_AND_CHECK_UPDATES
@@ -294,8 +333,8 @@ if $USE_GPU_DOCKER; then
  # NVIDIA is using nvidia_docker integration
 cat >> Dockerfile << DELIM_NVIDIA_GPU
 LABEL com.nvidia.volumes.needed="nvidia_driver"
-ENV PATH /usr/local/nvidia/bin:${PATH}
-ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}
+ENV PATH /usr/local/nvidia/bin:\${PATH}
+ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64:\${LD_LIBRARY_PATH}
 DELIM_NVIDIA_GPU
   else
   # No NVIDIA cards needs to have the same X stack than the host

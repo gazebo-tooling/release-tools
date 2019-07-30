@@ -25,10 +25,6 @@ if [[ -z ${ROS_DISTRO} ]]; then
 fi
 
 ROS_WS_PREBUILD_HOOK="""
-if [[ ${ROS_DISTRO} == 'lunar' ]]; then
-  git clone https://github.com/uos/katana_driver -b ${ROS_DISTRO}
-else
-  git clone https://github.com/tu-darmstadt-ros-pkg/hector_gazebo -b ${ROS_DISTRO}-devel
-fi
+git clone https://github.com/tu-darmstadt-ros-pkg/hector_gazebo -b ${ROS_DISTRO}-devel
 """
 . ${SCRIPT_DIR}/lib/gazebo_ros_pkgs-base.bash

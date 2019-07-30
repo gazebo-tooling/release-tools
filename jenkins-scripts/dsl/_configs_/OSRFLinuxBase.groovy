@@ -7,8 +7,6 @@ import javaposse.jobdsl.dsl.Job
 
   Implements:
   - run on docker
-  - concurrent builds
-  - colorize ansi output
 */
 class OSRFLinuxBase
 {
@@ -20,17 +18,6 @@ class OSRFLinuxBase
      job.with
      {
          label "docker"
-
-         concurrentBuild()
-
-         throttleConcurrentBuilds {
-            maxPerNode(1)
-            maxTotal(4)
-         }
-
-         wrappers {
-           colorizeOutput()
-        }
      }
    }
 }

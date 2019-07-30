@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def supported_distros = [ 'xenial' ]
+def supported_distros = [ 'bionic' ]
 def supported_arches = [ 'amd64' ]
 
 // LINUX
@@ -34,9 +34,19 @@ build_pkg_job.with
       shell("""\
             #!/bin/bash -xe
 
+            # ariac only uses a subdirectory as package
+            rm -fr \$WORKSPACE/repo_backup
+            rm -fr \$WORKSPACE/osrf_gear
+            cp -a \$WORKSPACE/repo/osrf_gear \$WORKSPACE/osrf_gear
+            mv \$WORKSPACE/repo \$WORKSPACE/repo_backup
+            mv \$WORKSPACE/osrf_gear \$WORKSPACE/repo
+
             export NIGHTLY_MODE=true
             export USE_REPO_DIRECTORY_FOR_NIGHTLY=true
             /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
+
+            rm -fr \$WORKSPACE/repo
+            mv \$WORKSPACE/repo_backup \$WORKSPACE/repo
             """.stripIndent())
     }
   }
@@ -45,10 +55,10 @@ build_pkg_job.with
 supported_distros.each { distro ->
   supported_arches.each { arch ->
 
-    if (distro == 'trusty')
-       ros_distro = 'indigo'
-    else if (distro == 'xenial')
+    if (distro == 'xenial')
        ros_distro = 'kinetic'
+    else if (distro == 'bionic')
+       ros_distro = 'melodic'
 
     // --------------------------------------------------------------
     // 2. Create the install test job
@@ -63,7 +73,7 @@ supported_distros.each { distro ->
           cron('@weekly')
         }
 
-        label "gpu-reliable-${distro}"
+        label "gpu-reliable"
 
         steps {
           shell("""#!/bin/bash -xe

@@ -24,7 +24,7 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFLinuxBuildPkg
 {
-  static void create(Job job)
+  static void create(Job job, Map default_params = [:])
   {
     OSRFLinuxBuildPkgBase.create(job)
     GenericRemoteToken.create(job)
@@ -36,17 +36,39 @@ class OSRFLinuxBuildPkg
       }
 
       parameters {
-        stringParam("PACKAGE",null,"Package name to be built")
-        stringParam("VERSION",null,"Packages version to be built")
-        stringParam("RELEASE_VERSION", null, "Packages release version")
-        stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
-        stringParam("DISTRO", null, "Linux release inside LINUX_DISTRO to build packages for")
-        stringParam("ARCH", null, "Architecture to build packages for")
-        stringParam("SOURCE_TARBALL_URI", null, "URL to the tarball containing the package sources")
-        stringParam("RELEASE_REPO_BRANCH", null, "Branch from the -release repo to be used")
-        stringParam("PACKAGE_ALIAS", null, "If not empty, package name to be used instead of PACKAGE")
-        stringParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to")
-        stringParam("OSRF_REPOS_TO_USE", null, "OSRF repos name to use when building the package")
+        stringParam("PACKAGE",
+                    default_params.find{ it.key == "PACKAGE"}?.value,
+                    "Package name to be built")
+        stringParam("VERSION",
+                    default_params.find{ it.key == "VERSION"}?.value,
+                    "Packages version to be built")
+        stringParam("RELEASE_VERSION",
+                    default_params.find{ it.key == "RELEASE_VERSION"}?.value,
+                    "Packages release version")
+        stringParam("LINUX_DISTRO",
+                    'ubuntu',
+                    "Linux distribution to build packages for")
+        stringParam("DISTRO",
+                    default_params.find{ it.key == "DISTRO"}?.value,
+                    "Linux release inside LINUX_DISTRO to build packages for")
+        stringParam("ARCH",
+                    default_params.find{ it.key == "ARCH"}?.value,
+                    "Architecture to build packages for")
+        stringParam("SOURCE_TARBALL_URI",
+                    default_params.find{ it.key == "SOURCE_TARBALL_URI"}?.value,
+                    "URL to the tarball containing the package sources")
+        stringParam("RELEASE_REPO_BRANCH",
+                    default_params.find{ it.key == "RELEASE_REPO_BRANCH"}?.value,
+                    "Branch from the -release repo to be used")
+        stringParam("PACKAGE_ALIAS",
+                    default_params.find{ it.key == "PACKAGE_ALIAS"}?.value,
+                    "If not empty, package name to be used instead of PACKAGE")
+        stringParam("UPLOAD_TO_REPO",
+                    default_params.find{ it.key == "UPLOAD_TO_REPO"}?.value,
+                    "OSRF repo name to upload the package to")
+        stringParam("OSRF_REPOS_TO_USE",
+                    default_params.find{ it.key == "OSRF_REPOS_TO_USE"}?.value,
+                    "OSRF repos name to use when building the package")
         labelParam('JENKINS_NODE_TAG') {
           description('Jenkins node or group to run build')
           defaultValue('docker')
@@ -71,9 +93,15 @@ class OSRFLinuxBuildPkg
       }
 
       publishers {
+        consoleParsing {
+            projectRules('scripts/jenkins-scripts/parser_rules/debbuild_missing.parser')
+            unstableOnWarning()
+            failBuildOnError(false)
+        }
+
         downstreamParameterized {
 	  trigger('repository_uploader_ng') {
-	    condition('SUCCESS')
+	    condition('UNSTABLE_OR_BETTER')
 	    parameters {
 	      currentBuild()
 	      predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")

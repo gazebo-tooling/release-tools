@@ -18,14 +18,16 @@ if ${USE_COLCON}; then
   export CMD_CATKIN_CONFIG=""
   export CMD_CATKIN_LIST="colcon list -g"
   export CMD_CATKIN_BUILD="colcon build --parallel-workers ${MAKE_JOBS} --symlink-install --event-handler console_direct+ ${CATKIN_EXTRA_ARGS}"
-  export CMD_CATKIN_TEST="colcon test --parallel-workers 1 --event-handler console_direct+"
-  export CMD_CATKIN_TEST_RESULTS="colcon test-result --verbose"
+  export CMD_CATKIN_TEST="colcon test --parallel-workers 1 --event-handler console_direct+ || true"
+  export CMD_CATKIN_TEST_RESULTS="colcon test-result --verbose || true"
+  export IGNORE_FILE="COLCON_IGNORE"
 elif ${USE_CATKIN_MAKE}; then
   export CMD_CATKIN_CONFIG=""
   export CMD_CATKIN_LIST=""
   export CMD_CATKIN_BUILD="catkin_make -j${MAKE_JOBS} && catkin_make install"
   export CMD_CATKIN_TEST="catkin_make run_tests -j1 || true"
   export CMD_CATKIN_TEST_RESULTS="catkin_test_results || true"
+  export IGNORE_FILE="CATKIN_IGNORE"
 else
   # catkin tools
   export CMD_CATKIN_CONFIG="catkin config --init --mkdirs"
@@ -33,6 +35,7 @@ else
   export CMD_CATKIN_BUILD="catkin build -j${MAKE_JOBS} --verbose --summary ${CATKIN_EXTRA_ARGS}"
   export CMD_CATKIN_TEST="catkin run_tests -j1 || true"
   export CMD_CATKIN_TEST_RESULTS="catkin_test_results --all --verbose || true"
+  export IGNORE_FILE="CATKIN_IGNORE"
 fi
 
 export CATKIN_WS="${WORKSPACE}/ws"
@@ -53,9 +56,6 @@ echo '# END SECTION'
 fi
 
 echo '# BEGIN SECTION: run rosdep'
-if ${ROS2}; then
- export ROSDISTRO_INDEX_URL='https://raw.githubusercontent.com/ros2/rosdistro/ros2/index.yaml'
-fi
 # Step 2: configure and build
 [[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]] && rosdep init
 # Hack for not failing when github is down
@@ -69,10 +69,6 @@ while (! \$update_done); do
 done
 
 SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
-
-# In our nvidia machines, run the test to launch altas
-# Seems like there is no failure in runs on precise pbuilder in
-# our trusty machine. So we do not check for GRAPHIC_TESTS=true
 mkdir -p \$HOME/.gazebo
 echo '# END SECTION'
 
@@ -105,6 +101,9 @@ rosdep install --from-paths . \
                --rosdistro=${ROS_DISTRO} \
                --default-yes \
                --as-root apt:false
+# Package installation could bring some local_setup.sh files with it
+# need to source it again after installation
+SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
 echo '# END SECTION'
 
 echo '# BEGIN SECTION compile the catkin workspace'
@@ -114,6 +113,10 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: running tests'
 # some tests needs to source install before running
 source install/setup.bash || true
+# need to ignore build and install directories per
+# https://github.com/ament/ament_lint/issues/48#issuecomment-320129800
+[[ -d install/ ]] && touch install/${IGNORE_FILE}
+[[ -d build/ ]] && touch build/${IGNORE_FILE}
 ${CMD_CATKIN_TEST}
 ${CMD_CATKIN_TEST_RESULTS}
 
@@ -122,8 +125,8 @@ mkdir -p ${WORKSPACE}/build/test_results
 DIRS=\$(find . -name test_results -type d)
 for d in \$DIRS; do
   for t in \$(find \$d -name "*.xml" -type f) ; do
-     mv \$t ${WORKSPACE}/build/test_results
- done
+     mv \$t ${WORKSPACE}/build/test_results/\$(basename \$(dirname \$t))_\$(basename \$t)
+  done
 done
 echo '# END SECTION'
 

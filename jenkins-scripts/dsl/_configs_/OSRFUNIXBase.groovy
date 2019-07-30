@@ -6,6 +6,8 @@ import javaposse.jobdsl.dsl.Job
   -> OSRFBase
 
   Implements:
+     - colorize ansi output
+     - allow concurrent builds
      - bash: RTOOLS checkout
 */
 class OSRFUNIXBase extends OSRFBase
@@ -16,6 +18,17 @@ class OSRFUNIXBase extends OSRFBase
 
     job.with
     {
+      concurrentBuild(true)
+
+      throttleConcurrentBuilds {
+        maxPerNode(1)
+        maxTotal(4)
+      }
+
+      wrappers {
+        colorizeOutput()
+      }
+
       steps
       {
         shell("""\

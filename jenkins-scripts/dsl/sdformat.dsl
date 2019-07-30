@@ -2,7 +2,7 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 def sdformat_supported_branches = [ 'sdformat4', 'sdformat5', 'sdformat6', 'sdformat8' ]
-def sdformat_gz11_branches = [ 'sdformat8' ]
+def sdformat_gz11_branches = [ 'sdformat8', 'default' ]
 def nightly_sdformat_branch = [ 'sdformat7' ]
 
 // Main platform using for quick CI
@@ -34,7 +34,7 @@ String get_sdformat_branch_name(String full_branch_name)
 // Need to be the before ci-pr_any so the abi job name is defined
 abi_distro.each { distro ->
   supported_arches.each { arch ->
-    abi_job_name = "sdformat-abichecker-any_to_any-${distro}-${arch}"
+    abi_job_name = "sdformat-abichecker-any_to_any-ubuntu_auto-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABI.create(abi_job)
     OSRFBitbucketHg.create(abi_job, "https://bitbucket.org/osrf/sdformat",
@@ -45,8 +45,18 @@ abi_distro.each { distro ->
       steps {
         shell("""\
               #!/bin/bash -xe
+              wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
+              source yaml.sh
+
+              create_variables \${WORKSPACE}/sdformat/bitbucket-pipelines.yml
 
               export DISTRO=${distro}
+
+              if [[ -n \${image} ]]; then
+                echo "Bitbucket pipeline.yml detected. Default DISTRO is ${distro}"
+                export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
+              fi
+
               export ARCH=${arch}
               /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-abichecker.bash
 	      """.stripIndent())
@@ -57,7 +67,7 @@ abi_distro.each { distro ->
 
 // MAIN CI job
 // CI JOBS @ SCM/5 min
-ci_distro.each { distro ->
+[ Globals.get_gz11_ubuntu_distro() ].each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
     // 1. Create the default ci jobs
@@ -136,8 +146,8 @@ ci_distro.each { distro ->
 
 // OTHER CI SUPPORTED JOBS (default branch) @ SCM/DAILY
 other_supported_distros.each { distro ->
-  // default doesn't support trusty anymore
-  if ("${distro}" == "trusty")
+  // default doesn't support xenial anymore
+  if ("${distro}" == "xenial")
     return
 
   supported_arches.each { arch ->
@@ -201,7 +211,7 @@ sdformat_supported_branches.each { branch ->
 //
 
 // EXPERIMENTAL ARCHES @ SCM/WEEKLY
-ci_distro.each { distro ->
+[ Globals.get_gz11_ubuntu_distro() ].each { distro ->
   experimental_arches.each { arch ->
     def sdformat_ci_job = job("sdformat-ci-default-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
@@ -269,7 +279,7 @@ sdformat_supported_branches.each { branch ->
 
 // --------------------------------------------------------------
 // PERFORMANCE: linux performance test
-ci_distro.each { distro ->
+[ Globals.get_gz11_ubuntu_distro() ].each { distro ->
   supported_arches.each { arch ->
     def performance_job = job("sdformat-performance-default-${distro}-${arch}")
     OSRFLinuxPerformance.create(performance_job)
@@ -315,6 +325,7 @@ all_debbuild_branches.each { branch ->
               #!/bin/bash -xe
 
               ${extra_cmd_str}
+              export ENABLE_ROS=false
               /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
               """.stripIndent())
       }

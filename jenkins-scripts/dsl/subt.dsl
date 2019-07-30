@@ -7,8 +7,11 @@ def all_supported_distros = ci_distro + other_supported_distros
 def supported_arches = [ 'amd64' ]
 
 def ENABLE_TESTS = true
+def DISABLE_TESTS = true
 def DISABLE_CPPCHECK = false
 // Globals.extra_emails = "caguero@osrfoundation.org"
+
+String ci_build_any_job_name_linux = ''
 
 void include_parselog(Job job)
 {
@@ -29,11 +32,60 @@ void include_parselog(Job job)
   }
 }
 
+void common_params_compilation_job(Job job, distro, arch, test_timeout = 180)
+{
+    // GPU label and parselog
+    include_parselog(job)
+
+    job.with
+    {
+        label "gpu-reliable"
+
+        steps {
+          shell("""#!/bin/bash -xe
+
+                export DISTRO=${distro}
+                export ARCH=${arch}
+                export TEST_TIMEOUT=${test_timeout}
+
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/subt-compilation.bash
+                """.stripIndent())
+        }
+     }
+}
+
 // MAIN CI JOBS
 ci_distro.each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
     // 1. Create the default ci jobs
+    def subt_ci_job = job("subt-ci-default-${distro}-${arch}")
+    // Use the linux compilation as base
+    OSRFLinuxCompilation.create(subt_ci_job, ENABLE_TESTS, DISABLE_CPPCHECK)
+    common_params_compilation_job(subt_ci_job, distro, arch)
+    subt_ci_job.with
+    {
+        triggers {
+          scm('@daily')
+        }
+    }
+
+    // --------------------------------------------------------------
+    // 2. Create the any job
+    ci_build_any_job_name_linux = "subt-ci-pr_any-${distro}-${arch}"
+    def subt_ci_any_job = job(ci_build_any_job_name_linux)
+    OSRFLinuxCompilationAny.create(subt_ci_any_job,
+                                  'https://bitbucket.org/osrf/subt',
+                                  ENABLE_TESTS, DISABLE_CPPCHECK)
+    common_params_compilation_job(subt_ci_any_job, distro, arch)
+  }
+}
+
+// OTHER DAILY CI JOBS
+other_supported_distros.each { distro ->
+  supported_arches.each { arch ->
+    // --------------------------------------------------------------
+    // 1. Create the other daily CI jobs
     def subt_ci_job = job("subt-ci-default-${distro}-${arch}")
 
     // Use the linux compilation as base
@@ -43,128 +95,44 @@ ci_distro.each { distro ->
 
     subt_ci_job.with
     {
-        scm {
-          hg('https://bitbucket.org/osrf/subt') {
-            branch('default')
-            subdirectory('subt')
-          }
+      scm {
+        hg('https://bitbucket.org/osrf/subt') {
+          branch('default')
+          subdirectory('subt')
         }
-
-        label "gpu-reliable"
-
-        triggers {
-          scm('*/5 * * * *')
-        }
-
-        steps {
-          shell("""#!/bin/bash -xe
-
-                export DISTRO=${distro}
-                export ARCH=${arch}
-
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/subt-compilation.bash
-                """.stripIndent())
-        }
-    }
-    // --------------------------------------------------------------
-    // 2. Create the any job
-    def subt_ci_any_job = job("subt-ci-pr_any-${distro}-${arch}")
-    OSRFLinuxCompilationAny.create(subt_ci_any_job,
-                                  'https://bitbucket.org/osrf/subt',
-                                  ENABLE_TESTS, DISABLE_CPPCHECK)
-    // GPU label and parselog
-    include_parselog(subt_ci_any_job)
-
-    subt_ci_any_job.with
-    {
-        label "gpu-reliable"
-
-        steps {
-          shell("""\
-                export DISTRO=${distro}
-                export ARCH=${arch}
-
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/subt-compilation.bash
-                """.stripIndent())
-        }
-    }
-  }
-}
-
-// OTHER DAILY CI JOBS
-other_supported_distros.each { distro ->
-  supported_arches.each { arch ->
-
-    // --------------------------------------------------------------
-    // 1. Create the other daily CI jobs
-    def subt_ci_job = job("subt-ci-default-${distro}-${arch}")
-
-    // Use the linux compilation as base
-    OSRFLinuxCompilation.create(subt_ci_job, ENABLE_TEST, DISABLE_CPPCHECK)
-    // GPU label and parselog
-    include_parselog(subt_ci_job)
-
-    subt_ci_job.with
-    {
-        scm {
-          hg('https://bitbucket.org/osrf/subt') {
-            branch('default')
-            subdirectory('subt')
-          }
-        }
-
-        label "gpu-reliable"
-
+      }
         triggers {
           scm('@daily')
-        }
-
-        steps {
-          shell("""#!/bin/bash -xe
-
-                export DISTRO=${distro}
-                export ARCH=${arch}
-
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/subt-compilation.bash
-                """.stripIndent())
         }
      }
   } // end of arch
 } // end of distro
 
-// DAILY INSTALL TESTS
+// NIGHLT LONG RUNS
 all_supported_distros.each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
     // 1. Install subt testing pkg testing
-    def install_default_job = job("subt-install_pkg-${distro}-${arch}")
-    OSRFLinuxInstall.create(install_default_job)
-    // GPU label and parselog
-    include_parselog(install_default_job)
+    def long_run_job = job("subt-ci_long-default-${distro}-${arch}")
+    OSRFLinuxCompilation.create(long_run_job, DISABLE_TESTS, DISABLE_CPPCHECK)
+    // use 3600 secs as timeout to test 1 hour
+    common_params_compilation_job(long_run_job, distro, arch, 3600)
 
-    install_default_job.with
+    long_run_job.with
     {
-      triggers {
-        cron('@daily')
+      scm {
+        hg('https://bitbucket.org/osrf/subt') {
+          branch('default')
+          subdirectory('subt')
+        }
       }
 
-      label "gpu-reliable"
-
-      steps {
-        shell("""\
-            #!/bin/bash -xe
-
-            export DISTRO=${distro}
-            export ARCH=${arch}
-            export INSTALL_JOB_PKG=subt
-            export INSTALL_JOB_REPOS="stable prerelease"
-            /bin/bash -xe ./scripts/jenkins-scripts/docker/subt-install-test-job.bash
-            """.stripIndent())
+      triggers {
+        cron('@daily')
       }
     } // end of with
   }
 }
-
 
 // --------------------------------------------------------------
 // subt package builder
@@ -204,3 +172,7 @@ build_pkg_job.with
           """.stripIndent())
   }
 }
+
+// Create the main CI work flow job
+def subt_ci_main = pipelineJob("subt-ci-pr_any")
+OSRFCIWorkFlowMultiAny.create(subt_ci_main, ci_build_any_job_name_linux)

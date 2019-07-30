@@ -5,7 +5,6 @@ import javaposse.jobdsl.dsl.Job
 Globals.default_emails = "jrivero@osrfoundation.org, leo@alaxarxa.net, jochen@sprickerhof.de"
 supported_arches = [ 'amd64' ]
 ros_debian_supported_distros = [ debian : [ "jessie","sid"] ]
-// disabled ubuntu : ["trusty"],
 
 supported_arches.each { arch ->
   ros_debian_supported_distros.each { linux, distros ->

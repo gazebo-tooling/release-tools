@@ -17,9 +17,16 @@ fi
 export BUILDING_SOFTWARE_DIRECTORY="ign-fuel-tools"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_FUEL_TOOLS_DEPENDENCIES"
 export BUILDING_JOB_REPOSITORIES="stable"
-if [[ $(date +%Y%m%d) -le 20180108 ]]; then
-  ## need prerelease repo to get ignition-cmake during the development cycle
-  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
+
+# Identify IGN_FUEL_TOOLS_MAJOR_VERSION to help with dependency resolution
+IGN_FUEL_TOOLS_MAJOR_VERSION=$(\
+  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  ${WORKSPACE}/ign-fuel-tools/CMakeLists.txt)
+
+# Check IGN_FUEL_TOOLS version is integer
+if ! [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+  echo "Error! IGN_FUEL_TOOLS_MAJOR_VERSION is not an integer, check the detection"
+  exit -1
 fi
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

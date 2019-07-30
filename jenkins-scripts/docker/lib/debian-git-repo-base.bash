@@ -24,6 +24,8 @@ if [[ -z ${BRANCH} ]]; then
   export CLONE_NEEDED=false
 fi
 
+RUN_AUTOPKGTEST=${RUN_AUTOPKGTEST:-true}
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
@@ -121,6 +123,7 @@ done
 test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 
+if $RUN_AUTOPKGTEST; then
 # Ubuntu has no autopkgtest command in the autopkgtest package
 if [ "$LINUX_DISTRO" != "ubuntu" ]; then
 echo '# BEGIN SECTION: run tests'
@@ -135,6 +138,7 @@ if [[ \$testret != 0 ]] && [[ \$testret != 8 ]]; then
 fi
 set -e
 echo '# END SECTION'
+fi
 fi
 
 echo '# BEGIN SECTION: clean up git build'

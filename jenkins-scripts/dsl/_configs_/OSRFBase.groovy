@@ -23,6 +23,10 @@ class OSRFBase
 
         parameters {
           stringParam('RTOOLS_BRANCH','default','release-tool branch to use')
+          if (Globals.gazebodistro_branch)
+          {
+            stringParam('GAZEBODISTRO_BRANCH','default','gazebodistro branch to use')
+          }
           booleanParam('NO_MAILS',false,'do not send any notification by mail')
         }
 

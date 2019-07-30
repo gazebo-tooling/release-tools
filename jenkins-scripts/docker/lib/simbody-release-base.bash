@@ -38,10 +38,6 @@ sed -i -e 's:-1~:-$RELEASE_VERSION~:' debian/changelog
 if [ $DISTRO = 'saucy' ]; then
     sed -i -e '/.*dh_auto_build.*/d' debian/rules
 fi
-if [ $DISTRO = 'trusty' ]; then
-# Patch for https://github.com/simbody/simbody/issues/157
-  sed -i -e 's:CONFIGURE_ARGS=:CONFIGURE_ARGS=-DCMAKE_BUILD_TYPE=RelWithDebInfo:' debian/rules
-fi
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: generate the .orig file'

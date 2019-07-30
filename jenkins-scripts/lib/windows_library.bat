@@ -32,17 +32,23 @@ IF %PLATFORM_TO_BUILD% == x86 (
 )
 
 echo "Configure the VC++ compilation"
-set MSVC_ON_WIN64=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat
-set MSVC_ON_WIN32=C:\Program Files\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat
+set MSVC_ON_WIN64_E=C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
+set MSVC_ON_WIN32_E=C:\Program Files\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
+set MSVC_ON_WIN64_C=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat
+set MSVC_ON_WIN32_C=C:\Program Files\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat
 :: libraries from vcpkg
 set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
 set PATH=%PATH%;%VCPKG_DIR%\installed\%VCPKG_DEFAULT_TRIPLET%\bin
 
-IF exist "%MSVC_ON_WIN64%" (
-   call "%MSVC_ON_WIN64%" %MSVC_KEYWORD% || goto %win_lib% :error
-) ELSE IF exist "%MSVC_ON_WIN32%" (
-   call "%MSVC_ON_WIN32%" %MSVC_KEYWORD% || goto %win_lib% :error
+IF exist "%MSVC_ON_WIN64_E%" (
+   call "%MSVC_ON_WIN64_E%" %MSVC_KEYWORD% || goto %win_lib% :error
+) ELSE IF exist "%MSVC_ON_WIN32_E%" (
+   call "%MSVC_ON_WIN32_E%" %MSVC_KEYWORD% || goto %win_lib% :error
+) ELSE IF exist "%MSVC_ON_WIN64_C%" (
+   call "%MSVC_ON_WIN64_C%" %MSVC_KEYWORD% || goto %win_lib% :error
+) ELSE IF exist "%MSVC_ON_WIN32_C%" (
+   call "%MSVC_ON_WIN32_C%" %MSVC_KEYWORD% || goto %win_lib% :error
 ) ELSE (
    echo "Could not find the vcvarsall.bat file"
    exit -1
@@ -137,7 +143,7 @@ goto :EOF
 :download_unzip_install
 ::
 echo # BEGIN SECTION: downloading, unzipping, and installing dependency %1
-call :wget http://gazebosim.org/distributions/win32/deps/%1 %1 || goto :error
+call :wget https://s3.amazonaws.com/osrf-distributions/win32/deps/%1 %1 || goto :error
 call :unzip_install %1 || goto :error
 goto :EOF
 
@@ -170,8 +176,10 @@ goto :EOF
 :: arg2: directory destination (default .)
 set gzdistro_dir=gazebodistro
 
+if "%GAZEBODISTRO_BRANCH%" == "" (set GAZEBODISTRO_BRANCH=default)
+
 if exist %gzdistro_dir% (rmdir /s /q %gzdistro_dir%)
-hg clone https://bitbucket.org/osrf/gazebodistro %gzdistro_dir%
+hg clone https://bitbucket.org/osrf/gazebodistro %gzdistro_dir% -b %GAZEBODISTRO_BRANCH%
 vcs import --retry 5  < "%gzdistro_dir%\%1" "%2" || goto :error
 goto :EOF
 
@@ -232,14 +240,58 @@ goto :EOF
 :install_vcpkg_package
 :: arg1: package to install
 set LIB_DIR=%~dp0
-call %LIB_DIR%\windows_env_vars.bat
+call %LIB_DIR%\windows_env_vars.bat || goto :error
 
 %VCPKG_CMD% install "%1"
 goto :EOF
 
 :: ##################################
+:remove_vcpkg_package
+:: arg1: package to install
+set LIB_DIR=%~dp0
+call %LIB_DIR%\windows_env_vars.bat || goto :error
+
+%VCPKG_CMD% remove --recurse "%1"
+goto :EOF
+
+:: ##################################
+:enable_vcpkg_integration
+%VCPKG_CMD% integrate install || goto :error
+goto :EOF
+
+:: ##################################
+:disable_vcpkg_integration
+%VCPKG_CMD% integrate remove || goto :error
+goto :EOF
+
+:: ##################################
+:install_osrf_vcpkg_package
+:: arg1: package to install
+set LIB_DIR=%~dp0
+set PKG=%1
+set PORT_DIR=%VCPKG_DIR%\ports\%PKG%
+call %LIB_DIR%\windows_env_vars.bat || goto :error
+
+if exist %PORT_DIR% (
+  rmdir /s /q %PORT_DIR% || goto :error
+)
+
+if NOT exist %VCPKG_OSRF_DIR% (
+  git clone https://github.com/osrf/vcpkg-ports %VCPKG_OSRF_DIR%
+  cd %VCPKG_OSRF_DIR%
+) else (
+  cd %VCPKG_OSRF_DIR%
+  git pull origin master || goto :error
+)
+
+:: copy port to the official tree
+xcopy %VCPKG_OSRF_DIR%\%PKG% %PORT_DIR% /s /i /e || goto :error
+
+call %win_lib% :install_vcpkg_package %1 || goto :error
+goto :EOF
+
+:: ##################################
 :error - error routine
 ::
-echo Failed with error #%errorlevel%.
-exit /b %errorlevel%
-goto :EOF
+echo Failed in windows_library with error #%errorlevel%.
+exit /B %errorlevel%

@@ -8,10 +8,11 @@ ArrayList ros_distros        = Globals.get_ros_suported_distros()
 ArrayList ros2_distros       = Globals.get_ros2_suported_distros()
 @Field
 String ci_arch               = 'amd64'
+@Field
+String current_ros2_branch   = "eloquent"
+
 // version to test more than the official one in each ROS distro
-extra_gazebo_versions = [ 'indigo'  :  ['7'],
-                          'kinetic' :  ['8','9'],
-                          'lunar'   :  ['8','9']]
+extra_gazebo_versions = [ 'kinetic' :  ['8','9']]
 
 bloom_debbuild_jobs = [ 'gazebo-dev', 'gazebo-msgs', 'gazebo-plugins', 'gazebo-ros', 'gazebo-ros-control', 'gazebo-ros-pkgs' ]
 
@@ -223,6 +224,10 @@ ros_distros.each { ros_distro ->
 ros2_distros.each { ros_distro ->
   ubuntu_distros = Globals.ros_ci[ros_distro]
 
+  branch = ros_distro
+  if (ros_distro == current_ros2_branch)
+    branch = "ros2"
+
   ubuntu_distros.each { ubuntu_distro ->
     suffix_triplet="${ros_distro}-${ubuntu_distro}-${ci_arch}"
 
@@ -241,7 +246,7 @@ ros2_distros.each { ros_distro ->
           extensions {
             relativeTargetDirectory("gazebo_ros_pkgs")
           }
-          branch("ros2")
+          branch(branch)
         }
       }
 
