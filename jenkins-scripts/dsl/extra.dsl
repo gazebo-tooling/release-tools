@@ -9,7 +9,7 @@ release_repo_debbuilds = [ 'opensplice' ]
 
 // List of repositories that host branches compatible with gbp (git build
 // package) method used by debian
-gbp_repo_debbuilds = [ 'ogre-2.1' ]
+gbp_repo_debbuilds = [ 'ogre-2.1', 'lark-parser' ]
 
 release_repo_debbuilds.each { software ->
   // --------------------------------------------------------------
@@ -34,7 +34,7 @@ release_repo_debbuilds.each { software ->
 }
 
 gbp_repo_debbuilds.each { software ->
-  def build_pkg_job = job("ogre-2.1-debbuilder")
+  def build_pkg_job = job("${software}-debbuilder")
   OSRFLinuxBase.create(build_pkg_job)
 
   build_pkg_job.with
@@ -45,7 +45,9 @@ gbp_repo_debbuilds.each { software ->
     parameters
     {
        stringParam('BRANCH','master',
-                   'ogre-2.1-release branch to test')
+                   "${software}-release branch to test")
+       stringParam('LINUX_DISTRO','ubuntu',
+                   'Linux distribution to build package for')
        stringParam('DISTRO','bionic',
                    'Ubuntu DISTRO to build package for')
        stringParam('ARCH','amd64',
@@ -55,7 +57,7 @@ gbp_repo_debbuilds.each { software ->
     scm {
       git {
         remote {
-          github('osrf/ogre-2.1-release', 'https')
+          github("osrf/${software}-release", 'https')
           branch('${BRANCH}')
         }
 
@@ -84,13 +86,17 @@ gbp_repo_debbuilds.each { software ->
       }
     }
 
+    str_extra_bash=""
+    // autopkgtest is broken for lark-parser
+    if (software == "lark-parser")
+       str_extra_bash = 'export RUN_AUTOPKGTEST=false'
+
     steps {
       shell("""\
             #!/bin/bash -xe
 
-            export LINUX_DISTRO=ubuntu
-
-            /bin/bash -xe ./scripts/jenkins-scripts/docker/ogre-2.1-debbuild.bash
+            ${str_extra_bash}
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/debian-gbp-generic.bash
             """.stripIndent())
     }
 
@@ -107,7 +113,7 @@ gbp_repo_debbuilds.each { software ->
             currentBuild()
             predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
             predefinedProp("UPLOAD_TO_REPO", "stable")
-            predefinedProp("PACKAGE_ALIAS", "ogre-2.1")
+            predefinedProp("PACKAGE_ALIAS", "${software}")
           }
         }
       }
