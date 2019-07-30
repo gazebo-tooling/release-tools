@@ -46,6 +46,8 @@ gbp_repo_debbuilds.each { software ->
     {
        stringParam('BRANCH','master',
                    "${software}-release branch to test")
+       stringParam('LINUX_DISTRO','ubuntu',
+                   'Linux distribution to build package for')
        stringParam('DISTRO','bionic',
                    'Ubuntu DISTRO to build package for')
        stringParam('ARCH','amd64',
@@ -84,12 +86,16 @@ gbp_repo_debbuilds.each { software ->
       }
     }
 
+    str_extra_bash=""
+    // autopkgtest is broken for lark-parser
+    if (software == "lark-parser")
+       str_extra_bash = 'export RUN_AUTOPKGTEST=false'
+
     steps {
       shell("""\
             #!/bin/bash -xe
 
-            export LINUX_DISTRO=ubuntu
-
+            ${str_extra_bash}
             /bin/bash -xe ./scripts/jenkins-scripts/docker/debian-gbp-generic.bash
             """.stripIndent())
     }
