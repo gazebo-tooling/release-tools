@@ -585,7 +585,7 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                         libignition-transport6-dev"
 fi
 
-if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 0 ]]; then
+if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -eq 0 ]]; then
   IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
                         libignition-rendering2-dev"
 fi
