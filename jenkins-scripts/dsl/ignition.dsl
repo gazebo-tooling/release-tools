@@ -421,7 +421,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "common" && "${branch}" == "ign-common3") ||
               ("${ign_sw}" == "fuel-tools" && "${branch}" != "ign-fuel-tools1") ||
               ("${ign_sw}" == "gazebo") ||
-              ("${ign_sw}" == "gui" && "${branch}" != "ign-gui0") ||
+              ("${ign_sw}" == "gui") ||
               ("${ign_sw}" == "launch") ||
               ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
               ("${ign_sw}" == "math" && "${branch}" == "default") ||
