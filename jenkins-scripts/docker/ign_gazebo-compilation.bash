@@ -28,6 +28,15 @@ if ! [[ ${IGN_GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
+if [[ ${IGN_GUI_MAJOR_VERSION} -eq 3 ]]; then
+  export BUILD_IGN_RENDERING=true
+  export IGN_RENDERING_BRANCH=default
+  export BUILD_IGN_SENSORS=true
+  export IGN_SENSORS_BRANCH=default
+  export BUILD_IGN_GUI=true
+  export IGN_GUI_BRANCH=default
+fi
+
 export USE_GCC8=true
 export GPU_SUPPORT_NEEDED=true
 
