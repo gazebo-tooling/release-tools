@@ -39,6 +39,11 @@ if [[ ${IGN_GUI_MAJOR_VERSION} -eq 0 ]]; then
   export IGN_RENDERING_BRANCH="ign-rendering${IGN_RENDERING_MAJOR_VERSION}"
 fi
 
+if [[ ${IGN_GUI_MAJOR_VERSION} -eq 3 ]]; then
+  export BUILD_IGN_RENDERING=true
+  export IGN_RENDERING_BRANCH=default
+fi
+
 export GPU_SUPPORT_NEEDED=true
 export GZDEV_PROJECT_NAME="ignition-gui${IGN_GUI_MAJOR_VERSION}"
 
