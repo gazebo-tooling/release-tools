@@ -2,6 +2,7 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 def bridge_packages = [
+  'ros1_ign_image',
   'ros1_ign_bridge',
   'ros1_ign_gazebo_demos',
   'ros1_ign',
