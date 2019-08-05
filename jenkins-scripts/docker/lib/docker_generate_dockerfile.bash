@@ -330,15 +330,27 @@ fi
 
 if $USE_GPU_DOCKER; then
  if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
- # NVIDIA is using nvidia_docker integration
-cat >> Dockerfile << DELIM_NVIDIA_GPU
+   if $NVIDIA_DOCKER2_NODE; then
+   # NVIDIA is using nvidia_docker2 integration
+   cat >> Dockerfile << DELIM_NVIDIA2_GPU
+# nvidia-container-runtime
+ENV NVIDIA_VISIBLE_DEVICES \
+    ${NVIDIA_VISIBLE_DEVICES:-all}
+ENV NVIDIA_DRIVER_CAPABILITIES \
+    ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
+DELIM_NVIDIA2_GPU
+   else
+   # NVIDIA-DOCKER1
+   cat >> Dockerfile << DELIM_NVIDIA_GPU
+# nvidia-container-runtime
 LABEL com.nvidia.volumes.needed="nvidia_driver"
 ENV PATH /usr/local/nvidia/bin:\${PATH}
 ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64:\${LD_LIBRARY_PATH}
 DELIM_NVIDIA_GPU
-  else
+   fi
+ else
   # No NVIDIA cards needs to have the same X stack than the host
-cat >> Dockerfile << DELIM_DISPLAY
+  cat >> Dockerfile << DELIM_DISPLAY
 # Check to be sure version of kernel graphic card support is the same.
 # It will kill DRI otherwise
 RUN CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\ " | awk '{ print \$3 }' | sed 's:-.*::') \\

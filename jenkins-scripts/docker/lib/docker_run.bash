@@ -41,7 +41,12 @@ if $USE_GPU_DOCKER; then
                     -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
 
   if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
-    export docker_cmd="nvidia-docker"
+    if $NVIDIA_DOCKER2_NODE; then
+      export EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} \
+                               --runtime=nvidia"
+    else
+      export docker_cmd="nvidia-docker"
+    fi
   fi
 fi
 
