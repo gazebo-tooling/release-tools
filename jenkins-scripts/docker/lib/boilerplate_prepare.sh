@@ -97,6 +97,11 @@ if [ -z ${ENABLE_ROS} ]; then
   ENABLE_ROS=false
 fi
 
+# By default nodes are in nvidia-docker1
+if [ -z ${NVIDIA_DOCKER2_NODE} ]; then
+  NVIDIA_DOCKER2_NODE=false
+fi
+
 # Transition for 4.8 -> 4.9 makes some optimization in the linking
 # which can break some software. Use it as a workaround in this case
 if [ -z ${NEED_GCC48_COMPILER} ]; then
@@ -113,6 +118,10 @@ fi
 
 # in some machines squid is returning
 [ -z ${NEED_SQUID_WORKAROUND} ] && NEED_SQUID_WORKAROUND=false
+
+# some jobs are failing due to squid permissions on caching
+# default is true but jobs can declare to skip it
+[ -z ${USE_SQUID} ] && USE_SQUID=true
 
 # Useful for running tests properly integrated ros based software
 if ${ENABLE_ROS}; then

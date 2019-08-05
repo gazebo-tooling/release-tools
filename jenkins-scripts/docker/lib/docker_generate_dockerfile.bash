@@ -312,7 +312,8 @@ cat >> Dockerfile << DELIM_GCC8
 DELIM_GCC8
 fi
 
-cat >> Dockerfile << DELIM_DOCKER_SQUID
+if ${USE_SQUID}; then
+  cat >> Dockerfile << DELIM_DOCKER_SQUID
 # If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy
 # By default, squid-deb-proxy 403s unknown sources, so apt shouldn't proxy ppa.launchpad.net
 RUN route -n | awk '/^0.0.0.0/ {print \$2}' > /tmp/host_ip.txt
@@ -321,6 +322,7 @@ RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
   && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
   || echo "No squid-deb-proxy detected on docker host"
 DELIM_DOCKER_SQUID
+fi
 
 if [[ -n ${SOFTWARE_DIR} ]]; then
 cat >> Dockerfile << DELIM_DOCKER4
@@ -330,15 +332,27 @@ fi
 
 if $USE_GPU_DOCKER; then
  if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
- # NVIDIA is using nvidia_docker integration
-cat >> Dockerfile << DELIM_NVIDIA_GPU
+   if $NVIDIA_DOCKER2_NODE; then
+   # NVIDIA is using nvidia_docker2 integration
+   cat >> Dockerfile << DELIM_NVIDIA2_GPU
+# nvidia-container-runtime
+ENV NVIDIA_VISIBLE_DEVICES \
+    ${NVIDIA_VISIBLE_DEVICES:-all}
+ENV NVIDIA_DRIVER_CAPABILITIES \
+    ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
+DELIM_NVIDIA2_GPU
+   else
+   # NVIDIA-DOCKER1
+   cat >> Dockerfile << DELIM_NVIDIA_GPU
+# nvidia-container-runtime
 LABEL com.nvidia.volumes.needed="nvidia_driver"
 ENV PATH /usr/local/nvidia/bin:\${PATH}
 ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64:\${LD_LIBRARY_PATH}
 DELIM_NVIDIA_GPU
-  else
+   fi
+ else
   # No NVIDIA cards needs to have the same X stack than the host
-cat >> Dockerfile << DELIM_DISPLAY
+  cat >> Dockerfile << DELIM_DISPLAY
 # Check to be sure version of kernel graphic card support is the same.
 # It will kill DRI otherwise
 RUN CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\ " | awk '{ print \$3 }' | sed 's:-.*::') \\
