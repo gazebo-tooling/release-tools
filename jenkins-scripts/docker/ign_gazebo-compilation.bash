@@ -28,7 +28,7 @@ if ! [[ ${IGN_GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-if [[ ${IGN_GUI_MAJOR_VERSION} -eq 3 ]]; then
+if [[ ${IGN_GAZEBO_MAJOR_VERSION} -eq 3 ]]; then
   export BUILD_IGN_RENDERING=true
   export IGN_RENDERING_MAJOR_VERSION=3
   export IGN_RENDERING_BRANCH=default
