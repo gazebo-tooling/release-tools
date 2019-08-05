@@ -1,0 +1,40 @@
+#!/bin/bash -x
+
+# Knowing Script dir beware of symlink
+[[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
+SCRIPT_DIR="${SCRIPT_DIR%/*}"
+
+export GPU_SUPPORT_NEEDED=true
+export USE_DOCKER_IN_DOCKER=true
+# squid is blocking nvidia packages inside the dockerhub image
+export USE_SQUID=false
+export TIMEOUT=${TIMEOUT:-180}
+
+. ${SCRIPT_DIR}/lib/_install_nvidia_docker.sh
+
+export ROS_SETUP_POSTINSTALL_HOOK="""
+echo '# BEGIN SECTION: testing the cloudsim mirror installation'
+
+${INSTALL_NVIDIA_DOCKER2}
+
+xhost +
+
+cd ${WORKSPACE}/subt/docker/
+chmod +x build.bash run.bash join.bash
+
+# sim and client build
+./build.bash cloudsim_sim --no-cache
+./build.bash cloudsim_bridge --no-cache
+
+./run.bash cloudsim_sim cloudsim_sim.ign robotName1:=X1 robotConfig1:=X1_SENSOR_CONFIG1 robotName2:=X2 robotConfig2:=X2_SENSOR_CONFIG2
+./run.bash cloudsim_bridge cloudsim_bridge.ign robotName1:=X1 robotConfig1:=X1_SENSOR_CONFIG1 robotName2:=X2 robotConfig2:=X2_SENSOR_CONFIG2
+roslaunch subt_example example_robot.launch name:=X1
+roslaunch subt_example example_robot.launch name:=X2
+rostopic pub /X2/comm std_msgs/String 'X1'
+rostopic pub /X1/cmd_vel geometry_msgs/Twist '{linear:  {x: 0.1, y: 0.0, z: 0.0}}'
+echo '# END SECTION'
+"""
+
+export DEPENDENCY_PKGS="${DEPENDENCY_PKGS} software-properties-common xauth x11-xserver-utils"
+
+. ${SCRIPT_DIR}/lib/subt-compilation-base.bash

@@ -120,6 +120,35 @@ ci_distro.each { distro ->
             """.stripIndent())
       }
     }
+    // --------------------------------------------------------------
+    // 4. Install subt cloudsim mirror
+    def install_cloud_job = job("subt-install-cloudsim_mirror-${distro}-${arch}")
+    OSRFLinuxCompilation.create(install_cloud_job)
+    OSRFBitbucketHg.create(install_cloud_job, "https://bitbucket.org/osrf/subt")
+    // the gazebo output displays errors on rendering. This seems a bug in the
+    // infrastructure, ignore it by now. The rest of the build is still useful
+    // to check
+    include_parselog(install_cloud_job, UNSTABLE_GZERR_PARSE)
+
+    install_cloud_job.with
+    {
+      triggers {
+        cron('@daily')
+      }
+
+      label "gpu-nvidia-docker2"
+
+      steps {
+        shell("""\
+            #!/bin/bash -xe
+
+            export DISTRO=${distro}
+            export ARCH=${arch}
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/subt-mirror-test-job.bash
+            """.stripIndent())
+      }
+    }
+
   }
 }
 

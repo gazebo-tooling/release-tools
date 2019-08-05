@@ -14,4 +14,12 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
+export ROS_SETUP_POSTINSTALL_HOOK="""
+echo '# BEGIN SECTION: smoke test'
+source ./install/setup.bash || true
+${SUBT_COMPETITION_TEST}
+echo 'Smoke testing completed successfully.'
+echo '# END SECTION'
+"""
+
 . ${SCRIPT_DIR}/lib/subt-compilation-base.bash
