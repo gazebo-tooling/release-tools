@@ -30,6 +30,7 @@ fi
 
 if [[ ${IGN_SENSORS_MAJOR_VERSION} -ge 3 ]]; then
   export BUILD_IGN_RENDERING=true
+  export IGN_RENDERING_MAJOR_VERSION=3
   export IGN_RENDERING_BRANCH=default
 fi
 
