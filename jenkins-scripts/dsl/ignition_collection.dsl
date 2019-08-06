@@ -40,7 +40,6 @@ ignition_collection_jobs =
         'ign_rendering-ign-1-win',
         'ign_sensors-ign-1-win',
         'ignition_acropolis-ci-default-homebrew-amd64',
-        'ignition_acropolis-install-pkg-bionic-amd64',
         'ignition_cmake-ci-ign-cmake2-bionic-amd64',
         'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-windows7-amd64',
@@ -194,9 +193,9 @@ ignition_collections.each { ign_collection ->
       label "gpu-reliable"
 
       def job_name = 'ign_launch-install-test-job.bash'
-      // acropolis does not support the testing launch job
+      // acropolis deb is broken because old libignition-launch-dev debs are not available
       if (ign_collection_name == 'acropolis')
-        job_name = 'generic-install-test-job.bash'
+        disabled()
 
       steps {
        shell("""\
