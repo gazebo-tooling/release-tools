@@ -119,6 +119,10 @@ fi
 # in some machines squid is returning
 [ -z ${NEED_SQUID_WORKAROUND} ] && NEED_SQUID_WORKAROUND=false
 
+# some jobs are failing due to squid permissions on caching
+# default is true but jobs can declare to skip it
+[ -z ${USE_SQUID} ] && USE_SQUID=true
+
 # Useful for running tests properly integrated ros based software
 if ${ENABLE_ROS}; then
   export USE_ROS_REPO=true
