@@ -20,6 +20,9 @@ ${INSTALL_NVIDIA_DOCKER2}
 xhost +
 
 cd ${WORKSPACE}/subt/docker/
+sed -i -e s:--uid\\ \\$\\{user_id\\}:: cloudsim_sim/Dockerfile
+sed -i -e s:--uid\\ \\$\\{user_id\\}:: cloudsim_bridge/Dockerfile
+
 chmod +x build.bash run.bash join.bash
 
 # sim and client build
