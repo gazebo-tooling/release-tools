@@ -30,7 +30,7 @@ fi
 [[ -z ${USE_GCC8} ]] && USE_GCC8=false
 
 GZDEV_DIR=${WORKSPACE}/gzdev
-GZDEV_BRANCH=${GZDEV_BRANCH:-repository}
+GZDEV_BRANCH=${GZDEV_BRANCH:-master}
 
 dockerfile_install_gzdev_repos()
 {
