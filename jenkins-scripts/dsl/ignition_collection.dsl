@@ -204,7 +204,7 @@ ignition_collections.each { ign_collection ->
              export DISTRO=${distro}
              export ARCH=${arch}
              export INSTALL_JOB_PKG=${dev_package}
-             export INSTALL_JOB_REPOS="stable"
+             export GZDEV_PROJECT_NAME="${dev_package}"
              /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
              """.stripIndent())
       }

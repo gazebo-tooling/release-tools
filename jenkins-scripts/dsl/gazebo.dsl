@@ -41,7 +41,7 @@ boolean is_watched_by_buildcop(branch, distro = 'xenial', gpu = 'nvidia')
   return false
 }
 
-void generate_install_job(Job job, gz_branch, distro, arch, osrf_repos = "")
+void generate_install_job(Job job, gz_branch, distro, arch, use_osrf_repos = false)
 {
   job.with
   {
@@ -51,6 +51,10 @@ void generate_install_job(Job job, gz_branch, distro, arch, osrf_repos = "")
 
     // Branch is exactly in the form of gazeboN
     def dev_packages = "lib${gz_branch}-dev ${gz_branch}"
+
+    def gzdev_str = ""
+    if (use_osrf_repos)
+        gzdev_str = "export GZDEV_PROJECT_NAME=${gz_branch}"
 
     // Need gpu for running the runtime test
     label "gpu-reliable"
@@ -62,7 +66,8 @@ void generate_install_job(Job job, gz_branch, distro, arch, osrf_repos = "")
           export DISTRO=${distro}
           export ARCH=${arch}
           export INSTALL_JOB_PKG=\"${dev_packages}\"
-          export INSTALL_JOB_REPOS=${osrf_repos}
+          ${gzdev_str}
+
           /bin/bash -x ./scripts/jenkins-scripts/docker/gazebo-install-test-job.bash
           """.stripIndent())
     }
@@ -469,7 +474,7 @@ gazebo_supported_branches.each { branch ->
       def install_default_job = job("gazebo-install-${branch}_pkg-${distro}-${arch}")
       OSRFLinuxInstall.create(install_default_job)
 
-      generate_install_job(install_default_job, branch, distro, arch, "stable")
+      generate_install_job(install_default_job, branch, distro, arch, true)
     } // end of arch
   } // end of distro
 } // end of branch
