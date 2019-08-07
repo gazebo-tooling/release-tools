@@ -21,6 +21,7 @@ xhost +
 cd ${WORKSPACE}/subt/docker/
 sed -i -e s:--uid\\ \\$\\{user_id\\}:: cloudsim_sim/Dockerfile
 sed -i -e s:--uid\\ \\$\\{user_id\\}:: cloudsim_bridge/Dockerfile
+sed -i -e s:-it:: run.bash
 
 chmod +x build.bash run.bash join.bash
 echo '# BEGIN SECTION: build cloudsim_sim'
