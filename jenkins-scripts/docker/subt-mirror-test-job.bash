@@ -31,13 +31,17 @@ bash -xe ./build.bash cloudsim_bridge --no-cache
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run cloudsim_sim'
-bash -xe ./run.bash cloudsim_sim cloudsim_sim.ign robotName1:=X1 robotConfig1:=X1_SENSOR_CONFIG1 robotName2:=X2 robotConfig2:=X2_SENSOR_CONFIG2
+bash -xe ./run.bash cloudsim_sim cloudsim_sim.ign robotName1:=X1 robotConfig1:=X1_SENSOR_CONFIG1 robotName2:=X2 robotConfig2:=X2_SENSOR_CONFIG2 &
+sleep 5m
 echo '# END SECTION'
 echo '# BEGIN SECTION: run cloudsim_bridge'
-bash -xe ./run.bash cloudsim_bridge cloudsim_bridge.ign robotName1:=X1 robotConfig1:=X1_SENSOR_CONFIG1 robotName2:=X2 robotConfig2:=X2_SENSOR_CONFIG2
+bash -xe ./run.bash cloudsim_bridge cloudsim_bridge.ign robotName1:=X1 robotConfig1:=X1_SENSOR_CONFIG1 robotName2:=X2 robotConfig2:=X2_SENSOR_CONFIG2 &
+sleep 5m
 echo '# END SECTION'
-roslaunch subt_example example_robot.launch name:=X1
-roslaunch subt_example example_robot.launch name:=X2
+roslaunch subt_example example_robot.launch name:=X1 &
+sleep 2m
+roslaunch subt_example example_robot.launch name:=X2 &
+sleep 2m
 rostopic pub /X2/comm std_msgs/String 'X1'
 rostopic pub /X1/cmd_vel geometry_msgs/Twist '{linear:  {x: 0.1, y: 0.0, z: 0.0}}'
 """
