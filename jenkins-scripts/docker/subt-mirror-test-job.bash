@@ -43,8 +43,8 @@ roslaunch subt_example example_robot.launch name:=X1 &
 sleep 2m
 roslaunch subt_example example_robot.launch name:=X2 &
 sleep 2m
-rostopic pub /X2/comm std_msgs/String 'X1'
-rostopic pub /X1/cmd_vel geometry_msgs/Twist '{linear:  {x: 0.1, y: 0.0, z: 0.0}}'
+timeout --preserve-status 10 rostopic pub /X2/comm std_msgs/String 'X1'
+timeout --preserve-status 10 rostopic pub /X1/cmd_vel geometry_msgs/Twist '{linear:  {x: 0.1, y: 0.0, z: 0.0}}'
 """
 
 export DEPENDENCY_PKGS="${DEPENDENCY_PKGS} software-properties-common xauth x11-xserver-utils"
