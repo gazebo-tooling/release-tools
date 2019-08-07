@@ -1,4 +1,4 @@
-SUBT_COMPETITION_TEST="""
+SUBT_FUEL_DOWNLOADS="""
 # Download virtual stix models
 ign fuel download --url 'https://fuel.ignitionrobotics.org/openrobotics/models/Edgar Mine Virtual STIX' -v 4
 ign fuel download --url 'https://fuel.ignitionrobotics.org/openrobotics/models/Base Station' -v 4
@@ -46,6 +46,11 @@ ign fuel download --url 'https://fuel.ignitionrobotics.org/openrobotics/models/R
 ign fuel download --url 'https://fuel.ignitionrobotics.org/openrobotics/models/Rough Tunnel Tile Straight' -v 4
 ign fuel download --url 'https://fuel.ignitionrobotics.org/openrobotics/models/Rough Tunnel Tile Ramp' -v 4
 ign fuel download --url 'https://fuel.ignitionrobotics.org/openrobotics/models/Rough Tunnel Tile Vertical Shaft' -v 4
+"""
+
+SUBT_COMPETITION_TEST="""
+
+${SUBT_FUEL_DOWNLOADS}
 
 # inject external variable into test scripts
 if [[ -n "${TEST_TIMEOUT}" ]]; then
