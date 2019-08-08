@@ -32,7 +32,7 @@ bash -xe ./build.bash cloudsim_bridge --no-cache
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run cloudsim_sim'
-bash -xe ./run.bash cloudsim_sim cloudsim_sim.ign robotName1:=X1 robotConfig1:=X1_SENSOR_CONFIG1 robotName2:=X2 robotConfig2:=X2_SENSOR_CONFIG2 &
+# bash -xe ./run.bash cloudsim_sim cloudsim_sim.ign robotName1:=X1 robotConfig1:=X1_SENSOR_CONFIG1 robotName2:=X2 robotConfig2:=X2_SENSOR_CONFIG2 &
 sleep 5m
 echo '# END SECTION'
 echo '# BEGIN SECTION: run cloudsim_bridge'
