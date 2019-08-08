@@ -123,7 +123,7 @@ ci_distro.each { distro ->
     // --------------------------------------------------------------
     // 4. Install subt cloudsim mirror
     def install_cloud_job = job("subt-install-cloudsim_mirror-${distro}-${arch}")
-    OSRFLinuxCompilation.create(install_cloud_job)
+    OSRFLinuxCompilation.create(install_cloud_job, DISABLE_TESTS, DISABLE_CPPCHECK)
     OSRFBitbucketHg.create(install_cloud_job, "https://bitbucket.org/osrf/subt")
     // the gazebo output displays errors on rendering. This seems a bug in the
     // infrastructure, ignore it by now. The rest of the build is still useful
