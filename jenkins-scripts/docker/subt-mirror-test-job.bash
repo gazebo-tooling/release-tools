@@ -39,13 +39,21 @@ echo '# BEGIN SECTION: run cloudsim_bridge'
 bash -xe ./run.bash cloudsim_bridge cloudsim_bridge.ign robotName1:=X1 robotConfig1:=X1_SENSOR_CONFIG1 robotName2:=X2 robotConfig2:=X2_SENSOR_CONFIG2 &
 sleep 5m
 echo '# END SECTION'
-roslaunch subt_example example_robot.launch name:=X1 &
-sleep 2m
-roslaunch subt_example example_robot.launch name:=X2 &
-sleep 2m
-timeout --preserve-status 10 rostopic pub /X2/comm std_msgs/String 'X1'
-timeout --preserve-status 10 rostopic pub /X1/cmd_vel geometry_msgs/Twist '{linear:  {x: 0.1, y: 0.0, z: 0.0}}'
 """
+
+# The following instructions can not be tested since there is a network problem
+# in the Jenkins setup
+#
+# [X1] CommsClient::Register: Problem registering with broker
+# [CommsClient] Retrying register..
+
+# roslaunch subt_example example_robot.launch name:=X1 &
+# sleep 2m
+# roslaunch subt_example example_robot.launch name:=X2 &
+# sleep 2m
+# timeout --preserve-status 10 rostopic pub /X2/comm std_msgs/String 'X1'
+# timeout --preserve-status 10 rostopic pub /X1/cmd_vel geometry_msgs/Twist '{linear:  {x: 0.1, y: 0.0, z: 0.0}}'
+
 
 export DEPENDENCY_PKGS="${DEPENDENCY_PKGS} software-properties-common xauth x11-xserver-utils"
 
