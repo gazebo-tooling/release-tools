@@ -375,6 +375,7 @@ ignition_software.each { ign_sw ->
           }
 
           def dev_package = "libignition-${ign_sw}${major_version}-dev"
+          def gzdev_project = "ignition-${ign_sw}${major_version}"
 
           steps {
            shell("""\
@@ -383,7 +384,7 @@ ignition_software.each { ign_sw ->
                  export DISTRO=${distro}
                  export ARCH=${arch}
                  export INSTALL_JOB_PKG=${dev_package}
-                 export INSTALL_JOB_REPOS="stable ${extra_repos_str}"
+                 export GZDEV_PROJECT_NAME="${gzdev_project}"
                  /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
                  """.stripIndent())
           }

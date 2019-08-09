@@ -17,7 +17,7 @@ ignition_collections = [
           'fuel-tools': [ debbuild: 'ign-fuel-tools3', branch: 'ign-fuel-tools3' ],
           'gazebo'    : [ debbuild: 'ign-gazebo2'    , branch: 'ign-gazebo2'     ],
           'gui'       : [ debbuild: 'ign-gui2'       , branch: 'ign-gui2'        ],
-          'launch'    : [ debbuild: 'ign-launch'     , branch: 'ign-launch0'     ],
+          'launch'    : [ debbuild: 'ign-launch'     , branch: 'ign-launch1'     ],
           'math'      : [ debbuild: 'ign-math6'      , branch: 'ign-math6'       ],
           'msgs'      : [ debbuild: 'ign-msgs4'      , branch: 'ign-msgs4'       ],
           'physics'   : [ debbuild: 'ign-physics'    , branch: 'ign-physics1'    ],
@@ -40,7 +40,6 @@ ignition_collection_jobs =
         'ign_rendering-ign-1-win',
         'ign_sensors-ign-1-win',
         'ignition_acropolis-ci-default-homebrew-amd64',
-        'ignition_acropolis-install-pkg-bionic-amd64',
         'ignition_cmake-ci-ign-cmake2-bionic-amd64',
         'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-windows7-amd64',
@@ -194,9 +193,9 @@ ignition_collections.each { ign_collection ->
       label "gpu-reliable"
 
       def job_name = 'ign_launch-install-test-job.bash'
-      // acropolis does not support the testing launch job
+      // acropolis deb is broken because old libignition-launch-dev debs are not available
       if (ign_collection_name == 'acropolis')
-        job_name = 'generic-install-test-job.bash'
+        disabled()
 
       steps {
        shell("""\
@@ -205,7 +204,7 @@ ignition_collections.each { ign_collection ->
              export DISTRO=${distro}
              export ARCH=${arch}
              export INSTALL_JOB_PKG=${dev_package}
-             export INSTALL_JOB_REPOS="stable"
+             export GZDEV_PROJECT_NAME="${dev_package}"
              /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
              """.stripIndent())
       }

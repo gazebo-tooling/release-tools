@@ -20,7 +20,7 @@ export BUILDING_DEPENDENCIES="pkg-config"
 # Identify IGN_CMAKE_MAJOR_VERSION to help with dependency resolution
 IGN_CMAKE_MAJOR_VERSION=$(\
   python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
-  ${WORKSPACE}/ign-CMAKE/CMakeLists.txt)
+  ${WORKSPACE}/ign-cmake/CMakeLists.txt)
 
 # Check IGN_CMAKE version is integer
 if ! [[ ${IGN_CMAKE_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
