@@ -53,7 +53,7 @@ SUBT_COMPETITION_TEST="""
 ${SUBT_FUEL_DOWNLOADS}
 
 # inject external variable into test scripts
-if [[ -n "${TEST_TIMEOUT}" ]]; then
+if [ -n "$TEST_TIMEOUT" ]; then
   export TEST_TIMEOUT=${TEST_TIMEOUT}
 fi
 
