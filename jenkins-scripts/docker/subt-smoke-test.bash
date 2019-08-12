@@ -14,6 +14,8 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
+. ${SCRIPT_DIR}/lib/_subt_utils.sh
+
 export ROS_SETUP_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: smoke test'
 source ./install/setup.bash || true
