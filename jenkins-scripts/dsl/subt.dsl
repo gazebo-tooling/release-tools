@@ -148,7 +148,6 @@ ci_distro.each { distro ->
             """.stripIndent())
       }
     }
-
   }
 }
 
@@ -159,9 +158,11 @@ all_supported_distros.each { distro ->
     // 1. Install subt testing pkg testing
     def long_run_job = job("subt-ci_long-default-${distro}-${arch}")
     OSRFLinuxCompilation.create(long_run_job, DISABLE_TESTS, DISABLE_CPPCHECK)
-    // use 3600 secs as timeout to test 1 hour
-    common_params_compilation_job(long_run_job, distro, arch, 3600)
 
+    // GPU label and parselog
+    include_parselog(long_run_job)
+
+    // use 3600 secs as timeout to test 1 hour
     long_run_job.with
     {
       scm {
@@ -173,6 +174,19 @@ all_supported_distros.each { distro ->
 
       triggers {
         cron('@daily')
+      }
+
+      label "gpu-reliable"
+
+      steps {
+          shell("""#!/bin/bash -xe
+
+                export DISTRO=${distro}
+                export ARCH=${arch}
+                export TEST_TIMEOUT=3600
+
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/subt-smoke-test.bash
+                """.stripIndent())
       }
     } // end of with
   }
