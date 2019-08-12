@@ -36,4 +36,4 @@ echo '# END SECTION'
 
 DOCKER2_CMD="docker run --privileged -e DISPLAY=unix:0 -v /sys:/sys:ro -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/.X11-unix:/tmp/.X11-unix:rw --runtime=nvidia -e DOCKER_FIX= -v /dev/log:/dev/log:ro -v /run/log:/run/log:ro -v /sys/fs/cgroup:/sys/fs/cgroup:ro --device /dev/snd --tty --rm"
 
-DEPENDENCY_PKGS="${DEPENDENCY_PKGS} curl"
+DEPENDENCY_PKGS="${DEPENDENCY_PKGS} curl software-properties-common"

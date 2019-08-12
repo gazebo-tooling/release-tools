@@ -58,7 +58,7 @@ set -o errexit
 source ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash "subt"
 )
 
-DEPENDENCY_PKGS="${SUBT_DEPENDENCIES} psmisc"
+DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${SUBT_DEPENDENCIES} psmisc"
 # ROS packages come from the mirror in the own subt repository
 USE_ROS_REPO=true
 OSRF_REPOS_TO_USE="stable"
