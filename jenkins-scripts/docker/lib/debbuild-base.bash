@@ -202,7 +202,7 @@ fi
 
 # Hack to avoid problems with dwz symbols starting in Ubuntu Disco if tmp and debugtmp are the
 # same the build fails copying files because they are the same
-if [ $DISTRO != 'xenial' ] or [ $DISTRO != 'bionic']; then
+if [[ $DISTRO != 'xenial' or $DISTRO != 'bionic' ]]; then
   sed -i -e 's:dwz" and:dwz" and (\$tmp ne \$debugtmp) and:' /usr/bin/dh_strip
 fi
 
