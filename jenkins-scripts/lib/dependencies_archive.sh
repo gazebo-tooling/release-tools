@@ -640,7 +640,8 @@ else
                            libignition-sensors2-dev  \\
                            libignition-fuel-tools3-dev \\
                            libignition-transport7-dev \\
-                           libwebsockets-dev"
+                           libwebsockets-dev \\
+                           binutils-dev"
 fi
 
 IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
