@@ -12,8 +12,8 @@ if [ "${VERSION}" = "nightly" ]; then
    NIGHTLY_MODE=true
 fi
 
-if [ "${UPLOAD_TO_REPO}" = "prerelease" ]; then
-   OSRF_REPOS_TO_USE="${OSRF_REPOS_TO_USE:-stable prerelease}"
+if [ "${UPLOAD_TO_REPO}" == "prerelease" ]; then
+   OSRF_REPOS_TO_USE="${OSRF_REPOS_TO_USE} prerelease"
 fi
 
 # Do not use the subprocess_reaper in debbuild. Seems not as needed as in
