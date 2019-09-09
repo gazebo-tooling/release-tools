@@ -14,5 +14,6 @@ ${VRX_SMOKE_TEST}
 """
 
 export USE_ROS_REPO=true
+export OSRF_REPOS_TO_USE=stable
 
 . ${SCRIPT_DIR}/lib/generic-install-base.bash
