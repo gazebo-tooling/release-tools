@@ -20,6 +20,7 @@ DOWNLOAD_URI_PATTERN = 'https://osrf-distributions.s3.amazonaws.com/%s/releases/
 
 LINUX_DISTROS = [ 'ubuntu', 'debian' ]
 SUPPORTED_ARCHS = ['amd64', 'i386', 'armhf', 'arm64']
+RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 
 # Ubuntu distributions are automatically taken from the top directory of
 # the release repositories, when needed.
@@ -278,9 +279,24 @@ def sanity_checks(args, repo_dir):
 
     shutil.rmtree(repo_dir)
 
-def discover_ubuntu_distros(args, repo_dir):
-    subdirs =  os.walk(repo_dir).next()[1]
-    subdirs.remove('.hg')
+
+def get_exclusion_arches(files):
+    r = []
+    for f in files:
+        if f.startswith(RELEASEPY_NO_ARCH_PREFIX):
+            arch = f.replace(RELEASEPY_NO_ARCH_PREFIX, '').lower()
+            r.append(arch)
+
+    return r
+
+def discover_distros(repo_dir):
+    if not os.path.isdir(repo_dir):
+        return None
+
+    root, subdirs, files = os.walk(repo_dir).next()
+    repo_arch_exclusion = get_exclusion_arches(files)
+
+    if '.hg' in subdirs: subdirs.remove('.hg')
     # remove ubuntu (common stuff) and debian (new supported distro at top level)
     if 'ubuntu' in subdirs: subdirs.remove('ubuntu')
     if 'debian' in subdirs: subdirs.remove('debian')
@@ -290,23 +306,19 @@ def discover_ubuntu_distros(args, repo_dir):
     if not subdirs:
         error('Can not find distributions directories in the -release repo')
 
-    print('Releasing for distributions: ' + ', '.join(subdirs))
+    distro_arch_list = {}
+    for d in subdirs:
+        files = os.walk(repo_dir + '/' + d).next()[2]
+        distro_arch_exclusion = get_exclusion_arches(files)
+        excluded_arches = distro_arch_exclusion + repo_arch_exclusion
+        arches_supported = [x for x in SUPPORTED_ARCHS if x not in excluded_arches]
+        distro_arch_list[d] = arches_supported
 
-    return subdirs
+    print('Releasing for distributions: ')
+    for k in distro_arch_list:
+        print( "- " + k + " (" + ', '.join(distro_arch_list[k]) +")")
 
-def discover_debian_distros(args, repo_dir):
-    if not os.path.isdir(repo_dir + '/debian/'):
-      return None
-
-    subdirs =  os.walk(repo_dir+ '/debian/').next()[1]
-
-    if not subdirs:
-        error('Can not find debian distributions directories in the -release repo')
-
-    print('Releasing for distributions: ' + ', '.join(subdirs))
-
-    return subdirs
-
+    return distro_arch_list
 
 def check_call(cmd, ignore_dry_run = False):
     if ignore_dry_run:
@@ -464,8 +476,8 @@ def go(argv):
     if not UPSTREAM:
         repo_dir = download_release_repository(args.package, args.release_repo_branch)
         # The supported distros are the ones in the top level of -release repo
-        ubuntu_distros = discover_ubuntu_distros(args, repo_dir)
-        debian_distros = discover_debian_distros(args, repo_dir)
+        ubuntu_distros = discover_distros(repo_dir) # top level, ubuntu
+        debian_distros = discover_distros(repo_dir + '/debian/') # debian dir top level, Debian
         if not args.no_sanity_checks:
             sanity_checks(args, repo_dir)
 
@@ -519,18 +531,18 @@ def go(argv):
     # RELEASING FOR LINUX
     for l in LINUX_DISTROS:
         if (l == 'ubuntu'):
-            distros = ubuntu_distros
+            distros_dic = ubuntu_distros
         elif (l == 'debian'):
             if (PRERELEASE or NIGHTLY):
                 continue
             if not debian_distros:
                 continue
-            distros = debian_distros
+            distros_dic = debian_distros
         else:
             error("Distro not supported in code")
 
-        for d in distros:
-            for a in SUPPORTED_ARCHS:
+        for d in distros_dic:
+            for a in distros_dic[d]:
                 # Filter prerelease and nightly architectures
                 if (PRERELEASE or NIGHTLY):
                     if (a == 'armhf' or a == 'arm64'):
