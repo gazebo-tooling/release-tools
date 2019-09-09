@@ -13,4 +13,6 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 ${VRX_SMOKE_TEST}
 """
 
+export USE_ROS_REPO=true
+
 . ${SCRIPT_DIR}/lib/generic-install-base.bash
