@@ -88,8 +88,6 @@ ci_distro.each { distro, ros_distro ->
                 export DISTRO=${distro}
                 export ARCH=${arch}
                 export ROS_DISTRO=${ros_distro}
-                # Create two jobs: one using osrf stable, other for ros only
-                # OSRF_REPOS_TO_USE="stable"
                 /bin/bash -xe ./scripts/jenkins-scripts/docker/vrx-compilation.bash
                 """.stripIndent())
         }
