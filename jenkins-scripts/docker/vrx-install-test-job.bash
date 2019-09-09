@@ -14,6 +14,8 @@ ${VRX_SMOKE_TEST}
 """
 
 export USE_ROS_REPO=true
+# OSRF repo is only used to workaround on issue 
+# https://bitbucket.org/osrf/gazebo/issues/2607/error-restcc-205-during-startup-gazebo
 export OSRF_REPOS_TO_USE=stable
 
 . ${SCRIPT_DIR}/lib/generic-install-base.bash
