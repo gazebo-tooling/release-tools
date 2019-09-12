@@ -50,11 +50,6 @@ class Globals
       return default_emails
    }
 
-   static String get_performance_box()
-   {
-      return 'maria.intel.trusty'
-   }
-
    // -- Officially support distributions for ign, sdformat and gazebo --
    // Main CI platform
    static ArrayList get_ci_distro()
