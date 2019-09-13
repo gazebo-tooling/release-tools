@@ -20,7 +20,7 @@ echo '# END SECTION'
 GAZEBO_MODEL_INSTALLATION="""
 wget -q https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz -O /tmp/default.tar.gz
 mkdir -p ~/.gazebo/models
-tar -xf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
+tar -xf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1 >/dev/null 2>&1
 rm /tmp/default.tar.gz"""
 
 IGN_GAZEBO_RUNTIME_TEST="""
