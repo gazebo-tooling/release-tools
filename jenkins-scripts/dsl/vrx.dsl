@@ -111,6 +111,12 @@ ci_distro.each { distro, ros_distro ->
         cron('@daily')
       }
 
+      // problems with compilation on kinetic due to the use of new features in
+      // ignition libraries (EnableVisualizations) not present in versions from
+      // Ubuntu (ask jrivero or caguero)
+      if (ros_distro == 'kinetic')
+        disabled()
+
       label "gpu-reliable"
 
       steps {
