@@ -21,8 +21,6 @@ alwaysFailsBecause["ign_gazebo-ign-2-win"] = \
   "Pending fixes to build script under the scope of [PR 789 in release-tools](https://bitbucket.org/osrf/release-tools/pull-requests/789/add-ign-gazebo-colcon-script-for-windows/diff)"
 alwaysFailsBecause["ign_gazebo-ci-win"] = \
   "Pending fixes to build script under the scope of [PR 789 in release-tools](https://bitbucket.org/osrf/release-tools/pull-requests/789/add-ign-gazebo-colcon-script-for-windows/diff)"
-alwaysFailsBecause["gazebo-performance-default-xenial-amd64"] = \
-  "Performance problems documented in [gazebo issue 2320](https://bitbucket.org/osrf/gazebo/issues/2320/performance_transport_stress-test-times)"
 
 header = "\n### Builds with no record of passing\n"
 header_printed = False
