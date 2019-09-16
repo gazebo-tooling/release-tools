@@ -29,6 +29,12 @@ fi
 
 [[ -z ${USE_GCC8} ]] && USE_GCC8=false
 
+export APT_PARAMS=
+# workaround for changing our packages testing server
+if [[ ${DISTRO} != 'xenial' && ${DISTRO} != 'trusty' && ${DISTRO} != 'stretch' ]]; then
+  export APT_PARAMS="--allow-releaseinfo-change"
+fi
+
 GZDEV_DIR=${WORKSPACE}/gzdev
 GZDEV_BRANCH=${GZDEV_BRANCH:-master}
 
@@ -168,7 +174,7 @@ cat >> Dockerfile << DELIM_DOCKER_PAM_BUG
 RUN echo "Workaround on i386 to bug in libpam. Needs first apt-get update"
 RUN dpkg-divert --rename --add /usr/sbin/invoke-rc.d \\
         && ln -s /bin/true /usr/sbin/invoke-rc.d \\
-	&& apt-get --allow-releaseinfo-change update \\
+	&& apt-get ${APT_PARAMS} update \\
         && apt-get install -y libpam-systemd \\
 	&& rm /usr/sbin/invoke-rc.d \\
         && dpkg-divert --rename --remove /usr/sbin/invoke-rc.d
@@ -182,7 +188,7 @@ if [[ $DISTRO != 'xenial' ]]; then
     extra_python_mod="python3-distro"
 fi
 cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
-RUN apt-get --allow-releaseinfo-change update && \\
+RUN apt-get ${APT_PARAMS} update && \\
     apt-get install -y dirmngr git python3 python3-docopt python3-yaml ${extra_python_mod}
 DELIM_DOCKER_DIRMNGR
 
@@ -193,7 +199,7 @@ if ${USE_ROS_REPO}; then
   if ${ROS2}; then
 cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
-RUN apt-get --allow-releaseinfo-change update \\
+RUN apt-get ${APT_PARAMS} update \\
     && apt-get install -y curl \\
     && rm -rf /var/lib/apt/lists/*
 RUN echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/main ${DISTRO} main" > \\
@@ -275,7 +281,7 @@ cat >> Dockerfile << DELIM_DOCKER3
 # The rm after the fail of apt-get update is a workaround to deal with the error:
 # Could not open file *_Packages.diff_Index - open (2: No such file or directory)
 RUN echo "${MONTH_YEAR_STR}" \
- && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get --allow-releaseinfo-change update)) \
+ && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get ${APT_PARAMS} update)) \
  && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
