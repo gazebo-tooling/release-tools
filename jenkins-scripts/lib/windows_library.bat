@@ -115,7 +115,8 @@ goto :EOF
 :: Download the unzip utility from osrfoundation.org
 :download_7za
 ::
-if not exist 7za.exe (call :wget http://gazebosim.org/distributions/win32/deps/7za.exe 7za.exe || goto :error)
+if not exist 7z.dll (call :wget http://osrf-distributions.s3.us-east-1.amazonaws.com/win32/deps/7z.dll 7z.dll || goto :error)
+if not exist 7z.exe (call :wget http://osrf-distributions.s3.us-east-1.amazonaws.com/win32/deps/7z.exe 7z.exe || goto :error)
 goto :EOF
 
 :: ##################################
@@ -125,7 +126,7 @@ goto :EOF
 :: arg1 - File to unzip
 echo Uncompressing %~1
 IF NOT exist %~1 ( echo "Zip file does not exist: %~1" && goto :error )
-7za.exe x %~1 -aoa || goto :error
+7z.exe x %~1 -aoa || goto :error
 goto :EOF
 
 :: ##################################
@@ -135,7 +136,7 @@ goto :EOF
 echo Uncompressing %~1 to %~d0\install
 IF NOT exist %~1 ( echo "Zip file does not exist: %~1" && goto :error )
 call :download_7za || goto :error
-7za.exe x %~1 -aoa -o%WORKSPACE_INSTALL_DIR% || goto :error
+7z.exe x %~1 -aoa -o%WORKSPACE_INSTALL_DIR% || goto :error
 goto :EOF
 
 :: ##################################
