@@ -98,7 +98,7 @@ REPORTS_DIR=$WORKSPACE/reports/
 rm -fr \${REPORTS_DIR} && mkdir -p \${REPORTS_DIR}
 rm -fr compat_reports/
 # run report tool
-${WORKSPACE}/auto-abi-checker./auto-abi.py \
+${WORKSPACE}/auto-abi-checker/auto-abi.py \
    --orig-type osrf-pkg --orig ${OSRF_PKG_NAME} \
    --new-type local-dir --new /usr/local/destination_branch
 
