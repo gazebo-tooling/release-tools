@@ -122,7 +122,8 @@ DEPENDENCY_PKGS="${ABI_JOB_PKG_DEPENDENCIES} \
                   exuberant-ctags \
                   mercurial \
                   ca-certificates \
-                  abi-compliance-checker"
+                  abi-compliance-checker |
+                  python3-rosdistro"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
