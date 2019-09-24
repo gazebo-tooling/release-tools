@@ -88,6 +88,12 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: install the ABI checker'
 # Install abi-compliance-checker.git
 cd $WORKSPACE
+rm -fr $WORKSPACE/abi-compliance-checker
+git clone git://github.com/lvc/abi-compliance-checker.git
+cd abi-compliance-checker
+perl Makefile.pl -install --prefix=/usr
+# Install abi-compliance-checker.git
+cd $WORKSPACE
 rm -fr $WORKSPACE/auto-abi-checker
 git clone https://github.com/osrf/auto-abi-checker
 echo '# END SECTION'
@@ -123,7 +129,6 @@ DEPENDENCY_PKGS="${ABI_JOB_PKG_DEPENDENCIES} \
                   exuberant-ctags \
                   mercurial \
                   ca-certificates \
-                  abi-compliance-checker \
                   python3-rosdistro"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
