@@ -13,8 +13,10 @@
 #                         of path headers to ignore
 
 # Jenkins variables:
-# DEST_BRANCH
 # SRC_BRANCH
+# DEST_BRANCH (really used to get the package names)
+
+OSRF_PKG_NAME=${DEST_BRANCH/ign-/ignition-}
 
 set -e
 
@@ -64,12 +66,12 @@ ${ABI_JOB_PREABI_HOOK}
 echo '# END SECTION'
 fi
 
-echo '# BEGIN SECTION: compile and install branch: ${DEST_BRANCH}'
+echo '# BEGIN SECTION: compile and install branch: ${SRC_BRANCH}'
 cp -a $WORKSPACE/${ABI_JOB_SOFTWARE_NAME} /tmp/${ABI_JOB_SOFTWARE_NAME}
 chown -R root:root /tmp/${ABI_JOB_SOFTWARE_NAME}
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
 hg pull
-hg up ${DEST_BRANCH}
+hg up ${SRC_BRANCH}
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
@@ -83,95 +85,11 @@ make install
 DEST_DIR=\$(find /usr/local/destination_branch/include -name ${ABI_JOB_SOFTWARE_NAME}-* -type d | sed -e 's:.*/::')
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: compile and install branch: ${SRC_BRANCH}'
-# 2.2 Target branch
-# Reusing the same building and source directory to save bandwith and
-# compilation time.
-cd /tmp/${ABI_JOB_SOFTWARE_NAME}
-hg pull ${SRC_REPO} -b ${SRC_BRANCH}
-hg up ${SRC_BRANCH}
-# Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
-cd $WORKSPACE/build
-cmake ${ABI_JOB_CMAKE_PARAMS} \\
-  -DBUILD_TESTING=OFF \\
-  -DCMAKE_INSTALL_PREFIX=/usr/local/source_branch \\
-  /tmp/${ABI_JOB_SOFTWARE_NAME}
-make -j${MAKE_JOBS}
-make install
-SRC_DIR=\$(find /usr/local/source_branch/include -name ${ABI_JOB_SOFTWARE_NAME}-* -type d | sed -e 's:.*/::')
-echo '# END SECTION'
-
 echo '# BEGIN SECTION: install the ABI checker'
 # Install abi-compliance-checker.git
 cd $WORKSPACE
-rm -fr $WORKSPACE/abi-compliance-checker
-git clone git://github.com/lvc/abi-compliance-checker.git
-cd abi-compliance-checker
-perl Makefile.pl -install --prefix=/usr
-
-mkdir -p $WORKSPACE/abi_checker
-cd $WORKSPACE/abi_checker
-cat > pkg.xml << CURRENT_DELIM
- <version>
-     branch: $DEST_BRANCH
- </version>
-
- <headers>
-   /usr/local/destination_branch/include/\$DEST_DIR
- </headers>
-
- <skip_headers>
-CURRENT_DELIM
-
-for header in $ABI_JOB_IGNORE_HEADERS; do
-  echo "  /usr/local/destination_branch/include/\$DEST_DIR/\$header" >> pkg.xml
-done
-
-cat >> pkg.xml << CURRENT_DELIM_LIBS
- </skip_headers>
- <libs>
-   /usr/local/destination_branch/lib/
- </libs>
-
- <gcc_options>
-     -std=${ABI_CXX_STANDARD}
- </gcc_options>
-CURRENT_DELIM_LIBS
-
-cat > devel.xml << DEVEL_DELIM
- <version>
-     branch: $SRC_BRANCH
- </version>
-
- <headers>
-   /usr/local/source_branch/include/\$SRC_DIR
- </headers>
-
- <skip_headers>
-DEVEL_DELIM
-
-for header in $ABI_JOB_IGNORE_HEADERS; do
-  echo "  /usr/local/source_branch/include/\$SRC_DIR/\$header" >> devel.xml
-done
-
-cat >> devel.xml << DEVEL_DELIM_LIBS
- </skip_headers>
-
- <libs>
-   /usr/local/source_branch/lib/
- </libs>
-
- <gcc_options>
-     -std=${ABI_CXX_STANDARD}
- </gcc_options>
-DEVEL_DELIM_LIBS
-echo '# END SECTION'
-
-echo '# BEGIN SECTION: display the xml configuration'
-cat devel.xml
-echo
-echo
-cat pkg.xml
+rm -fr $WORKSPACE/auto-abi-checker
+git clone https://github.com/osrf/auto-abi-checker
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run the ABI checker'
@@ -180,13 +98,12 @@ REPORTS_DIR=$WORKSPACE/reports/
 rm -fr \${REPORTS_DIR} && mkdir -p \${REPORTS_DIR}
 rm -fr compat_reports/
 # run report tool
-abi-compliance-checker -lang C++ -lib ${ABI_JOB_SOFTWARE_NAME} -old pkg.xml -new devel.xml || true
+${WORKSPACE}/auto-abi-checker./auto-abi.py \
+   --orig-type osrf-pkg --orig ${OSRF_PKG_NAME} \
+   --new-type local-dir --new /usr/local/destination_branch
 
-# if report was not generated, run again with -quick
-if ! ls "compat_reports/${ABI_JOB_SOFTWARE_NAME}"
-then
-  abi-compliance-checker -lang C++ -lib ${ABI_JOB_SOFTWARE_NAME} -old pkg.xml -new devel.xml -quick || true
-fi
+# TODO: implement a best method to locate results
+find /tmp/ . -name compat_reports
 
 # copy method version independant ( cp ... /*/ ... was not working)
 find compat_reports/ -name compat_report.html -exec cp {} \${REPORTS_DIR} \;
@@ -204,7 +121,8 @@ DEPENDENCY_PKGS="${ABI_JOB_PKG_DEPENDENCIES} \
                   git \
                   exuberant-ctags \
                   mercurial \
-                  ca-certificates"
+                  ca-certificates
+                  abi-compliance-checker"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
