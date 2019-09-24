@@ -117,6 +117,7 @@ fi
 DELIM
 
 OSRF_REPOS_TO_USE=${ABI_JOB_REPOS}
+USE_ROS=true
 DEPENDENCY_PKGS="${ABI_JOB_PKG_DEPENDENCIES} \
                   git \
                   exuberant-ctags \
