@@ -121,7 +121,7 @@ DEPENDENCY_PKGS="${ABI_JOB_PKG_DEPENDENCIES} \
                   git \
                   exuberant-ctags \
                   mercurial \
-                  ca-certificates
+                  ca-certificates \
                   abi-compliance-checker"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
