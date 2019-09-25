@@ -112,7 +112,7 @@ ${WORKSPACE}/auto-abi-checker/auto-abi.py \
 find /tmp/ . -name compat_reports
 
 # copy method version independant ( cp ... /*/ ... was not working)
-find tmp/ -name compat_report.html -exec cp {} \${REPORTS_DIR} \;
+find /tmp/ -name compat_report.html -exec cp {} \${REPORTS_DIR} \;
 echo '# END SECTION'
 
 if [ `expr length "${ABI_JOB_POSTCHECKER_HOOK} "` -gt 1 ]; then
