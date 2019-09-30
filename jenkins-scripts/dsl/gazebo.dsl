@@ -84,7 +84,7 @@ void generate_install_job(Job job, gz_branch, distro, arch, use_osrf_repos = fal
 // Need to be the before ci-pr_any so the abi job name is defined
 abi_distro.each { distro ->
   supported_arches.each { arch ->
-    abi_job_name = "gazebo-abichecker-any_to_any-${distro}-${arch}"
+    abi_job_name = "gazebo-abichecker-any_to_any-ubuntu_auto-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABI.create(abi_job, "https://bitbucket.org/osrf/gazebo")
     abi_job.with
@@ -94,8 +94,20 @@ abi_distro.each { distro ->
       steps {
         shell("""\
               #!/bin/bash -xe
+              wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
+              source yaml.sh
+
+              if [[ -f \${WORKSPACE}/gazebo/bitbucket-pipelines.yml ]]; then
+                create_variables \${WORKSPACE}/gazebo/bitbucket-pipelines.yml
+              fi
 
               export DISTRO=${distro}
+
+              if [[ -n \${image} ]]; then
+                echo "Bitbucket pipeline.yml detected. Default DISTRO is ${distro}"
+                export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
+              fi
+
               export ARCH=${arch}
               /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-abichecker.bash
 	      """.stripIndent())
@@ -167,7 +179,7 @@ ci_distro.each { distro ->
            export DISTRO=${distro}
 
            if [[ -n \${image} ]]; then
-             echo "Bitbucket pipeline.yml detected. Default DISTRO is ${ci_distro}"
+             echo "Bitbucket pipeline.yml detected. Default DISTRO is ${distro}"
              export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
            fi
 
