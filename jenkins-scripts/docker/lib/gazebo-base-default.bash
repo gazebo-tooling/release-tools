@@ -12,6 +12,7 @@
 #stop on error
 set -e
 
+echo gazebo-base-default USE_GCC8: ${USE_GCC8}
 GAZEBO_OSRF_DEPS="SDFORMAT IGN_MATH IGN_TRANSPORT IGN_GUI IGN_COMMON"
 
 . ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
@@ -277,5 +278,6 @@ if [[ $USE_GPU_DOCKER ]]; then
   DEPENDENCY_PKGS="${DEPENDENCY_PKGS} x11-utils"
 fi
 
+echo gazebo-base-default USE_GCC8: ${USE_GCC8}
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash

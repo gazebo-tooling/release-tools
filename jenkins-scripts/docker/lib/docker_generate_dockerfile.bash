@@ -17,6 +17,7 @@
 
 #   - USE_OSRF_REPO     : deprecated! [default false] true|false if true, add the stable osrf repo to sources.list
 
+echo docker_generate_dockerfile USE_GCC8: ${USE_GCC8}
 if [[ -z ${ARCH} ]]; then
   echo "Arch undefined, default to amd64"
   export ARCH="amd64"
@@ -27,7 +28,9 @@ if [[ -z ${LINUX_DISTRO} ]]; then
   export LINUX_DISTRO="ubuntu"
 fi
 
+echo docker_generate_dockerfile USE_GCC8: ${USE_GCC8}
 [[ -z ${USE_GCC8} ]] && USE_GCC8=false
+echo docker_generate_dockerfile USE_GCC8: ${USE_GCC8}
 
 export APT_PARAMS=
 # workaround for changing our packages testing server
@@ -309,6 +312,7 @@ DELIM_DOCKER31
 
 # Beware of moving this code since it needs to run update-alternative after
 # installing the default compiler in PACKAGES_CACHE_AND_CHECK_UPDATES
+echo docker_generate_dockerfile USE_GCC8: ${USE_GCC8}
 if ${USE_GCC8}; then
 cat >> Dockerfile << DELIM_GCC8
    RUN apt-get update \\
@@ -317,6 +321,7 @@ cat >> Dockerfile << DELIM_GCC8
    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
 DELIM_GCC8
 fi
+echo docker_generate_dockerfile USE_GCC8: ${USE_GCC8}
 
 if ${USE_SQUID}; then
   cat >> Dockerfile << DELIM_DOCKER_SQUID
