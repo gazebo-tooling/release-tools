@@ -113,15 +113,9 @@ ci_gpu_include_gpu_none = ci_gpu + [ 'none' ]
 ci_distro.each { distro ->
   ci_gpu_include_gpu_none.each { gpu ->
     supported_arches.each { arch ->
-      // Temporary workaround to use Xenial as distro for gpu-none
-      if (gpu == 'none')
-      {
-        distro = "xenial"
-      }
-
       // --------------------------------------------------------------
       // 1. Create the any job
-      def gazebo_ci_any_job_name = "gazebo-ci-pr_any-${distro}-${arch}-gpu-${gpu}"
+      def gazebo_ci_any_job_name = "gazebo-ci-pr_any-ubuntu_auto-${arch}-gpu-${gpu}"
       def gazebo_ci_any_job      = job(gazebo_ci_any_job_name)
       OSRFLinuxCompilationAny.create(gazebo_ci_any_job,
                                     "https://bitbucket.org/osrf/gazebo")
@@ -129,7 +123,7 @@ ci_distro.each { distro ->
       {
         if (gpu != 'none')
         {
-          label "gpu-${gpu}-${distro}"
+          label "gpu-reliable"
         }
 
         steps
@@ -163,8 +157,20 @@ ci_distro.each { distro ->
 
            shell("""\
            #!/bin/bash -xe
+           wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
+           source yaml.sh
+
+           if [[ -f \${WORKSPACE}/gazebo/bitbucket-pipelines.yml ]]; then
+             create_variables \${WORKSPACE}/gazebo/bitbucket-pipelines.yml
+           fi
 
            export DISTRO=${distro}
+
+           if [[ -n \${image} ]]; then
+             echo "Bitbucket pipeline.yml detected. Default DISTRO is ${ci_distro}"
+             export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
+           fi
+
            export ARCH=${arch}
            export GPU_SUPPORT_NEEDED=${gpu_needed}
            /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
