@@ -18,6 +18,12 @@ export DART_FROM_PKGS=true
 
 OSRF_REPOS_TO_USE="stable"
 
+. ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
+
+if [[ $GAZEBO_MAJOR_VERSION -ge 11 ]]; then
+  USE_GCC8=true
+fi
+
 # Can not use generic compilation since we host the DART instalation and some
 # other logic based of every gazebo version
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash
