@@ -11,6 +11,7 @@ def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9',
                                          'xenial' : 'gazebo7']
 
 // Main platform using for quick CI
+def ci_distro_default       = [ 'bionic' ]
 def ci_distro               = Globals.get_ci_distro()
 def ci_gpu                  = Globals.get_ci_gpu()
 def abi_distro              = Globals.get_abi_distro()
@@ -24,6 +25,7 @@ def all_supported_gpus      = Globals.get_all_supported_gpus()
 
 def DISABLE_TESTS = false
 
+String ci_distro_default_str = ci_distro_default[0]
 String ci_distro_str = ci_distro[0]
 String ci_gpu_str = ci_gpu[0]
 String ci_build_any_job_name_linux = "gazebo-ci-pr_any-${ci_distro_str}-amd64-gpu-${ci_gpu_str}"
@@ -192,8 +194,8 @@ ci_distro.each { distro ->
 
       // --------------------------------------------------------------
       // 2. Create the default ci jobs
-      def gazebo_ci_job = job("gazebo-ci-default-${distro}-${arch}-gpu-${gpu}")
-      if (is_watched_by_buildcop('default', distro, gpu))
+      def gazebo_ci_job = job("gazebo-ci-default-${ci_distro_default_str}-${arch}-gpu-${gpu}")
+      if (is_watched_by_buildcop('default', ci_distro_default_str, gpu))
       {
         Globals.extra_emails = Globals.build_cop_email
       }
@@ -204,7 +206,7 @@ ci_distro.each { distro ->
       {
         if (gpu != 'none')
         {
-          label "gpu-${gpu}-${distro}"
+          label "gpu-reliable"
         }
 
         triggers {
@@ -220,7 +222,7 @@ ci_distro.each { distro ->
           shell("""\
                 #!/bin/bash -xe
 
-                export DISTRO=${distro}
+                export DISTRO=${ci_distro_default_str}
                 export ARCH=${arch}
                 export GPU_SUPPORT_NEEDED=${gpu_needed}
                 /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
@@ -359,7 +361,7 @@ gazebo_supported_branches.each { branch ->
 } // end of branch
 
 // EXPERIMENTAL ARCHES @ SCM/WEEKLY
-ci_distro.each { distro ->
+ci_distro_default.each { distro ->
   experimental_arches.each { arch ->
     def gazebo_ci_job = job("gazebo-ci-default-${distro}-${arch}-gpu-none")
     OSRFLinuxCompilation.create(gazebo_ci_job)
@@ -386,7 +388,7 @@ ci_distro.each { distro ->
 }
 
 // COVERAGE TYPE @ SCM/DAILY
-ci_distro.each { distro ->
+ci_distro_default.each { distro ->
   supported_arches.each { arch ->
     ci_gpu.each { gpu ->
       def gazebo_ci_job = job("gazebo-ci-coverage-${distro}-${arch}-gpu-${gpu}")
@@ -426,7 +428,7 @@ ci_distro.each { distro ->
 }
 
 // BUILD TYPES CI JOBS @ SCM/DAILY
-ci_distro.each { distro ->
+ci_distro_default.each { distro ->
   supported_arches.each { arch ->
     gazebo_supported_build_types.each { build_type ->
       def gazebo_ci_job = job("gazebo-ci_BT${build_type}-default-${distro}-${arch}-gpu-none")
