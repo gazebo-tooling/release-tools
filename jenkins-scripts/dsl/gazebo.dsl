@@ -28,7 +28,7 @@ def DISABLE_TESTS = false
 String ci_distro_default_str = ci_distro_default[0]
 String ci_distro_str = ci_distro[0]
 String ci_gpu_str = ci_gpu[0]
-String ci_build_any_job_name_linux = "gazebo-ci-pr_any-${ci_distro_str}-amd64-gpu-${ci_gpu_str}"
+String ci_build_any_job_name_linux = "gazebo-ci-pr_any-ubuntu_auto-amd64-gpu-${ci_gpu_str}"
 
 // Need to be used in ci_pr
 String abi_job_name = ''
@@ -256,7 +256,7 @@ other_supported_distros.each { distro ->
 
         if (gpu != 'none')
         {
-          label "gpu-${gpu}-${distro}"
+          label "gpu-reliable"
         }
 
         triggers {
