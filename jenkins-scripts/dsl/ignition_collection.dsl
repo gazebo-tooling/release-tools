@@ -7,9 +7,6 @@ arch = 'amd64'
 ignition_nightly = 'blueprint'
 
 ignition_collections = [
-  [ name : 'acropolis',
-    distros : [ 'bionic' ],
-  ],
   [ name : 'blueprint',
     nightly_jobs: [
           'cmake'     : [ debbuild: 'ign-cmake2'     , branch: 'ign-cmake2'      ],
@@ -33,66 +30,6 @@ ignition_collections = [
 
 ignition_collection_jobs =
 [
-  'acropolis' : [
-        'ign_gazebo-ign-1-win',
-        'ign_gui-ign-1-win',
-        'ign_physics-ign-1-win',
-        'ign_rendering-ign-1-win',
-        'ign_sensors-ign-1-win',
-        'ignition_acropolis-ci-default-homebrew-amd64',
-        'ignition_cmake-ci-ign-cmake2-bionic-amd64',
-        'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
-        'ignition_cmake-ci-ign-cmake2-windows7-amd64',
-        'ignition_common-ci-ign-common3-bionic-amd64',
-        'ignition_common-ci-ign-common3-homebrew-amd64',
-        'ignition_common-ci-ign-common3-windows7-amd64',
-        'ignition_common3-install-pkg-bionic-amd64',
-        'ignition_fuel-tools-ci-ign-fuel-tools3-bionic-amd64',
-        'ignition_fuel-tools-ci-ign-fuel-tools3-homebrew-amd64',
-        'ignition_fuel-tools-ci-ign-fuel-tools3-windows7-amd64',
-        'ignition_fuel-tools3-install-pkg-bionic-amd64',
-        'ignition_gazebo-ci-ign-gazebo1-bionic-amd64',
-        'ignition_gazebo-ci-ign-gazebo1-homebrew-amd64',
-        'ignition_gui-ci-ign-gui1-bionic-amd64',
-        'ignition_gui-ci-ign-gui1-homebrew-amd64',
-        'ignition_gui-install-pkg-bionic-amd64',
-        'ignition_launch-ci-ign-launch1-bionic-amd64',
-        'ignition_launch-ci-ign-launch1-homebrew-amd64',
-        'ignition_math-ci-ign-math6-bionic-amd64',
-        'ignition_math-ci-ign-math6-homebrew-amd64',
-        'ignition_math-ci-ign-math6-windows7-amd64',
-        'ignition_math6-install-pkg-bionic-amd64',
-        'ignition_msgs-ci-ign-msgs3-bionic-amd64',
-        'ignition_msgs-ci-ign-msgs3-homebrew-amd64',
-        'ignition_msgs-ci-ign-msgs3-windows7-amd64',
-        'ignition_msgs3-install-pkg-bionic-amd64',
-        'ignition_physics-ci-ign-physics1-bionic-amd64',
-        'ignition_physics-ci-ign-physics1-homebrew-amd64',
-        'ignition_physics-install-pkg-bionic-amd64',
-        'ignition_plugin-ci-ign-plugin1-bionic-amd64',
-        'ignition_plugin-ci-ign-plugin1-homebrew-amd64',
-        'ignition_plugin-ci-ign-plugin1-windows7-amd64',
-        'ignition_plugin-install-pkg-bionic-amd64',
-        'ignition_rendering-ci-ign-rendering1-bionic-amd64',
-        'ignition_rendering-ci-ign-rendering1-homebrew-amd64',
-        'ignition_rendering-install-pkg-bionic-amd64',
-        'ignition_sensors-ci-ign-sensors1-bionic-amd64',
-        'ignition_sensors-ci-ign-sensors1-homebrew-amd64',
-        'ignition_sensors-install-pkg-bionic-amd64',
-        'ignition_tools-ci-ign-tools0-bionic-amd64',
-        'ignition_tools-ci-ign-tools0-homebrew-amd64',
-        'ignition_tools-ci-ign-tools0-windows7-amd64',
-        'ignition_tools-install-pkg-bionic-amd64',
-        'ignition_transport-ci-ign-transport6-bionic-amd64',
-        'ignition_transport-ci-ign-transport6-homebrew-amd64',
-        'ignition_transport-ci-ign-transport6-windows7-amd64',
-        'ignition_transport6-install-pkg-bionic-amd64',
-        'sdformat-ci-sdformat8-bionic-amd64',
-        'sdformat-ci-sdformat8-homebrew-amd64',
-        'sdformat-ci-sdformat8-windows7-amd64',
-        'sdformat-install-sdformat8_pkg-bionic-amd64'
-  ],
-
   'blueprint' : [
         'ign_gazebo-ign-2-win',
         'ign_gui-ign-2-win',
@@ -193,9 +130,6 @@ ignition_collections.each { ign_collection ->
       label "gpu-reliable"
 
       def job_name = 'ign_launch-install-test-job.bash'
-      // acropolis deb is broken because old libignition-launch-dev debs are not available
-      if (ign_collection_name == 'acropolis')
-        disabled()
 
       steps {
        shell("""\
