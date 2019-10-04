@@ -31,16 +31,16 @@ ignition_no_test            = [ 'tools' ]
 ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'common'     : [ '1', '2', '3' ],
                                 'fuel-tools' : [ '1', '2', '3' ],
-                                'gazebo'     : [ '1', '2' ],
-                                'gui'        : [ '0', '1','2' ],
+                                'gazebo'     : [ '2' ],
+                                'gui'        : [ '0', '2' ],
                                 'launch'     : [ '1' ],
                                 'math'       : [ '2', '4', '5', '6' ],
-                                'msgs'       : [ '1', '2', '3', '4' ],
+                                'msgs'       : [ '1', '2', '4' ],
                                 'physics'    : [ '1' ],
                                 'plugin'     : [ '0', '1' ],
-                                'rendering'  : [ '0', '1', '2' ],
-                                'sensors'    : [ '1', '2' ],
-                                'transport'  : [ '4', '5', '6', '7' ],
+                                'rendering'  : [ '0', '2' ],
+                                'sensors'    : [ '2' ],
+                                'transport'  : [ '4', '5', '7' ],
                                 'tools'      : [ '0' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
