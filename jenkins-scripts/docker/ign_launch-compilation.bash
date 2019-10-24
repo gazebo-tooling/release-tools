@@ -45,6 +45,8 @@ if [[ ${IGN_LAUNCH_MAJOR_VERSION} -eq 2 ]]; then
   export IGN_GAZEBO_BRANCH=default
 fi
 
+export USE_GCC8=1
+
 export GZDEV_PROJECT_NAME="ignition-launch${IGN_LAUNCH_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
