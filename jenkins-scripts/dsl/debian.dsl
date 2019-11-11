@@ -8,6 +8,7 @@ packages['science-team'] = ['console-bridge',
                             'gazebo',
                             'fcl',
                             'ignition-cmake',
+                            'ignition-cmake2',
                             'ignition-common',
                             'ignition-math2',
                             'ignition-math4',
@@ -167,7 +168,3 @@ ratt_pkg_job.with
           """.stripIndent())
   }
 }
-
-
-
-
