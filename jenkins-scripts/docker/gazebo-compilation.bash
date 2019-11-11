@@ -21,7 +21,6 @@ OSRF_REPOS_TO_USE="stable"
 . ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
 
 if [[ $GAZEBO_MAJOR_VERSION -ge 11 ]]; then
-  OSRF_REPOS_TO_USE="stable prerelease"
   USE_GCC8=true
 fi
 
