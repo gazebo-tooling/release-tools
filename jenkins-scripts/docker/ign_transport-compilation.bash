@@ -32,6 +32,12 @@ if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 6 ]]; then
   export USE_GCC8=true
 fi
 
+if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 8 ]]; then
+  export BUILD_IGN_MSGS=true
+  export IGN_MSGS_MAJOR_VERSION=5
+  export IGN_MSGS_BRANCH=default
+fi
+
 export GZDEV_PROJECT_NAME="ignition-transport${IGN_TRANSPORT_MAJOR_VERSION}"
 
 . "${SCRIPT_DIR}/lib/generic-building-base.bash"
