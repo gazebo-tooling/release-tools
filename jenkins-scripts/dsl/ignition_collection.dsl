@@ -99,7 +99,7 @@ ignition_collection_jobs =
   'citadel' : [
         'ign_gazebo-ci-win',
         'ign_gui-ci-win',
-        'ign_physics-ign-1-win',
+        'ign_physics-ci-win',
         'ign_rendering-ci-win',
         'ign_sensors-ci-win',
         'ignition_citadel-ci-default-homebrew-amd64',
