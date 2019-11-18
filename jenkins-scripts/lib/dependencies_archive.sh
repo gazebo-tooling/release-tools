@@ -106,6 +106,8 @@ fi
 
 if ${USE_OLD_SDFORMAT}; then
     sdformat_pkg="sdformat"
+elif [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
+    sdformat_pkg="libsdformat8-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
     sdformat_pkg="libsdformat6-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
@@ -207,7 +209,14 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
                                            libignition-msgs0-dev"
   fi
 
-  if [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
+  if [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
+      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                           libignition-common3-dev \\
+                                           libignition-fuel-tools3-dev \\
+                                           libignition-transport7-dev \\
+                                           libignition-math6-dev \\
+                                           libignition-msgs4-dev"
+  elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
       GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                                            libignition-common-dev \\
                                            libignition-fuel-tools-dev \\
