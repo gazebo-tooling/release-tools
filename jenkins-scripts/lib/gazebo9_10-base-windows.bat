@@ -27,18 +27,16 @@ mkdir %WORKSPACE_INSTALL_DIR%
 
 echo # BEGIN SECTION: downloading gazebo dependencies and unip
 call %win_lib% :download_7za
-call %win_lib% :download_unzip_install boost_1_67_0.zip
-call %win_lib% :download_unzip_install bzip2-1.0.6-vc12-x64-release-debug.zip
-call %win_lib% :download_unzip_install curl-7.57.0-vc15-x64-dll-MD.zip
 call %win_lib% :download_unzip_install dlfcn-win32-vc15-x64-dll-MD.zip
-call %win_lib% :download_unzip_install FreeImage3180Win32Win64.zip
-call %win_lib% :download_unzip_install freetype-2.4.0-vc12-x64-release-debug.zip
-call %win_lib% :download_unzip_install jsoncpp-1.8.4-vc15-x64-dll-MD.zip
-call %win_lib% :download_unzip_install libyaml-0.1.7-vc15-x64-md.zip
-call %win_lib% :download_unzip_install libzip-1.4.0_zlip-1.2.11_vc15-x64-dll-MD.zip
+call %win_lib% :download_unzip_install curl-7.57.0-vc15-x64-dll-MD.zip
 call %win_lib% :download_unzip_install protobuf-3.4.1-vc15-x64-dll-MD.zip
+call %win_lib% :download_unzip_install libzip-1.4.0_zlip-1.2.11_vc15-x64-dll-MD.zip
+call %win_lib% :download_unzip_install FreeImage3180Win32Win64.zip
+call %win_lib% :download_unzip_install boost_1_67_0.zip
 call %win_lib% :download_unzip_install ogre-sdk-1.10.12-vc15-x64.zip
 call %win_lib% :download_unzip_install qt-opensource-windows-x86-msvc2015_64-5.7.0.zip
+call %win_lib% :download_unzip_install bzip2-1.0.6-vc12-x64-release-debug.zip
+call %win_lib% :download_unzip_install freetype-2.4.0-vc12-x64-release-debug.zip
 call %win_lib% :download_unzip_install qwt_6.1.2~osrf_qt5.zip
 call %win_lib% :download_unzip_install tbb43_20141023oss_win.zip
 call %win_lib% :download_unzip_install zziplib-0.13.62-vc12-x64-release-debug.zip
@@ -54,21 +52,10 @@ echo # END SECTION
   echo # END SECTION
 )
 
-echo # BEGIN SECTION: compile and install ign-fuel-tools
-set IGN_TRANSPORT_DIR=%WORKSPACE%\ign-fuel-tools
-if EXIST %IGN_TRANSPORT_DIR% ( rmdir /s /q %IGN_TRANSPORT_DIR% )
-hg clone https://bitbucket.org/ignitionrobotics/ign-fuel-tools %IGN_TRANSPORT_DIR% -b ign-fuel-tools3
-set VCS_DIRECTORY=ign-fuel-tools
-set KEEP_WORKSPACE=TRUE
-set ENABLE_TESTS=FALSE
-set BUILD_TYPE=Release
-call "%SCRIPT_DIR%/lib/generic-default-devel-windows.bat"
-echo # END SECTION
-
 echo # BEGIN SECTION: compile and install ign-transport
 set IGN_TRANSPORT_DIR=%WORKSPACE%\ign-transport
 if EXIST %IGN_TRANSPORT_DIR% ( rmdir /s /q %IGN_TRANSPORT_DIR% )
-hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_DIR% -b ign-transport7
+hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_DIR% -b ign-transport4
 set VCS_DIRECTORY=ign-transport
 set KEEP_WORKSPACE=TRUE
 set ENABLE_TESTS=FALSE
@@ -79,7 +66,7 @@ echo # END SECTION
 echo # BEGIN SECTION: compile and install sdformat
 set SDFORMAT_DIR=%WORKSPACE%\sdformat
 if EXIST %SDFORMAT_DIR% ( rmdir /s /q %SDFORMAT_DIR% )
-hg clone https://bitbucket.org/osrf/sdformat %SDFORMAT_DIR% -b sdf8
+hg clone https://bitbucket.org/osrf/sdformat %SDFORMAT_DIR% -b sdf6
 set VCS_DIRECTORY=sdformat
 set KEEP_WORKSPACE=TRUE
 set ENABLE_TESTS=FALSE
