@@ -16,8 +16,6 @@ fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-launch"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_LAUNCH_DEPENDENCIES"
-export BUILD_IGN_TOOLS=true
-export IGN_TOOLS_BRANCH=launch_part2
 
 # Identify IGN_LAUNCH_MAJOR_VERSION to help with dependency resolution
 IGN_LAUNCH_MAJOR_VERSION=$(\
