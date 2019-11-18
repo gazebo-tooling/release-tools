@@ -41,8 +41,11 @@ set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
 
 if not defined _VCPKG_PATH_SET (
+  echo PATH 
   set PATH=%PATH%;%VCPKG_DIR%\installed\%VCPKG_DEFAULT_TRIPLET%\bin
+  echo PATH is ok
   set _VCPKG_PATH_SET=1
+  echo PATH is ok2
 )
 
 IF exist "%MSVC_ON_WIN64_E%" (
