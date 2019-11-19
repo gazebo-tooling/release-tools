@@ -225,7 +225,7 @@ goto :EOF
 
 :: ##################################
 :list_workspace_pkgs
-colcon list -g || goto :error
+colcon list -t || goto :error
 goto :EOF
 
 :: ##################################
