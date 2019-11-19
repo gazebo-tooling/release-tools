@@ -40,12 +40,9 @@ set MSVC_ON_WIN32_C=C:\Program Files\Microsoft Visual Studio\2017\Community\VC\A
 set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
 
-echo "Check _VCPKG_PATH_SET"
-if not defined _VCPKG_PATH_SET (
+if "%_VCPKG_PATH_SET%"=="" (
   set PATH=%PATH%;%VCPKG_DIR%\installed\%VCPKG_DEFAULT_TRIPLET%\bin
-  echo "PATH IS OK"
   set _VCPKG_PATH_SET=1
-  echo "SET IS OK"
 )
 
 IF exist "%MSVC_ON_WIN64_E%" (

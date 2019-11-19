@@ -49,7 +49,7 @@ echo # END SECTION
 :: are visible to the build system and the run time.
 :: NOTE: This should be called after %win_lib% :configure_msvc####_compiler so
 ::       that we benefit from its fix to the quotes around the PATH variable
-@if not defined _GENERIC_DEFAULT_PATH_SET (
+@if "%_GENERIC_DEFAULT_PATH_SET%"=="" (
 @set PATH=%WORKSPACE_INSTALL_DIR%;%WORKSPACE_INSTALL_DIR%\bin;%WORKSPACE_INSTALL_DIR%\lib;%WORKSPACE_INSTALL_DIR%\include;%WORKSPACE_INSTALL_DIR%\share;%PATH%
 @set _GENERIC_DEFAULT_PATH_SET=1
 )
