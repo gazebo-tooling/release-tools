@@ -18,14 +18,13 @@
 #
 # Use:
 # $ cd $software-release
-# $ ./changelog_spawn <version> [msg] [git]
+# $ ./changelog_spawn <version> [msg]
 
 version=${1}
 msg=${2}
-git=${3}
 
 if [[ $# -lt 1 ]]; then
-    echo "changelog_spawn <version> [msg] [git]"
+    echo "changelog_spawn <version> [msg]"
     exit 1
 fi
 
@@ -54,7 +53,6 @@ echo "Changelogs: "
 echo " - pkg     : ${pkg_name}"
 echo " - version : ${version}"
 echo " - msg     : ${msg_text}"
-echo " - git     : ${git}"
 echo ""
 
 changelog_files=$(find . -name changelog)
@@ -75,7 +73,7 @@ for f in $changelog_files; do
 	      --changelog=${f} -- "${msg_text}" &> ${HOME}/.changelog_spawn.log
 done
 
-if [[ ${git} == "git" ]]; then
+if [[ -d .git ]]; then
   git diff
   echo
   git status
@@ -88,7 +86,7 @@ if [[ ${git} == "git" ]]; then
   echo "Commit done"
   git push .
 
-else
+elif [[ -d .hg ]]; then
   hg diff
   echo
   hg status
