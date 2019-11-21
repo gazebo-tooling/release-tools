@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012-2014 Open Source Robotics Foundation
+# Copyright (C) 2012 Open Source Robotics Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,14 +17,15 @@
 # The script will populate all changelogs in a OSRF release repository
 #
 # Use:
-# $ cd $software-release 
-# $ ./changelog_spawn <version> [msg]
+# $ cd $software-release
+# $ ./changelog_spawn <version> [msg] [git]
 
-version=${1} 
+version=${1}
 msg=${2}
+git=${3}
 
 if [[ $# -lt 1 ]]; then
-    echo "changelog_spawn <version> [msg]"
+    echo "changelog_spawn <version> [msg] [git]"
     exit 1
 fi
 
@@ -53,6 +54,7 @@ echo "Changelogs: "
 echo " - pkg     : ${pkg_name}"
 echo " - version : ${version}"
 echo " - msg     : ${msg_text}"
+echo " - git     : ${git}"
 echo ""
 
 changelog_files=$(find . -name changelog)
@@ -73,14 +75,29 @@ for f in $changelog_files; do
 	      --changelog=${f} -- "${msg_text}" &> ${HOME}/.changelog_spawn.log
 done
 
-hg diff
-echo
-hg status
+if [[ ${git} == "git" ]]; then
+  git diff
+  echo
+  git status
 
-echo "All fine to commit? [enter] [control+c to abort]"
-read 
+  echo "All fine to commit? [enter] [control+c to abort]"
+  read
 
-echo
-hg commit -m "${msg_text}"
-echo "Commit done"
-hg push -b .
+  echo
+  git commit -am "${msg_text}"
+  echo "Commit done"
+  git push .
+
+else
+  hg diff
+  echo
+  hg status
+
+  echo "All fine to commit? [enter] [control+c to abort]"
+  read
+
+  echo
+  hg commit -m "${msg_text}"
+  echo "Commit done"
+  hg push -b .
+fi

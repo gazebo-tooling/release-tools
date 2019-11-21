@@ -35,6 +35,7 @@ PRERELEASE = False
 UPSTREAM = False
 NO_SRC_FILE = False
 IGN_REPO = False
+GITHUB = False
 
 IGNORE_DRY_RUN = True
 
@@ -82,6 +83,7 @@ def parse_args(argv):
     global UPSTREAM
     global NO_SRC_FILE
     global IGN_REPO
+    global GITHUB
 
     parser = argparse.ArgumentParser(description='Make releases.')
     parser.add_argument('package', help='which package to release')
@@ -112,6 +114,8 @@ def parse_args(argv):
                         help='extra OSRF repository to use in the build')
     parser.add_argument('--nightly-src-branch', dest='nightly_branch', default="default",
                         help='branch in the source code repository to build the nightly from')
+    parser.add_argument('--github', dest='github', action='store_true', default=False,
+                        help='Use Github instead of Bitbucket')
 
     args = parser.parse_args()
     if not args.package_alias:
@@ -120,6 +124,7 @@ def parse_args(argv):
     UPSTREAM = args.upstream
     NO_SRC_FILE = args.no_source_file
     IGN_REPO = args.ignition_repo
+    GITHUB = args.github
     UPLOAD_REPO = args.upload_to_repository
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
@@ -134,16 +139,26 @@ def parse_args(argv):
     return args
 
 def get_release_repository_URL(package):
+    site = "bitbucket.org"
+    if GITHUB:
+        site = "github.com"
+
     repo = "osrf"
     if IGN_REPO:
         repo = "ignitionrobotics"
 
-    return "https://bitbucket.org/" + repo + "/" + package + "-release"
+    return "https://" + site + "/" + repo + "/" + package + "-release"
 
 def download_release_repository(package, release_branch):
     url = get_release_repository_URL(package)
     release_tmp_dir = tempfile.mkdtemp()
-    cmd = [ "hg", "clone", "-b", release_branch, url, release_tmp_dir]
+
+    vcs = "hg"
+    if GITHUB:
+        vcs = "git"
+
+    cmd = [ vcs, "clone", "-b", release_branch, url, release_tmp_dir]
+
     check_call(cmd, IGNORE_DRY_RUN)
     return release_tmp_dir
 
@@ -297,6 +312,7 @@ def discover_distros(repo_dir):
     repo_arch_exclusion = get_exclusion_arches(files)
 
     if '.hg' in subdirs: subdirs.remove('.hg')
+    if '.git' in subdirs: subdirs.remove('.git')
     # remove ubuntu (common stuff) and debian (new supported distro at top level)
     if 'ubuntu' in subdirs: subdirs.remove('ubuntu')
     if 'debian' in subdirs: subdirs.remove('debian')
