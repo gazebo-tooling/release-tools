@@ -9,6 +9,11 @@ exit /b
 ::
 ::
 
+if defined VSCMD_VER (
+  @echo "VS compiler already configured"
+  goto :EOF
+)
+
 :: See: https://issues.jenkins-ci.org/browse/JENKINS-11992
 @set path=%path:"=%
 
@@ -228,7 +233,7 @@ goto :EOF
 
 :: ##################################
 :list_workspace_pkgs
-colcon list -g || goto :error
+colcon list -t || goto :error
 goto :EOF
 
 :: ##################################
