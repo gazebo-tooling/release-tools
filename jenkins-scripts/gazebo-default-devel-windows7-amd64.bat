@@ -4,8 +4,10 @@ set VCS_DIRECTORY=gazebo
 
 for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set GAZEBO_MAJOR_VERSION=%%i
 
-if %GAZEBO_MAJOR_VERSION% GEQ 9 (
+if %GAZEBO_MAJOR_VERSION% GEQ 11 (
   call "%SCRIPT_DIR%/lib/gazebo-base-windows.bat"
+) else if %GAZEBO_MAJOR_VERSION% GEQ 9 (
+  call "%SCRIPT_DIR%/lib/gazebo9_10-base-windows.bat"
 ) else (
   call "%SCRIPT_DIR%/lib/gazebo8-base-windows.bat"
 )
