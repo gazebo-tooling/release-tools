@@ -34,7 +34,7 @@ set LOCAL_WS=%WORKSPACE%\ws
 
 :: Call vcvarsall and all the friends
 echo # BEGIN SECTION: configure the MSVC compiler
-call %win_lib% :configure_msvc_compiler
+call %win_lib% :configure_msvc_2019_compiler
 echo # END SECTION
 
 echo # BEGIN SECTION: preclean of workspace
