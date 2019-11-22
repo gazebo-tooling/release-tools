@@ -38,6 +38,9 @@ if [[ ${IGN_SENSORS_MAJOR_VERSION} -ge 3 ]]; then
   export BUILD_IGN_RENDERING=true
   export IGN_RENDERING_MAJOR_VERSION=3
   export IGN_RENDERING_BRANCH=default
+  export BUILD_SDFORMAT=true
+  export SDFORMAT_MAJOR_VERSION=9
+  export SDFORMAT_BRANCH=default
 fi
 
 export USE_GCC8=true
