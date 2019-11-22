@@ -84,7 +84,7 @@ if [[ -d .git ]]; then
   echo
   git commit -am "${msg_text}"
   echo "Commit done"
-  git push .
+  git push
 
 elif [[ -d .hg ]]; then
   hg diff

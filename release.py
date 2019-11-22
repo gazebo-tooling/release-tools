@@ -35,7 +35,7 @@ PRERELEASE = False
 UPSTREAM = False
 NO_SRC_FILE = False
 IGN_REPO = False
-GITHUB = False
+GITHUB_RELEASE = False
 
 IGNORE_DRY_RUN = True
 
@@ -83,7 +83,7 @@ def parse_args(argv):
     global UPSTREAM
     global NO_SRC_FILE
     global IGN_REPO
-    global GITHUB
+    global GITHUB_RELEASE
 
     parser = argparse.ArgumentParser(description='Make releases.')
     parser.add_argument('package', help='which package to release')
@@ -114,8 +114,8 @@ def parse_args(argv):
                         help='extra OSRF repository to use in the build')
     parser.add_argument('--nightly-src-branch', dest='nightly_branch', default="default",
                         help='branch in the source code repository to build the nightly from')
-    parser.add_argument('--github', dest='github', action='store_true', default=False,
-                        help='Use Github instead of Bitbucket')
+    parser.add_argument('--github-release', dest='github_release', action='store_true', default=False,
+                        help='Use Github instead of Bitbucket for release repo')
 
     args = parser.parse_args()
     if not args.package_alias:
@@ -124,7 +124,7 @@ def parse_args(argv):
     UPSTREAM = args.upstream
     NO_SRC_FILE = args.no_source_file
     IGN_REPO = args.ignition_repo
-    GITHUB = args.github
+    GITHUB_RELEASE = args.github_release
     UPLOAD_REPO = args.upload_to_repository
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
@@ -139,13 +139,14 @@ def parse_args(argv):
     return args
 
 def get_release_repository_URL(package):
-    site = "bitbucket.org"
-    if GITHUB:
-        site = "github.com"
-
     repo = "osrf"
     if IGN_REPO:
         repo = "ignitionrobotics"
+
+    site = "bitbucket.org"
+    if GITHUB_RELEASE:
+        site = "github.com"
+        repo = "ignition-release"
 
     return "https://" + site + "/" + repo + "/" + package + "-release"
 
@@ -154,8 +155,10 @@ def download_release_repository(package, release_branch):
     release_tmp_dir = tempfile.mkdtemp()
 
     vcs = "hg"
-    if GITHUB:
+    if GITHUB_RELEASE:
         vcs = "git"
+        if release_branch == "default":
+            release_branch = "master"
 
     cmd = [ vcs, "clone", "-b", release_branch, url, release_tmp_dir]
 
