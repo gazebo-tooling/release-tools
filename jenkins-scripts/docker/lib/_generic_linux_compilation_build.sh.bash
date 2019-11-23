@@ -18,6 +18,8 @@ fi
 [[ -z $GENERIC_ENABLE_CPPCHECK ]] && GENERIC_ENABLE_CPPCHECK=true
 [[ -z $GENERIC_ENABLE_TESTS ]] && GENERIC_ENABLE_TESTS=true
 
+echo "DEBUG: ${MAKE_JOBS}"
+
 cat > build.sh << DELIM_HEADER
 #!/bin/bash
 set -ex
@@ -82,6 +84,7 @@ cmake $WORKSPACE/${SOFTWARE_DIR} ${BUILDING_EXTRA_CMAKE_PARAMS} \
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: compiling'
+set
 init_stopwatch COMPILATION
 make -j\${MAKE_JOBS}
 echo '# END SECTION'
