@@ -2,7 +2,7 @@ if exist D:\vcpkg (
   set VCPKG_DIR=D:\vcpkg
 ) else if exist C:\vcpkg (
     set VCPKG_DIR=C:\vcpkg
-  else
+) else (
    echo "Can not find a vcpkg installation"
    exit -1
 )
