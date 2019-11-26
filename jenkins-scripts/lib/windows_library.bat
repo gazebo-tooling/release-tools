@@ -200,12 +200,11 @@ goto :EOF
 :: arg1: package whitelist to test
 set COLCON_PACKAGE=%1
 
-colcon test --build-base "build"^
-            --install-base "install"^
+colcon test --install-base "install"^
             --packages-select %COLCON_PACKAGE%^
             --executor sequential^
             --event-handler console_cohesion+ || goto :error
-colcon test-result --build-base "build" --all
+colcon test-result --all
 goto :EOF
 
 :: ##################################
