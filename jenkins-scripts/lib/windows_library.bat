@@ -165,7 +165,7 @@ set COLCON_EXTRA_ARGS=%1
 set COLCON_PACKAGE=%2
 set COLCON_EXTRA_CMAKE_ARGS=%3
 
-MAKEFLAGS=%MAKE_JOBS% colcon build --build-base "build"^
+set MAKEFLAGS=%MAKE_JOBS% && colcon build --build-base "build"^
 				   --install-base "install"^
   				   --parallel-workers %MAKE_JOBS%^
 				   %COLCON_EXTRA_ARGS%^
