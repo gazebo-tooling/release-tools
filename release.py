@@ -48,6 +48,9 @@ class ErrorNoPermsRepo(Exception):
 class ErrorNoUsernameSupplied(Exception):
     pass
 
+class ErrorURLNotFound404(Exception):
+    pass
+
 def error(msg):
     print("\n !! " + msg + "\n")
     sys.exit(1)
@@ -63,6 +66,24 @@ def get_canonical_package_name(pkg_name):
 
 def is_catkin_package():
     return os.path.isfile("package.xml")
+
+def bitbucket_repo_exists(url):
+    try:
+        check_call(['hg', 'identify', url], IGNORE_DRY_RUN)
+    except ErrorURLNotFound404 as e:
+        return False
+    except Exception as e:
+        error("Unexpected problem checking for mercurial repo: " + e.what())
+    return True
+
+def github_repo_exists(url):
+    try:
+        check_call(['git', 'ls-remote', url], IGNORE_DRY_RUN)
+    except ErrorURLNotFound404 as e:
+        return False
+    except Exception as e:
+        error("Unexpected problem checking for git repo: " + e.what())
+    return True
 
 def generate_package_source(srcdir, builddir):
     cmake_cmd = ["cmake"]
@@ -83,7 +104,6 @@ def parse_args(argv):
     global UPSTREAM
     global NO_SRC_FILE
     global IGN_REPO
-    global GITHUB_RELEASE
 
     parser = argparse.ArgumentParser(description='Make releases.')
     parser.add_argument('package', help='which package to release')
@@ -114,9 +134,6 @@ def parse_args(argv):
                         help='extra OSRF repository to use in the build')
     parser.add_argument('--nightly-src-branch', dest='nightly_branch', default="default",
                         help='branch in the source code repository to build the nightly from')
-    parser.add_argument('--github-release', dest='github_release', action='store_true', default=False,
-                        help='Use Github instead of Bitbucket for release repo')
-
     args = parser.parse_args()
     if not args.package_alias:
         args.package_alias = args.package
@@ -124,7 +141,6 @@ def parse_args(argv):
     UPSTREAM = args.upstream
     NO_SRC_FILE = args.no_source_file
     IGN_REPO = args.ignition_repo
-    GITHUB_RELEASE = args.github_release
     UPLOAD_REPO = args.upload_to_repository
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
@@ -138,29 +154,33 @@ def parse_args(argv):
 
     return args
 
-def get_release_repository_URL(package):
+def get_release_repository_info(package):
+    global GITHUB_RELEASE
+
     repo = "osrf"
     if IGN_REPO:
         repo = "ignitionrobotics"
 
-    site = "bitbucket.org"
-    if GITHUB_RELEASE:
-        site = "github.com"
-        repo = "ignition-release"
+    bitbucket_url = "https://bitbucket.org/" + repo + "/" + package + "-release"
+    if (bitbucket_repo_exists(bitbucket_url)):
+        GITHUB_RELEASE = False
+        return 'hg', bitbucket_url
 
-    return "https://" + site + "/" + repo + "/" + package + "-release"
+    github_url = "https://github.com/ignition-release/" + package + "-release"
+    if (github_repo_exists(github_url)):
+        GITHUB_RELEASE = True
+        return 'git', github_url
+
+    error("release repository not found in bitbuckket or github")
 
 def download_release_repository(package, release_branch):
-    url = get_release_repository_URL(package)
+    vcs, url = get_release_repository_info(package)
     release_tmp_dir = tempfile.mkdtemp()
 
-    vcs = "hg"
-    if GITHUB_RELEASE:
-        vcs = "git"
-        if release_branch == "default":
-            release_branch = "master"
+    if vcs == "git" and release_branch == "default":
+        release_branch = "master"
 
-    cmd = [ vcs, "clone", "-b", release_branch, url, release_tmp_dir]
+    cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
 
     check_call(cmd, IGNORE_DRY_RUN)
     return release_tmp_dir
@@ -351,6 +371,9 @@ def check_call(cmd, ignore_dry_run = False):
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = po.communicate()
         if po.returncode != 0:
+            # bitbucket for the first one, github for the second
+            if ("404" in err) or ("Repository not found" in err):
+                raise ErrorURLNotFound404()
             if "Permission denied" in out:
                 raise ErrorNoPermsRepo()
             if "abort: no username supplied" in err:
@@ -520,7 +543,6 @@ def go(argv):
     params['UPLOAD_TO_REPO'] = args.upload_to_repository
     # Assume that we want stable + own repo in the building
     params['OSRF_REPOS_TO_USE'] = "stable " + args.upload_to_repository
-    params['GITHUB_RELEASE'] = args.github_release
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
@@ -537,6 +559,10 @@ def go(argv):
         job_name = JOB_NAME_UPSTREAM_PATTERN%(args.package)
     else:
         job_name = JOB_NAME_PATTERN%(args.package)
+
+    params['GITHUB_RELEASE'] = GITHUB_RELEASE
+    if GITHUB_RELEASE and args.release_repo_branch == 'default':
+        params['RELEASE_REPO_BRANCH'] = 'master'
 
     params_query = urllib.urlencode(params)
 
