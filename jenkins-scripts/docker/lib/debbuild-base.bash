@@ -69,7 +69,11 @@ fi
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
 rm -rf /tmp/$PACKAGE-release
-hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release /tmp/$PACKAGE-release
+if ${GITHUB_RELEASE}; then
+  git clone https://github.com/ignition-release/$PACKAGE-release -b $RELEASE_REPO_BRANCH /tmp/$PACKAGE-release
+else
+  hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release -b $RELEASE_REPO_BRANCH /tmp/$PACKAGE-release
+fi
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
@@ -77,8 +81,6 @@ if $NIGHTLY_MODE; then
     # dpkg-parsechangelog| grep Version | cut -f2 -d' '
     UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${DISTRO}/debian/changelog | head -n 1 | tr -d ' ' | sed 's:-[0-9]*~.*::' )
 fi
-
-hg up $RELEASE_REPO_BRANCH
 
 # Should the case of new distros supported like debian
 PACKAGE_RELEASE_DIR="/tmp/${PACKAGE}-release/${LINUX_DISTRO}/${DISTRO}/"
@@ -97,7 +99,11 @@ fi
 case \${BUILD_METHOD} in
     "OVERWRITE_BASE")
 	# 1. Clone the base branch
-        hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release \\
+        if ${GITHUB_RELEASE}; then
+          git clone https://github.com/ignition-release/$PACKAGE-release \\
+        else
+          hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release \\
+        fi
 	    -b \${RELEASE_BASE_BRANCH} \\
 	    /tmp/base_$PACKAGE-release
 	# 2. Overwrite the information
@@ -143,7 +149,7 @@ fi
 cd \`find $WORKSPACE/build -mindepth 1 -type d |head -n 1\`
 # If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
 if $NIGHTLY_MODE; then
-  rm -fr .hg*
+  rm -fr .hg* .git*
   echo | dh_make -y -s --createorig -p${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
 fi
 
