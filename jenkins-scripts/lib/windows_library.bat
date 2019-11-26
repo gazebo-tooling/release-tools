@@ -177,6 +177,7 @@ colcon build --build-base "build"^
 	                  " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
              %COLCON_EXTRA_CMAKE_ARGS%^
              --event-handler console_cohesion+ || goto :error
+goto :EOF
 
 :: ##################################
 ::
