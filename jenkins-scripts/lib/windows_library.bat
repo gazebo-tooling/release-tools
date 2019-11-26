@@ -165,6 +165,7 @@ set COLCON_EXTRA_ARGS=%1
 set COLCON_PACKAGE=%2
 set COLCON_EXTRA_CMAKE_ARGS=%3
 
+:: TODO: be sure that this way of defining MAKEFLAGS is working
 set MAKEFLAGS=%MAKE_JOBS% && colcon build --build-base "build"^
 				   --install-base "install"^
   				   --parallel-workers %MAKE_JOBS%^
@@ -186,8 +187,12 @@ set COLCON_PACKAGE=%1
 
 :: two runs to get the dependencies built with testing and the package under
 :: test build with tests
+echo # BEGIN SECTION: colcon compilation without test for dependencies of %COLCON_PACKAGE%
 call :_colcon_build_cmd --packages-skip %COLCON_PACKAGE% " -DBUILD_TESTING=0"
+echo # END SECTION
+echo # BEGIN SECTION: colcon compilation with tests for %COLCON_PACKAGE%
 call :_colcon_build_cmd --packages-select %COLCON_PACKAGE% " -DBUILD_TESTING=1"
+echo # END SECTION
 goto :EOF
 
 :: ##################################
@@ -200,11 +205,15 @@ goto :EOF
 :: arg1: package whitelist to test
 set COLCON_PACKAGE=%1
 
+echo # BEGIN SECTION: colcon test for %COLCON_PACKAGE%
 colcon test --install-base "install"^
             --packages-select %COLCON_PACKAGE%^
             --executor sequential^
-            --event-handler console_cohesion+ || goto :error
+            --event-handler console_cohesion+
+echo # END SECTION
+echo # BEGIN SECTION: colcon test-result
 colcon test-result --all
+echo # END SECTION
 goto :EOF
 
 :: ##################################
