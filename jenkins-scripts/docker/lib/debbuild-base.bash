@@ -100,10 +100,11 @@ case \${BUILD_METHOD} in
     "OVERWRITE_BASE")
 	# 1. Clone the base branch
         if ${GITHUB_RELEASE}; then
-          git clone https://github.com/ignition-release/$PACKAGE-release \\
+          checkout_cmd="git clone https://github.com/ignition-release/$PACKAGE-release"
         else
-          hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release \\
+          checkout_cmd="hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release"
         fi
+        \$checkout_cmd \\ 
 	    -b \${RELEASE_BASE_BRANCH} \\
 	    /tmp/base_$PACKAGE-release
 	# 2. Overwrite the information
