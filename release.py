@@ -520,6 +520,7 @@ def go(argv):
     params['UPLOAD_TO_REPO'] = args.upload_to_repository
     # Assume that we want stable + own repo in the building
     params['OSRF_REPOS_TO_USE'] = "stable " + args.upload_to_repository
+    params['GITHUB_RELEASE'] = args.github_release
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
