@@ -168,10 +168,12 @@ set COLCON_EXTRA_CMAKE_ARGS=%3
 :: TODO: be sure that this way of defining MAKEFLAGS is working
 set MAKEFLAGS=-j%MAKE_JOBS%
 
+echo "COLCON_EXTRA_ARGS: %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%"
+
 colcon build --build-base "build"^
 	     --install-base "install"^
 	     --parallel-workers %MAKE_JOBS%^
-	     %COLCON_EXTRA_ARGS%^
+	     %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
 	     --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
 		          " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
 	                  " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
