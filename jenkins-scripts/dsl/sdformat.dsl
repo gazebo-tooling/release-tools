@@ -3,7 +3,7 @@ import javaposse.jobdsl.dsl.Job
 
 def sdformat_supported_branches = [ 'sdformat4', 'sdformat5', 'sdformat6', 'sdformat8' ]
 def sdformat_gz11_branches = [ 'sdformat8', 'default' ]
-def nightly_sdformat_branch = [ 'sdformat7' ]
+def nightly_sdformat_branch = [ 'sdformat7', 'sdformat9' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
