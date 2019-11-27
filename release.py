@@ -166,9 +166,12 @@ def get_release_repository_info(package):
         GITHUB_RELEASE = False
         return 'hg', bitbucket_url
 
-    github_url = "https://github.com/ignition-release/" + package + "-release"
-    if (github_repo_exists(github_url)):
+    # if fails with http URL for github, it will ask for auth in stdin. Use the
+    # git@ approach to avoid interaction
+    github_test_url = "git@github.com:ignition-release/" + package + "-release"
+    if (github_repo_exists(github_test_url)):
         GITHUB_RELEASE = True
+        github_url = "https://github.com/ignition-release/" + package + "-release"
         return 'git', github_url
 
     error("release repository not found in bitbuckket or github")
