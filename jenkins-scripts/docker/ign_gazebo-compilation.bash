@@ -44,6 +44,12 @@ if [[ ${IGN_GAZEBO_MAJOR_VERSION} -eq 3 ]]; then
   export BUILD_IGN_GUI=true
   export IGN_GUI_MAJOR_VERSION=3
   export IGN_GUI_BRANCH=default
+  export BUILD_SDFORMAT=true
+  export SDFORMAT_MAJOR_VERSION=9
+  export SDFORMAT_BRANCH=default
+  export BUILD_IGN_PHYSICS=true
+  export IGN_PHYSICS_MAJOR_VERSION=2
+  export IGN_PHYSICS_BRANCH=default
 fi
 
 export USE_GCC8=true
