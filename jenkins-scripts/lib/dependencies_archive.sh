@@ -536,7 +536,7 @@ fi
 
 if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -ge 4 ]]; then
   IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
-                               libignition-msgs5"
+                               libignition-msgs5-dev"
 fi
 
 
