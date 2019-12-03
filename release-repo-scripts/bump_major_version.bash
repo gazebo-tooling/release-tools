@@ -17,13 +17,13 @@
 #
 # Use:
 # $ cd $software-release
-# $ ./bump_major.bash <old_version> <new_version>
+# $ ./bump_major_version.bash <old_version> <new_version>
 
 old_version=${1}
 new_version=${2}
 
 if [[ $# -lt 1 ]]; then
-    echo "changelog_spawn <old_version> <new_version>"
+    echo "bump_major_version.bash <old_version> <new_version>"
     exit 1
 fi
 
