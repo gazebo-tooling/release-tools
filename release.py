@@ -35,6 +35,7 @@ PRERELEASE = False
 UPSTREAM = False
 NO_SRC_FILE = False
 IGN_REPO = False
+GITHUB_RELEASE = False
 
 IGNORE_DRY_RUN = True
 
@@ -45,6 +46,9 @@ class ErrorNoPermsRepo(Exception):
     pass
 
 class ErrorNoUsernameSupplied(Exception):
+    pass
+
+class ErrorURLNotFound404(Exception):
     pass
 
 def error(msg):
@@ -62,6 +66,24 @@ def get_canonical_package_name(pkg_name):
 
 def is_catkin_package():
     return os.path.isfile("package.xml")
+
+def bitbucket_repo_exists(url):
+    try:
+        check_call(['hg', 'identify', url], IGNORE_DRY_RUN)
+    except ErrorURLNotFound404 as e:
+        return False
+    except Exception as e:
+        error("Unexpected problem checking for mercurial repo: " + e.what())
+    return True
+
+def github_repo_exists(url):
+    try:
+        check_call(['git', 'ls-remote', url], IGNORE_DRY_RUN)
+    except ErrorURLNotFound404 as e:
+        return False
+    except Exception as e:
+        error("Unexpected problem checking for git repo: " + e.what())
+    return True
 
 def generate_package_source(srcdir, builddir):
     cmake_cmd = ["cmake"]
@@ -112,7 +134,6 @@ def parse_args(argv):
                         help='extra OSRF repository to use in the build')
     parser.add_argument('--nightly-src-branch', dest='nightly_branch', default="default",
                         help='branch in the source code repository to build the nightly from')
-
     args = parser.parse_args()
     if not args.package_alias:
         args.package_alias = args.package
@@ -133,17 +154,37 @@ def parse_args(argv):
 
     return args
 
-def get_release_repository_URL(package):
+def get_release_repository_info(package):
+    global GITHUB_RELEASE
+
     repo = "osrf"
     if IGN_REPO:
         repo = "ignitionrobotics"
 
-    return "https://bitbucket.org/" + repo + "/" + package + "-release"
+    bitbucket_url = "https://bitbucket.org/" + repo + "/" + package + "-release"
+    if (bitbucket_repo_exists(bitbucket_url)):
+        GITHUB_RELEASE = False
+        return 'hg', bitbucket_url
+
+    # if fails with http URL for github, it will ask for auth in stdin. Use the
+    # git@ approach to avoid interaction
+    github_test_url = "git@github.com:ignition-release/" + package + "-release"
+    if (github_repo_exists(github_test_url)):
+        GITHUB_RELEASE = True
+        github_url = "https://github.com/ignition-release/" + package + "-release"
+        return 'git', github_url
+
+    error("release repository not found in bitbuckket or github")
 
 def download_release_repository(package, release_branch):
-    url = get_release_repository_URL(package)
+    vcs, url = get_release_repository_info(package)
     release_tmp_dir = tempfile.mkdtemp()
-    cmd = [ "hg", "clone", "-b", release_branch, url, release_tmp_dir]
+
+    if vcs == "git" and release_branch == "default":
+        release_branch = "master"
+
+    cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
+
     check_call(cmd, IGNORE_DRY_RUN)
     return release_tmp_dir
 
@@ -297,6 +338,7 @@ def discover_distros(repo_dir):
     repo_arch_exclusion = get_exclusion_arches(files)
 
     if '.hg' in subdirs: subdirs.remove('.hg')
+    if '.git' in subdirs: subdirs.remove('.git')
     # remove ubuntu (common stuff) and debian (new supported distro at top level)
     if 'ubuntu' in subdirs: subdirs.remove('ubuntu')
     if 'debian' in subdirs: subdirs.remove('debian')
@@ -332,6 +374,9 @@ def check_call(cmd, ignore_dry_run = False):
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = po.communicate()
         if po.returncode != 0:
+            # bitbucket for the first one, github for the second
+            if ("404" in err) or ("Repository not found" in err):
+                raise ErrorURLNotFound404()
             if "Permission denied" in out:
                 raise ErrorNoPermsRepo()
             if "abort: no username supplied" in err:
@@ -517,6 +562,10 @@ def go(argv):
         job_name = JOB_NAME_UPSTREAM_PATTERN%(args.package)
     else:
         job_name = JOB_NAME_PATTERN%(args.package)
+
+    params['GITHUB_RELEASE'] = GITHUB_RELEASE
+    if GITHUB_RELEASE and args.release_repo_branch == 'default':
+        params['RELEASE_REPO_BRANCH'] = 'master'
 
     params_query = urllib.urlencode(params)
 

@@ -544,6 +544,7 @@ IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
                        libprotobuf-dev       \\
                        libprotoc-dev         \\
                        protobuf-compiler     \\
+                       libtinyxml2-dev       \\
                        ruby                  \\
                        ruby-dev"
 
