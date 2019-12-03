@@ -50,16 +50,15 @@ echo "============================="
 echo
 
 # Check origin install files for versioning
-for f in $(find ubuntu/ -name *${old_version}-*.install -type f); do
-    echo " * Making unversioned files"
-    echo " + Move file ${f}"
+for f in $(find ubuntu/ -name *${old_version}*.install -type f); do
+    echo " * Making unversioned file from ${f}"
     new_name=${f/${old_version}/${new_version}}
     git mv ${f} ${new_name}
     file_name=${f##*/}
-    echo " + Move symlinks for ${file_name}"
+    echo "   - Move symlinks"
     symlinks=$(find . -name ${file_name} -type l)
     for s in $symlinks; do
-	echo "    - move ${s}"
+	echo "     - move ${s}"
 	root_new_name="../../ubuntu/debian/${new_name##*/}"
 	ln -sf ${root_new_name} ${s}
 	if ! [ -e ${s} ]; then
@@ -72,7 +71,7 @@ echo
 
 # Renaming install files
 echo " * Renaming install files"
-for f in $(find . -name *${old_version}-*.install); do
+for f in $(find . -name *${old_version}*.install); do
     new_name=${f/${old_version}/${new_version}}
     echo "    ${f} -> ${new_name}"
     git mv ${f} ${new_name}
@@ -103,7 +102,7 @@ for f in $(find . -name control -type f); do
     # Change bitbucket for github
     sed -i -e "s:https\://bitbucket.org/ignitionrobotics/:https\://github.com/ignition-release/:g" "${f}"
     sed -i -e "s:https\://bitbucket.org/osrf/:https\://github.com/ignition-release/:g" "${f}"
-    echo " * Safety checks"
+    echo " * Safety checks in control"
     # 1. Check for custom version modifiers in control file
     # 2. Breaks or replaces clause?
     if [[ -z $(grep Breaks ${f}) ]]; then
@@ -122,6 +121,7 @@ for f in $(find . -name rules -type f); do
 done
 
 # Reviewing all symlinks
+echo " * Safety checks in symlinks"
 for s in $(find . -type l); do
     if [[ ! -e ${s} ]]; then
 	echo "    ! FIXME: Found broken link ${s}"
