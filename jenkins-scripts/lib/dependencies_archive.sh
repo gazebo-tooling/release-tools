@@ -719,7 +719,6 @@ IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev  \\
                          libgflags-dev            \\
                          libignition-math6-dev    \\
                          libignition-math6-eigen3-dev \\
-                         libsdformat8-dev \\
                          libbenchmark-dev"
 
 if [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -ge 3 ]]; then
@@ -728,7 +727,8 @@ if [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -ge 3 ]]; 
                         libignition-gui3-dev \\
                         libignition-msgs5-dev \\
                         libignition-rendering3-dev \\
-                        libignition-transport8-dev"
+                        libignition-transport8-dev \\
+                        libsdformat9-dev"
                         # libignition-sensors3-dev \\
                         # libignition-physics2           \\
                         # libignition-physics2-dartsim   \\
@@ -746,6 +746,7 @@ elif [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -ge 2 ]]
                         libignition-rendering2-dev \\
                         libignition-sensors2-dev \\
                         libignition-transport7-dev \\
+                        libsdformat8-dev \\
                         libbenchmark-dev"
 fi
 
