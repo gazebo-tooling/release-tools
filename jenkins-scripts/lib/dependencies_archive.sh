@@ -669,6 +669,12 @@ else
                            binutils-dev"
                            # libignition-sensors3-dev  \\
                            # libignition-gazebo3-dev \\
+  # TODO: remove when is sensors3 is added
+  IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_DEPENDENCIES} \\
+                          libignition-transport8-dev  \\
+                          libignition-rendering3-dev  \\
+                          libsdformat9-dev"
+
 fi
 
 IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
