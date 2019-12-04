@@ -1,6 +1,6 @@
 #!/bin/bash
 
-views='ign-citadel ign-blueprint ign-acropolis'
+views='ign-citadel ign-blueprint'
 
 echo "# Build Cop Report $(date +%Y-%m-%d)"
 echo "## Aggregate Results as of $(date '+%Y-%m-%d %H:%M:%S')"
