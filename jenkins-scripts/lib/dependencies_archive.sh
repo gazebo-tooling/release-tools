@@ -704,20 +704,20 @@ IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
                           libignition-math6-dev      \\
                           libignition-msgs3-dev       \\
                           libignition-plugin-dev  \\
-                          libignition-tools-dev \\
-                          libignition-transport6-dev \\
-                          libignition-rendering-dev \\
-                          libsdformat8-dev"
-if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 4 ]]; then
+                          libignition-tools-dev"
+if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 3 ]]; then
   IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
                         libignition-msgs5-dev \\
-                        libignition-transport8-dev"
+                        libignition-rendering3-dev \\
+                        libignition-transport8-dev \\
+                        libsdformat9-dev"
                         # libignition-rendering3-dev \\
 elif [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 2 ]]; then
   IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
                         libignition-msgs4-dev \\
                         libignition-rendering2-dev \\
-                        libignition-transport7-dev"
+                        libignition-transport7-dev \\
+                        libsdformat8-dev"
 fi
 
 IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev  \\
