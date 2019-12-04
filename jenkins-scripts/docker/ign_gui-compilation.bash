@@ -32,17 +32,6 @@ if [[ ${IGN_GUI_MAJOR_VERSION} -ge 1 ]]; then
   export USE_GCC8=true
 fi
 
-if [[ ${IGN_GUI_MAJOR_VERSION} -eq 0 ]]; then
-  # need to build ign-rendering0 for ign-gui0
-  export BUILD_IGN_RENDERING=true
-  export IGN_RENDERING_MAJOR_VERSION=0
-  export IGN_RENDERING_BRANCH="ign-rendering${IGN_RENDERING_MAJOR_VERSION}"
-elif [[ ${IGN_GUI_MAJOR_VERSION} -eq 3 ]]; then
-  export BUILD_IGN_RENDERING=true
-  export IGN_RENDERING_MAJOR_VERSION=3
-  export IGN_RENDERING_BRANCH=default
-fi
-
 export GPU_SUPPORT_NEEDED=true
 export GZDEV_PROJECT_NAME="ignition-gui${IGN_GUI_MAJOR_VERSION}"
 

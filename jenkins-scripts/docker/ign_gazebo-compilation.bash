@@ -32,15 +32,9 @@ if [[ ${IGN_GAZEBO_MAJOR_VERSION} -eq 3 ]]; then
   export BUILD_IGN_FUEL_TOOLS=true
   export IGN_FUEL_TOOLS_MAJOR_VERSION=4
   export IGN_FUEL_TOOLS_BRANCH=default
-  export BUILD_IGN_RENDERING=true
-  export IGN_RENDERING_MAJOR_VERSION=3
-  export IGN_RENDERING_BRANCH=default
   export BUILD_IGN_SENSORS=true
   export IGN_SENSORS_MAJOR_VERSION=3
   export IGN_SENSORS_BRANCH=default
-  export BUILD_IGN_GUI=true
-  export IGN_GUI_MAJOR_VERSION=3
-  export IGN_GUI_BRANCH=default
 fi
 
 export USE_GCC8=true
