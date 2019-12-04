@@ -20,9 +20,6 @@ rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 . ${SCRIPT_LIBDIR}/_homebrew_cleanup.bash
 echo '# END SECTION'
 
-# add X11 path so glxinfo can be found
-export PATH="${PATH}:/opt/X11/bin"
-
 # set display before building bottle
 # search for Xquartz instance owned by current user
 export DISPLAY=$(ps ax \
