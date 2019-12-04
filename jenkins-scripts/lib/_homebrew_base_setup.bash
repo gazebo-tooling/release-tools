@@ -16,5 +16,9 @@ fi
 
 git -C $(${BREW_BINARY} --repo) fsck
 export HOMEBREW_UPDATE_TO_TAG=1
+if [[ $(date +%Y%m%d) -le 20191215 ]]; then
+  # until https://github.com/Homebrew/brew/pull/6807 is released
+  unset HOMEBREW_UPDATE_TO_TAG
+fi
 ${BREW_BINARY} update
 ${BREW_BINARY} install ${BREW_BASE_DEPENDCIES}
