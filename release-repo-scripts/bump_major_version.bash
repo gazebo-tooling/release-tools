@@ -85,7 +85,7 @@ for f in $(find . -name changelog -type f); do
     msg_text=${msg:-"Stub to be removed after first entry"}
     distribution=$(dpkg-parsechangelog -l "${f}" -S distribution)
     debchange --package "${new_software_name}" \
-	      --newversion "${old_version}.999.999-1"  \
+	      --newversion "${old_version}.999.999-1~${distribution}"  \
 	      --distribution ${distribution} \
 	      --force-distribution \
 	      --changelog="${f}" -- "${msg_text}"
