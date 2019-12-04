@@ -33,14 +33,18 @@ if [[ ! -d ubuntu/ ]]; then
 fi
 
 
-if [[ $(find . -name *${old_version}-*.install | wc -l) -lt 1 ]]; then
+if [[ $old_version != 1 ]] && [[ $(find . -name *${old_version}-*.install | wc -l) -lt 1 ]]; then
     echo "Not found a single install file with the old_version number"
     exit 1
 fi
 
 # extract software name (prune for not in debian/, -quit to stop at first)
 old_software_name=$(find . -path ./debian -prune -o -name changelog -exec dpkg-parsechangelog -l {} -S source \; -quit)
-new_software_name=${old_software_name/${old_version}/${new_version}}
+if [[ $old_version == 1 ]]; then
+  new_software_name=${old_software_name}${new_version}
+else
+  new_software_name=${old_software_name/${old_version}/${new_version}}
+fi
 
 echo "Moving -release info"
 echo "=============================="
@@ -71,11 +75,21 @@ echo
 
 # Renaming install files
 echo " * Renaming install files"
-for f in $(find . -name *${old_version}*.install); do
-    new_name=${f/${old_version}/${new_version}}
-    echo "    ${f} -> ${new_name}"
-    git mv ${f} ${new_name}
-done
+if [[ ${old_version} == 1 ]]; then
+  echo "  - old version is 1, assuming unversioned install files"
+  for f in $(find . -path ./ubuntu -prune -o -name *.install); do
+      [[ ${f} == "./ubuntu" ]] && continue
+      new_name=${f/${old_software_name}/${old_software_name}${new_version}}
+      echo "    ${f} -> ${new_name}"
+      git mv ${f} ${new_name}
+  done
+else
+  for f in $(find . -name *${old_version}*.install); do
+      new_name=${f/${old_version}/${new_version}}
+      echo "    ${f} -> ${new_name}"
+      git mv ${f} ${new_name}
+  done
+fi
 echo
 
 # Prepare changelog for changelog_spawn
