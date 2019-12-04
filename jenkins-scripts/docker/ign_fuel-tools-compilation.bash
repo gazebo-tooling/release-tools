@@ -29,10 +29,6 @@ if ! [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -eq 4 ]]; then
-  export BUILD_IGN_MSGS=true
-  export IGN_MSGS_MAJOR_VERSION=5
-  export IGN_MSGS_BRANCH=default
-fi
+export GZDEV_PROJECT_NAME="ignition-fuel-tools${IGN_FUEL_TOOLS_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
