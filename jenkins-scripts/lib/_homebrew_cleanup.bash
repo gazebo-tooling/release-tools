@@ -5,10 +5,6 @@ BREW_BINARY_DIR=/usr/local/bin
 BREW_BINARY=${BREW_BINARY_DIR}/brew
 git -C $(${BREW_BINARY} --repo) fsck
 export HOMEBREW_UPDATE_TO_TAG=1
-if [[ $(date +%Y%m%d) -le 20191215 ]]; then
-  # until https://github.com/Homebrew/brew/pull/6807 is released
-  unset HOMEBREW_UPDATE_TO_TAG
-fi
 ${BREW_BINARY} up
 
 # Clear all installed homebrew packages, links, taps, and kegs
