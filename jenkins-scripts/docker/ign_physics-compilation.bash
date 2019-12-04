@@ -28,12 +28,6 @@ if ! [[ ${IGN_PHYSICS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-if [[ ${IGN_PHYSICS_MAJOR_VERSION} -ge 2 ]]; then
-  export BUILD_SDFORMAT=true
-  export SDFORMAT_MAJOR_VERSION=9
-  export SDFORMAT_BRANCH=default
-fi
-
 export USE_GCC8=true
 export GZDEV_PROJECT_NAME="ignition-physics${IGN_PHYSICS_MAJOR_VERSION}"
 

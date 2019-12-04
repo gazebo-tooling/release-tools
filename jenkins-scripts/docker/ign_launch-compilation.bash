@@ -29,12 +29,6 @@ if ! [[ ${IGN_LAUNCH_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 if [[ ${IGN_LAUNCH_MAJOR_VERSION} -eq 2 ]]; then
-  export BUILD_IGN_MSGS=true
-  export IGN_MSGS_MAJOR_VERSION=5
-  export IGN_MSGS_BRANCH=default
-  export BUILD_IGN_TRANSPORT=true
-  export IGN_TRANSPORT_MAJOR_VERSION=8
-  export IGN_TRANSPORT_BRANCH=default
   export BUILD_IGN_FUEL_TOOLS=true
   export IGN_FUEL_TOOLS_MAJOR_VERSION=4
   export IGN_FUEL_TOOLS_BRANCH=default
@@ -50,12 +44,6 @@ if [[ ${IGN_LAUNCH_MAJOR_VERSION} -eq 2 ]]; then
   export BUILD_IGN_GAZEBO=true
   export IGN_GAZEBO_MAJOR_VERSION=3
   export IGN_GAZEBO_BRANCH=default
-  export BUILD_SDFORMAT=true
-  export SDFORMAT_MAJOR_VERSION=9
-  export SDFORMAT_BRANCH=default
-  export BUILD_IGN_PHYSICS=true
-  export IGN_PHYSICS_MAJOR_VERSION=2
-  export IGN_PHYSICS_BRANCH=default
 fi
 
 export USE_GCC8=true

@@ -38,12 +38,6 @@ if [[ ${IGN_GUI_MAJOR_VERSION} -eq 0 ]]; then
   export IGN_RENDERING_MAJOR_VERSION=0
   export IGN_RENDERING_BRANCH="ign-rendering${IGN_RENDERING_MAJOR_VERSION}"
 elif [[ ${IGN_GUI_MAJOR_VERSION} -eq 3 ]]; then
-  export BUILD_IGN_MSGS=true
-  export IGN_MSGS_MAJOR_VERSION=5
-  export IGN_MSGS_BRANCH=default
-  export BUILD_IGN_TRANSPORT=true
-  export IGN_TRANSPORT_MAJOR_VERSION=8
-  export IGN_TRANSPORT_BRANCH=default
   export BUILD_IGN_RENDERING=true
   export IGN_RENDERING_MAJOR_VERSION=3
   export IGN_RENDERING_BRANCH=default
