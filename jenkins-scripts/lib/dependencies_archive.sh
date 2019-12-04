@@ -474,7 +474,7 @@ elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 6 ]]; then
                                   libignition-msgs3-dev \\
                                   libsqlite3-dev \\
                                   ruby-ffi"
-elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 7 ]]; then
+elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 7 ]]; then
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                   libignition-cmake2-dev \\
                                   libignition-msgs4-dev \\
