@@ -105,10 +105,10 @@ for f in $(find . -name control -type f); do
     echo " * Safety checks in control"
     # 1. Check for custom version modifiers in control file
     # 2. Breaks or replaces clause?
-    if [[ -z $(grep Breaks ${f}) ]]; then
+    if [[ -n $(grep Breaks ${f}) ]]; then
 	echo "    ! FIXME: Breaks clause detected in control file ${f}"
     fi
-    if [[ -z $(grep Replaces ${f}) ]]; then
+    if [[ -n $(grep Replaces ${f}) ]]; then
 	echo "    ! FIXME: Replaces clause detected in control file ${f}"
     fi
 done
