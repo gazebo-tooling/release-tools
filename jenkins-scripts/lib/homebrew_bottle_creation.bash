@@ -20,6 +20,14 @@ rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 . ${SCRIPT_LIBDIR}/_homebrew_cleanup.bash
 echo '# END SECTION'
 
+# set display before building bottle
+# search for Xquartz instance owned by current user
+export DISPLAY=$(ps ax \
+  | grep '[[:digit:]]*:[[:digit:]][[:digit:]].[[:digit:]][[:digit:]] /opt/X11/bin/Xquartz' \
+  | grep "auth /Users/$(whoami)/" \
+  | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
+)
+
 echo '# BEGIN SECTION: run test-bot'
 # The test-bot makes a full cleanup of all installed pkgs. Be sure of install back
 # mercurial to keep the slave working
