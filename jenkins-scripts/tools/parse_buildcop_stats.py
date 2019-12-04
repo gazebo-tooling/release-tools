@@ -15,12 +15,6 @@ for c in ["yellow", "red", "aborted", "notbuilt"]:
 
 # list of reasons build might be failing
 alwaysFailsBecause = {}
-alwaysFailsBecause["ign_gazebo-ign-1-win"] = \
-  "Pending fixes to build script under the scope of [PR 789 in release-tools](https://bitbucket.org/osrf/release-tools/pull-requests/789/add-ign-gazebo-colcon-script-for-windows/diff)"
-alwaysFailsBecause["ign_gazebo-ign-2-win"] = \
-  "Pending fixes to build script under the scope of [PR 789 in release-tools](https://bitbucket.org/osrf/release-tools/pull-requests/789/add-ign-gazebo-colcon-script-for-windows/diff)"
-alwaysFailsBecause["ign_gazebo-ci-win"] = \
-  "Pending fixes to build script under the scope of [PR 789 in release-tools](https://bitbucket.org/osrf/release-tools/pull-requests/789/add-ign-gazebo-colcon-script-for-windows/diff)"
 
 header = "\n### Builds with no record of passing\n"
 header_printed = False

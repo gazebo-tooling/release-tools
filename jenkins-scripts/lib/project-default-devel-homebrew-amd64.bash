@@ -69,7 +69,11 @@ fi
 
 echo "# BEGIN SECTION: install ${PROJECT_FORMULA} dependencies"
 # Process the package dependencies
+# FIXME workaround for issue installing dependencies
+for i in {1..10}
+do
 brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies
+done
 
 if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   # Install lxml for flaky_junit_merge.py
@@ -94,7 +98,7 @@ cd ${WORKSPACE}/${PROJECT_PATH}
 sudo rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
 cd ${WORKSPACE}/build
- 
+
 # add X11 path so glxinfo can be found
 export PATH="${PATH}:/opt/X11/bin"
 
