@@ -534,10 +534,17 @@ else
                                libtinyxml2-dev"
 fi
 
+if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -ge 4 ]]; then
+  IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
+                               libignition-msgs5-dev"
+fi
+
+
 IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
                        libprotobuf-dev       \\
                        libprotoc-dev         \\
                        protobuf-compiler     \\
+                       libtinyxml2-dev       \\
                        ruby                  \\
                        ruby-dev"
 

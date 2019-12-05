@@ -69,6 +69,9 @@ class OSRFLinuxBuildPkg
         stringParam("OSRF_REPOS_TO_USE",
                     default_params.find{ it.key == "OSRF_REPOS_TO_USE"}?.value,
                     "OSRF repos name to use when building the package")
+        booleanParam('GITHUB_RELEASE',
+                    false,
+                    '-release repo is in github instead of bitbucket')
         labelParam('JENKINS_NODE_TAG') {
           description('Jenkins node or group to run build')
           defaultValue('docker')
