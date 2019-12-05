@@ -664,12 +664,11 @@ else
                            libignition-gui3-dev \\
                            libignition-msgs5-dev \\
                            libignition-fuel-tools4-dev \\
+                           libignition-gazebo3-dev \\
+                           libignition-sensors3-dev  \\
                            libignition-transport8-dev \\
                            libwebsockets-dev \\
                            binutils-dev"
-                           # libignition-sensors3-dev  \\
-                           # libignition-gazebo3-dev \\
-  # TODO: remove when is sensors3 is added
   IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_DEPENDENCIES} \\
                           libignition-transport8-dev  \\
                           libignition-rendering3-dev  \\
@@ -711,7 +710,6 @@ if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 3 ]]
                         libignition-rendering3-dev \\
                         libignition-transport8-dev \\
                         libsdformat9-dev"
-                        # libignition-rendering3-dev \\
 elif [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 2 ]]; then
   IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
                         libignition-msgs4-dev \\
@@ -733,13 +731,13 @@ if [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -ge 3 ]]; 
                         libignition-gui3-dev \\
                         libignition-msgs5-dev \\
                         libignition-rendering3-dev \\
+                        libignition-sensors3-dev \\
+                        libignition-physics2           \\
+                        libignition-physics2-dartsim   \\
+                        libignition-physics2-dartsim-dev \\
+                        libignition-physics2-dev       \\
                         libignition-transport8-dev \\
                         libsdformat9-dev"
-                        # libignition-sensors3-dev \\
-                        # libignition-physics2           \\
-                        # libignition-physics2-dartsim   \\
-                        # libignition-physics2-dartsim-dev \\
-                        # libignition-physics2-dev       \\
 elif [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -ge 2 ]]; then
   IGN_GAZEBO_DEPENDENCIES="${IGN_GAZEBO_DEPENDENCIES} \\
                         libignition-fuel-tools3-dev \\
