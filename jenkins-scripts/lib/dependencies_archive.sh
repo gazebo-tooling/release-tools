@@ -63,7 +63,7 @@ if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
     SDFORMAT_MAJOR_VERSION=6
 fi
 
-if [[ ${SDFORMAT_MAJOR_VERSION} -ge 9 ]]; then
+if [[ ${SDFORMAT_MAJOR_VERSION} -ge 8 ]]; then
     # sdformat8/9 requires ignition-math6 and
     # uses ignition-tools for a test
     SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
@@ -615,8 +615,8 @@ fi
 if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 3 ]]; then
   IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
                         libignition-msgs5-dev \\
+                        libignition-rendering3-dev \\
                         libignition-transport8-dev"
-                        # libignition-rendering3-dev \\
 elif [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 2 ]]; then
   IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
                         libignition-msgs4-dev \\
