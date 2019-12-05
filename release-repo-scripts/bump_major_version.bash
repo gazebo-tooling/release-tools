@@ -111,6 +111,8 @@ echo
 for f in $(find . -name control -type f); do
     echo " * Changing values in control file"
     sed -i -e "s:${old_software_name}:${new_software_name}:g" "${f}"
+    # Change Hg by Git
+    sed -i -e "s:Vcs-Hg:Vcs-Git:g" "${f}"
     # Change short version of ign-too
     sed -i -e "s:${old_software_name/ignition/ign}:${new_software_name/ignition/ign}:g" "${f}"
     # Change bitbucket for github
