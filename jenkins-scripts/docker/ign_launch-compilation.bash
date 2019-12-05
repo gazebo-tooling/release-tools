@@ -28,21 +28,6 @@ if ! [[ ${IGN_LAUNCH_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-if [[ ${IGN_LAUNCH_MAJOR_VERSION} -eq 2 ]]; then
-  export BUILD_IGN_FUEL_TOOLS=true
-  export IGN_FUEL_TOOLS_MAJOR_VERSION=4
-  export IGN_FUEL_TOOLS_BRANCH=default
-  export BUILD_IGN_SENSORS=true
-  export IGN_SENSORS_MAJOR_VERSION=3
-  export IGN_SENSORS_BRANCH=default
-  export BUILD_IGN_GAZEBO=true
-  export IGN_GAZEBO_MAJOR_VERSION=3
-  export IGN_GAZEBO_BRANCH=default
-  export BUILD_IGN_PHYSICS=true
-  export IGN_PHYSICS_MAJOR_VERSION=2
-  export IGN_PHYSICS_BRANCH=default
-fi
-
 export USE_GCC8=true
 
 export GZDEV_PROJECT_NAME="ignition-launch${IGN_LAUNCH_MAJOR_VERSION}"
