@@ -643,37 +643,43 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                            libignition-cmake2-dev"
 fi
 
-IGN_LAUNCH_DEPENDENCIES="libignition-cmake2-dev \\
+IGN_LAUNCH_COMMON_DEPENDENCIES="libignition-cmake2-dev \\
                          libignition-common3-dev \\
                          libignition-plugin-dev \\
                          libignition-tools-dev \\
-                         libsdformat8-dev \\
                          libtinyxml2-dev  \\
                          qtquickcontrols2-5-dev \\
                          libqt5core5a"
 
-if [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -lt 1 ]]; then
-  IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_DEPENDENCIES} \\
+if [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -eq 0 ]]; then
+  IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_COMMON_DEPENDENCIES} \\
                           libignition-gazebo-dev \\
                           libignition-gui-dev \\
                           libignition-msgs3-dev \\
                           libignition-sensors-dev \\
-                          libignition-transport6-dev"
+                          libignition-transport6-dev \\
+                          libsdformat8-dev"
+elif [[ ${IGN_LAUNCH_MAJOR_VERSION} -eq 1 ]]; then
+  IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_COMMON_DEPENDENCIES} \\
+                          libignition-fuel-tools3-dev \\
+                          libignition-gazebo2-dev \\
+                          libignition-gui2-dev \\
+                          libignition-msgs4-dev \\
+                          libignition-sensors2-dev \\
+                          libignition-transport7-dev \\
+                          libsdformat8-dev"
 else
   IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_DEPENDENCIES} \\
                            libignition-gui3-dev \\
-                           libignition-msgs5-dev \\
                            libignition-fuel-tools4-dev \\
                            libignition-gazebo3-dev \\
+                           libignition-msgs5-dev \\
+                           libignition-rendering3-dev  \\
                            libignition-sensors3-dev  \\
                            libignition-transport8-dev \\
+                           libsdformat9-dev
                            libwebsockets-dev \\
                            binutils-dev"
-  IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_DEPENDENCIES} \\
-                          libignition-transport8-dev  \\
-                          libignition-rendering3-dev  \\
-                          libsdformat9-dev"
-
 fi
 
 IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
