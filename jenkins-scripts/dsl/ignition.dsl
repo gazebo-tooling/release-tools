@@ -30,18 +30,18 @@ ignition_no_test            = [ 'tools' ]
 // default, ABI check, install pkg)
 ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'common'     : [ '1', '2', '3' ],
-                                'fuel-tools' : [ '1', '2', '3' ],
-                                'gazebo'     : [ '2' ],
-                                'gui'        : [ '0', '2' ],
-                                'launch'     : [ '1' ],
+                                'fuel-tools' : [ '1', '2', '3', '4' ],
+                                'gazebo'     : [ '2', '3' ],
+                                'gui'        : [ '0', '2', '3' ],
+                                'launch'     : [ '1', '2' ],
                                 'math'       : [ '2', '4', '5', '6' ],
-                                'msgs'       : [ '1', '2', '4' ],
-                                'physics'    : [ '1' ],
+                                'msgs'       : [ '1', '2', '4', '5' ],
+                                'physics'    : [ '1', '2' ],
                                 'plugin'     : [ '0', '1' ],
-                                'rendering'  : [ '0', '2' ],
-                                'sensors'    : [ '2' ],
-                                'transport'  : [ '4', '5', '7' ],
-                                'tools'      : [ '0' ]]
+                                'rendering'  : [ '0', '2', '3' ],
+                                'sensors'    : [ '2', '3' ],
+                                'transport'  : [ '4', '5', '7', '8' ],
+                                'tools'      : [ '0', '1' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use default for gz11
@@ -49,22 +49,30 @@ ignition_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
-ignition_debbuild  = ignition_software + [
-                                  'fuel-tools4',
-                                  'gazebo3',
-                                  'gui3',
-                                  'launch2',
-                                  'msgs5',
-                                  'physics2',
-                                  'rendering3',
-                                  'sensors3',
-                                  'transport8'
-                                  ]
+ignition_debbuild  = ignition_software + [ ]
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [ 'rndf' ]
 // DESC: major versions that has a package in the prerelease repo. Should
 // not appear in ignition_no_pkg_yet nor in ignition_branches
-ignition_prerelease_pkgs    = [ 'placeholder' : [
+ignition_prerelease_pkgs    = [ 'fuel-tools' : [
+                                   '4':  [ 'bionic' ]],
+                                'gazebo' : [
+                                   '3':  [ 'bionic' ]],
+                                'gui' : [
+                                   '3':  [ 'bionic' ]],
+                                'launch' : [
+                                   '2':  [ 'bionic' ]],
+                                'msgs' : [
+                                   '5':  [ 'bionic' ]],
+                                'physics' : [
+                                   '2':  [ 'bionic' ]],
+                                'rendering' : [
+                                   '3':  [ 'bionic' ]],
+                                'sensors' : [
+                                   '3':  [ 'bionic' ]],
+                                'transport' : [
+                                   '8':  [ 'bionic' ]],
+                                'tools' : [
                                    '1':  [ 'bionic' ]],
                               ]
 // packages using colcon for windows compilation while migrating all them to
