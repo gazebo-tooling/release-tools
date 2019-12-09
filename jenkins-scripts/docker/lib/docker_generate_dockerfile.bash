@@ -280,8 +280,9 @@ cat >> Dockerfile << DELIM_DOCKER3
 # update command below
 # The rm after the fail of apt-get update is a workaround to deal with the error:
 # Could not open file *_Packages.diff_Index - open (2: No such file or directory)
+# TODO: remove workaround for 13.56.139.45 server
 RUN echo "${MONTH_YEAR_STR}" \
- && sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.list.d/* \
+ && sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.list.d/* || true \
  && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get ${APT_PARAMS} update)) \
  && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
  && apt-get clean \
