@@ -360,14 +360,15 @@ ignition_software.each { ign_sw ->
              ("${ign_sw}" == "launch")     ||
             (("${ign_sw}" == "math")       && ("${major_version}" == "6")) ||
             (("${ign_sw}" == "msgs")       &&
-              (("${major_version}" == "2") ||
-               ("${major_version}" == "3") || ("${major_version}" == "4"))) ||
+              (("${major_version}" == "2") || ("${major_version}" == "3") ||
+               ("${major_version}" == "4") || ("${major_version}" == "5"))) ||
              ("${ign_sw}" == "physics")    ||
              ("${ign_sw}" == "plugin")     ||
              ("${ign_sw}" == "rendering")  ||
              ("${ign_sw}" == "sensors")    ||
             (("${ign_sw}" == "transport")  &&
-              (("${major_version}" == "6") || ("${major_version}" == "7")))))
+              (("${major_version}" == "6") ||
+               ("${major_version}" == "7") || ("${major_version}" == "8")))))
           return
 
         extra_repos_str=""
@@ -447,6 +448,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs2") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs3") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs4") ||
+              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs5") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "default") ||
               ("${ign_sw}" == "physics") ||
               ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
@@ -455,6 +457,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "tools") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport6") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport7") ||
+              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport8") ||
               ("${ign_sw}" == "transport" && "${branch}" == "default")))
             disabled()
 
