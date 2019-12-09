@@ -90,3 +90,6 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
     [[ -d ${PACKAGE_DIR} ]] && sudo chown -R jenkins ${PACKAGE_DIR}
     sudo chown jenkins -R ${WORKSPACE}/build/
 fi
+
+# workaround for subt. Do not merge
+[[ -d "${WORKSPACE}/subt" ]] && sudo chown -R jenkins "${WORKSPACE}/subt"
