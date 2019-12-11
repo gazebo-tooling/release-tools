@@ -91,5 +91,6 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
     sudo chown jenkins -R ${WORKSPACE}/build/
 fi
 
-# workaround for subt. Do not merge
+# workaround for subt.
+# TODO: investigate what is subt doing with permissions on checkout directory
 [[ -d "${WORKSPACE}/subt" ]] && sudo chown -R jenkins "${WORKSPACE}/subt"
