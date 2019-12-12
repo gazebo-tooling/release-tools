@@ -93,4 +93,6 @@ fi
 
 # workaround for subt.
 # TODO: investigate what is subt doing with permissions on checkout directory
-[[ -d "${WORKSPACE}/subt" ]] && sudo chown -R jenkins "${WORKSPACE}/subt"
+if [[ -d "${WORKSPACE}/subt" ]]; then
+   sudo chown -R jenkins "${WORKSPACE}/subt"
+fi
