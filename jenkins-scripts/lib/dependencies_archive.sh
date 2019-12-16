@@ -668,7 +668,7 @@ else
                            libignition-rendering3-dev  \\
                            libignition-sensors3-dev  \\
                            libignition-transport8-dev \\
-                           libsdformat9-dev
+                           libsdformat9-dev \\
                            libwebsockets-dev \\
                            binutils-dev"
 fi
