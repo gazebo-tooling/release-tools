@@ -54,25 +54,7 @@ ignition_debbuild  = ignition_software + [ ]
 ignition_no_pkg_yet         = [ 'rndf' ]
 // DESC: major versions that has a package in the prerelease repo. Should
 // not appear in ignition_no_pkg_yet nor in ignition_branches
-ignition_prerelease_pkgs    = [ 'fuel-tools' : [
-                                   '4':  [ 'bionic' ]],
-                                'gazebo' : [
-                                   '3':  [ 'bionic' ]],
-                                'gui' : [
-                                   '3':  [ 'bionic' ]],
-                                'launch' : [
-                                   '2':  [ 'bionic' ]],
-                                'msgs' : [
-                                   '5':  [ 'bionic' ]],
-                                'physics' : [
-                                   '2':  [ 'bionic' ]],
-                                'rendering' : [
-                                   '3':  [ 'bionic' ]],
-                                'sensors' : [
-                                   '3':  [ 'bionic' ]],
-                                'transport' : [
-                                   '8':  [ 'bionic' ]],
-                                'tools' : [
+ignition_prerelease_pkgs    = [ 'placeholder' : [
                                    '1':  [ 'bionic' ]],
                               ]
 // packages using colcon for windows compilation while migrating all them to
