@@ -97,11 +97,11 @@ ignition_collection_jobs =
   ],
 
   'citadel' : [
-        'ign_gazebo-ci-win',
-        'ign_gui-ci-win',
-        'ign_physics-ci-win',
-        'ign_rendering-ci-win',
-        'ign_sensors-ci-win',
+        'ign_gazebo-ign-3-win',
+        'ign_gui-ign-3-win',
+        'ign_physics-ign-2-win',
+        'ign_rendering-ign-3-win',
+        'ign_sensors-ign-3-win',
         'ignition_citadel-ci-default-homebrew-amd64',
         'ignition_citadel-install-pkg-bionic-amd64',
         'ignition_cmake-ci-ign-cmake2-bionic-amd64',
