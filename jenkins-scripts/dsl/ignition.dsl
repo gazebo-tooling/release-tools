@@ -336,7 +336,8 @@ ignition_software.each { ign_sw ->
         if (("${distro}" == "xenial") && (
             (("${ign_sw}" == "cmake")      && ("${major_version}" == "2")) ||
             (("${ign_sw}" == "common")     && ("${major_version}" == "3")) ||
-            (("${ign_sw}" == "fuel-tools") && ("${major_version}" == "3")) ||
+            (("${ign_sw}" == "fuel-tools") &&
+              (("${major_version}" == "3") || ("${major_version}" == "4"))) ||
              ("${ign_sw}" == "gazebo")     ||
              ("${ign_sw}" == "gui")        ||
              ("${ign_sw}" == "launch")     ||
