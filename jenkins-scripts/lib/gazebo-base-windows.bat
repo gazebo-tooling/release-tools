@@ -57,7 +57,7 @@ echo # END SECTION
 echo # BEGIN SECTION: compile and install ign-fuel-tools
 set IGN_TRANSPORT_DIR=%WORKSPACE%\ign-fuel-tools
 if EXIST %IGN_TRANSPORT_DIR% ( rmdir /s /q %IGN_TRANSPORT_DIR% )
-hg clone https://bitbucket.org/ignitionrobotics/ign-fuel-tools %IGN_TRANSPORT_DIR% -b ign-fuel-tools3
+hg clone https://bitbucket.org/ignitionrobotics/ign-fuel-tools %IGN_TRANSPORT_DIR% -b ign-fuel-tools4
 set VCS_DIRECTORY=ign-fuel-tools
 set KEEP_WORKSPACE=TRUE
 set ENABLE_TESTS=FALSE
@@ -68,7 +68,7 @@ echo # END SECTION
 echo # BEGIN SECTION: compile and install ign-transport
 set IGN_TRANSPORT_DIR=%WORKSPACE%\ign-transport
 if EXIST %IGN_TRANSPORT_DIR% ( rmdir /s /q %IGN_TRANSPORT_DIR% )
-hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_DIR% -b ign-transport7
+hg clone https://bitbucket.org/ignitionrobotics/ign-transport %IGN_TRANSPORT_DIR% -b ign-transport8
 set VCS_DIRECTORY=ign-transport
 set KEEP_WORKSPACE=TRUE
 set ENABLE_TESTS=FALSE
@@ -79,7 +79,7 @@ echo # END SECTION
 echo # BEGIN SECTION: compile and install sdformat
 set SDFORMAT_DIR=%WORKSPACE%\sdformat
 if EXIST %SDFORMAT_DIR% ( rmdir /s /q %SDFORMAT_DIR% )
-hg clone https://bitbucket.org/osrf/sdformat %SDFORMAT_DIR% -b sdf8
+hg clone https://bitbucket.org/osrf/sdformat %SDFORMAT_DIR% -b sdf9
 set VCS_DIRECTORY=sdformat
 set KEEP_WORKSPACE=TRUE
 set ENABLE_TESTS=FALSE
