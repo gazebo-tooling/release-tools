@@ -5,7 +5,7 @@ exit /b
 
 :: ##################################
 :: Configure the build environment for MSVC 2017
-:configure_msvc2017_compiler
+:configure_msvc2019_compiler
 ::
 ::
 
@@ -37,10 +37,10 @@ IF %PLATFORM_TO_BUILD% == x86 (
 )
 
 echo "Configure the VC++ compilation"
-set MSVC_ON_WIN64_E=C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
-set MSVC_ON_WIN32_E=C:\Program Files\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
-set MSVC_ON_WIN64_C=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat
-set MSVC_ON_WIN32_C=C:\Program Files\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat
+set MSVC_ON_WIN64_E=C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
+set MSVC_ON_WIN32_E=C:\Program Files\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
+set MSVC_ON_WIN64_C=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat
+set MSVC_ON_WIN32_C=C:\Program Files\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat
 :: libraries from vcpkg
 set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
@@ -54,47 +54,6 @@ IF exist "%MSVC_ON_WIN64_E%" (
    call "%MSVC_ON_WIN64_C%" %MSVC_KEYWORD% || goto %win_lib% :error
 ) ELSE IF exist "%MSVC_ON_WIN32_C%" (
    call "%MSVC_ON_WIN32_C%" %MSVC_KEYWORD% || goto %win_lib% :error
-) ELSE (
-   echo "Could not find the vcvarsall.bat file"
-   exit -1
-)
-
-goto :EOF
-
-:: ##################################
-:: Configure the build environment for MSVC 2013
-:: (This is for backwards compatibility)
-:configure_msvc_compiler
-::
-::
-
-:: See: https://issues.jenkins-ci.org/browse/JENKINS-11992
-@set path=%path:"=%
-
-:: By default should be the same
-set MSVC_KEYWORD=%PLATFORM_TO_BUILD%
-
-IF %PLATFORM_TO_BUILD% == x86 (
-  echo "Using 32bits VS configuration"
-  set BITNESS=32
-) ELSE (
-  REM Visual studio is accepting many keywords to compile for 64bits
-  REM We need to set x86_amd64 to make express version to be able to
-  REM Cross compile from x86 -> amd64
-  echo "Using 64bits VS configuration"
-  set BITNESS=64
-  set MSVC_KEYWORD=x86_amd64
-  set PLATFORM_TO_BUILD=amd64
-)
-
-echo "Configure the VC++ compilation"
-set MSVC_ON_WIN64=C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat
-set MSVC_ON_WIN32=C:\Program Files\Microsoft Visual Studio 12.0\VC\vcvarsall.bat
-
-IF exist "%MSVC_ON_WIN64%" (
-   call "%MSVC_ON_WIN64%" %MSVC_KEYWORD% || goto %win_lib% :error
-) ELSE IF exist "%MSVC_ON_WIN32%" (
-   call "%MSVC_ON_WIN32%" %MSVC_KEYWORD% || goto %win_lib% :error
 ) ELSE (
    echo "Could not find the vcvarsall.bat file"
    exit -1
@@ -200,18 +159,27 @@ goto :EOF
 set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
 
+:: batch is failing to parse correctly two arguments (--package-select foo)
+:: in just one variable. Workaround here passing EXTRA_ARGS + COLCON_PACKAGE
 set COLCON_EXTRA_ARGS=%1
-set COLCON_EXTRA_CMAKE_ARGS=%2
+set COLCON_PACKAGE=%2
+set COLCON_EXTRA_CMAKE_ARGS=%3
+
+:: TODO: be sure that this way of defining MAKEFLAGS is working
+set MAKEFLAGS=-j%MAKE_JOBS%
+
+echo "COLCON_EXTRA_ARGS: %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%"
 
 colcon build --build-base "build"^
-             --install-base "install"^
-             --parallel-workers %MAKE_JOBS%^
-             %EXTRA_COLCON_ARGS%^
-             --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
-                          " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
-                          " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
-                          %COLCON_EXTRA_CMAKE_ARGS%^
-             --event-handler console_cohesion+ || type %HOMEPATH%/.colcon/latest & goto :error
+	     --install-base "install"^
+	     --parallel-workers %MAKE_JOBS%^
+	     %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
+	     --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
+		          " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
+	                  " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
+             %COLCON_EXTRA_CMAKE_ARGS%^
+             --event-handler console_cohesion+ || goto :error
+goto :EOF
 
 :: ##################################
 ::
@@ -224,8 +192,12 @@ set COLCON_PACKAGE=%1
 
 :: two runs to get the dependencies built with testing and the package under
 :: test build with tests
-call :_colcon_build_cmd "--packages-skip %COLCON_PACKAGE%" " -DBUILD_TESTING=0"
-call :_colcon_build_cmd "--packages-select %COLCON_PACKAGE%" " -DBUILD_TESTING=1"
+echo # BEGIN SECTION: colcon compilation without test for dependencies of %COLCON_PACKAGE%
+call :_colcon_build_cmd --packages-skip %COLCON_PACKAGE% " -DBUILD_TESTING=0"
+echo # END SECTION
+echo # BEGIN SECTION: colcon compilation with tests for %COLCON_PACKAGE%
+call :_colcon_build_cmd --packages-select %COLCON_PACKAGE% " -DBUILD_TESTING=1"
+echo # END SECTION
 goto :EOF
 
 :: ##################################
@@ -238,8 +210,15 @@ goto :EOF
 :: arg1: package whitelist to test
 set COLCON_PACKAGE=%1
 
-colcon test --build-base "build" --event-handler console_direct+ --install-base "install" --packages-select %COLCON_PACKAGE% --executor sequential || goto :error
-colcon test-result --build-base "build" --all
+echo # BEGIN SECTION: colcon test for %COLCON_PACKAGE%
+colcon test --install-base "install"^
+            --packages-select %COLCON_PACKAGE%^
+            --executor sequential^
+            --event-handler console_direct+
+echo # END SECTION
+echo # BEGIN SECTION: colcon test-result
+colcon test-result --all
+echo # END SECTION
 goto :EOF
 
 :: ##################################

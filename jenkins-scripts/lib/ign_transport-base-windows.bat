@@ -9,7 +9,7 @@ set LOCAL_WS=%WORKSPACE%\ws
 
 :: Call vcvarsall and all the friends
 echo # BEGIN SECTION: configure the MSVC compiler
-call %win_lib% :configure_msvc_compiler
+call %win_lib% :configure_msvc2019_compiler
 echo # END SECTION
 
 if "%IGN_CLEAN_WORKSPACE%" == "" set IGN_CLEAN_WORKSPACE=false
