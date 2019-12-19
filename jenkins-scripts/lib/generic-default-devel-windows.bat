@@ -42,7 +42,7 @@ set WORKSPACE_INSTALL_DIR=%LOCAL_WS%\install
 
 :: Call vcvarsall and all the friends
 echo # BEGIN SECTION: configure the MSVC compiler
-call %win_lib% :configure_msvc2017_compiler
+call %win_lib% :configure_msvc2019_compiler
 echo # END SECTION
 
 :: Set the PATH variable so that dependencies installed inside this workspace
