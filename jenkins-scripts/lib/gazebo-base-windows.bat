@@ -79,7 +79,7 @@ echo # END SECTION
 echo # BEGIN SECTION: compile and install sdformat
 set SDFORMAT_DIR=%WORKSPACE%\sdformat
 if EXIST %SDFORMAT_DIR% ( rmdir /s /q %SDFORMAT_DIR% )
-hg clone https://bitbucket.org/osrf/sdformat %SDFORMAT_DIR% -b sdf8
+hg clone https://bitbucket.org/osrf/sdformat %SDFORMAT_DIR% -b sdf9
 set VCS_DIRECTORY=sdformat
 set KEEP_WORKSPACE=TRUE
 set ENABLE_TESTS=FALSE
