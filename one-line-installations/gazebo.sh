@@ -9,7 +9,7 @@ set -e
 #
 # Modfied by jrivero@osrfoundation.org
 
-GZ_VER=9
+GZ_VER=11
 DEB_PKG_NAME=libgazebo$GZ_VER-dev
 BREW_PKG_NAME=gazebo${GZ_VER}
 
@@ -159,6 +159,13 @@ do_install() {
 		debian)
 			dist_version="$(cat /etc/debian_version | sed 's/\/.*//' | sed 's/\..*//')"
 			case "$dist_version" in
+				10)
+					dist_version="buster"
+				;;
+
+				9)
+					dist_version="stretch"
+			    ;;
 				8)
 					dist_version="jessie"
 				;;
@@ -166,6 +173,10 @@ do_install() {
 					dist_version="wheezy"
 				;;
 			esac
+
+			echo "There is no gazebo${GZ_VER} released for ${dist_version} but there are other versions available"
+			echo "Please read http://gazebosim.org/tutorials?tut=install_other_linux&cat=install#Debian"
+			exit -1
 		;;
 
 		oracleserver)
