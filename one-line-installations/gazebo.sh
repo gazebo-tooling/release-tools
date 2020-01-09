@@ -161,22 +161,19 @@ do_install() {
 			case "$dist_version" in
 				10)
 					dist_version="buster"
+					GZ_VER=9
 				;;
 
 				9)
 					dist_version="stretch"
+					GZ_VER=7
 			    ;;
 				8)
 					dist_version="jessie"
-				;;
-				7)
-					dist_version="wheezy"
+					GZ_VER=7
 				;;
 			esac
-
-			echo "There is no gazebo${GZ_VER} released for ${dist_version} but there are other versions available"
-			echo "Please read http://gazebosim.org/tutorials?tut=install_other_linux&cat=install#Debian"
-			exit -1
+			DEB_PKG_NAME=libgazebo$GZ_VER-dev
 		;;
 
 		oracleserver)
@@ -246,6 +243,20 @@ do_install() {
 			exit 0
 			;;
 
+		debian)
+			cat >&2 <<-'EOF'
+
+			In Debian this script will install the latest version from
+			Debian repositories
+
+			EOF
+
+			(
+			set -x
+			$sh_c "sleep 3; apt-get update; apt-get install -y -q $DEB_PKG_NAME"
+			)
+			exit 0
+			;;
 		ubuntu)
 			export DEBIAN_FRONTEND=noninteractive
 
