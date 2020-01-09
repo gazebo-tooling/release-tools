@@ -24,6 +24,8 @@ if [[ $GAZEBO_MAJOR_VERSION -ge 11 ]]; then
   USE_GCC8=true
 fi
 
+export GZDEV_PROJECT_NAME="gazebo${GAZEBO_MAJOR_VERSION}"
+
 # Can not use generic compilation since we host the DART instalation and some
 # other logic based of every gazebo version
 . ${SCRIPT_DIR}/lib/gazebo-base-default.bash
