@@ -190,9 +190,9 @@ cd ${repo_path}
 
 # .dsc | source debian packages
 for pkg in `ls $pkgs_path/*.dsc`; do
-  pkg_name=${pkg##*/}
-  pkg_name=${pkg_name/_*}
-  pkg_version=${pkg_name#*_}
+  pkg_name_clean=${pkg##*/}
+  pkg_name=${pkg_name_clean/_*}
+  pkg_version=${pkg_name_clean#*_}
   pkg_version=${pkg_version/.dsc}
 
   if dsc_package_exists_and_equal_or_greater ${pkg_name} ${pkg_version}; then
