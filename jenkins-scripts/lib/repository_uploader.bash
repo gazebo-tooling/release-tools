@@ -41,15 +41,23 @@ S3_upload()
     rm -fr ${S3_DIR}
 }
 
-dsc_package_exists()
+dsc_package_exists_and_equal_or_greater()
 {
-    local pkg=${1} # name, no full path
+    local pkg=${1} new_version=${2}
 
-    if [[ -n $(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro ls ${pkg} | grep source) ]]; then
-	return 0 # exists, true
+    current_dsc_info=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro -T dsc ls "${pkg}" | grep "${DISTRO}")
+
+    if [[ -z ${current_dsc_info} ]]; then
+        return 1 # do not exits, false
     fi
 
-    return 1 # do not exits, false
+    current_version=$(awk '{ print $3 }' <<< "${current_dsc_info}")
+    # if new version is lower
+    if $(dpkg --compare-versions ${current_version} lt ${new_version}); then
+        return 1 # exists, new package is greater
+    fi
+
+    return 0 # exist and current package is greater or equal than new one
 }
 
 upload_package()
@@ -69,7 +77,7 @@ upload_dsc_package()
     local pkg=${1}
     [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
 
-    # .dsc sometimes does not include priority or section, 
+    # .dsc sometimes does not include priority or section,
     # try to upload and if failed, specify the values
     # see: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=768046
     sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg} || \
@@ -141,7 +149,7 @@ for pkg in `ls $pkgs_path/*.zip`; do
     echo "S3_UPLOAD_PATH was not defined. Not uploading"
     exit 1
   fi
-  
+
   # Seems important to upload the path with a final slash
   S3_upload ${pkg} "${S3_UPLOAD_PATH}"
 done
@@ -157,7 +165,7 @@ for pkg in `find "$pkgs_path" -name '*.bottle*.json'`; do
     echo "Failed to infer s3 directory from bottle filename: ${pkg}"
     exit 1
   fi
-  
+
   # Seems important to upload the path with a final slash
   s3_directory_one_slash=${s3_directory%%*(/)}/
   S3_upload ${bottle_filename} "${s3_directory_one_slash}"
@@ -182,11 +190,13 @@ cd ${repo_path}
 
 # .dsc | source debian packages
 for pkg in `ls $pkgs_path/*.dsc`; do
-  pkg_name=${pkg##*/} 
-  pkg_name=${pkg_name/_*}    
+  pkg_name=${pkg##*/}
+  pkg_name=${pkg_name/_*}
+  pkg_version=${pkg_name#*_}
+  pkg_version=${pkg_version/.dsc}
 
-  if dsc_package_exists ${pkg_name}; then
-    echo "Source package for ${pkg} already exists in the repo"
+  if dsc_package_exists_and_equal_or_greater ${pkg_name} ${pkg_version}; then
+    echo "Source package for ${pkg} already exists in the repo and it's greater or equal than current version"
     echo "SKIP SOURCE UPLOAD"
   else
     upload_dsc_package ${pkg}
