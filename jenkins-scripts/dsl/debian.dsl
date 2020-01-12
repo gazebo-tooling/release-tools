@@ -22,9 +22,6 @@ packages['science-team'] = ['console-bridge',
                             'urdfdom',
                             'urdfdom-headers' ]
 
-packages['debian']  = ['peak-linux-driver',
-                       'peak-pcan-basic']
-
 packages['jrivero-guest'] = ['empy']
 
 
