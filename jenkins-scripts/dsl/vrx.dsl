@@ -97,9 +97,6 @@ ci_distro.each { distro, ros_distro ->
 
 // DAILY INSTALL TESTS
 ci_distro.each { distro, ros_distro ->
-  if ("${ros_distro}" == "kinetic")
-     return
-
   supported_arches.each { arch ->
     // --------------------------------------------------------------
     // 1. Install vrx testing pkg testing
@@ -110,6 +107,9 @@ ci_distro.each { distro, ros_distro ->
 
     install_default_job.with
     {
+      if ("${ros_distro}" == "kinetic")
+        disabled()
+
       triggers {
         cron('@daily')
       }
