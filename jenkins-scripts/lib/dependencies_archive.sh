@@ -291,6 +291,12 @@ else
       ;;
       dashing)
         GAZEBO_VERSION_FOR_ROS="9"
+      ;;
+      eloquent)
+        GAZEBO_VERSION_FOR_ROS="9"
+      ;;
+      foxy)
+        GAZEBO_VERSION_FOR_ROS="11"
     esac
   fi
 
