@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def gazebo_supported_branches = [ 'gazebo7', 'gazebo9', 'gazebo10' ]
+def gazebo_supported_branches = [ 'gazebo7', 'gazebo9', 'gazebo10', 'gazebo11' ]
 def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
 // nightly_gazebo_branch is not the branch used to get the code from but
 // the one used to generate the corresponding debbuild job.
@@ -36,7 +36,7 @@ String abi_job_name = ''
 boolean is_watched_by_buildcop(branch, distro = 'xenial', gpu = 'nvidia')
 
 {
-  if (branch == 'default' || branch == 'gazebo7' || branch == 'gazebo9' || branch == 'gazebo10')
+  if (branch == 'default' || branch == 'gazebo7' || branch == 'gazebo9' || branch == 'gazebo10' || branch == 'gazebo11')
     return true
 
   return false
@@ -321,7 +321,12 @@ ci_distro.each { distro ->
 
 // BRANCHES CI JOB @ SCM/DAILY
 gazebo_supported_branches.each { branch ->
-  ci_distro.each { distro ->
+  distros = ci_distro
+  if (branch == 'gazebo11')
+  {
+    distros = ci_distro_default
+  }
+  distros.each { distro ->
     supported_arches.each { arch ->
       ci_gpu.each { gpu ->
         // ci_default job for the rest of arches / scm@daily
@@ -487,7 +492,12 @@ ci_distro.each { distro ->
 
 // INSTALL LINUX -DEV PACKAGES ALL PLATFORMS @ CRON/DAILY
 gazebo_supported_branches.each { branch ->
-  ci_distro.each { distro ->
+  distros = ci_distro
+  if (branch == 'gazebo11')
+  {
+    distros = ci_distro_default
+  }
+  distros.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       def install_default_job = job("gazebo-install-${branch}_pkg-${distro}-${arch}")
