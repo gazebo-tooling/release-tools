@@ -3,6 +3,7 @@
 HG_TMP=$(mktemp -d -t hg_delete_closed_XXXXXXXXXX)
 HG_REPO=$1
 echo =========== Start Cloning HG Repository
+echo cloning to $HG_TMP
 hg clone $HG_REPO $HG_TMP
 echo =========== Done Cloning HG Repository
 echo
