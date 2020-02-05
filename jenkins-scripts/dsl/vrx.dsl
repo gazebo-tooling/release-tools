@@ -107,6 +107,9 @@ ci_distro.each { distro, ros_distro ->
 
     install_default_job.with
     {
+      if ("${ros_distro}" == "kinetic")
+        disabled()
+
       triggers {
         cron('@daily')
       }
