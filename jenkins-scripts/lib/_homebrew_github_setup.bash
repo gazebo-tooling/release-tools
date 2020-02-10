@@ -51,7 +51,7 @@ TAP_PREFIX=$(${BREW} --repo osrf/simulation)
 GIT="git -C ${TAP_PREFIX}"
 ${GIT} remote add pr_head ${PULL_REQUEST_HEAD_REPO}
 # unshallow to get a full clone able to push
-${GIT} fetch --unshallow
+${GIT} fetch --unshallow || true
 ${GIT} fetch pr_head
 # change to pull request branch in case new formula is being added
 if [ -n "${PULL_REQUEST_BRANCH}" ]; then
