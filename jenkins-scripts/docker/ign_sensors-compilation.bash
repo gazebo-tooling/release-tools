@@ -28,6 +28,12 @@ if ! [[ ${IGN_SENSORS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
+if [[ ${IGN_SENSORS_MAJOR_VERSION} -ge 4 ]]; then
+  export BUILD_IGN_RENDERING=true
+  export IGN_RENDERING_MAJOR_VERSION=4
+  export IGN_RENDERING_BRANCH=default
+fi
+
 export USE_GCC8=true
 
 export GPU_SUPPORT_NEEDED=true
