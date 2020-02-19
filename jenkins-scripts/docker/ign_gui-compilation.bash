@@ -32,6 +32,9 @@ if [[ ${IGN_GUI_MAJOR_VERSION} -ge 4 ]]; then
   export BUILD_IGN_RENDERING=true
   export IGN_RENDERING_MAJOR_VERSION=4
   export IGN_RENDERING_BRANCH=default
+  export BUILD_IGN_COMMON=true
+  export IGN_COMMON_MAJOR_VERSION=3
+  export IGN_COMMON_BRANCH=default
 fi
 
 if [[ ${IGN_GUI_MAJOR_VERSION} -ge 1 ]]; then
