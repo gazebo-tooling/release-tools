@@ -55,5 +55,5 @@ ${GIT} fetch --unshallow || true
 ${GIT} fetch pr_head
 # change to pull request branch in case new formula is being added
 if [ -n "${PULL_REQUEST_BRANCH}" ]; then
-  ${GIT} checkout ${PULL_REQUEST_BRANCH}
+  ${GIT} checkout --track pr_head/${PULL_REQUEST_BRANCH}
 fi
