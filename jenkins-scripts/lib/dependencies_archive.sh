@@ -17,7 +17,7 @@ if ${DART_COMPILE_FROM_SOURCE}; then
 fi
 
 pythonv="python"
-if [[ ${DISTRO} == 'focal' ]]; then
+if [[ ${DISTRO} != 'trusty' ]]; then
   pythonv="python3"
 fi
 
