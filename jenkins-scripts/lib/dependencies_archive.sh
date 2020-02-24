@@ -28,9 +28,9 @@ BASE_DEPENDENCIES="build-essential \\
                    x11-utils       \\
                    cppcheck        \\
                    xsltproc        \\
-                   python-lxml     \\
-                   python-psutil   \\
-                   python          \\
+                   python3-lxml    \\
+                   python3-psutil  \\
+                   python3         \\
                    bc              \\
                    netcat-openbsd  \\
                    gnupg2          \\
@@ -41,7 +41,7 @@ BREW_BASE_DEPENDCIES="mercurial git cmake"
 
 # 1. SDFORMAT
 # ruby for xml_schemas generation and libxml2-utils for xmllint used in tests
-SDFORMAT_NO_IGN_DEPENDENCIES="python         \\
+SDFORMAT_NO_IGN_DEPENDENCIES="python3        \\
                               libxml2-utils  \\
                               libtinyxml-dev"
 
@@ -263,7 +263,7 @@ else
                             libprotoc-dev            \\
                             libprotobuf-dev          \\
                             protobuf-compiler        \\
-                            python-protobuf          \\
+                            python3-protobuf         \\
                             libignition-common-dev   \\
                             libignition-msgs-dev     \\
                             libignition-transport3-dev"
@@ -313,7 +313,7 @@ else
 
   # TODO rename the variable
   if ${ROS2}; then
-    ROS_CATKIN_BASE="python-dev                      \\
+    ROS_CATKIN_BASE="python3-dev                     \\
                     python3-colcon-common-extensions \\
                     python-rosdep                    \\
                     python-wstool                    \\
@@ -455,7 +455,7 @@ if [[ -z ${IGN_TRANSPORT_MAJOR_VERSION} ]]; then
 fi
 
 IGN_TRANSPORT_NO_IGN_DEPENDENCIES="pkg-config           \\
-                                   python               \\
+                                   python3              \\
                                    ruby-ronn            \\
                                    libprotoc-dev        \\
                                    libprotobuf-dev      \\
@@ -500,7 +500,7 @@ fi
 export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} libignition-tools-dev"
 
 IGN_COMMON_NO_IGN_DEPENDENCIES="pkg-config            \\
-                         python                \\
+                         python3               \\
                          ruby-ronn             \\
                          uuid-dev              \\
                          libfreeimage-dev      \\
