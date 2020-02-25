@@ -16,6 +16,11 @@ if ${DART_COMPILE_FROM_SOURCE}; then
     DART_FROM_PKGS=false
 fi
 
+pythonv="python"
+if [[ ${DISTRO} != 'trusty' ]]; then
+  pythonv="python3"
+fi
+
 # mesa-utils, x11-utils for dri checks, xsltproc for qtest->junit conversion and
 # python-psutil for memory testing
 # netcat-openbsd (nc command) for squid-deb-proxy checking
@@ -28,9 +33,9 @@ BASE_DEPENDENCIES="build-essential \\
                    x11-utils       \\
                    cppcheck        \\
                    xsltproc        \\
-                   python-lxml     \\
-                   python-psutil   \\
-                   python          \\
+                   ${pythonv}-lxml \\
+                   ${pythonv}-psutil \\
+                   ${pythonv}      \\
                    bc              \\
                    netcat-openbsd  \\
                    gnupg2          \\
@@ -41,7 +46,7 @@ BREW_BASE_DEPENDCIES="mercurial git cmake"
 
 # 1. SDFORMAT
 # ruby for xml_schemas generation and libxml2-utils for xmllint used in tests
-SDFORMAT_NO_IGN_DEPENDENCIES="python         \\
+SDFORMAT_NO_IGN_DEPENDENCIES="${pythonv}     \\
                               libxml2-utils  \\
                               libtinyxml-dev"
 
@@ -263,7 +268,7 @@ else
                             libprotoc-dev            \\
                             libprotobuf-dev          \\
                             protobuf-compiler        \\
-                            python-protobuf          \\
+                            ${pythonv}-protobuf      \\
                             libignition-common-dev   \\
                             libignition-msgs-dev     \\
                             libignition-transport3-dev"
@@ -313,25 +318,25 @@ else
 
   # TODO rename the variable
   if ${ROS2}; then
-    ROS_CATKIN_BASE="python-dev                      \\
-                    python3-colcon-common-extensions \\
-                    python-rosdep                    \\
-                    python-wstool                    \\
-                    python-rosinstall                \\
-                    python-rospkg                    \\
-                    python-vcstools"
+    ROS_CATKIN_BASE="${pythonv}-dev                      \\
+                    ${pythonv}3-colcon-common-extensions \\
+                    ${pythonv}-rosdep                    \\
+                    ${pythonv}-wstool                    \\
+                    ${pythonv}-rosinstall                \\
+                    ${pythonv}-rospkg                    \\
+                    ${pythonv}-vcstools"
   else
-    ROS_CATKIN_BASE="python-dev              \\
-                    python-catkin-pkg        \\
-                    python-rosdep            \\
-                    python-wstool            \\
-                    ros-${ROS_DISTRO}-catkin \\
-                    ros-${ROS_DISTRO}-ros    \\
-                    python-rosinstall        \\
-                    python-catkin-tools      \\
-                    python-catkin-pkg        \\
-                    python-rospkg            \\
-                    python-vcstools"
+    ROS_CATKIN_BASE="${pythonv}-dev              \\
+                    ${pythonv}-catkin-pkg        \\
+                    ${pythonv}-rosdep            \\
+                    ${pythonv}-wstool            \\
+                    ros-${ROS_DISTRO}-catkin     \\
+                    ros-${ROS_DISTRO}-ros        \\
+                    ${pythonv}-rosinstall        \\
+                    ${pythonv}-catkin-tools      \\
+                    ${pythonv}-catkin-pkg        \\
+                    ${pythonv}-rospkg            \\
+                    ${pythonv}-vcstools"
   fi
 
   #
@@ -455,7 +460,7 @@ if [[ -z ${IGN_TRANSPORT_MAJOR_VERSION} ]]; then
 fi
 
 IGN_TRANSPORT_NO_IGN_DEPENDENCIES="pkg-config           \\
-                                   python               \\
+                                   ${pythonv}           \\
                                    ruby-ronn            \\
                                    libprotoc-dev        \\
                                    libprotobuf-dev      \\
@@ -499,8 +504,8 @@ fi
 
 export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} libignition-tools-dev"
 
-IGN_COMMON_NO_IGN_DEPENDENCIES="pkg-config            \\
-                         python                \\
+IGN_COMMON_NO_IGN_DEPENDENCIES="pkg-config     \\
+                         ${pythonv}            \\
                          ruby-ronn             \\
                          uuid-dev              \\
                          libfreeimage-dev      \\
