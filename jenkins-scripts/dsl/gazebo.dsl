@@ -340,7 +340,7 @@ gazebo_supported_branches.each { branch ->
 
         gazebo_ci_job.with
         {
-          label "gpu-${gpu}-${distro}"
+          label "gpu-${gpu}"
 
           triggers {
             scm('@daily')
