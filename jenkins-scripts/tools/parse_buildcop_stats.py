@@ -15,6 +15,10 @@ for c in ["yellow", "red", "aborted", "notbuilt"]:
 
 # list of reasons build might be failing
 alwaysFailsBecause = {}
+alwaysFailsBecause['ign_gazebo-ign-3-win'] = \
+        "Dependencies are not being found within the build environment."
+alwaysFailsBecause['ign_gazebo-ign-2-win'] = \
+        "Dependencies are not being found within the build environment."
 
 header = "\n### Builds with no record of passing\n"
 header_printed = False
