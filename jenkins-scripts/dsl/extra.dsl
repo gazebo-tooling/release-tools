@@ -1,4 +1,6 @@
-import _configs_.*
+import _configs_.Globals
+import _configs_.OSRFLinuxBase
+import _configs_.OSRFLinuxBuildPkg
 import javaposse.jobdsl.dsl.Job
 
 Globals.default_emails = "jrivero@osrfoundation.org"
