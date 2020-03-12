@@ -9,7 +9,7 @@ set -e
 #
 # Modfied by jrivero@osrfoundation.org
 
-GZ_VER=9
+GZ_VER=11
 DEB_PKG_NAME=libgazebo$GZ_VER-dev
 BREW_PKG_NAME=gazebo${GZ_VER}
 
@@ -154,18 +154,34 @@ do_install() {
 			if [ -z "$dist_version" ] && [ -r /etc/lsb-release ]; then
 				dist_version="$(. /etc/lsb-release && echo "$DISTRIB_CODENAME")"
 			fi
+			case "$dist_version" in
+				xenial)
+					GZ_VER=10
+				;;
+				artful | eoan )
+					GZ_VER=9
+				;;
+			esac
 		;;
 
 		debian)
 			dist_version="$(cat /etc/debian_version | sed 's/\/.*//' | sed 's/\..*//')"
 			case "$dist_version" in
+				10)
+					dist_version="buster"
+					GZ_VER=9
+				;;
+
+				9)
+					dist_version="stretch"
+					GZ_VER=7
+			    ;;
 				8)
 					dist_version="jessie"
-				;;
-				7)
-					dist_version="wheezy"
+					GZ_VER=7
 				;;
 			esac
+			DEB_PKG_NAME=libgazebo$GZ_VER-dev
 		;;
 
 		oracleserver)
@@ -235,6 +251,20 @@ do_install() {
 			exit 0
 			;;
 
+		debian)
+			cat >&2 <<-'EOF'
+
+			In Debian this script will install the latest version from
+			Debian repositories
+
+			EOF
+
+			(
+			set -x
+			$sh_c "sleep 3; apt-get update; apt-get install -y -q $DEB_PKG_NAME"
+			)
+			exit 0
+			;;
 		ubuntu)
 			export DEBIAN_FRONTEND=noninteractive
 
