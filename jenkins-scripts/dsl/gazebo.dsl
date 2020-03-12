@@ -586,13 +586,17 @@ all_branches.each { branch ->
   if (is_watched_by_buildcop(branch))
     Globals.extra_emails = Globals.build_cop_email
 
+  def osx_label = 'osx_gazebo'
+  if (branch == "gazebo7")
+    osx_label = 'osx_highsierra'
+
   def gazebo_brew_ci_job = job("gazebo-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(gazebo_brew_ci_job)
   OSRFBitbucketHg.create(gazebo_brew_ci_job, "https://bitbucket.org/osrf/gazebo", branch, "gazebo", "HomeBrew")
 
   gazebo_brew_ci_job.with
   {
-      label "osx_gazebo"
+      label osx_label
 
       triggers {
         scm("TZ=US/Pacific \n H H(0-17) * * *")
