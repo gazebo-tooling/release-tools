@@ -10,8 +10,6 @@ set -e
 # Modfied by jrivero@osrfoundation.org
 
 GZ_VER=11
-DEB_PKG_NAME="libgazebo$GZ_VER-dev gazebo$GZ_VER"
-BREW_PKG_NAME=gazebo${GZ_VER}
 
 command_exists() {
 	command -v "$@" > /dev/null 2>&1
@@ -181,7 +179,6 @@ do_install() {
 					GZ_VER=7
 				;;
 			esac
-			DEB_PKG_NAME=libgazebo$GZ_VER-dev
 		;;
 
 		oracleserver)
@@ -234,6 +231,7 @@ do_install() {
 			;;
 		debian | ubuntu)
 			export DEBIAN_FRONTEND=noninteractive
+			DEB_PKG_NAME="libgazebo$GZ_VER-dev gazebo$GZ_VER"
 
 			cat >&2 <<-'EOF'
 
@@ -276,6 +274,7 @@ do_install() {
 			exit 0
 			;;
 		osX)
+			BREW_PKG_NAME=gazebo${GZ_VER}
 			(
 			  if ! command_exists ruby; then
 				echo "ERROR: ruby executable is not found in your system path."
