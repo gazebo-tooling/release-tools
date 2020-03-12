@@ -14,6 +14,9 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
+export BUILDING_SOFTWARE_DIRECTORY="ign-transport"
+  export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_TRANSPORT_DEPENDENCIES"
+
 # Identify IGN_TRANSPORT_MAJOR_VERSION to help with dependency resolution
 IGN_TRANSPORT_MAJOR_VERSION=$(\
   python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
@@ -25,23 +28,10 @@ if ! [[ ${IGN_TRANSPORT_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-transport"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_TRANSPORT_DEPENDENCIES"
-export BUILDING_JOB_REPOSITORIES="stable"
-if [[ $(date +%Y%m%d) -le 20180201 ]]; then
-  ## need prerelease repo to get ignition-cmake during the development cycle
-  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
+if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 6 ]]; then
+  export USE_GCC8=true
 fi
-# Install Ignition Tools while we release a .deb package.
-# ToDo: Remove this env variable after releasing Ignition Tools.
-export DOCKER_POSTINSTALL_HOOK="""\
-  apt-get update && \\
-  apt-get install -y mercurial && \\
-  hg clone https://bitbucket.org/ignitionrobotics/ign-tools &&  \\
-  mkdir ign-tools/build && \\
-  cd ign-tools/build &&  \\
-  cmake .. && \\
-  make install
-"""
 
-. ${SCRIPT_DIR}/lib/generic-building-base.bash
+export GZDEV_PROJECT_NAME="ignition-transport${IGN_TRANSPORT_MAJOR_VERSION}"
+
+. "${SCRIPT_DIR}/lib/generic-building-base.bash"

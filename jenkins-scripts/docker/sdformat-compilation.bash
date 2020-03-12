@@ -14,14 +14,21 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-. ${SCRIPT_DIR}/lib/_sdformat_version_hook.bash
+. "${SCRIPT_DIR}/lib/_sdformat_version_hook.bash"
 
 export BUILDING_SOFTWARE_DIRECTORY="sdformat"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="SDFORMAT_BASE_DEPENDENCIES"
-export BUILDING_JOB_REPOSITORIES="stable"
 
 if [[ ${SDFORMAT_MAJOR_VERSION} -ge 6 ]]; then
   export BUILDING_EXTRA_CMAKE_PARAMS="-DUSE_INTERNAL_URDF:BOOL=True"
 fi
 
-. ${SCRIPT_DIR}/lib/generic-building-base.bash
+if [[ ${SDFORMAT_MAJOR_VERSION} -ge 8 ]]; then
+  export USE_GCC8=true
+fi
+
+export GZDEV_PROJECT_NAME="sdformat${SDFORMAT_MAJOR_VERSION}"
+
+# default and major branches compilations
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="SDFORMAT_BASE_DEPENDENCIES"
+
+. "${SCRIPT_DIR}/lib/generic-building-base.bash"

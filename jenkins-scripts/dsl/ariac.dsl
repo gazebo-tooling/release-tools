@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def supported_distros = [ 'trusty', 'xenial' ]
+def supported_distros = [ 'bionic' ]
 def supported_arches = [ 'amd64' ]
 
 // LINUX
@@ -20,7 +20,7 @@ build_pkg_job.with
         credentials('65cd22d1-f3d5-4ff4-b18f-1d88efa13a02')
       }
 
-      branch('master') 
+      branch('master')
 
       extensions {
         cleanBeforeCheckout()
@@ -44,7 +44,7 @@ build_pkg_job.with
             export NIGHTLY_MODE=true
             export USE_REPO_DIRECTORY_FOR_NIGHTLY=true
             /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
-          
+
             rm -fr \$WORKSPACE/repo
             mv \$WORKSPACE/repo_backup \$WORKSPACE/repo
             """.stripIndent())
@@ -54,6 +54,12 @@ build_pkg_job.with
 
 supported_distros.each { distro ->
   supported_arches.each { arch ->
+
+    if (distro == 'xenial')
+       ros_distro = 'kinetic'
+    else if (distro == 'bionic')
+       ros_distro = 'melodic'
+
     // --------------------------------------------------------------
     // 2. Create the install test job
     def install_default_job = job("ariac-install-pkg-${distro}-${arch}")
@@ -67,7 +73,7 @@ supported_distros.each { distro ->
           cron('@weekly')
         }
 
-        label "gpu-reliable-${distro}"
+        label "gpu-reliable"
 
         steps {
           shell("""#!/bin/bash -xe
@@ -76,11 +82,74 @@ supported_distros.each { distro ->
                 export ARCH=${arch}
                 export DISTRO=${distro}
 
+
                 /bin/bash -x ./scripts/jenkins-scripts/docker/ariac-install-test-job.bash
                 """.stripIndent())
        }
     }
+
+    // --------------------------------------------------------------
+    // 3. Docker install test job
+    def install_docker_default_job = job("ariac-install-docker_${ros_distro}-${distro}-${arch}")
+
+    // Use the linux install_docker as base
+    OSRFLinuxInstall.create(install_docker_default_job)
+
+    install_docker_default_job.with
+    {
+      label "large-memory"
+
+      scm {
+        git {
+          remote {
+            github("osrf/ariac-docker")
+          }
+          extensions {
+            relativeTargetDirectory("ariac-docker")
+          }
+          branch("refs/heads/master")
+        }
+      }
+
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export LINUX_DISTRO=ubuntu
+              export ARCH=${arch}
+              export DISTRO=${distro}
+              export ROS_DISTRO=${ros_distro}
+
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/ariac-docker-installation.bash
+              """.stripIndent())
+      }
+    }
+
+    // --------------------------------------------------------------
+    // 4. -any- PR integration
+    def install_docker_any_job = job("ariac-ci-pr_any-docker_${ros_distro}-${distro}-${arch}")
+
+    // Use the linux install_docker as base
+    OSRFLinuxCompilationAnyGitHub.create(install_docker_any_job,
+                                         "osrf/ariac-docker",
+                                         [ "${ros_distro}" ])
+
+    install_docker_any_job.with
+    {
+      label "large-memory"
+
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+
+              export LINUX_DISTRO=ubuntu
+              export ARCH=${arch}
+              export DISTRO=${distro}
+              export ROS_DISTRO=${ros_distro}
+
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/ariac-docker-installation.bash
+              """.stripIndent())
+      }
+    }
   }
 }
-
-

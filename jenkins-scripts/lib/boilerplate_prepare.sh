@@ -8,11 +8,11 @@ init_stopwatch CREATE_TESTING_ENVIROMENT
 
 # Default values - Provide them is prefered
 if [ -z ${DISTRO} ]; then
-    DISTRO=trusty
+    DISTRO=xenial
 fi
 
 if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=hydro
+  ROS_DISTRO=kinetic
 fi
 
 # Define making jobs by default if not present
@@ -33,14 +33,6 @@ fi
 # By default, do not need to use C++11 compiler
 if [ -z ${NEED_C11_COMPILER} ]; then
   NEED_C11_COMPILER=false
-fi
-
-# Only precise needs to install a C++11 compiler. Trusty on
-# already have a supported version
-if $NEED_C11_COMPILER; then
-  if [[ $DISTRO != 'precise' ]]; then
-      NEED_C11_COMPILER=false
-  fi
 fi
 
 # Transition for 4.8 -> 4.9 makes some optimization in the linking
@@ -70,11 +62,7 @@ if [[ -z $WORKAROUND_PBUILDER_BUG ]]; then
   WORKAROUND_PBUILDER_BUG=false
 fi
 
-if $WORKAROUND_PBUILDER_BUG && [[ $DISTRO == 'precise' ]]; then
-  distro=trusty
-else
-  distro=${DISTRO}
-fi
+distro=${DISTRO}
 
 if [ -z "${ARCH+xxx}" ]; then
     export ARCH=amd64
@@ -153,17 +141,6 @@ mkdir -p $work_dir
 cd $work_dir
 
 sudo apt-get update -c $aptconffile
-
-# Check if trusty exists in the machine (not in precise) and symlink
-if [[ ! -f /usr/share/debootstrap/scripts/trusty ]]; then
-    sudo ln -s /usr/share/debootstrap/scripts/gutsy /usr/share/debootstrap/scripts/trusty
-fi
-if [[ ! -f /usr/share/debootstrap/scripts/zesty ]]; then
-    sudo ln -s /usr/share/debootstrap/scripts/gutsy /usr/share/debootstrap/scripts/zesty
-fi
-if [[ ! -f /usr/share/debootstrap/scripts/yakkety ]]; then
-    sudo ln -s /usr/share/debootstrap/scripts/gutsy /usr/share/debootstrap/scripts/yakkety
-fi
 
 # Setup the pbuilder environment if not existing, or update
 if [ ! -e $basetgz ] || [ ! -s $basetgz ] 

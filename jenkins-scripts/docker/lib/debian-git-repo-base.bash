@@ -24,6 +24,8 @@ if [[ -z ${BRANCH} ]]; then
   export CLONE_NEEDED=false
 fi
 
+RUN_AUTOPKGTEST=${RUN_AUTOPKGTEST:-true}
+
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
@@ -62,7 +64,7 @@ OSRF_VERSION=\$VERSION\osrf${RELEASE_VERSION}~${DISTRO}${RELEASE_ARCH_VERSION}
 echo "# BEGIN SECTION: check that pristine-tar is updated"
 git checkout -f pristine-tar || { echo "W: probably miss the pristine-tar branch" && exit 1; }
 # The tilde (~) is not allow in git tag and changed to underscore (_)
-PRISTINE_VERSION_NO_REVISION=\$(echo \${VERSION_NO_REVISION} | sed 's:~:_:')
+PRISTINE_VERSION_NO_REVISION=\$(echo \${VERSION_NO_REVISION} | sed 's:~:_:g')
 if [[ -z \$(git tag | grep upstream/\${PRISTINE_VERSION_NO_REVISION}) ]]; then
    echo "W: \${PRISTINE_VERSION_NO_REVISION} commit was not found in pristine-tar"
    exit 1
@@ -121,6 +123,7 @@ done
 test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 
+if $RUN_AUTOPKGTEST; then
 # Ubuntu has no autopkgtest command in the autopkgtest package
 if [ "$LINUX_DISTRO" != "ubuntu" ]; then
 echo '# BEGIN SECTION: run tests'
@@ -135,6 +138,7 @@ if [[ \$testret != 0 ]] && [[ \$testret != 8 ]]; then
 fi
 set -e
 echo '# END SECTION'
+fi
 fi
 
 echo '# BEGIN SECTION: clean up git build'

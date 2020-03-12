@@ -14,6 +14,10 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
+export BUILDING_SOFTWARE_DIRECTORY="ign-math"
+export BUILDING_JOB_REPOSITORIES="stable"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_MATH_DEPENDENCIES"
+
 # Identify IGN_MATH_MAJOR_VERSION to help with dependency resolution
 IGN_MATH_MAJOR_VERSION=$(\
   python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
@@ -25,14 +29,10 @@ if ! [[ ${IGN_MATH_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-math"
-export BUILDING_JOB_REPOSITORIES="stable"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_MATH_DEPENDENCIES"
-
-# To get ign-cmake1 package in prerelease
-if [[ $(date +%Y%m%d) -le 20180415 ]]; then
-  ## need prerelease repo to get ignition-cmake1 for ign-rendering
-  export BUILDING_JOB_REPOSITORIES="${BUILDING_JOB_REPOSITORIES} prerelease"
+if [[ ${IGN_MATH_MAJOR_VERSION} -ge 6 ]]; then
+  export USE_GCC8=true
 fi
 
-. ${SCRIPT_DIR}/lib/generic-building-base.bash
+export GZDEV_PROJECT_NAME="ignition-math${IGN_MATH_MAJOR_VERSION}"
+
+. "${SCRIPT_DIR}/lib/generic-building-base.bash"

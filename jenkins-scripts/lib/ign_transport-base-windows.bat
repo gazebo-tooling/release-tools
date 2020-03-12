@@ -9,7 +9,7 @@ set LOCAL_WS=%WORKSPACE%\ws
 
 :: Call vcvarsall and all the friends
 echo # BEGIN SECTION: configure the MSVC compiler
-call %win_lib% :configure_msvc_compiler
+call %win_lib% :configure_msvc2019_compiler
 echo # END SECTION
 
 if "%IGN_CLEAN_WORKSPACE%" == "" set IGN_CLEAN_WORKSPACE=false
@@ -29,6 +29,9 @@ mkdir %LOCAL_WS% || echo "The workspace already exists. Fine"
 cd %LOCAL_WS% || goto :error
 
 echo # BEGIN SECTION: downloading ign-transport dependencies and unzip
+:: avoid conflicts with vcpkg packages
+call %win_lib% :disable_vcpkg_integration
+
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/cppzmq-noarch.zip cppzmq-noarch.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip protobuf-2.6.0-cmake3.5-win%BITNESS%-vc12.zip
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/zeromq-4.0.4-%PLATFORM_TO_BUILD%.zip zeromq-4.0.4-%PLATFORM_TO_BUILD%.zip
@@ -88,7 +91,7 @@ if NOT "%IGN_TEST_DISABLE%" == "TRUE" (
   echo # BEGIN SECTION: run tests
   REM nmake test is not working test/ directory exists and nmake is not
   REM able to handle it.
-  ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV  || echo "tests failed"
+  ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV
   echo # END SECTION
 
   echo # BEGIN SECTION: export testing results

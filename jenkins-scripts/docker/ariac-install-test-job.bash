@@ -6,19 +6,19 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export GPU_SUPPORT_NEEDED=true
 
-export INSTALL_JOB_PKG="ariac"
+export INSTALL_JOB_PKG="ariac3"
 export INSTALL_JOB_REPOS="stable"
 export USE_ROS_REPO=true
 
 case "$DISTRO" in
-  'trusty')
-    export ROS_DISTRO=indigo
-    ;;
   'xenial')
     export ROS_DISTRO=kinetic
     ;;
+  'bionic')
+    export ROS_DISTRO=melodic
+    ;;
   *)
-    echo "Only trusty+indigo and xenial+kinetic are supported"
+    echo "Only xenial+kinetic or bionic+melodic are supported"
     exit 1
     ;;
 esac
@@ -50,7 +50,7 @@ catkin_make
 
 TEST_START=\`date +%s\`
 # Run ARIAC simulation
-rosrun osrf_gear gear.py -f \$(rospack find osrf_gear)/config/comp_conf1.yaml \
+rosrun osrf_gear gear.py -f \$(rospack find osrf_gear)/config/sample.yaml \
     ~/helloworld_ws/src/ariac_example/config/sample_gear_conf.yaml &
 # Run the example node
 sleep 10 && . ~/helloworld_ws/devel/setup.bash && \

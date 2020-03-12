@@ -76,7 +76,7 @@ upload_dsc_package()
 	sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg}
 }
 
-NEEDED_HOST_PACKAGES="reprepro openssh-client"
+NEEDED_HOST_PACKAGES="reprepro openssh-client jq"
 QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
 if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
   sudo apt-get update
@@ -147,13 +147,11 @@ for pkg in `ls $pkgs_path/*.zip`; do
 done
 
 # .bottle | brew binaries
-for pkg in `ls $pkgs_path/*.bottle*.tar.gz`; do
-  # There could be more than one bottle exported so do not relay on variables
-  # and extract information from bottles filenames
-  pkg_filename=${pkg##*/} # leave file name only
-  pkg_name=${pkg_filename%-*} # remove from the last - until the end
-  pkg_canonical_name=${pkg_name/[0-9]*} # remove all version from name
-  s3_directory=${pkg_canonical_name/ignition/ign} # use short version ignition
+for pkg in `find "$pkgs_path" -name '*.bottle*.json'`; do
+  # Extract bottle name and root_url from json file
+  bottle_filename=$(dirname $pkg)/$(jq -r '.[]["bottle"]["tags"][]["filename"]' < $pkg)
+  root_url=$(jq -r '.[]["bottle"]["root_url"]' < $pkg)
+  s3_directory=${root_url#https://osrf-distributions\.s3\.amazonaws\.com/}
 
   if [[ -z ${s3_directory} ]]; then
     echo "Failed to infer s3 directory from bottle filename: ${pkg}"
@@ -161,7 +159,8 @@ for pkg in `ls $pkgs_path/*.bottle*.tar.gz`; do
   fi
   
   # Seems important to upload the path with a final slash
-  S3_upload ${pkg} "${s3_directory}/releases/"
+  s3_directory_one_slash=${s3_directory%%*(/)}/
+  S3_upload ${bottle_filename} "${s3_directory_one_slash}"
 done
 
 # Check for no reprepro uploads to finish here

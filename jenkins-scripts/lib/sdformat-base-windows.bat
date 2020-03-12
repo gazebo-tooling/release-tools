@@ -34,7 +34,7 @@ set LOCAL_WS=%WORKSPACE%\ws
 
 :: Call vcvarsall and all the friends
 echo # BEGIN SECTION: configure the MSVC compiler
-call %win_lib% :configure_msvc_compiler
+call %win_lib% :configure_msvc_2019_compiler
 echo # END SECTION
 
 echo # BEGIN SECTION: preclean of workspace
@@ -54,6 +54,9 @@ IF %USE_IGNITION_ZIP% == FALSE (
 )
 
 echo # BEGIN SECTION: download and uncompress dependencies
+:: avoid conflicts with vcpkg packages
+call %win_lib% :disable_vcpkg_integration
+
 cd %LOCAL_WS%
 call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.zip boost_1_56_0.zip
 

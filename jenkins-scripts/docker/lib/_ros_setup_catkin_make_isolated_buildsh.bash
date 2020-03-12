@@ -43,11 +43,6 @@ while (! \$update_done); do
 done
 
 SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
-
-# In our nvidia machines, run the test to launch altas
-# Seems like there is no failure in runs on precise pbuilder in
-# our trusty machine. So we do not check for GRAPHIC_TESTS=true
-mkdir -p \$HOME/.gazebo
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create the catkin workspace'

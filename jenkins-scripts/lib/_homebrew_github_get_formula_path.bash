@@ -12,6 +12,8 @@ echo '# BEGIN SECTION: check if the formula exists'
 echo
 if [ -s ${TAP_PREFIX}/${PACKAGE_ALIAS}.rb ]; then
   FORMULA=${TAP_PREFIX}/${PACKAGE_ALIAS}.rb
+elif [ -s ${TAP_PREFIX}/Formula/${PACKAGE_ALIAS}.rb ]; then
+  FORMULA=${TAP_PREFIX}/Formula/${PACKAGE_ALIAS}.rb
 elif [ -s ${TAP_PREFIX}/Aliases/${PACKAGE_ALIAS} ]; then
   FORMULA=${TAP_PREFIX}/Aliases/${PACKAGE_ALIAS}
 else

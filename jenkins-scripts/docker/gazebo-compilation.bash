@@ -17,10 +17,14 @@ fi
 export DART_FROM_PKGS=true
 
 OSRF_REPOS_TO_USE="stable"
-if [[ $(date +%Y%m%d) -le 20180201 ]]; then
-   ## need prerelease repo to get ignition-cmake during the development cycle
-   OSRF_REPOS_TO_USE="${OSRF_REPOS_TO_USE} prerelease"
+
+. ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
+
+if [[ $GAZEBO_MAJOR_VERSION -ge 11 ]]; then
+  USE_GCC8=true
 fi
+
+export GZDEV_PROJECT_NAME="gazebo${GAZEBO_MAJOR_VERSION}"
 
 # Can not use generic compilation since we host the DART instalation and some
 # other logic based of every gazebo version

@@ -10,22 +10,14 @@ export GPU_SUPPORT_NEEDED=true
 export INSTALL_JOB_PKG=""
 export INSTALL_JOB_REPOS=""
 
+. ${SCRIPT_DIR}/lib/_gazebo_utils.bash
+
 INSTALL_JOB_POSTINSTALL_HOOK="""
 echo '# BEGIN SECTION: run the one-liner installation'
 curl -ssL http://get.gazebosim.org | sh
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: test the script'
-TEST_START=\`date +%s\`
-timeout --preserve-status 180 gazebo --verbose || true
-TEST_END=\`date +%s\`
-DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
-
-if [ \$DIFF -lt 180 ]; then
-   echo 'The test took less than 180s. Something bad happened'
-   exit 1
-fi
-echo '# END SECTION'
+${GAZEBO_RUNTIME_TEST}
 """
 
 # Need bc to proper testing and parsing the time

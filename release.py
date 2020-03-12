@@ -16,30 +16,40 @@ JOB_NAME_PATTERN = '%s-debbuilder'
 JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
 GENERIC_BREW_PULLREQUEST_JOB='generic-release-homebrew_pull_request_updater'
 UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
-DOWNLOAD_URI_PATTERN = 'http://gazebosim.org/distributions/%s/releases/'
+DOWNLOAD_URI_PATTERN = 'https://osrf-distributions.s3.amazonaws.com/%s/releases/'
 
-UBUNTU_ARCHS = ['amd64', 'i386']
+LINUX_DISTROS = [ 'ubuntu', 'debian' ]
+SUPPORTED_ARCHS = ['amd64', 'i386', 'armhf', 'arm64']
+RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
+
 # Ubuntu distributions are automatically taken from the top directory of
 # the release repositories, when needed.
 UBUNTU_DISTROS = []
-# UBUNTU_DISTROS_EXTRA will be added to the discovered list of distros
-# use it if you need manual intervention
-UBUNTU_DISTROS_EXTRA = []
-
-ROS_DISTROS_IN_PRECISE = [ 'hydro' ]
-ROS_DISTROS_IN_TRUSTY = [ 'indigo' ];
 
 OSRF_REPOS_SUPPORTED="stable prerelease nightly mentor2 haptix-pre"
 OSRF_REPOS_SELF_CONTAINED="mentor2"
 
 DRY_RUN = False
 NIGHTLY = False
+PRERELEASE = False
 UPSTREAM = False
 NO_SRC_FILE = False
-DRCSIM_MULTIROS = False
 IGN_REPO = False
+GITHUB_RELEASE = False
 
 IGNORE_DRY_RUN = True
+
+class ErrorGitRepo(Exception):
+    pass
+
+class ErrorNoPermsRepo(Exception):
+    pass
+
+class ErrorNoUsernameSupplied(Exception):
+    pass
+
+class ErrorURLNotFound404(Exception):
+    pass
 
 def error(msg):
     print("\n !! " + msg + "\n")
@@ -57,6 +67,24 @@ def get_canonical_package_name(pkg_name):
 def is_catkin_package():
     return os.path.isfile("package.xml")
 
+def bitbucket_repo_exists(url):
+    try:
+        check_call(['hg', 'identify', url], IGNORE_DRY_RUN)
+    except ErrorURLNotFound404 as e:
+        return False
+    except Exception as e:
+        error("Unexpected problem checking for mercurial repo: " + e.what())
+    return True
+
+def github_repo_exists(url):
+    try:
+        check_call(['git', 'ls-remote', url], IGNORE_DRY_RUN)
+    except ErrorURLNotFound404 as e:
+        return False
+    except Exception as e:
+        error("Unexpected problem checking for git repo: " + e.what())
+    return True
+
 def generate_package_source(srcdir, builddir):
     cmake_cmd = ["cmake"]
 
@@ -72,9 +100,9 @@ def generate_package_source(srcdir, builddir):
 def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
+    global PRERELEASE
     global UPSTREAM
     global NO_SRC_FILE
-    global DRCSIM_MULTIROS
     global IGN_REPO
 
     parser = argparse.ArgumentParser(description='Make releases.')
@@ -94,8 +122,6 @@ def parse_args(argv):
     parser.add_argument('-r', '--release-version', dest='release_version',
                         default=None,
                         help='Release version suffix; usually 1 (e.g., 1')
-    parser.add_argument('--drcsim-multiros', dest='drcsim_multiros', action='store_true', default=False,
-                        help='To be used with drcsim, osrf-common and sandia-hand. Generate ROS_DISTRO based on drcsim support (i.e: ')
     parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
                         help='no-sanity-checks; i.e. skip sanity checks commands')
     parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
@@ -104,21 +130,23 @@ def parse_args(argv):
                         help='use ignition robotics URL repositories instead of OSRF')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
-
-
+    parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
+                        help='extra OSRF repository to use in the build')
+    parser.add_argument('--nightly-src-branch', dest='nightly_branch', default="default",
+                        help='branch in the source code repository to build the nightly from')
     args = parser.parse_args()
     if not args.package_alias:
         args.package_alias = args.package
     DRY_RUN = args.dry_run
     UPSTREAM = args.upstream
     NO_SRC_FILE = args.no_source_file
-    DRCSIM_MULTIROS = args.drcsim_multiros
     IGN_REPO = args.ignition_repo
     UPLOAD_REPO = args.upload_to_repository
-    # Check for nightly releases
-    NIGHTLY = False
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
+        NIGHTLY_BRANCH = args.nightly_branch
+    if args.upload_to_repository == 'prerelease':
+        PRERELEASE = True
     # Upstream and nightly do not generate a tar.bz2 file
     if args.upstream or NIGHTLY:
         NO_SRC_FILE = True
@@ -126,17 +154,37 @@ def parse_args(argv):
 
     return args
 
-def get_release_repository_URL(package):
+def get_release_repository_info(package):
+    global GITHUB_RELEASE
+
     repo = "osrf"
     if IGN_REPO:
         repo = "ignitionrobotics"
 
-    return "https://bitbucket.org/" + repo + "/" + package + "-release"
+    bitbucket_url = "https://bitbucket.org/" + repo + "/" + package + "-release"
+    if (bitbucket_repo_exists(bitbucket_url)):
+        GITHUB_RELEASE = False
+        return 'hg', bitbucket_url
+
+    # if fails with http URL for github, it will ask for auth in stdin. Use the
+    # git@ approach to avoid interaction
+    github_test_url = "git@github.com:ignition-release/" + package + "-release"
+    if (github_repo_exists(github_test_url)):
+        GITHUB_RELEASE = True
+        github_url = "https://github.com/ignition-release/" + package + "-release"
+        return 'git', github_url
+
+    error("release repository not found in bitbuckket or github")
 
 def download_release_repository(package, release_branch):
-    url = get_release_repository_URL(package)
+    vcs, url = get_release_repository_info(package)
     release_tmp_dir = tempfile.mkdtemp()
-    cmd = [ "hg", "clone", "-b", release_branch, url, release_tmp_dir]
+
+    if vcs == "git" and release_branch == "default":
+        release_branch = "master"
+
+    cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
+
     check_call(cmd, IGNORE_DRY_RUN)
     return release_tmp_dir
 
@@ -228,11 +276,13 @@ def sanity_project_package_in_stable(version, repo_name):
     if repo_name != 'stable':
         return
 
-    if not '+' in version:
-        return
+    if '+' in version:
+        error("Detected stable repo upload using project versioning scheme (include '+' in the version)")
 
+    if '~pre' in version:
+        error("Detected stable repo upload using project versioning scheme (include '~pre' in the version)")
 
-    error("Detected stable repo upload using project versioning scheme (include '+' in the version)")
+    return
 
 def sanity_use_prerelease_branch(release_branch):
     if release_branch == 'prerelease':
@@ -270,11 +320,25 @@ def sanity_checks(args, repo_dir):
 
     shutil.rmtree(repo_dir)
 
-def discover_distros(args, repo_dir):
-    global UBUNTU_DISTROS
 
-    subdirs =  os.walk(repo_dir).next()[1]
-    subdirs.remove('.hg')
+def get_exclusion_arches(files):
+    r = []
+    for f in files:
+        if f.startswith(RELEASEPY_NO_ARCH_PREFIX):
+            arch = f.replace(RELEASEPY_NO_ARCH_PREFIX, '').lower()
+            r.append(arch)
+
+    return r
+
+def discover_distros(repo_dir):
+    if not os.path.isdir(repo_dir):
+        return None
+
+    root, subdirs, files = os.walk(repo_dir).next()
+    repo_arch_exclusion = get_exclusion_arches(files)
+
+    if '.hg' in subdirs: subdirs.remove('.hg')
+    if '.git' in subdirs: subdirs.remove('.git')
     # remove ubuntu (common stuff) and debian (new supported distro at top level)
     if 'ubuntu' in subdirs: subdirs.remove('ubuntu')
     if 'debian' in subdirs: subdirs.remove('debian')
@@ -284,9 +348,19 @@ def discover_distros(args, repo_dir):
     if not subdirs:
         error('Can not find distributions directories in the -release repo')
 
-    print('Releasing for distributions: ' + ', '.join(subdirs))
+    distro_arch_list = {}
+    for d in subdirs:
+        files = os.walk(repo_dir + '/' + d).next()[2]
+        distro_arch_exclusion = get_exclusion_arches(files)
+        excluded_arches = distro_arch_exclusion + repo_arch_exclusion
+        arches_supported = [x for x in SUPPORTED_ARCHS if x not in excluded_arches]
+        distro_arch_list[d] = arches_supported
 
-    UBUNTU_DISTROS = subdirs
+    print('Releasing for distributions: ')
+    for k in distro_arch_list:
+        print( "- " + k + " (" + ', '.join(distro_arch_list[k]) +")")
+
+    return distro_arch_list
 
 def check_call(cmd, ignore_dry_run = False):
     if ignore_dry_run:
@@ -300,11 +374,46 @@ def check_call(cmd, ignore_dry_run = False):
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = po.communicate()
         if po.returncode != 0:
+            # bitbucket for the first one, github for the second
+            if ("404" in err) or ("Repository not found" in err):
+                raise ErrorURLNotFound404()
+            if "Permission denied" in out:
+                raise ErrorNoPermsRepo()
+            if "abort: no username supplied" in err:
+                raise ErrorNoUsernameSupplied()
+            if "hg" in cmd:
+                try:
+                    r = subprocess.Popen(["git", "status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                except OSError as e:
+                    print("Unable to run 'git status'. Is git installed?")
+                    raise
+                if r.returncode != 0:
+                    raise ErrorGitRepo()
+            # Unkown exception
             print('Error running command (%s).'%(' '.join(cmd)))
             print('stdout: %s'%(out))
             print('stderr: %s'%(err))
             raise Exception('subprocess call failed')
         return out, err
+
+# Returns: sha, tarball file name, tarball full path
+def create_tarball_path(tarball_name, version, builddir, dry_run):
+    tarball_fname = '%s-%s.tar.bz2'%(tarball_name, version)
+    # Try using the tarball_name as it is
+    tarball_path = os.path.join(builddir, tarball_fname)
+
+    if not os.path.isfile(tarball_path):
+        # Try looking for special project names using underscores
+        alt_tarball_name = "_".join(tarball_name.rsplit("-",1))
+        alt_tarball_fname = '%s-%s.tar.bz2'%(alt_tarball_name, version)
+        alt_tarball_path = os.path.join(builddir, alt_tarball_fname)
+        if (not dry_run):
+            if not os.path.isfile(alt_tarball_path):
+                error("Can not find a tarball at: " + tarball_path + " or at " + alt_tarball_path)
+        tarball_path = alt_tarball_path
+
+    shasum_out_err = check_call(['shasum', '--algorithm', '256', tarball_path])
+    return shasum_out_err[0].split(' ')[0], tarball_fname, tarball_path
 
 def generate_upload_tarball(args):
     ###################################################
@@ -328,15 +437,15 @@ def generate_upload_tarball(args):
         # sitting in the working copy
         srcdir = os.path.join(tmpdir, 'src')
         check_call(['hg', 'archive', srcdir])
-    except Exception as e:
-        # Assume that it's git and that we'll just use the CWD
+    except ErrorGitRepo as e:
+        # it's git and that we'll just use the CWD
         srcdir = os.getcwd()
 
     # use cmake to generate package_source
     generate_package_source(srcdir, builddir)
 
     # Upload tarball. Do not include versions in tarballs
-    tarball_name = re.sub(r'[0-9]$','', args.package)
+    tarball_name = re.sub(r'[0-9]+$','', args.package)
 
     # Trick to make mentor job project to get proper URLs
     if args.package == "mentor2":
@@ -344,28 +453,22 @@ def generate_upload_tarball(args):
 
     # For ignition, we use the alias without version numbers as package name
     if IGN_REPO:
-        tarball_name = re.sub(r'[0-9]$','', args.package_alias)
+        tarball_name = re.sub(r'[0-9]+$','', args.package_alias)
 
-    # TODO: we're assuming a particular naming scheme and a particular compression tool
-    tarball_fname = '%s-%s.tar.bz2'%(tarball_name, args.version)
-    tarball_path = os.path.join(builddir, tarball_fname)
-    shasum_out_err = check_call(['shasum', '--algorithm', '256', tarball_path])
-    tarball_sha = shasum_out_err[0].split(' ')[0]
+    tarball_sha, tarball_fname, tarball_path = create_tarball_path(tarball_name, args.version, builddir, args.dry_run)
+
     # If we're releasing under a different name, then rename the tarball (the
     # package itself doesn't know anything about this).
     if args.package != args.package_alias:
         tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
         if (not args.dry_run):
-            if not os.path.isfile(tarball_path):
-                error("Failed to found the tarball: " + tarball_path +
-                      ". Please check that you don't have an underscore in the project() statement of the CMakeList.txt. In that case, change it by a dash")
             dest_file = os.path.join(builddir, tarball_fname)
             # Do not copy if files are the same
             if not (tarball_path == dest_file):
                 shutil.copyfile(tarball_path, dest_file)
                 tarball_path = dest_file
 
-    check_call(['s3cmd', 'put', tarball_path, UPLOAD_DEST_PATTERN%get_canonical_package_name(args.package)])
+    check_call(['s3cmd', 'sync', tarball_path, UPLOAD_DEST_PATTERN%get_canonical_package_name(args.package)])
     shutil.rmtree(tmpdir)
 
     # Tag repo
@@ -377,9 +480,18 @@ def generate_upload_tarball(args):
 
         # Push tag
         check_call(['hg', 'push','-b','.'])
-    except Exception as e:
-        # Assume git
+    except ErrorGitRepo as e:
+        # do nothing for git repos (no git support is implemented)
         pass
+    except ErrorNoPermsRepo as e:
+        print('The bitbucket server reports problems with permissions')
+        print('The branch could be blocked by configuration if you do not have')
+        print('rights to push code in default branch.')
+        sys.exit(1)
+    except ErrorNoUsernameSupplied as e:
+        print('The hg tag could not be committed because you have not configured')
+        print('your username. Use "hg config --edit" to set your username.')
+        sys.exit(1)
 
     source_tarball_uri = DOWNLOAD_URI_PATTERN%get_canonical_package_name(args.package) + tarball_fname
 
@@ -409,7 +521,8 @@ def go(argv):
     if not UPSTREAM:
         repo_dir = download_release_repository(args.package, args.release_repo_branch)
         # The supported distros are the ones in the top level of -release repo
-        discover_distros(args, repo_dir)
+        ubuntu_distros = discover_distros(repo_dir) # top level, ubuntu
+        debian_distros = discover_distros(repo_dir + '/debian/') # debian dir top level, Debian
         if not args.no_sanity_checks:
             sanity_checks(args, repo_dir)
 
@@ -433,24 +546,26 @@ def go(argv):
     params['UPLOAD_TO_REPO'] = args.upload_to_repository
     # Assume that we want stable + own repo in the building
     params['OSRF_REPOS_TO_USE'] = "stable " + args.upload_to_repository
+    if args.extra_repo:
+        params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
     if args.upload_to_repository in OSRF_REPOS_SELF_CONTAINED:
         params['OSRF_REPOS_TO_USE'] = args.upload_to_repository
 
     if NIGHTLY:
         params['VERSION'] = 'nightly'
-        params['SOURCE_TARBALL_URI'] = ''
+        # reuse SOURCE_TARBALL_URI to indicate the nightly branch
+        # name must be modified in the future
+        params['SOURCE_TARBALL_URI'] = args.nightly_branch
 
     if UPSTREAM:
         job_name = JOB_NAME_UPSTREAM_PATTERN%(args.package)
     else:
         job_name = JOB_NAME_PATTERN%(args.package)
 
-    # Enable new armhf jobs in sdformat2 and gazebo5
-    if (args.package == 'sdformat2' or args.package == 'gazebo5'):
-        # No prereleases
-        if (not args.release_repo_branch == 'prerelease'):
-            UBUNTU_ARCHS.append('armhf')
+    params['GITHUB_RELEASE'] = GITHUB_RELEASE
+    if GITHUB_RELEASE and args.release_repo_branch == 'default':
+        params['RELEASE_REPO_BRANCH'] = 'master'
 
     params_query = urllib.urlencode(params)
 
@@ -458,61 +573,54 @@ def go(argv):
     brew_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL,
                                                    GENERIC_BREW_PULLREQUEST_JOB,
                                                    params_query)
-    print('- Brew: %s'%(brew_url))
     if not DRY_RUN and not NIGHTLY:
+        print('- Brew: %s'%(brew_url))
         urllib.urlopen(brew_url)
 
     # RELEASING FOR LINUX
-    distros = UBUNTU_DISTROS
-    if UBUNTU_DISTROS_EXTRA:
-        distros.extend(UBUNTU_DISTROS_EXTRA)
-
-    for d in distros:
-        for a in UBUNTU_ARCHS:
-            if (NIGHTLY and a == 'i386'):
-                # only keep i386 for sdformat in nightly,
-                # just to test CI infrastructure
-                if (not args.package[:-1] == 'sdformat'):
-                    continue
-
-            # no wily for i386 in docker
-            if (d == 'wily' and a == 'i386'):
+    for l in LINUX_DISTROS:
+        if (l == 'ubuntu'):
+            distros_dic = ubuntu_distros
+        elif (l == 'debian'):
+            if (PRERELEASE or NIGHTLY):
                 continue
+            if not debian_distros:
+                continue
+            distros_dic = debian_distros
+        else:
+            error("Distro not supported in code")
 
-            if (a == 'armhf'):
-                # Only release armhf in trusty for now
-                if (d != 'trusty'):
+        for d in distros_dic:
+            for a in distros_dic[d]:
+                # Filter prerelease and nightly architectures
+                if (PRERELEASE or NIGHTLY):
+                    if (a == 'armhf' or a == 'arm64'):
+                        continue
+
+                linux_platform_params = params.copy()
+                linux_platform_params['ARCH'] = a
+                linux_platform_params['LINUX_DISTRO'] = l
+                linux_platform_params['DISTRO'] = d
+
+                if (a == 'armhf' or a == 'arm64'):
+                    # No sid releases for arm64/armhf lack of docker image
+                    # https://hub.docker.com/r/aarch64/debian/ fails on Jenkins
+                    if (d == 'sid'):
+                        continue
+                    # Need to use JENKINS_NODE_TAG parameter for large memory nodes
+                    # since it runs qemu emulation
+                    linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
+
+                if (NIGHTLY and a == 'i386'):
                     continue
-                # armhf runs on docker, it needs a different base_url
-                base_url = '%s/job/%s-docker/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
-            else:
-                base_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, params_query)
 
-            if not DRCSIM_MULTIROS:
-                url = '%s&ARCH=%s&DISTRO=%s'%(base_url, a, d)
+                linux_platform_params_query = urllib.urlencode(linux_platform_params)
+
+                url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, linux_platform_params_query)
                 print('- Linux: %s'%(url))
 
                 if not DRY_RUN:
                     urllib.urlopen(url)
-            else:
-                if (d == 'precise'):
-                    ROS_DISTROS = ROS_DISTROS_IN_PRECISE
-                elif (d == 'trusty'):
-                    ROS_DISTROS = ROS_DISTROS_IN_TRUSTY
-                else:
-                    print ("ERROR in ROS_DISTROS: unkonwn distribution")
-                    sys.exit(1)
-
-                for r in ROS_DISTROS:
-                    url = '%s&ARCH=%s&DISTRO=%s&ROS_DISTRO=%s'%(base_url, a, d, r)
-                    print('Accessing multiros: %s'%(url))
-                    if not DRY_RUN:
-                        urllib.urlopen(url)
-
-    ###################################################
-    # Fedora-specific stuff.
-    # The goal is to build rpms.
-    # TODO
 
 if __name__ == '__main__':
     go(sys.argv)

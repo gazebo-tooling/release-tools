@@ -25,7 +25,7 @@ if ! make test ARGS="-VV ${MAKE_TEST_RERUN_ARGS} $@" \
   mkdir test_results_tmp
   for i in $(ls test_results); do
     echo looking for flaky tests in test_results_merged/$i and test_results/$i
-    python ${WORKSPACE}/scripts/jenkins-scripts/tools/flaky_junit_merge.py \
+    python3 ${WORKSPACE}/scripts/jenkins-scripts/tools/flaky_junit_merge.py \
       test_results_merged/$i test_results/$i \
       > test_results_tmp/$i
     mv test_results_tmp/$i test_results_merged

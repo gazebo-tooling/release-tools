@@ -9,8 +9,8 @@ set -e
 #
 # Modfied by jrivero@osrfoundation.org
 
-GZ_VER=9
-DEB_PKG_NAME="libgazebo$GZ_VER-dev gazebo$GZ_VER"
+GZ_VER=11
+DEB_PKG_NAME=libgazebo$GZ_VER-dev
 BREW_PKG_NAME=gazebo${GZ_VER}
 
 command_exists() {
@@ -154,27 +154,34 @@ do_install() {
 			if [ -z "$dist_version" ] && [ -r /etc/lsb-release ]; then
 				dist_version="$(. /etc/lsb-release && echo "$DISTRIB_CODENAME")"
 			fi
+			case "$dist_version" in
+				xenial)
+					GZ_VER=10
+				;;
+				artful | eoan )
+					GZ_VER=9
+				;;
+			esac
 		;;
 
 		debian)
- 	        if command_exists lsb_release; then
-		      if [ "$(lsb_release -rs)" = "unstable" ]; then
-				  dist_version="sid"
-			  else
-				dist_version="$(cat /etc/debian_version | sed 's/\/.*//' | sed 's/\..*//')"
-				case "$dist_version" in
-					9)
-						dist_version="stretch"
-					;;
-					8)
-						dist_version="jessie"
-					;;
-					7)
-						dist_version="wheezy"
-					;;
-				esac
-			fi
-		  fi
+			dist_version="$(cat /etc/debian_version | sed 's/\/.*//' | sed 's/\..*//')"
+			case "$dist_version" in
+				10)
+					dist_version="buster"
+					GZ_VER=9
+				;;
+
+				9)
+					dist_version="stretch"
+					GZ_VER=7
+			    ;;
+				8)
+					dist_version="jessie"
+					GZ_VER=7
+				;;
+			esac
+			DEB_PKG_NAME=libgazebo$GZ_VER-dev
 		;;
 
 		oracleserver)
@@ -262,7 +269,6 @@ do_install() {
 			)
 			exit 0
 			;;
-
 		ubuntu)
 			export DEBIAN_FRONTEND=noninteractive
 
@@ -337,6 +343,7 @@ do_install() {
 			  brew install ${BREW_PKG_NAME}
 			  brew audit ${BREW_PKG_NAME} || true
 			  brew test ${BREW_PKG_NAME}
+			  brew doctor
 			)
 
 			exit 0

@@ -17,9 +17,9 @@ fi
 #  *  Images that don't belong to any remaining container after that are removed
 if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
     # get the mount point of the docker directory, not always /
-    docker_mount_point=$(df '/var/lib/docker' | awk '{ print $6 }' | tail -n 1)
+    docker_device=$(df '/var/lib/docker' | awk '{ print $1 }' | tail -n 1)
     # in seconds: 5 days = 432000s
-    PERCENT_DISK_USED=$(df -h | grep ${docker_mount_point}$ | sed 's:.* \([0-9]*\)%.*:\1:')
+    PERCENT_DISK_USED=$(df -h ${docker_device} | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
     if [[ $PERCENT_DISK_USED -gt 90 ]]; then
         echo "Space left is low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
@@ -28,7 +28,7 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
     fi
 
     # if not enough, run again with 1 day = 86400s
-    PERCENT_DISK_USED=$(df -h | grep ${docker_mount_point}$ | sed 's:.* \([0-9]*\)%.*:\1:')
+    PERCENT_DISK_USED=$(df -h ${docker_device} | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
     if [[ $PERCENT_DISK_USED -gt 90 ]]; then
         echo "Space left is still low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
@@ -37,12 +37,12 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
     fi
 
     # if not enough, kill the whole cache
-    PERCENT_DISK_USED=$(df -h | grep ${docker_mount_point}$ | sed 's:.* \([0-9]*\)%.*:\1:')
+    PERCENT_DISK_USED=$(df -h ${docker_device} | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
     if [[ $PERCENT_DISK_USED -gt 90 ]]; then
         echo "Space left is low again: ${PERCENT_DISK_USED}% used"
         echo "Kill the whole docker cache !!"
-        [[ -n $(sudo docker ps -q) ]] && sudo docker kill $(sudo docker ps -q)
-        [[ -n $(sudo docker images -a -q) ]] && sudo docker rmi $(sudo docker images -a -q)
+        [[ -n $(sudo docker ps -q) ]] && sudo docker kill $(sudo docker ps -q) || true
+        [[ -n $(sudo docker images -a -q) ]] && sudo docker rmi $(sudo docker images -a -q) || true
     fi
 fi
 
@@ -53,11 +53,19 @@ init_stopwatch CREATE_TESTING_ENVIROMENT
 
 # Default values - Provide them is prefered
 if [ -z ${DISTRO} ]; then
-    DISTRO=trusty
+    DISTRO=xenial
 fi
 
 if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=indigo
+  ROS_DISTRO=kinetic
+fi
+
+if [ -z "${ROS2}" ]; then
+  export ROS2=false
+fi
+
+if ${ROS2}; then
+  export USE_COLCON=true
 fi
 
 # Define making jobs by default if not present
@@ -80,9 +88,18 @@ if [ -z ${NEED_C11_COMPILER} ]; then
   NEED_C11_COMPILER=false
 fi
 
+if [ -z ${NEED_C17_COMPILER} ]; then
+  NEED_C17_COMPILER=false
+fi
+
 # By default, do not use ROS
 if [ -z ${ENABLE_ROS} ]; then
   ENABLE_ROS=false
+fi
+
+# By default nodes are in nvidia-docker1
+if [ -z ${NVIDIA_DOCKER2_NODE} ]; then
+  NVIDIA_DOCKER2_NODE=false
 fi
 
 # Transition for 4.8 -> 4.9 makes some optimization in the linking
@@ -101,6 +118,10 @@ fi
 
 # in some machines squid is returning
 [ -z ${NEED_SQUID_WORKAROUND} ] && NEED_SQUID_WORKAROUND=false
+
+# some jobs are failing due to squid permissions on caching
+# default is true but jobs can declare to skip it
+[ -z ${USE_SQUID} ] && USE_SQUID=true
 
 # Useful for running tests properly integrated ros based software
 if ${ENABLE_ROS}; then

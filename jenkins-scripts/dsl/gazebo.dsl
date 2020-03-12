@@ -1,17 +1,20 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def gazebo_supported_branches = [ 'gazebo7', 'gazebo8', 'gazebo9' ]
+def gazebo_supported_branches = [ 'gazebo7', 'gazebo9', 'gazebo10', 'gazebo11' ]
 def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
 // nightly_gazebo_branch is not the branch used to get the code from but
 // the one used to generate the corresponding debbuild job.
 def nightly_gazebo_branch = [ 'gazebo10' ]
+// testing official packages without osrf repo
+def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9',
+                                         'xenial' : 'gazebo7']
 
 // Main platform using for quick CI
+def ci_distro_default       = [ 'bionic' ]
 def ci_distro               = Globals.get_ci_distro()
 def ci_gpu                  = Globals.get_ci_gpu()
 def abi_distro              = Globals.get_abi_distro()
-def performance_box         = Globals.get_performance_box()
 // Other supported platform to be checked but no for quick
 // CI integration.
 def other_supported_distros = Globals.get_other_supported_distros()
@@ -22,28 +25,68 @@ def all_supported_gpus      = Globals.get_all_supported_gpus()
 
 def DISABLE_TESTS = false
 
+String ci_distro_default_str = ci_distro_default[0]
 String ci_distro_str = ci_distro[0]
 String ci_gpu_str = ci_gpu[0]
-String ci_build_any_job_name_linux = "gazebo-ci-pr_any-${ci_distro_str}-amd64-gpu-${ci_gpu_str}"
+String ci_build_any_job_name_linux = "gazebo-ci-pr_any-ubuntu_auto-amd64-gpu-${ci_gpu_str}"
 
 // Need to be used in ci_pr
 String abi_job_name = ''
 
-boolean is_watched_by_buildcop(branch, distro = 'trusty', gpu = 'nvidia')
+boolean is_watched_by_buildcop(branch, distro = 'xenial', gpu = 'nvidia')
 
 {
-  if (branch == 'default' || branch == 'gazebo7' || branch == 'gazebo8')
-    if (gpu == 'nvidia' && distro == 'trusty')
-      return true
+  if (branch == 'default' || branch == 'gazebo7' || branch == 'gazebo9' || branch == 'gazebo10' || branch == 'gazebo11')
+    return true
 
   return false
+}
+
+void generate_install_job(Job job, gz_branch, distro, arch, use_osrf_repos = false)
+{
+  job.with
+  {
+    triggers {
+      cron('@daily')
+    }
+
+    // Branch is exactly in the form of gazeboN
+    def dev_packages = "lib${gz_branch}-dev ${gz_branch}"
+
+    def gzdev_str = ""
+    if (use_osrf_repos)
+        gzdev_str = "export GZDEV_PROJECT_NAME=${gz_branch}"
+
+    // Need gpu for running the runtime test
+    label "gpu-reliable"
+
+    steps {
+      shell("""\
+          #!/bin/bash -xe
+
+          export DISTRO=${distro}
+          export ARCH=${arch}
+          export INSTALL_JOB_PKG=\"${dev_packages}\"
+          ${gzdev_str}
+
+          /bin/bash -x ./scripts/jenkins-scripts/docker/gazebo-install-test-job.bash
+          """.stripIndent())
+    }
+
+    publishers {
+      consoleParsing {
+        projectRules('scripts/jenkins-scripts/parser_rules/gazebo_err.parser')
+        failBuildOnError(true)
+      }
+    }
+  }
 }
 
 // ABI Checker job
 // Need to be the before ci-pr_any so the abi job name is defined
 abi_distro.each { distro ->
   supported_arches.each { arch ->
-    abi_job_name = "gazebo-abichecker-any_to_any-${distro}-${arch}"
+    abi_job_name = "gazebo-abichecker-any_to_any-ubuntu_auto-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABI.create(abi_job, "https://bitbucket.org/osrf/gazebo")
     abi_job.with
@@ -53,8 +96,20 @@ abi_distro.each { distro ->
       steps {
         shell("""\
               #!/bin/bash -xe
+              wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
+              source yaml.sh
+
+              if [[ -f \${WORKSPACE}/gazebo/bitbucket-pipelines.yml ]]; then
+                create_variables \${WORKSPACE}/gazebo/bitbucket-pipelines.yml
+              fi
 
               export DISTRO=${distro}
+
+              if [[ -n \${image} ]]; then
+                echo "Bitbucket pipeline.yml detected. Default DISTRO is ${distro}"
+                export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
+              fi
+
               export ARCH=${arch}
               /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-abichecker.bash
 	      """.stripIndent())
@@ -72,15 +127,9 @@ ci_gpu_include_gpu_none = ci_gpu + [ 'none' ]
 ci_distro.each { distro ->
   ci_gpu_include_gpu_none.each { gpu ->
     supported_arches.each { arch ->
-      // Temporary workaround to use Xenial as distro for gpu-none
-      if (gpu == 'none')
-      {
-        distro = "xenial"
-      }
-
       // --------------------------------------------------------------
       // 1. Create the any job
-      def gazebo_ci_any_job_name = "gazebo-ci-pr_any-${distro}-${arch}-gpu-${gpu}"
+      def gazebo_ci_any_job_name = "gazebo-ci-pr_any-ubuntu_auto-${arch}-gpu-${gpu}"
       def gazebo_ci_any_job      = job(gazebo_ci_any_job_name)
       OSRFLinuxCompilationAny.create(gazebo_ci_any_job,
                                     "https://bitbucket.org/osrf/gazebo")
@@ -88,7 +137,7 @@ ci_distro.each { distro ->
       {
         if (gpu != 'none')
         {
-          label "gpu-${gpu}-${distro}"
+          label "gpu-reliable"
         }
 
         steps
@@ -105,8 +154,7 @@ ci_distro.each { distro ->
                  downstreamParameterized {
                    trigger("${abi_job_name}") {
                      parameters {
-                       predefinedProp("ORIGIN_BRANCH", '$DEST_BRANCH')
-                       predefinedProp("TARGET_BRANCH", '$SRC_BRANCH')
+                       currentBuild()
                      }
                    }
                  }
@@ -123,8 +171,20 @@ ci_distro.each { distro ->
 
            shell("""\
            #!/bin/bash -xe
+           wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
+           source yaml.sh
+
+           if [[ -f \${WORKSPACE}/gazebo/bitbucket-pipelines.yml ]]; then
+             create_variables \${WORKSPACE}/gazebo/bitbucket-pipelines.yml
+           fi
 
            export DISTRO=${distro}
+
+           if [[ -n \${image} ]]; then
+             echo "Bitbucket pipeline.yml detected. Default DISTRO is ${distro}"
+             export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
+           fi
+
            export ARCH=${arch}
            export GPU_SUPPORT_NEEDED=${gpu_needed}
            /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
@@ -134,8 +194,8 @@ ci_distro.each { distro ->
 
       // --------------------------------------------------------------
       // 2. Create the default ci jobs
-      def gazebo_ci_job = job("gazebo-ci-default-${distro}-${arch}-gpu-${gpu}")
-      if (is_watched_by_buildcop('default', distro, gpu))
+      def gazebo_ci_job = job("gazebo-ci-default-${ci_distro_default_str}-${arch}-gpu-${gpu}")
+      if (is_watched_by_buildcop('default', ci_distro_default_str, gpu))
       {
         Globals.extra_emails = Globals.build_cop_email
       }
@@ -146,7 +206,7 @@ ci_distro.each { distro ->
       {
         if (gpu != 'none')
         {
-          label "gpu-${gpu}-${distro}"
+          label "gpu-reliable"
         }
 
         triggers {
@@ -162,7 +222,7 @@ ci_distro.each { distro ->
           shell("""\
                 #!/bin/bash -xe
 
-                export DISTRO=${distro}
+                export DISTRO=${ci_distro_default_str}
                 export ARCH=${arch}
                 export GPU_SUPPORT_NEEDED=${gpu_needed}
                 /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
@@ -178,53 +238,49 @@ ci_distro.each { distro ->
 
 // OTHER CI SUPPORTED JOBS (default branch) @ SCM/DAILY
 other_supported_distros.each { distro ->
-  // no trusty support for -default- branch
-  if (distro != 'trusty')
-  {
-    supported_arches.each { arch ->
+  supported_arches.each { arch ->
 
-      // get the supported gpus by distro
-      gpus = Globals.gpu_by_distro[distro]
-      if (gpus == null)
-        gpus = [ 'none' ]
+    // get the supported gpus by distro
+    gpus = Globals.gpu_by_distro[distro]
+    if (gpus == null)
+      gpus = [ 'none' ]
 
-      gpus.each { gpu ->
-        // ci_default job for the rest of arches / scm@daily
-        def gazebo_ci_job = job("gazebo-ci-default-${distro}-${arch}-gpu-${gpu}")
-        OSRFLinuxCompilation.create(gazebo_ci_job)
-        OSRFBitbucketHg.create(gazebo_ci_job, "https://bitbucket.org/osrf/gazebo")
+    gpus.each { gpu ->
+      // ci_default job for the rest of arches / scm@daily
+      def gazebo_ci_job = job("gazebo-ci-default-${distro}-${arch}-gpu-${gpu}")
+      OSRFLinuxCompilation.create(gazebo_ci_job)
+      OSRFBitbucketHg.create(gazebo_ci_job, "https://bitbucket.org/osrf/gazebo")
 
-        gazebo_ci_job.with
+      gazebo_ci_job.with
+      {
+
+        if (gpu != 'none')
         {
-
-          if (gpu != 'none')
-          {
-            label "gpu-${gpu}-${distro}"
-          }
-
-          triggers {
-            scm('@daily')
-          }
-
-          String gpu_needed = 'true'
-          if (gpu == 'none') {
-            gpu_needed = 'false'
-          }
-
-          steps {
-            shell("""\
-            #!/bin/bash -xe
-
-            export DISTRO=${distro}
-            export ARCH=${arch}
-            export GPU_SUPPORT_NEEDED=${gpu_needed}
-            /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
-            """.stripIndent())
-          }
+          label "gpu-reliable"
         }
-      } // end of gpus
-    } // end of arch
-  } // end of trusty exception
+
+        triggers {
+          scm('@daily')
+        }
+
+        String gpu_needed = 'true'
+        if (gpu == 'none') {
+          gpu_needed = 'false'
+        }
+
+        steps {
+          shell("""\
+          #!/bin/bash -xe
+
+          export DISTRO=${distro}
+          export ARCH=${arch}
+          export GPU_SUPPORT_NEEDED=${gpu_needed}
+          /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
+          """.stripIndent())
+        }
+      }
+    } // end of gpus
+  } // end of arch
 } // end of distro
 
 // sdformat and ignition dependencies
@@ -265,7 +321,12 @@ ci_distro.each { distro ->
 
 // BRANCHES CI JOB @ SCM/DAILY
 gazebo_supported_branches.each { branch ->
-  ci_distro.each { distro ->
+  distros = ci_distro
+  if (branch == 'gazebo11')
+  {
+    distros = ci_distro_default
+  }
+  distros.each { distro ->
     supported_arches.each { arch ->
       ci_gpu.each { gpu ->
         // ci_default job for the rest of arches / scm@daily
@@ -279,7 +340,7 @@ gazebo_supported_branches.each { branch ->
 
         gazebo_ci_job.with
         {
-          label "gpu-${gpu}-${distro}"
+          label "gpu-${gpu}"
 
           triggers {
             scm('@daily')
@@ -305,7 +366,7 @@ gazebo_supported_branches.each { branch ->
 } // end of branch
 
 // EXPERIMENTAL ARCHES @ SCM/WEEKLY
-ci_distro.each { distro ->
+ci_distro_default.each { distro ->
   experimental_arches.each { arch ->
     def gazebo_ci_job = job("gazebo-ci-default-${distro}-${arch}-gpu-none")
     OSRFLinuxCompilation.create(gazebo_ci_job)
@@ -332,7 +393,7 @@ ci_distro.each { distro ->
 }
 
 // COVERAGE TYPE @ SCM/DAILY
-ci_distro.each { distro ->
+ci_distro_default.each { distro ->
   supported_arches.each { arch ->
     ci_gpu.each { gpu ->
       def gazebo_ci_job = job("gazebo-ci-coverage-${distro}-${arch}-gpu-${gpu}")
@@ -372,7 +433,7 @@ ci_distro.each { distro ->
 }
 
 // BUILD TYPES CI JOBS @ SCM/DAILY
-ci_distro.each { distro ->
+ci_distro_default.each { distro ->
   supported_arches.each { arch ->
     gazebo_supported_build_types.each { build_type ->
       def gazebo_ci_job = job("gazebo-ci_BT${build_type}-default-${distro}-${arch}-gpu-none")
@@ -431,66 +492,33 @@ ci_distro.each { distro ->
 
 // INSTALL LINUX -DEV PACKAGES ALL PLATFORMS @ CRON/DAILY
 gazebo_supported_branches.each { branch ->
-  ci_distro.each { distro ->
+  distros = ci_distro
+  if (branch == 'gazebo11')
+  {
+    distros = ci_distro_default
+  }
+  distros.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       def install_default_job = job("gazebo-install-${branch}_pkg-${distro}-${arch}")
       OSRFLinuxInstall.create(install_default_job)
-      install_default_job.with
-      {
-         triggers {
-           cron('@daily')
-         }
 
-         def dev_package = "lib${branch}-dev"
-
-         steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                export DISTRO=${distro}
-                export ARCH=${arch}
-                export INSTALL_JOB_PKG=${dev_package}
-                export INSTALL_JOB_REPOS=stable
-                /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
-                """.stripIndent())
-          }
-      } // end of with
+      generate_install_job(install_default_job, branch, distro, arch, true)
     } // end of arch
   } // end of distro
 } // end of branch
 
-// --------------------------------------------------------------
-// PERFORMANCE: linux performance test
-ci_distro.each { distro ->
-  supported_arches.each { arch ->
-    def performance_job = job("gazebo-performance-default-${distro}-${arch}")
-    OSRFLinuxPerformance.create(performance_job)
-    OSRFBitbucketHg.create(performance_job, "https://bitbucket.org/osrf/gazebo")
+// INSTALL LINUX -DEV PACKAGES ALL PLATFORMS @ CRON/DAILY - ONLY UBUNTU OFFICIAL
+// PACKAGES
+ubuntu_official_packages_distros.each { distro, branch ->
+    supported_arches.each { arch ->
+    // --------------------------------------------------------------
+    def install_default_job = job("gazebo-install_ubuntu_official-${branch}_pkg-${distro}-${arch}")
+    OSRFLinuxInstall.create(install_default_job)
 
-    performance_job.with
-    {
-      label "${performance_box}"
-
-      label "gpu-" + ci_gpu[0] + "-${distro}"
-
-      triggers {
-        scm('@daily')
-      }
-
-      steps {
-        shell("""\
-              #!/bin/bash -xe
-
-              export DISTRO=${distro}
-              export ARCH=${arch}
-              export GPU_SUPPORT_NEEDED=true
-              /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-performance.bash
-              """.stripIndent())
-      } // end of steps
-    } // end of with
+    generate_install_job(install_default_job, branch, distro, arch)
   } // end of arch
-} // end of distro
+} // end of branch
 
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
@@ -506,6 +534,7 @@ all_debbuild_branches.each { branch ->
         shell("""\
               #!/bin/bash -xe
 
+              export ENABLE_ROS=false
               /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-debbuild.bash
               """.stripIndent())
       }
@@ -557,16 +586,20 @@ all_branches.each { branch ->
   if (is_watched_by_buildcop(branch))
     Globals.extra_emails = Globals.build_cop_email
 
+  def osx_label = 'osx_gazebo'
+  if (branch == "gazebo7")
+    osx_label = 'osx_highsierra'
+
   def gazebo_brew_ci_job = job("gazebo-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(gazebo_brew_ci_job)
   OSRFBitbucketHg.create(gazebo_brew_ci_job, "https://bitbucket.org/osrf/gazebo", branch, "gazebo", "HomeBrew")
 
   gazebo_brew_ci_job.with
   {
-      label "osx_gazebo"
+      label osx_label
 
       triggers {
-        scm('@daily')
+        scm("TZ=US/Pacific \n H H(0-17) * * *")
       }
 
       steps {
@@ -588,9 +621,7 @@ all_branches.each { branch ->
 // 1. any
   String ci_build_any_job_name_win7 = "gazebo-ci-pr_any-windows7-amd64"
   def gazebo_win_ci_any_job = job(ci_build_any_job_name_win7)
-  OSRFWinCompilationAny.create(gazebo_win_ci_any_job,
-                               "https://bitbucket.org/osrf/gazebo",
-                               DISABLE_TESTS)
+  OSRFWinCompilationAny.create(gazebo_win_ci_any_job, "https://bitbucket.org/osrf/gazebo")
   gazebo_win_ci_any_job.with
   {
       steps {
@@ -604,7 +635,7 @@ all_branches.each { branch ->
 all_branches = gazebo_supported_branches + 'default' - 'gazebo7'
 all_branches.each { branch ->
   def gazebo_win_ci_job = job("gazebo-ci-${branch}-windows7-amd64")
-  OSRFWinCompilation.create(gazebo_win_ci_job, DISABLE_TESTS)
+  OSRFWinCompilation.create(gazebo_win_ci_job)
   OSRFBitbucketHg.create(gazebo_win_ci_job, "https://bitbucket.org/osrf/gazebo", branch)
 
   gazebo_win_ci_job.with

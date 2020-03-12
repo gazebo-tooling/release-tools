@@ -6,7 +6,9 @@ def set_status = job("_bitbucket-set_status")
 OSRFLinuxBase.create(set_status)
 set_status.with
 {
-  label "lightweight-linux"
+  // TODO: workaround measure to avoid the collapse of lightweight-linux
+  // when many jobs are triggered at the same time
+  label "ash.intel.xenial || kitt.intel.bionic"
 
   parameters
   {
@@ -27,6 +29,10 @@ set_status.with
 
   wrappers {
      preBuildCleanup()
+  }
+
+  logRotator {
+    numToKeep(15)
   }
 
   steps

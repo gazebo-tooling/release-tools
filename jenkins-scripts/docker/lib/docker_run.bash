@@ -12,7 +12,16 @@ sudo mkdir -p ${PACKAGE_DIR}
 sudo rm -fr ${WORKSPACE}/build
 sudo mkdir -p ${WORKSPACE}/build
 
-sudo docker build --tag ${DOCKER_TAG} .
+[[ -z ${DOCKER_DO_NOT_CACHE} ]] && DOCKER_DO_NOT_CACHE=false
+
+# Remove intermediate containers even if the build is not successful
+if $DOCKER_DO_NOT_CACHE; then
+  _DOCKER_BUILD_EXTRA_ARGS="--force-rm=true"
+fi
+
+sudo docker build ${_DOCKER_BUILD_EXTRA_ARGS} \
+                  --tag ${DOCKER_TAG} .
+
 stop_stopwatch CREATE_TESTING_ENVIROMENT
 
 echo '# BEGIN SECTION: see build.sh script'
@@ -32,7 +41,12 @@ if $USE_GPU_DOCKER; then
                     -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
 
   if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
-    export docker_cmd="nvidia-docker"
+    if $NVIDIA_DOCKER2_NODE; then
+      export EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} \
+                               --runtime=nvidia"
+    else
+      export docker_cmd="nvidia-docker"
+    fi
   fi
 fi
 
@@ -49,6 +63,8 @@ sudo ${docker_cmd} run $EXTRA_PARAMS_STR  \
             -v ${WORKSPACE}:${WORKSPACE} \
             -v /dev/log:/dev/log:ro \
             -v /run/log:/run/log:ro \
+            -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
+            --device /dev/snd \
             --tty \
             --rm \
             ${DOCKER_TAG} \
@@ -73,4 +89,10 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
 
     [[ -d ${PACKAGE_DIR} ]] && sudo chown -R jenkins ${PACKAGE_DIR}
     sudo chown jenkins -R ${WORKSPACE}/build/
+fi
+
+# workaround for subt.
+# TODO: investigate what is subt doing with permissions on checkout directory
+if [[ -d "${WORKSPACE}/subt" ]]; then
+   sudo chown -R jenkins "${WORKSPACE}/subt"
 fi

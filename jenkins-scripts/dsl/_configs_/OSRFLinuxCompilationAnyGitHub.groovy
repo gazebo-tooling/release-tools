@@ -12,9 +12,11 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFLinuxCompilationAnyGitHub
 {
-  static void create(Job job, ArrayList supported_ros_distros,
-                              boolean enable_testing  = true,
-                              boolean enable_cppcheck = false)
+  static void create(Job job,
+                     String github_repo,
+                     ArrayList supported_ros_distros,
+                     boolean enable_testing  = true,
+                     boolean enable_cppcheck = false)
   {
     // Do not include description from LinuxBase since the github pull request
     // builder set its own
@@ -22,11 +24,25 @@ class OSRFLinuxCompilationAnyGitHub
     OSRFLinuxCompilation.create(job, enable_testing, enable_cppcheck)
     Globals.rtools_description = true
 
+    // Get repo name for relativeTargetDirectory
+    String github_repo_name = github_repo.substring(github_repo.lastIndexOf("/") + 1)
+
     ArrayList supported_ros_branches = []
     supported_ros_distros.each { ros_distro ->
-      // Keep the toString method to be sure that String is used and not
-      // GStringImp whihc will make the whole thing to fail.
-      supported_ros_branches.add("${ros_distro}-devel".toString())
+      if (ros_distro == 'foxy') {
+        // Latest unreleased distro points to ros2
+        supported_ros_branches.add("ros2")
+      } else if (ros_distro == 'eloquent') {
+        supported_ros_branches.add("eloquent")
+      } else if (ros_distro == 'dashing') {
+        supported_ros_branches.add("dashing")
+      } else if (ros_distro == 'crystal') {
+        supported_ros_branches.add("crystal")
+      } else {
+        // Keep the toString method to be sure that String is used and not
+        // GStringImp which will make the whole thing to fail.
+        supported_ros_branches.add("${ros_distro}-devel".toString())
+      }
     }
 
     job.with
@@ -40,11 +56,11 @@ class OSRFLinuxCompilationAnyGitHub
       {
         git {
           remote {
-            github("ros-simulation/gazebo_ros_pkgs")
+            github(github_repo)
             refspec('+refs/pull/*:refs/remotes/origin/pr/*')
           }
           extensions {
-            relativeTargetDirectory("gazebo_ros_pkgs")
+            relativeTargetDirectory(github_repo_name)
           }
 
           branch('${sha1}')

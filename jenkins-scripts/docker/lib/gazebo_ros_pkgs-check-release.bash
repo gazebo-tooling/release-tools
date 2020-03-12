@@ -9,7 +9,7 @@ export ENABLE_REAPER=false
 
 DOCKER_JOB_NAME="gazebo_ros_pkgs_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
-. ${SCRIPT_DIR}/lib/_gazebo_models.sh
+. ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
 ROS_SETUP_PREINSTALL_HOOK="""
 ${GAZEBO_MODEL_INSTALLATION}
@@ -75,7 +75,7 @@ USE_ROS_REPO=true
 # DEPENDENCY_PKGS. They would be automatically pulled by ROS_GAZEBO_PKGS
 # but won't be updated if docker cache is in use. Adding them to the
 # list will do it.
-DEPENDENCY_PKGS="${ROS_CATKIN_BASE} git \
+DEPENDENCY_PKGS="${ROS_CATKIN_BASE} git wget \
                  ${ROS_GAZEBO_PKGS} \
                  ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS} \
                  ${_GZ_ROS_PACKAGES}"

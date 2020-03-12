@@ -28,10 +28,10 @@ host other bash variables needed by the different methods.
 
    ```
    build.metadata.bash
-   trusty/
+   xenial/
      debian/
        ...
-   vivid/
+   bionic/
      debian/
        ...
     ```
@@ -57,10 +57,10 @@ Import a LEGACY branch as a base and overwrite its contents with files and patch
    build.metadata.bash
    patches/
      foo.patch
-   trusty/ 
+   xenial/ 
 	   debian/ 
 	     changelog 
-   vivid/ 
+   bionic/ 
 	   debian/
 	     rules
 	     changelog 
