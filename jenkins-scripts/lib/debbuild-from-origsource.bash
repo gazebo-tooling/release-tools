@@ -38,7 +38,7 @@ apt-get install -y pbuilder fakeroot debootstrap devscripts dh-make ubuntu-dev-t
 
 # Also get gazebo repo's key, to be used in getting Gazebo
 sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" > /etc/apt/sources.list.d/gazebo.list'
-wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
+wget https://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
 apt-get update
 
 # Hack to avoid problem with non updated 
