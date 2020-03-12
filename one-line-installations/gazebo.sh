@@ -154,6 +154,14 @@ do_install() {
 			if [ -z "$dist_version" ] && [ -r /etc/lsb-release ]; then
 				dist_version="$(. /etc/lsb-release && echo "$DISTRIB_CODENAME")"
 			fi
+			case "$dist_version" in
+				xenial)
+					GZ_VER=10
+				;;
+				artful | eoan )
+					GZ_VER=9
+				;;
+			esac
 		;;
 
 		debian)
