@@ -10,7 +10,7 @@ set -e
 # Modfied by jrivero@osrfoundation.org
 
 GZ_VER=11
-DEB_PKG_NAME=libgazebo$GZ_VER-dev
+DEB_PKG_NAME="libgazebo$GZ_VER-dev gazebo$GZ_VER"
 BREW_PKG_NAME=gazebo${GZ_VER}
 
 command_exists() {
