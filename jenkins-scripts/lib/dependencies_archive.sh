@@ -319,7 +319,7 @@ else
   # TODO rename the variable
   if ${ROS2}; then
     ROS_CATKIN_BASE="${pythonv}-dev                      \\
-                    ${pythonv}3-colcon-common-extensions \\
+                    ${pythonv}-colcon-common-extensions \\
                     ${pythonv}-rosdep                    \\
                     ${pythonv}-wstool                    \\
                     ${pythonv}-rosinstall                \\
