@@ -464,7 +464,7 @@ ci_distro_default.each { distro ->
 }
 
 // INSTALL ONELINER
-ci_distro.each { distro ->
+all_supported_distros.each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
     def install_default_job = job("gazebo-install-one_liner-${distro}-${arch}")
