@@ -26,7 +26,7 @@ class OSRFBitbucketHg
           installation(installName)
           subdirectory(subdir)
         configure { project ->
-           project / browser(class: 'hudson.plugins.mercurial.browser.BitBucket') / "url" << repo
+           project / "browser(class: 'hudson.plugins.mercurial.browser.BitBucket')" / "url" << repo
           }
         }
       }
