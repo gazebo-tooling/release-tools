@@ -475,7 +475,7 @@ all_supported_distros.each { distro ->
         cron('@daily')
       }
 
-      label "gpu-" + ci_gpu[0] + "-${distro}"
+      label "gpu-reliable"
 
       steps {
         shell("""\
