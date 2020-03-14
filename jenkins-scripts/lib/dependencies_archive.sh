@@ -16,18 +16,15 @@ if ${DART_COMPILE_FROM_SOURCE}; then
     DART_FROM_PKGS=false
 fi
 
-pythonv="python"
-if [[ ${DISTRO} != 'trusty' ]]; then
-  pythonv="python3"
+pythonv="python3"
+if [[ ${DISTRO} == 'trusty' ]]; then
+  pythonv="python"
 fi
 
 # need to override the above distro check since
 # ROS1 pkgs depend on python2
-if [[ -n ${ROS_DISTRO} ]]; then
+if [[ -n ${ROS_DISTRO} ]] && ! ${ROS2}; then
   pythonv="python"
-  if ${ROS2}; then
-    pythonv="python3"
-  fi
 fi
 
 # mesa-utils, x11-utils for dri checks, xsltproc for qtest->junit conversion and
