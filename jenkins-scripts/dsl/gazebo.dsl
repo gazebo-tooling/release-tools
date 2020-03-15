@@ -464,7 +464,7 @@ ci_distro_default.each { distro ->
 }
 
 // INSTALL ONELINER
-ci_distro.each { distro ->
+all_supported_distros.each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
     def install_default_job = job("gazebo-install-one_liner-${distro}-${arch}")
@@ -475,7 +475,7 @@ ci_distro.each { distro ->
         cron('@daily')
       }
 
-      label "gpu-" + ci_gpu[0] + "-${distro}"
+      label "gpu-reliable"
 
       steps {
         shell("""\

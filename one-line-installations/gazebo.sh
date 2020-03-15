@@ -10,8 +10,6 @@ set -e
 # Modfied by jrivero@osrfoundation.org
 
 GZ_VER=11
-DEB_PKG_NAME=libgazebo$GZ_VER-dev
-BREW_PKG_NAME=gazebo${GZ_VER}
 
 command_exists() {
 	command -v "$@" > /dev/null 2>&1
@@ -181,7 +179,6 @@ do_install() {
 					GZ_VER=7
 				;;
 			esac
-			DEB_PKG_NAME=libgazebo$GZ_VER-dev
 		;;
 
 		oracleserver)
@@ -232,47 +229,13 @@ do_install() {
 			echo_gazebo_as_nonroot
 			exit 0
 			;;
-
-                debian)
-	                export DEBIAN_FRONTEND=noninteractive
-
-			did_apt_get_update=
-			apt_get_update() {
-				if [ -z "$did_apt_get_update" ]; then
-					( set -x; $sh_c 'sleep 3; apt-get update' )
-					did_apt_get_update=1
-				fi
-			}
-
-                        (
-			set -x
-			$sh_c "sleep 3; apt-get update; apt-get install -y -q $DEB_PKG_NAME"
-			)
-			exit 0
-			;;
-
-		debian)
-			cat >&2 <<-'EOF'
-
-			In Debian this script will install the latest version from
-			Debian repositories
-
-			EOF
-
-			(
-			set -x
-			$sh_c "sleep 3; apt-get update; apt-get install -y -q $DEB_PKG_NAME"
-			)
-			exit 0
-			;;
-		ubuntu)
+		debian | ubuntu)
 			export DEBIAN_FRONTEND=noninteractive
+			DEB_PKG_NAME="libgazebo$GZ_VER-dev gazebo$GZ_VER"
 
-			# TODO: we really want this or install the latest stable
-			# release from the system?
 			cat >&2 <<-'EOF'
 
-			In Ubuntu this script will setup the osrfoundation
+			In Debian this script will setup the osrfoundation
 			repository to install the latest package available
 
 			EOF
@@ -289,12 +252,11 @@ do_install() {
 			set -x
 			$sh_c "apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D2486D2DD83DB69272AFE98867170598AF249743"
 			$sh_c "mkdir -p /etc/apt/sources.list.d"
-			$sh_c "echo deb http://packages.osrfoundation.org/gazebo/$lsb_dist $dist_version main > /etc/apt/sources.list.d/gazebo-stable.list"
+			$sh_c "echo deb http://packages.osrfoundation.org/gazebo/$lsb_dist\-stable $dist_version main > /etc/apt/sources.list.d/gazebo-stable.list"
 			$sh_c "sleep 3; apt-get update; apt-get install -y -q $DEB_PKG_NAME"
 			)
 			exit 0
 			;;
-
 		fedora)
 			(
 				  set -x
@@ -312,6 +274,7 @@ do_install() {
 			exit 0
 			;;
 		osX)
+			BREW_PKG_NAME=gazebo${GZ_VER}
 			(
 			  if ! command_exists ruby; then
 				echo "ERROR: ruby executable is not found in your system path."
