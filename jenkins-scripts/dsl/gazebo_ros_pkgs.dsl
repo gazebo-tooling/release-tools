@@ -71,6 +71,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
 
               ${gz_package_version_str}
 
+              export ENABLE_ROS=true
               ${ros2_str}
               export DISTRO=${ubuntu_distro}
               export ARCH=${ci_arch}
