@@ -118,6 +118,7 @@ ros_distros.each { ros_distro ->
         shell("""\
               #!/bin/bash -xe
 
+              export ENABLE_ROS=true
               export ROS_DISTRO=${ros_distro}
               export DISTRO=${ubuntu_distro}
               export ARCH=${ci_arch}
@@ -261,6 +262,7 @@ ros2_distros.each { ros_distro ->
         shell("""\
               #!/bin/bash -xe
 
+              export ENABLE_ROS=true
               export ROS2=true
               export ROS_DISTRO=${ros_distro}
               export DISTRO=${ubuntu_distro}
