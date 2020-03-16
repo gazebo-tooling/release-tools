@@ -596,6 +596,9 @@ def go(argv):
                 if (PRERELEASE or NIGHTLY):
                     if (a == 'armhf' or a == 'arm64'):
                         continue
+                # No i386 for focal
+                if (d == 'focal' and a == 'i386'):
+                    continue
 
                 linux_platform_params = params.copy()
                 linux_platform_params['ARCH'] = a
