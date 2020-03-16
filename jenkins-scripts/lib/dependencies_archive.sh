@@ -23,7 +23,7 @@ fi
 
 # need to override the above distro check since
 # ROS1 pkgs depend on python2
-if [[ -n ${ROS_DISTRO} ]] && ! ${ROS2}; then
+if ${ENABLE_ROS} && ! ${ROS2}; then
   pythonv="python"
 fi
 
