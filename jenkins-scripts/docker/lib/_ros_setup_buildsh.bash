@@ -11,17 +11,9 @@ if [ -z ${ROS_DISTRO} ]; then
 fi
 
 [[ -z ${USE_GZ_VERSION_ROSDEP} ]] && USE_GZ_VERSION_ROSDEP=false
-[[ -z ${USE_CATKIN_MAKE} ]] && USE_CATKIN_MAKE=false # use catkin tools by default
-[[ -z ${USE_COLCON} ]] && USE_COLCON=false
+[[ -z ${USE_CATKIN_MAKE} ]] && USE_CATKIN_MAKE=false # use colcon by default
 
-if ${USE_COLCON}; then
-  export CMD_CATKIN_CONFIG=""
-  export CMD_CATKIN_LIST="colcon list -t"
-  export CMD_CATKIN_BUILD="colcon build --parallel-workers ${MAKE_JOBS} --symlink-install --event-handler console_direct+ ${CATKIN_EXTRA_ARGS}"
-  export CMD_CATKIN_TEST="colcon test --parallel-workers 1 --event-handler console_direct+ || true"
-  export CMD_CATKIN_TEST_RESULTS="colcon test-result --verbose || true"
-  export IGNORE_FILE="COLCON_IGNORE"
-elif ${USE_CATKIN_MAKE}; then
+if ${USE_CATKIN_MAKE}; then
   export CMD_CATKIN_CONFIG=""
   export CMD_CATKIN_LIST=""
   export CMD_CATKIN_BUILD="catkin_make -j${MAKE_JOBS} && catkin_make install"
@@ -29,13 +21,12 @@ elif ${USE_CATKIN_MAKE}; then
   export CMD_CATKIN_TEST_RESULTS="catkin_test_results || true"
   export IGNORE_FILE="CATKIN_IGNORE"
 else
-  # catkin tools
-  export CMD_CATKIN_CONFIG="catkin config --init --mkdirs"
-  export CMD_CATKIN_LIST=""
-  export CMD_CATKIN_BUILD="catkin build -j${MAKE_JOBS} --verbose --summary ${CATKIN_EXTRA_ARGS}"
-  export CMD_CATKIN_TEST="catkin run_tests -j1 || true"
-  export CMD_CATKIN_TEST_RESULTS="catkin_test_results --all --verbose || true"
-  export IGNORE_FILE="CATKIN_IGNORE"
+  export CMD_CATKIN_CONFIG=""
+  export CMD_CATKIN_LIST="colcon list -t"
+  export CMD_CATKIN_BUILD="colcon build --parallel-workers ${MAKE_JOBS} --symlink-install --event-handler console_direct+ ${CATKIN_EXTRA_ARGS}"
+  export CMD_CATKIN_TEST="colcon test --parallel-workers 1 --event-handler console_direct+ || true"
+  export CMD_CATKIN_TEST_RESULTS="colcon test-result --verbose || true"
+  export IGNORE_FILE="COLCON_IGNORE"
 fi
 
 export CATKIN_WS="${WORKSPACE}/ws"
