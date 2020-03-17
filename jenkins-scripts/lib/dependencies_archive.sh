@@ -322,10 +322,10 @@ else
     ;;
   esac
 
-  # TODO rename the variable
+  # colcon has no python2 candidate
   if ${ROS2}; then
     ROS_CATKIN_BASE="${pythonv}-dev                      \\
-                    ${pythonv}-colcon-common-extensions \\
+                    python3-colcon-common-extensions     \\
                     ${pythonv}-rosdep                    \\
                     ${pythonv}-wstool                    \\
                     ${pythonv}-rosinstall                \\
@@ -334,7 +334,7 @@ else
   else
     ROS_CATKIN_BASE="${pythonv}-dev              \\
                     ${pythonv}-catkin-pkg        \\
-                    ${pythonv}-colcon-common-extensions \\
+                    python3-colcon-common-extensions \\
                     ${pythonv}-rosdep            \\
                     ${pythonv}-wstool            \\
                     ros-${ROS_DISTRO}-catkin     \\
