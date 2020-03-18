@@ -207,6 +207,12 @@ if [[ -n  \$(grep -R 'compat 12' /usr/share/perl5/Debian/Debhelper/Dh_*.pm) ]]; 
   echo 12 > debian/compat
 fi
 
+# Hack to avoid problems with dwz symbols starting in Ubuntu Disco if tmp and debugtmp are the
+# same the build fails copying files because they are the same
+if [[ $DISTRO != 'xenial' && $DISTRO != 'bionic' ]]; then
+  sed -i -e 's:dwz" and:dwz" and (\$tmp ne \$debugtmp) and:' /usr/bin/dh_strip
+fi
+
 echo '# BEGIN SECTION: create deb packages'
 debuild --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 echo '# END SECTION'
