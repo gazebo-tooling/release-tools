@@ -5,11 +5,12 @@ import groovy.transform.Field
 @Field
 ArrayList ros_distros        = Globals.get_ros_suported_distros()
 @Field
-ArrayList ros2_distros       = Globals.get_ros2_suported_distros()
-@Field
 String ci_arch               = 'amd64'
 @Field
-String current_ros2_branch   = "eloquent"
+String current_ros2_branch   = Globals.get_ros2_development_distro()
+@Field
+ArrayList ros2_distros       = Globals.get_ros2_suported_distros() + [ current_ros2_branch ]
+
 
 // version to test more than the official one in each ROS distro
 extra_gazebo_versions = [ 'kinetic' :  ['8','9']]
@@ -83,11 +84,19 @@ void include_common_params(Job gazebo_ros_pkgs_job,
    }
 }
 
-ros_distros.each { ros_distro ->
+(ros_distros + ros2_distros).each { ros_distro ->
   ubuntu_distros = Globals.ros_ci[ros_distro]
 
   ubuntu_distros.each { ubuntu_distro ->
     suffix_triplet="${ros_distro}-${ubuntu_distro}-${ci_arch}"
+
+    if (ros2_distros.contains(ros_distro)) {
+      branch = ros_distro
+      if (ros_distro == current_ros2_branch)
+        branch = "ros2"
+    } else {
+      branch = "${ros_distro}-devel"
+    }
 
     // --------------------------------------------------------------
     // 1. Create the default ci jobs (using ros-shadow-fixed by default)
@@ -104,7 +113,7 @@ ros_distros.each { ros_distro ->
           extensions {
             relativeTargetDirectory("gazebo_ros_pkgs")
           }
-          branch("${ros_distro}-devel")
+          branch(branch)
         }
       }
 
@@ -203,86 +212,27 @@ ros_distros.each { ros_distro ->
       }
     } // end of gazebo_versions
 
-
-    // --------------------------------------------------------------
-    // 2. Create the regressions ci pr-any jobs
-    def regression_job_name = "ros_gazebo_pkgs-ci-pr_regression_any_${suffix_triplet}"
-    Job regression_job = create_common_compilation(regression_job_name,
-                                                   ubuntu_distro,
-                                                   ros_distro,
-                                                   "default",
-                                                   "gazebo_ros_pkgs-compilation_regression")
-    // No melodic-devel branch in third party testing (yet)
-    if (ros_distro == 'melodic')
-    {
-      regression_job.with
+    // Regresssion jobs only in ROS1 by now
+    if (ros_distros.contains(ros_distro)) {
+      // --------------------------------------------------------------
+      // 2. Create the regressions ci pr-any jobs
+      def regression_job_name = "ros_gazebo_pkgs-ci-pr_regression_any_${suffix_triplet}"
+      Job regression_job = create_common_compilation(regression_job_name,
+                                                     ubuntu_distro,
+                                                     ros_distro,
+                                                     "default",
+                                                     "gazebo_ros_pkgs-compilation_regression")
+      // No melodic-devel branch in third party testing (yet)
+      if (ros_distro == 'melodic')
       {
-        disabled()
+        regression_job.with
+        {
+          disabled()
+        }
       }
     }
   } // end of ubuntu_distros
 } // end of ros_distros
-
-ros2_distros.each { ros_distro ->
-  ubuntu_distros = Globals.ros_ci[ros_distro]
-
-  branch = ros_distro
-  if (ros_distro == current_ros2_branch)
-    branch = "ros2"
-
-  ubuntu_distros.each { ubuntu_distro ->
-    suffix_triplet="${ros_distro}-${ubuntu_distro}-${ci_arch}"
-
-    // --------------------------------------------------------------
-    // 1. Create the default ci jobs (using ros-shadow-fixed by default)
-    def default_ci_job = job("ros2_gazebo_pkgs-ci-default_$suffix_triplet")
-    // Enable testing but not cppcheck
-    OSRFLinuxCompilation.create(default_ci_job, true, false)
-    default_ci_job.with
-    {
-      scm {
-        git {
-          remote {
-            github("ros-simulation/gazebo_ros_pkgs")
-          }
-          extensions {
-            relativeTargetDirectory("gazebo_ros_pkgs")
-          }
-          branch(branch)
-        }
-      }
-
-      label "gpu-reliable"
-
-      triggers {
-        scm('*/5 * * * *')
-      }
-
-      steps {
-        shell("""\
-              #!/bin/bash -xe
-
-              export ENABLE_ROS=true
-              export ROS2=true
-              export ROS_DISTRO=${ros_distro}
-              export DISTRO=${ubuntu_distro}
-              export ARCH=${ci_arch}
-              /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo_ros_pkgs-compilation.bash
-              """.stripIndent())
-      }
-    }
-
-
-    // --------------------------------------------------------------
-    // 2. Create the default ci pr-any jobs
-    def any_job_name = "ros2_gazebo_pkgs-ci-pr_any_${suffix_triplet}"
-    Job any_job = create_common_compilation(any_job_name,
-                                            ubuntu_distro,
-                                            ros_distro,
-                                            "default",
-                                            "gazebo_ros_pkgs-compilation")
-  }
-}
 
 bloom_debbuild_jobs.each { bloom_pkg ->
 

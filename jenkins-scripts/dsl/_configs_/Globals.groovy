@@ -105,6 +105,10 @@ class Globals
      return [ 'crystal', 'dashing', 'eloquent' ]
    }
 
+   static String get_ros2_development_distro() {
+     return 'foxy'
+   }
+
    static String get_gz11_ubuntu_distro()
    {
      return 'bionic'
