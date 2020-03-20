@@ -9,7 +9,7 @@ String ci_arch               = 'amd64'
 @Field
 String current_ros2_branch   = Globals.get_ros2_development_distro()
 @Field
-ArrayList ros2_distros       = Globals.get_ros2_suported_distros() + [ current_ros2_branch ]
+ArrayList ros2_distros       = Globals.get_ros2_suported_distros()
 
 
 // version to test more than the official one in each ROS distro
@@ -92,6 +92,8 @@ void include_common_params(Job gazebo_ros_pkgs_job,
 
     if (ros2_distros.contains(ros_distro)) {
       branch = ros_distro
+      // leave the check here for the time of final testing of
+      // current_ros2_branch
       if (ros_distro == current_ros2_branch)
         branch = "ros2"
     } else {
