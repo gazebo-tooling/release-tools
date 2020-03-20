@@ -81,8 +81,8 @@ if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
 fi
 
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
-  brew install python@2
-  pip install ${PIP_PACKAGES_NEEDED}
+  brew install python
+  pip3 install ${PIP_PACKAGES_NEEDED}
 fi
 
 if [[ -z "${DISABLE_CCACHE}" ]]; then

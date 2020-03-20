@@ -16,6 +16,17 @@ if ${DART_COMPILE_FROM_SOURCE}; then
     DART_FROM_PKGS=false
 fi
 
+pythonv="python3"
+if [[ ${DISTRO} == 'trusty' ]]; then
+  pythonv="python"
+fi
+
+# need to override the above distro check since
+# ROS1 pkgs depend on python2
+if ${ENABLE_ROS} && ! ${ROS2}; then
+  pythonv="python"
+fi
+
 # mesa-utils, x11-utils for dri checks, xsltproc for qtest->junit conversion and
 # python-psutil for memory testing
 # netcat-openbsd (nc command) for squid-deb-proxy checking
@@ -28,9 +39,9 @@ BASE_DEPENDENCIES="build-essential \\
                    x11-utils       \\
                    cppcheck        \\
                    xsltproc        \\
-                   python-lxml     \\
-                   python-psutil   \\
-                   python          \\
+                   ${pythonv}-lxml \\
+                   ${pythonv}-psutil \\
+                   ${pythonv}      \\
                    bc              \\
                    netcat-openbsd  \\
                    gnupg2          \\
@@ -41,7 +52,7 @@ BREW_BASE_DEPENDCIES="mercurial git cmake"
 
 # 1. SDFORMAT
 # ruby for xml_schemas generation and libxml2-utils for xmllint used in tests
-SDFORMAT_NO_IGN_DEPENDENCIES="python         \\
+SDFORMAT_NO_IGN_DEPENDENCIES="${pythonv}     \\
                               libxml2-utils  \\
                               libtinyxml-dev"
 
@@ -106,6 +117,8 @@ fi
 
 if ${USE_OLD_SDFORMAT}; then
     sdformat_pkg="sdformat"
+elif [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
+    sdformat_pkg="libsdformat9-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
     sdformat_pkg="libsdformat6-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
@@ -207,7 +220,14 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
                                            libignition-msgs0-dev"
   fi
 
-  if [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
+  if [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
+      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                           libignition-common3-dev \\
+                                           libignition-fuel-tools4-dev \\
+                                           libignition-transport8-dev \\
+                                           libignition-math6-dev \\
+                                           libignition-msgs5-dev"
+  elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
       GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                                            libignition-common-dev \\
                                            libignition-fuel-tools-dev \\
@@ -254,7 +274,7 @@ else
                             libprotoc-dev            \\
                             libprotobuf-dev          \\
                             protobuf-compiler        \\
-                            python-protobuf          \\
+                            ${pythonv}-protobuf      \\
                             libignition-common-dev   \\
                             libignition-msgs-dev     \\
                             libignition-transport3-dev"
@@ -282,6 +302,12 @@ else
       ;;
       dashing)
         GAZEBO_VERSION_FOR_ROS="9"
+      ;;
+      eloquent)
+        GAZEBO_VERSION_FOR_ROS="9"
+      ;;
+      foxy)
+        GAZEBO_VERSION_FOR_ROS="11"
     esac
   fi
 
@@ -296,27 +322,27 @@ else
     ;;
   esac
 
-  # TODO rename the variable
+  # colcon has no python2 candidate
   if ${ROS2}; then
-    ROS_CATKIN_BASE="python-dev                      \\
-                    python3-colcon-common-extensions \\
-                    python-rosdep                    \\
-                    python-wstool                    \\
-                    python-rosinstall                \\
-                    python-rospkg                    \\
-                    python-vcstools"
+    ROS_CATKIN_BASE="${pythonv}-dev                      \\
+                    python3-colcon-common-extensions     \\
+                    ${pythonv}-rosdep                    \\
+                    ${pythonv}-wstool                    \\
+                    ${pythonv}-rosinstall                \\
+                    ${pythonv}-rospkg                    \\
+                    ${pythonv}-vcstools"
   else
-    ROS_CATKIN_BASE="python-dev              \\
-                    python-catkin-pkg        \\
-                    python-rosdep            \\
-                    python-wstool            \\
-                    ros-${ROS_DISTRO}-catkin \\
-                    ros-${ROS_DISTRO}-ros    \\
-                    python-rosinstall        \\
-                    python-catkin-tools      \\
-                    python-catkin-pkg        \\
-                    python-rospkg            \\
-                    python-vcstools"
+    ROS_CATKIN_BASE="${pythonv}-dev              \\
+                    ${pythonv}-catkin-pkg        \\
+                    python3-colcon-common-extensions \\
+                    ${pythonv}-rosdep            \\
+                    ${pythonv}-wstool            \\
+                    ros-${ROS_DISTRO}-catkin     \\
+                    ros-${ROS_DISTRO}-ros        \\
+                    ${pythonv}-rosinstall        \\
+                    ${pythonv}-catkin-pkg        \\
+                    ${pythonv}-rospkg            \\
+                    ${pythonv}-vcstools"
   fi
 
   #
@@ -440,7 +466,7 @@ if [[ -z ${IGN_TRANSPORT_MAJOR_VERSION} ]]; then
 fi
 
 IGN_TRANSPORT_NO_IGN_DEPENDENCIES="pkg-config           \\
-                                   python               \\
+                                   ${pythonv}           \\
                                    ruby-ronn            \\
                                    libprotoc-dev        \\
                                    libprotobuf-dev      \\
@@ -484,8 +510,8 @@ fi
 
 export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} libignition-tools-dev"
 
-IGN_COMMON_NO_IGN_DEPENDENCIES="pkg-config            \\
-                         python                \\
+IGN_COMMON_NO_IGN_DEPENDENCIES="pkg-config     \\
+                         ${pythonv}            \\
                          ruby-ronn             \\
                          uuid-dev              \\
                          libfreeimage-dev      \\
