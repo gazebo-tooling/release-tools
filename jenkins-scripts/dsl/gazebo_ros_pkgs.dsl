@@ -98,6 +98,12 @@ void include_common_params(Job gazebo_ros_pkgs_job,
       branch = "${ros_distro}-devel"
     }
 
+    if (ros2_distros.contains(ros_distro)) {
+      ros2_str = "export ROS2=true"
+    } else {
+      ros2_str = "export ROS2=false"
+    }
+
     // --------------------------------------------------------------
     // 1. Create the default ci jobs (using ros-shadow-fixed by default)
     def default_ci_job = job("ros_gazebo_pkgs-ci-default_$suffix_triplet")
@@ -128,6 +134,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
               #!/bin/bash -xe
 
               export ENABLE_ROS=true
+              ${ros2_str}
               export ROS_DISTRO=${ros_distro}
               export DISTRO=${ubuntu_distro}
               export ARCH=${ci_arch}
