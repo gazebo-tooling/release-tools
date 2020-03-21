@@ -21,6 +21,7 @@ ${GAZEBO_MODEL_INSTALLATION}
 if ${ROS2}; then
 cat > build.sh << DELIM_CHECKOUT
 set -ex
+source /opt/ros/${ROS_DISTRO}/setup.bash
 TEST_TIMEOUT=90
 
 TEST_START=\`date +%s\`
