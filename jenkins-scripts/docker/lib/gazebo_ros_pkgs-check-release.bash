@@ -24,7 +24,7 @@ set -ex
 TEST_TIMEOUT=90
 
 TEST_START=\`date +%s\`
-timeout --preserve-status \$TEST_TIMEOUT gazebo --verbose /opt/ros/crystal/share/gazebo_plugins/worlds/gazebo_ros_diff_drive_demo.world || true
+timeout --preserve-status \$TEST_TIMEOUT gazebo --verbose /opt/ros/${ROS_DISTRO}/share/gazebo_plugins/worlds/gazebo_ros_diff_drive_demo.world || true
 TEST_END=\`date +%s\`
 DIFF=\$(expr \$TEST_END - \$TEST_START)
 
