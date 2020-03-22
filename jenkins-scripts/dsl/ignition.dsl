@@ -558,10 +558,6 @@ ignition_software.each { ign_sw ->
 // 1. any
 ignition_software.each { ign_sw ->
 
-  // ign-gazebo/ign-launch still not ported completely to Windows
-  if (ign_sw == 'gazebo' || ign_sw == 'launch')
-    return
-
   if (is_a_colcon_package(ign_sw)) {
     // colcon uses long paths and windows has a hard limit of 260 chars. Keep
     // names minimal
@@ -610,6 +606,10 @@ ignition_software.each { ign_sw ->
 
     ignition_win_ci_job.with
     {
+        // ign-gazebo/ign-launch still not ported completely to Windows
+        if (ign_sw == 'gazebo' || ign_sw == 'launch')
+          disabled()
+
         triggers {
           scm('@daily')
         }
