@@ -413,15 +413,21 @@ else
     ROS_GAZEBO_PKGS="ros-${ROS_DISTRO}-gazebo-msgs \
                      ros-${ROS_DISTRO}-gazebo-plugins \
                      ros-${ROS_DISTRO}-gazebo-ros \
-                     ros-${ROS_DISTRO}-gazebo-ros-pkgs \
+                     ros-${ROS_DISTRO}-gazebo-ros-pkgs"
+    if ! ${ROS2}; then
+        ROS_GAZEBO_PKGS="${ROS_GAZEBO_PKGS} \
                      ros-${ROS_DISTRO}-gazebo-ros-control"
+    fi
 
   else
     ROS_GAZEBO_PKGS="ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-msgs \
                      ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-plugins \
                      ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros \
-                     ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros-pkgs \
+                     ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros-pkgs"
+    if ! ${ROS2}; then
+        ROS_GAZEBO_PKGS="${ROS_GAZEBO_PKGS} \
                      ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros-control"
+    fi
   fi
 fi
 
