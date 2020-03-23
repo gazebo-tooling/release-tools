@@ -50,6 +50,7 @@ if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
 fi
 
 cd ${CATKIN_WS}
+source install/setup.bash
 
 TEST_TIMEOUT=180
 
