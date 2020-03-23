@@ -49,8 +49,6 @@ if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
    exit 1
 fi
 
-cd ${CATKIN_WS}/src/gazebo_ros_demos/
-export ROS_PACKAGE_PATH=\$ROS_PACKAGE_PATH:$PWD
 cd ${CATKIN_WS}
 
 TEST_TIMEOUT=180
