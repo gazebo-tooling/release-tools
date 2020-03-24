@@ -415,6 +415,7 @@ else
                      ros-${ROS_DISTRO}-gazebo-ros \
                      ros-${ROS_DISTRO}-gazebo-ros-pkgs"
     if ! ${ROS2}; then
+        # TODO(sloretz) Install gazebo-ros-control when it's ported to ROS 2
         ROS_GAZEBO_PKGS="${ROS_GAZEBO_PKGS} \
                      ros-${ROS_DISTRO}-gazebo-ros-control"
     fi
@@ -425,6 +426,7 @@ else
                      ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros \
                      ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros-pkgs"
     if ! ${ROS2}; then
+        # TODO(sloretz) Install gazebo-ros-control when it's ported to ROS 2
         ROS_GAZEBO_PKGS="${ROS_GAZEBO_PKGS} \
                      ros-${ROS_DISTRO}-gazebo${GAZEBO_VERSION_FOR_ROS}-ros-control"
     fi
