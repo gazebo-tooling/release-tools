@@ -348,6 +348,30 @@ ENV NVIDIA_VISIBLE_DEVICES \
     ${NVIDIA_VISIBLE_DEVICES:-all}
 ENV NVIDIA_DRIVER_CAPABILITIES \
     ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
+
+# Install libglvnd for OpenGL using nvidia-docker2
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        ca-certificates \
+        make \
+        automake \
+        autoconf \
+        libtool \
+        pkg-config \
+        python \
+        libxext-dev \
+        libx11-dev \
+        x11proto-gl-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /opt/libglvnd && cd /opt/libglvnd && \
+    git clone https://github.com/NVIDIA/libglvnd.git . && \
+    ./autogen.sh && \
+    ./configure --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu && \
+    make install-strip && \
+    find /usr/local/lib/x86_64-linux-gnu -type f -name 'lib*.la' -delete
+
+ENV LD_LIBRARY_PATH /usr/local/lib/x86_64-linux-gnu${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 DELIM_NVIDIA2_GPU
    else
    # NVIDIA-DOCKER1
