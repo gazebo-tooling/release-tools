@@ -86,6 +86,8 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION install the system dependencies'
 ${CMD_CATKIN_LIST}
+# Update apt repos in case rosdep tries to install Debian packages
+apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)
 rosdep install --from-paths . \
                -r             \
                --ignore-src   \
