@@ -365,7 +365,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /opt/libglvnd && cd /opt/libglvnd && \
-    git clone https://github.com/NVIDIA/libglvnd.git . && \
+    git clone -b v1.2.0 https://github.com/NVIDIA/libglvnd.git . && \
     ./autogen.sh && \
     ./configure --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu && \
     make install-strip && \
