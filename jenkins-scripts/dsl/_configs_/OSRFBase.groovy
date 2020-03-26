@@ -22,7 +22,7 @@ class OSRFBase
      	description 'Automatic generated job by DSL jenkins. Please do not edit manually'
 
         parameters {
-          stringParam('RTOOLS_BRANCH','default','release-tool branch to use')
+          stringParam('RTOOLS_BRANCH','master','release-tool branch to use')
           if (Globals.gazebodistro_branch)
           {
             stringParam('GAZEBODISTRO_BRANCH','default','gazebodistro branch to use')
