@@ -23,6 +23,7 @@ fi
 
 if [ `expr length "${INSTALL_JOB_PKG} "` -gt 1 ]; then
 echo "# BEGIN SECTION: try to install package: ${INSTALL_JOB_PKG}"
+apt-get update
 apt-get install -y ${INSTALL_JOB_PKG}
 echo '# END SECTION'
 fi
