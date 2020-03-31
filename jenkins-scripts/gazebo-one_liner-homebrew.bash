@@ -13,5 +13,6 @@ brew install hg
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run the one-liner installation'
+# TODO: change this to 'curl -ssL https://get.gazebosim.org' once that supports https
 curl -ssL https://bitbucket.org/osrf/release-tools/raw/default/one-line-installations/gazebo.sh | sh -x
 echo '# END SECTION'
