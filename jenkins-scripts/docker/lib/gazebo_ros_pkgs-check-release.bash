@@ -18,6 +18,23 @@ ${GAZEBO_MODEL_INSTALLATION}
 # Generate the first part of the build.sh file for ROS
 . ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash ""
 
+if ${ROS2}; then
+cat > build.sh << DELIM_CHECKOUT
+set -ex
+source /opt/ros/${ROS_DISTRO}/setup.bash
+TEST_TIMEOUT=90
+
+TEST_START=\`date +%s\`
+timeout --preserve-status \$TEST_TIMEOUT gazebo --verbose /opt/ros/${ROS_DISTRO}/share/gazebo_plugins/worlds/gazebo_ros_diff_drive_demo.world || true
+TEST_END=\`date +%s\`
+DIFF=\$(expr \$TEST_END - \$TEST_START)
+
+if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
+   echo 'The test took less than \$TEST_TIMEOUT. Something bad happened'
+   exit 1
+fi
+DELIM_CHECKOUT
+else
 cat > build.sh << DELIM_CHECKOUT
 ###################################################
 # Make project-specific changes here
@@ -66,6 +83,7 @@ fi
 
 echo "180 testing seconds finished successfully"
 DELIM
+fi
 
 USE_ROS_REPO=true
 

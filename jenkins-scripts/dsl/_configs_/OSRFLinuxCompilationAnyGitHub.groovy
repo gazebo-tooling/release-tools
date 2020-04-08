@@ -29,9 +29,7 @@ class OSRFLinuxCompilationAnyGitHub
 
     ArrayList supported_ros_branches = []
     supported_ros_distros.each { ros_distro ->
-      // TODO: change 'foxy' to use get_ros2_development_distro once
-      // https://bitbucket.org/osrf/release-tools/pull-requests/968 is merged
-      if (ros_distro == 'foxy') {
+      if (ros_distro == Globals.get_ros2_development_distro()) {
         // Latest unreleased distro points to ros2
         supported_ros_branches.add("ros2")
       } else if (Globals.get_ros2_suported_distros().contains(ros_distro))
