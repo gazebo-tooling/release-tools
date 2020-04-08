@@ -297,9 +297,6 @@ else
         GAZEBO_VERSION_FOR_ROS="9"
       ;;
       # ROS 2
-      crystal)
-        GAZEBO_VERSION_FOR_ROS="9"
-      ;;
       dashing)
         GAZEBO_VERSION_FOR_ROS="9"
       ;;

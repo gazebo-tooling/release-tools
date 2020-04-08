@@ -32,12 +32,8 @@ class OSRFLinuxCompilationAnyGitHub
       if (ros_distro == Globals.get_ros2_development_distro()) {
         // Latest unreleased distro points to ros2
         supported_ros_branches.add("ros2")
-      } else if (ros_distro == 'eloquent') {
-        supported_ros_branches.add("eloquent")
-      } else if (ros_distro == 'dashing') {
-        supported_ros_branches.add("dashing")
-      } else if (ros_distro == 'crystal') {
-        supported_ros_branches.add("crystal")
+      } else if (Globals.get_ros2_suported_distros().contains(ros_distro))
+        supported_ros_branches.add(ros_distro)
       } else {
         // Keep the toString method to be sure that String is used and not
         // GStringImp which will make the whole thing to fail.
