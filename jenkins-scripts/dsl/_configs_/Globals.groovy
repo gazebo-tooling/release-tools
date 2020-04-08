@@ -15,7 +15,6 @@ class Globals
 
    static ros_ci = [ 'kinetic'  : ['xenial'] ,
                      'melodic'  : ['bionic'] ,
-                     'crystal'  : ['bionic'] ,
                      'dashing'  : ['bionic'] ,
                      'eloquent' : ['bionic'] ,
                      'foxy'     : ['focal']]
@@ -23,7 +22,6 @@ class Globals
    // This should be in sync with archive_library
    static gz_version_by_rosdistro = [ 'kinetic'  : ['7'] ,
                                       'melodic'  : ['9'] ,
-                                      'crystal'  : ['9'] ,
                                       'dashing'  : ['9'] ,
                                       'eloquent' : ['9'] ,
                                       'foxy'     : ['11']]
@@ -102,7 +100,7 @@ class Globals
 
    static ArrayList get_ros2_suported_distros()
    {
-     return [ 'crystal', 'dashing', 'eloquent' ]
+     return [ 'dashing', 'eloquent' ]
    }
 
    static String get_gz11_ubuntu_distro()
