@@ -35,10 +35,7 @@ class OSRFUNIXBase extends OSRFBase
              #!/bin/bash -xe
 
              [[ -d ./scripts ]] &&  rm -fr ./scripts
-             # Hack for homebrew on Mac OS X since mercurial can be uninstalled
-             # during homebrew bottle builds
-             which hg || brew install hg
-             hg clone https://bitbucket.org/osrf/release-tools scripts -b \${RTOOLS_BRANCH}
+             git clone https://github.com/ignition-tooling/release-tools scripts -b %RTOOLS_BRANCH%
              """.stripIndent())
       }
     }

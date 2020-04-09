@@ -108,7 +108,7 @@ class OSRFCIWorkFlowMultiAny
     {
       // TODO: share parameters with ci-py_any- jobs
       parameters {
-        stringParam('RTOOLS_BRANCH','default','release-tools branch to send to jobs')
+        stringParam('RTOOLS_BRANCH','master','release-tools branch to send to jobs')
         stringParam('SRC_REPO','','URL pointing to repository')
         stringParam('SRC_BRANCH','default','Branch of SRC_REPO to test')
         stringParam('JOB_DESCRIPTION','','Description of the job in course. For information proposes.')
