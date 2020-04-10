@@ -25,7 +25,7 @@ class OSRFBase
           stringParam('RTOOLS_BRANCH','master','release-tool branch to use')
           if (Globals.gazebodistro_branch)
           {
-            stringParam('GAZEBODISTRO_BRANCH','default','gazebodistro branch to use')
+            stringParam('GAZEBODISTRO_BRANCH','master','gazebodistro branch to use')
           }
           booleanParam('NO_MAILS',false,'do not send any notification by mail')
         }
