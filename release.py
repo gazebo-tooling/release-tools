@@ -35,7 +35,6 @@ PRERELEASE = False
 UPSTREAM = False
 NO_SRC_FILE = False
 IGN_REPO = False
-GITHUB_RELEASE = False
 
 IGNORE_DRY_RUN = True
 
@@ -66,15 +65,6 @@ def get_canonical_package_name(pkg_name):
 
 def is_catkin_package():
     return os.path.isfile("package.xml")
-
-def bitbucket_repo_exists(url):
-    try:
-        check_call(['hg', 'identify', url], IGNORE_DRY_RUN)
-    except ErrorURLNotFound404 as e:
-        return False
-    except Exception as e:
-        error("Unexpected problem checking for mercurial repo: " + e.what())
-    return True
 
 def github_repo_exists(url):
     try:
@@ -117,7 +107,7 @@ def parse_args(argv):
                         default=None,
                         help='different name that we are releasing under')
     parser.add_argument('-b', '--release-repo-branch', dest='release_repo_branch',
-                        default='default',
+                        default='master',
                         help='which version of the accompanying -release repo to use (if not default)')
     parser.add_argument('-r', '--release-version', dest='release_version',
                         default=None,
@@ -155,26 +145,14 @@ def parse_args(argv):
     return args
 
 def get_release_repository_info(package):
-    global GITHUB_RELEASE
-
-    repo = "osrf"
-    if IGN_REPO:
-        repo = "ignitionrobotics"
-
-    bitbucket_url = "https://bitbucket.org/" + repo + "/" + package + "-release"
-    if (bitbucket_repo_exists(bitbucket_url)):
-        GITHUB_RELEASE = False
-        return 'hg', bitbucket_url
-
     # if fails with http URL for github, it will ask for auth in stdin. Use the
     # git@ approach to avoid interaction
     github_test_url = "git@github.com:ignition-release/" + package + "-release"
     if (github_repo_exists(github_test_url)):
-        GITHUB_RELEASE = True
         github_url = "https://github.com/ignition-release/" + package + "-release"
         return 'git', github_url
 
-    error("release repository not found in bitbuckket or github")
+    error("release repository not found in github.com/ignition-release")
 
 def download_release_repository(package, release_branch):
     vcs, url = get_release_repository_info(package)
@@ -562,10 +540,6 @@ def go(argv):
         job_name = JOB_NAME_UPSTREAM_PATTERN%(args.package)
     else:
         job_name = JOB_NAME_PATTERN%(args.package)
-
-    params['GITHUB_RELEASE'] = GITHUB_RELEASE
-    if GITHUB_RELEASE and args.release_repo_branch == 'default':
-        params['RELEASE_REPO_BRANCH'] = 'master'
 
     params_query = urllib.urlencode(params)
 
