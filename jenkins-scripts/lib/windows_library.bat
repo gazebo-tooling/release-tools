@@ -214,7 +214,7 @@ echo # BEGIN SECTION: colcon test for %COLCON_PACKAGE%
 colcon test --install-base "install"^
             --packages-select %COLCON_PACKAGE%^
             --executor sequential^
-            --event-handler console_cohesion+
+            --event-handler console_direct+
 echo # END SECTION
 echo # BEGIN SECTION: colcon test-result
 colcon test-result --all
