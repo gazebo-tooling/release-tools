@@ -458,6 +458,8 @@ fi
 #
 
 IGN_MATH_DEPENDENCIES="libeigen3-dev \\
+                       ruby-dev \\
+                       swig \\
                        libignition-cmake-dev \\
                        libignition-cmake1-dev"
 if [[ ${DISTRO} != 'xenial' ]]; then
