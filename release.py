@@ -145,10 +145,6 @@ def parse_args(argv):
     return args
 
 def get_release_repository_info(package):
-    repo = "osrf"
-    if IGN_REPO:
-        repo = "ignitionrobotics"
-
     # if fails with http URL for github, it will ask for auth in stdin. Use the
     # git@ approach to avoid interaction
     github_test_url = "git@github.com:ignition-release/" + package + "-release"
@@ -156,7 +152,7 @@ def get_release_repository_info(package):
         github_url = "https://github.com/ignition-release/" + package + "-release"
         return 'git', github_url
 
-    error("release repository not found in bitbuckket or github")
+    error("release repository not found in github.com/ignition-release")
 
 def download_release_repository(package, release_branch):
     vcs, url = get_release_repository_info(package)
