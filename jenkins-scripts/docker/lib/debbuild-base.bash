@@ -69,11 +69,7 @@ fi
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
 rm -rf /tmp/$PACKAGE-release
-if ${GITHUB_RELEASE}; then
-  git clone https://github.com/ignition-release/$PACKAGE-release -b $RELEASE_REPO_BRANCH /tmp/$PACKAGE-release
-else
-  hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release -b $RELEASE_REPO_BRANCH /tmp/$PACKAGE-release
-fi
+git clone https://github.com/ignition-release/$PACKAGE-release -b $RELEASE_REPO_BRANCH /tmp/$PACKAGE-release
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
@@ -99,13 +95,8 @@ fi
 case \${BUILD_METHOD} in
     "OVERWRITE_BASE")
 	# 1. Clone the base branch
-        if ${GITHUB_RELEASE}; then
-          checkout_cmd="git clone https://github.com/ignition-release/$PACKAGE-release"
-        else
-          checkout_cmd="hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release"
-        fi
-        \$checkout_cmd \\
-	    -b \${RELEASE_BASE_BRANCH} \\
+        git clone https://github.com/ignition-release/$PACKAGE-release \\
+           -b \${RELEASE_BASE_BRANCH} \\
 	    /tmp/base_$PACKAGE-release
 	# 2. Overwrite the information
 	if [[ -d ${DISTRO} ]]; then

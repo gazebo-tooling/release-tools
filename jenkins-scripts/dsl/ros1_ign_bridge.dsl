@@ -34,7 +34,7 @@ bridge_packages.each { pkg ->
         stringParam("ARCH", "amd64", "Architecture to build packages for")
         stringParam('ROS_DISTRO', 'kinetic','ROS DISTRO to build pakcages for')
         stringParam("UPLOAD_TO_REPO", 'stable', "OSRF repo name to upload the package to")
-        stringParam('UPSTREAM_RELEASE_REPO', 'https://bitbucket.org/osrf/bridge-release', 'Release repository url')
+        stringParam('UPSTREAM_RELEASE_REPO', 'https://github.com/ignition-release/ros1_ign_bridge-release', 'Release repository url')
     }
 
     steps {
