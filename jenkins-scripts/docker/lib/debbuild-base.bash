@@ -95,8 +95,8 @@ fi
 case \${BUILD_METHOD} in
     "OVERWRITE_BASE")
 	# 1. Clone the base branch
-        git clone https://github.com/ignition-release/$PACKAGE-release \\
-           -b \${RELEASE_BASE_BRANCH} \\
+        git clone https://github.com/ignition-release/\${PACKAGE}-release \\
+            -b \${RELEASE_BASE_BRANCH} \\
 	    /tmp/base_$PACKAGE-release
 	# 2. Overwrite the information
 	if [[ -d ${DISTRO} ]]; then
