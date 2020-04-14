@@ -43,7 +43,7 @@ sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $DISTRO main" >
 wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
 apt-get update
 
-# Hack to avoid problem with non updated 
+# Hack to avoid problem with non updated
 if [ $DISTRO = 'precise' ]; then
   echo "Skipping pbuilder check for outdated info"
   sed -i -e 's:UbuntuDistroInfo().devel():self.target_distro:g' /usr/bin/pbuilder-dist
@@ -92,7 +92,7 @@ fi
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
 rm -rf /tmp/$PACKAGE-release
-hg clone https://bitbucket.org/${BITBUCKET_REPO}/$PACKAGE-release /tmp/$PACKAGE-release 
+git clone https://github.com/ignition-release/$PACKAGE-release /tmp/$PACKAGE-release
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
@@ -123,7 +123,7 @@ if $NIGHTLY_MODE; then
   # TODO: Fix CMakeLists.txt ?
 fi
 
-# Get into the unpacked source directory, without explicit knowledge of that 
+# Get into the unpacked source directory, without explicit knowledge of that
 # directory's name
 cd \`find $WORKSPACE/build -mindepth 1 -type d |head -n 1\`
 # If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
@@ -132,8 +132,8 @@ if $NIGHTLY_MODE; then
   echo | dh_make -s --createorig -p ${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}~hg\${TIMESTAMP}r\${REV} > /dev/null
 fi
 
-# Adding extra directories to code. debian has no problem but some extra directories 
-# handled by symlinks (like cmake) in the repository can not be copied directly. 
+# Adding extra directories to code. debian has no problem but some extra directories
+# handled by symlinks (like cmake) in the repository can not be copied directly.
 # Need special care to copy, using first a --dereference
 cp -a --dereference /tmp/$PACKAGE-release/${RELEASE_REPO_DIRECTORY}/* .
 
@@ -148,7 +148,7 @@ cat > \$PBUILD_DIR/A10_run_rosdep << DELIM_ROS_DEP
 #!/bin/sh
 if [ -f /usr/bin/rosdep ]; then
   # root share the same /tmp/buildd HOME than pbuilder user. Need to specify the root
-  # HOME=/root otherwise it will make cache created during ros call forbidden to 
+  # HOME=/root otherwise it will make cache created during ros call forbidden to
   # access to pbuilder user.
   HOME=/root rosdep init
 fi
@@ -207,7 +207,7 @@ FOUND_PKG=0
 for pkg in \${PKGS}; do
     echo "found \$pkg"
     # Check for correctly generated packages size > 3Kb
-    test -z \$(find \$pkg -size +3k) && echo "WARNING: empty package?" 
+    test -z \$(find \$pkg -size +3k) && echo "WARNING: empty package?"
     # && exit 1
     cp \${pkg} $WORKSPACE/pkgs
     FOUND_PKG=1

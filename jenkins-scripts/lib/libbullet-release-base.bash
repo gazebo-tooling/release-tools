@@ -56,7 +56,7 @@ cd $WORKSPACE/bullet
 # Debian information
 rm -fr $WORKSPACE/debian
 mkdir $WORKSPACE/debian
-hg clone https://bitbucket.org/osrf/bullet-2.82-debian-release $WORKSPACE/debian
+git clone https://github.com/ignition-release/bullet-2.82-debian-release $WORKSPACE/debian
 cp -a --dereference $WORKSPACE/debian/old/debian $WORKSPACE/bullet
 
 cd $WORKSPACE/bullet
