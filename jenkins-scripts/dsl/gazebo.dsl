@@ -413,7 +413,7 @@ ci_distro_default.each { distro ->
         }
 
         // Problem with the compilation of Gazebo under bullseyes
-        // See: https://bitbucket.org/osrf/release-tools/issues/129
+        // See: https://github.com/ignition-tooling/release-tools/issues/129
         disabled()
 
         steps {
