@@ -6,8 +6,7 @@ class OSRFGitHub
 {
   static void create(Job job, String repo,
                               String rev    = 'master',
-                              String subdir = 'NOT-DEFINED-USE-DEFAULT',
-                              String installName = 'Default')
+                              String subdir = 'NOT-DEFINED-USE-DEFAULT')
   {
     String software_name = repo.tokenize('/').last()
 
@@ -17,10 +16,14 @@ class OSRFGitHub
     job.with
     {
       scm {
-        github(repo) {
+        git {
+          remote {
+            github(repo)
+          }
           branch(rev)
-          installation(installName)
-          subdirectory(subdir)
+          extensions {
+            relativeTargetDirectory(subdir)
+          }
         }
       }
     }
