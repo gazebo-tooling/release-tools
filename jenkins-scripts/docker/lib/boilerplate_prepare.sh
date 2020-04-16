@@ -250,4 +250,8 @@ fi
 rm -fr Dockerfile
 rm -fr ${WORKSPACE}/build.sh
 
+# Workaround to fix several nested levels of calls to the same script that seems
+# to kill global bash variables
+echo "${MAKE_JOBS}" > "${WORKSPACE}/make_jobs"
+
 cd ${WORKSPACE}
