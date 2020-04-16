@@ -18,6 +18,8 @@ fi
 [[ -z $GENERIC_ENABLE_CPPCHECK ]] && GENERIC_ENABLE_CPPCHECK=true
 [[ -z $GENERIC_ENABLE_TESTS ]] && GENERIC_ENABLE_TESTS=true
 
+echo "${MAKE_JOBS}" > "${WORKSPACE}/make_jobs"
+
 cat > build.sh << DELIM_HEADER
 #!/bin/bash
 set -ex
@@ -83,7 +85,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: compiling'
 init_stopwatch COMPILATION
-make -j${MAKE_JOBS}
+make -j\$(cat $WORKSPACE/make_jobs)
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: installing'
