@@ -57,7 +57,7 @@ fi
 . ${SCRIPT_DIR}/lib/dependencies_archive.sh
 
 # Workaround for precise pbuilder-dist segfault
-# https://bitbucket.org/osrf/release-tools/issue/22
+# https://github.com/ignition-tooling/release-tools/issues/22
 if [[ -z $WORKAROUND_PBUILDER_BUG ]]; then
   WORKAROUND_PBUILDER_BUG=false
 fi
@@ -115,7 +115,7 @@ sleep 1
 fi
 
 #setup the cross platform apt environment
-# using sudo since this is shared with pbuilder and if pbuilder is interupted it will leave a sudo only lock file.  Otherwise sudo is not necessary. 
+# using sudo since this is shared with pbuilder and if pbuilder is interupted it will leave a sudo only lock file.  Otherwise sudo is not necessary.
 # And you can't chown it even with sudo and recursive
 cd $WORKSPACE/scripts/catkin-debs/
 
@@ -132,7 +132,7 @@ fi
 
 sudo ./setup_apt_root.py $distro $arch $rootdir \
                           --mirror $ubuntu_repo_url $ros_repository_str \
-			  --local-conf-dir $WORKSPACE 
+			  --local-conf-dir $WORKSPACE
 sudo rm -rf $output_dir
 mkdir -p $output_dir
 
@@ -143,7 +143,7 @@ cd $work_dir
 sudo apt-get update -c $aptconffile
 
 # Setup the pbuilder environment if not existing, or update
-if [ ! -e $basetgz ] || [ ! -s $basetgz ] 
+if [ ! -e $basetgz ] || [ ! -s $basetgz ]
 then
   #make sure the base dir exists
   sudo mkdir -p $base
