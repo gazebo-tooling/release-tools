@@ -18,8 +18,6 @@ fi
 [[ -z $GENERIC_ENABLE_CPPCHECK ]] && GENERIC_ENABLE_CPPCHECK=true
 [[ -z $GENERIC_ENABLE_TESTS ]] && GENERIC_ENABLE_TESTS=true
 
-echo "${MAKE_JOBS}" > "${WORKSPACE}/make_jobs"
-
 cat > build.sh << DELIM_HEADER
 #!/bin/bash
 set -ex
