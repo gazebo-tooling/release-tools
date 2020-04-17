@@ -37,7 +37,7 @@ abi_distro.each { distro ->
     abi_job_name = "sdformat-abichecker-any_to_any-ubuntu_auto-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABI.create(abi_job)
-    OSRFGithub.create(abi_job, "https://github.com/osrf/sdformat",
+    OSRFGithub.create(abi_job, "osrf/sdformat",
                                '${DEST_BRANCH}')
     abi_job.with
     {
@@ -72,7 +72,7 @@ abi_distro.each { distro ->
     // 1. Create the default ci jobs
     def sdformat_ci_job = job("sdformat-ci-default-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGithub.create(sdformat_ci_job, "https://github.com/osrf/sdformat")
+    OSRFGithub.create(sdformat_ci_job, "osrf/sdformat")
 
     sdformat_ci_job.with
     {
@@ -93,7 +93,7 @@ abi_distro.each { distro ->
 
     // --------------------------------------------------------------
     // 2. Create the any job
-    String sdf_repo = "https://github.com/osrf/sdformat"
+    String sdf_repo = "osrf/sdformat"
 
     def sdformat_ci_any_job = job(ci_build_any_job_name_linux)
     OSRFLinuxCompilationAny.create(sdformat_ci_any_job, sdf_repo)
@@ -153,7 +153,7 @@ other_supported_distros.each { distro ->
     // ci_default job for the rest of arches / scm@daily
     def sdformat_ci_job = job("sdformat-ci-default-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGithub.create(sdformat_ci_job, "https://github.com/osrf/sdformat")
+    OSRFGithub.create(sdformat_ci_job, "osrf/sdformat")
 
     sdformat_ci_job.with
     {
@@ -186,7 +186,7 @@ sdformat_supported_branches.each { branch ->
       def sdformat_ci_job = job("sdformat-ci-${branch}-${distro}-${arch}")
       OSRFLinuxCompilation.create(sdformat_ci_job)
       OSRFGithub.create(sdformat_ci_job, 
-                        "https://github.com/osrf/sdformat",
+                        "osrf/sdformat",
                         get_sdformat_branch_name(branch))
       sdformat_ci_job.with
       {
@@ -214,7 +214,7 @@ sdformat_supported_branches.each { branch ->
   experimental_arches.each { arch ->
     def sdformat_ci_job = job("sdformat-ci-default-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGithub.create(sdformat_ci_job, "https://github.com/osrf/sdformat")
+    OSRFGithub.create(sdformat_ci_job, "osrf/sdformat")
 
     sdformat_ci_job.with
     {
@@ -305,7 +305,7 @@ all_debbuild_branches.each { branch ->
 String ci_build_any_job_name_brew = "sdformat-ci-pr_any-homebrew-amd64"
 def sdformat_brew_ci_any_job = job(ci_build_any_job_name_brew)
 OSRFBrewCompilationAny.create(sdformat_brew_ci_any_job,
-                              "https://github.com/osrf/sdformat")
+                              "osrf/sdformat")
 sdformat_brew_ci_any_job.with
 {
     steps {
@@ -323,7 +323,7 @@ all_branches.each { branch ->
   def sdformat_brew_ci_job = job("sdformat-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(sdformat_brew_ci_job)
   OSRFGithub.create(sdformat_brew_ci_job,
-                    "https://github.com/osrf/sdformat",
+                    "osrf/sdformat",
                     get_sdformat_branch_name(branch),
                     "sdformat", "HomeBrew")
 
@@ -354,7 +354,7 @@ all_branches.each { branch ->
   String ci_build_any_job_name_win7 = "sdformat-ci-pr_any-windows7-amd64"
   def sdformat_win_ci_any_job = job(ci_build_any_job_name_win7)
   OSRFWinCompilationAny.create(sdformat_win_ci_any_job,
-                                "https://github.com/osrf/sdformat")
+                                "osrf/sdformat")
   sdformat_win_ci_any_job.with
   {
       steps {
@@ -370,7 +370,7 @@ all_branches.each { branch ->
   def sdformat_win_ci_job = job("sdformat-ci-${branch}-windows7-amd64")
   OSRFWinCompilation.create(sdformat_win_ci_job)
   OSRFGithub.create(sdformat_win_ci_job,
-                    "https://github.com/osrf/sdformat",
+                    "osrf/sdformat",
                     get_sdformat_branch_name(branch))
   sdformat_win_ci_job.with
   {
