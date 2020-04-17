@@ -106,7 +106,7 @@ abi_distro.each { distro ->
            condition
            {
              not {
-               expression('${ENV, var="DEST_BRANCH"}', 'default')
+               expression('${ENV, var="ghprbTargetBranch"}', 'master')
              }
 
              steps {
