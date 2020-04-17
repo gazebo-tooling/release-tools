@@ -36,10 +36,9 @@ abi_distro.each { distro ->
   supported_arches.each { arch ->
     abi_job_name = "sdformat-abichecker-any_to_any-ubuntu_auto-${arch}"
     def abi_job = job(abi_job_name)
-    OSRFLinuxABI.create(abi_job)
-    OSRFBitbucketHg.create(abi_job, "https://bitbucket.org/osrf/sdformat",
-                                    '${DEST_BRANCH}')
-
+    OSRFLinuxABIGitHub.create(abi_job)
+    OSRFGitHub.create(abi_job, "osrf/sdformat",
+                               '${DEST_BRANCH}')
     abi_job.with
     {
       steps {
@@ -94,10 +93,10 @@ abi_distro.each { distro ->
 
     // --------------------------------------------------------------
     // 2. Create the any job
-    String sdf_repo = "https://bitbucket.org/osrf/sdformat"
+    String sdf_repo = "osrf/sdformat"
 
     def sdformat_ci_any_job = job(ci_build_any_job_name_linux)
-    OSRFLinuxCompilationAny.create(sdformat_ci_any_job, sdf_repo)
+    OSRFLinuxCompilationAnyGitHub.create(sdformat_ci_any_job, sdf_repo)
     sdformat_ci_any_job.with
     {
       steps
@@ -107,7 +106,7 @@ abi_distro.each { distro ->
            condition
            {
              not {
-               expression('${ENV, var="DEST_BRANCH"}', 'default')
+               expression('${ENV, var="ghprbTargetBranch"}', 'master')
              }
 
              steps {
@@ -115,6 +114,9 @@ abi_distro.each { distro ->
                  trigger("${abi_job_name}") {
                    parameters {
                      currentBuild()
+                     predefinedProp('DEST_BRANCH', '$ghprbTargetBranch')
+                     predefinedProp('SRC_BRANCH', '$ghprbSourceBranch')
+                     predefinedProp('SRC_REPO', '$ghprbAuthorRepoGitUrl')
                    }
                  }
                }
@@ -304,8 +306,8 @@ all_debbuild_branches.each { branch ->
 // 1. ANY job @ SCM/5min
 String ci_build_any_job_name_brew = "sdformat-ci-pr_any-homebrew-amd64"
 def sdformat_brew_ci_any_job = job(ci_build_any_job_name_brew)
-OSRFBrewCompilationAny.create(sdformat_brew_ci_any_job,
-                              "https://bitbucket.org/osrf/sdformat")
+OSRFBrewCompilationAnyGitHub.create(sdformat_brew_ci_any_job,
+                                    "osrf/sdformat")
 sdformat_brew_ci_any_job.with
 {
     steps {
@@ -351,8 +353,8 @@ all_branches.each { branch ->
 // 1. any
   String ci_build_any_job_name_win7 = "sdformat-ci-pr_any-windows7-amd64"
   def sdformat_win_ci_any_job = job(ci_build_any_job_name_win7)
-  OSRFWinCompilationAny.create(sdformat_win_ci_any_job,
-                                "https://bitbucket.org/osrf/sdformat")
+  OSRFWinCompilationAnyGitHub.create(sdformat_win_ci_any_job,
+                                "osrf/sdformat")
   sdformat_win_ci_any_job.with
   {
       steps {
@@ -390,9 +392,9 @@ all_branches.each { branch ->
   }
 }
 
-// Create the main CI work flow job
-def sdformat_ci_main = pipelineJob("sdformat-ci-pr_any")
-OSRFCIWorkFlowMultiAny.create(sdformat_ci_main,
+// Create the manual all-platforms jobs
+def sdformat_ci_main = pipelineJob("sdformat-ci-manual_any")
+OSRFCIWorkFlowMultiAnyGitHub.create(sdformat_ci_main,
                                     [ci_build_any_job_name_linux,
                                      ci_build_any_job_name_brew,
                                      ci_build_any_job_name_win7])

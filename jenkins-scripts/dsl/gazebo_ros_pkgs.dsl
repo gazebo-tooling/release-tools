@@ -11,6 +11,10 @@ String current_ros2_branch   = Globals.get_ros2_development_distro()
 @Field
 ArrayList ros2_distros       = Globals.get_ros2_suported_distros()
 
+@Field
+Boolean ENABLE_TESTS = true
+@Field
+Boolean DISABLE_CPPCHECK = false
 
 // version to test more than the official one in each ROS distro
 extra_gazebo_versions = [ 'kinetic' :  ['8','9']]
@@ -27,6 +31,8 @@ Job create_common_compilation(String job_name,
 
    OSRFLinuxCompilationAnyGitHub.create(comp_job,
                                         "ros-simulation/gazebo_ros_pkgs",
+                                        ENABLE_TESTS,
+                                        DISABLE_CPPCHECK,
                                         [ "${ros_distro}" ])
    include_common_params(comp_job,
                          ubuntu_distro,
@@ -109,20 +115,9 @@ void include_common_params(Job gazebo_ros_pkgs_job,
     def default_ci_job = job("${name_prefix}_gazebo_pkgs-ci-default_$suffix_triplet")
     // Enable testing but not cppcheck
     OSRFLinuxCompilation.create(default_ci_job, true, false)
+    OSRFGitHub.create(default_ci_job, "ros-simulation/gazebo_ros_pkgs", branch)
     default_ci_job.with
     {
-      scm {
-        git {
-          remote {
-            github("ros-simulation/gazebo_ros_pkgs")
-          }
-          extensions {
-            relativeTargetDirectory("gazebo_ros_pkgs")
-          }
-          branch(branch)
-        }
-      }
-
       label "gpu-reliable"
 
       triggers {

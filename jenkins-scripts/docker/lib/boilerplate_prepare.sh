@@ -254,4 +254,7 @@ rm -fr ${WORKSPACE}/build.sh
 # to kill global bash variables
 echo "${MAKE_JOBS}" > "${WORKSPACE}/make_jobs"
 
+# Use GitHub repositories (useful only in bitbucket-github migration)
+export GITHUB=${GITHUB:-false}
+
 cd ${WORKSPACE}

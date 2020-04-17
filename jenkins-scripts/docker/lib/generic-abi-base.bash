@@ -68,8 +68,12 @@ echo '# BEGIN SECTION: compile and install branch: ${DEST_BRANCH}'
 cp -a $WORKSPACE/${ABI_JOB_SOFTWARE_NAME} /tmp/${ABI_JOB_SOFTWARE_NAME}
 chown -R root:root /tmp/${ABI_JOB_SOFTWARE_NAME}
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
-hg pull
-hg up ${DEST_BRANCH}
+if ${GITHUB}; then
+  git checkout origin/${DEST_BRANCH}
+else
+  hg pull
+  hg up ${DEST_BRANCH}
+fi
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
@@ -88,8 +92,14 @@ echo '# BEGIN SECTION: compile and install branch: ${SRC_BRANCH}'
 # Reusing the same building and source directory to save bandwith and
 # compilation time.
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
-hg pull ${SRC_REPO} -b ${SRC_BRANCH}
-hg up ${SRC_BRANCH}
+if ${GITHUB}; then
+  git remote add source_repo ${SRC_REPO}
+  git fetch source_repo
+  git checkout source_repo/${SRC_BRANCH}
+else
+  hg pull ${SRC_REPO} -b ${SRC_BRANCH}
+  hg up ${SRC_BRANCH}
+fi
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
 cd $WORKSPACE/build
 cmake ${ABI_JOB_CMAKE_PARAMS} \\

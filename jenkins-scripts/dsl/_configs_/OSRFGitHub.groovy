@@ -26,6 +26,10 @@ class OSRFGitHub
           }
         }
       }
+
+      parameters {
+        booleanParam('GITHUB', true, 'used during porting from bitbucket to github')
+      }
     }
   }
 }
