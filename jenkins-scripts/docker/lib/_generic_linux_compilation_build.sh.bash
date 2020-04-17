@@ -83,7 +83,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: compiling'
 init_stopwatch COMPILATION
-make -j${MAKE_JOBS}
+make -j\$(cat $WORKSPACE/make_jobs)
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: installing'

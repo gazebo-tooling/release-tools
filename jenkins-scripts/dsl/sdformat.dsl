@@ -2,7 +2,7 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 def sdformat_supported_branches = [ 'sdformat4', 'sdformat5', 'sdformat6', 'sdformat8' , 'sdformat9' ]
-def sdformat_gz11_branches = [ 'sdformat8', 'sdformat9', 'default' ]
+def sdformat_gz11_branches = [ 'sdformat8', 'sdformat9', 'master' ]
 // nightly and prereleases
 def extra_sdformat_debbuilder = [ 'sdformat7', 'sdformat9' ]
 
@@ -37,7 +37,7 @@ abi_distro.each { distro ->
     abi_job_name = "sdformat-abichecker-any_to_any-ubuntu_auto-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABI.create(abi_job)
-    OSRFGithub.create(abi_job, "osrf/sdformat",
+    OSRFGitHub.create(abi_job, "osrf/sdformat",
                                '${DEST_BRANCH}')
     abi_job.with
     {
@@ -69,10 +69,10 @@ abi_distro.each { distro ->
 [ Globals.get_gz11_ubuntu_distro() ].each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
-    // 1. Create the default ci jobs
-    def sdformat_ci_job = job("sdformat-ci-default-${distro}-${arch}")
+    // 1. Create the master ci jobs
+    def sdformat_ci_job = job("sdformat-ci-master-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGithub.create(sdformat_ci_job, "osrf/sdformat")
+    OSRFGitHub.create(sdformat_ci_job, "osrf/sdformat")
 
     sdformat_ci_job.with
     {
@@ -143,17 +143,17 @@ abi_distro.each { distro ->
   } // end of arch
 } // end of distro
 
-// OTHER CI SUPPORTED JOBS (default branch) @ SCM/DAILY
+// OTHER CI SUPPORTED JOBS (master branch) @ SCM/DAILY
 other_supported_distros.each { distro ->
-  // default doesn't support xenial anymore
+  // master doesn't support xenial anymore
   if ("${distro}" == "xenial")
     return
 
   supported_arches.each { arch ->
-    // ci_default job for the rest of arches / scm@daily
-    def sdformat_ci_job = job("sdformat-ci-default-${distro}-${arch}")
+    // ci_master job for the rest of arches / scm@daily
+    def sdformat_ci_job = job("sdformat-ci-master-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGithub.create(sdformat_ci_job, "osrf/sdformat")
+    OSRFGitHub.create(sdformat_ci_job, "osrf/sdformat")
 
     sdformat_ci_job.with
     {
@@ -185,8 +185,7 @@ sdformat_supported_branches.each { branch ->
       // ci_default job for the rest of arches / scm@daily
       def sdformat_ci_job = job("sdformat-ci-${branch}-${distro}-${arch}")
       OSRFLinuxCompilation.create(sdformat_ci_job)
-      OSRFGithub.create(sdformat_ci_job, 
-                        "osrf/sdformat",
+      OSRFGitHub.create(sdformat_ci_job, "osrf/sdformat",
                         get_sdformat_branch_name(branch))
       sdformat_ci_job.with
       {
@@ -212,9 +211,9 @@ sdformat_supported_branches.each { branch ->
 // EXPERIMENTAL ARCHES @ SCM/WEEKLY
 [ Globals.get_gz11_ubuntu_distro() ].each { distro ->
   experimental_arches.each { arch ->
-    def sdformat_ci_job = job("sdformat-ci-default-${distro}-${arch}")
+    def sdformat_ci_job = job("sdformat-ci-master-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGithub.create(sdformat_ci_job, "osrf/sdformat")
+    OSRFGitHub.create(sdformat_ci_job, "osrf/sdformat")
 
     sdformat_ci_job.with
     {
@@ -317,15 +316,13 @@ sdformat_brew_ci_any_job.with
     }
 }
 
-// 2. default in all branches @SCM/daily
-all_branches = sdformat_supported_branches + 'default'
+// 2. master in all branches @SCM/daily
+all_branches = sdformat_supported_branches + 'master'
 all_branches.each { branch ->
   def sdformat_brew_ci_job = job("sdformat-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(sdformat_brew_ci_job)
-  OSRFGithub.create(sdformat_brew_ci_job,
-                    "osrf/sdformat",
-                    get_sdformat_branch_name(branch),
-                    "sdformat", "HomeBrew")
+  OSRFGitHub.create(sdformat_brew_ci_job, "osrf/sdformat",
+                         get_sdformat_branch_name(branch))
 
   sdformat_brew_ci_job.with
   {
@@ -369,8 +366,7 @@ all_branches = sdformat_supported_branches + 'default'
 all_branches.each { branch ->
   def sdformat_win_ci_job = job("sdformat-ci-${branch}-windows7-amd64")
   OSRFWinCompilation.create(sdformat_win_ci_job)
-  OSRFGithub.create(sdformat_win_ci_job,
-                    "osrf/sdformat",
+  OSRFGitHub.create(sdformat_win_ci_job, "osrf/sdformat",
                     get_sdformat_branch_name(branch))
   sdformat_win_ci_job.with
   {
