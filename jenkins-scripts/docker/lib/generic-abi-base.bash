@@ -93,9 +93,7 @@ echo '# BEGIN SECTION: compile and install branch: ${SRC_BRANCH}'
 # compilation time.
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
 if ${GITHUB}; then
-  git remote add source_repo ${SRC_REPO}
-  git fetch source_repo
-  git checkout source_repo/${SRC_BRANCH}
+  git checkout ${SRC_BRANCH}
 else
   hg pull ${SRC_REPO} -b ${SRC_BRANCH}
   hg up ${SRC_BRANCH}
