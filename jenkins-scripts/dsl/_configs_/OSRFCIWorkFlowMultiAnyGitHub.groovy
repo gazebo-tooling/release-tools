@@ -14,7 +14,7 @@ class OSRFCIWorkFlowMultiAnyGitHub
 {
   static void create(Job job, String build_any_job_name)
   {
-    OSRFCIWorkFlowMultiAny.create(job, [build_any_job_name])
+    OSRFCIWorkFlowMultiAnyGitHub.create(job, [build_any_job_name])
   }
 
   static String build_stage_name(String ci_job_name)
@@ -82,9 +82,8 @@ class OSRFCIWorkFlowMultiAnyGitHub
           // https://issues.jenkins-ci.org/browse/JENKINS-28178
           sandbox(false)
           script(
-           (OSRFCIWorkFlow.script_code_init_hook() +
-           build_jobs_with_status +
-           OSRFCIWorkFlow.script_code_end_hook()).stripIndent()
+           (build_jobs_with_status +
+            OSRFCIWorkFlow.script_code_end_hook()).stripIndent()
           )
         } // end of cps
       } // end of definition

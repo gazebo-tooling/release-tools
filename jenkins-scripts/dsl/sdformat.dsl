@@ -115,7 +115,7 @@ abi_distro.each { distro ->
                    parameters {
                      currentBuild()
                      predefinedProp('DEST_BRANCH', '$ghprbTargetBranch')
-                     predefinedProp('SRC_BRANCH', '$sha1')
+                     predefinedProp('SRC_BRANCH', '$ghprbSourceBranch')
                      predefinedProp('SRC_REPO', '$ghprbAuthorRepoGitUrl')
                    }
                  }
@@ -392,10 +392,9 @@ all_branches.each { branch ->
   }
 }
 
-// * -- disable by now -- *
-// Create the main CI work flow job
-//def sdformat_ci_main = pipelineJob("sdformat-ci-pr_any")
-//OSRFCIWorkFlowMultiAny.create(sdformat_ci_main,
-//                                    [ci_build_any_job_name_linux,
-//                                     ci_build_any_job_name_brew,
-//                                     ci_build_any_job_name_win7])
+// Create the manual all-platforms jobs
+def sdformat_ci_main = pipelineJob("sdformat-ci-manual_any")
+OSRFCIWorkFlowMultiAnyGitHub.create(sdformat_ci_main,
+                                    [ci_build_any_job_name_linux,
+                                     ci_build_any_job_name_brew,
+                                     ci_build_any_job_name_win7])

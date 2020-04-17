@@ -59,7 +59,7 @@ class OSRFLinuxABIGitHub
         stringParam("DEST_BRANCH", null,
                     'Branch to use as base for the comparison')
         stringParam("SRC_BRANCH", null,
-                    'Git revision  to use to compare against DEST_BRANCH')
+                    'Git BRANCH (not pr refspec) to use to compare against DEST_BRANCH')
         stringParam('SRC_REPO', null,
                     'URL pointing to repository containing SRC_BRANCH')
         stringParam("JOB_DESCRIPTION", "",
