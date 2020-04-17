@@ -19,6 +19,6 @@ class OSRFWinCompilationAnyGitHub
     OSRFWinCompilation.create(job, enable_testing)
 
     /* Properties from generic any */
-    GenericAnyJobGitHub.create(job, github_repo)
+    GenericAnyJobGitHub.create(job, github_repo, supported_ros_distros)
   }
 }

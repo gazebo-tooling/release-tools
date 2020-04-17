@@ -18,6 +18,6 @@ class OSRFBrewCompilationAnyGitHub
   {
     OSRFBrewCompilation.create(job, enable_testing)
 
-    GenericAnyJobGitHub.create(job, github_repo)
+    GenericAnyJobGitHub.create(job, github_repo, supported_ros_distros)
   }
 }
