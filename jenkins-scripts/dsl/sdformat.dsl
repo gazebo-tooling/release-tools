@@ -185,7 +185,7 @@ sdformat_supported_branches.each { branch ->
       distro = Globals.get_gz11_ubuntu_distro()
 
     supported_arches.each { arch ->
-      // ci_default job for the rest of arches / scm@daily
+      // ci_master job for the rest of arches / scm@daily
       def sdformat_ci_job = job("sdformat-ci-${branch}-${distro}-${arch}")
       OSRFLinuxCompilation.create(sdformat_ci_job)
       OSRFGitHub.create(sdformat_ci_job, "osrf/sdformat",
@@ -364,8 +364,8 @@ all_branches.each { branch ->
       }
   }
 
-// 2. default / @ SCM/Daily
-all_branches = sdformat_supported_branches + 'default'
+// 2. master / @ SCM/Daily
+all_branches = sdformat_supported_branches + 'master'
 all_branches.each { branch ->
   def sdformat_win_ci_job = job("sdformat-ci-${branch}-windows7-amd64")
   OSRFWinCompilation.create(sdformat_win_ci_job)
