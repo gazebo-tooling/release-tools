@@ -393,9 +393,10 @@ all_branches.each { branch ->
   }
 }
 
+// * -- disable by now -- *
 // Create the main CI work flow job
-def sdformat_ci_main = pipelineJob("sdformat-ci-pr_any")
-OSRFCIWorkFlowMultiAny.create(sdformat_ci_main,
-                                    [ci_build_any_job_name_linux,
-                                     ci_build_any_job_name_brew,
-                                     ci_build_any_job_name_win7])
+//def sdformat_ci_main = pipelineJob("sdformat-ci-pr_any")
+//OSRFCIWorkFlowMultiAny.create(sdformat_ci_main,
+//                                    [ci_build_any_job_name_linux,
+//                                     ci_build_any_job_name_brew,
+//                                     ci_build_any_job_name_win7])
