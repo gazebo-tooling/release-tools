@@ -378,14 +378,11 @@ all_branches.each { branch ->
       }
 
       if (branch == 'sdformat4')
-        ign_math_v="2"
-      else
-        ign_math_v="3"
+        disabled()
 
       steps {
         batchFile("""\
               set USE_IGNITION_ZIP=FALSE
-              set IGNMATH_BRANCH=ign-math${ign_math_v}
               call "./scripts/jenkins-scripts/sdformat-default-devel-windows-amd64.bat"
               """.stripIndent())
       }
