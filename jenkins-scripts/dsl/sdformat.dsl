@@ -114,6 +114,9 @@ abi_distro.each { distro ->
                  trigger("${abi_job_name}") {
                    parameters {
                      currentBuild()
+                     predefinedProp('DEST_BRANCH', '$ghprbTargetBranch')
+                     predefinedProp('SRC_BRANCH', '$sha1')
+                     predefinedProp('SRC_REPO', '$ghprbAuthorRepoGitUrl')
                    }
                  }
                }
