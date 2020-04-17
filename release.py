@@ -401,23 +401,31 @@ def generate_upload_tarball(args):
     sourcedir = os.getcwd()
     tmpdir    = tempfile.mkdtemp()
     builddir  = os.path.join(tmpdir, 'build')
+    use_git   = os.path.isdir(os.path.join(sourcedir, '.git'))
+
     # Put the hg-specific stuff in a try block, to allow for a git repo
     try:
         # Check for uncommitted changes; abort if present
-        cmd = ['hg', 'status', '-q']
+
+        cmd = ['git', 'diff-index', 'HEAD'] if use_git else ['hg', 'status', '-q']
         out, err = check_call(cmd)
-        if len(out) != 0:
-            print('Mercurial says that you have uncommitted changes.  Please clean up your working copy so that "%s" outputs nothing'%(' '.join(cmd)))
-            print('stdout: %s'%(out))
+        if out:
+            print('%s says that you have uncommitted changes' % ('git' if use_git else 'Mercurial'))
+            print('Please clean up your working copy so that "%s" outputs nothing' % (' '.join(cmd)))
+            print('stdout: %s' % (out))
             sys.exit(1)
 
         # Make a clean copy, to avoid pulling in other stuff that the user has
         # sitting in the working copy
         srcdir = os.path.join(tmpdir, 'src')
-        check_call(['hg', 'archive', srcdir])
-    except ErrorGitRepo as e:
-        # it's git and that we'll just use the CWD
-        srcdir = os.getcwd()
+        if use_git:
+            os.mkdir(srcdir)
+            tmp_tar = os.path.join(tmpdir, 'orig.tar')
+            check_call(['git', 'archive', '--format=tar', 'HEAD', '-o', tmp_tar])
+            check_call(['tar', 'xf', tmp_tar, '-C', srcdir])
+            os.remove(tmp_tar)
+        else:
+            check_call(['hg', 'archive', srcdir])
 
     # use cmake to generate package_source
     generate_package_source(srcdir, builddir)
@@ -454,13 +462,12 @@ def generate_upload_tarball(args):
 
     try:
         tag = '%s_%s'%(args.package_alias, args.version)
-        check_call(['hg', 'tag', '-f', tag])
-
-        # Push tag
-        check_call(['hg', 'push','-b','.'])
-    except ErrorGitRepo as e:
-        # do nothing for git repos (no git support is implemented)
-        pass
+        if use_git:
+            check_call(['git', 'tag', '-f', tag])
+            check_call(['git', 'push', '--tags'])
+        else:
+            check_call(['hg', 'tag', '-f', tag])
+            check_call(['hg', 'push', '-b', '.'])
     except ErrorNoPermsRepo as e:
         print('The bitbucket server reports problems with permissions')
         print('The branch could be blocked by configuration if you do not have')
@@ -469,6 +476,10 @@ def generate_upload_tarball(args):
     except ErrorNoUsernameSupplied as e:
         print('The hg tag could not be committed because you have not configured')
         print('your username. Use "hg config --edit" to set your username.')
+        sys.exit(1)
+    except Exception as e:
+        print('There was a problem with pushing tags to the git repository')
+        print('Do you have write perms in the repository?')
         sys.exit(1)
 
     source_tarball_uri = DOWNLOAD_URI_PATTERN%get_canonical_package_name(args.package) + tarball_fname
