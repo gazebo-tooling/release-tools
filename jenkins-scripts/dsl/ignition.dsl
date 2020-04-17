@@ -223,10 +223,10 @@ ignition_software.each { ign_sw ->
       def abi_job = job(abi_job_names[ign_sw])
       checkout_subdir = "ign-${ign_sw}"
 
-      OSRFLinuxABI.create(abi_job)
-      OSRFBitbucketHg.create(abi_job,
-                            "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
-                            '${DEST_BRANCH}', checkout_subdir)
+      OSRFLinuxABIGitHub.create(abi_job)
+      OSRFGitHub.create(abi_job,
+                        "ignitionrobotics/ign-${ign_sw}",
+                        '${DEST_BRANCH}', checkout_subdir)
       abi_job.with
       {
         if (ign_sw == 'physics')
@@ -265,9 +265,9 @@ ignition_software.each { ign_sw ->
     def ignition_ci_job_name = "ignition_${ign_sw}-ci-pr_any-ubuntu_auto-${arch}"
     def ignition_ci_any_job = job(ignition_ci_job_name)
     def ignition_checkout_dir = "ign-${ign_sw}"
-    OSRFLinuxCompilationAny.create(ignition_ci_any_job,
-                                  "https://bitbucket.org/ignitionrobotics/${ignition_checkout_dir}",
-                                  enable_testing(ign_sw))
+    OSRFLinuxCompilationAnyGitHub.create(ignition_ci_any_job,
+                                        "ignitionrobotics/${ignition_checkout_dir}",
+                                         enable_testing(ign_sw))
     include_gpu_label_if_needed(ignition_ci_any_job, ign_sw)
     ignition_ci_any_job.with
     {
@@ -278,14 +278,17 @@ ignition_software.each { ign_sw ->
            condition
            {
              not {
-               expression('${ENV, var="DEST_BRANCH"}', 'default')
+               expression('${ENV, var="ghprbTargetBranch"}', 'master')
              }
 
              steps {
                downstreamParameterized {
-                 trigger(abi_job_names[ign_sw]) {
+                trigger(abi_job_names[ign_sw]) {
                    parameters {
                      currentBuild()
+                     predefinedProp('DEST_BRANCH', '$ghprbTargetBranch')
+                     predefinedProp('SRC_BRANCH', '$ghprbSourceBranch')
+                     predefinedProp('SRC_REPO', '$ghprbAuthorRepoGitUrl')
                    }
                  }
                }
@@ -405,8 +408,8 @@ ignition_software.each { ign_sw ->
       all_branches("${ign_sw}").each { branch ->
         def ignition_ci_job = job("ignition_${ign_sw}-ci-${branch}-${distro}-${arch}")
         OSRFLinuxCompilation.create(ignition_ci_job, enable_testing(ign_sw))
-        OSRFBitbucketHg.create(ignition_ci_job,
-                              "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
+        OSRFGitHub.create(ignition_ci_job,
+                              "ignitionrobotics/ign-${ign_sw}",
                               "${branch}", "ign-${ign_sw}")
 
         include_gpu_label_if_needed(ignition_ci_job, ign_sw)
@@ -499,9 +502,9 @@ ignition_debbuild.each { ign_sw ->
 ignition_software.each { ign_sw ->
   String ignition_brew_ci_any_job_name = "ignition_${ign_sw}-ci-pr_any-homebrew-amd64"
   def ignition_brew_ci_any_job = job(ignition_brew_ci_any_job_name)
-  OSRFBrewCompilationAny.create(ignition_brew_ci_any_job,
-                                "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}",
-                                enable_testing(ign_sw))
+  OSRFBrewCompilationAnyGitHub.create(ignition_brew_ci_any_job,
+                                      "ignitionrobotics/ign-${ign_sw}",
+                                      enable_testing(ign_sw))
   ignition_brew_ci_any_job.with
   {
       steps {
@@ -526,9 +529,9 @@ ignition_software.each { ign_sw ->
   all_branches("${ign_sw}").each { branch ->
     def ignition_brew_ci_job = job("ignition_${ign_sw}-ci-${branch}-homebrew-amd64")
     OSRFBrewCompilation.create(ignition_brew_ci_job, enable_testing(ign_sw))
-    OSRFBitbucketHg.create(ignition_brew_ci_job,
-                              "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
-                              "${branch}", "ign-${ign_sw}", "HomeBrew")
+    OSRFGitHub.create(ignition_brew_ci_job,
+                              "ignitionrobotics/ign-${ign_sw}",
+                              "${branch}", "ign-${ign_sw}")
     ignition_brew_ci_job.with
     {
         triggers {
@@ -569,9 +572,9 @@ ignition_software.each { ign_sw ->
   }
 
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
-  OSRFWinCompilationAny.create(ignition_win_ci_any_job,
-                               "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}",
-                               enable_testing(ign_sw))
+  OSRFWinCompilationAnyGitHub.create(ignition_win_ci_any_job,
+                                    "ignitionrobotics/ign-${ign_sw}",
+                                    enable_testing(ign_sw))
   ignition_win_ci_any_job.with
   {
       steps {
@@ -600,8 +603,8 @@ ignition_software.each { ign_sw ->
 
     def ignition_win_ci_job = job(ignition_win_ci_job_name)
     OSRFWinCompilation.create(ignition_win_ci_job, enable_testing(ign_sw))
-    OSRFBitbucketHg.create(ignition_win_ci_job,
-                              "https://bitbucket.org/ignitionrobotics/ign-${ign_sw}/",
+    OSRFGitHub.create(ignition_win_ci_job,
+                              "ignitionrobotics/ign-${ign_sw}",
                               "${branch}", "ign-${ign_sw}")
 
     ignition_win_ci_job.with
@@ -625,7 +628,7 @@ ignition_software.each { ign_sw ->
 
 // Main CI workflow
 ignition_software.each { ign_sw ->
-  def String ci_main_name = "ignition_${ign_sw}-ci-pr_any"
+  def String ci_main_name = "ignition_${ign_sw}-ci-manual_any"
   def ign_ci_main = pipelineJob(ci_main_name)
   OSRFCIWorkFlowMultiAny.create(ign_ci_main, ci_pr_any_list[ign_sw])
 }
