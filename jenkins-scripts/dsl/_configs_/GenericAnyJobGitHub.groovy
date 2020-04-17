@@ -10,7 +10,7 @@ import javaposse.jobdsl.dsl.Job
 */
 
 
-class GenericAnyJob
+class GenericAnyJobGitHub
 {
    static void create(Job job,
                      String github_repo,

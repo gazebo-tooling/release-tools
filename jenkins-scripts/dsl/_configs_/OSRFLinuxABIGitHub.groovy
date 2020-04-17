@@ -15,11 +15,11 @@ import javaposse.jobdsl.dsl.Job
     - publish report in HTML
 */
 
-class OSRFLinuxABI
+class OSRFLinuxABIGitHub
 {
   static void create(Job job, String repo)
   {
-    OSRFLinuxABI.create(job)
+    OSRFLinuxABIGitHub.create(job)
     OSRFGitHub.create(job, repo, '${DEST_BRANCH}')
   }
 

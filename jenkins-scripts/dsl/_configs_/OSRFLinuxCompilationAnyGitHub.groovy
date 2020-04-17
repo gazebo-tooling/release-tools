@@ -24,6 +24,6 @@ class OSRFLinuxCompilationAnyGitHub
     OSRFLinuxCompilation.create(job, enable_testing, enable_cppcheck)
     Globals.rtools_description = true
 
-    GenericAnyJob.create(job, github_repo)
+    GenericAnyJobGitHub.create(job, github_repo)
   }
 } // end of class

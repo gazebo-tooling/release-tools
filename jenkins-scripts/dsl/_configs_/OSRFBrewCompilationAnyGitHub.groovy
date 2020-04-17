@@ -9,7 +9,7 @@ import javaposse.jobdsl.dsl.Job
   Implements:
     - compiler warning
 */
-class OSRFBrewCompilationAny
+class OSRFBrewCompilationAnyGitHub
 {
   static void create(Job job,
                      String github_repo,
@@ -18,6 +18,6 @@ class OSRFBrewCompilationAny
   {
     OSRFBrewCompilation.create(job, enable_testing)
 
-    GenericAnyJob.create(job, github_repo)
+    GenericAnyJobGitHub.create(job, github_repo)
   }
 }

@@ -10,7 +10,7 @@ import javaposse.jobdsl.dsl.Job
      - definition (pipeline plugin)
 */
 
-class OSRFCIWorkFlowMultiAny
+class OSRFCIWorkFlowMultiAnyGitHub
 {
   static void create(Job job, String build_any_job_name)
   {
