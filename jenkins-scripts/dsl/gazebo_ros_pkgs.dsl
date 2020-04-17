@@ -11,8 +11,10 @@ String current_ros2_branch   = Globals.get_ros2_development_distro()
 @Field
 ArrayList ros2_distros       = Globals.get_ros2_suported_distros()
 
-def ENABLE_TESTS = true
-def DISABLE_CPPCHECK = false
+@Field
+Boolean ENABLE_TESTS = true
+@Field
+Boolean DISABLE_CPPCHECK = false
 
 // version to test more than the official one in each ROS distro
 extra_gazebo_versions = [ 'kinetic' :  ['8','9']]
