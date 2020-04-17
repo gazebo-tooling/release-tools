@@ -31,7 +31,7 @@ Job create_common_compilation(String job_name,
 
    OSRFLinuxCompilationAnyGitHub.create(comp_job,
                                         "ros-simulation/gazebo_ros_pkgs",
-                                        ENABLE_TESTING,
+                                        ENABLE_TESTS,
                                         DISABLE_CPPCHECK,
                                         [ "${ros_distro}" ])
    include_common_params(comp_job,
