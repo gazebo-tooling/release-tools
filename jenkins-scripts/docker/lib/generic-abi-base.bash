@@ -69,8 +69,7 @@ cp -a $WORKSPACE/${ABI_JOB_SOFTWARE_NAME} /tmp/${ABI_JOB_SOFTWARE_NAME}
 chown -R root:root /tmp/${ABI_JOB_SOFTWARE_NAME}
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
 if ${GITHUB}; then
-  git pull
-  git checkout ${DEST_BRANCH}
+  git checkout origin/${DEST_BRANCH}
 else
   hg pull
   hg up ${DEST_BRANCH}
@@ -94,8 +93,9 @@ echo '# BEGIN SECTION: compile and install branch: ${SRC_BRANCH}'
 # compilation time.
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
 if ${GITHUB}; then
-  git pull ${SRC_REPO} ${SRC_BRANCH}
-  git checkout ${SRC_BRANCH}
+  git remote add source_repo ${SRC_REPO}
+  git fetch source_repo
+  git checkout source_repo/${SRC_BRANCH}
 else
   hg pull ${SRC_REPO} -b ${SRC_BRANCH}
   hg up ${SRC_BRANCH}
