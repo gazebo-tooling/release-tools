@@ -27,7 +27,7 @@ ignition_no_test            = [ 'tools' ]
 // DESC: major series supported and released. The branches get CI, install pkg
 // testing and debbuild job.
 // No branches in ignition_branches means no released branches (only CI on
-// default, ABI check, install pkg)
+// master, ABI check, install pkg)
 ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'common'     : [ '1', '2', '3' ],
                                 'fuel-tools' : [ '1', '2', '3', '4' ],
@@ -44,7 +44,7 @@ ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'tools'      : [ '0', '1' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
-// physics/sensors don't need to be included since they use default for gz11
+// physics/sensors don't need to be included since they use master for gz11
 ignition_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches (like nightly builders or 0-debbuild
@@ -142,7 +142,7 @@ ArrayList all_branches(String ign_software)
       branches.add("ign-${ign_software}${major_version}")
     }
   }
-  branches.add('default')
+  branches.add('master')
   prerelease_branches("${ign_software}").each { branch ->
     if ("${branch}") {
       branches.add(branch)
@@ -419,23 +419,23 @@ ignition_software.each { ign_sw ->
             scm('@daily')
           }
 
-          // no xenial for ign-physics/sensors/gazebo or plugin default/ign-plugin1
+          // no xenial for ign-physics/sensors/gazebo or plugin master/ign-plugin1
           if (("${distro}" == "xenial") && (
               ("${ign_sw}" == "cmake" && "${branch}" == "ign-cmake2") ||
-              ("${ign_sw}" == "cmake" && "${branch}" == "default") ||
-              ("${ign_sw}" == "common" && "${branch}" == "default") ||
+              ("${ign_sw}" == "cmake" && "${branch}" == "master") ||
+              ("${ign_sw}" == "common" && "${branch}" == "master") ||
               ("${ign_sw}" == "common" && "${branch}" == "ign-common3") ||
               ("${ign_sw}" == "fuel-tools" && "${branch}" != "ign-fuel-tools1") ||
               ("${ign_sw}" == "gazebo") ||
               ("${ign_sw}" == "gui") ||
               ("${ign_sw}" == "launch") ||
               ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
-              ("${ign_sw}" == "math" && "${branch}" == "default") ||
+              ("${ign_sw}" == "math" && "${branch}" == "master") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs2") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs3") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs4") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs5") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "default") ||
+              ("${ign_sw}" == "msgs" && "${branch}" == "master") ||
               ("${ign_sw}" == "physics") ||
               ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
               ("${ign_sw}" == "rendering" && "${branch}" != "ign-rendering0") ||
@@ -444,7 +444,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport6") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport7") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport8") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "default")))
+              ("${ign_sw}" == "transport" && "${branch}" == "master")))
             disabled()
 
           // gz11 branches don't work on xenial
@@ -525,7 +525,7 @@ ignition_software.each { ign_sw ->
   // add ci-pr_any to the list for CIWorkflow
   ci_pr_any_list[ign_sw] << ignition_brew_ci_any_job_name
 
-  // 2. default, release branches
+  // 2. master, release branches
   all_branches("${ign_sw}").each { branch ->
     def ignition_brew_ci_job = job("ignition_${ign_sw}-ci-${branch}-homebrew-amd64")
     OSRFBrewCompilation.create(ignition_brew_ci_job, enable_testing(ign_sw))
@@ -587,12 +587,12 @@ ignition_software.each { ign_sw ->
   // add ci-pr_any to the list for CIWorkflow
   ci_pr_any_list[ign_sw] << ignition_win_ci_any_job_name
 
-  // 2. default, release branches
+  // 2. master, release branches
   all_branches("${ign_sw}").each { branch ->
     if (is_a_colcon_package(ign_sw)) {
       // colcon uses long paths and windows has a hard limit of 260 chars. Keep
       // names minimal
-      if (branch == 'default')
+      if (branch == 'master')
         branch_name = "ci"
       else
         branch_name = branch - ign_sw
