@@ -109,20 +109,9 @@ void include_common_params(Job gazebo_ros_pkgs_job,
     def default_ci_job = job("${name_prefix}_gazebo_pkgs-ci-default_$suffix_triplet")
     // Enable testing but not cppcheck
     OSRFLinuxCompilation.create(default_ci_job, true, false)
+    OSRFGithub.create(default_ci_job, "osrf/sdformat", branch)
     default_ci_job.with
     {
-      scm {
-        git {
-          remote {
-            github("ros-simulation/gazebo_ros_pkgs")
-          }
-          extensions {
-            relativeTargetDirectory("gazebo_ros_pkgs")
-          }
-          branch(branch)
-        }
-      }
-
       label "gpu-reliable"
 
       triggers {
