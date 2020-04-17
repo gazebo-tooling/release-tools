@@ -20,7 +20,7 @@ class OSRFLinuxABI
   static void create(Job job, String repo)
   {
     OSRFLinuxABI.create(job)
-    OSRFGithub.create(job, repo, '${DEST_BRANCH}')
+    OSRFGitHub.create(job, repo, '${DEST_BRANCH}')
   }
 
   static void create(Job job)
