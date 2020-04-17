@@ -56,10 +56,10 @@ class OSRFLinuxABIGitHub
       }
 
       parameters {
-        stringParam("ghprbTargetBranch", null,
+        stringParam("DEST_BRANCH", null,
                     'Branch to use as base for the comparison')
-        stringParam("sha1", null,
-                    'Git revision  to use to compare against ghprbTargetBranch')
+        stringParam("SRC_BRANCH", null,
+                    'Git revision  to use to compare against DEST_BRANCH')
         stringParam('SRC_REPO', null,
                     'URL pointing to repository containing SRC_BRANCH')
         stringParam("JOB_DESCRIPTION", "",
