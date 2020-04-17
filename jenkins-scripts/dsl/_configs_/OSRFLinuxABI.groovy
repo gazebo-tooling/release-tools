@@ -20,19 +20,7 @@ class OSRFLinuxABI
   static void create(Job job, String repo)
   {
     OSRFLinuxABI.create(job)
-
-    String subdirectoy = repo.tokenize('/').last()
-
-    job.with
-    {
-      scm
-      {
-        hg(repo) {
-          branch('${DEST_BRANCH}')
-          subdirectory(subdirectoy)
-        }
-      }
-    }
+    OSRFGithub.create(job, repo, '${DEST_BRANCH}')
   }
 
   static void create(Job job)
