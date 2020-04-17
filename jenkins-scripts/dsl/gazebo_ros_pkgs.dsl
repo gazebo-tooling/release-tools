@@ -11,6 +11,8 @@ String current_ros2_branch   = Globals.get_ros2_development_distro()
 @Field
 ArrayList ros2_distros       = Globals.get_ros2_suported_distros()
 
+def ENABLE_TESTS = true
+def DISABLE_CPPCHECK = false
 
 // version to test more than the official one in each ROS distro
 extra_gazebo_versions = [ 'kinetic' :  ['8','9']]
@@ -27,6 +29,8 @@ Job create_common_compilation(String job_name,
 
    OSRFLinuxCompilationAnyGitHub.create(comp_job,
                                         "ros-simulation/gazebo_ros_pkgs",
+                                        ENABLE_TESTING,
+                                        DISABLE_CPPCHECK,
                                         [ "${ros_distro}" ])
    include_common_params(comp_job,
                          ubuntu_distro,

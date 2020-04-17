@@ -96,7 +96,7 @@ abi_distro.each { distro ->
     String sdf_repo = "osrf/sdformat"
 
     def sdformat_ci_any_job = job(ci_build_any_job_name_linux)
-    OSRFLinuxCompilationAny.create(sdformat_ci_any_job, sdf_repo)
+    OSRFLinuxCompilationAnyGitHub.create(sdformat_ci_any_job, sdf_repo)
     sdformat_ci_any_job.with
     {
       steps

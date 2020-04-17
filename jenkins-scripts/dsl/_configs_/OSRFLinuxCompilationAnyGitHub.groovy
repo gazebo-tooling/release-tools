@@ -14,9 +14,9 @@ class OSRFLinuxCompilationAnyGitHub
 {
   static void create(Job job,
                      String github_repo,
-                     ArrayList supported_ros_distros,
                      boolean enable_testing  = true,
-                     boolean enable_cppcheck = false)
+                     boolean enable_cppcheck = true,
+                     ArrayList supported_ros_distros = [])
   {
     // Do not include description from LinuxBase since the github pull request
     // builder set its own
@@ -70,8 +70,10 @@ class OSRFLinuxCompilationAnyGitHub
             cron('')
             triggerPhrase('.*(re)?run test(s).*')
             allowMembersOfWhitelistedOrgsAsAdmin()
-            // Only will be triggered in supported_ros_branches
-            whiteListTargetBranches(supported_ros_branches)
+            if (supported_ros_branches) {
+              // Only will be triggered in supported_ros_branches
+              whiteListTargetBranches(supported_ros_branches)
+            }
             permitAll(true)
             extensions {
                 commitStatus {
