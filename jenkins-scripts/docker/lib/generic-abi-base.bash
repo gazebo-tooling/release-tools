@@ -93,10 +93,8 @@ echo '# BEGIN SECTION: compile and install branch: ${SRC_BRANCH}'
 # compilation time.
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
 if ${GITHUB}; then
-  # TODO: SRC_REPO is always know and does not vary in git, external
-  # repositories are handled in refspec. Find a way of not having it as a param.
-  git fetch --tags --progress ${SRC_REPO} +refs/pull/*:refs/remotes/origin/pr/*
-  git checkout ${SRC_BRANCH}/merge
+  git remote add source_repo ${SRC_REPO}
+  git checkout source_repo/${SRC_BRANCH}
 else
   hg pull ${SRC_REPO} -b ${SRC_BRANCH}
   hg up ${SRC_BRANCH}
