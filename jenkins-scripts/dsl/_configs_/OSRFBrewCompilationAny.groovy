@@ -11,11 +11,13 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFBrewCompilationAny
 {
-  static void create(Job job, String repo, boolean enable_testing = true)
+  static void create(Job job,
+                     String github_repo,
+                     boolean enable_testing  = true,
+                     ArrayList supported_ros_distros = [])
   {
     OSRFBrewCompilation.create(job, enable_testing)
 
-    /* Properties from generic any */
-    GenericAnyJob.create(job, repo, 'HomeBrew')
+    GenericAnyJob.create(job, github_repo)
   }
 }
