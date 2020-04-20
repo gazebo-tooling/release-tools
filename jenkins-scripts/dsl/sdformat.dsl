@@ -1,10 +1,10 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def sdformat_supported_branches = [ 'sdformat4', 'sdformat5', 'sdformat6', 'sdformat8' , 'sdformat9' ]
+def sdformat_supported_branches = [ 'sdformat4', 'sdformat6', 'sdformat8' , 'sdformat9' ]
 def sdformat_gz11_branches = [ 'sdformat8', 'sdformat9', 'master' ]
 // nightly and prereleases
-def extra_sdformat_debbuilder = [ 'sdformat7', 'sdformat9' ]
+def extra_sdformat_debbuilder = [ 'sdformat7' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -378,14 +378,11 @@ all_branches.each { branch ->
       }
 
       if (branch == 'sdformat4')
-        ign_math_v="2"
-      else
-        ign_math_v="3"
+        disabled()
 
       steps {
         batchFile("""\
               set USE_IGNITION_ZIP=FALSE
-              set IGNMATH_BRANCH=ign-math${ign_math_v}
               call "./scripts/jenkins-scripts/sdformat-default-devel-windows-amd64.bat"
               """.stripIndent())
       }
