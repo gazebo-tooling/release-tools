@@ -36,7 +36,7 @@ String abi_job_name = ''
 boolean is_watched_by_buildcop(branch, distro = 'xenial', gpu = 'nvidia')
 
 {
-  if (branch == 'default' || branch == 'gazebo7' || branch == 'gazebo9' || branch == 'gazebo10' || branch == 'gazebo11')
+  if (branch == 'master' || branch == 'gazebo7' || branch == 'gazebo9' || branch == 'gazebo10' || branch == 'gazebo11')
     return true
 
   return false
@@ -88,7 +88,8 @@ abi_distro.each { distro ->
   supported_arches.each { arch ->
     abi_job_name = "gazebo-abichecker-any_to_any-ubuntu_auto-${arch}"
     def abi_job = job(abi_job_name)
-    OSRFLinuxABI.create(abi_job, "https://bitbucket.org/osrf/gazebo")
+    OSRFLinuxABIGitHub.create(abi_job)
+    OSRFGitHub.create(abi_job, "osrf/gazebo")
     abi_job.with
     {
       label "large-memory"
@@ -131,8 +132,7 @@ ci_distro.each { distro ->
       // 1. Create the any job
       def gazebo_ci_any_job_name = "gazebo-ci-pr_any-ubuntu_auto-${arch}-gpu-${gpu}"
       def gazebo_ci_any_job      = job(gazebo_ci_any_job_name)
-      OSRFLinuxCompilationAny.create(gazebo_ci_any_job,
-                                    "https://bitbucket.org/osrf/gazebo")
+      OSRFLinuxCompilationAnyGitHub.create(gazebo_ci_any_job, "osrf/gazebo")
       gazebo_ci_any_job.with
       {
         if (gpu != 'none')
@@ -147,7 +147,7 @@ ci_distro.each { distro ->
              condition
              {
                not {
-                 expression('${ENV, var="DEST_BRANCH"}', 'default')
+                 expression('${ENV, var="DEST_BRANCH"}', 'master')
                }
 
                steps {
@@ -193,14 +193,14 @@ ci_distro.each { distro ->
       }
 
       // --------------------------------------------------------------
-      // 2. Create the default ci jobs
-      def gazebo_ci_job = job("gazebo-ci-default-${ci_distro_default_str}-${arch}-gpu-${gpu}")
-      if (is_watched_by_buildcop('default', ci_distro_default_str, gpu))
+      // 2. Create the master ci jobs
+      def gazebo_ci_job = job("gazebo-ci-master-${ci_distro_default_str}-${arch}-gpu-${gpu}")
+      if (is_watched_by_buildcop('master', ci_distro_default_str, gpu))
       {
         Globals.extra_emails = Globals.build_cop_email
       }
       OSRFLinuxCompilation.create(gazebo_ci_job)
-      OSRFBitbucketHg.create(gazebo_ci_job, "https://bitbucket.org/osrf/gazebo")
+      OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo")
 
       gazebo_ci_job.with
       {
@@ -236,7 +236,7 @@ ci_distro.each { distro ->
   } // end of arch
 } // end of distro
 
-// OTHER CI SUPPORTED JOBS (default branch) @ SCM/DAILY
+// OTHER CI SUPPORTED JOBS (master branch) @ SCM/DAILY
 other_supported_distros.each { distro ->
   supported_arches.each { arch ->
 
@@ -246,10 +246,10 @@ other_supported_distros.each { distro ->
       gpus = [ 'none' ]
 
     gpus.each { gpu ->
-      // ci_default job for the rest of arches / scm@daily
-      def gazebo_ci_job = job("gazebo-ci-default-${distro}-${arch}-gpu-${gpu}")
+      // ci_master job for the rest of arches / scm@daily
+      def gazebo_ci_job = job("gazebo-ci-master-${distro}-${arch}-gpu-${gpu}")
       OSRFLinuxCompilation.create(gazebo_ci_job)
-      OSRFBitbucketHg.create(gazebo_ci_job, "https://bitbucket.org/osrf/gazebo")
+      OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo")
 
       gazebo_ci_job.with
       {
@@ -288,15 +288,14 @@ ci_distro.each { distro ->
   supported_arches.each { arch ->
     ci_gpu.each { gpu ->
       def multi_any_job = job("gazebo-ci-pr_any+sdformat_any+ign_any-${distro}-${arch}-gpu-${gpu}")
-      OSRFLinuxCompilationAny.create(multi_any_job,
-                                    "https://bitbucket.org/osrf/gazebo")
+      OSRFLinuxCompilationAnyGitHub.create(multi_any_job, "osrf/gazebo")
       multi_any_job.with
       {
         parameters
         {
-          stringParam('SDFORMAT_BRANCH', 'default', 'sdformat branch to use')
-          stringParam('IGN_MATH_BRANCH', 'default', 'ignition math branch to use')
-          stringParam('IGN_TRANSPORT_BRANCH', 'default', 'ignition transport branch to use')
+          stringParam('SDFORMAT_BRANCH', 'master', 'sdformat branch to use')
+          stringParam('IGN_MATH_BRANCH', 'master', 'ignition math branch to use')
+          stringParam('IGN_TRANSPORT_BRANCH', 'master', 'ignition transport branch to use')
         }
 
         label "gpu-${gpu}-${distro}"
@@ -336,7 +335,7 @@ gazebo_supported_branches.each { branch ->
         if (is_watched_by_buildcop(branch, distro, gpu))
           Globals.extra_emails = Globals.build_cop_email
         OSRFLinuxCompilation.create(gazebo_ci_job)
-        OSRFBitbucketHg.create(gazebo_ci_job, "https://bitbucket.org/osrf/gazebo", branch)
+        OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo", branch)
 
         gazebo_ci_job.with
         {
@@ -368,9 +367,9 @@ gazebo_supported_branches.each { branch ->
 // EXPERIMENTAL ARCHES @ SCM/WEEKLY
 ci_distro_default.each { distro ->
   experimental_arches.each { arch ->
-    def gazebo_ci_job = job("gazebo-ci-default-${distro}-${arch}-gpu-none")
+    def gazebo_ci_job = job("gazebo-ci-master-${distro}-${arch}-gpu-none")
     OSRFLinuxCompilation.create(gazebo_ci_job)
-    OSRFBitbucketHg.create(gazebo_ci_job, "https://bitbucket.org/osrf/gazebo")
+    OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo")
 
     gazebo_ci_job.with
     {
@@ -398,16 +397,9 @@ ci_distro_default.each { distro ->
     ci_gpu.each { gpu ->
       def gazebo_ci_job = job("gazebo-ci-coverage-${distro}-${arch}-gpu-${gpu}")
       OSRFLinuxCompilation.create(gazebo_ci_job)
+      OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo", "master")
       gazebo_ci_job.with
       {
-        scm
-        {
-          hg("http://bitbucket.org/osrf/gazebo") {
-            branch('default')
-            subdirectory("gazebo")
-          }
-        }
-
         triggers {
           scm('@daily')
         }
@@ -436,9 +428,9 @@ ci_distro_default.each { distro ->
 ci_distro_default.each { distro ->
   supported_arches.each { arch ->
     gazebo_supported_build_types.each { build_type ->
-      def gazebo_ci_job = job("gazebo-ci_BT${build_type}-default-${distro}-${arch}-gpu-none")
+      def gazebo_ci_job = job("gazebo-ci_BT${build_type}-master-${distro}-${arch}-gpu-none")
       OSRFLinuxCompilation.create(gazebo_ci_job)
-      OSRFBitbucketHg.create(gazebo_ci_job, "https://bitbucket.org/osrf/gazebo")
+      OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo")
 
       gazebo_ci_job.with
       {
@@ -547,8 +539,7 @@ all_debbuild_branches.each { branch ->
 // 1. ANY job @ SCM/5min
 String ci_build_any_job_name_brew = "gazebo-ci-pr_any-homebrew-amd64"
 def gazebo_brew_ci_any_job = job(ci_build_any_job_name_brew)
-OSRFBrewCompilationAny.create(gazebo_brew_ci_any_job,
-                              "https://bitbucket.org/osrf/gazebo")
+OSRFBrewCompilationAnyGitHub.create(gazebo_brew_ci_any_job, "osrf/gazebo")
 gazebo_brew_ci_any_job.with
 {
     label "osx_gazebo"
@@ -581,7 +572,7 @@ install_brew_job.with
 
 // 2. default in all branches @SCM/daily
 // No gazebo2 for brew
-all_branches = gazebo_supported_branches + 'default'
+all_branches = gazebo_supported_branches + 'master'
 all_branches.each { branch ->
   if (is_watched_by_buildcop(branch))
     Globals.extra_emails = Globals.build_cop_email
@@ -592,7 +583,7 @@ all_branches.each { branch ->
 
   def gazebo_brew_ci_job = job("gazebo-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(gazebo_brew_ci_job)
-  OSRFBitbucketHg.create(gazebo_brew_ci_job, "https://bitbucket.org/osrf/gazebo", branch, "gazebo", "HomeBrew")
+  OSRFGitHub.create(gazebo_brew_ci_job, "osrf/gazebo", branch)
 
   gazebo_brew_ci_job.with
   {
@@ -621,7 +612,7 @@ all_branches.each { branch ->
 // 1. any
   String ci_build_any_job_name_win7 = "gazebo-ci-pr_any-windows7-amd64"
   def gazebo_win_ci_any_job = job(ci_build_any_job_name_win7)
-  OSRFWinCompilationAny.create(gazebo_win_ci_any_job, "https://bitbucket.org/osrf/gazebo")
+  OSRFWinCompilationAnyGitHub.create(gazebo_win_ci_any_job, "osrf/gazebo")
   gazebo_win_ci_any_job.with
   {
       steps {
@@ -632,11 +623,11 @@ all_branches.each { branch ->
   }
 
 // 2. default / @ SCM/Daily
-all_branches = gazebo_supported_branches + 'default' - 'gazebo7'
+all_branches = gazebo_supported_branches + 'master' - 'gazebo7'
 all_branches.each { branch ->
   def gazebo_win_ci_job = job("gazebo-ci-${branch}-windows7-amd64")
   OSRFWinCompilation.create(gazebo_win_ci_job)
-  OSRFBitbucketHg.create(gazebo_win_ci_job, "https://bitbucket.org/osrf/gazebo", branch)
+  OSRFGitHub.create(gazebo_win_ci_job, "osrf/gazebo", branch)
 
   gazebo_win_ci_job.with
   {
@@ -654,8 +645,8 @@ all_branches.each { branch ->
 
 // --------------------------------------------------------------
 // Create the main CI work flow job
-def gazebo_ci_main = pipelineJob("gazebo-ci-pr_any")
-OSRFCIWorkFlowMultiAny.create(gazebo_ci_main,
+def gazebo_ci_main = pipelineJob("gazebo-ci-manual_any")
+OSRFCIWorkFlowMultiAnyGitHub.create(gazebo_ci_main,
                                    [ci_build_any_job_name_linux,
                                     ci_build_any_job_name_linux_no_gpu,
                                     ci_build_any_job_name_win7,
