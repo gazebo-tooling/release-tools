@@ -9,7 +9,7 @@ echo =========== Done Cloning HG Repository
 echo
 echo =========== Identify Closed HG Branches
 CLOSED_BRANCHES=$(\
-  hg branches -c | grep '(closed)$' | sed -e 's@ *[0-9]*[0-9]:.*@@')
+  hg branches -c | grep '(closed)$' | awk '{ print $1 }')
 # the following doesn't work because 'hg log -r "closed()"' lists branches
 # that were closed and then re-opened:
 #  hg -R $HG_TMP log -r "closed()" --template '{branch}\n' | sort)
@@ -23,5 +23,4 @@ do
   echo remote git branch found: $b
   git push --delete origin $b
 done
-
 
