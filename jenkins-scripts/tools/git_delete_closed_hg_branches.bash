@@ -9,7 +9,13 @@ echo =========== Done Cloning HG Repository
 echo
 echo =========== Identify Closed HG Branches
 CLOSED_BRANCHES=$(\
-  hg -R $HG_TMP log -r "closed()" --template '{branch}\n' | sort)
+  hg branches -c | grep '(closed)$' | awk '{ print $1 }')
+# the following doesn't work because 'hg log -r "closed()"' lists branches
+# that were closed and then re-opened:
+#  hg -R $HG_TMP log -r "closed()" --template '{branch}\n' | sort)
+# 'hg log -r "closed() and head()"' doesn't quite work either because a
+# branch could have 1 closed head and 1 open head, and it should still
+# be characterized as open
 for b in $CLOSED_BRANCHES
 do
   git show remotes/origin/$b &> /dev/null || \
@@ -17,5 +23,4 @@ do
   echo remote git branch found: $b
   git push --delete origin $b
 done
-
 
