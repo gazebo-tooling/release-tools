@@ -131,13 +131,13 @@ cat >> build.sh << DELIM_BUILD_DEPS
     rm -fr $WORKSPACE/$dep
 
     if [[ ${dep/ign} == ${dep} ]]; then
-      bitbucket_repo="osrf/${dep}"
+      dependency_repo="osrf/${dep}"
     else
       # need to replace _ by -
-      bitbucket_repo="ignitionrobotics/${dep/_/-}"
+      dependency_repo="ignitionrobotics/${dep/_/-}"
     fi
 
-    hg clone http://bitbucket.org/\$bitbucket_repo -b ${dep_branch} \
+    git clone http://github.com/\$dependency_repo -b ${dep_branch} \
 	$WORKSPACE/$dep
 
     GENERIC_ENABLE_TIMING=false
