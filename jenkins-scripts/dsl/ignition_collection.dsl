@@ -214,8 +214,8 @@ ignition_collections.each { ign_collection ->
   // MAC Brew
   // --------------------------------------------------------------
   def ignition_brew_ci_job = job("ignition_${ign_collection_name}-ci-default-homebrew-amd64")
-  OSRFBrewCompilationAny.create(ignition_brew_ci_job,
-                                "https://bitbucket.org/ignitionrobotics/ign-${ign_collection_name}",
+  OSRFBrewCompilationAnyGithub.create(ignition_brew_ci_job,
+                                "ignitionrobotics/ign-${ign_collection_name}",
                                 false)
   ignition_brew_ci_job.with
   {
