@@ -7,7 +7,7 @@
 #  - GENERIC_ENABLE_TESTS (optional) [default true] run tests
 #  - BUILDING_EXTRA_CMAKE_PARAMS (optional) extra cmake params
 #  - BUILD_<lib name> (optional) build dependency from source, for example, BUILD_IGN_MATH
-#    - <lib name>_BRANCH (optional [default: default]) branch for BUILD_<lib_name>
+#    - <lib name>_BRANCH (optional [default: master]) branch for BUILD_<lib_name>
 
 if [[ -z ${SOFTWARE_DIR} ]]; then
     echo "SOFTWARE_DIR variable is unset. Please fix the code"
@@ -44,20 +44,20 @@ for dep_uppercase in $OSRF_DEPS; do
   if [[ -n ${dependecy_installation} ]] && ${dependecy_installation}; then
       # Handle the depedency BRANCH
       eval dep_branch=\$$dep_uppercase\_BRANCH
-      [[ -z ${dep_branch} ]] && dep_branch='default'
+      [[ -z ${dep_branch} ]] && dep_branch='master'
 cat >> build.sh << DELIM_BUILD_DEPS
     echo "# BEGIN SECTION: building dependency: ${dep} (${dep_branch})"
     echo '# END SECTION'
     rm -fr $WORKSPACE/$dep
 
     if [[ ${dep/ign} == ${dep} ]]; then
-      bitbucket_repo="osrf/${dep}"
+      dependency_repo="osrf/${dep}"
     else
       # need to replace _ by -
-      bitbucket_repo="ignitionrobotics/${dep//_/-}"
+      dependency_repo="ignitionrobotics/${dep//_/-}"
     fi
 
-    hg clone http://bitbucket.org/\$bitbucket_repo -b ${dep_branch} \
+    git clone http://github.com/\$dependency_repo -b ${dep_branch} \
 	$WORKSPACE/$dep
 
     GENERIC_ENABLE_TIMING=false

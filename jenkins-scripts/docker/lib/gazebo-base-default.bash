@@ -124,20 +124,20 @@ for dep_uppercase in $GAZEBO_OSRF_DEPS; do
   if [[ -n ${dependecy_installation} ]] && ${dependecy_installation}; then
       # Handle the depedency BRANCH
       eval dep_branch=\$$dep_uppercase\_BRANCH
-      [[ -z ${dep_branch} ]] && dep_branch='default'
+      [[ -z ${dep_branch} ]] && dep_branch='master'
 cat >> build.sh << DELIM_BUILD_DEPS
     echo "# BEGIN SECTION: building dependency: ${dep} (${dep_branch})"
     echo '# END SECTION'
     rm -fr $WORKSPACE/$dep
 
     if [[ ${dep/ign} == ${dep} ]]; then
-      bitbucket_repo="osrf/${dep}"
+      dependency_repo="osrf/${dep}"
     else
       # need to replace _ by -
-      bitbucket_repo="ignitionrobotics/${dep/_/-}"
+      dependency_repo="ignitionrobotics/${dep/_/-}"
     fi
 
-    hg clone http://bitbucket.org/\$bitbucket_repo -b ${dep_branch} \
+    git clone http://github.com/\$dependency_repo -b ${dep_branch} \
 	$WORKSPACE/$dep
 
     GENERIC_ENABLE_TIMING=false
