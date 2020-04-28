@@ -122,8 +122,8 @@ goto :EOF
 set IGN_PROJECT_DEPENDENCY_DIR=%LOCAL_WS%\%1
 if exist %IGN_PROJECT_DEPENDENCY_DIR% ( rmdir /s /q %IGN_PROJECT_DEPENDENCY_DIR% )
 if "%2"=="" (
-  echo Installing default branch of %1
-  git clone https://github.com/ignitionrobotics/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b default
+  echo Installing master branch of %1
+  git clone https://github.com/ignitionrobotics/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b master
 ) else (
   echo Installing branch %2 of %1
   git clone https://github.com/ignitionrobotics/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b %2
