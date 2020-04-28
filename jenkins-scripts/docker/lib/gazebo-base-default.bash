@@ -124,7 +124,7 @@ for dep_uppercase in $GAZEBO_OSRF_DEPS; do
   if [[ -n ${dependecy_installation} ]] && ${dependecy_installation}; then
       # Handle the depedency BRANCH
       eval dep_branch=\$$dep_uppercase\_BRANCH
-      [[ -z ${dep_branch} ]] && dep_branch='default'
+      [[ -z ${dep_branch} ]] && dep_branch='master'
 cat >> build.sh << DELIM_BUILD_DEPS
     echo "# BEGIN SECTION: building dependency: ${dep} (${dep_branch})"
     echo '# END SECTION'
