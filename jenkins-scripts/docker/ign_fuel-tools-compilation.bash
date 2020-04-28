@@ -32,7 +32,7 @@ fi
 if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -ge 5 ]]; then
   export BUILD_IGN_MSGS=true
   export IGN_MSGS_MAJOR_VERSION=6
-  export IGN_MSGS_BRANCH=default
+  export IGN_MSGS_BRANCH=master
 fi
 
 export GZDEV_PROJECT_NAME="ignition-fuel-tools${IGN_FUEL_TOOLS_MAJOR_VERSION}"

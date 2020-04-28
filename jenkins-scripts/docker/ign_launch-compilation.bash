@@ -35,19 +35,19 @@ if [[ ${IGN_LAUNCH_MAJOR_VERSION} -ge 3 ]]; then
 
   export BUILD_IGN_SENSORS=true
   export IGN_SENSORS_MAJOR_VERSION=4
-  export IGN_SENSORS_BRANCH=default
+  export IGN_SENSORS_BRANCH=master
 
   export BUILD_IGN_GUI=true
   export IGN_GUI_MAJOR_VERSION=4
-  export IGN_GUI_BRANCH=default
+  export IGN_GUI_BRANCH=master
 
   export BUILD_IGN_RENDERING=true
   export IGN_RENDERING_MAJOR_VERSION=4
-  export IGN_RENDERING_BRANCH=default
+  export IGN_RENDERING_BRANCH=master
 
   export BUILD_IGN_GAZEBO=true
   export IGN_GAZEBO_MAJOR_VERSION=4
-  export IGN_GAZEBO_BRANCH=default
+  export IGN_GAZEBO_BRANCH=master
 fi
 
 export USE_GCC8=true
