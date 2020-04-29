@@ -4,8 +4,6 @@
 ::  - USE_IGNITION_ZIP : (default true) [true | false]. Use zip to install ignition
 ::                       instead of compile
 ::  - BUILD_TYPE       : (default Release) [ Release | Debug ] Build type to use
-::  - IGNMATH_BRANCH   : (default default) [optional]. Ignition math branch to
-::                       compile. If in use, USE_IGNITION_ZIP will be false
 ::
 
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
@@ -15,17 +13,8 @@ findstr /r /b "find_package(ignition-math" %WORKSPACE%\sdformat\cmake\SearchForS
 set /p IGN_MATH_REQUIRED_VERSION=<version.txt
 set IGN_MATH_REQUIRED_VERSION=%IGN_MATH_REQUIRED_VERSION:~26,1%
 set IGNMATH_BRANCH="ign-math%IGN_MATH_REQUIRED_VERSION%"
-:: hard-code ign-math3 for now until we fix configure scripts
-@if %IGN_MATH_REQUIRED_VERSION% EQU 4 set IGNMATH_BRANCH="ign-math3"
 @if "%USE_IGNITION_ZIP%" == "" set USE_IGNITION_ZIP=FALSE
 set IGNMATH_ZIP=%IGNMATH_BRANCH% :: should not be needed
-
-:: When CI is run on the default branch use the .zip. Otherwise compile ign-math
-@if "%SRC_BRANCH%" == "default" (
-  set IGNMATH_BRANCH="default"
-  set IGNMATH_ZIP="ign-math3"
-  @if "%USE_IGNITION_ZIP%" == "" set USE_IGNITION_ZIP=TRUE
-)
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 set TEST_RESULT_PATH="%WORKSPACE%\test_results"
