@@ -23,8 +23,8 @@ if ${USE_CATKIN_MAKE}; then
 else
   export CMD_CATKIN_CONFIG=""
   export CMD_CATKIN_LIST="colcon list -t"
-  export CMD_CATKIN_BUILD="colcon build --parallel-workers ${MAKE_JOBS} --symlink-install --event-handler console_direct+ ${CATKIN_EXTRA_ARGS}"
-  export CMD_CATKIN_TEST="colcon test --parallel-workers 1 --event-handler console_direct+ || true"
+  export CMD_CATKIN_BUILD="colcon build --parallel-workers ${MAKE_JOBS} --symlink-install --event-handler console_cohesion+ ${CATKIN_EXTRA_ARGS}"
+  export CMD_CATKIN_TEST="colcon test --executor sequential --event-handler console_direct+"
   export CMD_CATKIN_TEST_RESULTS="colcon test-result --verbose || true"
   export IGNORE_FILE="COLCON_IGNORE"
 fi
