@@ -23,7 +23,7 @@ bloom_debbuild_jobs = [ 'gazebo-dev', 'gazebo-msgs', 'gazebo-plugins', 'gazebo-r
 
 Job create_common_compilation(String job_name,
                               String ubuntu_distro,
-                              String ros_distro,
+                              String ros_branch,
                               String gz_version,
                               String script_name)
 {
@@ -33,10 +33,10 @@ Job create_common_compilation(String job_name,
                                         "ros-simulation/gazebo_ros_pkgs",
                                         ENABLE_TESTS,
                                         DISABLE_CPPCHECK,
-                                        [ "${ros_distro}" ])
+                                        [ "${ros_branch}" ])
    include_common_params(comp_job,
                          ubuntu_distro,
-                         ros_distro,
+                         ros_branch,
                          gz_version,
                          script_name)
    return comp_job
@@ -143,7 +143,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
     def any_job_name = "${name_prefix}_gazebo_pkgs-ci-pr_any_${suffix_triplet}"
     Job any_job = create_common_compilation(any_job_name,
                                             ubuntu_distro,
-                                            ros_distro,
+                                            branch,
                                             "default",
                                             "gazebo_ros_pkgs-compilation")
 
@@ -210,7 +210,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
           def ci_pr_job_name = "${name_prefix}_gazebo${gz_version}_pkgs-ci-pr_any_${suffix_triplet}"
           Job ci_pr_job = create_common_compilation(ci_pr_job_name,
                                               ubuntu_distro,
-                                              ros_distro,
+                                              branch,
                                               gz_version,
                                               "gazebo_ros_pkgs-compilation")
         }
@@ -223,7 +223,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
         def regression_job_name = "${name_prefix}_gazebo_pkgs-ci-pr_regression_any_${suffix_triplet}"
         Job regression_job = create_common_compilation(regression_job_name,
                                                        ubuntu_distro,
-                                                       ros_distro,
+                                                       branch,
                                                        "default",
                                                        "gazebo_ros_pkgs-compilation_regression")
         // No melodic-devel branch in third party testing (yet)

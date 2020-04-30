@@ -16,7 +16,7 @@ class OSRFLinuxCompilationAnyGitHub
                      String github_repo,
                      boolean enable_testing  = true,
                      boolean enable_cppcheck = true,
-                     ArrayList supported_ros_distros = [])
+                     ArrayList supported_branches = [])
   {
     // Do not include description from LinuxBase since the github pull request
     // builder set its own
@@ -24,6 +24,6 @@ class OSRFLinuxCompilationAnyGitHub
     OSRFLinuxCompilation.create(job, enable_testing, enable_cppcheck)
     Globals.rtools_description = true
 
-    GenericAnyJobGitHub.create(job, github_repo, supported_ros_distros)
+    GenericAnyJobGitHub.create(job, github_repo, supported_branches)
   }
 } // end of class

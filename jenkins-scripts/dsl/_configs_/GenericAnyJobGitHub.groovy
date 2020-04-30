@@ -14,7 +14,7 @@ class GenericAnyJobGitHub
 {
    static void create(Job job,
                      String github_repo,
-                     ArrayList supported_ros_distros = [])
+                     ArrayList supported_branches = [])
    {
      // setup special mail subject
      GenericMail.update_field(job, 'defaultSubject',
@@ -24,20 +24,6 @@ class GenericAnyJobGitHub
 
     // Get repo name for relativeTargetDirectory
     String github_repo_name = github_repo.substring(github_repo.lastIndexOf("/") + 1)
-
-    ArrayList supported_ros_branches = []
-    supported_ros_distros.each { ros_distro ->
-      if (ros_distro == Globals.get_ros2_development_distro()) {
-        // Latest unreleased distro points to ros2
-        supported_ros_branches.add("ros2")
-      } else if (Globals.get_ros2_suported_distros().contains(ros_distro)) {
-        supported_ros_branches.add(ros_distro)
-      } else {
-        // Keep the toString method to be sure that String is used and not
-        // GStringImp which will make the whole thing to fail.
-        supported_ros_branches.add("${ros_distro}-devel".toString())
-      }
-    }
 
     job.with
     {
@@ -68,9 +54,9 @@ class GenericAnyJobGitHub
             cron('')
             triggerPhrase('.*(re)?run test(s).*')
             allowMembersOfWhitelistedOrgsAsAdmin()
-            if (supported_ros_branches) {
-              // Only will be triggered in supported_ros_branches
-              whiteListTargetBranches(supported_ros_branches)
+            // Only will be triggered in supported_branches
+            if (supported_branches) {
+              whiteListTargetBranches(supported_branches)
             }
             permitAll(true)
             extensions {
