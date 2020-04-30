@@ -100,7 +100,7 @@ class Globals
 
    static ArrayList get_ros2_suported_distros()
    {
-     return [ 'dashing', 'eloquent' ]
+     return [ 'dashing', 'eloquent', 'foxy' ]
    }
 
    static String get_ros2_development_distro() {
