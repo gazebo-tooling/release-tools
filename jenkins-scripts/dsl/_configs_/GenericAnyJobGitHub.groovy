@@ -69,12 +69,13 @@ class GenericAnyJobGitHub
             useGitHubHooks(true)
             onlyTriggerPhrase(false)
             permitAll(true)
+            cron()
             whiteListTargetBranches {
               'org.jenkinsci.plugins.ghprb.GhprbBranch' {
                  branch supported_ros_branches.join(" ")
               }
             }
-            triggerPhrase '*(re)?run test(s).*'
+            triggerPhrase '.*(re)?run test(s).*'
             extensions {
                 'org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus' {
                   commitStatusContext '${JOB_NAME}'
