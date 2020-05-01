@@ -28,7 +28,7 @@ class GenericAnyJobGitHub
     // Transform GStringImp into real string
     ArrayList supported_branches_str = []
     supported_branches.each { branch ->
-      supported_branches_str.add(branch)
+      supported_branches_str.add(branch.toString())
     }
 
     job.with
