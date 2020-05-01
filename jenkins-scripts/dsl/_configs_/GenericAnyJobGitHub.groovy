@@ -25,6 +25,12 @@ class GenericAnyJobGitHub
     // Get repo name for relativeTargetDirectory
     String github_repo_name = github_repo.substring(github_repo.lastIndexOf("/") + 1)
 
+    // Transform GStringImp into real string
+    ArrayList supported_branches_str = []
+    supported_branches.each { branch ->
+      supported_branches_str.add(branch)
+    }
+
     job.with
     {
       parameters
@@ -55,8 +61,8 @@ class GenericAnyJobGitHub
             triggerPhrase('.*(re)?run test(s).*')
             allowMembersOfWhitelistedOrgsAsAdmin()
             // Only will be triggered in supported_branches
-            if (supported_branches) {
-              whiteListTargetBranches(supported_branches)
+            if (supported_branches_str) {
+              whiteListTargetBranches(supported_branches_str)
             }
             permitAll(true)
             extensions {
