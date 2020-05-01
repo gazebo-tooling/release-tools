@@ -56,7 +56,7 @@ class GenericAnyJobGitHub
             allowMembersOfWhitelistedOrgsAsAdmin()
             // Only will be triggered in supported_branches
             if (supported_branches) {
-              whiteListTargetBranches(supported_branches)
+              whiteListTargetBranches(supported_branches.join(" "))
             }
             permitAll(true)
             extensions {
