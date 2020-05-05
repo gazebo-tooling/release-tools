@@ -34,7 +34,9 @@ echo '# BEGIN SECTION: run test-bot'
 export HOMEBREW_DEVELOPER=1
 brew tap homebrew/test-bot
 git -C $(brew --repo)/Library/Taps/homebrew/homebrew-test-bot \
-    pull ${TEST_BOT_REPO} ${TEST_BOT_BRANCH}
+    fetch ${TEST_BOT_REPO} ${TEST_BOT_BRANCH}
+git -C $(brew --repo)/Library/Taps/homebrew/homebrew-test-bot \
+    checkout FETCH_HEAD
 brew test-bot --tap=osrf/simulation \
               --root-url=https://osrf-distributions.s3.amazonaws.com/bottles-simulation \
               --ci-pr ${PULL_REQUEST_URL} \
