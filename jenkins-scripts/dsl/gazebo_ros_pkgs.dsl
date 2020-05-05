@@ -214,6 +214,16 @@ void include_common_params(Job gazebo_ros_pkgs_job,
                                               branch,
                                               gz_version,
                                               "gazebo_ros_pkgs-compilation")
+
+          // --------------------------------------------------------------
+          // 3.2 Extra default ci jobs
+          def default_ci_job_name = "${name_prefix}_gazebo${gz_version}_pkgs-ci-default_$suffix_triplet"
+          Job ci_pr_job = create_common_compilation(default_ci_job_name,
+                                              ubuntu_distro,
+                                              ros_distro,
+                                              gz_version,
+                                              "gazebo_ros_pkgs-compilation")
+
         }
       } // end of gazebo_versions
 
