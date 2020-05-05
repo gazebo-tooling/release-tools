@@ -17,7 +17,8 @@ Boolean ENABLE_TESTS = true
 Boolean DISABLE_CPPCHECK = false
 
 // version to test more than the official one in each ROS distro
-extra_gazebo_versions = [ 'kinetic' :  ['8','9']]
+extra_gazebo_versions = [ 'kinetic' :  ['8','9'],
+                          'melodic' :  ['11']]
 
 bloom_debbuild_jobs = [ 'gazebo-dev', 'gazebo-msgs', 'gazebo-plugins', 'gazebo-ros', 'gazebo-ros-control', 'gazebo-ros-pkgs' ]
 
