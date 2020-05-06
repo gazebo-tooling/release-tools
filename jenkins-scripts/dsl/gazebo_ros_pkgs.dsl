@@ -23,8 +23,12 @@ extra_gazebo_versions = [ 'kinetic' :  ['8','9'],
 bloom_debbuild_jobs = [ 'gazebo-dev', 'gazebo-msgs', 'gazebo-plugins', 'gazebo-ros', 'gazebo-ros-control', 'gazebo-ros-pkgs' ]
 
 String get_branch_from_rosdistro(ros_distro) {
-  if (ros_distro == current_ros2_branch)
-    return "ros2"
+  // ROS2 branches are named without the -devel postfix
+  if (ros2_distros.contains(ros_distro))
+    if (ros_distro == current_ros2_branch)
+      return "ros2"
+    else
+      return ros_distro
 
   return "${ros_distro}-devel"
 }
