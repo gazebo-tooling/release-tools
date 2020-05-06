@@ -26,8 +26,13 @@ for pkg in ${PKGS}; do
     for distro in ${ROS_DISTROS}; do
 	echo " - Processing $pkg in $distro"
         git checkout "debian/$distro/$pkg"
+	if grep 'Package.replace' debian/control.em; then
+	    echo " + skip ${pkg} for ${distro}: seems to have changes in place"
+	    continue
+	fi
 	# Modify package name
-	sed -i -e "s/Package: @(Package)/Package:@(Package.replace('gazebo-','gazebo${MAJOR_VERSION}-'))/" debian/control.em
+	sed -i -e "s/Package: @(Package)/Package :@(Package.replace('gazebo-','gazebo${MAJOR_VERSION}-'))/" debian/control.em
+	sed -i -e "s/Source: @(Package)/Source: @(Package.replace('gazebo-','gazebo${MAJOR_VERSION}-'))/" debian/control.em
 	git commit debian/control.em -m "Patch name to release ${MAJOR_VERSION} version"
 	# Include conflict with same package (not current)
 	sed -i -e "/^Depends/aConflicts: @(Package) ${CONFLICTS}" debian/control.em
