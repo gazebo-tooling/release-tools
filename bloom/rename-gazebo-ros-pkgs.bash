@@ -31,7 +31,7 @@ for pkg in ${PKGS}; do
 	    continue
 	fi
 	# Modify package name
-	sed -i -e "s/Package: @(Package)/Package :@(Package.replace('gazebo-','gazebo${MAJOR_VERSION}-'))/" debian/control.em
+	sed -i -e "s/Package: @(Package)/Package: @(Package.replace('gazebo-','gazebo${MAJOR_VERSION}-'))/" debian/control.em
 	sed -i -e "s/Source: @(Package)/Source: @(Package.replace('gazebo-','gazebo${MAJOR_VERSION}-'))/" debian/control.em
 	sed -i -e "s/@(Package)/@(Package.replace('gazebo-','gazebo${MAJOR_VERSION}-'))/" debian/changelog.em
 	git commit debian/control.em debian/changelog.em -m "Patch name to release ${MAJOR_VERSION} version"
