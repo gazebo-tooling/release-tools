@@ -72,9 +72,9 @@ dh_make -h | grep -q -- -y && \
 if \$DH_MAKE_Y
 then
   # true is to avoid the error on already debian/ directory
-  dh_make -y -s --createorig -p ${SOURCE_PACKAGE_NAME}_${VERSION} || true
+  dh_make -y -s --createorig -p \${SOURCE_PACKAGE_NAME}_${VERSION} || true
 else
-  echo | dh_make -s --createorig -p ${SOURCE_PACKAGE_NAME}_${VERSION} || true
+  echo | dh_make -s --createorig -p \${SOURCE_PACKAGE_NAME}_${VERSION} || true
 fi
 echo '# END SECTION'
 
