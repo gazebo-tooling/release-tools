@@ -14,10 +14,10 @@ UBUNTU_ARCHS = ['amd64']
 # not releasing for precise by default
 UBUNTU_DISTROS_IN_ROS = {'kinetic': ['xenial'],
                          'melodic': ['bionic'],
-                         'noetic': ['foxy'],
-                         'dashing': ['bionic'],
-                         'eloquent': ['bionic'],
-                         'foxy': ['focal']}
+                         'noetic': ['foxy']}
+UBUNTU_DISTROS_IN_ROS2 = {'dashing': ['bionic'],
+                          'eloquent': ['bionic'],
+                          'foxy': ['focal']}
 DRY_RUN = False
 
 def parse_args(argv):
@@ -71,13 +71,20 @@ def call_jenkins_jobs(argv):
     params['UPSTREAM_RELEASE_REPO'] = args.upstream_release_repo
     params['UPLOAD_TO_REPO'] = args.upload_to_repository
 
+    ubuntu_per_ros_distro = UBUNTU_DISTROS_IN_ROS
+
+    if args.ros_distro in UBUNTU_DISTROS_IN_ROS2:
+        params['ROS2'] = True
+        ubuntu_per_ros_distro = UBUNTU_DISTROS_IN_ROS2
+
     if not args.release_version:
         args.release_version = 0
     params['RELEASE_VERSION'] = args.release_version
     params_query = urllib.urlencode(params)
     base_url = '%s/job/%s/buildWithParameters?%s' % \
                (JENKINS_URL, JOB_NAME_PATTERN % (args.package), params_query)
-    for ubuntu_distro in UBUNTU_DISTROS_IN_ROS[args.ros_distro]:
+
+    for ubuntu_distro in ubuntu_per_ros_distro[args.ros_distro]:
         for arch in UBUNTU_ARCHS:
             url = '%s&ARCH=%s&DISTRO=%s&ROS_DISTRO=%s' % \
                   (base_url, arch, ubuntu_distro, args.ros_distro)

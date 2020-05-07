@@ -33,7 +33,8 @@ for pkg in ${PKGS}; do
 	# Modify package name
 	sed -i -e "s/Package: @(Package)/Package :@(Package.replace('gazebo-','gazebo${MAJOR_VERSION}-'))/" debian/control.em
 	sed -i -e "s/Source: @(Package)/Source: @(Package.replace('gazebo-','gazebo${MAJOR_VERSION}-'))/" debian/control.em
-	git commit debian/control.em -m "Patch name to release ${MAJOR_VERSION} version"
+	sed -i -e "s/@(Package)/@(Package.replace('gazebo-','gazebo${MAJOR_VERSION}-'))/" debian/changelog.em
+	git commit debian/control.em debian/changelog.em -m "Patch name to release ${MAJOR_VERSION} version"
 	# Include conflict with same package (not current)
 	sed -i -e "/^Depends/aConflicts: @(Package) ${CONFLICTS}" debian/control.em
 	git commit debian/control.em -m "Set up a conflict with official ROS packages and the two previous gazebo versions"
