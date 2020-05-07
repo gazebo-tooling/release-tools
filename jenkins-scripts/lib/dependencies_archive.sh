@@ -659,6 +659,7 @@ IGN_PHYSICS_DEPENDENCIES="libbenchmark-dev \\
                           libignition-math6-dev \\
                           libignition-math6-eigen3-dev \\
                           libignition-plugin-dev \\
+                          libsdformat9-dev \\
                           libsdformat8-dev"
 IGN_PHYSICS_DART_FROM_PKGS="true"
 
