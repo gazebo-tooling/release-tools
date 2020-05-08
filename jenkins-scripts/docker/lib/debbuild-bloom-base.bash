@@ -64,15 +64,17 @@ echo '# BEGIN SECTION: create source package'
 # Handle the dh_make -y option (new in Xenial) or workaround using old method
 # original idea: https://github.com/scarygliders/X11RDP-o-Matic/pull/61
 
+SOURCE_PACKAGE_NAME=\$(dpkg-parsechangelog -S Source)
+
 dh_make -h | grep -q -- -y && \
     DH_MAKE_Y=true || DH_MAKE_Y=false
 
 if \$DH_MAKE_Y
 then
   # true is to avoid the error on already debian/ directory
-  dh_make -y -s --createorig -p ros-$ROS_DISTRO-${PACKAGE}_${VERSION} || true
+  dh_make -y -s --createorig -p \${SOURCE_PACKAGE_NAME}_${VERSION} || true
 else
-  echo | dh_make -s --createorig -p ros-$ROS_DISTRO-${PACKAGE}_${VERSION} || true
+  echo | dh_make -s --createorig -p \${SOURCE_PACKAGE_NAME}_${VERSION} || true
 fi
 echo '# END SECTION'
 
@@ -98,6 +100,13 @@ PKGS=\`find .. -name '*.deb' || true\`
 FOUND_PKG=0
 for pkg in \${PKGS}; do
     echo "found \$pkg"
+    # Check for problems in gazebo_ros_pkgs unofficial wrappers to avoid
+    # uploads with the same name than official ROS packages
+    # ros-DISTRO-gazebo-* instead of ros-DISTRO-gazeboX-*
+    if [[ \${pkg}  !=  \${pkg/-gazebo-} ]]; then
+       echo "Detected official ROS names in gazebo_ros_pkgs"
+       exit -1
+    fi
     # Check for correctly generated packages size > 3Kb
     [[ \$(find \$pkg -size +3k) ]] || echo "WARNING: empty package?"
     cp \${pkg} $WORKSPACE/pkgs

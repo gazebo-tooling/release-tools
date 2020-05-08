@@ -1,17 +1,24 @@
-Scripts:
---------
+## Scripts:
+
+### Create a new gazeboX_rosY_pkgs repository
+
+For a new official wrappers the notation used below correspond to:
+`gazeboX_rosY_pkgs` (`X` is major version in Gazebo, `Y` is 1 or 2 for ROS)
+
+ 1. Create new repo under github.com/osrf/ organization named:
+    - https://github.com/osrf/gazeboX_rosY_pkgs-release
+
+ 1. Run initial_info_for_new_release_repo.bash
+    It will import all branches and tags from official gbp into the new repo
+    - Usage: *$ initial_info_for_new_release_repo X rosY*
+
+ 1. Clone the new repo, go to the directory and run rename-gazebo-ros-pkgs.bash
+    - Usage: *$ rename-gazebo-ros-pkgs.bash X <space separted list of rosdistros to release>*
+
+### Release new versiones for the gazeboX_rosY_pkgs repository    
 
  * release-bloom.py: generic python script that call -bloom osrf jenkins
    jobs.
  
  * ros_gazebo_pkgs-release.py.bash: bash script that will use release-bloom.py
    passing all the names of ros_gazebo_pkgs (gazebo-msgs, gazebo-ros, etc).
-
- * rename-gazebo-ros-pkgs.bash: run on top of a ros_gazebo_pkgs-release
-   repository, will change all the templates in bloom to set a different gazebo
-   major version instead of official gazebo for renaming when releasing ROS wrappers.
-
- * git_clone_all_remote_branches.bash: script to clone all remote branches into 
-   a local git repository. This is used when creating a new gazeboX_ros_pkg
-   repository since github does not allow to host more than one fork of the 
-   original gazebo_ros_pkgs repository.
