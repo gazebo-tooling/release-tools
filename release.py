@@ -395,7 +395,7 @@ def generate_upload_tarball(args):
     cmd = ['git', 'diff-index', 'HEAD']
     out, err = check_call(cmd)
     if out:
-        print('%s says that you have uncommitted changes git')
+        print('git says that you have uncommitted changes')
         print('Please clean up your working copy so that "%s" outputs nothing' % (' '.join(cmd)))
         print('stdout: %s' % (out))
         sys.exit(1)
