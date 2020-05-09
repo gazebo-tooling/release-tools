@@ -199,7 +199,6 @@ if ${USE_ROS_REPO}; then
   if ${ROS2}; then
 cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
-ENV RTI_NC_LICENSE_ACCEPTED=yes
 RUN apt-get ${APT_PARAMS} update \\
     && apt-get install -y curl \\
     && rm -rf /var/lib/apt/lists/*

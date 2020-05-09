@@ -265,7 +265,6 @@ bloom_debbuild_jobs.each { bloom_pkg ->
         stringParam('ROS_DISTRO', '','ROS DISTRO to build pakcages for')
         stringParam("UPLOAD_TO_REPO", null, "OSRF repo name to upload the package to")
         stringParam('UPSTREAM_RELEASE_REPO', '', 'https://github.com/ros-gbp/gazebo_ros_pkgs-release')
-        booleanParam('ROS2', false, 'whenether is a ROS2 release')
       }
 
       // Blocks to control dependencies
