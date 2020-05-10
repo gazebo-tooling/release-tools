@@ -121,9 +121,9 @@ DEPENDENCY_PKGS="devscripts \
 		 dh-make \
 		 mercurial \
 		 git \
-                 python-openssl \
+		 python-openssl \
                  ca-certificates \
- 		 python-rosdep"
+		 ${pythonv}-rosdep"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
