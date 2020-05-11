@@ -658,9 +658,14 @@ IGN_PHYSICS_DEPENDENCIES="libbenchmark-dev \\
                           libignition-common3-dev \\
                           libignition-math6-dev \\
                           libignition-math6-eigen3-dev \\
-                          libignition-plugin-dev \\
-                          libsdformat9-dev \\
-                          libsdformat8-dev"
+                          libignition-plugin-dev"
+if [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -ge 2 ]]; then
+  IGN_PHYSICS_DEPENDENCIES="${IGN_PHYSICS_DEPENDENCIES} \\
+                            libsdformat9-dev"
+elif [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -eq 1 ]]; then
+  IGN_PHYSICS_DEPENDENCIES="${IGN_PHYSICS_DEPENDENCIES} \\
+                            libsdformat8-dev"
+fi
 IGN_PHYSICS_DART_FROM_PKGS="true"
 
 IGN_PLUGIN_DEPENDENCIES="libignition-cmake1-dev"
