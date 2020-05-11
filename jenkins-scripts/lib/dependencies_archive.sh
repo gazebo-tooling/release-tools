@@ -662,7 +662,7 @@ IGN_PHYSICS_DEPENDENCIES="libbenchmark-dev \\
 if [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -ge 2 ]]; then
   IGN_PHYSICS_DEPENDENCIES="${IGN_PHYSICS_DEPENDENCIES} \\
                             libsdformat9-dev"
-elif [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -ge 1 ]]; then
+elif [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -eq 1 ]]; then
   IGN_PHYSICS_DEPENDENCIES="${IGN_PHYSICS_DEPENDENCIES} \\
                             libsdformat8-dev"
 fi
