@@ -64,7 +64,7 @@ class GenericAnyJobGitHub
             cron()
             whiteListTargetBranches {
               'org.jenkinsci.plugins.ghprb.GhprbBranch' {
-                 branch supported_ros_branches.join(" ")
+                 branch supported_branches.join(" ")
               }
             }
             triggerPhrase '.*(re)?run test(s).*'
