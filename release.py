@@ -38,9 +38,6 @@ IGN_REPO = False
 
 IGNORE_DRY_RUN = True
 
-class ErrorGitRepo(Exception):
-    pass
-
 class ErrorNoPermsRepo(Exception):
     pass
 
@@ -315,7 +312,6 @@ def discover_distros(repo_dir):
     root, subdirs, files = os.walk(repo_dir).next()
     repo_arch_exclusion = get_exclusion_arches(files)
 
-    if '.hg' in subdirs: subdirs.remove('.hg')
     if '.git' in subdirs: subdirs.remove('.git')
     # remove ubuntu (common stuff) and debian (new supported distro at top level)
     if 'ubuntu' in subdirs: subdirs.remove('ubuntu')
@@ -359,14 +355,6 @@ def check_call(cmd, ignore_dry_run = False):
                 raise ErrorNoPermsRepo()
             if "abort: no username supplied" in err:
                 raise ErrorNoUsernameSupplied()
-            if "hg" in cmd:
-                try:
-                    r = subprocess.Popen(["git", "status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                except OSError as e:
-                    print("Unable to run 'git status'. Is git installed?")
-                    raise
-                if r.returncode != 0:
-                    raise ErrorGitRepo()
             # Unkown exception
             print('Error running command (%s).'%(' '.join(cmd)))
             print('stdout: %s'%(out))
@@ -401,23 +389,26 @@ def generate_upload_tarball(args):
     sourcedir = os.getcwd()
     tmpdir    = tempfile.mkdtemp()
     builddir  = os.path.join(tmpdir, 'build')
-    # Put the hg-specific stuff in a try block, to allow for a git repo
-    try:
-        # Check for uncommitted changes; abort if present
-        cmd = ['hg', 'status', '-q']
-        out, err = check_call(cmd)
-        if len(out) != 0:
-            print('Mercurial says that you have uncommitted changes.  Please clean up your working copy so that "%s" outputs nothing'%(' '.join(cmd)))
-            print('stdout: %s'%(out))
-            sys.exit(1)
 
-        # Make a clean copy, to avoid pulling in other stuff that the user has
-        # sitting in the working copy
-        srcdir = os.path.join(tmpdir, 'src')
-        check_call(['hg', 'archive', srcdir])
-    except ErrorGitRepo as e:
-        # it's git and that we'll just use the CWD
-        srcdir = os.getcwd()
+    # Check for uncommitted changes; abort if present
+
+    cmd = ['git', 'diff-index', 'HEAD']
+    out, err = check_call(cmd)
+    if out:
+        print('git says that you have uncommitted changes')
+        print('Please clean up your working copy so that "%s" outputs nothing' % (' '.join(cmd)))
+        print('stdout: %s' % (out))
+        sys.exit(1)
+
+    # Make a clean copy, to avoid pulling in other stuff that the user has
+    # sitting in the working copy
+    srcdir = os.path.join(tmpdir, 'src')
+    os.mkdir(srcdir)
+    tmp_tar = os.path.join(tmpdir, 'orig.tar')
+    check_call(['git', 'archive', '--format=tar', 'HEAD', '-o', tmp_tar])
+    check_call(['tar', 'xf', tmp_tar, '-C', srcdir])
+    if not args.dry_run:
+        os.remove(tmp_tar)
 
     # use cmake to generate package_source
     generate_package_source(srcdir, builddir)
@@ -454,21 +445,20 @@ def generate_upload_tarball(args):
 
     try:
         tag = '%s_%s'%(args.package_alias, args.version)
-        check_call(['hg', 'tag', '-f', tag])
-
-        # Push tag
-        check_call(['hg', 'push','-b','.'])
-    except ErrorGitRepo as e:
-        # do nothing for git repos (no git support is implemented)
-        pass
+        check_call(['git', 'tag', '-f', tag])
+        check_call(['git', 'push', '--tags'])
     except ErrorNoPermsRepo as e:
-        print('The bitbucket server reports problems with permissions')
+        print('The Git server reports problems with permissions')
         print('The branch could be blocked by configuration if you do not have')
         print('rights to push code in default branch.')
         sys.exit(1)
     except ErrorNoUsernameSupplied as e:
-        print('The hg tag could not be committed because you have not configured')
-        print('your username. Use "hg config --edit" to set your username.')
+        print('git tag could not be committed because you have not configured')
+        print('your username. Use "git config --username" to set your username.')
+        sys.exit(1)
+    except Exception as e:
+        print('There was a problem with pushing tags to the git repository')
+        print('Do you have write perms in the repository?')
         sys.exit(1)
 
     source_tarball_uri = DOWNLOAD_URI_PATTERN%get_canonical_package_name(args.package) + tarball_fname
