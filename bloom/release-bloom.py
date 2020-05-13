@@ -14,7 +14,7 @@ UBUNTU_ARCHS = ['amd64']
 # not releasing for precise by default
 UBUNTU_DISTROS_IN_ROS = {'kinetic': ['xenial'],
                          'melodic': ['bionic'],
-                         'noetic': ['foxy']}
+                         'noetic': ['focal']}
 UBUNTU_DISTROS_IN_ROS2 = {'dashing': ['bionic'],
                           'eloquent': ['bionic'],
                           'foxy': ['focal']}
