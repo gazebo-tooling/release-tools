@@ -4,7 +4,7 @@
 # 
 
 if [[ $# -lt 2 ]]; then
-    echo "ros_gazebo_pkgs-release <version <release_repo> <ros_distro> <token> 'other arguments used in release.py'"
+    echo "ros_gazebo_pkgs-release <version> <release_repo> <ros_distro> <token> 'other arguments used in release.py'"
     exit 1
 fi
 
