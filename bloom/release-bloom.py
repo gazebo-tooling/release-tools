@@ -6,7 +6,7 @@ import sys
 import urllib
 import argparse
 
-USAGE = 'release.py <package> <version> <upstream_release_repo> <ros_distro> <jenkinstoken>'
+USAGE = 'release-bloom.py <package> <version> <upstream_release_repo> <ros_distro> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-bloom-debbuilder'
 
