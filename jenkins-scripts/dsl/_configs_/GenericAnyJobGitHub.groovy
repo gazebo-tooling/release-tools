@@ -53,27 +53,30 @@ class GenericAnyJobGitHub
         }
       }
 
-      triggers {
-        githubPullRequest {
-            admins(['osrf-jenkins', 'j-rivero'])
-            useGitHubHooks()
-            cron('')
-            triggerPhrase('.*(re)?run test(s).*')
-            allowMembersOfWhitelistedOrgsAsAdmin()
-            // Only will be triggered in supported_branches
-            if (supported_branches_str) {
-              whiteListTargetBranches(supported_branches_str)
-            }
+      configure { project ->
+        project  / triggers / 'org.jenkinsci.plugins.ghprb.GhprbTrigger' {
+            adminList 'osrf-jenkins j-rivero'
+            useGitHubHooks(true)
+            allowMembersOfWhitelistedOrgsAsAdmin(true)
+            useGitHubHooks(true)
+            onlyTriggerPhrase(false)
             permitAll(true)
-            extensions {
-                commitStatus {
-                    context('${JOB_NAME}')
-                    triggeredStatus('starting deployment to build.osrfoundation.org')
-                    startedStatus('deploying to build.osrfoundation.org')
-                }
+            cron()
+            whiteListTargetBranches {
+              'org.jenkinsci.plugins.ghprb.GhprbBranch' {
+                 branch supported_branches.join(" ")
+              }
             }
-        }
-      } // end of triggers
+            triggerPhrase '.*(re)?run test(s).*'
+            extensions {
+                'org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus' {
+                  commitStatusContext '${JOB_NAME}'
+                  triggeredStatus 'starting deployment to build.osrfoundation.org'
+                  startedStatus 'deploying to build.osrfoundation.org'
+                }
+              }
+            }
+          }
     } // end of with
   } // end of create method
 }
