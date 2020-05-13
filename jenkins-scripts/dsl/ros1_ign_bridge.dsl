@@ -6,6 +6,7 @@ def bridge_packages = [
   'ros_ign_gazebo_demos',
   'ros_ign_image',
   'ros_ign',
+  'ros_ign_gazebo',
   'ros_ign_point_cloud'
 ]
 
