@@ -4,8 +4,13 @@
 #
 
 if [[ $# -lt 2 ]]; then
-    echo "$0 <version <release_repo> <token> 'other arguments used in release.py'"
+    echo "$0 <version> <release_repo> <ros_distro> <token> 'other arguments used in release.py'"
     exit 1
+fi
+
+if [[ ${1%-*} != "${1}" ]]; then
+  echo "Version should not contain a revision number. Use -r argument"
+  exit 1
 fi
 
 for p in ros-ign-image ros-ign-bridge ros-ign-gazebo-demos ros-ign-point-cloud ros-ign ros-ign-gazebo; do
