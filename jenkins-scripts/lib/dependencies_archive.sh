@@ -24,7 +24,7 @@ fi
 # need to override the above distro check since
 # ROS1 pkgs depend on python2, except for noetic
 if ${ENABLE_ROS} && ! ${ROS2}; then
-  if [[ $DISTRO != 'noetic' ]]; then
+  if [[ ${ROS_DISTRO} != 'noetic' ]]; then
     pythonv="python"
   fi
 fi
