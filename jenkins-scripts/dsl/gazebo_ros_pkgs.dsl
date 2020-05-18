@@ -251,7 +251,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
                                                    "default",
                                                    "gazebo_ros_pkgs-compilation_regression")
         // No melodic-devel branch in third party testing (yet)
-        if (ros_distro == 'melodic')
+        if (ros_distro == 'melodic' || ros_distro == 'noetic')
         {
           regression_job.with
           {
