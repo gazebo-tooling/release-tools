@@ -95,7 +95,7 @@ class Globals
 
    static ArrayList get_ros_suported_distros()
    {
-     return [ 'kinetic', 'melodic' ]
+     return [ 'kinetic', 'melodic', 'noetic' ]
    }
 
    static ArrayList get_ros2_suported_distros()
