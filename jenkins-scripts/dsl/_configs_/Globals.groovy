@@ -15,6 +15,7 @@ class Globals
 
    static ros_ci = [ 'kinetic'  : ['xenial'] ,
                      'melodic'  : ['bionic'] ,
+                     'noetic'   : ['focal'] ,
                      'dashing'  : ['bionic'] ,
                      'eloquent' : ['bionic'] ,
                      'foxy'     : ['focal']]
@@ -22,6 +23,7 @@ class Globals
    // This should be in sync with archive_library
    static gz_version_by_rosdistro = [ 'kinetic'  : ['7'] ,
                                       'melodic'  : ['9'] ,
+                                      'noetic'   : ['11'] ,
                                       'dashing'  : ['9'] ,
                                       'eloquent' : ['9'] ,
                                       'foxy'     : ['11']]
@@ -95,7 +97,7 @@ class Globals
 
    static ArrayList get_ros_suported_distros()
    {
-     return [ 'kinetic', 'melodic' ]
+     return [ 'kinetic', 'melodic', 'noetic' ]
    }
 
    static ArrayList get_ros2_suported_distros()

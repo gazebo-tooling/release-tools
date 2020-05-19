@@ -22,9 +22,11 @@ if [[ ${DISTRO} == 'trusty' ]]; then
 fi
 
 # need to override the above distro check since
-# ROS1 pkgs depend on python2
+# ROS1 pkgs depend on python2, except for noetic
 if ${ENABLE_ROS} && ! ${ROS2}; then
-  pythonv="python"
+  if [[ ${ROS_DISTRO} != 'noetic' ]]; then
+    pythonv="python"
+  fi
 fi
 
 # mesa-utils, x11-utils for dri checks, xsltproc for qtest->junit conversion and
@@ -295,6 +297,9 @@ else
       ;;
       melodic)
         GAZEBO_VERSION_FOR_ROS="9"
+      ;;
+      noetic)
+        GAZEBO_VERSION_FOR_ROS="11"
       ;;
       # ROS 2
       dashing)
