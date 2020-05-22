@@ -26,6 +26,8 @@ brew cleanup --prune-prefix
 
 pushd $(${BREW_BINARY} --prefix)/Homebrew/Library 2> /dev/null
 git stash && git clean -d -f
+rm -fr /usr/local/Homebrew/Library/Homebrew/vendor/bundle/ruby/*
+time brew vendor-install ruby
 popd 2> /dev/null
 
 # test-bot needs variables and does not work just with config not sure why
