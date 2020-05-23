@@ -51,7 +51,7 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: export bottle'
 if [[ $(find . -name '*.bottle.*' | wc -l | sed 's/^ *//') -lt 2 ]]; then
   echo "Can not find at least two bottle files."
-  exit 0
+  exit -1
 fi
 
 # local bottle names don't match the uploaded names anymore
