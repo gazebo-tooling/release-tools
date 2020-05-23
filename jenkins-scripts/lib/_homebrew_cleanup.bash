@@ -34,7 +34,7 @@ brew cleanup --prune-prefix
 pushd $(${BREW_BINARY} --prefix)/Homebrew/Library 2> /dev/null
 git stash && git clean -d -f
 # Need to test if brew installation is still working (use list)
-${BREW_BINARY} list || restore_brew
+${BREW_BINARY} audit || restore_brew
 popd 2> /dev/null
 
 # test-bot needs variables and does not work just with config not sure why
