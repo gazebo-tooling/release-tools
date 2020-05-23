@@ -29,6 +29,8 @@ export DISPLAY=$(ps ax \
 )
 
 echo '# BEGIN SECTION: run test-bot'
+# needed for qt4 gazebo old versions
+brew tap cartr/qt4
 # The test-bot makes a full cleanup of all installed pkgs. Be sure of install back
 # mercurial to keep the slave working
 export HOMEBREW_DEVELOPER=1
