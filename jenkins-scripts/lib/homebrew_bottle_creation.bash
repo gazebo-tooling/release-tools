@@ -45,6 +45,8 @@ git -C $(brew --repo) checkout FETCH_HEAD
 
 brew test-bot --tap=osrf/simulation \
               --fail-fast \
+	      --cleanup \
+	      --only-cleanup-after \
               --root-url=https://osrf-distributions.s3.amazonaws.com/bottles-simulation \
               --ci-pr ${PULL_REQUEST_URL} \
             || { brew install hg; exit -1; }
