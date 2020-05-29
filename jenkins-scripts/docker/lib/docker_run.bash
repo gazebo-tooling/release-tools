@@ -13,6 +13,7 @@ sudo rm -fr ${WORKSPACE}/build
 sudo mkdir -p ${WORKSPACE}/build
 
 [[ -z ${DOCKER_DO_NOT_CACHE} ]] && DOCKER_DO_NOT_CACHE=false
+[[ -z ${USE_DOCKER_IN_DOCKER} ]] && export USE_DOCKER_IN_DOCKER=false
 
 # Remove intermediate containers even if the build is not successful
 if $DOCKER_DO_NOT_CACHE; then
@@ -28,13 +29,17 @@ echo '# BEGIN SECTION: see build.sh script'
 cat build.sh
 echo '# END SECTION'
 
+# --security-opt apparmor=docker-unconfined  to workaround on problem in debbuilders
+# libmandb-2.8.3.so: cannot stat shared object: Permission denied
 if $USE_DOCKER_IN_DOCKER; then
  EXTRA_PARAMS_STR="--privileged \
+                   --security-opt apparmor=docker-unconfined \
                     -v /var/run/docker.sock:/var/run/docker.sock"
 fi
 
 if $USE_GPU_DOCKER; then
   EXTRA_PARAMS_STR="--privileged \
+                    --security-opt apparmor=docker-unconfined \
                     -e DISPLAY=unix$DISPLAY \
                     -v /sys:/sys:ro         \
                     -v /var/run/docker.sock:/var/run/docker.sock \
