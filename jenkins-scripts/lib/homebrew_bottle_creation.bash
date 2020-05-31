@@ -56,18 +56,18 @@ if [[ $(find . -name '*.bottle.*' | wc -l | sed 's/^ *//') -lt 2 ]]; then
   # sometimes particular disabled distributions won't generate bottles,
   # --fail-fast should cover errors in bot. Do not fail
   # exit -1
+else
+    # local bottle names don't match the uploaded names anymore
+    # https://github.com/Homebrew/brew/pull/4612
+    for j in $(ls *.bottle.json); do
+      SRC_BOTTLE=$(brew ruby -e \
+	"puts JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['local_filename']")
+      DEST_BOTTLE=$(brew ruby -e \
+	"puts URI.decode(JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['filename'])")
+      mv ${SRC_BOTTLE} ${DEST_BOTTLE}
+    done
+    mv *.bottle*.tar.gz ${PKG_DIR}
+    mv *.bottle.json ${PKG_DIR}
 fi
-
-# local bottle names don't match the uploaded names anymore
-# https://github.com/Homebrew/brew/pull/4612
-for j in $(ls *.bottle.json); do
-  SRC_BOTTLE=$(brew ruby -e \
-    "puts JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['local_filename']")
-  DEST_BOTTLE=$(brew ruby -e \
-    "puts URI.decode(JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['filename'])")
-  mv ${SRC_BOTTLE} ${DEST_BOTTLE}
-done
-mv *.bottle*.tar.gz ${PKG_DIR}
-mv *.bottle.json ${PKG_DIR}
 
 echo '# END SECTION'
