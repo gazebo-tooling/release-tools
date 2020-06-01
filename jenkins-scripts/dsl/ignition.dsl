@@ -556,7 +556,7 @@ ignition_software.each { ign_sw ->
 
   // 3. install jobs to test bottles
   supported_install_pkg_branches(ign_sw).each { major_version, supported_distros ->
-    def install_default_job = job("ignition_${ign_sw}${major_version}-install-homebrew-bottle")
+    def install_default_job = job("ignition_${ign_sw}${major_version}-install_bottle-homebrew-amd64")    
     OSRFBrewInstall.create(install_default_job)
 
     install_default_job.with
