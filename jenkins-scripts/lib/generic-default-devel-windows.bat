@@ -82,7 +82,7 @@ if exist .\configure.bat (
 )
 
 :: We want to make sure that tests are enabled for this project's build
-cmake .. -DBUILD_TESTING:BOOL=%ENABLE_TESTS% || echo "Second run of cmake (for enabling the tests) failed"
+cmake .. -DBUILD_TESTING:BOOL=%ENABLE_TESTS% -DBUILDSYSTEM_TESTING:BOOL=%ENABLE_TESTS% || echo "Second run of cmake (for enabling the tests) failed"
 echo # END SECTION
 
 echo # BEGIN SECTION: Compiling %VCS_DIRECTORY%
