@@ -71,7 +71,15 @@ brew doctor
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: run tests"
-brew test ${BOTTLE_NAME}
+brew linkage --test ${BOTTLE_NAME}
+if ! brew ruby -e "exit '${BOTTLE_NAME}'.f.test_defined?"
+  # no test defined
+  echo MARK_AS_UNSTABLE
+  brew audit ${BOTTLE_NAME}
+else
+  brew test ${BOTTLE_NAME}
+  brew audit --strict ${BOTTLE_NAME}
+fi
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: re-add group write permissions"
