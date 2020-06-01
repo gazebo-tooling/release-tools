@@ -574,6 +574,17 @@ ignition_software.each { ign_sw ->
              /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${bottle_name}
              """.stripIndent())
       }
+
+      publishers
+      {
+         configure { project ->
+           project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+              unstableOnWarning true
+              failBuildOnError false
+              parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+            }
+         }
+      }
     }
   }
 }
