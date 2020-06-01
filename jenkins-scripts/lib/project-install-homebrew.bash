@@ -52,7 +52,7 @@ if [[ -n "${PULL_REQUEST_URL}" ]]; then
 fi
 
 echo "# BEGIN SECTION: install ${BOTTLE_NAME}"
-brew install ${BOTTLE_NAME}
+brew install --include-test ${BOTTLE_NAME}
 
 # add X11 path so glxinfo can be found
 export PATH="${PATH}:/opt/X11/bin"
