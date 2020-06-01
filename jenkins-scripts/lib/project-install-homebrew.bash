@@ -72,7 +72,7 @@ echo '# END SECTION'
 
 echo "# BEGIN SECTION: run tests"
 brew linkage --test ${BOTTLE_NAME}
-if ! brew ruby -e "exit '${BOTTLE_NAME}'.f.test_defined?"
+if ! brew ruby -e "exit '${BOTTLE_NAME}'.f.test_defined?"; then
   # no test defined
   echo MARK_AS_UNSTABLE
   brew audit ${BOTTLE_NAME}
