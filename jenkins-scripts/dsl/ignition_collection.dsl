@@ -41,6 +41,7 @@ ignition_collection_jobs =
         'ign_sensors-ign-2-win',
         'ignition_blueprint-ci-default-homebrew-amd64',
         'ignition_blueprint-install-pkg-bionic-amd64',
+        'ignition_blueprint-install_bottle-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-bionic-amd64',
         'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-windows7-amd64',
@@ -119,6 +120,7 @@ ignition_collection_jobs =
         'ign_sensors-ign-3-win',
         'ignition_citadel-ci-default-homebrew-amd64',
         'ignition_citadel-install-pkg-bionic-amd64',
+        'ignition_citadel-install_bottle-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-bionic-amd64',
         'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-windows7-amd64',
@@ -241,7 +243,7 @@ ignition_collections.each { ign_collection ->
     }
   }
 
-  // MAC Brew
+  // MAC Brew CI job
   // --------------------------------------------------------------
   def ignition_brew_ci_job = job("ignition_${ign_collection_name}-ci-default-homebrew-amd64")
   OSRFBrewCompilationAnyGitHub.create(ignition_brew_ci_job,
@@ -256,6 +258,39 @@ ignition_collections.each { ign_collection ->
               /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "ignition-${ign_collection_name}"
               """.stripIndent())
       }
+  }
+
+  // MAC Brew bottle install job
+  // --------------------------------------------------------------
+  def ignition_brew_install_bottle_job = job("ignition_${ign_collection_name}-install_bottle-homebrew-amd64")
+  OSRFBrewInstall.create(ignition_brew_install_bottle_job)
+
+  ignition_brew_install_bottle_job.with
+  {
+    triggers {
+      cron('@daily')
+    }
+
+    def bottle_name = "ignition-${ign_collection_name}"
+
+    steps {
+     shell("""\
+           #!/bin/bash -xe
+
+           /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${bottle_name}
+           """.stripIndent())
+    }
+
+    publishers
+    {
+       configure { project ->
+         project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+            unstableOnWarning true
+            failBuildOnError false
+            parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+          }
+       }
+    }
   }
 
   // DEBBUILD: linux package builder
