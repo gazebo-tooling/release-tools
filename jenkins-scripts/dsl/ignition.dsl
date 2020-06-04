@@ -38,7 +38,7 @@ ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'msgs'       : [ '1', '2', '4', '5' ],
                                 'physics'    : [ '1', '2' ],
                                 'plugin'     : [ '0', '1' ],
-                                'rendering'  : [ '0', '2', '3' ],
+                                'rendering'  : [ '2', '3' ],
                                 'sensors'    : [ '2', '3' ],
                                 'transport'  : [ '4', '5', '7', '8' ],
                                 'tools'      : [ '0', '1' ]]
