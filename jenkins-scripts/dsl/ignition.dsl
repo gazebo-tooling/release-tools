@@ -556,7 +556,7 @@ ignition_software.each { ign_sw ->
 
   // 3. install jobs to test bottles
   supported_install_pkg_branches(ign_sw).each { major_version, supported_distros ->
-    def install_default_job = job("ignition_${ign_sw}${major_version}-install_bottle-homebrew-amd64")    
+    def install_default_job = job("ignition_${ign_sw}${major_version}-install_bottle-homebrew-amd64")
     OSRFBrewInstall.create(install_default_job)
 
     install_default_job.with
@@ -611,6 +611,10 @@ ignition_software.each { ign_sw ->
                                     enable_testing(ign_sw))
   ignition_win_ci_any_job.with
   {
+     // ign-gazebo/ign-launch still not ported completely to Windows
+     if (ign_sw == 'gazebo' || ign_sw == 'launch')
+       disabled()
+
       steps {
         batchFile("""\
               call "./scripts/jenkins-scripts/ign_${ign_sw}-default-devel-windows-amd64.bat"
