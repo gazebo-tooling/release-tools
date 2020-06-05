@@ -100,7 +100,7 @@ ignition_collection_jobs =
         'ignition_tools-ci-ign-tools0-homebrew-amd64',
         'ignition_tools-ci-ign-tools0-windows7-amd64',
         'ignition_tools-install-pkg-bionic-amd64',
-        'ignition_tools1-install_bottle-homebrew-amd64',
+        'ignition_tools0-install_bottle-homebrew-amd64',
         'ignition_transport-ci-ign-transport7-bionic-amd64',
         'ignition_transport-ci-ign-transport7-homebrew-amd64',
         'ignition_transport-ci-ign-transport7-windows7-amd64',
