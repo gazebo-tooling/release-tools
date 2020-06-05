@@ -41,55 +41,71 @@ ignition_collection_jobs =
         'ign_sensors-ign-2-win',
         'ignition_blueprint-ci-default-homebrew-amd64',
         'ignition_blueprint-install-pkg-bionic-amd64',
+        'ignition_blueprint-install_bottle-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-bionic-amd64',
         'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-windows7-amd64',
+        'ignition_cmake2-install-pkg-bionic-amd64',
+        'ignition_cmake2-install_bottle-homebrew-amd64',
         'ignition_common-ci-ign-common3-bionic-amd64',
         'ignition_common-ci-ign-common3-homebrew-amd64',
         'ignition_common-ci-ign-common3-windows7-amd64',
         'ignition_common3-install-pkg-bionic-amd64',
+        'ignition_common3-install_bottle-homebrew-amd64',
         'ignition_fuel-tools-ci-ign-fuel-tools3-bionic-amd64',
         'ignition_fuel-tools-ci-ign-fuel-tools3-homebrew-amd64',
         'ignition_fuel-tools-ci-ign-fuel-tools3-windows7-amd64',
         'ignition_fuel-tools3-install-pkg-bionic-amd64',
+        'ignition_fuel-tools3-install_bottle-homebrew-amd64',
         'ignition_gazebo-ci-ign-gazebo2-bionic-amd64',
         'ignition_gazebo-ci-ign-gazebo2-homebrew-amd64',
         'ignition_gazebo2-install-pkg-bionic-amd64',
+        'ignition_gazebo2-install_bottle-homebrew-amd64',
         'ignition_gui-ci-ign-gui2-bionic-amd64',
         'ignition_gui-ci-ign-gui2-homebrew-amd64',
         'ignition_gui2-install-pkg-bionic-amd64',
+        'ignition_gui2-install_bottle-homebrew-amd64',
         'ignition_launch-ci-ign-launch1-bionic-amd64',
         'ignition_launch-ci-ign-launch1-homebrew-amd64',
         'ignition_launch-install-pkg-bionic-amd64',
+        'ignition_launch1-install_bottle-homebrew-amd64',
         'ignition_math-ci-ign-math6-bionic-amd64',
         'ignition_math-ci-ign-math6-homebrew-amd64',
         'ignition_math-ci-ign-math6-windows7-amd64',
         'ignition_math6-install-pkg-bionic-amd64',
+        'ignition_math6-install_bottle-homebrew-amd64',
         'ignition_msgs-ci-ign-msgs4-bionic-amd64',
         'ignition_msgs-ci-ign-msgs4-homebrew-amd64',
         'ignition_msgs-ci-ign-msgs4-windows7-amd64',
         'ignition_msgs4-install-pkg-bionic-amd64',
+        'ignition_msgs4-install_bottle-homebrew-amd64',
         'ignition_physics-ci-ign-physics1-bionic-amd64',
         'ignition_physics-ci-ign-physics1-homebrew-amd64',
         'ignition_physics-install-pkg-bionic-amd64',
+        'ignition_physics1-install_bottle-homebrew-amd64',
         'ignition_plugin-ci-ign-plugin1-bionic-amd64',
         'ignition_plugin-ci-ign-plugin1-homebrew-amd64',
         'ignition_plugin-ci-ign-plugin1-windows7-amd64',
         'ignition_plugin-install-pkg-bionic-amd64',
+        'ignition_plugin1-install_bottle-homebrew-amd64',
         'ignition_rendering-ci-ign-rendering2-bionic-amd64',
         'ignition_rendering-ci-ign-rendering2-homebrew-amd64',
         'ignition_rendering2-install-pkg-bionic-amd64',
+        'ignition_rendering2-install_bottle-homebrew-amd64',
         'ignition_sensors-ci-ign-sensors2-bionic-amd64',
         'ignition_sensors-ci-ign-sensors2-homebrew-amd64',
         'ignition_sensors2-install-pkg-bionic-amd64',
+        'ignition_sensors2-install_bottle-homebrew-amd64',
         'ignition_tools-ci-ign-tools0-bionic-amd64',
         'ignition_tools-ci-ign-tools0-homebrew-amd64',
         'ignition_tools-ci-ign-tools0-windows7-amd64',
         'ignition_tools-install-pkg-bionic-amd64',
+        'ignition_tools0-install_bottle-homebrew-amd64',
         'ignition_transport-ci-ign-transport7-bionic-amd64',
         'ignition_transport-ci-ign-transport7-homebrew-amd64',
         'ignition_transport-ci-ign-transport7-windows7-amd64',
         'ignition_transport7-install-pkg-bionic-amd64',
+        'ignition_transport7-install_bottle-homebrew-amd64',
         'sdformat-ci-sdformat8-bionic-amd64',
         'sdformat-ci-sdformat8-homebrew-amd64',
         'sdformat-ci-sdformat8-windows7-amd64',
@@ -104,55 +120,71 @@ ignition_collection_jobs =
         'ign_sensors-ign-3-win',
         'ignition_citadel-ci-default-homebrew-amd64',
         'ignition_citadel-install-pkg-bionic-amd64',
+        'ignition_citadel-install_bottle-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-bionic-amd64',
         'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-windows7-amd64',
+        'ignition_cmake2-install-pkg-bionic-amd64',
+        'ignition_cmake2-install_bottle-homebrew-amd64',
         'ignition_common-ci-ign-common3-bionic-amd64',
         'ignition_common-ci-ign-common3-homebrew-amd64',
         'ignition_common-ci-ign-common3-windows7-amd64',
         'ignition_common3-install-pkg-bionic-amd64',
+        'ignition_common3-install_bottle-homebrew-amd64',
         'ignition_fuel-tools-ci-ign-fuel-tools4-bionic-amd64',
         'ignition_fuel-tools-ci-ign-fuel-tools4-homebrew-amd64',
         'ignition_fuel-tools-ci-ign-fuel-tools4-windows7-amd64',
         'ignition_fuel-tools4-install-pkg-bionic-amd64',
+        'ignition_fuel-tools4-install_bottle-homebrew-amd64',
         'ignition_gazebo-ci-ign-gazebo3-bionic-amd64',
         'ignition_gazebo-ci-ign-gazebo3-homebrew-amd64',
         'ignition_gazebo3-install-pkg-bionic-amd64',
+        'ignition_gazebo3-install_bottle-homebrew-amd64',
         'ignition_gui-ci-ign-gui3-bionic-amd64',
         'ignition_gui-ci-ign-gui3-homebrew-amd64',
         'ignition_gui3-install-pkg-bionic-amd64',
+        'ignition_gui3-install_bottle-homebrew-amd64',
         'ignition_launch-ci-ign-launch2-bionic-amd64',
         'ignition_launch-ci-ign-launch2-homebrew-amd64',
         'ignition_launch2-install-pkg-bionic-amd64',
+        'ignition_launch2-install_bottle-homebrew-amd64',
         'ignition_math-ci-ign-math6-bionic-amd64',
         'ignition_math-ci-ign-math6-homebrew-amd64',
         'ignition_math-ci-ign-math6-windows7-amd64',
         'ignition_math6-install-pkg-bionic-amd64',
+        'ignition_math6-install_bottle-homebrew-amd64',
         'ignition_msgs-ci-ign-msgs5-bionic-amd64',
         'ignition_msgs-ci-ign-msgs5-homebrew-amd64',
         'ignition_msgs-ci-ign-msgs5-windows7-amd64',
         'ignition_msgs5-install-pkg-bionic-amd64',
+        'ignition_msgs5-install_bottle-homebrew-amd64',
         'ignition_physics-ci-ign-physics2-bionic-amd64',
         'ignition_physics-ci-ign-physics2-homebrew-amd64',
         'ignition_physics2-install-pkg-bionic-amd64',
+        'ignition_physics2-install_bottle-homebrew-amd64',
         'ignition_plugin-ci-ign-plugin1-bionic-amd64',
         'ignition_plugin-ci-ign-plugin1-homebrew-amd64',
         'ignition_plugin-ci-ign-plugin1-windows7-amd64',
         'ignition_plugin-install-pkg-bionic-amd64',
+        'ignition_plugin1-install_bottle-homebrew-amd64',
         'ignition_rendering-ci-ign-rendering3-bionic-amd64',
         'ignition_rendering-ci-ign-rendering3-homebrew-amd64',
         'ignition_rendering3-install-pkg-bionic-amd64',
+        'ignition_rendering3-install_bottle-homebrew-amd64',
         'ignition_sensors-ci-ign-sensors3-bionic-amd64',
         'ignition_sensors-ci-ign-sensors3-homebrew-amd64',
         'ignition_sensors3-install-pkg-bionic-amd64',
+        'ignition_sensors3-install_bottle-homebrew-amd64',
         'ignition_tools-ci-ign-tools1-bionic-amd64',
         'ignition_tools-ci-ign-tools1-homebrew-amd64',
         'ignition_tools-ci-ign-tools1-windows7-amd64',
         'ignition_tools-install-pkg-bionic-amd64',
+        'ignition_tools1-install_bottle-homebrew-amd64',
         'ignition_transport-ci-ign-transport8-bionic-amd64',
         'ignition_transport-ci-ign-transport8-homebrew-amd64',
         'ignition_transport-ci-ign-transport8-windows7-amd64',
         'ignition_transport8-install-pkg-bionic-amd64',
+        'ignition_transport8-install_bottle-homebrew-amd64',
         'sdformat-ci-sdformat9-bionic-amd64',
         'sdformat-ci-sdformat9-homebrew-amd64',
         'sdformat-ci-sdformat9-windows7-amd64',
@@ -211,7 +243,7 @@ ignition_collections.each { ign_collection ->
     }
   }
 
-  // MAC Brew
+  // MAC Brew CI job
   // --------------------------------------------------------------
   def ignition_brew_ci_job = job("ignition_${ign_collection_name}-ci-default-homebrew-amd64")
   OSRFBrewCompilationAnyGitHub.create(ignition_brew_ci_job,
@@ -226,6 +258,39 @@ ignition_collections.each { ign_collection ->
               /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "ignition-${ign_collection_name}"
               """.stripIndent())
       }
+  }
+
+  // MAC Brew bottle install job
+  // --------------------------------------------------------------
+  def ignition_brew_install_bottle_job = job("ignition_${ign_collection_name}-install_bottle-homebrew-amd64")
+  OSRFBrewInstall.create(ignition_brew_install_bottle_job)
+
+  ignition_brew_install_bottle_job.with
+  {
+    triggers {
+      cron('@daily')
+    }
+
+    def bottle_name = "ignition-${ign_collection_name}"
+
+    steps {
+     shell("""\
+           #!/bin/bash -xe
+
+           /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${bottle_name}
+           """.stripIndent())
+    }
+
+    publishers
+    {
+       configure { project ->
+         project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+            unstableOnWarning true
+            failBuildOnError false
+            parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+          }
+       }
+    }
   }
 
   // DEBBUILD: linux package builder
