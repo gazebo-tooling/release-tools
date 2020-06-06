@@ -157,6 +157,10 @@ bottle_job_builder.with
    {
      stringParam("PULL_REQUEST_URL", '',
                  'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
+     stringParam("BREW_REPO", 'https://github.com/scpeters/brew.git',
+                 'Repository for fork of homebrew/brew.')
+     stringParam("BREW_BRANCH", 'still_working',
+                 'Branch of brew repository to use.')
      stringParam("TEST_BOT_REPO", 'https://github.com/scpeters/homebrew-test-bot.git',
                  'Repository for fork of homebrew/homebrew-test-bot.')
      stringParam("TEST_BOT_BRANCH", 'still_working',

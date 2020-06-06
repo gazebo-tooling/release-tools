@@ -37,6 +37,10 @@ git -C $(brew --repo)/Library/Taps/homebrew/homebrew-test-bot \
     fetch ${TEST_BOT_REPO} ${TEST_BOT_BRANCH}
 git -C $(brew --repo)/Library/Taps/homebrew/homebrew-test-bot \
     checkout FETCH_HEAD
+
+git -C $(brew --repo) fetch ${BREW_REPO} ${BREW_BRANCH}
+git -C $(brew --repo) checkout FETCH_HEAD
+
 brew test-bot --tap=osrf/simulation \
               --root-url=https://osrf-distributions.s3.amazonaws.com/bottles-simulation \
               --ci-pr ${PULL_REQUEST_URL} \
