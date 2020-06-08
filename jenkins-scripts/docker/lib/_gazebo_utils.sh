@@ -1,9 +1,9 @@
 GAZEBO_RUNTIME_TEST="""
 echo '# BEGIN SECTION: test the script'
-wget -P /tmp/ https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz
+wget -P /tmp/ https://github.com/osrf/gazebo_models/archive/master.tar.gz
 mkdir -p ~/.gazebo/models
-tar -xvf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1
-rm /tmp/default.tar.gz
+tar -xvf /tmp/master.tar.gz -C ~/.gazebo/models --strip 1
+rm /tmp/master.tar.gz
 
 TEST_START=\`date +%s\`
 timeout --preserve-status 180 gazebo --verbose || true
@@ -18,10 +18,10 @@ echo '# END SECTION'
 """
 
 GAZEBO_MODEL_INSTALLATION="""
-wget -q https://bitbucket.org/osrf/gazebo_models/get/default.tar.gz -O /tmp/default.tar.gz
+wget -q https://github.com/osrf/gazebo_models/archive/master.tar.gz -O /tmp/master.tar.gz
 mkdir -p ~/.gazebo/models
-tar -xf /tmp/default.tar.gz -C ~/.gazebo/models --strip 1 >/dev/null 2>&1
-rm /tmp/default.tar.gz"""
+tar -xf /tmp/master.tar.gz -C ~/.gazebo/models --strip 1 >/dev/null 2>&1
+rm /tmp/master.tar.gz"""
 
 IGN_GAZEBO_RUNTIME_TEST="""
 echo '# BEGIN SECTION: test the script'
