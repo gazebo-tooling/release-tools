@@ -26,8 +26,8 @@ if [ -z ${ENABLE_REAPER} ]; then
 fi
 
 # We use ignitionsrobotics or osrf. osrf by default
-if [ -Z ${BITBUCKET_REPO} ]; then
-    BITBUCKET_REPO="osrf"
+if [ -Z ${GITHUB_ORG} ]; then
+    GITHUB_ORG="osrf"
 fi
 
 # By default, do not need to use C++11 compiler
