@@ -43,7 +43,7 @@ echo '# BEGIN SECTION: replace system eigen for 3.3.3'
 apt-get remove -y .*eigen.*
 mkdir  /tmp/eigen333
 cd /tmp/eigen333
-hg clone https://bitbucket.org/eigen/eigen/
+git clone https://gitlab.com/libeigen/eigen
 cd eigen
 hg up 3.3.3
 mkdir build

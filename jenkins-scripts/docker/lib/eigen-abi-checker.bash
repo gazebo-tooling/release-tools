@@ -21,7 +21,7 @@ set -ex
 echo '# BEGIN SECTION: compile and install eigen 3.3.3 commit'
 mkdir  /tmp/eigen333
 cd /tmp/eigen333
-hg clone https://bitbucket.org/eigen/eigen/
+git clone https://gitlab.com/libeigen/eigen
 cd eigen
 hg up 3.3.3
 
