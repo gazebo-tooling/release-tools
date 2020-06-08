@@ -24,6 +24,7 @@ def experimental_arches     = Globals.get_experimental_arches()
 def all_supported_gpus      = Globals.get_all_supported_gpus()
 
 def DISABLE_TESTS = false
+def DISABLE_GITHUB_INTEGRATION = false
 
 String ci_distro_default_str = ci_distro_default[0]
 String ci_distro_str = ci_distro[0]
@@ -288,7 +289,7 @@ ci_distro.each { distro ->
   supported_arches.each { arch ->
     ci_gpu.each { gpu ->
       def multi_any_job = job("gazebo-ci-pr_any+sdformat_any+ign_any-${distro}-${arch}-gpu-${gpu}")
-      OSRFLinuxCompilationAnyGitHub.create(multi_any_job, "osrf/gazebo")
+      OSRFLinuxCompilationAnyGitHub.create(multi_any_job, "osrf/gazebo", true, true, [], DISABLE_GITHUB_INTEGRATION)
       multi_any_job.with
       {
         parameters
