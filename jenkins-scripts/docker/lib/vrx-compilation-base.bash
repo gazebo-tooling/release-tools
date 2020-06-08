@@ -34,7 +34,7 @@ source ./install/setup.bash || true
 ${GAZEBO_MODEL_INSTALLATION}
 
 # we can not run smoke test due to problem with gazebo issue
-# https://bitbucket.org/osrf/gazebo/issues/2607/error-restcc-205-during-startup-gazebo
+# https://github.com/osrf/gazebo/issues/2607
 # Don't add the OSRF repo to workaround on this since it brings new versions of 
 # dependencies not avilable in the ros buildfarm
 # \${VRX_SMOKE_TEST}
