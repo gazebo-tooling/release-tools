@@ -561,6 +561,17 @@ ignition_software.each { ign_sw ->
 
     install_default_job.with
     {
+      # disable some bottles
+      if (("${ign_sw}" == "cmake" && "${major_version}" == "1") ||
+          ("${ign_sw}" == "common" && "${major_version}" == "2") ||
+          ("${ign_sw}" == "fuel-tools" && "${major_version}" == "2") ||
+          ("${ign_sw}" == "gui" && "${major_version}" == "0") ||
+          ("${ign_sw}" == "math" && "${major_version}" == "5") ||
+          ("${ign_sw}" == "msgs" && "${major_version}" == "2") ||
+          ("${ign_sw}" == "rndf") ||
+          ("${ign_sw}" == "transport" && "${major_version}" == "5"))
+        disabled()
+
       triggers {
         cron('@daily')
       }
