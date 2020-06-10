@@ -78,7 +78,7 @@ REAL_PACKAGE_NAME=$(echo $PACKAGE | sed 's:[0-9]*$::g')
 
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
-  git clone https://github.com/${GITHUB_ORG}/\$REAL_PACKAGE_NAME -r default
+  git clone https://github.com/${GITHUB_ORG}/\$REAL_PACKAGE_NAME -b default
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME
   cd \$REAL_PACKAGE_NAME
   # Store revision for use in version
