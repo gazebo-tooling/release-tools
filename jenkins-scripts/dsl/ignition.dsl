@@ -561,7 +561,7 @@ ignition_software.each { ign_sw ->
 
     install_default_job.with
     {
-      # disable some bottles
+      // disable some bottles
       if (("${ign_sw}" == "cmake" && "${major_version}" == "1") ||
           ("${ign_sw}" == "common" && "${major_version}" == "2") ||
           ("${ign_sw}" == "fuel-tools" && "${major_version}" == "2") ||
