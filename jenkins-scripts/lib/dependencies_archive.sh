@@ -55,8 +55,16 @@ BREW_BASE_DEPENDCIES="mercurial git cmake"
 # 1. SDFORMAT
 # ruby for xml_schemas generation and libxml2-utils for xmllint used in tests
 SDFORMAT_NO_IGN_DEPENDENCIES="${pythonv}     \\
-                              libxml2-utils  \\
-                              libtinyxml-dev"
+                              libxml2-utils"
+
+# SDFORMAT 10 and above use tinyxml2
+if [[ ${SDFORMAT_MAJOR_VERSION} -ge 10]]; then
+  SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
+                                libtinyxml2-dev"
+else
+  SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
+                                libtinyxml-dev"
+fi
 
 if [[ ${SDFORMAT_MAJOR_VERSION} -lt 8 ]]; then
 SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
