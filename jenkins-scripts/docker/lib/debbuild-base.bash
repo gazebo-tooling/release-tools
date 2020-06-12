@@ -183,7 +183,7 @@ echo '# END SECTION'
 fi
 
 echo '# BEGIN SECTION: create source package' \${OSRF_VERSION}
-debuild --no-tgz-check -uc -us -S --source-option=--include-binaries
+debuild --no-tgz-check -uc -us -S --source-option=--include-binaries --no-lintian
 
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
@@ -205,7 +205,7 @@ if [[ $DISTRO != 'xenial' && $DISTRO != 'bionic' ]]; then
 fi
 
 echo '# BEGIN SECTION: create deb packages'
-debuild --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
+debuild --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS} --no-lintian
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
