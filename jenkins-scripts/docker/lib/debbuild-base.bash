@@ -54,7 +54,7 @@ if ${NIGHTLY_MODE}; then
     TIMESTAMP="git\$TIMESTAMP"
   elif [[ -d .git ]]; then
     REV=\$(git rev-parse HEAD)
-    TIMESTAMP="git\$TIMESTAMP"
+    TIMESTAMP="nightly+git\$TIMESTAMP"
   else
     REV=0
   fi
