@@ -33,7 +33,7 @@ brew cleanup --prune-prefix
 
 pushd $(${BREW_BINARY} --prefix)/Homebrew/Library 2> /dev/null
 git stash && git clean -d -f
-# Need to test if brew installation is still working (use list)
+# Need to test if brew installation is still working (use audit cmake to quick check)
 ${BREW_BINARY} audit cmake || restore_brew
 popd 2> /dev/null
 
