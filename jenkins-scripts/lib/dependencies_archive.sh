@@ -59,7 +59,7 @@ SDFORMAT_NO_IGN_DEPENDENCIES="${pythonv}     \\
                               libtinyxml-dev"
 
 # SDFORMAT 10 and above use tinyxml2
-if [[ ${SDFORMAT_MAJOR_VERSION} -ge 10]]; then
+if [[ ${SDFORMAT_MAJOR_VERSION} -ge 10 ]]; then
   SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
                                 libtinyxml2-dev"
 fi
