@@ -75,6 +75,7 @@ class GenericAnyJobGitHub
                     commitStatusContext '${JOB_NAME}'
                     triggeredStatus 'starting deployment to build.osrfoundation.org'
                     startedStatus 'deploying to build.osrfoundation.org'
+                    addTestResults(true)
                   }
               }
           }
