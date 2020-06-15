@@ -58,6 +58,12 @@ SDFORMAT_NO_IGN_DEPENDENCIES="${pythonv}     \\
                               libxml2-utils  \\
                               libtinyxml-dev"
 
+# SDFORMAT 10 and above use tinyxml2
+if [[ ${SDFORMAT_MAJOR_VERSION} -ge 10]]; then
+  SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
+                                libtinyxml2-dev"
+fi
+
 if [[ ${SDFORMAT_MAJOR_VERSION} -lt 8 ]]; then
 SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
                               libboost-system-dev          \\
