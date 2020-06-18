@@ -183,7 +183,14 @@ echo '# END SECTION'
 fi
 
 echo '# BEGIN SECTION: create source package' \${OSRF_VERSION}
-debuild --no-lintian --no-tgz-check -uc -us -S --source-option=--include-binaries
+
+# lintian triggers a problem on arm in Focal when using qemu, avoid it
+no_lintian_param=""
+if [[ ${DISTRO} == 'focal' && ${ARCH} == 'arm64' ]]; then
+  no_lintian_param="--no-lintian"
+fi
+
+debuild \${no_lintian_param} --no-tgz-check -uc -us -S --source-option=--include-binaries
 
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
@@ -205,7 +212,7 @@ if [[ $DISTRO != 'xenial' && $DISTRO != 'bionic' ]]; then
 fi
 
 echo '# BEGIN SECTION: create deb packages'
-debuild --no-lintian --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
+debuild \${no_lintian_param} --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
