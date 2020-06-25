@@ -26,12 +26,6 @@ class GenericAnyJobGitHub
     // Get repo name for relativeTargetDirectory
     String github_repo_name = github_repo.substring(github_repo.lastIndexOf("/") + 1)
 
-    // Transform GStringImp into real string
-    ArrayList supported_branches_str = []
-    supported_branches.each { branch ->
-      supported_branches_str.add(branch.toString())
-    }
-
     job.with
     {
       parameters
@@ -65,8 +59,10 @@ class GenericAnyJobGitHub
               permitAll(true)
               cron()
               whiteListTargetBranches {
-                'org.jenkinsci.plugins.ghprb.GhprbBranch' {
-                   branch supported_branches.join(" ")
+                supported_branches.each { supported_branch ->
+                  'org.jenkinsci.plugins.ghprb.GhprbBranch' {
+                    branch supported_branch
+                  }
                 }
               }
               triggerPhrase '.*(re)?run test(s).*'
