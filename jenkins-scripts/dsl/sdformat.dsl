@@ -38,7 +38,7 @@ abi_distro.each { distro ->
     abi_job_name = "sdformat-abichecker-any_to_any-ubuntu_auto-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABIGitHub.create(abi_job)
-    GenericAnyJobGitHub(abi_job, 'osrf/sdformat', abi_branches)
+    GenericAnyJobGitHub.create(abi_job, 'osrf/sdformat', abi_branches)
     abi_job.with
     {
       steps {
