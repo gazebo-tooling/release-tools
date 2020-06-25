@@ -679,5 +679,5 @@ ignition_software.each { ign_sw ->
 ignition_software.each { ign_sw ->
   def String ci_main_name = "ignition_${ign_sw}-ci-manual_any"
   def ign_ci_main = pipelineJob(ci_main_name)
-  OSRFCIWorkFlowMultiAny.create(ign_ci_main, ci_pr_any_list[ign_sw])
+  OSRFCIWorkFlowMultiAnyGitHub.create(ign_ci_main, ci_pr_any_list[ign_sw])
 }
