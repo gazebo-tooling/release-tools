@@ -10,7 +10,7 @@ export ENABLE_REAPER=false
 # lintian triggers a problem on arm in Focal when using qemu, avoid it
 no_lintian_param=""
 if [[ ${DISTRO} == 'focal' && ${ARCH} == 'arm64' ]]; then
-  no_lintian_param="--no-lintian"
+  no_lintian_param="--git-postbuild=''"
 fi
 # The git plugin leaves a repository copy with a detached HEAD
 # state. gbp does not like it thus the need of using --git-ignore-branch
