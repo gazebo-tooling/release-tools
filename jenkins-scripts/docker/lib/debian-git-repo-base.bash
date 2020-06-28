@@ -6,11 +6,6 @@ export ENABLE_REAPER=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
-
-if [[ ${DISTRO} == 'focal' && ${ARCH} == 'arm64' ]]; then
-    # Did not find the way of avoid lintian in gbp call
-    ln -sf /bin/true /usr/bin/lintian
-fi
 # The git plugin leaves a repository copy with a detached HEAD
 # state. gbp does not like it thus the need of using --git-ignore-branch
 export GBP_COMMAND="gbp buildpackage -j${MAKE_JOBS} --git-ignore-new --git-ignore-branch -uc -us"
@@ -55,6 +50,11 @@ if [ `expr length "${DEBIAN_GIT_PREINSTALL_HOOK} "` -gt 1 ]; then
 echo '# BEGIN SECTION: running pre install hook'
 ${DEBIAN_GIT_PREINSTALL_HOOK}
 echo '# END SECTION'
+fi
+
+if [[ ${DISTRO} == 'focal' && ${ARCH} == 'arm64' ]]; then
+    # Did not find the way of avoid lintian in gbp call
+    ln -sf /bin/true /usr/bin/lintian
 fi
 
 echo '# BEGIN SECTION: install build dependencies'
