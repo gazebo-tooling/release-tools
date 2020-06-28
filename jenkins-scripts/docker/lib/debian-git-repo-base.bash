@@ -7,14 +7,13 @@ export ENABLE_REAPER=false
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 
 
-# lintian triggers a problem on arm in Focal when using qemu, avoid it
-no_lintian_param=""
 if [[ ${DISTRO} == 'focal' && ${ARCH} == 'arm64' ]]; then
-  no_lintian_param="--git-postbuild=''"
+    # Did not find the way of avoid lintian in gbp call
+    ln -sf /bin/true /usr/bin/lintian
 fi
 # The git plugin leaves a repository copy with a detached HEAD
 # state. gbp does not like it thus the need of using --git-ignore-branch
-export GBP_COMMAND="gbp buildpackage -j${MAKE_JOBS} --git-ignore-new --git-ignore-branch -uc -us ${no_lintian_param}"
+export GBP_COMMAND="gbp buildpackage -j${MAKE_JOBS} --git-ignore-new --git-ignore-branch -uc -us"
 export REPO_PATH="$WORKSPACE/repo"
 
 # Historically the job run git clone. New version leave it for jenkins
