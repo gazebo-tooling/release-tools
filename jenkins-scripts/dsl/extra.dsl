@@ -118,6 +118,12 @@ gbp_repo_debbuilds.each { software ->
         }
       }
 
+      configure { project ->
+        project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
+          'string' 'repository_uploader_*'
+        }
+      }
+
       postBuildScripts {
         steps {
           shell("""\
