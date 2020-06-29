@@ -32,13 +32,13 @@ String get_sdformat_branch_name(String full_branch_name)
 
 // ABI Checker job
 // Need to be the before ci-pr_any so the abi job name is defined
+abi_branches = sdformat_supported_branches.collect { it -> get_sdformat_branch_name(it) }
 abi_distro.each { distro ->
   supported_arches.each { arch ->
     abi_job_name = "sdformat-abichecker-any_to_any-ubuntu_auto-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABIGitHub.create(abi_job)
-    OSRFGitHub.create(abi_job, "osrf/sdformat",
-                               '${DEST_BRANCH}')
+    GenericAnyJobGitHub.create(abi_job, 'osrf/sdformat', abi_branches)
     abi_job.with
     {
       steps {
@@ -57,6 +57,10 @@ abi_distro.each { distro ->
               fi
 
               export ARCH=${arch}
+              export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
+              export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
+              export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
+
               /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-abichecker.bash
 	      """.stripIndent())
       } // end of steps
@@ -107,19 +111,6 @@ abi_distro.each { distro ->
            {
              not {
                expression('${ENV, var="ghprbTargetBranch"}', 'master')
-             }
-
-             steps {
-               downstreamParameterized {
-                 trigger("${abi_job_name}") {
-                   parameters {
-                     currentBuild()
-                     predefinedProp('DEST_BRANCH', '$ghprbTargetBranch')
-                     predefinedProp('SRC_BRANCH', '$ghprbSourceBranch')
-                     predefinedProp('SRC_REPO', '$ghprbAuthorRepoGitUrl')
-                   }
-                 }
-               }
              }
            }
          }
