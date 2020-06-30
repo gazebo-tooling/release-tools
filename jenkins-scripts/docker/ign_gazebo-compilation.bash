@@ -33,6 +33,10 @@ if [[ ${IGN_GAZEBO_MAJOR_VERSION} -ge 4 ]]; then
   export IGN_PHYSICS_MAJOR_VERSION=4
   export IGN_PHYSICS_BRANCH=master
 
+  export BUILD_IGN_RENDERING=true
+  export IGN_RENDERING_MAJOR_VERSION=4
+  export IGN_RENDERING_BRANCH=master
+
   export BUILD_IGN_SENSORS=true
   export IGN_SENSORS_MAJOR_VERSION=4
   export IGN_SENSORS_BRANCH=master
