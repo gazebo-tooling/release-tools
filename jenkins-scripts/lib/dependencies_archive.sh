@@ -699,11 +699,8 @@ IGN_LAUNCH_COMMON_DEPENDENCIES="libignition-cmake2-dev \\
 
 if [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -ge 3 ]]; then
   IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_COMMON_DEPENDENCIES} \\
-                          libignition-sensors-dev \\
-                          libignition-transport6-dev \\
-                          libsdformat8-dev"
-
-if [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -eq 0 ]]; then
+                          libsdformat10-dev"
+elif [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -eq 0 ]]; then
   IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_COMMON_DEPENDENCIES} \\
                           libignition-gazebo-dev \\
                           libignition-gui-dev \\
