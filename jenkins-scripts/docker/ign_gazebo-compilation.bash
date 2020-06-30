@@ -30,7 +30,7 @@ fi
 
 if [[ ${IGN_GAZEBO_MAJOR_VERSION} -ge 4 ]]; then
   export BUILD_IGN_PHYSICS=true
-  export IGN_PHYSICS_MAJOR_VERSION=4
+  export IGN_PHYSICS_MAJOR_VERSION=3
   export IGN_PHYSICS_BRANCH=master
 
   export BUILD_IGN_RENDERING=true
