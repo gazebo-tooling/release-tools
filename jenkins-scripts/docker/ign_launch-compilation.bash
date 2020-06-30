@@ -54,4 +54,4 @@ export USE_GCC8=true
 
 export GZDEV_PROJECT_NAME="ignition-launch${IGN_LAUNCH_MAJOR_VERSION}"
 
-e ${SCRIPT_DIR}/lib/generic-building-base.bash
+. ${SCRIPT_DIR}/lib/generic-building-base.bash
