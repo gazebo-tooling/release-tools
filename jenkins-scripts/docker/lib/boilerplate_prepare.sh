@@ -255,6 +255,6 @@ rm -fr ${WORKSPACE}/build.sh
 echo "${MAKE_JOBS}" > "${WORKSPACE}/make_jobs"
 
 # Use GitHub repositories (useful only in bitbucket-github migration)
-export GITHUB=${GITHUB:-false}
+export GITHUB=${GITHUB:-true}
 
 cd ${WORKSPACE}
