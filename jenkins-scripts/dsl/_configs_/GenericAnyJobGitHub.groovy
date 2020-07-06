@@ -51,7 +51,8 @@ class GenericAnyJobGitHub
       if (enable_github_pr_integration) {
         configure { project ->
           project  / triggers / 'org.jenkinsci.plugins.ghprb.GhprbTrigger' {
-              adminList 'osrf-jenkins j-rivero'
+              adminlist 'osrf-jenkins j-rivero'
+              orgslist 'osrf'
               useGitHubHooks(true)
               allowMembersOfWhitelistedOrgsAsAdmin(true)
               useGitHubHooks(true)
