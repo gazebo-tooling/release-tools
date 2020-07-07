@@ -169,7 +169,7 @@ all_supported_distros.each { distro ->
         git {
           remote {
             github("osrf/subt", 'https')
-            branch('${BRANCH}')
+            branch('master')
           }
 
           extensions {
