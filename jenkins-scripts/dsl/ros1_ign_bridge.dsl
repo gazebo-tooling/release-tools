@@ -26,6 +26,12 @@ bridge_packages.each { pkg ->
       priority 100
     }
 
+    configure { project ->
+      project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
+        'string' 'repository_uploader_*'
+      }
+    }
+
     parameters {
       stringParam("PACKAGE","$pkg_dashed","Package name to be built")
         stringParam("VERSION",null,"Packages version to be built")

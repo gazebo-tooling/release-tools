@@ -444,7 +444,8 @@ def generate_upload_tarball(args):
     os.chdir(sourcedir)
 
     try:
-        tag = '%s_%s'%(args.package_alias, args.version)
+        # tilde is not a valid character in git
+        tag = '%s_%s' % (args.package_alias, args.version.replace('~','-'))
         check_call(['git', 'tag', '-f', tag])
         check_call(['git', 'push', '--tags'])
     except ErrorNoPermsRepo as e:

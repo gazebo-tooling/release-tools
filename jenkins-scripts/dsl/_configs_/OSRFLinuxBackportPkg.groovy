@@ -32,6 +32,12 @@ class OSRFLinuxBackportPkg
         priority 300
       }
 
+      configure { project ->
+        project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
+          'string' 'repository_uploader_*'
+        }
+      }
+
       logRotator {
         artifactNumToKeep(20)
       }

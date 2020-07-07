@@ -112,6 +112,12 @@ class OSRFLinuxBuildPkg
 	  }
         }
       }
+
+      configure { project ->
+        project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
+          'string' 'repository_uploader_*'
+        }
+      }
     } // end of job
   } // end of method createJob
 } // end of class

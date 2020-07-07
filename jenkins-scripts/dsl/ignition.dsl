@@ -222,11 +222,10 @@ ignition_software.each { ign_sw ->
       abi_job_names[ign_sw] = "ignition_${ign_sw}-abichecker-any_to_any-ubuntu_auto-${arch}"
       def abi_job = job(abi_job_names[ign_sw])
       checkout_subdir = "ign-${ign_sw}"
-
-      OSRFLinuxABIGitHub.create(abi_job)
-      OSRFGitHub.create(abi_job,
+      OSRFLinuxABIGitHub.create(abi_job, checkout_subdir)
+      GenericAnyJobGitHub.create(abi_job,
                         "ignitionrobotics/ign-${ign_sw}",
-                        '${DEST_BRANCH}', checkout_subdir)
+                        all_branches(ign_sw) - [ 'master'])
       abi_job.with
       {
         if (ign_sw == 'physics')
@@ -248,6 +247,9 @@ ignition_software.each { ign_sw ->
                 fi
 
                 export ARCH=${arch}
+                export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
+                export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
+                export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
                 export ABI_JOB_SOFTWARE_NAME=${checkout_subdir}
                 /bin/bash -xe ./scripts/jenkins-scripts/docker/ignition-abichecker.bash
                 """.stripIndent())
@@ -273,29 +275,6 @@ ignition_software.each { ign_sw ->
     {
       steps
       {
-         conditionalSteps
-         {
-           condition
-           {
-             not {
-               expression('${ENV, var="ghprbTargetBranch"}', 'master')
-             }
-
-             steps {
-               downstreamParameterized {
-                trigger(abi_job_names[ign_sw]) {
-                   parameters {
-                     currentBuild()
-                     predefinedProp('DEST_BRANCH', '$ghprbTargetBranch')
-                     predefinedProp('SRC_BRANCH', '$ghprbSourceBranch')
-                     predefinedProp('SRC_REPO', '$ghprbAuthorRepoGitUrl')
-                   }
-                 }
-               }
-             }
-           }
-         }
-
          shell("""\
               #!/bin/bash -xe
               wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh

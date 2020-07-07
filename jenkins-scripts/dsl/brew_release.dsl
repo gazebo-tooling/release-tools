@@ -187,6 +187,12 @@ bottle_job_builder.with
               """.stripIndent())
    }
 
+   configure { project ->
+     project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
+      'string' "${bottle_hash_updater_job_name}"
+     }
+   }
+
    publishers {
      archiveArtifacts
      {
