@@ -145,7 +145,7 @@ do_install() {
 			dist_version="$(. /etc/os-release && echo "$UBUNTU_CODENAME")"
 		;;
 
-		ubuntu)
+		ubuntu | pop)
 			if command_exists lsb_release; then
 				dist_version="$(lsb_release --codename | cut -f2)"
 			fi
@@ -229,7 +229,7 @@ do_install() {
 			echo_gazebo_as_nonroot
 			exit 0
 			;;
-		debian | ubuntu)
+		debian | ubuntu | pop)
 			export DEBIAN_FRONTEND=noninteractive
 			DEB_PKG_NAME="libgazebo$GZ_VER-dev gazebo$GZ_VER"
 
