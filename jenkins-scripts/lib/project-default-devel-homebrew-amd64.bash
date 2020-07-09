@@ -78,7 +78,11 @@ fi
 
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   brew install python
-  pip3 install ${PIP_PACKAGES_NEEDED}
+  PIP=pip3
+  if ! which ${PIP}
+    PIP=/usr/local/opt/python/bin/pip3
+  fi
+  ${PIP} install ${PIP_PACKAGES_NEEDED}
 fi
 
 if [[ -z "${DISABLE_CCACHE}" ]]; then
