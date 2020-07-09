@@ -79,7 +79,7 @@ fi
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   brew install python
   PIP=pip3
-  if ! which ${PIP}
+  if ! which ${PIP}; then
     PIP=/usr/local/opt/python/bin/pip3
   fi
   ${PIP} install ${PIP_PACKAGES_NEEDED}
