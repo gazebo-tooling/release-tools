@@ -222,7 +222,7 @@ ignition_software.each { ign_sw ->
       abi_job_names[ign_sw] = "ignition_${ign_sw}-abichecker-any_to_any-ubuntu_auto-${arch}"
       def abi_job = job(abi_job_names[ign_sw])
       checkout_subdir = "ign-${ign_sw}"
-      OSRFLinuxABIGitHub.create(abi_job, checkout_subdir)
+      OSRFLinuxABIGitHub.create(abi_job)
       GenericAnyJobGitHub.create(abi_job,
                         "ignitionrobotics/ign-${ign_sw}",
                         all_branches(ign_sw) - [ 'master'])
