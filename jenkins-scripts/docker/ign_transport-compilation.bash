@@ -32,7 +32,7 @@ if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 6 ]]; then
   export USE_GCC8=true
 fi
 
-if [[ ${IGN_GUI_MAJOR_VERSION} -eq 9 ]]; then
+if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 9 ]]; then
   export BUILD_IGN_MSGS=true
   export IGN_MSGS_MAJOR_VERSION=6
   export IGN_MSGS_BRANCH=master
