@@ -4,31 +4,31 @@ import javaposse.jobdsl.dsl.Job
 // IGNITION COLLECTIONS
 arch = 'amd64'
 
-ignition_nightly = 'blueprint'
+ignition_nightly = 'dome'
 
 ignition_collections = [
   [ name : 'blueprint',
-    nightly_jobs: [
-          'cmake'     : [ debbuild: 'ign-cmake2'     , branch: 'ign-cmake2'      ],
-          'common'    : [ debbuild: 'ign-common3'    , branch: 'ign-common3'     ],
-          'fuel-tools': [ debbuild: 'ign-fuel-tools3', branch: 'ign-fuel-tools3' ],
-          'gazebo'    : [ debbuild: 'ign-gazebo2'    , branch: 'ign-gazebo2'     ],
-          'gui'       : [ debbuild: 'ign-gui2'       , branch: 'ign-gui2'        ],
-          'launch'    : [ debbuild: 'ign-launch'     , branch: 'ign-launch1'     ],
-          'math'      : [ debbuild: 'ign-math6'      , branch: 'ign-math6'       ],
-          'msgs'      : [ debbuild: 'ign-msgs4'      , branch: 'ign-msgs4'       ],
-          'physics'   : [ debbuild: 'ign-physics'    , branch: 'ign-physics1'    ],
-          'plugin'    : [ debbuild: 'ign-plugin'     , branch: 'ign-plugin1'     ],
-          'rendering' : [ debbuild: 'ign-rendering2' , branch: 'ign-rendering2'  ],
-          'sensors'   : [ debbuild: 'ign-sensors2'   , branch: 'ign-sensors2'    ],
-          'sdformat'  : [ debbuild: 'sdformat8'      , branch: 'sdf8'            ],
-          'transport' : [ debbuild: 'ign-transport7' , branch: 'ign-transport7'  ]
-    ],
     distros : [ 'bionic' ],
   ],
   [ name : 'citadel',
     distros : [ 'bionic' ],
-  ]
+  ],
+  [ name : 'dome',
+    distros : [ 'focal' ],
+    nightly_jobs: [
+          'fuel-tools': [ debbuild: 'ign-fuel-tools5', branch: 'ign-fuel-tools5' ],
+          'gazebo'    : [ debbuild: 'ign-gazebo4'    , branch: 'ign-gazebo4'     ],
+          'gui'       : [ debbuild: 'ign-gui4'       , branch: 'ign-gui4'        ],
+          'launch'    : [ debbuild: 'ign-launch3'    , branch: 'ign-launch3'     ],
+          'math'      : [ debbuild: 'ign-math6'      , branch: 'ign-math6'       ],
+          'msgs'      : [ debbuild: 'ign-msgs6'      , branch: 'ign-msgs6'       ],
+          'physics'   : [ debbuild: 'ign-physics3'   , branch: 'ign-physics3'    ],
+          'rendering' : [ debbuild: 'ign-rendering4' , branch: 'ign-rendering4'  ],
+          'sensors'   : [ debbuild: 'ign-sensors4'   , branch: 'ign-sensors4'    ],
+          'sdformat'  : [ debbuild: 'sdformat10'     , branch: 'sdf10'           ],
+          'transport' : [ debbuild: 'ign-transport9' , branch: 'ign-transport9'],
+    ],
+  ],
 ]
 
 ignition_collection_jobs =
@@ -189,7 +189,85 @@ ignition_collection_jobs =
         'sdformat-ci-sdformat9-homebrew-amd64',
         'sdformat-ci-sdformat9-windows7-amd64',
         'sdformat-install-sdformat9_pkg-bionic-amd64'
-  ]
+  ],
+  'dome' : [
+        // 'ign_gazebo-ign-3-win',
+        // 'ign_gui-ign-3-win',
+        // 'ign_physics-ign-2-win',
+        // 'ign_rendering-ign-3-win',
+        // 'ign_sensors-ign-3-win',
+        //'ignition_dome-ci-default-homebrew-amd64',
+        //'ignition_dome-install-pkg-bionic-amd64',
+        // 'ignition_dome-install_bottle-homebrew-amd64',
+        'ignition_cmake-ci-ign-cmake2-bionic-amd64',
+        'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
+        'ignition_cmake-ci-ign-cmake2-windows7-amd64',
+        'ignition_cmake2-install-pkg-bionic-amd64',
+        'ignition_cmake2-install_bottle-homebrew-amd64',
+        'ignition_common-ci-ign-common3-bionic-amd64',
+        'ignition_common-ci-ign-common3-homebrew-amd64',
+        'ignition_common-ci-ign-common3-windows7-amd64',
+        'ignition_common3-install-pkg-bionic-amd64',
+        'ignition_common3-install_bottle-homebrew-amd64',
+        // 'ignition_fuel-tools-ci-ign-fuel-tools5-bionic-amd64',
+        // 'ignition_fuel-tools-ci-ign-fuel-tools5-homebrew-amd64',
+        // 'ignition_fuel-tools-ci-ign-fuel-tools5-windows7-amd64',
+        // 'ignition_fuel-tools5-install-pkg-bionic-amd64',
+        // 'ignition_fuel-tools5-install_bottle-homebrew-amd64',
+        // 'ignition_gazebo-ci-ign-gazebo4-bionic-amd64',
+        // 'ignition_gazebo-ci-ign-gazebo4-homebrew-amd64',
+        // 'ignition_gazebo4-install-pkg-bionic-amd64',
+        // 'ignition_gazebo4-install_bottle-homebrew-amd64',
+        // 'ignition_gui-ci-ign-gui4-bionic-amd64',
+        // 'ignition_gui-ci-ign-gui4-homebrew-amd64',
+        // 'ignition_gui4-install-pkg-bionic-amd64',
+        // 'ignition_gui4-install_bottle-homebrew-amd64',
+        // 'ignition_launch-ci-ign-launch3-bionic-amd64',
+        // 'ignition_launch-ci-ign-launch3-homebrew-amd64',
+        // 'ignition_launch3-install-pkg-bionic-amd64',
+        // 'ignition_launch3-install_bottle-homebrew-amd64',
+        'ignition_math-ci-ign-math6-bionic-amd64',
+        'ignition_math-ci-ign-math6-homebrew-amd64',
+        'ignition_math-ci-ign-math6-windows7-amd64',
+        'ignition_math6-install-pkg-bionic-amd64',
+        'ignition_math6-install_bottle-homebrew-amd64',
+        // 'ignition_msgs-ci-ign-msgs6-bionic-amd64',
+        // 'ignition_msgs-ci-ign-msgs6-homebrew-amd64',
+        // 'ignition_msgs-ci-ign-msgs6-windows7-amd64',
+        // 'ignition_msgs6-install-pkg-bionic-amd64',
+        // 'ignition_msgs6-install_bottle-homebrew-amd64',
+        // 'ignition_physics-ci-ign-physics3-bionic-amd64',
+        // 'ignition_physics-ci-ign-physics3-homebrew-amd64',
+        // 'ignition_physics3-install-pkg-bionic-amd64',
+        // 'ignition_physics3-install_bottle-homebrew-amd64',
+        'ignition_plugin-ci-ign-plugin1-bionic-amd64',
+        'ignition_plugin-ci-ign-plugin1-homebrew-amd64',
+        'ignition_plugin-ci-ign-plugin1-windows7-amd64',
+        'ignition_plugin-install-pkg-bionic-amd64',
+        'ignition_plugin1-install_bottle-homebrew-amd64',
+        // 'ignition_rendering-ci-ign-rendering4-bionic-amd64',
+        // 'ignition_rendering-ci-ign-rendering4-homebrew-amd64',
+        // 'ignition_rendering4-install-pkg-bionic-amd64',
+        // 'ignition_rendering4-install_bottle-homebrew-amd64',
+        // 'ignition_sensors-ci-ign-sensors4-bionic-amd64',
+        // 'ignition_sensors-ci-ign-sensors4-homebrew-amd64',
+        // 'ignition_sensors4-install-pkg-bionic-amd64',
+        // 'ignition_sensors4-install_bottle-homebrew-amd64',
+        'ignition_tools-ci-ign-tools1-bionic-amd64',
+        'ignition_tools-ci-ign-tools1-homebrew-amd64',
+        'ignition_tools-ci-ign-tools1-windows7-amd64',
+        'ignition_tools-install-pkg-bionic-amd64',
+        // 'ignition_tools1-install_bottle-homebrew-amd64',
+        // 'ignition_transport-ci-ign-transport9-bionic-amd64',
+        // 'ignition_transport-ci-ign-transport9-homebrew-amd64',
+        // 'ignition_transport-ci-ign-transport9-windows7-amd64',
+        // 'ignition_transport9-install-pkg-bionic-amd64',
+        // 'ignition_transport9-install_bottle-homebrew-amd64',
+        // 'sdformat-ci-sdformat10-bionic-amd64',
+        // 'sdformat-ci-sdformat10-homebrew-amd64',
+        // 'sdformat-ci-sdformat10-windows7-amd64',
+        // 'sdformat-install-sdformat10_pkg-bionic-amd64'
+  ],
 ]
 
 
@@ -351,9 +429,19 @@ ignition_collections.each { ign_collection ->
 }
 
 // NIGHTLY GENERATION
+def get_nightly_branch(collection_data, ign_package)
+{
+  try {
+    if (collection_data.get(ign_package))
+      return collection_data.get(ign_package).get('branch')
+  } catch(Exception e) {
+    return 'not_enabled_in_DSL'
+  }
+  return 'not_enabled_in_DSL'
+}
+
 collection_data = []
 list_of_pkgs = ""
-
 
 collection_data = ignition_collections.find { it.get('name') == ignition_nightly }
 collection_data = collection_data.get('nightly_jobs')
@@ -383,20 +471,20 @@ nightly_scheduler_job.with
      cron('0   9    *    *    *')
   }
 
-  cmake_branch = collection_data.get('cmake').get('branch')
-  common_branch = collection_data.get('common').get('branch')
-  fuel_tools_branch = collection_data.get('fuel-tools').get('branch')
-  gazebo_branch = collection_data.get('gazebo').get('branch')
-  gui_branch = collection_data.get('gui').get('branch')
-  launch_branch = collection_data.get('launch').get('branch')
-  math_branch = collection_data.get('math').get('branch')
-  msgs_branch = collection_data.get('msgs').get('branch')
-  physics_branch = collection_data.get('physics').get('branch')
-  plugin_branch = collection_data.get('plugin').get('branch')
-  rendering_branch = collection_data.get('rendering').get('branch')
-  sensors_branch = collection_data.get('sensors').get('branch')
-  sdformat_branch = collection_data.get('sdformat').get('branch')
-  transport_branch = collection_data.get('transport').get('branch')
+  cmake_branch = get_nightly_branch(collection_data, 'cmake')
+  common_branch = get_nightly_branch(collection_data, 'common')
+  fuel_tools_branch = get_nightly_branch(collection_data, 'fuel-tools')
+  gazebo_branch = get_nightly_branch(collection_data.get, 'gazebo')
+  gui_branch = get_nightly_branch(collection_data.get, 'gui')
+  launch_branch = get_nightly_branch(collection_data.get, 'launch')
+  math_branch = get_nightly_branch(collection_data.get, 'math')
+  msgs_branch =  get_nightly_branch(collection_data, 'msgs')
+  physics_branch = get_nightly_branch(collection_data, 'physics')
+  plugin_branch = get_nightly_branch(collection_data, 'plugin')
+  rendering_branch = get_nightly_branch(collection_data, 'rendering')
+  sensors_branch = get_nightly_branch(collection_data, 'sensors')
+  sdformat_branch = get_nightly_branch(collection_data, 'sdformat')
+  transport_branch = get_nightly_branch(collection_data, 'transport')
 
   steps {
     shell("""\
