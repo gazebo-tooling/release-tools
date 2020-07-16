@@ -500,8 +500,11 @@ nightly_scheduler_job.with
           # redirect to not display the password
           for n in \${NIGHTLY_PACKAGES}; do
 
-              # remove 0 or 1 trailing versions
-              n=\${n%[0-1]}
+              # remove 0 or 1 trailing versions. Use echo + sed to avoid scaping
+              # problems with <<<
+              if [[ \$(echo \$n | sed -r 's:[a-z]*[A-Z]*([0-9]*):\\1:g') -lt 2 ]]; then
+                n=\${n%[0-1]}
+              fi
 
               if [[ "\${n}" == "\${n/ign/ignition}" ]]; then
                     alias=\${n}
