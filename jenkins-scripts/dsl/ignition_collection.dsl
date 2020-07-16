@@ -20,7 +20,6 @@ ignition_collections = [
           'gazebo'    : [ debbuild: 'ign-gazebo4'    , branch: 'ign-gazebo4'     ],
           'gui'       : [ debbuild: 'ign-gui4'       , branch: 'ign-gui4'        ],
           'launch'    : [ debbuild: 'ign-launch3'    , branch: 'ign-launch3'     ],
-          'math'      : [ debbuild: 'ign-math6'      , branch: 'ign-math6'       ],
           'msgs'      : [ debbuild: 'ign-msgs6'      , branch: 'ign-msgs6'       ],
           'physics'   : [ debbuild: 'ign-physics3'   , branch: 'ign-physics3'    ],
           'rendering' : [ debbuild: 'ign-rendering4' , branch: 'ign-rendering4'  ],
