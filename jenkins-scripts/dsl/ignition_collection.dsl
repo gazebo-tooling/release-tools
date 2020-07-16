@@ -190,11 +190,11 @@ ignition_collection_jobs =
         'sdformat-install-sdformat9_pkg-bionic-amd64'
   ],
   'dome' : [
-        'ign_gazebo-ci-master-win',
-        'ign_gui-ci-master-win',
-        'ign_physics-ci-master-win',
-        'ign_rendering-ci-master-win',
-        'ign_sensors-ci-master-win',
+        'ign_gazebo-ci-win',
+        'ign_gui-ci-win',
+        'ign_physics-ci-win',
+        'ign_rendering-ci-win',
+        'ign_sensors-ci-win',
         //'ignition_dome-ci-default-homebrew-amd64',
         //'ignition_dome-install-pkg-bionic-amd64',
         //'ignition_dome-install_bottle-homebrew-amd64',
