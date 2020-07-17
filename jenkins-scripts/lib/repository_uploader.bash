@@ -41,17 +41,21 @@ S3_upload()
     rm -fr ${S3_DIR}
 }
 
+# Check if the dsc package (include .orig.tar.gz) is alrady in the repo
+# The dsc package is valid across all distributions
 dsc_package_exists_and_equal_or_greater()
 {
     local pkg=${1} new_version=${2}
 
-    current_dsc_info=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro -T dsc ls "${pkg}" | grep "${DISTRO}")
+    current_dsc_info=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro -T dsc ls "${pkg}" | head -n 1)
 
     if [[ -z ${current_dsc_info} ]]; then
         return 1 # do not exits, false
     fi
 
-    current_version=$(awk '{ print $3 }' <<< "${current_dsc_info}")
+    # Strip -$rev~$DISTRO string from versions to compare
+    current_version=$(awk '{ print $3 }' <<< "${current_dsc_info}" | sed -e 's:-.*~.*$::')
+    new_version=$(sed -e 's:-.*~.*$::' <<< "$new_version")
     # if new version is lower
     if $(dpkg --compare-versions ${current_version} lt ${new_version}); then
         return 1 # exists, new package is greater
