@@ -58,7 +58,6 @@ ignition_debbuild = ignition_software + [ 'fuel-tools5',
                                           'physics3',
                                           'rendering4',
                                           'sensors4',
-                                          'sdformat10',
                                           'transport9']
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [ 'rndf' ]
