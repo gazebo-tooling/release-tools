@@ -9,7 +9,7 @@ import javaposse.jobdsl.dsl.Job
     - priority 300
     - logrotator
     - concurrent builds
-    - parameter: DEST_BRANCH, SRC_BRANCH
+    - parameter: DEST_BRANCH, SRC_REPO, DESCRIPTION
     - set description
     - parse log for result
     - publish report in HTML
@@ -22,11 +22,11 @@ class OSRFLinuxABIGitHub
     OSRFLinuxBase.create(job)
 
     GenericMail.update_field(job, 'defaultSubject',
-                    '$PROJECT_NAME - Branches: $DEST_BRANCH, $SRC_BRANCH (#$BUILD_NUMBER) - $BUILD_STATUS!')
+                    '$PROJECT_NAME - Branches: $DEST_BRANCH, $sha1 (#$BUILD_NUMBER) - $BUILD_STATUS!')
     GenericMail.update_field(job, 'defaultContent',
                     '$JOB_DESCRIPTION \n' +
                     'destination branch: $DEST_BRANCH \n' +
-                    'source branch:      $SRC_BRANCH \n' +
+                    'source ref:         $sha1 \n' +
                     'source repository:  $SRC_REPO \n' +
                     'RTOOLS branch:      $RTOOLS_BRANCH \n' +
                     GenericMail.get_default_content() + '\n' +
@@ -52,10 +52,8 @@ class OSRFLinuxABIGitHub
       parameters {
         stringParam("DEST_BRANCH", null,
                     'Branch to use as base for the comparison')
-        stringParam("SRC_BRANCH", null,
-                    'Git BRANCH (not pr refspec) to use to compare against DEST_BRANCH')
         stringParam('SRC_REPO', null,
-                    'URL pointing to repository containing SRC_BRANCH')
+                    'URL pointing to repository containing sha1 (refspec to git branch/tag/...)')
         stringParam("JOB_DESCRIPTION", "",
                     'Description of the job for informational purposes.')
       }
@@ -63,15 +61,21 @@ class OSRFLinuxABIGitHub
       steps {
         systemGroovyCommand("""\
           job_description = build.buildVariableResolver.resolve("JOB_DESCRIPTION")
+          dest_branch = build.buildVariableResolver.resolve('DEST_BRANCH')
+          if (dest_branch == "")
+            dest_branch = build.buildVariableResolver.resolve('ghprbTargetBranch')
+          src_repo = build.buildVariableResolver.resolve('SRC_REPO')
+          if (src_repo == "")
+             src_repo = build.buildVariableResolver.resolve('ghprbAuthorRepoGitUrl')
 
           if (job_description == "")
           {
             job_description = 'destination branch: ' +
-              '<b>' + build.buildVariableResolver.resolve('DEST_BRANCH') + '</b><br />' +
-              'source branch: ' +
-              '<b>' + build.buildVariableResolver.resolve('SRC_BRANCH') + '</b><br />' +
+              '<b>' + dest_branch + '</b><br />' +
+              'source ref: ' +
+              '<b>' + build.buildVariableResolver.resolve('sha1') + '</b><br />' +
               'source repository: ' +
-              '<b>' + build.buildVariableResolver.resolve('SRC_REPO') + '</b><br />' +
+              '<b>' + src_repo + '</b><br />' +
               '<br />' +
               'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH');
           }

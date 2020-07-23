@@ -114,7 +114,7 @@ abi_distro.each { distro ->
 
               export ARCH=${arch}
               export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
-              export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
+              export SRC_BRANCH=\${SRC_BRANCH:-\$sha1}
               export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
 
               /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-abichecker.bash
