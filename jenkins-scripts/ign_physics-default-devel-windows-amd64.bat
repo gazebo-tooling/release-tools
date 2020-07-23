@@ -4,7 +4,7 @@ set VCS_DIRECTORY=ign-physics
 set PLATFORM_TO_BUILD=x86_amd64
 set IGN_CLEAN_WORKSPACE=true
 
-set DEPEN_PKGS="bullet3 eigen3 ode tinyxml2 urdfdom"
+set DEPEN_PKGS="bullet3 eigen3 tinyxml2 urdfdom"
 :: This needs to be migrated to DSL to get multi-major versions correctly
 set COLCON_PACKAGE=ignition-physics
 set COLCON_AUTO_MAJOR_VERSION=true
