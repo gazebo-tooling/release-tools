@@ -33,7 +33,8 @@ bridge_packages.each { pkg ->
     }
 
     parameters {
-      stringParam("PACKAGE","$pkg_dashed","Package name to be built")
+        stringParam("PACKAGE","$pkg_dashed","Package name to be built")
+        stringParam("IGNITION_VERSION", '', 'Ignition Collection supported in the binaries')
         stringParam("VERSION",null,"Packages version to be built")
         stringParam("RELEASE_VERSION", null, "Packages release version")
         stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
