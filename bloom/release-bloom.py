@@ -6,7 +6,7 @@ import sys
 import urllib
 import argparse
 
-USAGE = 'release-bloom.py <package> <version> <upstream_release_repo> <ros_distro> [--ignition-collection collection_name] <jenkinstoken>'
+USAGE = 'release-bloom.py <package> <version> <upstream_release_repo> <ros_distro> [--ignition-version version_name] <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-bloom-debbuilder'
 
@@ -36,8 +36,8 @@ def parse_args(argv):
                         help='Release version suffix; usually 1 (e.g., 1')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
-    parser.add_argument('--ignition-collection', action='store', default=None,
-                        help='Ignition Collection to use in the binary packages')
+    parser.add_argument('--ignition-version', action='store', default=None,
+                        help='Ignition version to use in the binary packages')
 
     args = parser.parse_args()
     DRY_RUN = args.dry_run
@@ -79,8 +79,8 @@ def call_jenkins_jobs(argv):
         params['ROS2'] = True
         ubuntu_per_ros_distro = UBUNTU_DISTROS_IN_ROS2
 
-    if args.ignition_collection:
-        params['IGNITION_COLLECTION'] = args.ignition_collection
+    if args.ignition_version:
+        params['IGNITION_VERSION'] = args.ignition_version
 
     if not args.release_version:
         args.release_version = 0
