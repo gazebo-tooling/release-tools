@@ -6,7 +6,8 @@
 ::   - COLCON_PACKAGE : package name to test in colcon ws
 ::   - COLCON_AUTO_MAJOR_VERSION (default false): auto detect major version from CMakeLists
 ::   - BUILD_TYPE     : (default Release) [ Release | Debug ] Build type to use
-::   - DEPEN_PKGS     : (optional) list of dependencies (separted by spaces)
+::   - DEPEN_PKGS     : (optional) list of vcpkg dependencies (separted by spaces)
+::   - USE_ZIP_DEPS   : (optional) true | false. Use gazebo zip dependencies
 ::   - KEEP_WORKSPACE : (optional) true | false. Clean workspace at the end
 ::   - ENABLE_TESTS   : (optional) true | false. Do not compile and run tests
 ::
@@ -27,6 +28,7 @@ set LOCAL_WS_BUILD=%WORKSPACE%\build
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
 @if "%ENABLE_TESTS%" == "" set ENABLE_TESTS=TRUE
 @if "%COLCON_AUTO_MAJOR_VERSION%" == "" set COLCON_AUTO_MAJOR_VERSION=false
+@if "%USE_ZIP_DEPS%" == "" set USE_ZIP_DEPS=false
 
 setlocal ENABLEDELAYEDEXPANSION
 if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
@@ -99,6 +101,18 @@ for %%p in (%DEPEN_OSRF_PKGS%) do (
   call %win_lib% :enable_vcpkg_integration || goto :error
   echo # BEGIN SECTION: install custom Open Robotics external dependency %%p
   call %win_lib% :install_osrf_vcpkg_package %%p || goto :error
+  echo # END SECTION
+)
+
+if "%USE_ZIP_DEPS%" == "TRUE" (
+  echo # BEGIN SECTION: install dependencies from zips
+  set LOCAL_WS_DEPS=%LOCAL_WS%\deps
+  if not exist %LOCAL_WS_DEPS% ( 
+     mkdir %LOCAL_WS_DEPS% || goto :error
+     cd %LOCAL_WS_DEPS% || goto :error
+     call %win_lib% :download_gazebo_tarball_dependencies || goto :error
+  )
+  cd %LOCAL_WS%
   echo # END SECTION
 )
 

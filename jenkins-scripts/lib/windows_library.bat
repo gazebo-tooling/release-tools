@@ -223,6 +223,27 @@ echo # END SECTION
 goto :EOF
 
 :: ##################################
+:download_gazebo_tarball_dependencies
+echo # BEGIN SECTION: downloading gazebo dependencies and unip
+call %win_lib% :download_7za
+call %win_lib% :download_unzip_install dlfcn-win32-vc15-x64-dll-MD.zip
+call %win_lib% :download_unzip_install curl-7.57.0-vc15-x64-dll-MD.zip
+call %win_lib% :download_unzip_install protobuf-3.4.1-vc15-x64-dll-MD.zip
+call %win_lib% :download_unzip_install libzip-1.4.0_zlip-1.2.11_vc15-x64-dll-MD.zip
+call %win_lib% :download_unzip_install FreeImage3180Win32Win64.zip
+call %win_lib% :download_unzip_install boost_1_67_0.zip
+call %win_lib% :download_unzip_install ogre-sdk-1.10.12-vc15-x64.zip
+call %win_lib% :download_unzip_install qt-opensource-windows-x86-msvc2015_64-5.7.0.zip
+call %win_lib% :download_unzip_install bzip2-1.0.6-vc12-x64-release-debug.zip
+call %win_lib% :download_unzip_install freetype-2.4.0-vc12-x64-release-debug.zip
+call %win_lib% :download_unzip_install qwt_6.1.2~osrf_qt5.zip
+call %win_lib% :download_unzip_install tbb43_20141023oss_win.zip
+call %win_lib% :download_unzip_install zziplib-0.13.62-vc12-x64-release-debug.zip
+echo # END SECTION
+goto EOF
+
+
+:: ##################################
 :install_vcpkg_package
 :: arg1: package to install
 set LIB_DIR=%~dp0
