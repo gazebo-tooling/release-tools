@@ -764,8 +764,10 @@ IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
                           libignition-tools-dev"
 if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 4 ]]; then
   IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
+                        libignition-msgs6-dev \\
+                        libignition-rendering4-dev \\
+                        libignition-transport9-dev \\
                         libsdformat10-dev"
-
 elif [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 3 ]]; then
   IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
                         libignition-msgs5-dev \\
