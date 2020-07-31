@@ -29,6 +29,10 @@ if ! [[ ${IGN_GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 if [[ ${IGN_GAZEBO_MAJOR_VERSION} -ge 4 ]]; then
+  export BUILD_IGN_FUEL_TOOLS=true
+  export IGN_FUEL_TOOLS_MAJOR_VERSION=5
+  export IGN_FUEL_TOOLS_BRANCH=master
+
   export BUILD_IGN_GUI=true
   export IGN_GUI_MAJOR_VERSION=4
   export IGN_GUI_BRANCH=master
