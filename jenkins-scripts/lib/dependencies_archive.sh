@@ -674,7 +674,10 @@ IGN_PHYSICS_DEPENDENCIES="libbenchmark-dev \\
                           libignition-math6-dev \\
                           libignition-math6-eigen3-dev \\
                           libignition-plugin-dev"
-if [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -ge 2 ]]; then
+if [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -ge 3 ]]; then
+  IGN_PHYSICS_DEPENDENCIES="${IGN_PHYSICS_DEPENDENCIES} \\
+                            libsdformat10-dev"
+elif [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -eq 2 ]]; then
   IGN_PHYSICS_DEPENDENCIES="${IGN_PHYSICS_DEPENDENCIES} \\
                             libsdformat9-dev"
 elif [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -eq 1 ]]; then
@@ -761,8 +764,10 @@ IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
                           libignition-tools-dev"
 if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 4 ]]; then
   IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
+                        libignition-msgs6-dev \\
+                        libignition-rendering4-dev \\
+                        libignition-transport9-dev \\
                         libsdformat10-dev"
-
 elif [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 3 ]]; then
   IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
                         libignition-msgs5-dev \\
