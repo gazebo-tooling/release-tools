@@ -57,7 +57,7 @@ dsc_package_exists_and_equal_or_greater()
     current_version=$(awk '{ print $3 }' <<< "${current_dsc_info}" | sed -e 's:-.*~.*$::')
     new_version=$(sed -e 's:-.*~.*$::' <<< "$new_version")
     # if new version is lower
-    if $(dpkg --compare-versions ${current_version} lt ${new_version}); then
+    if $(dpkg --compare-versions ${new_version} gt ${current_version}); then
         return 1 # exists, new package is greater
     fi
 
