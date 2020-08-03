@@ -282,22 +282,24 @@ cat >> Dockerfile << DELIM_DOCKER3
 # The rm after the fail of apt-get update is a workaround to deal with the error:
 # Could not open file *_Packages.diff_Index - open (2: No such file or directory)
 # TODO: remove workaround for 13.56.139.45 server
-RUN echo "${MONTH_YEAR_STR}" \
- && sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.list.d/* || true \
- && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get ${APT_PARAMS} update)) \
- && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
-
-# This is killing the cache so we get the most recent packages if there was any
-# update.
-RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))"
+RUN echo "${MONTH_YEAR_STR}"
 DELIM_DOCKER3
 
 # A new install of gzdev is needed to update to possible recent changes in
 # configuratin and/or code and not being used since the docker cache did
 # not get them.
 dockerfile_install_gzdev_repos
+
+cat >> Dockerfile << DELIM_DOCKER3_2
+RUN sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.list.d/* || true \
+ && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get ${APT_PARAMS} update)) \
+ && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+# This is killing the cache so we get the most recent packages if there was any
+# update.
+RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))"
+DELIM_DOCKER3_2
 
 cat >> Dockerfile << DELIM_DOCKER31
 # Note that we don't remove the apt/lists file here since it will make
