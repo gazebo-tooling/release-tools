@@ -47,7 +47,7 @@ dsc_package_exists_and_equal_or_greater()
 {
     local pkg=${1} new_version=${2}
 
-    current_dsc_info=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro -T dsc ls "${pkg}" | head -n 1)
+    current_dsc_info=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro -T dsc ls "${pkg}" | tail -n 1)
 
     if [[ -z ${current_dsc_info} ]]; then
         return 1 # do not exits, false
