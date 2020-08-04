@@ -614,13 +614,18 @@ IGN_GUI_NO_IGN_DEPENDENCIES="qtbase5-dev \\
 
 if [[ ${DISTRO} != 'xenial' ]]; then
   IGN_GUI_NO_IGN_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
-                      qml-module-qtquick2 \\
+                      qml-module-qt-labs-folderlistmodel \\
+                      qml-module-qt-labs-settings \\
+                      qml-module-qtcharts \\
+                      qml-module-qtgraphicaleffects \\
+                      qml-module-qtqml-models2 \\
                       qml-module-qtquick-controls \\
                       qml-module-qtquick-controls2 \\
                       qml-module-qtquick-dialogs \\
                       qml-module-qtquick-layouts \\
-                      qml-module-qt-labs-folderlistmodel \\
-                      qml-module-qt-labs-settings \\
+                      qml-module-qtquick-templates2 \\
+                      qml-module-qtquick-window2 \\
+                      qml-module-qtquick2 \\
                       qtquickcontrols2-5-dev"
 fi
 
