@@ -240,6 +240,10 @@ ignition_software.each { ign_sw ->
         if (ign_sw == 'physics')
           label "huge-memory"
 
+        // Packages without ABI
+        if (ign_sw == 'tools' || ign_sw == 'cmake')
+          disabled()
+
         steps {
           shell("""\
                 #!/bin/bash -xe
