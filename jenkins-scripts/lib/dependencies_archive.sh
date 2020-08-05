@@ -844,4 +844,5 @@ SUBT_DEPENDENCIES="mercurial \\
                    ros-${ROS_DISTRO}-rotors-control \\
                    ros-${ROS_DISTRO}-ros-control \\
                    ros-${ROS_DISTRO}-twist-mux \\
-                   ros-${ROS_DISTRO}-ros1-ign-bridge"
+                   ros-${ROS_DISTRO}-ros1-ign-bridge \\
+                   ros-${ROS_DISTRO}-theora-image-transport"
