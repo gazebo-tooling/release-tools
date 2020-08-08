@@ -26,8 +26,15 @@ bridge_packages.each { pkg ->
       priority 100
     }
 
+    configure { project ->
+      project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
+        'string' 'repository_uploader_*'
+      }
+    }
+
     parameters {
-      stringParam("PACKAGE","$pkg_dashed","Package name to be built")
+        stringParam("PACKAGE","$pkg_dashed","Package name to be built")
+        stringParam("IGNITION_VERSION", '', 'Ignition release supported in the binaries')
         stringParam("VERSION",null,"Packages version to be built")
         stringParam("RELEASE_VERSION", null, "Packages release version")
         stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")

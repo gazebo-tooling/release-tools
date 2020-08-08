@@ -88,9 +88,9 @@ ci_distro.each { distro ->
     // 2. Create the any job
     ci_build_any_job_name_linux = "subt-ci-pr_any-${distro}-${arch}"
     def subt_ci_any_job = job(ci_build_any_job_name_linux)
-    OSRFLinuxCompilationAny.create(subt_ci_any_job,
-                                  'https://bitbucket.org/osrf/subt',
-                                  ENABLE_TESTS, DISABLE_CPPCHECK)
+    OSRFLinuxCompilationAnyGitHub.create(subt_ci_any_job,
+                                        'osrf/subt',
+                                        ENABLE_TESTS, DISABLE_CPPCHECK)
     common_params_compilation_job(subt_ci_any_job, distro, arch)
 
     // --------------------------------------------------------------
@@ -124,7 +124,7 @@ ci_distro.each { distro ->
     // 4. Install subt cloudsim mirror
     def install_cloud_job = job("subt-install-cloudsim_mirror-${distro}-${arch}")
     OSRFLinuxCompilation.create(install_cloud_job, DISABLE_TESTS, DISABLE_CPPCHECK)
-    OSRFBitbucketHg.create(install_cloud_job, "https://bitbucket.org/osrf/subt")
+    OSRFGitHub.create(install_cloud_job, "osrf/subt")
     // the gazebo output displays errors on rendering. This seems a bug in the
     // infrastructure, ignore it by now. The rest of the build is still useful
     // to check
@@ -166,9 +166,17 @@ all_supported_distros.each { distro ->
     long_run_job.with
     {
       scm {
-        hg('https://bitbucket.org/osrf/subt') {
-          branch('default')
-          subdirectory('subt')
+        git {
+          remote {
+            github("osrf/subt", 'https')
+            branch('master')
+          }
+
+          extensions {
+            cleanBeforeCheckout()
+            relativeTargetDirectory('subt')
+          }
+
         }
       }
 
@@ -200,12 +208,14 @@ OSRFLinuxBuildPkg.create(build_pkg_job)
 build_pkg_job.with
 {
   scm {
-    hg("https://bitbucket.org/osrf/subt") {
-      branch('default')
-      installation('Default')
-      subdirectory('repo')
-      configure { project ->
-       project / browser(class: 'hudson.plugins.mercurial.browser.BitBucket') / "url" <<  "https://bitbucket.org/osrf/subt"
+    git {
+      remote {
+        github("osrf/subt", 'https')
+        branch('master')
+      }
+      extensions {
+        cleanBeforeCheckout()
+        relativeTargetDirectory('repo')
       }
     }
   }

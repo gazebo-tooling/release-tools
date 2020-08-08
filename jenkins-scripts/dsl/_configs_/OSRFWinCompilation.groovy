@@ -26,8 +26,40 @@ class OSRFWinCompilation extends OSRFWinBase
 
       publishers
       {
-        warnings(['MSBuild'], null) {
-          thresholds(unstableTotal: [all: 0])
+        configure { project ->
+          project / publishers / 'io.jenkins.plugins.analysis.core.steps.IssuesRecorder' {
+            analysisTools {
+              'io.jenkins.plugins.analysis.warnings.MsBuild' {
+                id()
+                name()
+                pattern()
+                reportEncoding()
+                skipSymbolicLinks(false)
+              }
+            }
+
+            sourceCodeEncoding()
+            ignoreQualityGate(false)
+            ignoreFailedBuilds(true)
+            referenceJobName()
+            healthy(0)
+            unhealthy(0)
+            minimumSeverity {
+              name('LOW')
+            }
+            filters { }
+            isEnabledForFailure(false)
+            isAggregatingResults(false)
+            isBlameDisabled(false)
+
+            qualityGates {
+              'io.jenkins.plugins.analysis.core.util.QualityGate' {
+                threshold(1)
+                type('TOTAL')
+                status('WARNING')
+              }
+            }
+          }
         }
       }
     } // end of job

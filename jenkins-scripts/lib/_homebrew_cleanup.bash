@@ -1,11 +1,18 @@
 #/bin/bash +x
 set -e
 
+restore_brew()
+{
+    rm -fr /usr/local/Homebrew/Library/Homebrew/vendor/bundle/ruby
+    ${BREW_BINARY} update-reset
+    ${BREW_BINARY} vendor-install ruby
+}
+
 BREW_BINARY_DIR=/usr/local/bin
 BREW_BINARY=${BREW_BINARY_DIR}/brew
 git -C $(${BREW_BINARY} --repo) fsck
 export HOMEBREW_UPDATE_TO_TAG=1
-${BREW_BINARY} up
+${BREW_BINARY} up || { restore_brew && ${BREW_BINARY} up ; }
 
 # Clear all installed homebrew packages, links, taps, and kegs
 BREW_LIST=$(${BREW_BINARY} list)
@@ -26,6 +33,8 @@ brew cleanup --prune-prefix
 
 pushd $(${BREW_BINARY} --prefix)/Homebrew/Library 2> /dev/null
 git stash && git clean -d -f
+# Need to test if brew installation is still working (use audit cmake to quick check)
+${BREW_BINARY} audit cmake || restore_brew
 popd 2> /dev/null
 
 # test-bot needs variables and does not work just with config not sure why

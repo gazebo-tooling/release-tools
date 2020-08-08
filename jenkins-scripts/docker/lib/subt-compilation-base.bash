@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+# ROS packages come from the mirror in the own subt repository
+export ENABLE_ROS=true
 export ROS_DISTRO=melodic
 
 export GPU_SUPPORT_NEEDED=true
@@ -51,8 +53,6 @@ source ${SCRIPT_DIR}/lib/_ros_setup_buildsh.bash "subt"
 )
 
 DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${SUBT_DEPENDENCIES} psmisc"
-# ROS packages come from the mirror in the own subt repository
-USE_ROS_REPO=true
 OSRF_REPOS_TO_USE="stable"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash

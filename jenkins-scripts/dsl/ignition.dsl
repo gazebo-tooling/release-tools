@@ -38,7 +38,7 @@ ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'msgs'       : [ '1', '2', '4', '5' ],
                                 'physics'    : [ '1', '2' ],
                                 'plugin'     : [ '0', '1' ],
-                                'rendering'  : [ '0', '2', '3' ],
+                                'rendering'  : [ '2', '3' ],
                                 'sensors'    : [ '2', '3' ],
                                 'transport'  : [ '4', '5', '7', '8' ],
                                 'tools'      : [ '0', '1' ]]
@@ -49,7 +49,16 @@ ignition_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
-ignition_debbuild  = ignition_software + [ ]
+ignition_debbuild = ignition_software + [ 'fuel-tools5',
+                                          'gazebo4',
+                                          'gui4',
+                                          'launch3',
+                                          'math6',
+                                          'msgs6',
+                                          'physics3',
+                                          'rendering4',
+                                          'sensors4',
+                                          'transport9']
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [ 'rndf' ]
 // DESC: major versions that has a package in the prerelease repo. Should
@@ -222,11 +231,10 @@ ignition_software.each { ign_sw ->
       abi_job_names[ign_sw] = "ignition_${ign_sw}-abichecker-any_to_any-ubuntu_auto-${arch}"
       def abi_job = job(abi_job_names[ign_sw])
       checkout_subdir = "ign-${ign_sw}"
-
       OSRFLinuxABIGitHub.create(abi_job)
-      OSRFGitHub.create(abi_job,
+      GenericAnyJobGitHub.create(abi_job,
                         "ignitionrobotics/ign-${ign_sw}",
-                        '${DEST_BRANCH}', checkout_subdir)
+                        all_branches(ign_sw) - [ 'master'])
       abi_job.with
       {
         if (ign_sw == 'physics')
@@ -248,6 +256,9 @@ ignition_software.each { ign_sw ->
                 fi
 
                 export ARCH=${arch}
+                export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
+                export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
+                export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
                 export ABI_JOB_SOFTWARE_NAME=${checkout_subdir}
                 /bin/bash -xe ./scripts/jenkins-scripts/docker/ignition-abichecker.bash
                 """.stripIndent())
@@ -273,29 +284,6 @@ ignition_software.each { ign_sw ->
     {
       steps
       {
-         conditionalSteps
-         {
-           condition
-           {
-             not {
-               expression('${ENV, var="ghprbTargetBranch"}', 'master')
-             }
-
-             steps {
-               downstreamParameterized {
-                trigger(abi_job_names[ign_sw]) {
-                   parameters {
-                     currentBuild()
-                     predefinedProp('DEST_BRANCH', '$ghprbTargetBranch')
-                     predefinedProp('SRC_BRANCH', '$ghprbSourceBranch')
-                     predefinedProp('SRC_REPO', '$ghprbAuthorRepoGitUrl')
-                   }
-                 }
-               }
-             }
-           }
-         }
-
          shell("""\
               #!/bin/bash -xe
               wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
@@ -553,6 +541,51 @@ ignition_software.each { ign_sw ->
         }
     }
   }
+
+  // 3. install jobs to test bottles
+  supported_install_pkg_branches(ign_sw).each { major_version, supported_distros ->
+    def install_default_job = job("ignition_${ign_sw}${major_version}-install_bottle-homebrew-amd64")
+    OSRFBrewInstall.create(install_default_job)
+
+    install_default_job.with
+    {
+      // disable some bottles
+      if (("${ign_sw}" == "cmake" && "${major_version}" == "1") ||
+          ("${ign_sw}" == "common" && "${major_version}" == "2") ||
+          ("${ign_sw}" == "fuel-tools" && "${major_version}" == "2") ||
+          ("${ign_sw}" == "gui" && "${major_version}" == "0") ||
+          ("${ign_sw}" == "math" && "${major_version}" == "5") ||
+          ("${ign_sw}" == "msgs" && "${major_version}" == "2") ||
+          ("${ign_sw}" == "rndf") ||
+          ("${ign_sw}" == "transport" && "${major_version}" == "5"))
+        disabled()
+
+      triggers {
+        cron('@daily')
+      }
+
+      def bottle_name = "ignition-${ign_sw}${major_version}"
+
+      steps {
+       shell("""\
+             #!/bin/bash -xe
+
+             /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${bottle_name}
+             """.stripIndent())
+      }
+
+      publishers
+      {
+         configure { project ->
+           project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+              unstableOnWarning true
+              failBuildOnError false
+              parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+            }
+         }
+      }
+    }
+  }
 }
 
 // --------------------------------------------------------------
@@ -577,6 +610,10 @@ ignition_software.each { ign_sw ->
                                     enable_testing(ign_sw))
   ignition_win_ci_any_job.with
   {
+     // ign-gazebo/ign-launch still not ported completely to Windows
+     if (ign_sw == 'gazebo' || ign_sw == 'launch')
+       disabled()
+
       steps {
         batchFile("""\
               call "./scripts/jenkins-scripts/ign_${ign_sw}-default-devel-windows-amd64.bat"

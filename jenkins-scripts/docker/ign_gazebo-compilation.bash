@@ -29,18 +29,29 @@ if ! [[ ${IGN_GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 if [[ ${IGN_GAZEBO_MAJOR_VERSION} -ge 4 ]]; then
-  export BUILD_IGN_SENSORS=true
-  export IGN_SENSORS_MAJOR_VERSION=4
-  export IGN_SENSORS_BRANCH=master
+  export BUILD_IGN_FUEL_TOOLS=true
+  export IGN_FUEL_TOOLS_MAJOR_VERSION=5
+  export IGN_FUEL_TOOLS_BRANCH=master
+
   export BUILD_IGN_GUI=true
   export IGN_GUI_MAJOR_VERSION=4
   export IGN_GUI_BRANCH=master
+
+  export BUILD_IGN_PHYSICS=true
+  export IGN_PHYSICS_MAJOR_VERSION=3
+  export IGN_PHYSICS_BRANCH=master
+
   export BUILD_IGN_RENDERING=true
   export IGN_RENDERING_MAJOR_VERSION=4
   export IGN_RENDERING_BRANCH=master
-  export BUILD_IGN_COMMON=true
-  export IGN_COMMON_MAJOR_VERSION=3
-  export IGN_COMMON_BRANCH=ign-common3
+
+  export BUILD_IGN_SENSORS=true
+  export IGN_SENSORS_MAJOR_VERSION=4
+  export IGN_SENSORS_BRANCH=master
+
+  export BUILD_IGN_TRANSPORT=true
+  export IGN_TRANSPORT_MAJOR_VERSION=9
+  export IGN_TRANSPORT_BRANCH=master
 fi
 
 export USE_GCC8=true

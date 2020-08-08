@@ -6,6 +6,7 @@
 ::   - DEPEN_PKGS    : (optional) list of dependencies (separted by spaces)
 ::   - KEEP_WORKSPACE: (optional) true | false. Clean workspace at the end
 ::   - ENABLE_TESTS  : (optional) true | false. Do not compile and run tests 
+::   - EXTRA_CMAKE_TEST_ARGS : (optional) empty. String with cmake args to pass to testing step
 ::
 :: Actions
 ::   - Configure the compiler
@@ -82,7 +83,7 @@ if exist .\configure.bat (
 )
 
 :: We want to make sure that tests are enabled for this project's build
-cmake .. -DBUILD_TESTING:BOOL=%ENABLE_TESTS% || echo "Second run of cmake (for enabling the tests) failed"
+cmake .. -DBUILD_TESTING:BOOL=%ENABLE_TESTS% %EXTRA_CMAKE_TEST_ARGS% || echo "Second run of cmake (for enabling the tests) failed"
 echo # END SECTION
 
 echo # BEGIN SECTION: Compiling %VCS_DIRECTORY%

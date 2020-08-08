@@ -47,9 +47,15 @@ ci_distro.each { distro, ros_distro ->
     vrx_ci_job.with
     {
         scm {
-          hg('https://bitbucket.org/osrf/vrx') {
-            branch('default')
-            subdirectory('vrx')
+          git {
+            remote {
+              github("osrf/vrx", 'https')
+              branch('master')
+            }
+            extensions {
+              cleanBeforeCheckout()
+              relativeTargetDirectory('vrx')
+            }
           }
         }
 
@@ -73,9 +79,9 @@ ci_distro.each { distro, ros_distro ->
     // --------------------------------------------------------------
     // 2. Create the any job
     def vrx_ci_any_job = job("vrx-ci-pr_any_${ros_distro}-${distro}-${arch}")
-    OSRFLinuxCompilationAny.create(vrx_ci_any_job,
-                                  'https://bitbucket.org/osrf/vrx',
-                                  ENABLE_TESTS, DISABLE_CPPCHECK)
+    OSRFLinuxCompilationAnyGitHub.create(vrx_ci_any_job,
+                                        'osrf/vrx',
+                                        ENABLE_TESTS, DISABLE_CPPCHECK)
     // GPU label and parselog
     include_parselog(vrx_ci_any_job)
 

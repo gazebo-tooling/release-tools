@@ -14,7 +14,8 @@ class GenericAnyJobGitHub
 {
    static void create(Job job,
                      String github_repo,
-                     ArrayList supported_branches = [])
+                     ArrayList supported_branches = [],
+                     boolean enable_github_pr_integration = true)
    {
      // setup special mail subject
      GenericMail.update_field(job, 'defaultSubject',
@@ -24,12 +25,6 @@ class GenericAnyJobGitHub
 
     // Get repo name for relativeTargetDirectory
     String github_repo_name = github_repo.substring(github_repo.lastIndexOf("/") + 1)
-
-    // Transform GStringImp into real string
-    ArrayList supported_branches_str = []
-    supported_branches.each { branch ->
-      supported_branches_str.add(branch.toString())
-    }
 
     job.with
     {
@@ -53,30 +48,36 @@ class GenericAnyJobGitHub
         }
       }
 
-      configure { project ->
-        project  / triggers / 'org.jenkinsci.plugins.ghprb.GhprbTrigger' {
-            adminList 'osrf-jenkins j-rivero'
-            useGitHubHooks(true)
-            allowMembersOfWhitelistedOrgsAsAdmin(true)
-            useGitHubHooks(true)
-            onlyTriggerPhrase(false)
-            permitAll(true)
-            cron()
-            whiteListTargetBranches {
-              'org.jenkinsci.plugins.ghprb.GhprbBranch' {
-                 branch supported_branches.join(" ")
-              }
-            }
-            triggerPhrase '.*(re)?run test(s).*'
-            extensions {
-                'org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus' {
-                  commitStatusContext '${JOB_NAME}'
-                  triggeredStatus 'starting deployment to build.osrfoundation.org'
-                  startedStatus 'deploying to build.osrfoundation.org'
+      if (enable_github_pr_integration) {
+        configure { project ->
+          project  / triggers / 'org.jenkinsci.plugins.ghprb.GhprbTrigger' {
+              adminlist 'osrf-jenkins j-rivero'
+              orgslist 'osrf'
+              useGitHubHooks(true)
+              allowMembersOfWhitelistedOrgsAsAdmin(true)
+              useGitHubHooks(true)
+              onlyTriggerPhrase(false)
+              permitAll(true)
+              cron()
+              whiteListTargetBranches {
+                supported_branches.each { supported_branch ->
+                  'org.jenkinsci.plugins.ghprb.GhprbBranch' {
+                    branch supported_branch
+                  }
                 }
               }
-            }
+              triggerPhrase '.*(re)?run test(s).*'
+              extensions {
+                  'org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus' {
+                    commitStatusContext '${JOB_NAME}'
+                    triggeredStatus 'starting deployment to build.osrfoundation.org'
+                    startedStatus 'deploying to build.osrfoundation.org'
+                    addTestResults(true)
+                  }
+              }
           }
+        }
+      }
     } // end of with
   } // end of create method
 }

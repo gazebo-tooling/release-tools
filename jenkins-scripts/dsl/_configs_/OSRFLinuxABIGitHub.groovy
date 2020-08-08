@@ -17,12 +17,6 @@ import javaposse.jobdsl.dsl.Job
 
 class OSRFLinuxABIGitHub
 {
-  static void create(Job job, String repo)
-  {
-    OSRFLinuxABIGitHub.create(job)
-    OSRFGitHub.create(job, repo, '${DEST_BRANCH}')
-  }
-
   static void create(Job job)
   {
     OSRFLinuxBase.create(job)

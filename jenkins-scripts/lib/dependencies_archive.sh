@@ -58,6 +58,12 @@ SDFORMAT_NO_IGN_DEPENDENCIES="${pythonv}     \\
                               libxml2-utils  \\
                               libtinyxml-dev"
 
+# SDFORMAT 10 and above use tinyxml2
+if [[ ${SDFORMAT_MAJOR_VERSION} -ge 10 ]]; then
+  SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
+                                libtinyxml2-dev"
+fi
+
 if [[ ${SDFORMAT_MAJOR_VERSION} -lt 8 ]]; then
 SDFORMAT_NO_IGN_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
                               libboost-system-dev          \\
@@ -608,13 +614,18 @@ IGN_GUI_NO_IGN_DEPENDENCIES="qtbase5-dev \\
 
 if [[ ${DISTRO} != 'xenial' ]]; then
   IGN_GUI_NO_IGN_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
-                      qml-module-qtquick2 \\
+                      qml-module-qt-labs-folderlistmodel \\
+                      qml-module-qt-labs-settings \\
+                      qml-module-qtcharts \\
+                      qml-module-qtgraphicaleffects \\
+                      qml-module-qtqml-models2 \\
                       qml-module-qtquick-controls \\
                       qml-module-qtquick-controls2 \\
                       qml-module-qtquick-dialogs \\
                       qml-module-qtquick-layouts \\
-                      qml-module-qt-labs-folderlistmodel \\
-                      qml-module-qt-labs-settings \\
+                      qml-module-qtquick-templates2 \\
+                      qml-module-qtquick-window2 \\
+                      qml-module-qtquick2 \\
                       qtquickcontrols2-5-dev"
 fi
 
@@ -642,12 +653,16 @@ if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -eq 0 ]]; then
                         libignition-rendering2-dev"
 fi
 
-if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 3 ]]; then
+if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 4 ]]; then
   IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
+                        libignition-common3-dev"
+elif [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -eq 3 ]]; then
+  IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
+                        libignition-common3-dev \\
                         libignition-msgs5-dev \\
                         libignition-rendering3-dev \\
                         libignition-transport8-dev"
-elif [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 2 ]]; then
+elif [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -eq 2 ]]; then
   IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
                         libignition-msgs4-dev \\
                         libignition-rendering2-dev \\
@@ -664,7 +679,10 @@ IGN_PHYSICS_DEPENDENCIES="libbenchmark-dev \\
                           libignition-math6-dev \\
                           libignition-math6-eigen3-dev \\
                           libignition-plugin-dev"
-if [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -ge 2 ]]; then
+if [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -ge 3 ]]; then
+  IGN_PHYSICS_DEPENDENCIES="${IGN_PHYSICS_DEPENDENCIES} \\
+                            libsdformat10-dev"
+elif [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -eq 2 ]]; then
   IGN_PHYSICS_DEPENDENCIES="${IGN_PHYSICS_DEPENDENCIES} \\
                             libsdformat9-dev"
 elif [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -eq 1 ]]; then
@@ -687,7 +705,10 @@ IGN_LAUNCH_COMMON_DEPENDENCIES="libignition-cmake2-dev \\
                          qtquickcontrols2-5-dev \\
                          libqt5core5a"
 
-if [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -eq 0 ]]; then
+if [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -ge 3 ]]; then
+  IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_COMMON_DEPENDENCIES} \\
+                          libsdformat10-dev"
+elif [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -eq 0 ]]; then
   IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_COMMON_DEPENDENCIES} \\
                           libignition-gazebo-dev \\
                           libignition-gui-dev \\
@@ -746,7 +767,13 @@ IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
                           libignition-msgs3-dev       \\
                           libignition-plugin-dev  \\
                           libignition-tools-dev"
-if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 3 ]]; then
+if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 4 ]]; then
+  IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
+                        libignition-msgs6-dev \\
+                        libignition-rendering4-dev \\
+                        libignition-transport9-dev \\
+                        libsdformat10-dev"
+elif [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 3 ]]; then
   IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
                         libignition-msgs5-dev \\
                         libignition-rendering3-dev \\
@@ -767,7 +794,10 @@ IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev  \\
                          libignition-math6-eigen3-dev \\
                          libbenchmark-dev"
 
-if [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -ge 3 ]]; then
+if [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -ge 4 ]]; then
+  IGN_GAZEBO_DEPENDENCIES="${IGN_GAZEBO_DEPENDENCIES} \\
+                        libsdformat10-dev"
+elif [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -eq 3 ]]; then
   IGN_GAZEBO_DEPENDENCIES="${IGN_GAZEBO_DEPENDENCIES} \\
                         libignition-fuel-tools4-dev \\
                         libignition-gui3-dev \\
@@ -814,4 +844,5 @@ SUBT_DEPENDENCIES="mercurial \\
                    ros-${ROS_DISTRO}-rotors-control \\
                    ros-${ROS_DISTRO}-ros-control \\
                    ros-${ROS_DISTRO}-twist-mux \\
-                   ros-${ROS_DISTRO}-ros1-ign-bridge"
+                   ros-${ROS_DISTRO}-ros1-ign-bridge \\
+                   ros-${ROS_DISTRO}-theora-image-transport"

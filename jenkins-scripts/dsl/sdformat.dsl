@@ -2,9 +2,9 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 def sdformat_supported_branches = [ 'sdformat4', 'sdformat6', 'sdformat8' , 'sdformat9' ]
-def sdformat_gz11_branches = [ 'sdformat8', 'sdformat9', 'master' ]
+def sdformat_gz11_branches = [ 'sdformat8', 'sdformat9', 'sdformat10', 'master' ]
 // nightly and prereleases
-def extra_sdformat_debbuilder = [ 'sdformat7' ]
+def extra_sdformat_debbuilder = [ 'sdformat10' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -32,13 +32,13 @@ String get_sdformat_branch_name(String full_branch_name)
 
 // ABI Checker job
 // Need to be the before ci-pr_any so the abi job name is defined
+abi_branches = sdformat_supported_branches.collect { it -> get_sdformat_branch_name(it) }
 abi_distro.each { distro ->
   supported_arches.each { arch ->
     abi_job_name = "sdformat-abichecker-any_to_any-ubuntu_auto-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABIGitHub.create(abi_job)
-    OSRFGitHub.create(abi_job, "osrf/sdformat",
-                               '${DEST_BRANCH}')
+    GenericAnyJobGitHub.create(abi_job, 'osrf/sdformat', abi_branches)
     abi_job.with
     {
       steps {
@@ -57,6 +57,10 @@ abi_distro.each { distro ->
               fi
 
               export ARCH=${arch}
+              export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
+              export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
+              export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
+
               /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-abichecker.bash
 	      """.stripIndent())
       } // end of steps
@@ -107,19 +111,6 @@ abi_distro.each { distro ->
            {
              not {
                expression('${ENV, var="ghprbTargetBranch"}', 'master')
-             }
-
-             steps {
-               downstreamParameterized {
-                 trigger("${abi_job_name}") {
-                   parameters {
-                     currentBuild()
-                     predefinedProp('DEST_BRANCH', '$ghprbTargetBranch')
-                     predefinedProp('SRC_BRANCH', '$ghprbSourceBranch')
-                     predefinedProp('SRC_REPO', '$ghprbAuthorRepoGitUrl')
-                   }
-                 }
-               }
              }
            }
          }

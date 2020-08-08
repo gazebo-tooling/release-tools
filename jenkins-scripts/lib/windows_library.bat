@@ -146,6 +146,7 @@ if "%GAZEBODISTRO_BRANCH%" == "" (set GAZEBODISTRO_BRANCH=master)
 if exist %gzdistro_dir% (rmdir /s /q %gzdistro_dir%)
 git clone https://github.com/ignition-tooling/gazebodistro %gzdistro_dir% -b %GAZEBODISTRO_BRANCH%
 vcs import --retry 5  < "%gzdistro_dir%\%1" "%2" || goto :error
+vcs pull || goto :error
 goto :EOF
 
 :: ##################################

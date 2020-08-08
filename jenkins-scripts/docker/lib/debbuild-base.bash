@@ -40,7 +40,7 @@ if ${NIGHTLY_MODE}; then
   if ${USE_REPO_DIRECTORY_FOR_NIGHTLY}; then
     mv ${WORKSPACE}/repo \$REAL_PACKAGE_NAME
   else
-    hg clone https://bitbucket.org/${BITBUCKET_REPO}/\$REAL_PACKAGE_NAME -r ${NIGHTLY_SRC_BRANCH}
+    git clone https://github.com/${GITHUB_ORG}/\$REAL_PACKAGE_NAME -b ${NIGHTLY_SRC_BRANCH}
   fi
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME
   cd \$REAL_PACKAGE_NAME
@@ -54,7 +54,7 @@ if ${NIGHTLY_MODE}; then
     TIMESTAMP="git\$TIMESTAMP"
   elif [[ -d .git ]]; then
     REV=\$(git rev-parse HEAD)
-    TIMESTAMP="git\$TIMESTAMP"
+    TIMESTAMP="nightly+git\$TIMESTAMP"
   else
     REV=0
   fi
@@ -183,7 +183,14 @@ echo '# END SECTION'
 fi
 
 echo '# BEGIN SECTION: create source package' \${OSRF_VERSION}
-debuild --no-tgz-check -uc -us -S --source-option=--include-binaries
+
+# lintian triggers a problem on arm in Focal when using qemu, avoid it
+no_lintian_param=""
+if [[ ${DISTRO} == 'focal' && ${ARCH} == 'arm64' ]]; then
+  no_lintian_param="--no-lintian"
+fi
+
+debuild \${no_lintian_param} --no-tgz-check -uc -us -S --source-option=--include-binaries
 
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
@@ -205,7 +212,7 @@ if [[ $DISTRO != 'xenial' && $DISTRO != 'bionic' ]]; then
 fi
 
 echo '# BEGIN SECTION: create deb packages'
-debuild --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
+debuild \${no_lintian_param} --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'

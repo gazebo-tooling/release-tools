@@ -37,7 +37,12 @@ git -C $(brew --repo)/Library/Taps/homebrew/homebrew-test-bot \
     fetch ${TEST_BOT_REPO} ${TEST_BOT_BRANCH}
 git -C $(brew --repo)/Library/Taps/homebrew/homebrew-test-bot \
     checkout FETCH_HEAD
+
+git -C $(brew --repo) fetch ${BREW_REPO} ${BREW_BRANCH}
+git -C $(brew --repo) checkout FETCH_HEAD
+
 brew test-bot --tap=osrf/simulation \
+              --fail-fast \
               --root-url=https://osrf-distributions.s3.amazonaws.com/bottles-simulation \
               --ci-pr ${PULL_REQUEST_URL} \
             || { brew install hg; exit -1; }
@@ -47,6 +52,8 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: export bottle'
 if [[ $(find . -name '*.bottle.*' | wc -l | sed 's/^ *//') -lt 2 ]]; then
   echo "Can not find at least two bottle files."
+  # sometimes particular disabled distributions won't generate bottles,
+  # --fail-fast should cover errors in bot. Do not fail
   exit 0
 fi
 
@@ -56,7 +63,7 @@ for j in $(ls *.bottle.json); do
   SRC_BOTTLE=$(brew ruby -e \
     "puts JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['local_filename']")
   DEST_BOTTLE=$(brew ruby -e \
-    "puts JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['filename']")
+    "puts URI.decode(JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['filename'])")
   mv ${SRC_BOTTLE} ${DEST_BOTTLE}
 done
 mv *.bottle*.tar.gz ${PKG_DIR}
