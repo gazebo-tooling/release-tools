@@ -228,6 +228,10 @@ boolean is_a_colcon_package(String ign_software_name)
 ignition_software.each { ign_sw ->
   abi_distro.each { distro ->
     supported_arches.each { arch ->
+      // Packages without ABI
+      if (ign_sw == 'tools' || ign_sw == 'cmake')
+        return
+
       abi_job_names[ign_sw] = "ignition_${ign_sw}-abichecker-any_to_any-ubuntu_auto-${arch}"
       def abi_job = job(abi_job_names[ign_sw])
       checkout_subdir = "ign-${ign_sw}"
