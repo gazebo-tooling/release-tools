@@ -69,6 +69,7 @@ cp -a $WORKSPACE/${ABI_JOB_SOFTWARE_NAME} /tmp/${ABI_JOB_SOFTWARE_NAME}
 chown -R root:root /tmp/${ABI_JOB_SOFTWARE_NAME}
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
 if ${GITHUB}; then
+  git fetch origin
   git checkout origin/${DEST_BRANCH}
 else
   hg pull
