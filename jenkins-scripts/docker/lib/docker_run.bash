@@ -55,6 +55,11 @@ if $ENABLE_CCACHE; then
                     -v ${CCACHE_DIR}:${CCACHE_DIR}:rw"
 fi
 
+DEVICE_SND=""
+if [[ -d /dev/snd ]]; then
+    DEVICE_SND="--device /dev/snd"
+fi
+
 # DOCKER_FIX is for workaround https://github.com/docker/docker/issues/14203
 sudo ${docker_cmd} run $EXTRA_PARAMS_STR  \
             -e DOCKER_FIX=''  \
@@ -64,7 +69,7 @@ sudo ${docker_cmd} run $EXTRA_PARAMS_STR  \
             -v /dev/log:/dev/log:ro \
             -v /run/log:/run/log:ro \
             -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
-            --device /dev/snd \
+            ${DEVICE_SND} \
             --tty \
             --rm \
             ${DOCKER_TAG} \
