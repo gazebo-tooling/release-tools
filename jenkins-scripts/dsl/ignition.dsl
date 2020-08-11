@@ -49,7 +49,16 @@ ignition_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
-ignition_debbuild  = ignition_software + [ ]
+ignition_debbuild = ignition_software + [ 'fuel-tools5',
+                                          'gazebo4',
+                                          'gui4',
+                                          'launch3',
+                                          'math6',
+                                          'msgs6',
+                                          'physics3',
+                                          'rendering4',
+                                          'sensors4',
+                                          'transport9']
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [ 'rndf' ]
 // DESC: major versions that has a package in the prerelease repo. Should
@@ -219,10 +228,14 @@ boolean is_a_colcon_package(String ign_software_name)
 ignition_software.each { ign_sw ->
   abi_distro.each { distro ->
     supported_arches.each { arch ->
+      // Packages without ABI
+      if (ign_sw == 'tools' || ign_sw == 'cmake')
+        return
+
       abi_job_names[ign_sw] = "ignition_${ign_sw}-abichecker-any_to_any-ubuntu_auto-${arch}"
       def abi_job = job(abi_job_names[ign_sw])
       checkout_subdir = "ign-${ign_sw}"
-      OSRFLinuxABIGitHub.create(abi_job, checkout_subdir)
+      OSRFLinuxABIGitHub.create(abi_job)
       GenericAnyJobGitHub.create(abi_job,
                         "ignitionrobotics/ign-${ign_sw}",
                         all_branches(ign_sw) - [ 'master'])
