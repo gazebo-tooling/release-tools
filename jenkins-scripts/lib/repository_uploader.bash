@@ -85,7 +85,8 @@ upload_dsc_package()
     # try to upload and if failed, specify the values
     # see: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=768046
     sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg} || \
-	sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg}
+	sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg} || \
+		echo "MARK_BUILD_UNSTABLE"
 }
 
 NEEDED_HOST_PACKAGES="reprepro openssh-client jq"
