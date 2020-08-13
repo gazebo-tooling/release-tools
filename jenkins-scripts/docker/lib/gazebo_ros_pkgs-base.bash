@@ -8,7 +8,19 @@ DOCKER_JOB_NAME="gazebo_ros_pkgs_ci"
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
 # Generate the first part of the build.sh file for ROS
-CATKIN_EXTRA_ARGS="--cmake-args -DENABLE_DISPLAY_TESTS:BOOL=ON"
+ROS_WS_PREBUILD_HOOK="""
+${ROS_WS_PREBUILD_HOOK}
+cd ${CATKIN_WS}
+cat >> colcon.meta << DELIM_PREBUILD_HOOK
+{
+    "names": {
+        "gazebo_plugins": {
+            "catkin-cmake-args": ["-DENABLE_DISPLAY_TESTS:BOOL=ON"]
+        }
+    }
+}
+DELIM_PREBUILD_HOOK
+"""
 
 ROS_SETUP_PREINSTALL_HOOK="""
 ${GAZEBO_MODEL_INSTALLATION}
