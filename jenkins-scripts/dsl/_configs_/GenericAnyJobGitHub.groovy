@@ -30,7 +30,7 @@ class GenericAnyJobGitHub
     {
       parameters
       {
-        stringParam('sha1', '', 'commit or refname to build')
+        stringParam('sha1', '', 'commit or refname to build. To manually use a branch: origin/$branch_name')
       }
 
       scm
@@ -38,7 +38,7 @@ class GenericAnyJobGitHub
         git {
           remote {
             github(github_repo)
-            refspec('+refs/pull/*:refs/remotes/origin/pr/*')
+            refspec('+refs/pull/*:refs/remotes/origin/pr/* +refs/heads/*:refs/remotes/origin/*')
           }
           extensions {
             relativeTargetDirectory(github_repo_name)
