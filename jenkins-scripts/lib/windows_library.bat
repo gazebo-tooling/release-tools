@@ -165,11 +165,14 @@ call %LIB_DIR%\windows_env_vars.bat
 set COLCON_EXTRA_ARGS=%1
 set COLCON_PACKAGE=%2
 set COLCON_EXTRA_CMAKE_ARGS=%3
+set COLCON_EXTRA_CMAKE_ARGS2=%4
 
 :: TODO: be sure that this way of defining MAKEFLAGS is working
 set MAKEFLAGS=-j%MAKE_JOBS%
 
 echo "COLCON_EXTRA_ARGS: %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%"
+echo "COLCON_EXTRA_CMAKE_ARGS: %COLCON_EXTRA_CMAKE_ARGS%"
+echo "COLCON_EXTRA_CMAKE_ARGS2: %COLCON_EXTRA_CMAKE_ARGS2%"
 
 colcon build --build-base "build"^
 	     --install-base "install"^
@@ -178,7 +181,7 @@ colcon build --build-base "build"^
 	     --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
 		          " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
 	                  " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
-             %COLCON_EXTRA_CMAKE_ARGS%^
+             %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
              --event-handler console_cohesion+ || goto :error
 goto :EOF
 
@@ -194,7 +197,7 @@ set COLCON_PACKAGE=%1
 :: two runs to get the dependencies built with testing and the package under
 :: test build with tests
 echo # BEGIN SECTION: colcon compilation without test for dependencies of %COLCON_PACKAGE%
-call :_colcon_build_cmd --packages-skip %COLCON_PACKAGE% " -DBUILD_TESTING=0"
+call :_colcon_build_cmd --packages-skip %COLCON_PACKAGE% "-DBUILD_TESTING=0" "-DCMAKE_CXX_FLAGS=-w"
 echo # END SECTION
 echo # BEGIN SECTION: colcon compilation with tests for %COLCON_PACKAGE%
 call :_colcon_build_cmd --packages-select %COLCON_PACKAGE% " -DBUILD_TESTING=1"
