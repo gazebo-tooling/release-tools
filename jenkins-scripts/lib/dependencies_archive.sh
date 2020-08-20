@@ -615,6 +615,7 @@ IGN_GUI_NO_IGN_DEPENDENCIES="qtbase5-dev \\
 if [[ ${DISTRO} != 'xenial' ]]; then
   IGN_GUI_NO_IGN_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
                       qml-module-qt-labs-folderlistmodel \\
+                      qml-module-qt-labs-platform \\
                       qml-module-qt-labs-settings \\
                       qml-module-qtcharts \\
                       qml-module-qtgraphicaleffects \\
