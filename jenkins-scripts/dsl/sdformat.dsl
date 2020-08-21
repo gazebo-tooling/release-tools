@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def sdformat_supported_branches = [ 'sdformat4', 'sdformat6', 'sdformat8' , 'sdformat9' ]
+def sdformat_supported_branches = [ 'sdformat4', 'sdformat6', 'sdformat8' , 'sdformat9', 'sdformat10' ]
 def sdformat_gz11_branches = [ 'sdformat8', 'sdformat9', 'sdformat10', 'master' ]
 // nightly and prereleases
 def extra_sdformat_debbuilder = [ 'sdformat10' ]
@@ -246,6 +246,10 @@ sdformat_supported_branches.each { branch ->
          triggers {
            cron('@daily')
          }
+
+         // sdformat10 hasn't been released yet
+         if ("${branch}" == "sdformat10")
+	   disabled()
 
          def dev_package = "lib${branch}-dev"
 
