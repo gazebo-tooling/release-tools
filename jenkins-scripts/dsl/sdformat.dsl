@@ -247,6 +247,10 @@ sdformat_supported_branches.each { branch ->
            cron('@daily')
          }
 
+         // sdformat10 hasn't been released yet
+         if ("${branch}" == "sdformat10")
+	   disabled()
+
          def dev_package = "lib${branch}-dev"
 
          steps {
