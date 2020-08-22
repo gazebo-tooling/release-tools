@@ -18,7 +18,9 @@ class Globals
                      'noetic'   : ['focal'] ,
                      'dashing'  : ['bionic'] ,
                      'eloquent' : ['bionic'] ,
-                     'foxy'     : ['focal']]
+                     'foxy'     : ['focal'] ,
+                     'galactic' : ['focal'] ,
+                     'rolling'  : ['focal']]
 
    // This should be in sync with archive_library
    static gz_version_by_rosdistro = [ 'kinetic'  : ['7'] ,
@@ -26,7 +28,9 @@ class Globals
                                       'noetic'   : ['11'] ,
                                       'dashing'  : ['9'] ,
                                       'eloquent' : ['9'] ,
-                                      'foxy'     : ['11']]
+                                      'foxy'     : ['11'] ,
+                                      'galactic' : ['11'] ,
+                                      'rolling'  : ['11']]
 
    static ArrayList get_ros_distros_by_ubuntu_distro(String ubuntu_distro)
    {
@@ -102,11 +106,11 @@ class Globals
 
    static ArrayList get_ros2_suported_distros()
    {
-     return [ 'dashing', 'eloquent' ]
+     return [ 'dashing', 'eloquent', 'foxy', 'rolling' ]
    }
 
    static String get_ros2_development_distro() {
-     return 'foxy'
+     return 'galactic'
    }
 
    static String get_gz11_ubuntu_distro()

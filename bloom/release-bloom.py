@@ -17,7 +17,8 @@ UBUNTU_DISTROS_IN_ROS = {'kinetic': ['xenial'],
                          'noetic': ['focal']}
 UBUNTU_DISTROS_IN_ROS2 = {'dashing': ['bionic'],
                           'eloquent': ['bionic'],
-                          'foxy': ['focal']}
+                          'foxy': ['focal'],
+                          'rolling': ['focal']}
 DRY_RUN = False
 
 def parse_args(argv):
