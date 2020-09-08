@@ -24,6 +24,9 @@ if [[ -z ${BRANCH} ]]; then
   export CLONE_NEEDED=false
 fi
 
+# Defaul arch if not set
+ARCH=${ARCH:-amd64}
+
 RUN_AUTOPKGTEST=${RUN_AUTOPKGTEST:-true}
 
 cat > build.sh << DELIM
