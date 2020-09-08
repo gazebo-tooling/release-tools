@@ -63,6 +63,8 @@ fi
 echo '# BEGIN SECTION: install build dependencies'
 cat debian/changelog
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
+# need to remove artifacts coming from latet mk-build-deps
+rm *-build-deps_*_${ARCH}*
 echo '# END SECTION'
 
 VERSION=\$(dpkg-parsechangelog  | grep Version | awk '{print \$2}')
