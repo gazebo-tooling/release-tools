@@ -46,7 +46,7 @@ git checkout ${BRANCH}
 git pull
 git branch
 
-if [ `expr length "${DEBIAN_GIT_PREINSTALL_HOOK} "` -gt 1 ]; then
+if [[ ${#DEBIAN_GIT_PREINSTALL_HOOK} -gt 0 ]]; then
 echo '# BEGIN SECTION: running pre install hook'
 ${DEBIAN_GIT_PREINSTALL_HOOK}
 echo '# END SECTION'
