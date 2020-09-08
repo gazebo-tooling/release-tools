@@ -115,7 +115,7 @@ fi
 # GAZEBO related dependencies. Default value points to the development version
 # of gazebo, it is being used by compile from source tutorial
 if [[ -z ${GAZEBO_MAJOR_VERSION} ]]; then
-    GAZEBO_MAJOR_VERSION=8
+    GAZEBO_MAJOR_VERSION=11
 fi
 
 # Need to explicit define to use old sdformat package
@@ -129,22 +129,13 @@ elif [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
     sdformat_pkg="libsdformat9-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
     sdformat_pkg="libsdformat6-dev"
-elif [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
-    sdformat_pkg="libsdformat5-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
     sdformat_pkg="libsdformat4-dev"
-elif [[ ${GAZEBO_MAJOR_VERSION} -ge 6 ]]; then
-    sdformat_pkg="libsdformat3-dev"
-else
-    sdformat_pkg="libsdformat2-dev"
 fi
 
 # Old versions used libogre-dev
 ogre_pkg="libogre-1.9-dev"
-if [[ ${GAZEBO_MAJOR_VERSION} -le 4 ]]; then
-    # Before gazebo5, ogre 1.9 was not supported
-    ogre_pkg="libogre-1.8-dev"
-elif [[ ${IGN_RENDERING_MAJOR_VERSION} -ge 1 ]]; then
+if [[ ${IGN_RENDERING_MAJOR_VERSION} -ge 1 ]]; then
     # support for both ogre-1.9 and ogre-2.1 was added in ign-rendering1
     ogre_pkg="libogre-1.9-dev libogre-2.1-dev"
 fi
@@ -154,28 +145,7 @@ bullet_pkg="libbullet-dev"
 
 # choose dart version
 if $DART_FROM_PKGS; then
-    if [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
-       dart_pkg="libdart6-utils-urdf-dev"
-    elif [[ ${GAZEBO_MAJOR_VERSION} -ge 8 ]]; then
-       dart_pkg="libdart-core5-dev"
-    fi
-fi
-
-# gazebo8 and above use qt5
-if [[ ${GAZEBO_MAJOR_VERSION} -le 7 ]]; then
-  gazebo_qt_dependencies="libqt4-dev \\
-                          libqtwebkit-dev"
-else
-  # After gazebo8 is released, these two lines should be all that remain
-  gazebo_qt_dependencies="qtbase5-dev \\
-                          libqwt-qt5-dev"
-  # Install qt4 as well for gazebo8 until its release
-  # 20170125 release date of gazebo8
-  if [[ $(date +%Y%m%d) -le 20170125 ]]; then
-    gazebo_qt_dependencies="${gazebo_qt_dependencies} \\
-                            libqt4-dev \\
-                            libqwt-dev"
-  fi
+  dart_pkg="libdart6-utils-urdf-dev"
 fi
 
 # By default, the stable version of gazebo
@@ -192,16 +162,17 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
                             freeglut3-dev                    \\
                             libcurl4-openssl-dev             \\
                             libtinyxml-dev                   \\
+                            libtinyxml2-dev                  \\
                             libtar-dev                       \\
                             libtbb-dev                       \\
                             ${ogre_pkg}                      \\
                             libxml2-dev                      \\
                             pkg-config                       \\
-                            ${gazebo_qt_dependencies}        \\
+                            qtbase5-dev                      \\
+                            libqwt-qt5-dev                   \\
                             libltdl-dev                      \\
                             libgts-dev                       \\
                             libboost-thread-dev              \\
-                            libboost-signals-dev             \\
                             libboost-system-dev              \\
                             libboost-filesystem-dev          \\
                             libboost-program-options-dev     \\
@@ -211,21 +182,10 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
                             libsimbody-dev                   \\
                             ${dart_pkg}"
 
-  if [[ ${GAZEBO_MAJOR_VERSION} -eq 6 ]]; then
-      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                                           libignition-math2-dev"
-  fi
-
   if [[ ${GAZEBO_MAJOR_VERSION} -eq 7 ]]; then
       GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                libboost-signals-dev \\
                                 libignition-transport-dev"
-  fi
-
-  if [[ ${GAZEBO_MAJOR_VERSION} -eq 8 ]]; then
-      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                                           libignition-transport3-dev \\
-                                           libignition-math3-dev \\
-                                           libignition-msgs0-dev"
   fi
 
   if [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
@@ -244,35 +204,16 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
                                            libignition-msgs-dev"
   fi
 
-  # libtinyxml2-dev is not on precise
-  # it is needed by gazebo7, which isn't supported on precise
-  if [[ ${DISTRO} != 'precise' ]]; then
-      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                                libtinyxml2-dev"
-  fi
-
   GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                             ${sdformat_pkg}"
 
   GAZEBO_EXTRA_DEPENDENCIES="libavformat-dev  \\
                              libavcodec-dev   \\
+                             libgdal-dev      \\
                              libgraphviz-dev  \\
                              libswscale-dev   \\
                              libavdevice-dev   \\
                              ruby-ronn"
-
-  # cegui is deprecated in gazebo 6
-  if [[ ${GAZEBO_MAJOR_VERSION} -le 6 ]]; then
-      GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} \\
-                                 libcegui-mk2-dev"
-  fi
-
-  # gdal is not working on precise
-  # it was added in gazebo5, which does not support precise
-  if [[ ${DISTRO} != 'precise' ]]; then
-      GAZEBO_EXTRA_DEPENDENCIES="${GAZEBO_EXTRA_DEPENDENCIES} \\
-                                 libgdal-dev"
-  fi
 else
   # --------------------------------------
   # GAZEBO - experimental version
