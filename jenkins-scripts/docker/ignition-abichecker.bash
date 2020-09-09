@@ -47,15 +47,10 @@ then
   export USE_GCC8=true
 fi
 
+# default to use stable repos
 export ABI_JOB_REPOS="stable"
 
-# Enable prerelease repos until a certain date
-if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo" ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-sensors" ]]
-then
-  if [[ $(date +%Y%m%d) -le 20190619 ]]; then
-    export ABI_JOB_REPOS="${ABI_JOB_REPOS} prerelease"
-  fi
-fi
+# set GZDEV_PROJECT_NAME so it can override repos if necessary
+export GZDEV_PROJECT_NAME=${ABI_JOB_SOFTWARE_NAME/ign-/ignition-}${IGN_NAME_PREFIX_MAJOR_VERSION}
 
 . ${SCRIPT_DIR}/lib/generic-abi-base.bash
