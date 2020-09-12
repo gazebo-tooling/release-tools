@@ -14,10 +14,13 @@ class OSRFBrewCompilationAnyGitHub
   static void create(Job job,
                      String github_repo,
                      boolean enable_testing  = true,
-                     ArrayList supported_ros_distros = [])
+                     ArrayList supported_branches = [],
+                     boolean enable_github_pr_integration = true)
   {
     OSRFBrewCompilation.create(job, enable_testing)
 
-    GenericAnyJobGitHub.create(job, github_repo, supported_ros_distros)
+    GenericAnyJobGitHub.create(job, github_repo,
+                               supported_branches,
+                               enable_github_pr_integration)
   }
 }

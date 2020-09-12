@@ -9,15 +9,36 @@ export PATH="/usr/local/bin:$PATH"
 PKG_DIR=${WORKSPACE}/pkgs
 
 echo '# BEGIN SECTION: check variables'
-if [ -z "${PULL_REQUEST_URL}" ]; then
-    echo PULL_REQUEST_URL not specified
+if [ -z "${ghprbActualCommit}" ]; then
+    echo ghprbActualCommit not specified
     exit -1
 fi
+if [ -z "${ghprbGhRepository}" ]; then
+    echo ghprbGhRepository not specified
+    exit -1
+fi
+if [ -z "${ghprbPullId}" ]; then
+    echo ghprbPullId not specified
+    exit -1
+fi
+if [ -z "${ghprbTargetBranch}" ]; then
+    echo ghprbTargetBranch not specified
+    exit -1
+fi
+if [ -z "${sha1}" ]; then
+    echo sha1 not specified
+    exit -1
+fi
+export GITHUB_BASE_REF=${ghprbTargetBranch}
+export GITHUB_REPOSITORY=${ghprbGhRepository}
+export GITHUB_REF=${sha1}
+export GITHUB_SHA=${ghprbActualCommit}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean up environment'
 rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 . ${SCRIPT_LIBDIR}/_homebrew_cleanup.bash
+brew install hub
 echo '# END SECTION'
 
 # set display before building bottle
@@ -32,21 +53,18 @@ echo '# BEGIN SECTION: run test-bot'
 # The test-bot makes a full cleanup of all installed pkgs. Be sure of install back
 # mercurial to keep the slave working
 export HOMEBREW_DEVELOPER=1
-brew tap homebrew/test-bot
-git -C $(brew --repo)/Library/Taps/homebrew/homebrew-test-bot \
-    fetch ${TEST_BOT_REPO} ${TEST_BOT_BRANCH}
-git -C $(brew --repo)/Library/Taps/homebrew/homebrew-test-bot \
-    checkout FETCH_HEAD
+brew tap osrf/simulation
+hub -C $(brew --repo osrf/simulation) \
+    pr checkout ${ghprbPullId}
 
-git -C $(brew --repo) fetch ${BREW_REPO} ${BREW_BRANCH}
-git -C $(brew --repo) checkout FETCH_HEAD
+# test-bot wants to 'git fetch --unshallow' over ssh, which has permission issues
+# explicitly unshallow using https instead
+git -C $(brew --repo osrf/simulation) fetch --unshallow \
+    https://github.com/${GITHUB_REPOSITORY}
 
 brew test-bot --tap=osrf/simulation \
               --fail-fast \
-              --root-url=https://osrf-distributions.s3.amazonaws.com/bottles-simulation \
-              --ci-pr ${PULL_REQUEST_URL} \
-            || { brew install hg; exit -1; }
-brew install hg
+              --root-url=https://osrf-distributions.s3.amazonaws.com/bottles-simulation
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export bottle'
