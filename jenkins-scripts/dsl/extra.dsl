@@ -9,7 +9,7 @@ release_repo_debbuilds = [ 'opensplice' ]
 
 // List of repositories that host branches compatible with gbp (git build
 // package) method used by debian
-gbp_repo_debbuilds = [ 'ogre-2.1', 'lark-parser' ]
+gbp_repo_debbuilds = [ 'ogre-2.1', 'lark-parser', 'dart' ]
 
 release_repo_debbuilds.each { software ->
   // --------------------------------------------------------------
@@ -37,6 +37,14 @@ gbp_repo_debbuilds.each { software ->
   def build_pkg_job = job("${software}-debbuilder")
   OSRFLinuxBase.create(build_pkg_job)
 
+  if (software == 'dart') {
+    github_uri = 'j-rivero/dart'
+    default_branch = 'azeey/friction_per_shape_more_params_debian'
+  } else {
+    github_uri = "osrf/${software}"
+    default_branch = 'master'
+  }
+
   build_pkg_job.with
   {
     // use only the most powerful nodes
@@ -44,7 +52,7 @@ gbp_repo_debbuilds.each { software ->
 
     parameters
     {
-       stringParam('BRANCH','master',
+       stringParam('BRANCH',"${default_branch}",
                    "${software}-release branch to test")
        stringParam('LINUX_DISTRO','ubuntu',
                    'Linux distribution to build package for')
@@ -57,7 +65,7 @@ gbp_repo_debbuilds.each { software ->
     scm {
       git {
         remote {
-          github("osrf/${software}-release", 'https')
+          github("${github_uri}-release", 'https')
           branch('${BRANCH}')
         }
 
