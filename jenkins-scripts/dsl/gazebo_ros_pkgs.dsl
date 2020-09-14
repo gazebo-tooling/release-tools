@@ -24,15 +24,22 @@ extra_gazebo_versions = [ 'kinetic'  :  ['8','9'],
 
 bloom_debbuild_jobs = [ 'gazebo-dev', 'gazebo-msgs', 'gazebo-plugins', 'gazebo-ros', 'gazebo-ros-control', 'gazebo-ros-pkgs' ]
 
+// ROS1 branches use $ros_distro-devel schema
+// ROS2 branches use $ros_distro with the expections:
+//  - foxy or rolling -> ros2
+//  - branch under development -> ros2
 String get_branch_from_rosdistro(ros_distro) {
-  // ROS2 branches are named without the -devel postfix
-  if (ros2_distros.contains(ros_distro))
-    if (ros_distro == current_ros2_branch)
-      return "ros2"
-    else
-      return ros_distro
+  if (! ros2_distros.contains(ros_distro))
+    return "${ros_distro}-devel"
 
-  return "${ros_distro}-devel"
+  switch(ros_distro) {
+    case 'foxy':
+    case 'rolling':
+    case current_ros2_branch:
+      return 'ros2'
+    default:
+      return ros_distro
+  }
 }
 
 Job create_pr_compilation(String job_name,

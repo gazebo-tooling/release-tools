@@ -257,6 +257,12 @@ else
       ;;
       foxy)
         GAZEBO_VERSION_FOR_ROS="11"
+      ;;
+      galactic)
+        GAZEBO_VERSION_FOR_ROS="11"
+      ;;
+      rolling)
+        GAZEBO_VERSION_FOR_ROS="11"
     esac
   fi
 
