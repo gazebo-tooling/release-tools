@@ -54,8 +54,12 @@ echo '# BEGIN SECTION: run test-bot'
 # mercurial to keep the slave working
 export HOMEBREW_DEVELOPER=1
 brew tap osrf/simulation
-hub -C $(brew --repo osrf/simulation) \
-    pr checkout ${ghprbPullId}
+# replace with 'hub -C $(brew --repo osrf/simulation) pr checkout ${ghprbPullId}'
+# after the following hub issue is resolved:
+# https://github.com/github/hub/issues/2612
+pushd $(brew --repo osrf/simulation) && \
+  hub pr checkout ${ghprbPullId} && \
+  popd
 
 # test-bot wants to 'git fetch --unshallow' over ssh, which has permission issues
 # explicitly unshallow using https instead
