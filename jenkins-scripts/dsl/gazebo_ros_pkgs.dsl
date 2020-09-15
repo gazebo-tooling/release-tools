@@ -326,7 +326,7 @@ bloom_debbuild_jobs.each { bloom_pkg ->
 
       publishers {
         downstreamParameterized {
-	  trigger('repository_uploader_ng') {
+	  trigger('repository_uploader_packages') {
 	    condition('SUCCESS')
 	    parameters {
 	      currentBuild()
