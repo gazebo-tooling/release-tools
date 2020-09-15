@@ -64,7 +64,7 @@ bridge_packages.each { pkg ->
 
     publishers {
       downstreamParameterized {
-        trigger('repository_uploader_ng') {
+        trigger('repository_uploader_packages') {
           condition('SUCCESS')
             parameters {
               currentBuild()

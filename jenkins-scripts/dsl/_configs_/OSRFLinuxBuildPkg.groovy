@@ -100,7 +100,7 @@ class OSRFLinuxBuildPkg
         }
 
         downstreamParameterized {
-	  trigger('repository_uploader_ng') {
+	  trigger('repository_uploader_packages') {
 	    condition('UNSTABLE_OR_BETTER')
 	    parameters {
 	      currentBuild()

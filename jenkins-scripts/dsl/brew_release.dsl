@@ -200,10 +200,10 @@ bottle_job_builder.with
        allowEmpty()
      }
 
-     // call to the repository_uploader_ng to upload to S3 the binary
+     // call to the repository_uploader_packages to upload to S3 the binary
      downstreamParameterized
      {
-        trigger('repository_uploader_ng') {
+        trigger('repository_uploader_packages') {
           condition('SUCCESS')
           parameters {
             currentBuild()

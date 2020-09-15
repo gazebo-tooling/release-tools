@@ -107,7 +107,7 @@ gbp_repo_debbuilds.each { software ->
       }
 
       downstreamParameterized {
-        trigger('repository_uploader_ng') {
+        trigger('repository_uploader_packages') {
           condition('SUCCESS')
           parameters {
             currentBuild()

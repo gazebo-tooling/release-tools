@@ -85,7 +85,7 @@ class OSRFLinuxBackportPkg
 
             publishers {
               downstreamParameterized {
-                trigger('repository_uploader_ng') {
+                trigger('repository_uploader_packages') {
                   parameters {
                     currentBuild()
                     predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
