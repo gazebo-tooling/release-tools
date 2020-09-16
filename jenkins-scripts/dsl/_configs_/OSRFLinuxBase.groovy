@@ -10,19 +10,21 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFLinuxBase
 {
-   static void create(Job job)
-   {
-     // Base class for the job
-     OSRFUNIXBase.create(job)
+  static void create(Job job)
+  {
+    // Base class for the job
+    OSRFUNIXBase.create(job)
 
-     job.with
-     {
-         label "docker"
-     }
+    job.with
+    {
+        label "docker"
 
-      publishers {
-        archiveArtifacts('Dockerfile')
-        archiveArtifacts('build.sh')
+        publishers {
+          archiveArtifacts {
+            pattern('Dockerfile')
+            pattern('build.sh')
+        }
       }
-   }
+    }
+  }
 }
