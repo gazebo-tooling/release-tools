@@ -19,5 +19,10 @@ class OSRFLinuxBase
      {
          label "docker"
      }
+
+      publishers {
+        archiveArtifacts('Dockerfile')
+        archiveArtifacts('build.sh')
+      }
    }
 }
