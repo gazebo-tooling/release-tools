@@ -177,9 +177,9 @@ bottle_job_builder.with
      }
      project  / triggers / 'org.jenkinsci.plugins.ghprb.GhprbTrigger' {
          adminlist 'osrf-jenkins j-rivero scpeters'
-         orgslist 'osrf'
+         orgslist 'ignitionrobotics'
          useGitHubHooks(true)
-         allowMembersOfWhitelistedOrgsAsAdmin(false)
+         allowMembersOfWhitelistedOrgsAsAdmin(true)
          useGitHubHooks(true)
          onlyTriggerPhrase(true)
          permitAll(false)
