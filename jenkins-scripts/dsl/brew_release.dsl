@@ -9,6 +9,10 @@ bottle_hash_updater_job_name   = 'generic-release-homebrew_pr_bottle_hash_update
 bottle_builder_job_name        = 'generic-release-homebrew_triggered_bottle_builder'
 directory_for_bottles          = 'pkgs'
 
+def DISABLE_TESTS = false
+def NO_SUPPORTED_BRANCHES = []
+def DISABLE_GITHUB_INTEGRATION = false
+
 /*
   release.py
   -> update upstream source tarball hash in formula
@@ -120,7 +124,9 @@ def bottle_job_builder = matrixJob(bottle_builder_job_name)
 // set enable_github_pr_integration flag to false so we can customize trigger behavior
 OSRFBrewCompilationAnyGitHub.create(bottle_job_builder,
                                     "osrf/homebrew-simulation",
-                                    false, [], false)
+                                    DISABLE_TESTS,
+                                    NO_SUPPORTED_BRANCHES,
+                                    DISABLE_GITHUB_INTEGRATION)
 GenericRemoteToken.create(bottle_job_builder)
 
 bottle_job_builder.with
