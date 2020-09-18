@@ -161,7 +161,9 @@ bottle_job_builder.with
           build.setDescription(
           '<b><a href="https://github.com/osrf/homebrew-simulation/pull/' +
           build.buildVariableResolver.resolve('ghprbPullId') + '">PR ' +
-          build.buildVariableResolver.resolve('ghprbPullId') + '</a></b>');
+          build.buildVariableResolver.resolve('ghprbPullId') + '</a></b>' +
+          '<br />' +
+          'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
           """.stripIndent()
         )
 
