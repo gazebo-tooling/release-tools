@@ -6,8 +6,12 @@ Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 // first distro in list is used as touchstone
 brew_supported_distros         = [ "highsierra", "mojave" ]
 bottle_hash_updater_job_name   = 'generic-release-homebrew_pr_bottle_hash_updater'
-bottle_builder_job_name        = 'generic-release-homebrew_bottle_builder'
+bottle_builder_job_name        = 'generic-release-homebrew_triggered_bottle_builder'
 directory_for_bottles          = 'pkgs'
+
+def DISABLE_TESTS = false
+def NO_SUPPORTED_BRANCHES = []
+def DISABLE_GITHUB_INTEGRATION = false
 
 /*
   release.py
@@ -46,7 +50,7 @@ void include_common_params(Job job)
 // -------------------------------------------------------------------
 // 1. BREW pull request SHA updater
 def release_job = job("generic-release-homebrew_pull_request_updater")
-OSRFLinuxBase.create(release_job)
+OSRFUNIXBase.create(release_job)
 GenericRemoteToken.create(release_job)
 
 include_common_params(release_job)
@@ -111,32 +115,31 @@ release_job.with
        pattern("${PR_URL_export_file_name}")
        allowEmpty()
      }
-
-     downstreamParameterized
-     {
-        trigger(bottle_builder_job_name)
-        {
-          condition('SUCCESS')
-          parameters {
-            currentBuild()
-            propertiesFile("${PR_URL_export_file_name}")
-          }
-        }
-     }
    }
 }
 
 // -------------------------------------------------------------------
 // 2. BREW bottle creation MATRIX job from pullrequest
 def bottle_job_builder = matrixJob(bottle_builder_job_name)
-OSRFOsXBase.create(bottle_job_builder)
+// set enable_github_pr_integration flag to false so we can customize trigger behavior
+OSRFBrewCompilationAnyGitHub.create(bottle_job_builder,
+                                    "osrf/homebrew-simulation",
+                                    DISABLE_TESTS,
+                                    NO_SUPPORTED_BRANCHES,
+                                    DISABLE_GITHUB_INTEGRATION)
 GenericRemoteToken.create(bottle_job_builder)
 
-include_common_params(bottle_job_builder)
 bottle_job_builder.with
 {
    wrappers {
         preBuildCleanup()
+        credentialsBinding {
+          string('GITHUB_TOKEN', '6f03ada6-fae8-4e74-9e2b-d6d0cf4b97a2')
+        }
+   }
+
+   properties {
+     priority 100
    }
 
    logRotator {
@@ -144,7 +147,7 @@ bottle_job_builder.with
    }
 
    axes {
-     // use labels osx_$osxdistro  
+     // use labels osx_$osxdistro
      label('label', brew_supported_distros.collect { "osx_$it" })
    }
 
@@ -153,28 +156,12 @@ bottle_job_builder.with
 
    touchStoneFilter("label == ${touchstone_label}")
 
-   parameters
-   {
-     stringParam("PULL_REQUEST_URL", '',
-                 'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
-     stringParam("BREW_REPO", 'https://github.com/scpeters/brew.git',
-                 'Repository for fork of homebrew/brew.')
-     stringParam("BREW_BRANCH", 'still_working',
-                 'Branch of brew repository to use.')
-     stringParam("TEST_BOT_REPO", 'https://github.com/scpeters/homebrew-test-bot.git',
-                 'Repository for fork of homebrew/homebrew-test-bot.')
-     stringParam("TEST_BOT_BRANCH", 'still_working',
-                 'Branch of homebrew-test-bot repository to use.')
-   }
-
    steps {
         systemGroovyCommand("""\
           build.setDescription(
-          '<b>' + build.buildVariableResolver.resolve('PACKAGE_ALIAS') + '-' +
-           build.buildVariableResolver.resolve('VERSION') + '</b>' +
-          '<br />' +
-          'pull request:<b> <a href="' + build.buildVariableResolver.resolve('PULL_REQUEST_URL') +
-          '">' + build.buildVariableResolver.resolve('PULL_REQUEST_URL') + '</a></b>' +
+          '<b><a href="https://github.com/osrf/homebrew-simulation/pull/' +
+          build.buildVariableResolver.resolve('ghprbPullId') + '">PR ' +
+          build.buildVariableResolver.resolve('ghprbPullId') + '</a></b>' +
           '<br />' +
           'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
           """.stripIndent()
@@ -182,7 +169,6 @@ bottle_job_builder.with
 
         shell("""\
               #!/bin/bash -xe
-
               /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_bottle_creation.bash
               """.stripIndent())
    }
@@ -190,6 +176,26 @@ bottle_job_builder.with
    configure { project ->
      project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
       'string' "${bottle_hash_updater_job_name}"
+     }
+     project  / triggers / 'org.jenkinsci.plugins.ghprb.GhprbTrigger' {
+         adminlist 'osrf-jenkins j-rivero scpeters'
+         orgslist 'ignitionrobotics'
+         whitelist 'osrfbuild'
+         useGitHubHooks(true)
+         allowMembersOfWhitelistedOrgsAsAdmin(true)
+         useGitHubHooks(true)
+         onlyTriggerPhrase(true)
+         permitAll(false)
+         cron()
+         triggerPhrase '.*build bottle.*'
+         extensions {
+             'org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus' {
+               commitStatusContext '${JOB_NAME}'
+               triggeredStatus 'starting deployment to build.osrfoundation.org'
+               startedStatus 'deploying to build.osrfoundation.org'
+               addTestResults(true)
+             }
+         }
      }
    }
 
@@ -222,7 +228,7 @@ bottle_job_builder.with
           condition('SUCCESS')
           parameters {
             currentBuild()
-              predefinedProp("PULL_REQUEST_URL", "\${PULL_REQUEST_URL}")
+              predefinedProp("PULL_REQUEST_URL", "https://github.com/osrf/homebrew-simulation/pull/\${ghprbPullId}")
           }
         }
      }
@@ -232,7 +238,7 @@ bottle_job_builder.with
 // -------------------------------------------------------------------
 // 4. BREW bottle hash update
 def bottle_job_hash_updater = job(bottle_hash_updater_job_name)
-OSRFLinuxBase.create(bottle_job_hash_updater)
+OSRFUNIXBase.create(bottle_job_hash_updater)
 GenericRemoteToken.create(bottle_job_hash_updater)
 
 include_common_params(bottle_job_hash_updater)
