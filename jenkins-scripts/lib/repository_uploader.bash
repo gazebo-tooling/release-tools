@@ -89,7 +89,7 @@ upload_dsc_package()
 		echo "MARK_BUILD_UNSTABLE"
 }
 
-NEEDED_HOST_PACKAGES="reprepro openssh-client jq"
+NEEDED_HOST_PACKAGES="reprepro openssh-client jq gridsite-clients"
 QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
 if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
   sudo apt-get update
@@ -162,7 +162,7 @@ done
 # .bottle | brew binaries
 for pkg in `find "$pkgs_path" -name '*.bottle*.json'`; do
   # Extract bottle name and root_url from json file
-  bottle_filename=$(dirname $pkg)/$(jq -r '.[]["bottle"]["tags"][]["filename"]' < $pkg)
+  bottle_filename=$(urlencode -d $(dirname $pkg)/$(jq -r '.[]["bottle"]["tags"][]["filename"]' < $pkg))
   root_url=$(jq -r '.[]["bottle"]["root_url"]' < $pkg)
   s3_directory=${root_url#https://osrf-distributions\.s3\.amazonaws\.com/}
 
