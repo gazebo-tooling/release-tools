@@ -11,7 +11,7 @@ reprepro.with
   parameters
   {
     stringParam('UPLOAD_TO_REPO','ubuntu_test',
-                'Repository to host the new imported packages')
+                'Repository to host the new imported packages. Should match entry in reprepro.ini')
     stringParam('REPREPRO_IMPORT_YAML_FILE','',
                 'Name of the reprepo import file')
     booleanParam('COMMIT',false,
