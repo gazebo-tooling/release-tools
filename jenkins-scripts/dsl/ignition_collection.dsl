@@ -451,7 +451,7 @@ collection_data.each { job ->
 }
 
 def nightly_scheduler_job = job("ignition-${ignition_nightly}-nightly-scheduler")
-OSRFUnixBase.create(nightly_scheduler_job)
+OSRFUNIXBase.create(nightly_scheduler_job)
 
 nightly_scheduler_job.with
 {
