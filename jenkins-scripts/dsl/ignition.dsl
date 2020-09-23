@@ -469,7 +469,7 @@ ignition_debbuild.each { ign_sw ->
     extra_str = ""
     if (("${ign_sw}" == "gazebo") ||
         (("${ign_sw}" == "transport") && ("${major_version}" == "6"  || "${major_version}" == "7" )))
-      extra_cmd_str = "export NEED_C17_COMPILER=true"
+      extra_str = "export NEED_C17_COMPILER=true"
 
     def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
     OSRFLinuxBuildPkg.create(build_pkg_job)
