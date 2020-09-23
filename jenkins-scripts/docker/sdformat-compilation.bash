@@ -23,7 +23,7 @@ if [[ ${SDFORMAT_MAJOR_VERSION} -ge 6 ]]; then
 fi
 
 if [[ ${SDFORMAT_MAJOR_VERSION} -ge 8 ]]; then
-  export USE_GCC8=true
+  export NEED_C17_COMPILER=true
 fi
 
 export GZDEV_PROJECT_NAME="sdformat${SDFORMAT_MAJOR_VERSION}"

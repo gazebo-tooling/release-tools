@@ -27,7 +27,7 @@ if [[ -z ${LINUX_DISTRO} ]]; then
   export LINUX_DISTRO="ubuntu"
 fi
 
-[[ -z ${USE_GCC8} ]] && USE_GCC8=false
+[[ -z ${NEED_C17_COMPILER} ]] && NEED_C17_COMPILER=false
 
 export APT_PARAMS=
 # workaround for changing our packages testing server
@@ -314,7 +314,7 @@ DELIM_DOCKER31
 
 # Beware of moving this code since it needs to run update-alternative after
 # installing the default compiler in PACKAGES_CACHE_AND_CHECK_UPDATES
-if ${USE_GCC8}; then
+if ${NEED_C17_COMPILER}; then
 cat >> Dockerfile << DELIM_GCC8
    RUN apt-get update \\
    && apt-get install -y g++-8 \\

@@ -35,7 +35,7 @@ if [[ ${IGN_RENDERING_MAJOR_VERSION} -ge 4 ]]; then
 fi
 
 if [[ ${IGN_RENDERING_MAJOR_VERSION} -ge 1 ]]; then
-  export USE_GCC8=true
+  export NEED_C17_COMPILER=true
 fi
 
 export GPU_SUPPORT_NEEDED=true
