@@ -38,7 +38,7 @@ ignition_collection_jobs =
         'ign_physics-ign-1-win',
         'ign_rendering-ign-2-win',
         'ign_sensors-ign-2-win',
-        'ignition_blueprint-ci-default-homebrew-amd64',
+        'ignition_blueprint-ci-master-homebrew-amd64',
         'ignition_blueprint-install-pkg-bionic-amd64',
         'ignition_blueprint-install_bottle-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-bionic-amd64',
@@ -117,7 +117,7 @@ ignition_collection_jobs =
         'ign_physics-ign-2-win',
         'ign_rendering-ign-3-win',
         'ign_sensors-ign-3-win',
-        'ignition_citadel-ci-default-homebrew-amd64',
+        'ignition_citadel-ci-master-homebrew-amd64',
         'ignition_citadel-install-pkg-bionic-amd64',
         'ignition_citadel-install_bottle-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-bionic-amd64',
@@ -195,7 +195,7 @@ ignition_collection_jobs =
         'ign_physics-ci-win',
         'ign_rendering-ci-win',
         'ign_sensors-ci-win',
-        //'ignition_dome-ci-default-homebrew-amd64',
+        'ignition_dome-ci-master-homebrew-amd64',
         //'ignition_dome-install-pkg-bionic-amd64',
         //'ignition_dome-install_bottle-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-bionic-amd64',
@@ -269,6 +269,7 @@ ignition_collection_jobs =
   ],
 ]
 
+def DISABLE_TESTS           = false
 
 // Testing compilation from source
 ignition_collections.each { ign_collection ->
@@ -322,10 +323,12 @@ ignition_collections.each { ign_collection ->
 
   // MAC Brew CI job
   // --------------------------------------------------------------
-  def ignition_brew_ci_job = job("ignition_${ign_collection_name}-ci-default-homebrew-amd64")
-  OSRFBrewCompilationAnyGitHub.create(ignition_brew_ci_job,
-                                "ignitionrobotics/ign-${ign_collection_name}",
-                                false)
+  def ignition_brew_ci_job = job("ignition_${ign_collection_name}-ci-master-homebrew-amd64")
+  OSRFBrewCompilation.create(ignition_brew_ci_job, DISABLE_TESTS)
+  OSRFGitHub.create(ignition_brew_ci_job,
+                    "ignitionrobotics/ign-${ign_collection_name}",
+                    "master",
+                    "ign-${ign_collection_name}")
   ignition_brew_ci_job.with
   {
       steps {
@@ -542,7 +545,7 @@ nightly_scheduler_job.with
               elif [[ "\${n}" != "\${n/transport/}" ]]; then
                 src_branch="${transport_branch}"
               else
-                src_branch="default"
+                src_branch="master"
               fi
 
               echo "releasing \${n} (as \${alias}) from branch \${src_branch} \${ignitionrepo}"
