@@ -32,7 +32,7 @@ export IGN_NAME_PREFIX_MAJOR_VERSION=$(\
   ${WORKSPACE}/${ABI_JOB_SOFTWARE_NAME}/CMakeLists.txt)
 export ${IGN_NAME_PREFIX}_MAJOR_VERSION=${IGN_NAME_PREFIX_MAJOR_VERSION}
 
-# check if USE_GCC8 should be set
+# check if NEED_C17_COMPILER should be set
 if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo" ]] || \
   [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-physics" ]] || \
   [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-sensors" ]] || \
@@ -44,7 +44,7 @@ if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo" ]] || \
   [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-rendering" && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 1 ]] || \
   [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-transport" && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]]
 then
-  export USE_GCC8=true
+  export NEED_C17_COMPILER=true
 fi
 
 # default to use stable repos

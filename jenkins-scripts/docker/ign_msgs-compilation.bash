@@ -31,7 +31,7 @@ if ! [[ ${IGN_MSGS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 if [[ ${IGN_MSGS_MAJOR_VERSION} -ge 3 ]]; then
-  export USE_GCC8=true
+  export NEED_C17_COMPILER=true
 fi
 
 export GZDEV_PROJECT_NAME="ignition-msgs${IGN_MSGS_MAJOR_VERSION}"

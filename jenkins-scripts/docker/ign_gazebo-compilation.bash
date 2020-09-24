@@ -54,7 +54,7 @@ if [[ ${IGN_GAZEBO_MAJOR_VERSION} -ge 4 ]]; then
   export IGN_TRANSPORT_BRANCH=master
 fi
 
-export USE_GCC8=true
+export NEED_C17_COMPILER=true
 export GPU_SUPPORT_NEEDED=true
 
 export GZDEV_PROJECT_NAME="ignition-gazebo${IGN_GAZEBO_MAJOR_VERSION}"

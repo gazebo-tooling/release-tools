@@ -29,7 +29,7 @@ if ! [[ ${IGN_PLUGIN_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 if [[ ${IGN_PLUGIN_MAJOR_VERSION} -ge 6 ]]; then
-  export USE_GCC8=true
+  export NEED_C17_COMPILER=true
 fi
 
 export GZDEV_PROJECT_NAME="ignition-plugin${IGN_PLUGIN_DEPENDENCIES}"

@@ -58,7 +58,7 @@ if [[ ${IGN_LAUNCH_MAJOR_VERSION} -ge 3 ]]; then
   export IGN_GAZEBO_BRANCH=master
 fi
 
-export USE_GCC8=true
+export NEED_C17_COMPILER=true
 
 export GZDEV_PROJECT_NAME="ignition-launch${IGN_LAUNCH_MAJOR_VERSION}"
 

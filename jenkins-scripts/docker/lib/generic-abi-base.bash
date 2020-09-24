@@ -33,7 +33,7 @@ if [[ -n "${DART_FROM_PKGS_VAR_NAME}" ]]; then
 fi
 
 ABI_CXX_STANDARD=c++11
-if [[ "${USE_GCC8}" == "true" ]]; then
+if [[ "${NEED_C17_COMPILER}" == "true" ]]; then
   ABI_CXX_STANDARD=c++17
 fi
 
