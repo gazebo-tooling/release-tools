@@ -243,4 +243,4 @@ build_pkg_job.with
 
 // Create the main CI work flow job
 def subt_ci_main = pipelineJob("subt-ci-pr_any")
-OSRFCIWorkFlowMultiAny.create(subt_ci_main, ci_build_any_job_name_linux)
+OSRFCIWorkFlowMultiAnyGitHub.create(subt_ci_main, ci_build_any_job_name_linux)

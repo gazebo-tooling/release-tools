@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 
 /*
   -> OSRFWinCompilation
-  -> GenericAnyJob
+  -> GenericAnyJobGitHub
 
   Implements:
     - compiler warning

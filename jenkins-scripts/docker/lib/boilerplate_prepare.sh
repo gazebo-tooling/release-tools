@@ -259,8 +259,4 @@ rm -fr ${WORKSPACE}/build.sh
 # Workaround to fix several nested levels of calls to the same script that seems
 # to kill global bash variables
 echo "${MAKE_JOBS}" > "${WORKSPACE}/make_jobs"
-
-# Use GitHub repositories (useful only in bitbucket-github migration)
-export GITHUB=${GITHUB:-true}
-
 cd ${WORKSPACE}
