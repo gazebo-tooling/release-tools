@@ -3,8 +3,6 @@ package _configs_
 import javaposse.jobdsl.dsl.Job
 
 /*
-  -> OSRFCIWorkFlow
-
   Implements:
      - parameters
      - definition (pipeline plugin)
