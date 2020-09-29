@@ -143,6 +143,8 @@ ci_distro.each { distro ->
         if (gpu != 'none')
         {
           label "gpu-reliable"
+        } else {
+          label "large-memory"
         }
 
         steps
@@ -192,6 +194,8 @@ ci_distro.each { distro ->
         if (gpu != 'none')
         {
           label "gpu-reliable"
+        } else {
+          label "large-memory"
         }
 
         triggers {
@@ -362,6 +366,8 @@ ci_distro_default.each { distro ->
 
     gazebo_ci_job.with
     {
+      label "large-memory"
+
       triggers {
         scm('@weekly')
       }
@@ -393,6 +399,8 @@ ci_distro_default.each { distro ->
           scm('@daily')
         }
 
+        label "large-memory"
+
         // Problem with the compilation of Gazebo under bullseyes
         // See: https://github.com/ignition-tooling/release-tools/issues/129
         disabled()
@@ -423,6 +431,8 @@ ci_distro_default.each { distro ->
 
       gazebo_ci_job.with
       {
+        label "large-memory"
+
         triggers {
           scm('@daily')
         }
