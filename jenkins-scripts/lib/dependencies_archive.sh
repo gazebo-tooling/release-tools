@@ -50,7 +50,7 @@ BASE_DEPENDENCIES="build-essential \\
                    net-tools       \\
                    locales"
 
-BREW_BASE_DEPENDCIES="mercurial git cmake"
+BREW_BASE_DEPENDCIES="git cmake"
 
 # 1. SDFORMAT
 # ruby for xml_schemas generation and libxml2-utils for xmllint used in tests
@@ -780,8 +780,7 @@ IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
 #
 # SUBT
 #
-SUBT_DEPENDENCIES="mercurial \\
-                   wget \\
+SUBT_DEPENDENCIES="wget \\
                    curl \\
                    git  \\
                    ${ROS_CATKIN_BASE} \\

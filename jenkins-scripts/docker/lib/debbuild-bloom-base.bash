@@ -121,7 +121,6 @@ DEPENDENCY_PKGS="devscripts \
 		 ca-certificates \
 		 equivs \
 		 dh-make \
-		 mercurial \
 		 git \
 		 python-openssl \
                  ca-certificates \
