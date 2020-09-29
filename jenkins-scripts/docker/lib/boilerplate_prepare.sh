@@ -42,7 +42,7 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
         echo "Space left is low again: ${PERCENT_DISK_USED}% used"
         echo "Kill the whole docker cache !!"
         # use system prune if available
-        docker_version="$(docker version --format '{{.Server.APIVersion}}') > 1.25"
+        docker_version="$(sudo docker version --format '{{.Server.APIVersion}}') > 1.25"
         if [[ $(echo $docker_version | bc -l) ]]; then
           sudo docker system prune --all -f
         else
