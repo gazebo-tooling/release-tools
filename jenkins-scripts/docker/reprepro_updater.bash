@@ -4,6 +4,7 @@
 [[ -L "${0}" ]] && SCRIPT_DIR=$(readlink "${0}") || SCRIPT_DIR="${0}"
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
+PYTHON_VENV="${WORKSPACE}/venv"
 REPREPRO_GIT_REPO="https://github.com/j-rivero/reprepro-updater"
 REPREPRO_GIT_BRANCH="${REPREPRO_GIT_BRANCH:-refactor}"
 REPREPRO_REPO_PATH="$WORKSPACE/repo"
@@ -18,6 +19,14 @@ if [[ ! -f "${HOME}/.buildfarm/reprepro-updater.ini" ]]; then
     exit -1
 fi
 
+echo '#BEGIN: prepare and join python-venv'
+if [[ ! -d ${PYTHON_VENV} ]]; then
+  python3 -m venv "${PYTHON_VENV}"
+  pip3 install configparser
+fi
+source "${PYTHON_VENV}/bin/activate"
+echo '# END SECTION'
+
 echo '# BEGIN SECTION: clone the git repo'
 rm -fr ${REPREPRO_REPO_PATH}
 git clone "${REPREPRO_GIT_REPO}" -b "${REPREPRO_GIT_BRANCH}" "${REPREPRO_REPO_PATH}"
@@ -31,4 +40,8 @@ cd "${REPREPRO_REPO_PATH}/scripts"
 python import_upstream.py ${REPREPRO_PARAMS} \
   "${UPLOAD_TO_REPO}" \
   "${REPREPRO_IMPORT_YAML_FILE}"
+echo '# END SECTION'
+
+echo '#BEGIN: exit the venv'
+deactivate
 echo '# END SECTION'
