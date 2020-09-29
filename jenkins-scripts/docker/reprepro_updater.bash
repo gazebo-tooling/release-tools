@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+set -e
+
 # Knowing Script dir beware of symlink
 [[ -L "${0}" ]] && SCRIPT_DIR=$(readlink "${0}") || SCRIPT_DIR="${0}"
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
@@ -23,7 +25,7 @@ echo '#BEGIN: prepare and join python-venv'
 if [[ ! -d ${PYTHON_VENV} ]]; then
   python3 -m venv "${PYTHON_VENV}"
   source "${PYTHON_VENV}/bin/activate"
-  pip3 install configparser PyYAML 
+  pip3 install configparser
 else
   source "${PYTHON_VENV}/bin/activate"
 fi
@@ -40,7 +42,7 @@ export GNUPGHOME=/var/lib/jenkins/.gnupg
 echo '# BEGIN SECTION: run reprepro'
 cd "${REPREPRO_REPO_PATH}/scripts"
 python import_upstream.py ${REPREPRO_PARAMS} \
-  "${UPLOAD_TO_REPO}" \
+  "${UPLOAD_TO_REPO:-:_}" \
   "${REPREPRO_IMPORT_YAML_FILE}"
 echo '# END SECTION'
 
