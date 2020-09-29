@@ -239,7 +239,6 @@ DEPENDENCY_PKGS="devscripts \
 		 ca-certificates \
 		 equivs \
 		 dh-make \
-		 mercurial \
 		 git"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash

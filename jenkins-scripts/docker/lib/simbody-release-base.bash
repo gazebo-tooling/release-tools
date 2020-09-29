@@ -106,7 +106,7 @@ RUN mkdir -p ${WORKSPACE}
 # automatic invalidation of the cache if day is different
 RUN echo "${TODAY_STR}"
 RUN apt-get update
-RUN apt-get install -y fakeroot debootstrap devscripts equivs dh-make ubuntu-dev-tools mercurial debhelper wget pkg-kde-tools bash-completion git
+RUN apt-get install -y fakeroot debootstrap devscripts equivs dh-make ubuntu-dev-tools debhelper wget pkg-kde-tools bash-completion git
 ADD build.sh build.sh
 RUN chmod +x build.sh
 DELIM_DOCKER
