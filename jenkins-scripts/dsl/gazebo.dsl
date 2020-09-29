@@ -242,6 +242,10 @@ other_supported_distros.each { distro ->
         if (gpu != 'none')
         {
           label "gpu-reliable"
+        } else {
+          // gazebo builds require a powerful node not to take too long and
+          // block backup for hours
+          label "large-memory"
         }
 
         triggers {
@@ -283,7 +287,7 @@ ci_distro.each { distro ->
           stringParam('IGN_TRANSPORT_BRANCH', 'master', 'ignition transport branch to use')
         }
 
-        label "gpu-${gpu}-${distro}"
+        label "gpu-reliable"
 
         steps {
             shell("""\
@@ -324,7 +328,7 @@ gazebo_supported_branches.each { branch ->
 
         gazebo_ci_job.with
         {
-          label "gpu-${gpu}"
+          label "gpu-reliable"
 
           triggers {
             scm('@daily')
