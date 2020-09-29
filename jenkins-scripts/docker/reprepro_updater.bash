@@ -22,9 +22,11 @@ fi
 echo '#BEGIN: prepare and join python-venv'
 if [[ ! -d ${PYTHON_VENV} ]]; then
   python3 -m venv "${PYTHON_VENV}"
+  source "${PYTHON_VENV}/bin/activate"
   pip3 install configparser
+else
+  source "${PYTHON_VENV}/bin/activate"
 fi
-source "${PYTHON_VENV}/bin/activate"
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: clone the git repo'
