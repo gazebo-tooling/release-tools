@@ -5,7 +5,7 @@
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 REPREPRO_GIT_REPO="https://github.com/j-rivero/reprepro-updater"
-REPREPRO_GIT_BRANCH="${REPREPRO_GIT_BRANCH}:-refactor"
+REPREPRO_GIT_BRANCH="${REPREPRO_GIT_BRANCH:-refactor}"
 REPO_PATH="$WORKSPACE/repo"
 
 REPREPRO_PARAMS=''
