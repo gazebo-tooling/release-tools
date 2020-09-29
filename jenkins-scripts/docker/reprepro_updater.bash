@@ -23,7 +23,7 @@ echo '#BEGIN: prepare and join python-venv'
 if [[ ! -d ${PYTHON_VENV} ]]; then
   python3 -m venv "${PYTHON_VENV}"
   source "${PYTHON_VENV}/bin/activate"
-  pip3 install configparser pyyaml
+  pip3 install configparser PyYAML 
 else
   source "${PYTHON_VENV}/bin/activate"
 fi
