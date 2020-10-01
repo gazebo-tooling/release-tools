@@ -128,10 +128,8 @@ abi_distro.each { distro ->
 ci_build_any_job_name_linux_no_gpu = ""
 
 // CI JOBS @ SCM/5 min
-ci_gpu_include_gpu_none = ci_gpu + [ 'none' ]
-
 ci_distro.each { distro ->
-  ci_gpu_include_gpu_none.each { gpu ->
+  ci_gpu.each { gpu ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       // 1. Create the any job
@@ -140,19 +138,12 @@ ci_distro.each { distro ->
       OSRFLinuxCompilationAnyGitHub.create(gazebo_ci_any_job, "osrf/gazebo")
       gazebo_ci_any_job.with
       {
-        if (gpu != 'none')
-        {
-          label "gpu-reliable"
-        }
+        label "gpu-reliable"
 
         steps
         {
-           String gpu_needed = 'true'
-           if (gpu == 'none') {
-              gpu_needed = 'false'
-              // save the name to be used in the Workflow job
-              ci_build_any_job_name_linux_no_gpu = gazebo_ci_any_job_name
-           }
+           // save the name to be used in the Workflow job
+           ci_build_any_job_name_linux_no_gpu = gazebo_ci_any_job_name
 
            shell("""\
            #!/bin/bash -xe
@@ -171,7 +162,7 @@ ci_distro.each { distro ->
            fi
 
            export ARCH=${arch}
-           export GPU_SUPPORT_NEEDED=${gpu_needed}
+           export GPU_SUPPORT_NEEDED=true
            /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
            """.stripIndent())
          }
@@ -189,18 +180,10 @@ ci_distro.each { distro ->
 
       gazebo_ci_job.with
       {
-        if (gpu != 'none')
-        {
-          label "gpu-reliable"
-        }
+        label "gpu-reliable"
 
         triggers {
           scm('*/5 * * * *')
-        }
-
-        String gpu_needed = 'true'
-        if (gpu == 'none') {
-          gpu_needed = 'false'
         }
 
         steps {
@@ -209,7 +192,7 @@ ci_distro.each { distro ->
 
                 export DISTRO=${ci_distro_default_str}
                 export ARCH=${arch}
-                export GPU_SUPPORT_NEEDED=${gpu_needed}
+                export GPU_SUPPORT_NEEDED=true
                 /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
                 """.stripIndent())
         }
