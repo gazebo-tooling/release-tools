@@ -124,9 +124,6 @@ abi_distro.each { distro ->
   } // end of arch
 } // end of distro
 
-// MAIN CI job
-ci_build_any_job_name_linux_no_gpu = ""
-
 // CI JOBS @ SCM/5 min
 ci_distro.each { distro ->
   ci_gpu.each { gpu ->
@@ -142,9 +139,6 @@ ci_distro.each { distro ->
 
         steps
         {
-           // save the name to be used in the Workflow job
-           ci_build_any_job_name_linux_no_gpu = gazebo_ci_any_job_name
-
            shell("""\
            #!/bin/bash -xe
            wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
@@ -616,6 +610,5 @@ all_branches.each { branch ->
 def gazebo_ci_main = pipelineJob("gazebo-ci-manual_any")
 OSRFCIWorkFlowMultiAnyGitHub.create(gazebo_ci_main,
                                    [ci_build_any_job_name_linux,
-                                    ci_build_any_job_name_linux_no_gpu,
                                     ci_build_any_job_name_win7,
                                     ci_build_any_job_name_brew])
