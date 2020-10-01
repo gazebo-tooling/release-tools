@@ -467,8 +467,7 @@ ignition_debbuild.each { ign_sw ->
       major_version = ""
 
     extra_str = ""
-    // Need to use gazebo4 as ign_sw since its a debbuild injection
-    if (("${ign_sw}" == "gazebo4") ||
+    if (ign_sw.contains("gazebo") ||
         (("${ign_sw}" == "transport") && ("${major_version}" == "7" )))
       extra_str="export NEED_C17_COMPILER=true"
 
