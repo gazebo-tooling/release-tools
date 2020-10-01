@@ -29,36 +29,6 @@ packages.each { repo_name, pkgs ->
  pkgs.each { pkg ->
 
   // --------------------------------------------------------------
-  // 1. Create the job that tries to install packages
-  def install_job = job("${pkg}-install-pkg-debian_sid-amd64")
-  OSRFLinuxInstall.create(install_job)
-  install_job.with
-  {
-     triggers {
-       cron('@weekly')
-     }
-
-    // No accepted in Sid yet
-    if ((pkg == 'sdformat6') || (pkg == 'ignition-transport4'))
-    {
-      disabled()
-    }
-
-     steps {
-      shell("""\
-            #!/bin/bash -xe
-
-            export LINUX_DISTRO=debian
-            export DISTRO=sid
-            export ARCH=amd64
-            # Hack to select the latest -dev of series
-            export INSTALL_JOB_PKG="\\\$(apt-cache search ${pkg} | grep '${pkg}[0-9]-dev -' | tail -1 | awk '{print \\\$1}')"
-            /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
-            """.stripIndent())
-    }
-  }
-
-  // --------------------------------------------------------------
   // 2. Create the job that tries to build the package and run lintian
   def ci_job = job("${pkg}-pkg_builder-master-debian_sid-amd64")
   OSRFLinuxBuildPkgBase.create(ci_job)
@@ -76,10 +46,6 @@ packages.each { repo_name, pkgs ->
 
           branch('refs/heads/master')
         }
-      }
-
-      triggers {
-        scm('@daily')
       }
 
       properties {

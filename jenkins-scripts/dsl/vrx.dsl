@@ -117,7 +117,7 @@ ci_distro.each { distro, ros_distro ->
         disabled()
 
       triggers {
-        cron('@daily')
+        cron(Globals.CRON_EVERY_THREE_DAYS)
       }
 
       label "gpu-reliable"

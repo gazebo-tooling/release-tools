@@ -90,6 +90,7 @@ abi_job_names = [:]
 
 Globals.extra_emails = "caguero@osrfoundation.org"
 
+
 String ci_distro_str = ci_distro[0]
 
 // Map of lists to use in CIWorkflow
@@ -368,7 +369,7 @@ ignition_software.each { ign_sw ->
         install_default_job.with
         {
           triggers {
-            cron('@daily')
+            cron(Globals.CRON_EVERY_THREE_DAYS)
           }
 
           def dev_package = "libignition-${ign_sw}${major_version}-dev"

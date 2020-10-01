@@ -183,7 +183,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
       install_default_job.with
       {
         triggers {
-          cron('@daily')
+          cron(Globals.CRON_EVERY_THREE_DAYS)
         }
       }
 
@@ -200,7 +200,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
       install_stable_default_job.with
       {
         triggers {
-          cron('@daily')
+          cron(Globals.CRON_EVERY_THREE_DAYS)
         }
       }
 
@@ -223,7 +223,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
           install_alternative_job.with
           {
             triggers {
-              cron('@daily')
+              cron(Globals.CRON_EVERY_THREE_DAYS)
             }
           }
 
