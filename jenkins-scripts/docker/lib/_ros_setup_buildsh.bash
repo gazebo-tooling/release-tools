@@ -12,6 +12,7 @@ fi
 
 [[ -z ${USE_GZ_VERSION_ROSDEP} ]] && USE_GZ_VERSION_ROSDEP=false
 [[ -z ${USE_CATKIN_MAKE} ]] && USE_CATKIN_MAKE=false # use colcon by default
+[[ -z ${KEEP_WS_FILES} ]] && KEEP_WS_FILES=false # clean up install/ build/
 
 if ${USE_CATKIN_MAKE}; then
   export CMD_CATKIN_CONFIG=""
@@ -122,6 +123,12 @@ for d in \$DIRS; do
   done
 done
 echo '# END SECTION'
+
+# clean up build and install directories to save disk space in Jenkins server
+if [[ ! $KEEP_WS_FILES ]]; then
+  rm -fr ${CATKIN_WS}/install/*
+  rm -fr ${CATKIN_WS}/build/*
+fi
 
 if [ `expr length "${ROS_SETUP_POSTINSTALL_HOOK} "` -gt 1 ]; then
 echo '# BEGIN SECTION: running post install hook'
