@@ -59,7 +59,7 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
         echo "Space left is low again: ${PERCENT_DISK_USED}% used"
         echo "Clean up the whole cache was not enough. Look for build/ directories bigger than ${MAX_SIZE_FOR_BUILD_DIRS}:"
         # run command twice to avoid parsing. First for information proposes
-        echo "${CMD_FIND_BIG_DIRS[@]}"
+        ${CMD_FIND_BIG_DIRS[@]}
         for d in $("${CMD_FIND_BIG_DIRS[@]}" | awk '{ print $2 }'); do
           # safe checks on paths
           if [[ $d == ${d/$HOME} ]] || [[ $d == ${d/build} ]]; then
