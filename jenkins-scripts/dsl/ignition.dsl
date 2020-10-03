@@ -90,6 +90,7 @@ abi_job_names = [:]
 
 Globals.extra_emails = "caguero@osrfoundation.org"
 
+
 String ci_distro_str = ci_distro[0]
 
 // Map of lists to use in CIWorkflow
@@ -368,7 +369,7 @@ ignition_software.each { ign_sw ->
         install_default_job.with
         {
           triggers {
-            cron('@daily')
+            cron(Globals.CRON_EVERY_THREE_DAYS)
           }
 
           def dev_package = "libignition-${ign_sw}${major_version}-dev"
@@ -467,8 +468,8 @@ ignition_debbuild.each { ign_sw ->
       major_version = ""
 
     extra_str = ""
-    if (("${ign_sw}" == "gazebo") ||
-        (("${ign_sw}" == "transport") && ("${major_version}" == "6"  || "${major_version}" == "7" )))
+    if (ign_sw.contains("gazebo") ||
+        (("${ign_sw}" == "transport") && ("${major_version}" == "7" )))
       extra_str="export NEED_C17_COMPILER=true"
 
     def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")

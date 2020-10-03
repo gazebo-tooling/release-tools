@@ -118,7 +118,7 @@ DELIM_DART
 # Process the source build of dependencies if needed
 for dep_uppercase in $GAZEBO_OSRF_DEPS; do
   dep=`echo $dep_uppercase | tr '[:upper:]' '[:lower:]'`
-  EXTRA_PACKAGES="${EXTRA_PACKAGES} mercurial"
+  EXTRA_PACKAGES="${EXTRA_PACKAGES} git"
   eval dependecy_installation="\$GAZEBO_BUILD_$dep_uppercase"
 
   if [[ -n ${dependecy_installation} ]] && ${dependecy_installation}; then

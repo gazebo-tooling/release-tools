@@ -204,7 +204,6 @@ OSRF_REPOS_TO_USE=${ABI_JOB_REPOS}
 DEPENDENCY_PKGS="${ABI_JOB_PKG_DEPENDENCIES} \
                   git \
                   exuberant-ctags \
-                  mercurial \
                   ca-certificates"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash

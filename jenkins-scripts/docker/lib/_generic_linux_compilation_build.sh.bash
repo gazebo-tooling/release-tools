@@ -32,7 +32,7 @@ OSRF_DEPS="IGN_CMAKE IGN_TOOLS IGN_MATH IGN_MSGS IGN_TRANSPORT IGN_COMMON IGN_FU
 OSRF_DEPS_DONE=""
 for dep_uppercase in $OSRF_DEPS; do
   dep=`echo $dep_uppercase | tr '[:upper:]' '[:lower:]'`
-  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} mercurial"
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} git"
   eval dependecy_installation="\$BUILD_$dep_uppercase"
 
   # Prevent multiple builds of same dep

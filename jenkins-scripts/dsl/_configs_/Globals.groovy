@@ -10,6 +10,9 @@ class Globals
    static rtools_description = true
    static gazebodistro_branch = false
 
+
+   static CRON_EVERY_THREE_DAYS = 'H H * * H/3'
+
    static gpu_by_distro  = [ xenial  : [ 'nvidia' ] ,
                              bionic  : [ 'nvidia' ]]
 
