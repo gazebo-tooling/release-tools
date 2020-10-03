@@ -135,7 +135,7 @@ ci_distro.each { distro ->
       OSRFLinuxCompilationAnyGitHub.create(gazebo_ci_any_job, "osrf/gazebo")
       gazebo_ci_any_job.with
       {
-        label "gpu-reliable"
+        label "gpu-reliable && large-memory"
 
         steps
         {
@@ -174,7 +174,7 @@ ci_distro.each { distro ->
 
       gazebo_ci_job.with
       {
-        label "gpu-reliable"
+        label "gpu-reliable && large-memory"
 
         triggers {
           scm('*/5 * * * *')
@@ -218,7 +218,7 @@ other_supported_distros.each { distro ->
 
         // gazebo builds require a powerful node not to take too long and
         // block backup for hours
-        label "large-memory"
+        label "gpu-reliable && large-memory"
 
         triggers {
           scm('@daily')
@@ -300,7 +300,7 @@ gazebo_supported_branches.each { branch ->
 
         gazebo_ci_job.with
         {
-          label "gpu-reliable"
+          label "gpu-reliable && large-memory"
 
           triggers {
             scm('@daily')
@@ -334,7 +334,7 @@ ci_distro_default.each { distro ->
 
     gazebo_ci_job.with
     {
-      label "large-memory"
+      label "gpu-reliable && large-memory"
 
       triggers {
         scm('@weekly')
@@ -367,7 +367,7 @@ ci_distro_default.each { distro ->
           scm('@daily')
         }
 
-        label "large-memory"
+        label "gpu-reliable && large-memory"
 
         // Problem with the compilation of Gazebo under bullseyes
         // See: https://github.com/ignition-tooling/release-tools/issues/129
@@ -399,7 +399,7 @@ ci_distro_default.each { distro ->
 
       gazebo_ci_job.with
       {
-        label "large-memory"
+        label "gpu-reliable && large-memory"
 
         triggers {
           scm('@daily')
