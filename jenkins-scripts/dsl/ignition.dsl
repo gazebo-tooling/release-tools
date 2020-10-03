@@ -418,6 +418,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs3") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs4") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs5") ||
+              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs6") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "master") ||
               ("${ign_sw}" == "physics") ||
               ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
@@ -427,6 +428,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport6") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport7") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport8") ||
+              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport9") ||
               ("${ign_sw}" == "transport" && "${branch}" == "master")))
             disabled()
 
