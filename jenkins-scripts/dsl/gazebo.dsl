@@ -48,7 +48,7 @@ void generate_install_job(Job job, gz_branch, distro, arch, use_osrf_repos = fal
   job.with
   {
     triggers {
-      cron('@daily')
+      cron(Globals.CRON_EVERY_THREE_DAYS)
     }
 
     // Branch is exactly in the form of gazeboN
@@ -426,7 +426,7 @@ all_supported_distros.each { distro ->
     install_default_job.with
     {
       triggers {
-        cron('@daily')
+        cron(Globals.CRON_EVERY_THREE_DAYS)
       }
 
       label "gpu-reliable"

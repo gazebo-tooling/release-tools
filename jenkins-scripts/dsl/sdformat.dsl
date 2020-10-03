@@ -244,7 +244,7 @@ sdformat_supported_branches.each { branch ->
       install_default_job.with
       {
          triggers {
-           cron('@daily')
+           cron(Globals.CRON_EVERY_THREE_DAYS)
          }
 
          // sdformat10 hasn't been released yet

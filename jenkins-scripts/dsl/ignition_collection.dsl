@@ -298,7 +298,7 @@ ignition_collections.each { ign_collection ->
     install_default_job.with
     {
       triggers {
-        cron('@daily')
+        cron(Globals.CRON_EVERY_THREE_DAYS)
       }
 
       def dev_package = "ignition-${ign_collection_name}"
