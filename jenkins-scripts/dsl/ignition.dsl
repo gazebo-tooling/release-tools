@@ -30,17 +30,17 @@ ignition_no_test            = [ 'tools' ]
 // master, ABI check, install pkg)
 ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'common'     : [ '1', '2', '3' ],
-                                'fuel-tools' : [ '1', '2', '3', '4' ],
-                                'gazebo'     : [ '2', '3' ],
-                                'gui'        : [ '0', '2', '3' ],
-                                'launch'     : [ '1', '2' ],
+                                'fuel-tools' : [ '1', '2', '3', '4', '5' ],
+                                'gazebo'     : [ '2', '3', '4' ],
+                                'gui'        : [ '0', '2', '3', '4' ],
+                                'launch'     : [ '1', '2', '3' ],
                                 'math'       : [ '2', '4', '5', '6' ],
-                                'msgs'       : [ '1', '2', '4', '5' ],
-                                'physics'    : [ '1', '2' ],
+                                'msgs'       : [ '1', '2', '4', '5', '6' ],
+                                'physics'    : [ '1', '2', '3' ],
                                 'plugin'     : [ '0', '1' ],
-                                'rendering'  : [ '2', '3' ],
-                                'sensors'    : [ '2', '3' ],
-                                'transport'  : [ '4', '5', '7', '8' ],
+                                'rendering'  : [ '2', '3', '4' ],
+                                'sensors'    : [ '2', '3', '4' ],
+                                'transport'  : [ '4', '5', '7', '8', '9' ],
                                 'tools'      : [ '0', '1' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
@@ -49,16 +49,7 @@ ignition_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
-ignition_debbuild = ignition_software + [ 'fuel-tools5',
-                                          'gazebo4',
-                                          'gui4',
-                                          'launch3',
-                                          'math6',
-                                          'msgs6',
-                                          'physics3',
-                                          'rendering4',
-                                          'sensors4',
-                                          'transport9']
+ignition_debbuild = ignition_software + [ ]
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [ 'rndf' ]
 // DESC: major versions that has a package in the prerelease repo. Should
@@ -428,6 +419,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs3") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs4") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs5") ||
+              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs6") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "master") ||
               ("${ign_sw}" == "physics") ||
               ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
@@ -437,6 +429,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport6") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport7") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport8") ||
+              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport9") ||
               ("${ign_sw}" == "transport" && "${branch}" == "master")))
             disabled()
 
