@@ -324,21 +324,23 @@ ignition_software.each { ign_sw ->
             (("${ign_sw}" == "cmake")      && ("${major_version}" == "2")) ||
             (("${ign_sw}" == "common")     && ("${major_version}" == "3")) ||
             (("${ign_sw}" == "fuel-tools") &&
-              (("${major_version}" == "3") || ("${major_version}" == "4"))) ||
+              (("${major_version}" == "3") || ("${major_version}" == "4") ||
+               ("${major_version}" == "5"))) ||
              ("${ign_sw}" == "gazebo")     ||
              ("${ign_sw}" == "gui")        ||
              ("${ign_sw}" == "launch")     ||
             (("${ign_sw}" == "math")       && ("${major_version}" == "6")) ||
             (("${ign_sw}" == "msgs")       &&
               (("${major_version}" == "2") || ("${major_version}" == "3") ||
-               ("${major_version}" == "4") || ("${major_version}" == "5"))) ||
+               ("${major_version}" == "4") || ("${major_version}" == "5") ||
+               ("${major_version}" == "6"))) ||
              ("${ign_sw}" == "physics")    ||
              ("${ign_sw}" == "plugin")     ||
              ("${ign_sw}" == "rendering")  ||
              ("${ign_sw}" == "sensors")    ||
             (("${ign_sw}" == "transport")  &&
-              (("${major_version}" == "6") ||
-               ("${major_version}" == "7") || ("${major_version}" == "8")))))
+              (("${major_version}" == "6") || ("${major_version}" == "7") ||
+               ("${major_version}" == "8") || ("${major_version}" == "9")))))
           return
 
         extra_repos_str=""
