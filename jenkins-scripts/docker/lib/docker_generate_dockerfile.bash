@@ -42,7 +42,7 @@ dockerfile_install_gzdev_repos()
 {
 cat >> Dockerfile << DELIM_OSRF_REPO_GIT
 RUN rm -fr ${GZDEV_DIR}
-RUN git clone --depth 1 https://github.com/osrf/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
+RUN git clone --depth 1 https://github.com/ignition-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
 DELIM_OSRF_REPO_GIT
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
 # debian sid docker images does not return correct name so we need to use
