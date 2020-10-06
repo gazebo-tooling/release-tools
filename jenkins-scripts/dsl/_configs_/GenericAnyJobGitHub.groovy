@@ -53,12 +53,14 @@ class GenericAnyJobGitHub
           project  / triggers / 'org.jenkinsci.plugins.ghprb.GhprbTrigger' {
               adminlist 'osrf-jenkins j-rivero'
               orgslist 'osrf'
-              useGitHubHooks(true)
               allowMembersOfWhitelistedOrgsAsAdmin(true)
-              useGitHubHooks(true)
+              // disable the automatic creation of github hooks to avoid admin
+              // permissions on github bots
+              useGitHubHooks(false)
               onlyTriggerPhrase(false)
               permitAll(true)
-              cron()
+              // do not remove the cron line otherwise it triggers an error in the log
+              cron('# not needed since GithubHooks is enabled')
               whiteListTargetBranches {
                 supported_branches.each { supported_branch ->
                   'org.jenkinsci.plugins.ghprb.GhprbBranch' {
