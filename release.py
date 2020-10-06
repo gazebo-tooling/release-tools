@@ -84,6 +84,15 @@ def generate_package_source(srcdir, builddir):
     check_call(cmake_cmd + [srcdir])
     check_call(['make', 'package_source'])
 
+
+def exists_main_branch(github_url):
+    check_main_cmd = ['git', 'ls-remote', '--exit-code', '--heads', github_url, 'main']
+    try:
+        if (check_call(check_main_cmd, IGNORE_DRY_RUN)):
+            return True
+    except Exception as e:
+        return False
+
 def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
@@ -119,7 +128,7 @@ def parse_args(argv):
                         help='OSRF repo to upload: stable | prerelease | nightly')
     parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
                         help='extra OSRF repository to use in the build')
-    parser.add_argument('--nightly-src-branch', dest='nightly_branch', default="default",
+    parser.add_argument('--nightly-src-branch', dest='nightly_branch', default="main",
                         help='branch in the source code repository to build the nightly from')
     args = parser.parse_args()
     if not args.package_alias:
@@ -160,14 +169,9 @@ def download_release_repository(package, release_branch):
 
     # If main branch exists, prefer it over master
     if release_branch == "master":
-        check_main_cmd = ['git', 'ls-remote', '--exit-code', '--heads', url, 'main']
-        try:
-            if (check_call(check_main_cmd, IGNORE_DRY_RUN)):
-                print_success('Found main branch in repo, use it instead master')
-                release_branch = 'main'
-        except Exception as e:
-            # expected if main does not exits
-            pass
+        if exists_main_branch(url):
+            print_success('Found main branch in repo, use it instead master')
+            release_branch = 'main'
 
     cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
     check_call(cmd, IGNORE_DRY_RUN)
