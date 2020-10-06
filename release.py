@@ -158,8 +158,18 @@ def download_release_repository(package, release_branch):
     if vcs == "git" and release_branch == "default":
         release_branch = "master"
 
-    cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
+    # If main branch exists, prefer it over master
+    if release_branch == "master":
+        check_main_cmd = ['git', 'ls-remote', '--exit-code', '--heads', url, 'main']
+        try:
+            if (check_call(check_main_cmd, IGNORE_DRY_RUN)):
+                print_success('Found main branch in repo, use it instead master')
+                release_branch = 'main'
+        except Exception as e:
+            # expected if main does not exits
+            pass
 
+    cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
     check_call(cmd, IGNORE_DRY_RUN)
     return release_tmp_dir
 
