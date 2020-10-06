@@ -19,7 +19,7 @@ export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_COMMON_DEPENDENCIES"
 
 # Identify IGN_COMMON_MAJOR_VERSION to help with dependency resolution
 IGN_COMMON_MAJOR_VERSION=$(\
-  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-common/CMakeLists.txt)
 
 # Check IGN_COMMON version is integer

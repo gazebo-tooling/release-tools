@@ -19,7 +19,7 @@ export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_GUI_DEPENDENCIES"
 
 # Identify IGN_GUI_MAJOR_VERSION to help with dependency resolution
 IGN_GUI_MAJOR_VERSION=$(\
-  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-gui/CMakeLists.txt)
 
 # Check IGN_GUI_MAJOR_VERSION version is integer

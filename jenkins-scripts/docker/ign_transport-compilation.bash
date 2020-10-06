@@ -19,7 +19,7 @@ export BUILDING_SOFTWARE_DIRECTORY="ign-transport"
 
 # Identify IGN_TRANSPORT_MAJOR_VERSION to help with dependency resolution
 IGN_TRANSPORT_MAJOR_VERSION=$(\
-  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-transport/CMakeLists.txt)
 
 # Check IGN_TRANSPORT version is integer
