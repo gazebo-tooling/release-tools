@@ -576,7 +576,7 @@ nightly_scheduler_job.with
 
               # remove 0 or 1 trailing versions. Use echo + sed to avoid scaping
               # problems with <<<
-              if [[ \$(echo \$n | sed -r 's:[a-z]*[A-Z]*([0-9]*):\\1:g') -lt 2 ]]; then
+              if [[ \$n != \${n/[0-9]*} ]] && [[ \$(echo \$n | sed -r 's:[a-z]*[A-Z]*([0-9]*):\\1:g') -lt 2 ]]; then
                 n=\${n%[0-1]}
               fi
 
