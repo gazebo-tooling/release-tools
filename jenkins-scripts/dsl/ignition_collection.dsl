@@ -617,7 +617,7 @@ nightly_scheduler_job.with
               elif [[ "\${n}" != "\${n/transport/}" ]]; then
                 src_branch="${transport_branch}"
               else
-                src_branch="master"
+                src_branch="main"
               fi
 
               echo "releasing \${n} (as \${alias}) from branch \${src_branch} \${ignitionrepo}"
