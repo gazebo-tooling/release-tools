@@ -32,7 +32,7 @@ ignition_collection_jobs =
         'ign_physics-ign-1-win',
         'ign_rendering-ign-2-win',
         'ign_sensors-ign-2-win',
-        'ignition_blueprint-ci-master-homebrew-amd64',
+        'ignition_blueprint-ci-main-homebrew-amd64',
         'ignition_blueprint-install-pkg-bionic-amd64',
         'ignition_blueprint-install_bottle-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-bionic-amd64',
@@ -111,7 +111,7 @@ ignition_collection_jobs =
         'ign_physics-ign-2-win',
         'ign_rendering-ign-3-win',
         'ign_sensors-ign-3-win',
-        'ignition_citadel-ci-master-homebrew-amd64',
+        'ignition_citadel-ci-main-homebrew-amd64',
         'ignition_citadel-install-pkg-bionic-amd64',
         'ignition_citadel-install_bottle-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-bionic-amd64',
@@ -189,7 +189,7 @@ ignition_collection_jobs =
         'ign_physics-ign-3-win',
         'ign_rendering-ign-4-win',
         'ign_sensors-ign-4-win',
-        'ignition_dome-ci-master-homebrew-amd64',
+        'ignition_dome-ci-main-homebrew-amd64',
         'ignition_dome-install-pkg-bionic-amd64',
         'ignition_dome-install_bottle-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-bionic-amd64',
@@ -395,11 +395,11 @@ ignition_collections.each { ign_collection ->
 
   // MAC Brew CI job
   // --------------------------------------------------------------
-  def ignition_brew_ci_job = job("ignition_${ign_collection_name}-ci-master-homebrew-amd64")
+  def ignition_brew_ci_job = job("ignition_${ign_collection_name}-ci-main-homebrew-amd64")
   OSRFBrewCompilation.create(ignition_brew_ci_job, DISABLE_TESTS)
   OSRFGitHub.create(ignition_brew_ci_job,
                     "ignitionrobotics/ign-${ign_collection_name}",
-                    "master",
+                    "main",
                     "ign-${ign_collection_name}")
   ignition_brew_ci_job.with
   {
