@@ -267,7 +267,7 @@ ignition_collection_jobs =
         'ign_physics-ign-3-win',
         'ign_rendering-ign-4-win',
         'ign_sensors-ign-4-win',
-        'ignition_edifice-ci-master-homebrew-amd64',
+        'ignition_edifice-ci-main-homebrew-amd64',
         'ignition_edifice-install-pkg-bionic-amd64',
         'ignition_edifice-install_bottle-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-bionic-amd64',
