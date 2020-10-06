@@ -2,9 +2,7 @@
 
 set -e
 
-# Knowing Script dir beware of symlink
-[[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
-SCRIPT_DIR="${SCRIPT_DIR%/*}"
+SCRIPT_DIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 if [[ $# -lt 1 ]]; then
     echo "$0 <list_of_new_ignition_names_space_separated"
