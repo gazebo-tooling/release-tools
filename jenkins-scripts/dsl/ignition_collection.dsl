@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 // IGNITION COLLECTIONS
 arch = 'amd64'
 
-ignition_nightly = 'dome'
+ignition_nightly = 'edifice'
 
 ignition_collections = [
   [ name : 'blueprint',
@@ -15,17 +15,11 @@ ignition_collections = [
   ],
   [ name : 'dome',
     distros : [ 'focal' ],
+  ],
+  [ name : 'edifice',
+    distros : [ 'focal' ],
     nightly_jobs: [
-          'fuel-tools': [ debbuild: 'ign-fuel-tools5', branch: 'ign-fuel-tools5 '],
-          'gazebo'    : [ debbuild: 'ign-gazebo4'    , branch: 'ign-gazebo4' ],
-          'gui'       : [ debbuild: 'ign-gui4'       , branch: 'ign-gui4' ],
-          'launch'    : [ debbuild: 'ign-launch3'    , branch: 'ign-launch3' ],
-          'msgs'      : [ debbuild: 'ign-msgs6'      , branch: 'ign-msgs6' ],
-          'physics'   : [ debbuild: 'ign-physics3'   , branch: 'ign-physics3' ],
-          'rendering' : [ debbuild: 'ign-rendering4' , branch: 'ign-rendering4' ],
-          'sensors'   : [ debbuild: 'ign-sensors4'   , branch: 'ign-sensors4' ],
-          'sdformat'  : [ debbuild: 'sdformat10'     , branch: 'sdf10'  ],
-          'transport' : [ debbuild: 'ign-transport9' , branch: 'ign-transport9' ],
+          'edifice': [ debbuild: 'ign-edifice', branch: 'main '],
     ],
   ],
 ]
@@ -198,6 +192,84 @@ ignition_collection_jobs =
         'ignition_dome-ci-main-homebrew-amd64',
         'ignition_dome-install-pkg-bionic-amd64',
         'ignition_dome-install_bottle-homebrew-amd64',
+        'ignition_cmake-ci-ign-cmake2-bionic-amd64',
+        'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
+        'ignition_cmake-ci-ign-cmake2-windows7-amd64',
+        'ignition_cmake2-install-pkg-bionic-amd64',
+        'ignition_cmake2-install_bottle-homebrew-amd64',
+        'ignition_common-ci-ign-common3-bionic-amd64',
+        'ignition_common-ci-ign-common3-homebrew-amd64',
+        'ignition_common-ci-ign-common3-windows7-amd64',
+        'ignition_common3-install-pkg-bionic-amd64',
+        'ignition_common3-install_bottle-homebrew-amd64',
+        'ignition_fuel-tools-ci-ign-fuel-tools5-bionic-amd64',
+        'ignition_fuel-tools-ci-ign-fuel-tools5-homebrew-amd64',
+        'ignition_fuel-tools-ci-ign-fuel-tools5-windows7-amd64',
+        'ignition_fuel-tools5-install-pkg-bionic-amd64',
+        'ignition_fuel-tools5-install_bottle-homebrew-amd64',
+        'ignition_gazebo-ci-ign-gazebo4-bionic-amd64',
+        'ignition_gazebo-ci-ign-gazebo4-homebrew-amd64',
+        'ignition_gazebo4-install-pkg-bionic-amd64',
+        'ignition_gazebo4-install_bottle-homebrew-amd64',
+        'ignition_gui-ci-ign-gui4-bionic-amd64',
+        'ignition_gui-ci-ign-gui4-homebrew-amd64',
+        'ignition_gui4-install-pkg-bionic-amd64',
+        'ignition_gui4-install_bottle-homebrew-amd64',
+        'ignition_launch-ci-ign-launch3-bionic-amd64',
+        'ignition_launch-ci-ign-launch3-homebrew-amd64',
+        'ignition_launch3-install-pkg-bionic-amd64',
+        'ignition_launch3-install_bottle-homebrew-amd64',
+        'ignition_math-ci-ign-math6-bionic-amd64',
+        'ignition_math-ci-ign-math6-homebrew-amd64',
+        'ignition_math-ci-ign-math6-windows7-amd64',
+        'ignition_math6-install-pkg-bionic-amd64',
+        'ignition_math6-install_bottle-homebrew-amd64',
+        'ignition_msgs-ci-ign-msgs6-bionic-amd64',
+        'ignition_msgs-ci-ign-msgs6-homebrew-amd64',
+        'ignition_msgs-ci-ign-msgs6-windows7-amd64',
+        'ignition_msgs6-install-pkg-bionic-amd64',
+        'ignition_msgs6-install_bottle-homebrew-amd64',
+        'ignition_physics-ci-ign-physics3-bionic-amd64',
+        'ignition_physics-ci-ign-physics3-homebrew-amd64',
+        'ignition_physics3-install-pkg-bionic-amd64',
+        'ignition_physics3-install_bottle-homebrew-amd64',
+        'ignition_plugin-ci-ign-plugin1-bionic-amd64',
+        'ignition_plugin-ci-ign-plugin1-homebrew-amd64',
+        'ignition_plugin-ci-ign-plugin1-windows7-amd64',
+        'ignition_plugin-install-pkg-bionic-amd64',
+        'ignition_plugin1-install_bottle-homebrew-amd64',
+        'ignition_rendering-ci-ign-rendering4-bionic-amd64',
+        'ignition_rendering-ci-ign-rendering4-homebrew-amd64',
+        'ignition_rendering4-install-pkg-bionic-amd64',
+        'ignition_rendering4-install_bottle-homebrew-amd64',
+        'ignition_sensors-ci-ign-sensors4-bionic-amd64',
+        'ignition_sensors-ci-ign-sensors4-homebrew-amd64',
+        'ignition_sensors4-install-pkg-bionic-amd64',
+        'ignition_sensors4-install_bottle-homebrew-amd64',
+        'ignition_tools-ci-ign-tools1-bionic-amd64',
+        'ignition_tools-ci-ign-tools1-homebrew-amd64',
+        'ignition_tools-ci-ign-tools1-windows7-amd64',
+        'ignition_tools-install-pkg-bionic-amd64',
+        'ignition_tools1-install_bottle-homebrew-amd64',
+        'ignition_transport-ci-ign-transport9-bionic-amd64',
+        'ignition_transport-ci-ign-transport9-homebrew-amd64',
+        'ignition_transport-ci-ign-transport9-windows7-amd64',
+        'ignition_transport9-install-pkg-bionic-amd64',
+        'ignition_transport9-install_bottle-homebrew-amd64',
+        'sdformat-ci-sdformat10-bionic-amd64',
+        'sdformat-ci-sdformat10-homebrew-amd64',
+        'sdformat-ci-sdformat10-windows7-amd64',
+        'sdformat-install-sdformat10_pkg-bionic-amd64'
+  ],
+  'edifice' : [
+        'ign_gazebo-ign-4-win',
+        'ign_gui-ign-4-win',
+        'ign_physics-ign-3-win',
+        'ign_rendering-ign-4-win',
+        'ign_sensors-ign-4-win',
+        'ignition_edifice-ci-main-homebrew-amd64',
+        'ignition_edifice-install-pkg-bionic-amd64',
+        'ignition_edifice-install_bottle-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-bionic-amd64',
         'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-windows7-amd64',
@@ -504,7 +576,7 @@ nightly_scheduler_job.with
 
               # remove 0 or 1 trailing versions. Use echo + sed to avoid scaping
               # problems with <<<
-              if [[ \$(echo \$n | sed -r 's:[a-z]*[A-Z]*([0-9]*):\\1:g') -lt 2 ]]; then
+              if [[ \$n != \${n/[0-9]*} ]] && [[ \$(echo \$n | sed -r 's:[a-z]*[A-Z]*([0-9]*):\\1:g') -lt 2 ]]; then
                 n=\${n%[0-1]}
               fi
 
@@ -549,7 +621,7 @@ nightly_scheduler_job.with
               fi
 
               echo "releasing \${n} (as \${alias}) from branch \${src_branch} \${ignitionrepo}"
-              python ./scripts/release.py \${dry_run_str} "\${n}" nightly "\${PASS}" -a \${alias} --extra-osrf-repo prerelease --nightly-src-branch \${src_branch} --upload-to-repo nightly  \${ignitionrepo} > log || echo "MARK_AS_UNSTABLE"
+              python ./scripts/release.py \${dry_run_str} "\${n}" nightly "\${PASS}" -a \${alias} --extra-osrf-repo prerelease --release-repo-branch main --nightly-src-branch \${src_branch} --upload-to-repo nightly  \${ignitionrepo} > log || echo "MARK_AS_UNSTABLE"
               echo " - done"
           done
 
