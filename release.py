@@ -363,7 +363,7 @@ def check_call(cmd, ignore_dry_run = False):
         out, err = po.communicate()
         if po.returncode != 0:
             # bitbucket for the first one, github for the second
-            if ("404" in err) or ("Repository not found" in err):
+            if (b"404" in err) or (b"Repository not found" in err):
                 raise ErrorURLNotFound404()
             if "Permission denied" in out:
                 raise ErrorNoPermsRepo()
