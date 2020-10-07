@@ -365,9 +365,9 @@ def check_call(cmd, ignore_dry_run = False):
             # bitbucket for the first one, github for the second
             if (b"404" in err) or (b"Repository not found" in err):
                 raise ErrorURLNotFound404()
-            if "Permission denied" in out:
+            if b"Permission denied" in out:
                 raise ErrorNoPermsRepo()
-            if "abort: no username supplied" in err:
+            if b"abort: no username supplied" in err:
                 raise ErrorNoUsernameSupplied()
             # Unkown exception
             print('Error running command (%s).'%(' '.join(cmd)))
