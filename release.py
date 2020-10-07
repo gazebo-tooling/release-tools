@@ -5,8 +5,8 @@ import subprocess
 import sys
 import tempfile
 import os
-import urllib
 import urllib.parse
+import urllib.request
 import argparse
 import shutil
 import re
@@ -555,7 +555,7 @@ def go(argv):
                                                    params_query)
     if not DRY_RUN and not NIGHTLY:
         print('- Brew: %s'%(brew_url))
-        urllib.urlopen(brew_url)
+        urllib.request.urlopen(brew_url)
 
     # RELEASING FOR LINUX
     for l in LINUX_DISTROS:
@@ -603,7 +603,7 @@ def go(argv):
                 print('- Linux: %s'%(url))
 
                 if not DRY_RUN:
-                    urllib.urlopen(url)
+                    urllib.request.urlopen(url)
 
 if __name__ == '__main__':
     go(sys.argv)
