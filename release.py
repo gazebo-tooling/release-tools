@@ -69,7 +69,7 @@ def github_repo_exists(url):
     except ErrorURLNotFound404 as e:
         return False
     except Exception as e:
-        error("Unexpected problem checking for git repo: " + e.what())
+        error("Unexpected problem checking for git repo: " + str(e))
     return True
 
 def generate_package_source(srcdir, builddir):
