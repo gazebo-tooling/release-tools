@@ -6,6 +6,7 @@ import sys
 import tempfile
 import os
 import urllib
+import urllib.parse
 import argparse
 import shutil
 import re
@@ -196,16 +197,16 @@ def sanity_package_name(repo_dir, package, package_alias):
 
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
-    for line in out.split('\n'.encode()):
+    for line in out.decode().split('\n'):
         if not line:
             continue
         # Check that first word is the package alias or name
-        if line.partition(' '.encode())[0] != expected_name:
+        if line.partition(' ')[0] != expected_name:
             error("Error in changelog package name or alias: " + line.decode())
 
     cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
-    for line in out.split('\n'.encode()):
+    for line in out.decode().split('\n'):
         if not line:
             continue
         # Check that first word is the package alias or name
@@ -217,7 +218,7 @@ def sanity_package_name(repo_dir, package, package_alias):
 def sanity_package_version(repo_dir, version, release_version):
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
-    for line in out.split('\n'.encode()):
+    for line in out.decode().split('\n'):
         if not line:
             continue
         # return full version in brackets
@@ -546,7 +547,7 @@ def go(argv):
     else:
         job_name = JOB_NAME_PATTERN%(args.package)
 
-    params_query = urllib.urlencode(params)
+    params_query = urllib.parse.urlencode(params)
 
     # RELEASING FOR BREW
     brew_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL,
@@ -596,7 +597,7 @@ def go(argv):
                 if (NIGHTLY and a == 'i386'):
                     continue
 
-                linux_platform_params_query = urllib.urlencode(linux_platform_params)
+                linux_platform_params_query = urllib.parse.urlencode(linux_platform_params)
 
                 url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, linux_platform_params_query)
                 print('- Linux: %s'%(url))
