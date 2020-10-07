@@ -295,14 +295,13 @@ def check_s3cmd_configuration():
     return True
 
 def sanity_checks(args, repo_dir):
-    check_s3cmd_configuration()
-
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
     sanity_use_prerelease_branch(args.release_repo_branch)
 
     if not NIGHTLY:
+        check_s3cmd_configuration()
         sanity_package_version(repo_dir, args.version, str(args.release_version))
         sanity_check_gazebo_versions(args.package, args.version)
         sanity_check_sdformat_versions(args.package, args.version)
