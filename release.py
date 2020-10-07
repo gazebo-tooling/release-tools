@@ -65,7 +65,7 @@ def is_catkin_package():
 
 def github_repo_exists(url):
     try:
-        check_call(['git', 'ls-remote', url], IGNORE_DRY_RUN)
+        check_call(['git', 'ls-remote', '-q', '--exit-code', url], IGNORE_DRY_RUN)
     except ErrorURLNotFound404 as e:
         return False
     except Exception as e:
@@ -151,9 +151,10 @@ def parse_args(argv):
     return args
 
 def get_release_repository_info(package):
-    # if fails with http URL for github, it will ask for auth in stdin. Use the
-    # git@ approach to avoid interaction
-    github_test_url = "git@github.com:ignition-release/" + package + "-release"
+    # Do not use git@github method since it fails in non existant repositories
+    # asking for stdin user/pass. Same happen if no user/pass is provided
+    # using the fake foo:foo here seems to work
+    github_test_url = "https://foo:foo@github.com/ignition-release/" + package + "-release"
     if (github_repo_exists(github_test_url)):
         github_url = "https://github.com/ignition-release/" + package + "-release"
         return 'git', github_url
