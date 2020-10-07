@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import subprocess
@@ -196,16 +196,16 @@ def sanity_package_name(repo_dir, package, package_alias):
 
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
-    for line in out.split("\n"):
+    for line in out.split('\n'.encode()):
         if not line:
             continue
         # Check that first word is the package alias or name
-        if line.partition(' ')[0] != expected_name:
-            error("Error in changelog package name or alias: " + line)
+        if line.partition(' '.encode())[0] != expected_name:
+            error("Error in changelog package name or alias: " + line.decode())
 
     cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
-    for line in out.split("\n"):
+    for line in out.split('\n'.encode()):
         if not line:
             continue
         # Check that first word is the package alias or name
@@ -217,7 +217,7 @@ def sanity_package_name(repo_dir, package, package_alias):
 def sanity_package_version(repo_dir, version, release_version):
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
-    for line in out.split("\n"):
+    for line in out.split('\n'.encode()):
         if not line:
             continue
         # return full version in brackets
@@ -324,7 +324,7 @@ def discover_distros(repo_dir):
     if not os.path.isdir(repo_dir):
         return None
 
-    root, subdirs, files = os.walk(repo_dir).next()
+    _, subdirs, files = os.walk(repo_dir).__next__()
     repo_arch_exclusion = get_exclusion_arches(files)
 
     if '.git' in subdirs: subdirs.remove('.git')
@@ -339,7 +339,7 @@ def discover_distros(repo_dir):
 
     distro_arch_list = {}
     for d in subdirs:
-        files = os.walk(repo_dir + '/' + d).next()[2]
+        files = os.walk(repo_dir + '/' + d).__next__()[2]
         distro_arch_exclusion = get_exclusion_arches(files)
         excluded_arches = distro_arch_exclusion + repo_arch_exclusion
         arches_supported = [x for x in SUPPORTED_ARCHS if x not in excluded_arches]
