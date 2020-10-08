@@ -266,9 +266,12 @@ RUN add-apt-repository ppa:j-rivero/simbody-artful
 DELIM_DOCKER_WORKAROUND_SIMBODY
 fi
 
+# Install debian dependencies defined on the source code
+SOURCE_DEFINED_DEPS="$(sort -u $(find . -iname 'packages-'$DISTRO'.apt' -o -iname 'packages.apt') | tr '\n' ' ')"
+
 # Packages that will be installed and cached by docker. In a non-cache
 # run below, the docker script will check for the latest updates
-PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS}"
+PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS} ${SOURCE_DEFINED_DEPS}"
 
 if $USE_GPU_DOCKER; then
   PACKAGES_CACHE_AND_CHECK_UPDATES="${PACKAGES_CACHE_AND_CHECK_UPDATES} ${GRAPHIC_CARD_PKG}"
