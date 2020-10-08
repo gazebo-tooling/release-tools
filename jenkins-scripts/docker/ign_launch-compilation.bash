@@ -28,6 +28,36 @@ if ! [[ ${IGN_LAUNCH_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
+if [[ ${IGN_LAUNCH_MAJOR_VERSION} -ge 3 ]]; then
+  export BUILD_IGN_FUEL_TOOLS=true
+  export IGN_FUEL_TOOLS_MAJOR_VERSION=5
+  export IGN_FUEL_TOOLS_BRANCH=master
+
+  export BUILD_IGN_GUI=true
+  export IGN_GUI_MAJOR_VERSION=4
+  export IGN_GUI_BRANCH=master
+
+  export BUILD_IGN_PHYSICS=true
+  export IGN_PHYSICS_MAJOR_VERSION=3
+  export IGN_PHYSICS_BRANCH=master
+
+  export BUILD_IGN_MSGS=true
+  export IGN_MSGS_MAJOR_VERSION=6
+  export IGN_MSGS_BRANCH=master
+
+  export BUILD_IGN_RENDERING=true
+  export IGN_RENDERING_MAJOR_VERSION=4
+  export IGN_RENDERING_BRANCH=master
+
+  export BUILD_IGN_SENSORS=true
+  export IGN_SENSORS_MAJOR_VERSION=4
+  export IGN_SENSORS_BRANCH=master
+
+  export BUILD_IGN_GAZEBO=true
+  export IGN_GAZEBO_MAJOR_VERSION=4
+  export IGN_GAZEBO_BRANCH=master
+fi
+
 export NEED_C17_COMPILER=true
 
 export GZDEV_PROJECT_NAME="ignition-launch${IGN_LAUNCH_MAJOR_VERSION}"
