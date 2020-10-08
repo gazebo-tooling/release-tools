@@ -28,24 +28,6 @@ if ! [[ ${IGN_SENSORS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-if [[ ${IGN_SENSORS_MAJOR_VERSION} -ge 4 ]]; then
-  export BUILD_IGN_GUI=true
-  export IGN_GUI_MAJOR_VERSION=4
-  export IGN_GUI_BRANCH=master
-
-  export BUILD_IGN_MSGS=true
-  export IGN_MSGS_MAJOR_VERSION=6
-  export IGN_MSGS_BRANCH=master
-
-  export BUILD_IGN_RENDERING=true
-  export IGN_RENDERING_MAJOR_VERSION=4
-  export IGN_RENDERING_BRANCH=master
-
-  export BUILD_IGN_TRANSPORT=true
-  export IGN_TRANSPORT_MAJOR_VERSION=9
-  export IGN_TRANSPORT_BRANCH=master
-fi
-
 export NEED_C17_COMPILER=true
 
 export GPU_SUPPORT_NEEDED=true
