@@ -56,7 +56,7 @@ class GenericAnyJobGitHub
               allowMembersOfWhitelistedOrgsAsAdmin(true)
               // disable the automatic creation of github hooks to avoid admin
               // permissions on github bots
-              useGitHubHooks(false)
+              useGitHubHooks(true)
               onlyTriggerPhrase(false)
               permitAll(true)
               // do not remove the cron line otherwise it triggers an error in the log
