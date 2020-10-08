@@ -30,7 +30,7 @@ DELIM_HEADER
 # Install debian dependencies defined on the source code
 # These dependencies are not cached
 SYSTEM_VERSION=`lsb_release -cs`
-apt -y install \
+sudo apt -y install \
   $(sort -u $(find . -iname 'packages-'$SYSTEM_VERSION'.apt' -o -iname 'packages.apt') | tr '\n' ' ')
 
 # Process the source build of dependencies if needed
