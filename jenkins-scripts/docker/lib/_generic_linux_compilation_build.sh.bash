@@ -27,6 +27,12 @@ if $GENERIC_ENABLE_TIMING; then
 fi
 DELIM_HEADER
 
+# Install debian dependencies defined on the source code
+# These dependencies are not cached
+SYSTEM_VERSION=`lsb_release -cs`
+apt -y install \
+  $(sort -u $(find . -iname 'packages-'$SYSTEM_VERSION'.apt' -o -iname 'packages.apt') | tr '\n' ' ')
+
 # Process the source build of dependencies if needed
 OSRF_DEPS="IGN_CMAKE IGN_TOOLS IGN_MATH IGN_MSGS IGN_TRANSPORT IGN_COMMON IGN_FUEL_TOOLS SDFORMAT IGN_PHYSICS IGN_RENDERING IGN_SENSORS IGN_GUI IGN_GAZEBO"
 OSRF_DEPS_DONE=""
