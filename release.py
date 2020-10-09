@@ -394,7 +394,7 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
         tarball_path = alt_tarball_path
 
     shasum_out_err = check_call(['shasum', '--algorithm', '256', tarball_path])
-    return shasum_out_err[0].split(' ')[0], tarball_fname, tarball_path
+    return shasum_out_err[0].decode().split(' ')[0], tarball_fname, tarball_path
 
 def generate_upload_tarball(args):
     ###################################################
