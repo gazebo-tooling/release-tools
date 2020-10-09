@@ -54,8 +54,6 @@ class GenericAnyJobGitHub
               adminlist 'osrf-jenkins j-rivero'
               orgslist 'osrf'
               allowMembersOfWhitelistedOrgsAsAdmin(true)
-              // disable the automatic creation of github hooks to avoid admin
-              // permissions on github bots
               useGitHubHooks(true)
               onlyTriggerPhrase(false)
               permitAll(true)
