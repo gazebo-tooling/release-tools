@@ -18,6 +18,6 @@ INSTALL_JOB_POSTINSTALL_HOOK="""
 ${GAZEBO_RUNTIME_TEST}
 """
 # Need bc to proper testing and parsing the time
-export DEPENDENCY_PKGS="${DEPENDENCY_PKGS} wget bc"
+export DEPENDENCY_PKGS="${DEPENDENCY_PKGS} wget bc software-properties-common"
 
 . ${SCRIPT_DIR}/lib/generic-install-base.bash
