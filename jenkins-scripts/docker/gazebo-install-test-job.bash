@@ -9,6 +9,11 @@ export GPU_SUPPORT_NEEDED=true
 # Import library
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
+export INSTALL_JOB_PREINSTALL_HOOK="""
+add-apt-repository -y ppa:j-rivero/sdformatffe
+apt-get install -y *sdformat*
+"""
+
 INSTALL_JOB_POSTINSTALL_HOOK="""
 ${GAZEBO_RUNTIME_TEST}
 """
