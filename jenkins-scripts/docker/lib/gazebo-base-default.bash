@@ -152,6 +152,8 @@ DELIM_BUILD_DEPS
 done
 
 cat >> build.sh << DELIM
+add-apt-repository -y ppa:j-rivero/sdformatffe
+apt-get install *sdformat*
 # Normal cmake routine for Gazebo
 echo '# BEGIN SECTION: Gazebo configuration'
 rm -rf $WORKSPACE/install
