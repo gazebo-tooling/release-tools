@@ -11,7 +11,10 @@ import shutil
 import re
 
 USAGE = 'release.py <package> <version> <jenkinstoken>'
-JENKINS_URL = 'http://build.osrfoundation.org'
+try:
+    JENKINS_URL = os.environ['JENKINS_URL']
+except KeyError:
+    JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuilder'
 JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
 GENERIC_BREW_PULLREQUEST_JOB='generic-release-homebrew_pull_request_updater'
