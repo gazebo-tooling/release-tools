@@ -28,7 +28,7 @@ DART_FROM_PKGS_VAR_NAME=${IGN_NAME_PREFIX}_DART_FROM_PKGS
 
 # Identify IGN_MSGS_MAJOR_VERSION to help with dependency resolution
 export IGN_NAME_PREFIX_MAJOR_VERSION=$(\
-  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/${ABI_JOB_SOFTWARE_NAME}/CMakeLists.txt)
 export ${IGN_NAME_PREFIX}_MAJOR_VERSION=${IGN_NAME_PREFIX_MAJOR_VERSION}
 

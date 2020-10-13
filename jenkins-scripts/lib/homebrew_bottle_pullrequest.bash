@@ -19,9 +19,9 @@ PULL_REQUEST_API_URL=$(echo ${PULL_REQUEST_URL} \
   | sed -e 's@^https://github\.com/@https://api.github.com/repos/@' \
         -e 's@/pull/\([0-9]\+\)/*$@/pulls/\1@')
 PULL_REQUEST_HEAD_REPO=$(curl ${PULL_REQUEST_API_URL} \
-  | python -c 'import json, sys; print(json.loads(sys.stdin.read())["head"]["repo"]["ssh_url"])')
+  | python3 -c 'import json, sys; print(json.loads(sys.stdin.read())["head"]["repo"]["ssh_url"])')
 PULL_REQUEST_BRANCH=$(curl ${PULL_REQUEST_API_URL} \
-  | python -c 'import json, sys; print(json.loads(sys.stdin.read())["head"]["ref"])')
+  | python3 -c 'import json, sys; print(json.loads(sys.stdin.read())["head"]["ref"])')
 echo '# END SECTION'
 
 # note that matrix projects use subdirectories on pkgs/ with the label of different configurations

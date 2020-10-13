@@ -19,7 +19,7 @@ export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_LAUNCH_DEPENDENCIES"
 
 # Identify IGN_LAUNCH_MAJOR_VERSION to help with dependency resolution
 IGN_LAUNCH_MAJOR_VERSION=$(\
-  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-launch/CMakeLists.txt)
 
 # Check IGN_LAUNCH version is integer
