@@ -400,8 +400,13 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
                 error("Can not find a tarball at: " + tarball_path + " or at " + alt_tarball_path)
         tarball_path = alt_tarball_path
 
-    shasum_out_err = check_call(['shasum', '--algorithm', '256', tarball_path])
-    return shasum_out_err[0].decode().split(' ')[0], tarball_fname, tarball_path
+    out, err = check_call(['shasum', '--algorithm', '256', tarball_path])
+    if err:
+        error("shasum returned an error: " + err.decode())
+    if isinstance(out, bytes):
+        out = out.decode()
+
+    return out.split(' ')[0], tarball_fname, tarball_path
 
 def generate_upload_tarball(args):
     ###################################################
