@@ -48,6 +48,9 @@ class ErrorNoUsernameSupplied(Exception):
 class ErrorURLNotFound404(Exception):
     pass
 
+class ErrorNoOutput(Exception):
+    pass
+
 def error(msg):
     print("\n !! " + msg + "\n")
     sys.exit(1)
@@ -67,7 +70,7 @@ def is_catkin_package():
 def github_repo_exists(url):
     try:
         check_call(['git', 'ls-remote', '-q', '--exit-code', url], IGNORE_DRY_RUN)
-    except ErrorURLNotFound404 as e:
+    except (ErrorURLNotFound404, ErrorNoOutput) as e:
         return False
     except Exception as e:
         error("Unexpected problem checking for git repo: " + str(e))
@@ -370,6 +373,10 @@ def check_call(cmd, ignore_dry_run = False):
                 raise ErrorNoPermsRepo()
             if b"abort: no username supplied" in err:
                 raise ErrorNoUsernameSupplied()
+            if not out and not err:
+                # assume that call is only for getting return code
+                raise ErrorNoOutput()
+
             # Unkown exception
             print('Error running command (%s).'%(' '.join(cmd)))
             print('stdout: %s'%(out))
