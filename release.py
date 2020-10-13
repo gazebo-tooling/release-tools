@@ -379,8 +379,8 @@ def check_call(cmd, ignore_dry_run = False):
 
             # Unkown exception
             print('Error running command (%s).'%(' '.join(cmd)))
-            print('stdout: %s'%(out))
-            print('stderr: %s'%(err))
+            print('stdout: %s'%(out.decode()))
+            print('stderr: %s'%(err.decode()))
             raise Exception('subprocess call failed')
         return out, err
 
@@ -401,7 +401,7 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
         tarball_path = alt_tarball_path
 
     shasum_out_err = check_call(['shasum', '--algorithm', '256', tarball_path])
-    return shasum_out_err[0].split(' ')[0], tarball_fname, tarball_path
+    return shasum_out_err[0].decode().split(' ')[0], tarball_fname, tarball_path
 
 def generate_upload_tarball(args):
     ###################################################
@@ -419,7 +419,7 @@ def generate_upload_tarball(args):
     if out:
         print('git says that you have uncommitted changes')
         print('Please clean up your working copy so that "%s" outputs nothing' % (' '.join(cmd)))
-        print('stdout: %s' % (out))
+        print('stdout: %s' % (out.decode()))
         sys.exit(1)
 
     # Make a clean copy, to avoid pulling in other stuff that the user has
