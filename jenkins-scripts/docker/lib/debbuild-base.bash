@@ -17,6 +17,7 @@ fi
 export ENABLE_REAPER=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_debbuild_utils.sh
 
 cat > build.sh << DELIM
 ###################################################
@@ -186,7 +187,7 @@ echo '# BEGIN SECTION: create source package' \${OSRF_VERSION}
 
 # lintian triggers a problem on arm in Focal when using qemu, avoid it
 no_lintian_param=""
-if [[ ${DISTRO} == 'focal' && (${ARCH} == 'arm64' || ${ARCH} == 'armhf') ]]; then
+if $(support_lintian_calls); then
   no_lintian_param="--no-lintian"
 fi
 

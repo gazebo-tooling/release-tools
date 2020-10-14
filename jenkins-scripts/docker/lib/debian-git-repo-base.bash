@@ -5,6 +5,7 @@
 export ENABLE_REAPER=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_debbuild_utils.sh
 
 # The git plugin leaves a repository copy with a detached HEAD
 # state. gbp does not like it thus the need of using --git-ignore-branch
@@ -52,7 +53,7 @@ ${DEBIAN_GIT_PREINSTALL_HOOK}
 echo '# END SECTION'
 fi
 
-if [[ ${DISTRO} == 'focal' && (${ARCH} == 'arm64' || ${ARCH} == 'armhf') ]]; then
+if $(support_lintian_calls); then
     # Did not find the way of avoid lintian in gbp call
     ln -sf /bin/true /usr/bin/lintian
 fi
@@ -110,10 +111,12 @@ rm -f ../*.deb
 ${GBP_COMMAND}
 echo '# END SECTION'
 
+if $(support_lintian_calls); then
 echo '# BEGIN SECTION: lintian QA'
 lintian -I -i ../*.changes || true
 lintian -I -i ../*.dsc || true
 echo '# END SECTION'
+fi
 
 echo '# BEGIN SECTION: export pkgs'
 PKGS=\`find ../ -name *.deb || true\`
