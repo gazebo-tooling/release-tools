@@ -13,7 +13,6 @@ ignition_software = [ 'cmake',
                       'physics',
                       'plugin',
                       'rendering',
-                      'rndf',
                       'sensors',
                       'tools',
                       'transport' ]
@@ -51,7 +50,7 @@ ignition_prerelease_branches = []
 // jobs for the special cases of foo0 packages)
 ignition_debbuild = ignition_software + [ ]
 // DESC: exclude ignition from generate any install testing job
-ignition_no_pkg_yet         = [ 'rndf' ]
+ignition_no_pkg_yet         = [  ]
 // DESC: major versions that has a package in the prerelease repo. Should
 // not appear in ignition_no_pkg_yet nor in ignition_branches
 ignition_prerelease_pkgs    = [ 'placeholder' : [
@@ -556,7 +555,6 @@ ignition_software.each { ign_sw ->
           ("${ign_sw}" == "gui" && "${major_version}" == "0") ||
           ("${ign_sw}" == "math" && "${major_version}" == "5") ||
           ("${ign_sw}" == "msgs" && "${major_version}" == "2") ||
-          ("${ign_sw}" == "rndf") ||
           ("${ign_sw}" == "transport" && "${major_version}" == "5"))
         disabled()
 

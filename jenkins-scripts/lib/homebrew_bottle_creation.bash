@@ -61,11 +61,6 @@ pushd $(brew --repo osrf/simulation) && \
   hub pr checkout ${ghprbPullId} && \
   popd
 
-# test-bot wants to 'git fetch --unshallow' over ssh, which has permission issues
-# explicitly unshallow using https instead
-git -C $(brew --repo osrf/simulation) fetch --unshallow \
-    https://github.com/${GITHUB_REPOSITORY}
-
 brew test-bot --tap=osrf/simulation \
               --fail-fast \
               --root-url=https://osrf-distributions.s3.amazonaws.com/bottles-simulation

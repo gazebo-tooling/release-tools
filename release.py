@@ -1,17 +1,21 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import subprocess
 import sys
 import tempfile
 import os
-import urllib
+import urllib.parse
+import urllib.request
 import argparse
 import shutil
 import re
 
 USAGE = 'release.py <package> <version> <jenkinstoken>'
-JENKINS_URL = 'http://build.osrfoundation.org'
+try:
+    JENKINS_URL = os.environ['JENKINS_URL']
+except KeyError:
+    JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuilder'
 JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
 GENERIC_BREW_PULLREQUEST_JOB='generic-release-homebrew_pull_request_updater'
@@ -47,6 +51,9 @@ class ErrorNoUsernameSupplied(Exception):
 class ErrorURLNotFound404(Exception):
     pass
 
+class ErrorNoOutput(Exception):
+    pass
+
 def error(msg):
     print("\n !! " + msg + "\n")
     sys.exit(1)
@@ -65,11 +72,11 @@ def is_catkin_package():
 
 def github_repo_exists(url):
     try:
-        check_call(['git', 'ls-remote', url], IGNORE_DRY_RUN)
-    except ErrorURLNotFound404 as e:
+        check_call(['git', 'ls-remote', '-q', '--exit-code', url], IGNORE_DRY_RUN)
+    except (ErrorURLNotFound404, ErrorNoOutput) as e:
         return False
     except Exception as e:
-        error("Unexpected problem checking for git repo: " + e.what())
+        error("Unexpected problem checking for git repo: " + str(e))
     return True
 
 def generate_package_source(srcdir, builddir):
@@ -151,9 +158,10 @@ def parse_args(argv):
     return args
 
 def get_release_repository_info(package):
-    # if fails with http URL for github, it will ask for auth in stdin. Use the
-    # git@ approach to avoid interaction
-    github_test_url = "git@github.com:ignition-release/" + package + "-release"
+    # Do not use git@github method since it fails in non existant repositories
+    # asking for stdin user/pass. Same happen if no user/pass is provided
+    # using the fake foo:foo here seems to work
+    github_test_url = "https://foo:foo@github.com/ignition-release/" + package + "-release"
     if (github_repo_exists(github_test_url)):
         github_url = "https://github.com/ignition-release/" + package + "-release"
         return 'git', github_url
@@ -195,16 +203,16 @@ def sanity_package_name(repo_dir, package, package_alias):
 
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
-    for line in out.split("\n"):
+    for line in out.decode().split('\n'):
         if not line:
             continue
         # Check that first word is the package alias or name
         if line.partition(' ')[0] != expected_name:
-            error("Error in changelog package name or alias: " + line)
+            error("Error in changelog package name or alias: " + line.decode())
 
     cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
-    for line in out.split("\n"):
+    for line in out.decode().split('\n'):
         if not line:
             continue
         # Check that first word is the package alias or name
@@ -216,7 +224,7 @@ def sanity_package_name(repo_dir, package, package_alias):
 def sanity_package_version(repo_dir, version, release_version):
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
-    for line in out.split("\n"):
+    for line in out.decode().split('\n'):
         if not line:
             continue
         # return full version in brackets
@@ -294,14 +302,13 @@ def check_s3cmd_configuration():
     return True
 
 def sanity_checks(args, repo_dir):
-    check_s3cmd_configuration()
-
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
     sanity_use_prerelease_branch(args.release_repo_branch)
 
     if not NIGHTLY:
+        check_s3cmd_configuration()
         sanity_package_version(repo_dir, args.version, str(args.release_version))
         sanity_check_gazebo_versions(args.package, args.version)
         sanity_check_sdformat_versions(args.package, args.version)
@@ -323,7 +330,7 @@ def discover_distros(repo_dir):
     if not os.path.isdir(repo_dir):
         return None
 
-    root, subdirs, files = os.walk(repo_dir).next()
+    _, subdirs, files = os.walk(repo_dir).__next__()
     repo_arch_exclusion = get_exclusion_arches(files)
 
     if '.git' in subdirs: subdirs.remove('.git')
@@ -338,7 +345,7 @@ def discover_distros(repo_dir):
 
     distro_arch_list = {}
     for d in subdirs:
-        files = os.walk(repo_dir + '/' + d).next()[2]
+        files = os.walk(repo_dir + '/' + d).__next__()[2]
         distro_arch_exclusion = get_exclusion_arches(files)
         excluded_arches = distro_arch_exclusion + repo_arch_exclusion
         arches_supported = [x for x in SUPPORTED_ARCHS if x not in excluded_arches]
@@ -363,16 +370,20 @@ def check_call(cmd, ignore_dry_run = False):
         out, err = po.communicate()
         if po.returncode != 0:
             # bitbucket for the first one, github for the second
-            if ("404" in err) or ("Repository not found" in err):
+            if (b"404" in err) or (b"Repository not found" in err):
                 raise ErrorURLNotFound404()
-            if "Permission denied" in out:
+            if b"Permission denied" in out:
                 raise ErrorNoPermsRepo()
-            if "abort: no username supplied" in err:
+            if b"abort: no username supplied" in err:
                 raise ErrorNoUsernameSupplied()
+            if not out and not err:
+                # assume that call is only for getting return code
+                raise ErrorNoOutput()
+
             # Unkown exception
             print('Error running command (%s).'%(' '.join(cmd)))
-            print('stdout: %s'%(out))
-            print('stderr: %s'%(err))
+            print('stdout: %s'%(out.decode()))
+            print('stderr: %s'%(err.decode()))
             raise Exception('subprocess call failed')
         return out, err
 
@@ -392,8 +403,13 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
                 error("Can not find a tarball at: " + tarball_path + " or at " + alt_tarball_path)
         tarball_path = alt_tarball_path
 
-    shasum_out_err = check_call(['shasum', '--algorithm', '256', tarball_path])
-    return shasum_out_err[0].split(' ')[0], tarball_fname, tarball_path
+    out, err = check_call(['shasum', '--algorithm', '256', tarball_path])
+    if err:
+        error("shasum returned an error: " + err.decode())
+    if isinstance(out, bytes):
+        out = out.decode()
+
+    return out.split(' ')[0], tarball_fname, tarball_path
 
 def generate_upload_tarball(args):
     ###################################################
@@ -411,7 +427,7 @@ def generate_upload_tarball(args):
     if out:
         print('git says that you have uncommitted changes')
         print('Please clean up your working copy so that "%s" outputs nothing' % (' '.join(cmd)))
-        print('stdout: %s' % (out))
+        print('stdout: %s' % (out.decode()))
         sys.exit(1)
 
     # Make a clean copy, to avoid pulling in other stuff that the user has
@@ -546,7 +562,7 @@ def go(argv):
     else:
         job_name = JOB_NAME_PATTERN%(args.package)
 
-    params_query = urllib.urlencode(params)
+    params_query = urllib.parse.urlencode(params)
 
     # RELEASING FOR BREW
     brew_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL,
@@ -554,7 +570,7 @@ def go(argv):
                                                    params_query)
     if not DRY_RUN and not NIGHTLY:
         print('- Brew: %s'%(brew_url))
-        urllib.urlopen(brew_url)
+        urllib.request.urlopen(brew_url)
 
     # RELEASING FOR LINUX
     for l in LINUX_DISTROS:
@@ -596,13 +612,13 @@ def go(argv):
                 if (NIGHTLY and a == 'i386'):
                     continue
 
-                linux_platform_params_query = urllib.urlencode(linux_platform_params)
+                linux_platform_params_query = urllib.parse.urlencode(linux_platform_params)
 
                 url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, linux_platform_params_query)
                 print('- Linux: %s'%(url))
 
                 if not DRY_RUN:
-                    urllib.urlopen(url)
+                    urllib.request.urlopen(url)
 
 if __name__ == '__main__':
     go(sys.argv)
