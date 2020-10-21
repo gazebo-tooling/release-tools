@@ -21,7 +21,7 @@ export DOCKER_POSTINSTALL_HOOK="gem install protobuf || if [ `lsb_release -sr` =
 
 # Identify IGN_MSGS_MAJOR_VERSION to help with dependency resolution
 IGN_MSGS_MAJOR_VERSION=$(\
-  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-msgs/CMakeLists.txt)
 
 # Check IGN_MSGS version is integer

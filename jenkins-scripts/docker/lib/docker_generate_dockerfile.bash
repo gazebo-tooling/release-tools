@@ -364,7 +364,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         autoconf \
         libtool \
         pkg-config \
-        python \
+        python3 \
         libxext-dev \
         libx11-dev \
         x11proto-gl-dev && \
