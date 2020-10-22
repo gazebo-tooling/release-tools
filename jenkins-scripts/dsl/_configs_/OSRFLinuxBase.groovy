@@ -15,10 +15,6 @@ class OSRFLinuxBase
     // Base class for the job
     OSRFUNIXBase.create(job)
 
-    logRotator {
-      numToKeep(200)
-    }
-
     job.with
     {
         label "docker"
