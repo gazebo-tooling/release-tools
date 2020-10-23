@@ -13,6 +13,15 @@ fi
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: check github perms'
+# Github autentication. git access is provided by public key access
+# and hub cli needs a token
+if [[ -z $(ssh -T git@github.com 2>&1 | grep successfully) ]]; then
+    echo "The github connection seems not to be valid:"
+    ssh -T git@github.com
+    echo "Please check that the ssh key authentication is working"
+    exit 1
+fi
+
 GITHUB_TOKEN_FILE="/var/lib/jenkins/.github_token"
 if [[ ! -f ${GITHUB_TOKEN_FILE} ]]; then
    echo "The hub cli tool needs a valid token at file ${GITHUB_TOKEN_FILE}"
