@@ -34,8 +34,8 @@ export GITHUB_TOKEN=`cat $GITHUB_TOKEN_FILE`
 set -x # back to debug
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: download linuxbrew'
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
+echo '# BEGIN SECTION: download brew'
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/homebrew/install/master/install.sh)"
 echo '# END SECTION'
 
 BREW_PREFIX="/home/linuxbrew/.linuxbrew"
