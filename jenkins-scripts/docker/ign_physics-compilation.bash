@@ -19,7 +19,7 @@ export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_PHYSICS_DEPENDENCIES"
 
 # Identify IGN_PHYSICS_MAJOR_VERSION to help with dependency resolution
 IGN_PHYSICS_MAJOR_VERSION=$(\
-  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-physics/CMakeLists.txt)
 
 # Check IGN_PHYSICS version is integer
@@ -28,7 +28,7 @@ if ! [[ ${IGN_PHYSICS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-export USE_GCC8=true
+export NEED_C17_COMPILER=true
 export GZDEV_PROJECT_NAME="ignition-physics${IGN_PHYSICS_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

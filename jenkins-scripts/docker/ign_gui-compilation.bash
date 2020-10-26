@@ -19,7 +19,7 @@ export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_GUI_DEPENDENCIES"
 
 # Identify IGN_GUI_MAJOR_VERSION to help with dependency resolution
 IGN_GUI_MAJOR_VERSION=$(\
-  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-gui/CMakeLists.txt)
 
 # Check IGN_GUI_MAJOR_VERSION version is integer
@@ -28,22 +28,8 @@ if ! [[ ${IGN_GUI_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-if [[ ${IGN_GUI_MAJOR_VERSION} -ge 4 ]]; then
-  export BUILD_IGN_MSGS=true
-  export IGN_MSGS_MAJOR_VERSION=6
-  export IGN_MSGS_BRANCH=master
-
-  export BUILD_IGN_RENDERING=true
-  export IGN_RENDERING_MAJOR_VERSION=4
-  export IGN_RENDERING_BRANCH=master
-
-  export BUILD_IGN_TRANSPORT=true
-  export IGN_TRANSPORT_MAJOR_VERSION=9
-  export IGN_TRANSPORT_BRANCH=master
-fi
-
 if [[ ${IGN_GUI_MAJOR_VERSION} -ge 1 ]]; then
-  export USE_GCC8=true
+  export NEED_C17_COMPILER=true
 fi
 
 export GPU_SUPPORT_NEEDED=true

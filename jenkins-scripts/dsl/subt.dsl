@@ -105,7 +105,7 @@ ci_distro.each { distro ->
     install_default_job.with
     {
       triggers {
-        cron('@daily')
+        cron(Globals.CRON_EVERY_THREE_DAYS)
       }
 
       label "gpu-nvidia-docker2"
@@ -133,7 +133,7 @@ ci_distro.each { distro ->
     install_cloud_job.with
     {
       triggers {
-        cron('@daily')
+        cron(Globals.CRON_EVERY_THREE_DAYS)
       }
 
       label "gpu-nvidia-docker2"
@@ -181,7 +181,7 @@ all_supported_distros.each { distro ->
       }
 
       triggers {
-        cron('@daily')
+        cron(Globals.CRON_EVERY_THREE_DAYS)
       }
 
       label "gpu-reliable"
@@ -243,4 +243,4 @@ build_pkg_job.with
 
 // Create the main CI work flow job
 def subt_ci_main = pipelineJob("subt-ci-pr_any")
-OSRFCIWorkFlowMultiAny.create(subt_ci_main, ci_build_any_job_name_linux)
+OSRFCIWorkFlowMultiAnyGitHub.create(subt_ci_main, ci_build_any_job_name_linux)

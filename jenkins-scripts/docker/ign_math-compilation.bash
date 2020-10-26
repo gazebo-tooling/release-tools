@@ -20,7 +20,7 @@ export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_MATH_DEPENDENCIES"
 
 # Identify IGN_MATH_MAJOR_VERSION to help with dependency resolution
 IGN_MATH_MAJOR_VERSION=$(\
-  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-math/CMakeLists.txt)
 
 # Check IGN_MATH version is integer
@@ -30,7 +30,7 @@ if ! [[ ${IGN_MATH_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 if [[ ${IGN_MATH_MAJOR_VERSION} -ge 6 ]]; then
-  export USE_GCC8=true
+  export NEED_C17_COMPILER=true
 fi
 
 export GZDEV_PROJECT_NAME="ignition-math${IGN_MATH_MAJOR_VERSION}"

@@ -20,19 +20,13 @@ export BUILDING_JOB_REPOSITORIES="stable"
 
 # Identify IGN_FUEL_TOOLS_MAJOR_VERSION to help with dependency resolution
 IGN_FUEL_TOOLS_MAJOR_VERSION=$(\
-  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-fuel-tools/CMakeLists.txt)
 
 # Check IGN_FUEL_TOOLS version is integer
 if ! [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   echo "Error! IGN_FUEL_TOOLS_MAJOR_VERSION is not an integer, check the detection"
   exit -1
-fi
-
-if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -ge 5 ]]; then
-  export BUILD_IGN_MSGS=true
-  export IGN_MSGS_MAJOR_VERSION=6
-  export IGN_MSGS_BRANCH=master
 fi
 
 export GZDEV_PROJECT_NAME="ignition-fuel-tools${IGN_FUEL_TOOLS_MAJOR_VERSION}"

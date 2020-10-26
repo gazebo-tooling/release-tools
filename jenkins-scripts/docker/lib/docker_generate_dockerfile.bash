@@ -27,7 +27,7 @@ if [[ -z ${LINUX_DISTRO} ]]; then
   export LINUX_DISTRO="ubuntu"
 fi
 
-[[ -z ${USE_GCC8} ]] && USE_GCC8=false
+[[ -z ${NEED_C17_COMPILER} ]] && NEED_C17_COMPILER=false
 
 export APT_PARAMS=
 # workaround for changing our packages testing server
@@ -42,7 +42,7 @@ dockerfile_install_gzdev_repos()
 {
 cat >> Dockerfile << DELIM_OSRF_REPO_GIT
 RUN rm -fr ${GZDEV_DIR}
-RUN git clone --depth 1 https://github.com/osrf/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
+RUN git clone --depth 1 https://github.com/ignition-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
 DELIM_OSRF_REPO_GIT
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
 # debian sid docker images does not return correct name so we need to use
@@ -266,9 +266,12 @@ RUN add-apt-repository ppa:j-rivero/simbody-artful
 DELIM_DOCKER_WORKAROUND_SIMBODY
 fi
 
+# Install debian dependencies defined on the source code
+SOURCE_DEFINED_DEPS="$(sort -u $(find . -iname 'packages-'$DISTRO'.apt' -o -iname 'packages.apt' | grep -v '/\.git/') | tr '\n' ' ')"
+
 # Packages that will be installed and cached by docker. In a non-cache
 # run below, the docker script will check for the latest updates
-PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS}"
+PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS} ${SOURCE_DEFINED_DEPS}"
 
 if $USE_GPU_DOCKER; then
   PACKAGES_CACHE_AND_CHECK_UPDATES="${PACKAGES_CACHE_AND_CHECK_UPDATES} ${GRAPHIC_CARD_PKG}"
@@ -314,7 +317,7 @@ DELIM_DOCKER31
 
 # Beware of moving this code since it needs to run update-alternative after
 # installing the default compiler in PACKAGES_CACHE_AND_CHECK_UPDATES
-if ${USE_GCC8}; then
+if ${NEED_C17_COMPILER}; then
 cat >> Dockerfile << DELIM_GCC8
    RUN apt-get update \\
    && apt-get install -y g++-8 \\
@@ -361,7 +364,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         autoconf \
         libtool \
         pkg-config \
-        python \
+        python3 \
         libxext-dev \
         libx11-dev \
         x11proto-gl-dev && \

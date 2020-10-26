@@ -14,4 +14,4 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
                                      'ignitionrobotics/testing',
                                      false,
                                      false,
-                                     ['master'])
+                                     ['main'])

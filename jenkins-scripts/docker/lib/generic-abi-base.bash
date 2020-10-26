@@ -33,7 +33,7 @@ if [[ -n "${DART_FROM_PKGS_VAR_NAME}" ]]; then
 fi
 
 ABI_CXX_STANDARD=c++11
-if [[ "${USE_GCC8}" == "true" ]]; then
+if [[ "${NEED_C17_COMPILER}" == "true" ]]; then
   ABI_CXX_STANDARD=c++17
 fi
 
@@ -68,13 +68,8 @@ echo '# BEGIN SECTION: compile and install branch: ${DEST_BRANCH}'
 cp -a $WORKSPACE/${ABI_JOB_SOFTWARE_NAME} /tmp/${ABI_JOB_SOFTWARE_NAME}
 chown -R root:root /tmp/${ABI_JOB_SOFTWARE_NAME}
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
-if ${GITHUB}; then
-  git fetch origin
-  git checkout origin/${DEST_BRANCH}
-else
-  hg pull
-  hg up ${DEST_BRANCH}
-fi
+git fetch origin 
+git checkout origin/${DEST_BRANCH}
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
@@ -93,14 +88,9 @@ echo '# BEGIN SECTION: compile and install branch: ${SRC_BRANCH}'
 # Reusing the same building and source directory to save bandwith and
 # compilation time.
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
-if ${GITHUB}; then
-  git remote add source_repo ${SRC_REPO}
-  git fetch source_repo
-  git checkout source_repo/${SRC_BRANCH}
-else
-  hg pull ${SRC_REPO} -b ${SRC_BRANCH}
-  hg up ${SRC_BRANCH}
-fi
+git remote add source_repo ${SRC_REPO}
+git fetch source_repo
+git checkout source_repo/${SRC_BRANCH}
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
 cd $WORKSPACE/build
 cmake ${ABI_JOB_CMAKE_PARAMS} \\
@@ -214,7 +204,6 @@ OSRF_REPOS_TO_USE=${ABI_JOB_REPOS}
 DEPENDENCY_PKGS="${ABI_JOB_PKG_DEPENDENCIES} \
                   git \
                   exuberant-ctags \
-                  mercurial \
                   ca-certificates"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash

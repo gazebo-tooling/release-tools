@@ -51,7 +51,7 @@ export DISPLAY=$(ps ax \
 
 echo '# BEGIN SECTION: run test-bot'
 # The test-bot makes a full cleanup of all installed pkgs. Be sure of install back
-# mercurial to keep the slave working
+# git to keep the slave working
 export HOMEBREW_DEVELOPER=1
 brew tap osrf/simulation
 # replace with 'hub -C $(brew --repo osrf/simulation) pr checkout ${ghprbPullId}'
@@ -60,11 +60,6 @@ brew tap osrf/simulation
 pushd $(brew --repo osrf/simulation) && \
   hub pr checkout ${ghprbPullId} && \
   popd
-
-# test-bot wants to 'git fetch --unshallow' over ssh, which has permission issues
-# explicitly unshallow using https instead
-git -C $(brew --repo osrf/simulation) fetch --unshallow \
-    https://github.com/${GITHUB_REPOSITORY}
 
 brew test-bot --tap=osrf/simulation \
               --fail-fast \
