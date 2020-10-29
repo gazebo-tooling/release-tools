@@ -64,10 +64,9 @@ fi
 
 cd ${TEMP_DIR}/gazebodistro
 git fetch
-# TODO revert to master
-git checkout d944dfd406d9d54e89d5a0aaf5806d125357eb92
-#git pull
 git reset --hard
+git checkout master
+git pull
 
 # docs
 
