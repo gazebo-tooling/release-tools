@@ -549,6 +549,9 @@ all_branches.each { branch ->
 
   gazebo_brew_ci_job.with
   {
+      if (("${branch}" == "gazebo7"))
+        disabled()
+
       label osx_label
 
       triggers {
