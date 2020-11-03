@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 def sdformat_supported_branches = [ 'sdformat4', 'sdformat6', 'sdformat8' , 'sdformat9', 'sdformat10' ]
 def sdformat_gz11_branches = [ 'sdformat8', 'sdformat9', 'sdformat10', 'master' ]
 // nightly and prereleases
-def extra_sdformat_debbuilder = [ 'main' ]
+def extra_sdformat_debbuilder = [ ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
