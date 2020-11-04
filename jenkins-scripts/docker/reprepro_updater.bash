@@ -44,7 +44,7 @@ export GNUPGHOME=/var/lib/jenkins/.gnupg
 
 echo '# BEGIN SECTION: run reprepro'
 cd "${REPREPRO_REPO_PATH}/scripts"
-python3 import_upstream.py ${REPREPRO_PARAMS} \
+sudo python3 import_upstream.py ${REPREPRO_PARAMS} \
   "${UPLOAD_TO_REPO:-:_}" \
   "${REPREPRO_REPO_PATH}/config/packages.osrfoundation.org/${REPREPRO_IMPORT_YAML_FILE}"
 echo '# END SECTION'
