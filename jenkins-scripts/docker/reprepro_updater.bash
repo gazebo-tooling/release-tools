@@ -26,6 +26,9 @@ if [[ ! -d ${PYTHON_VENV} ]]; then
   python3 -m venv "${PYTHON_VENV}"
   source "${PYTHON_VENV}/bin/activate"
   pip3 install configparser
+  # for some reason the build is broken on Xenial but seems to install
+  # the necessary support
+  pip3 install pyyaml || true
 else
   source "${PYTHON_VENV}/bin/activate"
 fi
