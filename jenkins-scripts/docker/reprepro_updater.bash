@@ -12,7 +12,7 @@ REPREPRO_GIT_BRANCH="${REPREPRO_GIT_BRANCH:-refactor}"
 REPREPRO_REPO_PATH="$WORKSPACE/repo"
 
 REPREPRO_PARAMS=''
-if [ -z "${COMMIT+x}" ]; then
+if ${COMMIT}; then
     REPREPRO_PARAMS='--commit'
 fi
 
