@@ -26,7 +26,7 @@ repo_exists()
 empty_directory()
 {
     local dir=${1}
-       
+
     if [[ -d "${dir}/ubuntu" ]]; then
        echo false
     else
@@ -71,7 +71,7 @@ for repo_name in ${NEW_REPOS}; do
     version="$(sed  's/.*[^0-9]\([0-9]\+\)[^0-9]*$/\1/' <<< ${repo_name})"
     previous_version=$(expr ${version} - 1)
     previous_repo_github="${repo_github/[0-9]*}${previous_version}-release"
-    echo " + pull from previous version ${previous_repo_github}" 
+    echo " + pull from previous version ${previous_repo_github}"
     git remote add previous "https://github.com/${previous_repo_github}"
     git fetch previous
     git pull -q previous master >/dev/null 2>&1 || git pull -q previous main >/dev/null 2>&1
@@ -84,9 +84,10 @@ for repo_name in ${NEW_REPOS}; do
     echo
     echo " ? check output for possible FIXME messages"
     read -n 1 -s -r -p "  press any key to continue"
+    git checkout -b main
     git status
     echo " ? ready to commit --all and push ?"
     read -n 1 -s -r -p "  press any key to continue"
     git commit -m "Change metadata from ${previous_version} version to ${version}" --all
-    git push origin master || git push origin main
+    git push origin main
 done
