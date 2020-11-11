@@ -28,7 +28,7 @@ testing_vcpkg_job.with
     steps
     {
       batchFile("""\
-            call "./scripts/jenkins-scripts/ign-${ignition_testing_software}-default-devel-windows-amd64.bat"
+            call "./scripts/jenkins-scripts/ign_${ignition_testing_software}-default-devel-windows-amd64.bat"
             """.stripIndent())
     }
 }
