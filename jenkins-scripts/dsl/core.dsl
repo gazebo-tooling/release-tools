@@ -19,7 +19,7 @@ def testing_vcpkg_job = job("_vcpkg_testing_snapshot")
 OSRFWinCompilationAnyGitHub.create(testing_vcpkg_job,
                                   "ignitionrobotics/ign-${ignition_testing_software}",
                                   false)
-update_vcpkg_snapshot_job.with
+testing_vcpkg_job.with
 {
     parameters {
         stringParam('VCPKG_SNAPSHOT', '','vcpkg tag/release to test')
