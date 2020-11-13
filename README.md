@@ -11,6 +11,14 @@ Gazebo Classic and Ignition software.
 
 ### Making a new release
 
+1. Check if this is a good time for the release
+    * Ask team if there are any concerns about making the release.
+    * Check if there are changes to previous versions that need to be forward-ported.
+    * See if there are open PRs against that release branch that could go into the new release.
+1. Choose how to bump the version
+    * Bump major if the release includes breaking changes - this is usually done for all libraries at around the same time.
+    * Bump minor if there are new backwards-compatible features, like new APIs.
+    * Bump patch if there are only bug fixes that won't affect the API.
 1. Open pull request updating the version on the source code
     * [Example pull request.](https://github.com/ignitionrobotics/ign-physics/pull/132)
     * Update the version on `CMakeLists.txt`.
@@ -20,12 +28,14 @@ Gazebo Classic and Ignition software.
     * Include a link comparing the current branch to the latest release.
         1. [Example branch comparison.](https://github.com/ignitionrobotics/ign-gazebo/compare/ignition-gazebo3_3.5.0...ign-gazebo3)
         1. Substitute the package version and name that are relevant to your release.
-1. Clone `release-tools`
-    * `git clone https://github.com/ignition-tooling/release-tools`
+    * Wait for this pull request to be merged before proceding.
 1. Clone the appropriate release repository from https://github.com/ignition-release.
     * For example, `git clone https://github.com/ignition-release/ign-physics3-release`
 1. If the versions of any dependencies have increased in the source code, open a pull request updating them on the release repo
     * [Example pull request.](https://github.com/ignition-release/ign-gazebo3-release/pull/4)
+1. Wait for all pull requests opened above to be approved and merged.
+1. Clone `release-tools`
+    * `git clone https://github.com/ignition-tooling/release-tools`
 1. Update the release-repo's changelog:
     1. `cd <path to -release repo>`
     1. `<path to release-tools>/release-repo-scripts/changelog_spawn.sh <version-revision>`
@@ -41,7 +51,3 @@ Gazebo Classic and Ignition software.
 1. Check that:
     * Several `-debbuilder` jobs have been queued in https://build.osrfoundation.org/
     * A pull request was opened to https://github.com/osrf/homebrew-simulation
-        
-        
-        
-        
