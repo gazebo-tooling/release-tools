@@ -15,8 +15,11 @@ Gazebo Classic and Ignition software.
     * [Example pull request.](https://github.com/ignitionrobotics/ign-physics/pull/132)
     * Update the version on `CMakeLists.txt`.
     * Update the changelog.
+        1. Use the branch comparison obtained below as a guide for updating the changelog.
     * Update the migration guide as needed.
     * Include a link comparing the current branch to the latest release.
+        1. [Example branch comparison.](https://github.com/ignitionrobotics/ign-gazebo/compare/ignition-gazebo3_3.5.0...ign-gazebo3)
+        1. Substitute the package version and name that are relevant to your release.
 1. Clone `release-tools`
     * `git clone https://github.com/ignition-tooling/release-tools`
 1. Clone the appropriate release repository from https://github.com/ignition-release.
