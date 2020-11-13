@@ -9,7 +9,10 @@ Gazebo Classic and Ignition software.
 * [changelog_spawn.sh](release-repo-scripts/changelog_spawn.sh): Adds changelog information to `*-release` repositories. Must be used before running `release.py`.
 * [new_ignition_release_repos.bash](release-repo-scripts/new_ignition_release_repos.bash): Create new `*-release` repositories.
 
-### Configuring your terminal
+### Making releases
+
+#### One-time configuration
+
 1. `sudo apt install devscripts s3cmd`
 1. `s3cmd --configure`
 1. `export DEBEMAIL="<username>@openrobotics"`
@@ -17,7 +20,7 @@ Gazebo Classic and Ignition software.
 
 **Note:** You may wish to add the two above exported variables to your `.bashrc`
 
-### Making a new release
+### For each release
 
 1. Check if this is a good time for the release
     * Ask team if there are any concerns about making the release.
@@ -30,12 +33,12 @@ Gazebo Classic and Ignition software.
 1. Open pull request updating the version on the source code
     * [Example pull request.](https://github.com/ignitionrobotics/ign-physics/pull/132)
     * Update the version on `CMakeLists.txt`.
-    * Update the changelog.
-        1. Use the branch comparison obtained below as a guide for updating the changelog.
-    * Update the migration guide as needed.
     * Include a link comparing the current branch to the latest release.
         1. [Example branch comparison.](https://github.com/ignitionrobotics/ign-gazebo/compare/ignition-gazebo3_3.5.0...ign-gazebo3)
         1. Substitute the package version and name that are relevant to your release.
+    * Update the changelog.
+        1. Use the branch comparison obtained below as a guide for updating the changelog.
+    * Update the migration guide as needed.
     * Wait for this pull request to be merged before proceeding.
 1. Clone the appropriate release repository from https://github.com/ignition-release.
     * For example, `git clone https://github.com/ignition-release/ign-physics3-release`
