@@ -34,7 +34,7 @@ testing_vcpkg_job.with
       label "win_testing"
 
       batchFile("""\
-            call "./scripts/jenkins-scripts/vcpkg-bootstrap.bat ||  exit /B %errorlevel%
+            call "./scripts/jenkins-scripts/vcpkg-bootstrap.bat" ||  exit /B %errorlevel%
             call "./scripts/jenkins-scripts/ign_${ignition_testing_software}-default-devel-windows-amd64.bat"
             """.stripIndent())
     }
