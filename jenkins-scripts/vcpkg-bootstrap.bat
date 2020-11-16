@@ -1,4 +1,5 @@
 set SCRIPT_DIR=%~dp0
+set PLATFORM_TO_BUILD=amd64
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 
