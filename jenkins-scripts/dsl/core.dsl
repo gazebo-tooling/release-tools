@@ -8,7 +8,7 @@ update_vcpkg_snapshot_job.with
     steps
     {
       batchFile("""\
-            call "./scripts/jenkins-scripts/vcpkg-update-snapshot.bat
+            call "./scripts/jenkins-scripts/vcpkg-bootstrap.bat
             """.stripIndent())
     }
 }
@@ -30,6 +30,7 @@ testing_vcpkg_job.with
       label "win_testing"
 
       batchFile("""\
+            call "./scripts/jenkins-scripts/vcpkg-bootstrap.bat ||  exit /B %errorlevel%
             call "./scripts/jenkins-scripts/ign_${ignition_testing_software}-default-devel-windows-amd64.bat"
             """.stripIndent())
     }

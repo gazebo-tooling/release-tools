@@ -226,15 +226,18 @@ echo # END SECTION
 goto :EOF
 
 :: ##################################
-:install_vcpkg_package
-:: arg1: package to install
-set LIB_DIR=%~dp0
-:: check VCPKG_SNAPSHOT
+:check_vcpkg_snapshot
 if not git -C %VCPKG_DIR% describe --tags HEAD | findstr %VCPKG_SNAPSHOT% (
   echo The vpckg directory is not using the expected snapshot %VCPKG_SNAPSHOT%
   goto :error
 )
+
+:: ##################################
+:install_vcpkg_package
+:: arg1: package to install
+set LIB_DIR=%~dp0
 call %LIB_DIR%\windows_env_vars.bat || goto :error
+call %win_lib% :check_vcpkg_snapshot || goto :error
 %VCPKG_CMD% install "%1"
 goto :EOF
 
