@@ -7,6 +7,7 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc2019_compiler
 echo # END SECTION
 
+echo # BEGIN SECTION: Bootstrap vcpkg
 :: Remove previous vcpkg installation
 rd /s /q %VCPKG_DIR%
 
@@ -16,3 +17,4 @@ echo "Using SNAPSHOT: %VCPKG_SNAPSHOT%"
 git checkout %VCPKG_SNAPSHOT% -C %VCPKG_DIR% || goto :error
 :: Bootstrap vcpkg.exe
 %VCPKG_DIR%\bootstrap-vcpkg.bat || goto :error
+echo # END SECTION
