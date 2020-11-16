@@ -540,8 +540,6 @@ all_branches.each { branch ->
     Globals.extra_emails = Globals.build_cop_email
 
   def osx_label = 'osx_gazebo'
-  if (branch == "gazebo7")
-    osx_label = 'osx_highsierra'
 
   def gazebo_brew_ci_job = job("gazebo-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(gazebo_brew_ci_job)
