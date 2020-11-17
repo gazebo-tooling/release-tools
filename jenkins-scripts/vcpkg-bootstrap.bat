@@ -17,7 +17,7 @@ rd /s /q %VCPKG_DIR%
 :: Clone and use the new version of vcpkg
 git clone https://github.com/microsoft/vcpkg %VCPKG_DIR% || goto :error
 echo "Using SNAPSHOT: %VCPKG_SNAPSHOT%"
-git checkout %VCPKG_SNAPSHOT% -C %VCPKG_DIR% || goto :error
+git checkout -C %VCPKG_DIR% %VCPKG_SNAPSHOT% || goto :error
 :: Bootstrap vcpkg.exe
 %VCPKG_DIR%\bootstrap-vcpkg.bat || goto :error
 echo # END SECTION
