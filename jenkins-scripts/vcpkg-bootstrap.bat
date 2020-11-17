@@ -21,7 +21,7 @@ echo "Using SNAPSHOT: %VCPKG_SNAPSHOT%"
 cd %VCPKG_DIR%
 git checkout %VCPKG_SNAPSHOT% || goto :error
 :: Bootstrap vcpkg.exe
-%VCPKG_DIR%\bootstrap-vcpkg.bat
+%VCPKG_DIR%\bootstrap-vcpkg.bat -disableMetrics
 echo # END SECTION
 goto :EOF
 
