@@ -11,7 +11,7 @@ call %win_lib% :configure_msvc2019_compiler
 echo # END SECTION
 
 echo # BEGIN SECTION: Bootstrap vcpkg
-@echo on
+echo on
 :: Remove previous vcpkg installation
 rd /s /q %VCPKG_DIR%
 
@@ -22,6 +22,7 @@ cd %VCPKG_DIR%
 git checkout %VCPKG_SNAPSHOT% || goto :error
 :: Bootstrap vcpkg.exe
 %VCPKG_DIR%\bootstrap-vcpkg.bat -disableMetrics
+echo on
 echo # END SECTION
 goto :EOF
 
