@@ -1,4 +1,4 @@
-echo on
+@echo on
  
 set SCRIPT_DIR=%~dp0
 set PLATFORM_TO_BUILD=amd64
@@ -11,6 +11,7 @@ call %win_lib% :configure_msvc2019_compiler
 echo # END SECTION
 
 echo # BEGIN SECTION: Bootstrap vcpkg
+@echo on
 :: Remove previous vcpkg installation
 rd /s /q %VCPKG_DIR%
 
@@ -20,8 +21,9 @@ echo "Using SNAPSHOT: %VCPKG_SNAPSHOT%"
 cd %VCPKG_DIR%
 git checkout %VCPKG_SNAPSHOT% || goto :error
 :: Bootstrap vcpkg.exe
-%VCPKG_DIR%\bootstrap-vcpkg.bat || goto :error
+%VCPKG_DIR%\bootstrap-vcpkg.bat
 echo # END SECTION
+goto :EOF
 
 :: ##################################
 :error - error routine
