@@ -1,3 +1,5 @@
+@echo on
+ 
 set SCRIPT_DIR=%~dp0
 set PLATFORM_TO_BUILD=amd64
 
@@ -19,3 +21,9 @@ git checkout %VCPKG_SNAPSHOT% -C %VCPKG_DIR% || goto :error
 :: Bootstrap vcpkg.exe
 %VCPKG_DIR%\bootstrap-vcpkg.bat || goto :error
 echo # END SECTION
+
+:: ##################################
+:error - error routine
+::
+echo Failed in with error #%errorlevel%.
+exit /B %errorlevel%
