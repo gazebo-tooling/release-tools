@@ -1,4 +1,4 @@
-@echo on
+echo on
  
 set SCRIPT_DIR=%~dp0
 set PLATFORM_TO_BUILD=amd64
@@ -17,7 +17,8 @@ rd /s /q %VCPKG_DIR%
 :: Clone and use the new version of vcpkg
 git clone https://github.com/microsoft/vcpkg %VCPKG_DIR% || goto :error
 echo "Using SNAPSHOT: %VCPKG_SNAPSHOT%"
-git checkout -C %VCPKG_DIR% %VCPKG_SNAPSHOT% || goto :error
+cd %VCPKG_DIR%
+git checkout %VCPKG_SNAPSHOT% || goto :error
 :: Bootstrap vcpkg.exe
 %VCPKG_DIR%\bootstrap-vcpkg.bat || goto :error
 echo # END SECTION
