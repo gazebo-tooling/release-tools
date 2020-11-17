@@ -20,7 +20,7 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
     docker_device=$(df '/var/lib/docker' | awk '{ print $1 }' | tail -n 1)
     # in seconds: 5 days = 432000s
     PERCENT_DISK_USED=$(df -h ${docker_device} | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
-    if [[ $PERCENT_DISK_USED -gt 90 ]]; then
+    if [[ $PERCENT_DISK_USED -gt 70 ]]; then
         echo "Space left is low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
         wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
@@ -29,7 +29,7 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
 
     # if not enough, run again with 1 day = 86400s
     PERCENT_DISK_USED=$(df -h ${docker_device} | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
-    if [[ $PERCENT_DISK_USED -gt 90 ]]; then
+    if [[ $PERCENT_DISK_USED -gt 80 ]]; then
         echo "Space left is still low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
         wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
@@ -38,7 +38,7 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
 
     # if not enough, kill the whole cache
     PERCENT_DISK_USED=$(df -h ${docker_device} | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
-    if [[ $PERCENT_DISK_USED -gt 90 ]]; then
+    if [[ $PERCENT_DISK_USED -gt 85 ]]; then
         echo "Space left is low again: ${PERCENT_DISK_USED}% used"
         echo "Kill the whole docker cache !!"
         # use system prune if available
@@ -49,6 +49,27 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
           [[ -n $(sudo docker ps -q) ]] && sudo docker kill $(sudo docker ps -q) || true
           [[ -n $(sudo docker images -a -q) ]] && sudo docker rmi $(sudo docker images -a -q) || true
         fi
+    fi
+
+    # if not enough, try to clean up build/ directories
+    PERCENT_DISK_USED=$(df -h ${docker_device} | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
+    if [[ $PERCENT_DISK_USED -gt 85 ]]; then
+        MAX_SIZE_FOR_BUILD_DIRS="5G"
+        CMD_FIND_BIG_DIRS=(find ${HOME}/workspace -name build -exec du -h -d 0 -t ${MAX_SIZE_FOR_BUILD_DIRS} {} \;)
+        echo "Space left is low again: ${PERCENT_DISK_USED}% used"
+        echo "Clean up the whole cache was not enough. Look for build/ directories bigger than ${MAX_SIZE_FOR_BUILD_DIRS}:"
+        # run command twice to avoid parsing. First for information proposes
+        ${CMD_FIND_BIG_DIRS[@]}
+        for d in $("${CMD_FIND_BIG_DIRS[@]}" | awk '{ print $2 }'); do
+          # safe checks on paths
+          if [[ $d == ${d/$HOME} ]] || [[ $d == ${d/build} ]]; then
+            echo "System is trying to delete a path $d outside Jenkins home: $HOME with subdir build/"
+            exit -1
+          fi
+          # avoid to rm -fr without a path. The ugly trick should leave d as it
+          # is, in case of a bug in code it will not remove anything at random
+          sudo rm -fr ${d/build}build
+        done
     fi
 fi
 
