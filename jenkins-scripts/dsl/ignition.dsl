@@ -48,7 +48,20 @@ ignition_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
-ignition_debbuild = ignition_software + [ ]
+ignition_debbuild = ignition_software + [ 'cmake3',
+                                          'common4',
+                                          'fuel-tools6',
+                                          'gazebo5',
+                                          'gui5',
+                                          'launch4',
+                                          'math7',
+                                          'msgs7',
+                                          'physics4',
+                                          'plugin2',
+                                          'rendering5',
+                                          'sensors5',
+                                          'tools2',
+                                          'transport10']
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [  ]
 // DESC: major versions that has a package in the prerelease repo. Should
