@@ -234,6 +234,7 @@ if NOT %VCPKG_HEAD% == %VCPKG_SNAPSHOT% (
   echo The vpckg directory is not using the expected snapshot %VCPKG_SNAPSHOT%
   goto :error
 )
+goto :EOF
 
 :: ##################################
 :install_vcpkg_package
