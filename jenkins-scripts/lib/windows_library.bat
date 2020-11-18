@@ -227,7 +227,12 @@ goto :EOF
 
 :: ##################################
 :check_vcpkg_snapshot
-if not git -C %VCPKG_DIR% describe --tags HEAD | findstr %VCPKG_SNAPSHOT% (
+setlocal EnableDelayedExpansion
+FOR /F "tokens=1 delims= " %%i IN ('git -C %VCPKG_DIR% describe --tags HEAD') DO (
+    set VCPKG_HEAD=%%i
+)
+echo "VCPKG_HEAD is %VCPKG_HEAD%"
+if NOT %VCPKG_HEAD% == %VCPKG_SNAPSHOT% (
   echo The vpckg directory is not using the expected snapshot %VCPKG_SNAPSHOT%
   goto :error
 )
