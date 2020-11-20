@@ -9,10 +9,16 @@ def update_vcpkg_snapshot_job = job("_vcpkg_update_snapshot")
 OSRFWinBase.create(update_vcpkg_snapshot_job)
 update_vcpkg_snapshot_job.with
 {
+    parameters {
+        nodeParam('TARGET_NODE') {
+            description('Node to be updated')
+        }
+    }
+
     steps
     {
       batchFile("""\
-            call "./scripts/jenkins-scripts/vcpkg-bootstrap.bat
+            call "%WORKSPACE%/scripts/jenkins-scripts/vcpkg-bootstrap.bat
             """.stripIndent())
     }
 }
