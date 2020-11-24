@@ -14,7 +14,7 @@ class OSRFCIWorkFlowMultiAnyGitHub
   {
     return """\
       String result_URL = env.JENKINS_URL + '/job/${job_name}/'
-      ArrayList jenkins_pipeline_job_result['$job_name']  = 'SUCCESS'
+      jenkins_pipeline_job_result['$job_name']  = 'SUCCESS'
       String bitbucket_publish_job_result = 'ok'
       compilation_job = null
       node("lightweight-linux")
@@ -73,7 +73,7 @@ class OSRFCIWorkFlowMultiAnyGitHub
 
       String parallel_init = ""
       if (index == 0) {
-        parallel_init = "def jobs = [ \n"
+        parallel_init = "def jenkins_pipeline_job_result = [:] \n def jobs = [ \n"
       }
       parallel_init = build_jobs_with_status + parallel_init + "'${stage_name}' : {"
 
