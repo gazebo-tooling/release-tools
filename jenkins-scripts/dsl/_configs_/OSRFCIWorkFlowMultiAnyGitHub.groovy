@@ -10,6 +10,35 @@ import javaposse.jobdsl.dsl.Job
 
 class OSRFCIWorkFlowMultiAnyGitHub
 {
+  static String script_code_build_any(String job_name)
+  {
+    return """\
+      String result_URL = env.JENKINS_URL + '/job/${job_name}/'
+      jenkins_pipeline_job_result['$job_name']  = 'SUCCESS'
+      String bitbucket_publish_job_result = 'ok'
+      compilation_job = null
+      node("lightweight-linux")
+      {
+        compilation_job = build job: '${job_name}',
+            propagate: false, wait: true,
+            parameters:
+             [[\$class: 'StringParameterValue',  name: 'RTOOLS_BRANCH',   value: "\$RTOOLS_BRANCH"],
+              [\$class: 'BooleanParameterValue', name: 'NO_MAILS',        value: false],
+              [\$class: 'StringParameterValue',  name: 'SRC_REPO',        value: "\$SRC_REPO"],
+              [\$class: 'StringParameterValue',  name: 'SRC_BRANCH',      value: "\$SRC_BRANCH"],
+              [\$class: 'StringParameterValue',  name: 'JOB_DESCRIPTION', value: "\$JOB_DESCRIPTION"],
+              [\$class: 'StringParameterValue',  name: 'DEST_BRANCH',     value: "\$DEST_BRANCH"]]
+      }
+      result_URL = result_URL + compilation_job.getNumber()
+      if (compilation_job.getResult() != 'SUCCESS')
+      {
+        // any non success is a failure in bitbucket status
+        jenkins_pipeline_job_result['$job_name'] = compilation_job.getResult()
+        bitbucket_publish_job_result = 'failed'
+      }
+    """
+  }
+
   static void create(Job job, String build_any_job_name)
   {
     OSRFCIWorkFlowMultiAnyGitHub.create(job, [build_any_job_name])
@@ -63,7 +92,8 @@ class OSRFCIWorkFlowMultiAnyGitHub
       }
 
       build_jobs_with_status = parallel_init +
-      parallel_end
+                               script_code_build_any(build_any_job_name) +
+                               parallel_end
     }
 
     job.with
