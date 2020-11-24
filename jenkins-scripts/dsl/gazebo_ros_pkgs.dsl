@@ -17,7 +17,7 @@ Boolean ENABLE_TESTS = true
 Boolean DISABLE_CPPCHECK = false
 
 // version to test more than the official one in each ROS distro
-extra_gazebo_versions = [ 'kinetic'  :  ['8','9'],
+extra_gazebo_versions = [ 'kinetic'  :  ['9'],
                           'melodic'  :  ['11'],
                           'dashing'  :  ['11'],
                           'eloquent' :  ['11']]
