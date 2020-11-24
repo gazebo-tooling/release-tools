@@ -14,7 +14,7 @@ class OSRFCIWorkFlowMultiAnyGitHub
   {
     return """\
       String result_URL = env.JENKINS_URL + '/job/${job_name}/'
-      jenkins_pipeline_job_result['$job_name']  = 'SUCCESS'
+      ArrayList jenkins_pipeline_job_result['$job_name']  = 'SUCCESS'
       String bitbucket_publish_job_result = 'ok'
       compilation_job = null
       node("lightweight-linux")
