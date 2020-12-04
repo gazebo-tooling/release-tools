@@ -75,6 +75,10 @@ release_job.with
                  'Version of the package just released')
      stringParam('SOURCE_TARBALL_SHA','',
                  'SHA Hash of the tarball file')
+     credentialsBinding {
+        // credential name needs to be in sync with provision code at infra/osrf-chef repo
+        string('GITHUB_TOKEN', 'osrfbuild-token')
+     }
    }
 
    steps
@@ -254,9 +258,13 @@ bottle_job_hash_updater.with
 
   parameters
   {
-    // reuse the pull request created by homebrew_pull_request_updater in step 1
-    stringParam("PULL_REQUEST_URL", '',
-                'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
+     // reuse the pull request created by homebrew_pull_request_updater in step 1
+     stringParam("PULL_REQUEST_URL", '',
+                 'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
+     credentialsBinding {
+        // credential name needs to be in sync with provision code at infra/osrf-chef repo
+        string('GITHUB_TOKEN', 'osrfbuild-token')
+     }
   }
 
   steps
