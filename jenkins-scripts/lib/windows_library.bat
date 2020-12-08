@@ -226,11 +226,22 @@ echo # END SECTION
 goto :EOF
 
 :: ##################################
+:check_vcpkg_snapshot
+setlocal EnableDelayedExpansion
+for /f %%i in ('git -C %VCPKG_DIR% describe --tags HEAD') do set VCPKG_HEAD=%%i
+echo "VCPKG_HEAD is %VCPKG_HEAD%"
+if NOT %VCPKG_HEAD% == %VCPKG_SNAPSHOT% (
+  echo The vpckg directory is not using the expected snapshot %VCPKG_SNAPSHOT%
+  goto :error
+)
+goto :EOF
+
+:: ##################################
 :install_vcpkg_package
 :: arg1: package to install
 set LIB_DIR=%~dp0
 call %LIB_DIR%\windows_env_vars.bat || goto :error
-
+call %win_lib% :check_vcpkg_snapshot || goto :error
 %VCPKG_CMD% install "%1"
 goto :EOF
 
