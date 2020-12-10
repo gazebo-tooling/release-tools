@@ -12,10 +12,12 @@ echo # END SECTION
 
 echo # BEGIN SECTION: Bootstrap vcpkg
 :: Remove previous vcpkg installation
-rd /s /q %VCPKG_DIR%
+rd /s /q %VCPKG_DIR% || goto :error
 
 :: Clone and use the new version of vcpkg
 git clone https://github.com/microsoft/vcpkg %VCPKG_DIR% || goto :error
+git clone https://github.com/osrf/vcpkg-ports %VCPKG_OSRF_DIR% || goto :error
+
 echo "Using SNAPSHOT: %VCPKG_SNAPSHOT%"
 cd %VCPKG_DIR%
 git checkout %VCPKG_SNAPSHOT% || goto :error
