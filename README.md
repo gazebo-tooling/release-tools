@@ -61,6 +61,7 @@ Gazebo Classic and Ignition software.
         1. Classic release: `<path to release-tools>/release.py -r 1 gazebo11 11.2.0 secrettoken --dry-run`
     1. If the dry run succeeds, run the same command again, now without `--dry-run`.
 1. Check that:
-    * Several `-debbuilder` jobs have been queued in https://build.osrfoundation.org/
+    * Several `-debbuilder` jobs have been queued in https://build.osrfoundation.org/ and watch those jobs to see if any of them fail.
     * A pull request was opened to https://github.com/osrf/homebrew-simulation
         1. This pull request may take a minute or two to open.
+        1. Once it is open, make a comment containing the text "build bottle"
