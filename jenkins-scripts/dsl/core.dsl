@@ -22,7 +22,7 @@ update_vcpkg_snapshot_job.with
             build.buildVariableResolver.resolve('RTOOLS_BRANCH') + '<br />' +
             'TARGET_NODE: ' +
             '<b>' + build.buildVariableResolver.resolve('TARGET_NODE') + '</b>'
-        build.setdescription(job_description)
+        build.setDescription(job_description)
       """.stripIndent())
 
       batchFile("""\
