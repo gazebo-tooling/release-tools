@@ -21,7 +21,7 @@ update_vcpkg_snapshot_job.with
         job_description = 'RTOOLS_BRANCH: ' +
             build.buildVariableResolver.resolve('RTOOLS_BRANCH') + '<br />' +
             'TARGET_NODE: ' +
-            '<b>' + build.buildvariableresolver.resolve('TARGET_NODE') + '</b>'
+            '<b>' + build.buildVariableResolver.resolve('TARGET_NODE') + '</b>'
         build.setdescription(job_description)
       """.stripIndent())
 
