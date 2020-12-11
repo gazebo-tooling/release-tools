@@ -22,23 +22,23 @@ echo "Using SNAPSHOT: %VCPKG_SNAPSHOT%"
 cd %VCPKG_DIR%
 git checkout %VCPKG_SNAPSHOT% || goto :error
 :: Bootstrap vcpkg.exe
-%VCPKG_DIR%\bootstrap-vcpkg.bat -disableMetrics
+%VCPKG_DIR%\bootstrap-vcpkg.bat -disableMetrics || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: Custom patches to packages
 :: 1. do not build debug builds to speed up CI
-echo "set(VCPKG_BUILD_TYPE release)" >> %VCPKG_DIR%\triplets\x64-windows.cmake
+echo "set(VCPKG_BUILD_TYPE release)" >> %VCPKG_DIR%\triplets\x64-windows.cmake || goto :error
 :: 2. patch dfcln-win32 to avoid debug filesystem paths
 :: dfcln-win32 assumes that debug build is always there.
 :: remove lines with debug word. portfile is simple enough
 set dfcln_portfile=%VCPKG_DIR%\ports\dfcln-win32\portfile.cmake
 findstr  /v  /i "debug" %dfcln_portfile% > %dfcln_portfile%.new || goto :error
-move %dfcln_portfile%.new %dfcln_portfile%
+move %dfcln_portfile%.new %dfcln_portfile% || goto :error
 :: 3. use lowercase in ogre for releaes
 :: ogre formula relies on checking for Release to install manual-link
 :: replace it to lowercase
 set ogre_portfile=%VCPKG_DIR%\ports\ogre\portfile.cmake
-powershell -Command "(Get-Content %ogre_portfile%) -replace 'Release', 'release' | Out-File -encoding ASCII %ogre_portfile%"
+powershell -Command "(Get-Content %ogre_portfile%) -replace 'Release', 'release' | Out-File -encoding ASCII %ogre_portfile%" || goto :error
 echo # END SECTION
 cd %WORKSPACE%
 goto :EOF
