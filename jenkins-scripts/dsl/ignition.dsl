@@ -657,8 +657,8 @@ ignition_software.each { ign_sw ->
 
     ignition_win_ci_job.with
     {
-        // ign-gazebo/ign-launch still not ported completely to Windows
-        if (ign_sw == 'gazebo' || ign_sw == 'launch')
+        // ign-launch still not ported completely to Windows
+        if (ign_sw == 'launch')
           disabled()
 
         triggers {
