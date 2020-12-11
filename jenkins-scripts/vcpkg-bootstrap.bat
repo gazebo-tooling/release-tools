@@ -10,28 +10,27 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc2019_compiler
 echo # END SECTION
 
-echo # BEGIN SECTION: Bootstrap vcpkg
+echo # BEGIN SECTION: clone vcpkg repositories
 :: Remove previous vcpkg installation
 rd /s /q %VCPKG_DIR% || goto :error
 
 :: Clone and use the new version of vcpkg
 git clone https://github.com/microsoft/vcpkg %VCPKG_DIR% || goto :error
 git clone https://github.com/osrf/vcpkg-ports %VCPKG_OSRF_DIR% || goto :error
+echo # END SECTION
 
 echo "Using SNAPSHOT: %VCPKG_SNAPSHOT%"
 cd %VCPKG_DIR%
 git checkout %VCPKG_SNAPSHOT% || goto :error
-:: Bootstrap vcpkg.exe
-%VCPKG_DIR%\bootstrap-vcpkg.bat -disableMetrics || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: Custom patches to packages
 :: 1. do not build debug builds to speed up CI
-echo "set(VCPKG_BUILD_TYPE release)" >> %VCPKG_DIR%\triplets\x64-windows.cmake || goto :error
+echo set(VCPKG_BUILD_TYPE release) >> %VCPKG_DIR%\triplets\x64-windows.cmake || goto :error
 :: 2. patch dfcln-win32 to avoid debug filesystem paths
 :: dfcln-win32 assumes that debug build is always there.
 :: remove lines with debug word. portfile is simple enough
-set dfcln_portfile=%VCPKG_DIR%\ports\dfcln-win32\portfile.cmake
+set dfcln_portfile=%VCPKG_DIR%\ports\dlfcn-win32\portfile.cmake
 findstr  /v  /i "debug" %dfcln_portfile% > %dfcln_portfile%.new || goto :error
 move %dfcln_portfile%.new %dfcln_portfile% || goto :error
 :: 3. use lowercase in ogre for releaes
@@ -40,6 +39,13 @@ move %dfcln_portfile%.new %dfcln_portfile% || goto :error
 set ogre_portfile=%VCPKG_DIR%\ports\ogre\portfile.cmake
 powershell -Command "(Get-Content %ogre_portfile%) -replace 'Release', 'release' | Out-File -encoding ASCII %ogre_portfile%" || goto :error
 echo # END SECTION
+
+echo "Using SNAPSHOT: bootstrap vcpkg executable"
+%VCPKG_DIR%\bootstrap-vcpkg.bat -disableMetrics || goto :error
+echo # END SECTION
+:: TODO: the bootstrap-vcpkg.bat file seems to make Jenkins to exit no
+:: matter the return code. Be careful if you use instructions at this
+:: point.
 cd %WORKSPACE%
 goto :EOF
 
