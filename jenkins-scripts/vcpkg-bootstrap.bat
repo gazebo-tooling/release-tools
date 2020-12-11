@@ -24,6 +24,22 @@ git checkout %VCPKG_SNAPSHOT% || goto :error
 :: Bootstrap vcpkg.exe
 %VCPKG_DIR%\bootstrap-vcpkg.bat -disableMetrics
 echo # END SECTION
+
+echo # BEGIN SECTION: Custom patches to packages
+:: 1. do not build debug builds to speed up CI
+echo "set(VCPKG_BUILD_TYPE release)" >> %VCPKG_DIR%\triplets\x64-windows.cmake
+:: 2. patch dfcln-win32 to avoid debug filesystem paths
+:: dfcln-win32 assumes that debug build is always there.
+:: remove lines with debug word. portfile is simple enough
+set dfcln_portfile=%VCPKG_DIR%\ports\dfcln-win32\portfile.cmake
+findstr  /v  /i "debug" %dfcln_portfile% > %dfcln_portfile%.new || goto :error
+move %dfcln_portfile%.new %dfcln_portfile%
+:: 3. use lowercase in ogre for releaes
+:: ogre formula relies on checking for Release to install manual-link
+:: replace it to lowercase
+set ogre_portfile=%VCPKG_DIR%\ports\ogre\portfile.cmake
+powershell -Command "(Get-Content %ogre_portfile%) -replace 'Release', 'release' | Out-File -encoding ASCII %ogre_portfile%"
+echo # END SECTION
 cd %WORKSPACE%
 goto :EOF
 
