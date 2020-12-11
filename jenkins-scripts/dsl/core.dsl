@@ -17,6 +17,14 @@ update_vcpkg_snapshot_job.with
 
     steps
     {
+      systemGroovyCommand("""\
+        job_description = 'RTOOLS_BRANCH: ' +
+            build.buildVariableResolver.resolve('RTOOLS_BRANCH') + '<br />' +
+            'TARGET_NODE: ' +
+            '<b>' + build.buildVariableResolver.resolve('TARGET_NODE') + '</b>'
+        build.setDescription(job_description)
+      """.stripIndent())
+
       batchFile("""\
             call "%WORKSPACE%/scripts/jenkins-scripts/vcpkg-bootstrap.bat
             """.stripIndent())

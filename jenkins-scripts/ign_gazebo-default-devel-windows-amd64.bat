@@ -5,7 +5,7 @@ set VCS_DIRECTORY=ign-gazebo
 set PLATFORM_TO_BUILD=x86_amd64
 set IGN_CLEAN_WORKSPACE=true
 :: dlfcn
-set DEPEN_PKGS="dlfcn-win32 cuda cppzmq curl jsoncpp ffmpeg freeimage ogre qt5 qwt gts glib fcl eigen3 ccd assimp libyaml libzip gflags protobuf tinyxml2 zeromq"
+set DEPEN_PKGS="dlfcn-win32 cuda cppzmq curl jsoncpp ffmpeg freeimage ogre ogre2 qt5 qwt gts glib fcl eigen3 ccd assimp libyaml libzip gflags protobuf tinyxml2 zeromq"
 :: This needs to be migrated to DSL to get multi-major versions correctly
 set COLCON_PACKAGE=ignition-gazebo
 set COLCON_AUTO_MAJOR_VERSION=true

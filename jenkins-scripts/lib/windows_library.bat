@@ -242,7 +242,7 @@ goto :EOF
 set LIB_DIR=%~dp0
 call %LIB_DIR%\windows_env_vars.bat || goto :error
 call %win_lib% :check_vcpkg_snapshot || goto :error
-%VCPKG_CMD% install "%1"
+%VCPKG_CMD% install "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
 goto :EOF
 
 :: ##################################
@@ -276,13 +276,9 @@ if exist %PORT_DIR% (
   rmdir /s /q %PORT_DIR% || goto :error
 )
 
-if NOT exist %VCPKG_OSRF_DIR% (
-  git clone https://github.com/osrf/vcpkg-ports %VCPKG_OSRF_DIR%
-  cd %VCPKG_OSRF_DIR%
-) else (
-  cd %VCPKG_OSRF_DIR%
-  git pull origin master || goto :error
-)
+:: update osrf vcpkg overlay
+cd %VCPKG_OSRF_DIR%
+git pull origin master || goto :error
 
 :: copy port to the official tree
 xcopy %VCPKG_OSRF_DIR%\%PKG% %PORT_DIR% /s /i /e || goto :error
