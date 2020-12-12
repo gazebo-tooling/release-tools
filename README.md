@@ -64,4 +64,5 @@ Gazebo Classic and Ignition software.
     * Several `-debbuilder` jobs have been queued in https://build.osrfoundation.org/ and watch those jobs to see if any of them fail.
     * A pull request was opened to https://github.com/osrf/homebrew-simulation
         1. This pull request may take a minute or two to open.
-        1. Once it is open, make a comment containing the text "build bottle"
+        1. Once it is open, make a comment containing the text "build bottle".
+           For further details, see the [README at osrf/homebrew-simulation](https://github.com/osrf/homebrew-simulation#to-build-bottles).
