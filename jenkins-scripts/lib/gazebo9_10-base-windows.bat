@@ -41,7 +41,7 @@ call %win_lib% :download_unzip_install qwt_6.1.2~osrf_qt5.zip
 call %win_lib% :download_unzip_install tbb43_20141023oss_win.zip
 call %win_lib% :download_unzip_install zziplib-0.13.62-vc12-x64-release-debug.zip
 
-call %win_lib% :wget http://download.qt-project.org/official_releases/jom/jom.zip jom.zip
+call %win_lib% :wget http://mirrors.ukfast.co.uk/sites/qt.io/official_releases/jom/jom_1_1_3.zip jom.zip
 call %win_lib% :unzip_7za jom.zip
 
 echo # END SECTION

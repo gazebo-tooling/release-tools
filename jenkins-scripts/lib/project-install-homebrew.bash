@@ -45,12 +45,6 @@ echo '# BEGIN SECTION: setup the osrf/simulation tap'
 brew tap osrf/simulation
 echo '# END SECTION'
 
-if [[ -n "${PULL_REQUEST_URL}" ]]; then
-  echo "# BEGIN SECTION: pulling ${PULL_REQUEST_URL}"
-  brew pull ${PULL_REQUEST_URL}
-  echo '# END SECTION'
-fi
-
 echo "# BEGIN SECTION: install ${BOTTLE_NAME}"
 brew install --include-test ${BOTTLE_NAME}
 
@@ -65,11 +59,6 @@ export DISPLAY=$(ps ax \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
 
-echo "#BEGIN SECTION: brew doctor analysis"
-brew missing || brew install $(brew missing | awk '{print $2}') && brew missing
-brew doctor
-echo '# END SECTION'
-
 echo "# BEGIN SECTION: run tests"
 brew linkage --test ${BOTTLE_NAME}
 if ! brew ruby -e "exit '${BOTTLE_NAME}'.f.test_defined?"; then
@@ -80,6 +69,11 @@ else
   brew test ${BOTTLE_NAME}
   brew audit --strict ${BOTTLE_NAME}
 fi
+echo '# END SECTION'
+
+echo "#BEGIN SECTION: brew doctor analysis"
+brew missing || brew install $(brew missing | awk '{print $2}') && brew missing
+brew doctor
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: re-add group write permissions"

@@ -18,8 +18,24 @@ ignition_collections = [
   ],
   [ name : 'edifice',
     distros : [ 'focal' ],
+    // Note that not all main branches will go into the next collection
     nightly_jobs: [
-          'edifice': [ debbuild: 'ign-edifice', branch: 'main '],
+          'cmake'     : [ debbuild: 'ign-cmake3'      , branch: 'main' ],
+          'common'    : [ debbuild: 'ign-common4'     , branch: 'main' ],
+          'edifice'   : [ debbuild: 'ign-edifice'     , branch: 'main' ],
+          'fuel-tools': [ debbuild: 'ign-fuel-tools6' , branch: 'main' ],
+          'gazebo'    : [ debbuild: 'ign-gazebo5'     , branch: 'main' ],
+          'gui'       : [ debbuild: 'ign-gui5'        , branch: 'main' ],
+          'launch'    : [ debbuild: 'ign-launch4'     , branch: 'main' ],
+          'math'      : [ debbuild: 'ign-math7'       , branch: 'main' ],
+          'msgs'      : [ debbuild: 'ign-msgs7'       , branch: 'main' ],
+          'physics'   : [ debbuild: 'ign-physics4'    , branch: 'main' ],
+          'plugin'    : [ debbuild: 'ign-plugin2'     , branch: 'main' ],
+          'rendering' : [ debbuild: 'ign-rendering5'  , branch: 'main' ],
+          'sdformat'  : [ debbuild: 'sdformat11'      , branch: 'main' ],
+          'sensors'   : [ debbuild: 'ign-sensors5'    , branch: 'main' ],
+          'tools'     : [ debbuild: 'ign-tools2'      , branch: 'main' ],
+          'transport' : [ debbuild: 'ign-transport10' , branch: 'main' ],
     ],
   ],
 ]
@@ -576,7 +592,7 @@ nightly_scheduler_job.with
 
               # remove 0 or 1 trailing versions. Use echo + sed to avoid scaping
               # problems with <<<
-              if [[ \$n != \${n/[0-9]*} ]] && [[ \$(echo \$n | sed -r 's:[a-z]*[A-Z]*([0-9]*):\\1:g') -lt 2 ]]; then
+              if [[ \$n != \${n/[0-9]*} ]] && [[ \$(echo \$n | sed -r 's:[a-z-]*[A-Z_]*([0-9]*):\\1:g') -lt 2 ]]; then
                 n=\${n%[0-1]}
               fi
 
