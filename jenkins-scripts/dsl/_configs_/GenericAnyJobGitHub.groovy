@@ -30,7 +30,7 @@ class GenericAnyJobGitHub
     {
       parameters
       {
-        stringParam('sha1', '', 'commit or refname to build. To manually use a branch: origin/$branch_name')
+        stringParam('sha1', 'main', 'commit or refname to build. To manually use a branch: origin/$branch_name')
       }
 
       scm
