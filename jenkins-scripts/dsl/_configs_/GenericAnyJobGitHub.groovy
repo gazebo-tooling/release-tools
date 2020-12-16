@@ -59,6 +59,7 @@ class GenericAnyJobGitHub
               permitAll(true)
               // do not remove the cron line otherwise it triggers an error in the log
               spec('')
+              cron('')
               whiteListTargetBranches {
                 supported_branches.each { supported_branch ->
                   'org.jenkinsci.plugins.ghprb.GhprbBranch' {
