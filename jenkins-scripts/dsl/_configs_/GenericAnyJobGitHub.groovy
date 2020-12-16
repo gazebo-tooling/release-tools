@@ -57,7 +57,8 @@ class GenericAnyJobGitHub
               useGitHubHooks(true)
               onlyTriggerPhrase(false)
               permitAll(true)
-              // do not remove the cron line otherwise it triggers an error in the log
+              // do not remove the cron/spec lines otherwise it triggers an error in the log
+              // both are needed to control the contrab behaviour
               spec('')
               cron('')
               whiteListTargetBranches {
