@@ -15,7 +15,7 @@ if %SDFORMAT_MAJOR_VERSION% GEQ 10 (
   set COLCON_PACKAGE=sdformat
   set COLCON_AUTO_MAJOR_VERSION=true
   call "%SCRIPT_DIR%\lib\colcon-default-devel-windows.bat"
-else if %SDFORMAT_MAJOR_VERSION% GEQ 6 (
+) else if %SDFORMAT_MAJOR_VERSION% GEQ 6 (
   call "%SCRIPT_DIR%/lib/generic-default-devel-windows.bat"
 ) else (
   call "%SCRIPT_DIR%/lib/sdformat-base-windows.bat"
