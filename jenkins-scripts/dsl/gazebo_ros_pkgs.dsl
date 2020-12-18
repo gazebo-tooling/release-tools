@@ -17,7 +17,7 @@ Boolean ENABLE_TESTS = true
 Boolean DISABLE_CPPCHECK = false
 
 // version to test more than the official one in each ROS distro
-extra_gazebo_versions = [ 'kinetic'  :  ['8','9'],
+extra_gazebo_versions = [ 'kinetic'  :  ['9'],
                           'melodic'  :  ['11'],
                           'dashing'  :  ['11'],
                           'eloquent' :  ['11']]
@@ -26,14 +26,13 @@ bloom_debbuild_jobs = [ 'gazebo-dev', 'gazebo-msgs', 'gazebo-plugins', 'gazebo-r
 
 // ROS1 branches use $ros_distro-devel schema
 // ROS2 branches use $ros_distro with the expections:
-//  - foxy or rolling -> ros2
+//  - rolling -> ros2
 //  - branch under development -> ros2
 String get_branch_from_rosdistro(ros_distro) {
   if (! ros2_distros.contains(ros_distro))
     return "${ros_distro}-devel"
 
   switch(ros_distro) {
-    case 'foxy':
     case 'rolling':
     case current_ros2_branch:
       return 'ros2'

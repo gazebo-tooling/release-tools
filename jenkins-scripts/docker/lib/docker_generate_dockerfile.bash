@@ -42,7 +42,7 @@ dockerfile_install_gzdev_repos()
 {
 cat >> Dockerfile << DELIM_OSRF_REPO_GIT
 RUN rm -fr ${GZDEV_DIR}
-RUN git clone --depth 1 https://github.com/osrf/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
+RUN git clone --depth 1 https://github.com/ignition-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
 DELIM_OSRF_REPO_GIT
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
 # debian sid docker images does not return correct name so we need to use
@@ -266,9 +266,13 @@ RUN add-apt-repository ppa:j-rivero/simbody-artful
 DELIM_DOCKER_WORKAROUND_SIMBODY
 fi
 
+# Install debian dependencies defined on the source code
+DEPENDENCIES_PATH_TO_SEARCH=${SOFTWARE_DIR:=.}
+SOURCE_DEFINED_DEPS="$(sort -u $(find ${DEPENDENCIES_PATH_TO_SEARCH} -iname 'packages-'$DISTRO'.apt' -o -iname 'packages.apt' | grep -v '/\.git/') | tr '\n' ' ')"
+
 # Packages that will be installed and cached by docker. In a non-cache
 # run below, the docker script will check for the latest updates
-PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS}"
+PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS} ${SOURCE_DEFINED_DEPS}"
 
 if $USE_GPU_DOCKER; then
   PACKAGES_CACHE_AND_CHECK_UPDATES="${PACKAGES_CACHE_AND_CHECK_UPDATES} ${GRAPHIC_CARD_PKG}"
@@ -361,7 +365,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         autoconf \
         libtool \
         pkg-config \
-        python \
+        python3 \
         libxext-dev \
         libx11-dev \
         x11proto-gl-dev && \
