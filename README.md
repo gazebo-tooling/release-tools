@@ -62,6 +62,19 @@ Gazebo Classic and Ignition software.
     1. If the dry run succeeds, run the same command again, now without `--dry-run`.
 1. Check that:
     * Several `-debbuilder` jobs have been queued in https://build.osrfoundation.org/ and watch those jobs to see if any of them fail.
+      While it would be easier to track the status of these jobs if there was a [dashboard](https://github.com/ignition-tooling/release-tools/issues/295),
+      you can watch the page for a specific debbuild, such as https://build.osrfoundation.org/job/ign-gui3-debbuilder/.
+        1. If you observe a failure of an Ignition Dome package, check the list of supported
+           architectures in [issue #297](https://github.com/ignition-tooling/release-tools/issues/297);
+           for example Bionic/armhf and Focal/armhf are not supported for Dome.
+           To disable builds for a specific architecture, add a file to the `-release` repository that starts with `.releasepy_NO_ARCH_`
+           and append the name of the architecture to be excluded. The file can be added to the
+           root of the `-release` repository (like [.releasepy_NO_ARCH_ARM64 in ign-gazebo2-release](https://github.com/ignition-release/ign-gazebo2-release/blob/master/.releasepy_NO_ARCH_ARM64))
+           or in a distro-specific sub-folder (like [bionic/.releasepy_NO_ARCH_armhf in ign-launch2-release](https://github.com/ignition-release/ign-launch2-release/blob/master/bionic/.releasepy_NO_ARCH_armhf)).
+           The architecture suffix is not case-sensitive.
+        1. If the failure is on a supported architecture, check the source repository for an existing report of this failure and if none
+           exists, please report the failure (see [ignitionrobotics/ign-math#161](https://github.com/ignitionrobotics/ign-math/issues/161)
+           for an example).
     * A pull request was opened to https://github.com/osrf/homebrew-simulation
         1. This pull request may take a minute or two to open.
         1. Once it is open, make a comment containing the text "build bottle".
