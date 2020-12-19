@@ -72,6 +72,10 @@ Gazebo Classic and Ignition software.
            root of the `-release` repository (like [.releasepy_NO_ARCH_ARM64 in ign-gazebo2-release](https://github.com/ignition-release/ign-gazebo2-release/blob/master/.releasepy_NO_ARCH_ARM64))
            or in a distro-specific sub-folder (like [bionic/.releasepy_NO_ARCH_armhf in ign-launch2-release](https://github.com/ignition-release/ign-launch2-release/blob/master/bionic/.releasepy_NO_ARCH_armhf)).
            The architecture suffix is not case-sensitive.
+        1. To check if a debbuild has previously succeeded for a given architecture, you can look at packages.osrfoundation.org
+           to see the most recent successful builds. For example, you can see the most recent
+           [Ubuntu builds of ignition-gazebo3](https://packages.osrfoundation.org/gazebo/ubuntu-stable/pool/main/i/ignition-gazebo3/)
+           or the [Debian builds of ignition-gazebo3](https://packages.osrfoundation.org/gazebo/debian-stable/pool/main/i/ignition-gazebo3/).
         1. If the failure is on a supported architecture, check the source repository for an existing report of this failure and if none
            exists, please report the failure (see [ignitionrobotics/ign-math#161](https://github.com/ignitionrobotics/ign-math/issues/161)
            for an example).
