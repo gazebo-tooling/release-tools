@@ -123,6 +123,10 @@ fi
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'gettext' }.empty?"; then
   export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/gettext/lib
 fi
+# if we are using boost, need to add icu4c library path since it is keg-only
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'icu4c' }.empty?"; then
+  export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/icu4c/lib
+fi
 
 # if we are using dart@6.10.0 (custom OR port), need to add dartsim library path since it is keg-only
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'dartsim@6.10.0' }.empty?"; then
