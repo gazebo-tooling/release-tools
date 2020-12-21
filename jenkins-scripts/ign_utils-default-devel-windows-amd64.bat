@@ -5,7 +5,9 @@ set VCS_DIRECTORY=ign-utils
 set PLATFORM_TO_BUILD=x86_amd64
 set IGN_CLEAN_WORKSPACE=true
 
-set DEPEN_PKGS=""
+:: ign-utils shouldn't have external dependencies
+:: set DEPEN_PKGS=""
+
 :: This needs to be migrated to DSL to get multi-major versions correctly
 set COLCON_PACKAGE=ignition-utils
 set COLCON_AUTO_MAJOR_VERSION=true
