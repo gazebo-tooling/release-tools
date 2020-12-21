@@ -79,7 +79,8 @@ ignition_colcon_win         = [ 'gazebo',
                                 'launch',
                                 'physics',
                                 'rendering',
-                                'sensors' ]
+                                'sensors',
+                                'utils' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -449,7 +450,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport8") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport9") ||
               ("${ign_sw}" == "transport" && "${branch}" == "main") ||
-              ("${ign_sw}" == "utils" && "${branch}" == "main")))
+              ("${ign_sw}" == "utils")))
             disabled()
 
           // gz11 branches don't work on xenial
