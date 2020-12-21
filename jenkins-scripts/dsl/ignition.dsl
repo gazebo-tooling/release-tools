@@ -15,7 +15,8 @@ ignition_software = [ 'cmake',
                       'rendering',
                       'sensors',
                       'tools',
-                      'transport' ]
+                      'transport',
+                      'utils' ]
 // DESC: need gpu/display for tests
 ignition_gpu                = [ 'gazebo',
                                 'gui',
@@ -39,8 +40,9 @@ ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'plugin'     : [ '0', '1' ],
                                 'rendering'  : [ '2', '3', '4' ],
                                 'sensors'    : [ '2', '3', '4' ],
+                                'tools'      : [ '0', '1' ],
                                 'transport'  : [ '4', '5', '7', '8', '9' ],
-                                'tools'      : [ '0', '1' ]]
+                                'utils'      : [ '0' ],
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use main for gz11
@@ -61,7 +63,8 @@ ignition_debbuild = ignition_software + [ 'cmake3',
                                           'rendering5',
                                           'sensors5',
                                           'tools2',
-                                          'transport10']
+                                          'transport10',
+                                          'utils0']
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [  ]
 // DESC: major versions that has a package in the prerelease repo. Should
@@ -352,7 +355,8 @@ ignition_software.each { ign_sw ->
              ("${ign_sw}" == "sensors")    ||
             (("${ign_sw}" == "transport")  &&
               (("${major_version}" == "6") || ("${major_version}" == "7") ||
-               ("${major_version}" == "8") || ("${major_version}" == "9")))))
+               ("${major_version}" == "8") || ("${major_version}" == "9")))) ||
+             ("${ign_sw}" == "utils"))
           return
 
         extra_repos_str=""
@@ -444,7 +448,8 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport7") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport8") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport9") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "main")))
+              ("${ign_sw}" == "transport" && "${branch}" == "main") ||
+              ("${ign_sw}" == "utils" && "${branch}" == "main")))
             disabled()
 
           // gz11 branches don't work on xenial
