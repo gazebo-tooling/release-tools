@@ -42,7 +42,7 @@ ignition_branches           = [ 'cmake'      : [ '1', '2' ],
                                 'sensors'    : [ '2', '3', '4' ],
                                 'tools'      : [ '0', '1' ],
                                 'transport'  : [ '4', '5', '7', '8', '9' ],
-                                'utils'      : [ '0' ],
+                                'utils'      : [ '0' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use main for gz11
