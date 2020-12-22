@@ -61,8 +61,14 @@ pushd $(brew --repo osrf/simulation) && \
   hub pr checkout ${ghprbPullId} && \
   popd
 
+# skip tap syntax for now until we replace :x11
+# do this by invoking with --only-setup and --only-formulae
+brew test-bot --tap=osrf/simulation \
+              --only-setup
+
 brew test-bot --tap=osrf/simulation \
               --fail-fast \
+              --only-formulae \
               --root-url=https://osrf-distributions.s3.amazonaws.com/bottles-simulation
 echo '# END SECTION'
 
