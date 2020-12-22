@@ -28,9 +28,7 @@ if ! [[ ${IGN_UTILS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-if [[ ${IGN_UTILS_MAJOR_VERSION} -ge 6 ]]; then
-  export NEED_C17_COMPILER=true
-fi
+export NEED_C17_COMPILER=true
 
 export GZDEV_PROJECT_NAME="ignition-utils${IGN_UTILS_DEPENDENCIES}"
 
