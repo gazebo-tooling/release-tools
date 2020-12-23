@@ -175,7 +175,7 @@ if [ "$CONTINUE" = "y" ] ; then
   cd ${TEMP_DIR}/gazebodistro
   git checkout -b bump_${COLLECTION}_${LIBRARY}
   git commit -sam"Bump in ${COLLECTION}: ${LIBRARY}${VERSION}"
-  git push
+  git push origin bump_${COLLECTION}_${LIBRARY}
 fi
 
 echo -e "${GREEN_BG}Commit docs? (y/n)${DEFAULT_BG}"
@@ -184,7 +184,7 @@ if [ "$CONTINUE" = "y" ] ; then
   cd ${TEMP_DIR}/docs
   git checkout -b bump_${COLLECTION}_${LIBRARY}
   git commit -sam"Bump in ${COLLECTION}: ${LIBRARY}${VERSION}"
-  git push
+  git push origin bump_${COLLECTION}_${LIBRARY}
 fi
 
 for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
@@ -254,7 +254,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
         git checkout -b $BUMP_BRANCH
       fi
       git commit -sam"Bump in ${COLLECTION}: ${LIBRARY}${VERSION}"
-      git push
+      git push origin $BUMP_BRANCH
     fi
   else
     echo -e "${GREEN}Nothing to commit for ${LIB}.${DEFAULT}"
@@ -303,7 +303,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     if [ "$CONTINUE" = "y" ]; then
       git checkout -b bump_${COLLECTION}_${LIBRARY}
       git commit -sam"Bump in ${COLLECTION}: ${LIBRARY}${VERSION}"
-      git push
+      git push origin bump_${COLLECTION}_${LIBRARY}
     fi
   else
     echo -e "${GREEN}Nothing to commit for ${RELEASE_REPO}.${DEFAULT}"
@@ -382,7 +382,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
         git checkout -b $BUMP_BRANCH
       fi
       git commit -sam"Bump in ${COLLECTION}: ${LIB}${VERSION}"
-      git push
+      git push origin $BUMP_BRANCH
     fi
   else
     echo -e "${GREEN}Nothing to commit for homebrew-simulation.${DEFAULT}"
@@ -427,7 +427,7 @@ if [ "$CONTINUE" = "y" ] ; then
   cd ${TEMP_DIR}/release-tools
   git checkout -b bump_${COLLECTION}_${LIBRARY}
   git commit -sam"Bump in ${COLLECTION}: ${LIBRARY}${VERSION}"
-  git push
+  git push origin bump_${COLLECTION}_${LIBRARY}
 fi
 
 
