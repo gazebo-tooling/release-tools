@@ -784,7 +784,7 @@ SUBT_DEPENDENCIES="wget \\
                    curl \\
                    git  \\
                    ${ROS_CATKIN_BASE} \\
-                   ignition-blueprint  \\
+                   ignition-dome  \\
                    ros-${ROS_DISTRO}-desktop \\
                    ros-${ROS_DISTRO}-tf2-sensor-msgs \\
                    ros-${ROS_DISTRO}-robot-localization \\
