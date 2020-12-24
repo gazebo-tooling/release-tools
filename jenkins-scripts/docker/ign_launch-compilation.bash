@@ -37,15 +37,23 @@ if [[ ${IGN_LAUNCH_MAJOR_VERSION} -eq 4 ]]; then
 
   export BUILD_IGN_GAZEBO=true
   export IGN_GAZEBO_MAJOR_VERSION=5
-  export IGN_GAZEBO_BRANCH=main
+  export IGN_GAZEBO_BRANCH=ign-gazebo5
 
   export BUILD_IGN_GUI=true
   export IGN_GUI_MAJOR_VERSION=5
-  export IGN_GUI_BRANCH=main
+  export IGN_GUI_BRANCH=ign-gui5
 
   export BUILD_IGN_SENSORS=true
   export IGN_SENSORS_MAJOR_VERSION=5
-  export IGN_SENSORS_BRANCH=main
+  export IGN_SENSORS_BRANCH=ign-sensors5
+
+  export BUILD_IGN_MSGS=true
+  export IGN_MSGS_MAJOR_VERSION=7
+  export IGN_MSGS_BRANCH=ign-msgs7
+
+  export BUILD_IGN_TRANSPORT=true
+  export IGN_TRANSPORT_MAJOR_VERSION=10
+  export IGN_TRANSPORT_BRANCH=ign-transport10
 fi
 export GZDEV_PROJECT_NAME="ignition-launch${IGN_LAUNCH_MAJOR_VERSION}"
 
