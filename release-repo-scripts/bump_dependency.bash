@@ -15,8 +15,15 @@
 
 # The script will bump the major version of a library for a given collection
 #
-# Use:
+# Usage:
 # $ ./bump_dependency.bash <collection> <library> <version>
+#
+# The script clones all the necessary repositories under /tmp/bump_dependency.
+#
+# Before committing to each repository, the script asks "Commit <repository name>?".
+# Before saying yes, navigate to the repository and check if the diff looks reasonable.
+# When you say yes, the changes will be committed and pushed. Click on the link printed
+# by GitHub to open the pull request.
 
 # TODO: Update gzdev to use nightlies
 
@@ -237,9 +244,11 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   git pull
 
   # Check if main branch of that library is the correct version
-  PROJECT="project(${LIB/ign/ignition}${VER}"
+  PROJECT_NAME="${LIB//-/_}${VER}"
+  PROJECT_NAME="${PROJECT_NAME/ign_/ignition-}"
+  PROJECT="project(${PROJECT_NAME}"
   if ! grep -q ${PROJECT} "CMakeLists.txt"; then
-    echo -e "${RED}Wrong project name on [CMakeLists.txt], looking for [$PROJECT].${DEFAULT}"
+    echo -e "${RED}Wrong project name on [CMakeLists.txt], looking for [$PROJECT_NAME].${DEFAULT}"
     exit
   fi
 
@@ -250,6 +259,10 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     DEP_VER=${VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
+
+    # Second run with _ instead of -, to support multiple variations of fuel-tools
+    DEP_LIB=${DEP_LIB//-/_}
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
   done
 
