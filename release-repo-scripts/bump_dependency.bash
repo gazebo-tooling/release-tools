@@ -148,13 +148,20 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   for TO_BUMP in ${DIFF[@]}; do
 
     TO_BUMP=${TO_BUMP%.yaml}
-    BUMP_LIB=${TO_BUMP::-1}
-    BUMP_VER=${TO_BUMP: -1}
+    if [[ "$TO_BUMP" =~ ^([a-z-]+)([0-9]+) ]]; then
 
-    if [[ ! " ${LIBRARIES[@]} " =~ " ${BUMP_LIB} " ]]; then
-      echo -e "${GREEN}Also bumping ${BUMP_LIB}${BUMP_VER}${DEFAULT}"
-      LIBRARIES+=($BUMP_LIB)
-      VERSIONS+=($BUMP_VER)
+      if [[ ${#BASH_REMATCH[*]} -lt 3 ]]; then
+        continue
+      fi
+
+      BUMP_LIB=${BASH_REMATCH[1]}
+      BUMP_VER=${BASH_REMATCH[2]}
+
+      if [[ ! " ${LIBRARIES[@]} " =~ " ${BUMP_LIB} " ]]; then
+        echo -e "${GREEN}Also bumping ${BUMP_LIB}${BUMP_VER}${DEFAULT}"
+        LIBRARIES+=($BUMP_LIB)
+        VERSIONS+=($BUMP_VER)
+      fi
     fi
 
   done
