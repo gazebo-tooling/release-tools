@@ -4,6 +4,13 @@
 # Return:
 # -> TAP_PREFIX
 
+restore_brew()
+{
+    rm -fr /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/bundle/ruby
+    ${BREW} update-reset
+    ${BREW} vendor-install ruby
+}
+
 echo '# BEGIN SECTION: check variables'
 if [ -z "${PULL_REQUEST_HEAD_REPO}" ]; then
   echo PULL_REQUEST_HEAD_REPO not specified, setting to osrfbuild
@@ -41,6 +48,12 @@ echo '# END SECTION'
 BREW_PREFIX="/home/linuxbrew/.linuxbrew"
 BREW=${BREW_PREFIX}/bin/brew
 ${BREW} up
+
+pushd $(${BREW} --prefix)/Homebrew/Library 2> /dev/null
+git stash && git clean -d -f
+# Need to test if brew installation is still working (use audit cmake to quick check)
+${BREW} audit cmake || restore_brew
+popd 2> /dev/null
 
 ${BREW} ruby -e "puts 'brew ruby success'"
 
