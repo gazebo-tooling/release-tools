@@ -1,8 +1,8 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def sdformat_supported_branches = [ 'sdformat4', 'sdformat6', 'sdformat8' , 'sdformat9', 'sdformat10' ]
-def sdformat_gz11_branches = [ 'sdformat8', 'sdformat9', 'sdformat10', 'master' ]
+def sdformat_supported_branches = [ 'sdformat4', 'sdformat6' , 'sdformat9', 'sdformat10' ]
+def sdformat_gz11_branches = [ 'sdformat9', 'sdformat10', 'master' ]
 // nightly and prereleases
 def extra_sdformat_debbuilder = [ ]
 
