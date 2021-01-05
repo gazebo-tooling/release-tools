@@ -142,13 +142,19 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     exit
   fi
 
-  if ! grep -q main "${YAML_FILE}"; then
-    echo -e "${RED}No main branch found on ${YAML_FILE}.${DEFAULT}"
-    exit
+  MAIN_BRANCH=main
+  if ! grep -q $MAIN_BRANCH "${YAML_FILE}"; then
+    MAIN_BRANCH=master
+    if ! grep -q $MAIN_BRANCH "${YAML_FILE}"; then
+      echo -e "${RED}No main or master branch found on ${YAML_FILE}.${DEFAULT}"
+      exit
+    fi
   fi
 
-  # Assume all files that have some `main` branch may be bumped
-  grep -rl "main" *.yaml | xargs sed -i "s ${LIB}${PREV_VER} main g"
+  # Assume all files that have some `main` or `master` branch may be bumped
+  PREV_RELEASE_BRANCH=${LIB}${PREV_VER}
+  PREV_RELEASE_BRANCH="${PREV_RELEASE_BRANCH/sdformat/sdf}"
+  grep -rl "main\|master" *.yaml | xargs sed -i "s ${PREV_RELEASE_BRANCH} ${MAIN_BRANCH} g"
 
   # Add all bumped dependencies to the list to be bumped
   DIFF=$(git diff --name-only)
@@ -207,6 +213,10 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   VER=${VERSIONS[$i]}
   PREV_VER="$((${VER}-1))"
   LIB_UPPER=`echo ${LIB#"ign-"} | tr a-z A-Z`
+  ORG=ignitionrobotics
+  if [ "$LIB" = "sdformat" ]; then
+    ORG=osrf
+  fi
 
   if ! [[ $VER == ?(-)+([0-9]) ]] ; then
     continue
@@ -223,7 +233,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   cd ${TEMP_DIR}
   if [ ! -d "${LIB}" ]; then
     echo -e "${GREEN}Cloning ${LIB}${DEFAULT}"
-    git clone https://github.com/ignitionrobotics/${LIB}
+    git clone https://github.com/${ORG}/${LIB}
   else
     echo -e "${GREEN}${LIB} is already cloned${DEFAULT}"
   fi
@@ -238,15 +248,21 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     echo -e "${GREEN}Checking out ${LIB} branch [$BUMP_BRANCH]${DEFAULT}"
     git checkout $BUMP_BRANCH
   else
-    echo -e "${GREEN}Checking out ${LIB} branch [main]${DEFAULT}"
-    git checkout main
+    HAS_MAIN=$(git ls-remote --heads origin main)
+    if [[ -z ${HAS_MAIN} ]]; then
+      echo -e "${GREEN}Checking out ${LIB} branch [master]${DEFAULT}"
+      git checkout master
+    else
+      echo -e "${GREEN}Checking out ${LIB} branch [main]${DEFAULT}"
+      git checkout main
+    fi
   fi
   git pull
 
   # Check if main branch of that library is the correct version
   PROJECT_NAME="${LIB//-/_}${VER}"
   PROJECT_NAME="${PROJECT_NAME/ign_/ignition-}"
-  PROJECT="project(${PROJECT_NAME}"
+  PROJECT="project.*(${PROJECT_NAME}"
   if ! grep -q ${PROJECT} "CMakeLists.txt"; then
     echo -e "${RED}Wrong project name on [CMakeLists.txt], looking for [$PROJECT_NAME].${DEFAULT}"
     exit
@@ -363,7 +379,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   fi
 
   echo -e "${GREEN}Updating ${FORMULA}${DEFAULT}"
-  URL="https://github.com/ignitionrobotics/${LIB}/archive/${SOURCE_COMMIT}.tar.gz"
+  URL="https://github.com/${ORG}/${LIB}/archive/${SOURCE_COMMIT}.tar.gz"
   wget $URL
   SHA=`sha256sum ${SOURCE_COMMIT}.tar.gz | cut -d " " -f 1`
   rm ${SOURCE_COMMIT}.tar.gz
