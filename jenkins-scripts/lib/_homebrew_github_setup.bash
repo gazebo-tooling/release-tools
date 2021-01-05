@@ -6,6 +6,8 @@
 
 restore_brew()
 {
+    sudo apt update
+    sudo apt install libz-dev
     rm -fr /home/linuxbrew/.linuxbrew/Homebrew/Library/Homebrew/vendor/bundle/ruby
     ${BREW} update-reset
     ${BREW} vendor-install ruby
