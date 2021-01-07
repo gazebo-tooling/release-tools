@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Copyright (C) 2020 Open Source Robotics Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -465,7 +466,6 @@ if [ "$CONTINUE" = "y" ] ; then
   git commit -sam"Bump in ${COLLECTION}: ${LIBRARY}${VERSION}"
   git push origin bump_${COLLECTION}_${LIBRARY}
 fi
-
 
 
 
