@@ -28,20 +28,20 @@ ignition_no_test            = [ 'tools' ]
 // testing and debbuild job.
 // No branches in ignition_branches means no released branches (only CI on
 // main, ABI check, install pkg)
-ignition_branches           = [ 'cmake'      : [ '1', '2' ],
-                                'common'     : [ '1', '2', '3' ],
-                                'fuel-tools' : [ '1', '2', '3', '4', '5' ],
-                                'gazebo'     : [ '2', '3', '4' ],
-                                'gui'        : [ '0', '2', '3', '4' ],
-                                'launch'     : [ '1', '2', '3' ],
-                                'math'       : [ '2', '4', '5', '6' ],
-                                'msgs'       : [ '1', '2', '4', '5', '6' ],
-                                'physics'    : [ '1', '2', '3' ],
-                                'plugin'     : [ '0', '1' ],
-                                'rendering'  : [ '2', '3', '4' ],
-                                'sensors'    : [ '2', '3', '4' ],
-                                'tools'      : [ '0', '1' ],
-                                'transport'  : [ '4', '5', '7', '8', '9' ],
+ignition_branches           = [ 'cmake'      : [ '2' ],
+                                'common'     : [ '1', '3' ],
+                                'fuel-tools' : [ '1', '4', '5' ],
+                                'gazebo'     : [ '3', '4' ],
+                                'gui'        : [ '0', '3', '4' ],
+                                'launch'     : [ '2', '3' ],
+                                'math'       : [ '2', '4', '6' ],
+                                'msgs'       : [ '1', '5', '6' ],
+                                'physics'    : [ '2', '3' ],
+                                'plugin'     : [ '1' ],
+                                'rendering'  : [ '3', '4' ],
+                                'sensors'    : [ '3', '4' ],
+                                'tools'      : [ '1' ],
+                                'transport'  : [ '2', '4', '8', '9' ],
                                 'utils'      : [ '0' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
