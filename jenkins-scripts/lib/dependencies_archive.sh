@@ -708,6 +708,8 @@ fi
 IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
                        libignition-math4-dev"
 
+IGN_UTILS_DEPENDENCIES="libignition-cmake2-dev"
+
 #
 # SUBT
 #

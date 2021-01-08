@@ -33,6 +33,7 @@ ignition_collections = [
           'sensors'   : [ debbuild: 'ign-sensors5'    , branch: 'main' ],
           'tools'     : [ debbuild: 'ign-tools2'      , branch: 'main' ],
           'transport' : [ debbuild: 'ign-transport10' , branch: 'main' ],
+          'utils'     : [ debbuild: 'ign-utils0'      , branch: 'main' ],
     ],
   ],
 ]
