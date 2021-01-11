@@ -190,6 +190,9 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
 done
 
+# Add collection to libraries, without version
+LIBRARIES+=(ign-$COLLECTION)
+
 echo -e "${GREEN_BG}Commit gazebodistro? (y/n)${DEFAULT_BG}"
 read CONTINUE
 if [ "$CONTINUE" = "y" ] ; then
@@ -217,10 +220,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   ORG=ignitionrobotics
   if [ "$LIB" = "sdformat" ]; then
     ORG=osrf
-  fi
-
-  if ! [[ $VER == ?(-)+([0-9]) ]] ; then
-    continue
   fi
 
   echo -e "${BLUE_BG}Processing [${LIB}]${DEFAULT_BG}"
@@ -257,8 +256,8 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
       echo -e "${GREEN}Checking out ${LIB} branch [main]${DEFAULT}"
       git checkout main
     fi
+    git pull
   fi
-  git pull
 
   # Check if main branch of that library is the correct version
   PROJECT_NAME="${LIB//-/_}${VER}"
@@ -270,6 +269,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   fi
 
   echo -e "${GREEN}Updating source code${DEFAULT}"
+  # TODO: handle yaml file in collection source like gazebodistro (main instead of dep+1)
   for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
 
     DEP_LIB=${LIBRARIES[$j]#"ign-"}
@@ -287,7 +287,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     echo -e "${GREEN_BG}Commit ${LIB}? (y/n)${DEFAULT_BG}"
     read CONTINUE
     if [ "$CONTINUE" = "y" ]; then
-      if [[ ! -z ${HAS_BUMP} ]]; then
+      if [[ -z ${HAS_BUMP} ]]; then
         git checkout -b $BUMP_BRANCH
       fi
       git commit -sam"Bump in ${COLLECTION}: ${LIBRARY}${VERSION}"
@@ -391,13 +391,13 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   sed -i -E "s ((${LIB#"ign-"}))${PREV_VER} \1${VER} g" $FORMULA
   # class IgnitionLibN
   sed -i -E "s/((class Ignition.*))${PREV_VER}/\1${VER}/g" $FORMULA
-  # remove bottle
+  # remove bottle - TODO: this is only needed for new formulae
   sed -i -e "/bottle do/,/end/d" $FORMULA
   # URL from release to commit - TODO: remove manual step
   sed -i "s@url.*@url \"$URL\"@g" $FORMULA
   # SHA - TODO: remove manual step
   sed -i "s/sha256.*/sha256 \"$SHA\"/g" $FORMULA
-  # version
+  # version - TODO: fix duplicating existing one
   sed -i "/url.*/a \ \ version\ \"${PREV_VER}.999.999~0~`date +"%Y%m%d"`~${SOURCE_COMMIT:0:6}\"" $FORMULA
   # Remove extra blank lines
   cat -s $FORMULA | tee $FORMULA
@@ -412,17 +412,23 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   done
 
   if ! git diff --exit-code; then
+    echo -e "${GREEN_BG}Clean up the files before committing!${DEFAULT_BG}"
     echo -e "${GREEN_BG}Commit homebrew-simulation for ${LIB}? (y/n)${DEFAULT_BG}"
     read CONTINUE
     if [ "$CONTINUE" = "y" ]; then
       if [[ -z ${HAS_BUMP} ]]; then
         git checkout -b $BUMP_BRANCH
       fi
-      git commit -sam"Bump in ${COLLECTION}: ${LIB}${VERSION}"
+      git commit -sam"Bump in ${COLLECTION}: ${LIB}${VER}"
       git push origin $BUMP_BRANCH
     fi
   else
     echo -e "${GREEN}Nothing to commit for homebrew-simulation.${DEFAULT}"
+  fi
+
+  # Collection ends here
+  if ! [[ $VER == ?(-)+([0-9]) ]] ; then
+    continue
   fi
 
   ##################
