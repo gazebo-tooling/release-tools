@@ -60,5 +60,5 @@ export DEPENDENCY_PKGS="apt-transport-https \
 		 libz-dev \
                  git"
 
-. "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
-. "${SCRIPT_DIR}/lib/docker_run.bash"
+. "${SCRIPT_LIBDIR}/docker_generate_dockerfile.bash"
+. "${SCRIPT_LIBDIR}/docker_run.bash"
