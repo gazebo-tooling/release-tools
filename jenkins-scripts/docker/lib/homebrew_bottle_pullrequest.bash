@@ -39,6 +39,7 @@ echo '# END SECTION'
 FILES_WITH_NEW_HASH="\$(find \${BOTTLE_JSON_DIR} -name '*.json')"
 
 # call to github setup
+mkdir \${HOME}/.ssh
 ssh-keyscan github.com >> \${HOME}/.ssh/known_hosts
 
 . ${WORKSPACE}/${SCRIPT_LIBDIR}/../../lib/_homebrew_github_setup.bash
