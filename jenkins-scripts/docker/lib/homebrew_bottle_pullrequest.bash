@@ -56,7 +56,7 @@ export FORMULA_PATH='-a'
 echo '# END SECTION'
 
 COMMIT_MESSAGE_SUFFIX=" bottle."
-. ${SCRIPT_LIBDIR}/../../lib/_homebrew_github_setup.bash
+. ${SCRIPT_LIBDIR}/../../lib/_homebrew_github_commit.bash 
 
 DELIM
 
