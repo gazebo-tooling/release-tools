@@ -31,9 +31,9 @@ fi
 export NEED_C17_COMPILER=true
 
 if [[ ${IGN_PHYSICS_MAJOR_VERSION} -eq 4 ]]; then
-  export BUILD_IGN_SDFORMAT=true
-  export IGN_SDFORMAT_MAJOR_VERSION=11
-  export IGN_SDFORMAT_BRANCH=main
+  export BUILD_SDFORMAT=true
+  export SDFORMAT_MAJOR_VERSION=11
+  export SDFORMAT_BRANCH=master
 fi
 
 export GZDEV_PROJECT_NAME="ignition-physics${IGN_PHYSICS_MAJOR_VERSION}"
