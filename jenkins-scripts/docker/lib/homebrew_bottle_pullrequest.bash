@@ -3,6 +3,7 @@
 # Knowing Script dir beware of symlink
 [[ -L ${0} ]] && SCRIPT_LIBDIR=$(readlink ${0}) || SCRIPT_LIBDIR=${0}
 SCRIPT_LIBDIR="${SCRIPT_LIBDIR%/*}"
+export SCRIPT_DIR=${SCRIPT_LIBDIR}/../
 
 export DOCKER_JOB_NAME="homebrew_bottle_pullrequest"
 . ${SCRIPT_LIBDIR}/boilerplate_prepare.sh
