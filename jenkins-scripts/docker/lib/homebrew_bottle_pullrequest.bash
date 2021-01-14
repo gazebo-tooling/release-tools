@@ -40,6 +40,10 @@ FILES_WITH_NEW_HASH="\$(find \${BOTTLE_JSON_DIR} -name '*.json')"
 
 # call to github setup
 echo \$PWD
+jenkins_known_hosts=\${HOME}/.ssh/known_hosts
+execute "ssh-keyscan github.com >> \${jenkins_known_hosts}
+
+
 . ${WORKSPACE}/${SCRIPT_LIBDIR}/../../lib/_homebrew_github_setup.bash
 
 if [ -z "${TAP_PREFIX}" ]; then
@@ -64,7 +68,8 @@ DELIM
 export DEPENDENCY_PKGS="apt-transport-https \
                  curl \
 		 libz-dev \
-                 git"
+                 git \
+                 openssh-client"
 
 . "${SCRIPT_LIBDIR}/docker_generate_dockerfile.bash"
 . "${SCRIPT_LIBDIR}/docker_run.bash"
