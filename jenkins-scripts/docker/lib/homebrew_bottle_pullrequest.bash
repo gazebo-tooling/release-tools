@@ -39,7 +39,7 @@ echo '# END SECTION'
 FILES_WITH_NEW_HASH="\$(find \${BOTTLE_JSON_DIR} -name '*.json')"
 
 # call to github setup
-. ${SCRIPT_LIBDIR}/_homebrew_github_setup.bash
+. ${SCRIPT_LIBDIR}/../_homebrew_github_setup.bash
 
 if [ -z "${TAP_PREFIX}" ]; then
 	echo TAP_PREFIX not specified
@@ -56,7 +56,7 @@ export FORMULA_PATH='-a'
 echo '# END SECTION'
 
 COMMIT_MESSAGE_SUFFIX=" bottle."
-. ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
+. ${SCRIPT_LIBDIR}/../_homebrew_github_commit.bash
 DELIM
 
 export DEPENDENCY_PKGS="apt-transport-https \
