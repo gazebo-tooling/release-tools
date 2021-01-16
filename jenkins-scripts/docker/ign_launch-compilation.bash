@@ -58,6 +58,14 @@ if [[ ${IGN_LAUNCH_MAJOR_VERSION} -eq 4 ]]; then
   export BUILD_IGN_TRANSPORT=true
   export IGN_TRANSPORT_MAJOR_VERSION=10
   export IGN_TRANSPORT_BRANCH=main
+
+  export BUILD_SDFORMAT=true
+  export SDFORMAT_MAJOR_VERSION=11
+  export SDFORMAT_BRANCH=master
+
+  export BUILD_IGN_PHYSICS=true
+  export IGN_PHYSICS_MAJOR_VERSION=4
+  export IGN_PHYSICS_BRANCH=main
 fi
 export GZDEV_PROJECT_NAME="ignition-launch${IGN_LAUNCH_MAJOR_VERSION}"
 

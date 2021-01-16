@@ -43,6 +43,10 @@ if [[ ${IGN_SENSORS_MAJOR_VERSION} -eq 5 ]]; then
   export BUILD_IGN_TRANSPORT=true
   export IGN_TRANSPORT_MAJOR_VERSION=10
   export IGN_TRANSPORT_BRANCH=main
+
+  export BUILD_SDFORMAT=true
+  export SDFORMAT_MAJOR_VERSION=11
+  export SDFORMAT_BRANCH=master
 fi
 export GZDEV_PROJECT_NAME="ignition-sensors${IGN_SENSORS_MAJOR_VERSION}"
 
