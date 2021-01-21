@@ -183,7 +183,7 @@ def download_release_repository(package, release_branch):
 
     cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
     check_call(cmd, IGNORE_DRY_RUN)
-    return release_tmp_dir
+    return release_tmp_dir, release_branch
 
 def sanity_package_name_underscore(package, package_alias):
     # Alias is never empty. It hosts a exect copy of package if not provided
@@ -518,7 +518,7 @@ def go(argv):
     # Sanity checks and dicover supported distributions before proceed.
     # UPSTREAM repository is not known in release-tools script
     if not UPSTREAM:
-        repo_dir = download_release_repository(args.package, args.release_repo_branch)
+        repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
         # The supported distros are the ones in the top level of -release repo
         ubuntu_distros = discover_distros(repo_dir) # top level, ubuntu
         debian_distros = discover_distros(repo_dir + '/debian/') # debian dir top level, Debian
