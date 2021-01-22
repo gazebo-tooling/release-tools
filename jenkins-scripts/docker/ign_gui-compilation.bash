@@ -45,6 +45,10 @@ if [[ ${IGN_GUI_MAJOR_VERSION} -eq 5 ]]; then
   export BUILD_IGN_TRANSPORT=true
   export IGN_TRANSPORT_MAJOR_VERSION=10
   export IGN_TRANSPORT_BRANCH=main
+
+  export BUILD_IGN_COMMON=true
+  export IGN_COMMON_MAJOR_VERSION=4
+  export IGN_COMMON_BRANCH=main
 fi
 export GZDEV_PROJECT_NAME="ignition-gui${IGN_GUI_MAJOR_VERSION}"
 

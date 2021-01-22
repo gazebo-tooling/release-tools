@@ -34,6 +34,10 @@ if [[ ${IGN_PHYSICS_MAJOR_VERSION} -eq 4 ]]; then
   export BUILD_SDFORMAT=true
   export SDFORMAT_MAJOR_VERSION=11
   export SDFORMAT_BRANCH=master
+
+  export BUILD_IGN_COMMON=true
+  export IGN_COMMON_MAJOR_VERSION=4
+  export IGN_COMMON_BRANCH=main
 fi
 
 export GZDEV_PROJECT_NAME="ignition-physics${IGN_PHYSICS_MAJOR_VERSION}"

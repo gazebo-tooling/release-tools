@@ -33,6 +33,11 @@ if [[ ${IGN_RENDERING_MAJOR_VERSION} -ge 1 ]]; then
 fi
 
 export GPU_SUPPORT_NEEDED=true
+if [[ ${IGN_RENDERING_MAJOR_VERSION} -eq 5 ]]; then
+  export BUILD_IGN_COMMON=true
+  export IGN_COMMON_MAJOR_VERSION=4
+  export IGN_COMMON_BRANCH=main
+fi
 export GZDEV_PROJECT_NAME="ignition-rendering${IGN_RENDERING_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

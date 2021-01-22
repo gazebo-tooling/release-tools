@@ -63,6 +63,10 @@ if [[ ${IGN_GAZEBO_MAJOR_VERSION} -eq 5 ]]; then
   export BUILD_IGN_PHYSICS=true
   export IGN_PHYSICS_MAJOR_VERSION=4
   export IGN_PHYSICS_BRANCH=main
+
+  export BUILD_IGN_COMMON=true
+  export IGN_COMMON_MAJOR_VERSION=4
+  export IGN_COMMON_BRANCH=main
 fi
 export GZDEV_PROJECT_NAME="ignition-gazebo${IGN_GAZEBO_MAJOR_VERSION}"
 

@@ -33,6 +33,10 @@ if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -eq 6 ]]; then
   export BUILD_IGN_MSGS=true
   export IGN_MSGS_MAJOR_VERSION=7
   export IGN_MSGS_BRANCH=main
+
+  export BUILD_IGN_COMMON=true
+  export IGN_COMMON_MAJOR_VERSION=4
+  export IGN_COMMON_BRANCH=main
 fi
 
 export GZDEV_PROJECT_NAME="ignition-fuel-tools${IGN_FUEL_TOOLS_MAJOR_VERSION}"

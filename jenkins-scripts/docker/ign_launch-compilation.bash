@@ -66,6 +66,10 @@ if [[ ${IGN_LAUNCH_MAJOR_VERSION} -eq 4 ]]; then
   export BUILD_IGN_PHYSICS=true
   export IGN_PHYSICS_MAJOR_VERSION=4
   export IGN_PHYSICS_BRANCH=main
+
+  export BUILD_IGN_COMMON=true
+  export IGN_COMMON_MAJOR_VERSION=4
+  export IGN_COMMON_BRANCH=main
 fi
 export GZDEV_PROJECT_NAME="ignition-launch${IGN_LAUNCH_MAJOR_VERSION}"
 
