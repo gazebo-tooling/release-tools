@@ -78,7 +78,8 @@ cd $WORKSPACE
 [[ ! -d $WORKSPACE/build ]] && mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake $WORKSPACE/${SOFTWARE_DIR} ${BUILDING_EXTRA_CMAKE_PARAMS} \
-    -DCMAKE_INSTALL_PREFIX=/usr
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -CMAKE_CXX_FLAGS_RELWITHDEBINFO=-fvisibility=hidden
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: compiling'
