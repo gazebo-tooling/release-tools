@@ -83,7 +83,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: compiling'
 init_stopwatch COMPILATION
-CFLASG="\$CFLASG -fvisibility=hidden" CXXFLAGS="\$CXXFLAGS -fvisibility=hidden" make -j\$(cat $WORKSPACE/make_jobs)
+make -j\$(cat $WORKSPACE/make_jobs)
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: installing'
