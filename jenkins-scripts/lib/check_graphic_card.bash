@@ -28,6 +28,16 @@ fi
 # First try to get the display variable
 export_display_variable
 
+# Check for intel
+if [ -n "$(lspci -v | grep "Kernel driver in use: i[0-9][0-9][0-9]")" ]; then
+    export GRAPHIC_CARD_PKG="xserver-xorg-video-intel"
+    export GRAPHIC_CARD_NAME="Intel"
+    export GRAPHIC_CARD_FOUND=true
+    # Need to run properly DRI on intel
+    export EXTRA_PACKAGES="${EXTRA_PACKAGES} libgl1-mesa-dri"
+fi
+
+# If there are two cards in use (intel + other), let nvidia override and be the one selected
 # Check for Nvidia stuff. Using nvidia-docker no installation needed
 if [ -n "$(lspci -v | grep nvidia | head -n 2 | grep "Kernel driver in use: nvidia")" ]; then
     export GRAPHIC_CARD_NAME="Nvidia"
@@ -40,15 +50,6 @@ if [ -n "$(lspci -v | grep "ATI" | grep "VGA")" ]; then
     export GRAPHIC_CARD_PKG=fglrx
     export GRAPHIC_CARD_NAME="ATI"
     export GRAPHIC_CARD_FOUND=true
-fi
-
-# Check for intel
-if [ -n "$(lspci -v | grep "Kernel driver in use: i[0-9][0-9][0-9]")" ]; then
-    export GRAPHIC_CARD_PKG="xserver-xorg-video-intel"
-    export GRAPHIC_CARD_NAME="Intel"
-    export GRAPHIC_CARD_FOUND=true
-    # Need to run properly DRI on intel
-    export EXTRA_PACKAGES="${EXTRA_PACKAGES} libgl1-mesa-dri"
 fi
 
 # Be sure that we have GPU support
