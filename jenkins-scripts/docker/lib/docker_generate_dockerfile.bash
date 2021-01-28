@@ -347,7 +347,7 @@ fi
 
 if $USE_GPU_DOCKER; then
  if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
-   if $NVIDIA_DOCKER2_NODE; then
+   if [[ ${NVIDIA_DOCKER_DRIVER} == 'nvidia-docker2' ]]; then
    # NVIDIA is using nvidia_docker2 integration
    cat >> Dockerfile << DELIM_NVIDIA2_GPU
 # nvidia-container-runtime
