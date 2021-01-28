@@ -41,12 +41,28 @@ if $USE_GPU_DOCKER; then
                     -v /var/run/docker.sock:/var/run/docker.sock \
                     -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
 
+  # Implementation options (both methods can be coinstalled and runtime compatible)
+  # 1. Native GPU Support:
+  #   - Included with Docker-ce 19.03 or later
+  #   - Package: nvidia-container-toolkit
+  #   - docker param: --gpus all
+  # 2. NVIDIA Container Runtime for Docker:
+  #   - If the nvidia-docker2 package is installed
+  #   - Package: nvidia-docker2
+  #   - docker param: --runtime=nvidia
+  #
+  # Reference: https://docs.nvidia.com/deeplearning/frameworks/user-guide/index.html
   if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
-    if $NVIDIA_DOCKER2_NODE; then
-      export EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} \
-                               --runtime=nvidia"
-    else
+    if dpkg -s nvidia-container-toolkit; then
+      export EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --gpus all"
+    elif dpkg -s nvidia-docker2; then
+      export EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --runtime=nvidia"
+    elif dpkg -s nvidia-docker; then
       export docker_cmd="nvidia-docker"
+    else
+      echo "No docker-nvidia support was detected but Nvidia car is detected"
+      echo "Probably a problem in provision of the agent"
+      exit 1
     fi
   fi
 fi
