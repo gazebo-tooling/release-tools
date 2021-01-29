@@ -621,10 +621,16 @@ ignition_software.each { ign_sw ->
     Globals.gazebodistro_branch = false
   }
 
+  supported_branches = []
+     // ign-gazebo only support windows on main branch
+     if (ign_sw == 'gazebo')
+       supported_branches = [ 'main' ]
+
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAnyGitHub.create(ignition_win_ci_any_job,
                                     "ignitionrobotics/ign-${ign_sw}",
-                                    enable_testing(ign_sw))
+                                    enable_testing(ign_sw),
+                                    supported_branches)
   ignition_win_ci_any_job.with
   {
      // ign-launch still not ported completely to Windows
