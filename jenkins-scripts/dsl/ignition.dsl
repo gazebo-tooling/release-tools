@@ -63,8 +63,7 @@ ignition_debbuild = ignition_software + [ 'cmake3',
                                           'rendering5',
                                           'sensors5',
                                           'tools2',
-                                          'transport10',
-                                          'utils1']
+                                          'transport10']
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [  ]
 // DESC: major versions that has a package in the prerelease repo. Should
