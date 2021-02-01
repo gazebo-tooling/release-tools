@@ -42,7 +42,7 @@ ignition_branches           = [ 'cmake'      : [ '2' ],
                                 'sensors'    : [ '3', '4' ],
                                 'tools'      : [ '1' ],
                                 'transport'  : [ '2', '4', '8', '9' ],
-                                'utils'      : [ '1' ]]
+                                'utils'      : [ ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use main for gz11
@@ -63,7 +63,8 @@ ignition_debbuild = ignition_software + [ 'cmake3',
                                           'rendering5',
                                           'sensors5',
                                           'tools2',
-                                          'transport10']
+                                          'transport10',
+                                          'utils']
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [  ]
 // DESC: major versions that has a package in the prerelease repo. Should
