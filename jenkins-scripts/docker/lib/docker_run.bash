@@ -53,8 +53,8 @@ if $USE_GPU_DOCKER; then
         export docker_cmd="nvidia-docker"
       ;;
       *)
-        echo "No docker-nvidia support was detected but Nvidia car is detected"
-        echo "Probably a problem in provision of the agent"
+        echo "No docker-nvidia support was detected but an Nvidia card is detected"
+        echo "Probably a problem in the provisioning of the agent"
         exit 1
     esac
   fi
