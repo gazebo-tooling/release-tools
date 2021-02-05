@@ -128,7 +128,7 @@ def parse_args(argv):
     parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
                         help='no-sanity-checks; i.e. skip sanity checks commands')
     parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
-                        help='Do not generate source file when building')
+                        help='Do not generate source file when building (empty SOURCE_TARBALL_URI)')
     parser.add_argument('--ignition-repo', dest='ignition_repo', action='store_true', default=False,
                         help='use ignition robotics URL repositories instead of OSRF')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
@@ -137,6 +137,10 @@ def parse_args(argv):
                         help='extra OSRF repository to use in the build')
     parser.add_argument('--nightly-src-branch', dest='nightly_branch', default="main",
                         help='branch in the source code repository to build the nightly from')
+    parser.add_argument('--only-bump-revision', dest='bump_revision',
+                        action='store_true', default=False,
+                        help='Bump only revision number. Do not upload new tarball.')
+
     args = parser.parse_args()
     if not args.package_alias:
         args.package_alias = args.package
@@ -208,7 +212,7 @@ def sanity_package_name(repo_dir, package, package_alias):
             continue
         # Check that first word is the package alias or name
         if line.partition(' ')[0] != expected_name:
-            error("Error in changelog package name or alias: " + line.decode())
+            error("Error in changelog package name or alias: " + line)
 
     cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
@@ -387,6 +391,14 @@ def check_call(cmd, ignore_dry_run = False):
             raise Exception('subprocess call failed')
         return out, err
 
+
+# Returns tarball name: package name/alias without versions
+def create_tarball_name(args):
+    # For ignition, we use the package_alias instead of package
+    return re.sub(r'[0-9]+$', '',
+                  args.package if not IGN_REPO else args.package_alias)
+
+
 # Returns: sha, tarball file name, tarball full path
 def create_tarball_path(tarball_name, version, builddir, dry_run):
     tarball_fname = '%s-%s.tar.bz2'%(tarball_name, version)
@@ -431,7 +443,10 @@ def generate_upload_tarball(args):
         sys.exit(1)
 
     # Make a clean copy, to avoid pulling in other stuff that the user has
-    # sitting in the working copy
+    # sitting in the working copy.
+    # Note for bump_revision: there are some adjustment to the tarball name
+    # that are done after generating it, even if the tarball upload is not
+    # needed, it should be generated to get changes in the name
     srcdir = os.path.join(tmpdir, 'src')
     os.mkdir(srcdir)
     tmp_tar = os.path.join(tmpdir, 'orig.tar')
@@ -442,19 +457,10 @@ def generate_upload_tarball(args):
 
     # use cmake to generate package_source
     generate_package_source(srcdir, builddir)
-
-    # Upload tarball. Do not include versions in tarballs
-    tarball_name = re.sub(r'[0-9]+$','', args.package)
-
-    # Trick to make mentor job project to get proper URLs
-    if args.package == "mentor2":
-        tarball_name = "mentor2"
-
-    # For ignition, we use the alias without version numbers as package name
-    if IGN_REPO:
-        tarball_name = re.sub(r'[0-9]+$','', args.package_alias)
-
-    tarball_sha, tarball_fname, tarball_path = create_tarball_path(tarball_name, args.version, builddir, args.dry_run)
+    # detect the tarball created
+    tarball_sha, tarball_fname, tarball_path = create_tarball_path(create_tarball_name(args),
+                                                                   args.version,
+                                                                   builddir, args.dry_run)
 
     # If we're releasing under a different name, then rename the tarball (the
     # package itself doesn't know anything about this).
@@ -467,40 +473,40 @@ def generate_upload_tarball(args):
                 shutil.copyfile(tarball_path, dest_file)
                 tarball_path = dest_file
 
-    check_call(['s3cmd', 'sync', tarball_path, UPLOAD_DEST_PATTERN%get_canonical_package_name(args.package)])
-    shutil.rmtree(tmpdir)
+    s3_tarball_directory = UPLOAD_DEST_PATTERN % get_canonical_package_name(args.package)
+    source_tarball_uri = DOWNLOAD_URI_PATTERN % get_canonical_package_name(args.package) + tarball_fname
 
-    # Tag repo
-    os.chdir(sourcedir)
+    # If the release only bump revision does not need to upload tarball but
+    # checkout that the one that should be already uploaded exists
+    if args.bump_revision:
+        if urllib.request.urlopen(source_tarball_uri).getcode() == '404':
+            print('Can not find tarball: %s' % (source_tarball_uri))
+            sys.exit(1)
+    else:
+        check_call(['s3cmd', 'sync', tarball_path, s3_tarball_directory])
+        shutil.rmtree(tmpdir)
 
-    try:
-        # tilde is not a valid character in git
-        tag = '%s_%s' % (args.package_alias, args.version.replace('~','-'))
-        check_call(['git', 'tag', '-f', tag])
-        check_call(['git', 'push', '--tags'])
-    except ErrorNoPermsRepo as e:
-        print('The Git server reports problems with permissions')
-        print('The branch could be blocked by configuration if you do not have')
-        print('rights to push code in default branch.')
-        sys.exit(1)
-    except ErrorNoUsernameSupplied as e:
-        print('git tag could not be committed because you have not configured')
-        print('your username. Use "git config --username" to set your username.')
-        sys.exit(1)
-    except Exception as e:
-        print('There was a problem with pushing tags to the git repository')
-        print('Do you have write perms in the repository?')
-        sys.exit(1)
+        # Tag repo
+        os.chdir(sourcedir)
 
-    source_tarball_uri = DOWNLOAD_URI_PATTERN%get_canonical_package_name(args.package) + tarball_fname
-
-    ###################################################
-    # Platform-specific stuff.
-    # The goal is to build packages for specific platforms
-
-    ###################################################
-    # Ubuntu-specific stuff.
-    # The goal is to build debs.
+        try:
+            # tilde is not a valid character in git
+            tag = '%s_%s' % (args.package_alias, args.version.replace('~','-'))
+            check_call(['git', 'tag', '-f', tag])
+            check_call(['git', 'push', '--tags'])
+        except ErrorNoPermsRepo as e:
+            print('The Git server reports problems with permissions')
+            print('The branch could be blocked by configuration if you do not have')
+            print('rights to push code in default branch.')
+            sys.exit(1)
+        except ErrorNoUsernameSupplied as e:
+            print('git tag could not be committed because you have not configured')
+            print('your username. Use "git config --username" to set your username.')
+            sys.exit(1)
+        except Exception as e:
+            print('There was a problem with pushing tags to the git repository')
+            print('Do you have write perms in the repository?')
+            sys.exit(1)
 
     # TODO: Consider auto-updating the Ubuntu changelog.  It requires
     # cloning the <package>-release repo, making a change, and pushing it back.
