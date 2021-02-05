@@ -432,8 +432,13 @@ def generate_upload_tarball(args):
     tmpdir    = tempfile.mkdtemp()
     builddir  = os.path.join(tmpdir, 'build')
 
-    # Check for uncommitted changes; abort if present
+    # Note for bump_revision: there are some adjustment to the tarball name
+    # that are done after generating it, even if the tarball upload is not
+    # needed, it should be generated to get changes in the name
+    if args.bump_revision:
+        print('\nWARNING: bump revision is enabled. It needs to generate a local tarball although it will not upload it')
 
+    # Check for uncommitted changes; abort if present
     cmd = ['git', 'diff-index', 'HEAD']
     out, err = check_call(cmd)
     if out:
@@ -444,9 +449,6 @@ def generate_upload_tarball(args):
 
     # Make a clean copy, to avoid pulling in other stuff that the user has
     # sitting in the working copy.
-    # Note for bump_revision: there are some adjustment to the tarball name
-    # that are done after generating it, even if the tarball upload is not
-    # needed, it should be generated to get changes in the name
     srcdir = os.path.join(tmpdir, 'src')
     os.mkdir(srcdir)
     tmp_tar = os.path.join(tmpdir, 'orig.tar')
@@ -574,9 +576,10 @@ def go(argv):
     brew_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL,
                                                    GENERIC_BREW_PULLREQUEST_JOB,
                                                    params_query)
-    if not DRY_RUN and not NIGHTLY:
-        print('- Brew: %s'%(brew_url))
-        urllib.request.urlopen(brew_url)
+    if not NIGHTLY and not args.bump_revision:
+        print('- Brew: %s' % (brew_url))
+        if not DRY_RUN:
+            urllib.request.urlopen(brew_url)
 
     # RELEASING FOR LINUX
     for l in LINUX_DISTROS:
