@@ -137,7 +137,7 @@ def parse_args(argv):
                         help='extra OSRF repository to use in the build')
     parser.add_argument('--nightly-src-branch', dest='nightly_branch', default="main",
                         help='branch in the source code repository to build the nightly from')
-    parser.add_argument('--only-bump-revision', dest='bump_revision',
+    parser.add_argument('--only-bump-revision-linux', dest='bump_rev_linux_only',
                         action='store_true', default=False,
                         help='Bump only revision number. Do not upload new tarball.')
 
@@ -432,10 +432,10 @@ def generate_upload_tarball(args):
     tmpdir    = tempfile.mkdtemp()
     builddir  = os.path.join(tmpdir, 'build')
 
-    # Note for bump_revision: there are some adjustment to the tarball name
+    # Note for bump_rev_linux_only: there are some adjustment to the tarball name
     # that are done after generating it, even if the tarball upload is not
     # needed, it should be generated to get changes in the name
-    if args.bump_revision:
+    if args.bump_rev_linux_only:
         print('\nWARNING: bump revision is enabled. It needs to generate a local tarball although it will not upload it')
 
     # Check for uncommitted changes; abort if present
@@ -480,7 +480,7 @@ def generate_upload_tarball(args):
 
     # If the release only bump revision does not need to upload tarball but
     # checkout that the one that should be already uploaded exists
-    if args.bump_revision:
+    if args.bump_rev_linux_only:
         if urllib.request.urlopen(source_tarball_uri).getcode() == '404':
             print('Can not find tarball: %s' % (source_tarball_uri))
             sys.exit(1)
@@ -576,7 +576,7 @@ def go(argv):
     brew_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL,
                                                    GENERIC_BREW_PULLREQUEST_JOB,
                                                    params_query)
-    if not NIGHTLY and not args.bump_revision:
+    if not NIGHTLY and not args.bump_rev_linux_only:
         print('- Brew: %s' % (brew_url))
         if not DRY_RUN:
             urllib.request.urlopen(brew_url)
