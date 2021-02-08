@@ -137,10 +137,11 @@ def parse_args(argv):
                         help='branch in the source code repository to build the nightly from')
     args = parser.parse_args()
 
-    IGN_AUTO_DETECTED = args.package.startswith('ign-') if not args.no_ignition_auto else False
-    print(IGN_AUTO_DETECTED)
-    if not args.package_alias:
-        args.package_alias = args.package.replace('ign-', 'ignition-') if IGN_AUTO_DETECTED else args.package
+    args.package_alias = args.package
+    # If ignition auto is enabled, replace ign- at the begging of the string
+    if not args.no_ignition_auto and args.package.startswith('ign-'):
+        args.package_alias = args.package.replace('ign-', 'ignition-')
+
     DRY_RUN = args.dry_run
     UPSTREAM = args.upstream
     NO_SRC_FILE = args.no_source_file
