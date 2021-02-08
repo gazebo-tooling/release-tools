@@ -30,8 +30,8 @@ RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 # the release repositories, when needed.
 UBUNTU_DISTROS = []
 
-OSRF_REPOS_SUPPORTED="stable prerelease nightly mentor2 haptix-pre"
-OSRF_REPOS_SELF_CONTAINED="mentor2"
+OSRF_REPOS_SUPPORTED = "stable prerelease nightly"
+OSRF_REPOS_SELF_CONTAINED = ""
 
 DRY_RUN = False
 NIGHTLY = False
@@ -443,17 +443,8 @@ def generate_upload_tarball(args):
 
     # use cmake to generate package_source
     generate_package_source(srcdir, builddir)
-
-    # Upload tarball. Do not include versions in tarballs
-    tarball_name = re.sub(r'[0-9]+$','', args.package)
-
-    # Trick to make mentor job project to get proper URLs
-    if args.package == "mentor2":
-        tarball_name = "mentor2"
-
     # For ignition, we use the alias without version numbers as package name
     tarball_name = re.sub(r'[0-9]+$', '', args.package_alias)
-
     tarball_sha, tarball_fname, tarball_path = create_tarball_path(tarball_name, args.version, builddir, args.dry_run)
 
     # If we're releasing under a different name, then rename the tarball (the
