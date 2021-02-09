@@ -30,15 +30,14 @@ RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 # the release repositories, when needed.
 UBUNTU_DISTROS = []
 
-OSRF_REPOS_SUPPORTED="stable prerelease nightly mentor2 haptix-pre"
-OSRF_REPOS_SELF_CONTAINED="mentor2"
+OSRF_REPOS_SUPPORTED = "stable prerelease nightly"
+OSRF_REPOS_SELF_CONTAINED = ""
 
 DRY_RUN = False
 NIGHTLY = False
 PRERELEASE = False
 UPSTREAM = False
 NO_SRC_FILE = False
-IGN_REPO = False
 
 IGNORE_DRY_RUN = True
 
@@ -106,7 +105,6 @@ def parse_args(argv):
     global PRERELEASE
     global UPSTREAM
     global NO_SRC_FILE
-    global IGN_REPO
 
     parser = argparse.ArgumentParser(description='Make releases.')
     parser.add_argument('package', help='which package to release')
@@ -128,9 +126,9 @@ def parse_args(argv):
     parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
                         help='no-sanity-checks; i.e. skip sanity checks commands')
     parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
-                        help='Do not generate source file when building (empty SOURCE_TARBALL_URI)')
-    parser.add_argument('--ignition-repo', dest='ignition_repo', action='store_true', default=False,
-                        help='use ignition robotics URL repositories instead of OSRF')
+                        help='Do not generate source file when building')
+    parser.add_argument('--no-ignition-auto', dest='no_ignition_auto', action='store_true', default=False,
+                        help='Use package name to create --package-alias if package name starts with ign-')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
     parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
@@ -142,12 +140,15 @@ def parse_args(argv):
                         help='Bump only revision number. Do not upload new tarball.')
 
     args = parser.parse_args()
-    if not args.package_alias:
-        args.package_alias = args.package
+
+    args.package_alias = args.package
+    # If ignition auto is enabled, replace ign- with ignition- at the beginning
+    if not args.no_ignition_auto and args.package.startswith('ign-'):
+        args.package_alias = args.package.replace('ign-', 'ignition-')
+
     DRY_RUN = args.dry_run
     UPSTREAM = args.upstream
     NO_SRC_FILE = args.no_source_file
-    IGN_REPO = args.ignition_repo
     UPLOAD_REPO = args.upload_to_repository
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
@@ -212,7 +213,7 @@ def sanity_package_name(repo_dir, package, package_alias):
             continue
         # Check that first word is the package alias or name
         if line.partition(' ')[0] != expected_name:
-            error("Error in changelog package name or alias: " + line)
+            error("Error in changelog package name or alias: " + line.decode())
 
     cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
@@ -459,10 +460,9 @@ def generate_upload_tarball(args):
 
     # use cmake to generate package_source
     generate_package_source(srcdir, builddir)
-    # detect the tarball created
-    tarball_sha, tarball_fname, tarball_path = create_tarball_path(create_tarball_name(args),
-                                                                   args.version,
-                                                                   builddir, args.dry_run)
+    # For ignition, we use the alias without version numbers as package name
+    tarball_name = re.sub(r'[0-9]+$', '', args.package_alias)
+    tarball_sha, tarball_fname, tarball_path = create_tarball_path(tarball_name, args.version, builddir, args.dry_run)
 
     # If we're releasing under a different name, then rename the tarball (the
     # package itself doesn't know anything about this).
