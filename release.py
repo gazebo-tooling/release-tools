@@ -138,7 +138,7 @@ def parse_args(argv):
     args = parser.parse_args()
 
     args.package_alias = args.package
-    # If ignition auto is enabled, replace ign- at the begging of the string
+    # If ignition auto is enabled, replace ign- with ignition- at the beginning
     if not args.no_ignition_auto and args.package.startswith('ign-'):
         args.package_alias = args.package.replace('ign-', 'ignition-')
 
