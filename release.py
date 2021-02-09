@@ -437,7 +437,7 @@ def generate_upload_tarball(args):
     # that are done after generating it, even if the tarball upload is not
     # needed, it should be generated to get changes in the name
     if args.bump_rev_linux_only:
-        print('\nWARNING: bump revision is enabled. It needs to generate a local tarball although it will not upload it')
+        print('\nINFO: bump revision is enabled. It needs to generate a local tarball although it will not upload it')
 
     # Check for uncommitted changes; abort if present
     cmd = ['git', 'diff-index', 'HEAD']
