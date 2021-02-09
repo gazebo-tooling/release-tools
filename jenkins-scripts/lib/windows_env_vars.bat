@@ -7,6 +7,9 @@ if exist D:\vcpkg (
    exit -1
 )
 
+if DEFINED MAKE_JOBS (
+  set VCPKG_MAX_CONCURRENCY=%MAKE_JOBS%
+)
 set VCPKG_OSRF_DIR=%VCPKG_DIR%\osrf_vcpkg_ports
 set VCPKG_CMD=%VCPKG_DIR%\vcpkg.exe
 set VCPKG_CMAKE_TOOLCHAIN_FILE=%VCPKG_DIR%/scripts/buildsystems/vcpkg.cmake

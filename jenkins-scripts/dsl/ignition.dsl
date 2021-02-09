@@ -42,7 +42,7 @@ ignition_branches           = [ 'cmake'      : [ '2' ],
                                 'sensors'    : [ '3', '4' ],
                                 'tools'      : [ '1' ],
                                 'transport'  : [ '2', '4', '8', '9' ],
-                                'utils'      : [ '0' ]]
+                                'utils'      : [ '1' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use main for gz11
@@ -64,7 +64,7 @@ ignition_debbuild = ignition_software + [ 'cmake3',
                                           'sensors5',
                                           'tools2',
                                           'transport10',
-                                          'utils0']
+                                          'utils1']
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [  ]
 // DESC: major versions that has a package in the prerelease repo. Should
@@ -621,14 +621,20 @@ ignition_software.each { ign_sw ->
     Globals.gazebodistro_branch = false
   }
 
+  supported_branches = []
+     // ign-gazebo only support windows on main branch
+     if (ign_sw == 'gazebo')
+       supported_branches = [ 'main' ]
+
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAnyGitHub.create(ignition_win_ci_any_job,
                                     "ignitionrobotics/ign-${ign_sw}",
-                                    enable_testing(ign_sw))
+                                    enable_testing(ign_sw),
+                                    supported_branches)
   ignition_win_ci_any_job.with
   {
-     // ign-gazebo/ign-launch still not ported completely to Windows
-     if (ign_sw == 'gazebo' || ign_sw == 'launch')
+     // ign-launch still not ported completely to Windows
+     if (ign_sw == 'launch')
        disabled()
 
       steps {
@@ -663,8 +669,12 @@ ignition_software.each { ign_sw ->
 
     ignition_win_ci_job.with
     {
-        // ign-gazebo/ign-launch still not ported completely to Windows
-        if (ign_sw == 'gazebo' || ign_sw == 'launch')
+        // ign-gazebo only works in main by now (ign-gazebo5)
+        if (ign_sw == 'gazebo' && branch != 'main')
+          disabled()
+
+        // ign-launch still not ported completely to Windows
+        if (ign_sw == 'launch')
           disabled()
 
         triggers {

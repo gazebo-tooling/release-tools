@@ -42,12 +42,21 @@ if $USE_GPU_DOCKER; then
                     -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
 
   if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
-    if $NVIDIA_DOCKER2_NODE; then
-      export EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} \
-                               --runtime=nvidia"
-    else
-      export docker_cmd="nvidia-docker"
-    fi
+    case ${NVIDIA_DOCKER_DRIVER} in
+      'nvidia-container-toolkit')
+        export EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --gpus all"
+      ;;
+      'nvidia-docker2')
+        export EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --runtime=nvidia"
+      ;;
+      'nvidia-docker')
+        export docker_cmd="nvidia-docker"
+      ;;
+      *)
+        echo "No docker-nvidia support was detected but an Nvidia card is detected"
+        echo "Probably a problem in the provisioning of the agent"
+        exit 1
+    esac
   fi
 fi
 

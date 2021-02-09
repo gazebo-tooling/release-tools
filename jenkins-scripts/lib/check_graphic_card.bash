@@ -28,10 +28,41 @@ fi
 # First try to get the display variable
 export_display_variable
 
+# Check for intel
+if [ -n "$(lspci -v | grep "Kernel driver in use: i[0-9][0-9][0-9]")" ]; then
+    export GRAPHIC_CARD_PKG="xserver-xorg-video-intel"
+    export GRAPHIC_CARD_NAME="Intel"
+    export GRAPHIC_CARD_FOUND=true
+    # Need to run properly DRI on intel
+    export EXTRA_PACKAGES="${EXTRA_PACKAGES} libgl1-mesa-dri"
+fi
+
+# If there are two cards in use (intel + other), let nvidia override and be the one selected
 # Check for Nvidia stuff. Using nvidia-docker no installation needed
 if [ -n "$(lspci -v | grep nvidia | head -n 2 | grep "Kernel driver in use: nvidia")" ]; then
     export GRAPHIC_CARD_NAME="Nvidia"
     export GRAPHIC_CARD_FOUND=true
+
+    # Implementation options (both methods can be coinstalled and runtime compatible)
+    # 1. Native GPU Support:
+    #   - Included with Docker-ce 19.03 or later
+    #   - Package: nvidia-container-toolkit
+    #   - docker param: --gpus all
+    # 2. NVIDIA Container Runtime for Docker:
+    #   - If the nvidia-docker2 package is installed
+    #   - Package: nvidia-docker2
+    #   - docker param: --runtime=nvidia
+    #
+    # Reference: https://docs.nvidia.com/deeplearning/frameworks/user-guide/index.html
+    if dpkg -s nvidia-container-toolkit; then
+      export NVIDIA_DOCKER_DRIVER='nvidia-container-toolkit'
+    elif dpkg -s nvidia-docker2; then
+      export NVIDIA_DOCKER_DRIVER='nvidia-docker2'
+    elif dpkg -s nvidia-docker; then
+      export NVIDIA_DOCKER_DRIVER='nvidia-docker'
+    else
+      export NVIDIA_DOCKER_DRIVER=''
+    fi
 fi
 
 # Check for ati stuff
@@ -40,15 +71,6 @@ if [ -n "$(lspci -v | grep "ATI" | grep "VGA")" ]; then
     export GRAPHIC_CARD_PKG=fglrx
     export GRAPHIC_CARD_NAME="ATI"
     export GRAPHIC_CARD_FOUND=true
-fi
-
-# Check for intel
-if [ -n "$(lspci -v | grep "Kernel driver in use: i[0-9][0-9][0-9]")" ]; then
-    export GRAPHIC_CARD_PKG="xserver-xorg-video-intel"
-    export GRAPHIC_CARD_NAME="Intel"
-    export GRAPHIC_CARD_FOUND=true
-    # Need to run properly DRI on intel
-    export EXTRA_PACKAGES="${EXTRA_PACKAGES} libgl1-mesa-dri"
 fi
 
 # Be sure that we have GPU support
@@ -80,5 +102,5 @@ if [[ $GRAPHIC_CARD_NAME != "Nvidia" ]];then
   export GRAPHIC_CARD_PKG_VERSION=$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\ " | awk '{ print $3 }' | sed 's:-.*::')
   echo "${GRAPHIC_CARD_NAME} found using package ${GRAPHIC_CARD_PKG} (${GRAPHIC_CARD_PKG_VERSION})"
 else
-  echo "${GRAPHIC_CARD_NAME} found using docker-nvidia wrapper"
+  echo "${GRAPHIC_CARD_NAME} found using docker-nvidia support (${NVIDIA_DOCKER_DRIVER})"
 fi
