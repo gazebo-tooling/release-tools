@@ -56,9 +56,10 @@ Gazebo Classic and Ignition software.
     1. `cd <path to source code>`
     1. Make sure you're in the branch to be released, after the pull request bumping the version has been merged.
     1. Dry-run `release.py` with the appropriate arguments. Some examples:
-        1. New Ignition minor release: `<path to release-tools>/release.py -r 1 ign-physics3 3.1.0 secrettoken --dry-run`
+        1. New Ignition minor release and Gazebo classic release:
+          1. `<path to release-tools>/release.py -r 1 ign-physics3 3.1.0 secrettoken --dry-run`
+          1. `<path to release-tools>/release.py -r 1 gazebo11 11.2.0 secrettoken --dry-run`
         1. Pre-release: `<path to release-tools>/release.py -r 1 ign-physics3 3.0.0~pre1 --upload-to-repo=prerelease secrettoken --dry-run`
-        1. Classic release: `<path to release-tools>/release.py -r 1 gazebo11 11.2.0 secrettoken --dry-run`
     1. If the dry run succeeds, run the same command again, now without `--dry-run`.
 1. Check that:
     * Several `-debbuilder` jobs have been queued in https://build.osrfoundation.org/ and watch those jobs to see if any of them fail.
