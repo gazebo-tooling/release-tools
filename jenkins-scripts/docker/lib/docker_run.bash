@@ -43,10 +43,7 @@ if $USE_GPU_DOCKER; then
 
   if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
     case ${NVIDIA_DOCKER_DRIVER} in
-      'nvidia-container-toolkit')
-        export EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --gpus all"
-      ;;
-      'nvidia-docker2')
+      'nvidia-container-toolkit' | 'nvidia-docker2')
         export EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --runtime=nvidia"
       ;;
       'nvidia-docker')
