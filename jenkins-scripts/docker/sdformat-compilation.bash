@@ -26,12 +26,6 @@ if [[ ${SDFORMAT_MAJOR_VERSION} -ge 8 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
-if [[ ${SDFORMAT_MAJOR_VERSION} -ge 11 ]]; then
-  export BUILD_IGN_UTILS=true
-  export IGN_UTILS_MAJOR_VERSION=1
-  export IGN_UTILS_BRANCH=main
-fi
-
 export GZDEV_PROJECT_NAME="sdformat${SDFORMAT_MAJOR_VERSION}"
 
 # master and major branches compilations

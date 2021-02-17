@@ -32,12 +32,6 @@ if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 6 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
-if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 10 ]]; then
-  export BUILD_IGN_MSGS=true
-  export IGN_MSGS_MAJOR_VERSION=7
-  export IGN_MSGS_BRANCH=main
-fi
-
 export GZDEV_PROJECT_NAME="ignition-transport${IGN_TRANSPORT_MAJOR_VERSION}"
 
 . "${SCRIPT_DIR}/lib/generic-building-base.bash"

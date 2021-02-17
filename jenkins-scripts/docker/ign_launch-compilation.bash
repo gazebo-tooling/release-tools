@@ -29,44 +29,6 @@ if ! [[ ${IGN_LAUNCH_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 export NEED_C17_COMPILER=true
-
-if [[ ${IGN_LAUNCH_MAJOR_VERSION} -eq 4 ]]; then
-  export BUILD_IGN_RENDERING=true
-  export IGN_RENDERING_MAJOR_VERSION=5
-  export IGN_RENDERING_BRANCH=main
-
-  export BUILD_IGN_GAZEBO=true
-  export IGN_GAZEBO_MAJOR_VERSION=5
-  export IGN_GAZEBO_BRANCH=main
-
-  export BUILD_IGN_GUI=true
-  export IGN_GUI_MAJOR_VERSION=5
-  export IGN_GUI_BRANCH=main
-
-  export BUILD_IGN_SENSORS=true
-  export IGN_SENSORS_MAJOR_VERSION=5
-  export IGN_SENSORS_BRANCH=main
-
-  export BUILD_IGN_MSGS=true
-  export IGN_MSGS_MAJOR_VERSION=7
-  export IGN_MSGS_BRANCH=main
-
-  export BUILD_IGN_FUEL_TOOLS=true
-  export IGN_FUEL_TOOLS_MAJOR_VERSION=6
-  export IGN_FUEL_TOOLS_BRANCH=main
-
-  export BUILD_IGN_TRANSPORT=true
-  export IGN_TRANSPORT_MAJOR_VERSION=10
-  export IGN_TRANSPORT_BRANCH=main
-
-  export BUILD_SDFORMAT=true
-  export SDFORMAT_MAJOR_VERSION=11
-  export SDFORMAT_BRANCH=master
-
-  export BUILD_IGN_PHYSICS=true
-  export IGN_PHYSICS_MAJOR_VERSION=4
-  export IGN_PHYSICS_BRANCH=main
-fi
 export GZDEV_PROJECT_NAME="ignition-launch${IGN_LAUNCH_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

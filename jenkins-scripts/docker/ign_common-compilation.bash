@@ -32,12 +32,6 @@ if [[ ${IGN_COMMON_MAJOR_VERSION} -ge 3 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
-if [[ ${IGN_COMMON_MAJOR_VERSION} -eq 4 ]]; then
-  export BUILD_IGN_UTILS=true
-  export IGN_UTILS_MAJOR_VERSION=1
-  export IGN_UTILS_BRANCH=main
-fi
-
 export GZDEV_PROJECT_NAME="ignition-common${IGN_COMMON_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
