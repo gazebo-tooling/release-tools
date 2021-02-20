@@ -52,6 +52,8 @@ gbp_repo_debbuilds.each { software ->
                    'Ubuntu DISTRO to build package for')
        stringParam('ARCH','amd64',
                    'Architecture to be used in the built of the package')
+       stringParam('UPLOAD_TO_REPO', 'stable',
+                   'OSRF repo name to upload the package to')
     }
 
     scm {
@@ -112,7 +114,6 @@ gbp_repo_debbuilds.each { software ->
           parameters {
             currentBuild()
             predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-            predefinedProp("UPLOAD_TO_REPO", "stable")
             predefinedProp("PACKAGE_ALIAS", "${software}")
           }
         }
