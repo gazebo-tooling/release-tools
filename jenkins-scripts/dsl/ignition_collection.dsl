@@ -515,14 +515,6 @@ nightly_scheduler_job.with
                 n=\${n%[0-1]}
               fi
 
-              if [[ "\${n}" == "\${n/ign/ignition}" ]]; then
-                    alias=\${n}
-                    ignitionrepo=""
-              else
-                    alias="\${n/ign/ignition}"
-                    ignitionrepo="--ignition-repo"
-              fi
-
               if [[ "\${n}" != "\${n/cmake/}" ]]; then
                 src_branch="${cmake_branch}"
               elif [[ "\${n}" != "\${n/common/}" ]]; then
@@ -555,8 +547,8 @@ nightly_scheduler_job.with
                 src_branch="main"
               fi
 
-              echo "releasing \${n} (as \${alias}) from branch \${src_branch} \${ignitionrepo}"
-              python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly "\${PASS}" -a \${alias} --extra-osrf-repo prerelease --release-repo-branch main --nightly-src-branch \${src_branch} --upload-to-repo nightly  \${ignitionrepo} > log || echo "MARK_AS_UNSTABLE"
+              echo "releasing \${n} (from branch \${src_branch}"
+              python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly "\${PASS}" --extra-osrf-repo prerelease --release-repo-branch main --nightly-src-branch \${src_branch} --upload-to-repo nightly > log || echo "MARK_AS_UNSTABLE"
               echo " - done"
           done
 
