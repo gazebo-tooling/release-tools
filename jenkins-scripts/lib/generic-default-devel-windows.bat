@@ -97,7 +97,7 @@ if "%ENABLE_TESTS%" == "TRUE" (
     echo # BEGIN SECTION: running tests
     cd /d %LOCAL_WS%\build
     :: nmake test is not working test/ directory exists and nmake is not able to handle it.
-    ctest -C "%BUILD_TYPE%" --force-new-ctest-process -VV  || echo "tests failed"
+    ctest -C "%BUILD_TYPE%" -j1 --force-new-ctest-process -VV  || echo "tests failed"
     echo # END SECTION
 
     echo # BEGIN SECTION: Export Testing Results
