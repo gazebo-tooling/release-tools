@@ -8,7 +8,7 @@ class GitHubCredentialOsrfbuild
   {
     job.with
     {
-      parameters {
+      wrappers {
         // credential name needs to be in sync with provision code at infra/osrf-chef repo
         credentialsBinding {
           string('GITHUB_TOKEN', 'osrfbuild-token')
