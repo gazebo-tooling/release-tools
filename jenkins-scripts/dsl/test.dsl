@@ -27,7 +27,7 @@ test_credentials_job.with
 
           export ssh_log=`ssh -T git@github.com 2>&1`
           echo \$ssl_log
-          grep osrf-jenkins <<< \$ssh_log || exit 1
+          grep osrfbuild <<< \$ssh_log || exit 1
           """.stripIndent())
     }
 }
