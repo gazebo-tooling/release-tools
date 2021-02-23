@@ -40,6 +40,6 @@ class GitHubCredentialOsrfbuild
         }
       }
     }
-  }
 */
+  }
 }
