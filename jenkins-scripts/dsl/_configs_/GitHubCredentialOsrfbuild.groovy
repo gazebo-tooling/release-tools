@@ -21,6 +21,11 @@ class GitHubCredentialOsrfbuild
   {
     job.with
     {
+      wrappers {
+        sshAgent('osrfbuild')
+      }
+    }
+/*
        configure { project ->
           project  / wrappers /'org.jenkinsci.plugins.credentialsbinding.impl.SecretBuildWrapper' {
            'bindings' {
@@ -36,4 +41,5 @@ class GitHubCredentialOsrfbuild
       }
     }
   }
+*/
 }
