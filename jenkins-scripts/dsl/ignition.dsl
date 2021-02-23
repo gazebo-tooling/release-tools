@@ -175,11 +175,11 @@ ArrayList all_debbuilders()
   // add all supported branches
   ignition_software.each { ign_software ->
     supported_branches("${ign_software}").each { major_version ->
-      // No 1-debbuild versions, they use the unversioned job
-      if ("${major_version}" == "0"  || "${major_version}" == "1" )
-        major_version = ""
-      if ("${major_version}") {
-        branches.add("ign-${ign_software}${major_version}")
+      if (major_version) {
+        // No 1-debbuild versions, they use the unversioned job
+        if ("${major_version}" == "0"  || "${major_version}" == "1" )
+          major_version = ""
+          branches.add("ign-${ign_software}${major_version}")
       }
     }
   }
