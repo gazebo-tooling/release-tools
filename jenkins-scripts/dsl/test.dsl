@@ -15,3 +15,20 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
                                      false,
                                      false,
                                      ['main'])
+def test_credentials_job = job("_test_credentials_from_dsl")
+OSRFLinuxBase.create(test_credentials_job)
+GitHubCredentialOsrfbuild.create(test_credentials_job)
+
+test_credentials_job.with
+{
+  steps {
+    shell("""\
+          #!/bin/bash -xe
+
+          export ssh_log=`ssh -T git@github.com 2>&1`
+          echo \$ssl_log
+          grep osrf-jenkins <<< \$ssh_log || exit 1
+          """.stripIndent())
+    }
+  }
+}

@@ -245,6 +245,7 @@ bottle_job_builder.with
 def bottle_job_hash_updater = job(bottle_hash_updater_job_name)
 OSRFUNIXBase.create(bottle_job_hash_updater)
 GenericRemoteToken.create(bottle_job_hash_updater)
+GitHubCredentialOsrfbuild.create(bottle_job_hash_updater)
 
 include_common_params(bottle_job_hash_updater)
 bottle_job_hash_updater.with
@@ -261,10 +262,6 @@ bottle_job_hash_updater.with
      // reuse the pull request created by homebrew_pull_request_updater in step 1
      stringParam("PULL_REQUEST_URL", '',
                  'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
-     credentialsBinding {
-        // credential name needs to be in sync with provision code at infra/osrf-chef repo
-        string('GITHUB_TOKEN', 'osrfbuild-token')
-     }
   }
 
   steps
