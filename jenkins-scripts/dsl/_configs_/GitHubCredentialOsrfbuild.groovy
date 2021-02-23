@@ -2,9 +2,9 @@ package _configs_
 
 import javaposse.jobdsl.dsl.Job
 
-class GitHubCredentialOsrfbuild
+class GitHubCredentials
 {
-  static void createToken(Job job)
+  static void createOsrfbuildToken(Job job)
   {
     job.with
     {
@@ -15,31 +15,5 @@ class GitHubCredentialOsrfbuild
         }
       }
     }
-  }
-
-  static void createKey(Job job)
-  {
-    job.with
-    {
-      wrappers {
-        sshAgent('osrfbuild')
-      }
-    }
-/*
-       configure { project ->
-          project  / wrappers /'org.jenkinsci.plugins.credentialsbinding.impl.SecretBuildWrapper' {
-           'bindings' {
-             'org.jenkinsci.plugins.credentialsbinding.impl.SSHUserPrivateKeyBinding' {
-              // credentialId needs to be in sync with provision code at infra/osrf-chef repo
-              credentialsId 'osrfbuild'
-              keyFileVariable 'OSRFBUILD_KEY'
-              usernameVariable()
-              passphraseVariable()
-            }
-          }
-        }
-      }
-    }
-*/
   }
 }

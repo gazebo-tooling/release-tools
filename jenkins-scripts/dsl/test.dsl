@@ -30,20 +30,3 @@ test_credentials_token_job.with
           """.stripIndent())
     }
 }
-
-def test_credentials_key_job = job("_test_job_osrfbuild-credentials-key_from_dsl")
-OSRFBase.create(test_credentials_key_job)
-GitHubCredentialOsrfbuild.createKey(test_credentials_key_job)
-
-test_credentials_key_job.with
-{
-  steps {
-    shell("""\
-          #!/bin/bash -xe
-
-          export ssh_log=`ssh -T -i \${OSRFBUILD_KEY} git@github.com 2>&1`
-          echo \$ssl_log
-          grep osrfbuild <<< \$ssh_log || exit 1
-          """.stripIndent())
-    }
-}
