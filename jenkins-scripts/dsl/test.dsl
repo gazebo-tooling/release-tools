@@ -15,7 +15,7 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
                                      false,
                                      false,
                                      ['main'])
-def test_credentials_job = job("_test_credentials_from_dsl")
+def test_credentials_job = job("_test_job_osrfbuild_credentials_from_dsl")
 OSRFBase.create(test_credentials_job)
 GitHubCredentialOsrfbuild.create(test_credentials_job)
 
