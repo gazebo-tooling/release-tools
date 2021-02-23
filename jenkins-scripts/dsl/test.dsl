@@ -30,5 +30,4 @@ test_credentials_job.with
           grep osrf-jenkins <<< \$ssh_log || exit 1
           """.stripIndent())
     }
-  }
 }
