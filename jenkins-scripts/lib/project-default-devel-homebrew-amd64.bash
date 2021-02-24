@@ -9,6 +9,9 @@ fi
 
 export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 
+# Suppress warnings from upstream
+export HOMEBREW_RUBY_WARNINGS="-W0"
+
 # Get project name as first argument to this script
 PROJECT=$1 # project will have the major version included (ex gazebo2)
 PROJECT_ARGS=${2}
