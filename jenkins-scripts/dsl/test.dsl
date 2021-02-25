@@ -27,6 +27,14 @@ test_credentials_token_job.with
           export ssh_log=`ssh -T git@github.com 2>&1`
           echo \$ssl_log
           grep osrfbuild <<< \$ssh_log || exit 1
+
+          # keep passowrd secret
+          set +x
+          curl -u osrfbuild:\$GITHUB_TOKEN \
+           -H "Accept: application/vnd.github.v3+json" \
+           https://api.github.com/repos/osrf/homebrew-simulation/collaborators/osrfbuild/permission > github_check_log
+          set -x
+
           """.stripIndent())
     }
 }
