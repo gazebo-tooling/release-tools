@@ -8,19 +8,10 @@ echo '# BEGIN SECTION: check variables'
 if [ -z "${PULL_REQUEST_HEAD_REPO}" ]; then
   echo PULL_REQUEST_HEAD_REPO not specified, setting to osrfbuild
   echo
-  PULL_REQUEST_HEAD_REPO=git@github.com:osrfbuild/homebrew-simulation.git
+  # personal tokens only support https
+  PULL_REQUEST_HEAD_REPO=https://github.com/osrfbuild/homebrew-simulation.git
 fi
 echo '# END SECTION'
-
-echo '# BEGIN SECTION: check github perms'
-# Github autentication. git access is provided by public key access
-# and hub cli needs a token
-if [[ -z $(ssh -T git@github.com 2>&1 | grep successfully) ]]; then
-    echo "The github connection seems not to be valid:"
-    ssh -T git@github.com
-    echo "Please check that the ssh key authentication is working"
-    exit 1
-fi
 
 echo '# BEGIN SECTION: download linuxbrew'
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"

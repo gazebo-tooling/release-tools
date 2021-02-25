@@ -20,28 +20,29 @@ OSRFBase.create(test_credentials_token_job)
 GitHubCredentials.createOsrfbuildToken(test_credentials_token_job)
 test_credentials_token_job.with
 {
-  label "docker"
+  label "osx"
 
   steps {
     shell("""\
           #!/bin/bash -xe
 
-          export ssh_log=`ssh -T git@github.com 2>&1`
-          echo \$ssl_log
-          grep osrfbuild <<< \$ssh_log || exit 1
-
           # Check push+commit permissions for osrfbuild by uploading/deleting a
           # branch. Note that call to the API for permissions require of admin
-          # perms that osrfbuild user does not have.
+          # perms that osrfbuild user does not have. Personal tokens don't
+          # support ssh but https only.
 
-          git clone git@github.com:osrf/homebrew-simulation.git
+          git clone https://github.com/osrfbuild/homebrew-simulation.git
           cd homebrew-simulation
           git config user.name 'osrfbuild' --replace-all
           git config user.email 'osrfbuild@openrobotics.org' --replace-all
+          set +x
+          git config url."https://osrfbuild:\${GITHUB_TOKEN}@github.com/osrfbuild/homebrew-simulation.git".InsteadOf https://github.com/osrfbuild/homebrew-simulation.git
+          set -x
           git checkout -b _test_job_osrfbuild_
           git commit --allow-empty -m "testing commit"
-          git push -u origin _test_job_osrfbuild_
-          git push origin --delete _test_job_osrfbuild_
+          # protect token from errors
+          git push -u origin _test_job_osrfbuild_ > push_log
+          git push origin --delete _test_job_osrfbuild_ >> push_log
           """.stripIndent())
     }
 
