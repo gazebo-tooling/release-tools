@@ -28,13 +28,22 @@ test_credentials_token_job.with
           echo \$ssl_log
           grep osrfbuild <<< \$ssh_log || exit 1
 
-          # keep passowrd secret
-          set +x
-          curl -u osrfbuild:\$GITHUB_TOKEN \
-           -H "Accept: application/vnd.github.v3+json" \
-           https://api.github.com/repos/osrf/homebrew-simulation/collaborators/osrfbuild/permission > github_check_log
-          set -x
+          # Check push+commit permissions for osrfbuild by uploading/deleting a
+          # branch. Note that call to the API for permissions require of admin
+          # perms that osrfbuild user does not have.
 
+          git clone git@github.com:osrf/homebrew-simulation.git
+          cd homebrew-simulation
+          git config user.name 'osrfbuild' --replace-all
+          git config user.email 'osrfbuild@openrobotics.org' --replace-all
+          git checkout -b _test_job_osrfbuild_
+          git commit --allow-empty -m "testing commit"
+          git push -u origin _test_job_osrfbuild_
+          git push origin --delete _test_job_osrfbuild_
           """.stripIndent())
+    }
+
+    wrappers {
+      preBuildCleanup()
     }
 }
