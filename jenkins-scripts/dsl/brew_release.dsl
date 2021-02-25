@@ -52,6 +52,7 @@ void include_common_params(Job job)
 def release_job = job("generic-release-homebrew_pull_request_updater")
 OSRFUNIXBase.create(release_job)
 GenericRemoteToken.create(release_job)
+GitHubCredentials.createOsrfbuildToken(release_job)
 
 include_common_params(release_job)
 release_job.with
@@ -75,10 +76,6 @@ release_job.with
                  'Version of the package just released')
      stringParam('SOURCE_TARBALL_SHA','',
                  'SHA Hash of the tarball file')
-     credentialsBinding {
-        // credential name needs to be in sync with provision code at infra/osrf-chef repo
-        string('GITHUB_TOKEN', 'osrfbuild-token')
-     }
    }
 
    steps
@@ -137,10 +134,6 @@ bottle_job_builder.with
 {
    wrappers {
         preBuildCleanup()
-        credentialsBinding {
-          // crendetial name needs to be in sync with provision code at infra/osrf-chef repo
-          string('GITHUB_TOKEN', 'osrf-migration-token')
-        }
    }
 
    properties {
@@ -245,7 +238,7 @@ bottle_job_builder.with
 def bottle_job_hash_updater = job(bottle_hash_updater_job_name)
 OSRFUNIXBase.create(bottle_job_hash_updater)
 GenericRemoteToken.create(bottle_job_hash_updater)
-GitHubCredentialOsrfbuild.create(bottle_job_hash_updater)
+GitHubCredentials.createOsrfbuildToken(bottle_job_hash_updater)
 
 include_common_params(bottle_job_hash_updater)
 bottle_job_hash_updater.with
