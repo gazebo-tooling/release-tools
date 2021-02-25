@@ -20,6 +20,8 @@ OSRFBase.create(test_credentials_token_job)
 GitHubCredentials.createOsrfbuildToken(test_credentials_token_job)
 test_credentials_token_job.with
 {
+  label "docker"
+
   steps {
     shell("""\
           #!/bin/bash -xe
