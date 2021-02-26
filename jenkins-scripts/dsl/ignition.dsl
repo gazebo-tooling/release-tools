@@ -42,7 +42,7 @@ ignition_branches           = [ 'cmake'      : [ '2' ],
                                 'sensors'    : [ '3', '4' ],
                                 'tools'      : [ '1' ],
                                 'transport'  : [ '2', '4', '8', '9' ],
-                                'utils'      : [ '1' ]]
+                                'utils'      : [ ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use main for gz11
@@ -50,21 +50,21 @@ ignition_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
-ignition_debbuild = ignition_software + [ 'cmake3',
-                                          'common4',
-                                          'fuel-tools6',
-                                          'gazebo5',
-                                          'gui5',
-                                          'launch4',
-                                          'math7',
-                                          'msgs7',
-                                          'physics4',
-                                          'plugin2',
-                                          'rendering5',
-                                          'sensors5',
-                                          'tools2',
-                                          'transport10',
-                                          'utils1']
+ignition_extra_debbuild = [ 'cmake3',
+                            'common4',
+                            'fuel-tools6',
+                            'gazebo5',
+                            'gui5',
+                            'launch4',
+                            'math7',
+                            'msgs7',
+                            'physics4',
+                            'plugin2',
+                            'rendering5',
+                            'sensors5',
+                            'tools2',
+                            'transport10',
+                            'utils']
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [  ]
 // DESC: major versions that has a package in the prerelease repo. Should
@@ -168,6 +168,28 @@ ArrayList all_branches(String ign_software)
   return branches
 }
 
+//
+ArrayList all_debbuilders()
+{
+  List<String> branches = new ArrayList<String>();
+  // add all supported branches
+  ignition_software.each { ign_software ->
+    supported_branches("${ign_software}").each { major_version ->
+      if (major_version) {
+        // No 1-debbuild versions, they use the unversioned job
+        if ("${major_version}" == "0"  || "${major_version}" == "1" )
+          major_version = ""
+          branches.add("ign-${ign_software}${major_version}")
+      }
+    }
+  }
+  // add all extra debbuilders
+  ignition_extra_debbuild.each { ign_name ->
+    branches.add("ign-${ign_name}")
+  }
+
+  return branches
+}
 
 // return all ci branch names
 // Map with the form of: major versions as keys.
@@ -474,30 +496,24 @@ ignition_software.each { ign_sw ->
 
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
-ignition_debbuild.each { ign_sw ->
-  supported_branches("${ign_sw}").each { major_version ->
-    // No 1-debbuild versions, they use the unversioned job
-    if ("${major_version}" == "0"  || "${major_version}" == "1" )
-      major_version = ""
+all_debbuilders().each { debbuilder_name ->
+  extra_str = ""
+  if (debbuilder_name.contains("gazebo") || debbuilder_name == "transport7")
+    extra_str="export NEED_C17_COMPILER=true"
 
-    extra_str = ""
-    if (ign_sw.contains("gazebo") ||
-        (("${ign_sw}" == "transport") && ("${major_version}" == "7" )))
-      extra_str="export NEED_C17_COMPILER=true"
+  println("Generating: ${debbuilder_name}-debbuilder")
+  def build_pkg_job = job("${debbuilder_name}-debbuilder")
+  OSRFLinuxBuildPkg.create(build_pkg_job)
+  build_pkg_job.with
+  {
+      steps {
+        shell("""\
+              #!/bin/bash -xe
 
-    def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
-    OSRFLinuxBuildPkg.create(build_pkg_job)
-    build_pkg_job.with
-    {
-        steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                ${extra_str}
-                /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
-                """.stripIndent())
-        }
-    }
+              ${extra_str}
+              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
+              """.stripIndent())
+      }
   }
 }
 
