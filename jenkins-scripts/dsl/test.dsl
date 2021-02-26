@@ -46,20 +46,22 @@ test_credentials_token_job.with
           """.stripIndent())
     }
 
-    postBuildScripts {
-      steps {
-        shell("""\
-              #!/bin/bash -xe
+    publishers
+    {
+      postBuildScripts {
+        steps {
+          shell("""\
+                #!/bin/bash -xe
 
-              # remove token after the build ends unconditionally
-              rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
-              """.stripIndent())
+                # remove token after the build ends unconditionally
+                rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
+                """.stripIndent())
+        }
+
+        onlyIfBuildSucceeds(false)
+        onlyIfBuildFails(false)
       }
-
-      onlyIfBuildSucceeds(false)
-      onlyIfBuildFails(false)
     }
-
 
     wrappers {
       preBuildCleanup()
