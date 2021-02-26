@@ -29,6 +29,14 @@ ${BREW} tap osrf/simulation
 TAP_PREFIX=$(${BREW} --repo osrf/simulation)
 GIT="git -C ${TAP_PREFIX}"
 ${GIT} remote add pr_head ${PULL_REQUEST_HEAD_REPO}
+# manage credentials
+if [[ -z ${GITHUB_TOKEN} ]]; then
+  echo "No GITHUB_TOKEN defined. Check the DSL configuration"
+  exit 1
+fi
+set +x
+git config url."https://osrfbuild:\${GITHUB_TOKEN}@github.com/osrfbuild/homebrew-simulation.git".InsteadOf https://github.com/osrfbuild/homebrew-simulation.git
+set -x
 # unshallow to get a full clone able to push
 ${GIT} fetch --unshallow || true
 ${GIT} fetch pr_head
