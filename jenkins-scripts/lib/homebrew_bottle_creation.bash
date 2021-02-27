@@ -38,7 +38,10 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: clean up environment'
 rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 . ${SCRIPT_LIBDIR}/_homebrew_cleanup.bash
-brew install hub
+# manually exclude a ruby warning that jenkins thinks is from clang
+# https://github.com/osrf/homebrew-simulation/issues/1343
+brew install hub \
+   2>&1 | grep -v 'warning: conflicting chdir during another chdir block'
 echo '# END SECTION'
 
 # set display before building bottle
