@@ -209,7 +209,7 @@ def sanity_package_name(repo_dir, package, package_alias):
             continue
         # Check that first word is the package alias or name
         if line.partition(' ')[0] != expected_name:
-            error("Error in changelog package name or alias: " + line.decode())
+            error("Error in changelog package name or alias: " + line)
 
     cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
