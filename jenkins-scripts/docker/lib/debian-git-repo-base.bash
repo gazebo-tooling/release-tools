@@ -62,7 +62,7 @@ cat debian/changelog
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
 echo '# END SECTION'
 
-VERSION=\$(dpkg-parsechangelog  | grep Version | awk '{print \$2}')
+VERSION=\$(dpkg-parsechangelog -S Version)
 VERSION_NO_REVISION=\$(echo \$VERSION | sed 's:-.*::')
 OSRF_VERSION=\$VERSION\osrf${RELEASE_VERSION}~${DISTRO}${RELEASE_ARCH_VERSION}
 
@@ -94,10 +94,20 @@ fi
 rm -fr debian/*.symbols
 echo '# END SECTION'
 
-echo "# BEGIN SECTION: create source package \${OSRF_VERSION}"
 rm -f ../*.orig.* ../*.dsc ../*.debian.* ../*.deb ../*.changes ../*.build
+if [[ -n ${SOURCE_PACKAGE_REPO} ]]; then
+cd ${REPO_PATH}
+SRC_PACKAGE_NAME=\$(dpkg-parsechangelog -S Source)
+echo "deb ${SOURCE_PACKAGE_REPO} ${DISTRO} main" >> /etc/apt/sources.list
+echo "deb-src ${SOURCE_PACKAGE_REPO} ${DISTRO} main" >> /etc/apt/sources.list
+cd ${REPO_PATH}/..
+apt-get source \$SRC_PACKAGE_NAME --download-only
+${GBP_COMMAND} -S --git-no-create-orig || true
+else
+echo "# BEGIN SECTION: create source package \${OSRF_VERSION}"
 # Fix the real problems with lintian and remove true
 ${GBP_COMMAND} -S || true
+fi
 
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.tar.* $WORKSPACE/pkgs
