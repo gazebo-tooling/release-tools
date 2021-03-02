@@ -96,19 +96,21 @@ echo '# END SECTION'
 
 rm -f ../*.orig.* ../*.dsc ../*.debian.* ../*.deb ../*.changes ../*.build
 if [[ -n ${SOURCE_PACKAGE_REPO} ]]; then
-cd ${REPO_PATH}
 SRC_PACKAGE_NAME=\$(dpkg-parsechangelog -S Source)
 echo "deb ${SOURCE_PACKAGE_REPO} ${DISTRO} main" >> /etc/apt/sources.list
 echo "deb-src ${SOURCE_PACKAGE_REPO} ${DISTRO} main" >> /etc/apt/sources.list
 cd ${REPO_PATH}/..
 apt-get source \$SRC_PACKAGE_NAME --download-only
+cd ${REPO_PATH}
 ${GBP_COMMAND} -S --git-no-create-orig || true
 else
 echo "# BEGIN SECTION: create source package \${OSRF_VERSION}"
+cd ${REPO_PATH}
 # Fix the real problems with lintian and remove true
 ${GBP_COMMAND} -S || true
 fi
 
+cd ${REPO_PATH}
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.tar.* $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
