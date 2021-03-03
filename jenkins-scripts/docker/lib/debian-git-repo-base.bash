@@ -99,6 +99,7 @@ if [[ -n ${SOURCE_PACKAGE_REPO} ]]; then
 SRC_PACKAGE_NAME=\$(dpkg-parsechangelog -S Source)
 echo "deb ${SOURCE_PACKAGE_REPO} ${DISTRO} main" >> /etc/apt/sources.list
 echo "deb-src ${SOURCE_PACKAGE_REPO} ${DISTRO} main" >> /etc/apt/sources.list
+apt-get update
 cd ${REPO_PATH}/..
 apt-get source \$SRC_PACKAGE_NAME --download-only
 cd ${REPO_PATH}
