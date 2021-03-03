@@ -95,14 +95,9 @@ rm -fr debian/*.symbols
 echo '# END SECTION'
 
 rm -f ../*.orig.* ../*.dsc ../*.debian.* ../*.deb ../*.changes ../*.build
-if [[ -n "${SOURCE_PACKAGE_REPO}" ]]; then
-SRC_PACKAGE_NAME=\$(dpkg-parsechangelog -S Source)
-echo "deb ${SOURCE_PACKAGE_REPO} ${DISTRO} main" >> /etc/apt/sources.list
-echo "deb-src ${SOURCE_PACKAGE_REPO} ${DISTRO} main" >> /etc/apt/sources.list
-apt-key adv --keyserver pgp.rediris.es --recv-keys 8EDB2EF661FC880E
-apt-get update
+if [[ -n "${ORIG_TARBALL_URL}" ]]; then
 cd ${REPO_PATH}/..
-apt-get source \$SRC_PACKAGE_NAME --download-only
+wget \$ORIG_TARBALL_URL
 cd ${REPO_PATH}
 ${GBP_COMMAND} -S --git-no-create-orig || true
 else

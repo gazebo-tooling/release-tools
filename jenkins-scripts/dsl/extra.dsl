@@ -54,7 +54,7 @@ gbp_repo_debbuilds.each { software ->
                    'Architecture to be used in the built of the package')
        stringParam('UPLOAD_TO_REPO', 'stable',
                    'OSRF repo name to upload the package to')
-       stringParam('SOURCE_PACKAGE_REPO', ' ',
+       stringParam('ORIG_TARBALL_URL', ' ',
                    'Use source package repo to get sources from (leave empty to generate them')
     }
 
