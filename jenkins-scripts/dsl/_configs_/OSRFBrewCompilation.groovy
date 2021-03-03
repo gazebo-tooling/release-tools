@@ -11,7 +11,7 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFBrewCompilation extends OSRFOsXBase
 {
-  static void create(Job job, enable_testing = true)
+  static void create(Job job, enable_testing = true, enable_warnings = true)
   {
     OSRFOsXBase.create(job)
 
@@ -26,39 +26,41 @@ class OSRFBrewCompilation extends OSRFOsXBase
                     'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
       }
 
-      publishers
-      {
-        configure { project ->
-          project / publishers / 'io.jenkins.plugins.analysis.core.steps.IssuesRecorder' {
-            analysisTools {
-              'io.jenkins.plugins.analysis.warnings.Clang' {
-                id()
-                name()
-                pattern()
-                reportEncoding()
-                skipSymbolicLinks(false)
+      if (enable_warnings) {
+        publishers
+        {
+          configure { project ->
+            project / publishers / 'io.jenkins.plugins.analysis.core.steps.IssuesRecorder' {
+              analysisTools {
+                'io.jenkins.plugins.analysis.warnings.Clang' {
+                  id()
+                  name()
+                  pattern()
+                  reportEncoding()
+                  skipSymbolicLinks(false)
+                }
               }
-            }
 
-            sourceCodeEncoding()
-            ignoreQualityGate(false)
-            ignoreFailedBuilds(true)
-            referenceJobName()
-            healthy(0)
-            unhealthy(0)
-            minimumSeverity {
-              name('LOW')
-            }
-            filters { }
-            isEnabledForFailure(false)
-            isAggregatingResults(false)
-            isBlameDisabled(false)
+              sourceCodeEncoding()
+              ignoreQualityGate(false)
+              ignoreFailedBuilds(true)
+              referenceJobName()
+              healthy(0)
+              unhealthy(0)
+              minimumSeverity {
+                name('LOW')
+              }
+              filters { }
+              isEnabledForFailure(false)
+              isAggregatingResults(false)
+              isBlameDisabled(false)
 
-            qualityGates {
-              'io.jenkins.plugins.analysis.core.util.QualityGate' {
-                threshold(1)
-                type('TOTAL')
-                status('WARNING')
+              qualityGates {
+                'io.jenkins.plugins.analysis.core.util.QualityGate' {
+                  threshold(1)
+                  type('TOTAL')
+                  status('WARNING')
+                }
               }
             }
           }
