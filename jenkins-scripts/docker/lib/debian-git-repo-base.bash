@@ -95,7 +95,7 @@ rm -fr debian/*.symbols
 echo '# END SECTION'
 
 rm -f ../*.orig.* ../*.dsc ../*.debian.* ../*.deb ../*.changes ../*.build
-if [[ -n ${SOURCE_PACKAGE_REPO} ]]; then
+if [[ -n "${SOURCE_PACKAGE_REPO}" ]]; then
 SRC_PACKAGE_NAME=\$(dpkg-parsechangelog -S Source)
 echo "deb ${SOURCE_PACKAGE_REPO} ${DISTRO} main" >> /etc/apt/sources.list
 echo "deb-src ${SOURCE_PACKAGE_REPO} ${DISTRO} main" >> /etc/apt/sources.list
