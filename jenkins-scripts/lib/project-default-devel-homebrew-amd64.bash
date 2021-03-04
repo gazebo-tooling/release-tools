@@ -110,9 +110,9 @@ export DISPLAY=$(ps ax \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
 
-# set CMAKE_PREFIX_PATH if we are using qt5 (aka qt)
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt' }.empty?"; then
-  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/qt
+# set CMAKE_PREFIX_PATH if we are using qt@5
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt@5' }.empty?"; then
+  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/qt@5
 fi
 # Workaround for tinyxml2 6.2.0: set CMAKE_PREFIX_PATH and PKG_CONFIG_PATH if we are using tinyxml2@6.2.0
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'tinyxml2@6.2.0' }.empty?"; then
