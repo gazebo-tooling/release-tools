@@ -59,7 +59,9 @@ if ${NIGHTLY_MODE}; then
     REV=0
   fi
 else
-  wget -O orig_tarball $SOURCE_TARBALL_URI
+  wget --quiet -O orig_tarball $SOURCE_TARBALL_URI || \
+    echo rerunning wget without --quiet since it failed && \
+    wget       -O orig_tarball $SOURCE_TARBALL_URI
   TARBALL_EXT=${SOURCE_TARBALL_URI/*tar./}
   mv orig_tarball $PACKAGE_ALIAS\_$VERSION.orig.tar.\${TARBALL_EXT}
   rm -rf \$REAL_PACKAGE_NAME\-$VERSION
