@@ -202,6 +202,7 @@ ignition_collection_jobs =
         'ign_physics-ci-win',
         'ign_rendering-ci-win',
         'ign_sensors-ci-win',
+        'ign_utils-ci-win',
         'ignition_edifice-ci-main-homebrew-amd64',
         'ignition_edifice-install-pkg-bionic-amd64',
         'ignition_edifice-install_bottle-homebrew-amd64',
@@ -269,6 +270,8 @@ ignition_collection_jobs =
         'ignition_transport-ci-main-windows7-amd64',
         'ignition_transport10-install-pkg-bionic-amd64',
         'ignition_transport10-install_bottle-homebrew-amd64',
+        'ignition_utils-ci-main-bionic-amd64',
+        'ignition_utils-ci-main-homebrew-amd64',
         'sdformat-ci-master-bionic-amd64',
         'sdformat-ci-master-homebrew-amd64',
         'sdformat-ci-master-windows7-amd64',
@@ -494,6 +497,7 @@ nightly_scheduler_job.with
   sensors_branch = get_nightly_branch(collection_data, 'sensors')
   sdformat_branch = get_nightly_branch(collection_data, 'sdformat')
   transport_branch = get_nightly_branch(collection_data, 'transport')
+  utils_branch = get_nightly_branch(collection_data, 'utils')
 
   steps {
     shell("""\
@@ -508,20 +512,6 @@ nightly_scheduler_job.with
 
           # redirect to not display the password
           for n in \${NIGHTLY_PACKAGES}; do
-
-              # remove 0 or 1 trailing versions. Use echo + sed to avoid scaping
-              # problems with <<<
-              if [[ \$n != \${n/[0-9]*} ]] && [[ \$(echo \$n | sed -r 's:[a-z-]*[A-Z_]*([0-9]*):\\1:g') -lt 2 ]]; then
-                n=\${n%[0-1]}
-              fi
-
-              if [[ "\${n}" == "\${n/ign/ignition}" ]]; then
-                    alias=\${n}
-                    ignitionrepo=""
-              else
-                    alias="\${n/ign/ignition}"
-                    ignitionrepo="--ignition-repo"
-              fi
 
               if [[ "\${n}" != "\${n/cmake/}" ]]; then
                 src_branch="${cmake_branch}"
@@ -551,12 +541,14 @@ nightly_scheduler_job.with
                 src_branch="${sdformat_branch}"
               elif [[ "\${n}" != "\${n/transport/}" ]]; then
                 src_branch="${transport_branch}"
+              elif [[ "\${n}" != "\${n/utils/}" ]]; then
+                src_branch="${utils_branch}"
               else
                 src_branch="main"
               fi
 
-              echo "releasing \${n} (as \${alias}) from branch \${src_branch} \${ignitionrepo}"
-              python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly "\${PASS}" -a \${alias} --extra-osrf-repo prerelease --release-repo-branch main --nightly-src-branch \${src_branch} --upload-to-repo nightly  \${ignitionrepo} > log || echo "MARK_AS_UNSTABLE"
+              echo "releasing \${n} (from branch \${src_branch}"
+              python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly "\${PASS}" --extra-osrf-repo prerelease --release-repo-branch main --nightly-src-branch \${src_branch} --upload-to-repo nightly > log || echo "MARK_AS_UNSTABLE"
               echo " - done"
           done
 

@@ -121,13 +121,13 @@ fi
 case ${UPLOAD_TO_REPO} in
     "stable")
 	# Security checks not to upload nightly or prereleases
-        # No packages with ~hg or ~pre
-	if [[ -n $(ls ${pkgs_path}/*~hg*.*) && -n $(ls ${pkgs_path}/*~pre*.*) ]]; then
+        # No packages with ~git or ~pre
+	if [[ -n $(ls ${pkgs_path}/*~git*.*) && -n $(ls ${pkgs_path}/*~pre*.*) ]]; then
 	  echo "There are nightly packages in the upload directory. Not uploading to stable repo"
 	  exit 1
 	fi
-        # No source packages with ~hg in version
-	if [[ -n $(cat ${pkgs_path}/*.dsc | grep ^Version: | grep '~hg\|~pre') ]]; then
+        # No source packages with ~git in version
+	if [[ -n $(cat ${pkgs_path}/*.dsc | grep ^Version: | grep '~git\|~pre') ]]; then
           echo "There is a sorce package with nightly or pre in version. Not uploading to stable repo"
 	  exit 1
         fi
