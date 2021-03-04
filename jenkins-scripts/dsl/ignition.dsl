@@ -80,6 +80,7 @@ ignition_colcon_win         = [ 'gazebo',
                                 'physics',
                                 'rendering',
                                 'sensors',
+                                'transport',
                                 'utils' ]
 
 // Main platform using for quick CI
