@@ -97,7 +97,7 @@ echo '# END SECTION'
 rm -f ../*.orig.* ../*.dsc ../*.debian.* ../*.deb ../*.changes ../*.build
 if [[ -n "${ORIG_TARBALL_URL}" ]]; then
 cd ${REPO_PATH}/..
-wget \$ORIG_TARBALL_URL
+wget $ORIG_TARBALL_URL
 cd ${REPO_PATH}
 ${GBP_COMMAND} -S --git-no-create-orig || true
 else
