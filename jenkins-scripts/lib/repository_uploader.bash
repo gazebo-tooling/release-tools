@@ -70,7 +70,12 @@ upload_package()
     [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
     [[ -z ${pkg_name} ]] && echo "Bad parameter pkg_name" && exit 1
 
-    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
+    if [[ "${pkg/.ddeb}" != "${pkg}" ]]; then
+	# if package is ddeb, need to use ignore=extension to get it uploaded
+	extra_params='--ignore=extension'
+    fi
+
+    sudo GNUPGHOME=$HOME/.gnupg reprepro ${extra_params} --nothingiserror includedeb $DISTRO ${pkg}
 
     # The path will end up being: s3://osrf-distributions/$pkg_root_name/releases/
     S3_upload ${pkg} ${pkg_name}/releases/
@@ -209,7 +214,7 @@ for pkg in `ls $pkgs_path/*.dsc`; do
 done
 
 # .deb | debian packages
-for pkg in `ls $pkgs_path/*.deb`; do
+for pkg in `ls $pkgs_path/*.deb $pkgs_path/*.ddeb`; do
   if [[ -z ${DISTRO} ]]; then
     echo 'Error: $DISTRO parameter was not set'
     exit 1
@@ -223,10 +228,11 @@ for pkg in `ls $pkgs_path/*.deb`; do
   pkg_version=${pkg_version/_*} # remove package suffix
 
   case ${pkg_suffix} in
-      i386.deb | amd64.deb | armhf.deb | arm64.deb)
+      i386.deb | amd64.deb | armhf.deb | arm64.deb | \
+      i386.ddeb | amd64.ddeb | armhf.ddeb | arm64.ddeb)
 	  upload_package ${pkg} ${PACKAGE_ALIAS}
       ;;
-      all.deb)
+      all.deb | all.ddeb)
 	# Check if the package already exists. i386 and amd64 generates the same binaries.
 	# all should be multiarch, so supposed to work on every platform
 	existing_version=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro ls ${pkg_name} | grep ${DISTRO} | awk '{ print $3 }')
@@ -247,3 +253,4 @@ done
 rm -fr $WORKSPACE/pkgs/*.zip
 rm -fr $WORKSPACE/pkgs/*.dsc
 rm -fr $WORKSPACE/pkgs/*.deb
+rm -fr $WORKSPACE/pkgs/*.ddeb
