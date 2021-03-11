@@ -15,7 +15,8 @@ Gazebo Classic and Ignition software.
 
 1. `sudo apt install devscripts s3cmd`
 1. `s3cmd --configure`
-1. `export DEBEMAIL="<username>@openrobotics"`
+    * Check with one of the maintainers to get the necessary credentials
+1. `export DEBEMAIL="<username>@openrobotics.org"`
 1. `export DEBFULLNAME="<Your full name>"`
 
 **Note:** You may wish to add the two above exported variables to your `.bashrc`
