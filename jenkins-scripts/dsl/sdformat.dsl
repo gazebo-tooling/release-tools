@@ -105,16 +105,6 @@ abi_distro.each { distro ->
     {
       steps
       {
-         conditionalSteps
-         {
-           condition
-           {
-             not {
-               expression('${ENV, var="ghprbTargetBranch"}', 'master')
-             }
-           }
-         }
-
          shell("""\
          #!/bin/bash -xe
          wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
