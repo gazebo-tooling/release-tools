@@ -9,7 +9,9 @@ release_repo_debbuilds = [ 'opensplice' ]
 
 // List of repositories that host branches compatible with gbp (git build
 // package) method used by debian
-gbp_repo_debbuilds = [ 'ogre-2.1', 'lark-parser' ]
+gbp_repo_debbuilds = [ 'lark-parser',
+                       'ogre-2.1',
+                       'ogre-2.2' ]
 
 release_repo_debbuilds.each { software ->
   // --------------------------------------------------------------
