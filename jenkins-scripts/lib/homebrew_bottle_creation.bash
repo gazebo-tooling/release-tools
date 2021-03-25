@@ -73,7 +73,8 @@ brew test-bot --tap=osrf/simulation \
 brew test-bot --tap=osrf/simulation \
               --fail-fast \
               --only-formulae \
-              --root-url=https://osrf-distributions.s3.amazonaws.com/bottles-simulation
+              --root-url=https://osrf-distributions.s3.amazonaws.com/bottles-simulation \
+	      --verbose
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export bottle'
