@@ -589,6 +589,7 @@ fi
 
 IGN_PHYSICS_DEPENDENCIES="libbenchmark-dev \\
                           dart6-data \\
+                          libdart6-collision-bullet-dev \\
                           libdart6-collision-ode-dev \\
                           libdart6-dev \\
                           libdart6-utils-urdf-dev \\
