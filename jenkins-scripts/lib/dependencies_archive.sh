@@ -601,7 +601,7 @@ if [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -ge 4 ]]
                             libdart6-collision-bullet-dev \\
                             libignition-common4-dev \\
                             libsdformat11-dev"
-if [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -ge 3 ]]; then
+elif [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -ge 3 ]]; then
   IGN_PHYSICS_DEPENDENCIES="${IGN_PHYSICS_DEPENDENCIES} \\
                             libignition-common3-dev \\
                             libsdformat10-dev"
