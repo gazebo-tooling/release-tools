@@ -1,22 +1,22 @@
 #!/bin/bash
 
 LIBS=(
-  "libignition-cmake2-dev_2.7.0-1"
-  "libignition-math6_6.8.0-1"
-  "libignition-utils1_1.0.0-1"
-  "libignition-tools-dev_1.1.0-1"
-  "libignition-common4_4.0.0-1"
-  "libignition-msgs7_7.0.0-1"
-  "libignition-transport10_10.0.0-1"
-  "libignition-fuel-tools5_5.0.0-1"
-  "libignition-plugin_1.2.0-1"
-  "libignition-rendering5_5.0.0-1"
-  "libignition-physics4_4.0.0-1"
-  "libignition-sensors5_5.0.0-1"
-  "libignition-gui5_5.0.0-1"
-  "libignition-gazebo5_5.0.0-1"
-  "libignition-launch4_4.0.0-1"
-  "ignition-edifice_1.0.0-1"
+  "ignition-cmake2"
+  "ignition-math6"
+  "ignition-utils1"
+  "ignition-tools"
+  "ignition-common4"
+  "ignition-msgs7"
+  "ignition-transport10"
+  "ignition-fuel-tools5"
+  "ignition-plugin"
+  "ignition-rendering5"
+  "ignition-physics4"
+  "ignition-sensors5"
+  "ignition-gui5"
+  "ignition-gazebo5"
+  "ignition-launch4"
+  "ignition-edifice"
 )
 
 ARCHS=( "amd64" "i386" "arm64" "armhf")
@@ -28,10 +28,6 @@ COLUMN="        "
 for LIB in "${LIBS[@]}"
 do
   echo -e "\e[107m\e[90m${LIB}\e[49m\e[39m"
-
-  LIB_NO_VERSION=${LIB%%_*}
-  LIB_NO_VERSION=${LIB_NO_VERSION#"lib"}
-  LIB_NO_VERSION=${LIB_NO_VERSION%%-dev*}
 
   for DISTRO in "${DISTROS[@]}"
   do
@@ -55,19 +51,20 @@ do
         echo -n " "
 
         if [[ $ARCH == "i386" && $VER == "focal" ]]; then
-          echo -n -e "\e[100m$PADDED_ARCH\e[49m"
-          continue
-        fi
+          PKG_VERSION="disabled"
+        else
+	  PKG_VERSION=$(wget -qO- http://packages.osrfoundation.org/gazebo/${DISTRO}-stable/dists/${VER}/main/binary-${ARCH}/Packages | grep -1 "Source: ${LIB}" | sed -n 's/^Version: \(.*\)/\1/p' | uniq)
+	fi
 
-        URL=http://packages.osrfoundation.org/gazebo/${DISTRO}-stable/pool/main/i/${LIB_NO_VERSION}/${LIB}~${VER}_${ARCH}.deb
+	if [[ -z ${PKG_VERSION} ]]; then
+	    PKG_VERSION="not-found"
+	fi
 
-        #echo "Checking [$URL]"
-
-        if curl --head --silent --fail $URL > /dev/null;
-         then
-          echo -n -e "\e[42m$PADDED_ARCH\e[49m"
+	PKG_VERSION_JUSTIFY=$(printf '%-15.15s' "${PKG_VERSION}")
+        if [[ ${PKG_VERSION} != "not-found" ]]; then
+          echo -n -e "\e[42m$PADDED_ARCH ${PKG_VERSION_JUSTIFY}\e[49m"
          else
-          echo -n -e "\e[101m$PADDED_ARCH\e[49m"
+          echo -n -e "\e[101m$PADDED_ARCH ${PKG_VERSION_JUSTIFY}\e[49m"
         fi
 
       done
