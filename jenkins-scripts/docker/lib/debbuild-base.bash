@@ -156,6 +156,8 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: install build dependencies'
 apt-get update
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
+# new versions of mk-build-deps > 2.21.1 left buildinfo and changes files in the code
+rm -f ${PACKAGE_ALIAS}-build-deps_*.{buildinfo,changes}
 echo '# END SECTION'
 
 if [ -f /usr/bin/rosdep ]; then
