@@ -61,7 +61,7 @@ if ${NIGHTLY_MODE}; then
 else
   # Some combinations does not known about AWS certificate from S3
   if [[ ${LINUX_DISTRO} == debian ]] || [[ ${DISTRO} == 'focal' && ${ARCH} == 'armhf' ]]; then
-     no_check_cert_str = '--no-check-certificate'
+     no_check_cert_str='--no-check-certificate'
   fi
   wget \$no_check_cert_str --quiet -O orig_tarball $SOURCE_TARBALL_URI || \
     echo rerunning wget without --quiet since it failed && \
