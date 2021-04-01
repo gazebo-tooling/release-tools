@@ -38,6 +38,9 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: clean up environment'
 rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 . ${SCRIPT_LIBDIR}/_homebrew_cleanup.bash
+# don't use HOMEBREW_UPDATE_TO_TAG for bottle builds
+unset HOMEBREW_UPDATE_TO_TAG
+brew up
 # manually exclude a ruby warning that jenkins thinks is from clang
 # https://github.com/osrf/homebrew-simulation/issues/1343
 brew install hub \

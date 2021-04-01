@@ -59,9 +59,13 @@ if ${NIGHTLY_MODE}; then
     REV=0
   fi
 else
-  wget --quiet -O orig_tarball $SOURCE_TARBALL_URI || \
+  # Some combinations does not known about AWS certificate from S3
+  if [[ ${LINUX_DISTRO} == debian ]] || [[ ${DISTRO} == 'focal' && ${ARCH} == 'armhf' ]]; then
+     no_check_cert_str='--no-check-certificate'
+  fi
+  wget \$no_check_cert_str --quiet -O orig_tarball $SOURCE_TARBALL_URI || \
     echo rerunning wget without --quiet since it failed && \
-    wget       -O orig_tarball $SOURCE_TARBALL_URI
+    wget \$no_check_cert_str -O orig_tarball $SOURCE_TARBALL_URI
   TARBALL_EXT=${SOURCE_TARBALL_URI/*tar./}
   mv orig_tarball $PACKAGE_ALIAS\_$VERSION.orig.tar.\${TARBALL_EXT}
   rm -rf \$REAL_PACKAGE_NAME\-$VERSION
@@ -156,6 +160,8 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: install build dependencies'
 apt-get update
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
+# new versions of mk-build-deps > 2.21.1 left buildinfo and changes files in the code
+rm -f ${PACKAGE_ALIAS}-build-deps_*.{buildinfo,changes}
 echo '# END SECTION'
 
 if [ -f /usr/bin/rosdep ]; then
