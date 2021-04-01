@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 // IGNITION COLLECTIONS
 arch = 'amd64'
 
-ignition_nightly = 'edifice'
+ignition_nightly = 'fortress'
 
 ignition_collections = [
   [ name : 'citadel',
@@ -14,6 +14,9 @@ ignition_collections = [
     distros : [ 'focal' ],
   ],
   [ name : 'edifice',
+    distros : [ 'focal' ],
+  ],
+  [ name : 'fortress',
     distros : [ 'focal' ],
     // Note that not all main branches will go into the next collection
     nightly_jobs: [
