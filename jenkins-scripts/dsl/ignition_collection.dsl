@@ -29,7 +29,7 @@ ignition_collections = [
           'physics'   : [ debbuild: 'ign-physics4'    , branch: 'main' ],
           'plugin'    : [ debbuild: 'ign-plugin2'     , branch: 'main' ],
           'rendering' : [ debbuild: 'ign-rendering5'  , branch: 'main' ],
-          'sdformat'  : [ debbuild: 'sdformat11'      , branch: 'master' ],
+          'sdformat'  : [ debbuild: 'sdformat11'      , branch: 'main' ],
           'sensors'   : [ debbuild: 'ign-sensors5'    , branch: 'main' ],
           'tools'     : [ debbuild: 'ign-tools2'      , branch: 'main' ],
           'transport' : [ debbuild: 'ign-transport10' , branch: 'main' ],
@@ -272,9 +272,9 @@ ignition_collection_jobs =
         'ignition_transport10-install_bottle-homebrew-amd64',
         'ignition_utils-ci-main-bionic-amd64',
         'ignition_utils-ci-main-homebrew-amd64',
-        'sdformat-ci-master-bionic-amd64',
-        'sdformat-ci-master-homebrew-amd64',
-        'sdformat-ci-master-windows7-amd64',
+        'sdformat-ci-main-bionic-amd64',
+        'sdformat-ci-main-homebrew-amd64',
+        'sdformat-ci-main-windows7-amd64',
         'sdformat-install-sdformat11_pkg-bionic-amd64'
   ],
 ]
