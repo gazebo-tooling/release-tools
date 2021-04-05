@@ -76,7 +76,7 @@ abi_distro.each { distro ->
     // 1. Create the main ci jobs
     def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGitHub.create(sdformat_ci_job, "osrf/sdformat")
+    OSRFGitHub.create(sdformat_ci_job, "osrf/sdformat", "main")
 
     sdformat_ci_job.with
     {
@@ -137,7 +137,7 @@ other_supported_distros.each { distro ->
     // ci_main job for the rest of arches / scm@daily
     def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGitHub.create(sdformat_ci_job, "osrf/sdformat")
+    OSRFGitHub.create(sdformat_ci_job, "osrf/sdformat", "main")
 
     sdformat_ci_job.with
     {
@@ -197,7 +197,7 @@ sdformat_supported_branches.each { branch ->
   experimental_arches.each { arch ->
     def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGitHub.create(sdformat_ci_job, "osrf/sdformat")
+    OSRFGitHub.create(sdformat_ci_job, "osrf/sdformat", "main")
 
     sdformat_ci_job.with
     {
