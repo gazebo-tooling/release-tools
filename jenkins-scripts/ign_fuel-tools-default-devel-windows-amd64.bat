@@ -6,5 +6,7 @@ set IGN_CLEAN_WORKSPACE=true
 
 :: tinyxml2 from msgs
 set DEPEN_PKGS="libyaml libzip tinyxml2"
+set COLCON_PACKAGE=ignition-gazebo
+set COLCON_AUTO_MAJOR_VERSION=true
 
-call "%SCRIPT_DIR%/lib/generic-default-devel-windows.bat"
+call "%SCRIPT_DIR%\lib\colcon-default-devel-windows.bat"
