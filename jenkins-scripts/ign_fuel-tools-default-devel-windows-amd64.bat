@@ -1,4 +1,4 @@
-set SCRIPT_DIR="%~dp0"
+set SCRIPT_DIR=%~dp0
 
 set VCS_DIRECTORY=ign-fuel-tools
 set PLATFORM_TO_BUILD=x86_amd64

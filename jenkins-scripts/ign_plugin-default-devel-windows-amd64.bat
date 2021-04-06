@@ -1,4 +1,4 @@
-set SCRIPT_DIR="%~dp0"
+set SCRIPT_DIR=%~dp0
 
 set VCS_DIRECTORY=ign-plugin
 set PLATFORM_TO_BUILD=x86_amd64
