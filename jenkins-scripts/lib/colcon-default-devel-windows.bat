@@ -28,6 +28,9 @@ set LOCAL_WS_BUILD=%WORKSPACE%\build
 @if "%ENABLE_TESTS%" == "" set ENABLE_TESTS=TRUE
 @if "%COLCON_AUTO_MAJOR_VERSION%" == "" set COLCON_AUTO_MAJOR_VERSION=false
 
+python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" 
+type "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"
+
 setlocal ENABLEDELAYEDEXPANSION
 if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
    for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
