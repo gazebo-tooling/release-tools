@@ -16,8 +16,15 @@
 
 # The script will bump the major version of a library for a given collection
 #
+# Requires the 'gh' CLI to be installed.
+#
 # Usage:
-# $ ./bump_dependency.bash <collection> <library> <version>
+# $ ./bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number> <docs_branch>
+#
+# For example, to bump to `ign-rendering6` and all its dependencies, as well as
+# `sdf12` and its dependencies on fortress:
+#
+# ./bump_dependency.bash fortress "ign-rendering;sdformat" "6;12" 428 "chapulina/fortress"
 #
 # The script clones all the necessary repositories under /tmp/bump_dependency.
 #
@@ -38,21 +45,37 @@ WHITE_BG="\e[107m"
 BLUE_BG="\e[44m"
 GREEN_BG="\e[42m"
 
+#IGN_ORG="ignitionrobotics"
+#OSRF_ORG="osrf"
+#TOOLING_ORG="ignition-tooling"
+#RELEASE_ORG="ignition-release"
+IGN_ORG="chapulina"
+OSRF_ORG="chapulina"
+TOOLING_ORG="chapulina"
+RELEASE_ORG="chapulina"
+
 COLLECTION=${1}
-LIBRARY=${2}
-VERSION=${3}
+LIBRARY_INPUT=${2}
+VERSION_INPUT=${3}
+# Number of release-tools issue to link back to
+ISSUE_NUMBER=${4}
+DOCS_BRANCH=${5}
+
+COMMIT_MSG="Bumps in ${COLLECTION}"
+PR_TEXT="See https://github.com/${TOOLING_ORG}/release-tools/issues/${ISSUE_NUMBER}"
 
 set -e
 
-if [[ $# -lt 1 ]]; then
-  echo "bump_dependency.bash <collection> <library> <version>"
+if [[ $# -lt 3 ]]; then
+  echo "./bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number>"
   exit 1
 fi
 
-echo -e "${GREY}${WHITE_BG}Bump in ${COLLECTION}: ${LIBRARY}${VERSION}${DEFAULT_BG}${DEFAULT}"
+echo -e "${GREY}${WHITE_BG}Bumps in ${COLLECTION}${DEFAULT_BG}${DEFAULT}"
 
-LIBRARIES=(${LIBRARY})
-VERSIONS=(${VERSION})
+IFS=';'
+read -a LIBRARIES <<< "${LIBRARY_INPUT}"
+read -a VERSIONS <<< "${VERSION_INPUT}"
 
 TEMP_DIR="/tmp/bump_dependency"
 
@@ -65,7 +88,7 @@ mkdir -p ${TEMP_DIR}
 cd ${TEMP_DIR}
 if [ ! -d "gazebodistro" ]; then
   echo -e "${GREEN}Cloning gazebodistro${DEFAULT}"
-  git clone https://github.com/ignition-tooling/gazebodistro
+  git clone https://github.com/${TOOLING_ORG}/gazebodistro
 else
   echo -e "${GREEN}gazebodistro is already cloned${DEFAULT}"
 fi
@@ -81,19 +104,14 @@ git pull
 cd ${TEMP_DIR}
 if [ ! -d "docs" ]; then
   echo -e "${GREEN}Cloning docs${DEFAULT}"
-  git clone https://github.com/ignitionrobotics/docs
+  git clone https://github.com/${IGN_ORG}/docs
 else
   echo -e "${GREEN}docs is already cloned${DEFAULT}"
 fi
 
 cd ${TEMP_DIR}/docs
 git fetch
-HAS_MAIN=$(git ls-remote --heads origin main)
-if [[ -z ${HAS_MAIN} ]]; then
-  git checkout master
-else
-  git checkout main
-fi
+git checkout ${DOCS_BRANCH}
 git pull
 git reset --hard
 
@@ -102,17 +120,23 @@ git reset --hard
 cd ${TEMP_DIR}
 if [ ! -d "homebrew-simulation" ]; then
   echo -e "${GREEN}Cloning homebrew-simulation${DEFAULT}"
-  git clone https://github.com/osrf/homebrew-simulation
+  git clone https://github.com/${OSRF_ORG}/homebrew-simulation
 else
   echo -e "${GREEN}homebrew-simulation is already cloned${DEFAULT}"
 fi
+
+cd ${TEMP_DIR}/homebrew-simulation
+git fetch
+git checkout master
+git pull
+git reset --hard
 
 # release-tools
 
 cd ${TEMP_DIR}
 if [ ! -d "release-tools" ]; then
   echo -e "${GREEN}Cloning release-tools${DEFAULT}"
-  git clone https://github.com/ignition-tooling/release-tools
+  git clone https://github.com/${TOOLING_ORG}/release-tools
 else
   echo -e "${GREEN}release-tools is already cloned${DEFAULT}"
 fi
@@ -123,6 +147,7 @@ git checkout master
 git pull
 git reset --hard
 
+# This first loop finds out what downstream dependencies also need to be bumped
 for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   LIB=${LIBRARIES[$i]}
@@ -159,7 +184,8 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   # Add all bumped dependencies to the list to be bumped
   DIFF=$(git diff --name-only)
-  for TO_BUMP in ${DIFF[@]}; do
+
+  while IFS= read -r TO_BUMP; do
 
     TO_BUMP=${TO_BUMP%.yaml}
     if [[ "$TO_BUMP" =~ ^([a-z-]+)([0-9]+) ]]; then
@@ -178,7 +204,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
       fi
     fi
 
-  done
+  done <<< "$DIFF"
 
   sed -i "s ${LIB}${PREV_VER} main g" collection-${COLLECTION}.yaml
 
@@ -188,28 +214,32 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   cd ${TEMP_DIR}/docs
   sed -i -E "s ((${LIB}.*))${PREV_VER} \1${VER} g" ${COLLECTION}/install.md
 
+  # TODO: populate gzdev here too
+
 done
+
+# Clean up changes in gazebodistro, we'll be redoing them below one file at a time
+cd ${TEMP_DIR}/gazebodistro
+git reset --hard
 
 # Add collection to libraries, without version
 LIBRARIES+=(ign-$COLLECTION)
 
-echo -e "${GREEN_BG}Commit gazebodistro? (y/n)${DEFAULT_BG}"
+##################
+# docs
+##################
+cd ${TEMP_DIR}/docs
+git diff
+echo -e "${GREEN_BG}Commit docs and open PR? (y/n)${DEFAULT_BG}"
 read CONTINUE
 if [ "$CONTINUE" = "y" ] ; then
-  cd ${TEMP_DIR}/gazebodistro
-  git checkout -b bump_${COLLECTION}_${LIBRARY}
-  git commit -sam"Bump in ${COLLECTION}: ${LIBRARY}${VERSION}"
-  git push origin bump_${COLLECTION}_${LIBRARY}
+  git checkout -b bump_${COLLECTION}
+  git commit -sam"${COMMIT_MSG}"
+  git push origin bump_${COLLECTION}
+  gh pr create --title "${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${IGN_ORG}/docs --base ${DOCS_BRANCH}
 fi
 
-echo -e "${GREEN_BG}Commit docs? (y/n)${DEFAULT_BG}"
-read CONTINUE
-if [ "$CONTINUE" = "y" ] ; then
-  cd ${TEMP_DIR}/docs
-  git checkout -b bump_${COLLECTION}_${LIBRARY}
-  git commit -sam"Bump in ${COLLECTION}: ${LIBRARY}${VERSION}"
-  git push origin bump_${COLLECTION}_${LIBRARY}
-fi
+# TODO: commit gzdev
 
 for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
@@ -217,10 +247,11 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   VER=${VERSIONS[$i]}
   PREV_VER="$((${VER}-1))"
   LIB_UPPER=`echo ${LIB#"ign-"} | tr a-z A-Z`
-  ORG=ignitionrobotics
+  ORG=${IGN_ORG}
   if [ "$LIB" = "sdformat" ]; then
-    ORG=osrf
+    ORG=${OSRF_ORG}
   fi
+  BUMP_BRANCH="bump_${COLLECTION}_${LIB}${VER}"
 
   echo -e "${BLUE_BG}Processing [${LIB}]${DEFAULT_BG}"
 
@@ -242,20 +273,13 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   git fetch
   git reset --hard
 
-  BUMP_BRANCH="bump_${COLLECTION}_${LIBRARY}"
   HAS_BUMP=$(git ls-remote --heads origin ${BUMP_BRANCH})
   if [[ ! -z ${HAS_BUMP} ]]; then
     echo -e "${GREEN}Checking out ${LIB} branch [$BUMP_BRANCH]${DEFAULT}"
     git checkout $BUMP_BRANCH
   else
-    HAS_MAIN=$(git ls-remote --heads origin main)
-    if [[ -z ${HAS_MAIN} ]]; then
-      echo -e "${GREEN}Checking out ${LIB} branch [master]${DEFAULT}"
-      git checkout master
-    else
-      echo -e "${GREEN}Checking out ${LIB} branch [main]${DEFAULT}"
-      git checkout main
-    fi
+    echo -e "${GREEN}Checking out ${LIB} branch [main]${DEFAULT}"
+    git checkout main
     git pull
   fi
 
@@ -284,19 +308,22 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   done
 
   if ! git diff --exit-code; then
-    echo -e "${GREEN_BG}Commit ${LIB}? (y/n)${DEFAULT_BG}"
+    echo -e "${GREEN_BG}Commit ${LIB} and open PR? (y/n)${DEFAULT_BG}"
     read CONTINUE
     if [ "$CONTINUE" = "y" ]; then
       if [[ -z ${HAS_BUMP} ]]; then
         git checkout -b $BUMP_BRANCH
       fi
-      git commit -sam"Bump in ${COLLECTION}: ${LIBRARY}${VERSION}"
-      git push origin $BUMP_BRANCH
+      git commit -sam"${COMMIT_MSG}"
+      git push origin ${BUMP_BRANCH}
+      gh pr create --title "${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${ORG}/${LIB} --base main
     fi
   else
     echo -e "${GREEN}Nothing to commit for ${LIB}.${DEFAULT}"
   fi
   SOURCE_COMMIT=`git rev-parse HEAD`
+
+  TODO: Continue from here
 
   ##################
   # release repo
@@ -308,7 +335,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   RELEASE_REPO=${LIB}${VER}-release
   if [ ! -d "${RELEASE_REPO}" ]; then
     echo -e "${GREEN}Cloning ${RELEASE_REPO}${DEFAULT}"
-    git clone https://github.com/ignition-release/${RELEASE_REPO}
+    git clone https://github.com/${RELEASE_ORG}/${RELEASE_REPO}
   else
     echo -e "${GREEN}${RELEASE_REPO} is already cloned${DEFAULT}"
   fi
@@ -335,12 +362,13 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   done
 
   if ! git diff --exit-code; then
-    echo -e "${GREEN_BG}Commit ${RELEASE_REPO}? (y/n)${DEFAULT_BG}"
+    echo -e "${GREEN_BG}Commit ${RELEASE_REPO} and open PR? (y/n)${DEFAULT_BG}"
     read CONTINUE
     if [ "$CONTINUE" = "y" ]; then
-      git checkout -b bump_${COLLECTION}_${LIBRARY}
-      git commit -sam"Bump in ${COLLECTION}: ${LIBRARY}${VERSION}"
-      git push origin bump_${COLLECTION}_${LIBRARY}
+      git checkout -b ${BUMP_BRANCH}
+      git commit -sam"${COMMIT_MSG}"
+      git push origin ${BUMP_BRANCH}
+      gh pr create --title "${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${RELEASE_ORG}/${RELEASE_REPO} --base main
     fi
   else
     echo -e "${GREEN}Nothing to commit for ${RELEASE_REPO}.${DEFAULT}"
@@ -413,14 +441,15 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   if ! git diff --exit-code; then
     echo -e "${GREEN_BG}Clean up the files before committing!${DEFAULT_BG}"
-    echo -e "${GREEN_BG}Commit homebrew-simulation for ${LIB}? (y/n)${DEFAULT_BG}"
+    echo -e "${GREEN_BG}Commit homebrew-simulation for ${LIB} and open PR? (y/n)${DEFAULT_BG}"
     read CONTINUE
     if [ "$CONTINUE" = "y" ]; then
       if [[ -z ${HAS_BUMP} ]]; then
         git checkout -b $BUMP_BRANCH
       fi
-      git commit -sam"Bump in ${COLLECTION}: ${LIB}${VER}"
+      git commit -sam"${COMMIT_MSG}"
       git push origin $BUMP_BRANCH
+      gh pr create --title "${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${OSRF_ORG}/homebrew-simulation --base master
     fi
   else
     echo -e "${GREEN}Nothing to commit for homebrew-simulation.${DEFAULT}"
@@ -436,42 +465,59 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   ##################
   cd ${TEMP_DIR}/release-tools
 
-  DOCKER_SCRIPT="jenkins-scripts/docker/${LIB/ign-/ign_}-compilation.bash"
-  echo -e "${GREEN}Updating [${DOCKER_SCRIPT}]${DEFAULT}"
+  # TODO: build nightlies from main
 
-  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+#  DOCKER_SCRIPT="jenkins-scripts/docker/${LIB/ign-/ign_}-compilation.bash"
+#  echo -e "${GREEN}Updating [${DOCKER_SCRIPT}]${DEFAULT}"
+#
+#  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+#
+#    DEP_UPPER=`echo ${LIBRARIES[$j]#"ign-"} | tr a-z A-Z`
+#    DEP_VER=${VERSIONS[$j]}
+#
+#    if [[ $LIB_UPPER == $DEP_UPPER ]] ; then
+#      continue
+#    fi
+#
+#    if ! [[ $DEP_VER == ?(-)+([0-9]) ]] ; then
+#      continue
+#    fi
+#
+#    sed -i "/.*GZDEV.*/i \
+#if\ [[\ \$\{IGN_${LIB_UPPER}_MAJOR_VERSION}\ -eq\ ${VER}\ ]];\ then\n\
+#  export\ BUILD_IGN_${DEP_UPPER}=true\n\
+#  export\ IGN_${DEP_UPPER}_MAJOR_VERSION=${DEP_VER}\n\
+#  export\ IGN_${DEP_UPPER}_BRANCH=main\n\
+#fi"\
+#    $DOCKER_SCRIPT
+#  done
 
-    DEP_UPPER=`echo ${LIBRARIES[$j]#"ign-"} | tr a-z A-Z`
-    DEP_VER=${VERSIONS[$j]}
+  echo -e "${GREEN_BG}Commit release-tools? (y/n)${DEFAULT_BG}"
+  read CONTINUE
+  if [ "$CONTINUE" = "y" ] ; then
+    cd ${TEMP_DIR}/release-tools
+    git checkout -b ${BUMP_BRANCH}
+    git commit -sam"${COMMIT_MSG}"
+    git push origin $BUMP_BRANCH
+    gh pr create --title "${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${TOOLING_ORG}/release-tools --base master
+  fi
 
-    if [[ $LIB_UPPER == $DEP_UPPER ]] ; then
-      continue
-    fi
+  ##################
+  # gazebodistro
+  ##################
 
-    if ! [[ $DEP_VER == ?(-)+([0-9]) ]] ; then
-      continue
-    fi
-
-    sed -i "/.*GZDEV.*/i \
-if\ [[\ \$\{IGN_${LIB_UPPER}_MAJOR_VERSION}\ -eq\ ${VER}\ ]];\ then\n\
-  export\ BUILD_IGN_${DEP_UPPER}=true\n\
-  export\ IGN_${DEP_UPPER}_MAJOR_VERSION=${DEP_VER}\n\
-  export\ IGN_${DEP_UPPER}_BRANCH=main\n\
-fi"\
-    $DOCKER_SCRIPT
-  done
+  echo -e "${GREEN_BG}Commit gazebodistro for ${LIB} and open PR? (y/n)${DEFAULT_BG}"
+  read CONTINUE
+  if [ "$CONTINUE" = "y" ] ; then
+    cd ${TEMP_DIR}/gazebodistro
+    git checkout -b ${BUMP_BRANCH}
+    git commit -sam"${COMMIT_MSG}"
+    git push origin $BUMP_BRANCH
+    gh pr create --title "${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${TOOLING_ORG}/gazebodistro --base master
+  fi
 
 done
 
-echo -e "${GREEN_BG}Clean up the files before committing!${DEFAULT_BG}"
-echo -e "${GREEN_BG}Commit release-tools? (y/n)${DEFAULT_BG}"
-read CONTINUE
-if [ "$CONTINUE" = "y" ] ; then
-  cd ${TEMP_DIR}/release-tools
-  git checkout -b bump_${COLLECTION}_${LIBRARY}
-  git commit -sam"Bump in ${COLLECTION}: ${LIBRARY}${VERSION}"
-  git push origin bump_${COLLECTION}_${LIBRARY}
-fi
 
 
 
