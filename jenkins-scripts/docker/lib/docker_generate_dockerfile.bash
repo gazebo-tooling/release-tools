@@ -168,6 +168,14 @@ RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} restricted universe" \\
 DELIM_DOCKER_I386_APT
 fi
 
+# Workaround for: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=932019
+if [[ ${DISTRO} == 'buster' ]]; then
+cat >> Dockerfile << DELIM_BUSTER_DWZ
+RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO}-backports main" \\
+                                                       >> /etc/apt/sources.list
+DELIM_BUSTER_DWZ
+fi
+
 # Workaround for: https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1325142
 if [[ ${ARCH} == 'i386' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_PAM_BUG
