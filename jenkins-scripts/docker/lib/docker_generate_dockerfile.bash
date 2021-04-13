@@ -68,6 +68,7 @@ case ${LINUX_DISTRO} in
     export DEPENDENCY_PKGS="locales ${DEPENDENCY_PKGS}"
     ;;
   'debian')
+    SOURCE_LIST_URL="http://ftp.us.debian.org/debian"
     # debian does not ship locales by default
     export DEPENDENCY_PKGS="locales ${DEPENDENCY_PKGS}"
     ;;
@@ -140,8 +141,7 @@ fi
 if [[ ${LINUX_DISTRO} == 'debian' ]]; then
 cat >> Dockerfile << DELIM_DEBIAN_APT
   RUN sed -i -e 's:httpredir:ftp.us:g' /etc/apt/sources.list
-  RUN echo "deb-src http://ftp.us.debian.org/debian ${DISTRO} main" \\
-                                                         >> /etc/apt/sources.list
+  RUN echo "deb-src ${SOURCE_LIST_URL} ${DISTRO} main" >> /etc/apt/sources.list
 DELIM_DEBIAN_APT
 fi
 
