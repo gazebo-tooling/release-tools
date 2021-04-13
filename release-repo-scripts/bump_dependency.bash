@@ -19,12 +19,12 @@
 # Requires the 'gh' CLI to be installed.
 #
 # Usage:
-# $ ./bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number> <docs_branch>
+# $ ./bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number> <prev_collection> <docs_branch>
 #
 # For example, to bump to `ign-rendering6` and all its dependencies, as well as
 # `sdf12` and its dependencies on fortress:
 #
-# ./bump_dependency.bash fortress "ign-rendering;sdformat" "6;12" 428 "chapulina/fortress"
+# ./bump_dependency.bash fortress "ign-rendering;sdformat" "6;12" 428 edifice "chapulina/fortress"
 #
 # The script clones all the necessary repositories under /tmp/bump_dependency.
 #
@@ -33,7 +33,7 @@
 # When you say yes, the changes will be committed and pushed. Click on the link printed
 # by GitHub to open the pull request.
 
-# TODO: Update gzdev to use nightlies
+# TODO: Update collection list DSL on release-tools
 
 DEFAULT="\e[39m"
 DEFAULT_BG="\e[49m"
@@ -45,28 +45,25 @@ WHITE_BG="\e[107m"
 BLUE_BG="\e[44m"
 GREEN_BG="\e[42m"
 
-#IGN_ORG="ignitionrobotics"
-#OSRF_ORG="osrf"
-#TOOLING_ORG="ignition-tooling"
-#RELEASE_ORG="ignition-release"
-IGN_ORG="chapulina"
-OSRF_ORG="chapulina"
-TOOLING_ORG="chapulina"
-RELEASE_ORG="chapulina"
+IGN_ORG="ignitionrobotics"
+OSRF_ORG="osrf"
+TOOLING_ORG="ignition-tooling"
+RELEASE_ORG="ignition-release"
 
 COLLECTION=${1}
 LIBRARY_INPUT=${2}
 VERSION_INPUT=${3}
 # Number of release-tools issue to link back to
 ISSUE_NUMBER=${4}
-DOCS_BRANCH=${5}
+PREV_COLLECTION=${5}
+DOCS_BRANCH=${6}
 
 COMMIT_MSG="Bumps in ${COLLECTION}"
 PR_TEXT="See https://github.com/${TOOLING_ORG}/release-tools/issues/${ISSUE_NUMBER}"
 
 set -e
 
-if [[ $# -lt 3 ]]; then
+if [[ $# -lt 5 ]]; then
   echo "./bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number>"
   exit 1
 fi
@@ -105,10 +102,10 @@ cloneIfNeeded() {
   local REPO=$2
 
   if [ ! -d "$REPO" ]; then
-    echo -e "${GREEN}Cloning ${ORG}/${REPO}${DEFAULT}"
+    echo -e "${GREEN}${REPO}: Cloning ${ORG}/${REPO}${DEFAULT}"
     git clone https://github.com/${ORG}/${REPO}
   else
-    echo -e "${GREEN}${REPO} is already cloned${DEFAULT}"
+    echo -e "${GREEN}${REPO}: ${REPO} is already cloned${DEFAULT}"
   fi
 
   cd $REPO
@@ -122,6 +119,7 @@ startFromCleanBranch() {
 
   local PR_BRANCH=$1
   local BASE_BRANCH=$2
+  local REPO=${PWD##*/}
 
   git fetch
   git reset --hard
@@ -131,7 +129,7 @@ startFromCleanBranch() {
   # Check local
   HAS_PR_BRANCH=$(git branch --list ${PR_BRANCH})
   if [[ ! -z ${HAS_PR_BRANCH} ]]; then
-    echo -e "${GREEN}Checkout out branch ${PR_BRANCH}${DEFAULT}"
+    echo -e "${GREEN}${REPO}: Checkout out branch ${PR_BRANCH}${DEFAULT}"
     git checkout $PR_BRANCH
     return
   fi
@@ -139,7 +137,7 @@ startFromCleanBranch() {
   # Check remote
   HAS_PR_BRANCH=$(git ls-remote --heads origin ${PR_BRANCH})
   if [[ ! -z ${HAS_PR_BRANCH} ]]; then
-    echo -e "${GREEN}Checkout out branch ${PR_BRANCH}${DEFAULT}"
+    echo -e "${GREEN}${REPO}: Checkout out branch ${PR_BRANCH}${DEFAULT}"
     git checkout $PR_BRANCH
     git pull
     return
@@ -150,15 +148,15 @@ startFromCleanBranch() {
   # Make sure base branch exists
   HAS_BASE_BRANCH=$(git ls-remote --heads origin ${BASE_BRANCH})
   if [[ -z ${HAS_BASE_BRANCH} ]]; then
-    echo -e "${RED}Branch ${BASE_BRANCH} does not exist.${DEFAULT}"
+    echo -e "${RED}${REPO}: Branch ${BASE_BRANCH} does not exist.${DEFAULT}"
     return
   fi
 
   # Create PR branch off base
-  echo -e "${GREEN}Checking out ${BASE_BRANCH}${DEFAULT}"
+  echo -e "${GREEN}${REPO}: Checking out ${BASE_BRANCH}${DEFAULT}"
   git checkout $BASE_BRANCH
   git pull
-  echo -e "${GREEN}Creating new branch ${PR_BRANCH}${DEFAULT}"
+  echo -e "${GREEN}${REPO}: Creating new branch ${PR_BRANCH}${DEFAULT}"
   git checkout -b $PR_BRANCH
 }
 
@@ -172,7 +170,7 @@ commitAndPR() {
   local BASE_BRANCH=$2
 
   if git diff --exit-code; then
-    echo -e "${GREEN}Nothing to commit for ${REPO}.${DEFAULT}"
+    echo -e "${GREEN}${REPO}: Nothing to commit for ${REPO}.${DEFAULT}"
     return
   fi
 
@@ -180,13 +178,15 @@ commitAndPR() {
   local CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
   if [[ ! $CURRENT_BRANCH = bump_* ]]
   then
-    echo -e "${RED}Something's wrong, trying to commit to branch ${CURRENT_BRANCH}.${DEFAULT}"
+    echo -e "${RED}${REPO}: Something's wrong, trying to commit to branch ${CURRENT_BRANCH}.${DEFAULT}"
     return
   fi
 
-  local LIB=${CURRENT_BRANCH#bump_${COLLECTION}_}
+  local LIB=${CURRENT_BRANCH#bump_${COLLECTION}}
+  local LIB=${LIB#_}
+  local LIB=": ${LIB}"
 
-  echo -e "${GREEN_BG}Commit ${REPO} and open PR? (y/n)${DEFAULT_BG}"
+  echo -e "${GREEN_BG}${REPO}: Commit ${REPO} and open PR? (y/n)${DEFAULT_BG}"
   read CONTINUE
   if [ "$CONTINUE" = "y" ]; then
     git commit -sam"${COMMIT_MSG} ${LIB}"
@@ -284,8 +284,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   cd ${TEMP_DIR}/docs
   sed -i -E "s ((${LIB}.*))${PREV_VER} \1${VER} g" ${COLLECTION}/install.md
 
-  # TODO: populate gzdev here too
-
 done
 
 # Clean up changes in gazebodistro, we'll be redoing them below one file at a time
@@ -301,11 +299,15 @@ LIBRARIES+=(ign-$COLLECTION)
 cd ${TEMP_DIR}/docs
 commitAndPR ${IGN_ORG} ${DOCS_BRANCH}
 
-# TODO: commit gzdev
-
 for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   LIB=${LIBRARIES[$i]}
+
+  if ! [ "$LIB" = "ign-fortress" ]; then
+    continue
+  fi
+
+
   LIB_=${LIB//-/_} # For fuel_tools
   VER=${VERSIONS[$i]}
   PREV_VER="$((${VER}-1))"
@@ -336,7 +338,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     exit
   fi
 
-  echo -e "${GREEN}Updating source code${DEFAULT}"
+  echo -e "${GREEN}${LIB}: Updating source code${DEFAULT}"
   # TODO: handle yaml file in collection source like gazebodistro (main instead of dep+1)
   for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
 
@@ -365,7 +367,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   cloneIfNeeded ${RELEASE_ORG} ${RELEASE_REPO}
   startFromCleanBranch ${BUMP_BRANCH} main
 
-  echo -e "${GREEN}Updating release repository${DEFAULT}"
   for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
 
     DEP_LIB=${LIBRARIES[$j]#"ign-"}
@@ -388,14 +389,21 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   FORMULA="Formula/${LIB/ign/ignition}${VER}.rb"
   if [ ! -f "$FORMULA" ]; then
-    echo -e "${GREEN}Creating ${FORMULA}${DEFAULT}"
+    echo -e "${GREEN}${LIB}: Creating ${FORMULA}${DEFAULT}"
 
     git rm Aliases/${LIB/ign/ignition}${VER}
-    cp Formula/${LIB/ign/ignition}${PREV_VER}.rb $FORMULA
+
+    # Collection
+    if ! [[ $VER == ?(-)+([0-9]) ]] ; then
+      cp Formula/ignition-${PREV_COLLECTION}.rb $FORMULA
+    else
+      cp Formula/${LIB/ign/ignition}${PREV_VER}.rb $FORMULA
+    fi
+
     git add $FORMULA
   fi
 
-  echo -e "${GREEN}Updating ${FORMULA}${DEFAULT}"
+  echo -e "${GREEN}${LIB}: Updating ${FORMULA}${DEFAULT}"
   URL="https://github.com/${ORG}/${LIB}/archive/${SOURCE_COMMIT}.tar.gz"
   wget $URL
   SHA=`sha256sum ${SOURCE_COMMIT}.tar.gz | cut -d " " -f 1`
@@ -439,7 +447,12 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   cd ${TEMP_DIR}/gazebodistro
   startFromCleanBranch ${BUMP_BRANCH} master
 
-  YAML_FILE=${LIB}${VER}.yaml
+  # Collection
+  if ! [[ $VER == ?(-)+([0-9]) ]] ; then
+    YAML_FILE=collection-${COLLECTION}.yaml
+  else
+    YAML_FILE=${LIB}${VER}.yaml
+  fi
   for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
 
     DEP_LIB=${LIBRARIES[$j]/sdformat/sdf}
@@ -461,34 +474,14 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   ##################
   # release-tools
   ##################
+  echo -e "${GREEN}${LIB}: release-tools${DEFAULT}"
+
   cd ${TEMP_DIR}/release-tools
+  startFromCleanBranch ${BUMP_BRANCH} master
 
-  # TODO: build nightlies from main
-
-#  DOCKER_SCRIPT="jenkins-scripts/docker/${LIB/ign-/ign_}-compilation.bash"
-#  echo -e "${GREEN}Updating [${DOCKER_SCRIPT}]${DEFAULT}"
-#
-#  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
-#
-#    DEP_UPPER=`echo ${LIBRARIES[$j]#"ign-"} | tr a-z A-Z`
-#    DEP_VER=${VERSIONS[$j]}
-#
-#    if [[ $LIB_UPPER == $DEP_UPPER ]] ; then
-#      continue
-#    fi
-#
-#    if ! [[ $DEP_VER == ?(-)+([0-9]) ]] ; then
-#      continue
-#    fi
-#
-#    sed -i "/.*GZDEV.*/i \
-#if\ [[\ \$\{IGN_${LIB_UPPER}_MAJOR_VERSION}\ -eq\ ${VER}\ ]];\ then\n\
-#  export\ BUILD_IGN_${DEP_UPPER}=true\n\
-#  export\ IGN_${DEP_UPPER}_MAJOR_VERSION=${DEP_VER}\n\
-#  export\ IGN_${DEP_UPPER}_BRANCH=main\n\
-#fi"\
-#    $DOCKER_SCRIPT
-#  done
+  # Build nightlies from main
+  DSL_FILE="jenkins-scripts/dsl/ignition_collection.dsl"
+  sed -i "s/\(debbuild.*\)${LIB}${PREV_VER}\(.*\)${LIB}${PREV_VER}/\1${LIB}${VER}\2main/g" $DSL_FILE
 
   commitAndPR ${TOOLING_ORG} master
 
