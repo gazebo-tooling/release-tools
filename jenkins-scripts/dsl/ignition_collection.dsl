@@ -18,25 +18,25 @@ ignition_collections = [
   ],
   [ name : 'fortress',
     distros : [ 'focal' ],
-    // Note that not all main branches will go into the next collection
+    // These are the branches currently targeted at the upcoming collection
     nightly_jobs: [
-          'cmake'     : [ debbuild: 'ign-cmake3'      , branch: 'main' ],
-          'common'    : [ debbuild: 'ign-common5'     , branch: 'main' ],
+          'cmake'     : [ debbuild: 'ign-cmake2'      , branch: 'ign-cmake2' ],
+          'common'    : [ debbuild: 'ign-common4'     , branch: 'ign-common4' ],
           'fortress'  : [ debbuild: 'ign-fortress'    , branch: 'main' ],
-          'fuel-tools': [ debbuild: 'ign-fuel-tools7' , branch: 'main' ],
-          'gazebo'    : [ debbuild: 'ign-gazebo6'     , branch: 'main' ],
-          'gui'       : [ debbuild: 'ign-gui6'        , branch: 'main' ],
-          'launch'    : [ debbuild: 'ign-launch5'     , branch: 'main' ],
-          'math'      : [ debbuild: 'ign-math7'       , branch: 'main' ],
-          'msgs'      : [ debbuild: 'ign-msgs8'       , branch: 'main' ],
-          'physics'   : [ debbuild: 'ign-physics5'    , branch: 'main' ],
-          'plugin'    : [ debbuild: 'ign-plugin2'     , branch: 'main' ],
-          'rendering' : [ debbuild: 'ign-rendering6'  , branch: 'main' ],
-          'sdformat'  : [ debbuild: 'sdformat12'      , branch: 'main' ],
-          'sensors'   : [ debbuild: 'ign-sensors6'    , branch: 'main' ],
-          'tools'     : [ debbuild: 'ign-tools2'      , branch: 'main' ],
-          'transport' : [ debbuild: 'ign-transport11' , branch: 'main' ],
-          'utils'     : [ debbuild: 'ign-utils2'      , branch: 'main' ],
+          'fuel-tools': [ debbuild: 'ign-fuel-tools6' , branch: 'ign-fuel-tools6' ],
+          'gazebo'    : [ debbuild: 'ign-gazebo5'     , branch: 'ign-gazebo5' ],
+          'gui'       : [ debbuild: 'ign-gui5'        , branch: 'ign-gui5' ],
+          'launch'    : [ debbuild: 'ign-launch4'     , branch: 'ign-launch4' ],
+          'math'      : [ debbuild: 'ign-math6'       , branch: 'ign-math6' ],
+          'msgs'      : [ debbuild: 'ign-msgs7'       , branch: 'ign-msgs7' ],
+          'physics'   : [ debbuild: 'ign-physics4'    , branch: 'ign-physics4' ],
+          'plugin'    : [ debbuild: 'ign-plugin1'     , branch: 'ign-plugin1' ],
+          'rendering' : [ debbuild: 'ign-rendering5'  , branch: 'ign-rendering5' ],
+          'sdformat'  : [ debbuild: 'sdformat11'      , branch: 'sdf11' ],
+          'sensors'   : [ debbuild: 'ign-sensors5'    , branch: 'ign-sensors5' ],
+          'tools'     : [ debbuild: 'ign-tools1'      , branch: 'ign-tools1' ],
+          'transport' : [ debbuild: 'ign-transport10' , branch: 'ign-transport10' ],
+          'utils'     : [ debbuild: 'ign-utils1'      , branch: 'ign-utils1' ],
     ],
   ],
 ]
@@ -650,4 +650,3 @@ nightly_scheduler_job.with
      }
   }
 }
-
