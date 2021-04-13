@@ -306,6 +306,7 @@ commitAndPR ${IGN_ORG} ${DOCS_BRANCH}
 for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   LIB=${LIBRARIES[$i]}
+  LIB_=${LIB//-/_} # For fuel_tools
   VER=${VERSIONS[$i]}
   PREV_VER="$((${VER}-1))"
   LIB_UPPER=`echo ${LIB#"ign-"} | tr a-z A-Z`
@@ -402,6 +403,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   # libN
   sed -i -E "s ((${LIB#"ign-"}))${PREV_VER} \1${VER} g" $FORMULA
+  sed -i -E "s ((${LIB_#"ign-"}))${PREV_VER} \1${VER} g" $FORMULA
   # ign-libN -> main
   sed -i "s ${LIB}${PREV_VER} main g" $FORMULA
   # class IgnitionLibN
@@ -412,7 +414,8 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   sed -i "s@url.*@url \"$URL\"@g" $FORMULA
   # SHA - TODO: remove manual step
   sed -i "s/sha256.*/sha256 \"$SHA\"/g" $FORMULA
-  # version - TODO: fix duplicating existing one
+  # version
+  sed -i "/ version /d" $FORMULA
   sed -i "/url.*/a \ \ version\ \"${PREV_VER}.999.999~0~`date +"%Y%m%d"`~${SOURCE_COMMIT:0:6}\"" $FORMULA
   # Remove extra blank lines
   cat -s $FORMULA | tee $FORMULA
@@ -428,11 +431,25 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   commitAndPR ${OSRF_ORG} master
 
-  continue
-
   ##################
   # gazebodistro
   ##################
+  echo -e "${GREEN}${LIB}: gazebodistro${DEFAULT}"
+
+  cd ${TEMP_DIR}/gazebodistro
+  startFromCleanBranch ${BUMP_BRANCH} master
+
+  YAML_FILE=${LIB}${VER}.yaml
+  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+
+    DEP_LIB=${LIBRARIES[$j]/sdformat/sdf}
+    DEP_VER=${VERSIONS[$j]}
+    DEP_PREV_VER="$((${DEP_VER}-1))"
+
+    sed -i "s ${DEP_LIB}${DEP_PREV_VER} main g" $YAML_FILE
+    DEP_LIB=${DEP_LIB//-/_} # fuel_tools
+    sed -i "s ${DEP_LIB}${DEP_PREV_VER} main g" $YAML_FILE
+  done
 
   commitAndPR ${TOOLING_ORG} master
 
