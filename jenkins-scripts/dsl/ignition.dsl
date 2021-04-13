@@ -64,6 +64,7 @@ ignition_extra_debbuild = [ 'cmake3',
                             'sensors6',
                             'tools2',
                             'transport11',
+                            'utils1', // see comment https://github.com/ignition-tooling/release-tools/pull/431#issuecomment-815099918
                             'utils2']
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [  ]
