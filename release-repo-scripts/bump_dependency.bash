@@ -71,81 +71,151 @@ if [[ $# -lt 3 ]]; then
   exit 1
 fi
 
+TEMP_DIR="/tmp/bump_dependency"
+echo -e "${GREEN}Creating directory [${TEMP_DIR}]${DEFAULT}"
+mkdir -p ${TEMP_DIR}
+
+# Return the passed branch if provided, or main / master
+getBaseBranch() {
+
+  local BASE_BRANCH=$1
+
+  # If no base branch provided, use main or master
+  if [ -z "$BASE_BRANCH" ]; then
+    HAS_MAIN=$(git ls-remote --heads origin main)
+    if [[ ! -z ${HAS_MAIN} ]]; then
+      local BASE_BRANCH="main"
+    else
+      local BASE_BRANCH="master"
+    fi
+  fi
+
+  echo "$BASE_BRANCH"
+}
+
+# Clone repository into temp dir if not cloned yet and move to that folder
+# Args:
+# $1: Organization
+# $2: Repository
+cloneIfNeeded() {
+
+  cd ${TEMP_DIR}
+
+  local ORG=$1
+  local REPO=$2
+
+  if [ ! -d "$REPO" ]; then
+    echo -e "${GREEN}Cloning ${ORG}/${REPO}${DEFAULT}"
+    git clone https://github.com/${ORG}/${REPO}
+  else
+    echo -e "${GREEN}${REPO} is already cloned${DEFAULT}"
+  fi
+
+  cd $REPO
+}
+
+# Helper to checkout a clean branch
+# Args:
+# $1: Branch to open PR from
+# $2: Branch to build on top of
+startFromCleanBranch() {
+
+  local PR_BRANCH=$1
+  local BASE_BRANCH=$2
+
+  git fetch
+  git reset --hard
+
+  # If PR branch exists, checkout and start fresh
+
+  # Check local
+  HAS_PR_BRANCH=$(git branch --list ${PR_BRANCH})
+  if [[ ! -z ${HAS_PR_BRANCH} ]]; then
+    echo -e "${GREEN}Checkout out branch ${PR_BRANCH}${DEFAULT}"
+    git checkout $PR_BRANCH
+    return
+  fi
+
+  # Check remote
+  HAS_PR_BRANCH=$(git ls-remote --heads origin ${PR_BRANCH})
+  if [[ ! -z ${HAS_PR_BRANCH} ]]; then
+    echo -e "${GREEN}Checkout out branch ${PR_BRANCH}${DEFAULT}"
+    git checkout $PR_BRANCH
+    git pull
+    return
+  fi
+
+  local BASE_BRANCH=$(getBaseBranch $BASE_BRANCH)
+
+  # Make sure base branch exists
+  HAS_BASE_BRANCH=$(git ls-remote --heads origin ${BASE_BRANCH})
+  if [[ -z ${HAS_BASE_BRANCH} ]]; then
+    echo -e "${RED}Branch ${BASE_BRANCH} does not exist.${DEFAULT}"
+    return
+  fi
+
+  # Create PR branch off base
+  echo -e "${GREEN}Checking out ${BASE_BRANCH}${DEFAULT}"
+  git checkout $BASE_BRANCH
+  git pull
+  echo -e "${GREEN}Creating new branch ${PR_BRANCH}${DEFAULT}"
+  git checkout -b $PR_BRANCH
+}
+
+# Commit and open PR
+# Args:
+# $1: Org name
+# $2: Base branch to open PR against
+commitAndPR() {
+  local REPO=${PWD##*/}
+  local ORG=$1
+  local BASE_BRANCH=$2
+
+  if git diff --exit-code; then
+    echo -e "${GREEN}Nothing to commit for ${REPO}.${DEFAULT}"
+    return
+  fi
+
+  # Sanity check that we're on a bump branch already
+  local CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+  if [[ ! $CURRENT_BRANCH = bump_* ]]
+  then
+    echo -e "${RED}Something's wrong, trying to commit to branch ${CURRENT_BRANCH}.${DEFAULT}"
+    return
+  fi
+
+  local LIB=${CURRENT_BRANCH#bump_${COLLECTION}_}
+
+  echo -e "${GREEN_BG}Commit ${REPO} and open PR? (y/n)${DEFAULT_BG}"
+  read CONTINUE
+  if [ "$CONTINUE" = "y" ]; then
+    git commit -sam"${COMMIT_MSG} ${LIB}"
+    git push origin ${CURRENT_BRANCH}
+    gh pr create --title "${COMMIT_MSG} ${LIB}" --body "${PR_TEXT}" --repo ${ORG}/${REPO} --base ${BASE_BRANCH}
+  fi
+}
+
 echo -e "${GREY}${WHITE_BG}Bumps in ${COLLECTION}${DEFAULT_BG}${DEFAULT}"
 
 IFS=';'
 read -a LIBRARIES <<< "${LIBRARY_INPUT}"
 read -a VERSIONS <<< "${VERSION_INPUT}"
 
-TEMP_DIR="/tmp/bump_dependency"
-
-echo -e "${GREEN}Creating directory [${TEMP_DIR}]${DEFAULT}"
-
-mkdir -p ${TEMP_DIR}
-
 # gazebodistro
-
-cd ${TEMP_DIR}
-if [ ! -d "gazebodistro" ]; then
-  echo -e "${GREEN}Cloning gazebodistro${DEFAULT}"
-  git clone https://github.com/${TOOLING_ORG}/gazebodistro
-else
-  echo -e "${GREEN}gazebodistro is already cloned${DEFAULT}"
-fi
-
-cd ${TEMP_DIR}/gazebodistro
-git fetch
-git reset --hard
-git checkout master
-git pull
+cloneIfNeeded ${TOOLING_ORG} gazebodistro
+startFromCleanBranch bump_${COLLECTION} master
 
 # docs
-
-cd ${TEMP_DIR}
-if [ ! -d "docs" ]; then
-  echo -e "${GREEN}Cloning docs${DEFAULT}"
-  git clone https://github.com/${IGN_ORG}/docs
-else
-  echo -e "${GREEN}docs is already cloned${DEFAULT}"
-fi
-
-cd ${TEMP_DIR}/docs
-git fetch
-git checkout ${DOCS_BRANCH}
-git pull
-git reset --hard
+cloneIfNeeded ${IGN_ORG} docs
+startFromCleanBranch bump_${COLLECTION} ${DOCS_BRANCH}
 
 # homebrew
-
-cd ${TEMP_DIR}
-if [ ! -d "homebrew-simulation" ]; then
-  echo -e "${GREEN}Cloning homebrew-simulation${DEFAULT}"
-  git clone https://github.com/${OSRF_ORG}/homebrew-simulation
-else
-  echo -e "${GREEN}homebrew-simulation is already cloned${DEFAULT}"
-fi
-
-cd ${TEMP_DIR}/homebrew-simulation
-git fetch
-git checkout master
-git pull
-git reset --hard
+cloneIfNeeded ${OSRF_ORG} homebrew-simulation
+startFromCleanBranch bump_${COLLECTION} master
 
 # release-tools
-
-cd ${TEMP_DIR}
-if [ ! -d "release-tools" ]; then
-  echo -e "${GREEN}Cloning release-tools${DEFAULT}"
-  git clone https://github.com/${TOOLING_ORG}/release-tools
-else
-  echo -e "${GREEN}release-tools is already cloned${DEFAULT}"
-fi
-
-cd ${TEMP_DIR}/release-tools
-git fetch
-git checkout master
-git pull
-git reset --hard
+cloneIfNeeded ${TOOLING_ORG} release-tools
+startFromCleanBranch bump_${COLLECTION} master
 
 # This first loop finds out what downstream dependencies also need to be bumped
 for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
@@ -229,15 +299,7 @@ LIBRARIES+=(ign-$COLLECTION)
 # docs
 ##################
 cd ${TEMP_DIR}/docs
-git diff
-echo -e "${GREEN_BG}Commit docs and open PR? (y/n)${DEFAULT_BG}"
-read CONTINUE
-if [ "$CONTINUE" = "y" ] ; then
-  git checkout -b bump_${COLLECTION}
-  git commit -sam"${COMMIT_MSG}"
-  git push origin bump_${COLLECTION}
-  gh pr create --title "${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${IGN_ORG}/docs --base ${DOCS_BRANCH}
-fi
+commitAndPR ${IGN_ORG} ${DOCS_BRANCH}
 
 # TODO: commit gzdev
 
@@ -261,27 +323,8 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   echo -e "${GREEN}${LIB}: source code${DEFAULT}"
 
-  cd ${TEMP_DIR}
-  if [ ! -d "${LIB}" ]; then
-    echo -e "${GREEN}Cloning ${LIB}${DEFAULT}"
-    git clone https://github.com/${ORG}/${LIB}
-  else
-    echo -e "${GREEN}${LIB} is already cloned${DEFAULT}"
-  fi
-  cd ${TEMP_DIR}/${LIB}
-
-  git fetch
-  git reset --hard
-
-  HAS_BUMP=$(git ls-remote --heads origin ${BUMP_BRANCH})
-  if [[ ! -z ${HAS_BUMP} ]]; then
-    echo -e "${GREEN}Checking out ${LIB} branch [$BUMP_BRANCH]${DEFAULT}"
-    git checkout $BUMP_BRANCH
-  else
-    echo -e "${GREEN}Checking out ${LIB} branch [main]${DEFAULT}"
-    git checkout main
-    git pull
-  fi
+  cloneIfNeeded ${ORG} ${LIB}
+  startFromCleanBranch ${BUMP_BRANCH} main
 
   # Check if main branch of that library is the correct version
   PROJECT_NAME="${LIB//-/_}${VER}"
@@ -307,23 +350,9 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
   done
 
-  if ! git diff --exit-code; then
-    echo -e "${GREEN_BG}Commit ${LIB} and open PR? (y/n)${DEFAULT_BG}"
-    read CONTINUE
-    if [ "$CONTINUE" = "y" ]; then
-      if [[ -z ${HAS_BUMP} ]]; then
-        git checkout -b $BUMP_BRANCH
-      fi
-      git commit -sam"${COMMIT_MSG}"
-      git push origin ${BUMP_BRANCH}
-      gh pr create --title "${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${ORG}/${LIB} --base main
-    fi
-  else
-    echo -e "${GREEN}Nothing to commit for ${LIB}.${DEFAULT}"
-  fi
-  SOURCE_COMMIT=`git rev-parse HEAD`
+  commitAndPR ${ORG} main
 
-  TODO: Continue from here
+  SOURCE_COMMIT=`git rev-parse HEAD`
 
   ##################
   # release repo
@@ -331,25 +360,9 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   echo -e "${GREEN}${LIB}: release repo${DEFAULT}"
 
-  cd ${TEMP_DIR}
   RELEASE_REPO=${LIB}${VER}-release
-  if [ ! -d "${RELEASE_REPO}" ]; then
-    echo -e "${GREEN}Cloning ${RELEASE_REPO}${DEFAULT}"
-    git clone https://github.com/${RELEASE_ORG}/${RELEASE_REPO}
-  else
-    echo -e "${GREEN}${RELEASE_REPO} is already cloned${DEFAULT}"
-  fi
-  cd ${TEMP_DIR}/${RELEASE_REPO}
-
-  git fetch
-  HAS_MAIN=$(git ls-remote --heads origin main)
-  if [[ -z ${HAS_MAIN} ]]; then
-    git checkout master
-  else
-    git checkout main
-  fi
-  git pull
-  git reset --hard
+  cloneIfNeeded ${RELEASE_ORG} ${RELEASE_REPO}
+  startFromCleanBranch ${BUMP_BRANCH} main
 
   echo -e "${GREEN}Updating release repository${DEFAULT}"
   for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
@@ -361,18 +374,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     find . -type f -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
   done
 
-  if ! git diff --exit-code; then
-    echo -e "${GREEN_BG}Commit ${RELEASE_REPO} and open PR? (y/n)${DEFAULT_BG}"
-    read CONTINUE
-    if [ "$CONTINUE" = "y" ]; then
-      git checkout -b ${BUMP_BRANCH}
-      git commit -sam"${COMMIT_MSG}"
-      git push origin ${BUMP_BRANCH}
-      gh pr create --title "${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${RELEASE_ORG}/${RELEASE_REPO} --base main
-    fi
-  else
-    echo -e "${GREEN}Nothing to commit for ${RELEASE_REPO}.${DEFAULT}"
-  fi
+  commitAndPR ${RELEASE_ORG} main
 
   ##################
   # homebrew
@@ -381,22 +383,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   echo -e "${GREEN}${LIB}: homebrew${DEFAULT}"
 
   cd ${TEMP_DIR}/homebrew-simulation
-
-  git fetch
-  git reset --hard
-  HAS_MAIN=$(git ls-remote --heads origin main)
-  BUMP_BRANCH="bump_${COLLECTION}_${LIB}"
-  HAS_BUMP=$(git ls-remote --heads origin ${BUMP_BRANCH})
-  if [[ ! -z ${HAS_BUMP} ]]; then
-    echo -e "${GREEN}Checking out homebrew-simulation branch [$BUMP_BRANCH]${DEFAULT}"
-    git checkout $BUMP_BRANCH
-  elif [[ ! -z ${HAS_MAIN} ]]; then
-    echo -e "${GREEN}Checking out homebrew-simulation branch [main]${DEFAULT}"
-    git checkout main
-  else
-    echo -e "${GREEN}Checking out homebrew-simulation branch [master]${DEFAULT}"
-    git checkout master
-  fi
+  startFromCleanBranch bump_${COLLECTION}_${LIB} master
 
   FORMULA="Formula/${LIB/ign/ignition}${VER}.rb"
   if [ ! -f "$FORMULA" ]; then
@@ -413,10 +400,10 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   SHA=`sha256sum ${SOURCE_COMMIT}.tar.gz | cut -d " " -f 1`
   rm ${SOURCE_COMMIT}.tar.gz
 
-  # ign-libN -> main
-  sed -i "s ${LIB}${PREV_VER} main g" $FORMULA
   # libN
   sed -i -E "s ((${LIB#"ign-"}))${PREV_VER} \1${VER} g" $FORMULA
+  # ign-libN -> main
+  sed -i "s ${LIB}${PREV_VER} main g" $FORMULA
   # class IgnitionLibN
   sed -i -E "s/((class Ignition.*))${PREV_VER}/\1${VER}/g" $FORMULA
   # remove bottle - TODO: this is only needed for new formulae
@@ -439,21 +426,15 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g" $FORMULA
   done
 
-  if ! git diff --exit-code; then
-    echo -e "${GREEN_BG}Clean up the files before committing!${DEFAULT_BG}"
-    echo -e "${GREEN_BG}Commit homebrew-simulation for ${LIB} and open PR? (y/n)${DEFAULT_BG}"
-    read CONTINUE
-    if [ "$CONTINUE" = "y" ]; then
-      if [[ -z ${HAS_BUMP} ]]; then
-        git checkout -b $BUMP_BRANCH
-      fi
-      git commit -sam"${COMMIT_MSG}"
-      git push origin $BUMP_BRANCH
-      gh pr create --title "${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${OSRF_ORG}/homebrew-simulation --base master
-    fi
-  else
-    echo -e "${GREEN}Nothing to commit for homebrew-simulation.${DEFAULT}"
-  fi
+  commitAndPR ${OSRF_ORG} master
+
+  continue
+
+  ##################
+  # gazebodistro
+  ##################
+
+  commitAndPR ${TOOLING_ORG} master
 
   # Collection ends here
   if ! [[ $VER == ?(-)+([0-9]) ]] ; then
@@ -492,32 +473,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 #    $DOCKER_SCRIPT
 #  done
 
-  echo -e "${GREEN_BG}Commit release-tools? (y/n)${DEFAULT_BG}"
-  read CONTINUE
-  if [ "$CONTINUE" = "y" ] ; then
-    cd ${TEMP_DIR}/release-tools
-    git checkout -b ${BUMP_BRANCH}
-    git commit -sam"${COMMIT_MSG}"
-    git push origin $BUMP_BRANCH
-    gh pr create --title "${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${TOOLING_ORG}/release-tools --base master
-  fi
-
-  ##################
-  # gazebodistro
-  ##################
-
-  echo -e "${GREEN_BG}Commit gazebodistro for ${LIB} and open PR? (y/n)${DEFAULT_BG}"
-  read CONTINUE
-  if [ "$CONTINUE" = "y" ] ; then
-    cd ${TEMP_DIR}/gazebodistro
-    git checkout -b ${BUMP_BRANCH}
-    git commit -sam"${COMMIT_MSG}"
-    git push origin $BUMP_BRANCH
-    gh pr create --title "${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${TOOLING_ORG}/gazebodistro --base master
-  fi
+  commitAndPR ${TOOLING_ORG} master
 
 done
-
-
-
 
