@@ -303,11 +303,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   LIB=${LIBRARIES[$i]}
 
-  if ! [ "$LIB" = "ign-fortress" ]; then
-    continue
-  fi
-
-
   LIB_=${LIB//-/_} # For fuel_tools
   VER=${VERSIONS[$i]}
   PREV_VER="$((${VER}-1))"
