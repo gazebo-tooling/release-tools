@@ -32,7 +32,7 @@ ignition_collections = [
           'physics'   : [ debbuild: 'ign-physics4'    , branch: 'ign-physics4' ],
           'plugin'    : [ debbuild: 'ign-plugin1'     , branch: 'ign-plugin1' ],
           'rendering' : [ debbuild: 'ign-rendering5'  , branch: 'ign-rendering5' ],
-          'sdformat'  : [ debbuild: 'sdformat11'      , branch: 'sdformat11' ],
+          'sdformat'  : [ debbuild: 'sdformat11'      , branch: 'sdf11' ],
           'sensors'   : [ debbuild: 'ign-sensors5'    , branch: 'ign-sensors5' ],
           'tools'     : [ debbuild: 'ign-tools1'      , branch: 'ign-tools1' ],
           'transport' : [ debbuild: 'ign-transport10' , branch: 'ign-transport10' ],
@@ -650,4 +650,3 @@ nightly_scheduler_job.with
      }
   }
 }
-
