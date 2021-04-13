@@ -23,7 +23,7 @@ ignition_collections = [
           'cmake'     : [ debbuild: 'ign-cmake2'      , branch: 'ign-cmake2' ],
           'common'    : [ debbuild: 'ign-common4'     , branch: 'ign-common4' ],
           'fortress'  : [ debbuild: 'ign-fortress'    , branch: 'main' ],
-          'fuel-tools': [ debbuild: 'ign-fuel-tools6' , branch: 'ign-fuel-tools6' ],
+          'fuel-tools': [ debbuild: 'ign-fuel-tools7' , branch: 'main' ],
           'gazebo'    : [ debbuild: 'ign-gazebo5'     , branch: 'ign-gazebo5' ],
           'gui'       : [ debbuild: 'ign-gui5'        , branch: 'ign-gui5' ],
           'launch'    : [ debbuild: 'ign-launch4'     , branch: 'ign-launch4' ],
