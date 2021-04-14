@@ -161,7 +161,7 @@ echo '# BEGIN SECTION: install build dependencies'
 apt-get update
 # buster workaround for dwz. backports repository does not have priority over main
 # explicit the version wanted
-if [[ DISTRO == 'buster']]; then
+if [[ ${DISTRO} = 'buster']]; then
   apt-get install -y dwz=0.13-5~bpo10+1
 fi
 mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
