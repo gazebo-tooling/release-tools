@@ -31,7 +31,7 @@ ignition_collections = [
           'msgs'      : [ debbuild: 'ign-msgs8'       , branch: 'main' ],
           'physics'   : [ debbuild: 'ign-physics4'    , branch: 'ign-physics4' ],
           'plugin'    : [ debbuild: 'ign-plugin1'     , branch: 'ign-plugin1' ],
-          'rendering' : [ debbuild: 'ign-rendering5'  , branch: 'ign-rendering5' ],
+          'rendering' : [ debbuild: 'ign-rendering6'  , branch: 'main' ],
           'sdformat'  : [ debbuild: 'sdformat11'      , branch: 'sdf11' ],
           'sensors'   : [ debbuild: 'ign-sensors5'    , branch: 'ign-sensors5' ],
           'tools'     : [ debbuild: 'ign-tools1'      , branch: 'ign-tools1' ],
