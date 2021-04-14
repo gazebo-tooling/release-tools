@@ -475,8 +475,9 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   startFromCleanBranch ${BUMP_BRANCH} master
 
   # Build nightlies from main
+  LIB_SHORT=${LIB/sdformat/sdf}
   DSL_FILE="jenkins-scripts/dsl/ignition_collection.dsl"
-  sed -i "s/\(debbuild.*\)${LIB}${PREV_VER}\(.*\)${LIB}${PREV_VER}/\1${LIB}${VER}\2main/g" $DSL_FILE
+  sed -i "s/\(debbuild.*\)${LIB}${PREV_VER}\(.*\)${LIB_SHORT}${PREV_VER}/\1${LIB}${VER}\2main/g" $DSL_FILE
 
   commitAndPR ${TOOLING_ORG} master
 
