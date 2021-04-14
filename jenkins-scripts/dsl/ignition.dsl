@@ -29,20 +29,20 @@ ignition_no_test            = [ 'tools' ]
 // No branches in ignition_branches means no released branches (only CI on
 // main, ABI check, install pkg)
 ignition_branches           = [ 'cmake'      : [ '2' ],
-                                'common'     : [ '1', '3' ],
-                                'fuel-tools' : [ '1', '4', '5' ],
-                                'gazebo'     : [ '3', '4' ],
-                                'gui'        : [ '0', '3', '4' ],
-                                'launch'     : [ '2', '3' ],
+                                'common'     : [ '1', '3', '4' ],
+                                'fuel-tools' : [ '1', '4', '5', '6' ],
+                                'gazebo'     : [ '3', '4', '5' ],
+                                'gui'        : [ '0', '3', '4', '5' ],
+                                'launch'     : [ '2', '3', '4' ],
                                 'math'       : [ '2', '4', '6' ],
-                                'msgs'       : [ '1', '5', '6' ],
-                                'physics'    : [ '2', '3' ],
+                                'msgs'       : [ '1', '5', '6', '7' ],
+                                'physics'    : [ '2', '3', '4' ],
                                 'plugin'     : [ '1' ],
-                                'rendering'  : [ '3', '4' ],
-                                'sensors'    : [ '3', '4' ],
+                                'rendering'  : [ '3', '4', '5' ],
+                                'sensors'    : [ '3', '4', '5' ],
                                 'tools'      : [ '1' ],
-                                'transport'  : [ '4', '8', '9' ],
-                                'utils'      : [ ]]
+                                'transport'  : [ '4', '8', '9', '10' ],
+                                'utils'      : [ '1' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use main for gz11
@@ -51,20 +51,21 @@ ignition_prerelease_branches = []
 // don't appear in ignition_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
 ignition_extra_debbuild = [ 'cmake3',
-                            'common4',
-                            'fuel-tools6',
-                            'gazebo5',
-                            'gui5',
-                            'launch4',
+                            'common5',
+                            'fuel-tools7',
+                            'gazebo6',
+                            'gui6',
+                            'launch5',
                             'math7',
-                            'msgs7',
-                            'physics4',
+                            'msgs8',
+                            'physics5',
                             'plugin2',
-                            'rendering5',
-                            'sensors5',
+                            'rendering6',
+                            'sensors6',
                             'tools2',
-                            'transport10',
-                            'utils1']
+                            'transport11',
+                            'utils1', // see comment https://github.com/ignition-tooling/release-tools/pull/431#issuecomment-815099918
+                            'utils2']
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [  ]
 // DESC: major versions that has a package in the prerelease repo. Should
@@ -74,7 +75,8 @@ ignition_prerelease_pkgs    = [ 'placeholder' : [
                               ]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
-ignition_colcon_win         = [ 'gazebo',
+ignition_colcon_win         = [ 'fuel-tools',
+                                'gazebo',
                                 'gui',
                                 'launch',
                                 'physics',
@@ -462,6 +464,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs4") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs5") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs6") ||
+              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs7") ||
               ("${ign_sw}" == "msgs" && "${branch}" == "main") ||
               ("${ign_sw}" == "physics") ||
               ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
@@ -472,6 +475,7 @@ ignition_software.each { ign_sw ->
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport7") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport8") ||
               ("${ign_sw}" == "transport" && "${branch}" == "ign-transport9") ||
+              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport10") ||
               ("${ign_sw}" == "transport" && "${branch}" == "main") ||
               ("${ign_sw}" == "utils")))
             disabled()

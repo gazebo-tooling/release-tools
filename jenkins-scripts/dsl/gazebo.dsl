@@ -254,9 +254,9 @@ ci_distro.each { distro ->
       {
         parameters
         {
-          stringParam('SDFORMAT_BRANCH', 'master', 'sdformat branch to use')
-          stringParam('IGN_MATH_BRANCH', 'master', 'ignition math branch to use')
-          stringParam('IGN_TRANSPORT_BRANCH', 'master', 'ignition transport branch to use')
+          stringParam('SDFORMAT_BRANCH', 'main', 'sdformat branch to use')
+          stringParam('IGN_MATH_BRANCH', 'main', 'ignition math branch to use')
+          stringParam('IGN_TRANSPORT_BRANCH', 'main', 'ignition transport branch to use')
         }
 
         label "gpu-reliable"
