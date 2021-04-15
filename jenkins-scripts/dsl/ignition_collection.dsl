@@ -29,7 +29,7 @@ ignition_collections = [
           'launch'    : [ debbuild: 'ign-launch4'     , branch: 'ign-launch4' ],
           'math'      : [ debbuild: 'ign-math6'       , branch: 'ign-math6' ],
           'msgs'      : [ debbuild: 'ign-msgs8'       , branch: 'main' ],
-          'physics'   : [ debbuild: 'ign-physics4'    , branch: 'ign-physics4' ],
+          'physics'   : [ debbuild: 'ign-physics5'    , branch: 'main' ],
           'plugin'    : [ debbuild: 'ign-plugin1'     , branch: 'ign-plugin1' ],
           'rendering' : [ debbuild: 'ign-rendering6'  , branch: 'main' ],
           'sdformat'  : [ debbuild: 'sdformat12'      , branch: 'main' ],
