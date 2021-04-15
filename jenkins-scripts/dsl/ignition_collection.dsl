@@ -25,7 +25,7 @@ ignition_collections = [
           'fortress'  : [ debbuild: 'ign-fortress'    , branch: 'main' ],
           'fuel-tools': [ debbuild: 'ign-fuel-tools7' , branch: 'main' ],
           'gazebo'    : [ debbuild: 'ign-gazebo6'     , branch: 'main' ],
-          'gui'       : [ debbuild: 'ign-gui5'        , branch: 'ign-gui5' ],
+          'gui'       : [ debbuild: 'ign-gui6'        , branch: 'main' ],
           'launch'    : [ debbuild: 'ign-launch5'     , branch: 'main' ],
           'math'      : [ debbuild: 'ign-math6'       , branch: 'ign-math6' ],
           'msgs'      : [ debbuild: 'ign-msgs8'       , branch: 'main' ],
