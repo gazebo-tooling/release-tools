@@ -100,6 +100,15 @@ abi_job_names = [:]
 
 Globals.extra_emails = "caguero@osrfoundation.org"
 
+// shell command to inject in all bash steps
+GLOBAL_SHELL_CMD=''
+
+// Fortress release needed to invalidate cache to solve problem with bug in
+// gzdev docker installation. Will be disable automatically in 1st May 2021
+today = new Date().format( 'yyyyMMdd' )
+if (today.compareTo('20210501')) {
+  GLOBAL_SHELL_CMD='export INVALIDATE_DOCKER_CACHE=true'
+}
 
 String ci_distro_str = ci_distro[0]
 
@@ -292,6 +301,8 @@ ignition_software.each { ign_sw ->
                   export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
                 fi
 
+                ${GLOBAL_SHELL_CMD}
+
                 export ARCH=${arch}
                 export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
                 export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
@@ -334,6 +345,8 @@ ignition_software.each { ign_sw ->
                 echo "Bitbucket pipeline.yml detected. Default DISTRO is ${ci_distro}"
                 export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
               fi
+
+              ${GLOBAL_SHELL_CMD}
 
               export ARCH=${arch}
 
@@ -414,6 +427,8 @@ ignition_software.each { ign_sw ->
            shell("""\
                  #!/bin/bash -xe
 
+                 ${GLOBAL_SHELL_CMD}
+
                  export DISTRO=${distro}
                  export ARCH=${arch}
                  export INSTALL_JOB_PKG=${dev_package}
@@ -488,6 +503,7 @@ ignition_software.each { ign_sw ->
             shell("""\
                   #!/bin/bash -xe
 
+                  ${GLOBAL_SHELL_CMD}
                   export DISTRO=${distro}
                   export ARCH=${arch}
                   /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
@@ -515,6 +531,7 @@ all_debbuilders().each { debbuilder_name ->
         shell("""\
               #!/bin/bash -xe
 
+              ${GLOBAL_SHELL_CMD}
               ${extra_str}
               /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
               """.stripIndent())
