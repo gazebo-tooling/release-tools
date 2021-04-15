@@ -35,7 +35,7 @@ ignition_collections = [
           'sdformat'  : [ debbuild: 'sdformat12'      , branch: 'main' ],
           'sensors'   : [ debbuild: 'ign-sensors5'    , branch: 'ign-sensors5' ],
           'tools'     : [ debbuild: 'ign-tools1'      , branch: 'ign-tools1' ],
-          'transport' : [ debbuild: 'ign-transport10' , branch: 'ign-transport10' ],
+          'transport' : [ debbuild: 'ign-transport11' , branch: 'main' ],
           'utils'     : [ debbuild: 'ign-utils1'      , branch: 'ign-utils1' ],
     ],
   ],
