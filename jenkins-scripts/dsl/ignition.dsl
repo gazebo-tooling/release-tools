@@ -376,26 +376,19 @@ ignition_software.each { ign_sw ->
         // no xenial support for cmake2 and things that use it
         if (("${distro}" == "xenial") && (
             (("${ign_sw}" == "cmake")      && ("${major_version}" == "2")) ||
-            (("${ign_sw}" == "common")     && ("${major_version}" == "3")) ||
-            (("${ign_sw}" == "fuel-tools") &&
-              (("${major_version}" == "3") || ("${major_version}" == "4") ||
-               ("${major_version}" == "5"))) ||
+            (("${ign_sw}" == "common")     && ("${major_version}" != "1")) ||
+            (("${ign_sw}" == "fuel-tools") && ("${major_version}" != "1")) ||
              ("${ign_sw}" == "gazebo")     ||
              ("${ign_sw}" == "gui")        ||
              ("${ign_sw}" == "launch")     ||
             (("${ign_sw}" == "math")       && ("${major_version}" == "6")) ||
-            (("${ign_sw}" == "msgs")       &&
-              (("${major_version}" == "2") || ("${major_version}" == "3") ||
-               ("${major_version}" == "4") || ("${major_version}" == "5") ||
-               ("${major_version}" == "6"))) ||
+            (("${ign_sw}" == "msgs")       && ("${major_version}" != "1")) ||
              ("${ign_sw}" == "physics")    ||
              ("${ign_sw}" == "plugin")     ||
              ("${ign_sw}" == "rendering")  ||
              ("${ign_sw}" == "sensors")    ||
-            (("${ign_sw}" == "transport")  &&
-              (("${major_version}" == "6") || ("${major_version}" == "7") ||
-               ("${major_version}" == "8") || ("${major_version}" == "9")))) ||
-             ("${ign_sw}" == "utils"))
+            (("${ign_sw}" == "transport")  && ("${major_version}" != "4")) ||
+             ("${ign_sw}" == "utils")))
           return
 
         extra_repos_str=""
@@ -466,37 +459,21 @@ ignition_software.each { ign_sw ->
           if (("${distro}" == "xenial") && (
               ("${ign_sw}" == "cmake" && "${branch}" == "ign-cmake2") ||
               ("${ign_sw}" == "cmake" && "${branch}" == "main") ||
-              ("${ign_sw}" == "common" && "${branch}" == "main") ||
-              ("${ign_sw}" == "common" && "${branch}" == "ign-common3") ||
+              ("${ign_sw}" == "common" && "${branch}" != "ign-common1") ||
               ("${ign_sw}" == "fuel-tools" && "${branch}" != "ign-fuel-tools1") ||
               ("${ign_sw}" == "gazebo") ||
               ("${ign_sw}" == "gui") ||
               ("${ign_sw}" == "launch") ||
               ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
               ("${ign_sw}" == "math" && "${branch}" == "main") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs2") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs3") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs4") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs5") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs6") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs7") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "main") ||
+              ("${ign_sw}" == "msgs" && "${branch}" != "ign-msgs1") ||
               ("${ign_sw}" == "physics") ||
-              ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
-              ("${ign_sw}" == "rendering" && "${branch}" != "ign-rendering0") ||
+              ("${ign_sw}" == "plugin") ||
+              ("${ign_sw}" == "rendering") ||
               ("${ign_sw}" == "sensors") ||
               ("${ign_sw}" == "tools") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport6") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport7") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport8") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport9") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport10") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "main") ||
+              ("${ign_sw}" == "transport" && "${branch}" != "ign-transport4") ||
               ("${ign_sw}" == "utils")))
-            disabled()
-
-          // gz11 branches don't work on xenial
-          if (("${branch}" == "gz11") && ("${distro}" == "xenial"))
             disabled()
 
           steps {
