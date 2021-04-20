@@ -685,7 +685,7 @@ ignition_software.each { ign_sw ->
     ignition_win_ci_job.with
     {
         // ign-gazebo only works on Windows from ign-gazebo5
-        if (ign_sw == 'gazebo' && branch != 'ign-gazebo5' && branch != 'main')
+        if (branch == 'ign-gazebo3' || branch != 'ign-gazebo4')
           disabled()
 
         // ign-launch still not ported completely to Windows
