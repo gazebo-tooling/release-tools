@@ -637,9 +637,9 @@ ignition_software.each { ign_sw ->
   }
 
   supported_branches = []
-     // ign-gazebo only support windows on main branch
+     // ign-gazebo only support Windows from ign-gazebo5
      if (ign_sw == 'gazebo')
-       supported_branches = [ 'main' ]
+       supported_branches = [ 'ign-gazebo5', 'main' ]
 
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAnyGitHub.create(ignition_win_ci_any_job,
