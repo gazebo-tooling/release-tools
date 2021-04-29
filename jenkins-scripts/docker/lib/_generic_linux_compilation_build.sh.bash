@@ -102,7 +102,7 @@ else
   echo "Requested: no test run"
 fi
 
-if $GENERIC_ENABLE_CPPCHECK; then
+if [ $GENERIC_ENABLE_CPPCHECK ] && [ -f tools/code_check.sh ]; then
   echo '# BEGIN SECTION: cppcheck'
   cd $WORKSPACE/${SOFTWARE_DIR}
   if [ ! -f tools/cpplint_to_cppcheckxml.py ]; then
