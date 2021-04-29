@@ -6,7 +6,7 @@ set IGN_CLEAN_WORKSPACE=true
 
 :: tinyxml2 from msgs
 
-set DEPEN_PKGS="libyaml libzip tinyxml2 openssl curl"
+set DEPEN_PKGS="curl libyaml tinyxml2 libzip openssl protobuf"
 set COLCON_PACKAGE=ignition-fuel_tools
 set COLCON_AUTO_MAJOR_VERSION=true
 
