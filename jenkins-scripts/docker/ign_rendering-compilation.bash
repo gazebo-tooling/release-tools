@@ -37,8 +37,4 @@ export GZDEV_PROJECT_NAME="ignition-rendering${IGN_RENDERING_MAJOR_VERSION}"
 
 export BUILDING_EXTRA_CMAKE_PARAMS="-DSKIP_optix=true"
 
-export BUILD_IGN_CMAKE=true
-export IGN_CMAKE_MAJOR_VERSION=2
-export IGN_CMAKE_BRANCH=ign-cmake2
-
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
