@@ -56,3 +56,11 @@ When opening PRs, add a link back to this issue for easier tracking.
     - [ ] Add files to `gazebodistro` ([example](https://github.com/ignition-tooling/gazebodistro/pull/12))
     - [ ] Add aliases to `homebrew-simulation` ([example](https://github.com/osrf/homebrew-simulation/commit/1f8602af6f52e06e0542eebfbdbe97f5f6cf950c))
     - [ ] Create new `-release` repositories (use [this script](https://github.com/ignition-tooling/release-tools/blob/master/release-repo-scripts/new_ignition_release_repos.bash))
+
+
+If the collection will be officially paired with a ROS 2 distro:
+
+- [ ] Update REP-2000 when ROS 2 distro is added ([example](https://github.com/ros-infrastructure/rep/pull/291))
+- [ ] Import stable releases into https://packages.ros.org ([example](https://github.com/ros-infrastructure/reprepro-updater/pull/109))
+- [ ] Add new rosdep keys ([example](https://github.com/ros/rosdistro/pull/29176))
+- [ ] Bloom-release `ros_ign` with the new version into Rolling before fork ([example](https://github.com/ros/rosdistro/pull/29192))
