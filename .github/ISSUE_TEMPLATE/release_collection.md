@@ -64,3 +64,39 @@ If the collection will be officially paired with a ROS 2 distro:
 - [ ] Import stable releases into https://packages.ros.org ([example](https://github.com/ros-infrastructure/reprepro-updater/pull/109))
 - [ ] Add new rosdep keys ([example](https://github.com/ros/rosdistro/pull/29176))
 - [ ] Bloom-release `ros_ign` with the new version into Rolling before fork ([example](https://github.com/ros/rosdistro/pull/29192))
+
+# Status tracker
+
+Track stable release of metapackage `ignition-<collection>`.
+
+* :hourglass: TODO
+* :yellow_circle: waiting in the buildfarm
+* :green_circle: in the repo
+* :red_circle: requires action
+* :black_circle: no release
+
+### Linux
+
+ * **Ubuntu:**
+   - [ ] :hourglass: Focal/amd64
+   - [ ] :hourglass: Bionic/amd64
+   - [ ] :hourglass: Bionic/i386
+   - [ ] :hourglass: Focal/arm64
+   - [ ] :hourglass: Bionic/arm64
+
+ * **Debian:**
+   - [ ] :hourglass: Buster/i386
+   - [ ] :hourglass: Buster/amd64
+   - [ ] :hourglass: Sid/\*:
+   - [ ] :hourglass: Buster/arm64
+   - [ ] :hourglass: Buster/armhf (raspbian)
+
+### MacOSX
+
+* **Brew**
+  - [ ] :hourglass: Bottles
+
+### Windows
+
+* **Conda-forge** (community effort)
+  - [ ] :hourglass:
