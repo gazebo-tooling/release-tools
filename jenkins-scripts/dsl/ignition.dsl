@@ -583,8 +583,7 @@ ignition_software.each { ign_sw ->
     install_default_job.with
     {
       // disable some bottles
-      if (("${ign_sw}" == "gui" && "${major_version}" == "0") ||
-          ("${ign_sw}" == "transport" && "${major_version}" == "5"))
+      if (("${ign_sw}" == "gui" && "${major_version}" == "0"))
         disabled()
 
       triggers {
