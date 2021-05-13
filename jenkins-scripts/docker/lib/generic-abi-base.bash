@@ -46,7 +46,7 @@ cat > build.sh << DELIM
 set -ex
 
 # Bug in gcc5 with eigen see: https://github.com/ignition-tooling/release-tools/issues/147
-if [[ "${USE_GCC6}" -gt 0 || -z "${USE_GCC6}" && "${DISTRO}" == xenial ]]; then
+if [[ "${USE_GCC6}" -gt 0 || -z "${USE_GCC6}" ]]; then
   apt-get update
   apt-get install -y software-properties-common
   add-apt-repository -y ppa:ubuntu-toolchain-r/test

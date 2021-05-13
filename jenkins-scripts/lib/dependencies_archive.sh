@@ -233,9 +233,6 @@ else
   # default versions for every ROS distribution
   if [[ -z ${GAZEBO_VERSION_FOR_ROS} ]]; then
     case ${ROS_DISTRO} in
-      kinetic)
-        GAZEBO_VERSION_FOR_ROS="7"
-      ;;
       melodic)
         GAZEBO_VERSION_FOR_ROS="9"
       ;;
@@ -345,12 +342,6 @@ else
                                   ros-${ROS_DISTRO}-urdf                    \\
                                   ros-${ROS_DISTRO}-xacro"
 
-    if [[ ${ROS_DISTRO} == 'kinetic' ]]; then
-       ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
-                                     ros-${ROS_DISTRO}-ros-base \\
-                                     ros-${ROS_DISTRO}-pcl-ros"
-    fi
-
     ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-xacro \\
                                  ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS}"
   fi
@@ -413,11 +404,8 @@ IGN_MATH_DEPENDENCIES="libeigen3-dev \\
                        ruby-dev \\
                        swig \\
                        libignition-cmake-dev \\
-                       libignition-cmake1-dev"
-if [[ ${DISTRO} != 'xenial' ]]; then
-  IGN_MATH_DEPENDENCIES="${IGN_MATH_DEPENDENCIES} \\
-                         libignition-cmake2-dev"
-fi
+                       libignition-cmake1-dev \\
+                       libignition-cmake2-dev"
 
 # IGN_TRANSPORT related dependencies. Default value points to the development
 # version
@@ -473,25 +461,17 @@ IGN_COMMON_NO_IGN_DEPENDENCIES="pkg-config     \\
                          uuid-dev"
 
 IGN_COMMON_DEPENDENCIES="${IGN_COMMON_NO_IGN_DEPENDENCIES} \\
-                     libignition-cmake-dev \\
-                     libignition-cmake1-dev \\
-                     libignition-math4-dev"
-if [[ ${DISTRO} != 'xenial' ]]; then
-  IGN_COMMON_DEPENDENCIES="${IGN_COMMON_DEPENDENCIES} \\
-                           libignition-cmake2-dev \\
-                           libignition-math6-dev"
-fi
+                     libignition-cmake2-dev \\
+                     libignition-math4-dev \\
+                     libignition-math6-dev"
 
-IGN_FUEL_TOOLS_DEPENDENCIES=" libignition-tools-dev  \\
+IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake2-dev \\
+                             libignition-common3-dev \\
+                             libignition-tools-dev  \\
                              libcurl4-openssl-dev   \\
                              libjsoncpp-dev         \\
                              libyaml-dev            \\
                              libzip-dev"
-if [[ ${DISTRO} != 'xenial' ]]; then
-  IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
-                           libignition-cmake2-dev \\
-                           libignition-common3-dev"
-fi
 
 if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -le 2 ]]; then
   IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
@@ -538,10 +518,7 @@ fi
 IGN_GUI_NO_IGN_DEPENDENCIES="qtbase5-dev \\
                       qtdeclarative5-dev \\
                       libtinyxml2-dev \\
-                      libqwt-qt5-dev"
-
-if [[ ${DISTRO} != 'xenial' ]]; then
-  IGN_GUI_NO_IGN_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
+                      libqwt-qt5-dev \\
                       qml-module-qt-labs-folderlistmodel \\
                       qml-module-qt-labs-platform \\
                       qml-module-qt-labs-settings \\
@@ -556,20 +533,15 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                       qml-module-qtquick-window2 \\
                       qml-module-qtquick2 \\
                       qtquickcontrols2-5-dev"
-fi
 
 IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
+                      libignition-cmake2-dev \\
+                      libignition-common3-dev \\
+                      libignition-math6-dev \\
+                      libignition-msgs3-dev \\
+                      libignition-plugin-dev \\
+                      libignition-rendering-dev \\
                       libignition-tools-dev"
-
-if [[ ${DISTRO} != 'xenial' ]]; then
-  IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
-                        libignition-cmake2-dev \\
-                        libignition-common3-dev \\
-                        libignition-math6-dev \\
-                        libignition-msgs3-dev \\
-                        libignition-plugin-dev \\
-                        libignition-rendering-dev"
-fi
 
 if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -eq 0 ]]; then
   IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
@@ -606,11 +578,7 @@ elif [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -eq 2 
 fi
 IGN_PHYSICS_DART_FROM_PKGS="true"
 
-IGN_PLUGIN_DEPENDENCIES="libignition-cmake1-dev"
-if [[ ${DISTRO} != 'xenial' ]]; then
-  IGN_PLUGIN_DEPENDENCIES="${IGN_PLUGIN_DEPENDENCIES} \\
-                           libignition-cmake2-dev"
-fi
+IGN_PLUGIN_DEPENDENCIES="libignition-cmake2-dev"
 
 IGN_LAUNCH_COMMON_DEPENDENCIES="libignition-cmake2-dev \\
                          libignition-common3-dev \\
