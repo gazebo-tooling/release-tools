@@ -328,6 +328,38 @@ all_branches.each { branch ->
   }
 }
 
+// 3. install jobs to test bottles
+sdformat_supported_branches.each { branch ->
+  def install_default_job = job("${branch}-install_bottle-homebrew-amd64")
+  OSRFBrewInstall.create(install_default_job)
+
+  install_default_job.with
+  {
+    triggers {
+      cron('@daily')
+    }
+
+    steps {
+     shell("""\
+           #!/bin/bash -xe
+
+           /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${branch}
+           """.stripIndent())
+    }
+
+    publishers
+    {
+       configure { project ->
+         project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+            unstableOnWarning true
+            failBuildOnError false
+            parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+          }
+       }
+    }
+  }
+}
+
 // --------------------------------------------------------------
 // WINDOWS: CI job
 
