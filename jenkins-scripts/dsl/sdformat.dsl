@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def sdformat_supported_branches = [ 'sdformat4', 'sdformat6' , 'sdformat9', 'sdformat10', 'sdformat11' ]
+def sdformat_supported_branches = [ 'sdformat6' , 'sdformat9', 'sdformat10', 'sdformat11' ]
 def sdformat_gz11_branches = [ 'sdformat9', 'sdformat10', 'sdformat11', 'main' ]
 // nightly and prereleases
 def extra_sdformat_debbuilder = [ 'sdformat12' ]
@@ -357,9 +357,6 @@ all_branches.each { branch ->
       triggers {
         scm('@daily')
       }
-
-      if (branch == 'sdformat4')
-        disabled()
 
       steps {
         batchFile("""\
