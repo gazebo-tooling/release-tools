@@ -34,7 +34,7 @@ ignition_branches           = [ 'cmake'      : [ '2' ],
                                 'gazebo'     : [ '3', '4', '5' ],
                                 'gui'        : [ '0', '3', '4', '5' ],
                                 'launch'     : [ '2', '3', '4' ],
-                                'math'       : [ '2', '4', '6' ],
+                                'math'       : [ '4', '6' ],
                                 'msgs'       : [ '1', '5', '6', '7' ],
                                 'physics'    : [ '2', '3', '4' ],
                                 'plugin'     : [ '1' ],
@@ -369,10 +369,6 @@ ignition_software.each { ign_sw ->
   supported_arches.each { arch ->
     supported_install_pkg_branches(ign_sw).each { major_version, supported_distros ->
       supported_distros.each { distro ->
-        // no bionic for math2 or math3
-        if (("${distro}" == "bionic") && (
-            (("${ign_sw}" == "math") && ("${major_version}" == "2"))))
-          return
         // no xenial support for cmake2 and things that use it
         if (("${distro}" == "xenial") && (
             (("${ign_sw}" == "cmake")      && ("${major_version}" == "2")) ||

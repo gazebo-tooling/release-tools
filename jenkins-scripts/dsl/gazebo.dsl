@@ -1,14 +1,13 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def gazebo_supported_branches = [ 'gazebo7', 'gazebo9', 'gazebo10', 'gazebo11' ]
+def gazebo_supported_branches = [ 'gazebo9', 'gazebo11' ]
 def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
 // nightly_gazebo_branch is not the branch used to get the code from but
 // the one used to generate the corresponding debbuild job.
-def nightly_gazebo_branch = [ 'gazebo10' ]
+def nightly_gazebo_branch = [ 'gazebo11' ]
 // testing official packages without osrf repo
-def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9',
-                                         'xenial' : 'gazebo7']
+def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9' ]
 
 // Main platform using for quick CI
 def ci_distro_default       = [ 'bionic' ]
@@ -37,7 +36,7 @@ String abi_job_name = ''
 boolean is_watched_by_buildcop(branch, distro = 'xenial', gpu = 'nvidia')
 
 {
-  if (branch == 'master' || branch == 'gazebo7' || branch == 'gazebo9' || branch == 'gazebo10' || branch == 'gazebo11')
+  if (branch == 'master' || branch == 'gazebo9' || branch == 'gazebo11')
     return true
 
   return false
@@ -552,9 +551,6 @@ all_branches.each { branch ->
 
   gazebo_brew_ci_job.with
   {
-      if (("${branch}" == "gazebo7"))
-        disabled()
-
       label osx_label
 
       triggers {
@@ -591,7 +587,7 @@ all_branches.each { branch ->
   }
 
 // 2. default / @ SCM/Daily
-all_branches = gazebo_supported_branches + 'master' - 'gazebo7'
+all_branches = gazebo_supported_branches
 all_branches.each { branch ->
   def gazebo_win_ci_job = job("gazebo-ci-${branch}-windows7-amd64")
   OSRFWinCompilation.create(gazebo_win_ci_job)
