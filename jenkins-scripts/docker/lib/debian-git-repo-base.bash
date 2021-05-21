@@ -25,6 +25,9 @@ if [[ -z ${BRANCH} ]]; then
 fi
 
 RUN_AUTOPKGTEST=${RUN_AUTOPKGTEST:-true}
+# For some reason ARCH seems not be available at this point, even it should be
+# added in boilerplate_prepare. Safety check here.
+ARCH=${ARCH:-amd64}
 
 cat > build.sh << DELIM
 ###################################################
