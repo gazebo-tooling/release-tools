@@ -26,7 +26,7 @@ set WORKSPACE_INSTALL_DIR=%LOCAL_WS%\install
 mkdir %WORKSPACE_INSTALL_DIR%
 
 echo # BEGIN SECTION: downloading gazebo dependencies and unip
-call %win_lib% :download_7za
+call %win_lib% :download_7za || goto :error
 call %win_lib% :download_unzip_install dlfcn-win32-vc15-x64-dll-MD.zip
 call %win_lib% :download_unzip_install curl-7.57.0-vc15-x64-dll-MD.zip
 call %win_lib% :download_unzip_install protobuf-3.4.1-vc15-x64-dll-MD.zip
