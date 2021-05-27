@@ -66,7 +66,7 @@ class Globals
 
    static ArrayList get_abi_distro()
    {
-     return [ 'bionic' ]
+     return [ 'xenial' ]
    }
 
    static ArrayList get_ci_gpu()
