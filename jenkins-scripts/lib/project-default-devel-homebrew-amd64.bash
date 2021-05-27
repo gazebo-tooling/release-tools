@@ -116,7 +116,9 @@ if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name
 fi
 # Workaround for tbb@2020_u3: set CPATH
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'tbb@2020_u3' }.empty?"; then
+  export CMAKE_PREFIX_PATH=${CPATH}:/usr/local/opt/tbb@2020_u3
   export CPATH=${CPATH}:/usr/local/opt/tbb@2020_u3/include
+  export LIBRARY_PATH=${CPATH}:/usr/local/opt/tbb@2020_u3/lib
 fi
 # Workaround for tinyxml2 6.2.0: set CMAKE_PREFIX_PATH and PKG_CONFIG_PATH if we are using tinyxml2@6.2.0
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'tinyxml2@6.2.0' }.empty?"; then
