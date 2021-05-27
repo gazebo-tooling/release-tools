@@ -45,19 +45,6 @@ cat > build.sh << DELIM
 #
 set -ex
 
-# Bug in gcc5 with eigen see: https://github.com/ignition-tooling/release-tools/issues/147
-if [[ "${USE_GCC6}" -gt 0 || -z "${USE_GCC6}" ]]; then
-  apt-get update
-  apt-get install -y software-properties-common
-  add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  apt-get update
-  apt-get install -y gcc-6 g++-6
-  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 10
-  update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 10
-  update-alternatives --config gcc
-  update-alternatives --config g++
-fi
-
 if [ `expr length "${ABI_JOB_PRECHECKER_HOOK} "` -gt 1 ]; then
 echo '# BEGIN SECTION: running pre ABI hook'
 ${ABI_JOB_PREABI_HOOK}
