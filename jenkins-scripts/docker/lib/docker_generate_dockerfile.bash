@@ -215,14 +215,18 @@ RUN echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/main ${DISTRO} main
                                                  /etc/apt/sources.list.d/ros2-latest.list
 RUN echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/testing ${DISTRO} main" > \\
                                                  /etc/apt/sources.list.d/ros2-testing.list
-RUN curl http://repo.ros2.org/repos.key | apt-key add -
+# Backup command for https://discourse.ros.org/t/ros-gpg-key-expiration-incident/20669
+RUN curl http://repo.ros2.org/repos.key | apt-key add - || \\
+    curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 DELIM_ROS_REPO
   else
 cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
 RUN echo "deb http://packages.ros.org/${ROS_REPO_NAME}/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+# Backup command for https://discourse.ros.org/t/ros-gpg-key-expiration-incident/20669
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F42ED6FBAB17C654 || \\
+    curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
 DELIM_ROS_REPO
 # Need ros stable for the cases of ros-testing
 if [[ ${ROS_REPO_NAME} != "ros" ]]; then
