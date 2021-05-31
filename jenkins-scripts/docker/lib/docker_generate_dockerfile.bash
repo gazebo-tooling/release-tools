@@ -211,9 +211,9 @@ ENV RTI_NC_LICENSE_ACCEPTED=yes
 RUN apt-get ${APT_PARAMS} update \\
     && apt-get install -y curl \\
     && rm -rf /var/lib/apt/lists/*
-RUN echo "deb [arch=amd64,arm64] signed-by=/usr/share/keyrings/ros-archive-keyring.gpg http://repo.ros2.org/ubuntu/main ${DISTRO} main" > \\
+RUN echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://repo.ros2.org/ubuntu/main ${DISTRO} main" > \\
          /etc/apt/sources.list.d/ros2-latest.list
-RUN echo "deb [arch=amd64,arm64] signed-by=/usr/share/keyrings/ros-archive-keyring.gpg http://repo.ros2.org/ubuntu/testing ${DISTRO} main" > \\ 
+RUN echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://repo.ros2.org/ubuntu/testing ${DISTRO} main" > \\ 
         /etc/apt/sources.list.d/ros2-testing.list
 RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 DELIM_ROS_REPO
