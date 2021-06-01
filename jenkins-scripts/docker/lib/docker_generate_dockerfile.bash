@@ -211,18 +211,18 @@ ENV RTI_NC_LICENSE_ACCEPTED=yes
 RUN apt-get ${APT_PARAMS} update \\
     && apt-get install -y curl \\
     && rm -rf /var/lib/apt/lists/*
-RUN echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/main ${DISTRO} main" > \\
-                                                 /etc/apt/sources.list.d/ros2-latest.list
-RUN echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/testing ${DISTRO} main" > \\
-                                                 /etc/apt/sources.list.d/ros2-testing.list
-RUN curl http://repo.ros2.org/repos.key | apt-key add -
+RUN echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://repo.ros2.org/ubuntu/main ${DISTRO} main" > \\
+         /etc/apt/sources.list.d/ros2-latest.list
+RUN echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://repo.ros2.org/ubuntu/testing ${DISTRO} main" > \\ 
+        /etc/apt/sources.list.d/ros2-testing.list
+RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 DELIM_ROS_REPO
   else
 cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
 RUN echo "deb http://packages.ros.org/${ROS_REPO_NAME}/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F42ED6FBAB17C654
 DELIM_ROS_REPO
 # Need ros stable for the cases of ros-testing
 if [[ ${ROS_REPO_NAME} != "ros" ]]; then
