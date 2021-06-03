@@ -53,7 +53,7 @@ do
         if [[ $ARCH == "i386" && $VER == "focal" ]]; then
           PKG_VERSION="disabled"
         else
-	  PKG_VERSION=$(wget -qO- http://packages.osrfoundation.org/gazebo/${DISTRO}-stable/dists/${VER}/main/binary-${ARCH}/Packages | grep -1 "Source: ${LIB}" | sed -n 's/^Version: \(.*\)/\1/p' | uniq)
+	    PKG_VERSION=$(wget -qO- http://packages.osrfoundation.org/gazebo/${DISTRO}-stable/dists/${VER}/main/binary-${ARCH}/Packages | grep -1 "Source: ${LIB}" | sed -n 's/^Version: \(.*\)/\1/p' | uniq)
 	fi
 
 	if [[ -z ${PKG_VERSION} ]]; then
