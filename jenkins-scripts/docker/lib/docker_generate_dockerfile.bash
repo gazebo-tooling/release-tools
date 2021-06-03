@@ -68,6 +68,7 @@ case ${LINUX_DISTRO} in
     export DEPENDENCY_PKGS="locales ${DEPENDENCY_PKGS}"
     ;;
   'debian')
+    SOURCE_LIST_URL="http://ftp.us.debian.org/debian"
     # debian does not ship locales by default
     export DEPENDENCY_PKGS="locales ${DEPENDENCY_PKGS}"
     ;;
@@ -140,8 +141,7 @@ fi
 if [[ ${LINUX_DISTRO} == 'debian' ]]; then
 cat >> Dockerfile << DELIM_DEBIAN_APT
   RUN sed -i -e 's:httpredir:ftp.us:g' /etc/apt/sources.list
-  RUN echo "deb-src http://ftp.us.debian.org/debian ${DISTRO} main" \\
-                                                         >> /etc/apt/sources.list
+  RUN echo "deb-src ${SOURCE_LIST_URL} ${DISTRO} main" >> /etc/apt/sources.list
 DELIM_DEBIAN_APT
 fi
 
@@ -166,6 +166,14 @@ cat >> Dockerfile << DELIM_DOCKER_I386_APT
 RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} restricted universe" \\
                                                        >> /etc/apt/sources.list
 DELIM_DOCKER_I386_APT
+fi
+
+# Workaround for: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=932019
+if [[ ${DISTRO} == 'buster' ]]; then
+cat >> Dockerfile << DELIM_BUSTER_DWZ
+RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO}-backports main" \\
+                                                       >> /etc/apt/sources.list
+DELIM_BUSTER_DWZ
 fi
 
 # Workaround for: https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1325142
@@ -203,18 +211,18 @@ ENV RTI_NC_LICENSE_ACCEPTED=yes
 RUN apt-get ${APT_PARAMS} update \\
     && apt-get install -y curl \\
     && rm -rf /var/lib/apt/lists/*
-RUN echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/main ${DISTRO} main" > \\
-                                                 /etc/apt/sources.list.d/ros2-latest.list
-RUN echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/testing ${DISTRO} main" > \\
-                                                 /etc/apt/sources.list.d/ros2-testing.list
-RUN curl http://repo.ros2.org/repos.key | apt-key add -
+RUN echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://repo.ros2.org/ubuntu/main ${DISTRO} main" > \\
+         /etc/apt/sources.list.d/ros2-latest.list
+RUN echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://repo.ros2.org/ubuntu/testing ${DISTRO} main" > \\ 
+        /etc/apt/sources.list.d/ros2-testing.list
+RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 DELIM_ROS_REPO
   else
 cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
 RUN echo "deb http://packages.ros.org/${ROS_REPO_NAME}/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F42ED6FBAB17C654
 DELIM_ROS_REPO
 # Need ros stable for the cases of ros-testing
 if [[ ${ROS_REPO_NAME} != "ros" ]]; then

@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def sdformat_supported_branches = [ 'sdformat4', 'sdformat6' , 'sdformat9', 'sdformat10', 'sdformat11' ]
+def sdformat_supported_branches = [ 'sdformat6' , 'sdformat9', 'sdformat10', 'sdformat11' ]
 def sdformat_gz11_branches = [ 'sdformat9', 'sdformat10', 'sdformat11', 'main' ]
 // nightly and prereleases
 def extra_sdformat_debbuilder = [ 'sdformat12' ]
@@ -328,6 +328,38 @@ all_branches.each { branch ->
   }
 }
 
+// 3. install jobs to test bottles
+sdformat_supported_branches.each { branch ->
+  def install_default_job = job("${branch}-install_bottle-homebrew-amd64")
+  OSRFBrewInstall.create(install_default_job)
+
+  install_default_job.with
+  {
+    triggers {
+      cron('@daily')
+    }
+
+    steps {
+     shell("""\
+           #!/bin/bash -xe
+
+           /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${branch}
+           """.stripIndent())
+    }
+
+    publishers
+    {
+       configure { project ->
+         project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+            unstableOnWarning true
+            failBuildOnError false
+            parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+          }
+       }
+    }
+  }
+}
+
 // --------------------------------------------------------------
 // WINDOWS: CI job
 
@@ -357,9 +389,6 @@ all_branches.each { branch ->
       triggers {
         scm('@daily')
       }
-
-      if (branch == 'sdformat4')
-        disabled()
 
       steps {
         batchFile("""\

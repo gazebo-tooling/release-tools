@@ -34,7 +34,7 @@ ignition_branches           = [ 'cmake'      : [ '2' ],
                                 'gazebo'     : [ '3', '4', '5' ],
                                 'gui'        : [ '0', '3', '4', '5' ],
                                 'launch'     : [ '2', '3', '4' ],
-                                'math'       : [ '2', '4', '6' ],
+                                'math'       : [ '4', '6' ],
                                 'msgs'       : [ '1', '5', '6', '7' ],
                                 'physics'    : [ '2', '3', '4' ],
                                 'plugin'     : [ '1' ],
@@ -100,6 +100,15 @@ abi_job_names = [:]
 
 Globals.extra_emails = "caguero@osrfoundation.org"
 
+// shell command to inject in all bash steps
+GLOBAL_SHELL_CMD=''
+
+// Fortress release needed to invalidate cache to solve problem with bug in
+// gzdev docker installation. Will be disable automatically in 1st May 2021
+today = new Date().format( 'yyyyMMdd' )
+if (today.compareTo('20210501')) {
+  GLOBAL_SHELL_CMD='export INVALIDATE_DOCKER_CACHE=true'
+}
 
 String ci_distro_str = ci_distro[0]
 
@@ -292,6 +301,8 @@ ignition_software.each { ign_sw ->
                   export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
                 fi
 
+                ${GLOBAL_SHELL_CMD}
+
                 export ARCH=${arch}
                 export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
                 export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
@@ -335,6 +346,8 @@ ignition_software.each { ign_sw ->
                 export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
               fi
 
+              ${GLOBAL_SHELL_CMD}
+
               export ARCH=${arch}
 
               /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
@@ -356,33 +369,22 @@ ignition_software.each { ign_sw ->
   supported_arches.each { arch ->
     supported_install_pkg_branches(ign_sw).each { major_version, supported_distros ->
       supported_distros.each { distro ->
-        // no bionic for math2 or math3
-        if (("${distro}" == "bionic") && (
-            (("${ign_sw}" == "math") && ("${major_version}" == "2"))))
-          return
         // no xenial support for cmake2 and things that use it
         if (("${distro}" == "xenial") && (
             (("${ign_sw}" == "cmake")      && ("${major_version}" == "2")) ||
-            (("${ign_sw}" == "common")     && ("${major_version}" == "3")) ||
-            (("${ign_sw}" == "fuel-tools") &&
-              (("${major_version}" == "3") || ("${major_version}" == "4") ||
-               ("${major_version}" == "5"))) ||
+            (("${ign_sw}" == "common")     && ("${major_version}" != "1")) ||
+            (("${ign_sw}" == "fuel-tools") && ("${major_version}" != "1")) ||
              ("${ign_sw}" == "gazebo")     ||
              ("${ign_sw}" == "gui")        ||
              ("${ign_sw}" == "launch")     ||
             (("${ign_sw}" == "math")       && ("${major_version}" == "6")) ||
-            (("${ign_sw}" == "msgs")       &&
-              (("${major_version}" == "2") || ("${major_version}" == "3") ||
-               ("${major_version}" == "4") || ("${major_version}" == "5") ||
-               ("${major_version}" == "6"))) ||
+            (("${ign_sw}" == "msgs")       && ("${major_version}" != "1")) ||
              ("${ign_sw}" == "physics")    ||
              ("${ign_sw}" == "plugin")     ||
              ("${ign_sw}" == "rendering")  ||
              ("${ign_sw}" == "sensors")    ||
-            (("${ign_sw}" == "transport")  &&
-              (("${major_version}" == "6") || ("${major_version}" == "7") ||
-               ("${major_version}" == "8") || ("${major_version}" == "9")))) ||
-             ("${ign_sw}" == "utils"))
+            (("${ign_sw}" == "transport")  && ("${major_version}" != "4")) ||
+             ("${ign_sw}" == "utils")))
           return
 
         extra_repos_str=""
@@ -413,6 +415,8 @@ ignition_software.each { ign_sw ->
           steps {
            shell("""\
                  #!/bin/bash -xe
+
+                 ${GLOBAL_SHELL_CMD}
 
                  export DISTRO=${distro}
                  export ARCH=${arch}
@@ -451,43 +455,28 @@ ignition_software.each { ign_sw ->
           if (("${distro}" == "xenial") && (
               ("${ign_sw}" == "cmake" && "${branch}" == "ign-cmake2") ||
               ("${ign_sw}" == "cmake" && "${branch}" == "main") ||
-              ("${ign_sw}" == "common" && "${branch}" == "main") ||
-              ("${ign_sw}" == "common" && "${branch}" == "ign-common3") ||
+              ("${ign_sw}" == "common" && "${branch}" != "ign-common1") ||
               ("${ign_sw}" == "fuel-tools" && "${branch}" != "ign-fuel-tools1") ||
               ("${ign_sw}" == "gazebo") ||
               ("${ign_sw}" == "gui") ||
               ("${ign_sw}" == "launch") ||
               ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
               ("${ign_sw}" == "math" && "${branch}" == "main") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs2") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs3") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs4") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs5") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs6") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs7") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "main") ||
+              ("${ign_sw}" == "msgs" && "${branch}" != "ign-msgs1") ||
               ("${ign_sw}" == "physics") ||
-              ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
-              ("${ign_sw}" == "rendering" && "${branch}" != "ign-rendering0") ||
+              ("${ign_sw}" == "plugin") ||
+              ("${ign_sw}" == "rendering") ||
               ("${ign_sw}" == "sensors") ||
               ("${ign_sw}" == "tools") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport6") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport7") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport8") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport9") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport10") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "main") ||
+              ("${ign_sw}" == "transport" && "${branch}" != "ign-transport4") ||
               ("${ign_sw}" == "utils")))
-            disabled()
-
-          // gz11 branches don't work on xenial
-          if (("${branch}" == "gz11") && ("${distro}" == "xenial"))
             disabled()
 
           steps {
             shell("""\
                   #!/bin/bash -xe
 
+                  ${GLOBAL_SHELL_CMD}
                   export DISTRO=${distro}
                   export ARCH=${arch}
                   /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
@@ -515,6 +504,7 @@ all_debbuilders().each { debbuilder_name ->
         shell("""\
               #!/bin/bash -xe
 
+              ${GLOBAL_SHELL_CMD}
               ${extra_str}
               /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
               """.stripIndent())
@@ -589,13 +579,7 @@ ignition_software.each { ign_sw ->
     install_default_job.with
     {
       // disable some bottles
-      if (("${ign_sw}" == "cmake" && "${major_version}" == "1") ||
-          ("${ign_sw}" == "common" && "${major_version}" == "2") ||
-          ("${ign_sw}" == "fuel-tools" && "${major_version}" == "2") ||
-          ("${ign_sw}" == "gui" && "${major_version}" == "0") ||
-          ("${ign_sw}" == "math" && "${major_version}" == "5") ||
-          ("${ign_sw}" == "msgs" && "${major_version}" == "2") ||
-          ("${ign_sw}" == "transport" && "${major_version}" == "5"))
+      if (("${ign_sw}" == "gui" && "${major_version}" == "0"))
         disabled()
 
       triggers {
@@ -643,9 +627,9 @@ ignition_software.each { ign_sw ->
   }
 
   supported_branches = []
-     // ign-gazebo only support windows on main branch
+     // ign-gazebo only support Windows from ign-gazebo5
      if (ign_sw == 'gazebo')
-       supported_branches = [ 'main' ]
+       supported_branches = [ 'ign-gazebo5', 'main' ]
 
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAnyGitHub.create(ignition_win_ci_any_job,
@@ -690,8 +674,8 @@ ignition_software.each { ign_sw ->
 
     ignition_win_ci_job.with
     {
-        // ign-gazebo only works in main by now (ign-gazebo5)
-        if (ign_sw == 'gazebo' && branch != 'main')
+        // ign-gazebo only works on Windows from ign-gazebo5
+        if (branch == 'ign-gazebo3' || branch == 'ign-gazebo4')
           disabled()
 
         // ign-launch still not ported completely to Windows
