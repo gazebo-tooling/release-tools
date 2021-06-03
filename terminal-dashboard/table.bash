@@ -8,7 +8,7 @@ LIBS=(
   "ignition-common4"
   "ignition-msgs7"
   "ignition-transport10"
-  "ignition-fuel-tools5"
+  "ignition-fuel-tools6"
   "ignition-plugin"
   "ignition-rendering5"
   "ignition-physics4"
