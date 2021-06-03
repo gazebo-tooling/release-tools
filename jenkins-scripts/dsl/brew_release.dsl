@@ -60,7 +60,7 @@ release_job.with
    String PR_URL_export_file_name = 'pull_request_created.properties'
    String PR_URL_export_file = '${WORKSPACE}/' + PR_URL_export_file_name
 
-   label "master"
+   label "osx"
 
    wrappers {
         preBuildCleanup()
