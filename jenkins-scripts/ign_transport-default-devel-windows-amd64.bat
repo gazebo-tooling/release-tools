@@ -6,7 +6,7 @@ set VCS_DIRECTORY=ign-transport
 set PLATFORM_TO_BUILD=amd64
 set IGN_CLEAN_WORKSPACE=true
 
-set DEPEN_PKGS="cppzmq dlfcn-win32 protobuf sqlite3 tinyxml2 zeromq"
+set DEPEN_PKGS=cppzmq dlfcn-win32 protobuf sqlite3 tinyxml2 zeromq
 set COLCON_PACKAGE=ignition-transport
 set COLCON_AUTO_MAJOR_VERSION=true
 
