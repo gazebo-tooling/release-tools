@@ -27,6 +27,8 @@ for t in $(HOMEBREW_NO_AUTO_UPDATE=1 \
           ${BREW_BINARY} tap 2>/dev/null \
           | grep '^[^/]\+/[^/]\+$' \
           | grep -v '^homebrew/core$'); do
+  # workaround to avoid problems uninstall cask for xquartz installation
+  [[ ${t} == 'caskroom/cask' ]] && continue
   ${BREW_BINARY} untap $t
 done
 brew cleanup --prune-prefix
