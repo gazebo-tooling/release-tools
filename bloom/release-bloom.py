@@ -18,6 +18,7 @@ UBUNTU_DISTROS_IN_ROS = {'kinetic': ['xenial'],
 UBUNTU_DISTROS_IN_ROS2 = {'dashing': ['bionic'],
                           'eloquent': ['bionic'],
                           'foxy': ['focal'],
+                          'galactic': ['focal'],
                           'rolling': ['focal']}
 DRY_RUN = False
 
