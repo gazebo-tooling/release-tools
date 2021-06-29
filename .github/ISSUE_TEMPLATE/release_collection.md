@@ -1,6 +1,6 @@
 ---
 name: Release collection
-about: Checklist when releating a new collection
+about: Checklist when releasing a new collection
 title: "Release [COLLECTION]"
 ---
 

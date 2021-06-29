@@ -14,9 +14,8 @@ UBUNTU_ARCHS = ['amd64']
 # not releasing for precise by default
 UBUNTU_DISTROS_IN_ROS = {'melodic': ['bionic'],
                          'noetic': ['focal']}
-UBUNTU_DISTROS_IN_ROS2 = {'dashing': ['bionic'],
-                          'eloquent': ['bionic'],
-                          'foxy': ['focal'],
+UBUNTU_DISTROS_IN_ROS2 = {'foxy': ['focal'],
+                          'galactic': ['focal'],
                           'rolling': ['focal']}
 DRY_RUN = False
 

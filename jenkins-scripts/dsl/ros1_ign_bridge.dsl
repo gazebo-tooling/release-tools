@@ -40,7 +40,7 @@ bridge_packages.each { pkg ->
         stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
         stringParam("DISTRO", "bionic", "Linux release inside LINUX_DISTRO to build packages for")
         stringParam("ARCH", "amd64", "Architecture to build packages for")
-        stringParam('ROS_DISTRO', 'bionic','ROS DISTRO to build pakcages for')
+        stringParam('ROS_DISTRO', 'noetic','ROS DISTRO to build pakcages for')
         stringParam("UPLOAD_TO_REPO", 'stable', "OSRF repo name to upload the package to")
         stringParam('UPSTREAM_RELEASE_REPO', 'https://github.com/ignition-release/ros1_ign_bridge-release', 'Release repository url')
     }
