@@ -82,26 +82,18 @@ if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
     SDFORMAT_MAJOR_VERSION=6
 fi
 
-if [[ ${SDFORMAT_MAJOR_VERSION} -ge 8 ]]; then
-    # sdformat8/9 requires ignition-math6 and
+if [[ ${SDFORMAT_MAJOR_VERSION} -ge 9 ]]; then
+    # sdformat9 requires ignition-math6 and
     # uses ignition-tools for a test
     SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
                                 libignition-math6-dev           \\
                                 libignition-tools-dev"
-elif [[ ${SDFORMAT_MAJOR_VERSION} -ge 6 ]]; then
+elif [[ ${SDFORMAT_MAJOR_VERSION} -eq 6 ]]; then
     # sdformat6 requires ignition-math4 and
     # uses ignition-tools for a test
     SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
                                 libignition-math4-dev           \\
                                 libignition-tools-dev"
-elif [[ ${SDFORMAT_MAJOR_VERSION} -ge 5 ]]; then
-    # sdformat5 requires ignition-math3
-    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
-                                libignition-math3-dev"
-elif [[ ${SDFORMAT_MAJOR_VERSION} -ge 3 ]]; then
-    # sdformat3 requires ignition-math2
-    SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
-                                libignition-math2-dev"
 else
     SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES}"
 fi
@@ -123,16 +115,10 @@ elif [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
     sdformat_pkg="libsdformat9-dev"
 elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
     sdformat_pkg="libsdformat6-dev"
-elif [[ ${GAZEBO_MAJOR_VERSION} -ge 7 ]]; then
-    sdformat_pkg="libsdformat4-dev"
 fi
 
-# Old versions used libogre-dev
-ogre_pkg="libogre-1.9-dev"
-if [[ ${IGN_RENDERING_MAJOR_VERSION} -ge 1 ]]; then
-    # support for both ogre-1.9 and ogre-2.1 was added in ign-rendering1
-    ogre_pkg="libogre-1.9-dev libogre-2.1-dev"
-fi
+# support for both ogre-1.9 and ogre-2.1 was added in ign-rendering1
+ogre_pkg="libogre-1.9-dev libogre-2.1-dev"
 
 # Starting from utopic, we are using the bullet provided by ubuntu
 bullet_pkg="libbullet-dev"
@@ -176,12 +162,6 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
                             libsimbody-dev                   \\
                             ${dart_pkg}"
 
-  if [[ ${GAZEBO_MAJOR_VERSION} -eq 7 ]]; then
-      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                                libboost-signals-dev \\
-                                libignition-transport-dev"
-  fi
-
   if [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
       GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                                            libignition-common3-dev \\
@@ -219,8 +199,7 @@ else
                             protobuf-compiler        \\
                             ${pythonv}-protobuf      \\
                             libignition-common-dev   \\
-                            libignition-msgs-dev     \\
-                            libignition-transport3-dev"
+                            libignition-msgs-dev"
 fi
 
 
@@ -261,9 +240,6 @@ else
   fi
 
   case ${GAZEBO_VERSION_FOR_ROS} in
-    "2")
-      _GZ_ROS_PACKAGES="gazebo2"
-    ;;
      *)
       # both packages see  http://answers.ros.org/question/217970
       _GZ_ROS_PACKAGES="libgazebo${GAZEBO_VERSION_FOR_ROS}-dev \\
@@ -412,8 +388,7 @@ fi
 IGN_MATH_DEPENDENCIES="libeigen3-dev \\
                        ruby-dev \\
                        swig \\
-                       libignition-cmake-dev \\
-                       libignition-cmake1-dev"
+                       libignition-cmake-dev"
 if [[ ${DISTRO} != 'xenial' ]]; then
   IGN_MATH_DEPENDENCIES="${IGN_MATH_DEPENDENCIES} \\
                          libignition-cmake2-dev"
@@ -439,21 +414,12 @@ if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 4 ]]; then
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                 libignition-cmake-dev \\
                                 libignition-msgs-dev"
-elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 6 ]]; then
-    export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
-                                  libignition-cmake2-dev \\
-                                  libignition-msgs3-dev \\
-                                  libsqlite3-dev \\
-                                  ruby-ffi"
 elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 8 ]]; then
     export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
                                   libignition-cmake2-dev \\
                                   libignition-msgs5-dev \\
                                   libsqlite3-dev \\
                                   ruby-ffi"
-else
-    export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
-                                libignition-msgs0-dev"
 fi
 
 export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} libignition-tools-dev"
@@ -474,7 +440,6 @@ IGN_COMMON_NO_IGN_DEPENDENCIES="pkg-config     \\
 
 IGN_COMMON_DEPENDENCIES="${IGN_COMMON_NO_IGN_DEPENDENCIES} \\
                      libignition-cmake-dev \\
-                     libignition-cmake1-dev \\
                      libignition-math4-dev"
 if [[ ${DISTRO} != 'xenial' ]]; then
   IGN_COMMON_DEPENDENCIES="${IGN_COMMON_DEPENDENCIES} \\
@@ -493,7 +458,7 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                            libignition-common3-dev"
 fi
 
-if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -le 2 ]]; then
+if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -eq 1 ]]; then
   IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
                                libignition-cmake-dev  \\
                                libignition-common-dev"
@@ -518,18 +483,11 @@ IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
                        ruby                  \\
                        ruby-dev"
 
-if [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -le 0 ]]; then
-    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
-                           libignition-math3-dev"
-elif [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -eq 1 ]]; then
+if [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -eq 1 ]]; then
     IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
                            libignition-cmake-dev \\
                            libignition-math4-dev"
-elif [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -eq 2 ]]; then
-    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
-                           libignition-cmake1-dev \\
-                           libignition-math6-dev"
-elif [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -ge 3 ]]; then
+elif [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -ge 5 ]]; then
     IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
                            libignition-cmake2-dev \\
                            libignition-math6-dev"
@@ -566,14 +524,7 @@ if [[ ${DISTRO} != 'xenial' ]]; then
                         libignition-cmake2-dev \\
                         libignition-common3-dev \\
                         libignition-math6-dev \\
-                        libignition-msgs3-dev \\
-                        libignition-plugin-dev \\
-                        libignition-rendering-dev"
-fi
-
-if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -eq 0 ]]; then
-  IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
-                        libignition-rendering2-dev"
+                        libignition-plugin-dev"
 fi
 
 if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 4 ]]; then
@@ -606,7 +557,7 @@ elif [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -eq 2 
 fi
 IGN_PHYSICS_DART_FROM_PKGS="true"
 
-IGN_PLUGIN_DEPENDENCIES="libignition-cmake1-dev"
+IGN_PLUGIN_DEPENDENCIES=""
 if [[ ${DISTRO} != 'xenial' ]]; then
   IGN_PLUGIN_DEPENDENCIES="${IGN_PLUGIN_DEPENDENCIES} \\
                            libignition-cmake2-dev"
@@ -663,7 +614,6 @@ IGN_RENDERING_DEPENDENCIES="${IGN_RENDERING_NO_IGN_DEPENDENCIES} \\
 IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
                           libignition-cmake2-dev \\
                           libignition-math6-dev      \\
-                          libignition-msgs3-dev       \\
                           libignition-plugin-dev  \\
                           libignition-tools-dev"
 if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 4 ]]; then
@@ -704,9 +654,6 @@ elif [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -eq 3 ]]
                         libignition-transport8-dev \\
                         libsdformat9-dev"
 fi
-
-IGN_RNDF_DEPENDENCIES="libignition-cmake-dev \\
-                       libignition-math4-dev"
 
 IGN_UTILS_DEPENDENCIES="libignition-cmake2-dev"
 
