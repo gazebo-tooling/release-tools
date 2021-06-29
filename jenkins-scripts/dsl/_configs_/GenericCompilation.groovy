@@ -5,7 +5,7 @@ import javaposse.jobdsl.dsl.Job
 /*
   Implements:
     - priority 300
-    - keep only 15 builds
+    - keep only 75 builds
     - mail with test results
 */
 class GenericCompilation
@@ -46,7 +46,7 @@ class GenericCompilation
         }
 
         logRotator {
-          numToKeep(15)
+          numToKeep(75)
         }
 
         if (enable_testing)
