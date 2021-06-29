@@ -102,9 +102,3 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
     [[ -d ${PACKAGE_DIR} ]] && sudo chown -R jenkins ${PACKAGE_DIR}
     sudo chown jenkins -R ${WORKSPACE}/build/
 fi
-
-# workaround for subt.
-# TODO: investigate what is subt doing with permissions on checkout directory
-if [[ -d "${WORKSPACE}/subt" ]]; then
-   sudo chown -R jenkins "${WORKSPACE}/subt"
-fi
