@@ -212,9 +212,6 @@ else
   # default versions for every ROS distribution
   if [[ -z ${GAZEBO_VERSION_FOR_ROS} ]]; then
     case ${ROS_DISTRO} in
-      kinetic)
-        GAZEBO_VERSION_FOR_ROS="7"
-      ;;
       melodic)
         GAZEBO_VERSION_FOR_ROS="9"
       ;;
@@ -222,12 +219,6 @@ else
         GAZEBO_VERSION_FOR_ROS="11"
       ;;
       # ROS 2
-      dashing)
-        GAZEBO_VERSION_FOR_ROS="9"
-      ;;
-      eloquent)
-        GAZEBO_VERSION_FOR_ROS="9"
-      ;;
       foxy)
         GAZEBO_VERSION_FOR_ROS="11"
       ;;
@@ -320,12 +311,6 @@ else
                                   ros-${ROS_DISTRO}-transmission-interface  \\
                                   ros-${ROS_DISTRO}-urdf                    \\
                                   ros-${ROS_DISTRO}-xacro"
-
-    if [[ ${ROS_DISTRO} == 'kinetic' ]]; then
-       ROS_GAZEBO_PKGS_DEPENDENCIES="${ROS_GAZEBO_PKGS_DEPENDENCIES} \\
-                                     ros-${ROS_DISTRO}-ros-base \\
-                                     ros-${ROS_DISTRO}-pcl-ros"
-    fi
 
     ROS_GAZEBO_PKGS_EXAMPLE_DEPS="ros-${ROS_DISTRO}-xacro \\
                                  ${ROS_GAZEBO_PKGS_EXAMPLE_DEPS}"

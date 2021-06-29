@@ -84,7 +84,7 @@ if [ -z ${DISTRO} ]; then
 fi
 
 if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=kinetic
+  ROS_DISTRO=melodic
 fi
 
 if [ -z "${ROS2}" ]; then
