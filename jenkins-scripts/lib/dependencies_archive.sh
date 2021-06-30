@@ -492,9 +492,7 @@ IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
                       libignition-cmake2-dev \\
                       libignition-common3-dev \\
                       libignition-math6-dev \\
-                      libignition-msgs3-dev \\
                       libignition-plugin-dev \\
-                      libignition-rendering-dev \\
                       libignition-tools-dev"
 
 if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 4 ]]; then
