@@ -292,7 +292,7 @@ do_install() {
 
 			  if ! pkgutil --pkg-info org.macosforge.xquartz.pkg; then
 				echo "Installing XQuartz:"
-				brew install Caskroom/cask/xquartz
+				brew install homebrew/cask/xquartz
 				echo "XQuartz installation complete."
 				echo
 			  fi
