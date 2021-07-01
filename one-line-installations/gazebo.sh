@@ -291,10 +291,12 @@ do_install() {
 			  fi
 
 			  if ! pkgutil --pkg-info org.macosforge.xquartz.pkg; then
-				echo "Installing XQuartz:"
-				brew install homebrew/cask/xquartz
-				echo "XQuartz installation complete."
-				echo
+				if ! pkgutil --pkg-info org.xquartz.X11; then
+				  echo "Installing XQuartz:"
+				  brew install homebrew/cask/xquartz
+				  echo "XQuartz installation complete."
+				  echo
+				fi
 			  fi
 
 			  brew tap osrf/simulation
