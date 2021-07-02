@@ -26,6 +26,7 @@ hash -r
 for t in $(HOMEBREW_NO_AUTO_UPDATE=1 \
           ${BREW_BINARY} tap 2>/dev/null \
           | grep '^[^/]\+/[^/]\+$' \
+          | grep -v '^homebrew/cask$' \
           | grep -v '^homebrew/core$'); do
   ${BREW_BINARY} untap $t
 done
