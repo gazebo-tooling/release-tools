@@ -117,8 +117,10 @@ elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
     sdformat_pkg="libsdformat6-dev"
 fi
 
-# support for both ogre-1.9 and ogre-2.1 was added in ign-rendering1
-ogre_pkg="libogre-1.9-dev libogre-2.1-dev"
+ogre_pkg="libogre-1.9-dev"
+if [[ ${DISTRO} != 'xenial' ]]; then
+  ogre_pkg="libogre-1.9-dev libogre-2.1-dev"
+fi
 
 # Starting from utopic, we are using the bullet provided by ubuntu
 bullet_pkg="libbullet-dev"
