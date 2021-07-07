@@ -187,7 +187,7 @@ fi
 
 cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
 RUN apt-get ${APT_PARAMS} update && \\
-    apt-get install -y dirmngr git python3 python3-docopt python3-yaml python3-distro"
+    apt-get install -y dirmngr git python3 python3-docopt python3-yaml python3-distro
 DELIM_DOCKER_DIRMNGR
 
 # Install necessary repositories using gzdev
