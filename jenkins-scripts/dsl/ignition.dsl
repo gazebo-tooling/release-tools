@@ -639,7 +639,7 @@ ignition_software.each { ign_sw ->
   ignition_win_ci_any_job.with
   {
      // ign-launch still not ported completely to Windows
-     if (ign_sw == 'launch')
+     if (ign_sw == 'launch' && branch != 'main')
        disabled()
 
       steps {
@@ -679,7 +679,7 @@ ignition_software.each { ign_sw ->
           disabled()
 
         // ign-launch still not ported completely to Windows
-        if (ign_sw == 'launch')
+        if (ign_sw == 'launch' && branch != 'main')
           disabled()
 
         triggers {
