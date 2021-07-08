@@ -13,8 +13,7 @@ class Globals
 
    static CRON_EVERY_THREE_DAYS = 'H H * * H/3'
 
-   static gpu_by_distro  = [ xenial  : [ 'nvidia' ] ,
-                             bionic  : [ 'nvidia' ]]
+   static gpu_by_distro  = [ bionic  : [ 'nvidia' ]]
 
    static ros_ci = [ 'melodic'  : ['bionic'] ,
                      'noetic'   : ['focal'] ,
@@ -58,7 +57,7 @@ class Globals
    // Main CI platform
    static ArrayList get_ci_distro()
    {
-    return [ 'xenial' ]
+    return [ 'bionic' ]
    }
 
    static ArrayList get_abi_distro()

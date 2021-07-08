@@ -80,7 +80,7 @@ init_stopwatch CREATE_TESTING_ENVIROMENT
 
 # Default values - Provide them is prefered
 if [ -z ${DISTRO} ]; then
-    DISTRO=xenial
+    DISTRO=bionic
 fi
 
 if [ -z ${ROS_DISTRO} ]; then

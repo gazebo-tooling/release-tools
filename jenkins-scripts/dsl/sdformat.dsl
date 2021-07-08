@@ -129,10 +129,6 @@ abi_distro.each { distro ->
 
 // OTHER CI SUPPORTED JOBS (main branch) @ SCM/DAILY
 other_supported_distros.each { distro ->
-  // main doesn't support xenial anymore
-  if ("${distro}" == "xenial")
-    return
-
   supported_arches.each { arch ->
     // ci_main job for the rest of arches / scm@daily
     def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")

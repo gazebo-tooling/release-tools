@@ -369,24 +369,6 @@ ignition_software.each { ign_sw ->
   supported_arches.each { arch ->
     supported_install_pkg_branches(ign_sw).each { major_version, supported_distros ->
       supported_distros.each { distro ->
-        // no xenial support for cmake2 and things that use it
-        if (("${distro}" == "xenial") && (
-            (("${ign_sw}" == "cmake")      && ("${major_version}" == "2")) ||
-            (("${ign_sw}" == "common")     && ("${major_version}" != "1")) ||
-            (("${ign_sw}" == "fuel-tools") && ("${major_version}" != "1")) ||
-             ("${ign_sw}" == "gazebo")     ||
-             ("${ign_sw}" == "gui")        ||
-             ("${ign_sw}" == "launch")     ||
-            (("${ign_sw}" == "math")       && ("${major_version}" == "6")) ||
-            (("${ign_sw}" == "msgs")       && ("${major_version}" != "1")) ||
-             ("${ign_sw}" == "physics")    ||
-             ("${ign_sw}" == "plugin")     ||
-             ("${ign_sw}" == "rendering")  ||
-             ("${ign_sw}" == "sensors")    ||
-            (("${ign_sw}" == "transport")  && ("${major_version}" != "4")) ||
-             ("${ign_sw}" == "utils")))
-          return
-
         extra_repos_str=""
         if ((ign_sw in ignition_prerelease_pkgs) &&
            (major_version in ignition_prerelease_pkgs[ign_sw]) &&
@@ -450,27 +432,6 @@ ignition_software.each { ign_sw ->
           triggers {
             scm('@daily')
           }
-
-          // no xenial for ign-physics/sensors/gazebo or plugin main/ign-plugin1
-          if (("${distro}" == "xenial") && (
-              ("${ign_sw}" == "cmake" && "${branch}" == "ign-cmake2") ||
-              ("${ign_sw}" == "cmake" && "${branch}" == "main") ||
-              ("${ign_sw}" == "common" && "${branch}" != "ign-common1") ||
-              ("${ign_sw}" == "fuel-tools" && "${branch}" != "ign-fuel-tools1") ||
-              ("${ign_sw}" == "gazebo") ||
-              ("${ign_sw}" == "gui") ||
-              ("${ign_sw}" == "launch") ||
-              ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
-              ("${ign_sw}" == "math" && "${branch}" == "main") ||
-              ("${ign_sw}" == "msgs" && "${branch}" != "ign-msgs1") ||
-              ("${ign_sw}" == "physics") ||
-              ("${ign_sw}" == "plugin") ||
-              ("${ign_sw}" == "rendering") ||
-              ("${ign_sw}" == "sensors") ||
-              ("${ign_sw}" == "tools") ||
-              ("${ign_sw}" == "transport" && "${branch}" != "ign-transport4") ||
-              ("${ign_sw}" == "utils")))
-            disabled()
 
           steps {
             shell("""\

@@ -33,7 +33,7 @@ String ci_build_any_job_name_linux = "gazebo-ci-pr_any-ubuntu_auto-amd64-gpu-${c
 // Need to be used in ci_pr
 String abi_job_name = ''
 
-boolean is_watched_by_buildcop(branch, distro = 'xenial', gpu = 'nvidia')
+boolean is_watched_by_buildcop(branch, distro = 'bionic', gpu = 'nvidia')
 
 {
   if (branch == 'master' || branch == 'gazebo9' || branch == 'gazebo11')

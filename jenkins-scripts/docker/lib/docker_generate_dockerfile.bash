@@ -30,10 +30,6 @@ fi
 [[ -z ${NEED_C17_COMPILER} ]] && NEED_C17_COMPILER=false
 
 export APT_PARAMS=
-# workaround for changing our packages testing server
-if [[ ${DISTRO} != 'xenial' && ${DISTRO} != 'trusty' && ${DISTRO} != 'stretch' ]]; then
-  export APT_PARAMS="--allow-releaseinfo-change"
-fi
 
 GZDEV_DIR=${WORKSPACE}/gzdev
 GZDEV_BRANCH=${GZDEV_BRANCH:-master}
@@ -189,15 +185,9 @@ RUN dpkg-divert --rename --add /usr/sbin/invoke-rc.d \\
 DELIM_DOCKER_PAM_BUG
 fi
 
-# dirmngr from Yaketty on needed by apt-key
-# git and python-* for gzdev
-if [[ $DISTRO != 'xenial' ]]; then
-    # not in xenial, available from Bionic on and all debians
-    extra_python_mod="python3-distro"
-fi
 cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
 RUN apt-get ${APT_PARAMS} update && \\
-    apt-get install -y dirmngr git python3 python3-docopt python3-yaml ${extra_python_mod}
+    apt-get install -y dirmngr git python3 python3-docopt python3-yaml python3-distro
 DELIM_DOCKER_DIRMNGR
 
 # Install necessary repositories using gzdev
@@ -249,29 +239,6 @@ if [ `expr length "${DOCKER_PREINSTALL_HOOK}"` -gt 1 ]; then
 cat >> Dockerfile << DELIM_WORKAROUND_PRE_HOOK
 RUN ${DOCKER_PREINSTALL_HOOK}
 DELIM_WORKAROUND_PRE_HOOK
-fi
-
-# Dart repositories
-if ${DART_FROM_PKGS} || ${DART_COMPILE_FROM_SOURCE}; then
-if [[ $DISTRO == 'xenial' ]]; then
-cat >> Dockerfile << DELIM_DOCKER_DART_PKGS
-# Install dart from pkgs
-RUN apt-get update \\
- && apt-get install -y apt-utils software-properties-common \\
- && rm -rf /var/lib/apt/lists/*
-RUN apt-add-repository -y ppa:dartsim
-DELIM_DOCKER_DART_PKGS
-fi
-fi
-
-# Workaround a problem in simbody on artful bad paths
-if [[ $DISTRO == "artful" ]]; then
-cat >> Dockerfile << DELIM_DOCKER_WORKAROUND_SIMBODY
-RUN apt-get update \\
- && apt-get install -y apt-utils software-properties-common \\
- && rm -rf /var/lib/apt/lists/*
-RUN add-apt-repository ppa:j-rivero/simbody-artful
-DELIM_DOCKER_WORKAROUND_SIMBODY
 fi
 
 # Install debian dependencies defined on the source code

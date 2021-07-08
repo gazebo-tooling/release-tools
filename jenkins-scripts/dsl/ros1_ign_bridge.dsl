@@ -38,7 +38,7 @@ bridge_packages.each { pkg ->
         stringParam("VERSION",null,"Packages version to be built")
         stringParam("RELEASE_VERSION", null, "Packages release version")
         stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
-        stringParam("DISTRO", "xenial", "Linux release inside LINUX_DISTRO to build packages for")
+        stringParam("DISTRO", "bionic", "Linux release inside LINUX_DISTRO to build packages for")
         stringParam("ARCH", "amd64", "Architecture to build packages for")
         stringParam('ROS_DISTRO', 'noetic','ROS DISTRO to build pakcages for')
         stringParam("UPLOAD_TO_REPO", 'stable', "OSRF repo name to upload the package to")
