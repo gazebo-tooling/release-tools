@@ -73,7 +73,10 @@ echo '# END SECTION'
 
 echo "#BEGIN SECTION: brew doctor analysis"
 brew missing || brew install $(brew missing | awk '{print $2}') && brew missing
-brew doctor
+# if sdl installed, skip brew doctor
+# remove this line when open-scene-graph stops depending on sdl
+# https://github.com/Homebrew/homebrew-core/pull/81101
+brew list | grep '^sdl$' || brew doctor
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: re-add group write permissions"
