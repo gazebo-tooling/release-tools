@@ -178,7 +178,7 @@ rm -fr \$HOME/.gazebo/models test_results*
 # Run `make test`
 # If it has any failures, then rerun the failed tests one time
 # and merge the junit results
-make test ARGS="-VV --repeat-until-fail 100"
+make test ARGS="-VV --repeat-until-fail 10"
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: re-add group write permissions"
