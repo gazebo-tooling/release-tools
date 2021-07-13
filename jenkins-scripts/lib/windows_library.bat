@@ -63,7 +63,7 @@ FOR /F "tokens=2 delims=:" %%i IN ('C:\Program Files (x86)\Microsoft Visual Stud
 FOR /F "tokens=2 delims=:" %%i IN ('C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe -prerelease ^| findstr "channelId:"') DO set "CHANNEL=%%i"
 FOR /F "tokens=3 delims=:" %%i IN ('C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe -prerelease ^| findstr "installationPath:"') DO set "INSTALLPATH=C:%%i"
 
-C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installershell.exe modify --add Microsoft.VisualStudio.Component.VC.ATLMFC --add Microsoft.VisualStudio.Component.VC.ATL --productId %PRODUCT% --channelId %CHANNEL% -q --installPath "%INSTALLPATH%"
+"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installershell.exe" modify --add Microsoft.VisualStudio.Component.VC.ATLMFC --add Microsoft.VisualStudio.Component.VC.ATL --productId %PRODUCT% --channelId %CHANNEL% -q --installPath "%INSTALLPATH%"
 
 goto :EOF
 
