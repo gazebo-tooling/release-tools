@@ -65,8 +65,6 @@ FOR /F "tokens=3 delims=:" %%i IN ('call "C:\Program Files (x86)\Microsoft Visua
 
 call "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installershell.exe" modify --add Microsoft.VisualStudio.Component.VC.ATLMFC --add Microsoft.VisualStudio.Component.VC.ATL --productId %PRODUCT% --channelId %CHANNEL% -q --installPath "%INSTALLPATH%"
 
-mklink C:\vcpkg\installed\x64-windows\bin\libGLESv2.dll C:\vcpkg\installed\x64-windows\bin\libGLESv2_mesa.dll || VER>NUL
-
 goto :EOF
 
 :: ##################################
