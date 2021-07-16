@@ -493,6 +493,12 @@ ignition_collections.each { ign_collection ->
           ignition_collection_jobs["${ign_collection_name}"].each { jobname ->
             name(jobname)
           }
+          if (ign_collection_name == ignition_nightly) {
+            // add nightly debbuild jobs too
+            ignition_collections.find { it.get('name') == ignition_nightly }.get('nightly_jobs').each { job ->
+              name(job.getValue().get('debbuild') + '-debbuilder')
+            }
+          }
       }
 
       columns {
