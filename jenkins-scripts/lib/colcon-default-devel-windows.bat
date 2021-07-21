@@ -120,12 +120,6 @@ if "%ENABLE_TESTS%" == "TRUE" (
     echo # END SECTION
 )
 
-if NOT DEFINED KEEP_WORKSPACE (
-   echo # BEGIN SECTION: clean up workspace
-   cd %WORKSPACE%
-   rmdir /s /q %LOCAL_WS% || goto :error
-   echo # END SECTION
-)
 goto :EOF
 
 :error - error routine
