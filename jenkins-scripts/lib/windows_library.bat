@@ -215,6 +215,9 @@ goto :EOF
 set COLCON_PACKAGE=%1
 
 echo # BEGIN SECTION: colcon test for %COLCON_PACKAGE%
+set QT_QPA_PLATFORM_PLUGIN_PATH=C:\vcpkg\installed\x64-windows\plugins\platforms
+set QT_DEBUG_PLUGINS=1
+set QT_QPA_PLATFORM=offscreen
 colcon test --install-base "install"^
             --packages-select %COLCON_PACKAGE%^
             --executor sequential^
