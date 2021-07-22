@@ -76,6 +76,9 @@ class GenericAnyJobGitHub
                     startedStatus 'deploying to build.osrfoundation.org'
                     addTestResults(true)
                   }
+                 'org.jenkinsci.plugins.ghprb.extensions.build.GhprbCancelBuildsOnUpdate' {
+                    overrideGlobal(false)
+                 }
               }
           }
         }
