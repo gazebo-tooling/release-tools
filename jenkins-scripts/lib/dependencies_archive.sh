@@ -622,20 +622,3 @@ elif [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -eq 3 ]]
 fi
 
 IGN_UTILS_DEPENDENCIES="libignition-cmake2-dev"
-
-#
-# SUBT
-#
-SUBT_DEPENDENCIES="wget \\
-                   curl \\
-                   git  \\
-                   ${ROS_CATKIN_BASE} \\
-                   ignition-dome  \\
-                   ros-${ROS_DISTRO}-desktop \\
-                   ros-${ROS_DISTRO}-tf2-sensor-msgs \\
-                   ros-${ROS_DISTRO}-robot-localization \\
-                   ros-${ROS_DISTRO}-rotors-control \\
-                   ros-${ROS_DISTRO}-ros-control \\
-                   ros-${ROS_DISTRO}-twist-mux \\
-                   ros-${ROS_DISTRO}-ros1-ign-bridge \\
-                   ros-${ROS_DISTRO}-theora-image-transport"
