@@ -265,7 +265,7 @@ RUN echo "${MONTH_YEAR_STR}"
 DELIM_DOCKER3
 
 # A new install of gzdev is needed to update to possible recent changes in
-# configuratin and/or code and not being used since the docker cache did
+# configuration and/or code and not being used since the docker cache did
 # not get them.
 dockerfile_install_gzdev_repos
 
@@ -312,12 +312,6 @@ RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
   && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) \
   || echo "No squid-deb-proxy detected on docker host"
 DELIM_DOCKER_SQUID
-fi
-
-if [[ -n ${SOFTWARE_DIR} ]]; then
-cat >> Dockerfile << DELIM_DOCKER4
-COPY ${SOFTWARE_DIR} ${WORKSPACE}/${SOFTWARE_DIR}
-DELIM_DOCKER4
 fi
 
 if $USE_GPU_DOCKER; then
@@ -417,12 +411,30 @@ echo '# END SECTION'
 BUILDSH_CCACHE
 fi
 
+cat >> Dockerfile << DELIM_DOCKER_USER
+# Create a user with passwordless sudo
+ARG USERID
+ARG USER
+RUN adduser --uid \$USERID --gecos "Developer" --disabled-password \$USER
+RUN adduser \$USER sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+USER $USER
+# Must use sudo where necessary from this point on
+DELIM_DOCKER_USER
+
+if [[ -n ${SOFTWARE_DIR} ]]; then
+cat >> Dockerfile << DELIM_DOCKER4
+COPY --chown=\$USER:\$USER ${SOFTWARE_DIR} ${WORKSPACE}/${SOFTWARE_DIR}
+DELIM_DOCKER4
+fi
+
 echo '# BEGIN SECTION: see build.sh script'
 cat build.sh
 echo '# END SECTION'
 
 cat >> Dockerfile << DELIM_DOCKER4
-COPY build.sh build.sh
+COPY --chown=\$USER:\$USER build.sh build.sh
 RUN chmod +x build.sh
 DELIM_DOCKER4
 echo '# END SECTION'
