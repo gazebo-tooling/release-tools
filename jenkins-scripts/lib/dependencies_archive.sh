@@ -410,6 +410,7 @@ fi
 #
 
 IGN_MATH_DEPENDENCIES="libeigen3-dev \\
+                       libpython3-dev \\
                        ruby-dev \\
                        swig \\
                        libignition-cmake-dev \\
