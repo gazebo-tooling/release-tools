@@ -31,19 +31,6 @@ class OSRFLinuxBuildPkgBase
 
       publishers
       {
-        postBuildScripts {
-          steps {
-            shell("""\
-              #!/bin/bash -xe
-
-              [[ -d \${WORKSPACE}/pkgs ]] && sudo chown -R jenkins \${WORKSPACE}/pkgs
-              """.stripIndent())
-          }
-
-          onlyIfBuildSucceeds(false)
-          onlyIfBuildFails(false)
-        }
-
         archiveArtifacts('pkgs/*')
       }
     }

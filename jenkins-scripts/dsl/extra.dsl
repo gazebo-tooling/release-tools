@@ -126,20 +126,6 @@ gbp_repo_debbuilds.each { software ->
           'string' 'repository_uploader_*'
         }
       }
-
-      postBuildScripts {
-        steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                sudo chown -R jenkins \${WORKSPACE}/repo
-                sudo chown -R jenkins \${WORKSPACE}/pkgs
-                """.stripIndent())
-        }
-
-        onlyIfBuildSucceeds(false)
-        onlyIfBuildFails(false)
-      }
     }
   }
 }
