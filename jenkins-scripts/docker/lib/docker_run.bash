@@ -90,7 +90,6 @@ sudo ${docker_cmd} run $EXTRA_PARAMS_STR  \
 # Export results out of build directory, to WORKSPACE
 for d in $(find ${WORKSPACE}/build -maxdepth 1 -name '*_results' -type d); do
     sudo mv ${d} ${WORKSPACE}/
-    sudo chown -R jenkins ${WORKSPACE}/*_results
 done
 
 if [[ -z ${KEEP_WORKSPACE} ]]; then
@@ -103,7 +102,4 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
     for d in $(find ${WORKSPACE} -maxdepth 1 -name '*_results' -type d); do
        sudo mv ${d} ${WORKSPACE}/build/
     done
-
-    [[ -d ${PACKAGE_DIR} ]] && sudo chown -R jenkins ${PACKAGE_DIR}
-    sudo chown jenkins -R ${WORKSPACE}/build/
 fi
