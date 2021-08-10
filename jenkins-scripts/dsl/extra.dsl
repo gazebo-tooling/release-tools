@@ -132,7 +132,6 @@ gbp_repo_debbuilds.each { software ->
           shell("""\
                 #!/bin/bash -xe
 
-                sudo chown -R jenkins \${WORKSPACE}/repo
                 sudo chown -R jenkins \${WORKSPACE}/pkgs
                 """.stripIndent())
         }
