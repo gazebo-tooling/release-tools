@@ -48,7 +48,8 @@ BASE_DEPENDENCIES="build-essential \\
                    netcat-openbsd  \\
                    gnupg2          \\
                    net-tools       \\
-                   locales"
+                   locales         \\
+                   sudo"
 
 BREW_BASE_DEPENDCIES="git cmake"
 
