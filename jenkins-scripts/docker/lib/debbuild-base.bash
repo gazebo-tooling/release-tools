@@ -158,7 +158,7 @@ cp -a --dereference \${PACKAGE_RELEASE_DIR}/* .
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install build dependencies'
-apt-get update
+sudo apt-get update
 # buster workaround for dwz. backports repository does not have priority over main
 # explicit the version wanted
 if [ ${DISTRO} = 'buster' ]; then

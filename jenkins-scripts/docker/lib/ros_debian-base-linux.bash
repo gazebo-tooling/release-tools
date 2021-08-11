@@ -26,7 +26,7 @@ if [ ${LINUX_DISTRO} = 'debian' ]; then
 
   apt-key adv --keyserver pgp.rediris.es --recv-keys 63DE76AC0B6779BF						       
 fi
-apt-get update
+sudo apt-get update
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install wstool and ros-desktop-full-depends pkg'

@@ -36,9 +36,9 @@ cat >> build.sh << DELIM_CONFIG
 set -ex
 
 if ${USE_GZ_VERSION_ROSDEP}; then
-  apt-get install -y wget
-  mkdir -p /etc/ros/rosdep/sources.list.d/
-  wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gazebo${GAZEBO_VERSION_FOR_ROS}/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list -O /etc/ros/rosdep/sources.list.d/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list
+  sudo apt-get install -y wget
+  sudo mkdir -p /etc/ros/rosdep/sources.list.d/
+  sudo wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gazebo${GAZEBO_VERSION_FOR_ROS}/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list -O /etc/ros/rosdep/sources.list.d/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list
 fi
 
 if [ `expr length "${ROS_SETUP_PREINSTALL_HOOK} "` -gt 1 ]; then
@@ -49,7 +49,7 @@ fi
 
 echo '# BEGIN SECTION: run rosdep'
 # Step 2: configure and build
-[[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]] && rosdep init
+[[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]] && sudo rosdep init
 # Hack for not failing when github is down
 update_done=false
 seconds_waiting=0
@@ -88,13 +88,13 @@ echo '# END SECTION'
 echo '# BEGIN SECTION install the system dependencies'
 ${CMD_CATKIN_LIST}
 # Update apt repos in case rosdep tries to install Debian packages
-apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)
-rosdep install --from-paths . \
-               -r             \
-               --ignore-src   \
-               --rosdistro=${ROS_DISTRO} \
-               --default-yes \
-               --as-root apt:false
+sudo apt-get update || (rm -rf /var/lib/apt/lists/* && sudo apt-get update)
+sudo rosdep install --from-paths . \
+		    -r             \
+		    --ignore-src   \
+		    --rosdistro=${ROS_DISTRO} \
+		    --default-yes \
+		    --as-root apt:false
 # Package installation could bring some local_setup.sh files with it
 # need to source it again after installation
 SHELL=/bin/sh . /opt/ros/${ROS_DISTRO}/setup.sh
