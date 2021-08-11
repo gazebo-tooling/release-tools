@@ -221,7 +221,7 @@ fi
 # Hack to avoid problems with dwz symbols starting in Ubuntu Disco if tmp and debugtmp are the
 # same the build fails copying files because they are the same
 if [[ $DISTRO != 'bionic' ]]; then
-  sed -i -e 's:dwz" and:dwz" and (\$tmp ne \$debugtmp) and:' /usr/bin/dh_strip
+  sudo sed -i -e 's:dwz" and:dwz" and (\$tmp ne \$debugtmp) and:' /usr/bin/dh_strip
 fi
 
 echo '# BEGIN SECTION: create deb packages'
