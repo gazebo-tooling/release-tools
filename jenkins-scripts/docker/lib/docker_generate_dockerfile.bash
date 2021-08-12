@@ -415,7 +415,9 @@ cat >> Dockerfile << DELIM_DOCKER_USER
 # Create a user with passwordless sudo
 ARG USERID
 ARG USER
-RUN adduser --uid \$USERID --gecos "Developer" --disabled-password \$USER
+ARG GID
+RUN groupadd -g "\$GID" "\$USER";
+RUN adduser --uid \$USERID --gid \$GID --gecos "Developer" --disabled-password \$USER
 RUN adduser \$USER sudo
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 

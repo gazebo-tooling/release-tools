@@ -24,6 +24,7 @@ USERID=$(id -u)
 USER=$(whoami)
 
 sudo docker build ${_DOCKER_BUILD_EXTRA_ARGS} \
+                  --build-arg GID=$(id -g $USER) \
                   --build-arg USERID=$USERID \
                   --build-arg USER=$USER \
                   --tag ${DOCKER_TAG} .
