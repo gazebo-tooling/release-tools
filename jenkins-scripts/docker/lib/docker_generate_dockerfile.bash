@@ -411,6 +411,10 @@ echo '# END SECTION'
 BUILDSH_CCACHE
 fi
 
+# In upstart jobs (Xenial) the USER variable is not set for the jenkins
+# session. Fallback to get the user from processes table
+USER=${USER:-$(ps -o user= -p $PPID)}
+
 cat >> Dockerfile << DELIM_DOCKER_USER
 # Create a user with passwordless sudo
 ARG USERID
