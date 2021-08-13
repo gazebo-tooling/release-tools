@@ -59,7 +59,7 @@ fi
 
 echo '# BEGIN SECTION: install build dependencies'
 cat debian/changelog
-mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
+sudo mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
 echo '# END SECTION'
 
 VERSION=\$(dpkg-parsechangelog  | grep Version | awk '{print \$2}')

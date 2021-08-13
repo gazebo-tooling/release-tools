@@ -20,10 +20,10 @@ set -ex
 echo '# BEGIN SECTION: get source package from experimental'
 echo "deb http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list
 echo "deb-src http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list
-apt-get update
+sudo apt-get update
 mkdir /tmp/work
 cd /tmp/work
-apt-get build-dep -y ${DEB_PACKAGE}
+sudo apt-get build-dep -y ${DEB_PACKAGE}
 apt-get source -t experimental ${DEB_PACKAGE}
 dir=\$(find . -maxdepth 1 -mindepth 1 -type d)
 cd \$dir

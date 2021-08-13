@@ -70,20 +70,6 @@ packages.each { repo_name, pkgs ->
 
       publishers
       {
-        postBuildScripts {
-          steps {
-            shell("""\
-              #!/bin/bash -xe
-
-              [[ -d \${WORKSPACE}/repo ]] && sudo chown -R jenkins \${WORKSPACE}/repo
-              """.stripIndent())
-          }
-
-          onlyIfBuildSucceeds(false)
-          onlyIfBuildFails(false)
-        }
-
-
          // Added the lintian parser
          configure { project ->
            project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {

@@ -53,7 +53,6 @@ fi
 
 echo '# BEGIN SECTION: compile and install branch: ${DEST_BRANCH}'
 cp -a $WORKSPACE/${ABI_JOB_SOFTWARE_NAME} /tmp/${ABI_JOB_SOFTWARE_NAME}
-chown -R root:root /tmp/${ABI_JOB_SOFTWARE_NAME}
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
 git fetch origin 
 git checkout origin/${DEST_BRANCH}
@@ -66,7 +65,7 @@ cmake ${ABI_JOB_CMAKE_PARAMS} \\
   -DCMAKE_INSTALL_PREFIX=/usr/local/destination_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
-make install
+sudo make install
 DEST_DIR=\$(find /usr/local/destination_branch/include -name ${ABI_JOB_SOFTWARE_NAME}-* -type d | sed -e 's:.*/::')
 echo '# END SECTION'
 
@@ -85,7 +84,7 @@ cmake ${ABI_JOB_CMAKE_PARAMS} \\
   -DCMAKE_INSTALL_PREFIX=/usr/local/source_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
-make install
+sudo make install
 SRC_DIR=\$(find /usr/local/source_branch/include -name ${ABI_JOB_SOFTWARE_NAME}-* -type d | sed -e 's:.*/::')
 echo '# END SECTION'
 
@@ -95,7 +94,7 @@ cd $WORKSPACE
 rm -fr $WORKSPACE/abi-compliance-checker
 git clone git://github.com/lvc/abi-compliance-checker.git
 cd abi-compliance-checker
-perl Makefile.pl -install --prefix=/usr
+sudo perl Makefile.pl -install --prefix=/usr
 
 mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker
