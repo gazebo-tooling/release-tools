@@ -78,6 +78,8 @@ git remote add source_repo ${SRC_REPO}
 git fetch source_repo
 git checkout source_repo/${SRC_BRANCH}
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
+rm -rf $WORKSPACE/build
+mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake ${ABI_JOB_CMAKE_PARAMS} \\
   -DBUILD_TESTING=OFF \\
