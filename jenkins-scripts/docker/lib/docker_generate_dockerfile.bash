@@ -421,6 +421,8 @@ ARG USERID
 ARG USER
 ARG GID
 RUN groupadd -g "\$GID" "\$USER";
+RUN ls -las -R /home
+RUN ls -las -R /home/jenkins
 RUN adduser --uid \$USERID --gid \$GID --gecos "Developer" --disabled-password \$USER
 RUN adduser \$USER sudo
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
