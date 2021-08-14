@@ -424,6 +424,7 @@ RUN groupadd -g "\$GID" "\$USER";
 RUN adduser --uid \$USERID --gid \$GID --gecos "Developer" --disabled-password \$USER
 RUN adduser \$USER sudo
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN chown -R \$USER:\$USER /home/\$USER
 
 USER $USER
 # Must use sudo where necessary from this point on
