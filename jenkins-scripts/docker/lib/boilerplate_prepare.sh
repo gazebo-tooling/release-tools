@@ -12,6 +12,11 @@ fi
 
 [[ -z $USE_GPU_DOCKER ]] && export USE_GPU_DOCKER=false
 
+# Workaround while docker cache is propagated after the change of
+# ENV DEBIAN_FRONTEND to ARG DEBIAN_FRONTEND in our dockerfiles
+# This probably can be removed in Oct 2021
+export DEBIAN_FRONTEND=noninteractive
+
 # Check disk space and if low:
 #  *  Containers that exited more than 5 days ago are removed.
 #  *  Images that don't belong to any remaining container after that are removed
