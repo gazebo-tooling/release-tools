@@ -118,7 +118,8 @@ MAINTAINER Jose Luis Rivero <jrivero@osrfoundation.org>
 # setup environment
 ENV LANG C
 ENV LC_ALL C
-ENV DEBIAN_FRONTEND noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
+RUN echo 'export DEBIAN_FRONTEND=noninteractive' >> /root/.bashrc
 ENV DEBFULLNAME "OSRF Jenkins"
 ENV DEBEMAIL "build@osrfoundation.org"
 DELIM_DOCKER
