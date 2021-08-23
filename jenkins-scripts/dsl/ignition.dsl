@@ -293,14 +293,7 @@ ignition_software.each { ign_sw ->
                 wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
                 source yaml.sh
 
-                create_variables \${WORKSPACE}/${checkout_subdir}/bitbucket-pipelines.yml
-
                 export DISTRO=${distro}
-
-                if [[ -n \${image} ]]; then
-                  echo "Bitbucket pipeline.yml detected. Default DISTRO is ${distro}"
-                  export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
-                fi
 
                 ${GLOBAL_SHELL_CMD}
 
