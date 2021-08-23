@@ -18,7 +18,6 @@ set -ex
 
 
 echo '# BEGIN SECTION: get source package from experimental'
-sudo mkdir /etc/apt/sources.list.d/
 sudo bash -c 'echo "deb http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list.d/debian-exp.list'
 sudo bash -c 'echo "deb-src http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list.d/debian-exp.list'
 sudo apt-get update
