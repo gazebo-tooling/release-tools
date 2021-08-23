@@ -18,8 +18,8 @@ set -ex
 
 
 echo '# BEGIN SECTION: get source package from experimental'
-bash -c 'sudo echo "deb http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list'
-bash -c 'sudo echo "deb-src http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list'
+sudo echo "deb http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list.d/debian-exp.list
+sudo echo "deb-src http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list/debian-exp.list
 sudo apt-get update
 mkdir /tmp/work
 cd /tmp/work
