@@ -31,7 +31,7 @@ debuild --no-sign
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create experimental chroot'
-sbuild-createchroot unstable /srv/chroot/exp-amd64-sbuild http://deb.debian.org/debian
+sudo sbuild-createchroot unstable /srv/chroot/exp-amd64-sbuild http://deb.debian.org/debian
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
