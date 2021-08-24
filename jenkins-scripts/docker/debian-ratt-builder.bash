@@ -38,8 +38,8 @@ echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
 cd ..
 # need to configure unstable in the change file, not all packages are in experimental
 sed -i -e 's:experimental:unstable:g' ${DEB_PACKAGE}_*.changes
-ratt ${DEB_PACKAGE}_*.changes*
 mkdir -p ${WORKSPACE}/logs
+ratt ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
 cp -a buildlogs ${WORKSPACE}/logs
 echo '# END SECTION'
 DELIM

@@ -110,6 +110,15 @@ ratt_pkg_job.with
 
   publishers
   {
+    // Added the checker result parser (UNSTABLE if not success)
+    configure { project ->
+      project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+        unstableOnWarning true
+        failBuildOnError false
+        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+      }
+    }
+
     archiveArtifacts('logs/*')
   }
 
