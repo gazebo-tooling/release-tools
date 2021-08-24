@@ -108,6 +108,12 @@ ratt_pkg_job.with
     maxTotal(5)
   }
 
+  publishers
+  {
+    archiveArtifacts('logs/*')
+  }
+
+
   steps {
     shell("""\
           #!/bin/bash -xe
@@ -116,7 +122,3 @@ ratt_pkg_job.with
           """.stripIndent())
   }
 }
-
-
-
-
