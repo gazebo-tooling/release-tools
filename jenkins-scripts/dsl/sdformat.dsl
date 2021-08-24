@@ -44,17 +44,8 @@ abi_distro.each { distro ->
       steps {
         shell("""\
               #!/bin/bash -xe
-              wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
-              source yaml.sh
-
-              create_variables \${WORKSPACE}/sdformat/bitbucket-pipelines.yml
 
               export DISTRO=${distro}
-
-              if [[ -n \${image} ]]; then
-                echo "Bitbucket pipeline.yml detected. Default DISTRO is ${distro}"
-                export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
-              fi
 
               export ARCH=${arch}
               export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
@@ -107,17 +98,8 @@ abi_distro.each { distro ->
       {
          shell("""\
          #!/bin/bash -xe
-         wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
-         source yaml.sh
-
-         create_variables \${WORKSPACE}/sdformat/bitbucket-pipelines.yml
 
          export DISTRO=${ci_distro_str}
-
-         if [[ -n \${image} ]]; then
-           echo "Bitbucket pipeline.yml detected. Default DISTRO is ${ci_distro_str}"
-           export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
-         fi
 
          export ARCH=${arch}
          /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
