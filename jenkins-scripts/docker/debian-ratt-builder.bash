@@ -32,7 +32,6 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: create experimental chroot'
 sudo sbuild-adduser ${USER}
-newgrp sbuild
 sudo sbuild-createchroot unstable /srv/chroot/exp-amd64-sbuild http://deb.debian.org/debian
 echo '# END SECTION'
 
@@ -41,7 +40,11 @@ cd ..
 # need to configure unstable in the change file, not all packages are in experimental
 sed -i -e 's:experimental:unstable:g' ${DEB_PACKAGE}_*.changes
 mkdir -p ${WORKSPACE}/logs
+# use new group to run sbuild
+newgrp sbuild << END
+echo running ratt under sbuild group
 ratt ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
+END
 cp -a buildlogs ${WORKSPACE}/logs
 echo '# END SECTION'
 DELIM
