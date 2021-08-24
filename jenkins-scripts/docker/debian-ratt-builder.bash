@@ -39,7 +39,7 @@ echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
 cd ..
 # need to configure unstable in the change file, not all packages are in experimental
 sed -i -e 's:experimental:unstable:g' ${DEB_PACKAGE}_*.changes
-mkdir -p ${WORKSPACE}/logs
+rm -fr ${WORKSPACE}/logs && mkdir ${WORKSPACE}/logs
 # use new group to run sbuild
 newgrp sbuild << END
 echo running ratt under sbuild group
