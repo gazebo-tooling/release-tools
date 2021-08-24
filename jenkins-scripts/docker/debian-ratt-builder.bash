@@ -32,6 +32,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: create experimental chroot'
 sudo sbuild-adduser ${USER}
+newgrp sbuild
 sudo sbuild-createchroot unstable /srv/chroot/exp-amd64-sbuild http://deb.debian.org/debian
 echo '# END SECTION'
 

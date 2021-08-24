@@ -119,7 +119,7 @@ ratt_pkg_job.with
       }
     }
 
-    archiveArtifacts('logs/*')
+    archiveArtifacts('logs/buildlogs/*')
   }
 
 
