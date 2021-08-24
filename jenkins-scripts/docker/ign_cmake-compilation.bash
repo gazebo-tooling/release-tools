@@ -17,6 +17,9 @@ fi
 export BUILDING_SOFTWARE_DIRECTORY="ign-cmake"
 export BUILDING_DEPENDENCIES="pkg-config"
 
+# Enable long-running ign-cmake tests in CI.
+export BUILDING_EXTRA_CMAKE_PARAMS="-DBUILDSYSTEM_TESTING=True"
+
 # Identify IGN_CMAKE_MAJOR_VERSION to help with dependency resolution
 IGN_CMAKE_MAJOR_VERSION=$(\
   python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
@@ -26,11 +29,6 @@ IGN_CMAKE_MAJOR_VERSION=$(\
 if ! [[ ${IGN_CMAKE_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   echo "Error! IGN_CMAKE_MAJOR_VERSION is not an integer, check the detection"
   exit -1
-fi
-
-if [[ ${IGN_CMAKE_MAJOR_VERSION} -ge 2 ]]; then
-  # Enable long-running ign-cmake tests in CI.
-  export BUILDING_EXTRA_CMAKE_PARAMS="-DBUILDSYSTEM_TESTING=True"
 fi
 
 export GZDEV_PROJECT_NAME="ignition-cmake${IGN_CMAKE_MAJOR_VERSION}"
