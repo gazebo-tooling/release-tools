@@ -290,17 +290,8 @@ ignition_software.each { ign_sw ->
         steps {
           shell("""\
                 #!/bin/bash -xe
-                wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
-                source yaml.sh
-
-                create_variables \${WORKSPACE}/${checkout_subdir}/bitbucket-pipelines.yml
 
                 export DISTRO=${distro}
-
-                if [[ -n \${image} ]]; then
-                  echo "Bitbucket pipeline.yml detected. Default DISTRO is ${distro}"
-                  export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
-                fi
 
                 ${GLOBAL_SHELL_CMD}
 
@@ -335,17 +326,8 @@ ignition_software.each { ign_sw ->
       {
          shell("""\
               #!/bin/bash -xe
-              wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
-              source yaml.sh
-
-              create_variables \${WORKSPACE}/${ignition_checkout_dir}/bitbucket-pipelines.yml
 
               export DISTRO=${ci_distro_str}
-
-              if [[ -n \${image} ]]; then
-                echo "Bitbucket pipeline.yml detected. Default DISTRO is ${ci_distro}"
-                export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
-              fi
 
               ${GLOBAL_SHELL_CMD}
 
