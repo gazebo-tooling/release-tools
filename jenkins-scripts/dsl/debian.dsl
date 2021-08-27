@@ -108,6 +108,21 @@ ratt_pkg_job.with
     maxTotal(5)
   }
 
+  publishers
+  {
+    // Added the checker result parser (UNSTABLE if not success)
+    configure { project ->
+      project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+        unstableOnWarning true
+        failBuildOnError false
+        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+      }
+    }
+
+    archiveArtifacts('logs/buildlogs/*')
+  }
+
+
   steps {
     shell("""\
           #!/bin/bash -xe
@@ -116,7 +131,3 @@ ratt_pkg_job.with
           """.stripIndent())
   }
 }
-
-
-
-
