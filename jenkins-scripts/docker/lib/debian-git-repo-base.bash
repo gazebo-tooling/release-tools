@@ -54,7 +54,7 @@ fi
 
 if [[ ${DISTRO} == 'focal' && ${ARCH} == 'arm64' ]]; then
     # Did not find the way of avoid lintian in gbp call
-    ln -sf /bin/true /usr/bin/lintian
+    sudo ln -sf /bin/true /usr/bin/lintian
 fi
 
 echo '# BEGIN SECTION: install build dependencies'
