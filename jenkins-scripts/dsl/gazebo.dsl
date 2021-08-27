@@ -1,14 +1,13 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def gazebo_supported_branches = [ 'gazebo7', 'gazebo9', 'gazebo10', 'gazebo11' ]
+def gazebo_supported_branches = [ 'gazebo9', 'gazebo11' ]
 def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
 // nightly_gazebo_branch is not the branch used to get the code from but
 // the one used to generate the corresponding debbuild job.
-def nightly_gazebo_branch = [ 'gazebo10' ]
+def nightly_gazebo_branch = [ 'gazebo11' ]
 // testing official packages without osrf repo
-def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9',
-                                         'xenial' : 'gazebo7']
+def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9' ]
 
 // Main platform using for quick CI
 def ci_distro_default       = [ 'bionic' ]
@@ -34,10 +33,10 @@ String ci_build_any_job_name_linux = "gazebo-ci-pr_any-ubuntu_auto-amd64-gpu-${c
 // Need to be used in ci_pr
 String abi_job_name = ''
 
-boolean is_watched_by_buildcop(branch, distro = 'xenial', gpu = 'nvidia')
+boolean is_watched_by_buildcop(branch, distro = 'bionic', gpu = 'nvidia')
 
 {
-  if (branch == 'master' || branch == 'gazebo7' || branch == 'gazebo9' || branch == 'gazebo10' || branch == 'gazebo11')
+  if (branch == 'master' || branch == 'gazebo9' || branch == 'gazebo11')
     return true
 
   return false
@@ -98,19 +97,8 @@ abi_distro.each { distro ->
       steps {
         shell("""\
               #!/bin/bash -xe
-              wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
-              source yaml.sh
-
-              if [[ -f \${WORKSPACE}/gazebo/bitbucket-pipelines.yml ]]; then
-                create_variables \${WORKSPACE}/gazebo/bitbucket-pipelines.yml
-              fi
 
               export DISTRO=${distro}
-
-              if [[ -n \${image} ]]; then
-                echo "Bitbucket pipeline.yml detected. Default DISTRO is ${distro}"
-                export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
-              fi
 
               export ARCH=${arch}
               export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
@@ -141,19 +129,8 @@ ci_distro.each { distro ->
         {
            shell("""\
            #!/bin/bash -xe
-           wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
-           source yaml.sh
-
-           if [[ -f \${WORKSPACE}/gazebo/bitbucket-pipelines.yml ]]; then
-             create_variables \${WORKSPACE}/gazebo/bitbucket-pipelines.yml
-           fi
 
            export DISTRO=${distro}
-
-           if [[ -n \${image} ]]; then
-             echo "Bitbucket pipeline.yml detected. Default DISTRO is ${distro}"
-             export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
-           fi
 
            export ARCH=${arch}
            export GPU_SUPPORT_NEEDED=true
@@ -254,9 +231,9 @@ ci_distro.each { distro ->
       {
         parameters
         {
-          stringParam('SDFORMAT_BRANCH', 'master', 'sdformat branch to use')
-          stringParam('IGN_MATH_BRANCH', 'master', 'ignition math branch to use')
-          stringParam('IGN_TRANSPORT_BRANCH', 'master', 'ignition transport branch to use')
+          stringParam('SDFORMAT_BRANCH', 'main', 'sdformat branch to use')
+          stringParam('IGN_MATH_BRANCH', 'main', 'ignition math branch to use')
+          stringParam('IGN_TRANSPORT_BRANCH', 'main', 'ignition transport branch to use')
         }
 
         label "gpu-reliable"
@@ -552,9 +529,6 @@ all_branches.each { branch ->
 
   gazebo_brew_ci_job.with
   {
-      if (("${branch}" == "gazebo7"))
-        disabled()
-
       label osx_label
 
       triggers {
@@ -591,7 +565,7 @@ all_branches.each { branch ->
   }
 
 // 2. default / @ SCM/Daily
-all_branches = gazebo_supported_branches + 'master' - 'gazebo7'
+all_branches = gazebo_supported_branches
 all_branches.each { branch ->
   def gazebo_win_ci_job = job("gazebo-ci-${branch}-windows7-amd64")
   OSRFWinCompilation.create(gazebo_win_ci_job)

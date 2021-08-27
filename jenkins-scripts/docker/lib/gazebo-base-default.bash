@@ -110,7 +110,7 @@ if $DART_COMPILE_FROM_SOURCE; then
       -DCMAKE_INSTALL_PREFIX=/usr
   #make -j${MAKE_JOBS}
   make -j1
-  make install
+  sudo make install
   echo '# END SECTION'
 fi
 DELIM_DART
@@ -178,7 +178,7 @@ if [[ $GAZEBO_MAJOR_VERSION -ge 8 ]]; then
 fi
 
 echo '# BEGIN SECTION: Gazebo installation'
-make install
+sudo make install
 echo '# END SECTION'
 
 # Need to clean up from previous built

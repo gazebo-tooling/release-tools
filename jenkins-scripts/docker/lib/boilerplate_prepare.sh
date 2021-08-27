@@ -80,11 +80,11 @@ init_stopwatch CREATE_TESTING_ENVIROMENT
 
 # Default values - Provide them is prefered
 if [ -z ${DISTRO} ]; then
-    DISTRO=xenial
+    DISTRO=bionic
 fi
 
 if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=kinetic
+  ROS_DISTRO=melodic
 fi
 
 if [ -z "${ROS2}" ]; then
@@ -149,7 +149,7 @@ if ${ENABLE_ROS}; then
   export ROS_IP=127.0.0.1
 fi
 
-if [[ -n `ps aux | grep gzserver | grep -v grep` ]]; then
+if [[ -n `ps aux | grep '[ /]gzserver' | grep -v grep | grep -v 'gzserver[^ ]'` ]]; then
     echo "There is a gzserver already running on the machine. Stopping"
     exit -1
 fi

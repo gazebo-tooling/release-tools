@@ -48,7 +48,7 @@ for dep_uppercase in $OSRF_DEPS; do
 cat >> build.sh << DELIM_BUILD_DEPS
     echo "# BEGIN SECTION: building dependency: ${dep} (${dep_branch})"
     echo '# END SECTION'
-    rm -fr $WORKSPACE/$dep
+    sudo rm -fr $WORKSPACE/$dep
 
     if [[ ${dep/ign} == ${dep} ]]; then
       dependency_repo="osrf/${dep}"
@@ -87,7 +87,7 @@ make -j\$(cat $WORKSPACE/make_jobs)
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: installing'
-make install
+sudo make install
 stop_stopwatch COMPILATION
 echo '# END SECTION'
 

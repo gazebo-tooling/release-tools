@@ -1,10 +1,10 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def sdformat_supported_branches = [ 'sdformat4', 'sdformat6' , 'sdformat9', 'sdformat10' ]
-def sdformat_gz11_branches = [ 'sdformat9', 'sdformat10', 'master' ]
+def sdformat_supported_branches = [ 'sdformat6' , 'sdformat9', 'sdformat10', 'sdformat11' ]
+def sdformat_gz11_branches = [ 'sdformat9', 'sdformat10', 'sdformat11', 'main' ]
 // nightly and prereleases
-def extra_sdformat_debbuilder = [ 'sdformat11' ]
+def extra_sdformat_debbuilder = [ 'sdformat12' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -38,23 +38,14 @@ abi_distro.each { distro ->
     abi_job_name = "sdformat-abichecker-any_to_any-ubuntu_auto-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABIGitHub.create(abi_job)
-    GenericAnyJobGitHub.create(abi_job, 'osrf/sdformat', abi_branches)
+    GenericAnyJobGitHub.create(abi_job, 'ignitionrobotics/sdformat', abi_branches)
     abi_job.with
     {
       steps {
         shell("""\
               #!/bin/bash -xe
-              wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
-              source yaml.sh
-
-              create_variables \${WORKSPACE}/sdformat/bitbucket-pipelines.yml
 
               export DISTRO=${distro}
-
-              if [[ -n \${image} ]]; then
-                echo "Bitbucket pipeline.yml detected. Default DISTRO is ${distro}"
-                export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
-              fi
 
               export ARCH=${arch}
               export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
@@ -73,10 +64,10 @@ abi_distro.each { distro ->
 [ Globals.get_gz11_ubuntu_distro() ].each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
-    // 1. Create the master ci jobs
-    def sdformat_ci_job = job("sdformat-ci-master-${distro}-${arch}")
+    // 1. Create the main ci jobs
+    def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGitHub.create(sdformat_ci_job, "osrf/sdformat")
+    OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat", "main")
 
     sdformat_ci_job.with
     {
@@ -97,7 +88,7 @@ abi_distro.each { distro ->
 
     // --------------------------------------------------------------
     // 2. Create the any job
-    String sdf_repo = "osrf/sdformat"
+    String sdf_repo = "ignitionrobotics/sdformat"
 
     def sdformat_ci_any_job = job(ci_build_any_job_name_linux)
     OSRFLinuxCompilationAnyGitHub.create(sdformat_ci_any_job, sdf_repo)
@@ -107,17 +98,8 @@ abi_distro.each { distro ->
       {
          shell("""\
          #!/bin/bash -xe
-         wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
-         source yaml.sh
-
-         create_variables \${WORKSPACE}/sdformat/bitbucket-pipelines.yml
 
          export DISTRO=${ci_distro_str}
-
-         if [[ -n \${image} ]]; then
-           echo "Bitbucket pipeline.yml detected. Default DISTRO is ${ci_distro_str}"
-           export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
-         fi
 
          export ARCH=${arch}
          /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
@@ -127,17 +109,13 @@ abi_distro.each { distro ->
   } // end of arch
 } // end of distro
 
-// OTHER CI SUPPORTED JOBS (master branch) @ SCM/DAILY
+// OTHER CI SUPPORTED JOBS (main branch) @ SCM/DAILY
 other_supported_distros.each { distro ->
-  // master doesn't support xenial anymore
-  if ("${distro}" == "xenial")
-    return
-
   supported_arches.each { arch ->
-    // ci_master job for the rest of arches / scm@daily
-    def sdformat_ci_job = job("sdformat-ci-master-${distro}-${arch}")
+    // ci_main job for the rest of arches / scm@daily
+    def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGitHub.create(sdformat_ci_job, "osrf/sdformat")
+    OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat", "main")
 
     sdformat_ci_job.with
     {
@@ -166,10 +144,10 @@ sdformat_supported_branches.each { branch ->
       distro = Globals.get_gz11_ubuntu_distro()
 
     supported_arches.each { arch ->
-      // ci_master job for the rest of arches / scm@daily
+      // ci_main job for the rest of arches / scm@daily
       def sdformat_ci_job = job("sdformat-ci-${branch}-${distro}-${arch}")
       OSRFLinuxCompilation.create(sdformat_ci_job)
-      OSRFGitHub.create(sdformat_ci_job, "osrf/sdformat",
+      OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat",
                         get_sdformat_branch_name(branch))
       sdformat_ci_job.with
       {
@@ -195,9 +173,9 @@ sdformat_supported_branches.each { branch ->
 // EXPERIMENTAL ARCHES @ SCM/WEEKLY
 [ Globals.get_gz11_ubuntu_distro() ].each { distro ->
   experimental_arches.each { arch ->
-    def sdformat_ci_job = job("sdformat-ci-master-${distro}-${arch}")
+    def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGitHub.create(sdformat_ci_job, "osrf/sdformat")
+    OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat", "main")
 
     sdformat_ci_job.with
     {
@@ -288,7 +266,7 @@ all_debbuild_branches.each { branch ->
 String ci_build_any_job_name_brew = "sdformat-ci-pr_any-homebrew-amd64"
 def sdformat_brew_ci_any_job = job(ci_build_any_job_name_brew)
 OSRFBrewCompilationAnyGitHub.create(sdformat_brew_ci_any_job,
-                                    "osrf/sdformat")
+                                    "ignitionrobotics/sdformat")
 sdformat_brew_ci_any_job.with
 {
     steps {
@@ -300,12 +278,12 @@ sdformat_brew_ci_any_job.with
     }
 }
 
-// 2. master in all branches @SCM/daily
-all_branches = sdformat_supported_branches + 'master'
+// 2. main in all branches @SCM/daily
+all_branches = sdformat_supported_branches + 'main'
 all_branches.each { branch ->
   def sdformat_brew_ci_job = job("sdformat-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(sdformat_brew_ci_job)
-  OSRFGitHub.create(sdformat_brew_ci_job, "osrf/sdformat",
+  OSRFGitHub.create(sdformat_brew_ci_job, "ignitionrobotics/sdformat",
                          get_sdformat_branch_name(branch))
 
   sdformat_brew_ci_job.with
@@ -328,6 +306,38 @@ all_branches.each { branch ->
   }
 }
 
+// 3. install jobs to test bottles
+sdformat_supported_branches.each { branch ->
+  def install_default_job = job("${branch}-install_bottle-homebrew-amd64")
+  OSRFBrewInstall.create(install_default_job)
+
+  install_default_job.with
+  {
+    triggers {
+      cron('@daily')
+    }
+
+    steps {
+     shell("""\
+           #!/bin/bash -xe
+
+           /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${branch}
+           """.stripIndent())
+    }
+
+    publishers
+    {
+       configure { project ->
+         project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+            unstableOnWarning true
+            failBuildOnError false
+            parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+          }
+       }
+    }
+  }
+}
+
 // --------------------------------------------------------------
 // WINDOWS: CI job
 
@@ -335,7 +345,7 @@ all_branches.each { branch ->
   String ci_build_any_job_name_win7 = "sdformat-ci-pr_any-windows7-amd64"
   def sdformat_win_ci_any_job = job(ci_build_any_job_name_win7)
   OSRFWinCompilationAnyGitHub.create(sdformat_win_ci_any_job,
-                                "osrf/sdformat")
+                                "ignitionrobotics/sdformat")
   sdformat_win_ci_any_job.with
   {
       steps {
@@ -345,21 +355,18 @@ all_branches.each { branch ->
       }
   }
 
-// 2. master / @ SCM/Daily
-all_branches = sdformat_supported_branches + 'master'
+// 2. main / @ SCM/Daily
+all_branches = sdformat_supported_branches + 'main'
 all_branches.each { branch ->
   def sdformat_win_ci_job = job("sdformat-ci-${branch}-windows7-amd64")
   OSRFWinCompilation.create(sdformat_win_ci_job)
-  OSRFGitHub.create(sdformat_win_ci_job, "osrf/sdformat",
+  OSRFGitHub.create(sdformat_win_ci_job, "ignitionrobotics/sdformat",
                     get_sdformat_branch_name(branch))
   sdformat_win_ci_job.with
   {
       triggers {
         scm('@daily')
       }
-
-      if (branch == 'sdformat4')
-        disabled()
 
       steps {
         batchFile("""\

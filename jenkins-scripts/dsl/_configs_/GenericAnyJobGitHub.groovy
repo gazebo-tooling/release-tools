@@ -52,7 +52,7 @@ class GenericAnyJobGitHub
         configure { project ->
           project  / triggers / 'org.jenkinsci.plugins.ghprb.GhprbTrigger' {
               adminlist 'osrf-jenkins j-rivero'
-              orgslist 'osrf'
+              orgslist 'osrf ignitionrobotics'
               allowMembersOfWhitelistedOrgsAsAdmin(true)
               useGitHubHooks(true)
               onlyTriggerPhrase(false)
@@ -76,6 +76,9 @@ class GenericAnyJobGitHub
                     startedStatus 'deploying to build.osrfoundation.org'
                     addTestResults(true)
                   }
+                 'org.jenkinsci.plugins.ghprb.extensions.build.GhprbCancelBuildsOnUpdate' {
+                    overrideGlobal(false)
+                 }
               }
           }
         }

@@ -1,10 +1,6 @@
 #!/bin/bash -x
 
 case ${DISTRO} in
-  'xenial')
-    ROS_DISTRO=kinetic
-    USE_DEFAULT_GAZEBO_VERSION_FOR_ROS=true
-    ;;
   'bionic')
     # 9 is the default version in Bionic
     ROS_DISTRO=melodic

@@ -1,8 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def ci_distro = [ 'bionic' : 'melodic',
-                  'xenial' : 'kinetic' ]
+def ci_distro = [ 'bionic' : 'melodic' ]
 def supported_arches = [ 'amd64' ]
 
 def ENABLE_TESTS = true
@@ -113,9 +112,6 @@ ci_distro.each { distro, ros_distro ->
 
     install_default_job.with
     {
-      if ("${ros_distro}" == "kinetic")
-        disabled()
-
       triggers {
         cron(Globals.CRON_EVERY_THREE_DAYS)
       }
