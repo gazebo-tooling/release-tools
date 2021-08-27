@@ -52,7 +52,7 @@ ${DEBIAN_GIT_PREINSTALL_HOOK}
 echo '# END SECTION'
 fi
 
-if [[ ${DISTRO} == 'focal' && ${ARCH} == 'arm64' ]]; then
+if [[ ${DISTRO} == 'focal' && ${ARCH} != 'amd64' ]]; then
     # Did not find the way of avoid lintian in gbp call
     sudo ln -sf /bin/true /usr/bin/lintian
 fi
