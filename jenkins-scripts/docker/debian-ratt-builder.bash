@@ -46,7 +46,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
 cd ..
-sed -i -e "s:experimental:\${TARGET_DISTRO}:g" ${DEB_PACKAGE}_*.changes
+sed -i -e "s:experimental:unstable:g" ${DEB_PACKAGE}_*.changes
 rm -fr ${WORKSPACE}/logs && mkdir ${WORKSPACE}/logs
 # use new group to run sbuild
 newgrp sbuild << END
