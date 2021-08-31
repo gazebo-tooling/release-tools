@@ -20,7 +20,6 @@ if ${USE_UNSTABLE}; then
   TARGET_DISTRO='unstable'
 else
  TARGET_DISTRO='experimental'
- EXTRA_SBUILD_CMD="--extra-repository='deb http://ftp.us.debian.org/debian experimental main'"
 fi
 
 echo '# BEGIN SECTION: get source package from experimental'
@@ -38,7 +37,12 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: create chroot'
 sudo sbuild-adduser \${USER}
-sudo sbuild-createchroot unstable \${EXTRA_SBUILD_CMD} /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian
+if ${USE_UNSTABLE}; then
+  sudo sbuild-createchroot unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian
+else
+  sudo sbuild-createchroot unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian --extra-repository='deb http://ftp.us.debian.org/debian experimental main'
+"
+
 
 echo '# END SECTION'
 
