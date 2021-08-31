@@ -41,9 +41,7 @@ if ${USE_UNSTABLE}; then
   sudo sbuild-createchroot unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian
 else
   sudo sbuild-createchroot unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian --extra-repository='deb http://ftp.us.debian.org/debian experimental main'
-"
-
-
+fi
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
