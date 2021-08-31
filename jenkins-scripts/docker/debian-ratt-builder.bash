@@ -16,6 +16,11 @@ cat > build.sh << DELIM
 #
 set -ex
 
+if ${USE_UNSTABLE}; then
+  TARGET_DISTRO='unstable'
+else
+ TARGET_DISTRO='experimental'
+fi
 
 echo '# BEGIN SECTION: get source package from experimental'
 sudo bash -c 'echo "deb http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list.d/debian-exp.list'
@@ -30,15 +35,14 @@ cd \$dir
 debuild --no-sign
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: create experimental chroot'
+echo '# BEGIN SECTION: create chroot'
 sudo sbuild-adduser \${USER}
-sudo sbuild-createchroot unstable /srv/chroot/exp-amd64-sbuild http://deb.debian.org/debian
+sudo sbuild-createchroot \${TARGET_DISTRO} /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
 cd ..
-# need to configure unstable in the change file, not all packages are in experimental
-sed -i -e 's:experimental:unstable:g' ${DEB_PACKAGE}_*.changes
+sed -i -e "s:experimental:\${TARGET_DISTRO}:g" ${DEB_PACKAGE}_*.changes
 rm -fr ${WORKSPACE}/logs && mkdir ${WORKSPACE}/logs
 # use new group to run sbuild
 newgrp sbuild << END

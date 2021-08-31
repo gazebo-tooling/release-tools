@@ -95,6 +95,8 @@ ratt_pkg_job.with
   {
      stringParam('DEB_PACKAGE','master',
                  'package to run ratt against (check lib transition)')
+     booleanParam('USE_UNSTABLE', true,
+                 'use unstable instead of experimental to test packages')
   }
 
   logRotator {
