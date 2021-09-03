@@ -17,9 +17,10 @@ cat > build.sh << DELIM
 set -ex
 
 if ${USE_UNSTABLE}; then
-  TARGET_DISTRO='unstable'
+   TARGET_DISTRO='unstable'
 else
- TARGET_DISTRO='experimental'
+  TARGET_DISTRO='experimental'
+  sed -i -e $'s#.*extra_repositories.*#\$extra_repositories = [ \\\'deb http://ftp.us.debian.org/debian experimental main\\\' ];#' /etc/sbuild/sbuild.conf
 fi
 
 echo '# BEGIN SECTION: get source package from experimental'
@@ -37,11 +38,8 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: create chroot'
 sudo sbuild-adduser \${USER}
-if ${USE_UNSTABLE}; then
-  sudo sbuild-createchroot unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian
-else
-  sudo sbuild-createchroot unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian --extra-repository='deb http://ftp.us.debian.org/debian experimental main'
-fi
+# experimental should be handled in sbuild.conf file
+sudo sbuild-createchroot unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
