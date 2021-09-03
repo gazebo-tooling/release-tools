@@ -20,7 +20,7 @@ if ${USE_UNSTABLE}; then
    TARGET_DISTRO='unstable'
 else
   TARGET_DISTRO='experimental'
-  echo "\$extra_repositories = [ 'deb http://ftp.us.debian.org/debian experimental main' ];" > ~/.sbuildrc
+  echo "\$extra_repositories = [ 'deb http://ftp.us.debian.org/debian experimental main' ]\\\;" > ~/.sbuildrc
 fi
 
 echo '# BEGIN SECTION: get source package from experimental'
