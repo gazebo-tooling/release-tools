@@ -20,7 +20,7 @@ if ${USE_UNSTABLE}; then
    TARGET_DISTRO='unstable'
 else
   TARGET_DISTRO='experimental'
-  sed -i -e $'s#.*extra_repositories.*#\$extra_repositories = [ \\\'deb http://ftp.us.debian.org/debian experimental main\\\' ];#' /etc/sbuild/sbuild.conf
+  sudo sed -i -e $'s#.*extra_repositories.*#\$extra_repositories = [ \\'deb http://ftp.us.debian.org/debian experimental main\\' ];#' /etc/sbuild/sbuild.conf
 fi
 
 echo '# BEGIN SECTION: get source package from experimental'
