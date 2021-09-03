@@ -148,7 +148,7 @@ cd \`find $WORKSPACE/build -mindepth 1 -type d |head -n 1\`
 # If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
 if $NIGHTLY_MODE; then
   rm -fr .hg* .git*
-  echo | dh_make -y -s --createorig -p${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
+  echo | dh_make -y -s --defaultless --createorig -p${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
 fi
 
 # Adding extra directories to code. debian has no problem but some extra directories
