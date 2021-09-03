@@ -21,7 +21,7 @@ if ${USE_UNSTABLE}; then
 else
   TARGET_DISTRO='experimental'
   tee ~/.sbuildrc << EOF
-\\\$verbose = 1\;
+\\\$verbose = 1;
 \\\$extra_repositories = [ 'deb http://ftp.us.debian.org/debian experimental main' ];
 EOF
 fi
