@@ -14,7 +14,7 @@ COMMITS=$(git log ${BRANCH}...${REPO_FULL}${MAJOR}_${PREV_TAG}  --pretty=format:
 for COMMIT in $COMMITS
 do
   TITLE_FULL=$(git log --format="%s" -n 1 $COMMIT)
-  TITLE=${TITLE_FULL%(\#*)}
+  TITLE=${TITLE_FULL% (\#*)}
   PR=${TITLE_FULL#*\#}
   PR=${PR%)}
 
