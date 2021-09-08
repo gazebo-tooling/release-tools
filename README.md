@@ -43,7 +43,7 @@ Gazebo Classic and Ignition software.
         1. Use the [source_changelog.bash](source_changelog.bash) script to generate the Changelog.md entries newer than the most recent tag.
             * `cd <path to source code>`
             * `bash <path to release-tools>/source_changelog.bash <previous tag>`
-            * e.g. `bash ../release-tools/source_changelog.bash ignition-gazebo3_3.5.0`
+            * e.g. `bash ../release-tools/source_changelog.bash 3.5.0`
         1. Verify the Changelog.md entries using the GitHub branch comparison.
     * Update the migration guide as needed.
     * Wait for this pull request to be merged before proceeding.
