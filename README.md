@@ -6,6 +6,7 @@ Gazebo Classic and Ignition software.
 ## Scripts
 
 * [release.py](release.py): Triggers new debian and homebrew releases (major, minor, patch, pre-release...).
+* [source_changelog.bash](source_changelog.bash): Generates Changelog.md entries newer than a specified tag based on git commit descriptions.
 * [changelog_spawn.sh](release-repo-scripts/changelog_spawn.sh): Adds changelog information to `*-release` repositories. Must be used before running `release.py`.
 * [new_ignition_release_repos.bash](release-repo-scripts/new_ignition_release_repos.bash): Create new `*-release` repositories.
 * [bump_dependency.bash](release-repo-scripts/bump_dependency.bash): Makes all the updates needed when bumping a library's major version for the upcoming collection.
@@ -39,7 +40,11 @@ Gazebo Classic and Ignition software.
         1. [Example branch comparison.](https://github.com/ignitionrobotics/ign-gazebo/compare/ignition-gazebo3_3.5.0...ign-gazebo3)
         1. Substitute the package version and name that are relevant to your release.
     * Update the changelog.
-        1. Use the branch comparison obtained below as a guide for updating the changelog.
+        1. Use the [source_changelog.bash](source_changelog.bash) script to generate the Changelog.md entries newer than the most recent tag.
+            * `cd <path to source code>`
+            * `bash <path to release-tools>/source_changelog.bash <previous tag>`
+            * e.g. `bash ../release-tools/source_changelog.bash ignition-gazebo3_3.5.0`
+        1. Verify the Changelog.md entries using the GitHub branch comparison.
     * Update the migration guide as needed.
     * Wait for this pull request to be merged before proceeding.
 1. Clone the appropriate release repository from https://github.com/ignition-release.
