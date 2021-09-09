@@ -38,6 +38,13 @@ class OSRFBrewCompilation extends OSRFOsXBase
                 reportEncoding()
                 skipSymbolicLinks(false)
               }
+              'io.jenkins.plugins.analysis.warnings.Cmake' {
+                  id()
+                  name()
+                  pattern()
+                  reportEncoding()
+                  skipSymbolicLinks(false)
+                }
             }
 
             sourceCodeEncoding()
