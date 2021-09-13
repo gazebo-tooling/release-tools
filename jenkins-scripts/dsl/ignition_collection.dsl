@@ -44,6 +44,7 @@ ignition_collections = [
 ignition_collection_jobs =
 [
   'citadel' : [
+        'ign_common-ign-3-win',
         'ign_fuel-tools-ign-4-win',
         'ign_gazebo-ign-3-win',
         'ign_gui-ign-3-win',
@@ -62,7 +63,6 @@ ignition_collection_jobs =
         'ignition_cmake2-install_bottle-homebrew-amd64',
         'ignition_common-ci-ign-common3-bionic-amd64',
         'ignition_common-ci-ign-common3-homebrew-amd64',
-        'ignition_common-ci-ign-common3-windows7-amd64',
         'ignition_common3-install-pkg-bionic-amd64',
         'ignition_common3-install_bottle-homebrew-amd64',
         'ignition_fuel-tools-ci-ign-fuel-tools4-bionic-amd64',
@@ -122,6 +122,7 @@ ignition_collection_jobs =
         'sdformat-install-sdformat9_pkg-bionic-amd64'
   ],
   'dome' : [
+        'ign_common-ign-3-win',
         'ign_fuel-tools-ign-5-win',
         'ign_gazebo-ign-4-win',
         'ign_gui-ign-4-win',
@@ -137,7 +138,6 @@ ignition_collection_jobs =
         'ignition_cmake2-install_bottle-homebrew-amd64',
         'ignition_common-ci-ign-common3-bionic-amd64',
         'ignition_common-ci-ign-common3-homebrew-amd64',
-        'ignition_common-ci-ign-common3-windows7-amd64',
         'ignition_common3-install-pkg-bionic-amd64',
         'ignition_common3-install_bottle-homebrew-amd64',
         'ignition_dome-ci-main-homebrew-amd64',
@@ -200,6 +200,7 @@ ignition_collection_jobs =
         'sdformat-install-sdformat10_pkg-bionic-amd64'
   ],
   'edifice' : [
+        'ign_common-ign-4-win',
         'ign_fuel-tools-ign-6-win',
         'ign_gazebo-ign-5-win',
         'ign_gui-ign-5-win',
@@ -216,7 +217,6 @@ ignition_collection_jobs =
         'ignition_cmake2-install_bottle-homebrew-amd64',
         'ignition_common-ci-ign-common4-bionic-amd64',
         'ignition_common-ci-ign-common4-homebrew-amd64',
-        'ignition_common-ci-ign-common4-windows7-amd64',
         'ignition_common4-install-pkg-bionic-amd64',
         'ignition_common4-install_bottle-homebrew-amd64',
         'ignition_edifice-ci-main-homebrew-amd64',
@@ -283,6 +283,7 @@ ignition_collection_jobs =
         'sdformat-install-sdformat11_pkg-bionic-amd64'
   ],
   'fortress' : [
+        'ign_common-ign-4-win',
         'ign_fuel-tools-ci-win',
         'ign_gazebo-ci-win',
         'ign_gui-ci-win',
@@ -299,7 +300,6 @@ ignition_collection_jobs =
         'ignition_cmake2-install_bottle-homebrew-amd64',
         'ignition_common-ci-ign-common4-bionic-amd64',
         'ignition_common-ci-ign-common4-homebrew-amd64',
-        'ignition_common-ci-ign-common4-windows7-amd64',
         'ignition_common4-install-pkg-bionic-amd64',
         'ignition_common4-install_bottle-homebrew-amd64',
         'ignition_fortress-ci-main-homebrew-amd64',

@@ -75,7 +75,8 @@ ignition_prerelease_pkgs    = [ 'placeholder' : [
                               ]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
-ignition_colcon_win         = [ 'fuel-tools',
+ignition_colcon_win         = [ 'common',
+                                'fuel-tools',
                                 'gazebo',
                                 'gui',
                                 'launch',
