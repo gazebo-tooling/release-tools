@@ -242,6 +242,12 @@ goto :EOF
 set LIB_DIR=%~dp0
 call %LIB_DIR%\windows_env_vars.bat || goto :error
 call %win_lib% :check_vcpkg_snapshot || goto :error
+:: update osrf vcpkg overlay
+pushd .
+cd %VCPKG_OSRF_DIR%
+git pull origin master || goto :error
+popd
+
 %VCPKG_CMD% install "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
 goto :EOF
 
@@ -264,21 +270,6 @@ goto :EOF
 %VCPKG_CMD% integrate remove || goto :error
 goto :EOF
 
-:: ##################################
-:install_osrf_vcpkg_package
-:: arg1: package to install
-set LIB_DIR=%~dp0
-set PKG=%1
-set PORT_DIR=%VCPKG_DIR%\ports\%PKG%
-call %LIB_DIR%\windows_env_vars.bat || goto :error
-
-if exist %PORT_DIR% (
-  rmdir /s /q %PORT_DIR% || goto :error
-)
-
-:: update osrf vcpkg overlay
-cd %VCPKG_OSRF_DIR%
-git pull origin master || goto :error
 
 :: copy port to the official tree
 xcopy %VCPKG_OSRF_DIR%\%PKG% %PORT_DIR% /s /i /e || goto :error
