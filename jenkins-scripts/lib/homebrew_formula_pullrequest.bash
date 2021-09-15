@@ -69,14 +69,22 @@ else
 fi
 
 echo
-# get stable sha256 and its line number
+# check if stable sha256 is specified
 SHA=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.checksum"`
-echo Changing sha256 from
-echo ${SHA} to
-echo ${SOURCE_TARBALL_SHA}
-SHA_LINE=`awk "/${SHA}/ {print FNR}" ${FORMULA_PATH} | head -1`
-echo on line number ${SHA_LINE}
-sed -i -e "${SHA_LINE}c\  sha256 \"${SOURCE_TARBALL_SHA}\"" ${FORMULA_PATH}
+if [ -n "$SHA" ]
+then
+  echo Changing sha256 from
+  echo ${SHA} to
+  echo ${SOURCE_TARBALL_SHA}
+  # identify line number
+  SHA_LINE=`awk "/${SHA}/ {print FNR}" ${FORMULA_PATH} | head -1`
+  echo on line number ${SHA_LINE}
+  sed -i -e "${SHA_LINE}c\  sha256 \"${SOURCE_TARBALL_SHA}\"" ${FORMULA_PATH}
+else
+  # sha256 is not specified, so append a line after URI_LINE
+  echo Appending sha256 ${SOURCE_TARBALL_SHA} after line number ${URI_LINE}
+  sed -i -e "${URI_LINE}a\  sha256 \"${SOURCE_TARBALL_SHA}\"" ${FORMULA_PATH}
+fi
 
 echo
 # revision line if it's nonzero
