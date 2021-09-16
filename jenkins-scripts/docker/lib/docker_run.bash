@@ -6,20 +6,27 @@ export docker_cmd="docker"
 # Do not delete packages from the scripts since some of them can be
 # run twice from the same jenkins job and generate different pkgs
 # If you want to do it, better do it from the DSL jenkins configuration
-sudo mkdir -p ${PACKAGE_DIR}
+mkdir -p ${PACKAGE_DIR}
 
 # This are usually for continous integration jobs
 sudo rm -fr ${WORKSPACE}/build
-sudo mkdir -p ${WORKSPACE}/build
+mkdir -p ${WORKSPACE}/build
 
 [[ -z ${DOCKER_DO_NOT_CACHE} ]] && DOCKER_DO_NOT_CACHE=false
+[[ -z ${USE_DOCKER_IN_DOCKER} ]] && export USE_DOCKER_IN_DOCKER=false
 
 # Remove intermediate containers even if the build is not successful
 if $DOCKER_DO_NOT_CACHE; then
   _DOCKER_BUILD_EXTRA_ARGS="--force-rm=true"
 fi
 
+USERID=$(id -u)
+USER=$(whoami)
+
 sudo docker build ${_DOCKER_BUILD_EXTRA_ARGS} \
+                  --build-arg GID=$(id -g $USER) \
+                  --build-arg USERID=$USERID \
+                  --build-arg USER=$USER \
                   --tag ${DOCKER_TAG} .
 
 stop_stopwatch CREATE_TESTING_ENVIROMENT
@@ -41,18 +48,29 @@ if $USE_GPU_DOCKER; then
                     -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
 
   if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
-    if $NVIDIA_DOCKER2_NODE; then
-      export EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} \
-                               --runtime=nvidia"
-    else
-      export docker_cmd="nvidia-docker"
-    fi
+    case ${NVIDIA_DOCKER_DRIVER} in
+      'nvidia-container-toolkit' | 'nvidia-docker2')
+        export EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --runtime=nvidia"
+      ;;
+      'nvidia-docker')
+        export docker_cmd="nvidia-docker"
+      ;;
+      *)
+        echo "No docker-nvidia support was detected but an Nvidia card is detected"
+        echo "Probably a problem in the provisioning of the agent"
+        exit 1
+    esac
   fi
 fi
 
 if $ENABLE_CCACHE; then
   EXTRA_PARAMS_STR="$EXTRA_PARAMS_STR \
                     -v ${CCACHE_DIR}:${CCACHE_DIR}:rw"
+fi
+
+DEVICE_SND=""
+if [[ -d /dev/snd ]]; then
+    DEVICE_SND="--device /dev/snd"
 fi
 
 # DOCKER_FIX is for workaround https://github.com/docker/docker/issues/14203
@@ -64,7 +82,7 @@ sudo ${docker_cmd} run $EXTRA_PARAMS_STR  \
             -v /dev/log:/dev/log:ro \
             -v /run/log:/run/log:ro \
             -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
-            --device /dev/snd \
+            ${DEVICE_SND} \
             --tty \
             --rm \
             ${DOCKER_TAG} \
@@ -73,7 +91,6 @@ sudo ${docker_cmd} run $EXTRA_PARAMS_STR  \
 # Export results out of build directory, to WORKSPACE
 for d in $(find ${WORKSPACE}/build -maxdepth 1 -name '*_results' -type d); do
     sudo mv ${d} ${WORKSPACE}/
-    sudo chown -R jenkins ${WORKSPACE}/*_results
 done
 
 if [[ -z ${KEEP_WORKSPACE} ]]; then
@@ -86,13 +103,4 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
     for d in $(find ${WORKSPACE} -maxdepth 1 -name '*_results' -type d); do
        sudo mv ${d} ${WORKSPACE}/build/
     done
-
-    [[ -d ${PACKAGE_DIR} ]] && sudo chown -R jenkins ${PACKAGE_DIR}
-    sudo chown jenkins -R ${WORKSPACE}/build/
-fi
-
-# workaround for subt.
-# TODO: investigate what is subt doing with permissions on checkout directory
-if [[ -d "${WORKSPACE}/subt" ]]; then
-   sudo chown -R jenkins "${WORKSPACE}/subt"
 fi

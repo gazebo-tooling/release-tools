@@ -6,6 +6,7 @@ def bridge_packages = [
   'ros_ign_gazebo_demos',
   'ros_ign_image',
   'ros_ign',
+  'ros_ign_gazebo',
   'ros_ign_point_cloud'
 ]
 
@@ -25,14 +26,21 @@ bridge_packages.each { pkg ->
       priority 100
     }
 
+    configure { project ->
+      project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
+        'string' 'repository_uploader_*'
+      }
+    }
+
     parameters {
-      stringParam("PACKAGE","$pkg_dashed","Package name to be built")
+        stringParam("PACKAGE","$pkg_dashed","Package name to be built")
+        stringParam("IGNITION_VERSION", '', 'Ignition release supported in the binaries')
         stringParam("VERSION",null,"Packages version to be built")
         stringParam("RELEASE_VERSION", null, "Packages release version")
         stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
-        stringParam("DISTRO", "xenial", "Linux release inside LINUX_DISTRO to build packages for")
+        stringParam("DISTRO", "bionic", "Linux release inside LINUX_DISTRO to build packages for")
         stringParam("ARCH", "amd64", "Architecture to build packages for")
-        stringParam('ROS_DISTRO', 'kinetic','ROS DISTRO to build pakcages for')
+        stringParam('ROS_DISTRO', 'noetic','ROS DISTRO to build pakcages for')
         stringParam("UPLOAD_TO_REPO", 'stable', "OSRF repo name to upload the package to")
         stringParam('UPSTREAM_RELEASE_REPO', 'https://github.com/ignition-release/ros1_ign_bridge-release', 'Release repository url')
     }
@@ -56,7 +64,7 @@ bridge_packages.each { pkg ->
 
     publishers {
       downstreamParameterized {
-        trigger('repository_uploader_ng') {
+        trigger('repository_uploader_packages') {
           condition('SUCCESS')
             parameters {
               currentBuild()

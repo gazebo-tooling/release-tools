@@ -22,6 +22,8 @@
 old_version=${1}
 new_version=${2}
 
+set -e
+
 if [[ $# -lt 1 ]]; then
     echo "bump_major_version.bash <old_version> <new_version>"
     exit 1

@@ -28,11 +28,11 @@ fi
 DELIM_HEADER
 
 # Process the source build of dependencies if needed
-OSRF_DEPS="IGN_CMAKE IGN_TOOLS IGN_MATH IGN_MSGS IGN_TRANSPORT IGN_COMMON IGN_FUEL_TOOLS SDFORMAT IGN_PHYSICS IGN_RENDERING IGN_SENSORS IGN_GUI IGN_GAZEBO"
+OSRF_DEPS="IGN_CMAKE IGN_UTILS IGN_TOOLS IGN_MATH IGN_MSGS IGN_TRANSPORT IGN_COMMON IGN_FUEL_TOOLS SDFORMAT IGN_PHYSICS IGN_RENDERING IGN_SENSORS IGN_GUI IGN_GAZEBO"
 OSRF_DEPS_DONE=""
 for dep_uppercase in $OSRF_DEPS; do
   dep=`echo $dep_uppercase | tr '[:upper:]' '[:lower:]'`
-  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} mercurial"
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} git"
   eval dependecy_installation="\$BUILD_$dep_uppercase"
 
   # Prevent multiple builds of same dep
@@ -48,7 +48,7 @@ for dep_uppercase in $OSRF_DEPS; do
 cat >> build.sh << DELIM_BUILD_DEPS
     echo "# BEGIN SECTION: building dependency: ${dep} (${dep_branch})"
     echo '# END SECTION'
-    rm -fr $WORKSPACE/$dep
+    sudo rm -fr $WORKSPACE/$dep
 
     if [[ ${dep/ign} == ${dep} ]]; then
       dependency_repo="osrf/${dep}"
@@ -87,7 +87,7 @@ make -j\$(cat $WORKSPACE/make_jobs)
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: installing'
-make install
+sudo make install
 stop_stopwatch COMPILATION
 echo '# END SECTION'
 

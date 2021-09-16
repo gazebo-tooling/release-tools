@@ -47,7 +47,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: install build dependencies'
 # Build dependencies
-mk-build-deps -i debian/control --tool 'apt-get --yes'
+mk-build-deps -i debian/control --tool 'sudo apt-get --yes'
 rm *build-deps*.deb
 echo '# END SECTION'
 
@@ -105,8 +105,8 @@ RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
 RUN mkdir -p ${WORKSPACE}
 # automatic invalidation of the cache if day is different
 RUN echo "${TODAY_STR}"
-RUN apt-get update
-RUN apt-get install -y fakeroot debootstrap devscripts equivs dh-make ubuntu-dev-tools mercurial debhelper wget pkg-kde-tools bash-completion git
+RUN sudo apt-get update
+RUN sudo apt-get install -y fakeroot debootstrap devscripts equivs dh-make ubuntu-dev-tools debhelper wget pkg-kde-tools bash-completion git
 ADD build.sh build.sh
 RUN chmod +x build.sh
 DELIM_DOCKER

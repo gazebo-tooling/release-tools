@@ -52,7 +52,10 @@ if ${GIT} rev-parse --verify ${PULL_REQUEST_BRANCH} ; then
 else
   ${GIT} checkout -b ${PULL_REQUEST_BRANCH}
 fi
-${GIT} commit ${FORMULA_PATH} -m "${PACKAGE_ALIAS}: update ${VERSION}${COMMIT_MESSAGE_SUFFIX}"
+if [ -n "${PACKAGE_ALIAS}" ]; then
+  COMMIT_MESSAGE_PREFIX="${PACKAGE_ALIAS}: "
+fi
+${GIT} commit ${FORMULA_PATH} -m "${COMMIT_MESSAGE_PREFIX}update ${VERSION}${COMMIT_MESSAGE_SUFFIX}"
 echo
 ${GIT} status
 echo

@@ -9,15 +9,42 @@ export PATH="/usr/local/bin:$PATH"
 PKG_DIR=${WORKSPACE}/pkgs
 
 echo '# BEGIN SECTION: check variables'
-if [ -z "${PULL_REQUEST_URL}" ]; then
-    echo PULL_REQUEST_URL not specified
+if [ -z "${ghprbActualCommit}" ]; then
+    echo ghprbActualCommit not specified
     exit -1
 fi
+if [ -z "${ghprbGhRepository}" ]; then
+    echo ghprbGhRepository not specified
+    exit -1
+fi
+if [ -z "${ghprbPullId}" ]; then
+    echo ghprbPullId not specified
+    exit -1
+fi
+if [ -z "${ghprbTargetBranch}" ]; then
+    echo ghprbTargetBranch not specified
+    exit -1
+fi
+if [ -z "${sha1}" ]; then
+    echo sha1 not specified
+    exit -1
+fi
+export GITHUB_BASE_REF=${ghprbTargetBranch}
+export GITHUB_REPOSITORY=${ghprbGhRepository}
+export GITHUB_REF=${sha1}
+export GITHUB_SHA=${ghprbActualCommit}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean up environment'
 rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 . ${SCRIPT_LIBDIR}/_homebrew_cleanup.bash
+# don't use HOMEBREW_UPDATE_TO_TAG for bottle builds
+unset HOMEBREW_UPDATE_TO_TAG
+brew up
+# manually exclude a ruby warning that jenkins thinks is from clang
+# https://github.com/osrf/homebrew-simulation/issues/1343
+brew install hub \
+   2>&1 | grep -v 'warning: conflicting chdir during another chdir block'
 echo '# END SECTION'
 
 # set display before building bottle
@@ -30,21 +57,33 @@ export DISPLAY=$(ps ax \
 
 echo '# BEGIN SECTION: run test-bot'
 # The test-bot makes a full cleanup of all installed pkgs. Be sure of install back
-# mercurial to keep the slave working
+# git to keep the slave working
 export HOMEBREW_DEVELOPER=1
 brew tap homebrew/test-bot
-git -C $(brew --repo)/Library/Taps/homebrew/homebrew-test-bot \
-    pull ${TEST_BOT_REPO} ${TEST_BOT_BRANCH}
+brew tap osrf/simulation
+# replace with 'hub -C $(brew --repo osrf/simulation) pr checkout ${ghprbPullId}'
+# after the following hub issue is resolved:
+# https://github.com/github/hub/issues/2612
+pushd $(brew --repo osrf/simulation) && \
+  hub pr checkout ${ghprbPullId} && \
+  popd
+
+# skip tap syntax for now until we replace :x11
+# do this by invoking with --only-setup and --only-formulae
 brew test-bot --tap=osrf/simulation \
-              --root-url=https://osrf-distributions.s3.amazonaws.com/bottles-simulation \
-              --ci-pr ${PULL_REQUEST_URL} \
-            || { brew install hg; exit -1; }
-brew install hg
+              --only-setup
+
+brew test-bot --tap=osrf/simulation \
+              --fail-fast \
+              --only-formulae \
+              --root-url=https://osrf-distributions.s3.amazonaws.com/bottles-simulation
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export bottle'
 if [[ $(find . -name '*.bottle.*' | wc -l | sed 's/^ *//') -lt 2 ]]; then
   echo "Can not find at least two bottle files."
+  # sometimes particular disabled distributions won't generate bottles,
+  # --fail-fast should cover errors in bot. Do not fail
   exit 0
 fi
 
@@ -54,7 +93,7 @@ for j in $(ls *.bottle.json); do
   SRC_BOTTLE=$(brew ruby -e \
     "puts JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['local_filename']")
   DEST_BOTTLE=$(brew ruby -e \
-    "puts JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['filename']")
+    "puts URI.decode(JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['filename'])")
   mv ${SRC_BOTTLE} ${DEST_BOTTLE}
 done
 mv *.bottle*.tar.gz ${PKG_DIR}

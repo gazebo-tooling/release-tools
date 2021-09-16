@@ -9,7 +9,9 @@ release_repo_debbuilds = [ 'opensplice' ]
 
 // List of repositories that host branches compatible with gbp (git build
 // package) method used by debian
-gbp_repo_debbuilds = [ 'ogre-2.1', 'lark-parser' ]
+gbp_repo_debbuilds = [ 'lark-parser',
+                       'ogre-2.1',
+                       'ogre-2.2' ]
 
 release_repo_debbuilds.each { software ->
   // --------------------------------------------------------------
@@ -52,12 +54,14 @@ gbp_repo_debbuilds.each { software ->
                    'Ubuntu DISTRO to build package for')
        stringParam('ARCH','amd64',
                    'Architecture to be used in the built of the package')
+       stringParam('UPLOAD_TO_REPO', 'stable',
+                   'OSRF repo name to upload the package to')
     }
 
     scm {
       git {
         remote {
-          github("osrf/${software}-release", 'https')
+          github("ignition-forks/${software}-release", 'https')
           branch('${BRANCH}')
         }
 
@@ -107,14 +111,19 @@ gbp_repo_debbuilds.each { software ->
       }
 
       downstreamParameterized {
-        trigger('repository_uploader_ng') {
+        trigger('repository_uploader_packages') {
           condition('SUCCESS')
           parameters {
             currentBuild()
             predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-            predefinedProp("UPLOAD_TO_REPO", "stable")
             predefinedProp("PACKAGE_ALIAS", "${software}")
           }
+        }
+      }
+
+      configure { project ->
+        project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
+          'string' 'repository_uploader_*'
         }
       }
 
@@ -123,7 +132,6 @@ gbp_repo_debbuilds.each { software ->
           shell("""\
                 #!/bin/bash -xe
 
-                sudo chown -R jenkins \${WORKSPACE}/repo
                 sudo chown -R jenkins \${WORKSPACE}/pkgs
                 """.stripIndent())
         }

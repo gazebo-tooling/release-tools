@@ -13,10 +13,10 @@ ignition_software = [ 'cmake',
                       'physics',
                       'plugin',
                       'rendering',
-                      'rndf',
                       'sensors',
                       'tools',
-                      'transport' ]
+                      'transport',
+                      'utils' ]
 // DESC: need gpu/display for tests
 ignition_gpu                = [ 'gazebo',
                                 'gui',
@@ -27,31 +27,47 @@ ignition_no_test            = [ 'tools' ]
 // DESC: major series supported and released. The branches get CI, install pkg
 // testing and debbuild job.
 // No branches in ignition_branches means no released branches (only CI on
-// master, ABI check, install pkg)
-ignition_branches           = [ 'cmake'      : [ '1', '2' ],
-                                'common'     : [ '1', '2', '3' ],
-                                'fuel-tools' : [ '1', '2', '3', '4' ],
-                                'gazebo'     : [ '2', '3' ],
-                                'gui'        : [ '0', '2', '3' ],
-                                'launch'     : [ '1', '2' ],
-                                'math'       : [ '2', '4', '5', '6' ],
-                                'msgs'       : [ '1', '2', '4', '5' ],
-                                'physics'    : [ '1', '2' ],
-                                'plugin'     : [ '0', '1' ],
-                                'rendering'  : [ '0', '2', '3' ],
-                                'sensors'    : [ '2', '3' ],
-                                'transport'  : [ '4', '5', '7', '8' ],
-                                'tools'      : [ '0', '1' ]]
+// main, ABI check, install pkg)
+ignition_branches           = [ 'cmake'      : [ '2' ],
+                                'common'     : [ '1', '3', '4' ],
+                                'fuel-tools' : [ '1', '4', '5', '6' ],
+                                'gazebo'     : [ '3', '4', '5' ],
+                                'gui'        : [ '0', '3', '4', '5' ],
+                                'launch'     : [ '2', '3', '4' ],
+                                'math'       : [ '4', '6' ],
+                                'msgs'       : [ '1', '5', '6', '7' ],
+                                'physics'    : [ '2', '3', '4' ],
+                                'plugin'     : [ '1' ],
+                                'rendering'  : [ '3', '4', '5' ],
+                                'sensors'    : [ '3', '4', '5' ],
+                                'tools'      : [ '1' ],
+                                'transport'  : [ '4', '8', '9', '10' ],
+                                'utils'      : [ '1' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
-// physics/sensors don't need to be included since they use master for gz11
+// physics/sensors don't need to be included since they use main for gz11
 ignition_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
-ignition_debbuild  = ignition_software + [ ]
+ignition_extra_debbuild = [ 'cmake3',
+                            'common5',
+                            'fuel-tools7',
+                            'gazebo6',
+                            'gui6',
+                            'launch5',
+                            'math7',
+                            'msgs8',
+                            'physics5',
+                            'plugin2',
+                            'rendering6',
+                            'sensors6',
+                            'tools2',
+                            'transport11',
+                            'utils1', // see comment https://github.com/ignition-tooling/release-tools/pull/431#issuecomment-815099918
+                            'utils2']
 // DESC: exclude ignition from generate any install testing job
-ignition_no_pkg_yet         = [ 'rndf' ]
+ignition_no_pkg_yet         = [  ]
 // DESC: major versions that has a package in the prerelease repo. Should
 // not appear in ignition_no_pkg_yet nor in ignition_branches
 ignition_prerelease_pkgs    = [ 'placeholder' : [
@@ -59,12 +75,17 @@ ignition_prerelease_pkgs    = [ 'placeholder' : [
                               ]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
-ignition_colcon_win         = [ 'gazebo',
+ignition_colcon_win         = [ 'common',
+                                'fuel-tools',
+                                'gazebo',
                                 'gui',
                                 'launch',
                                 'physics',
+                                'plugin',
                                 'rendering',
-                                'sensors' ]
+                                'sensors',
+                                'transport',
+                                'utils' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -80,6 +101,16 @@ all_supported_distros = ci_distro + other_supported_distros
 abi_job_names = [:]
 
 Globals.extra_emails = "caguero@osrfoundation.org"
+
+// shell command to inject in all bash steps
+GLOBAL_SHELL_CMD=''
+
+// Fortress release needed to invalidate cache to solve problem with bug in
+// gzdev docker installation. Will be disable automatically in 1st May 2021
+today = new Date().format( 'yyyyMMdd' )
+if (today.compareTo('20210501')) {
+  GLOBAL_SHELL_CMD='export INVALIDATE_DOCKER_CACHE=true'
+}
 
 String ci_distro_str = ci_distro[0]
 
@@ -142,7 +173,7 @@ ArrayList all_branches(String ign_software)
       branches.add("ign-${ign_software}${major_version}")
     }
   }
-  branches.add('master')
+  branches.add('main')
   prerelease_branches("${ign_software}").each { branch ->
     if ("${branch}") {
       branches.add(branch)
@@ -151,6 +182,28 @@ ArrayList all_branches(String ign_software)
   return branches
 }
 
+//
+ArrayList all_debbuilders()
+{
+  List<String> branches = new ArrayList<String>();
+  // add all supported branches
+  ignition_software.each { ign_software ->
+    supported_branches("${ign_software}").each { major_version ->
+      if (major_version) {
+        // No 1-debbuild versions, they use the unversioned job
+        if ("${major_version}" == "0"  || "${major_version}" == "1" )
+          major_version = ""
+          branches.add("ign-${ign_software}${major_version}")
+      }
+    }
+  }
+  // add all extra debbuilders
+  ignition_extra_debbuild.each { ign_name ->
+    branches.add("ign-${ign_name}")
+  }
+
+  return branches
+}
 
 // return all ci branch names
 // Map with the form of: major versions as keys.
@@ -219,14 +272,17 @@ boolean is_a_colcon_package(String ign_software_name)
 ignition_software.each { ign_sw ->
   abi_distro.each { distro ->
     supported_arches.each { arch ->
+      // Packages without ABI
+      if (ign_sw == 'tools' || ign_sw == 'cmake')
+        return
+
       abi_job_names[ign_sw] = "ignition_${ign_sw}-abichecker-any_to_any-ubuntu_auto-${arch}"
       def abi_job = job(abi_job_names[ign_sw])
       checkout_subdir = "ign-${ign_sw}"
-
       OSRFLinuxABIGitHub.create(abi_job)
-      OSRFGitHub.create(abi_job,
+      GenericAnyJobGitHub.create(abi_job,
                         "ignitionrobotics/ign-${ign_sw}",
-                        '${DEST_BRANCH}', checkout_subdir)
+                        all_branches(ign_sw) - [ 'main'])
       abi_job.with
       {
         if (ign_sw == 'physics')
@@ -235,19 +291,15 @@ ignition_software.each { ign_sw ->
         steps {
           shell("""\
                 #!/bin/bash -xe
-                wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
-                source yaml.sh
-
-                create_variables \${WORKSPACE}/${checkout_subdir}/bitbucket-pipelines.yml
 
                 export DISTRO=${distro}
 
-                if [[ -n \${image} ]]; then
-                  echo "Bitbucket pipeline.yml detected. Default DISTRO is ${distro}"
-                  export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
-                fi
+                ${GLOBAL_SHELL_CMD}
 
                 export ARCH=${arch}
+                export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
+                export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
+                export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
                 export ABI_JOB_SOFTWARE_NAME=${checkout_subdir}
                 /bin/bash -xe ./scripts/jenkins-scripts/docker/ignition-abichecker.bash
                 """.stripIndent())
@@ -273,42 +325,12 @@ ignition_software.each { ign_sw ->
     {
       steps
       {
-         conditionalSteps
-         {
-           condition
-           {
-             not {
-               expression('${ENV, var="ghprbTargetBranch"}', 'master')
-             }
-
-             steps {
-               downstreamParameterized {
-                trigger(abi_job_names[ign_sw]) {
-                   parameters {
-                     currentBuild()
-                     predefinedProp('DEST_BRANCH', '$ghprbTargetBranch')
-                     predefinedProp('SRC_BRANCH', '$ghprbSourceBranch')
-                     predefinedProp('SRC_REPO', '$ghprbAuthorRepoGitUrl')
-                   }
-                 }
-               }
-             }
-           }
-         }
-
          shell("""\
               #!/bin/bash -xe
-              wget https://raw.githubusercontent.com/osrf/bash-yaml/master/yaml.sh -O yaml.sh
-              source yaml.sh
-
-              create_variables \${WORKSPACE}/${ignition_checkout_dir}/bitbucket-pipelines.yml
 
               export DISTRO=${ci_distro_str}
 
-              if [[ -n \${image} ]]; then
-                echo "Bitbucket pipeline.yml detected. Default DISTRO is ${ci_distro}"
-                export DISTRO=\$(echo \${image} | sed  's/ubuntu://')
-              fi
+              ${GLOBAL_SHELL_CMD}
 
               export ARCH=${arch}
 
@@ -331,32 +353,6 @@ ignition_software.each { ign_sw ->
   supported_arches.each { arch ->
     supported_install_pkg_branches(ign_sw).each { major_version, supported_distros ->
       supported_distros.each { distro ->
-        // no bionic for math2 or math3
-        if (("${distro}" == "bionic") && (
-            (("${ign_sw}" == "math") && ("${major_version}" == "2"))))
-          return
-        // no xenial support for cmake2 and things that use it
-        if (("${distro}" == "xenial") && (
-            (("${ign_sw}" == "cmake")      && ("${major_version}" == "2")) ||
-            (("${ign_sw}" == "common")     && ("${major_version}" == "3")) ||
-            (("${ign_sw}" == "fuel-tools") &&
-              (("${major_version}" == "3") || ("${major_version}" == "4"))) ||
-             ("${ign_sw}" == "gazebo")     ||
-             ("${ign_sw}" == "gui")        ||
-             ("${ign_sw}" == "launch")     ||
-            (("${ign_sw}" == "math")       && ("${major_version}" == "6")) ||
-            (("${ign_sw}" == "msgs")       &&
-              (("${major_version}" == "2") || ("${major_version}" == "3") ||
-               ("${major_version}" == "4") || ("${major_version}" == "5"))) ||
-             ("${ign_sw}" == "physics")    ||
-             ("${ign_sw}" == "plugin")     ||
-             ("${ign_sw}" == "rendering")  ||
-             ("${ign_sw}" == "sensors")    ||
-            (("${ign_sw}" == "transport")  &&
-              (("${major_version}" == "6") ||
-               ("${major_version}" == "7") || ("${major_version}" == "8")))))
-          return
-
         extra_repos_str=""
         if ((ign_sw in ignition_prerelease_pkgs) &&
            (major_version in ignition_prerelease_pkgs[ign_sw]) &&
@@ -376,7 +372,7 @@ ignition_software.each { ign_sw ->
         install_default_job.with
         {
           triggers {
-            cron('@daily')
+            cron(Globals.CRON_EVERY_THREE_DAYS)
           }
 
           def dev_package = "libignition-${ign_sw}${major_version}-dev"
@@ -385,6 +381,8 @@ ignition_software.each { ign_sw ->
           steps {
            shell("""\
                  #!/bin/bash -xe
+
+                 ${GLOBAL_SHELL_CMD}
 
                  export DISTRO=${distro}
                  export ARCH=${arch}
@@ -419,42 +417,11 @@ ignition_software.each { ign_sw ->
             scm('@daily')
           }
 
-          // no xenial for ign-physics/sensors/gazebo or plugin master/ign-plugin1
-          if (("${distro}" == "xenial") && (
-              ("${ign_sw}" == "cmake" && "${branch}" == "ign-cmake2") ||
-              ("${ign_sw}" == "cmake" && "${branch}" == "master") ||
-              ("${ign_sw}" == "common" && "${branch}" == "master") ||
-              ("${ign_sw}" == "common" && "${branch}" == "ign-common3") ||
-              ("${ign_sw}" == "fuel-tools" && "${branch}" != "ign-fuel-tools1") ||
-              ("${ign_sw}" == "gazebo") ||
-              ("${ign_sw}" == "gui") ||
-              ("${ign_sw}" == "launch") ||
-              ("${ign_sw}" == "math" && "${branch}" == "ign-math6") ||
-              ("${ign_sw}" == "math" && "${branch}" == "master") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs2") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs3") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs4") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "ign-msgs5") ||
-              ("${ign_sw}" == "msgs" && "${branch}" == "master") ||
-              ("${ign_sw}" == "physics") ||
-              ("${ign_sw}" == "plugin" && "${branch}" != "ign-plugin0") ||
-              ("${ign_sw}" == "rendering" && "${branch}" != "ign-rendering0") ||
-              ("${ign_sw}" == "sensors") ||
-              ("${ign_sw}" == "tools") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport6") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport7") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "ign-transport8") ||
-              ("${ign_sw}" == "transport" && "${branch}" == "master")))
-            disabled()
-
-          // gz11 branches don't work on xenial
-          if (("${branch}" == "gz11") && ("${distro}" == "xenial"))
-            disabled()
-
           steps {
             shell("""\
                   #!/bin/bash -xe
 
+                  ${GLOBAL_SHELL_CMD}
                   export DISTRO=${distro}
                   export ARCH=${arch}
                   /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
@@ -468,30 +435,25 @@ ignition_software.each { ign_sw ->
 
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
-ignition_debbuild.each { ign_sw ->
-  supported_branches("${ign_sw}").each { major_version ->
-    // No 1-debbuild versions, they use the unversioned job
-    if ("${major_version}" == "0"  || "${major_version}" == "1" )
-      major_version = ""
+all_debbuilders().each { debbuilder_name ->
+  extra_str = ""
+  if (debbuilder_name.contains("gazebo") || debbuilder_name == "transport7")
+    extra_str="export NEED_C17_COMPILER=true"
 
-    extra_str = ""
-    if (("${ign_sw}" == "gazebo") ||
-        (("${ign_sw}" == "transport") && ("${major_version}" == "6"  || "${major_version}" == "7" )))
-      extra_str="export USE_GCC8=true"
+  println("Generating: ${debbuilder_name}-debbuilder")
+  def build_pkg_job = job("${debbuilder_name}-debbuilder")
+  OSRFLinuxBuildPkg.create(build_pkg_job)
+  build_pkg_job.with
+  {
+      steps {
+        shell("""\
+              #!/bin/bash -xe
 
-    def build_pkg_job = job("ign-${ign_sw}${major_version}-debbuilder")
-    OSRFLinuxBuildPkg.create(build_pkg_job)
-    build_pkg_job.with
-    {
-        steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                ${extra_str}
-                /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
-                """.stripIndent())
-        }
-    }
+              ${GLOBAL_SHELL_CMD}
+              ${extra_str}
+              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
+              """.stripIndent())
+      }
   }
 }
 
@@ -525,7 +487,7 @@ ignition_software.each { ign_sw ->
   // add ci-pr_any to the list for CIWorkflow
   ci_pr_any_list[ign_sw] << ignition_brew_ci_any_job_name
 
-  // 2. master, release branches
+  // 2. main, release branches
   all_branches("${ign_sw}").each { branch ->
     def ignition_brew_ci_job = job("ignition_${ign_sw}-ci-${branch}-homebrew-amd64")
     OSRFBrewCompilation.create(ignition_brew_ci_job, enable_testing(ign_sw))
@@ -553,6 +515,44 @@ ignition_software.each { ign_sw ->
         }
     }
   }
+
+  // 3. install jobs to test bottles
+  supported_install_pkg_branches(ign_sw).each { major_version, supported_distros ->
+    def install_default_job = job("ignition_${ign_sw}${major_version}-install_bottle-homebrew-amd64")
+    OSRFBrewInstall.create(install_default_job)
+
+    install_default_job.with
+    {
+      // disable some bottles
+      if (("${ign_sw}" == "gui" && "${major_version}" == "0"))
+        disabled()
+
+      triggers {
+        cron('@daily')
+      }
+
+      def bottle_name = "ignition-${ign_sw}${major_version}"
+
+      steps {
+       shell("""\
+             #!/bin/bash -xe
+
+             /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${bottle_name}
+             """.stripIndent())
+      }
+
+      publishers
+      {
+         configure { project ->
+           project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+              unstableOnWarning true
+              failBuildOnError false
+              parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+            }
+         }
+      }
+    }
+  }
 }
 
 // --------------------------------------------------------------
@@ -571,10 +571,21 @@ ignition_software.each { ign_sw ->
     Globals.gazebodistro_branch = false
   }
 
+  supported_branches = []
+
+  // ign-gazebo only support Windows from ign-gazebo5
+  if (ign_sw == 'gazebo')
+    supported_branches = [ 'ign-gazebo5', 'main' ]
+
+  // ign-launch only support Windows from ign-launch5
+  if (ign_sw == 'launch')
+    supported_branches = [ 'main' ]
+
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAnyGitHub.create(ignition_win_ci_any_job,
                                     "ignitionrobotics/ign-${ign_sw}",
-                                    enable_testing(ign_sw))
+                                    enable_testing(ign_sw),
+                                    supported_branches)
   ignition_win_ci_any_job.with
   {
       steps {
@@ -587,12 +598,12 @@ ignition_software.each { ign_sw ->
   // add ci-pr_any to the list for CIWorkflow
   ci_pr_any_list[ign_sw] << ignition_win_ci_any_job_name
 
-  // 2. master, release branches
+  // 2. main, release branches
   all_branches("${ign_sw}").each { branch ->
     if (is_a_colcon_package(ign_sw)) {
       // colcon uses long paths and windows has a hard limit of 260 chars. Keep
       // names minimal
-      if (branch == 'master')
+      if (branch == 'main')
         branch_name = "ci"
       else
         branch_name = branch - ign_sw
@@ -609,8 +620,12 @@ ignition_software.each { ign_sw ->
 
     ignition_win_ci_job.with
     {
-        // ign-gazebo/ign-launch still not ported completely to Windows
-        if (ign_sw == 'gazebo' || ign_sw == 'launch')
+        // ign-gazebo only works on Windows from ign-gazebo5
+        if (branch == 'ign-gazebo3' || branch == 'ign-gazebo4')
+          disabled()
+
+        // ign-launch still not ported completely to Windows
+        if (ign_sw == 'launch' && branch != 'main')
           disabled()
 
         triggers {
@@ -630,5 +645,5 @@ ignition_software.each { ign_sw ->
 ignition_software.each { ign_sw ->
   def String ci_main_name = "ignition_${ign_sw}-ci-manual_any"
   def ign_ci_main = pipelineJob(ci_main_name)
-  OSRFCIWorkFlowMultiAny.create(ign_ci_main, ci_pr_any_list[ign_sw])
+  OSRFCIWorkFlowMultiAnyGitHub.create(ign_ci_main, ci_pr_any_list[ign_sw])
 }

@@ -19,7 +19,7 @@ export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_PLUGIN_DEPENDENCIES"
 
 # Identify IGN_PLUGIN_MAJOR_VERSION to help with dependency resolution
 IGN_PLUGIN_MAJOR_VERSION=$(\
-  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-plugin/CMakeLists.txt)
 
 # Check IGN_PLUGIN version is integer
@@ -29,7 +29,7 @@ if ! [[ ${IGN_PLUGIN_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 if [[ ${IGN_PLUGIN_MAJOR_VERSION} -ge 6 ]]; then
-  export USE_GCC8=true
+  export NEED_C17_COMPILER=true
 fi
 
 export GZDEV_PROJECT_NAME="ignition-plugin${IGN_PLUGIN_DEPENDENCIES}"

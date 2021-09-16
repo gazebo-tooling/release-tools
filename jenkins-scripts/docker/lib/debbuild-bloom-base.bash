@@ -53,11 +53,11 @@ fi
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install build dependencies'
-mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
+sudo mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run rosdep'
-rosdep init
+sudo rosdep init
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: create source package'
@@ -128,11 +128,10 @@ DEPENDENCY_PKGS="devscripts \
 		 ca-certificates \
 		 equivs \
 		 dh-make \
-		 mercurial \
 		 git \
-                 python-openssl \
+		 python-openssl \
                  ca-certificates \
- 		 python-rosdep"
+		 ${pythonv}-rosdep"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash

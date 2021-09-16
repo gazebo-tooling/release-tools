@@ -100,7 +100,7 @@ class OSRFLinuxBuildPkg
         }
 
         downstreamParameterized {
-	  trigger('repository_uploader_ng') {
+	  trigger('repository_uploader_packages') {
 	    condition('UNSTABLE_OR_BETTER')
 	    parameters {
 	      currentBuild()
@@ -110,6 +110,12 @@ class OSRFLinuxBuildPkg
 	      predefinedProp("JENKINS_NODE_TAG", "master")
 	    }
 	  }
+        }
+      }
+
+      configure { project ->
+        project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
+          'string' 'repository_uploader_*'
         }
       }
     } // end of job

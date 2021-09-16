@@ -49,9 +49,47 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
     {
       publishers
       {
-         // compilers warnings
-         warnings(['GNU C Compiler 4 (gcc)'], null) {
-             thresholds(unstableTotal: [all: 0])
+          configure { project ->
+            project / publishers / 'io.jenkins.plugins.analysis.core.steps.IssuesRecorder' {
+              analysisTools {
+                'io.jenkins.plugins.analysis.warnings.Gcc4' {
+                  id()
+                  name()
+                  pattern()
+                  reportEncoding()
+                  skipSymbolicLinks(false)
+                }
+                'io.jenkins.plugins.analysis.warnings.Cmake' {
+                  id()
+                  name()
+                  pattern()
+                  reportEncoding()
+                  skipSymbolicLinks(false)
+                }
+              }
+
+              sourceCodeEncoding()
+              ignoreQualityGate(false)
+              ignoreFailedBuilds(true)
+              referenceJobName()
+              healthy(0)
+              unhealthy(0)
+              minimumSeverity {
+                name('LOW')
+              }
+              filters { }
+              isEnabledForFailure(false)
+              isAggregatingResults(false)
+              isBlameDisabled(false)
+
+              qualityGates {
+                'io.jenkins.plugins.analysis.core.util.QualityGate' {
+                  threshold(1)
+                  type('TOTAL')
+                  status('WARNING')
+                }
+              }
+            }
          }
 
          if (enable_cppcheck)

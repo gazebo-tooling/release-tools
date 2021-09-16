@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def supported_distros = [ 'xenial' ]
+def supported_distros = [ 'bionic' ]
 def supported_arches = [ 'amd64' ]
 
 
@@ -21,7 +21,7 @@ supported_distros.each { distro ->
       scm {
         git {
           remote {
-            github('osrf/gzdev', 'https')
+            github('ignition-tooling/gzdev', 'https')
             branch('refs/heads/master')
 
             extensions {
@@ -30,9 +30,6 @@ supported_distros.each { distro ->
           }
         }
       }
-
-      // use only the most powerful nodes
-      label "large-memory"
 
       triggers {
         scm('*/5 * * * *')
@@ -53,27 +50,12 @@ supported_distros.each { distro ->
     // --------------------------------------------------------------
     // 3. Create the testing any job
     def gzdev_any_job = job("gzdev-ci-pr_any-${distro}-${arch}")
-    // Use stub to supply a fake bitbucket repository. It is overwritten by the
-    // git scm section below. False to disable testing.
-    OSRFLinuxCompilationAny.create(gzdev_any_job, "repo_stub", false, false)
+    OSRFLinuxCompilationAnyGitHub.create(gzdev_any_job, "ignition-tooling/gzdev", false, false)
 
     gzdev_any_job.with
     {
       // use only the most powerful nodes
       label "large-memory"
-
-      scm {
-        git {
-          remote {
-            github('osrf/gzdev', 'https')
-            branch('${SRC_BRANCH}')
-
-            extensions {
-              relativeTargetDirectory('gzdev')
-            }
-          }
-        }
-      }
 
       steps {
         shell("""\
@@ -88,6 +70,3 @@ supported_distros.each { distro ->
     }
   }
 }
-
-
-

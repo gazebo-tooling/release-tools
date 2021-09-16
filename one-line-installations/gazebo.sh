@@ -145,7 +145,7 @@ do_install() {
 			dist_version="$(. /etc/os-release && echo "$UBUNTU_CODENAME")"
 		;;
 
-		ubuntu)
+		ubuntu | pop)
 			if command_exists lsb_release; then
 				dist_version="$(lsb_release --codename | cut -f2)"
 			fi
@@ -229,7 +229,7 @@ do_install() {
 			echo_gazebo_as_nonroot
 			exit 0
 			;;
-		debian | ubuntu)
+		debian | ubuntu | pop)
 			export DEBIAN_FRONTEND=noninteractive
 			DEB_PKG_NAME="libgazebo$GZ_VER-dev gazebo$GZ_VER"
 
@@ -291,10 +291,12 @@ do_install() {
 			  fi
 
 			  if ! pkgutil --pkg-info org.macosforge.xquartz.pkg; then
-				echo "Installing XQuartz:"
-				brew install Caskroom/cask/xquartz
-				echo "XQuartz installation complete."
-				echo
+				if ! pkgutil --pkg-info org.xquartz.X11; then
+				  echo "Installing XQuartz:"
+				  brew install homebrew/cask/xquartz
+				  echo "XQuartz installation complete."
+				  echo
+				fi
 			  fi
 
 			  brew tap osrf/simulation
@@ -313,7 +315,7 @@ do_install() {
 	cat >&2 <<-'EOF_END'
 
 	Either your platform is not easily detectable, is not supported by this
-	installer script (yet - PRs welcome! [https://bitbucket.org/osrf/release-tools])
+	installer script (yet - PRs welcome! [https://github.com/ignition-tooling/release-tools])
     or does not yet have a package for gazebo.  Please visit the following URL for more detailed
 	installation instructions:
 

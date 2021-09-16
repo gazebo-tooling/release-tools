@@ -1,17 +1,21 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import subprocess
 import sys
 import tempfile
 import os
-import urllib
+import urllib.parse
+import urllib.request
 import argparse
 import shutil
 import re
 
 USAGE = 'release.py <package> <version> <jenkinstoken>'
-JENKINS_URL = 'http://build.osrfoundation.org'
+try:
+    JENKINS_URL = os.environ['JENKINS_URL']
+except KeyError:
+    JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuilder'
 JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
 GENERIC_BREW_PULLREQUEST_JOB='generic-release-homebrew_pull_request_updater'
@@ -26,20 +30,16 @@ RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 # the release repositories, when needed.
 UBUNTU_DISTROS = []
 
-OSRF_REPOS_SUPPORTED="stable prerelease nightly mentor2 haptix-pre"
-OSRF_REPOS_SELF_CONTAINED="mentor2"
+OSRF_REPOS_SUPPORTED = "stable prerelease nightly"
+OSRF_REPOS_SELF_CONTAINED = ""
 
 DRY_RUN = False
 NIGHTLY = False
 PRERELEASE = False
 UPSTREAM = False
 NO_SRC_FILE = False
-IGN_REPO = False
 
 IGNORE_DRY_RUN = True
-
-class ErrorGitRepo(Exception):
-    pass
 
 class ErrorNoPermsRepo(Exception):
     pass
@@ -48,6 +48,9 @@ class ErrorNoUsernameSupplied(Exception):
     pass
 
 class ErrorURLNotFound404(Exception):
+    pass
+
+class ErrorNoOutput(Exception):
     pass
 
 def error(msg):
@@ -68,11 +71,11 @@ def is_catkin_package():
 
 def github_repo_exists(url):
     try:
-        check_call(['git', 'ls-remote', url], IGNORE_DRY_RUN)
-    except ErrorURLNotFound404 as e:
+        check_call(['git', 'ls-remote', '-q', '--exit-code', url], IGNORE_DRY_RUN)
+    except (ErrorURLNotFound404, ErrorNoOutput) as e:
         return False
     except Exception as e:
-        error("Unexpected problem checking for git repo: " + e.what())
+        error("Unexpected problem checking for git repo: " + str(e))
     return True
 
 def generate_package_source(srcdir, builddir):
@@ -87,13 +90,21 @@ def generate_package_source(srcdir, builddir):
     check_call(cmake_cmd + [srcdir])
     check_call(['make', 'package_source'])
 
+
+def exists_main_branch(github_url):
+    check_main_cmd = ['git', 'ls-remote', '--exit-code', '--heads', github_url, 'main']
+    try:
+        if (check_call(check_main_cmd, IGNORE_DRY_RUN)):
+            return True
+    except Exception as e:
+        return False
+
 def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
     global PRERELEASE
     global UPSTREAM
     global NO_SRC_FILE
-    global IGN_REPO
 
     parser = argparse.ArgumentParser(description='Make releases.')
     parser.add_argument('package', help='which package to release')
@@ -116,21 +127,28 @@ def parse_args(argv):
                         help='no-sanity-checks; i.e. skip sanity checks commands')
     parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
                         help='Do not generate source file when building')
-    parser.add_argument('--ignition-repo', dest='ignition_repo', action='store_true', default=False,
-                        help='use ignition robotics URL repositories instead of OSRF')
+    parser.add_argument('--no-ignition-auto', dest='no_ignition_auto', action='store_true', default=False,
+                        help='Use package name to create --package-alias if package name starts with ign-')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
     parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
                         help='extra OSRF repository to use in the build')
-    parser.add_argument('--nightly-src-branch', dest='nightly_branch', default="default",
+    parser.add_argument('--nightly-src-branch', dest='nightly_branch', default="main",
                         help='branch in the source code repository to build the nightly from')
+    parser.add_argument('--only-bump-revision-linux', dest='bump_rev_linux_only',
+                        action='store_true', default=False,
+                        help='Bump only revision number. Do not upload new tarball.')
+
     args = parser.parse_args()
-    if not args.package_alias:
-        args.package_alias = args.package
+
+    args.package_alias = args.package
+    # If ignition auto is enabled, replace ign- with ignition- at the beginning
+    if not args.no_ignition_auto and args.package.startswith('ign-'):
+        args.package_alias = args.package.replace('ign-', 'ignition-')
+
     DRY_RUN = args.dry_run
     UPSTREAM = args.upstream
     NO_SRC_FILE = args.no_source_file
-    IGN_REPO = args.ignition_repo
     UPLOAD_REPO = args.upload_to_repository
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
@@ -145,9 +163,10 @@ def parse_args(argv):
     return args
 
 def get_release_repository_info(package):
-    # if fails with http URL for github, it will ask for auth in stdin. Use the
-    # git@ approach to avoid interaction
-    github_test_url = "git@github.com:ignition-release/" + package + "-release"
+    # Do not use git@github method since it fails in non existant repositories
+    # asking for stdin user/pass. Same happen if no user/pass is provided
+    # using the fake foo:foo here seems to work
+    github_test_url = "https://foo:foo@github.com/ignition-release/" + package + "-release"
     if (github_repo_exists(github_test_url)):
         github_url = "https://github.com/ignition-release/" + package + "-release"
         return 'git', github_url
@@ -161,10 +180,15 @@ def download_release_repository(package, release_branch):
     if vcs == "git" and release_branch == "default":
         release_branch = "master"
 
-    cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
+    # If main branch exists, prefer it over master
+    if release_branch == "master":
+        if exists_main_branch(url):
+            print_success('Found main branch in repo, use it instead master')
+            release_branch = 'main'
 
+    cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
     check_call(cmd, IGNORE_DRY_RUN)
-    return release_tmp_dir
+    return release_tmp_dir, release_branch
 
 def sanity_package_name_underscore(package, package_alias):
     # Alias is never empty. It hosts a exect copy of package if not provided
@@ -184,7 +208,7 @@ def sanity_package_name(repo_dir, package, package_alias):
 
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
-    for line in out.split("\n"):
+    for line in out.decode().split('\n'):
         if not line:
             continue
         # Check that first word is the package alias or name
@@ -193,7 +217,7 @@ def sanity_package_name(repo_dir, package, package_alias):
 
     cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
-    for line in out.split("\n"):
+    for line in out.decode().split('\n'):
         if not line:
             continue
         # Check that first word is the package alias or name
@@ -205,7 +229,7 @@ def sanity_package_name(repo_dir, package, package_alias):
 def sanity_package_version(repo_dir, version, release_version):
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
-    for line in out.split("\n"):
+    for line in out.decode().split('\n'):
         if not line:
             continue
         # return full version in brackets
@@ -283,14 +307,13 @@ def check_s3cmd_configuration():
     return True
 
 def sanity_checks(args, repo_dir):
-    check_s3cmd_configuration()
-
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
     sanity_use_prerelease_branch(args.release_repo_branch)
 
     if not NIGHTLY:
+        check_s3cmd_configuration()
         sanity_package_version(repo_dir, args.version, str(args.release_version))
         sanity_check_gazebo_versions(args.package, args.version)
         sanity_check_sdformat_versions(args.package, args.version)
@@ -312,10 +335,9 @@ def discover_distros(repo_dir):
     if not os.path.isdir(repo_dir):
         return None
 
-    root, subdirs, files = os.walk(repo_dir).next()
+    _, subdirs, files = os.walk(repo_dir).__next__()
     repo_arch_exclusion = get_exclusion_arches(files)
 
-    if '.hg' in subdirs: subdirs.remove('.hg')
     if '.git' in subdirs: subdirs.remove('.git')
     # remove ubuntu (common stuff) and debian (new supported distro at top level)
     if 'ubuntu' in subdirs: subdirs.remove('ubuntu')
@@ -328,7 +350,7 @@ def discover_distros(repo_dir):
 
     distro_arch_list = {}
     for d in subdirs:
-        files = os.walk(repo_dir + '/' + d).next()[2]
+        files = os.walk(repo_dir + '/' + d).__next__()[2]
         distro_arch_exclusion = get_exclusion_arches(files)
         excluded_arches = distro_arch_exclusion + repo_arch_exclusion
         arches_supported = [x for x in SUPPORTED_ARCHS if x not in excluded_arches]
@@ -353,26 +375,30 @@ def check_call(cmd, ignore_dry_run = False):
         out, err = po.communicate()
         if po.returncode != 0:
             # bitbucket for the first one, github for the second
-            if ("404" in err) or ("Repository not found" in err):
+            if (b"404" in err) or (b"Repository not found" in err):
                 raise ErrorURLNotFound404()
-            if "Permission denied" in out:
+            if b"Permission denied" in out:
                 raise ErrorNoPermsRepo()
-            if "abort: no username supplied" in err:
+            if b"abort: no username supplied" in err:
                 raise ErrorNoUsernameSupplied()
-            if "hg" in cmd:
-                try:
-                    r = subprocess.Popen(["git", "status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                except OSError as e:
-                    print("Unable to run 'git status'. Is git installed?")
-                    raise
-                if r.returncode != 0:
-                    raise ErrorGitRepo()
+            if not out and not err:
+                # assume that call is only for getting return code
+                raise ErrorNoOutput()
+
             # Unkown exception
             print('Error running command (%s).'%(' '.join(cmd)))
-            print('stdout: %s'%(out))
-            print('stderr: %s'%(err))
+            print('stdout: %s'%(out.decode()))
+            print('stderr: %s'%(err.decode()))
             raise Exception('subprocess call failed')
         return out, err
+
+
+# Returns tarball name: package name/alias without versions
+def create_tarball_name(args):
+    # For ignition, we use the package_alias instead of package
+    return re.sub(r'[0-9]+$', '',
+                  args.package if not IGN_REPO else args.package_alias)
+
 
 # Returns: sha, tarball file name, tarball full path
 def create_tarball_path(tarball_name, version, builddir, dry_run):
@@ -390,8 +416,13 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
                 error("Can not find a tarball at: " + tarball_path + " or at " + alt_tarball_path)
         tarball_path = alt_tarball_path
 
-    shasum_out_err = check_call(['shasum', '--algorithm', '256', tarball_path])
-    return shasum_out_err[0].split(' ')[0], tarball_fname, tarball_path
+    out, err = check_call(['shasum', '--algorithm', '256', tarball_path])
+    if err:
+        error("shasum returned an error: " + err.decode())
+    if isinstance(out, bytes):
+        out = out.decode()
+
+    return out.split(' ')[0], tarball_fname, tarball_path
 
 def generate_upload_tarball(args):
     ###################################################
@@ -401,38 +432,36 @@ def generate_upload_tarball(args):
     sourcedir = os.getcwd()
     tmpdir    = tempfile.mkdtemp()
     builddir  = os.path.join(tmpdir, 'build')
-    # Put the hg-specific stuff in a try block, to allow for a git repo
-    try:
-        # Check for uncommitted changes; abort if present
-        cmd = ['hg', 'status', '-q']
-        out, err = check_call(cmd)
-        if len(out) != 0:
-            print('Mercurial says that you have uncommitted changes.  Please clean up your working copy so that "%s" outputs nothing'%(' '.join(cmd)))
-            print('stdout: %s'%(out))
-            sys.exit(1)
 
-        # Make a clean copy, to avoid pulling in other stuff that the user has
-        # sitting in the working copy
-        srcdir = os.path.join(tmpdir, 'src')
-        check_call(['hg', 'archive', srcdir])
-    except ErrorGitRepo as e:
-        # it's git and that we'll just use the CWD
-        srcdir = os.getcwd()
+    # Note for bump_rev_linux_only: there are some adjustment to the tarball name
+    # that are done after generating it, even if the tarball upload is not
+    # needed, it should be generated to get changes in the name
+    if args.bump_rev_linux_only:
+        print('\nINFO: bump revision is enabled. It needs to generate a local tarball although it will not upload it')
+
+    # Check for uncommitted changes; abort if present
+    cmd = ['git', 'diff-index', 'HEAD']
+    out, err = check_call(cmd)
+    if out:
+        print('git says that you have uncommitted changes')
+        print('Please clean up your working copy so that "%s" outputs nothing' % (' '.join(cmd)))
+        print('stdout: %s' % (out.decode()))
+        sys.exit(1)
+
+    # Make a clean copy, to avoid pulling in other stuff that the user has
+    # sitting in the working copy.
+    srcdir = os.path.join(tmpdir, 'src')
+    os.mkdir(srcdir)
+    tmp_tar = os.path.join(tmpdir, 'orig.tar')
+    check_call(['git', 'archive', '--format=tar', 'HEAD', '-o', tmp_tar])
+    check_call(['tar', 'xf', tmp_tar, '-C', srcdir])
+    if not args.dry_run:
+        os.remove(tmp_tar)
 
     # use cmake to generate package_source
     generate_package_source(srcdir, builddir)
-
-    # Upload tarball. Do not include versions in tarballs
-    tarball_name = re.sub(r'[0-9]+$','', args.package)
-
-    # Trick to make mentor job project to get proper URLs
-    if args.package == "mentor2":
-        tarball_name = "mentor2"
-
     # For ignition, we use the alias without version numbers as package name
-    if IGN_REPO:
-        tarball_name = re.sub(r'[0-9]+$','', args.package_alias)
-
+    tarball_name = re.sub(r'[0-9]+$', '', args.package_alias)
     tarball_sha, tarball_fname, tarball_path = create_tarball_path(tarball_name, args.version, builddir, args.dry_run)
 
     # If we're releasing under a different name, then rename the tarball (the
@@ -446,40 +475,40 @@ def generate_upload_tarball(args):
                 shutil.copyfile(tarball_path, dest_file)
                 tarball_path = dest_file
 
-    check_call(['s3cmd', 'sync', tarball_path, UPLOAD_DEST_PATTERN%get_canonical_package_name(args.package)])
-    shutil.rmtree(tmpdir)
+    s3_tarball_directory = UPLOAD_DEST_PATTERN % get_canonical_package_name(args.package)
+    source_tarball_uri = DOWNLOAD_URI_PATTERN % get_canonical_package_name(args.package) + tarball_fname
 
-    # Tag repo
-    os.chdir(sourcedir)
+    # If the release only bump revision does not need to upload tarball but
+    # checkout that the one that should be already uploaded exists
+    if args.bump_rev_linux_only:
+        if urllib.request.urlopen(source_tarball_uri).getcode() == '404':
+            print('Can not find tarball: %s' % (source_tarball_uri))
+            sys.exit(1)
+    else:
+        check_call(['s3cmd', 'sync', tarball_path, s3_tarball_directory])
+        shutil.rmtree(tmpdir)
 
-    try:
-        tag = '%s_%s'%(args.package_alias, args.version)
-        check_call(['hg', 'tag', '-f', tag])
+        # Tag repo
+        os.chdir(sourcedir)
 
-        # Push tag
-        check_call(['hg', 'push','-b','.'])
-    except ErrorGitRepo as e:
-        # do nothing for git repos (no git support is implemented)
-        pass
-    except ErrorNoPermsRepo as e:
-        print('The bitbucket server reports problems with permissions')
-        print('The branch could be blocked by configuration if you do not have')
-        print('rights to push code in default branch.')
-        sys.exit(1)
-    except ErrorNoUsernameSupplied as e:
-        print('The hg tag could not be committed because you have not configured')
-        print('your username. Use "hg config --edit" to set your username.')
-        sys.exit(1)
-
-    source_tarball_uri = DOWNLOAD_URI_PATTERN%get_canonical_package_name(args.package) + tarball_fname
-
-    ###################################################
-    # Platform-specific stuff.
-    # The goal is to build packages for specific platforms
-
-    ###################################################
-    # Ubuntu-specific stuff.
-    # The goal is to build debs.
+        try:
+            # tilde is not a valid character in git
+            tag = '%s_%s' % (args.package_alias, args.version.replace('~','-'))
+            check_call(['git', 'tag', '-f', tag])
+            check_call(['git', 'push', '--tags'])
+        except ErrorNoPermsRepo as e:
+            print('The Git server reports problems with permissions')
+            print('The branch could be blocked by configuration if you do not have')
+            print('rights to push code in default branch.')
+            sys.exit(1)
+        except ErrorNoUsernameSupplied as e:
+            print('git tag could not be committed because you have not configured')
+            print('your username. Use "git config --username" to set your username.')
+            sys.exit(1)
+        except Exception as e:
+            print('There was a problem with pushing tags to the git repository')
+            print('Do you have write perms in the repository?')
+            sys.exit(1)
 
     # TODO: Consider auto-updating the Ubuntu changelog.  It requires
     # cloning the <package>-release repo, making a change, and pushing it back.
@@ -497,7 +526,7 @@ def go(argv):
     # Sanity checks and dicover supported distributions before proceed.
     # UPSTREAM repository is not known in release-tools script
     if not UPSTREAM:
-        repo_dir = download_release_repository(args.package, args.release_repo_branch)
+        repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
         # The supported distros are the ones in the top level of -release repo
         ubuntu_distros = discover_distros(repo_dir) # top level, ubuntu
         debian_distros = discover_distros(repo_dir + '/debian/') # debian dir top level, Debian
@@ -541,15 +570,16 @@ def go(argv):
     else:
         job_name = JOB_NAME_PATTERN%(args.package)
 
-    params_query = urllib.urlencode(params)
+    params_query = urllib.parse.urlencode(params)
 
     # RELEASING FOR BREW
     brew_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL,
                                                    GENERIC_BREW_PULLREQUEST_JOB,
                                                    params_query)
-    if not DRY_RUN and not NIGHTLY:
-        print('- Brew: %s'%(brew_url))
-        urllib.urlopen(brew_url)
+    if not NIGHTLY and not args.bump_rev_linux_only:
+        print('- Brew: %s' % (brew_url))
+        if not DRY_RUN:
+            urllib.request.urlopen(brew_url)
 
     # RELEASING FOR LINUX
     for l in LINUX_DISTROS:
@@ -591,13 +621,13 @@ def go(argv):
                 if (NIGHTLY and a == 'i386'):
                     continue
 
-                linux_platform_params_query = urllib.urlencode(linux_platform_params)
+                linux_platform_params_query = urllib.parse.urlencode(linux_platform_params)
 
                 url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, linux_platform_params_query)
                 print('- Linux: %s'%(url))
 
                 if not DRY_RUN:
-                    urllib.urlopen(url)
+                    urllib.request.urlopen(url)
 
 if __name__ == '__main__':
     go(sys.argv)

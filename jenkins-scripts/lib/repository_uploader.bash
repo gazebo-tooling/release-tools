@@ -41,11 +41,13 @@ S3_upload()
     rm -fr ${S3_DIR}
 }
 
+# Check if the dsc package (include .orig.tar.gz) is alrady in the repo
+# The dsc package is valid across all distributions
 dsc_package_exists_and_equal_or_greater()
 {
-    local pkg=${1} new_version=${2}
+    local pkg=${1} new_version=${2} distro=${3}
 
-    current_dsc_info=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro -T dsc ls "${pkg}" | grep "${DISTRO}")
+    current_dsc_info=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro -T dsc list "${distro}" "${pkg}" | tail -n 1)
 
     if [[ -z ${current_dsc_info} ]]; then
         return 1 # do not exits, false
@@ -53,7 +55,7 @@ dsc_package_exists_and_equal_or_greater()
 
     current_version=$(awk '{ print $3 }' <<< "${current_dsc_info}")
     # if new version is lower
-    if $(dpkg --compare-versions ${current_version} lt ${new_version}); then
+    if $(dpkg --compare-versions ${new_version} gt ${current_version}); then
         return 1 # exists, new package is greater
     fi
 
@@ -81,10 +83,11 @@ upload_dsc_package()
     # try to upload and if failed, specify the values
     # see: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=768046
     sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg} || \
-	sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg}
+	sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg} || \
+		echo "MARK_BUILD_UNSTABLE"
 }
 
-NEEDED_HOST_PACKAGES="reprepro openssh-client jq"
+NEEDED_HOST_PACKAGES="reprepro openssh-client jq gridsite-clients"
 QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
 if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
   sudo apt-get update
@@ -116,13 +119,13 @@ fi
 case ${UPLOAD_TO_REPO} in
     "stable")
 	# Security checks not to upload nightly or prereleases
-        # No packages with ~hg or ~pre
-	if [[ -n $(ls ${pkgs_path}/*~hg*.*) && -n $(ls ${pkgs_path}/*~pre*.*) ]]; then
+        # No packages with ~git or ~pre
+	if [[ -n $(ls ${pkgs_path}/*~git*.*) && -n $(ls ${pkgs_path}/*~pre*.*) ]]; then
 	  echo "There are nightly packages in the upload directory. Not uploading to stable repo"
 	  exit 1
 	fi
-        # No source packages with ~hg in version
-	if [[ -n $(cat ${pkgs_path}/*.dsc | grep ^Version: | grep '~hg\|~pre') ]]; then
+        # No source packages with ~git in version
+	if [[ -n $(cat ${pkgs_path}/*.dsc | grep ^Version: | grep '~git\|~pre') ]]; then
           echo "There is a sorce package with nightly or pre in version. Not uploading to stable repo"
 	  exit 1
         fi
@@ -157,7 +160,7 @@ done
 # .bottle | brew binaries
 for pkg in `find "$pkgs_path" -name '*.bottle*.json'`; do
   # Extract bottle name and root_url from json file
-  bottle_filename=$(dirname $pkg)/$(jq -r '.[]["bottle"]["tags"][]["filename"]' < $pkg)
+  bottle_filename=$(urlencode -d $(dirname $pkg)/$(jq -r '.[]["bottle"]["tags"][]["filename"]' < $pkg))
   root_url=$(jq -r '.[]["bottle"]["root_url"]' < $pkg)
   s3_directory=${root_url#https://osrf-distributions\.s3\.amazonaws\.com/}
 
@@ -195,7 +198,7 @@ for pkg in `ls $pkgs_path/*.dsc`; do
   pkg_version=${pkg_name_clean#*_}
   pkg_version=${pkg_version/.dsc}
 
-  if dsc_package_exists_and_equal_or_greater ${pkg_name} ${pkg_version}; then
+  if dsc_package_exists_and_equal_or_greater ${pkg_name} ${pkg_version} ${DISTRO}; then
     echo "Source package for ${pkg} already exists in the repo and it's greater or equal than current version"
     echo "SKIP SOURCE UPLOAD"
   else

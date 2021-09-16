@@ -20,7 +20,7 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
     docker_device=$(df '/var/lib/docker' | awk '{ print $1 }' | tail -n 1)
     # in seconds: 5 days = 432000s
     PERCENT_DISK_USED=$(df -h ${docker_device} | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
-    if [[ $PERCENT_DISK_USED -gt 90 ]]; then
+    if [[ $PERCENT_DISK_USED -gt 70 ]]; then
         echo "Space left is low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
         wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
@@ -29,7 +29,7 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
 
     # if not enough, run again with 1 day = 86400s
     PERCENT_DISK_USED=$(df -h ${docker_device} | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
-    if [[ $PERCENT_DISK_USED -gt 90 ]]; then
+    if [[ $PERCENT_DISK_USED -gt 80 ]]; then
         echo "Space left is still low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
         wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
@@ -38,11 +38,38 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
 
     # if not enough, kill the whole cache
     PERCENT_DISK_USED=$(df -h ${docker_device} | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
-    if [[ $PERCENT_DISK_USED -gt 90 ]]; then
+    if [[ $PERCENT_DISK_USED -gt 85 ]]; then
         echo "Space left is low again: ${PERCENT_DISK_USED}% used"
         echo "Kill the whole docker cache !!"
-        [[ -n $(sudo docker ps -q) ]] && sudo docker kill $(sudo docker ps -q) || true
-        [[ -n $(sudo docker images -a -q) ]] && sudo docker rmi $(sudo docker images -a -q) || true
+        # use system prune if available
+        docker_version="$(sudo docker version --format '{{.Server.APIVersion}}') > 1.25"
+        if [[ $(echo $docker_version | bc -l) ]]; then
+          sudo docker system prune --all -f
+        else
+          [[ -n $(sudo docker ps -q) ]] && sudo docker kill $(sudo docker ps -q) || true
+          [[ -n $(sudo docker images -a -q) ]] && sudo docker rmi $(sudo docker images -a -q) || true
+        fi
+    fi
+
+    # if not enough, try to clean up build/ directories
+    PERCENT_DISK_USED=$(df -h ${docker_device} | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
+    if [[ $PERCENT_DISK_USED -gt 85 ]]; then
+        MAX_SIZE_FOR_BUILD_DIRS="5G"
+        CMD_FIND_BIG_DIRS=(find ${HOME}/workspace -name build -exec du -h -d 0 -t ${MAX_SIZE_FOR_BUILD_DIRS} {} \;)
+        echo "Space left is low again: ${PERCENT_DISK_USED}% used"
+        echo "Clean up the whole cache was not enough. Look for build/ directories bigger than ${MAX_SIZE_FOR_BUILD_DIRS}:"
+        # run command twice to avoid parsing. First for information proposes
+        ${CMD_FIND_BIG_DIRS[@]}
+        for d in $("${CMD_FIND_BIG_DIRS[@]}" | awk '{ print $2 }'); do
+          # safe checks on paths
+          if [[ $d == ${d/$HOME} ]] || [[ $d == ${d/build} ]]; then
+            echo "System is trying to delete a path $d outside Jenkins home: $HOME with subdir build/"
+            exit -1
+          fi
+          # avoid to rm -fr without a path. The ugly trick should leave d as it
+          # is, in case of a bug in code it will not remove anything at random
+          sudo rm -fr ${d/build}build
+        done
     fi
 fi
 
@@ -53,11 +80,11 @@ init_stopwatch CREATE_TESTING_ENVIROMENT
 
 # Default values - Provide them is prefered
 if [ -z ${DISTRO} ]; then
-    DISTRO=xenial
+    DISTRO=bionic
 fi
 
 if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=kinetic
+  ROS_DISTRO=melodic
 fi
 
 if [ -z "${ROS2}" ]; then
@@ -75,8 +102,8 @@ if [ -z ${ENABLE_REAPER} ]; then
 fi
 
 # We use ignitionsrobotics or osrf. osrf by default
-if [ -Z ${BITBUCKET_REPO} ]; then
-    BITBUCKET_REPO="osrf"
+if [ -Z ${GITHUB_ORG} ]; then
+    GITHUB_ORG="osrf"
 fi
 
 # By default, do not need to use C++11 compiler
@@ -91,11 +118,6 @@ fi
 # By default, do not use ROS
 if [ -z ${ENABLE_ROS} ]; then
   ENABLE_ROS=false
-fi
-
-# By default nodes are in nvidia-docker1
-if [ -z ${NVIDIA_DOCKER2_NODE} ]; then
-  NVIDIA_DOCKER2_NODE=false
 fi
 
 # Transition for 4.8 -> 4.9 makes some optimization in the linking
@@ -127,7 +149,7 @@ if ${ENABLE_ROS}; then
   export ROS_IP=127.0.0.1
 fi
 
-if [[ -n `ps aux | grep gzserver | grep -v grep` ]]; then
+if [[ -n `ps aux | grep '[ /]gzserver' | grep -v grep | grep -v 'gzserver[^ ]'` ]]; then
     echo "There is a gzserver already running on the machine. Stopping"
     exit -1
 fi
@@ -153,7 +175,7 @@ output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
 # TODO: Check for docker package
-NEEDED_HOST_PACKAGES="mercurial python-setuptools python-psutil qemu-user-static gpgv squid-deb-proxy"
+NEEDED_HOST_PACKAGES="git python-setuptools python-psutil qemu-user-static gpgv squid-deb-proxy bc"
 # python-argparse is integrated in libpython2.7-stdlib since raring
 # Check for precise in the HOST system (not valid DISTRO variable)
 if [[ $(lsb_release -sr | cut -c 1-5) == '12.04' ]]; then
@@ -253,8 +275,4 @@ rm -fr ${WORKSPACE}/build.sh
 # Workaround to fix several nested levels of calls to the same script that seems
 # to kill global bash variables
 echo "${MAKE_JOBS}" > "${WORKSPACE}/make_jobs"
-
-# Use GitHub repositories (useful only in bitbucket-github migration)
-export GITHUB=${GITHUB:-false}
-
 cd ${WORKSPACE}

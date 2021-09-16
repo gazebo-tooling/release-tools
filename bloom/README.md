@@ -1,4 +1,22 @@
-## Scripts:
+## Scripts
+
+### Release new version of Gazebo unofficial wrappers
+
+1. bloom in the osrf/ repository
+```bash
+   $ BLOOM_RELEASE_REPO_BASE=https://github.com/osrf/ bloom-release --no-pull-request --rosdistro <ros_distro> --track <ros_distro> gazeboX_ros[2]_pkgs
+
+   Example
+   $ BLOOM_RELEASE_REPO_BASE=https://github.com/osrf/ bloom-release --no-pull-request --rosdistro foxy --track foxy gazebo11_ros2_pkgs
+```
+
+1. Trigger Jenkins jobs with ros_gazebo_pkgs-release.py.bash
+```bash
+   $ ros_gazebo_pkgs-release. <version <release_repo> <ros_distro> <token> 'other arguments used in release.py'*
+
+   Example:
+   $ ros_gazebo_pkgs-release.py.bash 3.4.4 https://github.com/osrf/gazebo11_ros2_pkgs-release foxy xxx -r 1 --dry-run
+```
 
 ### Create a new gazeboX_rosY_pkgs repository
 
@@ -16,10 +34,3 @@ For a new official wrappers the notation used below correspond to:
  1. Clone the new repo, go to the directory and run rename-gazebo-ros-pkgs.bash
     - Usage: *$ rename-gazebo-ros-pkgs.bash X <space separted list of rosdistros to release>*
 
-### Release new versiones for the gazeboX_rosY_pkgs repository    
-
- * release-bloom.py: generic python script that call -bloom osrf jenkins
-   jobs.
- 
- * ros_gazebo_pkgs-release.py.bash: bash script that will use release-bloom.py
-   passing all the names of ros_gazebo_pkgs (gazebo-msgs, gazebo-ros, etc).

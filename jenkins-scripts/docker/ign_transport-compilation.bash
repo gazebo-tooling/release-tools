@@ -19,7 +19,7 @@ export BUILDING_SOFTWARE_DIRECTORY="ign-transport"
 
 # Identify IGN_TRANSPORT_MAJOR_VERSION to help with dependency resolution
 IGN_TRANSPORT_MAJOR_VERSION=$(\
-  python ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-transport/CMakeLists.txt)
 
 # Check IGN_TRANSPORT version is integer
@@ -29,7 +29,7 @@ if ! [[ ${IGN_TRANSPORT_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 6 ]]; then
-  export USE_GCC8=true
+  export NEED_C17_COMPILER=true
 fi
 
 export GZDEV_PROJECT_NAME="ignition-transport${IGN_TRANSPORT_MAJOR_VERSION}"

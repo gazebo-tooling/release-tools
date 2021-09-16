@@ -3,8 +3,6 @@ package _configs_
 import javaposse.jobdsl.dsl.Job
 
 /*
-  -> OSRFCIWorkFlow
-
   Implements:
      - parameters
      - definition (pipeline plugin)
@@ -31,7 +29,12 @@ class OSRFCIWorkFlowMultiAnyGitHub
 
   static void create(Job job, ArrayList any_job_name_list)
   {
-    OSRFCIWorkFlow.create(job)
+    job.with
+    {
+      logRotator {
+        numToKeep(25)
+      }
+    }
 
     String build_jobs_with_status = "";
 
@@ -82,8 +85,7 @@ class OSRFCIWorkFlowMultiAnyGitHub
           // https://issues.jenkins-ci.org/browse/JENKINS-28178
           sandbox(false)
           script(
-           (build_jobs_with_status +
-            OSRFCIWorkFlow.script_code_end_hook()).stripIndent()
+           (build_jobs_with_status).stripIndent()
           )
         } // end of cps
       } // end of definition

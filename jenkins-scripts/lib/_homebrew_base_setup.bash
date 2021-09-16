@@ -17,4 +17,7 @@ fi
 git -C $(${BREW_BINARY} --repo) fsck
 export HOMEBREW_UPDATE_TO_TAG=1
 ${BREW_BINARY} update
-${BREW_BINARY} install ${BREW_BASE_DEPENDCIES}
+# manually exclude a ruby warning that jenkins thinks is from clang
+# https://github.com/osrf/homebrew-simulation/issues/1343
+${BREW_BINARY} install ${BREW_BASE_DEPENDCIES} \
+   2>&1 | grep -v 'warning: conflicting chdir during another chdir block'

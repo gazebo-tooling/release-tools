@@ -7,8 +7,14 @@ if exist D:\vcpkg (
    exit -1
 )
 
+if DEFINED MAKE_JOBS (
+  set VCPKG_MAX_CONCURRENCY=%MAKE_JOBS%
+)
 set VCPKG_OSRF_DIR=%VCPKG_DIR%\osrf_vcpkg_ports
 set VCPKG_CMD=%VCPKG_DIR%\vcpkg.exe
 set VCPKG_CMAKE_TOOLCHAIN_FILE=%VCPKG_DIR%/scripts/buildsystems/vcpkg.cmake
-
+if NOT DEFINED VCPKG_SNAPSHOT (
+  :: see https://github.com/microsoft/vcpkg/releases
+  set VCPKG_SNAPSHOT=2020.11
+)
 goto :EOF

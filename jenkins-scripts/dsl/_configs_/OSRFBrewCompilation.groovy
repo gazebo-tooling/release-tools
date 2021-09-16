@@ -28,10 +28,41 @@ class OSRFBrewCompilation extends OSRFOsXBase
 
       publishers
       {
-         // compilers warnings
-         warnings(['Clang (LLVM based)'], null) {
-             thresholds(unstableTotal: [all: 0])
-         }
+        configure { project ->
+          project / publishers / 'io.jenkins.plugins.analysis.core.steps.IssuesRecorder' {
+            analysisTools {
+              'io.jenkins.plugins.analysis.warnings.Clang' {
+                id()
+                name()
+                pattern()
+                reportEncoding()
+                skipSymbolicLinks(false)
+              }
+            }
+
+            sourceCodeEncoding()
+            ignoreQualityGate(false)
+            ignoreFailedBuilds(true)
+            referenceJobName()
+            healthy(0)
+            unhealthy(0)
+            minimumSeverity {
+              name('LOW')
+            }
+            filters { }
+            isEnabledForFailure(false)
+            isAggregatingResults(false)
+            isBlameDisabled(false)
+
+            qualityGates {
+              'io.jenkins.plugins.analysis.core.util.QualityGate' {
+                threshold(1)
+                type('TOTAL')
+                status('WARNING')
+              }
+            }
+          }
+        }
       }
     } // end of job
   } // end of method createJob
