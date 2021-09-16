@@ -81,9 +81,16 @@ then
   echo on line number ${SHA_LINE}
   sed -i -e "${SHA_LINE}c\  sha256 \"${SOURCE_TARBALL_SHA}\"" ${FORMULA_PATH}
 else
-  # sha256 is not specified, so append a line after URI_LINE
-  echo Appending sha256 ${SOURCE_TARBALL_SHA} after line number ${URI_LINE}
-  sed -i -e "${URI_LINE}a\  sha256 \"${SOURCE_TARBALL_SHA}\"" ${FORMULA_PATH}
+  # sha256 is not already specified in this formula
+  echo Appending sha256 ${SOURCE_TARBALL_SHA}
+  if [ -n "${VERSION_LINE}" ]; then
+    echo after line number ${VERSION_LINE}
+    sed -i -e "${VERSION_LINE}a\  sha256 \"${SOURCE_TARBALL_SHA}\"" ${FORMULA_PATH}
+  else
+    # if version is not explicitly specified, append after url
+    echo after line number ${URI_LINE}
+    sed -i -e "${URI_LINE}a\  sha256 \"${SOURCE_TARBALL_SHA}\"" ${FORMULA_PATH}
+  fi
 fi
 
 echo
