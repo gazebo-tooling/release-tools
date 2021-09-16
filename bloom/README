@@ -6,7 +6,8 @@ For a new official wrappers the notation used below correspond to:
 `gazeboX_rosY_pkgs` (`X` is major version in Gazebo, `Y` is 1 or 2 for ROS)
 
  1. Create new repo under github.com/osrf/ organization named:
-    - https://github.com/osrf/gazeboX_rosY_pkgs-release
+    - ROS1 https://github.com/osrf/gazeboX_ros_pkgs-release
+    - ROS2 https://github.com/osrf/gazeboX_ros2_pkgs-release
 
  1. Run initial_info_for_new_release_repo.bash
     It will import all branches and tags from official gbp into the new repo
