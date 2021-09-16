@@ -18,7 +18,7 @@
    $ ros_gazebo_pkgs-release.py.bash 3.4.4 https://github.com/osrf/gazebo11_ros2_pkgs-release foxy xxx -r 1 --dry-run
 ```
 
-### Create a new gazeboX_rosY_pkgs repository
+### Create a new gazeboX_{ros,ros2}_pkgs repository
 
 For a new official wrappers the notation used below correspond to:
 `gazeboX_rosY_pkgs` (`X` is major version in Gazebo, `Y` is 1 or 2 for ROS)
