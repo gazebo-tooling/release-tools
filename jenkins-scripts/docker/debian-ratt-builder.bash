@@ -26,6 +26,9 @@ else
 EOF
 fi
 
+# DEBUG: what's bad in dose-ceve for ratt
+dose-ceve --verbose --deb-native-arch=amd64 -T debsrc -r libconsole-bridge0.4 -G pkg
+
 echo '# BEGIN SECTION: get source package from experimental'
 sudo bash -c 'echo "deb http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list.d/debian-exp.list'
 sudo bash -c 'echo "deb-src http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list.d/debian-exp.list'
