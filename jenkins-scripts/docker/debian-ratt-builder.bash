@@ -27,7 +27,7 @@ EOF
 fi
 
 # DEBUG: what's bad in dose-ceve for ratt
-dose-ceve --verbose --deb-native-arch=amd64 -t debsrc -r libconsole-bridge0.4 -G pkg
+# dose-ceve --verbose --deb-native-arch=amd64 -t debsrc -r libconsole-bridge0.4 -G pkg
 
 echo '# BEGIN SECTION: get source package from experimental'
 sudo bash -c 'echo "deb http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list.d/debian-exp.list'
@@ -57,10 +57,15 @@ echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
 cd ..
 sed -i -e "s:experimental:unstable:g" ${DEB_PACKAGE}_*.changes
 rm -fr ${WORKSPACE}/logs && mkdir ${WORKSPACE}/logs
+
+sudo apt-get install golang-go
+export GOPATH=~/gocode
+go get -u github.com/j-rivero/ratt
+
 # use new group to run sbuild
 newgrp sbuild << END
 echo running ratt under sbuild group
-ratt ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
+~/gocode/bin/ratt ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
 END
 cp -a buildlogs ${WORKSPACE}/logs
 echo '# END SECTION'
