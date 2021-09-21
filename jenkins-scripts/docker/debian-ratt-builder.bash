@@ -58,7 +58,7 @@ cd ..
 sed -i -e "s:experimental:unstable:g" ${DEB_PACKAGE}_*.changes
 rm -fr ${WORKSPACE}/logs && mkdir ${WORKSPACE}/logs
 
-sudo apt-get install golang-go
+sudo apt-get install -y golang-go
 export GOPATH=~/gocode
 go get -u github.com/j-rivero/ratt
 
