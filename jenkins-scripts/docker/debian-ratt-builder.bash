@@ -26,7 +26,10 @@ else
 EOF
 fi
 
+sudo rm /var/lib/apt/lists/*.lz4
 sudo sed -i -e 's:GzipIndexes "true":GzipIndexes "false":g' /etc/apt/apt.conf.d/*
+sudo apt-get update
+sudo ls -las /var/lib/apt/lists/*
 
 # DEBUG: what's bad in dose-ceve for ratt
 # dose-ceve --verbose --deb-native-arch=amd64 -t debsrc -r libconsole-bridge0.4 -G pkg
