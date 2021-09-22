@@ -1,6 +1,21 @@
 #!/bin/bash
 
+# Arguments
+#
+# 1. <collection>: Required: A supported collection, i.e. "citadel", "fortesss", etc.
+# 2. <package_repo>: Optional: stable / prerelease / nightly (defaults to stable)
+#
+# Usage
+#
+#   bash table.bash <collection> <package_repo>
+#
+# For example
+#
+#  bash table.bash edifice prerelease
+
 COLLECTION=$1
+
+PACKAGE_REPO=${2:-stable}
 
 if [ "$COLLECTION" = "citadel" ]; then
   LIBS=(
@@ -125,7 +140,7 @@ do
         if [[ $ARCH == "i386" && $VER == "focal" ]]; then
           PKG_VERSION="disabled"
         else
-          PKG_VERSION=$(wget -qO- http://packages.osrfoundation.org/gazebo/${DISTRO}-stable/dists/${VER}/main/binary-${ARCH}/Packages | grep -1 "Source: ${LIB}" | sed -n 's/^Version: \(.*\)/\1/p' | uniq)
+          PKG_VERSION=$(wget -qO- http://packages.osrfoundation.org/gazebo/${DISTRO}-${PACKAGE_REPO}/dists/${VER}/main/binary-${ARCH}/Packages | grep -1 "Source: ${LIB}" | sed -n 's/^Version: \(.*\)/\1/p' | uniq)
         fi
 
         PKG_VERSION=${PKG_VERSION%%~*}
