@@ -26,7 +26,8 @@ else
 EOF
 fi
 
-grep -R GzipIndexes /etc/
+sudo sed -i -e 's:GzipIndexes "true":GzipIndexes "false":g' /etc/apt/apt.conf.d/*
+sudo grep -R GzipIndexes /etc/
 
 # DEBUG: what's bad in dose-ceve for ratt
 # dose-ceve --verbose --deb-native-arch=amd64 -t debsrc -r libconsole-bridge0.4 -G pkg
