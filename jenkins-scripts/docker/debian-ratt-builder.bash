@@ -60,7 +60,7 @@ rm -fr ${WORKSPACE}/logs && mkdir ${WORKSPACE}/logs
 
 sudo apt-get install -y golang-go
 export GOPATH=~/gocode
-go get -u github.com/j-rivero/ratt
+go get -u github.com/j-rivero/ratt@[master]
 
 # use new group to run sbuild
 newgrp sbuild << END
