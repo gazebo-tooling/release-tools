@@ -74,7 +74,7 @@ DELIM
 
 export LINUX_DISTRO=debian
 export DISTRO=sid
-export DEPENDENCY_PKGS="ratt sbuild quilt devscripts"
+export DEPENDENCY_PKGS="sbuild quilt devscripts dose-extra"
 export USE_DOCKER_IN_DOCKER=true
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
