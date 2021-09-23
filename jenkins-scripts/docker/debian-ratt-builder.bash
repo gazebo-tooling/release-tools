@@ -61,13 +61,13 @@ sed -i -e "s:experimental:unstable:g" ${DEB_PACKAGE}_*.changes
 rm -fr ${WORKSPACE}/logs && mkdir ${WORKSPACE}/logs
 
 sudo apt-get install -y golang-go
-cd /tmp
+pushd /tmp 2> /dev/null
 git clone https://github.com/j-rivero/ratt
 cd ratt
 go mod init local/build
 go mod tidy
 go build
-ls
+popd 2> /dev/null
 
 str_params=''
 if [[ -n '$RATT_INCLUDE' ]]; then
@@ -81,7 +81,7 @@ fi
 # use new group to run sbuild
 newgrp sbuild << END
 echo running ratt under sbuild group
-./build \${str_params} ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
+/tmp/ratt/build \${str_params} ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
 END
 cp -a buildlogs ${WORKSPACE}/logs
 echo '# END SECTION'
