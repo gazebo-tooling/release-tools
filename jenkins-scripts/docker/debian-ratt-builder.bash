@@ -61,9 +61,13 @@ sed -i -e "s:experimental:unstable:g" ${DEB_PACKAGE}_*.changes
 rm -fr ${WORKSPACE}/logs && mkdir ${WORKSPACE}/logs
 
 sudo apt-get install -y golang-go
-export GOPATH=~/gocode
-rm -fr ${GOPATH}
-go get -u -v github.com/j-rivero/ratt
+cd /tmp
+git clone github.com/j-rivero/ratt
+cd ratt
+go mod init local/build
+go mod tidy
+go build
+ls
 
 str_params=''
 if [[ -n '$RATT_INCLUDE' ]]; then
@@ -77,7 +81,7 @@ fi
 # use new group to run sbuild
 newgrp sbuild << END
 echo running ratt under sbuild group
-~/gocode/bin/ratt \${str_params} ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
+./build \${str_params} ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
 END
 cp -a buildlogs ${WORKSPACE}/logs
 echo '# END SECTION'
@@ -85,7 +89,7 @@ DELIM
 
 export LINUX_DISTRO=debian
 export DISTRO=sid
-export DEPENDENCY_PKGS="sbuild quilt devscripts dose-extra"
+export DEPENDENCY_PKGS="sbuild quilt devscripts dose-extra git"
 export USE_DOCKER_IN_DOCKER=true
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
