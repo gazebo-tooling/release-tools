@@ -31,9 +31,6 @@ sudo sed -i -e 's:GzipIndexes "true":GzipIndexes "false":g' /etc/apt/apt.conf.d/
 sudo apt-get update
 sudo ls -las /var/lib/apt/lists/*
 
-# DEBUG: what's bad in dose-ceve for ratt
-# dose-ceve --verbose --deb-native-arch=amd64 -t debsrc -r libconsole-bridge0.4 -G pkg
-
 echo '# BEGIN SECTION: get source package from experimental'
 sudo bash -c 'echo "deb http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list.d/debian-exp.list'
 sudo bash -c 'echo "deb-src http://deb.debian.org/debian experimental main" >> /etc/apt/sources.list.d/debian-exp.list'
@@ -68,10 +65,19 @@ export GOPATH=~/gocode
 rm -fr ${GOPATH}
 go get -u -v github.com/j-rivero/ratt
 
+str_params=''
+if [[ -n '$RATT_INCLUDE' ]]; then
+  str_params="--include '${RATT_INCLUDE}'"
+fi
+
+if [[ -n '$RATT_EXCLUDE' ]]; then
+  str_params="\${str_params} --exclude '${RATT_EXCLUDE}'"
+fi
+
 # use new group to run sbuild
 newgrp sbuild << END
 echo running ratt under sbuild group
-~/gocode/bin/ratt ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
+~/gocode/bin/ratt \${str_params} ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
 END
 cp -a buildlogs ${WORKSPACE}/logs
 echo '# END SECTION'
