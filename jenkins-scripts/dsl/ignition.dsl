@@ -233,6 +233,7 @@ void include_gpu_label_if_needed(Job job, String ign_software_name)
 {
   job.with
   {
+
     ignition_gpu.each { ign_each ->
       if (ign_software_name == ign_each)
       {
@@ -445,6 +446,14 @@ all_debbuilders().each { debbuilder_name ->
   OSRFLinuxBuildPkg.create(build_pkg_job)
   build_pkg_job.with
   {
+
+      concurrentBuild(true)
+
+      throttleConcurrentBuilds {
+        maxPerNode(1)
+        maxTotal(8)
+      }
+
       steps {
         shell("""\
               #!/bin/bash -xe
