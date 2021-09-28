@@ -30,18 +30,18 @@ ignition_no_test            = [ 'tools' ]
 // main, ABI check, install pkg)
 ignition_branches           = [ 'cmake'      : [ '2' ],
                                 'common'     : [ '1', '3', '4' ],
-                                'fuel-tools' : [ '1', '4', '5', '6' ],
-                                'gazebo'     : [ '3', '4', '5' ],
-                                'gui'        : [ '0', '3', '4', '5' ],
-                                'launch'     : [ '2', '3', '4' ],
+                                'fuel-tools' : [ '1', '4', '5', '6', '7' ],
+                                'gazebo'     : [ '3', '4', '5', '6' ],
+                                'gui'        : [ '0', '3', '4', '5', '6' ],
+                                'launch'     : [ '2', '3', '4', '5' ],
                                 'math'       : [ '4', '6' ],
-                                'msgs'       : [ '1', '5', '6', '7' ],
-                                'physics'    : [ '2', '3', '4' ],
+                                'msgs'       : [ '1', '5', '6', '7', '8' ],
+                                'physics'    : [ '2', '3', '4', '5' ],
                                 'plugin'     : [ '1' ],
-                                'rendering'  : [ '3', '4', '5' ],
-                                'sensors'    : [ '3', '4', '5' ],
+                                'rendering'  : [ '3', '4', '5', '6' ],
+                                'sensors'    : [ '3', '4', '5', '6' ],
                                 'tools'      : [ '1' ],
-                                'transport'  : [ '4', '8', '9', '10' ],
+                                'transport'  : [ '4', '8', '9', '10', '11' ],
                                 'utils'      : [ '1' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
