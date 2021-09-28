@@ -292,10 +292,6 @@ all_branches.each { branch ->
         scm('@daily')
       }
 
-      // special check to modify ci_distro if the branch is part of gz11
-      if (branch in sdformat_gz11_branches)
-        label "osx_" + Globals.get_gz11_mac_distro()
-
       steps {
         shell("""\
               #!/bin/bash -xe
