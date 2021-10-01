@@ -324,6 +324,9 @@ ignition_software.each { ign_sw ->
     include_gpu_label_if_needed(ignition_ci_any_job, ign_sw)
     ignition_ci_any_job.with
     {
+      if (ign_sw == 'physics')
+        label "large-memory"
+
       steps
       {
          shell("""\
@@ -414,6 +417,9 @@ ignition_software.each { ign_sw ->
         include_gpu_label_if_needed(ignition_ci_job, ign_sw)
         ignition_ci_job.with
         {
+          if (ign_sw == 'physics')
+            label "large-memory"
+
           triggers {
             scm('@daily')
           }
