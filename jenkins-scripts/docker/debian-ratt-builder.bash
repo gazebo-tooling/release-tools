@@ -57,7 +57,9 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
 cd ..
-sed -i -e "s:experimental:unstable:g" ${DEB_PACKAGE}_*.changes
+if $USE_UNSTABLE; then
+  sed -i -e "s:experimental:unstable:g" ${DEB_PACKAGE}_*.changes
+fi
 rm -fr ${WORKSPACE}/logs && mkdir ${WORKSPACE}/logs
 
 sudo apt-get install -y golang-go
