@@ -95,6 +95,12 @@ ratt_pkg_job.with
   {
      stringParam('DEB_PACKAGE','master',
                  'package to run ratt against (check lib transition)')
+     booleanParam('USE_UNSTABLE', true,
+                 'use unstable instead of experimental to test packages')
+     stringParam('RATT_INCLUDE','',
+                 'Regexp for package inclusion: ^(hwloc|fltk1.3|starpu)$. See https://github.com/j-rivero/ratt/blob/master/README.md')
+     stringParam('RATT_EXCLUDE','',
+                 'Regexp for package exclusion: ^(gcc-9|gcc-8)$. See https://github.com/j-rivero/ratt/blob/master/README.md')
   }
 
   logRotator {
