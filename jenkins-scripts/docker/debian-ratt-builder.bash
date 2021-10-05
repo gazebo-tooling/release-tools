@@ -88,7 +88,11 @@ echo '# END SECTION'
 DELIM
 
 export LINUX_DISTRO=debian
-export DISTRO=sid
+if $USE_UNSTABLE; then
+  export DISTRO=sid
+else
+  export DISTRO=experimental
+fi
 export DEPENDENCY_PKGS="sbuild quilt devscripts dose-extra git"
 export USE_DOCKER_IN_DOCKER=true
 
