@@ -57,6 +57,11 @@ if [[ ${DISTRO} == 'focal' && ${ARCH} == 'arm64' ]]; then
     sudo ln -sf /bin/true /usr/bin/lintian
 fi
 
+# buster workaround for libegl-dev
+if [ ${DISTRO} = 'buster' ]; then
+  sudo apt-get install -y -t buster-backports libegl-dev
+fi
+
 echo '# BEGIN SECTION: install build dependencies'
 cat debian/changelog
 sudo mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
