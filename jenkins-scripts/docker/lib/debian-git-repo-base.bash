@@ -57,9 +57,9 @@ if [[ ${DISTRO} == 'focal' && ${ARCH} == 'arm64' ]]; then
     sudo ln -sf /bin/true /usr/bin/lintian
 fi
 
-# buster workaround for libegl-dev
+# buster workaround for ogre-2.2 dependencies
 if [ ${DISTRO} = 'buster' ]; then
-  sudo apt-get install -y -t buster-backports libegl-dev
+  sudo apt-get install -y -t buster-backports libegl-dev libegl1-mesa-dev libdrm-dev libgles2-mesa-dev
 fi
 
 echo '# BEGIN SECTION: install build dependencies'
