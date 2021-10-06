@@ -11,6 +11,8 @@ directory_for_bottles          = 'pkgs'
 
 def DISABLE_TESTS = false
 def DISABLE_WARNINGS = false
+def DISABLE_GITHUB_INTEGRATION = false
+def NO_SUPPORTED_BRANCHES = []
 
 /*
   release.py
@@ -120,7 +122,12 @@ release_job.with
 // -------------------------------------------------------------------
 // 2. BREW bottle creation MATRIX job from pullrequest
 def bottle_job_builder = matrixJob(bottle_builder_job_name)
-OSRFBrewCompilation.create(bottle_job_builder, DISABLE_TESTS, DISABLE_WARNINGS)
+OSRFBrewCompilationAnyGitHub.create(bottle_job_builder,
+                                    "osrf/homebrew-simulation",
+                                    DISABLE_TESTS,
+                                    NO_SUPPORTED_BRANCHES,
+                                    DISABLE_GITHUB_INTEGRATION,
+                                    DISABLE_WARNINGS)
 GenericRemoteToken.create(bottle_job_builder)
 
 bottle_job_builder.with
