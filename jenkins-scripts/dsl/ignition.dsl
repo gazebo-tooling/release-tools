@@ -22,6 +22,21 @@ ignition_gpu                = [ 'gazebo',
                                 'gui',
                                 'rendering',
                                 'sensors' ]
+// DESC: software does not support cmake warnings enabled
+ignition_no_cmake_warnings = [ 'common',
+                      'fuel-tools',
+                      'gazebo',
+                      'gui',
+                      'launch',
+                      'math',
+                      'msgs',
+                      'physics',
+                      'plugin',
+                      'rendering',
+                      'sensors',
+                      'tools',
+                      'transport',
+                      'utils' ]
 // DESC: software does not have tests
 ignition_no_test            = [ 'tools' ]
 // DESC: major series supported and released. The branches get CI, install pkg
@@ -103,6 +118,9 @@ Globals.extra_emails = "caguero@osrfoundation.org"
 
 // shell command to inject in all bash steps
 GLOBAL_SHELL_CMD=''
+
+GITHUB_SUPPORT_ALL_BRANCHES = []
+ENABLE_GITHUB_PR_INTEGRATION = true
 
 // Fortress release needed to invalidate cache to solve problem with bug in
 // gzdev docker installation. Will be disable automatically in 1st May 2021
@@ -248,6 +266,14 @@ void include_gpu_label_if_needed(Job job, String ign_software_name)
       }
     }
   }
+}
+
+boolean enable_cmake_warnings(String ign_software_name)
+{
+  if (ign_software_name in ignition_no_cmake_warnings)
+    return false
+
+  return true
 }
 
 boolean enable_testing(String ign_software_name)
@@ -462,10 +488,15 @@ all_debbuilders().each { debbuilder_name ->
 // 1. any job
 ignition_software.each { ign_sw ->
   String ignition_brew_ci_any_job_name = "ignition_${ign_sw}-ci-pr_any-homebrew-amd64"
+
+
   def ignition_brew_ci_any_job = job(ignition_brew_ci_any_job_name)
   OSRFBrewCompilationAnyGitHub.create(ignition_brew_ci_any_job,
                                       "ignitionrobotics/ign-${ign_sw}",
-                                      enable_testing(ign_sw))
+                                      enable_testing(ign_sw),
+                                      GITHUB_SUPPORT_ALL_BRANCHES,
+                                      ENABLE_GITHUB_PR_INTEGRATION,
+                                      enable_cmake_warnings(ign_sw))
   ignition_brew_ci_any_job.with
   {
       steps {
@@ -489,7 +520,9 @@ ignition_software.each { ign_sw ->
   // 2. main, release branches
   all_branches("${ign_sw}").each { branch ->
     def ignition_brew_ci_job = job("ignition_${ign_sw}-ci-${branch}-homebrew-amd64")
-    OSRFBrewCompilation.create(ignition_brew_ci_job, enable_testing(ign_sw))
+    OSRFBrewCompilation.create(ignition_brew_ci_job,
+                               enable_testing(ign_sw),
+                               enable_cmake_warnings(ign_sw))
     OSRFGitHub.create(ignition_brew_ci_job,
                               "ignitionrobotics/ign-${ign_sw}",
                               "${branch}", "ign-${ign_sw}")
@@ -584,7 +617,9 @@ ignition_software.each { ign_sw ->
   OSRFWinCompilationAnyGitHub.create(ignition_win_ci_any_job,
                                     "ignitionrobotics/ign-${ign_sw}",
                                     enable_testing(ign_sw),
-                                    supported_branches)
+                                    supported_branches,
+                                    ENABLE_GITHUB_PR_INTEGRATION,
+                                    enable_cmake_warnings(ign_sw))
   ignition_win_ci_any_job.with
   {
       steps {
@@ -612,7 +647,9 @@ ignition_software.each { ign_sw ->
     }
 
     def ignition_win_ci_job = job(ignition_win_ci_job_name)
-    OSRFWinCompilation.create(ignition_win_ci_job, enable_testing(ign_sw))
+    OSRFWinCompilation.create(ignition_win_ci_job,
+                              enable_testing(ign_sw),
+                              enable_cmake_warnings(ign_sw))
     OSRFGitHub.create(ignition_win_ci_job,
                               "ignitionrobotics/ign-${ign_sw}",
                               "${branch}", "ign-${ign_sw}")
