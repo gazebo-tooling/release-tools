@@ -163,7 +163,6 @@ sudo apt-get update
 # explicit the version wanted
 if [ ${DISTRO} = 'buster' ]; then
   sudo apt-get install -y dwz=0.13-5~bpo10+1
-  sudo apt-get install -y -t buster-backports libegl-dev
 fi
 sudo DEBIAN_FRONTEND=noninteractive mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
 # new versions of mk-build-deps > 2.21.1 left buildinfo and changes files in the code
