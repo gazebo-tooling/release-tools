@@ -15,9 +15,10 @@ class OSRFWinCompilationAnyGitHub
                      String github_repo,
                      boolean enable_testing  = true,
                      ArrayList supported_branches = [],
-                     boolean enable_github_pr_integration = true)
+                     boolean enable_github_pr_integration = true,
+                     boolean enable_cmake_warnings  = false)
   {
-    OSRFWinCompilation.create(job, enable_testing)
+    OSRFWinCompilation.create(job, enable_testing, enable_cmake_warnings)
 
     /* Properties from generic any */
     GenericAnyJobGitHub.create(job,
