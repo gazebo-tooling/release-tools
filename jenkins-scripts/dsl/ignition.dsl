@@ -287,7 +287,12 @@ ignition_software.each { ign_sw ->
       abi_job.with
       {
         if (ign_sw == 'physics')
+        {
           label "huge-memory"
+          // on ARM native nodes in buildfarm we need to restrict to 2 the
+          // compilation threads to avoid OOM killer
+          GLOBAL_SHELL_CMD = GLOBAL_SHELL_CMD + '\nif [[ $(uname -m) == "aarch64" ]]; then export MAKE_JOBS=2; fi'
+        }
 
         steps {
           shell("""\
@@ -325,7 +330,7 @@ ignition_software.each { ign_sw ->
     ignition_ci_any_job.with
     {
       if (ign_sw == 'physics')
-        label "large-memory"
+        label "huge-memory"
 
       steps
       {
@@ -418,7 +423,7 @@ ignition_software.each { ign_sw ->
         ignition_ci_job.with
         {
           if (ign_sw == 'physics')
-            label "large-memory"
+            label "huge-memory"
 
           triggers {
             scm('@daily')
