@@ -52,18 +52,18 @@ ignition_prerelease_branches = []
 // jobs for the special cases of foo0 packages)
 ignition_extra_debbuild = [ 'cmake3',
                             'common5',
-                            'fuel-tools7',
-                            'gazebo6',
-                            'gui6',
-                            'launch5',
+                            'fuel-tools8',
+                            'gazebo7',
+                            'gui7',
+                            'launch6',
                             'math7',
-                            'msgs8',
-                            'physics5',
+                            'msgs9',
+                            'physics6',
                             'plugin2',
-                            'rendering6',
-                            'sensors6',
+                            'rendering7',
+                            'sensors7',
                             'tools2',
-                            'transport11',
+                            'transport12',
                             'utils1', // see comment https://github.com/ignition-tooling/release-tools/pull/431#issuecomment-815099918
                             'utils2']
 // DESC: exclude ignition from generate any install testing job
