@@ -11,7 +11,7 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFBrewCompilation extends OSRFOsXBase
 {
-  static void create(Job job, enable_testing = true)
+  static void create(Job job, enable_testing = true, enable_cmake_warnings = false)
   {
     OSRFOsXBase.create(job)
 
@@ -37,6 +37,15 @@ class OSRFBrewCompilation extends OSRFOsXBase
                 pattern()
                 reportEncoding()
                 skipSymbolicLinks(false)
+              }
+              if (enable_cmake_warnings) {
+                'io.jenkins.plugins.analysis.warnings.Cmake' {
+                    id()
+                    name()
+                    pattern()
+                    reportEncoding()
+                    skipSymbolicLinks(false)
+                }
               }
             }
 
