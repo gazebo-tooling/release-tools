@@ -105,13 +105,6 @@ Globals.extra_emails = "caguero@osrfoundation.org"
 // shell command to inject in all bash steps
 GLOBAL_SHELL_CMD=''
 
-// Fortress release needed to invalidate cache to solve problem with bug in
-// gzdev docker installation. Will be disable automatically in 1st May 2021
-today = new Date().format( 'yyyyMMdd' )
-if (today.compareTo('20210501')) {
-  GLOBAL_SHELL_CMD='export INVALIDATE_DOCKER_CACHE=true'
-}
-
 String ci_distro_str = ci_distro[0]
 
 // Map of lists to use in CIWorkflow
