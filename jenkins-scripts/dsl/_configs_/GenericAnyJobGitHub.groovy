@@ -30,7 +30,7 @@ class GenericAnyJobGitHub
     {
       parameters
       {
-        stringParam('sha1', '', 'commit or refname to build. To manually use a branch: origin/$branch_name')
+        stringParam('sha1', 'main', 'commit or refname to build. To manually use a branch: origin/$branch_name')
       }
 
       scm
@@ -52,13 +52,15 @@ class GenericAnyJobGitHub
         configure { project ->
           project  / triggers / 'org.jenkinsci.plugins.ghprb.GhprbTrigger' {
               adminlist 'osrf-jenkins j-rivero'
-              orgslist 'osrf'
+              orgslist 'osrf ignitionrobotics'
               allowMembersOfWhitelistedOrgsAsAdmin(true)
               useGitHubHooks(true)
               onlyTriggerPhrase(false)
               permitAll(true)
-              // do not remove the cron line otherwise it triggers an error in the log
+              // do not remove the cron/spec lines otherwise it triggers an error in the log
+              // both are needed to control the contrab behaviour
               spec('')
+              cron('')
               whiteListTargetBranches {
                 supported_branches.each { supported_branch ->
                   'org.jenkinsci.plugins.ghprb.GhprbBranch' {
@@ -74,6 +76,9 @@ class GenericAnyJobGitHub
                     startedStatus 'deploying to build.osrfoundation.org'
                     addTestResults(true)
                   }
+                 'org.jenkinsci.plugins.ghprb.extensions.build.GhprbCancelBuildsOnUpdate' {
+                    overrideGlobal(false)
+                 }
               }
           }
         }

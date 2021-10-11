@@ -45,19 +45,6 @@ cat > build.sh << DELIM
 #
 set -ex
 
-# Bug in gcc5 with eigen see: https://github.com/ignition-tooling/release-tools/issues/147
-if [[ "${USE_GCC6}" -gt 0 || -z "${USE_GCC6}" && "${DISTRO}" == xenial ]]; then
-  apt-get update
-  apt-get install -y software-properties-common
-  add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  apt-get update
-  apt-get install -y gcc-6 g++-6
-  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 10
-  update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 10
-  update-alternatives --config gcc
-  update-alternatives --config g++
-fi
-
 if [ `expr length "${ABI_JOB_PRECHECKER_HOOK} "` -gt 1 ]; then
 echo '# BEGIN SECTION: running pre ABI hook'
 ${ABI_JOB_PREABI_HOOK}
@@ -66,7 +53,6 @@ fi
 
 echo '# BEGIN SECTION: compile and install branch: ${DEST_BRANCH}'
 cp -a $WORKSPACE/${ABI_JOB_SOFTWARE_NAME} /tmp/${ABI_JOB_SOFTWARE_NAME}
-chown -R root:root /tmp/${ABI_JOB_SOFTWARE_NAME}
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
 git fetch origin 
 git checkout origin/${DEST_BRANCH}
@@ -79,7 +65,7 @@ cmake ${ABI_JOB_CMAKE_PARAMS} \\
   -DCMAKE_INSTALL_PREFIX=/usr/local/destination_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
-make install
+sudo make install
 DEST_DIR=\$(find /usr/local/destination_branch/include -name ${ABI_JOB_SOFTWARE_NAME}-* -type d | sed -e 's:.*/::')
 echo '# END SECTION'
 
@@ -92,13 +78,15 @@ git remote add source_repo ${SRC_REPO}
 git fetch source_repo
 git checkout source_repo/${SRC_BRANCH}
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
+rm -rf $WORKSPACE/build
+mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake ${ABI_JOB_CMAKE_PARAMS} \\
   -DBUILD_TESTING=OFF \\
   -DCMAKE_INSTALL_PREFIX=/usr/local/source_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
-make install
+sudo make install
 SRC_DIR=\$(find /usr/local/source_branch/include -name ${ABI_JOB_SOFTWARE_NAME}-* -type d | sed -e 's:.*/::')
 echo '# END SECTION'
 
@@ -108,7 +96,7 @@ cd $WORKSPACE
 rm -fr $WORKSPACE/abi-compliance-checker
 git clone git://github.com/lvc/abi-compliance-checker.git
 cd abi-compliance-checker
-perl Makefile.pl -install --prefix=/usr
+sudo perl Makefile.pl -install --prefix=/usr
 
 mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker

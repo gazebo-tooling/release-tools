@@ -30,10 +30,6 @@ fi
 [[ -z ${NEED_C17_COMPILER} ]] && NEED_C17_COMPILER=false
 
 export APT_PARAMS=
-# workaround for changing our packages testing server
-if [[ ${DISTRO} != 'xenial' && ${DISTRO} != 'trusty' && ${DISTRO} != 'stretch' ]]; then
-  export APT_PARAMS="--allow-releaseinfo-change"
-fi
 
 GZDEV_DIR=${WORKSPACE}/gzdev
 GZDEV_BRANCH=${GZDEV_BRANCH:-master}
@@ -68,6 +64,7 @@ case ${LINUX_DISTRO} in
     export DEPENDENCY_PKGS="locales ${DEPENDENCY_PKGS}"
     ;;
   'debian')
+    SOURCE_LIST_URL="http://ftp.us.debian.org/debian"
     # debian does not ship locales by default
     export DEPENDENCY_PKGS="locales ${DEPENDENCY_PKGS}"
     ;;
@@ -121,7 +118,8 @@ MAINTAINER Jose Luis Rivero <jrivero@osrfoundation.org>
 # setup environment
 ENV LANG C
 ENV LC_ALL C
-ENV DEBIAN_FRONTEND noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
+RUN echo 'export DEBIAN_FRONTEND=noninteractive' >> /root/.bashrc
 ENV DEBFULLNAME "OSRF Jenkins"
 ENV DEBEMAIL "build@osrfoundation.org"
 DELIM_DOCKER
@@ -140,8 +138,7 @@ fi
 if [[ ${LINUX_DISTRO} == 'debian' ]]; then
 cat >> Dockerfile << DELIM_DEBIAN_APT
   RUN sed -i -e 's:httpredir:ftp.us:g' /etc/apt/sources.list
-  RUN echo "deb-src http://ftp.us.debian.org/debian ${DISTRO} main" \\
-                                                         >> /etc/apt/sources.list
+  RUN echo "deb-src ${SOURCE_LIST_URL} ${DISTRO} main" >> /etc/apt/sources.list
 DELIM_DEBIAN_APT
 fi
 
@@ -168,6 +165,14 @@ RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} restricted universe" \\
 DELIM_DOCKER_I386_APT
 fi
 
+# Workaround for: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=932019
+if [[ ${DISTRO} == 'buster' ]]; then
+cat >> Dockerfile << DELIM_BUSTER_DWZ
+RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO}-backports main" \\
+                                                       >> /etc/apt/sources.list
+DELIM_BUSTER_DWZ
+fi
+
 # Workaround for: https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1325142
 if [[ ${ARCH} == 'i386' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_PAM_BUG
@@ -181,15 +186,9 @@ RUN dpkg-divert --rename --add /usr/sbin/invoke-rc.d \\
 DELIM_DOCKER_PAM_BUG
 fi
 
-# dirmngr from Yaketty on needed by apt-key
-# git and python-* for gzdev
-if [[ $DISTRO != 'xenial' ]]; then
-    # not in xenial, available from Bionic on and all debians
-    extra_python_mod="python3-distro"
-fi
 cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
 RUN apt-get ${APT_PARAMS} update && \\
-    apt-get install -y dirmngr git python3 python3-docopt python3-yaml ${extra_python_mod}
+    apt-get install -y dirmngr git python3 python3-docopt python3-yaml python3-distro
 DELIM_DOCKER_DIRMNGR
 
 # Install necessary repositories using gzdev
@@ -203,18 +202,18 @@ ENV RTI_NC_LICENSE_ACCEPTED=yes
 RUN apt-get ${APT_PARAMS} update \\
     && apt-get install -y curl \\
     && rm -rf /var/lib/apt/lists/*
-RUN echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/main ${DISTRO} main" > \\
-                                                 /etc/apt/sources.list.d/ros2-latest.list
-RUN echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/testing ${DISTRO} main" > \\
-                                                 /etc/apt/sources.list.d/ros2-testing.list
-RUN curl http://repo.ros2.org/repos.key | apt-key add -
+RUN echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://repo.ros2.org/ubuntu/main ${DISTRO} main" > \\
+         /etc/apt/sources.list.d/ros2-latest.list
+RUN echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://repo.ros2.org/ubuntu/testing ${DISTRO} main" > \\ 
+        /etc/apt/sources.list.d/ros2-testing.list
+RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 DELIM_ROS_REPO
   else
 cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
 RUN echo "deb http://packages.ros.org/${ROS_REPO_NAME}/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F42ED6FBAB17C654
 DELIM_ROS_REPO
 # Need ros stable for the cases of ros-testing
 if [[ ${ROS_REPO_NAME} != "ros" ]]; then
@@ -243,29 +242,6 @@ RUN ${DOCKER_PREINSTALL_HOOK}
 DELIM_WORKAROUND_PRE_HOOK
 fi
 
-# Dart repositories
-if ${DART_FROM_PKGS} || ${DART_COMPILE_FROM_SOURCE}; then
-if [[ $DISTRO == 'xenial' ]]; then
-cat >> Dockerfile << DELIM_DOCKER_DART_PKGS
-# Install dart from pkgs
-RUN apt-get update \\
- && apt-get install -y apt-utils software-properties-common \\
- && rm -rf /var/lib/apt/lists/*
-RUN apt-add-repository -y ppa:dartsim
-DELIM_DOCKER_DART_PKGS
-fi
-fi
-
-# Workaround a problem in simbody on artful bad paths
-if [[ $DISTRO == "artful" ]]; then
-cat >> Dockerfile << DELIM_DOCKER_WORKAROUND_SIMBODY
-RUN apt-get update \\
- && apt-get install -y apt-utils software-properties-common \\
- && rm -rf /var/lib/apt/lists/*
-RUN add-apt-repository ppa:j-rivero/simbody-artful
-DELIM_DOCKER_WORKAROUND_SIMBODY
-fi
-
 # Install debian dependencies defined on the source code
 DEPENDENCIES_PATH_TO_SEARCH=${SOFTWARE_DIR:=.}
 SOURCE_DEFINED_DEPS="$(sort -u $(find ${DEPENDENCIES_PATH_TO_SEARCH} -iname 'packages-'$DISTRO'.apt' -o -iname 'packages.apt' | grep -v '/\.git/') | tr '\n' ' ')"
@@ -290,7 +266,7 @@ RUN echo "${MONTH_YEAR_STR}"
 DELIM_DOCKER3
 
 # A new install of gzdev is needed to update to possible recent changes in
-# configuratin and/or code and not being used since the docker cache did
+# configuration and/or code and not being used since the docker cache did
 # not get them.
 dockerfile_install_gzdev_repos
 
@@ -339,23 +315,24 @@ RUN echo "HEAD /" | nc \$(cat /tmp/host_ip.txt) 8000 | grep squid-deb-proxy \
 DELIM_DOCKER_SQUID
 fi
 
-if [[ -n ${SOFTWARE_DIR} ]]; then
-cat >> Dockerfile << DELIM_DOCKER4
-COPY ${SOFTWARE_DIR} ${WORKSPACE}/${SOFTWARE_DIR}
-DELIM_DOCKER4
-fi
-
 if $USE_GPU_DOCKER; then
  if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
-   if $NVIDIA_DOCKER2_NODE; then
-   # NVIDIA is using nvidia_docker2 integration
-   cat >> Dockerfile << DELIM_NVIDIA2_GPU
-# nvidia-container-runtime
-ENV NVIDIA_VISIBLE_DEVICES \
+   if [[ ${NVIDIA_DOCKER_DRIVER} == 'nvidia-docker' ]]; then
+# NVIDIA-DOCKER1
+cat >> Dockerfile << DELIM_NVIDIA_GPU
+  # nvidia-container-runtime
+  LABEL com.nvidia.volumes.needed="nvidia_driver"
+  ENV PATH /usr/local/nvidia/bin:\${PATH}
+  ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64:\${LD_LIBRARY_PATH}
+DELIM_NVIDIA_GPU
+   else
+# NVIDIA is using nvidia_docker2 integration
+cat >> Dockerfile << DELIM_NVIDIA2_GPU
+  # nvidia-container-runtime
+  ENV NVIDIA_VISIBLE_DEVICES \
     ${NVIDIA_VISIBLE_DEVICES:-all}
-ENV NVIDIA_DRIVER_CAPABILITIES \
+  ENV NVIDIA_DRIVER_CAPABILITIES \
     ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
-
 # Install libglvnd for OpenGL using nvidia-docker2
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
@@ -370,25 +347,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libx11-dev \
         x11proto-gl-dev && \
     rm -rf /var/lib/apt/lists/*
-
 RUN mkdir -p /opt/libglvnd && cd /opt/libglvnd && \
     git clone -b v1.2.0 https://github.com/NVIDIA/libglvnd.git . && \
     ./autogen.sh && \
     ./configure --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu && \
     make install-strip && \
     find /usr/local/lib/x86_64-linux-gnu -type f -name 'lib*.la' -delete
-
-ENV LD_LIBRARY_PATH /usr/local/lib/x86_64-linux-gnu${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+ENV LD_LIBRARY_PATH /usr/local/lib/x86_64-linux-gnu\${LD_LIBRARY_PATH:+:\${LD_LIBRARY_PATH}}
 DELIM_NVIDIA2_GPU
-   else
-   # NVIDIA-DOCKER1
-   cat >> Dockerfile << DELIM_NVIDIA_GPU
-# nvidia-container-runtime
-LABEL com.nvidia.volumes.needed="nvidia_driver"
-ENV PATH /usr/local/nvidia/bin:\${PATH}
-ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64:\${LD_LIBRARY_PATH}
-DELIM_NVIDIA_GPU
-   fi
+  fi
  else
   # No NVIDIA cards needs to have the same X stack than the host
   cat >> Dockerfile << DELIM_DISPLAY
@@ -445,12 +412,39 @@ echo '# END SECTION'
 BUILDSH_CCACHE
 fi
 
+# In upstart jobs (Xenial) the USER variable is not set for the jenkins
+# session. Fallback to get the user from processes table
+USER=${USER:-$(ps -o user= -p $PPID)}
+
+cat >> Dockerfile << DELIM_DOCKER_USER
+# Create a user with passwordless sudo
+ARG USERID
+ARG USER
+ARG GID
+RUN groupadd -g "\$GID" "\$USER";
+RUN adduser --uid \$USERID --gid \$GID --gecos "Developer" --disabled-password \$USER
+RUN adduser \$USER sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN chown -R \$USER:\$USER /home/\$USER
+
+# permit access to USER variable inside docker
+ENV USER ${USER}
+USER $USER
+# Must use sudo where necessary from this point on
+DELIM_DOCKER_USER
+
+if [[ -n ${SOFTWARE_DIR} ]]; then
+cat >> Dockerfile << DELIM_DOCKER4
+COPY --chown=\$USER:\$USER ${SOFTWARE_DIR} ${WORKSPACE}/${SOFTWARE_DIR}
+DELIM_DOCKER4
+fi
+
 echo '# BEGIN SECTION: see build.sh script'
 cat build.sh
 echo '# END SECTION'
 
 cat >> Dockerfile << DELIM_DOCKER4
-COPY build.sh build.sh
+COPY --chown=\$USER:\$USER build.sh build.sh
 RUN chmod +x build.sh
 DELIM_DOCKER4
 echo '# END SECTION'

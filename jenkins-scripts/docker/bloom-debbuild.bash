@@ -19,4 +19,5 @@ if [[ -z ${ROS_DISTRO} ]]; then
   exit 1
 fi
 
+export ENABLE_ROS=true
 . ${SCRIPT_DIR}/lib/debbuild-bloom-base.bash

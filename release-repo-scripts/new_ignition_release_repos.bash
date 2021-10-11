@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Be sure to run this script from outside a git repository. Otherwise, the 
+# first run will fail with `fatal: remote origin already exists.` In case
+# this happens, running the script one more time goes through.
+# See https://github.com/cli/cli/issues/2166
+
 set -e
 
 SCRIPT_DIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
@@ -17,9 +22,9 @@ repo_exists()
     local repo_github=${1}
 
     if gh repo view $repo_github 2>1 > /dev/null; then
-	echo true
+        echo true
     else
-	echo false
+        echo false
     fi
 }
 
@@ -38,33 +43,34 @@ for repo_name in ${NEW_REPOS}; do
     echo "Procesing ${repo_name}"
     repo_fname="${repo_name}-release"
     repo_github="ignition-release/${repo_fname}"
+
     echo " + creating the repository "
     # check destination directory
     if [[ -d ${repo_fname} ]]; then
        echo "  ? local dir ${repo_fname} exist in this directory. Is it emptY?"
        if ! $(empty_directory ${repo_fname}); then
-       	  echo "   ! directory is not empty. Abort"
-    	  continue
+           echo "   ! directory is not empty. Abort"
+        continue
        fi
        echo "   + ${repo_fname} is empty, assume github repo"
     else
-	# check repo in github
-	if $(repo_exists ${repo_github}); then
-	    echo "  ? repository ${repo_github} already exists!. Is it empty?"
-	    gh repo clone ${repo_github} ${repo_fname} 2> /dev/null
-	    if ! $(empty_directory ${repo_fname}); then
-       	       echo "   ! directory is not empty. Abort"
-	       continue
-	    fi
+        # check repo in github
+        if $(repo_exists ${repo_github}); then
+            echo "  ? repository ${repo_github} already exists!. Is it empty?"
+            gh repo clone ${repo_github} ${repo_fname} 2> /dev/null
+            if ! $(empty_directory ${repo_fname}); then
+                echo "   ! directory is not empty. Abort"
+                continue
+            fi
             echo "   + ${repo_fname} is empty"
-	else
-	 gh repo create \
-	      --confirm \
-		--public \
-		--enable-issues \
-		--description "Debian/Ubuntu metadata for ${repo_name}" \
-		${repo_github}
-     	fi
+        else
+            gh repo create \
+                --confirm \
+                --public \
+                --enable-issues \
+                --description "Debian/Ubuntu metadata for ${repo_name}" \
+                ${repo_github}
+        fi
     fi
     # repository checkout in place
     cd ${repo_fname}

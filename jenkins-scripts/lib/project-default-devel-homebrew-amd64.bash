@@ -110,9 +110,15 @@ export DISPLAY=$(ps ax \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
 
-# set CMAKE_PREFIX_PATH if we are using qt5 (aka qt)
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt' }.empty?"; then
-  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/qt
+# set CMAKE_PREFIX_PATH if we are using qt@5
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt@5' }.empty?"; then
+  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/qt@5
+fi
+# Workaround for tbb@2020_u3: set CPATH, LIBRARY_PATH, and CMAKE_PREFIX_PATH
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'tbb@2020_u3' }.empty?"; then
+  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/tbb@2020_u3
+  export CPATH=${CPATH}:/usr/local/opt/tbb@2020_u3/include
+  export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/tbb@2020_u3/lib
 fi
 # Workaround for tinyxml2 6.2.0: set CMAKE_PREFIX_PATH and PKG_CONFIG_PATH if we are using tinyxml2@6.2.0
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'tinyxml2@6.2.0' }.empty?"; then
@@ -122,6 +128,10 @@ fi
 # if we are using gts, need to add gettext library path since it is keg-only
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'gettext' }.empty?"; then
   export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/gettext/lib
+fi
+# if we are using boost, need to add icu4c library path since it is keg-only
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'icu4c' }.empty?"; then
+  export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/icu4c/lib
 fi
 
 # if we are using dart@6.10.0 (custom OR port), need to add dartsim library path since it is keg-only
@@ -143,7 +153,10 @@ echo '# END SECTION'
 
 echo "#BEGIN SECTION: brew doctor analysis"
 brew missing || brew install $(brew missing | awk '{print $2}') && brew missing
-brew doctor
+# if sdl installed, skip brew doctor
+# remove this line when open-scene-graph stops depending on sdl
+# https://github.com/Homebrew/homebrew-core/pull/81101
+brew list | grep '^sdl$' || brew doctor
 echo '# END SECTION'
 
 # CHECK PRE_TESTS_EXECUTION_HOOK AND RUN

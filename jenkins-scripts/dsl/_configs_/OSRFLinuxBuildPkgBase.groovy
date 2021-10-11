@@ -5,7 +5,7 @@ import javaposse.jobdsl.dsl.Job
 /*
   Implements:
     - cleanup pkgs directory
-    - keep only 10 builds
+    - keep only 200 build logs and 25 build artifacts
     - publish artifacts
 */
 class OSRFLinuxBuildPkgBase
@@ -17,7 +17,7 @@ class OSRFLinuxBuildPkgBase
      job.with
      {
        logRotator {
-         artifactNumToKeep(10)
+         artifactNumToKeep(25)
          numToKeep(200)
        }
 

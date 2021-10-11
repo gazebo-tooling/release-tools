@@ -38,7 +38,13 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: clean up environment'
 rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 . ${SCRIPT_LIBDIR}/_homebrew_cleanup.bash
-brew install hub
+# don't use HOMEBREW_UPDATE_TO_TAG for bottle builds
+unset HOMEBREW_UPDATE_TO_TAG
+brew up
+# manually exclude a ruby warning that jenkins thinks is from clang
+# https://github.com/osrf/homebrew-simulation/issues/1343
+brew install hub \
+   2>&1 | grep -v 'warning: conflicting chdir during another chdir block'
 echo '# END SECTION'
 
 # set display before building bottle
@@ -53,6 +59,7 @@ echo '# BEGIN SECTION: run test-bot'
 # The test-bot makes a full cleanup of all installed pkgs. Be sure of install back
 # git to keep the slave working
 export HOMEBREW_DEVELOPER=1
+brew tap homebrew/test-bot
 brew tap osrf/simulation
 # replace with 'hub -C $(brew --repo osrf/simulation) pr checkout ${ghprbPullId}'
 # after the following hub issue is resolved:
@@ -61,8 +68,14 @@ pushd $(brew --repo osrf/simulation) && \
   hub pr checkout ${ghprbPullId} && \
   popd
 
+# skip tap syntax for now until we replace :x11
+# do this by invoking with --only-setup and --only-formulae
+brew test-bot --tap=osrf/simulation \
+              --only-setup
+
 brew test-bot --tap=osrf/simulation \
               --fail-fast \
+              --only-formulae \
               --root-url=https://osrf-distributions.s3.amazonaws.com/bottles-simulation
 echo '# END SECTION'
 

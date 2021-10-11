@@ -226,12 +226,29 @@ echo # END SECTION
 goto :EOF
 
 :: ##################################
+:check_vcpkg_snapshot
+setlocal EnableDelayedExpansion
+for /f %%i in ('git -C %VCPKG_DIR% describe --tags HEAD') do set VCPKG_HEAD=%%i
+echo "VCPKG_HEAD is %VCPKG_HEAD%"
+if NOT %VCPKG_HEAD% == %VCPKG_SNAPSHOT% (
+  echo The vpckg directory is not using the expected snapshot %VCPKG_SNAPSHOT%
+  goto :error
+)
+goto :EOF
+
+:: ##################################
 :install_vcpkg_package
 :: arg1: package to install
 set LIB_DIR=%~dp0
 call %LIB_DIR%\windows_env_vars.bat || goto :error
+call %win_lib% :check_vcpkg_snapshot || goto :error
+:: update osrf vcpkg overlay
+pushd .
+cd %VCPKG_OSRF_DIR%
+git pull origin master || goto :error
+popd
 
-%VCPKG_CMD% install "%1"
+%VCPKG_CMD% install "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
 goto :EOF
 
 :: ##################################
@@ -253,25 +270,6 @@ goto :EOF
 %VCPKG_CMD% integrate remove || goto :error
 goto :EOF
 
-:: ##################################
-:install_osrf_vcpkg_package
-:: arg1: package to install
-set LIB_DIR=%~dp0
-set PKG=%1
-set PORT_DIR=%VCPKG_DIR%\ports\%PKG%
-call %LIB_DIR%\windows_env_vars.bat || goto :error
-
-if exist %PORT_DIR% (
-  rmdir /s /q %PORT_DIR% || goto :error
-)
-
-if NOT exist %VCPKG_OSRF_DIR% (
-  git clone https://github.com/osrf/vcpkg-ports %VCPKG_OSRF_DIR%
-  cd %VCPKG_OSRF_DIR%
-) else (
-  cd %VCPKG_OSRF_DIR%
-  git pull origin master || goto :error
-)
 
 :: copy port to the official tree
 xcopy %VCPKG_OSRF_DIR%\%PKG% %PORT_DIR% /s /i /e || goto :error

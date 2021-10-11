@@ -59,7 +59,13 @@ if ${NIGHTLY_MODE}; then
     REV=0
   fi
 else
-  wget --quiet -O orig_tarball $SOURCE_TARBALL_URI
+  # Some combinations does not known about AWS certificate from S3
+  if [[ ${LINUX_DISTRO} == debian ]] || [[ ${DISTRO} == 'focal' && ${ARCH} == 'armhf' ]]; then
+     no_check_cert_str='--no-check-certificate'
+  fi
+  wget \$no_check_cert_str --quiet -O orig_tarball $SOURCE_TARBALL_URI || \
+    echo rerunning wget without --quiet since it failed && \
+    wget \$no_check_cert_str -O orig_tarball $SOURCE_TARBALL_URI
   TARBALL_EXT=${SOURCE_TARBALL_URI/*tar./}
   mv orig_tarball $PACKAGE_ALIAS\_$VERSION.orig.tar.\${TARBALL_EXT}
   rm -rf \$REAL_PACKAGE_NAME\-$VERSION
@@ -152,8 +158,15 @@ cp -a --dereference \${PACKAGE_RELEASE_DIR}/* .
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install build dependencies'
-apt-get update
-mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
+sudo apt-get update
+# buster workaround for dwz. backports repository does not have priority over main
+# explicit the version wanted
+if [ ${DISTRO} = 'buster' ]; then
+  sudo apt-get install -y dwz=0.13-5~bpo10+1
+fi
+sudo DEBIAN_FRONTEND=noninteractive mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
+# new versions of mk-build-deps > 2.21.1 left buildinfo and changes files in the code
+rm -f ${PACKAGE_ALIAS}-build-deps_*.{buildinfo,changes}
 echo '# END SECTION'
 
 if [ -f /usr/bin/rosdep ]; then
@@ -163,21 +176,21 @@ fi
 if $NEED_C11_COMPILER || $NEED_GCC48_COMPILER; then
 echo '# BEGIN SECTION: install C++11 compiler'
 if [ ${DISTRO} = 'precise' ]; then
-apt-get install -y python-software-propertie software-properties-common || true
-add-apt-repository ppa:ubuntu-toolchain-r/test
-apt-get update
+sudo apt-get install -y python-software-propertie software-properties-common || true
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+sudo apt-get update
 fi
-apt-get install -y gcc-4.8 g++-4.8
-update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
-update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
+sudo apt-get install -y gcc-4.8 g++-4.8
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
 g++ --version
 echo '# END SECTION'
 fi
 
 if $NEED_C17_COMPILER; then
 echo '# BEGIN SECTION: install C++17 compiler'
-apt-get install -y gcc-8 g++-8
-update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
+sudo apt-get install -y gcc-8 g++-8
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
 g++ --version
 echo '# END SECTION'
 fi
@@ -207,8 +220,8 @@ fi
 
 # Hack to avoid problems with dwz symbols starting in Ubuntu Disco if tmp and debugtmp are the
 # same the build fails copying files because they are the same
-if [[ $DISTRO != 'xenial' && $DISTRO != 'bionic' ]]; then
-  sed -i -e 's:dwz" and:dwz" and (\$tmp ne \$debugtmp) and:' /usr/bin/dh_strip
+if [[ $DISTRO != 'bionic' ]]; then
+  sudo sed -i -e 's:dwz" and:dwz" and (\$tmp ne \$debugtmp) and:' /usr/bin/dh_strip
 fi
 
 echo '# BEGIN SECTION: create deb packages'

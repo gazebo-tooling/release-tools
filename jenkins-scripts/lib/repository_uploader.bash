@@ -45,17 +45,15 @@ S3_upload()
 # The dsc package is valid across all distributions
 dsc_package_exists_and_equal_or_greater()
 {
-    local pkg=${1} new_version=${2}
+    local pkg=${1} new_version=${2} distro=${3}
 
-    current_dsc_info=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro -T dsc ls "${pkg}" | tail -n 1)
+    current_dsc_info=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro -T dsc list "${distro}" "${pkg}" | tail -n 1)
 
     if [[ -z ${current_dsc_info} ]]; then
         return 1 # do not exits, false
     fi
 
-    # Strip -$rev~$DISTRO string from versions to compare
-    current_version=$(awk '{ print $3 }' <<< "${current_dsc_info}" | sed -e 's:-.*~.*$::')
-    new_version=$(sed -e 's:-.*~.*$::' <<< "$new_version")
+    current_version=$(awk '{ print $3 }' <<< "${current_dsc_info}")
     # if new version is lower
     if $(dpkg --compare-versions ${new_version} gt ${current_version}); then
         return 1 # exists, new package is greater
@@ -121,13 +119,13 @@ fi
 case ${UPLOAD_TO_REPO} in
     "stable")
 	# Security checks not to upload nightly or prereleases
-        # No packages with ~hg or ~pre
-	if [[ -n $(ls ${pkgs_path}/*~hg*.*) && -n $(ls ${pkgs_path}/*~pre*.*) ]]; then
+        # No packages with ~git or ~pre
+	if [[ -n $(ls ${pkgs_path}/*~git*.*) && -n $(ls ${pkgs_path}/*~pre*.*) ]]; then
 	  echo "There are nightly packages in the upload directory. Not uploading to stable repo"
 	  exit 1
 	fi
-        # No source packages with ~hg in version
-	if [[ -n $(cat ${pkgs_path}/*.dsc | grep ^Version: | grep '~hg\|~pre') ]]; then
+        # No source packages with ~git in version
+	if [[ -n $(cat ${pkgs_path}/*.dsc | grep ^Version: | grep '~git\|~pre') ]]; then
           echo "There is a sorce package with nightly or pre in version. Not uploading to stable repo"
 	  exit 1
         fi
@@ -200,7 +198,7 @@ for pkg in `ls $pkgs_path/*.dsc`; do
   pkg_version=${pkg_name_clean#*_}
   pkg_version=${pkg_version/.dsc}
 
-  if dsc_package_exists_and_equal_or_greater ${pkg_name} ${pkg_version}; then
+  if dsc_package_exists_and_equal_or_greater ${pkg_name} ${pkg_version} ${DISTRO}; then
     echo "Source package for ${pkg} already exists in the repo and it's greater or equal than current version"
     echo "SKIP SOURCE UPLOAD"
   else

@@ -13,24 +13,17 @@ class Globals
 
    static CRON_EVERY_THREE_DAYS = 'H H * * H/3'
 
-   static gpu_by_distro  = [ xenial  : [ 'nvidia' ] ,
-                             bionic  : [ 'nvidia' ]]
+   static gpu_by_distro  = [ bionic  : [ 'nvidia' ]]
 
-   static ros_ci = [ 'kinetic'  : ['xenial'] ,
-                     'melodic'  : ['bionic'] ,
+   static ros_ci = [ 'melodic'  : ['bionic'] ,
                      'noetic'   : ['focal'] ,
-                     'dashing'  : ['bionic'] ,
-                     'eloquent' : ['bionic'] ,
                      'foxy'     : ['focal'] ,
                      'galactic' : ['focal'] ,
                      'rolling'  : ['focal']]
 
    // This should be in sync with archive_library
-   static gz_version_by_rosdistro = [ 'kinetic'  : ['7'] ,
-                                      'melodic'  : ['9'] ,
+   static gz_version_by_rosdistro = [ 'melodic'  : ['9'] ,
                                       'noetic'   : ['11'] ,
-                                      'dashing'  : ['9'] ,
-                                      'eloquent' : ['9'] ,
                                       'foxy'     : ['11'] ,
                                       'galactic' : ['11'] ,
                                       'rolling'  : ['11']]
@@ -64,12 +57,12 @@ class Globals
    // Main CI platform
    static ArrayList get_ci_distro()
    {
-    return [ 'xenial' ]
+    return [ 'bionic' ]
    }
 
    static ArrayList get_abi_distro()
    {
-     return [ 'xenial' ]
+     return [ 'bionic' ]
    }
 
    static ArrayList get_ci_gpu()
@@ -104,16 +97,16 @@ class Globals
 
    static ArrayList get_ros_suported_distros()
    {
-     return [ 'kinetic', 'melodic', 'noetic' ]
+     return [ 'melodic', 'noetic' ]
    }
 
    static ArrayList get_ros2_suported_distros()
    {
-     return [ 'dashing', 'eloquent', 'foxy', 'rolling' ]
+     return [ 'foxy', 'galactic', 'rolling' ]
    }
 
    static String get_ros2_development_distro() {
-     return 'galactic'
+     return 'rolling'
    }
 
    static String get_gz11_ubuntu_distro()

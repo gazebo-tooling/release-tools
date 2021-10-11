@@ -14,11 +14,16 @@ class OSRFWinCompilationAnyGitHub
   static void create(Job job,
                      String github_repo,
                      boolean enable_testing  = true,
-                     ArrayList supported_ros_distros = [])
+                     ArrayList supported_branches = [],
+                     boolean enable_github_pr_integration = true,
+                     boolean enable_cmake_warnings  = false)
   {
-    OSRFWinCompilation.create(job, enable_testing)
+    OSRFWinCompilation.create(job, enable_testing, enable_cmake_warnings)
 
     /* Properties from generic any */
-    GenericAnyJobGitHub.create(job, github_repo, supported_ros_distros)
+    GenericAnyJobGitHub.create(job,
+                               github_repo,
+                               supported_branches,
+                               enable_github_pr_integration)
   }
 }

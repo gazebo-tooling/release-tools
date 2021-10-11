@@ -31,11 +31,6 @@ fi
 export NEED_C17_COMPILER=true
 
 export GPU_SUPPORT_NEEDED=true
-if [[ ${IGN_SENSORS_MAJOR_VERSION} -eq 5 ]]; then
-  export BUILD_IGN_RENDERING=true
-  export IGN_RENDERING_MAJOR_VERSION=5
-  export IGN_RENDERING_BRANCH=main
-fi
 export GZDEV_PROJECT_NAME="ignition-sensors${IGN_SENSORS_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

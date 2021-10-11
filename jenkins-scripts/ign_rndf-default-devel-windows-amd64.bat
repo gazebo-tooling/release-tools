@@ -1,4 +1,4 @@
-set SCRIPT_DIR="%~dp0"
+set SCRIPT_DIR=%~dp0
 
 set VCS_DIRECTORY=ign-rndf
 set PLATFORM_TO_BUILD=x86_amd64
