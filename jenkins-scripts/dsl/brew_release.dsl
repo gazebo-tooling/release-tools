@@ -243,7 +243,7 @@ GitHubCredentials.createOsrfbuildToken(bottle_job_hash_updater)
 include_common_params(bottle_job_hash_updater)
 bottle_job_hash_updater.with
 {
-  label "master"
+  label "osx"
 
   wrappers
   {
