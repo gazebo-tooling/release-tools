@@ -288,6 +288,7 @@ ignition_collection_jobs =
         'ign_fuel-tools-ign-7-win',
         'ign_gazebo-ign-6-win',
         'ign_gui-ign-6-win',
+        'ign_launch-ign-5-win',
         'ign_physics-ign-5-win',
         'ign_plugin-ign-1-win',
         'ign_rendering-ign-6-win',
