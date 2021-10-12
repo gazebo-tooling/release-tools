@@ -110,15 +110,14 @@ export DISPLAY=$(ps ax \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
 
+CMAKE_ARGS=""
 # set CMAKE_PREFIX_PATH if we are using qt@5
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt@5' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/qt@5
 fi
 # set CMAKE_PREFIX_PATH if we are using qwt-qt5
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qwt-qt5' }.empty?"; then
-  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/qwt-qt5
-  export CPATH=${CPATH}:/usr/local/opt/qwt-qt5/include
-  export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/qwt-qt5/lib
+  CMAKE_ARGS='-DQWT_WIN_INCLUDE_DIR="/usr/local/opt/qwt-qt5/lib/qwt.framework/Headers" -DQWT_WIN_LIBRARY_DIR="/usr/local/opt/qwt-qt5lib/qwt.framework"'
 fi
 # Workaround for tbb@2020_u3: set CPATH, LIBRARY_PATH, and CMAKE_PREFIX_PATH
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'tbb@2020_u3' }.empty?"; then
@@ -149,6 +148,7 @@ fi
 
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT_FORMULA}/HEAD \
+     ${CMAKE_ARGS} \
      ${WORKSPACE}/${PROJECT_PATH}
 echo '# END SECTION'
 
