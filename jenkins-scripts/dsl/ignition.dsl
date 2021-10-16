@@ -100,6 +100,7 @@ ignition_colcon_win         = [ 'common',
                                 'plugin',
                                 'rendering',
                                 'sensors',
+                                'tools',
                                 'transport',
                                 'utils' ]
 
