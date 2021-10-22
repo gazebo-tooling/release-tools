@@ -38,7 +38,7 @@ ignition_no_cmake_warnings = [ 'cmake',
                       'transport',
                       'utils' ]
 // DESC: software does not have tests
-ignition_no_test            = [ 'tools' ]
+ignition_no_test            = [  ]
 // DESC: major series supported and released. The branches get CI, install pkg
 // testing and debbuild job.
 // No branches in ignition_branches means no released branches (only CI on
