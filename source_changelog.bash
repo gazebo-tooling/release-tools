@@ -41,7 +41,9 @@ git log "$previous_tag".. --reverse --first-parent --pretty=format:"%h|%s|%ae|%a
     fi
     printf "1. %s\n" "$pr_desc"
     printf "    * [Pull request #%s](%s/pull/%s)\n" "$pr_num" "$current_origin_remote" "$pr_num"
-    if [[ "${author_email/@openrobotics.org}" == "${author_email}" ]]; then
+    if [[ "${author_email/@openrobotics.org}" == "${author_email}" ]] && \
+       [[ "${author_email/@osrfoundation.org}" == "${author_email}" ]] && \
+       [[ "${author_email/@users.noreply.github.com}" == "${author_email}" ]]; then
       printf "    * A contribution from: %s <%s>\n" "$author" "$author_email"
     fi
     echo
