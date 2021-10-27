@@ -1,24 +1,38 @@
 #!/bin/bash
+set -e
 
-PREV_TAG=$1
+current_origin_remote=$(git config --get remote.origin.url)
 
-git fetch --tags
+if [[ -z ${current_origin_remote} ]]; then
+    echo "Script is unable to detect current remote.origin.url in this directory"
+    exit 1
+fi
 
-REPO=$(basename `git rev-parse --show-toplevel`)
-REPO_FULL="${REPO/ign-/ignition-}"
-MAJOR=${PREV_TAG%.*.*}
-BRANCH=${REPO/sdformat/sdf}${MAJOR}
+if [[ -f "Changelog.md" ]]; then
+    software_name=$(head -1 Changelog*)
+    printf "%s (%s)\n\n" "${software_name}" "$(date +%Y-%m-%d)"
+fi
 
-COMMITS=$(git log ${BRANCH}...${REPO_FULL}${MAJOR}_${PREV_TAG}  --pretty=format:"%h")
+current_tag=$(git symbolic-ref HEAD)
+start_ref="HEAD"
 
-for COMMIT in $COMMITS
-do
-  TITLE_FULL=$(git log --format="%s" -n 1 $COMMIT)
-  TITLE=${TITLE_FULL% (\#*)}
-  PR=${TITLE_FULL#*\#}
-  PR=${PR%)}
-
-  echo "1. $TITLE"
-  echo "    * [Pull request #$PR](https://github.com/ignitionrobotics/$REPO/pull/$PR)"
-  echo ""
+# Find the previous release on the same branch, skipping prereleases if the
+# current tag is a full release
+previous_tag=""
+while [[ -z $previous_tag || ( $previous_tag == *-* && $current_tag != *-* ) ]]; do
+  previous_tag="$(git describe --tags "$start_ref"^ --abbrev=0)"
+  start_ref="$previous_tag"
 done
+
+git log "$previous_tag".. --reverse --first-parent --oneline | \
+  while read -r sha title; do
+    pr_num="$(grep -o '#[[:digit:]]\+' <<<"$title")"
+    pr_num="${pr_num:1}"
+    if [[ $title == "Merge pull request #"* ]]; then
+      pr_desc="$(git show -s --format=%b "$sha" | sed -n '1,/^$/p' | tr $'\n' ' ')"
+    else
+      pr_desc=${title/\ (#[[:digit:]]*)}
+    fi
+    printf "1. %s\n" "$pr_desc"
+    printf "    * [Pull request #%s](%s/pull/%s)\n" "$pr_num" "$current_origin_remote" "$pr_num"
+  done
