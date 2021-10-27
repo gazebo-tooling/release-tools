@@ -3,6 +3,12 @@ set -e
 
 current_origin_remote=$(git config --get remote.origin.url)
 
+# need tweaks if using ssh
+if [[ "${current_origin_remote/git@}" != "${current_origin_remote}" ]]; then
+  current_origin_remote=${current_origin_remote/\.git}
+  current_origin_remote=${current_origin_remote/git@github.com:/https://github.com/}
+fi
+
 if [[ -z ${current_origin_remote} ]]; then
   echo "Script is unable to detect current remote.origin.url in this directory"
   exit 1
