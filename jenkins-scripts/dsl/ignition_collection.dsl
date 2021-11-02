@@ -21,10 +21,10 @@ ignition_collections = [
     // These are the branches currently targeted at the upcoming collection
     // They're in topological order
     nightly_jobs: [
-          'tools'     : [ debbuild: 'ign-tools1'      , branch: 'ign-tools1' ],
+          'tools'     : [ debbuild: 'ign-tools'       , branch: 'ign-tools1' ],
           'cmake'     : [ debbuild: 'ign-cmake2'      , branch: 'ign-cmake2' ],
           'math'      : [ debbuild: 'ign-math6'       , branch: 'ign-math6' ],
-          'plugin'    : [ debbuild: 'ign-plugin1'     , branch: 'ign-plugin1' ],
+          'plugin'    : [ debbuild: 'ign-plugin'      , branch: 'ign-plugin1' ],
           'utils'     : [ debbuild: 'ign-utils1'      , branch: 'ign-utils1' ],
           'common'    : [ debbuild: 'ign-common4'     , branch: 'ign-common4' ],
           'msgs'      : [ debbuild: 'ign-msgs8'       , branch: 'ign-msgs8' ],
