@@ -592,6 +592,7 @@ nightly_scheduler_job.with
   rendering_branch = get_nightly_branch(collection_data, 'rendering')
   sensors_branch = get_nightly_branch(collection_data, 'sensors')
   sdformat_branch = get_nightly_branch(collection_data, 'sdformat')
+  tools_branch = get_nightly_branch(collection_data, 'tools')
   transport_branch = get_nightly_branch(collection_data, 'transport')
   utils_branch = get_nightly_branch(collection_data, 'utils')
 
@@ -637,6 +638,8 @@ nightly_scheduler_job.with
                 src_branch="${sdformat_branch}"
               elif [[ "\${n}" != "\${n/transport/}" ]]; then
                 src_branch="${transport_branch}"
+              elif [[ "\${n}" != "\${n/tools/}" ]]; then
+                src_branch="${tools_branch}"
               elif [[ "\${n}" != "\${n/utils/}" ]]; then
                 src_branch="${utils_branch}"
               else
