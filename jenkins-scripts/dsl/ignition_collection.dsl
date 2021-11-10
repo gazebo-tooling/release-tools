@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 // IGNITION COLLECTIONS
 arch = 'amd64'
 
-ignition_nightly = 'fortress'
+ignition_nightly = 'garden'
 
 ignition_collections = [
   [ name : 'citadel',
@@ -17,6 +17,9 @@ ignition_collections = [
     distros : [ 'focal' ],
   ],
   [ name : 'fortress',
+    distros : [ 'focal' ],
+  ],
+  [ name : 'garden',
     distros : [ 'focal' ],
     // These are the branches currently targeted at the upcoming collection
     // They're in topological order
@@ -39,9 +42,6 @@ ignition_collections = [
           'launch'    : [ debbuild: 'ign-launch5'     , branch: 'ign-launch5' ],
           'fortress'  : [ debbuild: 'ign-fortress'    , branch: 'main' ],
     ],
-  ],
-  [ name : 'garden',
-    distros : [ 'focal' ],
   ],
 ]
 
