@@ -40,7 +40,7 @@ ignition_collections = [
           'physics'   : [ debbuild: 'ign-physics5'    , branch: 'ign-physics5' ],
           'gazebo'    : [ debbuild: 'ign-gazebo6'     , branch: 'ign-gazebo6' ],
           'launch'    : [ debbuild: 'ign-launch5'     , branch: 'ign-launch5' ],
-          'fortress'  : [ debbuild: 'ign-fortress'    , branch: 'main' ],
+          'garden'    : [ debbuild: 'ign-garden'      , branch: 'main' ],
     ],
   ],
 ]
