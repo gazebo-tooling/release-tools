@@ -32,7 +32,7 @@ ignition_collections = [
           'sdformat'  : [ debbuild: 'sdformat12'      , branch: 'sdf12' ],
           'fuel-tools': [ debbuild: 'ign-fuel-tools7' , branch: 'ign-fuel-tools7' ],
           'transport' : [ debbuild: 'ign-transport11' , branch: 'ign-transport11' ],
-          'gui'       : [ debbuild: 'ign-gui6'        , branch: 'ign-gui6' ],
+          'gui'       : [ debbuild: 'ign-gui7'        , branch: 'main' ],
           'sensors'   : [ debbuild: 'ign-sensors6'    , branch: 'ign-sensors6' ],
           'physics'   : [ debbuild: 'ign-physics5'    , branch: 'ign-physics5' ],
           'gazebo'    : [ debbuild: 'ign-gazebo6'     , branch: 'ign-gazebo6' ],
