@@ -39,7 +39,7 @@ ignition_collections = [
           'sensors'   : [ debbuild: 'ign-sensors7'    , branch: 'main' ],
           'physics'   : [ debbuild: 'ign-physics5'    , branch: 'ign-physics5' ],
           'gazebo'    : [ debbuild: 'ign-gazebo7'     , branch: 'main' ],
-          'launch'    : [ debbuild: 'ign-launch5'     , branch: 'ign-launch5' ],
+          'launch'    : [ debbuild: 'ign-launch6'     , branch: 'main' ],
           'garden'    : [ debbuild: 'ign-garden'      , branch: 'main' ],
     ],
   ],
