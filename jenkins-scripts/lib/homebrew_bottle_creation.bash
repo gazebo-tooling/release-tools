@@ -13,6 +13,10 @@ if [ -z "${ghprbActualCommit}" ]; then
     echo ghprbActualCommit not specified
     exit -1
 fi
+if [ -z "${ghprbCommentBody}" ]; then
+    echo ghprbCommentBody not specified
+    exit -1
+fi
 if [ -z "${ghprbGhRepository}" ]; then
     echo ghprbGhRepository not specified
     exit -1
@@ -33,6 +37,9 @@ export GITHUB_BASE_REF=${ghprbTargetBranch}
 export GITHUB_REPOSITORY=${ghprbGhRepository}
 export GITHUB_REF=${sha1}
 export GITHUB_SHA=${ghprbActualCommit}
+if [[ "${ghprbCommentBody}" =~ --keep-old ]]; then
+  export KEEP_OLD=--keep-old
+fi
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean up environment'
@@ -75,6 +82,7 @@ brew test-bot --tap=osrf/simulation \
 
 brew test-bot --tap=osrf/simulation \
               --fail-fast \
+              ${KEEP_OLD} \
               --only-formulae \
               --root-url=https://osrf-distributions.s3.amazonaws.com/bottles-simulation
 echo '# END SECTION'
