@@ -22,7 +22,8 @@ get_libraries_by_collection()
 	ignition-sensors3
 	ignition-gui3
 	ignition-gazebo3
-	ignition-launch2"
+	ignition-launch2
+	ignition-citadel"
     elif [ "$COLLECTION" = "dome" ]; then
       LIBS="
 	ignition-cmake2
@@ -39,7 +40,8 @@ get_libraries_by_collection()
 	ignition-sensors4
 	ignition-gui4
 	ignition-gazebo4
-	ignition-launch3"
+	ignition-launch3
+	ignition-dome"
     elif [ "$COLLECTION" = "edifice" ]; then
       LIBS="
 	ignition-cmake2
@@ -57,7 +59,8 @@ get_libraries_by_collection()
 	ignition-sensors5
 	ignition-gui5
 	ignition-gazebo5
-	ignition-launch4"
+	ignition-launch4
+	ignition-edifice"
     elif [ "$COLLECTION" = "fortress" ]; then
       LIBS="
 	ignition-cmake2
@@ -75,7 +78,8 @@ get_libraries_by_collection()
 	ignition-sensors6
 	ignition-gui6
 	ignition-gazebo6
-	ignition-launch5"
+	ignition-launch5
+	ignition-fortress"
     else
       return 1
     fi
