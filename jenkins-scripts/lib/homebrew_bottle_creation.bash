@@ -40,6 +40,17 @@ export GITHUB_SHA=${ghprbActualCommit}
 if [[ "${ghprbCommentBody}" =~ --keep-old ]]; then
   export KEEP_OLD=--keep-old
 fi
+MACOS_VERSION_TO_SYM=$(brew ruby -e 'puts "#{MacOS.version.to_sym}"')
+if [[ "${ghprbCommentBody}" =~ '--only-' ]]; then
+  echo Found a --only- option in the comment. Limiting to matching macOS versions.
+  if [[ "${ghprbCommentBody}" =~ --only-${MACOS_VERSION_TO_SYM} ]]; then
+    echo Found a match for --only-${MACOS_VERSION_TO_SYM} in comment.
+    echo Proceeding with bottle build.
+  else
+    echo Did not find --only-${MACOS_VERSION_TO_SYM} in comment string \"${ghprbCommentBody}\"
+    exit 0
+  fi
+fi
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean up environment'
