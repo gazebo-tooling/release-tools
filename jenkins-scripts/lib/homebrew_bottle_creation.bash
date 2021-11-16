@@ -95,6 +95,7 @@ brew test-bot --tap=osrf/simulation \
               --fail-fast \
               ${KEEP_OLD} \
               --only-formulae \
+              --only-json-tab \
               --root-url=https://osrf-distributions.s3.amazonaws.com/bottles-simulation
 echo '# END SECTION'
 
