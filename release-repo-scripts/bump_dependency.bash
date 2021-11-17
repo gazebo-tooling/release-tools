@@ -385,17 +385,20 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   cd ${TEMP_DIR}/homebrew-simulation
   startFromCleanBranch bump_${COLLECTION}_${LIB} master
 
-  FORMULA="Formula/${LIB/ign/ignition}${VER}.rb"
+  # expand ign-* to ignition-*
+  FORMULA_BASE=${LIB/ign/ignition}
+  # construct path with major version suffix
+  FORMULA="Formula/${FORMULA_BASE}${VER}.rb"
   if [ ! -f "$FORMULA" ]; then
     echo -e "${GREEN}${LIB}: Creating ${FORMULA}${DEFAULT}"
 
-    git rm Aliases/${LIB/ign/ignition}${VER}
+    git rm Aliases/${FORMULA_BASE}${VER}
 
     # Collection
     if ! [[ $VER == ?(-)+([0-9]) ]] ; then
       cp Formula/ignition-${PREV_COLLECTION}.rb $FORMULA
     else
-      cp Formula/${LIB/ign/ignition}${PREV_VER}.rb $FORMULA
+      cp Formula/${FORMULA_BASE}${PREV_VER}.rb $FORMULA
     fi
 
     git add $FORMULA
