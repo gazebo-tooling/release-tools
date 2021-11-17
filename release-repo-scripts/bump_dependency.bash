@@ -350,8 +350,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   commitAndPR ${ORG} main
 
-  SOURCE_COMMIT=`git rev-parse HEAD`
-
   ##################
   # release repo
   ##################
@@ -402,10 +400,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   fi
 
   echo -e "${GREEN}${LIB}: Updating ${FORMULA}${DEFAULT}"
-  URL="https://github.com/${ORG}/${LIB}/archive/${SOURCE_COMMIT}.tar.gz"
-  wget $URL
-  SHA=`sha256sum ${SOURCE_COMMIT}.tar.gz | cut -d " " -f 1`
-  rm ${SOURCE_COMMIT}.tar.gz
+  URL="https://github.com/${ORG}/${LIB}.git"
 
   # libN
   sed -i -E "s ((${LIB#"ign-"}))${PREV_VER} \1${VER} g" $FORMULA
@@ -418,14 +413,15 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   # remove bottle - TODO: this is only needed for new formulae
   sed -i -e "/bottle do/,/end/d" $FORMULA
   # URL from release to commit - TODO: remove manual step
-  sed -i "s@^  url.*@  url \"$URL\"@g" $FORMULA
-  # SHA - TODO: remove manual step
-  sed -i "s/sha256.*/sha256 \"$SHA\"/g" $FORMULA
+  sed -i "s@^  url.*@  url \"$URL\", branch: \"main\"@g" $FORMULA
+  # SHA - remove in favor of building from `main` branch
+  sed -i "/^  sha256.*/d" $FORMULA
   # revision - remove if present
   sed -i "/^  revision.*/d" $FORMULA
   # version
+  PREV_VER_NONNEGATIVE=$([[ "${PREV_VER}" -lt 0 ]] && echo "0" || echo "${PREV_VER}")
   sed -i "/ version /d" $FORMULA
-  sed -i "/url.*/a \ \ version\ \"${PREV_VER}.999.999~0~`date +"%Y%m%d"`~${SOURCE_COMMIT:0:6}\"" $FORMULA
+  sed -i "/^  url.*/a\  version \"${PREV_VER_NONNEGATIVE}.999.999~0~`date +"%Y%m%d"`\"" $FORMULA
   # Remove extra blank lines
   cat -s $FORMULA | tee $FORMULA
 
