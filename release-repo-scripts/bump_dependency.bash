@@ -311,9 +311,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   PREV_VER="$((${VER}-1))"
   LIB_UPPER=`echo ${LIB#"ign-"} | tr a-z A-Z`
   ORG=${IGN_ORG}
-  if [ "$LIB" = "sdformat" ]; then
-    ORG=${OSRF_ORG}
-  fi
   BUMP_BRANCH="bump_${COLLECTION}_${LIB}${VER}"
 
   echo -e "${BLUE_BG}Processing [${LIB}]${DEFAULT_BG}"
@@ -417,6 +414,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   sed -i "s ${LIB}${PREV_VER} main g" $FORMULA
   # class IgnitionLibN
   sed -i -E "s/((class Ignition.*))${PREV_VER}/\1${VER}/g" $FORMULA
+  sed -i -E "s/((class Sdformat))${PREV_VER}/\1${VER}/g" $FORMULA
   # remove bottle - TODO: this is only needed for new formulae
   sed -i -e "/bottle do/,/end/d" $FORMULA
   # URL from release to commit - TODO: remove manual step
