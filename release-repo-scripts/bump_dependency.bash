@@ -57,6 +57,9 @@ VERSION_INPUT=${3}
 ISSUE_NUMBER=${4}
 PREV_COLLECTION=${5}
 DOCS_BRANCH=${6}
+if [[ -z "${DOCS_BRANCH}" ]]; then
+  DOCS_BRANCH=master
+fi
 
 COMMIT_MSG="Bumps in ${COLLECTION}"
 PR_TEXT="See https://github.com/${TOOLING_ORG}/release-tools/issues/${ISSUE_NUMBER}"
