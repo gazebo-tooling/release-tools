@@ -325,7 +325,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   startFromCleanBranch ${BUMP_BRANCH} main
 
   # Check if main branch of that library is the correct version
-  PROJECT_NAME="${LIB//-/_}${VER}"
+  PROJECT_NAME="${LIB_}${VER}"
   PROJECT_NAME="${PROJECT_NAME/ign_/ignition-}"
   PROJECT="project.*(${PROJECT_NAME}"
   if ! grep -q ${PROJECT} "CMakeLists.txt"; then
