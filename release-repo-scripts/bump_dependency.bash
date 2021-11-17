@@ -418,9 +418,11 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   # remove bottle - TODO: this is only needed for new formulae
   sed -i -e "/bottle do/,/end/d" $FORMULA
   # URL from release to commit - TODO: remove manual step
-  sed -i "s@url.*@url \"$URL\"@g" $FORMULA
+  sed -i "s@^  url.*@  url \"$URL\"@g" $FORMULA
   # SHA - TODO: remove manual step
   sed -i "s/sha256.*/sha256 \"$SHA\"/g" $FORMULA
+  # revision - remove if present
+  sed -i "/^  revision.*/d" $FORMULA
   # version
   sed -i "/ version /d" $FORMULA
   sed -i "/url.*/a \ \ version\ \"${PREV_VER}.999.999~0~`date +"%Y%m%d"`~${SOURCE_COMMIT:0:6}\"" $FORMULA
