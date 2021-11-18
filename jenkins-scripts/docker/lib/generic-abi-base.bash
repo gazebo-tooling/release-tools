@@ -37,6 +37,13 @@ if [[ "${NEED_C17_COMPILER}" == "true" ]]; then
   ABI_CXX_STANDARD=c++17
 fi
 
+# Needed to compile software using OGRE-2.2. Being used on every build, should not hurt
+EXTRA_INCLUDES="""
+ <add_include_paths>
+   /usr/include/OGRE-2.2/Hlms/Common
+ </add_include_paths>
+"""
+
 cat > build.sh << DELIM
 #!/bin/bash
 
@@ -109,6 +116,8 @@ cat > pkg.xml << CURRENT_DELIM
    /usr/local/destination_branch/include/\$DEST_DIR
  </headers>
 
+ ${EXTRA_INCLUDES}
+
  <skip_headers>
 CURRENT_DELIM
 
@@ -135,6 +144,8 @@ cat > devel.xml << DEVEL_DELIM
  <headers>
    /usr/local/source_branch/include/\$SRC_DIR
  </headers>
+
+ ${EXTRA_INCLUDES}
 
  <skip_headers>
 DEVEL_DELIM
