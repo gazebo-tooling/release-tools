@@ -334,7 +334,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   fi
 
   echo -e "${GREEN}${LIB}: Updating source code${DEFAULT}"
-  # TODO: handle yaml file in collection source like gazebodistro (main instead of dep+1)
   for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
 
     DEP_LIB=${LIBRARIES[$j]#"ign-"}
@@ -346,6 +345,11 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     # Second run with _ instead of -, to support multiple variations of fuel-tools
     DEP_LIB=${DEP_LIB//-/_}
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
+
+    # Replace collection yaml branch names with main
+    if [[ "${LIB}" == "ign-${COLLECTION}" ]]; then
+      find . -type f -name "collection-${COLLECTION}.yaml" -print0 | xargs -0 sed -i "s ign-${DEP_LIB}${DEP_VER} main g"
+    fi
   done
 
   commitAndPR ${ORG} main
