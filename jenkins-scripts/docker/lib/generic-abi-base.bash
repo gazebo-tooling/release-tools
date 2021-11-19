@@ -111,6 +111,8 @@ cat > pkg.xml << CURRENT_DELIM
 
  ${EXTRA_INCLUDES}
 
+ ${EXTRA_GCC_OPTIONS}
+
  <skip_headers>
 CURRENT_DELIM
 
@@ -139,6 +141,8 @@ cat > devel.xml << DEVEL_DELIM
  </headers>
 
  ${EXTRA_INCLUDES}
+
+ ${EXTRA_GCC_OPTIONS}
 
  <skip_headers>
 DEVEL_DELIM

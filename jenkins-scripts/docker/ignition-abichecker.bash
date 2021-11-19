@@ -60,6 +60,18 @@ then
 """
 fi
 
+# check if QT definition is needed
+if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo" ]] || \
+   [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gui" ]]  || \
+   [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-launch" ]]
+then
+   export EXTRA_GCC_OPTIONS="""
+    <gcc_options>
+     -fPIC
+    </gcc_options>
+"""
+fi
+
 # default to use stable repos
 export ABI_JOB_REPOS="stable"
 
