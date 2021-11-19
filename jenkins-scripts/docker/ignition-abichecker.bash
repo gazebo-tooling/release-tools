@@ -50,6 +50,7 @@ fi
 # check if OGRE-2.2 include paths are needed
 if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo"   && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]] || \
   [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gui"       && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-launch"    && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 5 ]] || \
   [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-sensors"   && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]] || \
   [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-rendering" && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]]
 then
