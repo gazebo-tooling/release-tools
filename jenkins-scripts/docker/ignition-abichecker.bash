@@ -47,6 +47,19 @@ then
   export NEED_C17_COMPILER=true
 fi
 
+# check if OGRE-2.2 include paths are needed
+if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo"   && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gui"       && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-sensors"   && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-rendering" && ${IGN_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]]
+then
+  export EXTRA_INCLUDES="""
+ <add_include_paths>
+   /usr/include/OGRE-2.2/Hlms/Common
+ </add_include_paths>
+"""
+fi
+
 # default to use stable repos
 export ABI_JOB_REPOS="stable"
 
