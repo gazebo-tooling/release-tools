@@ -108,14 +108,4 @@ class Globals
    static String get_ros2_development_distro() {
      return 'rolling'
    }
-
-   static String get_gz11_ubuntu_distro()
-   {
-     return 'bionic'
-   }
-
-   static String get_gz11_mac_distro()
-   {
-     return 'mojave'
-   }
 }
