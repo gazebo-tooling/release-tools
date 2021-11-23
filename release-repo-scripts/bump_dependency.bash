@@ -22,9 +22,11 @@
 # $ ./bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number> <prev_collection> [<docs_branch>]
 #
 # For example, to bump to `ign-rendering6` and all its dependencies, as well as
-# `sdf12` and its dependencies on fortress using the default `master` branch for `docs`:
+# `sdf12` and its dependencies on fortress using the `chapulina/fortress` branch for `docs`:
 #
 # ./bump_dependency.bash fortress "ign-rendering;sdformat" "6;12" 428 edifice "chapulina/fortress"
+#
+# The `docs_branch` parameter is optional and defaults to `master` if not specified.
 #
 # The script clones all the necessary repositories under /tmp/bump_dependency.
 #
