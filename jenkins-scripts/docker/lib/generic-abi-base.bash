@@ -109,6 +109,8 @@ cat > pkg.xml << CURRENT_DELIM
    /usr/local/destination_branch/include/\$DEST_DIR
  </headers>
 
+ ${EXTRA_INCLUDES}
+
  <skip_headers>
 CURRENT_DELIM
 
@@ -135,6 +137,8 @@ cat > devel.xml << DEVEL_DELIM
  <headers>
    /usr/local/source_branch/include/\$SRC_DIR
  </headers>
+
+ ${EXTRA_INCLUDES}
 
  <skip_headers>
 DEVEL_DELIM
