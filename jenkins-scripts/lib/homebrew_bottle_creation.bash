@@ -37,18 +37,18 @@ export GITHUB_BASE_REF=${ghprbTargetBranch}
 export GITHUB_REPOSITORY=${ghprbGhRepository}
 export GITHUB_REF=${sha1}
 export GITHUB_SHA=${ghprbActualCommit}
-if [[ "${ghprbCommentBody}" =~ --keep-old ]]; then
-  export KEEP_OLD=--keep-old
-fi
 MACOS_VERSION_TO_SYM=$(brew ruby -e 'puts "#{MacOS.version.to_sym}"')
-if [[ "${ghprbCommentBody}" =~ '--only-' ]]; then
-  echo Found a --only- option in the comment. Limiting to matching macOS versions.
-  if [[ "${ghprbCommentBody}" =~ --only-${MACOS_VERSION_TO_SYM} ]]; then
-    echo Found a match for --only-${MACOS_VERSION_TO_SYM} in comment.
-    echo Proceeding with bottle build.
-  else
-    echo Did not find --only-${MACOS_VERSION_TO_SYM} in comment string \"${ghprbCommentBody}\"
-    exit 0
+if [[ "${ghprbCommentBody}" =~ 'brew-bot-tag:' ]]; then
+  if [[ "${ghprbCommentBody}" =~ 'build-for-new-distro-' ]]; then
+    echo Found a build-for-new-distro- option in the comment. Limiting to matching macOS versions.
+    export KEEP_OLD=--keep-old
+    if [[ "${ghprbCommentBody}" =~ build-for-new-distro-${MACOS_VERSION_TO_SYM} ]]; then
+      echo Found a match for build-for-new-distro-${MACOS_VERSION_TO_SYM} in comment.
+      echo Proceeding with bottle build.
+    else
+      echo Did not find --only-${MACOS_VERSION_TO_SYM} in comment string \"${ghprbCommentBody}\"
+      exit 0
+    fi
   fi
 fi
 echo '# END SECTION'

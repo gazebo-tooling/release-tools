@@ -26,8 +26,10 @@ PULL_REQUEST_HEAD_REPO=$(curl ${PULL_REQUEST_API_URL} \
   | python3 -c 'import json, sys; print(json.loads(sys.stdin.read())["head"]["repo"]["ssh_url"])')
 PULL_REQUEST_BRANCH=$(curl ${PULL_REQUEST_API_URL} \
   | python3 -c 'import json, sys; print(json.loads(sys.stdin.read())["head"]["ref"])')
-if [[ "${ghprbCommentBody}" =~ --keep-old ]]; then
-  export KEEP_OLD=--keep-old
+if [[ "${ghprbCommentBody}" =~ 'brew-bot-tag:' ]]; then
+  if [[ "${ghprbCommentBody}" =~ 'build-for-new-distro-' ]]; then
+    export KEEP_OLD=--keep-old
+  fi
 fi
 echo '# END SECTION'
 
