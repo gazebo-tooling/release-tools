@@ -68,6 +68,7 @@ then
   pushd $(brew --repo osrf/simulation)
   git fetch origin ${ghprbSourceBranch} || true
   git checkout ${ghprbSourceBranch} || true
+  popd
   echo '# END SECTION'
 fi
 
