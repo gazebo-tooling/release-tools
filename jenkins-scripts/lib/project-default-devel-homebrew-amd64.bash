@@ -61,9 +61,13 @@ echo '# BEGIN SECTION: setup the osrf/simulation tap'
 brew tap osrf/simulation
 echo '# END SECTION'
 
-if [[ -n "${PULL_REQUEST_URL}" ]]; then
-  echo "# BEGIN SECTION: pulling ${PULL_REQUEST_URL}"
-  brew pull ${PULL_REQUEST_URL}
+if [[ -n "${ghprbSourceBranch}" ]] && \
+   [[ "${ghprbSourceBranch}" =~ matching_branch\/ ]]
+then
+  echo "# BEGIN SECTION: trying to checkout branch ${ghprbSourceBranch} from osrf/simulation"
+  pushd $(brew --repo osrf/simulation)
+  git fetch origin ${ghprbSourceBranch} || true
+  git checkout ${ghprbSourceBranch} || true
   echo '# END SECTION'
 fi
 
