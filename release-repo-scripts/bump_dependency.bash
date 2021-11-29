@@ -19,12 +19,14 @@
 # Requires the 'gh' CLI to be installed.
 #
 # Usage:
-# $ ./bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number> <prev_collection> <docs_branch>
+# $ ./bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number> <prev_collection> [<docs_branch>]
 #
 # For example, to bump to `ign-rendering6` and all its dependencies, as well as
-# `sdf12` and its dependencies on fortress:
+# `sdf12` and its dependencies on fortress using the `chapulina/fortress` branch for `docs`:
 #
 # ./bump_dependency.bash fortress "ign-rendering;sdformat" "6;12" 428 edifice "chapulina/fortress"
+#
+# The `docs_branch` parameter is optional and defaults to `master` if not specified.
 #
 # The script clones all the necessary repositories under /tmp/bump_dependency.
 #
@@ -57,6 +59,9 @@ VERSION_INPUT=${3}
 ISSUE_NUMBER=${4}
 PREV_COLLECTION=${5}
 DOCS_BRANCH=${6}
+if [[ -z "${DOCS_BRANCH}" ]]; then
+  DOCS_BRANCH=master
+fi
 
 COMMIT_MSG="Bumps in ${COLLECTION}"
 PR_TEXT="See https://github.com/${TOOLING_ORG}/release-tools/issues/${ISSUE_NUMBER}"
@@ -308,9 +313,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   PREV_VER="$((${VER}-1))"
   LIB_UPPER=`echo ${LIB#"ign-"} | tr a-z A-Z`
   ORG=${IGN_ORG}
-  if [ "$LIB" = "sdformat" ]; then
-    ORG=${OSRF_ORG}
-  fi
   BUMP_BRANCH="bump_${COLLECTION}_${LIB}${VER}"
 
   echo -e "${BLUE_BG}Processing [${LIB}]${DEFAULT_BG}"
@@ -325,7 +327,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   startFromCleanBranch ${BUMP_BRANCH} main
 
   # Check if main branch of that library is the correct version
-  PROJECT_NAME="${LIB//-/_}${VER}"
+  PROJECT_NAME="${LIB_}${VER}"
   PROJECT_NAME="${PROJECT_NAME/ign_/ignition-}"
   PROJECT="project.*(${PROJECT_NAME}"
   if ! grep -q ${PROJECT} "CMakeLists.txt"; then
@@ -353,8 +355,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   done
 
   commitAndPR ${ORG} main
-
-  SOURCE_COMMIT=`git rev-parse HEAD`
 
   ##################
   # release repo
@@ -386,27 +386,27 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   cd ${TEMP_DIR}/homebrew-simulation
   startFromCleanBranch bump_${COLLECTION}_${LIB} master
 
-  FORMULA="Formula/${LIB/ign/ignition}${VER}.rb"
+  # expand ign-* to ignition-*
+  FORMULA_BASE=${LIB/ign/ignition}
+  # construct path with major version suffix
+  FORMULA="Formula/${FORMULA_BASE}${VER}.rb"
   if [ ! -f "$FORMULA" ]; then
     echo -e "${GREEN}${LIB}: Creating ${FORMULA}${DEFAULT}"
 
-    git rm Aliases/${LIB/ign/ignition}${VER}
+    git rm Aliases/${FORMULA_BASE}${VER}
 
     # Collection
     if ! [[ $VER == ?(-)+([0-9]) ]] ; then
       cp Formula/ignition-${PREV_COLLECTION}.rb $FORMULA
     else
-      cp Formula/${LIB/ign/ignition}${PREV_VER}.rb $FORMULA
+      cp Formula/${FORMULA_BASE}${PREV_VER}.rb $FORMULA
     fi
 
     git add $FORMULA
   fi
 
   echo -e "${GREEN}${LIB}: Updating ${FORMULA}${DEFAULT}"
-  URL="https://github.com/${ORG}/${LIB}/archive/${SOURCE_COMMIT}.tar.gz"
-  wget $URL
-  SHA=`sha256sum ${SOURCE_COMMIT}.tar.gz | cut -d " " -f 1`
-  rm ${SOURCE_COMMIT}.tar.gz
+  URL="https://github.com/${ORG}/${LIB}.git"
 
   # libN
   sed -i -E "s ((${LIB#"ign-"}))${PREV_VER} \1${VER} g" $FORMULA
@@ -415,15 +415,19 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   sed -i "s ${LIB}${PREV_VER} main g" $FORMULA
   # class IgnitionLibN
   sed -i -E "s/((class Ignition.*))${PREV_VER}/\1${VER}/g" $FORMULA
+  sed -i -E "s/((class Sdformat))${PREV_VER}/\1${VER}/g" $FORMULA
   # remove bottle - TODO: this is only needed for new formulae
   sed -i -e "/bottle do/,/end/d" $FORMULA
   # URL from release to commit - TODO: remove manual step
-  sed -i "s@url.*@url \"$URL\"@g" $FORMULA
-  # SHA - TODO: remove manual step
-  sed -i "s/sha256.*/sha256 \"$SHA\"/g" $FORMULA
+  sed -i "s@^  url.*@  url \"$URL\", branch: \"main\"@g" $FORMULA
+  # SHA - remove in favor of building from `main` branch
+  sed -i "/^  sha256.*/d" $FORMULA
+  # revision - remove if present
+  sed -i "/^  revision.*/d" $FORMULA
   # version
+  PREV_VER_NONNEGATIVE=$([[ "${PREV_VER}" -lt 0 ]] && echo "0" || echo "${PREV_VER}")
   sed -i "/ version /d" $FORMULA
-  sed -i "/url.*/a \ \ version\ \"${PREV_VER}.999.999~0~`date +"%Y%m%d"`~${SOURCE_COMMIT:0:6}\"" $FORMULA
+  sed -i "/^  url.*/a\  version \"${PREV_VER_NONNEGATIVE}.999.999~0~`date +"%Y%m%d"`\"" $FORMULA
   # Remove extra blank lines
   cat -s $FORMULA | tee $FORMULA
 
