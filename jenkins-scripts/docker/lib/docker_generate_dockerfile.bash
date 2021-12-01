@@ -45,7 +45,7 @@ RUN git clone https://github.com/ignition-tooling/gzdev -b ${GZDEV_BRANCH} ${GZD
 RUN if [ -n $GZDEV_TRY_BRANCH ]; then \
         git -C ${GZDEV_DIR} fetch origin $GZDEV_TRY_BRANCH || true; \
         git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH || true; \
-    fi || true"
+    fi || true
 # print branch for informational purposes
 RUN git -C ${GZDEV_DIR} branch
 DELIM_OSRF_REPO_GIT
