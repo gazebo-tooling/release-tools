@@ -124,6 +124,10 @@ fi
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qwt-qt5' }.empty?"; then
   CMAKE_ARGS='-DQWT_WIN_INCLUDE_DIR=/usr/local/opt/qwt-qt5/lib/qwt.framework/Headers -DQWT_WIN_LIBRARY_DIR=/usr/local/opt/qwt-qt5/lib'
 fi
+# Workaround for cmake@3.21.4: set PATH
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'cmake@3.21.4' }.empty?"; then
+  export PATH=/usr/local/opt/cmake@3.21.4/bin:${PATH}
+fi
 # Workaround for tbb@2020_u3: set CPATH, LIBRARY_PATH, and CMAKE_PREFIX_PATH
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'tbb@2020_u3' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/tbb@2020_u3
