@@ -46,6 +46,7 @@ RUN if [ -n $GZDEV_TRY_BRANCH ]; then \
         git -C ${GZDEV_DIR} fetch origin $GZDEV_TRY_BRANCH || true; \
         git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH || true; \
     fi || true"
+# print branch for informational purposes
 RUN git -C ${GZDEV_DIR} branch
 DELIM_OSRF_REPO_GIT
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
