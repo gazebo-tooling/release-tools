@@ -33,7 +33,7 @@ export APT_PARAMS=
 
 GZDEV_DIR=${WORKSPACE}/gzdev
 GZDEV_BRANCH=${GZDEV_BRANCH:-master}
-if [[ "$ghprbSourceBranch" =~ matching_branch\/ ]]; then
+if [[ "$ghprbSourceBranch" =~ ci_matching_branch\/ ]]; then
   GZDEV_TRY_BRANCH=$ghprbSourceBranch
 fi
 
@@ -42,8 +42,10 @@ dockerfile_install_gzdev_repos()
 cat >> Dockerfile << DELIM_OSRF_REPO_GIT
 RUN rm -fr ${GZDEV_DIR}
 RUN git clone https://github.com/ignition-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
-RUN bash -c "if [[ -n \"$GZDEV_TRY_BRANCH\" ]]; then git -C ${GZDEV_DIR} fetch origin \"$GZDEV_TRY_BRANCH\"; fi || true"
-RUN bash -c "if [[ -n \"$GZDEV_TRY_BRANCH\" ]]; then git -C ${GZDEV_DIR} checkout \"$GZDEV_TRY_BRANCH\"; fi || true"
+RUN if [ -n $GZDEV_TRY_BRANCH ]; then \
+        git -C ${GZDEV_DIR} fetch origin $GZDEV_TRY_BRANCH || true; \
+        git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH || true; \
+    fi || true"
 RUN git -C ${GZDEV_DIR} branch
 DELIM_OSRF_REPO_GIT
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
@@ -51,14 +53,14 @@ if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
 # force-linux-distro
 cat >> Dockerfile << DELIM_OSRF_REPO_GZDEV
 RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
-    (bash -c "if [[ -n \"$GZDEV_TRY_BRANCH\" ]]; then git -C ${GZDEV_DIR} checkout \"$GZDEV_TRY_BRANCH\"; fi || true") && \
+    if [ -n $GZDEV_TRY_BRANCH ]; then git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH; fi || true && \
     ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} )
 DELIM_OSRF_REPO_GZDEV
 else
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
 RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO}  || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
-    (bash -c "if [[ -n \"$GZDEV_TRY_BRANCH\" ]]; then git -C ${GZDEV_DIR} checkout \"$GZDEV_TRY_BRANCH\"; fi || true") && \
+    if [ -n $GZDEV_TRY_BRANCH ]; then git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH; fi || true && \
     ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} )
 DELIM_OSRF_REPO
 done
