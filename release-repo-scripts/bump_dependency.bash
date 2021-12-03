@@ -313,7 +313,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   PREV_VER="$((${VER}-1))"
   LIB_UPPER=`echo ${LIB#"ign-"} | tr a-z A-Z`
   ORG=${IGN_ORG}
-  BUMP_BRANCH="bump_${COLLECTION}_${LIB}${VER}"
+  BUMP_BRANCH="ci_matching_branch/bump_${COLLECTION}_${LIB}${VER}"
 
   echo -e "${BLUE_BG}Processing [${LIB}]${DEFAULT_BG}"
 
@@ -384,7 +384,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   echo -e "${GREEN}${LIB}: homebrew${DEFAULT}"
 
   cd ${TEMP_DIR}/homebrew-simulation
-  startFromCleanBranch bump_${COLLECTION}_${LIB} master
+  startFromCleanBranch ${BUMP_BRANCH} master
 
   # expand ign-* to ignition-*
   FORMULA_BASE=${LIB/ign/ignition}
