@@ -318,45 +318,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   echo -e "${BLUE_BG}Processing [${LIB}]${DEFAULT_BG}"
 
   ##################
-  # source code
-  ##################
-
-  echo -e "${GREEN}${LIB}: source code${DEFAULT}"
-
-  cloneIfNeeded ${ORG} ${LIB}
-  startFromCleanBranch ${BUMP_BRANCH} main
-
-  # Check if main branch of that library is the correct version
-  PROJECT_NAME="${LIB_}${VER}"
-  PROJECT_NAME="${PROJECT_NAME/ign_/ignition-}"
-  PROJECT="project.*(${PROJECT_NAME}"
-  if ! grep -q ${PROJECT} "CMakeLists.txt"; then
-    echo -e "${RED}Wrong project name on [CMakeLists.txt], looking for [$PROJECT_NAME].${DEFAULT}"
-    exit
-  fi
-
-  echo -e "${GREEN}${LIB}: Updating source code${DEFAULT}"
-  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
-
-    DEP_LIB=${LIBRARIES[$j]#"ign-"}
-    DEP_VER=${VERSIONS[$j]}
-    DEP_PREV_VER="$((${DEP_VER}-1))"
-
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
-
-    # Replace collection yaml branch names with main
-    if [[ "${LIB}" == "ign-${COLLECTION}" ]]; then
-      find . -type f -name "collection-${COLLECTION}.yaml" -print0 | xargs -0 sed -i "s ign-${DEP_LIB}${DEP_VER} main g"
-    fi
-
-    # Second run with _ instead of -, to support multiple variations of fuel-tools
-    DEP_LIB=${DEP_LIB//-/_}
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
-  done
-
-  commitAndPR ${ORG} main
-
-  ##################
   # release repo
   ##################
 
@@ -468,6 +429,45 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   done
 
   commitAndPR ${TOOLING_ORG} master
+
+  ##################
+  # source code
+  ##################
+
+  echo -e "${GREEN}${LIB}: source code${DEFAULT}"
+
+  cloneIfNeeded ${ORG} ${LIB}
+  startFromCleanBranch ${BUMP_BRANCH} main
+
+  # Check if main branch of that library is the correct version
+  PROJECT_NAME="${LIB_}${VER}"
+  PROJECT_NAME="${PROJECT_NAME/ign_/ignition-}"
+  PROJECT="project.*(${PROJECT_NAME}"
+  if ! grep -q ${PROJECT} "CMakeLists.txt"; then
+    echo -e "${RED}Wrong project name on [CMakeLists.txt], looking for [$PROJECT_NAME].${DEFAULT}"
+    exit
+  fi
+
+  echo -e "${GREEN}${LIB}: Updating source code${DEFAULT}"
+  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+
+    DEP_LIB=${LIBRARIES[$j]#"ign-"}
+    DEP_VER=${VERSIONS[$j]}
+    DEP_PREV_VER="$((${DEP_VER}-1))"
+
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
+
+    # Replace collection yaml branch names with main
+    if [[ "${LIB}" == "ign-${COLLECTION}" ]]; then
+      find . -type f -name "collection-${COLLECTION}.yaml" -print0 | xargs -0 sed -i "s ign-${DEP_LIB}${DEP_VER} main g"
+    fi
+
+    # Second run with _ instead of -, to support multiple variations of fuel-tools
+    DEP_LIB=${DEP_LIB//-/_}
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
+  done
+
+  commitAndPR ${ORG} main
 
   # Collection ends here
   if ! [[ $VER == ?(-)+([0-9]) ]] ; then
