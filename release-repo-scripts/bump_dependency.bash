@@ -344,14 +344,14 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
 
-    # Second run with _ instead of -, to support multiple variations of fuel-tools
-    DEP_LIB=${DEP_LIB//-/_}
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
-
     # Replace collection yaml branch names with main
     if [[ "${LIB}" == "ign-${COLLECTION}" ]]; then
       find . -type f -name "collection-${COLLECTION}.yaml" -print0 | xargs -0 sed -i "s ign-${DEP_LIB}${DEP_VER} main g"
     fi
+
+    # Second run with _ instead of -, to support multiple variations of fuel-tools
+    DEP_LIB=${DEP_LIB//-/_}
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
   done
 
   commitAndPR ${ORG} main
