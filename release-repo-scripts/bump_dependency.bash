@@ -181,7 +181,7 @@ commitAndPR() {
 
   # Sanity check that we're on a bump branch already
   local CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-  if [[ ! $CURRENT_BRANCH = bump_* ]]
+  if [[ ! $CURRENT_BRANCH =~ bump_* ]]
   then
     echo -e "${RED}${REPO}: Something's wrong, trying to commit to branch ${CURRENT_BRANCH}.${DEFAULT}"
     return
