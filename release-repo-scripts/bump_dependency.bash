@@ -371,7 +371,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   # libN
   sed -i -E "s ((${LIB#"ign-"}))${PREV_VER} \1${VER} g" $FORMULA
-  sed -i -E "s ((${LIB_#"ign-"}))${PREV_VER} \1${VER} g" $FORMULA
+  sed -i -E "s ((${LIB_#"ign_"}))${PREV_VER} \1${VER} g" $FORMULA
   # ign-libN -> main
   sed -i "s ${LIB}${PREV_VER} main g" $FORMULA
   # class IgnitionLibN
