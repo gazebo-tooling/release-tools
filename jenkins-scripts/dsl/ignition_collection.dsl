@@ -33,7 +33,7 @@ ignition_collections = [
           'msgs'      : [ debbuild: 'ign-msgs9'       , branch: 'main' ],
           'rendering' : [ debbuild: 'ign-rendering7'  , branch: 'main' ],
           'sdformat'  : [ debbuild: 'sdformat12'      , branch: 'sdf12' ],
-          'fuel-tools': [ debbuild: 'ign-fuel-tools7' , branch: 'ign-fuel-tools7' ],
+          'fuel-tools': [ debbuild: 'ign-fuel-tools8' , branch: 'main' ],
           'transport' : [ debbuild: 'ign-transport12' , branch: 'main' ],
           'gui'       : [ debbuild: 'ign-gui7'        , branch: 'main' ],
           'sensors'   : [ debbuild: 'ign-sensors7'    , branch: 'main' ],
