@@ -33,7 +33,7 @@ export APT_PARAMS=
 
 GZDEV_DIR=${WORKSPACE}/gzdev
 GZDEV_BRANCH=${GZDEV_BRANCH:-master}
-if [[ "$ghprbSourceBranch" =~ ci_matching_branch\/ ]]; then
+if python3 ${SCRIPT_DIR}/../tools/detect_ci_matching_branch.py "${ghprbSourceBranch}"; then
   GZDEV_TRY_BRANCH=$ghprbSourceBranch
 fi
 

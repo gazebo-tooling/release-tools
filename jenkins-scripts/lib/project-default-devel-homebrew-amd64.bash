@@ -62,7 +62,7 @@ brew tap osrf/simulation
 echo '# END SECTION'
 
 if [[ -n "${ghprbSourceBranch}" ]] && \
-   [[ "${ghprbSourceBranch}" =~ ci_matching_branch\/ ]]
+   python3 ${SCRIPT_DIR}/tools/detect_ci_matching_branch.py "${ghprbSourceBranch}"
 then
   echo "# BEGIN SECTION: trying to checkout branch ${ghprbSourceBranch} from osrf/simulation"
   pushd $(brew --repo osrf/simulation)

@@ -181,7 +181,7 @@ commitAndPR() {
 
   # Sanity check that we're on a bump branch already
   local CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-  if [[ ! $CURRENT_BRANCH = bump_* ]]
+  if [[ ! $CURRENT_BRANCH =~ bump_* ]]
   then
     echo -e "${RED}${REPO}: Something's wrong, trying to commit to branch ${CURRENT_BRANCH}.${DEFAULT}"
     return
@@ -313,48 +313,9 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   PREV_VER="$((${VER}-1))"
   LIB_UPPER=`echo ${LIB#"ign-"} | tr a-z A-Z`
   ORG=${IGN_ORG}
-  BUMP_BRANCH="bump_${COLLECTION}_${LIB}${VER}"
+  BUMP_BRANCH="ci_matching_branch/bump_${COLLECTION}_${LIB}${VER}"
 
   echo -e "${BLUE_BG}Processing [${LIB}]${DEFAULT_BG}"
-
-  ##################
-  # source code
-  ##################
-
-  echo -e "${GREEN}${LIB}: source code${DEFAULT}"
-
-  cloneIfNeeded ${ORG} ${LIB}
-  startFromCleanBranch ${BUMP_BRANCH} main
-
-  # Check if main branch of that library is the correct version
-  PROJECT_NAME="${LIB_}${VER}"
-  PROJECT_NAME="${PROJECT_NAME/ign_/ignition-}"
-  PROJECT="project.*(${PROJECT_NAME}"
-  if ! grep -q ${PROJECT} "CMakeLists.txt"; then
-    echo -e "${RED}Wrong project name on [CMakeLists.txt], looking for [$PROJECT_NAME].${DEFAULT}"
-    exit
-  fi
-
-  echo -e "${GREEN}${LIB}: Updating source code${DEFAULT}"
-  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
-
-    DEP_LIB=${LIBRARIES[$j]#"ign-"}
-    DEP_VER=${VERSIONS[$j]}
-    DEP_PREV_VER="$((${DEP_VER}-1))"
-
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
-
-    # Second run with _ instead of -, to support multiple variations of fuel-tools
-    DEP_LIB=${DEP_LIB//-/_}
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
-
-    # Replace collection yaml branch names with main
-    if [[ "${LIB}" == "ign-${COLLECTION}" ]]; then
-      find . -type f -name "collection-${COLLECTION}.yaml" -print0 | xargs -0 sed -i "s ign-${DEP_LIB}${DEP_VER} main g"
-    fi
-  done
-
-  commitAndPR ${ORG} main
 
   ##################
   # release repo
@@ -384,7 +345,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   echo -e "${GREEN}${LIB}: homebrew${DEFAULT}"
 
   cd ${TEMP_DIR}/homebrew-simulation
-  startFromCleanBranch bump_${COLLECTION}_${LIB} master
+  startFromCleanBranch ${BUMP_BRANCH} master
 
   # expand ign-* to ignition-*
   FORMULA_BASE=${LIB/ign/ignition}
@@ -410,7 +371,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   # libN
   sed -i -E "s ((${LIB#"ign-"}))${PREV_VER} \1${VER} g" $FORMULA
-  sed -i -E "s ((${LIB_#"ign-"}))${PREV_VER} \1${VER} g" $FORMULA
+  sed -i -E "s ((${LIB_#"ign_"}))${PREV_VER} \1${VER} g" $FORMULA
   # ign-libN -> main
   sed -i "s ${LIB}${PREV_VER} main g" $FORMULA
   # class IgnitionLibN
@@ -468,6 +429,45 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   done
 
   commitAndPR ${TOOLING_ORG} master
+
+  ##################
+  # source code
+  ##################
+
+  echo -e "${GREEN}${LIB}: source code${DEFAULT}"
+
+  cloneIfNeeded ${ORG} ${LIB}
+  startFromCleanBranch ${BUMP_BRANCH} main
+
+  # Check if main branch of that library is the correct version
+  PROJECT_NAME="${LIB_}${VER}"
+  PROJECT_NAME="${PROJECT_NAME/ign_/ignition-}"
+  PROJECT="project.*(${PROJECT_NAME}"
+  if ! grep -q ${PROJECT} "CMakeLists.txt"; then
+    echo -e "${RED}Wrong project name on [CMakeLists.txt], looking for [$PROJECT_NAME].${DEFAULT}"
+    exit
+  fi
+
+  echo -e "${GREEN}${LIB}: Updating source code${DEFAULT}"
+  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+
+    DEP_LIB=${LIBRARIES[$j]#"ign-"}
+    DEP_VER=${VERSIONS[$j]}
+    DEP_PREV_VER="$((${DEP_VER}-1))"
+
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
+
+    # Replace collection yaml branch names with main
+    if [[ "${LIB}" == "ign-${COLLECTION}" ]]; then
+      find . -type f -name "collection-${COLLECTION}.yaml" -print0 | xargs -0 sed -i "s ign-${DEP_LIB}${DEP_VER} main g"
+    fi
+
+    # Second run with _ instead of -, to support multiple variations of fuel-tools
+    DEP_LIB=${DEP_LIB//-/_}
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
+  done
+
+  commitAndPR ${ORG} main
 
   # Collection ends here
   if ! [[ $VER == ?(-)+([0-9]) ]] ; then

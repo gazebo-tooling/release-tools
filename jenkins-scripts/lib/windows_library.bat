@@ -139,12 +139,26 @@ goto :EOF
 ::
 :: arg1: Name of the yaml file in the gazebodistro repro
 :: arg2: directory destination (default .)
+setlocal EnableDelayedExpansion
 set gzdistro_dir=gazebodistro
 
 if "%GAZEBODISTRO_BRANCH%" == "" (set GAZEBODISTRO_BRANCH=master)
 
 if exist %gzdistro_dir% (rmdir /s /q %gzdistro_dir%)
 git clone https://github.com/ignition-tooling/gazebodistro %gzdistro_dir% -b %GAZEBODISTRO_BRANCH%
+:: Check if ci_matching_branch name is used
+if "%ghprbSourceBranch%" == "" (echo ghprbSourceBranch is unset) else (
+  python "%SCRIPT_DIR%\tools\detect_ci_matching_branch.py" "%ghprbSourceBranch%"
+  if "%ERRORLEVEL%" == "0" (
+    echo trying to checkout branch %ghprbSourceBranch% from gazebodistro
+    git -C %gzdistro_dir% fetch origin %ghprbSourceBranch% || rem
+    git -C %gzdistro_dir% checkout %ghprbSourceBranch% || rem
+  ) else (
+    echo branch name %ghprbSourceBranch% is not a match
+  )
+  :: print branch for informational purposes
+  git -C %gzdistro_dir% branch
+)
 vcs import --retry 5 --force < "%gzdistro_dir%\%1" "%2" || goto :error
 vcs pull || goto :error
 goto :EOF
