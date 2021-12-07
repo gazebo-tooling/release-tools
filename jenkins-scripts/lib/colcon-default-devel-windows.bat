@@ -130,4 +130,4 @@ goto :EOF
 
 :error - error routine
 echo Failed with error #%errorlevel%.
-exit /b %errorlevel%
+exit %errorlevel%
