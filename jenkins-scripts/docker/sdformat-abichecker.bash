@@ -26,7 +26,11 @@ fi
 if [[ ${SDFORMAT_MAJOR_VERSION} -ge 8 ]]; then
   export NEED_C17_COMPILER=true
 fi
-  
+
+# default to use stable repos
 export ABI_JOB_REPOS="stable"
+
+# set GZDEV_PROJECT_NAME so it can override repos if necessary
+export GZDEV_PROJECT_NAME=${ABI_JOB_SOFTWARE_NAME}${SDFORMAT_MAJOR_VERSION}
 
 . ${SCRIPT_DIR}/lib/generic-abi-base.bash
