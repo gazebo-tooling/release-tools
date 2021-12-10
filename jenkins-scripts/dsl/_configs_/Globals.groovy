@@ -72,7 +72,7 @@ class Globals
 
    static ArrayList get_other_supported_distros()
    {
-     return [ 'focal' ]
+     return [  ]
    }
 
    static ArrayList get_supported_arches()
