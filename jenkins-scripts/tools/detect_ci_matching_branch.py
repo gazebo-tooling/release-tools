@@ -4,7 +4,7 @@ import re
 import sys
 
 if len(sys.argv) != 2:
-    print('need to branch name', file=sys.stderr)
+    print('need to specify branch name', file=sys.stderr)
     exit()
 branchName = sys.argv[1]
 
@@ -13,4 +13,4 @@ match = re.search(pattern, branchName)
 if match:
     print(f"{branchName} matches {pattern}")
 else:
-    sys.exit(f"{branchName} does not match {pattern}")
+    sys.exit("{} does not match {}".format(branchName, pattern))
