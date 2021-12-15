@@ -7,8 +7,9 @@ def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
 // the one used to generate the corresponding debbuild job.
 def nightly_gazebo_branch = [ 'gazebo11' ]
 // testing official packages without osrf repo
-def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9' ]
-
+def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9',
+                                         'focal'  : 'gazebo9',
+                                         'jammy'  : 'gazebo11']
 // Main platform using for quick CI
 def ci_distro_default       = [ 'bionic' ]
 def ci_distro               = Globals.get_ci_distro()
