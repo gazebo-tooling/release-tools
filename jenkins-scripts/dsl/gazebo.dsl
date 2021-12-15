@@ -3,9 +3,6 @@ import javaposse.jobdsl.dsl.Job
 
 def gazebo_supported_branches = [ 'gazebo9', 'gazebo11' ]
 def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
-// nightly_gazebo_branch is not the branch used to get the code from but
-// the one used to generate the corresponding debbuild job.
-def nightly_gazebo_branch = [ 'gazebo11' ]
 // testing official packages without osrf repo
 def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9',
                                          'focal'  : 'gazebo9',
@@ -460,7 +457,7 @@ ubuntu_official_packages_distros.each { distro, branch ->
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
 
-all_debbuild_branches = gazebo_supported_branches + nightly_gazebo_branch
+all_debbuild_branches = gazebo_supported_branches
 all_debbuild_branches.each { branch ->
   def build_pkg_job = job("${branch}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
