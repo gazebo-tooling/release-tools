@@ -180,7 +180,7 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
   elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
       GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                                            libignition-common-dev \\
-                                           libignition-fuel-tools-dev \\
+                                           libignition-fuel-tools1-dev \\
                                            libignition-transport4-dev \\
                                            libignition-math4-dev \\
                                            libignition-msgs-dev"
