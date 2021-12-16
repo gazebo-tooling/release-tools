@@ -128,11 +128,16 @@ bullet_pkg="libbullet-dev"
 
 # choose dart version
 if $DART_FROM_PKGS; then
-  # Use custom packages on Bionic/Xenial and Ubuntu official from Focal on
+  dart_pkgs="libdart-utils-urdf-dev"
+  if [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
+    dart_pkgs="${dart_pkgs} \"
+               libdart-collision-bullet-dev \
+               libdart-collision-ode-dev"
+  fi
+  # If on Bionic/Xenial use custom dart packages, these have a different name
+  # dart -> dart6
   if [[ ${DISTRO} == 'bionic' ]] || [[ ${DISTRO} == 'xenial' ]]; then
-    dart_pkg="libdart6-utils-urdf-dev"
-  else
-    dart_pkg="libdart-utils-urdf-dev"
+    dart_pkgs="${dart_pkgs//dart/dart6}"
   fi
 fi
 
@@ -168,7 +173,7 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
                             libboost-iostreams-dev           \\
                             ${bullet_pkg}                    \\
                             libsimbody-dev                   \\
-                            ${dart_pkg}"
+                            ${dart_pkgs}"
 
   if [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
       GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
