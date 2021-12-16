@@ -128,7 +128,12 @@ bullet_pkg="libbullet-dev"
 
 # choose dart version
 if $DART_FROM_PKGS; then
-  dart_pkg="libdart6-utils-urdf-dev"
+  # Use custom packages on Bionic/Xenial and Ubuntu official from Focal on
+  if [[ ${DISTRO} == 'bionic' ]] || [[ ${DISTRO} == 'xenial' ]]; then
+    dart_pkg="libdart6-utils-urdf-dev"
+  else
+    dart_pkg="libdart-utils-urdf-dev"
+  fi
 fi
 
 # By default, the stable version of gazebo
