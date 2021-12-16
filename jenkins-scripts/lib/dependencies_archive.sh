@@ -128,10 +128,9 @@ bullet_pkg="libbullet-dev"
 
 # choose dart version
 if $DART_FROM_PKGS; then
-  dart_pkgs="libdart-utils-urdf-dev"
+  dart_pkgs="libdart-utils-urdf-dev libdart-external-odelcpsolver"
   if [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
-    dart_pkgs="${dart_pkgs} \"
-               libdart-collision-bullet-dev \
+    dart_pkgs="${dart_pkgs} libdart-collision-bullet-dev \
                libdart-collision-ode-dev"
   fi
   # If on Bionic/Xenial use custom dart packages, these have a different name
