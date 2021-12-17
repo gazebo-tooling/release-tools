@@ -129,7 +129,7 @@ bullet_pkg="libbullet-dev"
 # choose dart version
 if $DART_FROM_PKGS; then
   dart_pkgs="libdart-utils-urdf-dev \
-             libdart-external-odelcpsolver-dev
+             libdart-external-odelcpsolver-dev \
              libdart-external-ikfast-dev"
   if [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
     dart_pkgs="${dart_pkgs} libdart-collision-bullet-dev \
