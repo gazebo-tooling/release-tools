@@ -8,7 +8,8 @@ def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9',
                                          'focal'  : 'gazebo9',
                                          'jammy'  : 'gazebo11']
 // Main platform using for quick CI
-def ci_distro               = Globals.get_ci_distro()
+// Using bionic until https://github.com/osrf/gazebo/issues/3151 is fixed
+def ci_distro               = [ 'bionic' ]
 def ci_gpu                  = Globals.get_ci_gpu()
 def abi_distro              = Globals.get_abi_distro()
 // Other supported platform to be checked but no for quick
