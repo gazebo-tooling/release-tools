@@ -24,24 +24,6 @@ get_libraries_by_collection()
 	ignition-gazebo3
 	ignition-launch2
 	ignition-citadel"
-    elif [ "$COLLECTION" = "dome" ]; then
-      LIBS="
-	ignition-cmake2
-	ignition-math6
-	ignition-tools
-	ignition-common3
-	ignition-msgs6
-	ignition-transport9
-	ignition-fuel-tools5
-	ignition-plugin
-	ignition-rendering4
-	sdformat10
-	ignition-physics3
-	ignition-sensors4
-	ignition-gui4
-	ignition-gazebo4
-	ignition-launch3
-	ignition-dome"
     elif [ "$COLLECTION" = "edifice" ]; then
       LIBS="
 	ignition-cmake2
