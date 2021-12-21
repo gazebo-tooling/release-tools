@@ -45,5 +45,8 @@ export HOMEBREW_GIT_NAME=${GIT_AUTHOR_NAME}
 export GIT_AUTHOR_EMAIL="osrfbuild@osrfoundation.org"
 export GIT_COMMITTER_EMAIL=${GIT_AUTHOR_EMAIL}
 export HOMEBREW_GIT_EMAIL=${GIT_AUTHOR_EMAIL}
+# Cleanup any existing lock left behind from aborted builds
+# see https://github.com/osrf/buildfarmer/issues/257
+rm -f ${HOME}/.gitconfig.lock
 git config --global user.name "${GIT_AUTHOR_NAME}"
 git config --global user.email "${GIT_AUTHOR_EMAIL}"
