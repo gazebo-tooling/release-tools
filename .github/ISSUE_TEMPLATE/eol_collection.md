@@ -13,6 +13,7 @@ When opening PRs, add a link back to this issue for easier tracking.
 
 -->
 
+- [ ] Write a post to https://community.gazebosim.org/ announcing the community it has last X weeks for finishing their PRs.
 - [ ] Check library versions that can be EOL’d on the [versions table](https://github.com/ignitionrobotics/docs/blob/master/tools/versions.md)
     * <!-- LIST LIBRARIES HERE -->
 - [ ] Make releases with outstanding changes in each library about to be EOl'ed
