@@ -61,9 +61,14 @@ echo '# BEGIN SECTION: setup the osrf/simulation tap'
 brew tap osrf/simulation
 echo '# END SECTION'
 
-if [[ -n "${PULL_REQUEST_URL}" ]]; then
-  echo "# BEGIN SECTION: pulling ${PULL_REQUEST_URL}"
-  brew pull ${PULL_REQUEST_URL}
+if [[ -n "${ghprbSourceBranch}" ]] && \
+   python3 ${SCRIPT_DIR}/tools/detect_ci_matching_branch.py "${ghprbSourceBranch}"
+then
+  echo "# BEGIN SECTION: trying to checkout branch ${ghprbSourceBranch} from osrf/simulation"
+  pushd $(brew --repo osrf/simulation)
+  git fetch origin ${ghprbSourceBranch} || true
+  git checkout ${ghprbSourceBranch} || true
+  popd
   echo '# END SECTION'
 fi
 
@@ -118,6 +123,10 @@ fi
 # set cmake args if we are using qwt-qt5
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qwt-qt5' }.empty?"; then
   CMAKE_ARGS='-DQWT_WIN_INCLUDE_DIR=/usr/local/opt/qwt-qt5/lib/qwt.framework/Headers -DQWT_WIN_LIBRARY_DIR=/usr/local/opt/qwt-qt5/lib'
+fi
+# Workaround for cmake@3.21.4: set PATH
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'cmake@3.21.4' }.empty?"; then
+  export PATH=/usr/local/opt/cmake@3.21.4/bin:${PATH}
 fi
 # Workaround for tbb@2020_u3: set CPATH, LIBRARY_PATH, and CMAKE_PREFIX_PATH
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'tbb@2020_u3' }.empty?"; then

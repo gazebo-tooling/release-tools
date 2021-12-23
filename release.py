@@ -616,7 +616,9 @@ def go(argv):
                         continue
                     # Need to use JENKINS_NODE_TAG parameter for large memory nodes
                     # since it runs qemu emulation
-                    linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a + '|| large-memory'
+                    linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
+                elif ('ignition-physics' in args.package_alias):
+                    linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
 
                 if (NIGHTLY and a == 'i386'):
                     continue

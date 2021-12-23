@@ -45,18 +45,18 @@ ignition_no_test            = [  ]
 // main, ABI check, install pkg)
 ignition_branches           = [ 'cmake'      : [ '2' ],
                                 'common'     : [ '1', '3', '4' ],
-                                'fuel-tools' : [ '1', '4', '5', '6', '7' ],
-                                'gazebo'     : [ '3', '4', '5', '6' ],
-                                'gui'        : [ '0', '3', '4', '5', '6' ],
-                                'launch'     : [ '2', '3', '4', '5' ],
+                                'fuel-tools' : [ '1', '4', '6', '7' ],
+                                'gazebo'     : [ '3', '5', '6' ],
+                                'gui'        : [ '0', '3', '5', '6' ],
+                                'launch'     : [ '2', '4', '5' ],
                                 'math'       : [ '4', '6' ],
-                                'msgs'       : [ '1', '5', '6', '7', '8' ],
-                                'physics'    : [ '2', '3', '4', '5' ],
+                                'msgs'       : [ '1', '5', '7', '8' ],
+                                'physics'    : [ '2', '4', '5' ],
                                 'plugin'     : [ '1' ],
-                                'rendering'  : [ '3', '4', '5', '6' ],
-                                'sensors'    : [ '3', '4', '5', '6' ],
+                                'rendering'  : [ '3', '5', '6' ],
+                                'sensors'    : [ '3', '5', '6' ],
                                 'tools'      : [ '1' ],
-                                'transport'  : [ '4', '8', '9', '10', '11' ],
+                                'transport'  : [ '4', '8', '10', '11' ],
                                 'utils'      : [ '1' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
@@ -95,6 +95,7 @@ ignition_colcon_win         = [ 'common',
                                 'gazebo',
                                 'gui',
                                 'launch',
+                                'math',
                                 'msgs',
                                 'physics',
                                 'plugin',
@@ -307,7 +308,12 @@ ignition_software.each { ign_sw ->
       abi_job.with
       {
         if (ign_sw == 'physics')
+        {
           label "huge-memory"
+          // on ARM native nodes in buildfarm we need to restrict to 2 the
+          // compilation threads to avoid OOM killer
+          GLOBAL_SHELL_CMD = GLOBAL_SHELL_CMD + '\nif [[ $(uname -m) == "aarch64" ]]; then export MAKE_JOBS=2; fi'
+        }
 
         steps {
           shell("""\
@@ -344,6 +350,9 @@ ignition_software.each { ign_sw ->
     include_gpu_label_if_needed(ignition_ci_any_job, ign_sw)
     ignition_ci_any_job.with
     {
+      if (ign_sw == 'physics')
+        label "huge-memory"
+
       steps
       {
          shell("""\
@@ -434,6 +443,9 @@ ignition_software.each { ign_sw ->
         include_gpu_label_if_needed(ignition_ci_job, ign_sw)
         ignition_ci_job.with
         {
+          if (ign_sw == 'physics')
+            label "huge-memory"
+
           triggers {
             scm('@daily')
           }

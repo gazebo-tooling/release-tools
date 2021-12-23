@@ -230,6 +230,7 @@ bottle_job_builder.with
           parameters {
             currentBuild()
               predefinedProp("PULL_REQUEST_URL", "https://github.com/osrf/homebrew-simulation/pull/\${ghprbPullId}")
+              predefinedProp("ghprbCommentBody", "\${ghprbCommentBody}")
           }
         }
      }
@@ -254,6 +255,9 @@ bottle_job_hash_updater.with
 
   parameters
   {
+    // copy the github trigger comment for extra parameter parsing
+    stringParam("ghprbCommentBody", '',
+                'GitHub trigger comment, which can be parsed for extra parameters.')
     // reuse the pull request created by homebrew_pull_request_updater in step 1
     stringParam("PULL_REQUEST_URL", '',
                 'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')

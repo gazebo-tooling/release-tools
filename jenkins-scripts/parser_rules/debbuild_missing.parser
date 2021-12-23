@@ -1,2 +1,3 @@
 warning /^dh_missing: /
 warning /.*binaries-have-file-conflict.*/
+warning /^\s*-- Skipping component \[.*\]: Missing dependency.*\./

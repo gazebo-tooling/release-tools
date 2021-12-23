@@ -11,6 +11,10 @@ set -e
 BOTTLE_JSON_DIR=${WORKSPACE}/pkgs
 
 echo '# BEGIN SECTION: check variables'
+if [ -z "${ghprbCommentBody}" ]; then
+    echo ghprbCommentBody not specified
+    exit -1
+fi
 if [ -z "${PULL_REQUEST_URL}" ]; then
   echo PULL_REQUEST_URL not specified
   exit -1
@@ -22,6 +26,11 @@ PULL_REQUEST_HEAD_REPO=$(curl ${PULL_REQUEST_API_URL} \
   | python3 -c 'import json, sys; print(json.loads(sys.stdin.read())["head"]["repo"]["ssh_url"])')
 PULL_REQUEST_BRANCH=$(curl ${PULL_REQUEST_API_URL} \
   | python3 -c 'import json, sys; print(json.loads(sys.stdin.read())["head"]["ref"])')
+if [[ "${ghprbCommentBody}" =~ 'brew-bot-tag:' ]]; then
+  if [[ "${ghprbCommentBody}" =~ 'build-for-new-distro-' ]]; then
+    export KEEP_OLD=--keep-old
+  fi
+fi
 echo '# END SECTION'
 
 # note that matrix projects use subdirectories on pkgs/ with the label of different configurations
@@ -37,7 +46,7 @@ fi
 
 echo "# BEGIN SECTION: update bottle hashes"
 
-${BREW} bottle --merge --write --no-commit ${FILES_WITH_NEW_HASH}
+${BREW} bottle --merge --write --no-commit ${KEEP_OLD} ${FILES_WITH_NEW_HASH}
 
 # ensure that all modified files are committed
 export FORMULA_PATH='-a'
