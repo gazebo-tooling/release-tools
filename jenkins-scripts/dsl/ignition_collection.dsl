@@ -23,7 +23,7 @@ ignition_collections = [
     nightly_jobs: [
           'tools'     : [ debbuild: 'ign-tools'       , branch: 'ign-tools1' ],
           'cmake'     : [ debbuild: 'ign-cmake2'      , branch: 'ign-cmake2' ],
-          'math'      : [ debbuild: 'ign-math6'       , branch: 'ign-math6' ],
+          'math'      : [ debbuild: 'ign-math7'       , branch: 'main' ],
           'plugin'    : [ debbuild: 'ign-plugin'      , branch: 'ign-plugin1' ],
           'utils'     : [ debbuild: 'ign-utils1'      , branch: 'ign-utils1' ],
           'common'    : [ debbuild: 'ign-common5'     , branch: 'main' ],
