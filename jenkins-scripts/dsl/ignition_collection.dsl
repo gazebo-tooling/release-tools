@@ -29,7 +29,7 @@ ignition_collections = [
           'common'    : [ debbuild: 'ign-common5'     , branch: 'main' ],
           'msgs'      : [ debbuild: 'ign-msgs9'       , branch: 'main' ],
           'rendering' : [ debbuild: 'ign-rendering7'  , branch: 'main' ],
-          'sdformat'  : [ debbuild: 'sdformat12'      , branch: 'sdf12' ],
+          'sdformat'  : [ debbuild: 'sdformat13'      , branch: 'main' ],
           'fuel-tools': [ debbuild: 'ign-fuel-tools8' , branch: 'main' ],
           'transport' : [ debbuild: 'ign-transport12' , branch: 'main' ],
           'gui'       : [ debbuild: 'ign-gui7'        , branch: 'main' ],
