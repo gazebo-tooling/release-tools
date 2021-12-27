@@ -441,6 +441,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   # source code
   ##################
   # TODO: Remove VERSION X.X for bumped dependencies on CMakeLists
+  # TODO: 'sdf' not well handled here, only 'sdformat'
 
   echo -e "${GREEN}${LIB}: source code${DEFAULT}"
 
