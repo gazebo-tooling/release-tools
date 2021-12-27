@@ -65,6 +65,7 @@ fi
 
 COMMIT_MSG="Bumps in ${COLLECTION}"
 PR_TEXT="See https://github.com/${TOOLING_ORG}/release-tools/issues/${ISSUE_NUMBER}"
+BUMP_BRANCH_PREFIX="ci_matching_branch/bump_"
 
 set -e
 
@@ -181,15 +182,20 @@ commitAndPR() {
 
   # Sanity check that we're on a bump branch already
   local CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-  if [[ ! $CURRENT_BRANCH =~ bump_* ]]
+  if [[ ! $CURRENT_BRANCH =~ ${BUMP_BRANCH_PREFIX}* ]]
   then
     echo -e "${RED}${REPO}: Something's wrong, trying to commit to branch ${CURRENT_BRANCH}.${DEFAULT}"
     return
   fi
 
-  local LIB=${CURRENT_BRANCH#bump_${COLLECTION}}
+  local LIB=${CURRENT_BRANCH#${BUMP_BRANCH_PREFIX}${COLLECTION}}
   local LIB=${LIB#_}
-  local LIB=": ${LIB}"
+
+  # If not empty, prepend :
+  if [[ ! -z "$LIB" ]]
+  then
+    local LIB=": ${LIB}"
+  fi
 
   echo -e "${GREEN_BG}${REPO}: Commit ${REPO} and open PR? (y/n)${DEFAULT_BG}"
   read CONTINUE
@@ -208,19 +214,19 @@ read -a VERSIONS <<< "${VERSION_INPUT}"
 
 # gazebodistro
 cloneIfNeeded ${TOOLING_ORG} gazebodistro
-startFromCleanBranch bump_${COLLECTION} master
+startFromCleanBranch ${BUMP_BRANCH_PREFIX}${COLLECTION} master
 
 # docs
 cloneIfNeeded ${IGN_ORG} docs
-startFromCleanBranch bump_${COLLECTION} ${DOCS_BRANCH}
+startFromCleanBranch ${BUMP_BRANCH_PREFIX}${COLLECTION} ${DOCS_BRANCH}
 
 # homebrew
 cloneIfNeeded ${OSRF_ORG} homebrew-simulation
-startFromCleanBranch bump_${COLLECTION} master
+startFromCleanBranch ${BUMP_BRANCH_PREFIX}${COLLECTION} master
 
 # release-tools
 cloneIfNeeded ${TOOLING_ORG} release-tools
-startFromCleanBranch bump_${COLLECTION} master
+startFromCleanBranch ${BUMP_BRANCH_PREFIX}${COLLECTION} master
 
 # This first loop finds out what downstream dependencies also need to be bumped
 for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
@@ -313,13 +319,14 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   PREV_VER="$((${VER}-1))"
   LIB_UPPER=`echo ${LIB#"ign-"} | tr a-z A-Z`
   ORG=${IGN_ORG}
-  BUMP_BRANCH="ci_matching_branch/bump_${COLLECTION}_${LIB}${VER}"
+  BUMP_BRANCH="${BUMP_BRANCH_PREFIX}${COLLECTION}_${LIB}${VER}"
 
   echo -e "${BLUE_BG}Processing [${LIB}]${DEFAULT_BG}"
 
   ##################
   # release repo
   ##################
+  # TODO: Remove >= X.X.X from bumped lines
 
   echo -e "${GREEN}${LIB}: release repo${DEFAULT}"
 
@@ -433,6 +440,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   ##################
   # source code
   ##################
+  # TODO: Remove VERSION X.X for bumped dependencies on CMakeLists
 
   echo -e "${GREEN}${LIB}: source code${DEFAULT}"
 
