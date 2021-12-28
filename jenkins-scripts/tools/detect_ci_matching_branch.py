@@ -11,6 +11,6 @@ branchName = sys.argv[1]
 pattern = 'ci_matching_branch/'
 match = re.search(pattern, branchName)
 if match:
-    print(f"{branchName} matches {pattern}")
+    print(branchName, "matches", pattern)
 else:
     sys.exit("{} does not match {}".format(branchName, pattern))
