@@ -30,7 +30,6 @@ Libraries being bumped:
     - [ ] Release repositories of all downstream libraries ([example](https://github.com/ignition-release/ign-fuel-tools7-release/pull/1))
     - [ ] Use `main` branch on `gazebodistro` ([example](https://github.com/ignition-tooling/gazebodistro/pull/42))
     - [ ] Build nightlies from the `main` branch ([example](https://github.com/ignition-tooling/release-tools/pull/437))
-    - [ ] Update gzdev to use nightlies on CI ([example](https://github.com/ignition-tooling/gzdev/pull/31))
     - [ ] homebrew-simulation: create formula and update dependencies ([example](https://github.com/osrf/homebrew-simulation/pull/14230))
     - [ ] docs (the collection’s page) ([example](https://github.com/ignitionrobotics/docs/pull/175))
 * <!-- Add more libraries here and copy the checklist for each of them -->

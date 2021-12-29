@@ -56,7 +56,7 @@ When opening PRs, add a link back to this issue for easier tracking.
     - [ ] Add files to `gazebodistro` ([example](https://github.com/ignition-tooling/gazebodistro/pull/12))
     - [ ] Add aliases to `homebrew-simulation` ([example](https://github.com/osrf/homebrew-simulation/commit/1f8602af6f52e06e0542eebfbdbe97f5f6cf950c))
     - [ ] Create new `-release` repositories (use [this script](https://github.com/ignition-tooling/release-tools/blob/master/release-repo-scripts/new_ignition_release_repos.bash))
-
+    - [ ] Enable nightlies for all `main` branches on `gzdev` ([example](https://github.com/ignition-tooling/gzdev/pull/50))
 
 If the collection will be officially paired with a ROS 2 distro:
 
