@@ -16,8 +16,6 @@ fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-msgs"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_MSGS_DEPENDENCIES"
-# skip ruby on Xenial, because protobuf requires Ruby version >= 2.4.4
-export DOCKER_POSTINSTALL_HOOK="gem install protobuf || if [ `lsb_release -sr` = "16.04" ]; then true; else false; fi"
 
 # Identify IGN_MSGS_MAJOR_VERSION to help with dependency resolution
 IGN_MSGS_MAJOR_VERSION=$(\
