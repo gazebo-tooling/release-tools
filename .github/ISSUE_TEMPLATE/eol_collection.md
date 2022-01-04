@@ -24,6 +24,7 @@ When opening PRs, add a link back to this issue for easier tracking.
     * <!-- LINK PR HERE -->
 - [ ] Deprecate homebrew bottles (don't disable them) ([example](https://github.com/osrf/homebrew-simulation/pull/1242))
     * <!-- LINK PR HERE -->
+- [ ] Remove bottles from `homebrew-simulation` README ([example](https://github.com/osrf/homebrew-simulation/pull/1772))
 - [ ] Remove from buildfarmer ([dashboard](https://github.com/osrf/buildfarmer/pull/140) / [report](https://github.com/osrf/buildfarmer/pull/146))
     * <!-- LINK PR HERE -->
 - [ ] Remove from `pr-collection-labeler` ([example](https://github.com/ignition-tooling/pr-collection-labeler/pull/13))
