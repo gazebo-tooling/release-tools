@@ -149,7 +149,8 @@ git clone https://github.com/ignition-tooling/gazebodistro %gzdistro_dir% -b %GA
 :: Check if ci_matching_branch name is used
 if "%ghprbSourceBranch%" == "" (echo ghprbSourceBranch is unset) else (
   python "%SCRIPT_DIR%\tools\detect_ci_matching_branch.py" "%ghprbSourceBranch%"
-  if "%ERRORLEVEL%" == "0" (
+  :: if error code is less than 1
+  if NOT ERRORLEVEL 1 (
     echo trying to checkout branch %ghprbSourceBranch% from gazebodistro
     git -C %gzdistro_dir% fetch origin %ghprbSourceBranch% || rem
     git -C %gzdistro_dir% checkout %ghprbSourceBranch% || rem
