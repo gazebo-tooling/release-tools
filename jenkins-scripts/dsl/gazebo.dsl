@@ -3,15 +3,13 @@ import javaposse.jobdsl.dsl.Job
 
 def gazebo_supported_branches = [ 'gazebo9', 'gazebo11' ]
 def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
-// nightly_gazebo_branch is not the branch used to get the code from but
-// the one used to generate the corresponding debbuild job.
-def nightly_gazebo_branch = [ 'gazebo11' ]
 // testing official packages without osrf repo
-def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9' ]
-
+def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9',
+                                         'focal'  : 'gazebo9',
+                                         'jammy'  : 'gazebo11']
 // Main platform using for quick CI
-def ci_distro_default       = [ 'bionic' ]
-def ci_distro               = Globals.get_ci_distro()
+// Using bionic until https://github.com/osrf/gazebo/issues/3151 is fixed
+def ci_distro               = [ 'bionic' ]
 def ci_gpu                  = Globals.get_ci_gpu()
 def abi_distro              = Globals.get_abi_distro()
 // Other supported platform to be checked but no for quick
@@ -25,7 +23,6 @@ def all_supported_gpus      = Globals.get_all_supported_gpus()
 def DISABLE_TESTS = false
 def DISABLE_GITHUB_INTEGRATION = false
 
-String ci_distro_default_str = ci_distro_default[0]
 String ci_distro_str = ci_distro[0]
 String ci_gpu_str = ci_gpu[0]
 String ci_build_any_job_name_linux = "gazebo-ci-pr_any-ubuntu_auto-amd64-gpu-${ci_gpu_str}"
@@ -139,43 +136,13 @@ ci_distro.each { distro ->
          }
       }
 
-      // --------------------------------------------------------------
-      // 2. Create the master ci jobs
-      def gazebo_ci_job = job("gazebo-ci-master-${ci_distro_default_str}-${arch}-gpu-${gpu}")
-      if (is_watched_by_buildcop('master', ci_distro_default_str, gpu))
-      {
-        Globals.extra_emails = Globals.build_cop_email
-      }
-      OSRFLinuxCompilation.create(gazebo_ci_job)
-      OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo")
-
-      gazebo_ci_job.with
-      {
-        label "gpu-reliable && large-memory"
-
-        triggers {
-          scm('*/5 * * * *')
-        }
-
-        steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                export DISTRO=${ci_distro_default_str}
-                export ARCH=${arch}
-                export GPU_SUPPORT_NEEDED=true
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
-                """.stripIndent())
-        }
-      }
-
       // reset build cop email in global list of mails
       Globals.extra_emails = ''
     } // end of gpu
   } // end of arch
 } // end of distro
 
-// OTHER CI SUPPORTED JOBS (master branch) @ SCM/DAILY
+// OTHER CI SUPPORTED JOBS (gazebo11 branch) @ SCM/DAILY
 other_supported_distros.each { distro ->
   supported_arches.each { arch ->
 
@@ -185,8 +152,8 @@ other_supported_distros.each { distro ->
       gpus = [ 'none' ]
 
     gpus.each { gpu ->
-      // ci_master job for the rest of arches / scm@daily
-      def gazebo_ci_job = job("gazebo-ci-master-${distro}-${arch}-gpu-${gpu}")
+      // gazebo11 job for the rest of arches / scm@daily
+      def gazebo_ci_job = job("gazebo-ci-gazebo11-${distro}-${arch}-gpu-${gpu}")
       OSRFLinuxCompilation.create(gazebo_ci_job)
       OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo")
 
@@ -259,10 +226,6 @@ ci_distro.each { distro ->
 // BRANCHES CI JOB @ SCM/DAILY
 gazebo_supported_branches.each { branch ->
   distros = ci_distro
-  if (branch == 'gazebo11')
-  {
-    distros = ci_distro_default
-  }
   distros.each { distro ->
     supported_arches.each { arch ->
       ci_gpu.each { gpu ->
@@ -303,11 +266,11 @@ gazebo_supported_branches.each { branch ->
 } // end of branch
 
 // EXPERIMENTAL ARCHES @ SCM/WEEKLY
-ci_distro_default.each { distro ->
+ci_distro.each { distro ->
   experimental_arches.each { arch ->
-    def gazebo_ci_job = job("gazebo-ci-master-${distro}-${arch}-gpu-none")
+    def gazebo_ci_job = job("gazebo-ci-gazebo11-${distro}-${arch}-gpu-none")
     OSRFLinuxCompilation.create(gazebo_ci_job)
-    OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo")
+    OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo", "gazebo11")
 
     gazebo_ci_job.with
     {
@@ -332,12 +295,12 @@ ci_distro_default.each { distro ->
 }
 
 // COVERAGE TYPE @ SCM/DAILY
-ci_distro_default.each { distro ->
+ci_distro.each { distro ->
   supported_arches.each { arch ->
     ci_gpu.each { gpu ->
       def gazebo_ci_job = job("gazebo-ci-coverage-${distro}-${arch}-gpu-${gpu}")
       OSRFLinuxCompilation.create(gazebo_ci_job)
-      OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo", "master")
+      OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo", "gazebo11")
       gazebo_ci_job.with
       {
         triggers {
@@ -367,12 +330,12 @@ ci_distro_default.each { distro ->
 }
 
 // BUILD TYPES CI JOBS @ SCM/DAILY
-ci_distro_default.each { distro ->
+ci_distro.each { distro ->
   supported_arches.each { arch ->
     gazebo_supported_build_types.each { build_type ->
-      def gazebo_ci_job = job("gazebo-ci_BT${build_type}-master-${distro}-${arch}-gpu-none")
+      def gazebo_ci_job = job("gazebo-ci_BT${build_type}-gazebo11-${distro}-${arch}-gpu-none")
       OSRFLinuxCompilation.create(gazebo_ci_job)
-      OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo")
+      OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo", "gazebo11")
 
       gazebo_ci_job.with
       {
@@ -429,10 +392,6 @@ all_supported_distros.each { distro ->
 // INSTALL LINUX -DEV PACKAGES ALL PLATFORMS @ CRON/DAILY
 gazebo_supported_branches.each { branch ->
   distros = ci_distro
-  if (branch == 'gazebo11')
-  {
-    distros = ci_distro_default
-  }
   distros.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
@@ -459,7 +418,7 @@ ubuntu_official_packages_distros.each { distro, branch ->
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
 
-all_debbuild_branches = gazebo_supported_branches + nightly_gazebo_branch
+all_debbuild_branches = gazebo_supported_branches
 all_debbuild_branches.each { branch ->
   def build_pkg_job = job("${branch}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
@@ -516,7 +475,7 @@ install_brew_job.with
 
 // 2. default in all branches @SCM/daily
 // No gazebo2 for brew
-all_branches = gazebo_supported_branches + 'master'
+all_branches = gazebo_supported_branches
 all_branches.each { branch ->
   if (is_watched_by_buildcop(branch))
     Globals.extra_emails = Globals.build_cop_email

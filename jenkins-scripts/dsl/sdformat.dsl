@@ -61,7 +61,7 @@ abi_distro.each { distro ->
 
 // MAIN CI job
 // CI JOBS @ SCM/5 min
-[ Globals.get_gz11_ubuntu_distro() ].each { distro ->
+ci_distro.each { distro ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
     // 1. Create the main ci jobs
@@ -139,10 +139,6 @@ other_supported_distros.each { distro ->
 // BRANCHES CI JOB @ SCM/DAILY
 sdformat_supported_branches.each { branch ->
   ci_distro.each { distro ->
-    // special check to modify ci_distro if the branch is part of gz11
-    if (branch in sdformat_gz11_branches)
-      distro = Globals.get_gz11_ubuntu_distro()
-
     supported_arches.each { arch ->
       // ci_main job for the rest of arches / scm@daily
       def sdformat_ci_job = job("sdformat-ci-${branch}-${distro}-${arch}")
@@ -171,7 +167,7 @@ sdformat_supported_branches.each { branch ->
 //
 
 // EXPERIMENTAL ARCHES @ SCM/WEEKLY
-[ Globals.get_gz11_ubuntu_distro() ].each { distro ->
+ci_distro.each { distro ->
   experimental_arches.each { arch ->
     def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
@@ -198,13 +194,7 @@ sdformat_supported_branches.each { branch ->
 
 // INSTALL LINUX -DEV PACKAGES ALL PLATFORMS @ CRON/DAILY
 sdformat_supported_branches.each { branch ->
-  // special check to modify ci_distro if the branch is part of gz11
-  if (branch in sdformat_gz11_branches)
-    ref_distro = [ Globals.get_gz11_ubuntu_distro() ]
-  else
-    ref_distro = ci_distro
-
-  ref_distro.each { distro ->
+  ci_distro.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       def install_default_job = job("sdformat-install-${branch}_pkg-${distro}-${arch}")

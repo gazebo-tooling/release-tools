@@ -128,7 +128,18 @@ bullet_pkg="libbullet-dev"
 
 # choose dart version
 if $DART_FROM_PKGS; then
-  dart_pkg="libdart6-utils-urdf-dev"
+  dart_pkgs="libdart-utils-urdf-dev \
+             libdart-external-odelcpsolver-dev \
+             libdart-external-ikfast-dev"
+  if [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
+    dart_pkgs="${dart_pkgs} libdart-collision-bullet-dev \
+               libdart-collision-ode-dev"
+  fi
+  # If on Bionic/Xenial use custom dart packages, these have a different name
+  # dart -> dart6
+  if [[ ${DISTRO} == 'bionic' ]] || [[ ${DISTRO} == 'xenial' ]]; then
+    dart_pkgs="${dart_pkgs//dart/dart6}"
+  fi
 fi
 
 # By default, the stable version of gazebo
@@ -163,7 +174,7 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
                             libboost-iostreams-dev           \\
                             ${bullet_pkg}                    \\
                             libsimbody-dev                   \\
-                            ${dart_pkg}"
+                            ${dart_pkgs}"
 
   if [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
       GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
@@ -175,7 +186,7 @@ if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
   elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
       GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
                                            libignition-common-dev \\
-                                           libignition-fuel-tools-dev \\
+                                           libignition-fuel-tools1-dev \\
                                            libignition-transport4-dev \\
                                            libignition-math4-dev \\
                                            libignition-msgs-dev"

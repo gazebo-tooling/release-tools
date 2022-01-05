@@ -57,12 +57,12 @@ class Globals
    // Main CI platform
    static ArrayList get_ci_distro()
    {
-    return [ 'bionic' ]
+    return [ 'focal' ]
    }
 
    static ArrayList get_abi_distro()
    {
-     return [ 'bionic' ]
+     return [ 'focal' ]
    }
 
    static ArrayList get_ci_gpu()
@@ -72,7 +72,7 @@ class Globals
 
    static ArrayList get_other_supported_distros()
    {
-     return [ 'bionic' ]
+     return [  ]
    }
 
    static ArrayList get_supported_arches()
@@ -107,15 +107,5 @@ class Globals
 
    static String get_ros2_development_distro() {
      return 'rolling'
-   }
-
-   static String get_gz11_ubuntu_distro()
-   {
-     return 'bionic'
-   }
-
-   static String get_gz11_mac_distro()
-   {
-     return 'mojave'
    }
 }
