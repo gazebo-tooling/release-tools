@@ -374,6 +374,7 @@ fi
 #
 
 IGN_MATH_DEPENDENCIES="libeigen3-dev \\
+                       python3-distutils \\
                        libpython3-dev \\
                        ruby-dev \\
                        swig \\
