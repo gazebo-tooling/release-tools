@@ -5,7 +5,7 @@ import sys
 
 if len(sys.argv) != 2:
     print('need to specify branch name', file=sys.stderr)
-    exit()
+    sys.exit(1)
 branchName = sys.argv[1]
 
 pattern = 'ci_matching_branch/'
@@ -13,4 +13,5 @@ match = re.search(pattern, branchName)
 if match:
     print(branchName, "matches", pattern)
 else:
-    sys.exit("{} does not match {}".format(branchName, pattern))
+    print("{} does not match {}".format(branchName, pattern))
+    sys.exit(1)
