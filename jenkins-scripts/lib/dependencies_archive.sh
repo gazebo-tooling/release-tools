@@ -521,23 +521,6 @@ elif [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -eq 3 ]]; then
                         libignition-transport8-dev"
 fi
 
-IGN_PHYSICS_DEPENDENCIES="libbenchmark-dev \\
-                          dart6-data \\
-                          libdart6-collision-ode-dev \\
-                          libdart6-dev \\
-                          libdart6-utils-urdf-dev \\
-                          libignition-cmake2-dev \\
-                          libignition-common3-dev \\
-                          libignition-math6-dev \\
-                          libignition-math6-eigen3-dev \\
-                          libignition-plugin-dev"
-if [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -ge 3 ]]; then
-  IGN_PHYSICS_DEPENDENCIES="${IGN_PHYSICS_DEPENDENCIES} \\
-                            libsdformat10-dev"
-elif [[ -n "${IGN_PHYSICS_MAJOR_VERSION}" && ${IGN_PHYSICS_MAJOR_VERSION} -eq 2 ]]; then
-  IGN_PHYSICS_DEPENDENCIES="${IGN_PHYSICS_DEPENDENCIES} \\
-                            libsdformat9-dev"
-fi
 IGN_PHYSICS_DART_FROM_PKGS="true"
 
 IGN_PLUGIN_DEPENDENCIES="libignition-cmake2-dev"
