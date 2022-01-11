@@ -54,7 +54,7 @@ fi
 echo '# BEGIN SECTION: compile and install branch: ${DEST_BRANCH}'
 cp -a $WORKSPACE/${ABI_JOB_SOFTWARE_NAME} /tmp/${ABI_JOB_SOFTWARE_NAME}
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
-git fetch origin 
+git fetch origin
 git checkout origin/${DEST_BRANCH}
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
 rm -rf $WORKSPACE/build
@@ -94,7 +94,7 @@ echo '# BEGIN SECTION: install the ABI checker'
 # Install abi-compliance-checker.git
 cd $WORKSPACE
 rm -fr $WORKSPACE/abi-compliance-checker
-git clone git://github.com/lvc/abi-compliance-checker.git
+git clone https://github.com/lvc/abi-compliance-checker
 cd abi-compliance-checker
 sudo perl Makefile.pl -install --prefix=/usr
 
