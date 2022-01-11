@@ -62,6 +62,25 @@ get_libraries_by_collection()
 	ignition-gazebo6
 	ignition-launch5
 	ignition-fortress"
+    elif [ "$COLLECTION" = "garden" ]; then
+      LIBS="
+	ignition-cmake2
+	ignition-math7
+	ignition-utils1
+	ignition-tools
+	ignition-common5
+	ignition-msgs9
+	ignition-transport12
+	ignition-fuel-tools8
+	ignition-plugin
+	ignition-rendering7
+	sdformat13
+	ignition-physics6
+	ignition-sensors7
+	ignition-gui7
+	ignition-gazebo7
+	ignition-launch6
+	ignition-garden"
     else
       return 1
     fi
