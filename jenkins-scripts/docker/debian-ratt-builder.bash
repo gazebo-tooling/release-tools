@@ -51,6 +51,8 @@ if $USE_UNSTABLE; then
   sudo sbuild-createchroot unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian
 else
   sudo sbuild-createchroot --extra-repository='deb http://ftp.us.debian.org/debian experimental main' unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian
+  ls /etc/schroot/chroot.d/*
+  sudo sed 's/unstable/experimental/g' -i /etc/schroot/chroot.d/*
 fi
 
 echo '# END SECTION'
