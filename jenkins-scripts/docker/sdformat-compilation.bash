@@ -24,6 +24,8 @@ fi
 
 export GZDEV_PROJECT_NAME="sdformat${SDFORMAT_MAJOR_VERSION}"
 
+export BUILDING_EXTRA_CMAKE_PARAMS="-DSKIP_usd=true"
+
 # master and major branches compilations
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="SDFORMAT_BASE_DEPENDENCIES"
 
