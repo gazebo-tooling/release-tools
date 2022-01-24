@@ -54,7 +54,7 @@ export HOMEBREW_NO_AUTO_UPDATE=1
 # Run brew config to print system information
 brew config
 # Run brew doctor to check for problems with the system
-brew doctor
+brew doctor || echo MARK_AS_UNSTABLE
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: setup the osrf/simulation tap'
@@ -171,7 +171,7 @@ brew missing || brew install $(brew missing | awk '{print $2}') && brew missing
 # if proj@7 installed, skip brew doctor
 # remove this line when gdal stops depending on a deprecated version of proj
 # https://github.com/Homebrew/homebrew-core/issues/82441
-brew list | grep '^proj@7$' || brew doctor
+brew list | grep '^proj@7$' || brew doctor || echo MARK_AS_UNSTABLE
 echo '# END SECTION'
 
 # CHECK PRE_TESTS_EXECUTION_HOOK AND RUN
