@@ -264,7 +264,7 @@ cd %VCPKG_OSRF_DIR%
 git pull origin master || goto :error
 popd
 
-%VCPKG_CMD% install "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
+%VCPKG_CMD% install --recurse "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
 goto :EOF
 
 :: ##################################
