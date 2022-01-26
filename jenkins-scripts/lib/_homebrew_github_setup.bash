@@ -16,10 +16,16 @@ echo '# BEGIN SECTION: check github perms'
 # Github autentication. git access is provided by public key access
 # and hub cli needs a token
 if [[ -z $(ssh -T git@github.com 2>&1 | grep successfully) ]]; then
-    echo "The github connection seems not to be valid:"
-    ssh -T git@github.com
-    echo "Please check that the ssh key authentication is working"
-    exit 1
+    # ssh key in github may have changed, let's try to remove and get
+    # the latest one
+    ssh-keygen -R github.com
+    ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+    if [[ -z $(ssh -T git@github.com 2>&1 | grep successfully) ]]; then
+      echo "The github connection seems not to be valid:"
+      ssh -T git@github.com
+      echo "Please check that the ssh key authentication is working"
+      exit 1
+    fi
 fi
 
 GITHUB_TOKEN_FILE="/var/lib/jenkins/.github_token"
