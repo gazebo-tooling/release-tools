@@ -32,6 +32,7 @@ sudo docker build ${_DOCKER_BUILD_EXTRA_ARGS} \
 stop_stopwatch CREATE_TESTING_ENVIROMENT
 
 echo '# BEGIN SECTION: see build.sh script'
+chmod +x build.sh
 cat build.sh
 echo '# END SECTION'
 
@@ -86,7 +87,7 @@ sudo ${docker_cmd} run $EXTRA_PARAMS_STR  \
             --tty \
             --rm \
             ${DOCKER_TAG} \
-            /bin/bash build.sh
+            ./build.sh
 
 # Export results out of build directory, to WORKSPACE
 for d in $(find ${WORKSPACE}/build -maxdepth 1 -name '*_results' -type d); do

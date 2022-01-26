@@ -24,7 +24,7 @@ fi
 if [ `expr length "${INSTALL_JOB_PKG} "` -gt 1 ]; then
 echo "# BEGIN SECTION: try to install package: ${INSTALL_JOB_PKG}"
 echo "DEBUG NONINTERACTIVE ------ ${DEBIAN_FRONTEND}"
-udo apt-get update
+sudo apt-get update
 sudo apt-get install -y ${INSTALL_JOB_PKG}
 echo '# END SECTION'
 fi
