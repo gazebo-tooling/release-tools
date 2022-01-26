@@ -5,7 +5,7 @@ echo '# BEGIN SECTION: setup the testing enviroment'
 # Define the name to be used in docker
 DOCKER_JOB_NAME="install_job"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
-. ${SCRIPT_DIR}/lib/_common_scripts.sh
+. ${SCRIPT_DIR}/lib/_common_scripts.bash
 echo '# END SECTION'
 
 cat > build.sh << DELIM
