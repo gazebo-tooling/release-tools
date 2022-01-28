@@ -75,6 +75,8 @@ fi
 echo "# BEGIN SECTION: install ${PROJECT_FORMULA} dependencies"
 # Process the package dependencies
 brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies
+# the following is needed to install :build dependencies of a formula
+brew install $(brew deps --1 --include-build ${PROJECT_FORMULA})
 
 if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   # Install lxml for flaky_junit_merge.py
