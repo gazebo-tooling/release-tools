@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Be sure to run this script from outside a git repository. Otherwise, the 
 # first run will fail with `fatal: remote origin already exists.` In case
