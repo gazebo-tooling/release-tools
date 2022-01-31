@@ -15,9 +15,7 @@ else
 fi
 
 git -C $(${BREW_BINARY} --repo) fsck
-# don't use HOMEBREW_UPDATE_TO_TAG until brew 3.3.13 is released
-# due to https://github.com/Homebrew/brew/issues/12788
-unset HOMEBREW_UPDATE_TO_TAG
+export HOMEBREW_UPDATE_TO_TAG=1
 ${BREW_BINARY} update
 # manually exclude a ruby warning that jenkins thinks is from clang
 # https://github.com/osrf/homebrew-simulation/issues/1343
