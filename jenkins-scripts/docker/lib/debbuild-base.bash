@@ -7,6 +7,9 @@ if [ "${UPLOAD_TO_REPO}" = "nightly" ]; then
    # SOURCE_TARBALL_URI is reused in nightly mode to indicate the branch
    # to built nightly packages from
    NIGHTLY_SRC_BRANCH=${SOURCE_TARBALL_URI}
+   # There are many problem in the nightlies with package versions preventing
+   # the dependency solver to work properly. Set INVALIDATE_DOCKER_CACHE
+   export INVALIDATE_DOCKER_CACHE=true
 fi
 
 # Option to use $WORKSPACE/repo as container (git or hg) for the nightly source
