@@ -39,9 +39,12 @@ echo '# END SECTION'
 
 DEBBUILD_AUTOPKGTEST="""
 if $RUN_AUTOPKGTEST; then
-echo '# BEGIN SECTION: run tests'
+echo '# BEGIN SECTION: run autopkgtest'
 cd $WORKSPACE/pkgs
 set +e
+ls -lasR
+ls *.deb
+PKGS=\$(find . -name *.deb)
 autopkgtest -B *.deb *.dsc -- null
 # autopkgtest will return 0 if there are successful tests and 8 if there are no tests
 testret=\$?
