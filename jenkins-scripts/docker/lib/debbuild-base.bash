@@ -256,13 +256,14 @@ DELIM
 
 OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
 DEPENDENCY_PKGS="devscripts \
-		 ubuntu-dev-tools \
-		 debhelper \
-		 wget \
-		 ca-certificates \
-		 equivs \
-		 dh-make \
-		 git"
+                ubuntu-dev-tools \
+                debhelper \
+                wget \
+                ca-certificates \
+                equivs \
+                dh-make \
+                git \
+                autopkgtest"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
