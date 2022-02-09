@@ -236,8 +236,6 @@ echo '# BEGIN SECTION: create deb packages'
 debuild \${no_lintian_param} --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 echo '# END SECTION'
 
-${DEBBUILD_AUTOPKGTEST}
-
 echo '# BEGIN SECTION: export pkgs'
 PKGS=\`find .. -name '*.deb' || true\`
 
@@ -252,6 +250,8 @@ done
 # check at least one upload
 test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
+
+${DEBBUILD_AUTOPKGTEST}
 DELIM
 
 OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
