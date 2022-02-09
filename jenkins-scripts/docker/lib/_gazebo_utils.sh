@@ -52,5 +52,4 @@ fi
 set -e
 echo '# END SECTION'
 fi
-fi
 """
