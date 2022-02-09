@@ -251,6 +251,7 @@ done
 test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 
+cat /etc/apt/sources.list
 ${DEBBUILD_AUTOPKGTEST}
 DELIM
 
