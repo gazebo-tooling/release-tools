@@ -156,14 +156,8 @@ fi
 if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
   if [[ ${ARCH} != 'armhf' && ${ARCH} != 'arm64' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_ARCH
-  # Note that main,restricted and universe are not here, only multiverse
-  # main, restricted and unvierse are already setup in the original image
-  RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} multiverse" \\
-                                                         >> /etc/apt/sources.list && \\
-      echo "deb ${SOURCE_LIST_URL} ${DISTRO}-updates main restricted universe multiverse" \\
-                                                         >> /etc/apt/sources.list && \\
-      echo "deb ${SOURCE_LIST_URL} ${DISTRO}-security main restricted universe multiverse" && \\
-                                                         >> /etc/apt/sources.list
+  RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO}-security main restricted universe multiverse" && \\
+                                                     >> /etc/apt/sources.list
 DELIM_DOCKER_ARCH
   fi
 fi
