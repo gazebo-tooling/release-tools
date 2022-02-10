@@ -305,7 +305,7 @@ DELIM_DOCKER31
 
 # Beware of moving this code since it needs to run update-alternative after
 # installing the default compiler in PACKAGES_CACHE_AND_CHECK_UPDATES
-if ${NEED_C17_COMPILER}; then
+if ${NEED_C17_COMPILER} && [[ ${DISTRO} != jammy ]]; then
 cat >> Dockerfile << DELIM_GCC8
    RUN apt-get update \\
    && apt-get install -y g++-8 \\
