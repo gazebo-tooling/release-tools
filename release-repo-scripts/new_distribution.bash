@@ -44,6 +44,21 @@ get_root_repo_dir()
   fi
 }
 
+get_relative_path()
+{
+  common_file=${1}
+
+  pushd debian >/dev/null
+  ubuntu_distros="../../ubuntu/debian/${common_file}"
+  if [[ -e ${ubuntu_distros} ]]; then
+    echo ${ubuntu_distros}
+  else
+    # debian is two level ups
+    echo "../ubuntu/debian/${common_file}"
+  fi
+  popd >/dev/null
+}
+
 list_packages_in_repo()
 {
   control_file=${1} src_package=${2}
@@ -86,7 +101,7 @@ rm -f debian/format
 echo "     - Import watch file"
 cp "${debian_repo}/debian/watch" "${root_dir}/ubuntu/debian/watch"
 git add "${root_dir}/ubuntu/debian/watch"
-ln -s "${root_dir}/ubuntu/debian/watch" debian/watch
+ln -sf $(get_relative_path watch) debian/watch
 git add debian/watch
 
 echo "     - Replace Vcs info"
@@ -102,6 +117,7 @@ git add debian/compat
 
 # Introduce standards. Bionic is in 4.1.4. Focal in 4.5.0
 echo "     - Set standards to 4.5.1"
+sed -i -e '/Standards-Version:.*/d' "${root_dir}/ubuntu/debian/control"
 sed -i -e '/^Homepage: */i Standards-Version: 4.5.1' "${root_dir}/ubuntu/debian/control"
 # Bionic has debhelpert 11. Focal and Buster 12.
 sed -i -e 's:debhelper (>= 9):debhelper (>= 11):' "${root_dir}/ubuntu/debian/control"
@@ -111,14 +127,14 @@ rm -f debian/copyright
 new_copyright_path="${root_dir}/ubuntu/debian/debian_copyright_2022"
 cp "${debian_repo}/debian/copyright" "${new_copyright_path}"
 git add "${new_copyright_path}"
-ln -s "${new_copyright_path}" debian/copyright
+ln -sf $(get_relative_path copyright) debian/copyright
 
 echo "     - Import autopkgtest"
 autopkgtest_path="${root_dir}/ubuntu/debian/tests/"
 mkdir -p "${autopkgtest_path}"
 cp -a "${debian_repo}"/debian/tests/* "${autopkgtest_path}"
 git add "${autopkgtest_path}"
-ln -s "${autopkgtest_path}" debian/tests
+ln -sf $(get_relative_path tests) debian/tests
 git add debian/tests
 
 # Import docs file if found
@@ -126,16 +142,17 @@ if [[ -f ${debian_repo}/debian/docs ]]; then
   echo "     - Import docs file"
   cp "${debian_repo}/debian/docs" "${root_dir}/ubuntu/debian/"
   git add "${root_dir}/ubuntu/debian/docs"
-  ln -s "${root_dir}/ubuntu/debian/docs" debian/docs
+  ln -sf $(get_relative_path docs) debian/docs
   git add debian/docs
 fi
 
 # Import examples files. Asumming just one file
-for f in ${debian_repo}/debian/*.examples; do
+shopt -s nullglob
+for f in "${debian_repo}"/debian/*.examples; do
   echo "     - Import examples file ${f}"
   cp "${f}" "${root_dir}/ubuntu/debian/"
   git add "${root_dir}"/ubuntu/debian/*.examples
-  ln -s "$(ls "${root_dir}"/ubuntu/debian/*.examples)" debian/
+  ln -sf $(get_relative_path $f) debian/$f
   # use versioned dev if needed
   if [[ -f $(ls debian/*-dev*.examples) ]]; then
     examples_file=${f##*/}
