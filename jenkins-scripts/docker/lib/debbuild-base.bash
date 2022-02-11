@@ -19,7 +19,12 @@ fi
 # testing jobs and seems to be slow at the end of jenkins jobs
 export ENABLE_REAPER=false
 
+# autopkgtest is a mechanism to test the installation of the generated packages
+# at the end of the package production.
+RUN_AUTOPKGTEST=${RUN_AUTOPKGTEST:-true}
+
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
 cat > build.sh << DELIM
 ###################################################
@@ -259,17 +264,21 @@ done
 # check at least one upload
 test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
+
+cat /etc/apt/sources.list
+${DEBBUILD_AUTOPKGTEST}
 DELIM
 
 OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
 DEPENDENCY_PKGS="devscripts \
-		 ubuntu-dev-tools \
-		 debhelper \
-		 wget \
-		 ca-certificates \
-		 equivs \
-		 dh-make \
-		 git"
+                ubuntu-dev-tools \
+                debhelper \
+                wget \
+                ca-certificates \
+                equivs \
+                dh-make \
+                git \
+                autopkgtest"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
