@@ -216,7 +216,7 @@ if [[ ${DISTRO} == 'jammy' ]]; then
   sudo bash -c 'echo "/usr/bin/dpkg-deb -Zxz \$@" > /usr/local/bin/dpkg-deb'
   sudo cat /usr/local/bin/dpkg-deb
   sudo chmod +x /usr/local/bin/dpkg-deb
-  export PATH='/usr/local/bin:\$PATH'
+  export PATH=/usr/local/bin:\$PATH
   preserve_path='--preserve-envvar PATH'
 fi
 
