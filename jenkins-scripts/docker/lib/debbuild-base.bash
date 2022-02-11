@@ -210,12 +210,16 @@ if [[ ${DISTRO} == 'focal' && (${ARCH} == 'arm64' || ${ARCH} == 'armhf') ]]; the
 fi
 
 # our packages.o.o running xenial does not support default zstd compression of
-# .deb files in jammy. Keep using xz
+# .deb files in jammy. Keep using xz. Not a trivial change, requires wrapper over dpkg-deb
 if [[ ${DISTRO} == 'jammy' ]]; then
-  deb_compression='-Zxz'
+  echo -n '#!/bin/bash\n/usr/bin/dpkg-deb -Zgzip \$@' > /usr/local/bin/dpkg-deb
+  cat /usr/local/bin/dpkg-deb
+  chmod +x /usr/local/bin/dpkg-deb
+  export PATH='/usr/local/bin:\$PATH'
+  preserve_path='--preserve-envvar PATH'
 fi
 
-debuild \${no_lintian_param} --no-tgz-check -uc -us -S --source-option=--include-binaries \${deb_compression}
+debuild \${no_lintian_param} --no-tgz-check -uc -us -S --source-option=--include-binaries \${preserve_path}
 
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
@@ -237,7 +241,7 @@ if [[ $DISTRO != 'bionic' ]]; then
 fi
 
 echo '# BEGIN SECTION: create deb packages'
-debuild \${no_lintian_param} --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS} \${deb_compression}
+debuild \${no_lintian_param} --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS} \${preserve_path}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
