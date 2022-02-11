@@ -213,7 +213,7 @@ fi
 # .deb files in jammy. Keep using xz. Not a trivial change, requires wrapper over dpkg-deb
 if [[ ${DISTRO} == 'jammy' ]]; then
   sudo bash -c 'echo \#\!/bin/bash > /usr/local/bin/dpkg-deb'
-  sudo bash -c 'echo "/usr/bin/dpkg-deb -Zxz \$@" > /usr/local/bin/dpkg-deb'
+  sudo bash -c 'echo "/usr/bin/dpkg-deb -Zxz \\$@" >> /usr/local/bin/dpkg-deb'
   sudo cat /usr/local/bin/dpkg-deb
   sudo chmod +x /usr/local/bin/dpkg-deb
   export PATH=/usr/local/bin:\$PATH
