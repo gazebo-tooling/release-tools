@@ -212,14 +212,7 @@ fi
 # our packages.o.o running xenial does not support default zstd compression of
 # .deb files in jammy. Keep using xz. Not a trivial change, requires wrapper over dpkg-deb
 if [[ ${DISTRO} == 'jammy' ]]; then
-  sudo mkdir -p /usr/local/bin
-  sudo ls -las -R /usr/local
-  sudo touch /usr/local/bin/dpkg-deb
-  sudo chown -R root /usr/local
-  sudo echo \#\!/bin/bash > /usr/local/bin/dpkg-deb
-  sudo echo '/usr/bin/dpkg-deb -Zgzip \$@' > /usr/local/bin/dpkg-deb
-  sudo cat /usr/local/bin/dpkg-deb
-  sudo chmod +x /usr/local/bin/dpkg-deb
+. sudo cp ${SCRIPT_DIR}/../tools/dpkg-deb /usr/local/bin
   export PATH='/usr/local/bin:\$PATH'
   preserve_path='--preserve-envvar PATH'
 fi
