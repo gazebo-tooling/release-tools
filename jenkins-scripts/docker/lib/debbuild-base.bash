@@ -220,7 +220,7 @@ if [[ ${DISTRO} == 'jammy' ]]; then
   preserve_path='--preserve-envvar PATH'
 fi
 
-debuild \${no_lintian_param} --no-tgz-check -uc -us -S --source-option=--include-binaries \${preserve_path}
+debuild \${no_lintian_param} \${preserve_path} --no-tgz-check -uc -us -S --source-option=--include-binaries
 
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
@@ -242,7 +242,7 @@ if [[ $DISTRO != 'bionic' ]]; then
 fi
 
 echo '# BEGIN SECTION: create deb packages'
-debuild \${no_lintian_param} --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS} \${preserve_path}
+debuild \${no_lintian_param} \${preserve_path} --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
