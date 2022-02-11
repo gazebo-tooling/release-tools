@@ -213,6 +213,8 @@ fi
 # .deb files in jammy. Keep using xz. Not a trivial change, requires wrapper over dpkg-deb
 if [[ ${DISTRO} == 'jammy' ]]; then
   sudo mkdir -p /usr/local/bin
+  sudo ls -R /usr/local
+  sudo chown -R root /usr/local
   sudo echo \#\!/bin/bash > /usr/local/bin/dpkg-deb
   sudo echo '/usr/bin/dpkg-deb -Zgzip \$@' > /usr/local/bin/dpkg-deb
   sudo cat /usr/local/bin/dpkg-deb
