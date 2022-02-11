@@ -193,7 +193,7 @@ fi
 # Be sure that a previous bug using g++8 compiler is not present anymore
 if [[ ${DISTRO} == 'jammy' ]]; then
  [[ \$(/usr/bin/gcc --version | grep 'gcc-8') ]] && ( echo "gcc-8 version found. A bug." ; exit 1 )
-else
+elif $NEED_C17_COMPILER; then
   echo '# BEGIN SECTION: install C++17 compiler'
   sudo apt-get install -y gcc-8 g++-8
   sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
