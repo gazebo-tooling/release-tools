@@ -175,7 +175,7 @@ fi
 
 # Help to debug race conditions in nightly generation or other problems with versions
 if ${NIGHTLY_MODE}; then
-  apt-cache show *ignition* | grep 'Package\\\|Version'
+  apt-cache show *ignition* | ( grep 'Package\\|Version' || true)
 fi
 
 sudo DEBIAN_FRONTEND=noninteractive mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
