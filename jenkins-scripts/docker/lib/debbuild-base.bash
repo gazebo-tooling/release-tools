@@ -172,6 +172,12 @@ sudo apt-get update
 if [ ${DISTRO} = 'buster' ]; then
   sudo apt-get install -y dwz=0.13-5~bpo10+1
 fi
+
+# Help to debug race conditions in nightly generation or other problems with versions
+if ${NIGHTLY_MODE}; then
+ dpkg -l | grep igntion
+fi
+
 sudo DEBIAN_FRONTEND=noninteractive mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
 # new versions of mk-build-deps > 2.21.1 left buildinfo and changes files in the code
 rm -f ${PACKAGE_ALIAS}-build-deps_*.{buildinfo,changes}
