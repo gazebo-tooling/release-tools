@@ -200,7 +200,7 @@ if [ -f /usr/bin/rosdep ]; then
 fi
 
 # Be sure that a previous bug using g++8 compiler is not present anymore
-if [[ ${DISTRO} == 'jammy' ]]; then
+if [[ ${DISTRO} == 'jammy' || ${DISTRO} == 'focal' ]]; then
  [[ \$(/usr/bin/gcc --version | grep 'gcc-8') ]] && ( echo "gcc-8 version found. A bug." ; exit 1 )
 elif $NEED_C17_COMPILER; then
   echo '# BEGIN SECTION: install C++17 compiler'
