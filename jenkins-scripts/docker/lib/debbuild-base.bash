@@ -19,7 +19,12 @@ fi
 # testing jobs and seems to be slow at the end of jenkins jobs
 export ENABLE_REAPER=false
 
+# autopkgtest is a mechanism to test the installation of the generated packages
+# at the end of the package production.
+RUN_AUTOPKGTEST=${RUN_AUTOPKGTEST:-true}
+
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
 cat > build.sh << DELIM
 ###################################################
@@ -167,7 +172,25 @@ sudo apt-get update
 if [ ${DISTRO} = 'buster' ]; then
   sudo apt-get install -y dwz=0.13-5~bpo10+1
 fi
-sudo DEBIAN_FRONTEND=noninteractive mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
+
+timeout=1
+# Help to debug race conditions in nightly generation or other problems with versions
+if ${NIGHTLY_MODE}; then
+  apt-cache show *ignition* | ( grep 'Package\\|Version' || true)
+  timeout=60
+fi
+
+update_done=false
+seconds_waiting=0
+while (! \$update_done); do
+  sudo DEBIAN_FRONTEND=noninteractive mk-build-deps \
+    -r -i debian/control \
+    --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes' \
+  && update_done=true
+  sleep 1 && seconds_waiting=\$((seconds_waiting+1))
+  [ \$seconds_waiting -gt \$timeout ] && exit 1
+done
+
 # new versions of mk-build-deps > 2.21.1 left buildinfo and changes files in the code
 rm -f ${PACKAGE_ALIAS}-build-deps_*.{buildinfo,changes}
 echo '# END SECTION'
@@ -176,12 +199,15 @@ if [ -f /usr/bin/rosdep ]; then
   rosdep init
 fi
 
-if $NEED_C17_COMPILER; then
-echo '# BEGIN SECTION: install C++17 compiler'
-sudo apt-get install -y gcc-8 g++-8
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
-g++ --version
-echo '# END SECTION'
+# Be sure that a previous bug using g++8 compiler is not present anymore
+if [[ ${DISTRO} == 'jammy' ]]; then
+ [[ \$(/usr/bin/gcc --version | grep 'gcc-8') ]] && ( echo "gcc-8 version found. A bug." ; exit 1 )
+elif $NEED_C17_COMPILER; then
+  echo '# BEGIN SECTION: install C++17 compiler'
+  sudo apt-get install -y gcc-8 g++-8
+  sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
+  g++ --version
+  echo '# END SECTION'
 fi
 
 echo '# BEGIN SECTION: create source package' \${OSRF_VERSION}
@@ -192,7 +218,18 @@ if [[ ${DISTRO} == 'focal' && (${ARCH} == 'arm64' || ${ARCH} == 'armhf') ]]; the
   no_lintian_param="--no-lintian"
 fi
 
-debuild \${no_lintian_param} --no-tgz-check -uc -us -S --source-option=--include-binaries
+# our packages.o.o running xenial does not support default zstd compression of
+# .deb files in jammy. Keep using xz. Not a trivial change, requires wrapper over dpkg-deb
+if [[ ${DISTRO} == 'jammy' ]]; then
+  sudo bash -c 'echo \#\!/bin/bash > /usr/local/bin/dpkg-deb'
+  sudo bash -c 'echo "/usr/bin/dpkg-deb -Zxz \\\$@" >> /usr/local/bin/dpkg-deb'
+  sudo cat /usr/local/bin/dpkg-deb
+  sudo chmod +x /usr/local/bin/dpkg-deb
+  export PATH=/usr/local/bin:\$PATH
+  preserve_path='--preserve-envvar PATH'
+fi
+
+debuild \${no_lintian_param} \${preserve_path} --no-tgz-check -uc -us -S --source-option=--include-binaries
 
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
@@ -214,7 +251,7 @@ if [[ $DISTRO != 'bionic' ]]; then
 fi
 
 echo '# BEGIN SECTION: create deb packages'
-debuild \${no_lintian_param} --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
+debuild \${no_lintian_param} \${preserve_path} --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
@@ -231,17 +268,21 @@ done
 # check at least one upload
 test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
+
+cat /etc/apt/sources.list
+${DEBBUILD_AUTOPKGTEST}
 DELIM
 
 OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
 DEPENDENCY_PKGS="devscripts \
-		 ubuntu-dev-tools \
-		 debhelper \
-		 wget \
-		 ca-certificates \
-		 equivs \
-		 dh-make \
-		 git"
+                ubuntu-dev-tools \
+                debhelper \
+                wget \
+                ca-certificates \
+                equivs \
+                dh-make \
+                git \
+                autopkgtest"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
