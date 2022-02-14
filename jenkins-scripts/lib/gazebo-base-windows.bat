@@ -11,10 +11,13 @@ echo # END SECTION
 
 :: avoid conflicts with vcpkg packages
 call %win_lib% :disable_vcpkg_integration
+call %win_lib% :remove_vcpkg_package boost-uninstall
+call %win_lib% :remove_vcpkg_package gdal
+call %win_lib% :remove_vcpkg_package tinyxml2
+call %win_lib% :remove_vcpkg_package ogre
 call %win_lib% :remove_vcpkg_package protobuf
 call %win_lib% :remove_vcpkg_package qt5
 call %win_lib% :remove_vcpkg_package qwt
-call %win_lib% :remove_vcpkg_package boost-uninstall
 
 :: IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto %win_lib% :error
 :: reusing the workspace
