@@ -102,17 +102,19 @@ if [ -z ${ENABLE_REAPER} ]; then
 fi
 
 # We use ignitionsrobotics or osrf. osrf by default
-if [ -Z ${GITHUB_ORG} ]; then
+if [ -z ${GITHUB_ORG} ]; then
     GITHUB_ORG="osrf"
 fi
 
-# By default, do not need to use C++11 compiler
-if [ -z ${NEED_C11_COMPILER} ]; then
-  NEED_C11_COMPILER=false
+if [ -z "${NEED_C17_COMPILER}" ]; then
+  export INSTALL_C17_COMPILER=false
 fi
-
-if [ -z ${NEED_C17_COMPILER} ]; then
-  NEED_C17_COMPILER=false
+# Check if we need to install a custom compiler in old distributions
+export INSTALL_C17_COMPILER=false
+if ${NEED_C17_COMPILER}; then
+  if [ ${DISTRO} = 'bionic' ] || [ ${DISTRO} = 'buster' ]; then
+    export INSTALL_C17_COMPILER=true
+  fi
 fi
 
 # By default, do not use ROS
@@ -124,14 +126,6 @@ fi
 # which can break some software. Use it as a workaround in this case
 if [ -z ${NEED_GCC48_COMPILER} ]; then
   NEED_GCC48_COMPILER=false
-fi
-
-# Only precise needs to install a C++11 compiler. Trusty on
-# already have a supported version
-if $NEED_C11_COMPILER; then
-  if [[ $DISTRO != 'precise' ]]; then
-      NEED_C11_COMPILER=false
-  fi
 fi
 
 # in some machines squid is returning
