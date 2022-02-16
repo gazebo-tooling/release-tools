@@ -173,11 +173,12 @@ if [ ${DISTRO} = 'buster' ]; then
   sudo apt-get install -y dwz=0.13-5~bpo10+1
 fi
 
-timeout=1
+timeout=0
 # Help to debug race conditions in nightly generation or other problems with versions
 if ${NIGHTLY_MODE}; then
   apt-cache show *ignition* | ( grep 'Package\\|Version' || true)
-  timeout=60
+  # 5 minutes to give time to the uploader
+  timeout=300
 fi
 
 update_done=false
@@ -186,9 +187,9 @@ while (! \$update_done); do
   sudo DEBIAN_FRONTEND=noninteractive mk-build-deps \
     -r -i debian/control \
     --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes' \
-  && update_done=true
-  sleep 1 && seconds_waiting=\$((seconds_waiting+1))
-  [ \$seconds_waiting -gt \$timeout ] && exit 1
+  && break
+  sleep 60 && seconds_waiting=\$((seconds_waiting+60))
+  [ \$seconds_waiting -ge \$timeout ] && exit 1
 done
 
 # new versions of mk-build-deps > 2.21.1 left buildinfo and changes files in the code
