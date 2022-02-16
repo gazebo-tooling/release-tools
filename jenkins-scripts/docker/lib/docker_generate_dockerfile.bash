@@ -27,7 +27,7 @@ if [[ -z ${LINUX_DISTRO} ]]; then
   export LINUX_DISTRO="ubuntu"
 fi
 
-[[ -z ${NEED_C17_COMPILER} ]] && NEED_C17_COMPILER=false
+[[ -z ${INSTALL_C17_COMPILER} ]] && INSTALL_C17_COMPILER=false
 
 export APT_PARAMS=
 

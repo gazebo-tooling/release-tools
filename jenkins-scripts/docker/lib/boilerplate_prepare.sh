@@ -102,18 +102,18 @@ if [ -z ${ENABLE_REAPER} ]; then
 fi
 
 # We use ignitionsrobotics or osrf. osrf by default
-if [ -Z ${GITHUB_ORG} ]; then
+if [ -z ${GITHUB_ORG} ]; then
     GITHUB_ORG="osrf"
 fi
 
 if [ -z "${NEED_C17_COMPILER}" ]; then
   export INSTALL_C17_COMPILER=false
-else
-  # Newer distributions don't need custom compiler
+fi
+# Check if we need to install a custom compiler in old distributions
+export INSTALL_C17_COMPILER=false
+if ${NEED_C17_COMPILER}; then
   if [ ${DISTRO} = 'bionic' ] || [ ${DISTRO} = 'buster' ]; then
     export INSTALL_C17_COMPILER=true
-  else
-    export INSTALL_C17_COMPILER=false
   fi
 fi
 
