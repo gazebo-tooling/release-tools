@@ -20,6 +20,12 @@ if $DOCKER_DO_NOT_CACHE; then
   _DOCKER_BUILD_EXTRA_ARGS="--force-rm=true"
 fi
 
+# Jammy workaround for docker
+# https://pascalroeleven.nl/2021/09/09/ubuntu-21-10-and-fedora-35-in-docker/
+if [[ ${DISTRO} == 'jammy' ]]; then
+  _DOCKER_BUILD_EXTRA_ARGS="--security-opt seccomp=unconfined"
+fi
+
 USERID=$(id -u)
 USER=$(whoami)
 
@@ -71,6 +77,12 @@ fi
 DEVICE_SND=""
 if [[ -d /dev/snd ]]; then
     DEVICE_SND="--device /dev/snd"
+fi
+
+# Jammy workaround for docker
+# https://pascalroeleven.nl/2021/09/09/ubuntu-21-10-and-fedora-35-in-docker/
+if [[ ${DISTRO} == 'jammy' ]]; then
+  EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --security-opt seccomp=unconfined"
 fi
 
 # DOCKER_FIX is for workaround https://github.com/docker/docker/issues/14203
