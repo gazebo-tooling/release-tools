@@ -617,6 +617,8 @@ def go(argv):
                     # Need to use JENKINS_NODE_TAG parameter for large memory nodes
                     # since it runs qemu emulation
                     linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
+                elif(d == 'jammy'):
+                    linux_platform_params['JENKINS_NODE_TAG'] = 'docker-jammy'
                 elif ('ignition-physics' in args.package_alias):
                     linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
 
