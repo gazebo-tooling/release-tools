@@ -25,11 +25,13 @@ USER=$(whoami)
 
 # platform support starts on versions greater than 17.07
 PLAFTORM_PARAM=
+DOCKER_CLI_PLUGIN=
 if [[ ${DISTRO} == 'jammy' && ${ARCH} == 'armhf' ]]; then
   PLAFTORM_PARAM="--platform=linux/armhf"
+  DOCKER_CLI_PLUGIN="buildx"
 fi
 
-sudo docker build ${PLAFTORM_PARAM} ${_DOCKER_BUILD_EXTRA_ARGS} \
+sudo docker ${DOCKER_CLI_PLUGIN} build ${PLAFTORM_PARAM} ${_DOCKER_BUILD_EXTRA_ARGS} \
                   --build-arg GID=$(id -g $USER) \
                   --build-arg USERID=$USERID \
                   --build-arg USER=$USER \
