@@ -595,6 +595,8 @@ def go(argv):
             error("Distro not supported in code")
 
         for d in distros_dic:
+            if (d != 'focal'):
+                print('!! Skipping for testing proposes: ' + d)
             for a in distros_dic[d]:
                 # Filter prerelease and nightly architectures
                 if (PRERELEASE or NIGHTLY):
