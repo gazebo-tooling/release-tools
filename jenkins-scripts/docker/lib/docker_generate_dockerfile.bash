@@ -97,8 +97,17 @@ case ${ARCH} in
        FROM_VALUE=${ARCH}/${LINUX_DISTRO}:${DISTRO}
      fi
      ;;
-   'armhf' | 'arm64' )
-       FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
+   'armhf')
+     # There is no osrf/jammy_armhf image. Trying new
+     # platform support in docker
+     if [[ ${DISTRO} == 'jammy' ]]; then
+      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
+     else
+      FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
+     fi
+     ;;
+  'arm64')
+     FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
      ;;
   *)
      echo "Arch unknown"

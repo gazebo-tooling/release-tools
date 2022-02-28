@@ -625,6 +625,15 @@ def go(argv):
                 if (NIGHTLY and a == 'i386'):
                     continue
 
+                # control nightly generation using a single machine to process
+                # all distribution builds to avoid race conditions. Note: this
+                # assumes that large-memory nodes are beind used for nightly
+                # tags.
+                # https://github.com/ignition-tooling/release-tools/issues/644
+                if (NIGHTLY):
+                    assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
+                    linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
+
                 linux_platform_params_query = urllib.parse.urlencode(linux_platform_params)
 
                 url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, linux_platform_params_query)
