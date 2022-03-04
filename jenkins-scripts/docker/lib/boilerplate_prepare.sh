@@ -266,10 +266,12 @@ fi
 rm -fr Dockerfile
 rm -fr ${WORKSPACE}/build.sh
 
+set +x
 echo '# BEGIN SECTION: node info'
 echo "MAKE_JOBS: ${MAKE_JOBS}"
 echo "Docker version: $(docker --version)"
 echo '# END SECTION'
+set -x
 
 # to kill global bash variables
 echo "${MAKE_JOBS}" > "${WORKSPACE}/make_jobs"
