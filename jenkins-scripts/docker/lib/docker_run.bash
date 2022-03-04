@@ -43,10 +43,6 @@ echo '# BEGIN SECTION: see build.sh script'
 cat build.sh
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: node info'
-echo "Docker version: $(docker --version)"
-echo '# END SECTION'
-
 if $USE_DOCKER_IN_DOCKER; then
  EXTRA_PARAMS_STR="--privileged \
                     -v /var/run/docker.sock:/var/run/docker.sock"

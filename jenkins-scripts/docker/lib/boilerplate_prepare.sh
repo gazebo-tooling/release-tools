@@ -266,7 +266,11 @@ fi
 rm -fr Dockerfile
 rm -fr ${WORKSPACE}/build.sh
 
-# Workaround to fix several nested levels of calls to the same script that seems
+echo '# BEGIN SECTION: node info'
+echo "MAKE_JOBS: ${MAKE_JOBS}"
+echo "Docker version: $(docker --version)"
+echo '# END SECTION'
+
 # to kill global bash variables
 echo "${MAKE_JOBS}" > "${WORKSPACE}/make_jobs"
 cd ${WORKSPACE}
