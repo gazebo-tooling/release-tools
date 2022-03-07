@@ -290,14 +290,14 @@ ignition_collection_jobs =
         'sdformat-install-sdformat12_pkg-focal-amd64'
   ],
   'garden' : [
-        'ign_common-ign-4-win',
+        'ign_common-ci-win',
         'ign_fuel-tools-ci-win',
         'ign_gazebo-ci-win',
         'ign_gui-ci-win',
         'ign_launch-ci-win',
         'ign_math-ci-win',
         'ign_msgs-ci-win',
-        'ign_physics-ign-5-win',
+        'ign_physics-ci-win',
         'ign_plugin-ign-1-win',
         'ign_rendering-ci-win',
         'ign_sensors-ci-win',
