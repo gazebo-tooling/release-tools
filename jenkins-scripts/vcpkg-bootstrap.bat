@@ -40,7 +40,7 @@ set ogre_portfile=%VCPKG_DIR%\ports\ogre\portfile.cmake
 powershell -Command "(Get-Content %ogre_portfile%) -replace 'Release', 'release' | Out-File -encoding ASCII %ogre_portfile%" || goto :error
 :: 4. Disable DEBUG libraries in gdal
 set gdal_cmakefile=%VCPKG_DIR%\ports\gdal\vcpkg-cmake-wrapper.cmake
-powershell -Command "(Get-Content %gdal_cmakefile%) -replace 'find_library\(GDAL_LIBRARY_DEBUG', '#find_library(GDAL_LIBRARY_DEBUG' | Out-File -encoding ASCII %ogre_cmakefile%" || goto :error
+powershell -Command "(Get-Content %gdal_cmakefile%) -replace 'find_library\(GDAL_LIBRARY_DEBUG', '#find_library(GDAL_LIBRARY_DEBUG' | Out-File -encoding ASCII %gdal_cmakefile%" || goto :error
 echo # END SECTION
 
 echo "Using SNAPSHOT: bootstrap vcpkg executable"
