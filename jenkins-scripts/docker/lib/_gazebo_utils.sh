@@ -42,7 +42,7 @@ if $RUN_AUTOPKGTEST; then
 echo '# BEGIN SECTION: run autopkgtest'
 cd $WORKSPACE/pkgs
 set +e
-sudo autopkgtest -B *.deb *.dsc -- null
+sudo autopkgtest --no-auto-control -B *.deb *.dsc -- null
 # autopkgtest will return 0 if there are successful tests and 8 if there are no tests
 testret=\$?
 if [[ \$testret != 0 ]] && [[ \$testret != 8 ]]; then
