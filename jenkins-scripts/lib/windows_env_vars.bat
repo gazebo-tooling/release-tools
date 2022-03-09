@@ -15,6 +15,6 @@ set VCPKG_CMD=%VCPKG_DIR%\vcpkg.exe
 set VCPKG_CMAKE_TOOLCHAIN_FILE=%VCPKG_DIR%/scripts/buildsystems/vcpkg.cmake
 if NOT DEFINED VCPKG_SNAPSHOT (
   :: see https://github.com/microsoft/vcpkg/releases
-  set VCPKG_SNAPSHOT=2021.05.12
+  set VCPKG_SNAPSHOT=2022.02.23
 )
 goto :EOF
