@@ -516,6 +516,9 @@ all_branches.each { branch ->
   OSRFWinCompilationAnyGitHub.create(gazebo_win_ci_any_job, "osrf/gazebo")
   gazebo_win_ci_any_job.with
   {
+      // Windows CI builds don't work at the moment due to an old version of tbb
+      disabled()
+
       steps {
         batchFile("""\
               call "./scripts/jenkins-scripts/gazebo-default-devel-windows7-amd64.bat"
@@ -535,6 +538,9 @@ all_branches.each { branch ->
       triggers {
         scm('@daily')
       }
+
+      // Windows CI builds don't work at the moment due to an old version of tbb
+      disabled()
 
       steps {
         batchFile("""\
