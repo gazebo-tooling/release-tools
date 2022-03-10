@@ -1,13 +1,13 @@
 # Information on build.osrfoundation.org nodes
 
-## Jenkins node tags
+## Jenkins node labels
 
-Jenkins tags are mainly created from chef provisioning of the nodes and mainly
+Jenkins labels are mainly created from chef provisioning of the nodes and mainly
 used automatically from DSL code when it generates Jenkins jobs. The buildfarm
-probably has more tags than the ones in the table, they are probably not being
+probably has more labels than the ones in the table, they are probably not being
 used (can check this in the Jenkins UI)
 
-| Tag name | Description | Requirements |
+| Label name | Description | Requirements |
 | -------- | ----------- | ------------ |
 | docker   | Node has capabilities to run Docker CI (standard Linux CI) | Linux system with docker installed |
 | gpu-reliable | Node has a real GPU able to run simulation for Gazebo | Nvidia card and nvidia-docker installed on Linux |
@@ -22,11 +22,11 @@ used (can check this in the Jenkins UI)
 | win | Node is able to run Windows CI | Windows10 system |
 | win_testing | Node is ready to test a new vcpkg snapshot | Windows10 system |
 
-## Provision of Node tags
+## Provision of Node labels
 
 ### Agents
 
-Chef provision of node tag is being done by code in the [osrf_jenkins_agent](https://github.com/osrf/osrf_jenkins_agent/)
+Chef provision of node labels is being done by code in the [osrf_jenkins_agent](https://github.com/osrf/osrf_jenkins_agent/)
 repository.
 
 Note: check https://github.com/osrf/chef-osrf/issues/136 to see the status of the automation.
