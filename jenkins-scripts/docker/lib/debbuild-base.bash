@@ -163,6 +163,7 @@ fi
 # handled by symlinks (like cmake) in the repository can not be copied directly.
 # Need special care to copy, using first a --dereference
 cp -a --dereference \${PACKAGE_RELEASE_DIR}/* .
+ls -R --color
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install build dependencies'
