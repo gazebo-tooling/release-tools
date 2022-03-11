@@ -244,10 +244,13 @@ goto :EOF
 :: ##################################
 :check_vcpkg_snapshot
 setlocal EnableDelayedExpansion
-for /f %%i in ('git -C %VCPKG_DIR% describe --tags HEAD') do set VCPKG_HEAD=%%i
-echo "VCPKG_HEAD is %VCPKG_HEAD%"
-if NOT %VCPKG_HEAD% == %VCPKG_SNAPSHOT% (
+:: look for same sha in repository HEAD and in the tag
+for /f %%i in ('git -C %VCPKG_DIR% rev-parse HEAD') do set VCPKG_HEAD=%%i
+for /f %%i in ('git -C %VCPKG_DIR% rev-list -n 1 %VCPKG_SNAPSHOT%') do set VCPKG_TAG=%%i
+if NOT %VCPKG_HEAD% == %VCPKG_TAG% (
   echo The vpckg directory is not using the expected snapshot %VCPKG_SNAPSHOT%
+  echo VCPKG_HEAD points to %VCPKG_HEAD% while VCPKG_TAG points to %VCPKG_TAG%
+  echo They should point to the same commit hash
   goto :error
 )
 goto :EOF
