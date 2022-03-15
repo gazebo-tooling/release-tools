@@ -22,6 +22,16 @@ used (can check this in the Jenkins UI)
 | win | Node is able to run Windows CI | Windows10 system |
 | win_testing | Node is ready to test a new vcpkg snapshot | Windows10 system |
 
+### Node labels for nightlies
+
+For generating nightlies controlling the generation order of every library, build.osrfoundation.org use the approach of [using a single node to process the whole ignition family for a given Ubuntu distribution](https://github.com/ignition-tooling/release-tools/issues/644). Current assignment of nodes is as follow:
+
+| Label name | Description |
+| -------- | ----------- |
+| linux-nightly-bionic | r2d2  |
+| linux-nightly-focal | optimus |
+| linux-nightly-jammy | linux-ip-172-30-1-216 |
+
 ## Provision of Node labels
 
 ### Agents
