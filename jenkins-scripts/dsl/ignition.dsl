@@ -311,7 +311,7 @@ ignition_software.each { ign_sw ->
         if (ign_sw == 'physics')
         {
           label "huge-memory"
-          // on ARM native nodes in buildfarm we need to restrict to 2 the
+          // on ARM native nodes in buildfarm we need to restrict to 1 the
           // compilation threads to avoid OOM killer
           extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
         }
@@ -478,7 +478,7 @@ all_debbuilders().each { debbuilder_name ->
   // Ignition physics consumes huge amount of memory making arm node to FAIL
   // Force here to use one compilation thread
   if (debbuilder_name.contains("-physics"))
-    extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=2; fi'
+    extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
 
   println("Generating: ${debbuilder_name}-debbuilder")
   def build_pkg_job = job("${debbuilder_name}-debbuilder")
