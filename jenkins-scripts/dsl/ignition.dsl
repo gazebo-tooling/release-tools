@@ -313,7 +313,7 @@ ignition_software.each { ign_sw ->
           label "huge-memory"
           // on ARM native nodes in buildfarm we need to restrict to 2 the
           // compilation threads to avoid OOM killer
-          extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=2; fi'
+          extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
         }
 
         steps {
