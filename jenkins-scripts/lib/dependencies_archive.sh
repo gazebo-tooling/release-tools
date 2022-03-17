@@ -384,20 +384,6 @@ fi
 # IGNITION
 #
 
-if [[ ${IGN_MATH_MAJOR_VERSION} -eq 4 ]]; then
-  IGN_MATH_DEPENDENCIES="libeigen3-dev \\
-                         libpython3-dev \\
-                         ruby-dev \\
-                         swig \\
-                         libignition-cmake-dev"
-else
-  IGN_MATH_DEPENDENCIES="libeigen3-dev \\
-                         libpython3-dev \\
-                         ruby-dev \\
-                         swig \\
-                         libignition-cmake2-dev"
-fi
-
 # IGN_TRANSPORT related dependencies. Default value points to the development
 # version
 if [[ -z ${IGN_TRANSPORT_MAJOR_VERSION} ]]; then
@@ -427,26 +413,6 @@ elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 8 ]]; then
 fi
 
 export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} libignition-tools-dev"
-
-IGN_COMMON_NO_IGN_DEPENDENCIES="pkg-config     \\
-                         ${pythonv}            \\
-                         ruby-ronn             \\
-                         uuid-dev              \\
-                         libfreeimage-dev      \\
-                         libgts-dev            \\
-                         libavformat-dev       \\
-                         libavcodec-dev        \\
-                         libswscale-dev        \\
-                         libavutil-dev         \\
-                         libavdevice-dev       \\
-                         libtinyxml2-dev       \\
-                         uuid-dev"
-
-IGN_COMMON_DEPENDENCIES="${IGN_COMMON_NO_IGN_DEPENDENCIES} \\
-                     libignition-cmake-dev \\
-                     libignition-cmake2-dev \\
-                     libignition-math4-dev \\
-                     libignition-math6-dev"
 
 IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake2-dev \\
                              libignition-common3-dev \\
