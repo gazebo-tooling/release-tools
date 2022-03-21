@@ -73,10 +73,10 @@ echo '# END SECTION'
 
 echo "#BEGIN SECTION: brew doctor analysis"
 brew missing || brew install $(brew missing | awk '{print $2}') && brew missing
-# if proj@7 installed, skip brew doctor
-# remove this line when gdal stops depending on a deprecated version of proj
-# https://github.com/Homebrew/homebrew-core/issues/82441
-brew list | grep '^proj@7$' || brew doctor || echo MARK_AS_UNSTABLE
+# if szip is installed, skip brew doctor
+# remove this line when hdf5 stops depending on the deprecated szip formula
+# https://github.com/Homebrew/homebrew-core/issues/96930
+brew list | grep '^szip$' || brew doctor || echo MARK_AS_UNSTABLE
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: re-add group write permissions"
