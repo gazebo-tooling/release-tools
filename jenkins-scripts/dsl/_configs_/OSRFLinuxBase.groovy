@@ -19,7 +19,26 @@ class OSRFLinuxBase
     {
         label "docker"
 
+        parameters {
+          booleanParam('WORKSPACE_CLEANUP', true,
+                       'Disable to keep build artifacts in Jenkins for debugging')
+        }
+
         publishers {
+          postBuildScripts {
+            steps {
+              shell("""\
+                #!/bin/bash -xe
+                # Clean up build directory no matter what have happened to the
+                # build
+                if \${WORKSPACE_CLEANUP} && [[ -d \${WORKSPACE}/build ]]; then
+                  sudo rm -fr \${WORKSPACE}/build
+                  touch \${WORKSPACE}/build_dir_was_cleaned_up
+                fi
+                """.stripIndent())
+            }
+          }
+
           archiveArtifacts {
             pattern('Dockerfile')
             pattern('build.sh')
