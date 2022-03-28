@@ -24,10 +24,22 @@ class OSRFLinuxBase
                        'Disable to keep build artifacts in Jenkins for debugging')
         }
 
-        publishers {
-          postBuildScripts {
-            steps {
-              shell("""\
+        // No DSL code to support new changes in postBuildScripts, injection DSL
+        // code directly. https://issues.jenkins.io/browse/JENKINS-66189
+        configure { project ->
+          project / 'publishers' /
+          'org.jenkinsci.plugins.postbuildscript.PostBuildScript' / 'config' / 'buildSteps' / 'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep'  {
+            results {
+              string 'SUCCESS'
+              string 'NOT_BUILT'
+              string 'ABORTED'
+              string 'FAILURE'
+              string 'UNSTABLE'
+            }
+            role('SLAVE')
+            buildSteps {
+              'hudson.tasks.Shell' {
+                command("""\
                 #!/bin/bash -xe
                 # Clean up build directory no matter what have happened to the
                 # build
@@ -36,21 +48,21 @@ class OSRFLinuxBase
                   touch \${WORKSPACE}/build_dir_was_cleaned_up
                 fi
                 """.stripIndent())
+              }
             }
-
-            onlyIfBuildSucceeds(false)
-            onlyIfBuildFails(false)
-         }
-
-          archiveArtifacts {
-            pattern('Dockerfile')
-            pattern('build.sh')
-            // there are no guarantees that a job using OSRFLinuxBase generate
-            // these files (i.e: testing job). Do not fail if they are not
-            // present
-            allowEmpty(true)
+          }
         }
-      }
+
+        publishers {
+          archiveArtifacts {
+             pattern('Dockerfile')
+             pattern('build.sh')
+             // there are no guarantees that a job using OSRFLinuxBase generate
+             // these files (i.e: testing job). Do not fail if they are not
+             // present
+             allowEmpty(true)
+          }
+        }
     }
   }
 }
