@@ -37,7 +37,10 @@ class OSRFLinuxBase
                 fi
                 """.stripIndent())
             }
-          }
+
+            onlyIfBuildSucceeds(false)
+            onlyIfBuildFails(false)
+         }
 
           archiveArtifacts {
             pattern('Dockerfile')
