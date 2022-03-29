@@ -27,29 +27,36 @@ class OSRFLinuxBase
         // No DSL code to support new changes in postBuildScripts, injection DSL
         // code directly. https://issues.jenkins.io/browse/JENKINS-66189
         configure { project ->
-          project / 'publishers' /
-          'org.jenkinsci.plugins.postbuildscript.PostBuildScript' / 'config' / 'buildSteps' / 'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep'  {
-            results {
-              string 'SUCCESS'
-              string 'NOT_BUILT'
-              string 'ABORTED'
-              string 'FAILURE'
-              string 'UNSTABLE'
-            }
-            role('SLAVE')
+          project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' / 'config' {
+            scriptFiles()
+            groovyScripts()
             buildSteps {
-              'hudson.tasks.Shell' {
-                command("""\
-                #!/bin/bash -xe
-                # Clean up build directory no matter what have happened to the
-                # build
-                if \${WORKSPACE_CLEANUP} && [[ -d \${WORKSPACE}/build ]]; then
-                  sudo rm -fr \${WORKSPACE}/build
-                  touch \${WORKSPACE}/build_dir_was_cleaned_up
-                fi
-                """.stripIndent())
+              'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep'  {
+                results {
+                  string 'SUCCESS'
+                  string 'NOT_BUILT'
+                  string 'ABORTED'
+                  string 'FAILURE'
+                  string 'UNSTABLE'
+                }
+                role('SLAVE')
+                buildSteps {
+                  'hudson.tasks.Shell' {
+                    command("""\
+                    #!/bin/bash -xe
+                    # Clean up build directory no matter what have happened to the
+                    # build
+                    if \${WORKSPACE_CLEANUP} && [[ -d \${WORKSPACE}/build ]]; then
+                      sudo rm -fr \${WORKSPACE}/build
+                      touch \${WORKSPACE}/build_dir_was_cleaned_up
+                    fi
+                    """.stripIndent())
+                    configuredLocalRules()
+                  }
+                }
               }
             }
+            markBuildUnstable(false)
           }
         }
 
