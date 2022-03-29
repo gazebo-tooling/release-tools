@@ -136,35 +136,52 @@ other_supported_distros.each { distro ->
   } // end of arch
 } // end of distro
 
-// BRANCHES CI JOB @ SCM/DAILY
+void generate_ci_job(sdformat_ci_job, branch, distro, arch, extra_cmake = '')
+{
+  OSRFLinuxCompilation.create(sdformat_ci_job)
+  OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat",
+                    get_sdformat_branch_name(branch))
+  sdformat_ci_job.with
+  {
+    steps {
+      shell("""\
+      #!/bin/bash -xe
+
+      export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
+      export DISTRO=${distro}
+      export ARCH=${arch}
+      /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
+      """.stripIndent())
+    }
+  }
+}
+
+// BRANCHES CI JOB @ SCM
 sdformat_supported_branches.each { branch ->
   ci_distro.each { distro ->
     supported_arches.each { arch ->
-      // ci_main job for the rest of arches / scm@daily
+      // ci job for the rest of arches / scm@daily
       def sdformat_ci_job = job("sdformat-ci-${branch}-${distro}-${arch}")
-      OSRFLinuxCompilation.create(sdformat_ci_job)
-      OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat",
-                        get_sdformat_branch_name(branch))
+      generate_ci_job(sdformat_ci_job, branch, distro, arch)
       sdformat_ci_job.with
       {
         triggers {
           scm('@daily')
         }
-
-        steps {
-          shell("""\
-          #!/bin/bash -xe
-
-  	  export DISTRO=${distro}
-          export ARCH=${arch}
-          /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
-          """.stripIndent())
+      }
+      // ci_asan job for the rest of arches / scm@weekend
+      def sdformat_ci_asan_job = job("sdformat-ci_asan-${branch}-${distro}-${arch}")
+      generate_ci_job(sdformat_ci_asan_job, branch, distro, arch,
+                      "-DIGN_SANITIZERS=Address")
+      sdformat_ci_asan_job.with
+      {
+        triggers {
+          scm(Globals.CRON_ON_WEEKEND)
         }
       }
-    } // end of arch
-  } // end of distro
-} // end of distro
-//
+    }
+  }
+}
 
 // EXPERIMENTAL ARCHES @ SCM/WEEKLY
 ci_distro.each { distro ->

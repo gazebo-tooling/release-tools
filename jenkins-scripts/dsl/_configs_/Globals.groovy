@@ -12,6 +12,7 @@ class Globals
 
 
    static CRON_EVERY_THREE_DAYS = 'H H * * H/3'
+   static CRON_ON_WEEKEND = 'H H * * 6-7'
 
    static gpu_by_distro  = [ bionic  : [ 'nvidia' ]]
 
