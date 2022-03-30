@@ -5,13 +5,26 @@ set -e
 # Print a summary of a release, with its changelog and contributors
 #
 # cd <path_to_source_code>
-# bash release_summary.bash gui 5.3.0 5.4.0
+# bash release_summary.bash 5.3.0 5.4.0
 
-LIB=$1
-PREV=$2
-NEW=$3
+PREV=$1
+NEW=$2
 
 MAJOR=${PREV%.*.*}
+
+if [[ ! -f CMakeLists.txt  ]]; then
+  echo "No CMakeLists.txt detected. Are you in an source repository?"
+  exit 1
+fi
+
+# Parse CMakeLists project () for sdformat and ignitions
+LIB=$(sed -n 's/^project[[:space:]]*(\(ignition-\)\?\([a-Z]*\)[0-9]*.*)/\2/p' CMakeLists.txt)
+
+if [ -z "${LIB}" ]; then
+  echo "Parsing of CMakeLists.txt project tag failed"
+  echo "Probably an internal bug"
+  exit 1
+fi
 
 echo "---------------------------------"
 NAME_FOR_TAGS=ignition-${LIB}
@@ -38,7 +51,11 @@ echo ""
 
 git fetch --all --tags
 
-git checkout ${NAME_FOR_BRANCH}${MAJOR}
+if ! git checkout "${NAME_FOR_BRANCH}${MAJOR}"; then
+  echo "Branch ${NAME_FOR_BRANCH}${MAJOR} was not found in the repository"
+  exit 1
+fi
+
 git pull origin ${NAME_FOR_BRANCH}${MAJOR}
 
 echo ""
