@@ -41,6 +41,7 @@ class GenericCompilation
 
      job.with
      {
+        concurrentBuild(true)
         properties {
           priority 300
         }
