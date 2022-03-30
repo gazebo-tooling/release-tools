@@ -307,12 +307,13 @@ ignition_software.each { ign_sw ->
                         all_branches(ign_sw) - [ 'main'])
       abi_job.with
       {
+        extra_str=""
         if (ign_sw == 'physics')
         {
           label "huge-memory"
-          // on ARM native nodes in buildfarm we need to restrict to 2 the
+          // on ARM native nodes in buildfarm we need to restrict to 1 the
           // compilation threads to avoid OOM killer
-          GLOBAL_SHELL_CMD = GLOBAL_SHELL_CMD + '\nif [[ $(uname -m) == "aarch64" ]]; then export MAKE_JOBS=2; fi'
+          extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
         }
 
         steps {
@@ -322,6 +323,7 @@ ignition_software.each { ign_sw ->
                 export DISTRO=${distro}
 
                 ${GLOBAL_SHELL_CMD}
+                ${extra_str}
 
                 export ARCH=${arch}
                 export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
@@ -472,6 +474,11 @@ all_debbuilders().each { debbuilder_name ->
   extra_str = ""
   if (debbuilder_name.contains("gazebo") || debbuilder_name == "transport7")
     extra_str="export NEED_C17_COMPILER=true"
+
+  // Ignition physics consumes huge amount of memory making arm node to FAIL
+  // Force here to use one compilation thread
+  if (debbuilder_name.contains("-physics"))
+    extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
 
   println("Generating: ${debbuilder_name}-debbuilder")
   def build_pkg_job = job("${debbuilder_name}-debbuilder")
