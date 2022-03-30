@@ -15,7 +15,9 @@ USAGE = 'release.py <package> <version> <jenkinstoken>'
 try:
     JENKINS_URL = os.environ['JENKINS_URL']
 except KeyError:
-    JENKINS_URL = 'http://build.osrfoundation.org'
+    JENKINS_URL = 'https://build.osrfoundation.org'
+if not JENKINS_URL.startswith('https:'):
+    print('WARNING: Jenkins url `%s` is not secure.' % JENKINS_URL, file=sys.stderr)
 JOB_NAME_PATTERN = '%s-debbuilder'
 JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
 GENERIC_BREW_PULLREQUEST_JOB='generic-release-homebrew_pull_request_updater'
