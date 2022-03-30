@@ -31,6 +31,7 @@ class OSRFCIWorkFlowMultiAnyGitHub
   {
     job.with
     {
+      concurrentBuild(true)
       logRotator {
         numToKeep(25)
       }
