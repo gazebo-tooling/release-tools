@@ -158,11 +158,11 @@ if $NIGHTLY_MODE; then
   rm -fr .hg* .git*
   # Versions of dh-make lower than 2.202003 are buggy using defaultless
   # see: https://salsa.debian.org/debian/dh-make/-/merge_requests/8
-  extra_dh_make_str = '--defaultless'
+  extra_dh_make_str='--defaultless'
   if dpkg --compare-versions \$(apt-cache show dh-make | sed -n "s/Version: \\(.*\\)/\\1/p") lt 2.202003; then
-    extra_dh_make_str = ''
+    extra_dh_make_str=''
   fi
-  echo | dh_make -y -s --createorig \${extra_dh_make_str} --defaultless -p${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
+  echo | dh_make -y -s --createorig \${extra_dh_make_str} -p${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
   rm -fr debian/
 fi
 
