@@ -46,8 +46,8 @@ class OSRFLinuxBase
                     #!/bin/bash -xe
                     # Clean up build directory no matter what have happened to the
                     # build except to test_results
-                    if \${WORKSPACE_CLEANUP} && [[ -d \${WORKSPACE}/build ]]; then
-                      sudo find \${WORKSPACE}/build -maxdepth 1 ! -name test_results -exec rm -rv {} \\;
+                    if \${WORKSPACE_CLEANUP} && [ -d \${WORKSPACE}/build ]; then
+                      sudo find \${WORKSPACE}/build -maxdepth 1 ! -name test_results -exec rm -rf {} \\;
                       echo "Disable WORKSPACE_CLEANUP parameter to avoid cleanup" > \${WORKSPACE}/build/build_dir_was_cleaned_up
                     fi
                     """.stripIndent())
