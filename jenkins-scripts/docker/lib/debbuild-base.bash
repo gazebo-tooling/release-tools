@@ -156,7 +156,14 @@ cd \`find $WORKSPACE/build -mindepth 1 -type d |head -n 1\`
 # If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
 if $NIGHTLY_MODE; then
   rm -fr .hg* .git*
-  echo | dh_make -y -s --createorig --defaultless -p${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
+  # Versions of dh-make lower than 2.202003 are buggy using defaultless
+  # see: https://salsa.debian.org/debian/dh-make/-/merge_requests/8
+  if dpkg --compare-versions \$(apt-cache show dh-make | sed -n "s/Version: \\(.*\\)/\\1/p") gt 2.202003; then
+    echo | dh_make -y -s --createorig -p${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
+    rm -fr debian/
+  else
+    echo | dh_make -y -s --createorig --defaultless -p${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
+  fi
 fi
 
 # Adding extra directories to code. debian has no problem but some extra directories
