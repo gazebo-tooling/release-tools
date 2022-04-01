@@ -16,7 +16,6 @@ fi
 
 git -C $(${BREW_BINARY} --repo) fsck
 export HOMEBREW_UPDATE_TO_TAG=1
-export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
 ${BREW_BINARY} update
 # manually exclude a ruby warning that jenkins thinks is from clang
 # https://github.com/osrf/homebrew-simulation/issues/1343

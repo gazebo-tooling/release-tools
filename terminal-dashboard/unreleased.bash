@@ -29,6 +29,7 @@ PACKAGE_REPO=${2:-stable}
 for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
   LIB_SHORT="${LIB/ignition-/ign-}"
   LIB_NAME=${LIB_SHORT//[[:digit:]]/}
+  LIB_SHORT="${LIB_SHORT/sdformat/sdf}"
 
   PKG_VERSION=$(wget -qO- http://packages.osrfoundation.org/gazebo/ubuntu-${PACKAGE_REPO}/dists/focal/main/binary-amd64/Packages | \
     grep -1 -m 1 -e "Source: ${LIB}" -e "Package: ${LIB}" | \

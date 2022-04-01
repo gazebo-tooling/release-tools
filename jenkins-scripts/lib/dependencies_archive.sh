@@ -384,12 +384,19 @@ fi
 # IGNITION
 #
 
-IGN_MATH_DEPENDENCIES="libeigen3-dev \\
-                       libpython3-dev \\
-                       ruby-dev \\
-                       swig \\
-                       libignition-cmake-dev \\
-                       libignition-cmake2-dev"
+if [[ ${IGN_MATH_MAJOR_VERSION} -eq 4 ]]; then
+  IGN_MATH_DEPENDENCIES="libeigen3-dev \\
+                         libpython3-dev \\
+                         ruby-dev \\
+                         swig \\
+                         libignition-cmake-dev"
+else
+  IGN_MATH_DEPENDENCIES="libeigen3-dev \\
+                         libpython3-dev \\
+                         ruby-dev \\
+                         swig \\
+                         libignition-cmake2-dev"
+fi
 
 # IGN_TRANSPORT related dependencies. Default value points to the development
 # version
