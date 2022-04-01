@@ -623,7 +623,7 @@ ignition_software.each { ign_sw ->
 
   // ign-gazebo only support Windows from ign-gazebo5
   if (ign_sw == 'gazebo')
-    supported_branches = [ 'ign-gazebo5', 'ign-gazebo6', 'main' ]
+    supported_branches = [ 'ign-gazebo6', 'main' ]
 
   // ign-launch only support Windows from ign-launch5
   if (ign_sw == 'launch')
