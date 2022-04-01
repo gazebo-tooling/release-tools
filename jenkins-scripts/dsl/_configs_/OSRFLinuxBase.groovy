@@ -62,12 +62,12 @@ class OSRFLinuxBase
 
         publishers {
           archiveArtifacts {
-             pattern('Dockerfile')
-             pattern('build.sh')
-             // there are no guarantees that a job using OSRFLinuxBase generate
-             // these files (i.e: testing job). Do not fail if they are not
-             // present
-             allowEmpty(true)
+            pattern('Dockerfile')
+            pattern('build.sh')
+            // there are no guarantees that a job using OSRFLinuxBase generate
+            // these files (i.e: testing job). Do not fail if they are not
+            // present
+            allowEmpty(true)
           }
         }
     }
