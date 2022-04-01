@@ -45,18 +45,18 @@ ignition_no_test            = [  ]
 // main, ABI check, install pkg)
 ignition_branches           = [ 'cmake'      : [ '2' ],
                                 'common'     : [ '1', '3', '4' ],
-                                'fuel-tools' : [ '1', '4', '6', '7' ],
-                                'gazebo'     : [ '3', '5', '6' ],
-                                'gui'        : [ '0', '3', '5', '6' ],
-                                'launch'     : [ '2', '4', '5' ],
+                                'fuel-tools' : [ '1', '4', '7' ],
+                                'gazebo'     : [ '3', '6' ],
+                                'gui'        : [ '0', '3', '6' ],
+                                'launch'     : [ '2', '5' ],
                                 'math'       : [ '4', '6' ],
-                                'msgs'       : [ '1', '5', '7', '8' ],
-                                'physics'    : [ '2', '4', '5' ],
+                                'msgs'       : [ '1', '5', '8' ],
+                                'physics'    : [ '2', '5' ],
                                 'plugin'     : [ '1' ],
-                                'rendering'  : [ '3', '5', '6' ],
-                                'sensors'    : [ '3', '5', '6' ],
+                                'rendering'  : [ '3', '6' ],
+                                'sensors'    : [ '3', '6' ],
                                 'tools'      : [ '1' ],
-                                'transport'  : [ '4', '8', '10', '11' ],
+                                'transport'  : [ '4', '8', '11' ],
                                 'utils'      : [ '1' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
@@ -630,7 +630,7 @@ ignition_software.each { ign_sw ->
 
   // ign-gazebo only support Windows from ign-gazebo5
   if (ign_sw == 'gazebo')
-    supported_branches = [ 'ign-gazebo5', 'ign-gazebo6', 'main' ]
+    supported_branches = [ 'ign-gazebo6', 'main' ]
 
   // ign-launch only support Windows from ign-launch5
   if (ign_sw == 'launch')
