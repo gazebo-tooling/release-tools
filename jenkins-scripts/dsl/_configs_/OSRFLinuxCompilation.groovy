@@ -18,12 +18,13 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
 
     job.with
     {
-       wrappers {
-         preBuildCleanup {
-           includePattern('build/*_results/')
-           includePattern('*_results/')
-           deleteDirectories()
-         }
+      wrappers {
+        preBuildCleanup {
+          includePattern('build/*_results/')
+          includePattern('*_results/')
+          deleteDirectories()
+        }
+      }
     }
 
     /* Properties from generic compilations */
