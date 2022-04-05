@@ -22,14 +22,18 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 COLLECTION=$1
 PACKAGE_REPO=${2:-stable}
-ARCHS=( "amd64" "i386" "arm64" "armhf")
-DISTROS=( "ubuntu" "debian" )
 
 COLUMN="        "
-
 GREEN="\e[42m"
 YELLOW="\e[43m"
 RED="\e[101m"
+
+ARCHS=( "amd64")
+DISTROS=( "ubuntu" )
+if [[ $PACKAGE_REPO != "nightly" ]]; then
+  ARCHS+=( "i386" "arm64" "armhf")
+  DISTROS+=( "debian" )
+fi
 
 for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
   echo -e "\e[107m\e[90m${LIB}\e[49m\e[39m"
@@ -40,6 +44,9 @@ for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
   do
     if [[ $DISTRO == "ubuntu" ]]; then
       VERS=( "bionic" "focal" )
+      if [[ $COLLECTION == "fortress" || $COLLECTION == "garden" ]]; then
+        VERS+=( "jammy" )
+      fi
     else
       VERS=( "buster" ) # "sid"
     fi
@@ -58,6 +65,8 @@ for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
         echo -n " "
 
         if [[ $ARCH == "i386" && $VER == "focal" ]]; then
+          PKG_VERSION="disabled"
+        elif [[ $ARCH == "i386" && $VER == "jammy" ]]; then
           PKG_VERSION="disabled"
         else
           # The Source field is not mandatory and it is probably not present when
