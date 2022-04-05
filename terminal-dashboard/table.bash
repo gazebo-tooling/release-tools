@@ -43,9 +43,12 @@ for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
   for DISTRO in "${DISTROS[@]}"
   do
     if [[ $DISTRO == "ubuntu" ]]; then
-      VERS=( "bionic" "focal" )
-      if [[ $COLLECTION == "fortress" || $COLLECTION == "garden" ]]; then
-        VERS+=( "jammy" )
+      if [[ $COLLECTION == "citadel" ]]; then
+        VERS=( "bionic" "focal" )
+      elif [[ $COLLECTION == "fortress" ]]; then
+        VERS=( "bionic" "focal" "jammy" )
+      elif [[ $COLLECTION == "garden" ]]; then
+        VERS=( "focal" "jammy" )
       fi
     else
       VERS=( "buster" ) # "sid"
