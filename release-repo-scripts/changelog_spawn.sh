@@ -20,6 +20,8 @@
 # $ cd $software-release
 # $ ./changelog_spawn <version> [msg]
 
+set -e
+
 version=${1}
 msg=${2}
 
