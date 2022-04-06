@@ -2,7 +2,9 @@
 
 set -e
 
-# Print a summary of a release, with its changelog and contributors
+# Print a markdown summary of a release (not Changelog.md entries), with its 
+# changelog and contributors. The script is designed to publish release summaries 
+# from the internal Open Robotics team to the Community (usually in the public forum).
 #
 # cd <path_to_source_code>
 # bash release_summary.bash 5.3.0 5.4.0
