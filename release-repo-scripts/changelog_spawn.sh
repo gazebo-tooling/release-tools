@@ -39,6 +39,12 @@ if [[ ${version%-*} == ${version} ]]; then
   exit 1
 fi
 
+if ! debchange --version > /dev/null 2>/dev/null; then
+  echo "debchange is not installed in the system."
+  echo "On Ubuntu/Debian systems please run: sudo apt-get install -y devscripts"
+  exit 1
+fi
+
 changelog_example=$(find . -name changelog | head -n 1)
 
 if [[ -z ${changelog_example} ]]; then
