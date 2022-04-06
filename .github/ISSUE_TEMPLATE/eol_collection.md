@@ -22,14 +22,17 @@ When opening PRs, add a link back to this issue for easier tracking.
 - [ ] Archive release repos in [ignition-release](https://github.com/ignition-release) for all libraries after the last release has been made
 - [ ] Update `release-tools` after all releases have been made ([example](https://github.com/ignition-tooling/release-tools/pull/369))
     * <!-- LINK PR HERE -->
-- [ ] Deprecate homebrew bottles (don't disable them) ([example](https://github.com/osrf/homebrew-simulation/pull/1242))
+- [ ] Deprecate homebrew bottles if they aren't deprecated yet (don't disable them) ([example](https://github.com/osrf/homebrew-simulation/pull/1785))
     * <!-- LINK PR HERE -->
 - [ ] Remove badges from `homebrew-simulation` README ([example](https://github.com/osrf/homebrew-simulation/pull/1772))
-- [ ] Remove from buildfarmer ([dashboard](https://github.com/osrf/buildfarmer/pull/140) / [report](https://github.com/osrf/buildfarmer/pull/146))
+    * <!-- LINK PR HERE -->
+- [ ] Remove from buildfarmer ([example](https://github.com/osrf/homebrew-simulation/pull/1785))
     * <!-- LINK PR HERE -->
 - [ ] Remove from `pr-collection-labeler` ([example](https://github.com/ignition-tooling/pr-collection-labeler/pull/13))
     * <!-- LINK PR HERE -->
 - [ ] Remove from `ros_ign` ([example](https://github.com/ignitionrobotics/ros_ign/pull/199))
+    * <!-- LINK PR HERE -->
+- [ ] Remove from `gzdev`'s `ign_docker_env` ([example](https://github.com/ignition-tooling/gzdev/pull/56))
     * <!-- LINK PR HERE -->
 - [ ] Close "<collection> support" ticket after final releases ([example](https://github.com/ignition-tooling/release-tools/issues/297#issuecomment-1002232980))
     * <!-- LINK COMMENT HERE -->
