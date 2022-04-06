@@ -67,9 +67,7 @@ for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
 
         echo -n " "
 
-        if [[ $ARCH == "i386" && $VER == "focal" ]]; then
-          PKG_VERSION="disabled"
-        elif [[ $ARCH == "i386" && $VER == "jammy" ]]; then
+        if [[ $ARCH == "i386" && $VER != "bionic" && $VER != "buster" ]]; then
           PKG_VERSION="disabled"
         else
           # The Source field is not mandatory and it is probably not present when
