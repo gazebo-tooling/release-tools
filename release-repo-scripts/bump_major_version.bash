@@ -36,10 +36,10 @@ if [[ ! -d ubuntu/ ]]; then
 fi
 
 
-#if [[ $old_version != 1 ]] && [[ $(find . -name *${old_version}-*.install | wc -l) -lt 1 ]]; then
-#    echo "Not found a single install file with the old_version number"
-#    exit 1
-#fi
+if [[ $old_version != 1 ]] && [[ $(find . -name *${old_version}-*.install | wc -l) -lt 1 ]]; then
+    echo "Not found a single install file with the old_version number"
+    exit 1
+fi
 
 # extract software name (prune for not in debian/, -quit to stop at first)
 old_software_name=$(find . -path ./debian -prune -o -name changelog -exec dpkg-parsechangelog -l {} -S source \; -quit)
