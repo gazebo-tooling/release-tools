@@ -28,6 +28,11 @@ if ! [[ ${IGN_GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
+# per bug https://github.com/ignitionrobotics/ign-gazebo/issues/1409
+if [[ ${DISTRO} == 'jammy' ]]; then
+  export BUILDING_EXTRA_CMAKE_PARAMS="-DBUILD_DOCS=OFF"
+fi
+
 export NEED_C17_COMPILER=true
 export GPU_SUPPORT_NEEDED=true
 
