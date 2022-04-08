@@ -22,14 +22,18 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 COLLECTION=$1
 PACKAGE_REPO=${2:-stable}
-ARCHS=( "amd64" "i386" "arm64" "armhf")
-DISTROS=( "ubuntu" "debian" )
 
 COLUMN="        "
-
 GREEN="\e[42m"
 YELLOW="\e[43m"
 RED="\e[101m"
+
+ARCHS=( "amd64")
+DISTROS=( "ubuntu" )
+if [[ $PACKAGE_REPO != "nightly" ]]; then
+  ARCHS+=( "i386" "arm64" "armhf")
+  DISTROS+=( "debian" )
+fi
 
 for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
   echo -e "\e[107m\e[90m${LIB}\e[49m\e[39m"
@@ -39,7 +43,13 @@ for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
   for DISTRO in "${DISTROS[@]}"
   do
     if [[ $DISTRO == "ubuntu" ]]; then
-      VERS=( "bionic" "focal" )
+      if [[ $COLLECTION == "citadel" ]]; then
+        VERS=( "bionic" "focal" )
+      elif [[ $COLLECTION == "fortress" ]]; then
+        VERS=( "bionic" "focal" "jammy" )
+      elif [[ $COLLECTION == "garden" ]]; then
+        VERS=( "focal" "jammy" )
+      fi
     else
       VERS=( "buster" ) # "sid"
     fi
@@ -57,7 +67,7 @@ for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
 
         echo -n " "
 
-        if [[ $ARCH == "i386" && $VER == "focal" ]]; then
+        if [[ $ARCH == "i386" && $VER != "bionic" && $VER != "buster" ]]; then
           PKG_VERSION="disabled"
         else
           # The Source field is not mandatory and it is probably not present when

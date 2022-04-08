@@ -45,18 +45,18 @@ ignition_no_test            = [  ]
 // main, ABI check, install pkg)
 ignition_branches           = [ 'cmake'      : [ '2' ],
                                 'common'     : [ '1', '3', '4' ],
-                                'fuel-tools' : [ '1', '4', '6', '7' ],
-                                'gazebo'     : [ '3', '5', '6' ],
-                                'gui'        : [ '0', '3', '5', '6' ],
-                                'launch'     : [ '2', '4', '5' ],
+                                'fuel-tools' : [ '1', '4', '7' ],
+                                'gazebo'     : [ '3', '6' ],
+                                'gui'        : [ '0', '3', '6' ],
+                                'launch'     : [ '2', '5' ],
                                 'math'       : [ '4', '6' ],
-                                'msgs'       : [ '1', '5', '7', '8' ],
-                                'physics'    : [ '2', '4', '5' ],
+                                'msgs'       : [ '1', '5', '8' ],
+                                'physics'    : [ '2', '5' ],
                                 'plugin'     : [ '1' ],
-                                'rendering'  : [ '3', '5', '6' ],
-                                'sensors'    : [ '3', '5', '6' ],
+                                'rendering'  : [ '3', '6' ],
+                                'sensors'    : [ '3', '6' ],
                                 'tools'      : [ '1' ],
-                                'transport'  : [ '4', '8', '10', '11' ],
+                                'transport'  : [ '4', '8', '11' ],
                                 'utils'      : [ '1' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
@@ -307,12 +307,13 @@ ignition_software.each { ign_sw ->
                         all_branches(ign_sw) - [ 'main'])
       abi_job.with
       {
+        extra_str=""
         if (ign_sw == 'physics')
         {
           label "huge-memory"
-          // on ARM native nodes in buildfarm we need to restrict to 2 the
+          // on ARM native nodes in buildfarm we need to restrict to 1 the
           // compilation threads to avoid OOM killer
-          GLOBAL_SHELL_CMD = GLOBAL_SHELL_CMD + '\nif [[ $(uname -m) == "aarch64" ]]; then export MAKE_JOBS=2; fi'
+          extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
         }
 
         steps {
@@ -322,6 +323,7 @@ ignition_software.each { ign_sw ->
                 export DISTRO=${distro}
 
                 ${GLOBAL_SHELL_CMD}
+                ${extra_str}
 
                 export ARCH=${arch}
                 export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
@@ -491,6 +493,11 @@ all_debbuilders().each { debbuilder_name ->
   if (debbuilder_name.contains("gazebo") || debbuilder_name == "transport7")
     extra_str="export NEED_C17_COMPILER=true"
 
+  // Ignition physics consumes huge amount of memory making arm node to FAIL
+  // Force here to use one compilation thread
+  if (debbuilder_name.contains("-physics"))
+    extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
+
   println("Generating: ${debbuilder_name}-debbuilder")
   def build_pkg_job = job("${debbuilder_name}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
@@ -641,7 +648,7 @@ ignition_software.each { ign_sw ->
 
   // ign-gazebo only support Windows from ign-gazebo5
   if (ign_sw == 'gazebo')
-    supported_branches = [ 'ign-gazebo5', 'ign-gazebo6', 'main' ]
+    supported_branches = [ 'ign-gazebo6', 'main' ]
 
   // ign-launch only support Windows from ign-launch5
   if (ign_sw == 'launch')
