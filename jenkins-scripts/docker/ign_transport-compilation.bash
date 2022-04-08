@@ -32,6 +32,9 @@ if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 6 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
+# TODO(jrivero): remove this after releasing 2.12.0 ign-cmake. Only for testing asan builds
+BUILDING_JOB_REPOSITORIES="stable prerelease"
+
 export GZDEV_PROJECT_NAME="ignition-transport${IGN_TRANSPORT_MAJOR_VERSION}"
 
 . "${SCRIPT_DIR}/lib/generic-building-base.bash"

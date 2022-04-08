@@ -28,6 +28,9 @@ if [[ ${SDFORMAT_MAJOR_VERSION} -ge 12 ]]; then
   export BUILDING_EXTRA_CMAKE_PARAMS+=" -DSKIP_usd=true"
 fi
 
+# TODO(jrivero): remove this after releasing 2.12.0 ign-cmake. Only for testing asan builds
+BUILDING_JOB_REPOSITORIES="stable prerelease"
+
 # master and major branches compilations
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="SDFORMAT_BASE_DEPENDENCIES"
 
