@@ -472,7 +472,7 @@ ignition_software.each { ign_sw ->
         // 2. ASAN CI
         def ignition_ci_asan_job = job("ignition_${ign_sw}-ci_asan-${branch}-${distro}-${arch}")
         generate_ci_job(ignition_ci_asan_job, ign_sw, branch, distro, arch,
-                        "-DIGN_SANITIZERS=Address")
+                        "-DIGN_SANITIZER=Address")
         ignition_ci_asan_job.with
         {
           triggers {

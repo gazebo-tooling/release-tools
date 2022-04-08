@@ -172,7 +172,7 @@ sdformat_supported_branches.each { branch ->
       // ci_asan job for the rest of arches / scm@weekend
       def sdformat_ci_asan_job = job("sdformat-ci_asan-${branch}-${distro}-${arch}")
       generate_ci_job(sdformat_ci_asan_job, branch, distro, arch,
-                      "-DIGN_SANITIZERS=Address")
+                      "-DIGN_SANITIZER=Address")
       sdformat_ci_asan_job.with
       {
         triggers {
