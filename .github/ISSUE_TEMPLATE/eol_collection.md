@@ -32,6 +32,8 @@ When opening PRs, add a link back to this issue for easier tracking.
     * <!-- LINK PR HERE -->
 - [ ] Remove from `ros_ign` ([example](https://github.com/ignitionrobotics/ros_ign/pull/199))
     * <!-- LINK PR HERE -->
+- [ ] Sync latest binaries to http://packages.ros.org ([example](https://github.com/ros-infrastructure/reprepro-updater/pull/145))
+    * <!-- LINK PR HERE -->
 - [ ] Remove from `gzdev`'s `ign_docker_env` ([example](https://github.com/ignition-tooling/gzdev/pull/56))
     * <!-- LINK PR HERE -->
 - [ ] Close "<collection> support" ticket after final releases ([example](https://github.com/ignition-tooling/release-tools/issues/297#issuecomment-1002232980))
