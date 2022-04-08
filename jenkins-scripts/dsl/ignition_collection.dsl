@@ -22,7 +22,7 @@ ignition_collections = [
           'cmake'     : [ debbuild: 'ign-cmake3'      , branch: 'main' ],
           'utils'     : [ debbuild: 'ign-utils2'      , branch: 'main' ],
           'math'      : [ debbuild: 'ign-math7'       , branch: 'main' ],
-          'plugin'    : [ debbuild: 'ign-plugin'      , branch: 'ign-plugin1' ],
+          'plugin'    : [ debbuild: 'ign-plugin2'     , branch: 'main' ],
           'common'    : [ debbuild: 'ign-common5'     , branch: 'main' ],
           'msgs'      : [ debbuild: 'ign-msgs9'       , branch: 'main' ],
           'rendering' : [ debbuild: 'ign-rendering7'  , branch: 'main' ],
