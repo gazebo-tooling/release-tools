@@ -32,6 +32,6 @@ if [[ ${IGN_PLUGIN_MAJOR_VERSION} -ge 6 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
-export GZDEV_PROJECT_NAME="ignition-plugin${IGN_PLUGIN_DEPENDENCIES}"
+export GZDEV_PROJECT_NAME="ignition-plugin${IGN_PLUGIN_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
