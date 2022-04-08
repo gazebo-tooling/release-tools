@@ -19,7 +19,7 @@ ignition_collections = [
     // They're in topological order
     nightly_jobs: [
           'tools'     : [ debbuild: 'ign-tools'       , branch: 'ign-tools1' ],
-          'cmake'     : [ debbuild: 'ign-cmake2'      , branch: 'ign-cmake2' ],
+          'cmake'     : [ debbuild: 'ign-cmake3'      , branch: 'main' ],
           'utils'     : [ debbuild: 'ign-utils2'      , branch: 'main' ],
           'math'      : [ debbuild: 'ign-math7'       , branch: 'main' ],
           'plugin'    : [ debbuild: 'ign-plugin'      , branch: 'ign-plugin1' ],
