@@ -600,8 +600,8 @@ def go(argv):
                 if (PRERELEASE or NIGHTLY):
                     if (a == 'armhf' or a == 'arm64'):
                         continue
-                # No i386 for focal
-                if (d == 'focal' and a == 'i386'):
+                # Only i386 for Ubuntu in Bionic
+                if (a == 'i386' and l != 'debian' and d != 'bionic'):
                     continue
 
                 linux_platform_params = params.copy()
