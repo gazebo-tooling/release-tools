@@ -35,6 +35,8 @@ class OSRFUNIXBase extends OSRFBase
              #!/bin/bash -xe
 
              [[ -d ./scripts ]] &&  rm -fr ./scripts
+             # try to recover from corrupted git on macOS
+             git --version || brew remove --force git \$(brew deps git)
              git clone https://github.com/ignition-tooling/release-tools scripts -b \$RTOOLS_BRANCH
              """.stripIndent())
       }
