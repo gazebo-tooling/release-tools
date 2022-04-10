@@ -136,7 +136,15 @@ other_supported_distros.each { distro ->
   } // end of arch
 } // end of distro
 
-void generate_ci_job(sdformat_ci_job, branch, distro, arch, extra_cmake = '')
+void generate_asan_ci_job(sdformat_ci_job, branch, distro, arch)
+{
+  generate_ci_job(sdformat_ci_job, branch, distro, arch,
+                  '-DIGN_SANITIZER=Address',
+                  Globals.MAKETEST_SKIP_IGN)
+}
+
+void generate_ci_job(sdformat_ci_job, branch, distro, arch,
+                     extra_cmake = '', extra_test = '')
 {
   OSRFLinuxCompilation.create(sdformat_ci_job)
   OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat",
@@ -148,6 +156,7 @@ void generate_ci_job(sdformat_ci_job, branch, distro, arch, extra_cmake = '')
       #!/bin/bash -xe
 
       export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
+      export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
       export DISTRO=${distro}
       export ARCH=${arch}
       /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
@@ -171,8 +180,7 @@ sdformat_supported_branches.each { branch ->
       }
       // ci_asan job for the rest of arches / scm@weekend
       def sdformat_ci_asan_job = job("sdformat-ci_asan-${branch}-${distro}-${arch}")
-      generate_ci_job(sdformat_ci_asan_job, branch, distro, arch,
-                      "-DIGN_SANITIZER=Address")
+      generate_asan_ci_job(sdformat_ci_asan_job, branch, distro, arch)
       sdformat_ci_asan_job.with
       {
         triggers {

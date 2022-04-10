@@ -429,7 +429,16 @@ ignition_software.each { ign_sw ->
   }
 }
 
-void generate_ci_job(ignition_ci_job, ign_sw, branch, distro, arch, extra_cmake = '') {
+void generate_asan_ci_job(ignition_ci_job, ign_sw, branch, distro, arch)
+{
+  generate_ci_job(ignition_ci_job, ign_sw, branch, distro, arch,
+                  '-DIGN_SANITIZER=Address',
+                  Globals.MAKETEST_SKIP_IGN)
+}
+
+void generate_ci_job(ignition_ci_job, ign_sw, branch, distro, arch,
+                     extra_cmake = '', extra_test = '')
+{
   OSRFLinuxCompilation.create(ignition_ci_job, enable_testing(ign_sw))
   OSRFGitHub.create(ignition_ci_job,
                         "ignitionrobotics/ign-${ign_sw}",
@@ -447,6 +456,7 @@ void generate_ci_job(ignition_ci_job, ign_sw, branch, distro, arch, extra_cmake 
 
             ${GLOBAL_SHELL_CMD}
             export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
+            export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
             export DISTRO=${distro}
             export ARCH=${arch}
             /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
@@ -473,8 +483,7 @@ ignition_software.each { ign_sw ->
         }
         // 2. ASAN CI
         def ignition_ci_asan_job = job("ignition_${ign_sw}-ci_asan-${branch}-${distro}-${arch}")
-        generate_ci_job(ignition_ci_asan_job, ign_sw, branch, distro, arch,
-                        "-DIGN_SANITIZER=Address")
+        generate_asan_ci_job(ignition_ci_asan_job, ign_sw, branch, distro, arch)
         ignition_ci_asan_job.with
         {
           triggers {
