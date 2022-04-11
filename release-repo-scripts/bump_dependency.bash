@@ -464,6 +464,10 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     # Replace lines like: "set(IGN_PLUGIN_VER 2)"
     #               with: "set(IGN_PLUGIN_VER 3)"
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@IGN_${DEP_LIB}_VER ${DEP_PREV_VER}@\UIGN_${DEP_LIB}_VER ${DEP_VER}@ig"
+
+    # Replace lines like "find_package(ignition-cmake2 2.0.0)"
+    #               with "find_package(ignition-cmake3)"
+    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1${DEP_VER}@g"
     # Replace collection yaml branch names with main
     if [[ "${LIB}" == "ign-${COLLECTION}" ]]; then
       find . -type f -name "collection-${COLLECTION}.yaml" -print0 | xargs -0 sed -i "s ign-${DEP_LIB}${DEP_VER} main g"
