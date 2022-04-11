@@ -1,4 +1,4 @@
-# TODO: run inside docker as a normal user and replace the sudo calls
+# TODO: run inside docker as a normal user and replace the calls
 # This are usually for debbuilders
 export PACKAGE_DIR="${WORKSPACE}/pkgs"
 export docker_cmd="docker"
@@ -9,7 +9,7 @@ export docker_cmd="docker"
 mkdir -p ${PACKAGE_DIR}
 
 # This are usually for continous integration jobs
-sudo rm -fr ${WORKSPACE}/build
+rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
 
 [[ -z ${DOCKER_DO_NOT_CACHE} ]] && DOCKER_DO_NOT_CACHE=false
@@ -31,7 +31,7 @@ if [[ ${DISTRO} == 'jammy' && ${ARCH} == 'armhf' ]]; then
   DOCKER_CLI_PLUGIN="buildx"
 fi
 
-sudo docker ${DOCKER_CLI_PLUGIN} build ${PLAFTORM_PARAM} ${_DOCKER_BUILD_EXTRA_ARGS} \
+docker ${DOCKER_CLI_PLUGIN} build ${PLAFTORM_PARAM} ${_DOCKER_BUILD_EXTRA_ARGS} \
                   --build-arg GID=$(id -g $USER) \
                   --build-arg USERID=$USERID \
                   --build-arg USER=$USER \
@@ -82,7 +82,7 @@ if [[ -d /dev/snd ]]; then
 fi
 
 # DOCKER_FIX is for workaround https://github.com/docker/docker/issues/14203
-sudo ${docker_cmd} run ${PLAFTORM_PARAM} $EXTRA_PARAMS_STR  \
+${docker_cmd} run ${PLAFTORM_PARAM} $EXTRA_PARAMS_STR  \
             -e DOCKER_FIX=''  \
             -e WORKSPACE=${WORKSPACE} \
             -e TERM=xterm-256color \
@@ -98,17 +98,17 @@ sudo ${docker_cmd} run ${PLAFTORM_PARAM} $EXTRA_PARAMS_STR  \
 
 # Export results out of build directory, to WORKSPACE
 for d in $(find ${WORKSPACE}/build -maxdepth 1 -name '*_results' -type d); do
-    sudo mv ${d} ${WORKSPACE}/
+    mv ${d} ${WORKSPACE}/
 done
 
 if [[ -z ${KEEP_WORKSPACE} ]]; then
     # Clean the whole build directory
-    sudo rm -fr ${WORKSPACE}/build
+    rm -fr ${WORKSPACE}/build
     # Mimic old layout of exported test results
     mkdir ${WORKSPACE}/build
     # maxdepth is need to avoid problems finding build directories with
     # _results in the name
     for d in $(find ${WORKSPACE} -maxdepth 1 -name '*_results' -type d); do
-       sudo mv ${d} ${WORKSPACE}/build/
+       mv ${d} ${WORKSPACE}/build/
     done
 fi
