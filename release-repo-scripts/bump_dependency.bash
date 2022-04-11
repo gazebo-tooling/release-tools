@@ -455,6 +455,9 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     DEP_VER=${VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
+    # Rule: *plugin2 -> *plugin3
+    # Replace lines like: "find_package(ignition-cmake2)"
+    #               with: "find_package(ignition-cmake3)"
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
 
     # Replace collection yaml branch names with main
