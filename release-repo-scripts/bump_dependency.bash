@@ -476,7 +476,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     #               with "ign_find_package(ignition-math6 REQUIRED)"
     #               like "ign_find_package(ignition-math6 REQUIRED COMPONENTS VERSION 6.10 eigen3)"
     #               with "ign_find_package(ignition-math7 REQUIRED COMPONENTS eigen3)"
-    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(ign_find_package.*${DEP_LIB}\)${DEP_PREV_VER}\(.*\) \+VERSION \+${DEP_PREV_VER}[^ )]*@\1${DEP_VER}\2@g"
+    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\(.*\) \+VERSION \+${DEP_PREV_VER}[^ )]*@\1${DEP_VER}\2@g"
 
     # Replace collection yaml branch names with main
     if [[ "${LIB}" == "ign-${COLLECTION}" ]]; then
