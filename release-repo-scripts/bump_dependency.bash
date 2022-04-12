@@ -455,10 +455,10 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     DEP_VER=${VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
-    # Rule: IGN_PLUGIN_VER 2 -> IGN_PLUGIN_VER 3
+    # Rule: IGN_<LIB>_VER <N> -> IGN_<LIB>_VER ${ignition-<lib><N>_VERSION_MAJOR}
     # Replace lines like: "set(IGN_PLUGIN_VER 2)"
-    #               with: "set(IGN_PLUGIN_VER 3)"
-    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@IGN_${DEP_LIB}_VER ${DEP_PREV_VER}@\UIGN_${DEP_LIB}_VER ${DEP_VER}@ig"
+    #               with: "set(IGN_PLUGIN_VER ${ignition-plugin3_VERSION_MAJOR})"
+    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@IGN_${DEP_LIB}_VER ${DEP_PREV_VER}@\UIGN_${DEP_LIB}_VER \L\$\{ignition-${DEP_LIB}${DEP_VER}_\UVERSION_MAJOR\}@ig"
 
     # Replace lines like "find_package(ignition-cmake2 2.0.0)"
     #               with "find_package(ignition-cmake3)"
