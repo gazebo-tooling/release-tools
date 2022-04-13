@@ -75,6 +75,8 @@ When opening PRs, add a link back to this issue for easier tracking.
         * <!-- LINK PR HERE -->
     - [ ] Create new `-release` repositories (use [this script](https://github.com/ignition-tooling/release-tools/blob/master/release-repo-scripts/new_ignition_release_repos.bash))
     - [ ] Enable nightlies for all `main` branches on `gzdev` ([example](https://github.com/ignition-tooling/gzdev/pull/50))
+    - [ ] Execute the tick-tock's "tock" for deprecations ([example](https://github.com/ignitionrobotics/ign-gazebo/pull/875))
+        * <!-- LINK PRs HERE -->
 - [ ] Update all repositories to default to the new stable branches.
 
 If the collection will be officially paired with a ROS 2 distro:
