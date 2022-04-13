@@ -2,8 +2,8 @@
 
 set -e
 
-# Print a markdown summary of a release (not Changelog.md entries), with its 
-# changelog and contributors. The script is designed to publish release summaries 
+# Print a markdown summary of a release (not Changelog.md entries), with its
+# changelog and contributors. The script is designed to publish release summaries
 # from the internal Open Robotics team to the Community (usually in the public forum).
 #
 # cd <path_to_source_code>
@@ -30,19 +30,19 @@ fi
 
 echo "---------------------------------"
 NAME_FOR_TAGS=ignition-${LIB}
-NAME_FOR_TAGS="${NAME_FOR_TAGS/ignition-sdf/sdformat}"
+NAME_FOR_TAGS="${NAME_FOR_TAGS/ignition-sdformat/sdformat}"
 echo "NAME_FOR_TAGS: $NAME_FOR_TAGS"
 
 NAME_FOR_REPO=ign-${LIB}
-NAME_FOR_REPO="${NAME_FOR_REPO/ign-sdf/sdformat}"
+NAME_FOR_REPO="${NAME_FOR_REPO/ign-sdformat/sdformat}"
 echo "NAME_FOR_REPO: $NAME_FOR_REPO"
 
 NAME_FOR_BRANCH=ign-${LIB}
-NAME_FOR_BRANCH="${NAME_FOR_BRANCH/ign-sdf/sdf}"
+NAME_FOR_BRANCH="${NAME_FOR_BRANCH/ign-sdformat/sdf}"
 echo "NAME_FOR_BRANCH: $NAME_FOR_BRANCH"
 
 NAME_FOR_TITLE="Ignition ${LIB^}"
-NAME_FOR_TITLE="${NAME_FOR_TITLE/Ignition Sdf/SDFormat}"
+NAME_FOR_TITLE="${NAME_FOR_TITLE/Ignition Sdformat/SDFormat}"
 echo "NAME_FOR_TITLE: $NAME_FOR_TITLE"
 
 echo "Previous version: ${PREV}"
