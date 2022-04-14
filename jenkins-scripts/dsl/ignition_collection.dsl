@@ -18,7 +18,7 @@ ignition_collections = [
     // These are the branches currently targeted at the upcoming collection
     // They're in topological order
     nightly_jobs: [
-          'tools'     : [ debbuild: 'ign-tools'       , branch: 'ign-tools1' ],
+          'tools'     : [ debbuild: 'ign-tools2'      , branch: 'main' ],
           'cmake'     : [ debbuild: 'ign-cmake3'      , branch: 'main' ],
           'utils'     : [ debbuild: 'ign-utils2'      , branch: 'main' ],
           'math'      : [ debbuild: 'ign-math7'       , branch: 'main' ],
