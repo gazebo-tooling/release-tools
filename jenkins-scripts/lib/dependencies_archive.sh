@@ -83,7 +83,7 @@ if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
     SDFORMAT_MAJOR_VERSION=6
 fi
 
-if [[ ${SDFORMAT_MAJOR_VERSION} -ge 9 ]]; then
+if [[ ${SDFORMAT_MAJOR_VERSION} -ge 9 -a -lt 13 ]]; then
     # sdformat9 requires ignition-math6 and
     # uses ignition-tools for a test
     SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
@@ -426,7 +426,9 @@ elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 8 ]]; then
                                   ruby-ffi"
 fi
 
-export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} libignition-tools-dev"
+if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -lt 12 ]]; then
+  export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} libignition-tools-dev"
+fi
 
 IGN_COMMON_NO_IGN_DEPENDENCIES="pkg-config     \\
                          ${pythonv}            \\
@@ -472,14 +474,15 @@ if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -ge 4 ]]; then
                                libignition-msgs5-dev"
 fi
 
-
-IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
-                       libprotobuf-dev       \\
-                       libprotoc-dev         \\
-                       protobuf-compiler     \\
-                       libtinyxml2-dev       \\
-                       ruby                  \\
-                       ruby-dev"
+if [[ ${IGN_MSGS_MAJOR_VERSION} -lt 9]]; then
+  IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
+                         libprotobuf-dev       \\
+                         libprotoc-dev         \\
+                         protobuf-compiler     \\
+                         libtinyxml2-dev       \\
+                         ruby                  \\
+                         ruby-dev"
+fi
 
 if [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -eq 1 ]]; then
     IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
@@ -510,12 +513,14 @@ IGN_GUI_NO_IGN_DEPENDENCIES="qtbase5-dev \\
                       qml-module-qtquick2 \\
                       qtquickcontrols2-5-dev"
 
-IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
-                      libignition-cmake2-dev \\
-                      libignition-common3-dev \\
-                      libignition-math6-dev \\
-                      libignition-plugin-dev \\
-                      libignition-tools-dev"
+if [[ ${IGN_GUI_MAJOR_VERSION} -lt 7]]; then
+  IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
+                        libignition-cmake2-dev \\
+                        libignition-common3-dev \\
+                        libignition-math6-dev \\
+                        libignition-plugin-dev \\
+                        libignition-tools-dev"
+fi
 
 if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 4 ]]; then
   IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
@@ -532,14 +537,16 @@ IGN_PHYSICS_DART_FROM_PKGS="true"
 
 IGN_PLUGIN_DEPENDENCIES="libignition-cmake2-dev"
 
-IGN_LAUNCH_COMMON_DEPENDENCIES="libignition-cmake2-dev \\
-                         libignition-common3-dev \\
-                         libignition-math6-dev \\
-                         libignition-plugin-dev \\
-                         libignition-tools-dev \\
-                         libtinyxml2-dev  \\
-                         qtquickcontrols2-5-dev \\
-                         libqt5core5a"
+if [[ ${IGN_LAUNCH_MAJOR_VERSION} -lt 6]]; then
+  IGN_LAUNCH_COMMON_DEPENDENCIES="libignition-cmake2-dev \\
+                           libignition-common3-dev \\
+                           libignition-math6-dev \\
+                           libignition-plugin-dev \\
+                           libignition-tools-dev \\
+                           libtinyxml2-dev  \\
+                           qtquickcontrols2-5-dev \\
+                           libqt5core5a"
+fi
 
 if [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -ge 3 ]]; then
   IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_COMMON_DEPENDENCIES} \\
@@ -580,11 +587,14 @@ IGN_RENDERING_DEPENDENCIES="${IGN_RENDERING_NO_IGN_DEPENDENCIES} \\
                             libignition-plugin-dev \\
                             libignition-math6-dev"
 
-IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
-                          libignition-cmake2-dev \\
-                          libignition-math6-dev      \\
-                          libignition-plugin-dev  \\
-                          libignition-tools-dev"
+if [[ ${IGN_SENSORS_MAJOR_VERSION} -lt 7]]; then
+  IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
+                            libignition-cmake2-dev \\
+                            libignition-math6-dev      \\
+                            libignition-plugin-dev  \\
+                            libignition-tools-dev"
+fi
+
 if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 4 ]]; then
   IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
                         libignition-msgs6-dev \\
