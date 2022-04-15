@@ -550,29 +550,32 @@ if [[ ${IGN_LAUNCH_MAJOR_VERSION} -lt 6 ]]; then
                            libqt5core5a"
 fi
 
-if [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -ge 3 ]]; then
-  IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_COMMON_DEPENDENCIES} \\
-                           libignition-gui4-dev \\
-                           libignition-fuel-tools5-dev \\
-                           libignition-gazebo4-dev \\
-                           libignition-msgs6-dev \\
-                           libignition-rendering4-dev  \\
-                           libignition-sensors4-dev  \\
-                           libignition-transport9-dev \\
-                           libsdformat10-dev"
-else
-  IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_DEPENDENCIES} \\
-                           libignition-gui3-dev \\
-                           libignition-fuel-tools4-dev \\
-                           libignition-gazebo3-dev \\
-                           libignition-msgs5-dev \\
-                           libignition-rendering3-dev  \\
-                           libignition-sensors3-dev  \\
-                           libignition-transport8-dev \\
-                           libsdformat9-dev \\
-                           libwebsockets-dev \\
-                           binutils-dev"
+if [[ ${IGN_LAUNCH_MAJOR_VERSION} -lt 6 ]]; then
+  if [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -ge 3 ]]; then
+    IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_COMMON_DEPENDENCIES} \\
+                             libignition-gui4-dev \\
+                             libignition-fuel-tools5-dev \\
+                             libignition-gazebo4-dev \\
+                             libignition-msgs6-dev \\
+                             libignition-rendering4-dev  \\
+                             libignition-sensors4-dev  \\
+                             libignition-transport9-dev \\
+                             libsdformat10-dev"
+  else
+    IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_DEPENDENCIES} \\
+                             libignition-gui3-dev \\
+                             libignition-fuel-tools4-dev \\
+                             libignition-gazebo3-dev \\
+                             libignition-msgs5-dev \\
+                             libignition-rendering3-dev  \\
+                             libignition-sensors3-dev  \\
+                             libignition-transport8-dev \\
+                             libsdformat9-dev \\
+                             libwebsockets-dev \\
+                             binutils-dev"
+  fi
 fi
+
 
 IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
                             freeglut3-dev \\
@@ -599,18 +602,20 @@ if [[ ${IGN_SENSORS_MAJOR_VERSION} -lt 7 ]]; then
                             libignition-tools-dev"
 fi
 
-if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 4 ]]; then
-  IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
-                        libignition-msgs6-dev \\
-                        libignition-rendering4-dev \\
-                        libignition-transport9-dev \\
-                        libsdformat10-dev"
-elif [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 3 ]]; then
-  IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
-                        libignition-msgs5-dev \\
-                        libignition-rendering3-dev \\
-                        libignition-transport8-dev \\
-                        libsdformat9-dev"
+if [[ ${IGN_SENSORS_MAJOR_VERSION} -lt 7 ]]; then
+  if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 4 ]]; then
+    IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
+                          libignition-msgs6-dev \\
+                          libignition-rendering4-dev \\
+                          libignition-transport9-dev \\
+                          libsdformat10-dev"
+  elif [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 3 ]]; then
+    IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
+                          libignition-msgs5-dev \\
+                          libignition-rendering3-dev \\
+                          libignition-transport8-dev \\
+                          libsdformat9-dev"
+  fi
 fi
 
 IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev  \\
