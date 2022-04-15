@@ -450,13 +450,15 @@ IGN_COMMON_DEPENDENCIES="${IGN_COMMON_NO_IGN_DEPENDENCIES} \\
                      libignition-math4-dev \\
                      libignition-math6-dev"
 
-IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake2-dev \\
-                             libignition-common3-dev \\
-                             libignition-tools-dev  \\
-                             libcurl4-openssl-dev   \\
-                             libjsoncpp-dev         \\
-                             libyaml-dev            \\
-                             libzip-dev"
+if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -lt 8 ]]; then
+  IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake2-dev \\
+                               libignition-common3-dev \\
+                               libignition-tools-dev  \\
+                               libcurl4-openssl-dev   \\
+                               libjsoncpp-dev         \\
+                               libyaml-dev            \\
+                               libzip-dev"
+fi
 
 if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -eq 1 ]]; then
   IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
