@@ -583,11 +583,13 @@ IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
                             mesa-common-dev \\
                             mesa-utils"
 
-IGN_RENDERING_DEPENDENCIES="${IGN_RENDERING_NO_IGN_DEPENDENCIES} \\
-                            libignition-cmake2-dev \\
-                            libignition-common3-dev \\
-                            libignition-plugin-dev \\
-                            libignition-math6-dev"
+if [[ ${IGN_RENDERING_MAJOR_VERSION} -lt 7 ]]; then
+  IGN_RENDERING_DEPENDENCIES="${IGN_RENDERING_NO_IGN_DEPENDENCIES} \\
+                              libignition-cmake2-dev \\
+                              libignition-common3-dev \\
+                              libignition-plugin-dev \\
+                              libignition-math6-dev"
+fi
 
 if [[ ${IGN_SENSORS_MAJOR_VERSION} -lt 7 ]]; then
   IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
