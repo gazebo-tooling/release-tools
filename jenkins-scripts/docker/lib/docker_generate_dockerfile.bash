@@ -57,7 +57,9 @@ RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --fo
     if [ -n $GZDEV_TRY_BRANCH ]; then git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH; fi || true && \
     ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} )
 DELIM_OSRF_REPO_GZDEV
-else
+fi
+
+# This could duplicate repositories enabled in the step above. gzdev should warn about it without failing.
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
 RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO}  || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
@@ -65,7 +67,6 @@ RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${
     ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} )
 DELIM_OSRF_REPO
 done
-fi
 }
 
 case ${LINUX_DISTRO} in
