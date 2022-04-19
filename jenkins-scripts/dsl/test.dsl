@@ -15,8 +15,8 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
                                      false,
                                      false,
                                      ['main'])
-def ignition_ci_pr_job = job("_test_pr_job_ign2gz_from_dsl")
-OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
+def ignition_ci_pr2_job = job("_test_pr_job_ign2gz_from_dsl")
+OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr2_job,
                                      'ignitiontesting/ign-testing1',
                                      false,
                                      false,
