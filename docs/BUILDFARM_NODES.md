@@ -30,7 +30,7 @@ For generating nightlies controlling the generation order of every library, buil
 | -------- | ----------- |
 | linux-nightly-bionic | r2d2  |
 | linux-nightly-focal | optimus |
-| linux-nightly-jammy | linux-ip-172-30-1-216 |
+| linux-nightly-jammy | drogon |
 
 ## Provision of Node labels
 
