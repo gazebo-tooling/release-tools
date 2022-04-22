@@ -344,7 +344,7 @@ DELIM_NVIDIA_GPU
 # NVIDIA is using nvidia_docker2 integration
 GLVND_VERSION=1.2.0
 if [[ ${LINUX_DISTRO} == 'ubuntu' && ( ${DISTRO} != 'bionic' && ${DISTRO} != 'focal' ) ]]; then
-  GLVND_VERSION=1.4.0
+  GLVND_VERSION=1.3.4
 fi
 cat >> Dockerfile << DELIM_NVIDIA2_GPU
   # nvidia-container-runtime
