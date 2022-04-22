@@ -331,8 +331,8 @@ DELIM_DOCKER_SQUID
 fi
 
 if $USE_GPU_DOCKER; then
- if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
-   if [[ ${NVIDIA_DOCKER_DRIVER} == 'nvidia-docker' ]]; then
+  if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
+    if [[ ${NVIDIA_DOCKER_DRIVER} == 'nvidia-docker' ]]; then
 # NVIDIA-DOCKER1
 cat >> Dockerfile << DELIM_NVIDIA_GPU
   # nvidia-container-runtime
@@ -340,41 +340,6 @@ cat >> Dockerfile << DELIM_NVIDIA_GPU
   ENV PATH /usr/local/nvidia/bin:\${PATH}
   ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64:\${LD_LIBRARY_PATH}
 DELIM_NVIDIA_GPU
-   else
-# NVIDIA is using nvidia_docker2 integration
-GLVND_VERSION=1.2.0
-if [[ ${LINUX_DISTRO} == 'ubuntu' && ( ${DISTRO} != 'bionic' && ${DISTRO} != 'focal' ) ]]; then
-  GLVND_VERSION=1.3.4
-fi
-cat >> Dockerfile << DELIM_NVIDIA2_GPU
-  # nvidia-container-runtime
-  ENV NVIDIA_VISIBLE_DEVICES \
-    ${NVIDIA_VISIBLE_DEVICES:-all}
-  ENV NVIDIA_DRIVER_CAPABILITIES \
-    ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
-# Install libglvnd for OpenGL using nvidia-docker2
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        git \
-        ca-certificates \
-        make \
-        automake \
-        autoconf \
-        libtool \
-        pkg-config \
-        python3 \
-        libxext-dev \
-        libx11-dev \
-        x11proto-gl-dev && \
-    rm -rf /var/lib/apt/lists/*
-RUN mkdir -p /opt/libglvnd && cd /opt/libglvnd && \
-    git clone -b v${GLVND_VERSION} https://github.com/NVIDIA/libglvnd.git . && \
-    ./autogen.sh && \
-    ./configure --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu && \
-    make install-strip && \
-    find /usr/local/lib/x86_64-linux-gnu -type f -name 'lib*.la' -delete
-ENV LD_LIBRARY_PATH /usr/local/lib/x86_64-linux-gnu\${LD_LIBRARY_PATH:+:\${LD_LIBRARY_PATH}}
-DELIM_NVIDIA2_GPU
-  fi
  else
   # No NVIDIA cards needs to have the same X stack than the host
   cat >> Dockerfile << DELIM_DISPLAY
@@ -387,6 +352,7 @@ RUN CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\
        exit 1 \\
    fi
 DELIM_DISPLAY
+    fi
   fi
 fi
 
