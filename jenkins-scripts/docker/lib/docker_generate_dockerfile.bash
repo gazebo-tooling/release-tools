@@ -342,6 +342,9 @@ cat >> Dockerfile << DELIM_NVIDIA_GPU
 DELIM_NVIDIA_GPU
    else
 # NVIDIA is using nvidia_docker2 integration
+GLVND_VERSION=1.2.0
+if [[ ${LINUX_DISTRO} == 'ubuntu' && ( ${DISTRO} != 'bionic' && ${DISTRO} != 'focal' ) ]]; then
+  GLVND_VERSION=1.4.0
 cat >> Dockerfile << DELIM_NVIDIA2_GPU
   # nvidia-container-runtime
   ENV NVIDIA_VISIBLE_DEVICES \
@@ -363,7 +366,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         x11proto-gl-dev && \
     rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /opt/libglvnd && cd /opt/libglvnd && \
-    git clone -b v1.2.0 https://github.com/NVIDIA/libglvnd.git . && \
+    git clone -b v${GLVND_VERSION} https://github.com/NVIDIA/libglvnd.git . && \
     ./autogen.sh && \
     ./configure --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu && \
     make install-strip && \
