@@ -345,6 +345,7 @@ DELIM_NVIDIA_GPU
 GLVND_VERSION=1.2.0
 if [[ ${LINUX_DISTRO} == 'ubuntu' && ( ${DISTRO} != 'bionic' && ${DISTRO} != 'focal' ) ]]; then
   GLVND_VERSION=1.4.0
+fi
 cat >> Dockerfile << DELIM_NVIDIA2_GPU
   # nvidia-container-runtime
   ENV NVIDIA_VISIBLE_DEVICES \
