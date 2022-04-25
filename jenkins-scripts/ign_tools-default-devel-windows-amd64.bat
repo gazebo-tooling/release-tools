@@ -12,7 +12,7 @@ for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORK
 echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
 if "!PKG_MAJOR_VERSION!" == "1" (
    set COLCON_PACKAGE=%COLCON_PACKAGE%
-) else(
+) else (
    set COLCON_PACKAGE=%COLCON_PACKAGE%!PKG_MAJOR_VERSION!
 )
 
