@@ -433,11 +433,12 @@ void generate_asan_ci_job(ignition_ci_job, ign_sw, branch, distro, arch)
 {
   generate_ci_job(ignition_ci_job, ign_sw, branch, distro, arch,
                   '-DIGN_SANITIZER=Address',
-                  Globals.MAKETEST_SKIP_IGN)
+                  Globals.MAKETEST_SKIP_IGN,
+                  'export ASAN_OPTIONS=check_initialization_order=true')
 }
 
 void generate_ci_job(ignition_ci_job, ign_sw, branch, distro, arch,
-                     extra_cmake = '', extra_test = '')
+                     extra_cmake = '', extra_test = '', extra_cmd = '')
 {
   OSRFLinuxCompilation.create(ignition_ci_job, enable_testing(ign_sw))
   OSRFGitHub.create(ignition_ci_job,
@@ -455,6 +456,7 @@ void generate_ci_job(ignition_ci_job, ign_sw, branch, distro, arch,
             #!/bin/bash -xe
 
             ${GLOBAL_SHELL_CMD}
+            ${extra_cmd}
             export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
             export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
             export DISTRO=${distro}

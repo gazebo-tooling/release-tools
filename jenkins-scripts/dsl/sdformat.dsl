@@ -140,11 +140,12 @@ void generate_asan_ci_job(sdformat_ci_job, branch, distro, arch)
 {
   generate_ci_job(sdformat_ci_job, branch, distro, arch,
                   '-DIGN_SANITIZER=Address',
-                  Globals.MAKETEST_SKIP_IGN)
+                  Globals.MAKETEST_SKIP_IGN,
+                  'export ASAN_OPTIONS=check_initialization_order=true')
 }
 
 void generate_ci_job(sdformat_ci_job, branch, distro, arch,
-                     extra_cmake = '', extra_test = '')
+                     extra_cmake = '', extra_test = '', extra_cmd = '')
 {
   OSRFLinuxCompilation.create(sdformat_ci_job)
   OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat",
@@ -155,6 +156,7 @@ void generate_ci_job(sdformat_ci_job, branch, distro, arch,
       shell("""\
       #!/bin/bash -xe
 
+      ${extra_cmd}
       export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
       export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
       export DISTRO=${distro}
