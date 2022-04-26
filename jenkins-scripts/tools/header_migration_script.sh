@@ -257,7 +257,7 @@ migrateSources() {  # Different variations of ignition/ign -> gz in source files
     sed -i 's@ignition_@gz_@g' $1  # e.g. ignition_xxx -> gz_xxx
     sed -i 's@ign_@gz_@g' $1       # e.g. ign_xxx -> gz_xxx
 
-    # Handle Edge Cases
+    # Rollback edge cases
     sed -i 's@${gz_headers}@${ign_headers}@g' $1
   fi
 } ; export -f migrateSources
@@ -271,18 +271,23 @@ migrateCmake() {  # Different variations of ignition/ign -> gz in CMake files
 
     sed -i 's@(ignition@(gz@g' $1   # e.g. add_subdirectory(ignition) -> add_subdirectory(gz)
 
+    sed -i 's@Ignition\([A-Z]\)@Gz\1@g' $1  # e.g. IgnitionFormatter -> GzFormatter
+    sed -i 's@(\(.*\)ignition@(\1gz@g' $1   # e.g. add_subdirectory(ignition) -> add_subdirectory(gz)
+
     # NOTE(CH3):
-    # ^\(?!ign\(?ition\)_\) ignores lines that start with ign(nition)_
-    # Which should avoid changing any ign-cmake macro calls
-    sed -i 's@^\(?!ign\(?ition\)_\)\(#.*\) IGNITION_@\1 GZ_@g' $1  # e.g. IGNITION_UTILS__XXX -> GZ_UTILS__XXX
-    sed -i 's@^\(?!ign\(?ition\)_\)\(#.*\) IGN_@\1 GZ_@g' $1       # e.g. IGN_UTILS__XXX -> GZ_UTILS__XXX
+    # ^\([^ign ]\+\) ignores lines that start with ign(nition)_
+    # Which should avoid changing most ign-cmake macro calls
+    sed -i 's@\b\([^ign ]\+\)ignition/@\1gz/@g' $1  # e.g. include <ignition/utils/XXX> -> include <gz/utils/XXX>
+    sed -i 's@\b\([^ign ]\+\)ignition_@\1gz_@g' $1  # e.g. ignition_xxx -> gz_xxx
+    sed -i 's@\b\([^ign ]\+\)ign_@\1gz_@g' $1       # e.g. ign_xxx -> gz_xxx
 
-    sed -i 's@^\(?!ign\(?ition\)_\)Ignition\([A-Z]\)@Gz\1@g' $1 # e.g. IgnitionFormatter -> GzFormatter
-
-    sed -i 's@^\(?!ign\(?ition\)_\)(\(.*\)ignition@(\1gz@g' $1   # e.g. add_subdirectory(ignition) -> add_subdirectory(gz)
-    sed -i 's@^\(?!ign\(?ition\)_\)ignition/@gz/@g' $1   # e.g. include <ignition/utils/XXX> -> include <gz/utils/XXX>
-    sed -i 's@^\(?!ign\(?ition\)_\)ignition_@gz_/@g' $1  # e.g. ignition_xxx -> gz_xxx
-    sed -i 's@^\(?!ign\(?ition\)_\)ign_@gz_/@g' $1       # e.g. ign_xxx -> gz_xxx
+    # Rollback edge cases
+    # TODO(CH3): This becomes a helper once our project names are actually migrated
+    #            We can remove the rollbacks then!
+    sed -i 's@project(gz@project(ignition@g' $1
+    sed -i 's@find_package(gz@find_package(ignition@g' $1
+    sed -i 's@IGN_\([^_]*\)_VER ${gz@IGN_\1_VER ${ignition@g' $1
+    sed -i 's@-Dgz@-Dignition@g' $1
   fi
 } ; export -f migrateCmake
 
@@ -293,7 +298,7 @@ populateRedirectionAlias() {
   echo "#include <$(echo $1 | sed \
     -e 's@.*/include/@@g' \
     -e 's@ignition/@gz/@g' \
-    -e 's@*Ign(ition)@Gz@g')>" >> $1
+    -e 's@Ign\(ition\)\?@Gz@g')>" >> $1
 } ; export -f populateRedirectionAlias
 
 # MAIN =============================================================================================
@@ -332,7 +337,7 @@ reviewConfirm
 gitCommit ${IGN_ORG} "Migrate sources in src, test, examples, and include"
 
 # Migrate Gz CMake files
-find . -regex '.*include.*/gz.*\|.*include\(.*\)*/Gz.*' -type f -print0 | xargs -0 -I {} bash -c 'migrateCmake {}' _
+find . -regex '.*[include\|src\|test\|examples].*/CMakeLists\.txt' -type f -print0 | xargs -0 -I {} bash -c 'migrateCmake {}' _
 
 # Add header level CMakeLists.txt
 touch ./include/CMakeLists.txt
@@ -348,4 +353,4 @@ gitPushAndPR ${IGN_ORG} main "ign -> gz Header Migration" "Test run of https://g
 
 # TODOs
 # Parse libs from CLI
-# Clone and autobranch/push
+# Clone
