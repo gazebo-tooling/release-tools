@@ -300,20 +300,20 @@ mvHeaders() {
 
 
 migrateSources() {  # Different variations of ignition/ign -> gz in source files
-  # Note: DOES NOT MIGRATE CLASS OR VARIABLE NAMES
+  # NOTE(CH3): DOES NOT MIGRATE CLASS OR VARIABLE NAMES
 
   if [[ $1 =~ \.c[^\.]*$|\.in[^\.]*$|\.h[^\.]*$ ]] ; then # Only do for source files
     echo "[MIGRATING SOURCES] $1"
     if [[ $1 != *.in ]] ; then                  # !! But not macros for .in files
-      # Only migrate non-macro definition calls
-      sed -i 's@\(#.*\) IGNITION_\([^(]*\)$@\1 GZ_\2@g' $1  # e.g. IGNITION_UTILS__XXX -> GZ_UTILS__XXX
-      sed -i 's@\(#.*\) IGN_\([^(]*\)\$@\1 GZ_\2@g' $1       # e.g. IGN_UTILS__XXX -> GZ_UTILS__XXX
+      # Only migrate non-macro definition calls (loop to make it recursive)
+      #   \([^(]*\)\ to ignore any macros with arguments (to target header guards only)
+      sed -i ':loop s@\(#.*\) IGN\(ITION\)\?\(.*\)_H\([^(]*\)$@\1 GZ\3_H\4@g; t loop' $1  # e.g. IGNITION_UTILS__XXX -> GZ_UTILS__XXX
     fi
 
     # NOTE(CH3): We're not migrating class or variable names for now
     # sed -i 's@Ignition\([A-Z]\)@Gz\1@g' $1 # e.g. IgnitionFormatter -> GzFormatter
 
-    sed -i 's@ignition/@gz/@g' $1   # e.g. include <ignition/utils/XXX> -> include <gz/utils/XXX>
+    sed -i 's@ignition/@gz/@g' $1  # e.g. include <ignition/utils/XXX> -> include <gz/utils/XXX>
     sed -i 's@ignition_@gz_@g' $1  # e.g. ignition_xxx -> gz_xxx
 
     # NOTE(CH3): The other one was too greedy (sign_bit -> sgz_bit)
@@ -345,7 +345,7 @@ migrateCmake() {  # Different variations of ignition/ign -> gz in CMake files
     sed -i 's@\b\([^ign ]\+\)ign_@\1gz_@g' $1       # e.g. XXX_ign_xxx -> XXX_gz_xxx
 
     # /^#/! ignores lines starting with # (ignore comments)
-    sed -i '/^#/!s@\(\w\) ign_@\1 gz_@g' $1              # e.g. XXX ign_xxx -> XXX gz_xxx
+    sed -i '/^#/! s@\(\w\) ign_@\1 gz_@g' $1              # e.g. XXX ign_xxx -> XXX gz_xxx
 
     # Catchall for open-parentheses/quotes
     sed -i 's@\([{(_<"]\)ign_@\1gz_@g' $1             # e.g. ${ign_utils} -> ${gz_utils}
