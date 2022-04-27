@@ -288,7 +288,10 @@ migrateSources() {  # Different variations of ignition/ign -> gz in source files
 
     sed -i 's@ignition/@gz/@g' $1   # e.g. include <ignition/utils/XXX> -> include <gz/utils/XXX>
     sed -i 's@ignition_@gz_@g' $1  # e.g. ignition_xxx -> gz_xxx
-    sed -i 's@ign_@gz_@g' $1       # e.g. ign_xxx -> gz_xxx
+
+    # NOTE(CH3): The other one was too greedy (sign_bit -> sgz_bit)
+    # sed -i 's@ign_@gz_@g' $1       # e.g. ign_xxx -> gz_xxx
+    sed -i 's@\([{(_<"]\)ign_@\1gz_@g' $1             # e.g. ${ign_utils} -> ${gz_utils}
 
     # Rollback edge cases
     sed -i 's@${gz_headers}@${ign_headers}@g' $1
@@ -312,7 +315,13 @@ migrateCmake() {  # Different variations of ignition/ign -> gz in CMake files
     # Which should avoid changing most ign-cmake macro calls
     sed -i 's@\b\([^ign ]\+\)ignition/@\1gz/@g' $1  # e.g. include <ignition/utils/XXX> -> include <gz/utils/XXX>
     sed -i 's@\b\([^ign ]\+\)ignition_@\1gz_@g' $1  # e.g. ignition_xxx -> gz_xxx
-    sed -i 's@\b\([^ign ]\+\)ign_@\1gz_@g' $1       # e.g. ign_xxx -> gz_xxx
+    sed -i 's@\b\([^ign ]\+\)ign_@\1gz_@g' $1       # e.g. XXX_ign_xxx -> XXX_gz_xxx
+
+    # /^#/! ignores lines starting with # (ignore comments)
+    sed -i '/^#/!s@\(\w\) ign_@\1 gz_@g' $1              # e.g. XXX ign_xxx -> XXX gz_xxx
+
+    # Catchall for open-parentheses/quotes
+    sed -i 's@\([{(_<"]\)ign_@\1gz_@g' $1             # e.g. ${ign_utils} -> ${gz_utils}
 
     # Rollback edge cases
     # TODO(CH3): This becomes a helper once our project names are actually migrated
