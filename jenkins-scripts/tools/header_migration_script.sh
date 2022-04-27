@@ -39,10 +39,19 @@
 # USAGE
 # =====
 # Place the script in the root of the repo to be migrated, and run:
-# $ ./header_migration_script.sh
+# $ ./header_migration_script.sh "<library>;<library>;..." <issue_number>
 #
 # Author: methylDragon
 
+
+# USER PARAMS ======================================================================================
+LIBRARY_INPUT=${1}
+ISSUE_NUMBER=${2}
+
+if [[ $# -lt 2 ]]; then
+  echo "./header_migration_script.sh \"<library>;<library>;...\" <issue_number>"
+  exit 1
+fi
 
 # CONSTANTS ========================================================================================
 export LICENSE="""\
@@ -75,12 +84,43 @@ BLUE_BG="\e[44m"
 GREEN_BG="\e[42m"
 
 IGN_ORG="ignitionrobotics"
+TOOLING_ORG="ignition-tooling"
+
 DEFAULT_COMMIT_MSG="DEFAULT_COMMIT_MSG" # Bumps in ${COLLECTION}"
 DEFAULT_PR_TITLE="DEFAULT_PR_TITLE"
-DEFAULT_PR_TEXT="DEFAULT_PR_TEXT" # See https://github.com/${TOOLING_ORG}/release-tools/issues/${ISSUE_NUMBER}"
+DEFAULT_PR_TEXT="DEFAULT_PR_TEXT"
 
+TEMP_DIR="/tmp/header_migration"
+echo -e "${GREEN}Creating directory [${TEMP_DIR}]${DEFAULT}"
+mkdir -p ${TEMP_DIR}
+
+# PARAMS ===========================================================================================
+PR_TEXT="See https://github.com/${TOOLING_ORG}/release-tools/issues/${ISSUE_NUMBER}"
+PR_TITLE="ign -> gz Header Migration"
 
 # GIT ==============================================================================================
+# Clone repository into temp dir if not cloned yet and move to that folder
+# Args:
+# $1: Organization
+# $2: Repository
+cloneIfNeeded() {
+
+  cd ${TEMP_DIR}
+
+  local ORG=$1
+  local REPO=$2
+
+  if [ ! -d "$REPO" ]; then
+    echo -e "${GREEN}${REPO}: Cloning ${ORG}/${REPO}${DEFAULT}"
+    git clone https://github.com/${ORG}/${REPO}
+  else
+    echo -e "${GREEN}${REPO}: ${REPO} is already cloned${DEFAULT}"
+  fi
+
+  cd $REPO
+}
+
+
 # Return the passed branch if provided, or main / master
 getBaseBranch() {
 
@@ -238,7 +278,7 @@ gitPushAndPR() {
   local REPO=${PWD##*/}
   local ORG=$1
   local BASE_BRANCH=$2
-  local PR_TITLE=${3:-${DEFAULT_PR_TEXT}}
+  local PR_TITLE=${3:-${DEFAULT_PR_TITLE}}
   local PR_TEXT=${4:-${DEFAULT_PR_TEXT}}
 
   # Sanity check that we're on a right branch
@@ -260,7 +300,8 @@ gitPushAndPR() {
 # METHODS AND CONSTANTS ============================================================================
 reviewConfirm() {
   while true; do
-    echo -e "${GREEN_BG}Have you reviewed the changes above, and are you ready to commit? (y?)${DEFAULT_BG}"
+    local MSG=${1:-"Have you reviewed the changes above, and are you ready to commit? (y?)"}
+    echo -e "${GREEN_BG}${MSG}${DEFAULT_BG}"
     read CONTINUE
 
     case $CONTINUE in
@@ -290,7 +331,7 @@ mvHeaders() {
 
   # Leave redirection aliases
   #   Converting *.in into normal versions (spoofing configuration of *.in files)
-  if [[ $1 =~ .*\.in ]] ; then
+  if [[ $1 =~ [Ii]gn(ition)?.*\.in ]] ; then
     echo "[CONVERTING] $1"
     echo $1 | sed 's@\(.*\)\.in@\1@g' | xargs -I {} mv $1 {}
   fi
@@ -371,75 +412,82 @@ populateRedirectionAlias() {
 } ; export -f populateRedirectionAlias
 
 # MAIN =============================================================================================
-startFromCleanBranch header_migration main
+IFS=';'
+read -a LIBRARIES <<< "${LIBRARY_INPUT}"
 
-# Move headers
-find . -regex '.*include\(.*\)*' -type f -print0 | xargs -0 -I {} bash -c 'mvHeaders {}' _
+for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
+  LIB=${LIBRARIES[$i]}
 
-# Cleanup dangling files
-find . -regex ".*/include.*/ignition.*/CMakeLists\.txt" -type f -print0 | xargs -0 -I {} rm {}  # Remove dangling .in config files
-find . -regex ".*/include.*/ignition.*/.*\.in" -type f -print0 | xargs -0 -I {} rm {}  # Remove dangling ignition CMakeLists
+  cloneIfNeeded ${IGN_ORG} ${LIB}
+  startFromCleanBranch header_migration main
 
-reviewConfirm
-gitCommit -s ${IGN_ORG} "Move header files with git mv"  # Commits staged git mv changes
-echo -e "\n== Copying Redirection Aliases ==\n"
-gitCommit -f -a ${IGN_ORG} "Create redirection aliases"  # Adds and commits unstaged redirections
+  echo -e "${GREEN}\n[STARTING MIGRATION] ${LIB}${DEFAULT}"
+  reviewConfirm "Read(y?)"
 
-# Create Export.hh and <lib>.hh
-find . -regex './include.*/ignition/[^/]*' -type d -print0 \
-  | xargs -0 -I {} bash -c 'touch "{}/Export.hh" \
-                            && echo "[CREATED] {}/Export.hh"' _
-find . -regex './include.*/ignition/[^/]*' -type d -print0 \
-  | xargs -0 -I {} bash -c 'touch "$(sed "s@\(.*\)/\(.*\)\$@\1/\2.hh@g" <<< {})" \
-                            && echo "[CREATED] $(sed "s@\(.*\)/\(.*\)\$@\1/\2.hh@g" <<< {})"'
+  # Move headers
+  find . -regex '.*include\(.*\)*' -type f -print0 | xargs -0 -I {} bash -c 'mvHeaders {}' _
 
-# Provision redirection aliases
-find . -regex '.*include.*/ignition.*\.h.*\|.*include\(.*\)*/Ign\(ition\)?[A-Z].*\.h.*' -type f -print0 \
-  | xargs -0 -I {} bash -c 'populateRedirectionAlias {}' _
+  # Cleanup dangling files
+  find . -regex ".*/include.*/ignition.*/CMakeLists\.txt" -type f -print0 | xargs -0 -I {} rm {}  # Remove dangling .in config files
+  find . -regex ".*/include.*/ignition.*/.*\.in" -type f -print0 | xargs -0 -I {} rm {}  # Remove dangling ignition CMakeLists
 
-# Do some absolutely ridiculous awk sourcery to remove most instances of copyright edits
-GIT_DIFF="$(git diff)"
-PATCHED_GIT_DIFF=$(awk '{
-  if(/^-.*Open Source Robotics Foundation/){
-    prev=$0;
-    getline;
+  reviewConfirm
+  gitCommit -s ${IGN_ORG} "Move header files with git mv"  # Commits staged git mv changes
+  echo -e "\n== Copying Redirection Aliases ==\n"
+  gitCommit -f -a ${IGN_ORG} "Create redirection aliases"  # Adds and commits unstaged redirections
 
-    if(/^\+.*Open Source Robotics Foundation/){
-      print prev; sub(/^-/, "+", prev); print prev;
-    } else {
-      print prev "\n" $0;
+  # Create Export.hh and <lib>.hh
+  find . -regex './include.*/ignition/[^/]*' -type d -print0 \
+    | xargs -0 -I {} bash -c 'touch "{}/Export.hh" \
+                              && echo "[CREATED] {}/Export.hh"' _
+  find . -regex './include.*/ignition/[^/]*' -type d -print0 \
+    | xargs -0 -I {} bash -c 'touch "$(sed "s@\(.*\)/\(.*\)\$@\1/\2.hh@g" <<< {})" \
+                              && echo "[CREATED] $(sed "s@\(.*\)/\(.*\)\$@\1/\2.hh@g" <<< {})"'
+
+  # Provision redirection aliases
+  find . -regex '.*include.*/ignition.*\.h.*\|.*include\(.*\)*/Ign\(ition\)?[A-Z].*\.h.*' -type f -print0 \
+    | xargs -0 -I {} bash -c 'populateRedirectionAlias {}' _
+
+  # Do some absolutely ridiculous awk sourcery to remove most instances of copyright edits
+  GIT_DIFF="$(git diff)"
+  PATCHED_GIT_DIFF=$(awk '{
+    if(/^-.*Open Source Robotics Foundation/){
+      prev=$0;
+      getline;
+
+      if(/^\+.*Open Source Robotics Foundation/){
+        print prev; sub(/^-/, "+", prev); print prev;
+      } else {
+        print prev "\n" $0;
+      }
     }
-  }
-  else{print;}
-}' <<< "${GIT_DIFF}")
+    else{print;}
+  }' <<< "${GIT_DIFF}")
 
-git restore .
-git apply <<< "${PATCHED_GIT_DIFF}"
+  git restore .
+  git apply <<< "${PATCHED_GIT_DIFF}"
 
-reviewConfirm
-gitCommit -f -a -e ${IGN_ORG}
+  reviewConfirm
+  gitCommit -f -a -e ${IGN_ORG}
 
-# Migrate Gz sources
-find . -regex '.*/\[src\|test\|examples\]/.*\|.*include\(.*\)*/[gz|Gz].*' -type f -print0 | xargs -0 -I {} bash -c 'migrateSources {}' _
+  # Migrate Gz sources
+  find . -regex '.*/\[src\|test\|examples\]/.*\|.*include\(.*\)*/[gz|Gz].*' -type f -print0 | xargs -0 -I {} bash -c 'migrateSources {}' _
 
-reviewConfirm
-gitCommit ${IGN_ORG} "Migrate sources in src, test, examples, and include"
+  reviewConfirm
+  gitCommit ${IGN_ORG} "Migrate sources in src, test, examples, and include"
 
-# Migrate Gz CMake files
-find . -regex '.*[include\|src\|test\|examples].*/CMakeLists\.txt' -type f -print0 | xargs -0 -I {} bash -c 'migrateCmake {}' _
+  # Migrate Gz CMake files
+  find . -regex '.*[include\|src\|test\|examples].*/CMakeLists\.txt' -type f -print0 | xargs -0 -I {} bash -c 'migrateCmake {}' _
 
-# Add header level CMakeLists.txt
-touch ./include/CMakeLists.txt
-echo "add_subdirectory(gz)" > ./include/CMakeLists.txt
-echo "install(DIRECTORY ignition DESTINATION \${IGN_INCLUDE_INSTALL_DIR_FULL})" >> ./include/CMakeLists.txt
+  # Add header level CMakeLists.txt
+  touch ./include/CMakeLists.txt
+  echo "add_subdirectory(gz)" > ./include/CMakeLists.txt
+  echo "install(DIRECTORY ignition DESTINATION \${IGN_INCLUDE_INSTALL_DIR_FULL})" >> ./include/CMakeLists.txt
 
-# Edit top level CMakeLists
-sed -i 's@ign_configure_project(\(.*\))@ign_configure_project(\n  REPLACE_IGNITION_INCLUDE_PATH gz/utils\n  \1)@g' CMakeLists.txt
+  # Edit top level CMakeLists
+  sed -i 's@ign_configure_project(\(.*\))@ign_configure_project(\n  REPLACE_IGNITION_INCLUDE_PATH gz/utils\n  \1)@g' CMakeLists.txt
 
-reviewConfirm
-gitCommit ${IGN_ORG} "Migrate CMake files"
-gitPushAndPR ${IGN_ORG} main "ign -> gz Header Migration" "Test run of https://github.com/ignition-tooling/release-tools/pull/712"
-
-# TODOs
-# Parse libs from CLI
-# Clone
+  reviewConfirm
+  gitCommit ${IGN_ORG} "Migrate CMake files"
+  gitPushAndPR ${IGN_ORG} main "${PR_TITLE} : ${LIB}" ${PR_TEXT}
+done
