@@ -151,20 +151,49 @@ startFromCleanBranch() {
 
 
 # Commit and open PR
+# gitCommit [-a] [-c] [-f] [-s] ORG [COMMIT_MSG]
 # Args:
 # $1: Org name
 # $2: Base branch to open PR against
 # $3: Commit message
-# $3: PR text
 gitCommit() {
+  local OPTIND ADD_ALL STAGED_DIFF FORCE_COMMIT
+  while getopts acfs flag; do
+    case "${flag}" in
+      a)
+        local ADD_ALL="true" && echo -e "${GREEN}[gitCommit] Adding all unstaged files to commit!${DEFAULT}"
+        ;;
+      c|s)
+        local STAGED_DIFF="true" && echo -e "${GREEN}[gitCommit] Checking diff for staged files!${DEFAULT}"
+        ;;
+      f)
+        local FORCE_COMMIT="true" && echo -e "${GREEN}[gitCommit] Ignoring diffs!${DEFAULT}"
+        ;;
+      *)
+        echo -e "${RED}[gitCommit] Invalid flag passed! Valid: -s -c -a ${DEFAULT}"
+        ;;
+      esac
+  done
+  shift $((OPTIND-1))
+
   local REPO=${PWD##*/}
   local ORG=$1
   local COMMIT_MSG=${2:-${DEFAULT_COMMIT_MSG}}
-  local ADD_ALL=${3:-0}
 
-  if git diff --exit-code; then
-    echo -e "${GREEN}${REPO}: Nothing to commit for ${REPO}.${DEFAULT}"
-    return
+  if [[ "${FORCE_COMMIT}" == "true" ]] ; then
+        echo -e "${GREEN}[gitCommit] Skipping diff check!${DEFAULT}"
+  else
+    if [[ "${STAGED_DIFF}" == "true" ]] ; then
+      if git diff --staged --exit-code; then
+        echo -e "${GREEN}${REPO}: Nothing to commit for ${REPO}.${DEFAULT}"
+        return
+      fi
+    else
+      if git diff --exit-code; then
+        echo -e "${GREEN}${REPO}: Nothing to commit for ${REPO}.${DEFAULT}"
+        return
+      fi
+    fi
   fi
 
   # Sanity check that we're on a right branch
@@ -177,10 +206,9 @@ gitCommit() {
   echo -e "${GREEN_BG}${REPO}: Commit ${REPO}: ${COMMIT_MSG} ? (y/n)${DEFAULT_BG}"
   read CONTINUE
   if [ "$CONTINUE" = "y" ]; then
-    if (( $ADD_ALL )) ; then
+    if [[ "${ADD_ALL}" == "true" ]] ; then
       git add -A
     fi
-
     git commit -sam "${COMMIT_MSG}"
   fi
 }
