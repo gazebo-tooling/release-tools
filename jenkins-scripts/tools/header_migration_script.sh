@@ -316,15 +316,15 @@ reviewConfirm() {
 
 mvHeaders() {
   # Create necessary directories
-  dirname $1 | sed 's@include\(.*\)*/ignition@include\1/gz@g' | xargs -I {} mkdir -pv {}
+  dirname $1 | sed ':loop s@include\(.*\)*/\([^/]*_\)\?ign\(ition\)\?@include\1/\2gz@g; t loop' | xargs -I {} mkdir -pv {}
 
   # Move anything in an include/.../ignition or include/ignition subdirectory
   # Also handles:
   #   IgnitionXXX -> GzXXX
   #   IgnXXX -> GzXXX
-  if [[ $1 =~ include(.*)*/ignition ]] || [[ $1 =~ include(.*)*/Ign(ition)?[A-Z] ]] ; then
+  if [[ $1 =~ include(.*)*/([^/]*_)?ign(ition)? ]] || [[ $1 =~ include(.*)*/Ign(ition)?[A-Z] ]] ; then
     echo $1 | sed \
-      -e 's@include\(.*\)*/ignition@include\1/gz@g' \
+      -e ':loop s@include\(.*\)*/\([^/]*_\)\?ign\(ition\)\?@include\1/\2gz@g; t loop' \
       -e 's@include\(.*\)*/Ign\(ition\)\?\([A-Z]\)@include\1/Gz\3@g' \
        | xargs -I {} bash -c "git mv -f $1 {} && cp {} $1 && echo '[MOVED WITH RESIDUAL] $1 --> {}'" _
   fi
@@ -355,12 +355,14 @@ migrateSources() {  # Different variations of ignition/ign -> gz in source files
     # NOTE(CH3): We're not migrating class or variable names for now
     # sed -i 's@Ignition\([A-Z]\)@Gz\1@g' $1 # e.g. IgnitionFormatter -> GzFormatter
 
-    sed -i 's@ignition/@gz/@g' $1  # e.g. include <ignition/utils/XXX> -> include <gz/utils/XXX>
+    sed -i 's@ign\(ition\)\?/@gz/@g' $1  # e.g. include <ignition/utils/XXX> -> include <gz/utils/XXX>
+
+    # NOTE(CH3): Deliberate non-permissive match here
     sed -i 's@ignition_@gz_@g' $1  # e.g. ignition_xxx -> gz_xxx
 
     # NOTE(CH3): The other one was too greedy (sign_bit -> sgz_bit)
     # sed -i 's@ign_@gz_@g' $1       # e.g. ign_xxx -> gz_xxx
-    sed -i 's@\([{(_<"]\)ign_@\1gz_@g' $1             # e.g. ${ign_utils} -> ${gz_utils}
+    sed -i 's@\([{(_<"]\)ign\(ition\)\?_@\1gz_@g' $1             # e.g. ${ign_utils} -> ${gz_utils}
 
     # Rollback edge cases
     sed -i 's@${gz_headers}@${ign_headers}@g' $1
@@ -374,23 +376,22 @@ migrateCmake() {  # Different variations of ignition/ign -> gz in CMake files
   if [[ $1 =~ CMakeLists.txt ]] ; then # Only do for CMakeLists files
     echo "[MIGRATING CMAKE] $1"
 
-    sed -i 's@(ignition@(gz@g' $1   # e.g. add_subdirectory(ignition) -> add_subdirectory(gz)
+    sed -i 's@(ign\(ition\)\?@(gz@g' $1   # e.g. add_subdirectory(ignition) -> add_subdirectory(gz)
 
-    sed -i 's@Ignition\([A-Z]\)@Gz\1@g' $1  # e.g. IgnitionFormatter -> GzFormatter
-    sed -i 's@(\(.*\)ignition@(\1gz@g' $1   # e.g. add_subdirectory(ignition) -> add_subdirectory(gz)
+    sed -i 's@Ign\(ition\)\?\([A-Z]\)@Gz\2@g' $1  # e.g. IgnitionFormatter -> GzFormatter
+    sed -i 's@(\(.*\)ign\(ition\)\?@(\1gz@g' $1   # e.g. add_subdirectory(ignition) -> add_subdirectory(gz)
 
     # NOTE(CH3):
     # ^\([^ign ]\+\) ignores lines that start with ign(nition)_
     # Which should avoid changing most ign-cmake macro calls
-    sed -i 's@\b\([^ign ]\+\)ignition/@\1gz/@g' $1  # e.g. include <ignition/utils/XXX> -> include <gz/utils/XXX>
-    sed -i 's@\b\([^ign ]\+\)ignition_@\1gz_@g' $1  # e.g. ignition_xxx -> gz_xxx
-    sed -i 's@\b\([^ign ]\+\)ign_@\1gz_@g' $1       # e.g. XXX_ign_xxx -> XXX_gz_xxx
+    sed -i 's@\b\([^ign ]\+\)ign\(ition\)\?/@\1gz/@g' $1  # e.g. include <ignition/utils/XXX> -> include <gz/utils/XXX>
+    sed -i 's@\b\([^ign ]\+\)ign\(ition\)\?_@\1gz_@g' $1  # e.g. ignition_xxx -> gz_xxx
 
     # /^#/! ignores lines starting with # (ignore comments)
-    sed -i '/^#/! s@\(\w\) ign_@\1 gz_@g' $1              # e.g. XXX ign_xxx -> XXX gz_xxx
+    sed -i '/^#/! s@\(\w\) ign\(ition\)\?_@\1 gz_@g' $1              # e.g. XXX ign_xxx -> XXX gz_xxx
 
     # Catchall for open-parentheses/quotes
-    sed -i 's@\([{(_<"]\)ign_@\1gz_@g' $1             # e.g. ${ign_utils} -> ${gz_utils}
+    sed -i 's@\([{(_<"]\)ign\(ition\)\?_@\1gz_@g' $1             # e.g. ${ign_utils} -> ${gz_utils}
 
     # Rollback edge cases
     # TODO(CH3): This becomes a helper once our project names are actually migrated
@@ -472,7 +473,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   gitCommit -f -a -e ${IGN_ORG}
 
   # Migrate Gz sources
-  find . -regex '.*/\[src\|test\|examples\]/.*\|.*include\(.*\)*/[gz|Gz].*' -type f -print0 | xargs -0 -I {} bash -c 'migrateSources {}' _
+  find . -regex '.*/\[src\|test\|examples\]/.*\|.*include\(.*\)*/\([^/]*_\)?[gz|Gz].*' -type f -print0 | xargs -0 -I {} bash -c 'migrateSources {}' _
 
   reviewConfirm
   gitCommit ${IGN_ORG} "Migrate sources in src, test, examples, and include"
