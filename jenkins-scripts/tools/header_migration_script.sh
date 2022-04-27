@@ -361,8 +361,27 @@ find . -regex './include.*/ignition/[^/]*' -type d -print0 \
 find . -regex '.*include.*/ignition.*\.h.*\|.*include\(.*\)*/Ign\(ition\)?[A-Z].*\.h.*' -type f -print0 \
   | xargs -0 -I {} bash -c 'populateRedirectionAlias {}' _
 
+# Do some absolutely ridiculous awk sourcery to remove most instances of copyright edits
+GIT_DIFF="$(git diff)"
+PATCHED_GIT_DIFF=$(awk '{
+  if(/^-.*Open Source Robotics Foundation/){
+    prev=$0;
+    getline;
+
+    if(/^\+.*Open Source Robotics Foundation/){
+      print prev; sub(/^-/, "+", prev); print prev;
+    } else {
+      print prev "\n" $0;
+    }
+  }
+  else{print;}
+}' <<< "${GIT_DIFF}")
+
+git restore .
+git apply <<< "${PATCHED_GIT_DIFF}"
+
 reviewConfirm
-gitCommit ${IGN_ORG} "Provision redirection aliases" 1  # 1 to `git add -A`
+gitCommit -a ${IGN_ORG} "Provision redirection aliases"
 
 # Migrate Gz sources
 find . -regex '.*/\[src\|test\|examples\]/.*\|.*include\(.*\)*/[gz|Gz].*' -type f -print0 | xargs -0 -I {} bash -c 'migrateSources {}' _
