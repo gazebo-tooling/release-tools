@@ -354,8 +354,8 @@ find . -regex './include.*/ignition/[^/]*' -type d -print0 \
   | xargs -0 -I {} bash -c 'touch "{}/Export.hh" \
                             && echo "[CREATED] {}/Export.hh"' _
 find . -regex './include.*/ignition/[^/]*' -type d -print0 \
-  | xargs -0 -I {} bash -c 'touch "$(sed "s@\(.*\)/\(.*\)\$@\1/\2/\2.hh@g" <<< {})" \
-                            && echo "[CREATED] $(sed "s@\(.*\)/\(.*\)\$@\1/\2/\2.hh@g" <<< {})"'
+  | xargs -0 -I {} bash -c 'touch "$(sed "s@\(.*\)/\(.*\)\$@\1/\2.hh@g" <<< {})" \
+                            && echo "[CREATED] $(sed "s@\(.*\)/\(.*\)\$@\1/\2.hh@g" <<< {})"'
 
 # Provision redirection aliases
 find . -regex '.*include.*/ignition.*\.h.*\|.*include\(.*\)*/Ign\(ition\)?[A-Z].*\.h.*' -type f -print0 \
