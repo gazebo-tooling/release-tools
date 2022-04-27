@@ -158,7 +158,7 @@ startFromCleanBranch() {
 # $3: Commit message
 gitCommit() {
   local OPTIND ADD_ALL STAGED_DIFF FORCE_COMMIT
-  while getopts acfs flag; do
+  while getopts acefs flag; do
     case "${flag}" in
       a)
         local ADD_ALL="true" && echo -e "${GREEN}[gitCommit] Adding all unstaged files to commit!${DEFAULT}"
@@ -166,11 +166,14 @@ gitCommit() {
       c|s)
         local STAGED_DIFF="true" && echo -e "${GREEN}[gitCommit] Checking diff for staged files!${DEFAULT}"
         ;;
+      e)
+        local AMEND="true" && echo -e "${GREEN}[gitCommit] Amending commit!${DEFAULT}"
+        ;;
       f)
         local FORCE_COMMIT="true" && echo -e "${GREEN}[gitCommit] Ignoring diffs!${DEFAULT}"
         ;;
       *)
-        echo -e "${RED}[gitCommit] Invalid flag passed! Valid: -s -c -a ${DEFAULT}"
+        echo -e "${RED}[gitCommit] Invalid flag passed! Valid: -s -c -e -a ${DEFAULT}"
         ;;
       esac
   done
@@ -203,13 +206,30 @@ gitCommit() {
     return
   fi
 
-  echo -e "${GREEN_BG}${REPO}: Commit ${REPO}: ${COMMIT_MSG} ? (y/n)${DEFAULT_BG}"
-  read CONTINUE
+  while true; do
+    if [[ "${AMEND}" == "true" ]] ; then
+      echo -e "${GREEN_BG}${REPO}: Amend latest commit on ${REPO}? (y/n)${DEFAULT_BG}"
+    else
+      echo -e "${GREEN_BG}${REPO}: Commit ${REPO}: ${COMMIT_MSG} ? (y/n)${DEFAULT_BG}"
+    fi
+
+    read CONTINUE
+
+    case $CONTINUE in
+      y) break;;
+      n) echo -e "${GREEN}Skipping commit${DEFAULT}" && break;;
+    esac
+  done
+
   if [ "$CONTINUE" = "y" ]; then
     if [[ "${ADD_ALL}" == "true" ]] ; then
       git add -A
     fi
-    git commit -sam "${COMMIT_MSG}"
+    if [[ "${AMEND}" == "true" ]] ; then
+      git commit --amend -C HEAD
+    else
+      git commit -sam "${COMMIT_MSG}"
+    fi
   fi
 }
 
@@ -239,8 +259,15 @@ gitPushAndPR() {
 
 # METHODS AND CONSTANTS ============================================================================
 reviewConfirm() {
-  echo -e "${GREEN_BG}Reviewed changes, ready to commit? (y/n)${DEFAULT_BG}"
-  read CONTINUE
+  while true; do
+    echo -e "${GREEN_BG}Have you reviewed the changes above, and are you ready to commit? (y?)${DEFAULT_BG}"
+    read CONTINUE
+
+    case $CONTINUE in
+      y) break;;
+    esac
+  done
+
   if [ "$CONTINUE" = "y" ]; then
     return
   fi
@@ -390,7 +417,7 @@ git restore .
 git apply <<< "${PATCHED_GIT_DIFF}"
 
 reviewConfirm
-gitCommit -a ${IGN_ORG} "Provision redirection aliases"
+gitCommit -f -a -e ${IGN_ORG}
 
 # Migrate Gz sources
 find . -regex '.*/\[src\|test\|examples\]/.*\|.*include\(.*\)*/[gz|Gz].*' -type f -print0 | xargs -0 -I {} bash -c 'migrateSources {}' _
