@@ -258,12 +258,17 @@ mvHeaders() {
     echo $1 | sed \
       -e 's@include\(.*\)*/ignition@include\1/gz@g' \
       -e 's@include\(.*\)*/Ign\(ition\)\?\([A-Z]\)@include\1/Gz\3@g' \
-       | xargs -I {} bash -c "git mv -f $1 {} && echo '[MOVED] $1 --> {}'" _
+       | xargs -I {} bash -c "git mv -f $1 {} && cp {} $1 && echo '[MOVED WITH RESIDUAL] $1 --> {}'" _
   fi
 
   # Leave redirection aliases
   #   Converting *.in into normal versions (spoofing configuration of *.in files)
-  echo $1 | sed 's@\(.*\)\.in@\1@g' | xargs -I {} touch {}
+  if [[ $1 =~ .*\.in ]] ; then
+    echo "[CONVERTING] $1"
+    echo $1 | sed 's@\(.*\)\.in@\1@g' | xargs -I {} mv $1 {}
+  fi
+
+  # echo $1 | sed 's@\(.*\)\.in@\1@g' | xargs -I {} touch {}
 } ; export -f mvHeaders
 
 
@@ -339,9 +344,10 @@ find . -regex '.*include\(.*\)*' -type f -print0 | xargs -0 -I {} bash -c 'mvHea
 find . -regex ".*/include.*/ignition.*/CMakeLists\.txt" -type f -print0 | xargs -0 -I {} rm {}  # Remove dangling .in config files
 find . -regex ".*/include.*/ignition.*/.*\.in" -type f -print0 | xargs -0 -I {} rm {}  # Remove dangling ignition CMakeLists
 
-git reset -q  # We need this because we're using git mv
 reviewConfirm
-gitCommit ${IGN_ORG} "Move header files" 1  # 1 to `git add -A`
+gitCommit -s ${IGN_ORG} "Move header files with git mv"  # Commits staged git mv changes
+echo -e "\n== Copying Redirection Aliases ==\n"
+gitCommit -f -a ${IGN_ORG} "Create redirection aliases"  # Adds and commits unstaged redirections
 
 # Create Export.hh and <lib>.hh
 find . -regex './include.*/ignition/[^/]*' -type d -print0 \
