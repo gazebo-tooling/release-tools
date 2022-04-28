@@ -14,6 +14,11 @@ if [[ -z ${current_origin_remote} ]]; then
   exit 1
 fi
 
+if [[ $(git branch --show-current) == 'main' ]]; then
+  echo "Error: main branch should not be used for releasing"
+  exit 1
+fi
+
 if [[ -f "Changelog.md" ]]; then
   software_name=$(head -1 Changelog*)
   printf "%s (%s)\n\n" "${software_name}" "$(date +%Y-%m-%d)"
@@ -30,15 +35,17 @@ while [[ -z $previous_tag || ( $previous_tag == *-* && $current_tag != *-* ) ]];
   start_ref="$previous_tag"
 done
 
-git log "$previous_tag".. --reverse --first-parent --pretty=format:"%h|%s|%ae|%an"  | \
+REPO=$(basename `git rev-parse --show-toplevel`)
+REPO_FULL="${REPO/ign-/ignition-}"
+VERSION=${previous_tag/${REPO_FULL}*_}
+MAJOR=${VERSION%.*.*}
+BRANCH=${REPO/sdformat/sdf}${MAJOR}
+
+git log "${BRANCH}"..."${previous_tag}" --pretty=format:"%h|%s|%ae|%an" | \
   while IFS='|' read -r sha title author_email author || [[ -n ${sha} ]]; do
     pr_num="$(grep -o '#[[:digit:]]\+' <<<"$title")"
     pr_num="${pr_num:1}"
-    if [[ $title == "Merge pull request #"* ]]; then
-      pr_desc="$(git show -s --format=%b "$sha" | sed -n '1,/^$/p' | tr $'\n' ' ')"
-    else
-      pr_desc=${title/\ (#[[:digit:]]*)}
-    fi
+    pr_desc=${title/\ (#[[:digit:]]*)}
     printf "1. %s\n" "$pr_desc"
     printf "    * [Pull request #%s](%s/pull/%s)\n" "$pr_num" "$current_origin_remote" "$pr_num"
     if [[ "${author_email/@openrobotics.org}" == "${author_email}" ]] && \
