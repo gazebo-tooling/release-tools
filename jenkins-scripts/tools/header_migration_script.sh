@@ -349,7 +349,7 @@ migrateSources() {  # Different variations of ignition/ign -> gz in source files
       # Only migrate non-macro definition calls (loop to make it recursive)
       #   \([^(]*\)\ to ignore any macros with arguments (to target header guards only)
       #   _H to target (mostly) header guards (might miss improperly defined header guards)
-      sed -i ':loop s@\(#.*\) IGN\(ITION\)\?\(.*\)_H\([^(]*\)$@\1 GZ\3_H\4@g; t loop' $1  # e.g. IGNITION_UTILS__XXX -> GZ_UTILS__XXX
+      sed -i ':loop s@\(#.*\)\([ _]\)IGN\(ITION\)\?\(.*\)_H\([^(]*\)$@\1\2GZ\4_H\5@g; t loop' $1  # e.g. IGNITION_UTILS__XXX -> GZ_UTILS__XXX
     fi
 
     # NOTE(CH3): We're not migrating class or variable names for now
