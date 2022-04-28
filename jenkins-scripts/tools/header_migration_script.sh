@@ -398,6 +398,7 @@ migrateCmake() {  # Different variations of ignition/ign -> gz in CMake files
     #            We can remove the rollbacks then!
     sed -i 's@project(gz@project(ignition@g' $1
     sed -i 's@find_package(gz@find_package(ignition@g' $1
+    sed -i 's@find_package(Gz@find_package(Ign@g' $1
     sed -i 's@IGN_\([^_]*\)_VER ${gz@IGN_\1_VER ${ignition@g' $1
     sed -i 's@-Dgz@-Dignition@g' $1
   fi
@@ -475,6 +476,9 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   # Migrate Gz sources
   find . -regex '.*/\[src\|test\|examples\]/.*\|.*include\(.*\)*/\([^/]*_\)?[gz|Gz].*' -type f -print0 | xargs -0 -I {} bash -c 'migrateSources {}' _
 
+  # More permissive migration for Gz examples
+  find . -regex '.*/examples/.*\|.*include\(.*\)*/.*' -type f -print0 | xargs -0 -I {} bash -c 'migrateSources {}' _
+
   reviewConfirm
   gitCommit ${IGN_ORG} "Migrate sources in src, test, examples, and include"
 
@@ -490,6 +494,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   sed -i 's@ign_configure_project(\(.*\))@ign_configure_project(\n  REPLACE_IGNITION_INCLUDE_PATH gz/utils\n  \1)@g' CMakeLists.txt
 
   reviewConfirm
-  gitCommit ${IGN_ORG} "Migrate CMake files"
+  gitCommit -a ${IGN_ORG} "Migrate CMake files"
   gitPushAndPR ${IGN_ORG} main "${PR_TITLE} : ${LIB}" ${PR_TEXT}
 done
