@@ -350,7 +350,7 @@ cat >> Dockerfile << DELIM_NVIDIA2_GPU
     ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
 DELIM_NVIDIA2_GPU
 
-if [[ ${LINUX_DISTRO} == 'ubuntu' ]] && [[ ${DISTRO} == 'bionic' && ${DISTRO} == 'focal' ]]; then
+if [[ ${LINUX_DISTRO} == 'ubuntu' ]] && [[ ${DISTRO} == 'bionic' || ${DISTRO} == 'focal' ]]; then
 cat >> Dockerfile << DELIM_NVIDIA3_GPU
 # Install libglvnd for OpenGL using nvidia-docker2
 RUN apt-get update && apt-get install -y --no-install-recommends \
