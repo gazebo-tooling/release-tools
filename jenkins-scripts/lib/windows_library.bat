@@ -161,6 +161,7 @@ if "%ghprbSourceBranch%" == "" (echo ghprbSourceBranch is unset) else (
   :: print branch for informational purposes
   git -C %gzdistro_dir% branch
 )
+echo vcs import --retry 5 --force < "%gzdistro_dir%\%1" "%2"
 vcs import --retry 5 --force < "%gzdistro_dir%\%1" "%2" || goto :error
 vcs pull || goto :error
 goto :EOF
