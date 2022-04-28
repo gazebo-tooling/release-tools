@@ -491,7 +491,11 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   echo "install(DIRECTORY ignition DESTINATION \${IGN_INCLUDE_INSTALL_DIR_FULL})" >> ./include/CMakeLists.txt
 
   # Edit top level CMakeLists
-  sed -i 's@ign_configure_project(\(.*\))@ign_configure_project(\n  REPLACE_IGNITION_INCLUDE_PATH gz/utils\n  \1)@g' CMakeLists.txt
+  OFS=$IFS; IFS=" "
+  LIB_NAME_ARR=(${LIB/-/ })
+  echo "CREATING TOP LEVEL CMAKELISTS FOR $LIB: ${LIB_NAME_ARR[1]}"
+  sed -i "s@ign_configure_project(\(.*\))@ign_configure_project(\n  REPLACE_IGNITION_INCLUDE_PATH gz/${LIB_NAME_ARR[1]}\n  \1)@g" CMakeLists.txt
+  IFS=$OFS
 
   reviewConfirm
   gitCommit -a ${IGN_ORG} "Migrate CMake files"
