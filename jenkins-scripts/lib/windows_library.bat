@@ -144,6 +144,8 @@ set gzdistro_dir=gazebodistro
 set gzdistro_file=%gzdistro_dir%\%1
 set target_dir=%2
 
+echo "VCS import of %1 into %2"
+
 if "%GAZEBODISTRO_BRANCH%" == "" (set GAZEBODISTRO_BRANCH=master)
 
 if exist %gzdistro_dir% (rmdir /s /q %gzdistro_dir%)
@@ -166,7 +168,7 @@ if "%ghprbSourceBranch%" == "" (echo ghprbSourceBranch is unset) else (
 echo vcs import --retry 5 --force < "%gzdistro_file% "%target_dir"
 vcs import --retry 5 --force < "%gzdistro_file" "%target_dir" || goto :error
 echo 2
-
+vcs pull || goto :error
 goto :EOF
 
 :: ##################################
