@@ -150,6 +150,7 @@ if "%GAZEBODISTRO_BRANCH%" == "" (set GAZEBODISTRO_BRANCH=master)
 
 if exist %gzdistro_dir% (rmdir /s /q %gzdistro_dir%)
 git clone https://github.com/ignition-tooling/gazebodistro %gzdistro_dir% -b %GAZEBODISTRO_BRANCH%
+echo vcs import --retry 5 --force < %gzdistro_file% %target_dir%
 :: Check if ci_matching_branch name is used
 if "%ghprbSourceBranch%" == "" (echo ghprbSourceBranch is unset) else (
   python "%SCRIPT_DIR%\tools\detect_ci_matching_branch.py" "%ghprbSourceBranch%"
@@ -165,6 +166,7 @@ if "%ghprbSourceBranch%" == "" (echo ghprbSourceBranch is unset) else (
   :: print branch for informational purposes
   git -C %gzdistro_dir% branch
 )
+vcs import --retry 5 --force < %gzdistro_file% %target_dir%
 echo vcs import --retry 5 --force < %gzdistro_file% %target_dir%
 vcs import --retry 5 --force < %gzdistro_file% %target_dir% || goto :error
 echo 2
