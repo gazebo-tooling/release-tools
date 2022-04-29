@@ -380,7 +380,7 @@ migrateCmake() {  # Different variations of ignition/ign -> gz in CMake files
     sed -i 's@(ign\(ition\)\?@(gz@g' $1   # e.g. add_subdirectory(ignition) -> add_subdirectory(gz)
 
     sed -i 's@Ign\(ition\)\?\([A-Z]\)@Gz\2@g' $1  # e.g. IgnitionFormatter -> GzFormatter
-    sed -i 's@(\(.*\)ign\(ition\)\?@(\1gz@g' $1   # e.g. add_subdirectory(ignition) -> add_subdirectory(gz)
+    sed -i ':loop s@(\(\(.*_\)*\)ign\(ition\)\?@(\1gz@g; t loop' $1   # e.g. add_subdirectory(ignition) -> add_subdirectory(gz)
 
     # NOTE(CH3):
     # ^\([^ign ]\+\) ignores lines that start with ign(nition)_
