@@ -17,9 +17,7 @@ ignition_software = [ 'cmake',
                       'tools',
                       'transport',
                       'utils' ]
-migrated_software = [
-                      'launch',
-                      ]
+migrated_software = [ 'launch' ]
 // DESC: need gpu/display for tests
 ignition_gpu                = [ 'gazebo',
                                 'gui',
@@ -130,9 +128,8 @@ ENABLE_GITHUB_PR_INTEGRATION = true
 
 String ci_distro_str = ci_distro[0]
 
-String ign2gz(String ign_sw, String str)
-{
-  if (! "${ign_sw}" in migrated_software)
+String ign2gz(String ign_sw, String str) {
+  if (! migrated_software.contains(ign_sw))
     return str
   str = str.replaceAll("ignitionrobotics","gazebosim")
   str = str.replaceAll("ign-gazebo","gz-sim")
