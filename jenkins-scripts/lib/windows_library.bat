@@ -144,7 +144,7 @@ set gzdistro_dir=gazebodistro
 set gzdistro_file=%gzdistro_dir%\%1
 set target_dir=%2
 
-echo "VCS import of %1 into %2"
+echo "VCS import of %gzdistro_file% into %target_dir%"
 
 if "%GAZEBODISTRO_BRANCH%" == "" (set GAZEBODISTRO_BRANCH=master)
 
@@ -166,7 +166,7 @@ if "%ghprbSourceBranch%" == "" (echo ghprbSourceBranch is unset) else (
   git -C %gzdistro_dir% branch
 )
 echo vcs import --retry 5 --force < %gzdistro_file% %target_dir%
-vcs import --retry 5 --force < "%gzdistro_file%" "%target_dir%" || goto :error
+vcs import --retry 5 --force < %gzdistro_file% %target_dir% || goto :error
 echo 2
 vcs pull || goto :error
 goto :EOF
