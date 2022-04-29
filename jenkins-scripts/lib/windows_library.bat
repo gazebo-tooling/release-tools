@@ -141,6 +141,8 @@ goto :EOF
 :: arg2: directory destination (default .)
 setlocal EnableDelayedExpansion
 set gzdistro_dir=gazebodistro
+set gzdistro_file=%gzdistro_dir%\%1
+set target_dir=%2
 
 if "%GAZEBODISTRO_BRANCH%" == "" (set GAZEBODISTRO_BRANCH=master)
 
@@ -161,9 +163,10 @@ if "%ghprbSourceBranch%" == "" (echo ghprbSourceBranch is unset) else (
   :: print branch for informational purposes
   git -C %gzdistro_dir% branch
 )
-echo vcs import --retry 5 --force < "%gzdistro_dir%\%1" "%2"
-vcs import --retry 5 --force < "%gzdistro_dir%\%1" "%2" || goto :error
-vcs pull || goto :error
+echo vcs import --retry 5 --force < "%gzdistro_file% "%target_dir"
+vcs import --retry 5 --force < "%gzdistro_file" "%target_dir" || goto :error
+echo 2
+
 goto :EOF
 
 :: ##################################
