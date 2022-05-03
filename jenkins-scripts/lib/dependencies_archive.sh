@@ -246,9 +246,16 @@ else
 
   case ${GAZEBO_VERSION_FOR_ROS} in
      *)
-      # both packages see  http://answers.ros.org/question/217970
-      _GZ_ROS_PACKAGES="libgazebo${GAZEBO_VERSION_FOR_ROS}-dev \\
-                       gazebo${GAZEBO_VERSION_FOR_ROS}"
+      # Rolling is supported only on Jammy. Gazebo11 packages from Jammy
+      # are coming directly from Ubuntu repositories, package names are
+      # unversioned
+      if [[ ${DISTRO} == 'jammy' ]]; then
+        _GZ_ROS_PACKAGES="libgazebo-dev gazebo"
+      else
+        # both packages see  http://answers.ros.org/question/217970
+        _GZ_ROS_PACKAGES="libgazebo${GAZEBO_VERSION_FOR_ROS}-dev \\
+                         gazebo${GAZEBO_VERSION_FOR_ROS}"
+      fi
     ;;
   esac
 

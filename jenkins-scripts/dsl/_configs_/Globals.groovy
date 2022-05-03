@@ -21,7 +21,7 @@ class Globals
                      'noetic'   : ['focal'] ,
                      'foxy'     : ['focal'] ,
                      'galactic' : ['focal'] ,
-                     'rolling'  : ['focal']]
+                     'rolling'  : ['jammy']]
 
    // This should be in sync with archive_library
    static gz_version_by_rosdistro = [ 'melodic'  : ['9'] ,
