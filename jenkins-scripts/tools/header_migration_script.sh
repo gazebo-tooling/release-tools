@@ -332,7 +332,10 @@ mvHeaders() {
 
   # Leave redirection aliases
   #   Converting *.in into normal versions (spoofing configuration of *.in files)
-  if [[ $1 =~ [Ii]gn(ition)?.*\.in ]] ; then
+  if [[ $1 =~ [Ii]gn(ition)?(.*)?/detail/.* ]] ; then
+    echo "[REMOVING] $1"
+    rm $1
+  elif [[ $1 =~ [Ii]gn(ition)?.*\.in ]] ; then
     echo "[CONVERTING] $1"
     echo $1 | sed 's@\(.*\)\.in@\1@g' | xargs -I {} mv $1 {}
   fi
