@@ -10,8 +10,10 @@ class Globals
    static rtools_description = true
    static gazebodistro_branch = false
 
-
    static CRON_EVERY_THREE_DAYS = 'H H * * H/3'
+   static CRON_ON_WEEKEND = 'H H * * 6-7'
+
+   static MAKETEST_SKIP_IGN = "-E _ign_TEST"
 
    static gpu_by_distro  = [ bionic  : [ 'nvidia' ]]
 
@@ -19,7 +21,7 @@ class Globals
                      'noetic'   : ['focal'] ,
                      'foxy'     : ['focal'] ,
                      'galactic' : ['focal'] ,
-                     'rolling'  : ['focal']]
+                     'rolling'  : ['jammy']]
 
    // This should be in sync with archive_library
    static gz_version_by_rosdistro = [ 'melodic'  : ['9'] ,

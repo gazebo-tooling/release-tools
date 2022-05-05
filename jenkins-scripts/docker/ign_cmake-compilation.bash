@@ -18,7 +18,7 @@ export BUILDING_SOFTWARE_DIRECTORY="ign-cmake"
 export BUILDING_DEPENDENCIES="pkg-config"
 
 # Enable long-running ign-cmake tests in CI.
-export BUILDING_EXTRA_CMAKE_PARAMS="-DBUILDSYSTEM_TESTING=True"
+export BUILDING_EXTRA_CMAKE_PARAMS+=" -DBUILDSYSTEM_TESTING=True"
 
 # Identify IGN_CMAKE_MAJOR_VERSION to help with dependency resolution
 IGN_CMAKE_MAJOR_VERSION=$(\

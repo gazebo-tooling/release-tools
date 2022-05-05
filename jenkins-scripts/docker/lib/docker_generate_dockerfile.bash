@@ -57,7 +57,9 @@ RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --fo
     if [ -n $GZDEV_TRY_BRANCH ]; then git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH; fi || true && \
     ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} )
 DELIM_OSRF_REPO_GZDEV
-else
+fi
+
+# This could duplicate repositories enabled in the step above. gzdev should warn about it without failing.
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
 RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO}  || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
@@ -65,7 +67,6 @@ RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${
     ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} )
 DELIM_OSRF_REPO
 done
-fi
 }
 
 case ${LINUX_DISTRO} in
@@ -347,6 +348,10 @@ cat >> Dockerfile << DELIM_NVIDIA2_GPU
     ${NVIDIA_VISIBLE_DEVICES:-all}
   ENV NVIDIA_DRIVER_CAPABILITIES \
     ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
+DELIM_NVIDIA2_GPU
+
+if [[ ${LINUX_DISTRO} == 'ubuntu' ]] && [[ ${DISTRO} == 'bionic' || ${DISTRO} == 'focal' ]]; then
+cat >> Dockerfile << DELIM_NVIDIA3_GPU
 # Install libglvnd for OpenGL using nvidia-docker2
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
@@ -368,7 +373,8 @@ RUN mkdir -p /opt/libglvnd && cd /opt/libglvnd && \
     make install-strip && \
     find /usr/local/lib/x86_64-linux-gnu -type f -name 'lib*.la' -delete
 ENV LD_LIBRARY_PATH /usr/local/lib/x86_64-linux-gnu\${LD_LIBRARY_PATH:+:\${LD_LIBRARY_PATH}}
-DELIM_NVIDIA2_GPU
+DELIM_NVIDIA3_GPU
+fi
   fi
  else
   # No NVIDIA cards needs to have the same X stack than the host

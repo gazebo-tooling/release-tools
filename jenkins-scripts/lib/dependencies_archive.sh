@@ -83,7 +83,7 @@ if [[ -z ${SDFORMAT_MAJOR_VERSION} ]]; then
     SDFORMAT_MAJOR_VERSION=6
 fi
 
-if [[ ${SDFORMAT_MAJOR_VERSION} -ge 9 ]]; then
+if [[ ${SDFORMAT_MAJOR_VERSION} -ge 9 && ${SDFORMAT_MAJOR_VERSION} -lt 13 ]]; then
     # sdformat9 requires ignition-math6 and
     # uses ignition-tools for a test
     SDFORMAT_BASE_DEPENDENCIES="${SDFORMAT_NO_IGN_DEPENDENCIES} \\
@@ -246,9 +246,16 @@ else
 
   case ${GAZEBO_VERSION_FOR_ROS} in
      *)
-      # both packages see  http://answers.ros.org/question/217970
-      _GZ_ROS_PACKAGES="libgazebo${GAZEBO_VERSION_FOR_ROS}-dev \\
-                       gazebo${GAZEBO_VERSION_FOR_ROS}"
+      # Rolling is supported only on Jammy. Gazebo11 packages from Jammy
+      # are coming directly from Ubuntu repositories, package names are
+      # unversioned
+      if [[ ${DISTRO} == 'jammy' ]]; then
+        _GZ_ROS_PACKAGES="libgazebo-dev gazebo"
+      else
+        # both packages see  http://answers.ros.org/question/217970
+        _GZ_ROS_PACKAGES="libgazebo${GAZEBO_VERSION_FOR_ROS}-dev \\
+                         gazebo${GAZEBO_VERSION_FOR_ROS}"
+      fi
     ;;
   esac
 
@@ -384,18 +391,21 @@ fi
 # IGNITION
 #
 
-if [[ ${IGN_MATH_MAJOR_VERSION} -eq 4 ]]; then
-  IGN_MATH_DEPENDENCIES="libeigen3-dev \\
-                         libpython3-dev \\
-                         ruby-dev \\
-                         swig \\
-                         libignition-cmake-dev"
-else
-  IGN_MATH_DEPENDENCIES="libeigen3-dev \\
-                         libpython3-dev \\
-                         ruby-dev \\
-                         swig \\
-                         libignition-cmake2-dev"
+# Completely rely on packages.apt from Garden
+if [[ ${IGN_MATH_MAJOR_VERSION} -lt 7 ]]; then
+  if [[ ${IGN_MATH_MAJOR_VERSION} -eq 4 ]]; then
+    IGN_MATH_DEPENDENCIES="libeigen3-dev \\
+                           libpython3-dev \\
+                           ruby-dev \\
+                           swig \\
+                           libignition-cmake-dev"
+  else
+    IGN_MATH_DEPENDENCIES="libeigen3-dev \\
+                           libpython3-dev \\
+                           ruby-dev \\
+                           swig \\
+                           libignition-cmake2-dev"
+  fi
 fi
 
 # IGN_TRANSPORT related dependencies. Default value points to the development
@@ -404,224 +414,253 @@ if [[ -z ${IGN_TRANSPORT_MAJOR_VERSION} ]]; then
     IGN_TRANSPORT_MAJOR_VERSION=5
 fi
 
-IGN_TRANSPORT_NO_IGN_DEPENDENCIES="pkg-config           \\
-                                   ${pythonv}           \\
-                                   ruby-ronn            \\
-                                   libprotoc-dev        \\
-                                   libprotobuf-dev      \\
-                                   protobuf-compiler    \\
-                                   uuid-dev             \\
-                                   libzmq3-dev          \\
-                                   libczmq-dev"
-
-if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 4 ]]; then
-    export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
-                                libignition-cmake-dev \\
-                                libignition-msgs-dev"
-elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 8 ]]; then
-    export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
-                                  libignition-cmake2-dev \\
-                                  libignition-msgs5-dev \\
-                                  libsqlite3-dev \\
-                                  ruby-ffi"
+# Completely rely on packages.apt from Garden
+if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -lt 12 ]]; then
+  IGN_TRANSPORT_NO_IGN_DEPENDENCIES="pkg-config           \\
+                                     ${pythonv}           \\
+                                     ruby-ronn            \\
+                                     libprotoc-dev        \\
+                                     libprotobuf-dev      \\
+                                     protobuf-compiler    \\
+                                     uuid-dev             \\
+                                     libzmq3-dev          \\
+                                     libczmq-dev"
+  if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -eq 4 ]]; then
+      export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
+                                  libignition-cmake-dev \\
+                                  libignition-msgs-dev"
+  elif [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 8 ]]; then
+      export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_NO_IGN_DEPENDENCIES} \\
+                                    libignition-cmake2-dev \\
+                                    libignition-msgs5-dev \\
+                                    libsqlite3-dev \\
+                                    ruby-ffi"
+  fi
+  export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} libignition-tools-dev"
 fi
 
-export IGN_TRANSPORT_DEPENDENCIES="${IGN_TRANSPORT_DEPENDENCIES} libignition-tools-dev"
+# Completely rely on packages.apt from Garden
+if [[ ${IGN_COMMON_MAJOR_VERSION} -lt 5 ]]; then
+  IGN_COMMON_NO_IGN_DEPENDENCIES="pkg-config     \\
+                           ${pythonv}            \\
+                           ruby-ronn             \\
+                           uuid-dev              \\
+                           libfreeimage-dev      \\
+                           libgts-dev            \\
+                           libavformat-dev       \\
+                           libavcodec-dev        \\
+                           libswscale-dev        \\
+                           libavutil-dev         \\
+                           libavdevice-dev       \\
+                           libtinyxml2-dev       \\
+                           uuid-dev"
 
-IGN_COMMON_NO_IGN_DEPENDENCIES="pkg-config     \\
-                         ${pythonv}            \\
-                         ruby-ronn             \\
-                         uuid-dev              \\
-                         libfreeimage-dev      \\
-                         libgts-dev            \\
-                         libavformat-dev       \\
-                         libavcodec-dev        \\
-                         libswscale-dev        \\
-                         libavutil-dev         \\
-                         libavdevice-dev       \\
-                         libtinyxml2-dev       \\
-                         uuid-dev"
+  IGN_COMMON_DEPENDENCIES="${IGN_COMMON_NO_IGN_DEPENDENCIES} \\
+                       libignition-cmake-dev \\
+                       libignition-cmake2-dev \\
+                       libignition-math4-dev \\
+                       libignition-math6-dev"
+fi
 
-IGN_COMMON_DEPENDENCIES="${IGN_COMMON_NO_IGN_DEPENDENCIES} \\
-                     libignition-cmake-dev \\
-                     libignition-cmake2-dev \\
-                     libignition-math4-dev \\
-                     libignition-math6-dev"
-
-IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake2-dev \\
-                             libignition-common3-dev \\
-                             libignition-tools-dev  \\
-                             libcurl4-openssl-dev   \\
-                             libjsoncpp-dev         \\
-                             libyaml-dev            \\
-                             libzip-dev"
-
-if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -eq 1 ]]; then
-  IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
-                               libignition-cmake-dev  \\
-                               libignition-common-dev"
-else
-  IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
-                               libignition-cmake2-dev  \\
+# Completely rely on packages.apt from Garden
+if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -lt 8 ]]; then
+  IGN_FUEL_TOOLS_DEPENDENCIES="libignition-cmake2-dev \\
                                libignition-common3-dev \\
-                               libtinyxml2-dev"
+                               libignition-tools-dev  \\
+                               libcurl4-openssl-dev   \\
+                               libjsoncpp-dev         \\
+                               libyaml-dev            \\
+                               libzip-dev"
+
+  if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -eq 1 ]]; then
+    IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
+                                 libignition-cmake-dev  \\
+                                 libignition-common-dev"
+  else
+    IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
+                                 libignition-cmake2-dev  \\
+                                 libignition-common3-dev \\
+                                 libtinyxml2-dev"
+  fi
+
+  if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -ge 4 ]]; then
+    IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
+                                 libignition-msgs5-dev"
+  fi
 fi
 
-if [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} -ge 4 ]]; then
-  IGN_FUEL_TOOLS_DEPENDENCIES="${IGN_FUEL_TOOLS_DEPENDENCIES} \\
-                               libignition-msgs5-dev"
+# Completely rely on packages.apt from Garden
+if [[ ${IGN_MSGS_MAJOR_VERSION} -lt 9 ]]; then
+  IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
+                         libprotobuf-dev       \\
+                         libprotoc-dev         \\
+                         protobuf-compiler     \\
+                         libtinyxml2-dev       \\
+                         ruby                  \\
+                         ruby-dev"
+
+  if [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -eq 1 ]]; then
+      IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
+                             libignition-cmake-dev \\
+                             libignition-math4-dev"
+  elif [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -ge 5 ]]; then
+      IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
+                             libignition-cmake2-dev \\
+                             libignition-math6-dev"
+  fi
 fi
 
-
-IGN_MSGS_DEPENDENCIES="libignition-tools-dev \\
-                       libprotobuf-dev       \\
-                       libprotoc-dev         \\
-                       protobuf-compiler     \\
-                       libtinyxml2-dev       \\
-                       ruby                  \\
-                       ruby-dev"
-
-if [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -eq 1 ]]; then
-    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
-                           libignition-cmake-dev \\
-                           libignition-math4-dev"
-elif [[ -n ${IGN_MSGS_MAJOR_VERSION} && ${IGN_MSGS_MAJOR_VERSION} -ge 5 ]]; then
-    IGN_MSGS_DEPENDENCIES="${IGN_MSGS_DEPENDENCIES} \\
-                           libignition-cmake2-dev \\
-                           libignition-math6-dev"
-fi
-
-IGN_GUI_NO_IGN_DEPENDENCIES="qtbase5-dev \\
-                      qtdeclarative5-dev \\
-                      libtinyxml2-dev \\
-                      libqwt-qt5-dev \\
-                      qml-module-qt-labs-folderlistmodel \\
-                      qml-module-qt-labs-platform \\
-                      qml-module-qt-labs-settings \\
-                      qml-module-qtcharts \\
-                      qml-module-qtgraphicaleffects \\
-                      qml-module-qtqml-models2 \\
-                      qml-module-qtquick-controls \\
-                      qml-module-qtquick-controls2 \\
-                      qml-module-qtquick-dialogs \\
-                      qml-module-qtquick-layouts \\
-                      qml-module-qtquick-templates2 \\
-                      qml-module-qtquick-window2 \\
-                      qml-module-qtquick2 \\
-                      qtquickcontrols2-5-dev"
-
-IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
-                      libignition-cmake2-dev \\
-                      libignition-common3-dev \\
-                      libignition-math6-dev \\
-                      libignition-plugin-dev \\
-                      libignition-tools-dev"
-
-if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 4 ]]; then
-  IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
-                        libignition-common3-dev"
-elif [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -eq 3 ]]; then
-  IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
+# Completely rely on packages.apt from Garden
+if [[ ${IGN_GUI_MAJOR_VERSION} -lt 7 ]]; then
+  IGN_GUI_NO_IGN_DEPENDENCIES="qtbase5-dev \\
+                        qtdeclarative5-dev \\
+                        libtinyxml2-dev \\
+                        libqwt-qt5-dev \\
+                        qml-module-qt-labs-folderlistmodel \\
+                        qml-module-qt-labs-platform \\
+                        qml-module-qt-labs-settings \\
+                        qml-module-qtcharts \\
+                        qml-module-qtgraphicaleffects \\
+                        qml-module-qtqml-models2 \\
+                        qml-module-qtquick-controls \\
+                        qml-module-qtquick-controls2 \\
+                        qml-module-qtquick-dialogs \\
+                        qml-module-qtquick-layouts \\
+                        qml-module-qtquick-templates2 \\
+                        qml-module-qtquick-window2 \\
+                        qml-module-qtquick2 \\
+                        qtquickcontrols2-5-dev"
+  IGN_GUI_DEPENDENCIES="${IGN_GUI_NO_IGN_DEPENDENCIES} \\
+                        libignition-cmake2-dev \\
                         libignition-common3-dev \\
-                        libignition-msgs5-dev \\
-                        libignition-rendering3-dev \\
-                        libignition-transport8-dev"
+                        libignition-math6-dev \\
+                        libignition-plugin-dev \\
+                        libignition-tools-dev"
+
+  if [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -ge 4 ]]; then
+    IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
+                          libignition-common3-dev"
+  elif [[ -n "${IGN_GUI_MAJOR_VERSION}" && ${IGN_GUI_MAJOR_VERSION} -eq 3 ]]; then
+    IGN_GUI_DEPENDENCIES="${IGN_GUI_DEPENDENCIES} \\
+                          libignition-common3-dev \\
+                          libignition-msgs5-dev \\
+                          libignition-rendering3-dev \\
+                          libignition-transport8-dev"
+  fi
 fi
 
 IGN_PHYSICS_DART_FROM_PKGS="true"
 
-IGN_PLUGIN_DEPENDENCIES="libignition-cmake2-dev"
-
-IGN_LAUNCH_COMMON_DEPENDENCIES="libignition-cmake2-dev \\
-                         libignition-common3-dev \\
-                         libignition-math6-dev \\
-                         libignition-plugin-dev \\
-                         libignition-tools-dev \\
-                         libtinyxml2-dev  \\
-                         qtquickcontrols2-5-dev \\
-                         libqt5core5a"
-
-if [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -ge 3 ]]; then
-  IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_COMMON_DEPENDENCIES} \\
-                           libignition-gui4-dev \\
-                           libignition-fuel-tools5-dev \\
-                           libignition-gazebo4-dev \\
-                           libignition-msgs6-dev \\
-                           libignition-rendering4-dev  \\
-                           libignition-sensors4-dev  \\
-                           libignition-transport9-dev \\
-                           libsdformat10-dev"
-else
-  IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_DEPENDENCIES} \\
-                           libignition-gui3-dev \\
-                           libignition-fuel-tools4-dev \\
-                           libignition-gazebo3-dev \\
-                           libignition-msgs5-dev \\
-                           libignition-rendering3-dev  \\
-                           libignition-sensors3-dev  \\
-                           libignition-transport8-dev \\
-                           libsdformat9-dev \\
-                           libwebsockets-dev \\
-                           binutils-dev"
+# Completely rely on packages.apt from Garden
+if [[ ${IGN_PLUGIN_MAJOR_VERSION} -lt 2 ]]; then
+  IGN_PLUGIN_DEPENDENCIES="libignition-cmake2-dev"
 fi
 
-IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
-                            freeglut3-dev \\
-                            libfreeimage-dev \\
-                            libglew-dev \\
-                            libogre-1.9-dev \\
-                            libx11-dev \\
-                            mesa-common-dev \\
-                            mesa-utils"
+# Completely rely on packages.apt from Garden
+if [[ ${IGN_LAUNCH_MAJOR_VERSION} -lt 6 ]]; then
+  IGN_LAUNCH_COMMON_DEPENDENCIES="libignition-cmake2-dev \\
+                           libignition-common3-dev \\
+                           libignition-math6-dev \\
+                           libignition-plugin-dev \\
+                           libignition-tools-dev \\
+                           libtinyxml2-dev  \\
+                           qtquickcontrols2-5-dev \\
+                           libqt5core5a"
 
-IGN_RENDERING_DEPENDENCIES="${IGN_RENDERING_NO_IGN_DEPENDENCIES} \\
+  if [[ -n "${IGN_LAUNCH_MAJOR_VERSION}" && ${IGN_LAUNCH_MAJOR_VERSION} -ge 3 ]]; then
+    IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_COMMON_DEPENDENCIES} \\
+                             libignition-gui4-dev \\
+                             libignition-fuel-tools5-dev \\
+                             libignition-gazebo4-dev \\
+                             libignition-msgs6-dev \\
+                             libignition-rendering4-dev  \\
+                             libignition-sensors4-dev  \\
+                             libignition-transport9-dev \\
+                             libsdformat10-dev"
+  else
+    IGN_LAUNCH_DEPENDENCIES="${IGN_LAUNCH_DEPENDENCIES} \\
+                             libignition-gui3-dev \\
+                             libignition-fuel-tools4-dev \\
+                             libignition-gazebo3-dev \\
+                             libignition-msgs5-dev \\
+                             libignition-rendering3-dev  \\
+                             libignition-sensors3-dev  \\
+                             libignition-transport8-dev \\
+                             libsdformat9-dev \\
+                             libwebsockets-dev \\
+                             binutils-dev"
+  fi
+fi
+
+# Completely rely on packages.apt from Garden
+if [[ ${IGN_RENDERING_MAJOR_VERSION} -lt 7 ]]; then
+  IGN_RENDERING_NO_IGN_DEPENDENCIES="${ogre_pkg}\\
+                              freeglut3-dev \\
+                              libfreeimage-dev \\
+                              libglew-dev \\
+                              libogre-1.9-dev \\
+                              libx11-dev \\
+                              mesa-common-dev \\
+                              mesa-utils"
+
+  IGN_RENDERING_DEPENDENCIES="${IGN_RENDERING_NO_IGN_DEPENDENCIES} \\
+                              libignition-cmake2-dev \\
+                              libignition-common3-dev \\
+                              libignition-plugin-dev \\
+                              libignition-math6-dev"
+fi
+
+# Completely rely on packages.apt from Garden
+if [[ ${IGN_SENSORS_MAJOR_VERSION} -lt 7 ]]; then
+  IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
                             libignition-cmake2-dev \\
-                            libignition-common3-dev \\
-                            libignition-plugin-dev \\
-                            libignition-math6-dev"
+                            libignition-math6-dev      \\
+                            libignition-plugin-dev  \\
+                            libignition-tools-dev"
 
-IGN_SENSORS_DEPENDENCIES="libignition-common3-dev     \\
-                          libignition-cmake2-dev \\
-                          libignition-math6-dev      \\
-                          libignition-plugin-dev  \\
-                          libignition-tools-dev"
-if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 4 ]]; then
-  IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
-                        libignition-msgs6-dev \\
-                        libignition-rendering4-dev \\
-                        libignition-transport9-dev \\
-                        libsdformat10-dev"
-elif [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 3 ]]; then
-  IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
-                        libignition-msgs5-dev \\
-                        libignition-rendering3-dev \\
-                        libignition-transport8-dev \\
-                        libsdformat9-dev"
+  if [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 4 ]]; then
+    IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
+                          libignition-msgs6-dev \\
+                          libignition-rendering4-dev \\
+                          libignition-transport9-dev \\
+                          libsdformat10-dev"
+  elif [[ -n "${IGN_SENSORS_MAJOR_VERSION}" && ${IGN_SENSORS_MAJOR_VERSION} -ge 3 ]]; then
+    IGN_SENSORS_DEPENDENCIES="${IGN_SENSORS_DEPENDENCIES} \\
+                          libignition-msgs5-dev \\
+                          libignition-rendering3-dev \\
+                          libignition-transport8-dev \\
+                          libsdformat9-dev"
+  fi
 fi
 
-IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev  \\
-                         libignition-cmake2-dev   \\
-                         libgflags-dev            \\
-                         libignition-math6-dev    \\
-                         libignition-math6-eigen3-dev \\
-                         libbenchmark-dev"
-
-if [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -ge 4 ]]; then
-  IGN_GAZEBO_DEPENDENCIES="${IGN_GAZEBO_DEPENDENCIES} \\
-                        libsdformat10-dev"
-elif [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -eq 3 ]]; then
-  IGN_GAZEBO_DEPENDENCIES="${IGN_GAZEBO_DEPENDENCIES} \\
-                        libignition-fuel-tools4-dev \\
-                        libignition-gui3-dev \\
-                        libignition-msgs5-dev \\
-                        libignition-rendering3-dev \\
-                        libignition-sensors3-dev \\
-                        libignition-physics2           \\
-                        libignition-physics2-dartsim   \\
-                        libignition-physics2-dartsim-dev \\
-                        libignition-physics2-dev       \\
-                        libignition-transport8-dev \\
-                        libsdformat9-dev"
+# Completely rely on packages.apt from Garden
+if [[ ${IGN_GAZEBO_MAJOR_VERSION} -lt 7 ]]; then
+  IGN_GAZEBO_DEPENDENCIES="libignition-common3-dev  \\
+                           libignition-cmake2-dev   \\
+                           libgflags-dev            \\
+                           libignition-math6-dev    \\
+                           libignition-math6-eigen3-dev \\
+                           libbenchmark-dev"
+  if [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -ge 4 ]]; then
+    IGN_GAZEBO_DEPENDENCIES="${IGN_GAZEBO_DEPENDENCIES} \\
+                          libsdformat10-dev"
+  elif [[ -n "${IGN_GAZEBO_MAJOR_VERSION}" && ${IGN_GAZEBO_MAJOR_VERSION} -eq 3 ]]; then
+    IGN_GAZEBO_DEPENDENCIES="${IGN_GAZEBO_DEPENDENCIES} \\
+                          libignition-fuel-tools4-dev \\
+                          libignition-gui3-dev \\
+                          libignition-msgs5-dev \\
+                          libignition-rendering3-dev \\
+                          libignition-sensors3-dev \\
+                          libignition-physics2           \\
+                          libignition-physics2-dartsim   \\
+                          libignition-physics2-dartsim-dev \\
+                          libignition-physics2-dev       \\
+                          libignition-transport8-dev \\
+                          libsdformat9-dev"
+  fi
 fi
 
-IGN_UTILS_DEPENDENCIES="libignition-cmake2-dev"
+# Completely rely on packages.apt from Garden
+if [[ ${IGN_UTILS_MAJOR_VERSION} -lt 2 ]]; then
+  IGN_UTILS_DEPENDENCIES="libignition-cmake2-dev"
+fi

@@ -6,6 +6,7 @@
 #  - GENERIC_ENABLE_CPPCHECK (optional) [default true] run cppcheck
 #  - GENERIC_ENABLE_TESTS (optional) [default true] run tests
 #  - BUILDING_EXTRA_CMAKE_PARAMS (optional) extra cmake params
+#  - BUILDING_EXTRA_MAKETEST_PARAMS (optional) extra "make test ARGS=" params
 #  - BUILD_<lib name> (optional) build dependency from source, for example, BUILD_IGN_MATH
 #    - <lib name>_BRANCH (optional [default: master]) branch for BUILD_<lib_name>
 
@@ -95,7 +96,7 @@ if $GENERIC_ENABLE_TESTS; then
   echo '# BEGIN SECTION: running tests'
   init_stopwatch TEST
   mkdir -p \$HOME
-  make test ARGS="-VV" || true
+  make test ARGS="-VV ${BUILDING_EXTRA_MAKETEST_PARAMS}" || true
   stop_stopwatch TEST
   echo '# END SECTION'
 else

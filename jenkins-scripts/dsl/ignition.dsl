@@ -429,38 +429,65 @@ ignition_software.each { ign_sw ->
   }
 }
 
-// OTHER CI SUPPORTED JOBS / DAILY
+void generate_asan_ci_job(ignition_ci_job, ign_sw, branch, distro, arch)
+{
+  generate_ci_job(ignition_ci_job, ign_sw, branch, distro, arch,
+                  '-DIGN_SANITIZER=Address',
+                  Globals.MAKETEST_SKIP_IGN)
+}
+
+void generate_ci_job(ignition_ci_job, ign_sw, branch, distro, arch,
+                     extra_cmake = '', extra_test = '')
+{
+  OSRFLinuxCompilation.create(ignition_ci_job, enable_testing(ign_sw))
+  OSRFGitHub.create(ignition_ci_job,
+                        "ignitionrobotics/ign-${ign_sw}",
+                        "${branch}", "ign-${ign_sw}")
+
+  include_gpu_label_if_needed(ignition_ci_job, ign_sw)
+  ignition_ci_job.with
+  {
+    if (ign_sw == 'physics')
+      label "huge-memory"
+
+    steps {
+      shell("""\
+            #!/bin/bash -xe
+
+            ${GLOBAL_SHELL_CMD}
+            export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
+            export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
+            export DISTRO=${distro}
+            export ARCH=${arch}
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
+            """.stripIndent())
+    }
+  }
+}
+
+// OTHER CI SUPPORTED JOBS
 ignition_software.each { ign_sw ->
   all_supported_distros.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       // branches CI job scm@daily
       all_branches("${ign_sw}").each { branch ->
+        // 1. Standard CI
         def ignition_ci_job = job("ignition_${ign_sw}-ci-${branch}-${distro}-${arch}")
-        OSRFLinuxCompilation.create(ignition_ci_job, enable_testing(ign_sw))
-        OSRFGitHub.create(ignition_ci_job,
-                              "ignitionrobotics/ign-${ign_sw}",
-                              "${branch}", "ign-${ign_sw}")
-
-        include_gpu_label_if_needed(ignition_ci_job, ign_sw)
+        generate_ci_job(ignition_ci_job, ign_sw, branch, distro, arch)
         ignition_ci_job.with
         {
-          if (ign_sw == 'physics')
-            label "huge-memory"
-
           triggers {
             scm('@daily')
           }
-
-          steps {
-            shell("""\
-                  #!/bin/bash -xe
-
-                  ${GLOBAL_SHELL_CMD}
-                  export DISTRO=${distro}
-                  export ARCH=${arch}
-                  /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
-                  """.stripIndent())
+        }
+        // 2. ASAN CI
+        def ignition_ci_asan_job = job("ignition_${ign_sw}-ci_asan-${branch}-${distro}-${arch}")
+        generate_asan_ci_job(ignition_ci_asan_job, ign_sw, branch, distro, arch)
+        ignition_ci_asan_job.with
+        {
+          triggers {
+            scm(Globals.CRON_ON_WEEKEND)
           }
         }
       }
