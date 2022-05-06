@@ -84,7 +84,7 @@ WHITE_BG="\e[107m"
 BLUE_BG="\e[44m"
 GREEN_BG="\e[42m"
 
-IGN_ORG="ignitionrobotics"
+GZ_ORG="gazebosim"
 TOOLING_ORG="ignition-tooling"
 
 DEFAULT_COMMIT_MSG="DEFAULT_COMMIT_MSG" # Bumps in ${COLLECTION}"
@@ -425,7 +425,7 @@ read -a LIBRARIES <<< "${LIBRARY_INPUT}"
 for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   LIB=${LIBRARIES[$i]}
 
-  cloneIfNeeded ${IGN_ORG} ${LIB}
+  cloneIfNeeded ${GZ_ORG} ${LIB}
   startFromCleanBranch header_migration main
 
   echo -e "${GREEN}\n[STARTING MIGRATION] ${LIB}${DEFAULT}"
@@ -439,9 +439,9 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   find . -regex ".*/include.*/ignition.*/.*\.in" -type f -print0 | xargs -0 -I {} rm {}  # Remove dangling ignition CMakeLists
 
   reviewConfirm
-  gitCommit -s ${IGN_ORG} "Move header files with git mv"  # Commits staged git mv changes
+  gitCommit -s ${GZ_ORG} "Move header files with git mv"  # Commits staged git mv changes
   echo -e "\n== Copying Redirection Aliases ==\n"
-  gitCommit -f -a ${IGN_ORG} "Create redirection aliases"  # Adds and commits unstaged redirections
+  gitCommit -f -a ${GZ_ORG} "Create redirection aliases"  # Adds and commits unstaged redirections
 
   # Create Export.hh and <lib>.hh
   find . -regex './include.*/ignition/[^/]*' -type d -print0 \
@@ -475,7 +475,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   git apply <<< "${PATCHED_GIT_DIFF}"
 
   reviewConfirm
-  gitCommit -f -a -e ${IGN_ORG}
+  gitCommit -f -a -e ${GZ_ORG}
 
   # Migrate Gz sources
   find . -regex '.*/\[src\|test\|examples\]/.*\|.*include\(.*\)*/\([^/]*_\)?[gz|Gz].*' -type f -print0 | xargs -0 -I {} bash -c 'migrateSources {}' _
@@ -484,7 +484,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   find . -regex '.*/examples/.*\|.*include\(.*\)*/.*' -type f -print0 | xargs -0 -I {} bash -c 'migrateSources {}' _
 
   reviewConfirm
-  gitCommit ${IGN_ORG} "Migrate sources in src, test, examples, and include"
+  gitCommit ${GZ_ORG} "Migrate sources in src, test, examples, and include"
 
   # Migrate Gz CMake files
   find . -regex '.*[include\|src\|test\|examples].*/CMakeLists\.txt' -type f -print0 | xargs -0 -I {} bash -c 'migrateCmake {}' _
@@ -502,6 +502,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   IFS=$OFS
 
   reviewConfirm
-  gitCommit -a ${IGN_ORG} "Migrate CMake files"
-  gitPushAndPR ${IGN_ORG} main "${PR_TITLE} : ${LIB}" ${PR_TEXT}
+  gitCommit -a ${GZ_ORG} "Migrate CMake files"
+  gitPushAndPR ${GZ_ORG} main "${PR_TITLE} : ${LIB}" ${PR_TEXT}
 done
