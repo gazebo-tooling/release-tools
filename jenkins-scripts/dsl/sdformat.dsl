@@ -38,7 +38,7 @@ abi_distro.each { distro ->
     abi_job_name = "sdformat-abichecker-any_to_any-ubuntu_auto-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABIGitHub.create(abi_job)
-    GenericAnyJobGitHub.create(abi_job, 'ignitionrobotics/sdformat', abi_branches)
+    GenericAnyJobGitHub.create(abi_job, 'gazebosim/sdformat', abi_branches)
     abi_job.with
     {
       steps {
@@ -67,7 +67,7 @@ ci_distro.each { distro ->
     // 1. Create the main ci jobs
     def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat", "main")
+    OSRFGitHub.create(sdformat_ci_job, "gazebosim/sdformat", "main")
 
     sdformat_ci_job.with
     {
@@ -88,7 +88,7 @@ ci_distro.each { distro ->
 
     // --------------------------------------------------------------
     // 2. Create the any job
-    String sdf_repo = "ignitionrobotics/sdformat"
+    String sdf_repo = "gazebosim/sdformat"
 
     def sdformat_ci_any_job = job(ci_build_any_job_name_linux)
     OSRFLinuxCompilationAnyGitHub.create(sdformat_ci_any_job, sdf_repo)
@@ -115,7 +115,7 @@ other_supported_distros.each { distro ->
     // ci_main job for the rest of arches / scm@daily
     def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat", "main")
+    OSRFGitHub.create(sdformat_ci_job, "gazebosim/sdformat", "main")
 
     sdformat_ci_job.with
     {
@@ -147,7 +147,7 @@ void generate_ci_job(sdformat_ci_job, branch, distro, arch,
                      extra_cmake = '', extra_test = '')
 {
   OSRFLinuxCompilation.create(sdformat_ci_job)
-  OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat",
+  OSRFGitHub.create(sdformat_ci_job, "gazebosim/sdformat",
                     get_sdformat_branch_name(branch))
   sdformat_ci_job.with
   {
@@ -196,7 +196,7 @@ ci_distro.each { distro ->
   experimental_arches.each { arch ->
     def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat", "main")
+    OSRFGitHub.create(sdformat_ci_job, "gazebosim/sdformat", "main")
 
     sdformat_ci_job.with
     {
@@ -281,7 +281,7 @@ all_debbuild_branches.each { branch ->
 String ci_build_any_job_name_brew = "sdformat-ci-pr_any-homebrew-amd64"
 def sdformat_brew_ci_any_job = job(ci_build_any_job_name_brew)
 OSRFBrewCompilationAnyGitHub.create(sdformat_brew_ci_any_job,
-                                    "ignitionrobotics/sdformat")
+                                    "gazebosim/sdformat")
 sdformat_brew_ci_any_job.with
 {
     steps {
@@ -298,7 +298,7 @@ all_branches = sdformat_supported_branches + 'main'
 all_branches.each { branch ->
   def sdformat_brew_ci_job = job("sdformat-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(sdformat_brew_ci_job)
-  OSRFGitHub.create(sdformat_brew_ci_job, "ignitionrobotics/sdformat",
+  OSRFGitHub.create(sdformat_brew_ci_job, "gazebosim/sdformat",
                          get_sdformat_branch_name(branch))
 
   sdformat_brew_ci_job.with
@@ -356,7 +356,7 @@ sdformat_supported_branches.each { branch ->
   String ci_build_any_job_name_win7 = "sdformat-ci-pr_any-windows7-amd64"
   def sdformat_win_ci_any_job = job(ci_build_any_job_name_win7)
   OSRFWinCompilationAnyGitHub.create(sdformat_win_ci_any_job,
-                                "ignitionrobotics/sdformat")
+                                "gazebosim/sdformat")
   sdformat_win_ci_any_job.with
   {
       steps {
@@ -371,7 +371,7 @@ all_branches = sdformat_supported_branches + 'main'
 all_branches.each { branch ->
   def sdformat_win_ci_job = job("sdformat-ci-${branch}-windows7-amd64")
   OSRFWinCompilation.create(sdformat_win_ci_job)
-  OSRFGitHub.create(sdformat_win_ci_job, "ignitionrobotics/sdformat",
+  OSRFGitHub.create(sdformat_win_ci_job, "gazebosim/sdformat",
                     get_sdformat_branch_name(branch))
   sdformat_win_ci_job.with
   {

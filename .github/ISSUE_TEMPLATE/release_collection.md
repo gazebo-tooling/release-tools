@@ -33,7 +33,7 @@ When opening PRs, add a link back to this issue for easier tracking.
     * <!-- LINK PR HERE -->
 - [ ] Update public documentation to install from pre-releases instead of nightlies ([example](https://github.com/ignitionrobotics/docs/pull/196/files#diff-ebeee4adce7cb444f663b59020fb9f43f6f9adf36f63657b8afdeeea7a8530d1)).
     * <!-- LINK PR HERE -->
-- [ ] Change nightlies to pre-release for release branches on `gzdev` ([example](https://github.com/ignition-tooling/gzdev/pull/35))
+- [ ] Change nightlies to pre-release for release branches on `gzdev` ([example](https://github.com/gazebo-tooling/gzdev/pull/35))
     * <!-- LINK PR HERE -->
 
 ## Code freeze
@@ -52,7 +52,7 @@ When opening PRs, add a link back to this issue for easier tracking.
 
 - [ ] Make collection stable release after all libraries are released.
     * <!-- LINK PR HERE -->
-- [ ] Update `gazebodistro` ([example](https://github.com/ignition-tooling/gazebodistro/pull/31))
+- [ ] Update `gazebodistro` ([example](https://github.com/gazebo-tooling/gazebodistro/pull/31))
     * <!-- LINK PR HERE -->
 - [ ] Make GitHub releases for all the X.0.0 versions ([example](https://github.com/ignitionrobotics/ign-transport/releases/tag/ignition-transport9_9.0.0))
 - [ ] Update docs to say release is stable ([example](https://github.com/ignitionrobotics/docs/pull/171))
@@ -62,19 +62,19 @@ When opening PRs, add a link back to this issue for easier tracking.
 
 ## Post-release
 
-- [ ] Enable Jenkins CI for new stable branches ([example](https://github.com/ignition-tooling/release-tools/pull/299))
+- [ ] Enable Jenkins CI for new stable branches ([example](https://github.com/gazebo-tooling/release-tools/pull/299))
     * <!-- LINK PR HERE -->
-- [ ] Remove pre-release for release branches on `gzdev` ([example](https://github.com/ignition-tooling/gzdev/pull/36))
+- [ ] Remove pre-release for release branches on `gzdev` ([example](https://github.com/gazebo-tooling/gzdev/pull/36))
     * <!-- LINK PR HERE -->
 - [ ] Bump all `main` branches to the next major versioni (`X.0.0~pre1`)
     - [ ] Source code ([example](https://github.com/ignitionrobotics/ign-common/pull/193))
         * <!-- LINK PRs HERE -->
-    - [ ] Add files to `gazebodistro` ([example](https://github.com/ignition-tooling/gazebodistro/pull/12))
+    - [ ] Add files to `gazebodistro` ([example](https://github.com/gazebo-tooling/gazebodistro/pull/12))
         * <!-- LINK PR HERE -->
     - [ ] Add aliases to `homebrew-simulation` ([example](https://github.com/osrf/homebrew-simulation/commit/1f8602af6f52e06e0542eebfbdbe97f5f6cf950c))
         * <!-- LINK PR HERE -->
-    - [ ] Create new `-release` repositories (use [this script](https://github.com/ignition-tooling/release-tools/blob/master/release-repo-scripts/new_ignition_release_repos.bash))
-    - [ ] Enable nightlies for all `main` branches on `gzdev` ([example](https://github.com/ignition-tooling/gzdev/pull/50))
+    - [ ] Create new `-release` repositories (use [this script](https://github.com/gazebo-tooling/release-tools/blob/master/release-repo-scripts/new_ignition_release_repos.bash))
+    - [ ] Enable nightlies for all `main` branches on `gzdev` ([example](https://github.com/gazebo-tooling/gzdev/pull/50))
     - [ ] Execute the tick-tock's "tock" for deprecations ([example](https://github.com/ignitionrobotics/ign-gazebo/pull/875))
         * <!-- LINK PRs HERE -->
 - [ ] Update all repositories to default to the new stable branches.

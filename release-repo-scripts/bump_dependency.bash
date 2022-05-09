@@ -49,7 +49,7 @@ GREEN_BG="\e[42m"
 
 IGN_ORG="ignitionrobotics"
 OSRF_ORG="osrf"
-TOOLING_ORG="ignition-tooling"
+TOOLING_ORG="gazebo-tooling"
 RELEASE_ORG="ignition-release"
 
 COLLECTION=${1}

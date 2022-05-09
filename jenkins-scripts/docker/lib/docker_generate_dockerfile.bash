@@ -41,7 +41,7 @@ dockerfile_install_gzdev_repos()
 {
 cat >> Dockerfile << DELIM_OSRF_REPO_GIT
 RUN rm -fr ${GZDEV_DIR}
-RUN git clone https://github.com/ignition-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
+RUN git clone https://github.com/gazebo-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
 RUN if [ -n $GZDEV_TRY_BRANCH ]; then \
         git -C ${GZDEV_DIR} fetch origin $GZDEV_TRY_BRANCH || true; \
         git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH || true; \
