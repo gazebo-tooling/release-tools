@@ -41,7 +41,7 @@ Port \`${FROM_BRANCH} \` to \`${TO_BRANCH}\`
 
 Branch comparision: https://github.com/${ORIGIN_ORG_REPO}/compare/${TO_BRANCH}...${FROM_BRANCH}"
 
-if [[ $# -lt 3 ]]; then
+if [[ $# -lt 2 ]]; then
   echo "./merge_forward_pull_request.bash <from_branch> <to_branch>"
   exit 1
 fi
