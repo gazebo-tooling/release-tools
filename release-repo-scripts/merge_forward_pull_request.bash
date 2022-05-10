@@ -37,7 +37,7 @@ TITLE="Merge ${FROM_BRANCH} -> ${TO_BRANCH}"
 
 BODY="# ➡️  Forward port
 
-Port \`${FROM_BRANCH} \` to \`${TO_BRANCH}\`
+Port \`${FROM_BRANCH} \` ➡️  \`${TO_BRANCH}\`
 
 Branch comparision: https://github.com/${ORIGIN_ORG_REPO}/compare/${TO_BRANCH}...${FROM_BRANCH}
 
