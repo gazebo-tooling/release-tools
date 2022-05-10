@@ -39,7 +39,9 @@ BODY="# ➡️  Forward port
 
 Port \`${FROM_BRANCH} \` to \`${TO_BRANCH}\`
 
-Branch comparision: https://github.com/${ORIGIN_ORG_REPO}/compare/${TO_BRANCH}...${FROM_BRANCH}"
+Branch comparision: https://github.com/${ORIGIN_ORG_REPO}/compare/${TO_BRANCH}...${FROM_BRANCH}
+
+**Note to maintainers**: Remember to **Merge** with commit (not squash-merge or rebase)"
 
 if [[ $# -lt 2 ]]; then
   echo "./merge_forward_pull_request.bash <from_branch> <to_branch>"
