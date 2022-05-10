@@ -30,6 +30,12 @@ class Globals
                                       'galactic' : ['11'] ,
                                       'rolling'  : ['11']]
 
+   static String ign2gz(String str) {
+     str = str.replaceAll("ignitionrobotics","gazebosim")
+     str = str.replaceAll("ign-gazebo","gz-sim")
+     return str.replaceAll("ign-","gz-")
+   }
+
    static ArrayList get_ros_distros_by_ubuntu_distro(String ubuntu_distro)
    {
       ArrayList result = []
