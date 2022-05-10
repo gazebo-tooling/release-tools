@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-# The script will merge forward and open a pull request.
+# The script will open a pull request for a forward port.
 #
 # Requires the 'gh' CLI to be installed.
 #
