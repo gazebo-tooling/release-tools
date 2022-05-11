@@ -31,10 +31,35 @@ Click on the link printed by GitHub to open the pull request.
 
 #### Example
 
-To bump to `ign-rendering6` and all its dependencies, as well as `sdf12` and
+To bump to `gz-rendering6` and all its dependencies, as well as `sdf12` and
 its dependencies on fortress using the `chapulina/fortress` branch for `docs`:
 
 ```bash
-./bump_dependency.bash fortress "ign-rendering;sdformat" "6;12" 428 edifice
+./bump_dependency.bash fortress "gz-rendering;sdformat" "6;12" 428 edifice
 "chapulina/fortress"
-`
+```
+
+### source_changelog.bash
+
+The script will generate updates for `Changelog.md` files useful when preparing a
+new release.
+
+#### Usage
+
+Go to the source directory containing a local checkout of a Gazebo repository:
+
+```
+source_changelog.bash <last_version>
+```
+
+The script will parse git log entries and generate Markdown as console output
+ready to be injected to `Changelog.md` files.
+
+### Example
+
+To update the Changelog for `gz-math` new version 6.11.0:
+
+```
+cd gz-math
+~/release-tools/source-repo-scripts/source_changelog.bash 6.10.0
+```
