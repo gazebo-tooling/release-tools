@@ -39,6 +39,35 @@ its dependencies on fortress using the `chapulina/fortress` branch for `docs`:
 "chapulina/fortress"
 ```
 
+### merge_forward_pull_request.bash
+
+The script will open a pull request for a forward port after the user has
+already created the branch, run `git merge`, resolved conflicts, and committed
+the result.
+
+#### Usage
+
+Requires the 'gh' CLI to be installed.
+```bash
+./merge_forward_pull_request.bash <from_branch> <to_branch>
+```
+
+#### Example
+
+To merge `ign-rendering6` to `main`:
+
+```bash
+cd ign-rendering
+git fetch origin
+git checkout main
+git reset --hard origin/main
+git checkout -b merge_6_to_main
+git merge origin/ign-rendering6
+# manually resolve conflicts if necessary
+git merge --continue
+/path/to/merge_forward_pull_request.bash ign-rendering6 main
+```
+
 ### source_changelog.bash
 
 The script will generate updates for `Changelog.md` files useful when preparing a
