@@ -33,7 +33,7 @@ set -e
 ORIGIN_URL=$(git remote get-url origin)
 ORIGIN_ORG_REPO=$(echo ${ORIGIN_URL} | sed -e 's@.*github\.com.@@')
 
-TITLE="Merge ${FROM_BRANCH} -> ${TO_BRANCH}"
+TITLE="Merge ${FROM_BRANCH} ➡️  ${TO_BRANCH}"
 
 BODY="# ➡️  Forward port
 
@@ -43,7 +43,7 @@ Branch comparision: https://github.com/${ORIGIN_ORG_REPO}/compare/${TO_BRANCH}..
 
 **Note to maintainers**: Remember to **Merge** with commit (not squash-merge or rebase)"
 
-if [[ $# -lt 2 ]]; then
+if [[ $# -ne 2 ]]; then
   echo "./merge_forward_pull_request.bash <from_branch> <to_branch>"
   exit 1
 fi
