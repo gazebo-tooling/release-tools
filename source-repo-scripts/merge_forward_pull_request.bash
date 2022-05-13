@@ -28,6 +28,11 @@
 FROM_BRANCH=${1}
 TO_BRANCH=${2}
 
+if [[ $# -ne 2 ]]; then
+  echo "./merge_forward_pull_request.bash <from_branch> <to_branch>"
+  exit 1
+fi
+
 set -e
 
 ORIGIN_URL=$(git remote get-url origin)
@@ -42,11 +47,6 @@ Port \`${FROM_BRANCH} \` ➡️  \`${TO_BRANCH}\`
 Branch comparision: https://github.com/${ORIGIN_ORG_REPO}/compare/${TO_BRANCH}...${FROM_BRANCH}
 
 **Note to maintainers**: Remember to **Merge** with commit (not squash-merge or rebase)"
-
-if [[ $# -ne 2 ]]; then
-  echo "./merge_forward_pull_request.bash <from_branch> <to_branch>"
-  exit 1
-fi
 
 gh pr create \
     --title "$TITLE" \
