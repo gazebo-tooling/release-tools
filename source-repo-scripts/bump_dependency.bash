@@ -47,10 +47,10 @@ WHITE_BG="\e[107m"
 BLUE_BG="\e[44m"
 GREEN_BG="\e[42m"
 
-IGN_ORG="ignitionrobotics"
+IGN_ORG="gazebosim"
 OSRF_ORG="osrf"
 TOOLING_ORG="gazebo-tooling"
-RELEASE_ORG="ignition-release"
+RELEASE_ORG="gazebo-release"
 
 COLLECTION=${1}
 LIBRARY_INPUT=${2}
@@ -250,7 +250,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
       echo -e "${RED}No main or master branch found on ${YAML_FILE}.${DEFAULT}"
       exit
     fi
-  fi
 
   # Assume all files that have some `main` or `master` branch may be bumped
   PREV_RELEASE_BRANCH=${LIB}${PREV_VER}
