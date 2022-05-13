@@ -4,11 +4,9 @@
 
 set -e
 
-# SCRIPT_DIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-
 if [[ $# -lt 1 ]]; then
     echo "$0 <new_distro>"
-    echo " example: $0 ammy focal"
+    echo " example: $0 jammy"
     exit 1
 fi
 
@@ -105,9 +103,11 @@ ln -sf $(get_relative_path watch) debian/watch
 git add debian/watch
 
 echo "     - Replace Vcs info"
-sed -i -e "s:^Vcs-Browser.*:Vcs-Browser\: https\://github.com/ignitionrobotics/${source_pkg_debian}:" \
+sed -i -e "s:^Vcs-Browser.*:Vcs-Browser\: https\://github.com/gazebosim/${source_pkg_debian}:" \
   "${root_dir}/ubuntu/debian/control"
-sed -i -e "s:^Vcs-Hg.*:Vcs-Git\: https\://github.com/ignitionrobotics/${source_pkg_debian}.git:" \
+sed -i -e "s:^Vcs-Hg.*:Vcs-Git\: https\://github.com/gazebosim/${source_pkg_debian}.git:" \
+  "${root_dir}/ubuntu/debian/control"
+sed -i -e 's:github.com/ignitionrobotics:github.com/gazebosim:g' \
   "${root_dir}/ubuntu/debian/control"
 
 echo "     - Set compat 13"
@@ -129,13 +129,15 @@ cp "${debian_repo}/debian/copyright" "${new_copyright_path}"
 git add "${new_copyright_path}"
 ln -sf $(get_relative_path copyright) debian/copyright
 
-echo "     - Import autopkgtest"
 autopkgtest_path="${root_dir}/ubuntu/debian/tests/"
-mkdir -p "${autopkgtest_path}"
-cp -a "${debian_repo}"/debian/tests/* "${autopkgtest_path}"
-git add "${autopkgtest_path}"
-ln -sf $(get_relative_path tests) debian/tests
-git add debian/tests
+if [[ ! -d ${autopkgtest_path} ]]; then
+  echo "     - Import autopkgtest"
+  mkdir -p "${autopkgtest_path}"
+  cp -a "${debian_repo}"/debian/tests/* "${autopkgtest_path}"
+  git add "${autopkgtest_path}"
+  ln -sf $(get_relative_path tests) debian/tests
+  git add debian/tests
+fi
 
 # Import docs file if found
 if [[ -f ${debian_repo}/debian/docs ]]; then
@@ -149,15 +151,17 @@ fi
 # Import examples files. Asumming just one file
 shopt -s nullglob
 for f in "${debian_repo}"/debian/*.examples; do
-  echo "     - Import examples file ${f}"
-  cp "${f}" "${root_dir}/ubuntu/debian/"
-  git add "${root_dir}"/ubuntu/debian/*.examples
-  ln -sf $(get_relative_path $f) debian/$f
-  # use versioned dev if needed
-  if [[ -f $(ls debian/*-dev*.examples) ]]; then
-    examples_file=${f##*/}
-    mv debian/${examples_file} debian/${examples_file/${source_pkg_debian}/${source_pkg}}
-    git add debian/*.examples
+  if [[ ! -f ${f} ]]; then
+    echo "     - Import examples file ${f}"
+    cp "${f}" "${root_dir}/ubuntu/debian/"
+    git add "${root_dir}"/ubuntu/debian/*.examples
+    #ln -sf $(get_relative_path $f) debian/${examples_file}
+    # use versioned dev if needed
+    if [[ -f $(ls debian/*-dev*.examples) ]]; then
+      examples_file=${f##*/}
+      mv debian/${examples_file} debian/${examples_file/${source_pkg_debian}/${source_pkg}}
+      git add debian/*.examples
+    fi
   fi
 done
 
