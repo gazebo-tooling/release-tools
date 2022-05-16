@@ -250,6 +250,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
       echo -e "${RED}No main or master branch found on ${YAML_FILE}.${DEFAULT}"
       exit
     fi
+  fi
 
   # Assume all files that have some `main` or `master` branch may be bumped
   PREV_RELEASE_BRANCH=${LIB}${PREV_VER}
