@@ -79,7 +79,7 @@ ignition_extra_debbuild = [ 'cmake3',
                             'sensors7',
                             'tools2',
                             'transport12',
-                            'utils1', // see comment https://github.com/ignition-tooling/release-tools/pull/431#issuecomment-815099918
+                            'utils1', // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
                             'utils2']
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [  ]
@@ -303,7 +303,7 @@ ignition_software.each { ign_sw ->
       checkout_subdir = "ign-${ign_sw}"
       OSRFLinuxABIGitHub.create(abi_job)
       GenericAnyJobGitHub.create(abi_job,
-                        "ignitionrobotics/ign-${ign_sw}",
+                        "gazebosim/ign-${ign_sw}",
                         all_branches(ign_sw) - [ 'main'])
       abi_job.with
       {
@@ -347,7 +347,7 @@ ignition_software.each { ign_sw ->
     def ignition_ci_any_job = job(ignition_ci_job_name)
     def ignition_checkout_dir = "ign-${ign_sw}"
     OSRFLinuxCompilationAnyGitHub.create(ignition_ci_any_job,
-                                        "ignitionrobotics/${ignition_checkout_dir}",
+                                        "gazebosim/${ignition_checkout_dir}",
                                          enable_testing(ign_sw))
     include_gpu_label_if_needed(ignition_ci_any_job, ign_sw)
     ignition_ci_any_job.with
@@ -441,7 +441,7 @@ void generate_ci_job(ignition_ci_job, ign_sw, branch, distro, arch,
 {
   OSRFLinuxCompilation.create(ignition_ci_job, enable_testing(ign_sw))
   OSRFGitHub.create(ignition_ci_job,
-                        "ignitionrobotics/ign-${ign_sw}",
+                        "gazebosim/ign-${ign_sw}",
                         "${branch}", "ign-${ign_sw}")
 
   include_gpu_label_if_needed(ignition_ci_job, ign_sw)
@@ -542,7 +542,7 @@ ignition_software.each { ign_sw ->
 
   def ignition_brew_ci_any_job = job(ignition_brew_ci_any_job_name)
   OSRFBrewCompilationAnyGitHub.create(ignition_brew_ci_any_job,
-                                      "ignitionrobotics/ign-${ign_sw}",
+                                      "gazebosim/ign-${ign_sw}",
                                       enable_testing(ign_sw),
                                       GITHUB_SUPPORT_ALL_BRANCHES,
                                       ENABLE_GITHUB_PR_INTEGRATION,
@@ -574,7 +574,7 @@ ignition_software.each { ign_sw ->
                                enable_testing(ign_sw),
                                enable_cmake_warnings(ign_sw))
     OSRFGitHub.create(ignition_brew_ci_job,
-                              "ignitionrobotics/ign-${ign_sw}",
+                              "gazebosim/ign-${ign_sw}",
                               "${branch}", "ign-${ign_sw}")
     ignition_brew_ci_job.with
     {
@@ -665,7 +665,7 @@ ignition_software.each { ign_sw ->
 
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAnyGitHub.create(ignition_win_ci_any_job,
-                                    "ignitionrobotics/ign-${ign_sw}",
+                                    "gazebosim/ign-${ign_sw}",
                                     enable_testing(ign_sw),
                                     supported_branches,
                                     ENABLE_GITHUB_PR_INTEGRATION,
@@ -701,7 +701,7 @@ ignition_software.each { ign_sw ->
                               enable_testing(ign_sw),
                               enable_cmake_warnings(ign_sw))
     OSRFGitHub.create(ignition_win_ci_job,
-                              "ignitionrobotics/ign-${ign_sw}",
+                              "gazebosim/ign-${ign_sw}",
                               "${branch}", "ign-${ign_sw}")
 
     ignition_win_ci_job.with

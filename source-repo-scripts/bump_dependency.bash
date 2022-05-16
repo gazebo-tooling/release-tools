@@ -47,10 +47,10 @@ WHITE_BG="\e[107m"
 BLUE_BG="\e[44m"
 GREEN_BG="\e[42m"
 
-IGN_ORG="ignitionrobotics"
+IGN_ORG="gazebosim"
 OSRF_ORG="osrf"
-TOOLING_ORG="ignition-tooling"
-RELEASE_ORG="ignition-release"
+TOOLING_ORG="gazebo-tooling"
+RELEASE_ORG="gazebo-release"
 
 COLLECTION=${1}
 LIBRARY_INPUT=${2}

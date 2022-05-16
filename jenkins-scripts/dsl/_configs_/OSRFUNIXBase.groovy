@@ -35,7 +35,7 @@ class OSRFUNIXBase extends OSRFBase
              #!/bin/bash -xe
 
              [[ -d ./scripts ]] &&  rm -fr ./scripts
-             git clone https://github.com/ignition-tooling/release-tools scripts -b \$RTOOLS_BRANCH
+             git clone https://github.com/gazebo-tooling/release-tools scripts -b \$RTOOLS_BRANCH
              """.stripIndent())
       }
     }

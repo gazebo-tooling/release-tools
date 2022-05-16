@@ -313,7 +313,7 @@ ci_distro.each { distro ->
         label "gpu-reliable && large-memory"
 
         // Problem with the compilation of Gazebo under bullseyes
-        // See: https://github.com/ignition-tooling/release-tools/issues/129
+        // See: https://github.com/gazebo-tooling/release-tools/issues/129
         disabled()
 
         steps {

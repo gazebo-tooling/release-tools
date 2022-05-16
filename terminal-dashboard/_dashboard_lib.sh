@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# TODO:jrivero https://github.com/ignition-tooling/release-tools/issues/551
+# TODO:jrivero https://github.com/gazebo-tooling/release-tools/issues/551
 
 get_libraries_by_collection()
 {
