@@ -6,6 +6,5 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 export RELEASE_REPO_DIRECTORY=${DISTRO}
 export ENABLE_ROS=false
-export GITHUB_ORG=ignitionrobotics
 
 . ${SCRIPT_DIR}/lib/debbuild-base.bash
