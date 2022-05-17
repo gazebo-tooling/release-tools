@@ -92,3 +92,29 @@ To update the Changelog for `gz-math` new version 6.11.0:
 cd gz-math
 ~/release-tools/source-repo-scripts/source_changelog.bash 6.10.0
 ```
+
+### Release summary
+
+Print a markdown summary of a release (not `Changelog.md` entries), with its
+changelog and contributors. The script is designed to publish release summaries
+from the internal Open Robotics team to the Community (usually in the public forum).
+
+#### Usage
+
+Run the script, then copy the end of the output into the announcement body.
+
+```bash
+cd <path_to_source_code>
+bash release_summary.bash <prev release version> <new release version>
+```
+
+The release versions can be checked on `Changelog.md`. They don't need to be
+consecutive (useful in cases when multiple releases happen between announcements).
+
+#### Example
+
+To announce the changes between Sensors 6.2.0 and 6.3.0:
+
+```bash
+cd <path_to_source_code>
+bash release_summary.bash 6.2.0 6.3.0
