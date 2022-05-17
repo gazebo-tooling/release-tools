@@ -15,6 +15,7 @@ export HOMEBREW_UPDATE_TO_TAG=1
 ${BREW_BINARY} up || { restore_brew && ${BREW_BINARY} up ; }
 
 # Clear all installed homebrew packages, links, taps, and kegs
+${BREW_BINARY} list --formula > /dev/null || { restore_brew && ${BREW_BINARY} list --formula > /dev/null; }
 BREW_LIST=$(${BREW_BINARY} list --formula)
 if [[ -n "${BREW_LIST}" ]]; then
   ${BREW_BINARY} remove --force --ignore-dependencies ${BREW_LIST}

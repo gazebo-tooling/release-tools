@@ -45,18 +45,18 @@ ignition_no_test            = [  ]
 // main, ABI check, install pkg)
 ignition_branches           = [ 'cmake'      : [ '2' ],
                                 'common'     : [ '1', '3', '4' ],
-                                'fuel-tools' : [ '1', '4', '6', '7' ],
-                                'gazebo'     : [ '3', '5', '6' ],
-                                'gui'        : [ '0', '3', '5', '6' ],
-                                'launch'     : [ '2', '4', '5' ],
+                                'fuel-tools' : [ '1', '4', '7' ],
+                                'gazebo'     : [ '3', '6' ],
+                                'gui'        : [ '0', '3', '6' ],
+                                'launch'     : [ '2', '5' ],
                                 'math'       : [ '4', '6' ],
-                                'msgs'       : [ '1', '5', '7', '8' ],
-                                'physics'    : [ '2', '4', '5' ],
+                                'msgs'       : [ '1', '5', '8' ],
+                                'physics'    : [ '2', '5' ],
                                 'plugin'     : [ '1' ],
-                                'rendering'  : [ '3', '5', '6' ],
-                                'sensors'    : [ '3', '5', '6' ],
+                                'rendering'  : [ '3', '6' ],
+                                'sensors'    : [ '3', '6' ],
                                 'tools'      : [ '1' ],
-                                'transport'  : [ '4', '8', '10', '11' ],
+                                'transport'  : [ '4', '8', '11' ],
                                 'utils'      : [ '1' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
@@ -79,7 +79,7 @@ ignition_extra_debbuild = [ 'cmake3',
                             'sensors7',
                             'tools2',
                             'transport12',
-                            'utils1', // see comment https://github.com/ignition-tooling/release-tools/pull/431#issuecomment-815099918
+                            'utils1', // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
                             'utils2']
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [  ]
@@ -303,16 +303,17 @@ ignition_software.each { ign_sw ->
       checkout_subdir = "ign-${ign_sw}"
       OSRFLinuxABIGitHub.create(abi_job)
       GenericAnyJobGitHub.create(abi_job,
-                        "ignitionrobotics/ign-${ign_sw}",
+                        "gazebosim/ign-${ign_sw}",
                         all_branches(ign_sw) - [ 'main'])
       abi_job.with
       {
+        extra_str=""
         if (ign_sw == 'physics')
         {
           label "huge-memory"
-          // on ARM native nodes in buildfarm we need to restrict to 2 the
+          // on ARM native nodes in buildfarm we need to restrict to 1 the
           // compilation threads to avoid OOM killer
-          GLOBAL_SHELL_CMD = GLOBAL_SHELL_CMD + '\nif [[ $(uname -m) == "aarch64" ]]; then export MAKE_JOBS=2; fi'
+          extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
         }
 
         steps {
@@ -322,6 +323,7 @@ ignition_software.each { ign_sw ->
                 export DISTRO=${distro}
 
                 ${GLOBAL_SHELL_CMD}
+                ${extra_str}
 
                 export ARCH=${arch}
                 export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
@@ -345,7 +347,7 @@ ignition_software.each { ign_sw ->
     def ignition_ci_any_job = job(ignition_ci_job_name)
     def ignition_checkout_dir = "ign-${ign_sw}"
     OSRFLinuxCompilationAnyGitHub.create(ignition_ci_any_job,
-                                        "ignitionrobotics/${ignition_checkout_dir}",
+                                        "gazebosim/${ignition_checkout_dir}",
                                          enable_testing(ign_sw))
     include_gpu_label_if_needed(ignition_ci_any_job, ign_sw)
     ignition_ci_any_job.with
@@ -427,38 +429,65 @@ ignition_software.each { ign_sw ->
   }
 }
 
-// OTHER CI SUPPORTED JOBS / DAILY
+void generate_asan_ci_job(ignition_ci_job, ign_sw, branch, distro, arch)
+{
+  generate_ci_job(ignition_ci_job, ign_sw, branch, distro, arch,
+                  '-DIGN_SANITIZER=Address',
+                  Globals.MAKETEST_SKIP_IGN)
+}
+
+void generate_ci_job(ignition_ci_job, ign_sw, branch, distro, arch,
+                     extra_cmake = '', extra_test = '')
+{
+  OSRFLinuxCompilation.create(ignition_ci_job, enable_testing(ign_sw))
+  OSRFGitHub.create(ignition_ci_job,
+                        "gazebosim/ign-${ign_sw}",
+                        "${branch}", "ign-${ign_sw}")
+
+  include_gpu_label_if_needed(ignition_ci_job, ign_sw)
+  ignition_ci_job.with
+  {
+    if (ign_sw == 'physics')
+      label "huge-memory"
+
+    steps {
+      shell("""\
+            #!/bin/bash -xe
+
+            ${GLOBAL_SHELL_CMD}
+            export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
+            export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
+            export DISTRO=${distro}
+            export ARCH=${arch}
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
+            """.stripIndent())
+    }
+  }
+}
+
+// OTHER CI SUPPORTED JOBS
 ignition_software.each { ign_sw ->
   all_supported_distros.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       // branches CI job scm@daily
       all_branches("${ign_sw}").each { branch ->
+        // 1. Standard CI
         def ignition_ci_job = job("ignition_${ign_sw}-ci-${branch}-${distro}-${arch}")
-        OSRFLinuxCompilation.create(ignition_ci_job, enable_testing(ign_sw))
-        OSRFGitHub.create(ignition_ci_job,
-                              "ignitionrobotics/ign-${ign_sw}",
-                              "${branch}", "ign-${ign_sw}")
-
-        include_gpu_label_if_needed(ignition_ci_job, ign_sw)
+        generate_ci_job(ignition_ci_job, ign_sw, branch, distro, arch)
         ignition_ci_job.with
         {
-          if (ign_sw == 'physics')
-            label "huge-memory"
-
           triggers {
             scm('@daily')
           }
-
-          steps {
-            shell("""\
-                  #!/bin/bash -xe
-
-                  ${GLOBAL_SHELL_CMD}
-                  export DISTRO=${distro}
-                  export ARCH=${arch}
-                  /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${ign_sw}-compilation.bash
-                  """.stripIndent())
+        }
+        // 2. ASAN CI
+        def ignition_ci_asan_job = job("ignition_${ign_sw}-ci_asan-${branch}-${distro}-${arch}")
+        generate_asan_ci_job(ignition_ci_asan_job, ign_sw, branch, distro, arch)
+        ignition_ci_asan_job.with
+        {
+          triggers {
+            scm(Globals.CRON_ON_WEEKEND)
           }
         }
       }
@@ -472,6 +501,11 @@ all_debbuilders().each { debbuilder_name ->
   extra_str = ""
   if (debbuilder_name.contains("gazebo") || debbuilder_name == "transport7")
     extra_str="export NEED_C17_COMPILER=true"
+
+  // Ignition physics consumes huge amount of memory making arm node to FAIL
+  // Force here to use one compilation thread
+  if (debbuilder_name.contains("-physics"))
+    extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
 
   println("Generating: ${debbuilder_name}-debbuilder")
   def build_pkg_job = job("${debbuilder_name}-debbuilder")
@@ -508,7 +542,7 @@ ignition_software.each { ign_sw ->
 
   def ignition_brew_ci_any_job = job(ignition_brew_ci_any_job_name)
   OSRFBrewCompilationAnyGitHub.create(ignition_brew_ci_any_job,
-                                      "ignitionrobotics/ign-${ign_sw}",
+                                      "gazebosim/ign-${ign_sw}",
                                       enable_testing(ign_sw),
                                       GITHUB_SUPPORT_ALL_BRANCHES,
                                       ENABLE_GITHUB_PR_INTEGRATION,
@@ -540,7 +574,7 @@ ignition_software.each { ign_sw ->
                                enable_testing(ign_sw),
                                enable_cmake_warnings(ign_sw))
     OSRFGitHub.create(ignition_brew_ci_job,
-                              "ignitionrobotics/ign-${ign_sw}",
+                              "gazebosim/ign-${ign_sw}",
                               "${branch}", "ign-${ign_sw}")
     ignition_brew_ci_job.with
     {
@@ -623,7 +657,7 @@ ignition_software.each { ign_sw ->
 
   // ign-gazebo only support Windows from ign-gazebo5
   if (ign_sw == 'gazebo')
-    supported_branches = [ 'ign-gazebo5', 'ign-gazebo6', 'main' ]
+    supported_branches = [ 'ign-gazebo6', 'main' ]
 
   // ign-launch only support Windows from ign-launch5
   if (ign_sw == 'launch')
@@ -631,7 +665,7 @@ ignition_software.each { ign_sw ->
 
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAnyGitHub.create(ignition_win_ci_any_job,
-                                    "ignitionrobotics/ign-${ign_sw}",
+                                    "gazebosim/ign-${ign_sw}",
                                     enable_testing(ign_sw),
                                     supported_branches,
                                     ENABLE_GITHUB_PR_INTEGRATION,
@@ -667,7 +701,7 @@ ignition_software.each { ign_sw ->
                               enable_testing(ign_sw),
                               enable_cmake_warnings(ign_sw))
     OSRFGitHub.create(ignition_win_ci_job,
-                              "ignitionrobotics/ign-${ign_sw}",
+                              "gazebosim/ign-${ign_sw}",
                               "${branch}", "ign-${ign_sw}")
 
     ignition_win_ci_job.with

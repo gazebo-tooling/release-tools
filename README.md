@@ -6,10 +6,8 @@ Gazebo Classic and Ignition software.
 ## Scripts
 
 * [release.py](release.py): Triggers new debian and homebrew releases (major, minor, patch, pre-release...).
-* [changelog_spawn.sh](release-repo-scripts/changelog_spawn.sh): Adds changelog information to `*-release` repositories. Must be used before running `release.py`.
-* [new_ignition_release_repos.bash](release-repo-scripts/new_ignition_release_repos.bash): Create new `*-release` repositories.
-* [bump_dependency.bash](release-repo-scripts/bump_dependency.bash): Makes all the updates needed when bumping a library's major version for the upcoming collection.
 
+* For -release repository scripts, please see [release-repo-scripts/README.md](release-repo-scripts/README.md)
 * For source repository scripts, please see [source-repo-scripts/README.md](source-repo-scripts/README.md)
 
 ### Making releases
@@ -54,7 +52,7 @@ Gazebo Classic and Ignition software.
     * [Example pull request.](https://github.com/ignition-release/ign-gazebo3-release/pull/4)
 1. Wait for all pull requests opened above to be approved and merged.
 1. Clone `release-tools`
-    * `git clone https://github.com/ignition-tooling/release-tools`
+    * `git clone https://github.com/gazebo-tooling/release-tools`
 1. Update the release-repo's changelog:
     1. `cd <path to release-repo>`
     1. `<path to release-tools>/release-repo-scripts/changelog_spawn.sh <version-revision>`
@@ -71,10 +69,10 @@ Gazebo Classic and Ignition software.
     1. If the dry run succeeds, run the same command again, now without `--dry-run`.
 1. Check that:
     * Several `-debbuilder` jobs have been queued in https://build.osrfoundation.org/ and watch those jobs to see if any of them fail.
-      While it would be easier to track the status of these jobs if there was a [dashboard](https://github.com/ignition-tooling/release-tools/issues/295),
+      While it would be easier to track the status of these jobs if there was a [dashboard](https://github.com/gazebo-tooling/release-tools/issues/295),
       you can watch the page for a specific debbuild, such as https://build.osrfoundation.org/job/ign-gui3-debbuilder/.
         1. If you observe a failure of an Ignition Dome package, check the list of supported
-           architectures in [issue #297](https://github.com/ignition-tooling/release-tools/issues/297);
+           architectures in [issue #297](https://github.com/gazebo-tooling/release-tools/issues/297);
            for example Bionic/armhf and Focal/armhf are not supported for Dome.
            To disable builds for a specific architecture, add a file to the `-release` repository that starts with `.releasepy_NO_ARCH_`
            and append the name of the architecture to be excluded. The file can be added to the

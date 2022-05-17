@@ -13,6 +13,8 @@ class OSRFGitHub
     if (subdir == 'NOT-DEFINED-USE-DEFAULT')
       subdir = software_name
 
+    repo = Globals.ign2gz(repo)
+
     job.with
     {
       scm {

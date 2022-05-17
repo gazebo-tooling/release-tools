@@ -49,6 +49,9 @@ void generate_install_job(Job job, gz_branch, distro, arch, use_osrf_repos = fal
 
     // Branch is exactly in the form of gazeboN
     def dev_packages = "lib${gz_branch}-dev ${gz_branch}"
+    // Ubuntu Jammy has no versioned gazebo package
+    if (distro == 'jammy')
+      dev_packages = "libgazebo-dev gazebo"
 
     def gzdev_str = ""
     if (use_osrf_repos)
@@ -310,7 +313,7 @@ ci_distro.each { distro ->
         label "gpu-reliable && large-memory"
 
         // Problem with the compilation of Gazebo under bullseyes
-        // See: https://github.com/ignition-tooling/release-tools/issues/129
+        // See: https://github.com/gazebo-tooling/release-tools/issues/129
         disabled()
 
         steps {

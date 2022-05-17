@@ -24,13 +24,13 @@ used (can check this in the Jenkins UI)
 
 ### Node labels for nightlies
 
-For generating nightlies controlling the generation order of every library, build.osrfoundation.org use the approach of [using a single node to process the whole ignition family for a given Ubuntu distribution](https://github.com/ignition-tooling/release-tools/issues/644). Current assignment of nodes is as follow:
+For generating nightlies controlling the generation order of every library, build.osrfoundation.org use the approach of [using a single node to process the whole ignition family for a given Ubuntu distribution](https://github.com/gazebo-tooling/release-tools/issues/644). Current assignment of nodes is as follow:
 
 | Label name | Description |
 | -------- | ----------- |
 | linux-nightly-bionic | r2d2  |
 | linux-nightly-focal | optimus |
-| linux-nightly-jammy | linux-ip-172-30-1-216 |
+| linux-nightly-jammy | drogon |
 
 ## Provision of Node labels
 

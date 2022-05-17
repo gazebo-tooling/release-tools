@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# TODO:jrivero https://github.com/ignition-tooling/release-tools/issues/551
+# TODO:jrivero https://github.com/gazebo-tooling/release-tools/issues/551
 
 get_libraries_by_collection()
 {
@@ -24,25 +24,6 @@ get_libraries_by_collection()
 	ignition-gazebo3
 	ignition-launch2
 	ignition-citadel"
-    elif [ "$COLLECTION" = "edifice" ]; then
-      LIBS="
-	ignition-cmake2
-	ignition-math6
-	ignition-utils1
-	ignition-tools
-	ignition-common4
-	ignition-msgs7
-	ignition-transport10
-	ignition-fuel-tools6
-	ignition-plugin
-	ignition-rendering5
-	sdformat11
-	ignition-physics4
-	ignition-sensors5
-	ignition-gui5
-	ignition-gazebo5
-	ignition-launch4
-	ignition-edifice"
     elif [ "$COLLECTION" = "fortress" ]; then
       LIBS="
 	ignition-cmake2

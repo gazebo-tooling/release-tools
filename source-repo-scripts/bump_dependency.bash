@@ -47,10 +47,10 @@ WHITE_BG="\e[107m"
 BLUE_BG="\e[44m"
 GREEN_BG="\e[42m"
 
-IGN_ORG="ignitionrobotics"
+IGN_ORG="gazebosim"
 OSRF_ORG="osrf"
-TOOLING_ORG="ignition-tooling"
-RELEASE_ORG="ignition-release"
+TOOLING_ORG="gazebo-tooling"
+RELEASE_ORG="gazebo-release"
 
 COLLECTION=${1}
 LIBRARY_INPUT=${2}
@@ -455,6 +455,23 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     DEP_VER=${VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
+    # Replace lines like "find_package(ignition-cmake2 2.0.0)"
+    #               with "find_package(ignition-cmake3)"
+    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1${DEP_VER}@g"
+
+    # Replace lines like "ign_find_package(ignition-math6 VERSION 6.5.0)"
+    #               with "ign_find_package(ignition-math7)"
+    # Preserves other args and handles edge cases:
+    #               like "ign_find_package(ignition-math6 VERSION 6.5.0 REQUIRED)"
+    #               with "ign_find_package(ignition-math6 REQUIRED)"
+    #               like "ign_find_package(ignition-math6 REQUIRED COMPONENTS VERSION 6.10 eigen3)"
+    #               with "ign_find_package(ignition-math7 REQUIRED COMPONENTS eigen3)"
+    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\(.*\) \+VERSION \+${DEP_PREV_VER}[^ )]*@\1${DEP_VER}\2@g"
+
+
+    # Rule: *plugin2 -> *plugin3
+    # Replace lines like: "find_package(ignition-cmake2)"
+    #               with: "find_package(ignition-cmake3)"
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
 
     # Replace collection yaml branch names with main
@@ -490,4 +507,3 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   commitAndPR ${TOOLING_ORG} master
 
 done
-

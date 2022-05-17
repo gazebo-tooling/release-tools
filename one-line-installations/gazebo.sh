@@ -315,7 +315,7 @@ do_install() {
 	cat >&2 <<-'EOF_END'
 
 	Either your platform is not easily detectable, is not supported by this
-	installer script (yet - PRs welcome! [https://github.com/ignition-tooling/release-tools])
+	installer script (yet - PRs welcome! [https://github.com/gazebo-tooling/release-tools])
     or does not yet have a package for gazebo.  Please visit the following URL for more detailed
 	installation instructions:
 

@@ -61,7 +61,7 @@ gbp_repo_debbuilds.each { software ->
     scm {
       git {
         remote {
-          github("ignition-forks/${software}-release", 'https')
+          github("gazebo-forks/${software}-release", 'https')
           branch('${BRANCH}')
         }
 

@@ -600,8 +600,8 @@ def go(argv):
                 if (PRERELEASE or NIGHTLY):
                     if (a == 'armhf' or a == 'arm64'):
                         continue
-                # No i386 for focal
-                if (d == 'focal' and a == 'i386'):
+                # Only i386 for Ubuntu in Bionic
+                if (a == 'i386' and l != 'debian' and d != 'bionic'):
                     continue
 
                 linux_platform_params = params.copy()
@@ -627,7 +627,7 @@ def go(argv):
                 # all distribution builds to avoid race conditions. Note: this
                 # assumes that large-memory nodes are beind used for nightly
                 # tags.
-                # https://github.com/ignition-tooling/release-tools/issues/644
+                # https://github.com/gazebo-tooling/release-tools/issues/644
                 if (NIGHTLY):
                     assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
                     linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d

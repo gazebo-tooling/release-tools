@@ -20,7 +20,7 @@ class OSRFWinBase extends OSRFBase
         {
           batchFile("""\
                 IF exist scripts ( rmdir scripts /s /q )
-                git clone https://github.com/ignition-tooling/release-tools scripts -b %RTOOLS_BRANCH%
+                git clone https://github.com/gazebo-tooling/release-tools scripts -b %RTOOLS_BRANCH%
                 """.stripIndent())
         }
      }
