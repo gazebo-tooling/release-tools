@@ -6,9 +6,9 @@ Gazebo Classic and Ignition software.
 ## Scripts
 
 * [release.py](release.py): Triggers new debian and homebrew releases (major, minor, patch, pre-release...).
-* [source_changelog.bash](source_changelog.bash): Generates Changelog.md entries newer than a specified tag based on git commit descriptions.
 
-* For -release repository scripts, please see [README.md](release-repo-scripts/README.md)
+* For -release repository scripts, please see [release-repo-scripts/README.md](release-repo-scripts/README.md)
+* For source repository scripts, please see [source-repo-scripts/README.md](source-repo-scripts/README.md)
 
 ### Making releases
 
