@@ -38,7 +38,7 @@ echo '# END SECTION'
 """
 
 DEBBUILD_AUTOPKGTEST="""
-if $RUN_AUTOPKGTEST; then
+if \$RUN_AUTOPKGTEST; then
 echo '# BEGIN SECTION: run autopkgtest'
 cd $WORKSPACE/pkgs
 set +e
