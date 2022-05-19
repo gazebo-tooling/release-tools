@@ -140,10 +140,17 @@ esac
 
 cd \${PACKAGE_RELEASE_DIR}
 
+# Helper for transition of ign to gz
+PACKAGE_ALIAS=${PACKAGE_ALIAS}
+SRC_PACKAGE_NAME=\$(grep-dctrl -sSource -n  '' debian/control)
+if [[ \${SRC_PACKAGE_NAME} != \${SRC_PACKAGE_NAME/gz-} ]]; then
+  PACKAGE_ALIAS=\${SRC_PACKAGE_NAME}
+fi
+
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
   NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV}-${RELEASE_VERSION}~${DISTRO}
-  debchange --package ${PACKAGE_ALIAS} \\
+  debchange --package \${PACKAGE_ALIAS} \\
               --newversion \${NIGHTLY_VERSION_SUFFIX} \\
               --distribution ${DISTRO} \\
               --force-distribution \\
@@ -162,7 +169,7 @@ if $NIGHTLY_MODE; then
   if dpkg --compare-versions \$(apt-cache show dh-make | sed -n "s/Version: \\(.*\\)/\\1/p") lt 2.202003; then
     extra_dh_make_str=''
   fi
-  echo | dh_make -y -s --createorig \${extra_dh_make_str} -p${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
+  echo | dh_make -y -s --createorig \${extra_dh_make_str} -p\${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
   rm -fr debian/
 fi
 
@@ -200,7 +207,7 @@ while (! \$update_done); do
 done
 
 # new versions of mk-build-deps > 2.21.1 left buildinfo and changes files in the code
-rm -f ${PACKAGE_ALIAS}-build-deps_*.{buildinfo,changes}
+rm -f \${PACKAGE_ALIAS}-build-deps_*.{buildinfo,changes}
 echo '# END SECTION'
 
 if [ -f /usr/bin/rosdep ]; then
