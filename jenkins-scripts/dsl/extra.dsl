@@ -11,7 +11,8 @@ release_repo_debbuilds = [ 'opensplice' ]
 // package) method used by debian
 gbp_repo_debbuilds = [ 'lark-parser',
                        'ogre-2.1',
-                       'ogre-2.2' ]
+                       'ogre-2.2',
+                       'ogre-2.3']
 
 release_repo_debbuilds.each { software ->
   // --------------------------------------------------------------
