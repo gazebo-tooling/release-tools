@@ -141,6 +141,7 @@ esac
 cd \${PACKAGE_RELEASE_DIR}
 
 # Helper for transition of ign to gz
+PACKAGE_ALIAS=${PACKAGE_ALIAS}
 SRC_PACKAGE_NAME=\$(grep-dctrl -sSource -n  '' debian/control)
 if [[ \${SRC_PACKAGE_NAME} != \${SRC_PACKAGE_NAME/gz-} ]]; then
   PACKAGE_ALIAS=\${SRC_PACKAGE_NAME}
