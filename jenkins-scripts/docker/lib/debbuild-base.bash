@@ -19,10 +19,6 @@ fi
 # testing jobs and seems to be slow at the end of jenkins jobs
 export ENABLE_REAPER=false
 
-# autopkgtest is a mechanism to test the installation of the generated packages
-# at the end of the package production.
-RUN_AUTOPKGTEST=${RUN_AUTOPKGTEST:-true}
-
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
