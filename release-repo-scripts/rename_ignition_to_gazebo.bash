@@ -2,6 +2,20 @@
 
 set -e
 
+# 0. Pre checks
+find . -name control -type f | while IFS= read -r f; do
+  if grep "transitional package" "${f}" > /dev/null; then
+    echo "There are transitional packages declared in ${f}"
+    echo "Please remove them, probably not needed."
+    exit 1
+  fi
+done
+
+# we don't support buster anymore
+if [[ -d debian/buster ]]; then
+  git rm -fr debian/buster
+fi
+
 # 1. Block: change in the control file
 find . -name control -type f | while IFS= read -r f; do
   if [[ $f == ./ubuntu/debian/tests/control ]]; then
