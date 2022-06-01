@@ -83,7 +83,7 @@ fi
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
 rm -rf /tmp/$PACKAGE-release
-git clone https://github.com/ignition-release/$PACKAGE-release -b $RELEASE_REPO_BRANCH /tmp/$PACKAGE-release
+git clone https://github.com/gazebo-release/$PACKAGE-release -b $RELEASE_REPO_BRANCH /tmp/$PACKAGE-release
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
@@ -109,7 +109,7 @@ fi
 case \${BUILD_METHOD} in
     "OVERWRITE_BASE")
 	# 1. Clone the base branch
-        git clone https://github.com/ignition-release/\${PACKAGE}-release \\
+        git clone https://github.com/gazebo-release/\${PACKAGE}-release \\
             -b \${RELEASE_BASE_BRANCH} \\
 	    /tmp/base_$PACKAGE-release
 	# 2. Overwrite the information
@@ -190,7 +190,7 @@ fi
 timeout=0
 # Help to debug race conditions in nightly generation or other problems with versions
 if ${NIGHTLY_MODE}; then
-  apt-cache show *ignition* | ( grep 'Package\\|Version' || true)
+  apt-cache show *gz-* | ( grep 'Package\\|Version' || true)
   # 5 minutes to give time to the uploader
   timeout=300
 fi
