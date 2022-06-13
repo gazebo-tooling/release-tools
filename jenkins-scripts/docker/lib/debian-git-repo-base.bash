@@ -58,7 +58,12 @@ fi
 
 echo '# BEGIN SECTION: install build dependencies'
 cat debian/changelog
-sudo mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
+mkdir build-deps
+cd build-deps
+sudo mk-build-deps -r -i ../debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
+cd ..
+# clean up files leftover by mk-build-deps
+rm -rf build-deps
 echo '# END SECTION'
 
 VERSION=\$(dpkg-parsechangelog  | grep Version | awk '{print \$2}')
