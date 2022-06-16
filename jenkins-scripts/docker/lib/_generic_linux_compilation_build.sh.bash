@@ -55,7 +55,7 @@ cat >> build.sh << DELIM_BUILD_DEPS
       dependency_repo="osrf/${dep}"
     else
       # need to replace _ by -
-      dependency_repo="ignitionrobotics/${dep//_/-}"
+      dependency_repo="gazebosim/${dep//_/-}"
     fi
 
     git clone http://github.com/\$dependency_repo -b ${dep_branch} \

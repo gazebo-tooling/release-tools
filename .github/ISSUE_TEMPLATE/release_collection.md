@@ -23,7 +23,7 @@ When opening PRs, add a link back to this issue for easier tracking.
 - [ ] Choose name for next release.
 - [ ] Merge each library forward from previous versions
     * <!-- LINK PRS HERE -->
-- [ ] Label pull requests being considered to enter release with [beta](https://github.com/search?q=org%3Aignitionrobotics+label%3Abeta&state=open)
+- [ ] Label pull requests being considered to enter release with [beta](https://github.com/search?q=org%3Agazebosim+label%3Abeta&state=open)
     Pull requests opened against the new collection after then:
     - Bug fixes: will be considered for the initial release and labeled `beta`
     - New features: will not be considered for the initial release.
