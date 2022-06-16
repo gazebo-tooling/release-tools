@@ -41,8 +41,8 @@ NAME_FOR_BRANCH=ign-${LIB}
 NAME_FOR_BRANCH="${NAME_FOR_BRANCH/ign-sdformat/sdf}"
 echo "NAME_FOR_BRANCH: $NAME_FOR_BRANCH"
 
-NAME_FOR_TITLE="Ignition ${LIB^}"
-NAME_FOR_TITLE="${NAME_FOR_TITLE/Ignition Sdformat/SDFormat}"
+NAME_FOR_TITLE="Gazebo ${LIB^}"
+NAME_FOR_TITLE="${NAME_FOR_TITLE/Gazebo Sdformat/SDFormat}"
 echo "NAME_FOR_TITLE: $NAME_FOR_TITLE"
 
 echo "Previous version: ${PREV}"
@@ -68,7 +68,7 @@ echo "## $NAME_FOR_TITLE $NEW"
 echo ""
 echo "## Changelog"
 echo ""
-echo "[Full changelog](https://github.com/ignitionrobotics/${NAME_FOR_REPO}/blob/${NAME_FOR_BRANCH}${MAJOR}/Changelog.md)"
+echo "[Full changelog](https://github.com/gazebosim/${NAME_FOR_REPO}/blob/${NAME_FOR_BRANCH}${MAJOR}/Changelog.md)"
 echo ""
 #awk '/${NEW}/{ f = 1; next } /${PREV}/{ f = 0 } f' Changelog.md
 sed -n "/${NEW}/, /${PREV}/{ /${NEW}/! { /${PREV}/! p } }" Changelog.md

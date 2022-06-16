@@ -123,10 +123,10 @@ set IGN_PROJECT_DEPENDENCY_DIR=%LOCAL_WS%\%1
 if exist %IGN_PROJECT_DEPENDENCY_DIR% ( rmdir /s /q %IGN_PROJECT_DEPENDENCY_DIR% )
 if "%2"=="" (
   echo Installing master branch of %1
-  git clone https://github.com/ignitionrobotics/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b master
+  git clone https://github.com/gazebosim/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b master
 ) else (
   echo Installing branch %2 of %1
-  git clone https://github.com/ignitionrobotics/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b %2
+  git clone https://github.com/gazebosim/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b %2
 )
 cd /d %IGN_PROJECT_DEPENDENCY_DIR%
 call .\configure.bat
