@@ -31,6 +31,6 @@ if ! [[ ${IGN_CMAKE_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-export GZDEV_PROJECT_NAME="ignition-cmake${IGN_CMAKE_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="gz-cmake${IGN_CMAKE_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

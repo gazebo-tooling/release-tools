@@ -31,6 +31,6 @@ fi
 export NEED_C17_COMPILER=true
 export GPU_SUPPORT_NEEDED=true
 
-export GZDEV_PROJECT_NAME="ignition-gazebo${IGN_GAZEBO_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="gz-sim${IGN_GAZEBO_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
