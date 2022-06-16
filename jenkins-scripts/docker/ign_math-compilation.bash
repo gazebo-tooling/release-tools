@@ -33,6 +33,6 @@ if [[ ${IGN_MATH_MAJOR_VERSION} -ge 6 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
-export GZDEV_PROJECT_NAME="ignition-math${IGN_MATH_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="gz-math${IGN_MATH_MAJOR_VERSION}"
 
 . "${SCRIPT_DIR}/lib/generic-building-base.bash"

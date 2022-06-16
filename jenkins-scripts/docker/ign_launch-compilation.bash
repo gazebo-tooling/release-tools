@@ -29,6 +29,6 @@ if ! [[ ${IGN_LAUNCH_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 export NEED_C17_COMPILER=true
-export GZDEV_PROJECT_NAME="ignition-launch${IGN_LAUNCH_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="gz-launch${IGN_LAUNCH_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
