@@ -347,8 +347,10 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   cd ${TEMP_DIR}/homebrew-simulation
   startFromCleanBranch ${BUMP_BRANCH} master
 
+  # NOTE(CH3): This won't interfere with $LIB=gzXXX so it's fine
   # expand ign-* to ignition-*
   FORMULA_BASE=${LIB/ign/ignition}
+
   # construct path with major version suffix
   FORMULA="Formula/${FORMULA_BASE}${VER}.rb"
   if [ ! -f "$FORMULA" ]; then
@@ -358,6 +360,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
     # Collection
     if ! [[ $VER == ?(-)+([0-9]) ]] ; then
+      # TODO(CH3): Change this to gz once we migrate the homebrew formulae
       cp Formula/ignition-${PREV_COLLECTION}.rb $FORMULA
     else
       cp Formula/${FORMULA_BASE}${PREV_VER}.rb $FORMULA
@@ -369,13 +372,21 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   echo -e "${GREEN}${LIB}: Updating ${FORMULA}${DEFAULT}"
   URL="https://github.com/${ORG}/${LIB}.git"
 
+  # TOOD(CH3): Deprecated. Remove on tock?
+  # Support ign and ignition
   # libN
   sed -i -E "s ((${LIB#"ign-"}))${PREV_VER} \1${VER} g" $FORMULA
   sed -i -E "s ((${LIB_#"ign_"}))${PREV_VER} \1${VER} g" $FORMULA
-  # ign-libN -> main
-  sed -i "s ${LIB}${PREV_VER} main g" $FORMULA
   # class IgnitionLibN
   sed -i -E "s/((class Ignition.*))${PREV_VER}/\1${VER}/g" $FORMULA
+
+  # libN
+  sed -i -E "s ((${LIB#"gz-"}))${PREV_VER} \1${VER} g" $FORMULA
+  sed -i -E "s ((${LIB_#"gz_"}))${PREV_VER} \1${VER} g" $FORMULA
+  # gz-libN -> main
+  sed -i "s ${LIB}${PREV_VER} main g" $FORMULA
+  # class GzLibN
+  sed -i -E "s/((class Gz.*))${PREV_VER}/\1${VER}/g" $FORMULA
   sed -i -E "s/((class Sdformat))${PREV_VER}/\1${VER}/g" $FORMULA
   # remove bottle - TODO: this is only needed for new formulae
   sed -i -e "/bottle do/,/end/d" $FORMULA
@@ -394,7 +405,11 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
 
-    DEP_LIB=${LIBRARIES[$j]#"ign-"}
+    DEP_LIB=${LIBRARIES[$j]#"gz-"}
+
+    # TODO(CH3): Deprecated. Remove on tock?
+    DEP_LIB=${DEP_LIB[$j]#"ign-"}
+
     DEP_VER=${VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
@@ -441,6 +456,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   # Check if main branch of that library is the correct version
   PROJECT_NAME="${LIB_}${VER}"
+  # NOTE(CH3): This won't interfere with $LIB=gzXXX so it's fine
   PROJECT_NAME="${PROJECT_NAME/ign_/ignition-}"
   PROJECT="project.*(${PROJECT_NAME}"
   if ! grep -q ${PROJECT} "CMakeLists.txt"; then
@@ -451,7 +467,11 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   echo -e "${GREEN}${LIB}: Updating source code${DEFAULT}"
   for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
 
-    DEP_LIB=${LIBRARIES[$j]#"ign-"}
+    DEP_LIB=${LIBRARIES[$j]#"gz-"}
+
+    # TODO(CH3): Deprecated. Remove on tock?
+    DEP_LIB=${DEP_LIB[$j]#"ign-"}
+
     DEP_VER=${VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
@@ -475,7 +495,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
 
     # Replace collection yaml branch names with main
-    if [[ "${LIB}" == "ign-${COLLECTION}" ]]; then
+    if [[ "${LIB}" == "ign-${COLLECTION}" || "${LIB}" == "gz-${COLLECTION}" ]]; then
       find . -type f -name "collection-${COLLECTION}.yaml" -print0 | xargs -0 sed -i "s ign-${DEP_LIB}${DEP_VER} main g"
     fi
 
