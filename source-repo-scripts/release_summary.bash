@@ -29,15 +29,15 @@ if [ -z "${LIB}" ]; then
 fi
 
 echo "---------------------------------"
-NAME_FOR_TAGS=ignition-${LIB}
+NAME_FOR_TAGS=gz-${LIB}
 NAME_FOR_TAGS="${NAME_FOR_TAGS/ignition-sdformat/sdformat}"
 echo "NAME_FOR_TAGS: $NAME_FOR_TAGS"
 
-NAME_FOR_REPO=ign-${LIB}
+NAME_FOR_REPO=gz-${LIB}
 NAME_FOR_REPO="${NAME_FOR_REPO/ign-sdformat/sdformat}"
 echo "NAME_FOR_REPO: $NAME_FOR_REPO"
 
-NAME_FOR_BRANCH=ign-${LIB}
+NAME_FOR_BRANCH=gz-${LIB}
 NAME_FOR_BRANCH="${NAME_FOR_BRANCH/ign-sdformat/sdf}"
 echo "NAME_FOR_BRANCH: $NAME_FOR_BRANCH"
 
