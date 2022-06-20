@@ -20,7 +20,7 @@ if [[ ! -f CMakeLists.txt  ]]; then
 fi
 
 # Parse CMakeLists project () for sdformat and ignitions
-LIB=$(sed -n 's/^project[[:space:]]*(\(ignition-\)\?\([a-Z]*\)[0-9]*.*)/\2/p' CMakeLists.txt)
+LIB=$(sed -n 's/^project[[:space:]]*(\(ignition-|gz-\)\?\([a-Z]*\)[0-9]*.*)/\2/p' CMakeLists.txt)
 
 if [ -z "${LIB}" ]; then
   echo "Parsing of CMakeLists.txt project tag failed"
@@ -30,15 +30,15 @@ fi
 
 echo "---------------------------------"
 NAME_FOR_TAGS=gz-${LIB}
-NAME_FOR_TAGS="${NAME_FOR_TAGS/ignition-sdformat/sdformat}"
+NAME_FOR_TAGS="${NAME_FOR_TAGS/gz-sdformat/sdformat}"
 echo "NAME_FOR_TAGS: $NAME_FOR_TAGS"
 
 NAME_FOR_REPO=gz-${LIB}
-NAME_FOR_REPO="${NAME_FOR_REPO/ign-sdformat/sdformat}"
+NAME_FOR_REPO="${NAME_FOR_REPO/gz-sdformat/sdformat}"
 echo "NAME_FOR_REPO: $NAME_FOR_REPO"
 
 NAME_FOR_BRANCH=gz-${LIB}
-NAME_FOR_BRANCH="${NAME_FOR_BRANCH/ign-sdformat/sdf}"
+NAME_FOR_BRANCH="${NAME_FOR_BRANCH/gz-sdformat/sdf}"
 echo "NAME_FOR_BRANCH: $NAME_FOR_BRANCH"
 
 NAME_FOR_TITLE="Gazebo ${LIB^}"
