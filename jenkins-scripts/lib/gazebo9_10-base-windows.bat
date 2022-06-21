@@ -56,7 +56,7 @@ echo # BEGIN SECTION: compile and install ign-transport
 set IGN_TRANSPORT_DIR=%WORKSPACE%\ign-transport
 if EXIST %IGN_TRANSPORT_DIR% ( rmdir /s /q %IGN_TRANSPORT_DIR% )
 git clone https://github.com/gazebosim/gz-transport %IGN_TRANSPORT_DIR% -b ign-transport4
-set VCS_DIRECTORY=gz-transport
+set VCS_DIRECTORY=ign-transport
 set KEEP_WORKSPACE=TRUE
 set ENABLE_TESTS=FALSE
 set BUILD_TYPE=Release

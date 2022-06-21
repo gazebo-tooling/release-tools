@@ -1,7 +1,7 @@
 @echo on
 set SCRIPT_DIR=%~dp0
 
-set VCS_DIRECTORY=gz-sensors
+set VCS_DIRECTORY=ign-sensors
 set PLATFORM_TO_BUILD=x86_amd64
 set IGN_CLEAN_WORKSPACE=true
 
@@ -11,7 +11,7 @@ if %GZ_MAJOR_VERSION% GEQ 7 (
   set DEPEN_PKGS=%DEPEN_PKGS% gdal
 )
 :: This needs to be migrated to DSL to get multi-major versions correctly
-set COLCON_PACKAGE=gz-sensors
+set COLCON_PACKAGE=ignition-sensors
 set COLCON_AUTO_MAJOR_VERSION=true
 
 call "%SCRIPT_DIR%\lib\colcon-default-devel-windows.bat"

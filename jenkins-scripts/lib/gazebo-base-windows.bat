@@ -65,7 +65,7 @@ echo # BEGIN SECTION: compile and install ign-fuel-tools
 set IGN_TRANSPORT_DIR=%WORKSPACE%\ign-fuel-tools
 if EXIST %IGN_TRANSPORT_DIR% ( rmdir /s /q %IGN_TRANSPORT_DIR% )
 git clone https://github.com/gazebosim/gz-fuel-tools %IGN_TRANSPORT_DIR% -b ign-fuel-tools4
-set VCS_DIRECTORY=gz-fuel-tools
+set VCS_DIRECTORY=ign-fuel-tools
 set KEEP_WORKSPACE=TRUE
 set ENABLE_TESTS=FALSE
 set BUILD_TYPE=Release
@@ -76,7 +76,7 @@ echo # BEGIN SECTION: compile and install ign-transport
 set IGN_TRANSPORT_DIR=%WORKSPACE%\ign-transport
 if EXIST %IGN_TRANSPORT_DIR% ( rmdir /s /q %IGN_TRANSPORT_DIR% )
 git clone https://github.com/gazebosim/gz-transport %IGN_TRANSPORT_DIR% -b ign-transport8
-set VCS_DIRECTORY=gz-transport
+set VCS_DIRECTORY=ign-transport
 set KEEP_WORKSPACE=TRUE
 set ENABLE_TESTS=FALSE
 set BUILD_TYPE=Release
