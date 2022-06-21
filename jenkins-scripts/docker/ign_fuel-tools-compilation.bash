@@ -14,14 +14,14 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-fuel-tools"
+export BUILDING_SOFTWARE_DIRECTORY="gz-fuel-tools"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_FUEL_TOOLS_DEPENDENCIES"
 export BUILDING_JOB_REPOSITORIES="stable"
 
 # Identify GZ_FUEL_TOOLS_MAJOR_VERSION to help with dependency resolution
 GZ_FUEL_TOOLS_MAJOR_VERSION=$(\
   python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
-  ${WORKSPACE}/ign-fuel-tools/CMakeLists.txt)
+  ${WORKSPACE}/gz-fuel-tools/CMakeLists.txt)
 
 # Check IGN_FUEL_TOOLS version is integer
 if ! [[ ${GZ_FUEL_TOOLS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then

@@ -6,6 +6,7 @@ ignition_software = [ 'cmake',
                       'common',
                       'fuel-tools',
                       'gazebo',
+                      'sim',
                       'gui',
                       'launch',
                       'math',
@@ -27,6 +28,7 @@ ignition_no_cmake_warnings = [ 'cmake',
                       'common',
                       'fuel-tools',
                       'gazebo',
+                      'sim',
                       'gui',
                       'launch',
                       'math',
@@ -183,7 +185,7 @@ ArrayList all_branches(String ign_software)
   List<String> branches = new ArrayList<String>();
   supported_branches("${ign_software}").each { major_version ->
     if ("${major_version}") {
-      branches.add("ign-${ign_software}${major_version}")
+      branches.add("gz-${ign_software}${major_version}")
     }
   }
   branches.add('main')
@@ -206,13 +208,13 @@ ArrayList all_debbuilders()
         // No 1-debbuild versions, they use the unversioned job
         if ("${major_version}" == "0"  || "${major_version}" == "1" )
           major_version = ""
-          branches.add("ign-${ign_software}${major_version}")
+          branches.add("gz-${ign_software}${major_version}")
       }
     }
   }
   // add all extra debbuilders
   ignition_extra_debbuild.each { ign_name ->
-    branches.add("ign-${ign_name}")
+    branches.add("gz-${ign_name}")
   }
 
   return branches
@@ -300,10 +302,10 @@ ignition_software.each { gz_sw ->
 
       abi_job_names[gz_sw] = "ignition_${gz_sw}-abichecker-any_to_any-ubuntu_auto-${arch}"
       def abi_job = job(abi_job_names[gz_sw])
-      checkout_subdir = "ign-${gz_sw}"
+      checkout_subdir = "gz-${gz_sw}"
       OSRFLinuxABIGitHub.create(abi_job)
       GenericAnyJobGitHub.create(abi_job,
-                        "gazebosim/ign-${gz_sw}",
+                        "gazebosim/gz-${gz_sw}",
                         all_branches(gz_sw) - [ 'main'])
       abi_job.with
       {
@@ -345,7 +347,7 @@ ignition_software.each { gz_sw ->
     // 1. Create the any job
     def ignition_ci_job_name = "ignition_${gz_sw}-ci-pr_any-ubuntu_auto-${arch}"
     def ignition_ci_any_job = job(ignition_ci_job_name)
-    def ignition_checkout_dir = "ign-${gz_sw}"
+    def ignition_checkout_dir = "gz-${gz_sw}"
     OSRFLinuxCompilationAnyGitHub.create(ignition_ci_any_job,
                                         "gazebosim/${ignition_checkout_dir}",
                                          enable_testing(gz_sw))
@@ -441,8 +443,8 @@ void generate_ci_job(ignition_ci_job, gz_sw, branch, distro, arch,
 {
   OSRFLinuxCompilation.create(ignition_ci_job, enable_testing(gz_sw))
   OSRFGitHub.create(ignition_ci_job,
-                        "gazebosim/ign-${gz_sw}",
-                        "${branch}", "ign-${gz_sw}")
+                        "gazebosim/gz-${gz_sw}",
+                        "${branch}", "gz-${gz_sw}")
 
   include_gpu_label_if_needed(ignition_ci_job, gz_sw)
   ignition_ci_job.with
@@ -542,7 +544,7 @@ ignition_software.each { gz_sw ->
 
   def ignition_brew_ci_any_job = job(ignition_brew_ci_any_job_name)
   OSRFBrewCompilationAnyGitHub.create(ignition_brew_ci_any_job,
-                                      "gazebosim/ign-${gz_sw}",
+                                      "gazebosim/gz-${gz_sw}",
                                       enable_testing(gz_sw),
                                       GITHUB_SUPPORT_ALL_BRANCHES,
                                       ENABLE_GITHUB_PR_INTEGRATION,
@@ -574,8 +576,8 @@ ignition_software.each { gz_sw ->
                                enable_testing(gz_sw),
                                enable_cmake_warnings(gz_sw))
     OSRFGitHub.create(ignition_brew_ci_job,
-                              "gazebosim/ign-${gz_sw}",
-                              "${branch}", "ign-${gz_sw}")
+                              "gazebosim/gz-${gz_sw}",
+                              "${branch}", "gz-${gz_sw}")
     ignition_brew_ci_job.with
     {
         triggers {
@@ -665,7 +667,7 @@ ignition_software.each { gz_sw ->
 
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAnyGitHub.create(ignition_win_ci_any_job,
-                                    "gazebosim/ign-${gz_sw}",
+                                    "gazebosim/gz-${gz_sw}",
                                     enable_testing(gz_sw),
                                     supported_branches,
                                     ENABLE_GITHUB_PR_INTEGRATION,
@@ -701,8 +703,8 @@ ignition_software.each { gz_sw ->
                               enable_testing(gz_sw),
                               enable_cmake_warnings(gz_sw))
     OSRFGitHub.create(ignition_win_ci_job,
-                              "gazebosim/ign-${gz_sw}",
-                              "${branch}", "ign-${gz_sw}")
+                              "gazebosim/gz-${gz_sw}",
+                              "${branch}", "gz-${gz_sw}")
 
     ignition_win_ci_job.with
     {

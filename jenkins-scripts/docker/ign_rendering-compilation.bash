@@ -14,13 +14,13 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-rendering"
+export BUILDING_SOFTWARE_DIRECTORY="gz-rendering"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_RENDERING_DEPENDENCIES"
 
 # Identify GZ_RENDERING_MAJOR_VERSION to help with dependency resolution
 GZ_RENDERING_MAJOR_VERSION=$(\
   python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
-  ${WORKSPACE}/ign-rendering/CMakeLists.txt)
+  ${WORKSPACE}/gz-rendering/CMakeLists.txt)
 
 # Check IGN_RENDERING version is integer
 if ! [[ ${GZ_RENDERING_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then

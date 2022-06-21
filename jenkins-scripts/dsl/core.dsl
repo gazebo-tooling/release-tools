@@ -34,7 +34,7 @@ update_vcpkg_snapshot_job.with
 def ignition_testing_software = 'gazebo'
 def testing_vcpkg_job = job("_vcpkg_testing_snapshot")
 OSRFWinCompilationAnyGitHub.create(testing_vcpkg_job,
-                                  "gazebosim/ign-${ignition_testing_software}",
+                                  "gazebosim/gz-${ignition_testing_software}",
                                   NO_TESTING, NO_BRANCHES, NO_GITHUB_PR_INTEGRATION)
 testing_vcpkg_job.with
 {
