@@ -14,13 +14,13 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="gz-utils"
+export BUILDING_SOFTWARE_DIRECTORY="ign-utils"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_UTILS_DEPENDENCIES"
 
 # Identify GZ_UTILS_MAJOR_VERSION to help with dependency resolution
 GZ_UTILS_MAJOR_VERSION=$(\
   python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
-  ${WORKSPACE}/gz-utils/CMakeLists.txt)
+  ${WORKSPACE}/ign-utils/CMakeLists.txt)
 
 # Check IGN_UTILS version is integer
 if ! [[ ${GZ_UTILS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then

@@ -75,7 +75,7 @@ When opening PRs, add a link back to this issue for easier tracking.
         * <!-- LINK PR HERE -->
     - [ ] Create new `-release` repositories (use [this script](https://github.com/gazebo-tooling/release-tools/blob/master/release-repo-scripts/new_ignition_release_repos.bash))
     - [ ] Enable nightlies for all `main` branches on `gzdev` ([example](https://github.com/gazebo-tooling/gzdev/pull/50))
-    - [ ] Execute the tick-tock's "tock" for deprecations ([example](https://github.com/gazebosim/gz-sim/pull/875))
+    - [ ] Execute the tick-tock's "tock" for deprecations ([example](https://github.com/gazebosim/gz-gazebo/pull/875))
         * <!-- LINK PRs HERE -->
 - [ ] Update all repositories to default to the new stable branches.
 
@@ -104,7 +104,7 @@ Repo | Version | Release Branch | Feature frozen | Synced with previous versions
 [ign-gui](https://github.com/gazebosim/gz-gui)               |  | ign-guiN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-gui/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
 [ign-sensors](https://github.com/gazebosim/gz-sensors)       |  | ign-sensorsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-sensors/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
 [ign-physics](https://github.com/gazebosim/gz-physics)       |  | ign-physicsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-physics/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-gazebo](https://github.com/gazebosim/gz-sim)         |  | ign-gazeboN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-sim/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-gazebo](https://github.com/gazebosim/gz-gazebo)         |  | ign-gazeboN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-gazebo/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
 [ign-launch](https://github.com/gazebosim/gz-launch)         |  | ign-launchN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-launch/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
 [ign-<collection>](https://github.com/gazebosim/gz-<cok>)    |  | main | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-<collection>/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
 [ros_ign](https://github.com/gazebosim/ros_ign)               |  | <distros> | ✔️ | ✔️ | ✔️ |  |  | [PRs](https://github.com/gazebosim/ros_ign/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |

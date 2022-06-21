@@ -346,9 +346,9 @@ ignition_collections.each { gz_collection ->
   def ignition_brew_ci_job = job("ignition_${gz_collection_name}-ci-main-homebrew-amd64")
   OSRFBrewCompilation.create(ignition_brew_ci_job, DISABLE_TESTS)
   OSRFGitHub.create(ignition_brew_ci_job,
-                    "gazebosim/gz-${gz_collection_name}",
+                    "gazebosim/ign-${gz_collection_name}",
                     "main",
-                    "gz-${gz_collection_name}")
+                    "ign-${gz_collection_name}")
   ignition_brew_ci_job.with
   {
       steps {
@@ -395,7 +395,7 @@ ignition_collections.each { gz_collection ->
 
   // DEBBUILD: linux package builder
   // --------------------------------------------------------------
-  def build_pkg_job = job("gz-${gz_collection_name}-debbuilder")
+  def build_pkg_job = job("ign-${gz_collection_name}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
   build_pkg_job.with
   {
@@ -409,7 +409,7 @@ ignition_collections.each { gz_collection ->
    }
 
   // Gazebo dashboards
-  dashboardView("gz-${gz_collection_name}")
+  dashboardView("ign-${gz_collection_name}")
   {
       jobs {
           ignition_collection_jobs["${gz_collection_name}"].each { jobname ->
