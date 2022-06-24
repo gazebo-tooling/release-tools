@@ -1,7 +1,7 @@
 # Release Tools
 
 This repository holds scripts and tools that are used for testing and releasing
-Gazebo Classic and Gazebo software.
+Gazebo software.
 
 ## Scripts
 
