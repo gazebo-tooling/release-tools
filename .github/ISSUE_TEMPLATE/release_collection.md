@@ -75,7 +75,7 @@ When opening PRs, add a link back to this issue for easier tracking.
         * <!-- LINK PR HERE -->
     - [ ] Create new `-release` repositories (use [this script](https://github.com/gazebo-tooling/release-tools/blob/master/release-repo-scripts/new_ignition_release_repos.bash))
     - [ ] Enable nightlies for all `main` branches on `gzdev` ([example](https://github.com/gazebo-tooling/gzdev/pull/50))
-    - [ ] Execute the tick-tock's "tock" for deprecations ([example](https://github.com/gazebosim/gz-gazebo/pull/875))
+    - [ ] Execute the tick-tock's "tock" for deprecations ([example](https://github.com/gazebosim/gz-sim/pull/875))
         * <!-- LINK PRs HERE -->
 - [ ] Update all repositories to default to the new stable branches.
 
@@ -90,24 +90,24 @@ If the collection will be officially paired with a ROS 2 distro:
 
 Repo | Version | Release Branch | Feature frozen | Synced with previous versions? | Prerelease? | Code Frozen | Stable release? | Open PRs | Pending dep release
 -- | -- | -- | -- | -- | -- | -- | -- | -- | --
-[ign-tools](https://github.com/gazebosim/gz-tools)           |  | ign-toolsN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-tools/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-cmake](https://github.com/gazebosim/gz-cmake)           |  | ign-cmakeN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-cmake/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-math](https://github.com/gazebosim/gz-math)             |  | ign-mathN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-math/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-plugin](https://github.com/gazebosim/gz-plugin)         |  | ign-pluginN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-plugin/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-utils](https://github.com/gazebosim/gz-utils)           |  | ign-utilsN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-utils/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-common](https://github.com/gazebosim/gz-common)         |  | ign-commonN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-common/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-msgs](https://github.com/gazebosim/gz-msgs)             |  | ign-msgsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-msgs/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-rendering](https://github.com/gazebosim/gz-rendering)   |  | ign-renderingN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-rendering/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-tools](https://github.com/gazebosim/gz-tools)           |  | gz-toolsN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-tools/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-cmake](https://github.com/gazebosim/gz-cmake)           |  | gz-cmakeN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-cmake/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-math](https://github.com/gazebosim/gz-math)             |  | gz-mathN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-math/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-plugin](https://github.com/gazebosim/gz-plugin)         |  | gz-pluginN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-plugin/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-utils](https://github.com/gazebosim/gz-utils)           |  | gz-utilsN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-utils/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-common](https://github.com/gazebosim/gz-common)         |  | gz-commonN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-common/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-msgs](https://github.com/gazebosim/gz-msgs)             |  | gz-msgsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-msgs/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-rendering](https://github.com/gazebosim/gz-rendering)   |  | gz-renderingN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-rendering/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
 [sdformat](https://github.com/gazebosim/sdformat)             |  | sdfN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/sdformat/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-fuel-tools](https://github.com/gazebosim/gz-fuel-tools) |  | ign-fuel-toolsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-fuel-tools/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-transport](https://github.com/gazebosim/gz-transport)   |  | ign-transportN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-transport/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-gui](https://github.com/gazebosim/gz-gui)               |  | ign-guiN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-gui/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-sensors](https://github.com/gazebosim/gz-sensors)       |  | ign-sensorsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-sensors/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-physics](https://github.com/gazebosim/gz-physics)       |  | ign-physicsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-physics/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-gazebo](https://github.com/gazebosim/gz-gazebo)         |  | ign-gazeboN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-gazebo/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-launch](https://github.com/gazebosim/gz-launch)         |  | ign-launchN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-launch/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-<collection>](https://github.com/gazebosim/gz-<cok>)    |  | main | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-<collection>/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ros_ign](https://github.com/gazebosim/ros_ign)               |  | <distros> | ✔️ | ✔️ | ✔️ |  |  | [PRs](https://github.com/gazebosim/ros_ign/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-fuel-tools](https://github.com/gazebosim/gz-fuel-tools) |  | gz-fuel-toolsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-fuel-tools/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-transport](https://github.com/gazebosim/gz-transport)   |  | gz-transportN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-transport/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-gui](https://github.com/gazebosim/gz-gui)               |  | gz-guiN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-gui/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-sensors](https://github.com/gazebosim/gz-sensors)       |  | gz-sensorsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-sensors/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-physics](https://github.com/gazebosim/gz-physics)       |  | gz-physicsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-physics/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-sim](https://github.com/gazebosim/gz-sim)         |  | gz-simN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-sim/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-launch](https://github.com/gazebosim/gz-launch)         |  | gz-launchN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-launch/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[gz-<collection>](https://github.com/gazebosim/gz-<cok>)    |  | main | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-<collection>/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ros_gz](https://github.com/gazebosim/ros_gz)               |  | <distros> | ✔️ | ✔️ | ✔️ |  |  | [PRs](https://github.com/gazebosim/ros_gz/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
 
 Track stable release of metapackage `ignition-<collection>`.
 
