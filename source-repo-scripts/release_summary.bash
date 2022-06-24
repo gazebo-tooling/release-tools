@@ -38,7 +38,7 @@ echo "NAME_FOR_TAGS: $NAME_FOR_TAGS"
 NAME_FOR_REPO=gz-${LIB}
 NAME_FOR_REPO="${NAME_FOR_REPO/_/-}"
 NAME_FOR_REPO="${NAME_FOR_REPO/gz-sdformat/sdformat}"
-NAME_FOR_REPO="${NAME_FOR_REPO/gz-sim/gz-sim}"
+NAME_FOR_REPO="${NAME_FOR_REPO/gz-gazebo/gz-sim}"
 echo "NAME_FOR_REPO: $NAME_FOR_REPO"
 
 # TODO(chapulina) Support gz branches
