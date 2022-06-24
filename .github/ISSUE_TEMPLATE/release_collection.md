@@ -75,7 +75,7 @@ When opening PRs, add a link back to this issue for easier tracking.
         * <!-- LINK PR HERE -->
     - [ ] Create new `-release` repositories (use [this script](https://github.com/gazebo-tooling/release-tools/blob/master/release-repo-scripts/new_ignition_release_repos.bash))
     - [ ] Enable nightlies for all `main` branches on `gzdev` ([example](https://github.com/gazebo-tooling/gzdev/pull/50))
-    - [ ] Execute the tick-tock's "tock" for deprecations ([example](https://github.com/ignitionrobotics/ign-gazebo/pull/875))
+    - [ ] Execute the tick-tock's "tock" for deprecations ([example](https://github.com/gazebosim/gz-sim/pull/875))
         * <!-- LINK PRs HERE -->
 - [ ] Update all repositories to default to the new stable branches.
 
@@ -90,24 +90,24 @@ If the collection will be officially paired with a ROS 2 distro:
 
 Repo | Version | Release Branch | Feature frozen | Synced with previous versions? | Prerelease? | Code Frozen | Stable release? | Open PRs | Pending dep release
 -- | -- | -- | -- | -- | -- | -- | -- | -- | --
-[ign-tools](https://github.com/ignitionrobotics/ign-tools)           |  | ign-toolsN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-tools/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-cmake](https://github.com/ignitionrobotics/ign-cmake)           |  | ign-cmakeN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-cmake/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-math](https://github.com/ignitionrobotics/ign-math)             |  | ign-mathN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-math/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-plugin](https://github.com/ignitionrobotics/ign-plugin)         |  | ign-pluginN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-plugin/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-utils](https://github.com/ignitionrobotics/ign-utils)           |  | ign-utilsN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-utils/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-common](https://github.com/ignitionrobotics/ign-common)         |  | ign-commonN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-common/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-msgs](https://github.com/ignitionrobotics/ign-msgs)             |  | ign-msgsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-msgs/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-rendering](https://github.com/ignitionrobotics/ign-rendering)   |  | ign-renderingN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-rendering/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[sdformat](https://github.com/ignitionrobotics/sdformat)             |  | sdfN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/sdformat/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-fuel-tools](https://github.com/ignitionrobotics/ign-fuel-tools) |  | ign-fuel-toolsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-fuel-tools/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-transport](https://github.com/ignitionrobotics/ign-transport)   |  | ign-transportN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-transport/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-gui](https://github.com/ignitionrobotics/ign-gui)               |  | ign-guiN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-gui/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-sensors](https://github.com/ignitionrobotics/ign-sensors)       |  | ign-sensorsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-sensors/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-physics](https://github.com/ignitionrobotics/ign-physics)       |  | ign-physicsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-physics/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-gazebo](https://github.com/ignitionrobotics/ign-gazebo)         |  | ign-gazeboN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-gazebo/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-launch](https://github.com/ignitionrobotics/ign-launch)         |  | ign-launchN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-launch/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ign-<collection>](https://github.com/ignitionrobotics/ign-<cok>)    |  | main | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/ignitionrobotics/ign-<collection>/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
-[ros_ign](https://github.com/ignitionrobotics/ros_ign)               |  | <distros> | ✔️ | ✔️ | ✔️ |  |  | [PRs](https://github.com/ignitionrobotics/ros_ign/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-tools](https://github.com/gazebosim/gz-tools)           |  | ign-toolsN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-tools/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-cmake](https://github.com/gazebosim/gz-cmake)           |  | ign-cmakeN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-cmake/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-math](https://github.com/gazebosim/gz-math)             |  | ign-mathN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-math/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-plugin](https://github.com/gazebosim/gz-plugin)         |  | ign-pluginN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-plugin/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-utils](https://github.com/gazebosim/gz-utils)           |  | ign-utilsN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-utils/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-common](https://github.com/gazebosim/gz-common)         |  | ign-commonN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-common/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-msgs](https://github.com/gazebosim/gz-msgs)             |  | ign-msgsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-msgs/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-rendering](https://github.com/gazebosim/gz-rendering)   |  | ign-renderingN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-rendering/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[sdformat](https://github.com/gazebosim/sdformat)             |  | sdfN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/sdformat/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-fuel-tools](https://github.com/gazebosim/gz-fuel-tools) |  | ign-fuel-toolsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-fuel-tools/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-transport](https://github.com/gazebosim/gz-transport)   |  | ign-transportN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-transport/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-gui](https://github.com/gazebosim/gz-gui)               |  | ign-guiN | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-gui/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-sensors](https://github.com/gazebosim/gz-sensors)       |  | ign-sensorsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-sensors/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-physics](https://github.com/gazebosim/gz-physics)       |  | ign-physicsN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-physics/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-gazebo](https://github.com/gazebosim/gz-sim)         |  | ign-gazeboN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-sim/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-launch](https://github.com/gazebosim/gz-launch)         |  | ign-launchN | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-launch/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ign-<collection>](https://github.com/gazebosim/gz-<cok>)    |  | main | ✔️ | ✔️  | ✔️ | ✔️ | ✔️ | [PRs](https://github.com/gazebosim/gz-<collection>/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
+[ros_ign](https://github.com/gazebosim/ros_ign)               |  | <distros> | ✔️ | ✔️ | ✔️ |  |  | [PRs](https://github.com/gazebosim/ros_ign/pulls/?q=is%3Apr+is%3Aopen+label%3A%22beta%22) |
 
 Track stable release of metapackage `ignition-<collection>`.
 

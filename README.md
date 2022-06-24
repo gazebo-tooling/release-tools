@@ -36,7 +36,7 @@ Gazebo Classic and Ignition software.
     * [Example pull request.](https://github.com/ignitionrobotics/ign-physics/pull/132)
     * Update the version on `CMakeLists.txt`.
     * Include a link comparing the current branch to the latest release.
-        1. [Example branch comparison.](https://github.com/ignitionrobotics/ign-gazebo/compare/ignition-gazebo3_3.5.0...ign-gazebo3)
+        1. [Example branch comparison.](https://github.com/gazebosim/gz-sim/compare/ignition-gazebo3_3.5.0...ign-gazebo3)
         1. Substitute the package version and name that are relevant to your release.
     * Update the changelog.
         1. Use the [source_changelog.bash](source_changelog.bash) script to generate the Changelog.md entries newer than the most recent tag.

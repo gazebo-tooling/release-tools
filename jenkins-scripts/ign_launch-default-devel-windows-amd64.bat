@@ -9,7 +9,7 @@ for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORK
 if %GZ_MAJOR_VERSION% GEQ 6 (
   set DEPEN_PKGS=%DEPEN_PKGS% gdal
 )
-set COLCON_PACKAGE=ignition-launch
+set COLCON_PACKAGE=gz-launch
 set COLCON_AUTO_MAJOR_VERSION=true
 
 call "%SCRIPT_DIR%\lib\colcon-default-devel-windows.bat"

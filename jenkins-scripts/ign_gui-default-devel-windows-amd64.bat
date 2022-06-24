@@ -12,7 +12,7 @@ if %GZ_MAJOR_VERSION% GEQ 7 (
   set DEPEN_PKGS=%DEPEN_PKGS% gdal
 )
 :: This needs to be migrated to DSL to get multi-major versions correctly
-set COLCON_PACKAGE=ignition-gui
+set COLCON_PACKAGE=gz-gui
 set COLCON_AUTO_MAJOR_VERSION=true
 
 call "%SCRIPT_DIR%\lib\colcon-default-devel-windows.bat"
