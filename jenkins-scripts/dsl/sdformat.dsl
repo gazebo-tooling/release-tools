@@ -381,7 +381,7 @@ all_branches.each { branch ->
 
       steps {
         batchFile("""\
-              set USE_IGNITION_ZIP=FALSE
+              set USE_GZ_ZIP=FALSE
               call "./scripts/jenkins-scripts/sdformat-default-devel-windows-amd64.bat"
               """.stripIndent())
       }
