@@ -246,7 +246,6 @@ goto :EOF
 :tests_in_workspace
 :: arg1: package whitelist to test
 set COLCON_PACKAGE=%1
-set COLCON_PACKAGE_GZ=%1
 
 echo # BEGIN SECTION: colcon test for %COLCON_PACKAGE%
 colcon test --install-base "install"^
