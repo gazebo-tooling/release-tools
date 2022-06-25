@@ -183,6 +183,17 @@ set COLCON_PACKAGE=%2
 set COLCON_EXTRA_CMAKE_ARGS=%3
 set COLCON_EXTRA_CMAKE_ARGS2=%4
 
+:: Check if package is in colcon workspace
+colcon list --names-only | find /i "%COLCON_PACKAGE"
+if errorlevel 1 (
+  set COLCON_PACKAGE=%COLCON_PACKAGE:ignition=gz%
+)
+colcon list --names-only | find /i "%COLCON_PACKAGE"
+if errorlevel 1 (
+  echo Failed to find package %COLCON_PACKAGE% in workspace.
+  goto :error
+)
+
 :: TODO: be sure that this way of defining MAKEFLAGS is working
 set MAKEFLAGS=-j%MAKE_JOBS%
 
@@ -229,6 +240,7 @@ goto :EOF
 :tests_in_workspace
 :: arg1: package whitelist to test
 set COLCON_PACKAGE=%1
+set COLCON_PACKAGE_GZ=%1
 
 echo # BEGIN SECTION: colcon test for %COLCON_PACKAGE%
 colcon test --install-base "install"^
