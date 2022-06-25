@@ -184,6 +184,7 @@ set COLCON_EXTRA_CMAKE_ARGS=%3
 set COLCON_EXTRA_CMAKE_ARGS2=%4
 
 :: Check if package is in colcon workspace
+echo HERE1! %COLCON_PACKAGE%
 colcon list --names-only | find /i "%COLCON_PACKAGE"
 if errorlevel 1 (
   set COLCON_PACKAGE=%COLCON_PACKAGE:ignition=gz%
@@ -220,6 +221,18 @@ goto :EOF
 :build_workspace
 
 set COLCON_PACKAGE=%1
+
+echo HERE2! %COLCON_PACKAGE%
+:: Check if package is in colcon workspace
+colcon list --names-only | find /i "%COLCON_PACKAGE"
+if errorlevel 1 (
+  set COLCON_PACKAGE=%COLCON_PACKAGE:ignition=gz%
+)
+colcon list --names-only | find /i "%COLCON_PACKAGE"
+if errorlevel 1 (
+  echo Failed to find package %COLCON_PACKAGE% in workspace.
+  goto :error
+)
 
 :: two runs to get the dependencies built with testing and the package under
 :: test build with tests
