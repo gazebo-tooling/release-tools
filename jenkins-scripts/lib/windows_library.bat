@@ -213,11 +213,11 @@ set COLCON_PACKAGE=%1
 echo HERE! %COLCON_PACKAGE%
 :: Check if package is in colcon workspace
 colcon list --names-only
-colcon list --names-only | findstr /I "%COLCON_PACKAGE"
+colcon list --names-only | findstr /i /b /C:"%COLCON_PACKAGE"
 if errorlevel 1 (
   set COLCON_PACKAGE=%COLCON_PACKAGE:ignition=gz%
 )
-colcon list --names-only | findstr /I "%COLCON_PACKAGE"
+colcon list --names-only | findstr /i /b /C:"%COLCON_PACKAGE"
 if errorlevel 1 (
   echo Failed to find package %COLCON_PACKAGE% in workspace.
   goto :error
