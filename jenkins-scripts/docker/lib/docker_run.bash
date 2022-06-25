@@ -32,6 +32,7 @@ if [[ ${DISTRO} == 'jammy' && ${ARCH} == 'armhf' ]]; then
 fi
 
 sudo docker ${DOCKER_CLI_PLUGIN} build ${PLAFTORM_PARAM} ${_DOCKER_BUILD_EXTRA_ARGS} \
+                  --no-cache \
                   --build-arg GID=$(id -g $USER) \
                   --build-arg USERID=$USERID \
                   --build-arg USER=$USER \
