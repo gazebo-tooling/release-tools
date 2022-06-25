@@ -33,6 +33,6 @@ if [[ ${IGN_GUI_MAJOR_VERSION} -ge 1 ]]; then
 fi
 
 export GPU_SUPPORT_NEEDED=true
-export GZDEV_PROJECT_NAME="ignition-gui${IGN_GUI_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="gz-gui${IGN_GUI_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
