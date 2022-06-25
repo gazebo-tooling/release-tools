@@ -35,6 +35,23 @@ if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
    echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
 )
 
+:: Check if package is in colcon workspace
+echo # BEGIN SECTION: Update package %COLCON_PACKAGE% from ignition to gz if needed
+echo Packages in workspace:
+colcon list --names-only
+
+colcon list --names-only | find "%COLCON_PACKAGE%"
+if errorlevel 1 (
+  set COLCON_PACKAGE=%COLCON_PACKAGE:ignition=gz%
+)
+colcon list --names-only | find "%COLCON_PACKAGE%"
+if errorlevel 1 (
+  echo Failed to find package %COLCON_PACKAGE% in workspace.
+  goto :error
+)
+echo Using package name %COLCON_PACKAGE%
+echo # END SECTION
+
 set TEST_RESULT_PATH=%WORKSPACE%\ws\build\%COLCON_PACKAGE%\test_results
 
 setlocal ENABLEDELAYEDEXPANSION
