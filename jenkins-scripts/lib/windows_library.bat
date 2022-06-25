@@ -183,18 +183,6 @@ set COLCON_PACKAGE=%2
 set COLCON_EXTRA_CMAKE_ARGS=%3
 set COLCON_EXTRA_CMAKE_ARGS2=%4
 
-:: Check if package is in colcon workspace
-echo HERE1! %COLCON_PACKAGE%
-colcon list --names-only | find /i "%COLCON_PACKAGE"
-if errorlevel 1 (
-  set COLCON_PACKAGE=%COLCON_PACKAGE:ignition=gz%
-)
-colcon list --names-only | find /i "%COLCON_PACKAGE"
-if errorlevel 1 (
-  echo Failed to find package %COLCON_PACKAGE% in workspace.
-  goto :error
-)
-
 :: TODO: be sure that this way of defining MAKEFLAGS is working
 set MAKEFLAGS=-j%MAKE_JOBS%
 
@@ -222,8 +210,9 @@ goto :EOF
 
 set COLCON_PACKAGE=%1
 
-echo HERE2! %COLCON_PACKAGE%
+echo HERE! %COLCON_PACKAGE%
 :: Check if package is in colcon workspace
+colcon list --names-only
 colcon list --names-only | find /i "%COLCON_PACKAGE"
 if errorlevel 1 (
   set COLCON_PACKAGE=%COLCON_PACKAGE:ignition=gz%
