@@ -210,18 +210,22 @@ goto :EOF
 
 set COLCON_PACKAGE=%1
 
-echo HERE! %COLCON_PACKAGE%
 :: Check if package is in colcon workspace
+echo # BEGIN SECTION: Update package %COLCON_PACKAGE% from ignition to gz if needed
+echo Packages in workspace:
 colcon list --names-only
+
 colcon list --names-only | find "%COLCON_PACKAGE%"
 if errorlevel 1 (
   set COLCON_PACKAGE=%COLCON_PACKAGE:ignition=gz%
+  echo Using package name %COLCON_PACKAGE%
 )
 colcon list --names-only | find "%COLCON_PACKAGE%"
 if errorlevel 1 (
   echo Failed to find package %COLCON_PACKAGE% in workspace.
   goto :error
 )
+echo # END SECTION
 
 :: two runs to get the dependencies built with testing and the package under
 :: test build with tests
