@@ -6,7 +6,7 @@ set IGN_CLEAN_WORKSPACE=true
 
 set DEPEN_PKGS="dlfcn-win32"
 
-set COLCON_PACKAGE=gz-plugin
+set COLCON_PACKAGE=ignition-plugin
 set COLCON_AUTO_MAJOR_VERSION=true
 
 call "%SCRIPT_DIR%/lib/colcon-default-devel-windows.bat"
