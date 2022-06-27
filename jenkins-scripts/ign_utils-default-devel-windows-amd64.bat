@@ -9,7 +9,7 @@ set IGN_CLEAN_WORKSPACE=true
 :: set DEPEN_PKGS=
 
 :: This needs to be migrated to DSL to get multi-major versions correctly
-set COLCON_PACKAGE=gz-utils
+set COLCON_PACKAGE=ignition-utils
 set COLCON_AUTO_MAJOR_VERSION=true
 
 call "%SCRIPT_DIR%\lib\colcon-default-devel-windows.bat"

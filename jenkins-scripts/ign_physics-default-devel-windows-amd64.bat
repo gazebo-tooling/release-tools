@@ -10,7 +10,7 @@ if %IGN_MAJOR_VERSION% GEQ 6 (
   set DEPEN_PKGS=%DEPEN_PKGS% gdal
 )
 :: This needs to be migrated to DSL to get multi-major versions correctly
-set COLCON_PACKAGE=gz-physics
+set COLCON_PACKAGE=ignition-physics
 set COLCON_AUTO_MAJOR_VERSION=true
 
 call "%SCRIPT_DIR%/lib/colcon-default-devel-windows.bat"
