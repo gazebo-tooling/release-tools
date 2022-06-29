@@ -78,6 +78,9 @@ brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies
 # the following is needed to install :build dependencies of a formula
 brew install $(brew deps --1 --include-build ${PROJECT_FORMULA})
 
+# pytest is needed to run python tests with junit xml output
+PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} pytest"
+
 if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   # Install lxml for flaky_junit_merge.py
   PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} lxml"
