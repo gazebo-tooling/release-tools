@@ -43,6 +43,7 @@ colcon list --names-only
 colcon list --names-only | find "%COLCON_PACKAGE%"
 if errorlevel 1 (
   set COLCON_PACKAGE=%COLCON_PACKAGE:ignition=gz%
+  set COLCON_PACKAGE=%COLCON_PACKAGE:gazebo=sim%
 )
 colcon list --names-only | find "%COLCON_PACKAGE%"
 if errorlevel 1 (
