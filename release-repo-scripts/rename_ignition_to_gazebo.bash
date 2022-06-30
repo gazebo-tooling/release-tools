@@ -26,6 +26,7 @@ find . -name control -type f | while IFS= read -r f; do
   sed -i -e 's/Source: ignition-gazebo/Source: gz-sim/g' "${f}"
 
   sed -i -e 's/Package: python3-ignition/Package: python3-gz/g' "${f}"
+  sed -i -e 's/Package: ruby-ignition/Package: ruby-gz/g' "${f}"
   sed -i -e 's/Package: ignition/Package: gz/g' "${f}"
   sed -i -e 's/Package: libignition/Package: libgz/g' "${f}"
   sed -i -e 's/Source: ignition/Source: gz/g' "${f}"
