@@ -35,7 +35,7 @@ echo # END SECTION
 IF %USE_IGNITION_ZIP% == FALSE (
   echo # BEGIN SECTION: compile and install ign-math
   IF exist %WORKSPACE%\ign-math ( rmdir /s /q %WORKSPACE%\ign-math ) || goto :error
-  git clone https://github.com/ignitionrobotics/ign-math %WORKSPACE%\ign-math -u %IGNMATH_BRANCH% || goto :error
+  git clone https://github.com/gazebosim/gz-math %WORKSPACE%\ign-math -u %IGNMATH_BRANCH% || goto :error
   set VCS_DIRECTORY=ign-math
   set KEEP_WORKSPACE=TRUE
   call "%SCRIPT_DIR%\lib\project-default-devel-windows.bat"

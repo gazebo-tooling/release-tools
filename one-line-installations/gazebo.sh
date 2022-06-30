@@ -153,6 +153,11 @@ do_install() {
 				dist_version="$(. /etc/lsb-release && echo "$DISTRIB_CODENAME")"
 			fi
 			case "$dist_version" in
+				jammy)
+					# Packages for Jammy come directly from Ubuntu repositories, unversioned
+					# No released packages in packages.o.o
+					GZ_VER=
+				;;
 				xenial)
 					GZ_VER=10
 				;;

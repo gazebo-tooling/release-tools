@@ -123,10 +123,10 @@ set IGN_PROJECT_DEPENDENCY_DIR=%LOCAL_WS%\%1
 if exist %IGN_PROJECT_DEPENDENCY_DIR% ( rmdir /s /q %IGN_PROJECT_DEPENDENCY_DIR% )
 if "%2"=="" (
   echo Installing master branch of %1
-  git clone https://github.com/ignitionrobotics/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b master
+  git clone https://github.com/gazebosim/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b master
 ) else (
   echo Installing branch %2 of %1
-  git clone https://github.com/ignitionrobotics/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b %2
+  git clone https://github.com/gazebosim/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b %2
 )
 cd /d %IGN_PROJECT_DEPENDENCY_DIR%
 call .\configure.bat
@@ -210,13 +210,31 @@ goto :EOF
 
 set COLCON_PACKAGE=%1
 
+:: Check if package is in colcon workspace
+echo # BEGIN SECTION: Update package %COLCON_PACKAGE% from ignition to gz if needed
+echo Packages in workspace:
+colcon list --names-only
+
+colcon list --names-only | find "%COLCON_PACKAGE%"
+if errorlevel 1 (
+  set COLCON_PACKAGE=!COLCON_PACKAGE:ignition=gz!
+  set COLCON_PACKAGE=!COLCON_PACKAGE:gazebo=sim!
+)
+colcon list --names-only | find "!COLCON_PACKAGE!"
+if errorlevel 1 (
+  echo Failed to find package !COLCON_PACKAGE! in workspace.
+  goto :error
+)
+echo Using package name !COLCON_PACKAGE!
+echo # END SECTION
+
 :: two runs to get the dependencies built with testing and the package under
 :: test build with tests
-echo # BEGIN SECTION: colcon compilation without test for dependencies of %COLCON_PACKAGE%
-call :_colcon_build_cmd --packages-skip %COLCON_PACKAGE% "-DBUILD_TESTING=0" "-DCMAKE_CXX_FLAGS=-w"
+echo # BEGIN SECTION: colcon compilation without test for dependencies of !COLCON_PACKAGE!
+call :_colcon_build_cmd --packages-skip !COLCON_PACKAGE! "-DBUILD_TESTING=0" "-DCMAKE_CXX_FLAGS=-w"
 echo # END SECTION
-echo # BEGIN SECTION: colcon compilation with tests for %COLCON_PACKAGE%
-call :_colcon_build_cmd --packages-select %COLCON_PACKAGE% " -DBUILD_TESTING=1"
+echo # BEGIN SECTION: colcon compilation with tests for !COLCON_PACKAGE!
+call :_colcon_build_cmd --packages-select !COLCON_PACKAGE! " -DBUILD_TESTING=1"
 echo # END SECTION
 goto :EOF
 
@@ -230,9 +248,9 @@ goto :EOF
 :: arg1: package whitelist to test
 set COLCON_PACKAGE=%1
 
-echo # BEGIN SECTION: colcon test for %COLCON_PACKAGE%
+echo # BEGIN SECTION: colcon test for !COLCON_PACKAGE!
 colcon test --install-base "install"^
-            --packages-select %COLCON_PACKAGE%^
+            --packages-select !COLCON_PACKAGE!^
             --executor sequential^
             --event-handler console_direct+
 echo # END SECTION

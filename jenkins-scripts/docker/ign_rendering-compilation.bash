@@ -33,7 +33,7 @@ if [[ ${IGN_RENDERING_MAJOR_VERSION} -ge 1 ]]; then
 fi
 
 export GPU_SUPPORT_NEEDED=true
-export GZDEV_PROJECT_NAME="ignition-rendering${IGN_RENDERING_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="gz-rendering${IGN_RENDERING_MAJOR_VERSION}"
 
 export BUILDING_EXTRA_CMAKE_PARAMS+=" -DSKIP_optix=true"
 
