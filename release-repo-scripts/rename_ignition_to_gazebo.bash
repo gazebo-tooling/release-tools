@@ -89,3 +89,4 @@ echo
 echo "Do manually:"
 echo " * Update depends from the same library"
 echo " * Add breaks / replaces for previous nightly"
+echo " * Update rules"
