@@ -22,6 +22,10 @@ call %win_lib% :remove_vcpkg_package qwt
 :: from vcpkg.
 call %win_lib% :install_vcpkg_package tinyxml2
 
+:: gazebo-sim needs libavutil (part of ffmpeg) which is not the win32 deps but
+:: it can be used from vcpkg.
+call %win_lib% :install_vcpkg_package ffmpeg
+
 :: IF exist %LOCAL_WS% ( rmdir /s /q %LOCAL_WS% ) || goto %win_lib% :error
 :: reusing the workspace
 
