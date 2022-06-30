@@ -217,24 +217,24 @@ colcon list --names-only
 
 colcon list --names-only | find "%COLCON_PACKAGE%"
 if errorlevel 1 (
-  set COLCON_PACKAGE=%COLCON_PACKAGE:ignition=gz%
-  set COLCON_PACKAGE=%COLCON_PACKAGE:gazebo=sim%
+  set COLCON_PACKAGE=!COLCON_PACKAGE:ignition=gz!
+  set COLCON_PACKAGE=!COLCON_PACKAGE:gazebo=sim!
 )
-colcon list --names-only | find "%COLCON_PACKAGE%"
+colcon list --names-only | find "!COLCON_PACKAGE!"
 if errorlevel 1 (
-  echo Failed to find package %COLCON_PACKAGE% in workspace.
+  echo Failed to find package !COLCON_PACKAGE! in workspace.
   goto :error
 )
-echo Using package name %COLCON_PACKAGE%
+echo Using package name !COLCON_PACKAGE!
 echo # END SECTION
 
 :: two runs to get the dependencies built with testing and the package under
 :: test build with tests
-echo # BEGIN SECTION: colcon compilation without test for dependencies of %COLCON_PACKAGE%
-call :_colcon_build_cmd --packages-skip %COLCON_PACKAGE% "-DBUILD_TESTING=0" "-DCMAKE_CXX_FLAGS=-w"
+echo # BEGIN SECTION: colcon compilation without test for dependencies of !COLCON_PACKAGE!
+call :_colcon_build_cmd --packages-skip !COLCON_PACKAGE! "-DBUILD_TESTING=0" "-DCMAKE_CXX_FLAGS=-w"
 echo # END SECTION
-echo # BEGIN SECTION: colcon compilation with tests for %COLCON_PACKAGE%
-call :_colcon_build_cmd --packages-select %COLCON_PACKAGE% " -DBUILD_TESTING=1"
+echo # BEGIN SECTION: colcon compilation with tests for !COLCON_PACKAGE!
+call :_colcon_build_cmd --packages-select !COLCON_PACKAGE! " -DBUILD_TESTING=1"
 echo # END SECTION
 goto :EOF
 
@@ -248,9 +248,9 @@ goto :EOF
 :: arg1: package whitelist to test
 set COLCON_PACKAGE=%1
 
-echo # BEGIN SECTION: colcon test for %COLCON_PACKAGE%
+echo # BEGIN SECTION: colcon test for !COLCON_PACKAGE!
 colcon test --install-base "install"^
-            --packages-select %COLCON_PACKAGE%^
+            --packages-select !COLCON_PACKAGE!^
             --executor sequential^
             --event-handler console_direct+
 echo # END SECTION
