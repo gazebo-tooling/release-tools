@@ -206,13 +206,16 @@ def sanity_package_name(repo_dir, package, package_alias):
     if package_alias:
         expected_name = package_alias
 
+    # Use igntiion for Citadel and Fortress, gz for Garden and beyond
+    gz_name = expected_name.replace("ignition", "gz");
+
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.decode().split('\n'):
         if not line:
             continue
         # Check that first word is the package alias or name
-        if line.partition(' ')[0] != expected_name:
+        if line.partition(' ')[0] != expected_name and line.partition(' ')[0] != gz_name:
             error("Error in changelog package name or alias: " + line)
 
     cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
@@ -221,8 +224,8 @@ def sanity_package_name(repo_dir, package, package_alias):
         if not line:
             continue
         # Check that first word is the package alias or name
-        if line.partition(' ')[2] != expected_name:
-            error("Error in source package. File:  " + line.partition(' ')[1] + ". Got " + line.partition(' ')[2] + " expected " + expected_name)
+        if line.partition(' ')[2] != expected_name and line.partition(' ')[2] != gz_name:
+            error("Error in source package. File:  " + line.partition(' ')[1] + ". Got " + line.partition(' ')[2] + " expected " + expected_name + " or " + gz_name)
 
     print_success("Package names in changelog and control")
 
