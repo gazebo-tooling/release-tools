@@ -208,6 +208,7 @@ def sanity_package_name(repo_dir, package, package_alias):
 
     # Use igntiion for Citadel and Fortress, gz for Garden and beyond
     gz_name = expected_name.replace("ignition", "gz");
+    gz_name = gz_name.replace("gazebo", "sim");
 
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
