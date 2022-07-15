@@ -241,6 +241,7 @@ goto :EOF
 :: ##################################
 :list_workspace_pkgs
 colcon list -t || goto :error
+vcs export --exact || goto :error
 goto :EOF
 
 :: ##################################
