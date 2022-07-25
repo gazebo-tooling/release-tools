@@ -38,7 +38,7 @@ set -e
 CURRENT_BRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
 
 ORIGIN_URL=$(git remote get-url origin)
-ORIGIN_ORG_REPO=$(echo ${ORIGIN_URL} | sed -e 's@.*github\.com.@@')
+ORIGIN_ORG_REPO=$(echo ${ORIGIN_URL} | sed -e 's@.*github\.com.@@' | sed -e 's/\.git//g')
 
 TITLE="Merge ${FROM_BRANCH} ➡️  ${TO_BRANCH}"
 
