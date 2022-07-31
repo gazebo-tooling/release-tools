@@ -432,7 +432,7 @@ ignition_software.each { ign_sw ->
 void generate_asan_ci_job(ignition_ci_job, ign_sw, branch, distro, arch)
 {
   generate_ci_job(ignition_ci_job, ign_sw, branch, distro, arch,
-                  '-DIGN_SANITIZER=Address',
+                  '-DGZ_SANITIZER=Address',
                   Globals.MAKETEST_SKIP_IGN)
 }
 
