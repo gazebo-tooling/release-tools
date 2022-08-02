@@ -408,7 +408,7 @@ ignition_collections.each { ign_collection ->
       }
    }
 
-  // Ignition dashboards
+  // Gazebo dashboards
   dashboardView("ign-${ign_collection_name}")
   {
       jobs {

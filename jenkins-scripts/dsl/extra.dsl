@@ -59,6 +59,10 @@ gbp_repo_debbuilds.each { software ->
                    'OSRF repo name to upload the package to')
     }
 
+    properties {
+      priority 100
+    }
+
     scm {
       git {
         remote {

@@ -19,8 +19,8 @@ if [[ ! -f CMakeLists.txt  ]]; then
   exit 1
 fi
 
-# Parse CMakeLists project () for sdformat and ignitions
-LIB=$(sed -n 's/^project[[:space:]]*(\(ignition-\)\?\([a-Z]*\)[0-9]*.*)/\2/p' CMakeLists.txt)
+# Get lib name from CMakeLists project ()
+LIB=$(sed -n 's/^project[[:space:]]*(\(ignition-\)\?\([a-Z|_]*\)[0-9]*.*)/\2/p' CMakeLists.txt)
 
 if [ -z "${LIB}" ]; then
   echo "Parsing of CMakeLists.txt project tag failed"
@@ -29,20 +29,28 @@ if [ -z "${LIB}" ]; then
 fi
 
 echo "---------------------------------"
+# TODO(chapulina) Support gz tags
 NAME_FOR_TAGS=ignition-${LIB}
+NAME_FOR_TAGS="${NAME_FOR_TAGS/_/-}"
 NAME_FOR_TAGS="${NAME_FOR_TAGS/ignition-sdformat/sdformat}"
 echo "NAME_FOR_TAGS: $NAME_FOR_TAGS"
 
-NAME_FOR_REPO=ign-${LIB}
-NAME_FOR_REPO="${NAME_FOR_REPO/ign-sdformat/sdformat}"
+NAME_FOR_REPO=gz-${LIB}
+NAME_FOR_REPO="${NAME_FOR_REPO/_/-}"
+NAME_FOR_REPO="${NAME_FOR_REPO/gz-sdformat/sdformat}"
+NAME_FOR_REPO="${NAME_FOR_REPO/gz-gazebo/gz-sim}"
 echo "NAME_FOR_REPO: $NAME_FOR_REPO"
 
+# TODO(chapulina) Support gz branches
 NAME_FOR_BRANCH=ign-${LIB}
+NAME_FOR_BRANCH="${NAME_FOR_BRANCH/_/-}"
 NAME_FOR_BRANCH="${NAME_FOR_BRANCH/ign-sdformat/sdf}"
 echo "NAME_FOR_BRANCH: $NAME_FOR_BRANCH"
 
-NAME_FOR_TITLE="Ignition ${LIB^}"
-NAME_FOR_TITLE="${NAME_FOR_TITLE/Ignition Sdformat/SDFormat}"
+NAME_FOR_TITLE="Gazebo ${LIB^}"
+NAME_FOR_TITLE="${NAME_FOR_TITLE/Fuel_tools/Fuel Tools}"
+NAME_FOR_TITLE="${NAME_FOR_TITLE/Gazebo Sdformat/SDFormat}"
+NAME_FOR_TITLE="${NAME_FOR_TITLE/Gazebo Gazebo/Gazebo Sim}"
 echo "NAME_FOR_TITLE: $NAME_FOR_TITLE"
 
 echo "Previous version: ${PREV}"
@@ -68,7 +76,7 @@ echo "## $NAME_FOR_TITLE $NEW"
 echo ""
 echo "## Changelog"
 echo ""
-echo "[Full changelog](https://github.com/ignitionrobotics/${NAME_FOR_REPO}/blob/${NAME_FOR_BRANCH}${MAJOR}/Changelog.md)"
+echo "[Full changelog](https://github.com/gazebosim/${NAME_FOR_REPO}/blob/${NAME_FOR_BRANCH}${MAJOR}/Changelog.md)"
 echo ""
 #awk '/${NEW}/{ f = 1; next } /${PREV}/{ f = 0 } f' Changelog.md
 sed -n "/${NEW}/, /${PREV}/{ /${NEW}/! { /${PREV}/! p } }" Changelog.md

@@ -67,8 +67,8 @@ if ${COVERAGE_ENABLED} ; then
   # Download and install Bullseyes
   cd $WORKSPACE
   rm -fr $WORKSPACE/Bulls*
-  
-  # Look for current version. NOT IN USE since we lost the maintenance support on 2014 
+
+  # Look for current version. NOT IN USE since we lost the maintenance support on 2014
   # reenable if the support is back.
   # wget http://www.bullseye.com/download/ -O bull_index.html
   # BULL_TAR=\$( grep -R BullseyeCoverage-.*-Linux-x64.tar bull_index.html | head -n 1 | sed 's/.*">//' | sed 's/<.*//' )
@@ -134,7 +134,7 @@ cat >> build.sh << DELIM_BUILD_DEPS
       dependency_repo="osrf/${dep}"
     else
       # need to replace _ by -
-      dependency_repo="ignitionrobotics/${dep/_/-}"
+      dependency_repo="gazebosim/${dep/_/-}"
     fi
 
     git clone http://github.com/\$dependency_repo -b ${dep_branch} \

@@ -502,7 +502,7 @@ all_debbuilders().each { debbuilder_name ->
   if (debbuilder_name.contains("gazebo") || debbuilder_name == "transport7")
     extra_str="export NEED_C17_COMPILER=true"
 
-  // Ignition physics consumes huge amount of memory making arm node to FAIL
+  // Gazebo physics consumes huge amount of memory making arm node to FAIL
   // Force here to use one compilation thread
   if (debbuilder_name.contains("-physics"))
     extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
