@@ -64,7 +64,6 @@ if [[ ${DISTRO} == 'jammy' ]]; then
   sudo cat /usr/local/bin/dpkg-deb
   sudo chmod +x /usr/local/bin/dpkg-deb
   export PATH=/usr/local/bin:\$PATH
-  preserve_path='--preserve-envvar PATH'
 fi
 
 echo '# BEGIN SECTION: install build dependencies'
