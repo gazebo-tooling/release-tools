@@ -23,10 +23,10 @@ class GenericAnyJobGitHub
      GenericMail.update_field(job, 'defaultContent',
                     '$JOB_DESCRIPTION \n' + GenericCompilation.get_compilation_mail_content())
 
-    // Get repo name for relativeTargetDirectory
-    String github_repo_name = github_repo.substring(github_repo.lastIndexOf("/") + 1)
     // Use new gz- repositories
     github_repo = Globals.ign2gz(github_repo)
+    // Get repo name for relativeTargetDirectory
+    String github_repo_name = github_repo.substring(github_repo.lastIndexOf("/") + 1)
 
     job.with
     {
