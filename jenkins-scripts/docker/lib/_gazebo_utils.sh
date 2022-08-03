@@ -37,6 +37,10 @@ fi
 echo '# END SECTION'
 """
 
+# autopkgtest is a mechanism to test the installation of the generated packages
+# at the end of the package production.
+RUN_AUTOPKGTEST=${RUN_AUTOPKGTEST:-true}
+
 DEBBUILD_AUTOPKGTEST="""
 if $RUN_AUTOPKGTEST; then
 echo '# BEGIN SECTION: run autopkgtest'
