@@ -13,10 +13,10 @@ export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 PROJECT=$1 # project will have the major version included (ex gazebo2)
 PROJECT_ARGS=${2}
 
-# In ignition projects, the name of the repo and the formula does not match
+# TODO(chapulina) Use gz path instead of legacy ign
 PROJECT_PATH=${PROJECT}
-if [[ ${PROJECT/ignition} != ${PROJECT} ]]; then
-    PROJECT_PATH="ign${PROJECT/ignition}"
+if [[ ${PROJECT/gz} != ${PROJECT} ]]; then
+    PROJECT_PATH="ign${PROJECT/gz}"
     PROJECT_PATH="${PROJECT_PATH/[0-9]*}"
 fi
 
