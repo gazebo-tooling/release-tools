@@ -25,8 +25,6 @@ if [[ -z ${BRANCH} ]]; then
   export CLONE_NEEDED=false
 fi
 
-RUN_AUTOPKGTEST=${RUN_AUTOPKGTEST:-true}
-
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
