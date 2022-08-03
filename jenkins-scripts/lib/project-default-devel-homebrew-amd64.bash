@@ -20,6 +20,9 @@ if [[ ${PROJECT/gz} != ${PROJECT} ]]; then
     PROJECT_PATH="${PROJECT_PATH/[0-9]*}"
 fi
 
+# Temporary fix for gz-sim PROJECT_PATH is ign-gazebo, PROJECT is gz-sim
+PROJECT=${PROJECT/gz-gazebo/gz-sim}
+
 # Check for major version number
 # the PROJECT_FORMULA variable is only used for dependency resolution
 PROJECT_FORMULA=${PROJECT//[0-9]}$(\
