@@ -355,7 +355,7 @@ ignition_collections.each { ign_collection ->
         shell("""\
               #!/bin/bash -xe
 
-              /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "ignition-${ign_collection_name}"
+              /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "gz-${ign_collection_name}"
               """.stripIndent())
       }
   }
