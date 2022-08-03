@@ -13,11 +13,18 @@ export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 PROJECT=$1 # project will have the major version included (ex gazebo2)
 PROJECT_ARGS=${2}
 
+# TODO(chapulina) Use gz path instead of legacy ign
+PROJECT_PATH=${PROJECT}
+if [[ ${PROJECT/gz} != ${PROJECT} ]]; then
+    PROJECT_PATH="ign${PROJECT/gz}"
+    PROJECT_PATH="${PROJECT_PATH/[0-9]*}"
+fi
+
 # Check for major version number
 # the PROJECT_FORMULA variable is only used for dependency resolution
 PROJECT_FORMULA=${PROJECT//[0-9]}$(\
   python ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
-  ${WORKSPACE}/${PROJECT}/CMakeLists.txt || true)
+  ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt || true)
 
 export HOMEBREW_PREFIX=/usr/local
 export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
@@ -93,7 +100,7 @@ echo '# END SECTION'
 
 # Step 3. Manually compile and install ${PROJECT}
 echo "# BEGIN SECTION: configure ${PROJECT}"
-cd ${WORKSPACE}/${PROJECT}
+cd ${WORKSPACE}/${PROJECT_PATH}
 # Need the sudo since the test are running with roots perms to access to GUI
 sudo rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
@@ -159,7 +166,7 @@ fi
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT_FORMULA}/HEAD \
      ${CMAKE_ARGS} \
-     ${WORKSPACE}/${PROJECT}
+     ${WORKSPACE}/${PROJECT_PATH}
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: compile and install ${PROJECT_FORMULA}"
