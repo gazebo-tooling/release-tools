@@ -295,7 +295,7 @@ def DISABLE_TESTS           = false
 ignition_collections.each { gz_collection ->
   // COLCON - Windows
   gz_collection_name = gz_collection.get('name')
-  def ignition_win_ci_job = job("ign_${gz_collection_name}-ci-win")
+  def ignition_win_ci_job = job("ign_${gz_collection_name/sim/gazebo}-ci-win")
   Globals.gazebodistro_branch = true
   OSRFWinCompilation.create(ignition_win_ci_job, false)
   ignition_win_ci_job.with
@@ -312,7 +312,7 @@ ignition_collections.each { gz_collection ->
   gz_collection.get('distros').each { distro ->
     // INSTALL JOBS:
     // --------------------------------------------------------------
-    def install_default_job = job("ignition_${gz_collection_name}-install-pkg-${distro}-${arch}")
+    def install_default_job = job("ignition_${gz_collection_name/sim/gazebo}-install-pkg-${distro}-${arch}")
     OSRFLinuxInstall.create(install_default_job)
 
     install_default_job.with
@@ -321,7 +321,7 @@ ignition_collections.each { gz_collection ->
         cron(Globals.CRON_EVERY_THREE_DAYS)
       }
 
-      def dev_package = "ignition-${gz_collection_name}"
+      def dev_package = "ignition-${gz_collection_name/sim/gazebo}"
 
       label "gpu-reliable"
 
@@ -343,7 +343,7 @@ ignition_collections.each { gz_collection ->
 
   // MAC Brew CI job
   // --------------------------------------------------------------
-  def gz_brew_ci_job = job("ignition_${gz_collection_name}-ci-main-homebrew-amd64")
+  def gz_brew_ci_job = job("ignition_${gz_collection_name/sim/gazebo}-ci-main-homebrew-amd64")
   OSRFBrewCompilation.create(gz_brew_ci_job, DISABLE_TESTS)
   OSRFGitHub.create(gz_brew_ci_job,
                     "gazebosim/ign-${gz_collection_name/sim/gazebo}",
@@ -362,7 +362,7 @@ ignition_collections.each { gz_collection ->
 
   // MAC Brew bottle install job
   // --------------------------------------------------------------
-  def ignition_brew_install_bottle_job = job("ignition_${gz_collection_name}-install_bottle-homebrew-amd64")
+  def ignition_brew_install_bottle_job = job("ignition_${gz_collection_name/sim/gazebo}-install_bottle-homebrew-amd64")
   OSRFBrewInstall.create(ignition_brew_install_bottle_job)
 
   ignition_brew_install_bottle_job.with
@@ -371,7 +371,7 @@ ignition_collections.each { gz_collection ->
       cron('@daily')
     }
 
-    def bottle_name = "ignition-${gz_collection_name}"
+    def bottle_name = "ignition-${gz_collection_name/sim/gazebo}"
 
     steps {
      shell("""\
@@ -395,7 +395,7 @@ ignition_collections.each { gz_collection ->
 
   // DEBBUILD: linux package builder
   // --------------------------------------------------------------
-  def build_pkg_job = job("ign-${gz_collection_name}-debbuilder")
+  def build_pkg_job = job("ign-${gz_collection_name/sim/gazebo}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
   build_pkg_job.with
   {
