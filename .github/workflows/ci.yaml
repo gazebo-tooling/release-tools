@@ -9,9 +9,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-         with:
+        with:
           fetch-depth: 0
-     - name: Idenfify files changed in this PR
+      - name: Idenfify files changed in this PR
         id: files
         run: |
             git diff --name-only origin/${{ github.base_ref }}...origin/${{ github.head_ref }}
