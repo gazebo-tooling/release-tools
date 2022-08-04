@@ -558,7 +558,9 @@ ignition_software.each { ign_sw ->
               then
                 /bin/bash -xe "\$HOMEBREW_SCRIPT"
               else
-                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "gz-${ign_sw}"
+                software_name="gz-${ign_sw}"
+                [[ ${ign_sw} == 'gazebo' ]] && software_name="gz-sim"
+                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
               fi
               """.stripIndent())
       }
@@ -591,7 +593,9 @@ ignition_software.each { ign_sw ->
                 then
                   /bin/bash -xe "\$HOMEBREW_SCRIPT"
                 else
-                  /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "gz-${ign_sw}"
+                  software_name="gz-${ign_sw}"
+                  [[ ${ign_sw} == 'gazebo' ]] && software_name="gz-sim"
+                  /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
                 fi
                 """.stripIndent())
         }
@@ -665,7 +669,7 @@ ignition_software.each { ign_sw ->
 
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAnyGitHub.create(ignition_win_ci_any_job,
-                                    "gazebosim/ign-${ign_sw}",
+                                    "gazebosim/gz-${ign_sw}",
                                     enable_testing(ign_sw),
                                     supported_branches,
                                     ENABLE_GITHUB_PR_INTEGRATION,
@@ -701,8 +705,8 @@ ignition_software.each { ign_sw ->
                               enable_testing(ign_sw),
                               enable_cmake_warnings(ign_sw))
     OSRFGitHub.create(ignition_win_ci_job,
-                              "gazebosim/ign-${ign_sw}",
-                              "${branch}", "ign-${ign_sw}")
+                              "gazebosim/gz-${ign_sw}",
+                              "${branch}")
 
     ignition_win_ci_job.with
     {
