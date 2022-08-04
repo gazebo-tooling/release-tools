@@ -21,12 +21,12 @@ jobs:
           while IFS= read -r file
           do
             echo $file
-            if [[ $file != dsl/* ]]; then
-              echo "Change not related to DSL files"
+            if [[ $file != jenkins-scripts/dsl/* ]]; then
               echo "::set-output name=run_job::false"
-              break
             else
               echo "::set-output name=run_job::true"
+              echo "Found at least a DSL file modified: ${file}"
+              break
             fi
           done < files.txt
 
