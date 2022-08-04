@@ -560,8 +560,7 @@ ignition_software.each { ign_sw ->
               else
                 software_name="gz-${ign_sw}"
                 [[ ${ign_sw} == 'gazebo' ]] && software_name="gz-sim"
-                /bin/bash -xe
-                "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
+                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
               fi
               """.stripIndent())
       }
@@ -596,7 +595,7 @@ ignition_software.each { ign_sw ->
                 else
                   software_name="gz-${ign_sw}"
                   [[ ${ign_sw} == 'gazebo' ]] && software_name="gz-sim"
-                  "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
+                  /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
                 fi
                 """.stripIndent())
         }
