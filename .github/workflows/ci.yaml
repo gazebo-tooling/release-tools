@@ -1,6 +1,7 @@
 name: CI
 
-on: [push, pull_request]
+# base_ref / head_reaf are only available in PRs
+on: [pull_request]
 
 jobs:
   dsl_ci:
@@ -38,7 +39,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
-      - name: Download jod dsl jar
+      - name: Download job dsl jar
         if: needs.dsl_check.outputs.run_job == 'true'
         run: curl https://repo.jenkins-ci.org/public/org/jenkins-ci/plugins/job-dsl-core/1.77/job-dsl-core-1.77-standalone.jar -O jobdsl.jar
       - name: Generate all DSL files
