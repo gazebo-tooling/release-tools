@@ -22,7 +22,7 @@ fi
 
 # Temporary fix for gz-sim
 PROJECT=${PROJECT/gz-gazebo/gz-sim}
-PROJECT_PATH=${PROJECT_PATH/ign-sim/gz-sim}
+PROJECT_PATH=${PROJECT_PATH/ign-sim/ign-gazebo}
 
 # Check for major version number
 # the PROJECT_FORMULA variable is only used for dependency resolution
