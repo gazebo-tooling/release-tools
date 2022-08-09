@@ -278,7 +278,11 @@ cat >> Dockerfile << DELIM_DOCKER3
 # Could not open file *_Packages.diff_Index - open (2: No such file or directory)
 # TODO: remove workaround for 13.56.139.45 server
 RUN echo "${MONTH_YEAR_STR}"
-DELIM_DOCKER3
+# If the previous command invalidated the cache, a new install of gzdev is
+# needed to update to possible recent changes in configuration and/or code and
+# not being used since the docker cache did not get them.
+dockerfile_install_gzdev_repos
+ELIM_DOCKER3
 
 cat >> Dockerfile << DELIM_DOCKER3_2
 RUN sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.list.d/* || true \
