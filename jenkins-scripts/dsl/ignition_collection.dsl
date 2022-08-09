@@ -18,8 +18,8 @@ ignition_collections = [
     // These are the branches currently targeted at the upcoming collection
     // They're in topological order
     nightly_jobs: [
-          'tools'     : [ debbuild: 'ign-tools2'      , branch: 'gz-tools2' ],
           'cmake'     : [ debbuild: 'ign-cmake3'      , branch: 'gz-cmake3' ],
+          'tools'     : [ debbuild: 'ign-tools2'      , branch: 'gz-tools2' ],
           'utils'     : [ debbuild: 'ign-utils2'      , branch: 'gz-utils2' ],
           'math'      : [ debbuild: 'ign-math7'       , branch: 'gz-math7' ],
           'plugin'    : [ debbuild: 'ign-plugin2'     , branch: 'gz-plugin2' ],
