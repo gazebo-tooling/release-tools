@@ -280,6 +280,11 @@ cat >> Dockerfile << DELIM_DOCKER3
 RUN echo "${MONTH_YEAR_STR}"
 DELIM_DOCKER3
 
+# If the previous command invalidated the cache, a new install of gzdev is
+# needed to update to possible recent changes in configuration and/or code and
+# not being used since the docker cache did not get them.
+dockerfile_install_gzdev_repos
+
 cat >> Dockerfile << DELIM_DOCKER3_2
 RUN sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.list.d/* || true \
  && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get ${APT_PARAMS} update)) \
