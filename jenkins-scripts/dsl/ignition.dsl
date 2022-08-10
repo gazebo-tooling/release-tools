@@ -156,7 +156,7 @@ Map merge_maps(Map[] sources) {
 
 // return major versions supported or empty if just 0,1 series under
 // -dev package.
-ArrayList supported_branches(String ign_software)
+ArrayList supported_ign_branches(String ign_software)
 {
   major_versions_registered = ignition_branches["${ign_software}"]
 
@@ -181,7 +181,7 @@ ArrayList prerelease_branches(String ign_software)
 ArrayList all_branches(String ign_software)
 {
   List<String> branches = new ArrayList<String>();
-  supported_branches("${ign_software}").each { major_version ->
+  supported_ign_branches("${ign_software}").each { major_version ->
     if ("${major_version}") {
       branches.add("ign-${ign_software}${major_version}")
     }
@@ -201,7 +201,7 @@ ArrayList all_debbuilders()
   List<String> branches = new ArrayList<String>();
   // add all supported branches
   ignition_software.each { ign_software ->
-    supported_branches("${ign_software}").each { major_version ->
+    supported_ign_branches("${ign_software}").each { major_version ->
       if (major_version) {
         // No 1-debbuild versions, they use the unversioned job
         if ("${major_version}" == "0"  || "${major_version}" == "1" )
@@ -225,11 +225,11 @@ Map supported_install_pkg_branches(String ign_software)
 {
   major_versions_prerelease = ignition_prerelease_pkgs["${ign_software}"]
 
-  // construct a map of stable packages based on supported_branches and
+  // construct a map of stable packages based on supported_ign_branches and
   // all_supported_distros
   map_of_stable_versions = [:]
   map_of_stable_versions[ign_software] = [:]
-  supported_branches(ign_software).each { major_version ->
+  supported_ign_branches(ign_software).each { major_version ->
     new_relation = [:]
     new_relation[major_version] = all_supported_distros
     map_of_stable_versions[ign_software] << new_relation
