@@ -58,6 +58,21 @@ ignition_branches           = [ 'cmake'      : [ '2' ],
                                 'tools'      : [ '1' ],
                                 'transport'  : [ '4', '8', '11' ],
                                 'utils'      : [ '1' ]]
+gz_branches                 = [ 'cmake'      : [ '3' ],
+                                'common'     : [ '5' ],
+                                'fuel-tools' : [ '8' ],
+                                'gui'        : [ '7' ],
+                                'launch'     : [ '6' ],
+                                'math'       : [ '7' ],
+                                'msgs'       : [ '9' ],
+                                'physics'    : [ '6' ],
+                                'plugin'     : [ '2' ],
+                                'rendering'  : [ '7' ],
+                                'sensors'    : [ '7' ],
+                                'sim'        : [ '7' ],
+                                'tools'      : [ '2' ],
+                                'transport'  : [ '12' ],
+                                'utils'      : [ '2' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use main for gz11
@@ -165,6 +180,15 @@ ArrayList supported_ign_branches(String ign_software)
 
   return major_versions_registered
 }
+ArrayList supported_gz_branches(String gz_software)
+{
+  major_versions_registered = gzition_branches["${gz_software}"]
+
+  if (major_versions_registered == null)
+    return [ '' ]
+
+  return major_versions_registered
+}
 
 // return prerelease branch names
 ArrayList prerelease_branches(String ign_software)
@@ -184,6 +208,11 @@ ArrayList all_branches(String ign_software)
   supported_ign_branches("${ign_software}").each { major_version ->
     if ("${major_version}") {
       branches.add("ign-${ign_software}${major_version}")
+    }
+  }
+  supported_gz_branches("${gz_software}").each { major_version ->
+    if ("${major_version}") {
+      branches.add("gz-${gz_software}${major_version}")
     }
   }
   branches.add('main')
@@ -207,6 +236,14 @@ ArrayList all_debbuilders()
         if ("${major_version}" == "0"  || "${major_version}" == "1" )
           major_version = ""
           branches.add("ign-${ign_software}${major_version}")
+      }
+    }
+    supported_gz_branches("${gz_software}").each { major_version ->
+      if (major_version) {
+        // No 1-debbuild versions, they use the unversioned job
+        if ("${major_version}" == "0"  || "${major_version}" == "1" )
+          major_version = ""
+          branches.add("gz-${gz_software}${major_version}")
       }
     }
   }
