@@ -210,9 +210,9 @@ ArrayList all_branches(String ign_software)
       branches.add("ign-${ign_software}${major_version}")
     }
   }
-  supported_gz_branches("${gz_software}").each { major_version ->
+  supported_gz_branches("${ign_software}").each { major_version ->
     if ("${major_version}") {
-      branches.add("gz-${gz_software}${major_version}")
+      branches.add("gz-${ign_software}${major_version}")
     }
   }
   branches.add('main')
@@ -238,12 +238,12 @@ ArrayList all_debbuilders()
           branches.add("ign-${ign_software}${major_version}")
       }
     }
-    supported_gz_branches("${gz_software}").each { major_version ->
+    supported_gz_branches("${ign_software}").each { major_version ->
       if (major_version) {
         // No 1-debbuild versions, they use the unversioned job
         if ("${major_version}" == "0"  || "${major_version}" == "1" )
           major_version = ""
-          branches.add("gz-${gz_software}${major_version}")
+          branches.add("gz-${ign_software}${major_version}")
       }
     }
   }
