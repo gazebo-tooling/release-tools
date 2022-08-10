@@ -258,6 +258,7 @@ ArrayList all_debbuilders()
 // return all ci branch names
 // Map with the form of: major versions as keys.
 // Lists of distros supported as values
+// @TODO[scpeters] update this to support gz_branches after garden release
 Map supported_install_pkg_branches(String ign_software)
 {
   major_versions_prerelease = ignition_prerelease_pkgs["${ign_software}"]
