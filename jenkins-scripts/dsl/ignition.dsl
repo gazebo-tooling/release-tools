@@ -182,7 +182,7 @@ ArrayList supported_ign_branches(String ign_software)
 }
 ArrayList supported_gz_branches(String gz_software)
 {
-  major_versions_registered = gzition_branches["${gz_software}"]
+  major_versions_registered = gz_branches["${gz_software}"]
 
   if (major_versions_registered == null)
     return [ '' ]
