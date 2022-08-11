@@ -80,22 +80,7 @@ ignition_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
-ignition_extra_debbuild = [ 'cmake3',
-                            'common5',
-                            'fuel-tools8',
-                            'gazebo7',
-                            'gui7',
-                            'launch6',
-                            'math7',
-                            'msgs9',
-                            'physics6',
-                            'plugin2',
-                            'rendering7',
-                            'sensors7',
-                            'tools2',
-                            'transport12',
-                            'utils1', // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
-                            'utils2']
+ignition_extra_debbuild = [ 'utils1'] // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [  ]
 // DESC: major versions that has a package in the prerelease repo. Should
@@ -245,7 +230,7 @@ ArrayList all_debbuilders()
         if ("${major_version}" == "0"  || "${major_version}" == "1" )
           major_version = ""
 
-        branches.add("gz-${ign_software}${major_version}")
+        branches.add("ign-${ign_software}${major_version}")
       }
     }
   }
