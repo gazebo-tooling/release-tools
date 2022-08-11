@@ -686,11 +686,11 @@ ignition_software.each { ign_sw ->
 
   // ign-gazebo only support Windows from ign-gazebo5
   if (ign_sw == 'gazebo')
-    supported_branches = [ 'ign-gazebo6', 'main' ]
+    supported_branches = [ 'ign-gazebo6', 'gz-sim7', 'main' ]
 
   // ign-launch only support Windows from ign-launch5
   if (ign_sw == 'launch')
-    supported_branches = [ 'ign-launch5', 'main' ]
+    supported_branches = [ 'ign-launch5', 'gz-launch6', 'main' ]
 
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAnyGitHub.create(ignition_win_ci_any_job,
@@ -736,11 +736,11 @@ ignition_software.each { ign_sw ->
     ignition_win_ci_job.with
     {
         // ign-gazebo only works on Windows from ign-gazebo5
-        if (branch == 'ign-gazebo3' || branch == 'ign-gazebo4')
+        if (branch == 'ign-gazebo3')
           disabled()
 
         // ign-launch was not ported to windows until 5
-        if (branch == 'ign-launch2' || branch == 'ign-launch3' || branch == 'ign-launch4')
+        if (branch == 'ign-launch2')
           disabled()
 
         triggers {
