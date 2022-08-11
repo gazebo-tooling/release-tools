@@ -14,7 +14,6 @@ ignition_software = [ 'cmake',
                       'plugin',
                       'rendering',
                       'sensors',
-                      'sim',
                       'tools',
                       'transport',
                       'utils' ]
@@ -22,8 +21,7 @@ ignition_software = [ 'cmake',
 ignition_gpu                = [ 'gazebo',
                                 'gui',
                                 'rendering',
-                                'sensors',
-                                'sim' ]
+                                'sensors' ]
 // DESC: software does not support cmake warnings enabled
 ignition_no_cmake_warnings = [ 'cmake',
                       'common',
@@ -103,7 +101,6 @@ ignition_colcon_win         = [ 'common',
                                 'plugin',
                                 'rendering',
                                 'sensors',
-                                'sim',
                                 'tools',
                                 'transport',
                                 'utils' ]
