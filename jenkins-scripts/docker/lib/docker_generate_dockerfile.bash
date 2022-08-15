@@ -164,6 +164,11 @@ DELIM_DEBIAN_APT
 fi
 
 if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
+# Opt-out of phased updates, which can create inconsistencies between installed package versions as different containers end up on different phases.
+# https://wiki.ubuntu.com/PhasedUpdates
+cat >> Dockerfile << DELIM_PHASED
+RUN echo 'APT::Get::Never-Include-Phased-Updates "true";' > /etc/apt/apt.conf.d/90-phased-updates
+DELIM_PHASED
   if [[ ${ARCH} != 'armhf' && ${ARCH} != 'arm64' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_ARCH
   RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO}-security main restricted universe multiverse" && \\
