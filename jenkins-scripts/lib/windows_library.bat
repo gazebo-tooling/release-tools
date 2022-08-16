@@ -211,14 +211,14 @@ goto :EOF
 set COLCON_PACKAGE=%1
 
 :: Check if package is in colcon workspace
-echo # BEGIN SECTION: Update package %COLCON_PACKAGE% from ignition to gz if needed
+echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
 echo Packages in workspace:
 colcon list --names-only
 
-colcon list --names-only | find "%COLCON_PACKAGE%"
+colcon list --names-only | find "!COLCON_PACKAGE!"
 if errorlevel 1 (
-  set COLCON_PACKAGE=!COLCON_PACKAGE:ignition=gz!
-  set COLCON_PACKAGE=!COLCON_PACKAGE:gazebo=sim!
+  set COLCON_PACKAGE=!COLCON_PACKAGE:gz=ignition!
+  set COLCON_PACKAGE=!COLCON_PACKAGE:sim=gazebo!
 )
 colcon list --names-only | find "!COLCON_PACKAGE!"
 if errorlevel 1 (
