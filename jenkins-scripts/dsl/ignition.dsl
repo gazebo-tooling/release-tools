@@ -410,7 +410,7 @@ gz_software.each { gz_sw ->
     return
 
   supported_arches.each { arch ->
-    supported_install_pkg_branches(gz_sw).each { major_version, supported_distros ->
+    supported_install_pkg_branches(software_name).each { major_version, supported_distros ->
       supported_distros.each { distro ->
         extra_repos_str=""
         if ((gz_sw in gz_prerelease_pkgs) &&
@@ -471,10 +471,10 @@ void generate_asan_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
 void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
                      extra_cmake = '', extra_test = '')
 {
-  OSRFLinuxCompilation.create(gz_ci_job, enable_testing(gz_sw))
+  OSRFLinuxCompilation.create(gz_ci_job, enable_testing(software_name))
   OSRFGitHub.create(gz_ci_job,
-                        "gazebosim/ign-${gz_sw/sim/gazebo}",
-                        "${branch}", "ign-${gz_sw/sim/gazebo}")
+                        "gazebosim/ign-${software_name}",
+                        "${branch}", "ign-${software_name}")
 
   include_gpu_label_if_needed(gz_ci_job, gz_sw)
   gz_ci_job.with
@@ -491,7 +491,7 @@ void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
             export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
             export DISTRO=${distro}
             export ARCH=${arch}
-            /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${gz_sw/sim/gazebo}-compilation.bash
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${software_name}-compilation.bash
             """.stripIndent())
     }
   }
@@ -503,10 +503,15 @@ gz_software.each { gz_sw ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       // branches CI job scm@daily
-      all_branches("${gz_sw}").each { branch ->
+      all_branches("${software_name}").each { branch ->
         // 1. Standard CI
-        def gz_ci_job = job("ignition_${gz_sw/sim/gazebo}-ci-${branch}-${distro}-${arch}")
-        generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
+        software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
+
+        if (gz_sw == 'sim')
+          software_name = "gazebo"
+
+        def gz_ci_job = job("ignition_${software_name}-ci-${branch}-${distro}-${arch}")
+        generate_ci_job(gz_ci_job, software_name, branch, distro, arch)
         gz_ci_job.with
         {
           triggers {
@@ -514,8 +519,8 @@ gz_software.each { gz_sw ->
           }
         }
         // 2. ASAN CI
-        def gz_ci_asan_job = job("ignition_${gz_sw/sim/gazebo}-ci_asan-${branch}-${distro}-${arch}")
-        generate_asan_ci_job(gz_ci_asan_job, gz_sw, branch, distro, arch)
+        def gz_ci_asan_job = job("ignition_${software_name}-ci_asan-${branch}-${distro}-${arch}")
+        generate_asan_ci_job(gz_ci_asan_job, software_name, branch, distro, arch)
         gz_ci_asan_job.with
         {
           triggers {
@@ -569,45 +574,50 @@ all_debbuilders().each { debbuilder_name ->
 
 // 1. any job
 gz_software.each { gz_sw ->
-  String gz_brew_ci_any_job_name = "ignition_${gz_sw/sim/gazebo}-ci-pr_any-homebrew-amd64"
+  software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
+
+  if (gz_sw == 'sim')
+    software_name = "gazebo"
+
+  String gz_brew_ci_any_job_name = "ignition_${software_name}-ci-pr_any-homebrew-amd64"
 
 
   def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
   OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
-                                      "gazebosim/ign-${gz_sw/sim/gazebo}",
-                                      enable_testing(gz_sw),
+                                      "gazebosim/ign-${software_name}",
+                                      enable_testing(software_name),
                                       GITHUB_SUPPORT_ALL_BRANCHES,
                                       ENABLE_GITHUB_PR_INTEGRATION,
-                                      enable_cmake_warnings(gz_sw))
+                                      enable_cmake_warnings(software_name))
   gz_brew_ci_any_job.with
   {
       steps {
         shell("""\
               #!/bin/bash -xe
 
-              export HOMEBREW_SCRIPT="./scripts/jenkins-scripts/ign_${gz_sw/sim/gazebo}-default-devel-homebrew-amd64.bash"
+              export HOMEBREW_SCRIPT="./scripts/jenkins-scripts/ign_${software_name}-default-devel-homebrew-amd64.bash"
               if [ -s "\$HOMEBREW_SCRIPT" ]
               then
                 /bin/bash -xe "\$HOMEBREW_SCRIPT"
               else
-                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "${gz_sw/sim/gazebo}"
+                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "${software_name}"
               fi
               """.stripIndent())
       }
   }
 
   // add ci-pr_any to the list for CIWorkflow
-  ci_pr_any_list[gz_sw] << gz_brew_ci_any_job_name
+  ci_pr_any_list[software_name] << gz_brew_ci_any_job_name
 
   // 2. main, release branches
-  all_branches("${gz_sw}").each { branch ->
-    def gz_brew_ci_job = job("ignition_${gz_sw/sim/gazebo}-ci-${branch}-homebrew-amd64")
+  all_branches("${software_name}").each { branch ->
+    def gz_brew_ci_job = job("ignition_${software_name}-ci-${branch}-homebrew-amd64")
     OSRFBrewCompilation.create(gz_brew_ci_job,
-                               enable_testing(gz_sw),
-                               enable_cmake_warnings(gz_sw))
+                               enable_testing(software_name),
+                               enable_cmake_warnings(software_name))
     OSRFGitHub.create(gz_brew_ci_job,
-                              "gazebosim/ign-${gz_sw/sim/gazebo}",
-                              "${branch}", "ign-${gz_sw/sim/gazebo}")
+                              "gazebosim/ign-${software_name}",
+                              "${branch}", "ign-${software_name}")
     gz_brew_ci_job.with
     {
         triggers {
@@ -618,12 +628,12 @@ gz_software.each { gz_sw ->
           shell("""\
                 #!/bin/bash -xe
 
-                export HOMEBREW_SCRIPT="./scripts/jenkins-scripts/ign_${gz_sw/sim/gazebo}-default-devel-homebrew-amd64.bash"
+                export HOMEBREW_SCRIPT="./scripts/jenkins-scripts/ign_${software_name}-default-devel-homebrew-amd64.bash"
                 if [ -s "\$HOMEBREW_SCRIPT" ]
                 then
                   /bin/bash -xe "\$HOMEBREW_SCRIPT"
                 else
-                  /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "${gz_sw/sim/gazebo}"
+                  /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "${software_name}"
                 fi
                 """.stripIndent())
         }
@@ -631,8 +641,8 @@ gz_software.each { gz_sw ->
   }
 
   // 3. install jobs to test bottles
-  supported_install_pkg_branches(gz_sw).each { major_version, supported_distros ->
-    def install_default_job = job("ignition_${gz_sw/sim/gazebo}${major_version}-install_bottle-homebrew-amd64")
+  supported_install_pkg_branches(software_name).each { major_version, supported_distros ->
+    def install_default_job = job("ignition_${software_name}${major_version}-install_bottle-homebrew-amd64")
     OSRFBrewInstall.create(install_default_job)
 
     install_default_job.with
@@ -645,7 +655,7 @@ gz_software.each { gz_sw ->
         cron('@daily')
       }
 
-      def bottle_name = "ignition-${gz_sw/sim/gazebo}${major_version}"
+      def bottle_name = "ignition-${software_name}${major_version}"
 
       steps {
        shell("""\
@@ -675,21 +685,25 @@ gz_software.each { gz_sw ->
 // 1. any
 gz_software.each { gz_sw ->
 
-  if (is_a_colcon_package(gz_sw)) {
+  if (is_a_colcon_package(software_name)) {
     // colcon uses long paths and windows has a hard limit of 260 chars. Keep
     // names minimal
-    gz_win_ci_any_job_name = "ign_${gz_sw/sim/gazebo}-pr-win"
+    gz_win_ci_any_job_name = "ign_${software_name}-pr-win"
     Globals.gazebodistro_branch = true
   } else {
-    gz_win_ci_any_job_name = "ignition_${gz_sw/sim/gazebo}-ci-pr_any-windows7-amd64"
+    gz_win_ci_any_job_name = "ignition_${software_name}-ci-pr_any-windows7-amd64"
     Globals.gazebodistro_branch = false
   }
 
   supported_branches = []
+  gz_software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
+  ign_software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
 
   // ign-gazebo only support Windows from ign-gazebo5
   if (gz_sw == 'gazebo')
     supported_branches = [ 'ign-gazebo6', 'gz-sim7', 'main' ]
+    ign_software_name = "gazebo"
+    gz_software_name = "sim"
 
   // ign-launch only support Windows from ign-launch5
   if (gz_sw == 'launch')
@@ -697,16 +711,16 @@ gz_software.each { gz_sw ->
 
   def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
   OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_job,
-                                    "gazebosim/gz-${gz_sw/gazebo/sim}",
-                                    enable_testing(gz_sw),
+                                    "gazebosim/gz-${software_name}",
+                                    enable_testing(software_name),
                                     supported_branches,
                                     ENABLE_GITHUB_PR_INTEGRATION,
-                                    enable_cmake_warnings(gz_sw))
+                                    enable_cmake_warnings(software_name))
   gz_win_ci_any_job.with
   {
       steps {
         batchFile("""\
-              call "./scripts/jenkins-scripts/ign_${gz_sw/sim/gazebo}-default-devel-windows-amd64.bat"
+              call "./scripts/jenkins-scripts/ign_${ign_software_name}-default-devel-windows-amd64.bat"
               """.stripIndent())
       }
   }
@@ -715,25 +729,25 @@ gz_software.each { gz_sw ->
   ci_pr_any_list[gz_sw] << gz_win_ci_any_job_name
 
   // 2. main, release branches
-  all_branches("${gz_sw}").each { branch ->
-    if (is_a_colcon_package(gz_sw)) {
+  all_branches("${software_name}").each { branch ->
+    if (is_a_colcon_package(software_name)) {
       // colcon uses long paths and windows has a hard limit of 260 chars. Keep
       // names minimal
       if (branch == 'main')
         branch_name = "ci"
       else
         branch_name = branch - gz_sw
-      gz_win_ci_job_name = "ign_${gz_sw/sim/gazebo}-${branch_name}-win"
+      gz_win_ci_job_name = "ign_${ign_software_name}-${branch_name}-win"
     } else {
-      gz_win_ci_job_name = "ignition_${gz_sw/sim/gazebo}-ci-${branch}-windows7-amd64"
+      gz_win_ci_job_name = "ignition_${ign_software_name}-ci-${branch}-windows7-amd64"
     }
 
     def gz_win_ci_job = job(gz_win_ci_job_name)
     OSRFWinCompilation.create(gz_win_ci_job,
-                              enable_testing(gz_sw),
-                              enable_cmake_warnings(gz_sw))
+                              enable_testing(software_name),
+                              enable_cmake_warnings(software_name))
     OSRFGitHub.create(gz_win_ci_job,
-                              "gazebosim/gz-${ign_sw}",
+                              "gazebosim/gz-${software_name}",
                               "${branch}")
 
     gz_win_ci_job.with
@@ -752,7 +766,7 @@ gz_software.each { gz_sw ->
 
         steps {
           batchFile("""\
-                call "./scripts/jenkins-scripts/ign_${gz_sw/sim/gazebo}-default-devel-windows-amd64.bat"
+                call "./scripts/jenkins-scripts/ign_${software_name}-default-devel-windows-amd64.bat"
                 """.stripIndent())
         }
     }
@@ -761,7 +775,7 @@ gz_software.each { gz_sw ->
 
 // Main CI workflow
 gz_software.each { gz_sw ->
-  def String ci_main_name = "ignition_${gz_sw/sim/gazebo}-ci-manual_any"
+  def String ci_main_name = "ignition_${software_name}-ci-manual_any"
   def gz_ci_main = pipelineJob(ci_main_name)
   OSRFCIWorkFlowMultiAnyGitHub.create(gz_ci_main, ci_pr_any_list[gz_sw])
 }
