@@ -409,7 +409,7 @@ ignition_collections.each { gz_collection ->
    }
 
   // Gazebo dashboards
-  dashboardView("ign-${ign_collection_name}")
+  dashboardView("ign-${gz_collection_name}")
   {
       jobs {
           ignition_collection_jobs["${gz_collection_name}"].each { jobname ->

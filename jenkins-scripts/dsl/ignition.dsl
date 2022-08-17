@@ -2,7 +2,7 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
-ignition_software = [ 'cmake',
+gz_software = [ 'cmake',
                       'common',
                       'fuel-tools',
                       'gazebo',
@@ -18,12 +18,12 @@ ignition_software = [ 'cmake',
                       'transport',
                       'utils' ]
 // DESC: need gpu/display for tests
-ignition_gpu                = [ 'gazebo',
+gz_gpu                = [ 'gazebo',
                                 'gui',
                                 'rendering',
                                 'sensors' ]
 // DESC: software does not support cmake warnings enabled
-ignition_no_cmake_warnings = [ 'cmake',
+gz_no_cmake_warnings = [ 'cmake',
                       'common',
                       'fuel-tools',
                       'gazebo',
@@ -38,12 +38,12 @@ ignition_no_cmake_warnings = [ 'cmake',
                       'transport',
                       'utils' ]
 // DESC: software does not have tests
-ignition_no_test            = [  ]
+gz_no_test            = [  ]
 // DESC: major series supported and released. The branches get CI, install pkg
 // testing and debbuild job.
-// No branches in ignition_branches means no released branches (only CI on
+// No branches in gz_branches means no released branches (only CI on
 // main, ABI check, install pkg)
-ignition_branches           = [ 'cmake'      : [ '2' ],
+gz_branches           = [ 'cmake'      : [ '2' ],
                                 'common'     : [ '1', '3', '4' ],
                                 'fuel-tools' : [ '1', '4', '7' ],
                                 'gazebo'     : [ '3', '6' ],
@@ -76,35 +76,35 @@ gz_branches                 = [ 'cmake'      : [ '3' ],
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use main for gz11
-ignition_prerelease_branches = []
+gz_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
-// don't appear in ignition_branches (like nightly builders or 0-debbuild
+// don't appear in gz_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
-ignition_extra_debbuild = [ 'gazebo7',
+gz_extra_debbuild = [ 'gazebo7',
                             'utils1'] // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
 // DESC: exclude ignition from generate any install testing job
-ignition_no_pkg_yet         = [  ]
+gz_no_pkg_yet         = [  ]
 // DESC: major versions that has a package in the prerelease repo. Should
-// not appear in ignition_no_pkg_yet nor in ignition_branches
-ignition_prerelease_pkgs    = [ 'placeholder' : [
+// not appear in gz_no_pkg_yet nor in gz_branches
+gz_prerelease_pkgs    = [ 'placeholder' : [
                                    '1':  [ 'bionic' ]],
-                              ]
+                        ]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
-ignition_colcon_win         = [ 'common',
-                                'fuel-tools',
-                                'gazebo',
-                                'gui',
-                                'launch',
-                                'math',
-                                'msgs',
-                                'physics',
-                                'plugin',
-                                'rendering',
-                                'sensors',
-                                'tools',
-                                'transport',
-                                'utils' ]
+gz_colcon_win         = [ 'common',
+                          'fuel-tools',
+                          'gazebo',
+                          'gui',
+                          'launch',
+                          'math',
+                          'msgs',
+                          'physics',
+                          'plugin',
+                          'rendering',
+                          'sensors',
+                          'tools',
+                          'transport',
+                          'utils' ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -130,7 +130,7 @@ String ci_distro_str = ci_distro[0]
 
 // Map of lists to use in CIWorkflow
 ci_pr_any_list = [:]
-ignition_software.each { gz_sw ->
+gz_software.each { gz_sw ->
   def list_empty = []
   ci_pr_any_list[gz_sw] = list_empty
 }
@@ -157,15 +157,6 @@ Map merge_maps(Map[] sources) {
 
 // return major versions supported or empty if just 0,1 series under
 // -dev package.
-ArrayList supported_ign_branches(String ign_software)
-{
-  major_versions_registered = ignition_branches["${ign_software}"]
-
-  if (major_versions_registered == null)
-    return [ '' ]
-
-  return major_versions_registered
-}
 ArrayList supported_gz_branches(String gz_software)
 {
   major_versions_registered = gz_branches["${gz_software}"]
@@ -177,9 +168,9 @@ ArrayList supported_gz_branches(String gz_software)
 }
 
 // return prerelease branch names
-ArrayList prerelease_branches(String ign_software)
+ArrayList prerelease_branches(String gz_software)
 {
-  pre_branches = ignition_prerelease_branches["${ign_software}"]
+  pre_branches = gz_prerelease_branches["${gz_software}"]
 
   if (pre_branches == null)
     return [ '' ]
@@ -188,21 +179,21 @@ ArrayList prerelease_branches(String ign_software)
 }
 
 // return all ci branch names
-ArrayList all_branches(String ign_software)
+ArrayList all_branches(String gz_software)
 {
   List<String> branches = new ArrayList<String>();
-  supported_ign_branches("${ign_software}").each { major_version ->
+  supported_gz_branches("${gz_software}").each { major_version ->
     if ("${major_version}") {
-      branches.add("ign-${ign_software}${major_version}")
+      branches.add("ign-${gz_software}${major_version}")
     }
   }
-  supported_gz_branches("${ign_software}").each { major_version ->
+  supported_gz_branches("${gz_software}").each { major_version ->
     if ("${major_version}") {
-      branches.add("gz-${ign_software}${major_version}")
+      branches.add("gz-${gz_software}${major_version}")
     }
   }
   branches.add('main')
-  prerelease_branches("${ign_software}").each { branch ->
+  prerelease_branches("${gz_software}").each { branch ->
     if ("${branch}") {
       branches.add(branch)
     }
@@ -215,29 +206,29 @@ ArrayList all_debbuilders()
 {
   List<String> branches = new ArrayList<String>();
   // add all supported branches
-  ignition_software.each { ign_software ->
-    supported_ign_branches("${ign_software}").each { major_version ->
+  gz_software.each { gz_software ->
+    supported_gz_branches("${gz_software}").each { major_version ->
       if (major_version) {
         // No 1-debbuild versions, they use the unversioned job
         if ("${major_version}" == "0"  || "${major_version}" == "1" )
           major_version = ""
 
-        branches.add("ign-${ign_software}${major_version}")
+        branches.add("ign-${gz_software}${major_version}")
       }
     }
-    supported_gz_branches("${ign_software}").each { major_version ->
+    supported_gz_branches("${gz_software}").each { major_version ->
       if (major_version) {
         // No 1-debbuild versions, they use the unversioned job
         if ("${major_version}" == "0"  || "${major_version}" == "1" )
           major_version = ""
 
-        branches.add("ign-${ign_software}${major_version}")
+        branches.add("ign-${gz_software}${major_version}")
       }
     }
   }
   // add all extra debbuilders
-  ignition_extra_debbuild.each { ign_name ->
-    branches.add("ign-${ign_name}")
+  gz_extra_debbuild.each { gz_name ->
+    branches.add("ign-${gz_name}")
   }
 
   return branches
@@ -247,34 +238,34 @@ ArrayList all_debbuilders()
 // Map with the form of: major versions as keys.
 // Lists of distros supported as values
 // @TODO[scpeters] update this to support gz_branches after garden release
-Map supported_install_pkg_branches(String ign_software)
+Map supported_install_pkg_branches(String gz_software)
 {
-  major_versions_prerelease = ignition_prerelease_pkgs["${ign_software}"]
+  major_versions_prerelease = gz_prerelease_pkgs["${gz_software}"]
 
-  // construct a map of stable packages based on supported_ign_branches and
+  // construct a map of stable packages based on supported_gz_branches and
   // all_supported_distros
   map_of_stable_versions = [:]
-  map_of_stable_versions[ign_software] = [:]
-  supported_ign_branches(ign_software).each { major_version ->
+  map_of_stable_versions[gz_software] = [:]
+  supported_gz_branches(gz_software).each { major_version ->
     new_relation = [:]
     new_relation[major_version] = all_supported_distros
-    map_of_stable_versions[ign_software] << new_relation
+    map_of_stable_versions[gz_software] << new_relation
   }
 
   if (major_versions_prerelease == null)
-    return map_of_stable_versions[ign_software];
+    return map_of_stable_versions[gz_software];
 
-  return merge_maps(map_of_stable_versions[ign_software],
+  return merge_maps(map_of_stable_versions[gz_software],
                     major_versions_prerelease)
 }
 
-void include_gpu_label_if_needed(Job job, String ign_software_name)
+void include_gpu_label_if_needed(Job job, String gz_software_name)
 {
   job.with
   {
 
-    ignition_gpu.each { ign_each ->
-      if (ign_software_name == ign_each)
+    gz_gpu.each { gz_each ->
+      if (gz_software_name == gz_each)
       {
         label "gpu-reliable"
 
@@ -291,25 +282,25 @@ void include_gpu_label_if_needed(Job job, String ign_software_name)
   }
 }
 
-boolean enable_cmake_warnings(String ign_software_name)
+boolean enable_cmake_warnings(String gz_software_name)
 {
-  if (ign_software_name in ignition_no_cmake_warnings)
+  if (gz_software_name in gz_no_cmake_warnings)
     return false
 
   return true
 }
 
-boolean enable_testing(String ign_software_name)
+boolean enable_testing(String gz_software_name)
 {
-  if (ign_software_name in ignition_no_test)
+  if (gz_software_name in gz_no_test)
     return false
 
   return true
 }
 
-boolean is_a_colcon_package(String ign_software_name)
+boolean is_a_colcon_package(String gz_software_name)
 {
-  if (ign_software_name in ignition_colcon_win)
+  if (gz_software_name in gz_colcon_win)
     return true
 
   return false
@@ -317,20 +308,25 @@ boolean is_a_colcon_package(String ign_software_name)
 
 // ABI Checker job
 // Need to be before the ci-pr_any so the abi job name is defined
-ignition_software.each { gz_sw ->
+gz_software.each { gz_sw ->
   abi_distro.each { distro ->
     supported_arches.each { arch ->
       // Packages without ABI
       if (gz_sw == 'tools' || gz_sw == 'cmake')
         return
 
-      abi_job_names[gz_sw] = "ignition_${gz_sw/sim/gazebo}-abichecker-any_to_any-ubuntu_auto-${arch}"
-      def abi_job = job(abi_job_names[gz_sw])
-      checkout_subdir = "ign-${gz_sw/sim/gazebo}"
+      software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
+
+      if (gz_sw == 'sim')
+        software_name = "gazebo"
+
+      abi_job_names[software_name] = "ignition_${software_name}-abichecker-any_to_any-ubuntu_auto-${arch}"
+      def abi_job = job(abi_job_names[software_name])
+      checkout_subdir = "ign-${software_name}"
       OSRFLinuxABIGitHub.create(abi_job)
       GenericAnyJobGitHub.create(abi_job,
-                        "gazebosim/ign-${gz_sw/sim/gazebo}",
-                        all_branches(gz_sw) - [ 'main'])
+                        "gazebosim/ign-${software_name}",
+                        all_branches(software_name) - [ 'main'])
       abi_job.with
       {
         extra_str=""
@@ -365,18 +361,23 @@ ignition_software.each { gz_sw ->
 } // end of ignition
 
 // MAIN CI JOBS (check every 5 minutes)
-ignition_software.each { gz_sw ->
+gz_software.each { gz_sw ->
   supported_arches.each { arch ->
     // --------------------------------------------------------------
     // 1. Create the any job
-    def ignition_ci_job_name = "ignition_${gz_sw/sim/gazebo}-ci-pr_any-ubuntu_auto-${arch}"
-    def ignition_ci_any_job = job(ignition_ci_job_name)
-    def ignition_checkout_dir = "ign-${gz_sw/sim/gazebo}"
-    OSRFLinuxCompilationAnyGitHub.create(ignition_ci_any_job,
-                                        "gazebosim/${ignition_checkout_dir}",
-                                         enable_testing(gz_sw))
-    include_gpu_label_if_needed(ignition_ci_any_job, gz_sw)
-    ignition_ci_any_job.with
+    software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
+
+    if (gz_sw == 'sim')
+      software_name = "gazebo"
+
+    def gz_ci_job_name = "ignition_${software_name}-ci-pr_any-ubuntu_auto-${arch}"
+    def gz_ci_any_job = job(gz_ci_job_name)
+    def gz_checkout_dir = "ign-${software_name}"
+    OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
+                                        "gazebosim/${gz_checkout_dir}",
+                                         enable_testing(software_name))
+    include_gpu_label_if_needed(gz_ci_any_job, software_name)
+    gz_ci_any_job.with
     {
       if (gz_sw == 'physics')
         label "huge-memory"
@@ -392,40 +393,45 @@ ignition_software.each { gz_sw ->
 
               export ARCH=${arch}
 
-              /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${gz_sw/sim/gazebo}-compilation.bash
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${software_name}-compilation.bash
               """.stripIndent())
       } // end of steps
     } // end of ci_any_job
 
     // add ci-pr_any to the list for CIWorkflow
-    ci_pr_any_list[gz_sw] << ignition_ci_job_name
+    ci_pr_any_list[software_name] << gz_ci_job_name
   }
 }
 
 // INSTALL PACKAGE ALL PLATFORMS / DAILY
-ignition_software.each { gz_sw ->
+gz_software.each { gz_sw ->
   // Exclusion list
-  if (gz_sw in ignition_no_pkg_yet)
+  if (gz_sw in gz_no_pkg_yet)
     return
 
   supported_arches.each { arch ->
     supported_install_pkg_branches(gz_sw).each { major_version, supported_distros ->
       supported_distros.each { distro ->
         extra_repos_str=""
-        if ((gz_sw in ignition_prerelease_pkgs) &&
-           (major_version in ignition_prerelease_pkgs[gz_sw]) &&
-           (distro in ignition_prerelease_pkgs[gz_sw][major_version]))
+        if ((gz_sw in gz_prerelease_pkgs) &&
+           (major_version in gz_prerelease_pkgs[gz_sw]) &&
+           (distro in gz_prerelease_pkgs[gz_sw][major_version]))
           extra_repos_str="prerelease"
 
         // No 1-dev or 0-dev packages (except special cases see
-        // ignition_debbuild variable), unversioned
+        // gz_debbuild variable), unversioned
         if ("${major_version}" == "0" || "${major_version}" == "1")
           major_version = ""
 
+        software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
+
+        if (gz_sw == 'sim')
+          software_name = "gazebo"
+
         // --------------------------------------------------------------
-        def install_default_job = job("ignition_${gz_sw/sim/gazebo}${major_version}-install-pkg-${distro}-${arch}")
+        def install_default_job = job("ignition_${software_name}${major_version}-install-pkg-${distro}-${arch}")
         OSRFLinuxInstall.create(install_default_job)
-        include_gpu_label_if_needed(install_default_job, gz_sw)
+        include_gpu_label_if_needed(install_default_job, software_name)
 
         install_default_job.with
         {
@@ -433,8 +439,8 @@ ignition_software.each { gz_sw ->
             cron(Globals.CRON_EVERY_THREE_DAYS)
           }
 
-          def dev_package = "libignition-${gz_sw/sim/gazebo}${major_version}-dev"
-          def gzdev_project = "ignition-${gz_sw/sim/gazebo}${major_version}"
+          def dev_package = "libignition-${software_name}${major_version}-dev"
+          def gzdev_project = "ignition-${software_name}${major_version}"
 
           steps {
            shell("""\
@@ -455,23 +461,23 @@ ignition_software.each { gz_sw ->
   }
 }
 
-void generate_asan_ci_job(ignition_ci_job, gz_sw, branch, distro, arch)
+void generate_asan_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
 {
-  generate_ci_job(ignition_ci_job, gz_sw, branch, distro, arch,
+  generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
                   '-DIGN_SANITIZER=Address',
                   Globals.MAKETEST_SKIP_IGN)
 }
 
-void generate_ci_job(ignition_ci_job, gz_sw, branch, distro, arch,
+void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
                      extra_cmake = '', extra_test = '')
 {
-  OSRFLinuxCompilation.create(ignition_ci_job, enable_testing(gz_sw))
-  OSRFGitHub.create(ignition_ci_job,
+  OSRFLinuxCompilation.create(gz_ci_job, enable_testing(gz_sw))
+  OSRFGitHub.create(gz_ci_job,
                         "gazebosim/ign-${gz_sw/sim/gazebo}",
                         "${branch}", "ign-${gz_sw/sim/gazebo}")
 
-  include_gpu_label_if_needed(ignition_ci_job, gz_sw)
-  ignition_ci_job.with
+  include_gpu_label_if_needed(gz_ci_job, gz_sw)
+  gz_ci_job.with
   {
     if (gz_sw == 'physics')
       label "huge-memory"
@@ -492,25 +498,25 @@ void generate_ci_job(ignition_ci_job, gz_sw, branch, distro, arch,
 }
 
 // OTHER CI SUPPORTED JOBS
-ignition_software.each { gz_sw ->
+gz_software.each { gz_sw ->
   all_supported_distros.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       // branches CI job scm@daily
       all_branches("${gz_sw}").each { branch ->
         // 1. Standard CI
-        def ignition_ci_job = job("ignition_${gz_sw/sim/gazebo}-ci-${branch}-${distro}-${arch}")
-        generate_ci_job(ignition_ci_job, gz_sw, branch, distro, arch)
-        ignition_ci_job.with
+        def gz_ci_job = job("ignition_${gz_sw/sim/gazebo}-ci-${branch}-${distro}-${arch}")
+        generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
+        gz_ci_job.with
         {
           triggers {
             scm('@daily')
           }
         }
         // 2. ASAN CI
-        def ignition_ci_asan_job = job("ignition_${gz_sw/sim/gazebo}-ci_asan-${branch}-${distro}-${arch}")
-        generate_asan_ci_job(ignition_ci_asan_job, gz_sw, branch, distro, arch)
-        ignition_ci_asan_job.with
+        def gz_ci_asan_job = job("ignition_${gz_sw/sim/gazebo}-ci_asan-${branch}-${distro}-${arch}")
+        generate_asan_ci_job(gz_ci_asan_job, gz_sw, branch, distro, arch)
+        gz_ci_asan_job.with
         {
           triggers {
             scm(Globals.CRON_ON_WEEKEND)
@@ -562,18 +568,18 @@ all_debbuilders().each { debbuilder_name ->
 // BREW: CI jobs
 
 // 1. any job
-ignition_software.each { gz_sw ->
-  String ignition_brew_ci_any_job_name = "ignition_${gz_sw/sim/gazebo}-ci-pr_any-homebrew-amd64"
+gz_software.each { gz_sw ->
+  String gz_brew_ci_any_job_name = "ignition_${gz_sw/sim/gazebo}-ci-pr_any-homebrew-amd64"
 
 
-  def ignition_brew_ci_any_job = job(ignition_brew_ci_any_job_name)
-  OSRFBrewCompilationAnyGitHub.create(ignition_brew_ci_any_job,
+  def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
+  OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
                                       "gazebosim/ign-${gz_sw/sim/gazebo}",
                                       enable_testing(gz_sw),
                                       GITHUB_SUPPORT_ALL_BRANCHES,
                                       ENABLE_GITHUB_PR_INTEGRATION,
                                       enable_cmake_warnings(gz_sw))
-  ignition_brew_ci_any_job.with
+  gz_brew_ci_any_job.with
   {
       steps {
         shell("""\
@@ -584,27 +590,25 @@ ignition_software.each { gz_sw ->
               then
                 /bin/bash -xe "\$HOMEBREW_SCRIPT"
               else
-                software_name="gz-${ign_sw}"
-                [[ ${ign_sw} == 'gazebo' ]] && software_name="gz-sim"
-                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
+                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "${gz_sw/sim/gazebo}"
               fi
               """.stripIndent())
       }
   }
 
   // add ci-pr_any to the list for CIWorkflow
-  ci_pr_any_list[gz_sw] << ignition_brew_ci_any_job_name
+  ci_pr_any_list[gz_sw] << gz_brew_ci_any_job_name
 
   // 2. main, release branches
   all_branches("${gz_sw}").each { branch ->
-    def ignition_brew_ci_job = job("ignition_${gz_sw/sim/gazebo}-ci-${branch}-homebrew-amd64")
-    OSRFBrewCompilation.create(ignition_brew_ci_job,
+    def gz_brew_ci_job = job("ignition_${gz_sw/sim/gazebo}-ci-${branch}-homebrew-amd64")
+    OSRFBrewCompilation.create(gz_brew_ci_job,
                                enable_testing(gz_sw),
                                enable_cmake_warnings(gz_sw))
-    OSRFGitHub.create(ignition_brew_ci_job,
+    OSRFGitHub.create(gz_brew_ci_job,
                               "gazebosim/ign-${gz_sw/sim/gazebo}",
                               "${branch}", "ign-${gz_sw/sim/gazebo}")
-    ignition_brew_ci_job.with
+    gz_brew_ci_job.with
     {
         triggers {
           scm('@daily')
@@ -619,9 +623,7 @@ ignition_software.each { gz_sw ->
                 then
                   /bin/bash -xe "\$HOMEBREW_SCRIPT"
                 else
-                  software_name="gz-${ign_sw}"
-                  [[ ${ign_sw} == 'gazebo' ]] && software_name="gz-sim"
-                  /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
+                  /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "${gz_sw/sim/gazebo}"
                 fi
                 """.stripIndent())
         }
@@ -671,36 +673,36 @@ ignition_software.each { gz_sw ->
 // WINDOWS: CI job
 
 // 1. any
-ignition_software.each { gz_sw ->
+gz_software.each { gz_sw ->
 
   if (is_a_colcon_package(gz_sw)) {
     // colcon uses long paths and windows has a hard limit of 260 chars. Keep
     // names minimal
-    ignition_win_ci_any_job_name = "ign_${gz_sw/sim/gazebo}-pr-win"
+    gz_win_ci_any_job_name = "ign_${gz_sw/sim/gazebo}-pr-win"
     Globals.gazebodistro_branch = true
   } else {
-    ignition_win_ci_any_job_name = "ignition_${gz_sw/sim/gazebo}-ci-pr_any-windows7-amd64"
+    gz_win_ci_any_job_name = "ignition_${gz_sw/sim/gazebo}-ci-pr_any-windows7-amd64"
     Globals.gazebodistro_branch = false
   }
 
   supported_branches = []
 
   // ign-gazebo only support Windows from ign-gazebo5
-  if (ign_sw == 'gazebo')
+  if (gz_sw == 'gazebo')
     supported_branches = [ 'ign-gazebo6', 'gz-sim7', 'main' ]
 
   // ign-launch only support Windows from ign-launch5
-  if (ign_sw == 'launch')
+  if (gz_sw == 'launch')
     supported_branches = [ 'ign-launch5', 'gz-launch6', 'main' ]
 
-  def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
-  OSRFWinCompilationAnyGitHub.create(ignition_win_ci_any_job,
-                                    "gazebosim/gz-${ign_sw}",
-                                    enable_testing(ign_sw),
+  def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
+  OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_job,
+                                    "gazebosim/gz-${gz_sw/gazebo/sim}",
+                                    enable_testing(gz_sw),
                                     supported_branches,
                                     ENABLE_GITHUB_PR_INTEGRATION,
                                     enable_cmake_warnings(gz_sw))
-  ignition_win_ci_any_job.with
+  gz_win_ci_any_job.with
   {
       steps {
         batchFile("""\
@@ -710,7 +712,7 @@ ignition_software.each { gz_sw ->
   }
 
   // add ci-pr_any to the list for CIWorkflow
-  ci_pr_any_list[gz_sw] << ignition_win_ci_any_job_name
+  ci_pr_any_list[gz_sw] << gz_win_ci_any_job_name
 
   // 2. main, release branches
   all_branches("${gz_sw}").each { branch ->
@@ -721,20 +723,20 @@ ignition_software.each { gz_sw ->
         branch_name = "ci"
       else
         branch_name = branch - gz_sw
-      ignition_win_ci_job_name = "ign_${gz_sw/sim/gazebo}-${branch_name}-win"
+      gz_win_ci_job_name = "ign_${gz_sw/sim/gazebo}-${branch_name}-win"
     } else {
-      ignition_win_ci_job_name = "ignition_${gz_sw/sim/gazebo}-ci-${branch}-windows7-amd64"
+      gz_win_ci_job_name = "ignition_${gz_sw/sim/gazebo}-ci-${branch}-windows7-amd64"
     }
 
-    def ignition_win_ci_job = job(ignition_win_ci_job_name)
-    OSRFWinCompilation.create(ignition_win_ci_job,
+    def gz_win_ci_job = job(gz_win_ci_job_name)
+    OSRFWinCompilation.create(gz_win_ci_job,
                               enable_testing(gz_sw),
                               enable_cmake_warnings(gz_sw))
-    OSRFGitHub.create(ignition_win_ci_job,
+    OSRFGitHub.create(gz_win_ci_job,
                               "gazebosim/gz-${ign_sw}",
                               "${branch}")
 
-    ignition_win_ci_job.with
+    gz_win_ci_job.with
     {
         // ign-gazebo only works on Windows from ign-gazebo5
         if (branch == 'ign-gazebo3')
@@ -758,8 +760,8 @@ ignition_software.each { gz_sw ->
 }
 
 // Main CI workflow
-ignition_software.each { gz_sw ->
+gz_software.each { gz_sw ->
   def String ci_main_name = "ignition_${gz_sw/sim/gazebo}-ci-manual_any"
-  def ign_ci_main = pipelineJob(ci_main_name)
-  OSRFCIWorkFlowMultiAnyGitHub.create(ign_ci_main, ci_pr_any_list[gz_sw])
+  def gz_ci_main = pipelineJob(ci_main_name)
+  OSRFCIWorkFlowMultiAnyGitHub.create(gz_ci_main, ci_pr_any_list[gz_sw])
 }
