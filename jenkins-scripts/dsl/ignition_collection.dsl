@@ -32,7 +32,7 @@ ignition_collections = [
           'gui'       : [ debbuild: 'ign-gui7'        , branch: 'gz-gui7' ],
           'sensors'   : [ debbuild: 'ign-sensors7'    , branch: 'gz-sensors7' ],
           'physics'   : [ debbuild: 'ign-physics6'    , branch: 'gz-physics6' ],
-          'gazebo'    : [ debbuild: 'ign-gazebo7'     , branch: 'main' ],
+          'gazebo'    : [ debbuild: 'ign-gazebo7'     , branch: 'gz-sim7' ],
           'launch'    : [ debbuild: 'ign-launch6'     , branch: 'gz-launch6' ],
           'garden'    : [ debbuild: 'ign-garden'      , branch: 'main' ],
     ],
