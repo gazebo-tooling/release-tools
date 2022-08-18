@@ -259,7 +259,7 @@ Map supported_install_pkg_branches(String gz_software)
   // all_supported_distros
   map_of_stable_versions = [:]
   map_of_stable_versions[gz_software] = [:]
-  supported_gz_branches(gz_software).each { major_version ->
+  supported_ign_branches(gz_software).each { major_version ->
     new_relation = [:]
     new_relation[major_version] = all_supported_distros
     map_of_stable_versions[gz_software] << new_relation
@@ -423,7 +423,7 @@ gz_software.each { gz_sw ->
     return
 
   supported_arches.each { arch ->
-    supported_install_pkg_branches(software_name).each { major_version, supported_distros ->
+    supported_install_pkg_branches(gz_sw).each { major_version, supported_distros ->
       supported_distros.each { distro ->
         extra_repos_str=""
         if ((gz_sw in gz_prerelease_pkgs) &&
@@ -436,15 +436,10 @@ gz_software.each { gz_sw ->
         if ("${major_version}" == "0" || "${major_version}" == "1")
           major_version = ""
 
-        software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
-
-        if (gz_sw == 'sim')
-          software_name = "gazebo"
-
         // --------------------------------------------------------------
-        def install_default_job = job("ignition_${software_name}${major_version}-install-pkg-${distro}-${arch}")
+        def install_default_job = job("ignition_${gz_sw}${major_version}-install-pkg-${distro}-${arch}")
         OSRFLinuxInstall.create(install_default_job)
-        include_gpu_label_if_needed(install_default_job, software_name)
+        include_gpu_label_if_needed(install_default_job, gz_sw)
 
         install_default_job.with
         {
@@ -452,8 +447,8 @@ gz_software.each { gz_sw ->
             cron(Globals.CRON_EVERY_THREE_DAYS)
           }
 
-          def dev_package = "libignition-${software_name}${major_version}-dev"
-          def gzdev_project = "ignition-${software_name}${major_version}"
+          def dev_package = "libignition-${gz_sw}${major_version}-dev"
+          def gzdev_project = "ignition-${gz_sw}${major_version}"
 
           steps {
            shell("""\
@@ -557,7 +552,6 @@ all_debbuilders().each { debbuilder_name ->
   if (debbuilder_name.contains("-physics"))
     extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
 
-  println("Generating: ${debbuilder_name}-debbuilder")
   def build_pkg_job = job("${debbuilder_name}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
   build_pkg_job.with
@@ -745,7 +739,6 @@ gz_software.each { gz_sw ->
 
   // 2. main, release branches
   all_branches("${gz_sw}").each { branch ->
-    println("BRANCH: ${gz_sw} - ${branch}")
     if (is_a_colcon_package(gz_sw)) {
       // colcon uses long paths and windows has a hard limit of 260 chars. Keep
       // names minimal
