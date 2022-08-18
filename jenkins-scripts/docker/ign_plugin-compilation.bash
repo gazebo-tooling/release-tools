@@ -15,23 +15,23 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-plugin"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_PLUGIN_DEPENDENCIES"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_PLUGIN_DEPENDENCIES"
 
-# Identify IGN_PLUGIN_MAJOR_VERSION to help with dependency resolution
-IGN_PLUGIN_MAJOR_VERSION=$(\
+# Identify GZ_PLUGIN_MAJOR_VERSION to help with dependency resolution
+GZ_PLUGIN_MAJOR_VERSION=$(\
   python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-plugin/CMakeLists.txt)
 
-# Check IGN_PLUGIN version is integer
-if ! [[ ${IGN_PLUGIN_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
-  echo "Error! IGN_PLUGIN_MAJOR_VERSION is not an integer, check the detection"
+# Check GZ_PLUGIN version is integer
+if ! [[ ${GZ_PLUGIN_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+  echo "Error! GZ_PLUGIN_MAJOR_VERSION is not an integer, check the detection"
   exit -1
 fi
 
-if [[ ${IGN_PLUGIN_MAJOR_VERSION} -ge 6 ]]; then
+if [[ ${GZ_PLUGIN_MAJOR_VERSION} -ge 6 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
-export GZDEV_PROJECT_NAME="gz-plugin${IGN_PLUGIN_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="gz-plugin${GZ_PLUGIN_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
