@@ -745,6 +745,7 @@ gz_software.each { gz_sw ->
 
   // 2. main, release branches
   all_branches("${gz_sw}").each { branch ->
+    println("BRANCH: ${gz_sw} - ${branch}")
     if (is_a_colcon_package(gz_sw)) {
       // colcon uses long paths and windows has a hard limit of 260 chars. Keep
       // names minimal
@@ -752,9 +753,9 @@ gz_software.each { gz_sw ->
         branch_name = "ci"
       else
         branch_name = branch - gz_sw
-      gz_win_ci_job_name = "ign_${gz_software_name}-${branch_name}-win"
+      gz_win_ci_job_name = "ign_${gz_sw}-${branch_name}-win"
     } else {
-      gz_win_ci_job_name = "ignition_${gz_software_name}-ci-${branch}-windows7-amd64"
+      gz_win_ci_job_name = "ignition_${gz_sw}-ci-${branch}-windows7-amd64"
     }
 
     def gz_win_ci_job = job(gz_win_ci_job_name)
