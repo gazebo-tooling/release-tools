@@ -23,7 +23,7 @@ mkdir -p ~/.gazebo/models
 tar -xf /tmp/master.tar.gz -C ~/.gazebo/models --strip 1 >/dev/null 2>&1
 rm /tmp/master.tar.gz"""
 
-IGN_GAZEBO_RUNTIME_TEST="""
+GZ_SIM_RUNTIME_TEST="""
 echo '# BEGIN SECTION: test the script'
 TEST_START=\`date +%s\`
 timeout --preserve-status 180 ign gazebo -v -r camera_sensor.sdf || true

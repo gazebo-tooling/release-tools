@@ -15,20 +15,20 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-fuel-tools"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_FUEL_TOOLS_DEPENDENCIES"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_FUEL_TOOLS_DEPENDENCIES"
 export BUILDING_JOB_REPOSITORIES="stable"
 
-# Identify IGN_FUEL_TOOLS_MAJOR_VERSION to help with dependency resolution
-IGN_FUEL_TOOLS_MAJOR_VERSION=$(\
+# Identify GZ_FUEL_TOOLS_MAJOR_VERSION to help with dependency resolution
+GZ_FUEL_TOOLS_MAJOR_VERSION=$(\
   python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-fuel-tools/CMakeLists.txt)
 
-# Check IGN_FUEL_TOOLS version is integer
-if ! [[ ${IGN_FUEL_TOOLS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
-  echo "Error! IGN_FUEL_TOOLS_MAJOR_VERSION is not an integer, check the detection"
+# Check GZ_FUEL_TOOLS version is integer
+if ! [[ ${GZ_FUEL_TOOLS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+  echo "Error! GZ_FUEL_TOOLS_MAJOR_VERSION is not an integer, check the detection"
   exit -1
 fi
 
-export GZDEV_PROJECT_NAME="gz-fuel-tools${IGN_FUEL_TOOLS_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="gz-fuel-tools${GZ_FUEL_TOOLS_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
