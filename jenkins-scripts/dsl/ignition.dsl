@@ -214,34 +214,34 @@ ArrayList all_branches(String software_name)
   return branches
 }
 
-//
+
 ArrayList all_debbuilders()
 {
   List<String> branches = new ArrayList<String>();
   // add all supported branches
-  gz_software.each { gz_software ->
-    supported_gz_branches("${gz_software}").each { major_version ->
+  gz_software.each { software_name ->
+    supported_ign_branches("${software_name}").each { major_version ->
       if (major_version) {
         // No 1-debbuild versions, they use the unversioned job
         if ("${major_version}" == "0"  || "${major_version}" == "1" )
           major_version = ""
 
-        branches.add("ign-${gz_software}${major_version}")
+        branches.add("ign-${software_name}${major_version}")
       }
     }
-    supported_gz_branches("${gz_software}").each { major_version ->
+    supported_gz_branches("${software_name}").each { major_version ->
       if (major_version) {
         // No 1-debbuild versions, they use the unversioned job
         if ("${major_version}" == "0"  || "${major_version}" == "1" )
           major_version = ""
 
-        branches.add("ign-${gz_software}${major_version}")
+        branches.add("ign-${software_name}${major_version}")
       }
     }
   }
   // add all extra debbuilders
   gz_extra_debbuild.each { gz_name ->
-    branches.add("ign-${gz_name}")
+    branches.add("ign-${gz_name}_name")
   }
 
   return branches
