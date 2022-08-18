@@ -347,7 +347,7 @@ gz_collections.each { gz_collection ->
   def gz_brew_ci_job = job("ignition_${gz_collection_name}-ci-main-homebrew-amd64")
   OSRFBrewCompilation.create(gz_brew_ci_job, DISABLE_TESTS)
   OSRFGitHub.create(gz_brew_ci_job,
-                    "gazebosim/gz-${ign_collection_name}",
+                    "gazebosim/gz-${gz_collection_name}",
                     "main",
                     "ign-${gz_collection_name}")
   gz_brew_ci_job.with
