@@ -43,7 +43,7 @@ gz_no_test            = [  ]
 // testing and debbuild job.
 // No branches in gz_branches means no released branches (only CI on
 // main, ABI check, install pkg)
-gz_branches           = [ 'cmake'      : [ '2' ],
+ignition_branches           = [ 'cmake'      : [ '2' ],
                                 'common'     : [ '1', '3', '4' ],
                                 'fuel-tools' : [ '1', '4', '7' ],
                                 'gazebo'     : [ '3', '6' ],
@@ -157,6 +157,18 @@ Map merge_maps(Map[] sources) {
 
 // return major versions supported or empty if just 0,1 series under
 // -dev package.
+ArrayList supported_ign_branches(String ign_software)
+{
+  major_versions_registered = ignition_branches["${ign_software}"]
+
+  if (major_versions_registered == null)
+    return [ '' ]
+
+  return major_versions_registered
+}
+
+// return major versions supported or empty if just 0,1 series under
+// -dev package.
 ArrayList supported_gz_branches(String gz_software)
 {
   major_versions_registered = gz_branches["${gz_software}"]
@@ -179,21 +191,21 @@ ArrayList prerelease_branches(String gz_software)
 }
 
 // return all ci branch names
-ArrayList all_branches(String gz_software)
+ArrayList all_branches(String software_name)
 {
   List<String> branches = new ArrayList<String>();
-  supported_gz_branches("${gz_software}").each { major_version ->
+  supported_ign_branches("${software_name}").each { major_version ->
     if ("${major_version}") {
-      branches.add("ign-${gz_software}${major_version}")
+      branches.add("ign-${software_name}${major_version}")
     }
   }
-  supported_gz_branches("${gz_software}").each { major_version ->
+  supported_gz_branches("${software_name}").each { major_version ->
     if ("${major_version}") {
-      branches.add("gz-${gz_software}${major_version}")
+      branches.add("gz-${software_name}${major_version}")
     }
   }
   branches.add('main')
-  prerelease_branches("${gz_software}").each { branch ->
+  prerelease_branches("${software_name}").each { branch ->
     if ("${branch}") {
       branches.add(branch)
     }
