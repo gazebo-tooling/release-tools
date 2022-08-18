@@ -3,25 +3,25 @@ import javaposse.jobdsl.dsl.Job
 
 // IGNITION PACKAGES
 gz_software = [ 'cmake',
-                      'common',
-                      'fuel-tools',
-                      'gazebo',
-                      'gui',
-                      'launch',
-                      'math',
-                      'msgs',
-                      'physics',
-                      'plugin',
-                      'rendering',
-                      'sensors',
-                      'tools',
-                      'transport',
-                      'utils' ]
+                'common',
+                'fuel-tools',
+                'gazebo',
+                'gui',
+                'launch',
+                'math',
+                'msgs',
+                'physics',
+                'plugin',
+                'rendering',
+                'sensors',
+                'tools',
+                'transport',
+                'utils' ]
 // DESC: need gpu/display for tests
 gz_gpu                = [ 'gazebo',
-                                'gui',
-                                'rendering',
-                                'sensors' ]
+                          'gui',
+                          'rendering',
+                          'sensors' ]
 // DESC: software does not support cmake warnings enabled
 gz_no_cmake_warnings = [ 'cmake',
                       'common',
@@ -58,6 +58,7 @@ ignition_branches           = [ 'cmake'      : [ '2' ],
                                 'tools'      : [ '1' ],
                                 'transport'  : [ '4', '8', '11' ],
                                 'utils'      : [ '1' ]]
+
 gz_branches                 = [ 'cmake'      : [ '3' ],
                                 'common'     : [ '5' ],
                                 'fuel-tools' : [ '8' ],
@@ -81,13 +82,13 @@ gz_prerelease_branches = []
 // don't appear in gz_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
 gz_extra_debbuild = [ 'gazebo7',
-                            'utils1'] // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
+                      'utils1' ] // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
 // DESC: exclude ignition from generate any install testing job
 gz_no_pkg_yet         = [  ]
 // DESC: major versions that has a package in the prerelease repo. Should
 // not appear in gz_no_pkg_yet nor in gz_branches
 gz_prerelease_pkgs    = [ 'placeholder' : [
-                                   '1':  [ 'bionic' ]],
+                          '1':  [ 'bionic' ]],
                         ]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
@@ -612,7 +613,9 @@ gz_software.each { gz_sw ->
               then
                 /bin/bash -xe "\$HOMEBREW_SCRIPT"
               else
-                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "${software_name}"
+                software_name="gz-${ign_sw}"
+                [[ ${ign_sw} == 'gazebo' ]] && software_name="gz-sim"
+                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
               fi
               """.stripIndent())
       }
@@ -645,7 +648,9 @@ gz_software.each { gz_sw ->
                 then
                   /bin/bash -xe "\$HOMEBREW_SCRIPT"
                 else
-                  /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "${software_name}"
+                  software_name="gz-${ign_sw}"
+                  [[ ${ign_sw} == 'gazebo' ]] && software_name="gz-sim"
+                  /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
                 fi
                 """.stripIndent())
         }
