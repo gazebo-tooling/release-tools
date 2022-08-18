@@ -613,8 +613,8 @@ gz_software.each { gz_sw ->
               then
                 /bin/bash -xe "\$HOMEBREW_SCRIPT"
               else
-                software_name="gz-${ign_sw}"
-                [[ ${ign_sw} == 'gazebo' ]] && software_name="gz-sim"
+                software_name="gz-${software_name}"
+                [[ ${software_name} == 'gazebo' ]] && software_name="gz-sim"
                 /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
               fi
               """.stripIndent())
@@ -648,8 +648,8 @@ gz_software.each { gz_sw ->
                 then
                   /bin/bash -xe "\$HOMEBREW_SCRIPT"
                 else
-                  software_name="gz-${ign_sw}"
-                  [[ ${ign_sw} == 'gazebo' ]] && software_name="gz-sim"
+                  software_name="gz-${software_name}"
+                  [[ ${software_name} == 'gazebo' ]] && software_name="gz-sim"
                   /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
                 fi
                 """.stripIndent())
