@@ -516,7 +516,7 @@ gz_software.each { gz_sw ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
       // branches CI job scm@daily
-      all_branches("${software_name}").each { branch ->
+      all_branches("${gz_sw}").each { branch ->
         // 1. Standard CI
         software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
 
@@ -702,24 +702,22 @@ gz_software.each { gz_sw ->
 // 1. any
 gz_software.each { gz_sw ->
 
-  if (is_a_colcon_package(software_name)) {
+  if (is_a_colcon_package(gz_sw)) {
     // colcon uses long paths and windows has a hard limit of 260 chars. Keep
     // names minimal
-    gz_win_ci_any_job_name = "ign_${software_name}-pr-win"
+    gz_win_ci_any_job_name = "ign_${gz_sw}-pr-win"
     Globals.gazebodistro_branch = true
   } else {
-    gz_win_ci_any_job_name = "ignition_${software_name}-ci-pr_any-windows7-amd64"
+    gz_win_ci_any_job_name = "ignition_${gz_sw}-ci-pr_any-windows7-amd64"
     Globals.gazebodistro_branch = false
   }
 
   supported_branches = []
   gz_software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
-  ign_software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
 
   // ign-gazebo only support Windows from ign-gazebo5
   if (gz_sw == 'gazebo')
     supported_branches = [ 'ign-gazebo6', 'gz-sim7', 'main' ]
-    ign_software_name = "gazebo"
     gz_software_name = "sim"
 
   // ign-launch only support Windows from ign-launch5
@@ -728,16 +726,16 @@ gz_software.each { gz_sw ->
 
   def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
   OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_job,
-                                    "gazebosim/gz-${software_name}",
-                                    enable_testing(software_name),
+                                    "gazebosim/gz-${gz_software_name}",
+                                    enable_testing(gz_software_name),
                                     supported_branches,
                                     ENABLE_GITHUB_PR_INTEGRATION,
-                                    enable_cmake_warnings(software_name))
+                                    enable_cmake_warnings(gz_software_name))
   gz_win_ci_any_job.with
   {
       steps {
         batchFile("""\
-              call "./scripts/jenkins-scripts/ign_${ign_software_name}-default-devel-windows-amd64.bat"
+              call "./scripts/jenkins-scripts/ign_${gz_software_name}-default-devel-windows-amd64.bat"
               """.stripIndent())
       }
   }
@@ -746,25 +744,25 @@ gz_software.each { gz_sw ->
   ci_pr_any_list[gz_sw] << gz_win_ci_any_job_name
 
   // 2. main, release branches
-  all_branches("${software_name}").each { branch ->
-    if (is_a_colcon_package(software_name)) {
+  all_branches("${gz_sw}").each { branch ->
+    if (is_a_colcon_package(gz_sw)) {
       // colcon uses long paths and windows has a hard limit of 260 chars. Keep
       // names minimal
       if (branch == 'main')
         branch_name = "ci"
       else
         branch_name = branch - gz_sw
-      gz_win_ci_job_name = "ign_${ign_software_name}-${branch_name}-win"
+      gz_win_ci_job_name = "ign_${gz_software_name}-${branch_name}-win"
     } else {
-      gz_win_ci_job_name = "ignition_${ign_software_name}-ci-${branch}-windows7-amd64"
+      gz_win_ci_job_name = "ignition_${gz_software_name}-ci-${branch}-windows7-amd64"
     }
 
     def gz_win_ci_job = job(gz_win_ci_job_name)
     OSRFWinCompilation.create(gz_win_ci_job,
-                              enable_testing(software_name),
-                              enable_cmake_warnings(software_name))
+                              enable_testing(gz_sw),
+                              enable_cmake_warnings(gz_sw))
     OSRFGitHub.create(gz_win_ci_job,
-                              "gazebosim/gz-${software_name}",
+                              "gazebosim/gz-${gz_sw}",
                               "${branch}")
 
     gz_win_ci_job.with
@@ -783,7 +781,7 @@ gz_software.each { gz_sw ->
 
         steps {
           batchFile("""\
-                call "./scripts/jenkins-scripts/ign_${software_name}-default-devel-windows-amd64.bat"
+                call "./scripts/jenkins-scripts/ign_${gz_sw}-default-devel-windows-amd64.bat"
                 """.stripIndent())
         }
     }
@@ -792,7 +790,7 @@ gz_software.each { gz_sw ->
 
 // Main CI workflow
 gz_software.each { gz_sw ->
-  def String ci_main_name = "ignition_${software_name}-ci-manual_any"
+  def String ci_main_name = "ignition_${gz_sw}-ci-manual_any"
   def gz_ci_main = pipelineJob(ci_main_name)
   OSRFCIWorkFlowMultiAnyGitHub.create(gz_ci_main, ci_pr_any_list[gz_sw])
 }
