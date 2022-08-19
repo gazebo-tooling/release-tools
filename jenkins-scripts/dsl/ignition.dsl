@@ -720,16 +720,16 @@ gz_software.each { gz_sw ->
 
   def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
   OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_job,
-                                    "gazebosim/gz-${gz_software_name}",
-                                    enable_testing(gz_software_name),
+                                    "gazebosim/gz-${gz_sw}",
+                                    enable_testing(gz_sw),
                                     supported_branches,
                                     ENABLE_GITHUB_PR_INTEGRATION,
-                                    enable_cmake_warnings(gz_software_name))
+                                    enable_cmake_warnings(gz_sw))
   gz_win_ci_any_job.with
   {
       steps {
         batchFile("""\
-              call "./scripts/jenkins-scripts/ign_${gz_software_name}-default-devel-windows-amd64.bat"
+              call "./scripts/jenkins-scripts/ign_${gz_sw}-default-devel-windows-amd64.bat"
               """.stripIndent())
       }
   }
