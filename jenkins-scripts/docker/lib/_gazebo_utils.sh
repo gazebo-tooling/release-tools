@@ -68,7 +68,7 @@ update_done=false
 seconds_waiting=0
 while (! \$update_done); do
   sudo DEBIAN_FRONTEND=noninteractive mk-build-deps \
-    -r -i debian/control \
+    -r -i ../debian/control \
     --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes' \
   && break
   sleep 60 && seconds_waiting=\$((seconds_waiting+60))
