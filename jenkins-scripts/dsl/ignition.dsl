@@ -58,6 +58,21 @@ ignition_branches           = [ 'cmake'      : [ '2' ],
                                 'tools'      : [ '1' ],
                                 'transport'  : [ '4', '8', '11' ],
                                 'utils'      : [ '1' ]]
+gz_branches                 = [ 'cmake'      : [ '3' ],
+                                'common'     : [ '5' ],
+                                'fuel-tools' : [ '8' ],
+                                'gui'        : [ '7' ],
+                                'launch'     : [ '6' ],
+                                'math'       : [ '7' ],
+                                'msgs'       : [ '9' ],
+                                'physics'    : [ '6' ],
+                                'plugin'     : [ '2' ],
+                                'rendering'  : [ '7' ],
+                                'sensors'    : [ '7' ],
+                                'sim'        : [ '7' ],
+                                'tools'      : [ '2' ],
+                                'transport'  : [ '12' ],
+                                'utils'      : [ '2' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
 // physics/sensors don't need to be included since they use main for gz11
@@ -65,22 +80,8 @@ ignition_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in ignition_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
-ignition_extra_debbuild = [ 'cmake3',
-                            'common5',
-                            'fuel-tools8',
-                            'gazebo7',
-                            'gui7',
-                            'launch6',
-                            'math7',
-                            'msgs9',
-                            'physics6',
-                            'plugin2',
-                            'rendering7',
-                            'sensors7',
-                            'tools2',
-                            'transport12',
-                            'utils1', // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
-                            'utils2']
+ignition_extra_debbuild = [ 'gazebo7',
+                            'utils1'] // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
 // DESC: exclude ignition from generate any install testing job
 ignition_no_pkg_yet         = [  ]
 // DESC: major versions that has a package in the prerelease repo. Should
@@ -156,9 +157,18 @@ Map merge_maps(Map[] sources) {
 
 // return major versions supported or empty if just 0,1 series under
 // -dev package.
-ArrayList supported_branches(String ign_software)
+ArrayList supported_ign_branches(String ign_software)
 {
   major_versions_registered = ignition_branches["${ign_software}"]
+
+  if (major_versions_registered == null)
+    return [ '' ]
+
+  return major_versions_registered
+}
+ArrayList supported_gz_branches(String gz_software)
+{
+  major_versions_registered = gz_branches["${gz_software}"]
 
   if (major_versions_registered == null)
     return [ '' ]
@@ -181,9 +191,14 @@ ArrayList prerelease_branches(String ign_software)
 ArrayList all_branches(String ign_software)
 {
   List<String> branches = new ArrayList<String>();
-  supported_branches("${ign_software}").each { major_version ->
+  supported_ign_branches("${ign_software}").each { major_version ->
     if ("${major_version}") {
       branches.add("ign-${ign_software}${major_version}")
+    }
+  }
+  supported_gz_branches("${ign_software}").each { major_version ->
+    if ("${major_version}") {
+      branches.add("gz-${ign_software}${major_version}")
     }
   }
   branches.add('main')
@@ -201,12 +216,22 @@ ArrayList all_debbuilders()
   List<String> branches = new ArrayList<String>();
   // add all supported branches
   ignition_software.each { ign_software ->
-    supported_branches("${ign_software}").each { major_version ->
+    supported_ign_branches("${ign_software}").each { major_version ->
       if (major_version) {
         // No 1-debbuild versions, they use the unversioned job
         if ("${major_version}" == "0"  || "${major_version}" == "1" )
           major_version = ""
-          branches.add("ign-${ign_software}${major_version}")
+
+        branches.add("ign-${ign_software}${major_version}")
+      }
+    }
+    supported_gz_branches("${ign_software}").each { major_version ->
+      if (major_version) {
+        // No 1-debbuild versions, they use the unversioned job
+        if ("${major_version}" == "0"  || "${major_version}" == "1" )
+          major_version = ""
+
+        branches.add("ign-${ign_software}${major_version}")
       }
     }
   }
@@ -221,15 +246,16 @@ ArrayList all_debbuilders()
 // return all ci branch names
 // Map with the form of: major versions as keys.
 // Lists of distros supported as values
+// @TODO[scpeters] update this to support gz_branches after garden release
 Map supported_install_pkg_branches(String ign_software)
 {
   major_versions_prerelease = ignition_prerelease_pkgs["${ign_software}"]
 
-  // construct a map of stable packages based on supported_branches and
+  // construct a map of stable packages based on supported_ign_branches and
   // all_supported_distros
   map_of_stable_versions = [:]
   map_of_stable_versions[ign_software] = [:]
-  supported_branches(ign_software).each { major_version ->
+  supported_ign_branches(ign_software).each { major_version ->
     new_relation = [:]
     new_relation[major_version] = all_supported_distros
     map_of_stable_versions[ign_software] << new_relation
@@ -558,7 +584,9 @@ ignition_software.each { ign_sw ->
               then
                 /bin/bash -xe "\$HOMEBREW_SCRIPT"
               else
-                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "ignition-${ign_sw}"
+                software_name="gz-${ign_sw}"
+                [[ ${ign_sw} == 'gazebo' ]] && software_name="gz-sim"
+                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
               fi
               """.stripIndent())
       }
@@ -591,7 +619,9 @@ ignition_software.each { ign_sw ->
                 then
                   /bin/bash -xe "\$HOMEBREW_SCRIPT"
                 else
-                  /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "ignition-${ign_sw}"
+                  software_name="gz-${ign_sw}"
+                  [[ ${ign_sw} == 'gazebo' ]] && software_name="gz-sim"
+                  /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
                 fi
                 """.stripIndent())
         }
@@ -657,15 +687,15 @@ ignition_software.each { ign_sw ->
 
   // ign-gazebo only support Windows from ign-gazebo5
   if (ign_sw == 'gazebo')
-    supported_branches = [ 'ign-gazebo6', 'main' ]
+    supported_branches = [ 'ign-gazebo6', 'gz-sim7', 'main' ]
 
   // ign-launch only support Windows from ign-launch5
   if (ign_sw == 'launch')
-    supported_branches = [ 'ign-launch5', 'main' ]
+    supported_branches = [ 'ign-launch5', 'gz-launch6', 'main' ]
 
   def ignition_win_ci_any_job = job(ignition_win_ci_any_job_name)
   OSRFWinCompilationAnyGitHub.create(ignition_win_ci_any_job,
-                                    "gazebosim/ign-${ign_sw}",
+                                    "gazebosim/gz-${ign_sw}",
                                     enable_testing(ign_sw),
                                     supported_branches,
                                     ENABLE_GITHUB_PR_INTEGRATION,
@@ -701,17 +731,17 @@ ignition_software.each { ign_sw ->
                               enable_testing(ign_sw),
                               enable_cmake_warnings(ign_sw))
     OSRFGitHub.create(ignition_win_ci_job,
-                              "gazebosim/ign-${ign_sw}",
-                              "${branch}", "ign-${ign_sw}")
+                              "gazebosim/gz-${ign_sw}",
+                              "${branch}")
 
     ignition_win_ci_job.with
     {
         // ign-gazebo only works on Windows from ign-gazebo5
-        if (branch == 'ign-gazebo3' || branch == 'ign-gazebo4')
+        if (branch == 'ign-gazebo3')
           disabled()
 
         // ign-launch was not ported to windows until 5
-        if (branch == 'ign-launch2' || branch == 'ign-launch3' || branch == 'ign-launch4')
+        if (branch == 'ign-launch2')
           disabled()
 
         triggers {

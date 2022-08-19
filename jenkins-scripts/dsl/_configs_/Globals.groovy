@@ -33,6 +33,9 @@ class Globals
    static String ign2gz(String str) {
      str = str.replaceAll("ignitionrobotics","gazebosim")
      str = str.replaceAll("ign-gazebo","gz-sim")
+     // This one is to workaround failures in main DSL files generating
+     // gz-gazebo instead of gz-sim
+     str = str.replaceAll("gz-gazebo","gz-sim")
      return str.replaceAll("ign-","gz-")
    }
 
