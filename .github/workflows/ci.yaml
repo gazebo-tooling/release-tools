@@ -50,3 +50,33 @@ jobs:
           sudo chown -R ${USER} /var/lib/jenkins
           cd jenkins-scripts/dsl
           java -jar ../../jobdsl.jar *.dsl
+          # export files for later diff
+          mkdir /tmp/pr_xml_configuration
+          mv *.xml /tmp/pr_xml_configuration/
+      - name: Geneate master DSL files
+        if: steps.dsl_check.outputs.run_job == 'true'
+        run: |
+          git clean -f -e jobdsl.jar
+          git checkout master
+          cd jenkins-scripts/dsl
+          java -jar ../../jobdsl.jar *.dsl
+          mkdir /tmp/current_xml_configuration
+          mv *.xml /tmp/current_xml_configuration/
+      - name: Generating diffs
+        if: steps.dsl_check.outputs.run_job == 'true'
+        run: |
+          # somehow the Jenkins views changed the portlet_ id on every run.
+          diff -qr -I '.*<id>dashboard_portlet_.*</id>.*' /tmp/current_xml_configuration /tmp/pr_xml_configuration > /tmp/xml_config_files_changed.diff || true
+          diff -ur -I '.*<id>dashboard_portlet_.*</id>.*' /tmp/current_xml_configuration /tmp/pr_xml_configuration > /tmp/xml_config_content_changed.diff || true
+      - name: Archive files changes
+        if: steps.dsl_check.outputs.run_job == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: xml_config_files_changed
+          path: /tmp/xml_config_files_changed.diff
+      - name: Archive content changes
+        if: steps.dsl_check.outputs.run_job == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: xml_config_content_changed
+          path: /tmp/xml_config_content_changed.diff
