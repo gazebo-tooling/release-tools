@@ -241,7 +241,7 @@ ArrayList all_debbuilders()
   }
   // add all extra debbuilders
   gz_extra_debbuild.each { gz_name ->
-    branches.add("ign-${gz_name}_name")
+    branches.add("ign-${gz_name}")
   }
 
   return branches
