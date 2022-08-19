@@ -66,15 +66,7 @@ if [[ ${DISTRO} == 'jammy' ]]; then
   export PATH=/usr/local/bin:\$PATH
 fi
 
-echo '# BEGIN SECTION: install build dependencies'
-cat debian/changelog
-mkdir build-deps
-cd build-deps
-sudo mk-build-deps -r -i ../debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
-cd ..
-# clean up files leftover by mk-build-deps
-rm -rf build-deps
-echo '# END SECTION'
+${MKBUILD_INSTALL_DEPS}
 
 VERSION=\$(dpkg-parsechangelog  | grep Version | awk '{print \$2}')
 VERSION_NO_REVISION=\$(echo \$VERSION | sed 's:-.*::')

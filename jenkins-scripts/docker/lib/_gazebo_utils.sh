@@ -57,3 +57,22 @@ set -e
 echo '# END SECTION'
 fi
 """
+
+MKBUILD_INSTALL_DEPS="""
+echo '# BEGIN SECTION: install build dependencies'
+mkdir build-deps
+cd build-deps
+seconds_waiting=0
+while (! \$update_done); do
+  sudo DEBIAN_FRONTEND=noninteractive mk-build-deps \
+    -r -i debian/control \
+    --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes' \
+  && break
+  sleep 60 && seconds_waiting=\$((seconds_waiting+60))
+  [ \$seconds_waiting -ge \$timeout ] && exit 1
+done
+cd ..
+# clean up files leftover by mk-build-deps
+rm -rf build-deps
+echo '# END SECTION'
+"""

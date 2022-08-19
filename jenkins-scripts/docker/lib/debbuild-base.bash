@@ -191,20 +191,7 @@ if ${NIGHTLY_MODE}; then
   timeout=300
 fi
 
-update_done=false
-seconds_waiting=0
-while (! \$update_done); do
-  sudo DEBIAN_FRONTEND=noninteractive mk-build-deps \
-    -r -i debian/control \
-    --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes' \
-  && break
-  sleep 60 && seconds_waiting=\$((seconds_waiting+60))
-  [ \$seconds_waiting -ge \$timeout ] && exit 1
-done
-
-# new versions of mk-build-deps > 2.21.1 left buildinfo and changes files in the code
-rm -f \${PACKAGE_ALIAS}-build-deps_*.{buildinfo,changes}
-echo '# END SECTION'
+${MKBUILD_INSTALL_DEPS}
 
 if [ -f /usr/bin/rosdep ]; then
   rosdep init

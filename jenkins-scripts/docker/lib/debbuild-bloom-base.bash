@@ -52,9 +52,7 @@ cat debian/control
 fi
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: install build dependencies'
-sudo mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
-echo '# END SECTION'
+${MKBUILD_INSTALL_DEPS}
 
 echo '# BEGIN SECTION: run rosdep'
 sudo rosdep init
