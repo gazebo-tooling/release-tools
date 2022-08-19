@@ -59,9 +59,12 @@ fi
 """
 
 MKBUILD_INSTALL_DEPS="""
-echo '# BEGIN SECTION: install build dependencies'
+echo '# BEGIN SECTION: install build dependencies from debian/control'
 mkdir build-deps
 cd build-deps
+# Wait 60 seconds and try again. Designed to avoid some race conditions with
+# nightlies uploads.
+update_done=false
 seconds_waiting=0
 while (! \$update_done); do
   sudo DEBIAN_FRONTEND=noninteractive mk-build-deps \
