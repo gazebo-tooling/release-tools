@@ -15,23 +15,23 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-transport"
-  export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_TRANSPORT_DEPENDENCIES"
+  export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_TRANSPORT_DEPENDENCIES"
 
-# Identify IGN_TRANSPORT_MAJOR_VERSION to help with dependency resolution
-IGN_TRANSPORT_MAJOR_VERSION=$(\
+# Identify GZ_TRANSPORT_MAJOR_VERSION to help with dependency resolution
+GZ_TRANSPORT_MAJOR_VERSION=$(\
   python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-transport/CMakeLists.txt)
 
-# Check IGN_TRANSPORT version is integer
-if ! [[ ${IGN_TRANSPORT_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
-  echo "Error! IGN_TRANSPORT_MAJOR_VERSION is not an integer, check the detection"
+# Check GZ_TRANSPORT version is integer
+if ! [[ ${GZ_TRANSPORT_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+  echo "Error! GZ_TRANSPORT_MAJOR_VERSION is not an integer, check the detection"
   exit -1
 fi
 
-if [[ ${IGN_TRANSPORT_MAJOR_VERSION} -ge 6 ]]; then
+if [[ ${GZ_TRANSPORT_MAJOR_VERSION} -ge 6 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
-export GZDEV_PROJECT_NAME="ignition-transport${IGN_TRANSPORT_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="gz-transport${GZ_TRANSPORT_MAJOR_VERSION}"
 
 . "${SCRIPT_DIR}/lib/generic-building-base.bash"

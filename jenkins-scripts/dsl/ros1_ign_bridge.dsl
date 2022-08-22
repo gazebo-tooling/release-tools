@@ -34,7 +34,7 @@ bridge_packages.each { pkg ->
 
     parameters {
         stringParam("PACKAGE","$pkg_dashed","Package name to be built")
-        stringParam("IGNITION_VERSION", '', 'Ignition release supported in the binaries')
+        stringParam("IGNITION_VERSION", '', 'Gazebo release supported in the binaries')
         stringParam("VERSION",null,"Packages version to be built")
         stringParam("RELEASE_VERSION", null, "Packages release version")
         stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
@@ -42,7 +42,7 @@ bridge_packages.each { pkg ->
         stringParam("ARCH", "amd64", "Architecture to build packages for")
         stringParam('ROS_DISTRO', 'noetic','ROS DISTRO to build pakcages for')
         stringParam("UPLOAD_TO_REPO", 'stable', "OSRF repo name to upload the package to")
-        stringParam('UPSTREAM_RELEASE_REPO', 'https://github.com/ignition-release/ros1_ign_bridge-release', 'Release repository url')
+        stringParam('UPSTREAM_RELEASE_REPO', 'https://github.com/gazebo-release/ros1_ign_bridge-release', 'Release repository url')
     }
 
     steps {

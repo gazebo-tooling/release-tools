@@ -101,7 +101,7 @@ if [ -z ${ENABLE_REAPER} ]; then
     ENABLE_REAPER=true
 fi
 
-# We use ignitionsrobotics or osrf. osrf by default
+# We use gazebosim or osrf. osrf by default
 if [ -z ${GITHUB_ORG} ]; then
     GITHUB_ORG="osrf"
 fi

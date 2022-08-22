@@ -166,12 +166,12 @@ def get_release_repository_info(package):
     # Do not use git@github method since it fails in non existant repositories
     # asking for stdin user/pass. Same happen if no user/pass is provided
     # using the fake foo:foo here seems to work
-    github_test_url = "https://foo:foo@github.com/ignition-release/" + package + "-release"
+    github_test_url = "https://foo:foo@github.com/gazebo-release/" + package + "-release"
     if (github_repo_exists(github_test_url)):
-        github_url = "https://github.com/ignition-release/" + package + "-release"
+        github_url = "https://github.com/gazebo-release/" + package + "-release"
         return 'git', github_url
 
-    error("release repository not found in github.com/ignition-release")
+    error("release repository not found in github.com/gazebo-release")
 
 def download_release_repository(package, release_branch):
     vcs, url = get_release_repository_info(package)
@@ -206,13 +206,17 @@ def sanity_package_name(repo_dir, package, package_alias):
     if package_alias:
         expected_name = package_alias
 
+    # Use igntiion for Citadel and Fortress, gz for Garden and beyond
+    gz_name = expected_name.replace("ignition", "gz");
+    gz_name = gz_name.replace("gazebo", "sim");
+
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.decode().split('\n'):
         if not line:
             continue
         # Check that first word is the package alias or name
-        if line.partition(' ')[0] != expected_name:
+        if line.partition(' ')[0] != expected_name and line.partition(' ')[0] != gz_name:
             error("Error in changelog package name or alias: " + line)
 
     cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
@@ -221,8 +225,8 @@ def sanity_package_name(repo_dir, package, package_alias):
         if not line:
             continue
         # Check that first word is the package alias or name
-        if line.partition(' ')[2] != expected_name:
-            error("Error in source package. File:  " + line.partition(' ')[1] + ". Got " + line.partition(' ')[2] + " expected " + expected_name)
+        if line.partition(' ')[2] != expected_name and line.partition(' ')[2] != gz_name:
+            error("Error in source package. File:  " + line.partition(' ')[1] + ". Got " + line.partition(' ')[2] + " expected " + expected_name + " or " + gz_name)
 
     print_success("Package names in changelog and control")
 
@@ -627,7 +631,7 @@ def go(argv):
                 # all distribution builds to avoid race conditions. Note: this
                 # assumes that large-memory nodes are beind used for nightly
                 # tags.
-                # https://github.com/ignition-tooling/release-tools/issues/644
+                # https://github.com/gazebo-tooling/release-tools/issues/644
                 if (NIGHTLY):
                     assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
                     linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d

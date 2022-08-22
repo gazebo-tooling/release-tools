@@ -15,24 +15,24 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-gui"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_GUI_DEPENDENCIES"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_GUI_DEPENDENCIES"
 
-# Identify IGN_GUI_MAJOR_VERSION to help with dependency resolution
-IGN_GUI_MAJOR_VERSION=$(\
+# Identify GZ_GUI_MAJOR_VERSION to help with dependency resolution
+GZ_GUI_MAJOR_VERSION=$(\
   python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-gui/CMakeLists.txt)
 
-# Check IGN_GUI_MAJOR_VERSION version is integer
-if ! [[ ${IGN_GUI_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
-  echo "Error! IGN_GUI_MAJOR_VERSION is not an integer, check the detection"
+# Check GZ_GUI_MAJOR_VERSION version is integer
+if ! [[ ${GZ_GUI_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+  echo "Error! GZ_GUI_MAJOR_VERSION is not an integer, check the detection"
   exit -1
 fi
 
-if [[ ${IGN_GUI_MAJOR_VERSION} -ge 1 ]]; then
+if [[ ${GZ_GUI_MAJOR_VERSION} -ge 1 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
 export GPU_SUPPORT_NEEDED=true
-export GZDEV_PROJECT_NAME="ignition-gui${IGN_GUI_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="gz-gui${GZ_GUI_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

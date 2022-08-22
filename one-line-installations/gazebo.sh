@@ -153,6 +153,11 @@ do_install() {
 				dist_version="$(. /etc/lsb-release && echo "$DISTRIB_CODENAME")"
 			fi
 			case "$dist_version" in
+				jammy)
+					# Packages for Jammy come directly from Ubuntu repositories, unversioned
+					# No released packages in packages.o.o
+					GZ_VER=
+				;;
 				xenial)
 					GZ_VER=10
 				;;
@@ -315,7 +320,7 @@ do_install() {
 	cat >&2 <<-'EOF_END'
 
 	Either your platform is not easily detectable, is not supported by this
-	installer script (yet - PRs welcome! [https://github.com/ignition-tooling/release-tools])
+	installer script (yet - PRs welcome! [https://github.com/gazebo-tooling/release-tools])
     or does not yet have a package for gazebo.  Please visit the following URL for more detailed
 	installation instructions:
 
