@@ -478,7 +478,7 @@ void generate_asan_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
 }
 
 
-void generate_ci_job(ignition_ci_job, gz_sw, branch, distro, arch,
+void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
                      extra_cmake = '', extra_test = '', extra_cmd = '')
 {
   OSRFLinuxCompilation.create(gz_ci_job, enable_testing(software_name))
