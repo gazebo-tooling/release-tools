@@ -475,7 +475,8 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
 
     # Replace collection yaml branch names with main
-    if [[ s"${LIB}" == "gz-${COLLECTION}" ]]; then
+
+    if [[ "${LIB}" == "gz-${COLLECTION}" ]]; then
       find . -type f -name "collection-${COLLECTION}.yaml" -print0 | xargs -0 sed -i "s gz-${DEP_LIB}${DEP_VER} main g"
     fi
 
