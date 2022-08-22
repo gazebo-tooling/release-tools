@@ -1,12 +1,12 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-// IGNITION COLLECTIONS
+// GZ COLLECTIONS
 arch = 'amd64'
 
-ignition_nightly = 'garden'
+gz_nightly = 'garden'
 
-ignition_collections = [
+gz_collections = [
   [ name : 'citadel',
     distros : [ 'bionic' ],
   ],
@@ -39,7 +39,7 @@ ignition_collections = [
   ],
 ]
 
-ignition_collection_jobs =
+gz_collection_jobs =
 [
   'citadel' : [
         'ign_common-ign-3-win',
@@ -292,27 +292,28 @@ ignition_collection_jobs =
 def DISABLE_TESTS           = false
 
 // Testing compilation from source
-ignition_collections.each { ign_collection ->
+gz_collections.each { gz_collection ->
   // COLCON - Windows
-  ign_collection_name = ign_collection.get('name')
-  def ignition_win_ci_job = job("ign_${ign_collection_name}-ci-win")
+  gz_collection_name = gz_collection.get('name')
+
+  def gz_win_ci_job = job("ign_${gz_collection_name}-ci-win")
   Globals.gazebodistro_branch = true
-  OSRFWinCompilation.create(ignition_win_ci_job, false)
-  ignition_win_ci_job.with
+  OSRFWinCompilation.create(gz_win_ci_job, false)
+  gz_win_ci_job.with
   {
       steps {
         batchFile("""\
-              set IGNITION_COLLECTION=${ign_collection_name}
+              set IGNITION_COLLECTION=${gz_collection_name}
               call "./scripts/jenkins-scripts/lib/ign_collection-base.bat"
               """.stripIndent())
       }
   }
   Globals.gazebodistro_branch = false
 
-  ign_collection.get('distros').each { distro ->
+  gz_collection.get('distros').each { distro ->
     // INSTALL JOBS:
     // --------------------------------------------------------------
-    def install_default_job = job("ignition_${ign_collection_name}-install-pkg-${distro}-${arch}")
+    def install_default_job = job("ignition_${gz_collection_name}-install-pkg-${distro}-${arch}")
     OSRFLinuxInstall.create(install_default_job)
 
     install_default_job.with
@@ -321,7 +322,7 @@ ignition_collections.each { ign_collection ->
         cron(Globals.CRON_EVERY_THREE_DAYS)
       }
 
-      def dev_package = "ignition-${ign_collection_name}"
+      def dev_package = "ignition-${gz_collection_name}"
 
       label "gpu-reliable"
 
@@ -343,35 +344,36 @@ ignition_collections.each { ign_collection ->
 
   // MAC Brew CI job
   // --------------------------------------------------------------
-  def ignition_brew_ci_job = job("ignition_${ign_collection_name}-ci-main-homebrew-amd64")
-  OSRFBrewCompilation.create(ignition_brew_ci_job, DISABLE_TESTS)
-  OSRFGitHub.create(ignition_brew_ci_job,
-                    "gazebosim/gz-${ign_collection_name}",
+  def gz_brew_ci_job = job("ignition_${gz_collection_name}-ci-main-homebrew-amd64")
+  OSRFBrewCompilation.create(gz_brew_ci_job, DISABLE_TESTS)
+  OSRFGitHub.create(gz_brew_ci_job,
+                    "gazebosim/gz-${gz_collection_name}",
                     "main",
-                    "ign-${ign_collection_name}")
-  ignition_brew_ci_job.with
+                    "ign-${gz_collection_name}")
+  gz_brew_ci_job.with
   {
       steps {
         shell("""\
               #!/bin/bash -xe
 
-              /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "gz-${ign_collection_name}"
+              /bin/bash -xe
+              "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "gz-${gz_collection_name}"
               """.stripIndent())
       }
   }
 
   // MAC Brew bottle install job
   // --------------------------------------------------------------
-  def ignition_brew_install_bottle_job = job("ignition_${ign_collection_name}-install_bottle-homebrew-amd64")
-  OSRFBrewInstall.create(ignition_brew_install_bottle_job)
+  def gz_brew_install_bottle_job = job("ignition_${gz_collection_name}-install_bottle-homebrew-amd64")
+  OSRFBrewInstall.create(gz_brew_install_bottle_job)
 
-  ignition_brew_install_bottle_job.with
+  gz_brew_install_bottle_job.with
   {
     triggers {
       cron('@daily')
     }
 
-    def bottle_name = "ignition-${ign_collection_name}"
+    def bottle_name = "ignition-${gz_collection_name}"
 
     steps {
      shell("""\
@@ -395,7 +397,7 @@ ignition_collections.each { ign_collection ->
 
   // DEBBUILD: linux package builder
   // --------------------------------------------------------------
-  def build_pkg_job = job("ign-${ign_collection_name}-debbuilder")
+  def build_pkg_job = job("ign-${gz_collection_name}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
   build_pkg_job.with
   {
@@ -409,15 +411,15 @@ ignition_collections.each { ign_collection ->
    }
 
   // Gazebo dashboards
-  dashboardView("ign-${ign_collection_name}")
+  dashboardView("ign-${gz_collection_name}")
   {
       jobs {
-          ignition_collection_jobs["${ign_collection_name}"].each { jobname ->
+          gz_collection_jobs["${gz_collection_name}"].each { jobname ->
             name(jobname)
           }
-          if (ign_collection_name == ignition_nightly) {
+          if (gz_collection_name == gz_nightly) {
             // add nightly debbuild jobs too
-            ignition_collections.find { it.get('name') == ignition_nightly }.get('nightly_jobs').each { job ->
+            gz_collections.find { it.get('name') == gz_nightly }.get('nightly_jobs').each { job ->
               name(job.getValue().get('debbuild') + '-debbuilder')
             }
           }
@@ -471,7 +473,7 @@ def get_nightly_branch(collection_data, ign_package)
 collection_data = []
 list_of_pkgs = ""
 
-collection_data = ignition_collections.find { it.get('name') == ignition_nightly }
+collection_data = gz_collections.find { it.get('name') == gz_nightly }
 collection_data = collection_data.get('nightly_jobs')
 
 collection_data.each { job ->
@@ -479,7 +481,7 @@ collection_data.each { job ->
   list_of_pkgs = "${list_of_pkgs} ${debbuild}"
 }
 
-def nightly_scheduler_job = job("ignition-${ignition_nightly}-nightly-scheduler")
+def nightly_scheduler_job = job("ignition-${gz_nightly}-nightly-scheduler")
 OSRFUNIXBase.create(nightly_scheduler_job)
 
 nightly_scheduler_job.with

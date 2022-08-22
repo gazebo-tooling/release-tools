@@ -549,7 +549,7 @@ if [[ ${GZ_GUI_MAJOR_VERSION} -lt 7 ]]; then
   fi
 fi
 
-IGN_PHYSICS_DART_FROM_PKGS="true"
+GZ_PHYSICS_DART_FROM_PKGS="true"
 
 # Completely rely on packages.apt from Garden
 if [[ ${GZ_PLUGIN_MAJOR_VERSION} -lt 2 ]]; then
