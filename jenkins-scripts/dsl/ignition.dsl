@@ -235,7 +235,7 @@ ArrayList all_debbuilders()
         if ("${major_version}" == "0"  || "${major_version}" == "1" )
           major_version = ""
 
-        branches.add("ign-${software_name}${major_version}")
+        branches.add("gz-${software_name}${major_version}")
       }
     }
   }
