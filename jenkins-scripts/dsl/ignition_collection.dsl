@@ -359,6 +359,7 @@ gz_collections.each { gz_collection ->
              export DISTRO=${distro}
              export ARCH=${arch}
              export INSTALL_JOB_PKG=${dev_package}
+             export USE_ROS_REPO=true
              export ROS_BOOTSTRAP=true
              /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
              """.stripIndent())
