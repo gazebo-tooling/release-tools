@@ -315,6 +315,8 @@ gz_collections.each { gz_collection ->
     // --------------------------------------------------------------
     def install_default_job = job("ignition_${gz_collection_name}-install-pkg-${distro}-${arch}")
     OSRFLinuxInstall.create(install_default_job)
+    def dev_package = "ignition-${gz_collection_name}"
+    def job_name = 'ign_launch-install-test-job.bash'
 
     install_default_job.with
     {
@@ -322,11 +324,8 @@ gz_collections.each { gz_collection ->
         cron(Globals.CRON_EVERY_THREE_DAYS)
       }
 
-      def dev_package = "ignition-${gz_collection_name}"
-
       label "gpu-reliable"
 
-      def job_name = 'ign_launch-install-test-job.bash'
 
       steps {
        shell("""\
@@ -340,6 +339,33 @@ gz_collections.each { gz_collection ->
              """.stripIndent())
       }
     }
+    // ROS BOOTSTRAP INSTALL JOBS:
+    // --------------------------------------------------------------
+    def install_ros_bootstrap_job = job("ignition_${gz_collection_name}-install-pkg_ros_bootrap-${distro}-${arch}")
+    OSRFLinuxInstall.create(install_ros_bootstrap_job)
+
+    install_ros_bootstrap_job.with
+    {
+      triggers {
+        cron(Globals.CRON_EVERY_THREE_DAYS)
+      }
+
+      label "gpu-reliable"
+
+      steps {
+       shell("""\
+             #!/bin/bash -xe
+
+             export DISTRO=${distro}
+             export ARCH=${arch}
+             export INSTALL_JOB_PKG=${dev_package}
+             export ROS_BOOTSTRAP=true
+             /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
+             """.stripIndent())
+      }
+    }
+
+
   }
 
   // MAC Brew CI job

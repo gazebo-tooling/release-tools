@@ -91,6 +91,10 @@ if [ -z "${ROS2}" ]; then
   export ROS2=false
 fi
 
+if [ -z "${ROS_BOOTSTRAP}" ]; then
+  export ROS_BOOTSTRAP=false
+fi
+
 # Define making jobs by default if not present
 if [ -z ${MAKE_JOBS} ]; then
     MAKE_JOBS=1
