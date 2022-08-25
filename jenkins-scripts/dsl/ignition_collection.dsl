@@ -291,6 +291,36 @@ gz_collection_jobs =
 
 def DISABLE_TESTS           = false
 
+void generate_install_job(prefix, gz_collection_name, distro, arch)
+{
+  def install_default_job = job("${prefix}_${gz_collection_name}-install-pkg-${distro}-${arch}")
+  OSRFLinuxInstall.create(install_default_job)
+
+  install_default_job.with
+  {
+    triggers {
+      cron(Globals.CRON_EVERY_THREE_DAYS)
+    }
+
+    def dev_package = "${prefix}-${gz_collection_name}"
+    def job_name = 'ign_launch-install-test-job.bash'
+
+    label "gpu-reliable"
+
+    steps {
+     shell("""\
+           #!/bin/bash -xe
+
+           export DISTRO=${distro}
+           export ARCH=${arch}
+           export INSTALL_JOB_PKG=${dev_package}
+           export GZDEV_PROJECT_NAME="${dev_package}"
+           /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
+           """.stripIndent())
+    }
+  }
+}
+
 // Testing compilation from source
 gz_collections.each { gz_collection ->
   // COLCON - Windows
@@ -313,33 +343,8 @@ gz_collections.each { gz_collection ->
   gz_collection.get('distros').each { distro ->
     // INSTALL JOBS:
     // --------------------------------------------------------------
-    def install_default_job = job("ignition_${gz_collection_name}-install-pkg-${distro}-${arch}")
-    OSRFLinuxInstall.create(install_default_job)
-
-    install_default_job.with
-    {
-      triggers {
-        cron(Globals.CRON_EVERY_THREE_DAYS)
-      }
-
-      def dev_package = "ignition-${gz_collection_name}"
-
-      label "gpu-reliable"
-
-      def job_name = 'ign_launch-install-test-job.bash'
-
-      steps {
-       shell("""\
-             #!/bin/bash -xe
-
-             export DISTRO=${distro}
-             export ARCH=${arch}
-             export INSTALL_JOB_PKG=${dev_package}
-             export GZDEV_PROJECT_NAME="${dev_package}"
-             /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
-             """.stripIndent())
-      }
-    }
+    generate_install_job('ignition', gz_collection_name, distro, arch)
+    generate_install_job('gz', gz_collection_name, distro, arch)
   }
 
   // MAC Brew CI job
