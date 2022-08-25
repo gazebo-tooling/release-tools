@@ -232,7 +232,7 @@ DELIM_ROS_REPO
 cat >> Dockerfile << DELIM_ROS_REPO
 RUN echo "deb http://repos.ros.org/repos/ros_bootstrap/ ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros_bootstrap.list
-RUN gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 8EDB2EF661FC880E
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8EDB2EF661FC880E
 DELIM_ROS_REPO
   else
 cat >> Dockerfile << DELIM_ROS_REPO
