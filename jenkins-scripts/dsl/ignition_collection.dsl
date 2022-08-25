@@ -346,7 +346,7 @@ gz_collections.each { gz_collection ->
       // ROS BOOTSTRAP INSTALL JOBS:
       // --------------------------------------------------------------
       def install_ros_bootstrap_job =
-      job("ignition_${gz_collection_name}-install-pkg_ros_boostrap-any-manual")
+      job("ignition_${gz_collection_name}-install-pkg_ros_bootstrap-any-manual")
       OSRFLinuxInstall.create(install_ros_bootstrap_job)
 
 
@@ -354,8 +354,8 @@ gz_collections.each { gz_collection ->
       {
         parameters {
           stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
-          stringParam("DISTRO", null, "Linux release inside LINUX_DISTRO to build packages for")
-          stringParam("ARCH", null, "Architecture to build packages for")
+          stringParam("DISTRO", distro, "Linux release inside LINUX_DISTRO to build packages for")
+          stringParam("ARCH", arch, "Architecture to build packages for")
         }
 
         // Designed to be run manually. No triggers.
