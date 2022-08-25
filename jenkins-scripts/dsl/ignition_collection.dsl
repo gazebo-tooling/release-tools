@@ -364,9 +364,9 @@ gz_collections.each { gz_collection ->
         steps {
           systemGroovyCommand("""\
             build.setDescription(
-            '<b>' build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
-                  build.buildVariableResolver.resolve('DISTRO') + '::' +
-                  build.buildVariableResolver.resolve('ARCH') + '</b>' +
+            '<b>' + build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
+                    build.buildVariableResolver.resolve('DISTRO') + '::' +
+                    build.buildVariableResolver.resolve('ARCH') + '</b>' +
             '<br />' +
             'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
             """.stripIndent())
