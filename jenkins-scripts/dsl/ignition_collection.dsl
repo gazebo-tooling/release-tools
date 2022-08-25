@@ -339,34 +339,49 @@ gz_collections.each { gz_collection ->
              """.stripIndent())
       }
     }
-    // ROS BOOTSTRAP INSTALL JOBS:
-    // --------------------------------------------------------------
-    def install_ros_bootstrap_job = job("ignition_${gz_collection_name}-install-pkg_ros_bootrap-${distro}-${arch}")
-    OSRFLinuxInstall.create(install_ros_bootstrap_job)
 
-    install_ros_bootstrap_job.with
+    // No bionic imports in the ROS buildfarm
+    if (distro != 'bionic')
     {
-      triggers {
-        cron(Globals.CRON_EVERY_THREE_DAYS)
-      }
+      // ROS BOOTSTRAP INSTALL JOBS:
+      // --------------------------------------------------------------
+      def install_ros_bootstrap_job =
+      job("ignition_${gz_collection_name}-install-pkg_ros_boostrap-any-manual")
+      OSRFLinuxInstall.create(install_ros_bootstrap_job)
 
-      label "gpu-reliable"
 
-      steps {
-       shell("""\
-             #!/bin/bash -xe
+      install_ros_bootstrap_job.with
+      {
+        parameters {
+          stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
+          stringParam("DISTRO", null, "Linux release inside LINUX_DISTRO to build packages for")
+          stringParam("ARCH", null, "Architecture to build packages for")
+        }
 
-             export DISTRO=${distro}
-             export ARCH=${arch}
-             export INSTALL_JOB_PKG=${dev_package}
-             export USE_ROS_REPO=true
-             export ROS_BOOTSTRAP=true
-             /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
-             """.stripIndent())
+        // Designed to be run manually. No triggers.
+        label "gpu-reliable"
+
+        steps {
+          systemGroovyCommand("""\
+            build.setDescription(
+            '<b>' build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
+                  build.buildVariableResolver.resolve('DISTRO') + '::' +
+                  build.buildVariableResolver.resolve('ARCH') + '</b>' +
+            '<br />' +
+            'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+            """.stripIndent())
+
+          shell("""\
+               #!/bin/bash -xe
+
+               export INSTALL_JOB_PKG=${dev_package}
+               export USE_ROS_REPO=true
+               export ROS_BOOTSTRAP=true
+               /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
+               """.stripIndent())
+        }
       }
     }
-
-
   }
 
   // MAC Brew CI job
