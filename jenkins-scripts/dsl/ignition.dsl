@@ -474,7 +474,7 @@ gz_software.each { gz_sw ->
         generate_install_job("ignition", gz_sw, major_version, distro, arch)
         // --------------------------------------------------------------
         // gz_ prefix packages:
-        generate_install_job("gz", gz_sw, major_version, distro, arch)
+        generate_install_job("gz", gz_sw.replace('gazebo', 'sim'), major_version, distro, arch)
       }
     }
   }
