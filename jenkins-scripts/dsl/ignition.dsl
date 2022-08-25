@@ -418,6 +418,37 @@ gz_software.each { gz_sw ->
   }
 }
 
+void generate_install_job(prefix, gz_sw, major_version, distro, arch)
+{
+  def install_default_job = job("${prefix}_${gz_sw}${major_version}-install-pkg-${distro}-${arch}")
+  OSRFLinuxInstall.create(install_default_job)
+  include_gpu_label_if_needed(install_default_job, gz_sw)
+
+  install_default_job.with
+  {
+    triggers {
+      cron(Globals.CRON_EVERY_THREE_DAYS)
+    }
+
+    def dev_package = "lib${prefix}-${gz_sw}${major_version}-dev"
+    def gzdev_project = "${prefix}-${gz_sw}${major_version}"
+
+    steps {
+     shell("""\
+           #!/bin/bash -xe
+
+           ${GLOBAL_SHELL_CMD}
+
+           export DISTRO=${distro}
+           export ARCH=${arch}
+           export INSTALL_JOB_PKG=${dev_package}
+           export GZDEV_PROJECT_NAME="${gzdev_project}"
+           /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+           """.stripIndent())
+    }
+  }
+}
+
 // INSTALL PACKAGE ALL PLATFORMS / DAILY
 gz_software.each { gz_sw ->
   // Exclusion list
@@ -439,33 +470,11 @@ gz_software.each { gz_sw ->
           major_version = ""
 
         // --------------------------------------------------------------
-        def install_default_job = job("ignition_${gz_sw}${major_version}-install-pkg-${distro}-${arch}")
-        OSRFLinuxInstall.create(install_default_job)
-        include_gpu_label_if_needed(install_default_job, gz_sw)
-
-        install_default_job.with
-        {
-          triggers {
-            cron(Globals.CRON_EVERY_THREE_DAYS)
-          }
-
-          def dev_package = "libignition-${gz_sw}${major_version}-dev"
-          def gzdev_project = "ignition-${gz_sw}${major_version}"
-
-          steps {
-           shell("""\
-                 #!/bin/bash -xe
-
-                 ${GLOBAL_SHELL_CMD}
-
-                 export DISTRO=${distro}
-                 export ARCH=${arch}
-                 export INSTALL_JOB_PKG=${dev_package}
-                 export GZDEV_PROJECT_NAME="${gzdev_project}"
-                 /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
-                 """.stripIndent())
-          }
-        }
+        // ignition_ prefix packages:
+        generate_install_job("ignition", gz_sw, major_version, distro, arch)
+        // --------------------------------------------------------------
+        // gz_ prefix packages:
+        generate_install_job("gz", gz_sw, major_version, distro, arch)
       }
     }
   }
