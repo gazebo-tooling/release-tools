@@ -340,46 +340,42 @@ gz_collections.each { gz_collection ->
       }
     }
 
-    // No bionic imports in the ROS buildfarm
-    if (distro != 'bionic')
+    // ROS BOOTSTRAP INSTALL JOBS:
+    // --------------------------------------------------------------
+    def install_ros_bootstrap_job =
+    job("ignition_${gz_collection_name}-install-pkg_ros_bootstrap-any-manual")
+    OSRFLinuxInstall.create(install_ros_bootstrap_job)
+
+
+    install_ros_bootstrap_job.with
     {
-      // ROS BOOTSTRAP INSTALL JOBS:
-      // --------------------------------------------------------------
-      def install_ros_bootstrap_job =
-      job("ignition_${gz_collection_name}-install-pkg_ros_bootstrap-any-manual")
-      OSRFLinuxInstall.create(install_ros_bootstrap_job)
+      parameters {
+        stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
+        stringParam("DISTRO", distro, "Linux release inside LINUX_DISTRO to build packages for")
+        stringParam("ARCH", arch, "Architecture to build packages for")
+      }
 
+      // Designed to be run manually. No triggers.
+      label "gpu-reliable"
 
-      install_ros_bootstrap_job.with
-      {
-        parameters {
-          stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
-          stringParam("DISTRO", distro, "Linux release inside LINUX_DISTRO to build packages for")
-          stringParam("ARCH", arch, "Architecture to build packages for")
-        }
+      steps {
+        systemGroovyCommand("""\
+          build.setDescription(
+          '<b>' + build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
+                  build.buildVariableResolver.resolve('DISTRO') + '::' +
+                  build.buildVariableResolver.resolve('ARCH') + '</b>' +
+          '<br />' +
+          'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+          """.stripIndent())
 
-        // Designed to be run manually. No triggers.
-        label "gpu-reliable"
+        shell("""\
+             #!/bin/bash -xe
 
-        steps {
-          systemGroovyCommand("""\
-            build.setDescription(
-            '<b>' + build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
-                    build.buildVariableResolver.resolve('DISTRO') + '::' +
-                    build.buildVariableResolver.resolve('ARCH') + '</b>' +
-            '<br />' +
-            'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
-            """.stripIndent())
-
-          shell("""\
-               #!/bin/bash -xe
-
-               export INSTALL_JOB_PKG=${dev_package}
-               export USE_ROS_REPO=true
-               export ROS_BOOTSTRAP=true
-               /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
-               """.stripIndent())
-        }
+             export INSTALL_JOB_PKG=${dev_package}
+             export USE_ROS_REPO=true
+             export ROS_BOOTSTRAP=true
+             /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
+             """.stripIndent())
       }
     }
   }
