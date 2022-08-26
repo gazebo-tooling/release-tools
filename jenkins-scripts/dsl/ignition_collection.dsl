@@ -380,7 +380,7 @@ gz_collections.each { gz_collection ->
              export ROS_BOOTSTRAP=true
              # needed for arm64 machines and other arch tests
              export ENABLE_GZ_SIM_RUNTIME_TEST=false
-             if [[ \${JENKINS_NODE_TAG} ]] == 'gpu-reliable' ]]; then
+             if [[ \${JENKINS_NODE_TAG} == 'gpu-reliable' ]]; then
                export ENABLE_GZ_SIM_RUNTIME_TEST=true
              fi
              /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
