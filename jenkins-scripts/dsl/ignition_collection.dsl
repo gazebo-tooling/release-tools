@@ -353,6 +353,10 @@ gz_collections.each { gz_collection ->
         stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
         stringParam("DISTRO", distro, "Linux release inside LINUX_DISTRO to build packages for")
         stringParam("ARCH", arch, "Architecture to build packages for")
+        labelParam('JENKINS_NODE_TAG') {
+          description('Jenkins node or group to run the build on')
+          defaultValue('gpu-reliable')
+        }
       }
 
       // Designed to be run manually. No triggers.
@@ -374,6 +378,11 @@ gz_collections.each { gz_collection ->
              export INSTALL_JOB_PKG=${dev_package}
              export USE_ROS_REPO=true
              export ROS_BOOTSTRAP=true
+             # needed for arm64 machines and other arch tests
+             export ENABLE_GZ_SIM_RUNTIME_TEST=false
+             if [[ \${JENKINS_NODE_TAG} ]] == 'gpu-reliable' ]]; then
+               export ENABLE_GZ_SIM_RUNTIME_TEST=true
+             fi
              /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
              """.stripIndent())
       }
