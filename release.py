@@ -41,21 +41,36 @@ NO_SRC_FILE = False
 
 IGNORE_DRY_RUN = True
 
-GARDEN_IGN_PACKAGES = ['ign-cmake3',
-                       'ign-common5',
-                       'ign-fuel-tools8',
-                       'ign-sim7',
-                       'ign-gui7',
-                       'ign-launch6',
-                       'ign-math7',
-                       'ign-msgs9',
-                       'ign-physics6',
-                       'ign-plugin2',
-                       'ign-rendering7',
-                       'ign-sensors7',
-                       'ign-tools2',
-                       'ign-transport12',
-                       'ign-utils2']
+CITADEL_IGN_PACKAGES = ['ign-cmake2',
+                        'ign-common3',
+                        'ign-fuel-tools4',
+                        'ign-gazebo3',
+                        'ign-gui3',
+                        'ign-launch2',
+                        'ign-math6',
+                        'ign-msgs5',
+                        'ign-physics2',
+                        'ign-plugin1',
+                        'ign-rendering3',
+                        'ign-sensors3',
+                        'ign-tools1',
+                        'ign-transport8']
+
+FORTRESS_IGN_PACKAGES = ['ign-cmake2',
+                         'ign-common4',
+                         'ign-fuel-tools7',
+                         'ign-gazebo6',
+                         'ign-gui6',
+                         'ign-launch5',
+                         'ign-math6',
+                         'ign-msgs8',
+                         'ign-physics5',
+                         'ign-plugin1',
+                         'ign-rendering6',
+                         'ign-sensors6',
+                         'ign-tools1',
+                         'ign-transport11',
+                         'ign-utils1']
 
 class ErrorNoPermsRepo(Exception):
     pass
@@ -157,9 +172,19 @@ def parse_args(argv):
 
     args = parser.parse_args()
 
-    if args.package in GARDEN_IGN_PACKAGES:
-        print(f"Garden packages start with gz- prefix, changing {args.package} to {args.package.replace('ign-','gz-')}",)
-        args.package = args.package.replace('ign-','gz-')
+    if args.package not in CITADEL_IGN_PACKAGES and \
+       args.package not in FORTRESS_IGN_PACKAGES:
+        if 'ign-' in args.package:
+            print('WARN: ign- is deprecated. Changing it to use gz-')
+            args.package = args.package.replace('ign-gazebo', 'gz-sim')
+            args.package = args.package.replace('ign-', 'gz-')
+
+    if args.package.replace('gz-', 'ign-') in CITADEL_IGN_PACKAGES or \
+       args.package.replace('gz-', 'ign-') in FORTRESS_IGN_PACKAGES:
+        if 'gz-' in args.package:
+            print('WARN: Citadel and Fortress use ign- prefix. Changing gz- to ign-')
+            args.package = args.package.replace('gz-sim', 'ign-gazebo')
+            args.package = args.package.replace('gz-', 'ign-')
 
     args.package_alias = args.package
     # If ignition auto is enabled, replace ign- with ignition- at the beginning
