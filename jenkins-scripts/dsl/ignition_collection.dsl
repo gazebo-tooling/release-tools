@@ -558,6 +558,8 @@ nightly_scheduler_job.with
                 src_branch="${sensors_branch}"
               elif [[ "\${n}" != "\${n/sdformat/}" ]]; then
                 src_branch="${sdformat_branch}"
+              elif  [[ "\${n}" != "\${n/sim/}" ]]; then
+                src_branch="${gazebo_branch}"
               elif [[ "\${n}" != "\${n/transport/}" ]]; then
                 src_branch="${transport_branch}"
               elif [[ "\${n}" != "\${n/tools/}" ]]; then
