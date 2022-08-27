@@ -282,9 +282,9 @@ gz_collection_jobs =
         'ignition_utils-ci-gz-utils2-homebrew-amd64',
         'ignition_utils-install-pkg-focal-amd64',
         'ignition_utils1-install_bottle-homebrew-amd64',
-        'sdformat-ci-main-focal-amd64',
-        'sdformat-ci-main-homebrew-amd64',
-        'sdformat-ci-main-windows7-amd64',
+        'sdformat-ci-sdformat13-focal-amd64',
+        'sdformat-ci-sdformat13-homebrew-amd64',
+        'sdformat-ci-sdformat13-windows7-amd64',
         'sdformat-install-sdformat12_pkg-focal-amd64'
   ],
 ]
