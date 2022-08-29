@@ -73,21 +73,6 @@ then
   fi
 fi
 
-# check if OGRE-2.3 include paths are needed
-if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo"   && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 7 ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gui"       && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 7 ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-launch"    && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 6 ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-sensors"   && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 7 ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-rendering" && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 7 ]]
-then
-  # OGRE is always 2.3 on all distros
-  export EXTRA_INCLUDES="""
- <add_include_paths>
-   /usr/include/OGRE-2.3/Hlms/Common
- </add_include_paths>
-"""
-fi
-
 # default to use stable repos
 export ABI_JOB_REPOS="stable"
 
