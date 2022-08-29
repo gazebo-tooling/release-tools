@@ -48,15 +48,41 @@ then
 fi
 
 # check if OGRE-2.2 include paths are needed
-if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo"   && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gui"       && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-launch"    && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 5 ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-sensors"   && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-rendering" && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]]
+if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo"   && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 6 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gui"       && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 6 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-launch"    && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 5 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-sensors"   && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 6 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-rendering" && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 6 ]]
 then
+
+  # OGRE 2.2 is packaged as "Ogre-Next" on jammy
+  if [[ "${DISTRO}" == "jammy" ]]
+  then
+    export EXTRA_INCLUDES="""
+   <add_include_paths>
+     /usr/include/OGRE-Next/Hlms/Common
+   </add_include_paths>
+"""
+  elif [[ "${DISTRO}" == "focal" ]]
+    export EXTRA_INCLUDES="""
+   <add_include_paths>
+     /usr/include/OGRE-2.2/Hlms/Common
+   </add_include_paths>
+"""
+  fi
+fi
+
+# check if OGRE-2.3 include paths are needed
+if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo"   && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 7 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gui"       && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 7 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-launch"    && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 6 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-sensors"   && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 7 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-rendering" && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 7 ]]
+then
+  # OGRE is always 2.3 on all distros
   export EXTRA_INCLUDES="""
  <add_include_paths>
-   /usr/include/OGRE-2.2/Hlms/Common
+   /usr/include/OGRE-2.3/Hlms/Common
  </add_include_paths>
 """
 fi
