@@ -64,6 +64,7 @@ then
    </add_include_paths>
 """
   elif [[ "${DISTRO}" == "focal" ]]
+  then
     export EXTRA_INCLUDES="""
    <add_include_paths>
      /usr/include/OGRE-2.2/Hlms/Common
