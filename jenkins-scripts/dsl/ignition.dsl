@@ -229,13 +229,15 @@ ArrayList all_debbuilders()
         branches.add("ign-${software_name}${major_version}")
       }
     }
+    if (software_name == 'gazebo')
+      software_name = 'sim'
     supported_gz_branches("${software_name}").each { major_version ->
       if (major_version) {
         // No 1-debbuild versions, they use the unversioned job
         if ("${major_version}" == "0"  || "${major_version}" == "1" )
           major_version = ""
 
-        branches.add("ign-${software_name}${major_version}")
+        branches.add("gz-${software_name}${major_version}")
       }
     }
   }
