@@ -13,12 +13,16 @@ export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 PROJECT=$1 # project will have the major version included (ex gazebo2)
 PROJECT_ARGS=${2}
 
-# In ignition projects, the name of the repo and the formula does not match
+# TODO(chapulina) Use gz path instead of legacy ign
 PROJECT_PATH=${PROJECT}
-if [[ ${PROJECT/ignition} != ${PROJECT} ]]; then
-    PROJECT_PATH="ign${PROJECT/ignition}"
+if [[ ${PROJECT/gz} != ${PROJECT} ]]; then
+    PROJECT_PATH="ign${PROJECT/gz}"
     PROJECT_PATH="${PROJECT_PATH/[0-9]*}"
 fi
+
+# Temporary fix for gz-sim
+PROJECT=${PROJECT/gz-gazebo/gz-sim}
+PROJECT_PATH=${PROJECT_PATH/ign-sim/ign-gazebo}
 
 # Check for major version number
 # the PROJECT_FORMULA variable is only used for dependency resolution
@@ -29,6 +33,8 @@ PROJECT_FORMULA=${PROJECT//[0-9]}$(\
 export HOMEBREW_PREFIX=/usr/local
 export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
 export PATH=${HOMEBREW_PREFIX}/bin:$PATH
+
+export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python
 
 # make verbose mode?
 MAKE_VERBOSE_STR=""
@@ -77,6 +83,9 @@ echo "# BEGIN SECTION: install ${PROJECT_FORMULA} dependencies"
 brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies
 # the following is needed to install :build dependencies of a formula
 brew install $(brew deps --1 --include-build ${PROJECT_FORMULA})
+
+# pytest is needed to run python tests with junit xml output
+PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} pytest"
 
 if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   # Install lxml for flaky_junit_merge.py

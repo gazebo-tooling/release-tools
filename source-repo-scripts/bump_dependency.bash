@@ -21,10 +21,10 @@
 # Usage:
 # $ ./bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number> <prev_collection> [<docs_branch>]
 #
-# For example, to bump to `ign-rendering6` and all its dependencies, as well as
+# For example, to bump to `gz-rendering6` and all its dependencies, as well as
 # `sdf12` and its dependencies on fortress using the `chapulina/fortress` branch for `docs`:
 #
-# ./bump_dependency.bash fortress "ign-rendering;sdformat" "6;12" 428 edifice "chapulina/fortress"
+# ./bump_dependency.bash fortress "gz-rendering;sdformat" "6;12" 428 edifice "chapulina/fortress"
 #
 # The `docs_branch` parameter is optional and defaults to `master` if not specified.
 #
@@ -47,7 +47,7 @@ WHITE_BG="\e[107m"
 BLUE_BG="\e[44m"
 GREEN_BG="\e[42m"
 
-IGN_ORG="gazebosim"
+GZ_ORG="gazebosim"
 OSRF_ORG="osrf"
 TOOLING_ORG="gazebo-tooling"
 RELEASE_ORG="gazebo-release"
@@ -211,7 +211,7 @@ cloneIfNeeded ${TOOLING_ORG} gazebodistro
 startFromCleanBranch bump_${COLLECTION} master
 
 # docs
-cloneIfNeeded ${IGN_ORG} docs
+cloneIfNeeded ${GZ_ORG} docs
 startFromCleanBranch bump_${COLLECTION} ${DOCS_BRANCH}
 
 # homebrew
@@ -296,13 +296,13 @@ cd ${TEMP_DIR}/gazebodistro
 git reset --hard
 
 # Add collection to libraries, without version
-LIBRARIES+=(ign-$COLLECTION)
+LIBRARIES+=(gz-$COLLECTION)
 
 ##################
 # docs
 ##################
 cd ${TEMP_DIR}/docs
-commitAndPR ${IGN_ORG} ${DOCS_BRANCH}
+commitAndPR ${GZ_ORG} ${DOCS_BRANCH}
 
 for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
@@ -311,8 +311,8 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   LIB_=${LIB//-/_} # For fuel_tools
   VER=${VERSIONS[$i]}
   PREV_VER="$((${VER}-1))"
-  LIB_UPPER=`echo ${LIB#"ign-"} | tr a-z A-Z`
-  ORG=${IGN_ORG}
+  LIB_UPPER=`echo ${LIB#"gz-"} | tr a-z A-Z`
+  ORG=${GZ_ORG}
   BUMP_BRANCH="ci_matching_branch/bump_${COLLECTION}_${LIB}${VER}"
 
   echo -e "${BLUE_BG}Processing [${LIB}]${DEFAULT_BG}"
@@ -329,7 +329,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
 
-    DEP_LIB=${LIBRARIES[$j]#"ign-"}
+    DEP_LIB=${LIBRARIES[$j]#"gz-"}
     DEP_VER=${VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
@@ -347,8 +347,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   cd ${TEMP_DIR}/homebrew-simulation
   startFromCleanBranch ${BUMP_BRANCH} master
 
-  # expand ign-* to ignition-*
-  FORMULA_BASE=${LIB/ign/ignition}
   # construct path with major version suffix
   FORMULA="Formula/${FORMULA_BASE}${VER}.rb"
   if [ ! -f "$FORMULA" ]; then
@@ -358,6 +356,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
     # Collection
     if ! [[ $VER == ?(-)+([0-9]) ]] ; then
+      # TODO(CH3): Change this to gz once we migrate the homebrew formulae
       cp Formula/ignition-${PREV_COLLECTION}.rb $FORMULA
     else
       cp Formula/${FORMULA_BASE}${PREV_VER}.rb $FORMULA
@@ -370,12 +369,12 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   URL="https://github.com/${ORG}/${LIB}.git"
 
   # libN
-  sed -i -E "s ((${LIB#"ign-"}))${PREV_VER} \1${VER} g" $FORMULA
-  sed -i -E "s ((${LIB_#"ign_"}))${PREV_VER} \1${VER} g" $FORMULA
-  # ign-libN -> main
+  sed -i -E "s ((${LIB#"gz-"}))${PREV_VER} \1${VER} g" $FORMULA
+  sed -i -E "s ((${LIB_#"gz_"}))${PREV_VER} \1${VER} g" $FORMULA
+  # gz-libN -> main
   sed -i "s ${LIB}${PREV_VER} main g" $FORMULA
-  # class IgnitionLibN
-  sed -i -E "s/((class Ignition.*))${PREV_VER}/\1${VER}/g" $FORMULA
+  # class GzLibN
+  sed -i -E "s/((class Gz.*))${PREV_VER}/\1${VER}/g" $FORMULA
   sed -i -E "s/((class Sdformat))${PREV_VER}/\1${VER}/g" $FORMULA
   # remove bottle - TODO: this is only needed for new formulae
   sed -i -e "/bottle do/,/end/d" $FORMULA
@@ -394,7 +393,8 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
 
-    DEP_LIB=${LIBRARIES[$j]#"ign-"}
+    DEP_LIB=${LIBRARIES[$j]#"gz-"}
+
     DEP_VER=${VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
@@ -441,7 +441,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   # Check if main branch of that library is the correct version
   PROJECT_NAME="${LIB_}${VER}"
-  PROJECT_NAME="${PROJECT_NAME/ign_/ignition-}"
   PROJECT="project.*(${PROJECT_NAME}"
   if ! grep -q ${PROJECT} "CMakeLists.txt"; then
     echo -e "${RED}Wrong project name on [CMakeLists.txt], looking for [$PROJECT_NAME].${DEFAULT}"
@@ -451,32 +450,33 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   echo -e "${GREEN}${LIB}: Updating source code${DEFAULT}"
   for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
 
-    DEP_LIB=${LIBRARIES[$j]#"ign-"}
+    DEP_LIB=${LIBRARIES[$j]#"gz-"}
+
     DEP_VER=${VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
-    # Replace lines like "find_package(ignition-cmake2 2.0.0)"
-    #               with "find_package(ignition-cmake3)"
+    # Replace lines like "find_package(gz-cmake2 2.0.0)"
+    #               with "find_package(gz-cmake3)"
     find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1${DEP_VER}@g"
 
-    # Replace lines like "ign_find_package(ignition-math6 VERSION 6.5.0)"
-    #               with "ign_find_package(ignition-math7)"
+    # Replace lines like "gz_find_package(gz-math6 VERSION 6.5.0)"
+    #               with "gz_find_package(gz-math7)"
     # Preserves other args and handles edge cases:
-    #               like "ign_find_package(ignition-math6 VERSION 6.5.0 REQUIRED)"
-    #               with "ign_find_package(ignition-math6 REQUIRED)"
-    #               like "ign_find_package(ignition-math6 REQUIRED COMPONENTS VERSION 6.10 eigen3)"
-    #               with "ign_find_package(ignition-math7 REQUIRED COMPONENTS eigen3)"
+    #               like "gz_find_package(gz-math6 VERSION 6.5.0 REQUIRED)"
+    #               with "gz_find_package(gz-math6 REQUIRED)"
+    #               like "gz_find_package(gz-math6 REQUIRED COMPONENTS VERSION 6.10 eigen3)"
+    #               with "gz_find_package(gz-math7 REQUIRED COMPONENTS eigen3)"
     find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\(.*\) \+VERSION \+${DEP_PREV_VER}[^ )]*@\1${DEP_VER}\2@g"
 
 
     # Rule: *plugin2 -> *plugin3
-    # Replace lines like: "find_package(ignition-cmake2)"
-    #               with: "find_package(ignition-cmake3)"
+    # Replace lines like: "find_package(gz-cmake2)"
+    #               with: "find_package(gz-cmake3)"
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
 
     # Replace collection yaml branch names with main
-    if [[ "${LIB}" == "ign-${COLLECTION}" ]]; then
-      find . -type f -name "collection-${COLLECTION}.yaml" -print0 | xargs -0 sed -i "s ign-${DEP_LIB}${DEP_VER} main g"
+    if [[ "${LIB}" == "gz-${COLLECTION}" ]]; then
+      find . -type f -name "collection-${COLLECTION}.yaml" -print0 | xargs -0 sed -i "s gz-${DEP_LIB}${DEP_VER} main g"
     fi
 
     # Second run with _ instead of -, to support multiple variations of fuel-tools

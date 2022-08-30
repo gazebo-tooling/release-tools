@@ -52,9 +52,7 @@ cat debian/control
 fi
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: install build dependencies'
-sudo mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
-echo '# END SECTION'
+${MKBUILD_INSTALL_DEPS}
 
 echo '# BEGIN SECTION: run rosdep'
 sudo rosdep init
@@ -100,6 +98,13 @@ PKGS=\`find .. -name '*.deb' || true\`
 FOUND_PKG=0
 for pkg in \${PKGS}; do
     echo "found \$pkg"
+    # Check for problems in gazebo_ros_pkgs unofficial wrappers to avoid
+    # uploads with the same name than official ROS packages
+    # ros-DISTRO-gazebo-* instead of ros-DISTRO-gazeboX-*
+    if [[ \${pkg}  !=  \${pkg/-gazebo-} ]]; then
+       echo "Detected official ROS names in gazebo_ros_pkgs"
+       exit -1
+    fi
     # Check for correctly generated packages size > 3Kb
     [[ \$(find \$pkg -size +3k) ]] || echo "WARNING: empty package?"
     cp \${pkg} $WORKSPACE/pkgs

@@ -23,7 +23,7 @@ mkdir -p ~/.gazebo/models
 tar -xf /tmp/master.tar.gz -C ~/.gazebo/models --strip 1 >/dev/null 2>&1
 rm /tmp/master.tar.gz"""
 
-IGN_GAZEBO_RUNTIME_TEST="""
+GZ_SIM_RUNTIME_TEST="""
 echo '# BEGIN SECTION: test the script'
 TEST_START=\`date +%s\`
 timeout --preserve-status 180 ign gazebo -v -r camera_sensor.sdf || true
@@ -36,6 +36,10 @@ if [ \$DIFF -lt 180 ]; then
 fi
 echo '# END SECTION'
 """
+
+# autopkgtest is a mechanism to test the installation of the generated packages
+# at the end of the package production.
+RUN_AUTOPKGTEST=${RUN_AUTOPKGTEST:-true}
 
 DEBBUILD_AUTOPKGTEST="""
 if $RUN_AUTOPKGTEST; then
@@ -52,4 +56,26 @@ fi
 set -e
 echo '# END SECTION'
 fi
+"""
+
+MKBUILD_INSTALL_DEPS="""
+echo '# BEGIN SECTION: install build dependencies from debian/control'
+mkdir build-deps
+cd build-deps
+# Wait 60 seconds and try again. Designed to avoid some race conditions with
+# nightlies uploads.
+update_done=false
+seconds_waiting=0
+while (! \$update_done); do
+  sudo DEBIAN_FRONTEND=noninteractive mk-build-deps \
+    -r -i ../debian/control \
+    --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes' \
+  && break
+  sleep 60 && seconds_waiting=\$((seconds_waiting+60))
+  [ \$seconds_waiting -ge \$timeout ] && exit 1
+done
+cd ..
+# clean up files leftover by mk-build-deps
+rm -rf build-deps
+echo '# END SECTION'
 """

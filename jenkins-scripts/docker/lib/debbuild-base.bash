@@ -19,10 +19,6 @@ fi
 # testing jobs and seems to be slow at the end of jenkins jobs
 export ENABLE_REAPER=false
 
-# autopkgtest is a mechanism to test the installation of the generated packages
-# at the end of the package production.
-RUN_AUTOPKGTEST=${RUN_AUTOPKGTEST:-true}
-
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
@@ -195,20 +191,7 @@ if ${NIGHTLY_MODE}; then
   timeout=300
 fi
 
-update_done=false
-seconds_waiting=0
-while (! \$update_done); do
-  sudo DEBIAN_FRONTEND=noninteractive mk-build-deps \
-    -r -i debian/control \
-    --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes' \
-  && break
-  sleep 60 && seconds_waiting=\$((seconds_waiting+60))
-  [ \$seconds_waiting -ge \$timeout ] && exit 1
-done
-
-# new versions of mk-build-deps > 2.21.1 left buildinfo and changes files in the code
-rm -f \${PACKAGE_ALIAS}-build-deps_*.{buildinfo,changes}
-echo '# END SECTION'
+${MKBUILD_INSTALL_DEPS}
 
 if [ -f /usr/bin/rosdep ]; then
   rosdep init

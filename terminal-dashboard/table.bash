@@ -32,7 +32,8 @@ ARCHS=( "amd64")
 DISTROS=( "ubuntu" )
 if [[ $PACKAGE_REPO != "nightly" ]]; then
   ARCHS+=( "i386" "arm64" "armhf")
-  DISTROS+=( "debian" )
+  # No debian version supported across the stack right now
+  # DISTROS+=( "debian" )
 fi
 
 for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
@@ -50,8 +51,6 @@ for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
       elif [[ $COLLECTION == "garden" ]]; then
         VERS=( "focal" "jammy" )
       fi
-    else
-      VERS=( "buster" ) # "sid"
     fi
 
     for VER in "${VERS[@]}"

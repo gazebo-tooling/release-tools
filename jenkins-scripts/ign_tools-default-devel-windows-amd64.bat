@@ -1,10 +1,10 @@
 set SCRIPT_DIR=%~dp0
 
-set VCS_DIRECTORY=ign-tools
+set VCS_DIRECTORY=gz-tools
 set PLATFORM_TO_BUILD=x86_amd64
 set IGN_CLEAN_WORKSPACE=true
 
-set COLCON_PACKAGE=ignition-tools
+set COLCON_PACKAGE=gz-tools
 
 :: override logic @ colcon-default-devel-windows.bat to handle ign-tools1 case on windows
 setlocal ENABLEDELAYEDEXPANSION
@@ -16,14 +16,14 @@ if "!PKG_MAJOR_VERSION!" == "1" (
    set COLCON_PACKAGE=%COLCON_PACKAGE%!PKG_MAJOR_VERSION!
 )
 
-echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from ignition to gz if needed
+echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
 echo Packages in workspace:
 colcon list --names-only
 
 colcon list --names-only | find "!COLCON_PACKAGE!"
 if errorlevel 1 (
-  set COLCON_PACKAGE=%COLCON_PACKAGE:ignition=gz%
-  set COLCON_PACKAGE=!COLCON_PACKAGE:gazebo=sim!
+  set COLCON_PACKAGE=!COLCON_PACKAGE:gz=ignition!
+  set COLCON_PACKAGE=!COLCON_PACKAGE:sim=gazebo!
 )
 colcon list --names-only | find "!COLCON_PACKAGE!"
 if errorlevel 1 (
