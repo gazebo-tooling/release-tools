@@ -4,6 +4,6 @@ set VCS_DIRECTORY=gz-cmake
 set PLATFORM_TO_BUILD=x86_amd64
 set IGN_CLEAN_WORKSPACE=true
 
-set EXTRA_CMAKE_TEST_ARGS=-DBUILDSYSTEM_TESTING:BOOL=True
+set COLCON_EXTRA_CMAKE_ARGS=-DBUILDSYSTEM_TESTING:BOOL=True
 
-call "%SCRIPT_DIR%/lib/generic-default-devel-windows.bat"
+call "%SCRIPT_DIR%\lib\colcon-default-devel-windows.bat"

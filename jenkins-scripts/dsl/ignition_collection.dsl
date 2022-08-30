@@ -42,6 +42,7 @@ gz_collections = [
 gz_collection_jobs =
 [
   'citadel' : [
+        'ign_cmake-ign-2-win',
         'ign_common-ign-3-win',
         'ign_fuel-tools-ign-4-win',
         'ign_gazebo-ign-3-win',
@@ -59,7 +60,6 @@ gz_collection_jobs =
         'ignition_citadel-install_bottle-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-focal-amd64',
         'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
-        'ignition_cmake-ci-ign-cmake2-windows7-amd64',
         'ignition_cmake2-install-pkg-focal-amd64',
         'ignition_cmake2-install_bottle-homebrew-amd64',
         'ignition_common-ci-ign-common3-focal-amd64',
@@ -120,6 +120,7 @@ gz_collection_jobs =
         'sdformat-install-sdformat9_pkg-focal-amd64'
   ],
   'fortress' : [
+        'ign_cmake-ign-2-win',
         'ign_common-ign-4-win',
         'ign_fuel-tools-ign-7-win',
         'ign_gazebo-ign-6-win',
@@ -136,7 +137,6 @@ gz_collection_jobs =
         'ign_utils-ign-1-win',
         'ignition_cmake-ci-ign-cmake2-focal-amd64',
         'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
-        'ignition_cmake-ci-ign-cmake2-windows7-amd64',
         'ignition_cmake2-install-pkg-focal-amd64',
         'ignition_cmake2-install_bottle-homebrew-amd64',
         'ignition_common-ci-ign-common4-focal-amd64',
@@ -204,6 +204,7 @@ gz_collection_jobs =
         'sdformat-install-sdformat12_pkg-focal-amd64'
   ],
   'garden' : [
+        'ign_cmake-gz-3-win',
         'ign_common-gz-5-win',
         'ign_fuel-tools-gz-8-win',
         'ign_gazebo-ci-win',
@@ -220,7 +221,6 @@ gz_collection_jobs =
         'ign_utils-gz-2-win',
         'ignition_cmake-ci-gz-cmake3-focal-amd64',
         'ignition_cmake-ci-gz-cmake3-homebrew-amd64',
-        'ignition_cmake-ci-gz-cmake3-windows7-amd64',
         'ignition_cmake2-install-pkg-focal-amd64',
         'ignition_cmake2-install_bottle-homebrew-amd64',
         'ignition_common-ci-gz-common5-focal-amd64',
