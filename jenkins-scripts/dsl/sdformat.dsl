@@ -369,8 +369,9 @@ sdformat_supported_versions.each { version ->
 // 2. main / @ SCM/Daily
 all_versions = sdformat_supported_versions + 'main'
 all_versions.each { version ->
-  // Use replace to get branch names to sync with ignition packages
-  def sdformat_win_ci_job = job("sdformat-" + version.replace('sdformat', 'sdf') + "-win")
+  // Use replace to get branch names to sync with ignition packages and the
+  // format of $branch-$version
+  def sdformat_win_ci_job = job("sdformat-" + version.replace('sdformat', 'sdf-') + "-win")
   OSRFWinCompilation.create(sdformat_win_ci_job)
   OSRFGitHub.create(sdformat_win_ci_job, "gazebosim/sdformat",
                     get_sdformat_branch_name(version))
