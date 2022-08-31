@@ -59,7 +59,7 @@ get_libraries_by_collection()
 	gz-physics6
 	gz-sensors7
 	gz-gui7
-	gz-gazebo7
+	gz-sim7
 	gz-launch6
 	gz-garden"
     else
