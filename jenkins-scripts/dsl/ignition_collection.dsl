@@ -117,7 +117,7 @@ gz_collection_jobs =
         'sdformat-ci-sdformat9-focal-amd64',
         'sdformat-ci-sdformat9-homebrew-amd64',
         'sdformat-ci-sdformat9-windows7-amd64',
-        'sdformat-install-sdformat9_pkg-focal-amd64'
+        'sdformat-install-sdformat9_pkg-focal-amd64',
         'sdformat-sdf9-win'
   ],
   'fortress' : [
