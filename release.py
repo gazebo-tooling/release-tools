@@ -80,6 +80,7 @@ def print_success(msg):
 # That should leave just the package name instead of packageVersion
 # I.E gazebo5 -> gazebo
 def get_canonical_package_name(pkg_name):
+     pkg_name.replace('fuel-tools', 'fuel_tools')
      return pkg_name.rstrip('1234567890')
 
 def is_catkin_package():
