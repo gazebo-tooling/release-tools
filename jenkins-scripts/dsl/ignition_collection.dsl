@@ -34,7 +34,7 @@ gz_collections = [
           'physics'   : [ debbuild: 'gz-physics6'    , branch: 'gz-physics6' ],
           'gazebo'    : [ debbuild: 'gz-sim7'        , branch: 'gz-sim7' ],
           'launch'    : [ debbuild: 'gz-launch6'     , branch: 'gz-launch6' ],
-          'garden'    : [ debbuild: 'ign-garden'     , branch: 'main' ],
+          'garden'    : [ debbuild: 'gz-garden'      , branch: 'main' ],
     ],
   ],
 ]
