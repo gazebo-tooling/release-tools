@@ -438,6 +438,8 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
         if (not dry_run):
             if not os.path.isfile(alt_tarball_path):
                 error("Can not find a tarball at: " + tarball_path + " or at " + alt_tarball_path)
+            else:
+                tarball_fname = alt_tarball_fname
         tarball_path = alt_tarball_path
 
     out, err = check_call(['shasum', '--algorithm', '256', tarball_path])
