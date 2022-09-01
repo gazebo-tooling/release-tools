@@ -321,6 +321,13 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
   }
 }
 
+String get_prefix(gz_collection_name)
+{
+  if (gz_collection_name == 'citadel' || gz_collection_name == 'fortress')
+     return 'ign'
+  return 'gz'
+}
+
 // Testing compilation from source
 gz_collections.each { gz_collection ->
   // COLCON - Windows
@@ -402,7 +409,7 @@ gz_collections.each { gz_collection ->
 
   // DEBBUILD: linux package builder
   // --------------------------------------------------------------
-  def build_pkg_job = job("gz-${gz_collection_name}-debbuilder")
+  def build_pkg_job = job(get_prefix(gz_collection_name) + "-${gz_collection_name}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
   build_pkg_job.with
   {
