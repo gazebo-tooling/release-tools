@@ -34,7 +34,7 @@ gz_collections = [
           'physics'   : [ debbuild: 'gz-physics6'    , branch: 'gz-physics6' ],
           'gazebo'    : [ debbuild: 'gz-sim7'        , branch: 'gz-sim7' ],
           'launch'    : [ debbuild: 'gz-launch6'     , branch: 'gz-launch6' ],
-          'garden'    : [ debbuild: 'ign-garden'     , branch: 'main' ],
+          'garden'    : [ debbuild: 'gz-garden'      , branch: 'main' ],
     ],
   ],
 ]
@@ -402,7 +402,7 @@ gz_collections.each { gz_collection ->
 
   // DEBBUILD: linux package builder
   // --------------------------------------------------------------
-  def build_pkg_job = job("ign-${gz_collection_name}-debbuilder")
+  def build_pkg_job = job("gz-${gz_collection_name}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
   build_pkg_job.with
   {
