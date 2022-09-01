@@ -402,7 +402,7 @@ gz_collections.each { gz_collection ->
 
   // DEBBUILD: linux package builder
   // --------------------------------------------------------------
-  def build_pkg_job = job("ign-${gz_collection_name}-debbuilder")
+  def build_pkg_job = job("gz-${gz_collection_name}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
   build_pkg_job.with
   {
