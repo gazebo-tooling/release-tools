@@ -118,7 +118,7 @@ gz_collection_jobs =
         'sdformat-ci-sdformat9-homebrew-amd64',
         'sdformat-ci-sdformat9-windows7-amd64',
         'sdformat-install-sdformat9_pkg-focal-amd64',
-        'sdformat-sdf9-win'
+        'sdformat-sdf-9-win'
   ],
   'fortress' : [
         'ign_cmake-ign-2-win',
@@ -202,7 +202,7 @@ gz_collection_jobs =
         'sdformat-ci-sdformat12-focal-amd64',
         'sdformat-ci-sdformat12-homebrew-amd64',
         'sdformat-install-sdformat12_pkg-focal-amd64',
-        'sdformat-sdf12-win.xml'
+        'sdformat-sdf-12-win.xml'
   ],
   'garden' : [
         'ign_cmake-gz-3-win',
@@ -286,7 +286,7 @@ gz_collection_jobs =
         'sdformat-ci-sdformat13-focal-amd64',
         'sdformat-ci-sdformat13-homebrew-amd64',
         'sdformat-install-sdformat12_pkg-focal-amd64',
-        'sdformat-sdf13-win'
+        'sdformat-sdf-13-win'
   ],
 ]
 
