@@ -92,7 +92,8 @@ gz_prerelease_pkgs    = [ 'placeholder' : [
                         ]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
-gz_colcon_win         = [ 'common',
+gz_colcon_win         = [ 'cmake',
+                          'common',
                           'fuel-tools',
                           'gazebo',
                           'gui',

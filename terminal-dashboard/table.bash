@@ -30,7 +30,8 @@ RED="\e[101m"
 
 ARCHS=( "amd64")
 DISTROS=( "ubuntu" )
-if [[ $PACKAGE_REPO != "nightly" ]]; then
+# No nightlies or pre-releases for arm
+if [[ $PACKAGE_REPO == "stable" ]]; then
   ARCHS+=( "i386" "arm64" "armhf")
   # No debian version supported across the stack right now
   # DISTROS+=( "debian" )

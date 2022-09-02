@@ -206,9 +206,11 @@ goto :EOF
 :: Build all the workspaces packages except the package provided in arg1
 ::
 :: arg1: name of the colcon package excluded from building
+:: arg2: extra cmake parameter to pass to the target package COLCON_PACKAGE
 :build_workspace
 
 set COLCON_PACKAGE=%1
+set _COLCON_EXTRA_CMAKE_ARGS=%2
 
 :: Check if package is in colcon workspace
 echo # BEGIN SECTION Packages in workspace:
@@ -221,7 +223,7 @@ echo # BEGIN SECTION: colcon compilation without test for dependencies of !COLCO
 call :_colcon_build_cmd --packages-skip !COLCON_PACKAGE! "-DBUILD_TESTING=0" "-DCMAKE_CXX_FLAGS=-w"
 echo # END SECTION
 echo # BEGIN SECTION: colcon compilation with tests for !COLCON_PACKAGE!
-call :_colcon_build_cmd --packages-select !COLCON_PACKAGE! " -DBUILD_TESTING=1"
+call :_colcon_build_cmd --packages-select !COLCON_PACKAGE! %_COLCON_EXTRA_CMAKE_ARGS% " -DBUILD_TESTING=1"
 echo # END SECTION
 goto :EOF
 
