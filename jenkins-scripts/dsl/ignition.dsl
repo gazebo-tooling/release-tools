@@ -486,7 +486,7 @@ gz_software.each { gz_sw ->
 void generate_asan_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
 {
   generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
-                  '-DIGN_SANITIZER=Address',
+                  '-DGZ_SANITIZER=Address',
                   Globals.MAKETEST_SKIP_IGN)
 }
 
