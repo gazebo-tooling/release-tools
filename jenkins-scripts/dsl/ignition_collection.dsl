@@ -352,8 +352,6 @@ gz_collections.each { gz_collection ->
     def install_ros_bootstrap_job =
     job("ignition_${gz_collection_name}-install-pkg_ros_bootstrap-any-manual")
     OSRFLinuxInstall.create(install_ros_bootstrap_job)
-
-
     install_ros_bootstrap_job.with
     {
       parameters {
@@ -382,7 +380,8 @@ gz_collections.each { gz_collection ->
         shell("""\
              #!/bin/bash -xe
 
-             export INSTALL_JOB_PKG=${dev_package}
+
+             export INSTALL_JOB_PKG=ignition-${gz_collection_name}
              export USE_ROS_REPO=true
              export ROS_BOOTSTRAP=true
              # needed for arm64 machines and other arch tests
@@ -390,7 +389,7 @@ gz_collections.each { gz_collection ->
              if [[ \${JENKINS_NODE_TAG} == 'gpu-reliable' ]]; then
                export ENABLE_GZ_SIM_RUNTIME_TEST=true
              fi
-             /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
+             /bin/bash -x ./scripts/jenkins-scripts/docker/ign_launch-install-test-job.bash
              """.stripIndent())
       }
     }
