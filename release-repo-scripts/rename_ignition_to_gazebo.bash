@@ -55,6 +55,14 @@ EOF
   echo
 done
 
+# 2.0 Rename all ignition symlinks and destinations
+find . -name '*ignition-gazebo*' -type l | while IFS= read -r f; do
+  echo "Renaming ${f} -> ${f/ignition-gazebo/gz-sim}"
+  link=$(readlink "$f")
+  ln -sfT "${link//ignition-gazebo/gz-sim}" "${f}"
+  git mv "${f}" "${f/ignition-gazebo/gz-sim}"
+done
+
 # 2. Copyright files
 find . -name '*copyright*' -type f | while IFS= read -r f; do
   echo "Procesing copyright file: ${f}"
@@ -122,14 +130,14 @@ done
 
 echo
 
-# # 7. Revert Provides, Breaks, Replaces
-# find . -name control -type f | while IFS= read -r f; do
-#   sed -i -e 's:\(Breaks\:.*\)gz-\(.*\):\1ignition-\2:' "${f}"
-#   sed -i -e 's:\(Provides\:.*\)gz-\(.*\):\1ignition-\2:' "${f}"
-#   sed -i -e 's:\(Replaces\:.*\)gz-\(.*\):\1ignition-\2:' "${f}"
-# done
+ # 7. Revert Provides, Breaks, Replaces
+ find . -name control -type f | while IFS= read -r f; do
+   sed -i -e 's:\(Breaks\:.*\)gz-\(.*\):\1ignition-\2:' "${f}"
+   sed -i -e 's:\(Provides\:.*\)gz-\(.*\):\1ignition-\2:' "${f}"
+   sed -i -e 's:\(Replaces\:.*\)gz-\(.*\):\1ignition-\2:' "${f}"
+done
 
 echo "Do manually:"
 echo " * Update depends from the same library"
-echo " * Add breaks / replaces for previous nightly"
+echo " * Check breaks / replaces for previous nightly"
 echo " * Update rules"
