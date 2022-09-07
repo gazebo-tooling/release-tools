@@ -23,10 +23,31 @@ When opening PRs, add a link back to this issue for easier tracking.
 - [ ] Choose name for next release.
 - [ ] Merge each library forward from previous versions
     * <!-- LINK PRS HERE -->
-- [ ] Label pull requests being considered to enter release with [beta](https://github.com/search?q=org%3Agazebosim+label%3Abeta&state=open)
-    Pull requests opened against the new collection after then:
-    - Bug fixes: will be considered for the initial release and labeled `beta`
-    - New features: will not be considered for the initial release.
+- [ ] Create stable branches off of `main`
+    - [ ] `New branch` button on branches page ([example](https://github.com/gazebosim/sdformat/branches))
+    - [ ] Enable CI for stable branches ([example](https://github.com/gazebo-tooling/release-tools/pull/787))
+    - [ ] Use stable branch jobs in Jenkins view ([example part 1](https://github.com/gazebo-tooling/release-tools/pull/793) and [part 2](https://github.com/gazebo-tooling/release-tools/pull/806))
+- [ ] Pull requests previously targeted at `main`:
+    - Bug fixes:
+       - Retarget to the new stable branch.
+       - Label with [beta](https://github.com/search?q=org%3Agazebosim+label%3Abeta&state=open)
+       - They can be merged until code freeze.
+    - Backwards-compatible features, either:
+       - Retarget them to the new stable branch (but they can only be merged after the stable release), or
+       - Keep targeting `main` and backport after the stable release.
+    - Breaking features:
+       - Keep targeting `main` (i.e. they will be delayed until the next major release)
+- [ ] Bump all `main` branches to the next major version (`X.0.0~pre1`)
+    - [ ] Source code ([example](https://github.com/gazebosim/gz-common/pull/193))
+        * <!-- LINK PRs HERE -->
+    - [ ] Add files to `gazebodistro` ([example](https://github.com/gazebo-tooling/gazebodistro/pull/12))
+        * <!-- LINK PR HERE -->
+    - [ ] Add aliases to `homebrew-simulation` ([example](https://github.com/osrf/homebrew-simulation/commit/1f8602af6f52e06e0542eebfbdbe97f5f6cf950c))
+        * <!-- LINK PR HERE -->
+    - [ ] Create new `-release` repositories (use [this script](https://github.com/gazebo-tooling/release-tools/blob/master/release-repo-scripts/new_ignition_release_repos.bash))
+    - [ ] Enable nightlies for all `main` branches on `gzdev` ([example](https://github.com/gazebo-tooling/gzdev/pull/50))
+    - [ ] Execute the tick-tock's "tock" for deprecations ([example](https://github.com/gazebosim/gz-sim/pull/875))
+        * <!-- LINK PRs HERE -->
 - [ ] Pre-release libraries as all `beta` labels are merged.
     * <!-- LINK PRS HERE -->
 - [ ] Make collection pre-release after all libraries are pre-released.
@@ -44,7 +65,6 @@ When opening PRs, add a link back to this issue for easier tracking.
     * <!-- LINK POST HERE -->
 - [ ] PRs fixing documentation and critical bugs can be merged and pre-released
 - As libraries have all their documentation reviewed:
-    - [ ] Create stable branches off of main
     - [ ] Make stable releases
         * <!-- LINK PRs HERE -->
 
@@ -66,17 +86,6 @@ When opening PRs, add a link back to this issue for easier tracking.
     * <!-- LINK PR HERE -->
 - [ ] Remove pre-release for release branches on `gzdev` ([example](https://github.com/gazebo-tooling/gzdev/pull/36))
     * <!-- LINK PR HERE -->
-- [ ] Bump all `main` branches to the next major versioni (`X.0.0~pre1`)
-    - [ ] Source code ([example](https://github.com/gazebosim/gz-common/pull/193))
-        * <!-- LINK PRs HERE -->
-    - [ ] Add files to `gazebodistro` ([example](https://github.com/gazebo-tooling/gazebodistro/pull/12))
-        * <!-- LINK PR HERE -->
-    - [ ] Add aliases to `homebrew-simulation` ([example](https://github.com/osrf/homebrew-simulation/commit/1f8602af6f52e06e0542eebfbdbe97f5f6cf950c))
-        * <!-- LINK PR HERE -->
-    - [ ] Create new `-release` repositories (use [this script](https://github.com/gazebo-tooling/release-tools/blob/master/release-repo-scripts/new_ignition_release_repos.bash))
-    - [ ] Enable nightlies for all `main` branches on `gzdev` ([example](https://github.com/gazebo-tooling/gzdev/pull/50))
-    - [ ] Execute the tick-tock's "tock" for deprecations ([example](https://github.com/gazebosim/gz-sim/pull/875))
-        * <!-- LINK PRs HERE -->
 - [ ] Update all repositories to default to the new stable branches.
 
 If the collection will be officially paired with a ROS 2 distro:

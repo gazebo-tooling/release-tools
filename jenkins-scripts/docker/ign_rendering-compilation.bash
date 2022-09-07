@@ -15,25 +15,25 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-rendering"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_RENDERING_DEPENDENCIES"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_RENDERING_DEPENDENCIES"
 
-# Identify IGN_RENDERING_MAJOR_VERSION to help with dependency resolution
-IGN_RENDERING_MAJOR_VERSION=$(\
+# Identify GZ_RENDERING_MAJOR_VERSION to help with dependency resolution
+GZ_RENDERING_MAJOR_VERSION=$(\
   python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-rendering/CMakeLists.txt)
 
-# Check IGN_RENDERING version is integer
-if ! [[ ${IGN_RENDERING_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
-  echo "Error! IGN_RENDERING_MAJOR_VERSION is not an integer, check the detection"
+# Check GZ_RENDERING version is integer
+if ! [[ ${GZ_RENDERING_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+  echo "Error! GZ_RENDERING_MAJOR_VERSION is not an integer, check the detection"
   exit -1
 fi
 
-if [[ ${IGN_RENDERING_MAJOR_VERSION} -ge 1 ]]; then
+if [[ ${GZ_RENDERING_MAJOR_VERSION} -ge 1 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
 export GPU_SUPPORT_NEEDED=true
-export GZDEV_PROJECT_NAME="gz-rendering${IGN_RENDERING_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="gz-rendering${GZ_RENDERING_MAJOR_VERSION}"
 
 export BUILDING_EXTRA_CMAKE_PARAMS+=" -DSKIP_optix=true"
 

@@ -25,8 +25,6 @@ if [[ -z ${BRANCH} ]]; then
   export CLONE_NEEDED=false
 fi
 
-RUN_AUTOPKGTEST=${RUN_AUTOPKGTEST:-true}
-
 cat > build.sh << DELIM
 ###################################################
 # Make project-specific changes here
@@ -58,10 +56,17 @@ if [[ ${DISTRO} == 'focal' && ${ARCH} == 'arm64' ]]; then
     sudo ln -sf /bin/true /usr/bin/lintian
 fi
 
-echo '# BEGIN SECTION: install build dependencies'
-cat debian/changelog
-sudo mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
-echo '# END SECTION'
+# our packages.o.o running xenial does not support default zstd compression of
+# .deb files in jammy. Keep using xz. Not a trivial change, requires wrapper over dpkg-deb
+if [[ ${DISTRO} == 'jammy' ]]; then
+  sudo bash -c 'echo \#\!/bin/bash > /usr/local/bin/dpkg-deb'
+  sudo bash -c 'echo "/usr/bin/dpkg-deb -Zxz \\\$@" >> /usr/local/bin/dpkg-deb'
+  sudo cat /usr/local/bin/dpkg-deb
+  sudo chmod +x /usr/local/bin/dpkg-deb
+  export PATH=/usr/local/bin:\$PATH
+fi
+
+${MKBUILD_INSTALL_DEPS}
 
 VERSION=\$(dpkg-parsechangelog  | grep Version | awk '{print \$2}')
 VERSION_NO_REVISION=\$(echo \$VERSION | sed 's:-.*::')

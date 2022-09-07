@@ -68,7 +68,7 @@ Gazebo software.
         1. Pre-release: `<path to release-tools>/release.py -r 1 ign-physics3 3.0.0~pre1 --upload-to-repo=prerelease secrettoken --dry-run`
     1. If the dry run succeeds, run the same command again, now without `--dry-run`.
 1. Check that:
-    * Several `-debbuilder` jobs have been queued in https://build.osrfoundation.org/ and watch those jobs to see if any of them fail.
+    * Several `-debbuilder` jobs have been queued in https://build.osrfoundation.org/ and watch those jobs to see if any of them fail or are marked unstable.
       While it would be easier to track the status of these jobs if there was a [dashboard](https://github.com/gazebo-tooling/release-tools/issues/295),
       you can watch the page for a specific debbuild, such as https://build.osrfoundation.org/job/ign-gui3-debbuilder/.
         1. If you observe a failure of an Gazebo Dome package, check the list of supported
@@ -86,6 +86,12 @@ Gazebo software.
         1. If the failure is on a supported architecture, check the source repository for an existing report of this failure and if none
            exists, please report the failure (see [gazebosim/gz-math#161](https://github.com/gazebosim/gz-math/issues/161)
            for an example).
+        1. If a build is unstable, check if it was unstable before this release and if it has already been reported.
+           A common cause of unstable debbuilds is newly installed files that are not captured by the pattenrs in the `.install`
+           files in the `-release` repository. This can be checked by searching for `dh_missing` in the console log of the
+           unstable build and looking for a list of uninstalled files. Example pull requests that fix problems with `dh_missing`
+           are [gazebo-release/gz-transport11-release#4](https://github.com/gazebo-release/gz-transport11-release/pull/4)
+           and [gazebo-release/gz-tools-release#4](https://github.com/gazebo-release/gz-tools-release/pull/4).
     * A pull request was opened to https://github.com/osrf/homebrew-simulation
         1. This pull request may take a minute or two to open.
         1. Once it is open, make a comment containing the text "build bottle".

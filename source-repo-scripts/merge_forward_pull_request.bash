@@ -31,6 +31,9 @@ TO_BRANCH=${2}
 if [[ $# -ne 2 ]]; then
   echo "./merge_forward_pull_request.bash <from_branch> <to_branch>"
   exit 1
+elif [[ "$FROM_BRANCH" == "$TO_BRANCH" ]]; then
+  echo "Arguments ${FROM_BRANCH} and ${TO_BRANCH} must not be identical"
+  exit 1
 fi
 
 set -e
@@ -38,7 +41,7 @@ set -e
 CURRENT_BRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
 
 ORIGIN_URL=$(git remote get-url origin)
-ORIGIN_ORG_REPO=$(echo ${ORIGIN_URL} | sed -e 's@.*github\.com.@@')
+ORIGIN_ORG_REPO=$(echo ${ORIGIN_URL} | sed -e 's@.*github\.com.@@' | sed -e 's/\.git//g')
 
 TITLE="Merge ${FROM_BRANCH} ➡️  ${TO_BRANCH}"
 

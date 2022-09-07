@@ -5,6 +5,7 @@
 ::   - GAZEBODISTRO_FILE : (optional) vcs yaml file in the gazebodistro repository
 ::   - COLCON_PACKAGE : package name to test in colcon ws
 ::   - COLCON_AUTO_MAJOR_VERSION (default false): auto detect major version from CMakeLists
+::   - COLCON_PACKAGE_EXTRA_CMAKE_ARGS : (optional) CMake arg to inject into colcon
 ::   - BUILD_TYPE     : (default Release) [ Release | Debug ] Build type to use
 ::   - DEPEN_PKGS     : (optional) list of dependencies (separted by spaces)
 ::   - KEEP_WORKSPACE : (optional) true | false. Clean workspace at the end
@@ -36,14 +37,14 @@ if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
 )
 
 :: Check if package is in colcon workspace
-echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from ignition to gz if needed
+echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
 echo Packages in workspace:
 colcon list --names-only
 
 colcon list --names-only | find "!COLCON_PACKAGE!"
 if errorlevel 1 (
-  set COLCON_PACKAGE=!COLCON_PACKAGE:ignition=gz!
-  set COLCON_PACKAGE=!COLCON_PACKAGE:gazebo=sim!
+  set COLCON_PACKAGE=!COLCON_PACKAGE:gz=ignition!
+  set COLCON_PACKAGE=!COLCON_PACKAGE:sim=gazebo!
 )
 colcon list --names-only | find "!COLCON_PACKAGE!"
 if errorlevel 1 (
@@ -123,7 +124,7 @@ if exist %LOCAL_WS_SOFTWARE_DIR%\configure.bat (
 
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
 cd %LOCAL_WS%
-call %win_lib% :build_workspace !COLCON_PACKAGE! || goto :error
+call %win_lib% :build_workspace !COLCON_PACKAGE! !COLCON_PACKAGE_EXTRA_CMAKE_ARGS! || goto :error
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (

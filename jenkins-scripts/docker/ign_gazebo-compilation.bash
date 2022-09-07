@@ -15,22 +15,22 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-gazebo"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_GAZEBO_DEPENDENCIES"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_SIM_DEPENDENCIES"
 
-# Identify IGN_GAZEBO_MAJOR_VERSION to help with dependency resolution
-IGN_GAZEBO_MAJOR_VERSION=$(\
+# Identify GZ_SIM_MAJOR_VERSION to help with dependency resolution
+GZ_SIM_MAJOR_VERSION=$(\
   python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-gazebo/CMakeLists.txt)
 
 # Check IGN_GAZEBO version is integer
-if ! [[ ${IGN_GAZEBO_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
-  echo "Error! IGN_GAZEBO_MAJOR_VERSION is not an integer, check the detection"
+if ! [[ ${GZ_SIM_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+  echo "Error! GZ_SIM_MAJOR_VERSION is not an integer, check the detection"
   exit -1
 fi
 
 export NEED_C17_COMPILER=true
 export GPU_SUPPORT_NEEDED=true
 
-export GZDEV_PROJECT_NAME="gz-sim${IGN_GAZEBO_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="gz-sim${GZ_SIM_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

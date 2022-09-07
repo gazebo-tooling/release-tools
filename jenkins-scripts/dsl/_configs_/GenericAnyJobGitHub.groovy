@@ -25,7 +25,10 @@ class GenericAnyJobGitHub
 
     // Get repo name for relativeTargetDirectory
     String github_repo_name = github_repo.substring(github_repo.lastIndexOf("/") + 1)
+
     // Use new gz- repositories
+    // TODO(jrivero): move this before github_repo_name once -compilation
+    // scripts are prepared to work with gz- prefix
     github_repo = Globals.ign2gz(github_repo)
 
     job.with
