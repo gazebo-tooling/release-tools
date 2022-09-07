@@ -45,23 +45,23 @@ get_libraries_by_collection()
 	ignition-fortress"
     elif [ "$COLLECTION" = "garden" ]; then
       LIBS="
-	ignition-cmake2
-	ignition-math7
-	ignition-utils1
-	ignition-tools
-	ignition-common5
-	ignition-msgs9
-	ignition-transport12
-	ignition-fuel-tools8
-	ignition-plugin
-	ignition-rendering7
+	gz-cmake3
+	gz-math7
+	gz-utils2
+	gz-tools2
+	gz-common5
+	gz-msgs9
+	gz-transport12
+	gz-fuel-tools8
+	gz-plugin2
+	gz-rendering7
 	sdformat13
-	ignition-physics6
-	ignition-sensors7
-	ignition-gui7
-	ignition-gazebo7
-	ignition-launch6
-	ignition-garden"
+	gz-physics6
+	gz-sensors7
+	gz-gui7
+	gz-sim7
+	gz-launch6
+	gz-garden"
     else
       return 1
     fi

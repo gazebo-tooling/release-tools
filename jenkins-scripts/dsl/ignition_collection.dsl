@@ -42,6 +42,7 @@ gz_collections = [
 gz_collection_jobs =
 [
   'citadel' : [
+        'ign_cmake-ign-2-win',
         'ign_common-ign-3-win',
         'ign_fuel-tools-ign-4-win',
         'ign_gazebo-ign-3-win',
@@ -59,7 +60,6 @@ gz_collection_jobs =
         'ignition_citadel-install_bottle-homebrew-amd64',
         'ignition_cmake-ci-ign-cmake2-focal-amd64',
         'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
-        'ignition_cmake-ci-ign-cmake2-windows7-amd64',
         'ignition_cmake2-install-pkg-focal-amd64',
         'ignition_cmake2-install_bottle-homebrew-amd64',
         'ignition_common-ci-ign-common3-focal-amd64',
@@ -117,9 +117,11 @@ gz_collection_jobs =
         'sdformat-ci-sdformat9-focal-amd64',
         'sdformat-ci-sdformat9-homebrew-amd64',
         'sdformat-ci-sdformat9-windows7-amd64',
-        'sdformat-install-sdformat9_pkg-focal-amd64'
+        'sdformat-install-sdformat9_pkg-focal-amd64',
+        'sdformat-sdf-9-win'
   ],
   'fortress' : [
+        'ign_cmake-ign-2-win',
         'ign_common-ign-4-win',
         'ign_fuel-tools-ign-7-win',
         'ign_gazebo-ign-6-win',
@@ -136,7 +138,6 @@ gz_collection_jobs =
         'ign_utils-ign-1-win',
         'ignition_cmake-ci-ign-cmake2-focal-amd64',
         'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
-        'ignition_cmake-ci-ign-cmake2-windows7-amd64',
         'ignition_cmake2-install-pkg-focal-amd64',
         'ignition_cmake2-install_bottle-homebrew-amd64',
         'ignition_common-ci-ign-common4-focal-amd64',
@@ -200,10 +201,11 @@ gz_collection_jobs =
         'ignition_utils1-install_bottle-homebrew-amd64',
         'sdformat-ci-sdformat12-focal-amd64',
         'sdformat-ci-sdformat12-homebrew-amd64',
-        'sdformat-ci-sdformat12-windows7-amd64',
-        'sdformat-install-sdformat12_pkg-focal-amd64'
+        'sdformat-install-sdformat12_pkg-focal-amd64',
+        'sdformat-sdf-12-win.xml'
   ],
   'garden' : [
+        'ign_cmake-gz-3-win',
         'ign_common-gz-5-win',
         'ign_fuel-tools-gz-8-win',
         'ign_gazebo-ci-win',
@@ -220,7 +222,6 @@ gz_collection_jobs =
         'ign_utils-gz-2-win',
         'ignition_cmake-ci-gz-cmake3-focal-amd64',
         'ignition_cmake-ci-gz-cmake3-homebrew-amd64',
-        'ignition_cmake-ci-gz-cmake3-windows7-amd64',
         'ignition_cmake2-install-pkg-focal-amd64',
         'ignition_cmake2-install_bottle-homebrew-amd64',
         'ignition_common-ci-gz-common5-focal-amd64',
@@ -282,14 +283,44 @@ gz_collection_jobs =
         'ignition_utils-ci-gz-utils2-homebrew-amd64',
         'ignition_utils-install-pkg-focal-amd64',
         'ignition_utils1-install_bottle-homebrew-amd64',
-        'sdformat-ci-main-focal-amd64',
-        'sdformat-ci-main-homebrew-amd64',
-        'sdformat-ci-main-windows7-amd64',
-        'sdformat-install-sdformat12_pkg-focal-amd64'
+        'sdformat-ci-sdformat13-focal-amd64',
+        'sdformat-ci-sdformat13-homebrew-amd64',
+        'sdformat-install-sdformat12_pkg-focal-amd64',
+        'sdformat-sdf-13-win'
   ],
 ]
 
 def DISABLE_TESTS           = false
+
+void generate_install_job(prefix, gz_collection_name, distro, arch)
+{
+  def install_default_job = job("${prefix}_${gz_collection_name}-install-pkg-${distro}-${arch}")
+  OSRFLinuxInstall.create(install_default_job)
+
+  install_default_job.with
+  {
+    triggers {
+      cron(Globals.CRON_EVERY_THREE_DAYS)
+    }
+
+    def dev_package = "${prefix}-${gz_collection_name}"
+    def job_name = 'ign_launch-install-test-job.bash'
+
+    label "gpu-reliable"
+
+    steps {
+     shell("""\
+           #!/bin/bash -xe
+
+           export DISTRO=${distro}
+           export ARCH=${arch}
+           export INSTALL_JOB_PKG=${dev_package}
+           export GZDEV_PROJECT_NAME="${dev_package}"
+           /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
+           """.stripIndent())
+    }
+  }
+}
 
 // Testing compilation from source
 gz_collections.each { gz_collection ->
@@ -313,32 +344,8 @@ gz_collections.each { gz_collection ->
   gz_collection.get('distros').each { distro ->
     // INSTALL JOBS:
     // --------------------------------------------------------------
-    def install_default_job = job("ignition_${gz_collection_name}-install-pkg-${distro}-${arch}")
-    OSRFLinuxInstall.create(install_default_job)
-    def dev_package = "ignition-${gz_collection_name}"
-    def job_name = 'ign_launch-install-test-job.bash'
-
-    install_default_job.with
-    {
-      triggers {
-        cron(Globals.CRON_EVERY_THREE_DAYS)
-      }
-
-      label "gpu-reliable"
-
-
-      steps {
-       shell("""\
-             #!/bin/bash -xe
-
-             export DISTRO=${distro}
-             export ARCH=${arch}
-             export INSTALL_JOB_PKG=${dev_package}
-             export GZDEV_PROJECT_NAME="${dev_package}"
-             /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
-             """.stripIndent())
-      }
-    }
+    generate_install_job('ignition', gz_collection_name, distro, arch)
+    generate_install_job('gz', gz_collection_name, distro, arch)
 
     // ROS BOOTSTRAP INSTALL JOBS:
     // --------------------------------------------------------------
@@ -444,7 +451,7 @@ gz_collections.each { gz_collection ->
 
   // DEBBUILD: linux package builder
   // --------------------------------------------------------------
-  def build_pkg_job = job("ign-${gz_collection_name}-debbuilder")
+  def build_pkg_job = job("gz-${gz_collection_name}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
   build_pkg_job.with
   {
@@ -605,6 +612,8 @@ nightly_scheduler_job.with
                 src_branch="${sensors_branch}"
               elif [[ "\${n}" != "\${n/sdformat/}" ]]; then
                 src_branch="${sdformat_branch}"
+              elif  [[ "\${n}" != "\${n/sim/}" ]]; then
+                src_branch="${gazebo_branch}"
               elif [[ "\${n}" != "\${n/transport/}" ]]; then
                 src_branch="${transport_branch}"
               elif [[ "\${n}" != "\${n/tools/}" ]]; then
