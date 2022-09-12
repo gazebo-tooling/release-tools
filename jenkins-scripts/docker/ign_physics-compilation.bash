@@ -15,20 +15,20 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="ign-physics"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="IGN_PHYSICS_DEPENDENCIES"
+export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_PHYSICS_DEPENDENCIES"
 
-# Identify IGN_PHYSICS_MAJOR_VERSION to help with dependency resolution
-IGN_PHYSICS_MAJOR_VERSION=$(\
+# Identify GZ_PHYSICS_MAJOR_VERSION to help with dependency resolution
+GZ_PHYSICS_MAJOR_VERSION=$(\
   python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
   ${WORKSPACE}/ign-physics/CMakeLists.txt)
 
-# Check IGN_PHYSICS version is integer
-if ! [[ ${IGN_PHYSICS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
-  echo "Error! IGN_PHYSICS_MAJOR_VERSION is not an integer, check the detection"
+# Check GZ_PHYSICS version is integer
+if ! [[ ${GZ_PHYSICS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
+  echo "Error! GZ_PHYSICS_MAJOR_VERSION is not an integer, check the detection"
   exit -1
 fi
 
 export NEED_C17_COMPILER=true
-export GZDEV_PROJECT_NAME="ignition-physics${IGN_PHYSICS_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="gz-physics${GZ_PHYSICS_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

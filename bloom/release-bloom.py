@@ -36,7 +36,7 @@ def parse_args(argv):
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
     parser.add_argument('--ignition-version', action='store', default=None,
-                        help='Ignition version to use in the binary packages')
+                        help='Gazebo version to use in the binary packages')
 
     args = parser.parse_args()
     DRY_RUN = args.dry_run

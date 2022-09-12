@@ -142,3 +142,27 @@ To create `ign-rendering7-release` repository copying files in `ign-rendering6-r
 cd /tmp/
 ./path/to/release-tools/release-repo-scripts/new_ignition_release_repos.bash ign-rendering7
 ```
+
+### rename_ignition_to_gazebo.bash
+
+Script used for renaming all ignition package names to gz. It creates
+transition packages as aliases.
+
+#### Usage
+
+The script uses `dch` from the package `debhelper`. `grep-dctrl` from the `dctrl-tools` package.
+The script will make all the changes without making any commit so a manual inspection
+can be done after the run.
+
+```bash
+cd <release-repo>
+./path/to/release-tools/release-repo-scripts/rename_ignition_to_gazebo.bash
+```
+
+#### Example
+
+```bash
+git clone https://github.com/gazebo-release/gz-cmake3-release
+cd gz-cmake3-release
+./path/to/release-tools/release-repo-scripts/rename_ignition_to_gazebo.bash
+```

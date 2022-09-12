@@ -11,7 +11,8 @@ release_repo_debbuilds = [ 'opensplice' ]
 // package) method used by debian
 gbp_repo_debbuilds = [ 'lark-parser',
                        'ogre-2.1',
-                       'ogre-2.2' ]
+                       'ogre-2.2',
+                       'ogre-2.3']
 
 release_repo_debbuilds.each { software ->
   // --------------------------------------------------------------
@@ -56,6 +57,10 @@ gbp_repo_debbuilds.each { software ->
                    'Architecture to be used in the built of the package')
        stringParam('UPLOAD_TO_REPO', 'stable',
                    'OSRF repo name to upload the package to')
+    }
+
+    properties {
+      priority 100
     }
 
     scm {

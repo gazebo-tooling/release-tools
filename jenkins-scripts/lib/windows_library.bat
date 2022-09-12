@@ -123,10 +123,10 @@ set IGN_PROJECT_DEPENDENCY_DIR=%LOCAL_WS%\%1
 if exist %IGN_PROJECT_DEPENDENCY_DIR% ( rmdir /s /q %IGN_PROJECT_DEPENDENCY_DIR% )
 if "%2"=="" (
   echo Installing master branch of %1
-  git clone https://github.com/ignitionrobotics/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b master
+  git clone https://github.com/gazebosim/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b master
 ) else (
   echo Installing branch %2 of %1
-  git clone https://github.com/ignitionrobotics/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b %2
+  git clone https://github.com/gazebosim/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b %2
 )
 cd /d %IGN_PROJECT_DEPENDENCY_DIR%
 call .\configure.bat
@@ -145,7 +145,7 @@ set gzdistro_dir=gazebodistro
 if "%GAZEBODISTRO_BRANCH%" == "" (set GAZEBODISTRO_BRANCH=master)
 
 if exist %gzdistro_dir% (rmdir /s /q %gzdistro_dir%)
-git clone https://github.com/ignition-tooling/gazebodistro %gzdistro_dir% -b %GAZEBODISTRO_BRANCH%
+git clone https://github.com/gazebo-tooling/gazebodistro %gzdistro_dir% -b %GAZEBODISTRO_BRANCH%
 :: Check if ci_matching_branch name is used
 if "%ghprbSourceBranch%" == "" (echo ghprbSourceBranch is unset) else (
   python "%SCRIPT_DIR%\tools\detect_ci_matching_branch.py" "%ghprbSourceBranch%"
@@ -206,23 +206,31 @@ goto :EOF
 :: Build all the workspaces packages except the package provided in arg1
 ::
 :: arg1: name of the colcon package excluded from building
+:: arg2: extra cmake parameter to pass to the target package COLCON_PACKAGE
 :build_workspace
 
 set COLCON_PACKAGE=%1
+set _COLCON_EXTRA_CMAKE_ARGS=%2
+
+:: Check if package is in colcon workspace
+echo # BEGIN SECTION Packages in workspace:
+colcon list --names-only
+echo # END SECTION
 
 :: two runs to get the dependencies built with testing and the package under
 :: test build with tests
-echo # BEGIN SECTION: colcon compilation without test for dependencies of %COLCON_PACKAGE%
-call :_colcon_build_cmd --packages-skip %COLCON_PACKAGE% "-DBUILD_TESTING=0" "-DCMAKE_CXX_FLAGS=-w"
+echo # BEGIN SECTION: colcon compilation without test for dependencies of !COLCON_PACKAGE!
+call :_colcon_build_cmd --packages-skip !COLCON_PACKAGE! "-DBUILD_TESTING=0" "-DCMAKE_CXX_FLAGS=-w"
 echo # END SECTION
-echo # BEGIN SECTION: colcon compilation with tests for %COLCON_PACKAGE%
-call :_colcon_build_cmd --packages-select %COLCON_PACKAGE% " -DBUILD_TESTING=1"
+echo # BEGIN SECTION: colcon compilation with tests for !COLCON_PACKAGE!
+call :_colcon_build_cmd --packages-select !COLCON_PACKAGE! %_COLCON_EXTRA_CMAKE_ARGS% " -DBUILD_TESTING=1"
 echo # END SECTION
 goto :EOF
 
 :: ##################################
 :list_workspace_pkgs
 colcon list -t || goto :error
+vcs export --exact || goto :error
 goto :EOF
 
 :: ##################################
@@ -230,9 +238,9 @@ goto :EOF
 :: arg1: package whitelist to test
 set COLCON_PACKAGE=%1
 
-echo # BEGIN SECTION: colcon test for %COLCON_PACKAGE%
+echo # BEGIN SECTION: colcon test for !COLCON_PACKAGE!
 colcon test --install-base "install"^
-            --packages-select %COLCON_PACKAGE%^
+            --packages-select !COLCON_PACKAGE!^
             --executor sequential^
             --event-handler console_direct+
 echo # END SECTION

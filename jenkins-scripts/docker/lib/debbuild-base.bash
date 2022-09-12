@@ -19,10 +19,6 @@ fi
 # testing jobs and seems to be slow at the end of jenkins jobs
 export ENABLE_REAPER=false
 
-# autopkgtest is a mechanism to test the installation of the generated packages
-# at the end of the package production.
-RUN_AUTOPKGTEST=${RUN_AUTOPKGTEST:-true}
-
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
@@ -48,7 +44,7 @@ if ${NIGHTLY_MODE}; then
   if ${USE_REPO_DIRECTORY_FOR_NIGHTLY}; then
     mv ${WORKSPACE}/repo \$REAL_PACKAGE_NAME
   else
-    git clone https://github.com/${GITHUB_ORG}/\$REAL_PACKAGE_NAME -b ${NIGHTLY_SRC_BRANCH}
+    git clone https://github.com/gazebosim/\$REAL_PACKAGE_NAME -b ${NIGHTLY_SRC_BRANCH}
   fi
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME
   cd \$REAL_PACKAGE_NAME
@@ -83,7 +79,7 @@ fi
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
 rm -rf /tmp/$PACKAGE-release
-git clone https://github.com/ignition-release/$PACKAGE-release -b $RELEASE_REPO_BRANCH /tmp/$PACKAGE-release
+git clone https://github.com/gazebo-release/$PACKAGE-release -b $RELEASE_REPO_BRANCH /tmp/$PACKAGE-release
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
@@ -109,7 +105,7 @@ fi
 case \${BUILD_METHOD} in
     "OVERWRITE_BASE")
 	# 1. Clone the base branch
-        git clone https://github.com/ignition-release/\${PACKAGE}-release \\
+        git clone https://github.com/gazebo-release/\${PACKAGE}-release \\
             -b \${RELEASE_BASE_BRANCH} \\
 	    /tmp/base_$PACKAGE-release
 	# 2. Overwrite the information
@@ -140,10 +136,17 @@ esac
 
 cd \${PACKAGE_RELEASE_DIR}
 
+# Helper for transition of ign to gz
+PACKAGE_ALIAS=${PACKAGE_ALIAS}
+SRC_PACKAGE_NAME=\$(grep-dctrl -sSource -n  '' debian/control)
+if [[ \${SRC_PACKAGE_NAME} != \${SRC_PACKAGE_NAME/gz-} ]]; then
+  PACKAGE_ALIAS=\${SRC_PACKAGE_NAME}
+fi
+
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
   NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV}-${RELEASE_VERSION}~${DISTRO}
-  debchange --package ${PACKAGE_ALIAS} \\
+  debchange --package \${PACKAGE_ALIAS} \\
               --newversion \${NIGHTLY_VERSION_SUFFIX} \\
               --distribution ${DISTRO} \\
               --force-distribution \\
@@ -162,7 +165,7 @@ if $NIGHTLY_MODE; then
   if dpkg --compare-versions \$(apt-cache show dh-make | sed -n "s/Version: \\(.*\\)/\\1/p") lt 2.202003; then
     extra_dh_make_str=''
   fi
-  echo | dh_make -y -s --createorig \${extra_dh_make_str} -p${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
+  echo | dh_make -y -s --createorig \${extra_dh_make_str} -p\${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
   rm -fr debian/
 fi
 
@@ -183,25 +186,12 @@ fi
 timeout=0
 # Help to debug race conditions in nightly generation or other problems with versions
 if ${NIGHTLY_MODE}; then
-  apt-cache show *ignition* | ( grep 'Package\\|Version' || true)
+  apt-cache show *gz-* | ( grep 'Package\\|Version' || true)
   # 5 minutes to give time to the uploader
   timeout=300
 fi
 
-update_done=false
-seconds_waiting=0
-while (! \$update_done); do
-  sudo DEBIAN_FRONTEND=noninteractive mk-build-deps \
-    -r -i debian/control \
-    --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes' \
-  && break
-  sleep 60 && seconds_waiting=\$((seconds_waiting+60))
-  [ \$seconds_waiting -ge \$timeout ] && exit 1
-done
-
-# new versions of mk-build-deps > 2.21.1 left buildinfo and changes files in the code
-rm -f ${PACKAGE_ALIAS}-build-deps_*.{buildinfo,changes}
-echo '# END SECTION'
+${MKBUILD_INSTALL_DEPS}
 
 if [ -f /usr/bin/rosdep ]; then
   rosdep init

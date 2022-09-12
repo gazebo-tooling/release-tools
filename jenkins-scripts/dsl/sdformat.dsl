@@ -1,10 +1,10 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def sdformat_supported_branches = [ 'sdformat6' , 'sdformat9', 'sdformat12' ]
-def sdformat_gz11_branches = [ 'sdformat9', 'sdformat10', 'sdformat12', 'main' ]
+def sdformat_supported_versions = [ 'sdformat6' , 'sdformat9', 'sdformat12', 'sdformat13' ]
+def sdformat_gz11_versions = [ 'sdformat9', 'sdformat12', 'sdformat13', 'main' ]
 // nightly and prereleases
-def extra_sdformat_debbuilder = [ 'sdformat13' ]
+def extra_sdformat_debbuilder = [  ]
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -32,13 +32,13 @@ String get_sdformat_branch_name(String full_branch_name)
 
 // ABI Checker job
 // Need to be the before ci-pr_any so the abi job name is defined
-abi_branches = sdformat_supported_branches.collect { it -> get_sdformat_branch_name(it) }
+abi_branches = sdformat_supported_versions.collect { it -> get_sdformat_branch_name(it) }
 abi_distro.each { distro ->
   supported_arches.each { arch ->
     abi_job_name = "sdformat-abichecker-any_to_any-ubuntu_auto-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABIGitHub.create(abi_job)
-    GenericAnyJobGitHub.create(abi_job, 'ignitionrobotics/sdformat', abi_branches)
+    GenericAnyJobGitHub.create(abi_job, 'gazebosim/sdformat', abi_branches)
     abi_job.with
     {
       steps {
@@ -67,7 +67,7 @@ ci_distro.each { distro ->
     // 1. Create the main ci jobs
     def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat", "main")
+    OSRFGitHub.create(sdformat_ci_job, "gazebosim/sdformat", "main")
 
     sdformat_ci_job.with
     {
@@ -88,7 +88,7 @@ ci_distro.each { distro ->
 
     // --------------------------------------------------------------
     // 2. Create the any job
-    String sdf_repo = "ignitionrobotics/sdformat"
+    String sdf_repo = "gazebosim/sdformat"
 
     def sdformat_ci_any_job = job(ci_build_any_job_name_linux)
     OSRFLinuxCompilationAnyGitHub.create(sdformat_ci_any_job, sdf_repo)
@@ -115,7 +115,7 @@ other_supported_distros.each { distro ->
     // ci_main job for the rest of arches / scm@daily
     def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat", "main")
+    OSRFGitHub.create(sdformat_ci_job, "gazebosim/sdformat", "main")
 
     sdformat_ci_job.with
     {
@@ -136,19 +136,19 @@ other_supported_distros.each { distro ->
   } // end of arch
 } // end of distro
 
-void generate_asan_ci_job(sdformat_ci_job, branch, distro, arch)
+void generate_asan_ci_job(sdformat_ci_job, version, distro, arch)
 {
-  generate_ci_job(sdformat_ci_job, branch, distro, arch,
-                  '-DIGN_SANITIZER=Address',
+  generate_ci_job(sdformat_ci_job, version, distro, arch,
+                  '-DGZ_SANITIZER=Address',
                   Globals.MAKETEST_SKIP_IGN)
 }
 
-void generate_ci_job(sdformat_ci_job, branch, distro, arch,
+void generate_ci_job(sdformat_ci_job, version, distro, arch,
                      extra_cmake = '', extra_test = '')
 {
   OSRFLinuxCompilation.create(sdformat_ci_job)
-  OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat",
-                    get_sdformat_branch_name(branch))
+  OSRFGitHub.create(sdformat_ci_job, "gazebosim/sdformat",
+                    get_sdformat_branch_name(version))
   sdformat_ci_job.with
   {
     steps {
@@ -166,12 +166,12 @@ void generate_ci_job(sdformat_ci_job, branch, distro, arch,
 }
 
 // BRANCHES CI JOB @ SCM
-sdformat_supported_branches.each { branch ->
+sdformat_supported_versions.each { version ->
   ci_distro.each { distro ->
     supported_arches.each { arch ->
       // ci job for the rest of arches / scm@daily
-      def sdformat_ci_job = job("sdformat-ci-${branch}-${distro}-${arch}")
-      generate_ci_job(sdformat_ci_job, branch, distro, arch)
+      def sdformat_ci_job = job("sdformat-ci-${version}-${distro}-${arch}")
+      generate_ci_job(sdformat_ci_job, version, distro, arch)
       sdformat_ci_job.with
       {
         triggers {
@@ -179,8 +179,8 @@ sdformat_supported_branches.each { branch ->
         }
       }
       // ci_asan job for the rest of arches / scm@weekend
-      def sdformat_ci_asan_job = job("sdformat-ci_asan-${branch}-${distro}-${arch}")
-      generate_asan_ci_job(sdformat_ci_asan_job, branch, distro, arch)
+      def sdformat_ci_asan_job = job("sdformat-ci_asan-${version}-${distro}-${arch}")
+      generate_asan_ci_job(sdformat_ci_asan_job, version, distro, arch)
       sdformat_ci_asan_job.with
       {
         triggers {
@@ -196,7 +196,7 @@ ci_distro.each { distro ->
   experimental_arches.each { arch ->
     def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
     OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGitHub.create(sdformat_ci_job, "ignitionrobotics/sdformat", "main")
+    OSRFGitHub.create(sdformat_ci_job, "gazebosim/sdformat", "main")
 
     sdformat_ci_job.with
     {
@@ -218,11 +218,11 @@ ci_distro.each { distro ->
 }
 
 // INSTALL LINUX -DEV PACKAGES ALL PLATFORMS @ CRON/DAILY
-sdformat_supported_branches.each { branch ->
+sdformat_supported_versions.each { version ->
   ci_distro.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
-      def install_default_job = job("sdformat-install-${branch}_pkg-${distro}-${arch}")
+      def install_default_job = job("sdformat-install-${version}_pkg-${distro}-${arch}")
       OSRFLinuxInstall.create(install_default_job)
       install_default_job.with
       {
@@ -230,7 +230,7 @@ sdformat_supported_branches.each { branch ->
            cron(Globals.CRON_EVERY_THREE_DAYS)
          }
 
-         def dev_package = "lib${branch}-dev"
+         def dev_package = "lib${version}-dev"
 
          steps {
           shell("""\
@@ -239,25 +239,25 @@ sdformat_supported_branches.each { branch ->
                 export DISTRO=${distro}
                 export ARCH=${arch}
                 export INSTALL_JOB_PKG=${dev_package}
-                export GZDEV_PROJECT_NAME="${branch}"
+                export GZDEV_PROJECT_NAME="${version}"
                 /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
                 """.stripIndent())
           }
       } // end of with
     } // end of arch
   } // end of distro
-} // end of branch
+} // end of version
 
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
 
-all_debbuild_branches = sdformat_supported_branches + extra_sdformat_debbuilder
-all_debbuild_branches.each { branch ->
-  def build_pkg_job = job("${branch}-debbuilder")
+all_debbuild_versions = sdformat_supported_versions + extra_sdformat_debbuilder
+all_debbuild_versions.each { version ->
+  def build_pkg_job = job("${version}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
 
   extra_cmd_str = ""
-  if (branch in sdformat_gz11_branches)
+  if (version in sdformat_gz11_versions)
      extra_cmd_str = "export NEED_C17_COMPILER=true"
 
   build_pkg_job.with
@@ -281,7 +281,7 @@ all_debbuild_branches.each { branch ->
 String ci_build_any_job_name_brew = "sdformat-ci-pr_any-homebrew-amd64"
 def sdformat_brew_ci_any_job = job(ci_build_any_job_name_brew)
 OSRFBrewCompilationAnyGitHub.create(sdformat_brew_ci_any_job,
-                                    "ignitionrobotics/sdformat")
+                                    "gazebosim/sdformat")
 sdformat_brew_ci_any_job.with
 {
     steps {
@@ -294,12 +294,12 @@ sdformat_brew_ci_any_job.with
 }
 
 // 2. main in all branches @SCM/daily
-all_branches = sdformat_supported_branches + 'main'
-all_branches.each { branch ->
-  def sdformat_brew_ci_job = job("sdformat-ci-${branch}-homebrew-amd64")
+all_versions = sdformat_supported_versions + 'main'
+all_versions.each { version ->
+  def sdformat_brew_ci_job = job("sdformat-ci-${version}-homebrew-amd64")
   OSRFBrewCompilation.create(sdformat_brew_ci_job)
-  OSRFGitHub.create(sdformat_brew_ci_job, "ignitionrobotics/sdformat",
-                         get_sdformat_branch_name(branch))
+  OSRFGitHub.create(sdformat_brew_ci_job, "gazebosim/sdformat",
+                         get_sdformat_branch_name(version))
 
   sdformat_brew_ci_job.with
   {
@@ -318,8 +318,8 @@ all_branches.each { branch ->
 }
 
 // 3. install jobs to test bottles
-sdformat_supported_branches.each { branch ->
-  def install_default_job = job("${branch}-install_bottle-homebrew-amd64")
+sdformat_supported_versions.each { version ->
+  def install_default_job = job("${version}-install_bottle-homebrew-amd64")
   OSRFBrewInstall.create(install_default_job)
 
   install_default_job.with
@@ -332,7 +332,7 @@ sdformat_supported_branches.each { branch ->
      shell("""\
            #!/bin/bash -xe
 
-           /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${branch}
+           /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${version}
            """.stripIndent())
     }
 
@@ -353,10 +353,10 @@ sdformat_supported_branches.each { branch ->
 // WINDOWS: CI job
 
 // 1. any
-  String ci_build_any_job_name_win7 = "sdformat-ci-pr_any-windows7-amd64"
+  String ci_build_any_job_name_win7 = "sdformat-pr-win"
   def sdformat_win_ci_any_job = job(ci_build_any_job_name_win7)
   OSRFWinCompilationAnyGitHub.create(sdformat_win_ci_any_job,
-                                "ignitionrobotics/sdformat")
+                                "gazebosim/sdformat")
   sdformat_win_ci_any_job.with
   {
       steps {
@@ -367,12 +367,14 @@ sdformat_supported_branches.each { branch ->
   }
 
 // 2. main / @ SCM/Daily
-all_branches = sdformat_supported_branches + 'main'
-all_branches.each { branch ->
-  def sdformat_win_ci_job = job("sdformat-ci-${branch}-windows7-amd64")
+all_versions = sdformat_supported_versions + 'main'
+all_versions.each { version ->
+  // Use replace to get branch names to sync with ignition packages and the
+  // format of $branch-$version
+  def sdformat_win_ci_job = job("sdformat-sdf-" + version.replace('sdformat','') + "-win")
   OSRFWinCompilation.create(sdformat_win_ci_job)
-  OSRFGitHub.create(sdformat_win_ci_job, "ignitionrobotics/sdformat",
-                    get_sdformat_branch_name(branch))
+  OSRFGitHub.create(sdformat_win_ci_job, "gazebosim/sdformat",
+                    get_sdformat_branch_name(version))
   sdformat_win_ci_job.with
   {
       triggers {
@@ -381,7 +383,7 @@ all_branches.each { branch ->
 
       steps {
         batchFile("""\
-              set USE_IGNITION_ZIP=FALSE
+              set USE_GZ_ZIP=FALSE
               call "./scripts/jenkins-scripts/sdformat-default-devel-windows-amd64.bat"
               """.stripIndent())
       }

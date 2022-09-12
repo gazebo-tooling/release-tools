@@ -11,7 +11,7 @@ def ignition_ci_job_win = job("_test_job_from_dsl_win")
 OSRFWinBase.create(ignition_ci_job_win)
 def ignition_ci_pr_job = job("_test_pr_job_from_dsl")
 OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
-                                     'ignitionrobotics/testing',
+                                     'gazebosim/testing',
                                      false,
                                      false,
                                      ['main'])

@@ -41,7 +41,7 @@ dockerfile_install_gzdev_repos()
 {
 cat >> Dockerfile << DELIM_OSRF_REPO_GIT
 RUN rm -fr ${GZDEV_DIR}
-RUN git clone https://github.com/ignition-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
+RUN git clone https://github.com/gazebo-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
 RUN if [ -n $GZDEV_TRY_BRANCH ]; then \
         git -C ${GZDEV_DIR} fetch origin $GZDEV_TRY_BRANCH || true; \
         git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH || true; \
@@ -164,6 +164,11 @@ DELIM_DEBIAN_APT
 fi
 
 if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
+# Opt-out of phased updates, which can create inconsistencies between installed package versions as different containers end up on different phases.
+# https://wiki.ubuntu.com/PhasedUpdates
+cat >> Dockerfile << DELIM_PHASED
+RUN echo 'APT::Get::Never-Include-Phased-Updates "true";' > /etc/apt/apt.conf.d/90-phased-updates
+DELIM_PHASED
   if [[ ${ARCH} != 'armhf' && ${ARCH} != 'arm64' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_ARCH
   RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO}-security main restricted universe multiverse" && \\
@@ -279,6 +284,11 @@ cat >> Dockerfile << DELIM_DOCKER3
 # TODO: remove workaround for 13.56.139.45 server
 RUN echo "${MONTH_YEAR_STR}"
 DELIM_DOCKER3
+
+# If the previous command invalidated the cache, a new install of gzdev is
+# needed to update to possible recent changes in configuration and/or code and
+# not being used since the docker cache did not get them.
+dockerfile_install_gzdev_repos
 
 cat >> Dockerfile << DELIM_DOCKER3_2
 RUN sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.list.d/* || true \

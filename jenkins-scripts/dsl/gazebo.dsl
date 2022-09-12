@@ -216,8 +216,8 @@ ci_distro.each { distro ->
             export ARCH=${arch}
             export GPU_SUPPORT_NEEDED=true
             export GAZEBO_BUILD_SDFORMAT=true
-            export GAZEBO_BUILD_IGN_MATH=true
-            export GAZEBO_BUILD_IGN_TRANSPORT=true
+            export GAZEBO_BUILD_GZ_MATH=true
+            export GAZEBO_BUILD_GZ_TRANSPORT=true
             /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
             """.stripIndent())
         }
@@ -313,7 +313,7 @@ ci_distro.each { distro ->
         label "gpu-reliable && large-memory"
 
         // Problem with the compilation of Gazebo under bullseyes
-        // See: https://github.com/ignition-tooling/release-tools/issues/129
+        // See: https://github.com/gazebo-tooling/release-tools/issues/129
         disabled()
 
         steps {

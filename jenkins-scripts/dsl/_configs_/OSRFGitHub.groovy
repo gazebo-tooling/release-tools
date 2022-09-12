@@ -8,12 +8,12 @@ class OSRFGitHub
                               String rev    = 'master',
                               String subdir = 'NOT-DEFINED-USE-DEFAULT')
   {
+    repo = Globals.ign2gz(repo)
+
     String software_name = repo.tokenize('/').last()
 
     if (subdir == 'NOT-DEFINED-USE-DEFAULT')
       subdir = software_name
-
-    repo = Globals.ign2gz(repo)
 
     job.with
     {

@@ -42,7 +42,7 @@ empty_directory()
 for repo_name in ${NEW_REPOS}; do
     echo "Procesing ${repo_name}"
     repo_fname="${repo_name}-release"
-    repo_github="ignition-release/${repo_fname}"
+    repo_github="gazebo-release/${repo_fname}"
 
     echo " + creating the repository "
     # check destination directory

@@ -41,6 +41,22 @@ NO_SRC_FILE = False
 
 IGNORE_DRY_RUN = True
 
+GARDEN_IGN_PACKAGES = ['ign-cmake3',
+                       'ign-common5',
+                       'ign-fuel-tools8',
+                       'ign-sim7',
+                       'ign-gui7',
+                       'ign-launch6',
+                       'ign-math7',
+                       'ign-msgs9',
+                       'ign-physics6',
+                       'ign-plugin2',
+                       'ign-rendering7',
+                       'ign-sensors7',
+                       'ign-tools2',
+                       'ign-transport12',
+                       'ign-utils2']
+
 class ErrorNoPermsRepo(Exception):
     pass
 
@@ -141,6 +157,10 @@ def parse_args(argv):
 
     args = parser.parse_args()
 
+    if args.package in GARDEN_IGN_PACKAGES:
+        print(f"Garden packages start with gz- prefix, changing {args.package} to {args.package.replace('ign-','gz-')}",)
+        args.package = args.package.replace('ign-','gz-')
+
     args.package_alias = args.package
     # If ignition auto is enabled, replace ign- with ignition- at the beginning
     if not args.no_ignition_auto and args.package.startswith('ign-'):
@@ -166,12 +186,12 @@ def get_release_repository_info(package):
     # Do not use git@github method since it fails in non existant repositories
     # asking for stdin user/pass. Same happen if no user/pass is provided
     # using the fake foo:foo here seems to work
-    github_test_url = "https://foo:foo@github.com/ignition-release/" + package + "-release"
+    github_test_url = "https://foo:foo@github.com/gazebo-release/" + package + "-release"
     if (github_repo_exists(github_test_url)):
-        github_url = "https://github.com/ignition-release/" + package + "-release"
+        github_url = "https://github.com/gazebo-release/" + package + "-release"
         return 'git', github_url
 
-    error("release repository not found in github.com/ignition-release")
+    error("release repository not found in github.com/gazebo-release")
 
 def download_release_repository(package, release_branch):
     vcs, url = get_release_repository_info(package)
@@ -206,13 +226,17 @@ def sanity_package_name(repo_dir, package, package_alias):
     if package_alias:
         expected_name = package_alias
 
+    # Use igntiion for Citadel and Fortress, gz for Garden and beyond
+    gz_name = expected_name.replace("ignition", "gz");
+    gz_name = gz_name.replace("gazebo", "sim");
+
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.decode().split('\n'):
         if not line:
             continue
         # Check that first word is the package alias or name
-        if line.partition(' ')[0] != expected_name:
+        if line.partition(' ')[0] != expected_name and line.partition(' ')[0] != gz_name:
             error("Error in changelog package name or alias: " + line)
 
     cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
@@ -221,8 +245,8 @@ def sanity_package_name(repo_dir, package, package_alias):
         if not line:
             continue
         # Check that first word is the package alias or name
-        if line.partition(' ')[2] != expected_name:
-            error("Error in source package. File:  " + line.partition(' ')[1] + ". Got " + line.partition(' ')[2] + " expected " + expected_name)
+        if line.partition(' ')[2] != expected_name and line.partition(' ')[2] != gz_name:
+            error("Error in source package. File:  " + line.partition(' ')[1] + ". Got " + line.partition(' ')[2] + " expected " + expected_name + " or " + gz_name)
 
     print_success("Package names in changelog and control")
 
@@ -414,6 +438,8 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
         if (not dry_run):
             if not os.path.isfile(alt_tarball_path):
                 error("Can not find a tarball at: " + tarball_path + " or at " + alt_tarball_path)
+            else:
+                tarball_fname = alt_tarball_fname
         tarball_path = alt_tarball_path
 
     out, err = check_call(['shasum', '--algorithm', '256', tarball_path])
@@ -617,7 +643,8 @@ def go(argv):
                     # Need to use JENKINS_NODE_TAG parameter for large memory nodes
                     # since it runs qemu emulation
                     linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
-                elif ('ignition-physics' in args.package_alias):
+                elif ('ignition-physics' in args.package_alias) or \
+                     ('gz-physics' in args.package_alias):
                     linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
 
                 if (NIGHTLY and a == 'i386'):
@@ -627,7 +654,7 @@ def go(argv):
                 # all distribution builds to avoid race conditions. Note: this
                 # assumes that large-memory nodes are beind used for nightly
                 # tags.
-                # https://github.com/ignition-tooling/release-tools/issues/644
+                # https://github.com/gazebo-tooling/release-tools/issues/644
                 if (NIGHTLY):
                     assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
                     linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
