@@ -21,6 +21,7 @@ gz_software = [ 'cmake',
 gz_gpu                = [ 'gazebo',
                           'gui',
                           'rendering',
+                          'sim',
                           'sensors' ]
 // DESC: software does not support cmake warnings enabled
 gz_no_cmake_warnings = [ 'cmake',
@@ -81,8 +82,7 @@ gz_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in gz_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
-gz_extra_debbuild = [ 'gazebo7',
-                      'utils1' ] // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
+gz_extra_debbuild = [ 'utils1' ] // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
 // DESC: exclude ignition from generate any install testing job
 gz_no_pkg_yet         = [  ]
 // DESC: major versions that has a package in the prerelease repo. Should
@@ -92,7 +92,8 @@ gz_prerelease_pkgs    = [ 'placeholder' : [
                         ]
 // packages using colcon for windows compilation while migrating all them to
 // this solution
-gz_colcon_win         = [ 'common',
+gz_colcon_win         = [ 'cmake',
+                          'common',
                           'fuel-tools',
                           'gazebo',
                           'gui',
@@ -200,17 +201,19 @@ ArrayList all_branches(String software_name)
       branches.add("ign-${software_name}${major_version}")
     }
   }
+  prerelease_branches("${software_name}").each { branch ->
+    if ("${branch}") {
+      branches.add(branch)
+    }
+  }
+  if (software_name == 'gazebo')
+    software_name = 'sim'
   supported_gz_branches("${software_name}").each { major_version ->
     if ("${major_version}") {
       branches.add("gz-${software_name}${major_version}")
     }
   }
   branches.add('main')
-  prerelease_branches("${software_name}").each { branch ->
-    if ("${branch}") {
-      branches.add(branch)
-    }
-  }
   return branches
 }
 
@@ -418,6 +421,37 @@ gz_software.each { gz_sw ->
   }
 }
 
+void generate_install_job(prefix, gz_sw, major_version, distro, arch)
+{
+  def install_default_job = job("${prefix}_${gz_sw}${major_version}-install-pkg-${distro}-${arch}")
+  OSRFLinuxInstall.create(install_default_job)
+  include_gpu_label_if_needed(install_default_job, gz_sw)
+
+  install_default_job.with
+  {
+    triggers {
+      cron(Globals.CRON_EVERY_THREE_DAYS)
+    }
+
+    def dev_package = "lib${prefix}-${gz_sw}${major_version}-dev"
+    def gzdev_project = "${prefix}-${gz_sw}${major_version}"
+
+    steps {
+     shell("""\
+           #!/bin/bash -xe
+
+           ${GLOBAL_SHELL_CMD}
+
+           export DISTRO=${distro}
+           export ARCH=${arch}
+           export INSTALL_JOB_PKG=${dev_package}
+           export GZDEV_PROJECT_NAME="${gzdev_project}"
+           /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+           """.stripIndent())
+    }
+  }
+}
+
 // INSTALL PACKAGE ALL PLATFORMS / DAILY
 gz_software.each { gz_sw ->
   // Exclusion list
@@ -439,33 +473,11 @@ gz_software.each { gz_sw ->
           major_version = ""
 
         // --------------------------------------------------------------
-        def install_default_job = job("ignition_${gz_sw}${major_version}-install-pkg-${distro}-${arch}")
-        OSRFLinuxInstall.create(install_default_job)
-        include_gpu_label_if_needed(install_default_job, gz_sw)
-
-        install_default_job.with
-        {
-          triggers {
-            cron(Globals.CRON_EVERY_THREE_DAYS)
-          }
-
-          def dev_package = "libignition-${gz_sw}${major_version}-dev"
-          def gzdev_project = "ignition-${gz_sw}${major_version}"
-
-          steps {
-           shell("""\
-                 #!/bin/bash -xe
-
-                 ${GLOBAL_SHELL_CMD}
-
-                 export DISTRO=${distro}
-                 export ARCH=${arch}
-                 export INSTALL_JOB_PKG=${dev_package}
-                 export GZDEV_PROJECT_NAME="${gzdev_project}"
-                 /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
-                 """.stripIndent())
-          }
-        }
+        // ignition_ prefix packages:
+        generate_install_job("ignition", gz_sw, major_version, distro, arch)
+        // --------------------------------------------------------------
+        // gz_ prefix packages:
+        generate_install_job("gz", gz_sw.replace('gazebo', 'sim'), major_version, distro, arch)
       }
     }
   }

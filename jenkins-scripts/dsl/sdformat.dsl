@@ -356,7 +356,7 @@ sdformat_supported_versions.each { version ->
 // WINDOWS: CI job
 
 // 1. any
-  String ci_build_any_job_name_win7 = "sdformat-ci-pr_any-windows7-amd64"
+  String ci_build_any_job_name_win7 = "sdformat-pr-win"
   def sdformat_win_ci_any_job = job(ci_build_any_job_name_win7)
   OSRFWinCompilationAnyGitHub.create(sdformat_win_ci_any_job,
                                 "gazebosim/sdformat")
@@ -372,7 +372,9 @@ sdformat_supported_versions.each { version ->
 // 2. main / @ SCM/Daily
 all_versions = sdformat_supported_versions + 'main'
 all_versions.each { version ->
-  def sdformat_win_ci_job = job("sdformat-ci-${version}-windows7-amd64")
+  // Use replace to get branch names to sync with ignition packages and the
+  // format of $branch-$version
+  def sdformat_win_ci_job = job("sdformat-sdf-" + version.replace('sdformat','') + "-win")
   OSRFWinCompilation.create(sdformat_win_ci_job)
   OSRFGitHub.create(sdformat_win_ci_job, "gazebosim/sdformat",
                     get_sdformat_branch_name(version))
