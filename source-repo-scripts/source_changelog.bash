@@ -1,23 +1,17 @@
 #!/bin/bash
 # bash source_changelog.bash <PREV_VER>
 
-PREV_TAG=$1
+PREV_VER=$1
 
 git fetch --tags
 
-REPO=$(basename `git rev-parse --show-toplevel`)
-REPO="${REPO/ign-/gz-}"
-MAJOR=${PREV_TAG%.*.*}
-BRANCH=${REPO/sdformat/sdf}${MAJOR}
-TAG="${REPO}${MAJOR}"
+# Find tag that ends with _$PREV_VER
+PREV_TAG=$(git tag | grep "_${PREV_VER}$")
 
-# TODO(chapulina) Support Garden tags and branches, which will start with gz-
-TAG="${TAG/gz-/ignition-}"
-TAG="${TAG/sim/gazebo}"
-BRANCH="${BRANCH/gz-/ign-}"
-BRANCH="${BRANCH/sim/gazebo}"
+# Compare current branch to PREV_TAG
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-COMMITS=$(git log ${BRANCH}...${TAG}_${PREV_TAG}  --pretty=format:"%h")
+COMMITS=$(git log ${BRANCH}...${PREV_TAG}  --pretty=format:"%h")
 
 for COMMIT in $COMMITS
 do
