@@ -5,7 +5,8 @@ PREV_VER=$1
 
 git fetch --tags
 
-REPO=$(basename $(git remote get-url origin))
+ORIGIN_URL=$(git remote get-url origin)
+REPO=$(basename ${ORIGIN_URL%.git})
 
 # Find tag that ends with _$PREV_VER
 PREV_TAG=$(git tag | grep "_${PREV_VER}$")
