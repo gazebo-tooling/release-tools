@@ -7,6 +7,10 @@ jobs:
   dsl_ci:
     runs-on: ubuntu-latest
     name: Diff for DSL code
+    env:
+      # Use enviroment vars to preserve multiline output not handled by outputs
+      FILES_CHANGED: ""
+      CONTENT_CHANGED: ""
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -66,17 +70,45 @@ jobs:
         if: steps.dsl_check.outputs.run_job == 'true'
         run: |
           # somehow the Jenkins views changed the portlet_ id on every run.
-          diff -qr -I '.*<id>dashboard_portlet_.*</id>.*' /tmp/current_xml_configuration /tmp/pr_xml_configuration > /tmp/xml_config_files_changed.diff || true
-          diff -ur -I '.*<id>dashboard_portlet_.*</id>.*' /tmp/current_xml_configuration /tmp/pr_xml_configuration > /tmp/xml_config_content_changed.diff || true
-      - name: Archive files changes
+          CONTENT_CHANGED=$(cat << EOF
+          \`\`\`diff
+          $(diff -ur -I '.*<id>dashboard_portlet_.*</id>.*' /tmp/current_xml_configuration /tmp/pr_xml_configuration || true)
+          \`\`\`
+          EOF
+          )
+          FILES_CHANGED=$(cat << EOF
+          > $(diff -qr -I '.*<id>dashboard_portlet_.*</id>.*' /tmp/current_xml_configuration /tmp/pr_xml_configuration || true)
+          EOF
+          )
+          echo "FILES_CHANGED<<EOF_F" >> $GITHUB_ENV
+          echo "${FILES_CHANGED}" >> $GITHUB_ENV
+          echo "EOF_F" >> $GITHUB_ENV
+          echo "CONTENT_CHANGED<<EOF_C" >> $GITHUB_ENV
+          echo "${CONTENT_CHANGED}" >> $GITHUB_ENV
+          echo "EOF_C" >> $GITHUB_ENV
+      - name: Publish diffs in a comment
         if: steps.dsl_check.outputs.run_job == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/github-script@v5
         with:
-          name: xml_config_files_changed
-          path: /tmp/xml_config_files_changed.diff
-      - name: Archive content changes
-        if: steps.dsl_check.outputs.run_job == 'true'
-        uses: actions/upload-artifact@v3
-        with:
-          name: xml_config_content_changed
-          path: /tmp/xml_config_content_changed.diff
+          github-token: ${{secrets.USER_TOKEN}}
+          script: |
+            const output = `### This is an automatic response from the CI system for Jenkins DSL generation.
+              Below is the list of Jenkins XML configuration files changed by this PR (from changes to DSL) and the content changed in the configuration files:
+              #### :open_file_folder: XML Jenkins configuration files changed in this PR
+              <details>
+
+              ${ process.env.FILES_CHANGED }
+              </details>
+
+              #### :bookmark_tabs: Content changed in the XML configuration files in this PR
+              <details>
+
+              ${ process.env.CONTENT_CHANGED }
+              </details>
+            `;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
