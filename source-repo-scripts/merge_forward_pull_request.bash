@@ -49,7 +49,7 @@ BODY="# ➡️  Forward port
 
 Port \`${FROM_BRANCH} \` ➡️  \`${TO_BRANCH}\`
 
-Branch comparision: https://github.com/${ORIGIN_ORG_REPO}/compare/${TO_BRANCH}...${FROM_BRANCH}
+Branch comparison: https://github.com/${ORIGIN_ORG_REPO}/compare/${TO_BRANCH}...${FROM_BRANCH}
 
 **Note to maintainers**: Remember to **Merge** with commit (not squash-merge or rebase)"
 
