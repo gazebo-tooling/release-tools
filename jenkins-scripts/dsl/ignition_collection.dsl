@@ -360,7 +360,9 @@ gz_collections.each { gz_collection ->
   gz_collection.get('distros').each { distro ->
     // INSTALL JOBS:
     // --------------------------------------------------------------
-    generate_install_job('ignition', gz_collection_name, distro, arch)
+    if ((gz_collection_name == "citadel") || (gz_collection_name == "fortress")) {
+      generate_install_job('ignition', gz_collection_name, distro, arch)
+    }
     generate_install_job('gz', gz_collection_name, distro, arch)
   }
 
