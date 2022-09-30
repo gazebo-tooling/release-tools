@@ -32,12 +32,24 @@ ARCHS=( "amd64")
 DISTROS=( "ubuntu" )
 # No nightlies or pre-releases for arm
 if [[ $PACKAGE_REPO == "stable" ]]; then
-  ARCHS+=( "i386" "arm64" "armhf")
+  if [[ $COLLECTION == "citadel" || $COLLECTION == "fortress" ]]; then
+    ARCHS+=( "i386" )
+  fi
+
+  ARCHS+=( "arm64" "armhf")
   # No debian version supported across the stack right now
   # DISTROS+=( "debian" )
 fi
 
 for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
+  # We are assuming that all the gz- libraries have a package named libgz-${LIB}
+  # except for the collection packages starting with Garden. Note that relying
+  # on the fact of having a packages available in a given arch does not imply
+  # that build is successful since arch=all debs are built once for amd64 and
+  # appear in all the arches.
+  if [[ "${LIB}" != "gz-${COLLECTION}" && "${LIB}" != "ignition-${COLLECTION}" ]]; then
+    LIB=lib${LIB}
+  fi
   echo -e "\e[107m\e[90m${LIB}\e[49m\e[39m"
 
   LIB_VER=""
