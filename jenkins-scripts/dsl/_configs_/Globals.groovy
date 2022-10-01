@@ -13,7 +13,7 @@ class Globals
    static CRON_EVERY_THREE_DAYS = 'H H * * H/3'
    static CRON_ON_WEEKEND = 'H H * * 6-7'
 
-   static MAKETEST_SKIP_IGN = "-E _ign_TEST"
+   static MAKETEST_SKIP_GZ = "-E _gz_TEST -E _ign_TEST"
 
    static gpu_by_distro  = [ bionic  : [ 'nvidia' ]]
 
