@@ -24,9 +24,26 @@ tar -xf /tmp/master.tar.gz -C ~/.gazebo/models --strip 1 >/dev/null 2>&1
 rm /tmp/master.tar.gz"""
 
 GZ_SIM_RUNTIME_TEST="""
+if \${GZ_SIM_RUNTIME_TEST_USE_IGN}; then
+  CMD_TOOLS='ign'
+  CMD_TOOLS_SIMULATOR='ign gazebo -v'
+  CMD_TOOLS_MODULES='gui fuel topic service gazebo sdf model launch plugin msg log'
+else
+  CMD_TOOLS='gz'
+  CMD_TOOLS_SIMULATOR='gz sim --verbose 4'
+  CMD_TOOLS_MODULES='gui fuel topic service sim sdf model launch plugin msg log'
+fi
+
+echo '# BEGIN SECTION: check gz subcommands available'
+  for module in \${CMD_TOOLS_MODULES}; do
+    echo \"Testing \${module}\"
+    \${CMD_TOOLS} \${module} --versions
+  done
+echo '# END SECTION'
+
 echo '# BEGIN SECTION: test the script'
 TEST_START=\`date +%s\`
-timeout --preserve-status 180 ign gazebo -v -r camera_sensor.sdf || true
+timeout --preserve-status 180 \${CMD_TOOLS_SIMULATOR} -r camera_sensor.sdf || true
 TEST_END=\`date +%s\`
 DIFF=\`echo \"\$TEST_END - \$TEST_START\" | bc\`
 
@@ -34,6 +51,7 @@ if [ \$DIFF -lt 180 ]; then
    echo 'The test took less than 180s. Something bad happened'
    exit 1
 fi
+
 echo '# END SECTION'
 """
 
