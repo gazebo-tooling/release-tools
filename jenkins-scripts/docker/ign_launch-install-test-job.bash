@@ -12,8 +12,9 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 if ${ENABLE_GZ_SIM_RUNTIME_TEST}; then
   export GPU_SUPPORT_NEEDED=true
   export INSTALL_JOB_POSTINSTALL_HOOK="""
-  ${GZ_SIM_RUNTIME_TEST}
-  """
+GZ_SIM_RUNTIME_TEST_USE_IGN=${GZ_SIM_RUNTIME_TEST_USE_IGN:-false}
+${GZ_SIM_RUNTIME_TEST}
+"""
 fi
 
 # Need bc to proper testing and parsing the time

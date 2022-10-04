@@ -205,6 +205,22 @@ gz_collection_jobs =
         'sdformat-sdf-12-win.xml'
   ],
   'garden' : [
+        'gz_cmake2-install-pkg-focal-amd64',
+        'gz_common4-install-pkg-focal-amd64',
+        'gz_fuel-tools7-install-pkg-focal-amd64',
+        'gz_garden-install-pkg-focal-amd64',
+        'gz_gazebo6-install-pkg-focal-amd64',
+        'gz_gui6-install-pkg-focal-amd64',
+        'gz_launch5-install-pkg-focal-amd64',
+        'gz_math6-install-pkg-focal-amd64',
+        'gz_msgs8-install-pkg-focal-amd64',
+        'gz_physics5-install-pkg-focal-amd64',
+        'gz_plugin-install-pkg-focal-amd64',
+        'gz_rendering6-install-pkg-focal-amd64',
+        'gz_sensors6-install-pkg-focal-amd64',
+        'gz_tools-install-pkg-focal-amd64',
+        'gz_transport11-install-pkg-focal-amd64',
+        'gz_utils-install-pkg-focal-amd64',
         'ign_cmake-gz-3-win',
         'ign_common-gz-5-win',
         'ign_fuel-tools-gz-8-win',
@@ -228,13 +244,13 @@ gz_collection_jobs =
         'ignition_common-ci-gz-common5-homebrew-amd64',
         'ignition_common4-install-pkg-focal-amd64',
         'ignition_common4-install_bottle-homebrew-amd64',
-        'ignition_garden-ci-main-homebrew-amd64',
-        'ignition_garden-install-pkg-focal-amd64',
-        'ignition_garden-install_bottle-homebrew-amd64',
         'ignition_fuel-tools-ci-gz-fuel-tools8-focal-amd64',
         'ignition_fuel-tools-ci-gz-fuel-tools8-homebrew-amd64',
         'ignition_fuel-tools7-install-pkg-focal-amd64',
         'ignition_fuel-tools7-install_bottle-homebrew-amd64',
+        'ignition_garden-ci-main-homebrew-amd64',
+        'ignition_garden-install-pkg-focal-amd64',
+        'ignition_garden-install_bottle-homebrew-amd64',
         'ignition_gazebo-ci-main-focal-amd64',
         'ignition_gazebo-ci-main-homebrew-amd64',
         'ignition_gazebo6-install-pkg-focal-amd64',
@@ -316,6 +332,9 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
            export ARCH=${arch}
            export INSTALL_JOB_PKG=${dev_package}
            export GZDEV_PROJECT_NAME="${dev_package}"
+           if [[ ${gz_collection_name} == 'citadel' || ${gz_collection_name} == 'fortress' ]]; then
+              export GZ_SIM_RUNTIME_TEST_USE_IGN=true
+           fi
            /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
            """.stripIndent())
     }
@@ -344,7 +363,9 @@ gz_collections.each { gz_collection ->
   gz_collection.get('distros').each { distro ->
     // INSTALL JOBS:
     // --------------------------------------------------------------
-    generate_install_job('ignition', gz_collection_name, distro, arch)
+    if ((gz_collection_name == "citadel") || (gz_collection_name == "fortress")) {
+      generate_install_job('ignition', gz_collection_name, distro, arch)
+    }
     generate_install_job('gz', gz_collection_name, distro, arch)
 
     // ROS BOOTSTRAP INSTALL JOBS:
