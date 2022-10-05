@@ -14,6 +14,7 @@ gz_software = [ 'cmake',
                 'plugin',
                 'rendering',
                 'sensors',
+                'sim',
                 'tools',
                 'transport',
                 'utils' ]
@@ -161,6 +162,10 @@ Map merge_maps(Map[] sources) {
 // -dev package.
 ArrayList supported_ign_branches(String ign_software)
 {
+  // sim was not used in ignition
+  if (ign_software == 'sim')
+    return ['']
+
   major_versions_registered = ignition_branches["${ign_software}"]
 
   if (major_versions_registered == null)
@@ -173,6 +178,10 @@ ArrayList supported_ign_branches(String ign_software)
 // -dev package.
 ArrayList supported_gz_branches(String gz_software)
 {
+  // sim was not used in ignition
+  if (gz_software == 'gazebo')
+    return ['']
+
   major_versions_registered = gz_branches["${gz_software}"]
 
   if (major_versions_registered == null)
@@ -255,7 +264,6 @@ ArrayList all_debbuilders()
 // return all ci branch names
 // Map with the form of: major versions as keys.
 // Lists of distros supported as values
-// @TODO[scpeters] update this to support gz_branches after garden release
 Map supported_install_pkg_branches(String gz_software)
 {
   major_versions_prerelease = gz_prerelease_pkgs["${gz_software}"]
@@ -264,14 +272,16 @@ Map supported_install_pkg_branches(String gz_software)
   // all_supported_distros
   map_of_stable_versions = [:]
   map_of_stable_versions[gz_software] = [:]
-  supported_ign_branches(gz_software).each { major_version ->
+  (supported_ign_branches(gz_software) + supported_gz_branches(gz_software)).each { major_version ->
+    if (! major_version)
+      return false  // keep looping
     new_relation = [:]
     new_relation[major_version] = all_supported_distros
     map_of_stable_versions[gz_software] << new_relation
   }
 
   if (major_versions_prerelease == null)
-    return map_of_stable_versions[gz_software];
+    return map_of_stable_versions[gz_software]
 
   return merge_maps(map_of_stable_versions[gz_software],
                     major_versions_prerelease)
@@ -469,15 +479,17 @@ gz_software.each { gz_sw ->
 
         // No 1-dev or 0-dev packages (except special cases see
         // gz_debbuild variable), unversioned
+        major_version_in_pkgname = major_version
         if ("${major_version}" == "0" || "${major_version}" == "1")
-          major_version = ""
+          major_version_in_pkgname = ""
 
-        // --------------------------------------------------------------
-        // ignition_ prefix packages:
-        generate_install_job("ignition", gz_sw, major_version, distro, arch)
-        // --------------------------------------------------------------
-        // gz_ prefix packages:
-        generate_install_job("gz", gz_sw.replace('gazebo', 'sim'), major_version, distro, arch)
+        // 1. gz_ prefix packages. All but not gazebo (replaced by sim)
+        if (gz_sw != 'gazebo')
+          generate_install_job("gz", gz_sw, major_version_in_pkgname, distro, arch)
+
+        // 2. ignition_ prefix packages. gz software does not have ignition packages
+        if (major_version in supported_ign_branches(gz_sw))
+          generate_install_job("ignition", gz_sw, major_version_in_pkgname, distro, arch)
       }
     }
   }
