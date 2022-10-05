@@ -220,7 +220,7 @@ gz_collection_jobs =
         'gz_sensors7-install-pkg-focal-amd64',
         'gz_tools2-install-pkg-focal-amd64',
         'gz_transport12-install-pkg-focal-amd64',
--       'gz_utils2-install-pkg-focal-amd64',
+        'gz_utils2-install-pkg-focal-amd64',
         'ign_cmake-gz-3-win',
         'ign_common-gz-5-win',
         'ign_fuel-tools-gz-8-win',
