@@ -427,7 +427,8 @@ gz_software.each { gz_sw ->
     } // end of ci_any_job
 
     // add ci-pr_any to the list for CIWorkflow
-    ci_pr_any_list[software_name] << gz_ci_job_name
+    if (gz_sw != 'sim')
+      ci_pr_any_list[software_name] << gz_ci_job_name
   }
 }
 
@@ -484,8 +485,7 @@ gz_software.each { gz_sw ->
           major_version_in_pkgname = ""
 
         // 1. gz_ prefix packages. All but not gazebo (replaced by sim)
-        if (gz_sw != 'gazebo')
-          generate_install_job("gz", gz_sw, major_version_in_pkgname, distro, arch)
+        generate_install_job("gz", gz_sw.replace('gazebo', 'sim'), major_version, distro, arch)
 
         // 2. ignition_ prefix packages. gz software does not have ignition packages
         if (major_version in supported_ign_branches(gz_sw))
@@ -641,8 +641,10 @@ gz_software.each { gz_sw ->
       }
   }
 
+  // do not add gazebo twice
   // add ci-pr_any to the list for CIWorkflow
-  ci_pr_any_list[software_name] << gz_brew_ci_any_job_name
+  if (gz_sw != 'sim')
+    ci_pr_any_list[software_name] << gz_brew_ci_any_job_name
 
   // 2. main, release branches
   all_branches("${software_name}").each { branch ->
