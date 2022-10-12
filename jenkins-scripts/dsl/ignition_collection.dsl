@@ -332,6 +332,9 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
            export ARCH=${arch}
            export INSTALL_JOB_PKG=${dev_package}
            export GZDEV_PROJECT_NAME="${dev_package}"
+           if [[ ${gz_collection_name} == 'citadel' || ${gz_collection_name} == 'fortress' ]]; then
+              export GZ_SIM_RUNTIME_TEST_USE_IGN=true
+           fi
            /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
            """.stripIndent())
     }
@@ -360,7 +363,9 @@ gz_collections.each { gz_collection ->
   gz_collection.get('distros').each { distro ->
     // INSTALL JOBS:
     // --------------------------------------------------------------
-    generate_install_job('ignition', gz_collection_name, distro, arch)
+    if ((gz_collection_name == "citadel") || (gz_collection_name == "fortress")) {
+      generate_install_job('ignition', gz_collection_name, distro, arch)
+    }
     generate_install_job('gz', gz_collection_name, distro, arch)
   }
 

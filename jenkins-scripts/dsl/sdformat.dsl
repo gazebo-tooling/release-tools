@@ -140,7 +140,7 @@ void generate_asan_ci_job(sdformat_ci_job, version, distro, arch)
 {
   generate_ci_job(sdformat_ci_job, version, distro, arch,
                   '-DGZ_SANITIZER=Address',
-                  Globals.MAKETEST_SKIP_IGN)
+                  Globals.MAKETEST_SKIP_GZ)
 }
 
 void generate_ci_job(sdformat_ci_job, version, distro, arch,
