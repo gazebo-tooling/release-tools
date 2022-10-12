@@ -6,7 +6,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 # Identify GAZEBO_MAJOR_VERSION to help with dependency resolution
 GAZEBO_MAJOR_VERSION=$(\
-  python ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
   ${WORKSPACE}/gazebo/CMakeLists.txt)
 
 if [ $GAZEBO_MAJOR_VERSION -ge 7 ]; then
