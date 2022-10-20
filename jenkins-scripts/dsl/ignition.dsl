@@ -269,6 +269,11 @@ Map supported_install_pkg_branches(String gz_software)
     new_relation[major_version] = all_supported_distros
     map_of_stable_versions[gz_software] << new_relation
   }
+  supported_gz_branches(gz_software).each { major_version ->
+    new_relation = [:]
+    new_relation[major_version] = all_supported_distros
+    map_of_stable_versions[gz_software] << new_relation
+  }
 
   if (major_versions_prerelease == null)
     return map_of_stable_versions[gz_software];
