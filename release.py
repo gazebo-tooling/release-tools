@@ -41,6 +41,22 @@ NO_SRC_FILE = False
 
 IGNORE_DRY_RUN = True
 
+GARDEN_IGN_PACKAGES = ['ign-cmake3',
+                       'ign-common5',
+                       'ign-fuel-tools8',
+                       'ign-sim7',
+                       'ign-gui7',
+                       'ign-launch6',
+                       'ign-math7',
+                       'ign-msgs9',
+                       'ign-physics6',
+                       'ign-plugin2',
+                       'ign-rendering7',
+                       'ign-sensors7',
+                       'ign-tools2',
+                       'ign-transport12',
+                       'ign-utils2']
+
 class ErrorNoPermsRepo(Exception):
     pass
 
@@ -140,6 +156,10 @@ def parse_args(argv):
                         help='Bump only revision number. Do not upload new tarball.')
 
     args = parser.parse_args()
+
+    if args.package in GARDEN_IGN_PACKAGES:
+        print(f"Garden packages start with gz- prefix, changing {args.package} to {args.package.replace('ign-','gz-')}",)
+        args.package = args.package.replace('ign-','gz-')
 
     args.package_alias = args.package
     # If ignition auto is enabled, replace ign- with ignition- at the beginning
@@ -418,6 +438,8 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
         if (not dry_run):
             if not os.path.isfile(alt_tarball_path):
                 error("Can not find a tarball at: " + tarball_path + " or at " + alt_tarball_path)
+            else:
+                tarball_fname = alt_tarball_fname
         tarball_path = alt_tarball_path
 
     out, err = check_call(['shasum', '--algorithm', '256', tarball_path])
@@ -621,7 +643,8 @@ def go(argv):
                     # Need to use JENKINS_NODE_TAG parameter for large memory nodes
                     # since it runs qemu emulation
                     linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
-                elif ('ignition-physics' in args.package_alias):
+                elif ('ignition-physics' in args.package_alias) or \
+                     ('gz-physics' in args.package_alias):
                     linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
 
                 if (NIGHTLY and a == 'i386'):

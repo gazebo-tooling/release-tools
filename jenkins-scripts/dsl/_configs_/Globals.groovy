@@ -13,7 +13,9 @@ class Globals
    static CRON_EVERY_THREE_DAYS = 'H H * * H/3'
    static CRON_ON_WEEKEND = 'H H * * 6-7'
 
-   static MAKETEST_SKIP_IGN = "-E _ign_TEST"
+   // Only one -E regex can be passed, so make a regex that matches both
+   // _ign_TEST and _gz_TEST
+   static MAKETEST_SKIP_GZ = "-E _i?g[nz]_TEST"
 
    static gpu_by_distro  = [ bionic  : [ 'nvidia' ]]
 

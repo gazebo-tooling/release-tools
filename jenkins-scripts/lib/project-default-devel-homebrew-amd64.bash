@@ -27,12 +27,14 @@ PROJECT_PATH=${PROJECT_PATH/ign-sim/ign-gazebo}
 # Check for major version number
 # the PROJECT_FORMULA variable is only used for dependency resolution
 PROJECT_FORMULA=${PROJECT//[0-9]}$(\
-  python ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
   ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt || true)
 
 export HOMEBREW_PREFIX=/usr/local
 export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
 export PATH=${HOMEBREW_PREFIX}/bin:$PATH
+
+export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python
 
 # make verbose mode?
 MAKE_VERBOSE_STR=""

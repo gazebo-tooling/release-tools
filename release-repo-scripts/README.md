@@ -72,7 +72,6 @@ git clone https://github.com/gz-release/gz-rendering7-release
 cd gz-rendering7-release
 ./path/to/release-tools/release-repo-scripts/changelog_spawn.sh 7.1.0-1
 ```
-
 ### convert_gazebodistro_to_release.py
 
 Convert a gazebodistro file into a vcs compatible file with the -release repositories
@@ -94,6 +93,40 @@ To import all release repositories related to gz Garden collection:
 ./path/to/release-tools/release-repo-scripts/convert_gazebodistro_to_release.py ~/code/gazebodistro/collection-garden.yaml  > collection-garden-release.yaml
 vcs import < collection-garden-release.yaml
 ```
+
+### new_ubuntu_distribution.bash
+
+The script will create a new directory to host a new Ubuntu distribution inside
+the -release repository where it is being run. The new directory will be mostly
+a copy of the latest Ubuntu distribution available.
+
+A local clone of the same Debian official package is being done in /tmp to import
+some changes from it and produce a diff between the metadata in Debian official
+and the one in the local repo.
+
+#### Usage
+
+Require the package `dctrl-tools` installed. The script will perform different
+operations to update different metadata.
+
+Some git add operations are performed but there won't be a commit or a permanent
+change.
+
+```bash
+cd <path-to-release-repo>
+./new_ubuntu_distribution <new_distro_name>
+```
+
+#### Example
+
+To create the kinetic Ubuntu distribution inside `gz-cmake3-release`:
+
+```bash
+git clone https://github.com/gz-release/gz-cmake3-release
+cd gz-cmake3-release
+./path/to/release-tools/release-repo-scripts/new_ubuntu_distribution.bash kinetic
+```
+
 ### new_ignition_release_repos.bash
 
 The script will create new -release repositories as forks from the previous version
@@ -130,4 +163,28 @@ To create `ign-rendering7-release` repository copying files in `ign-rendering6-r
 ```bash
 cd /tmp/
 ./path/to/release-tools/release-repo-scripts/new_ignition_release_repos.bash ign-rendering7
+```
+
+### rename_ignition_to_gazebo.bash
+
+Script used for renaming all ignition package names to gz. It creates
+transition packages as aliases.
+
+#### Usage
+
+The script uses `dch` from the package `debhelper`. `grep-dctrl` from the `dctrl-tools` package.
+The script will make all the changes without making any commit so a manual inspection
+can be done after the run.
+
+```bash
+cd <release-repo>
+./path/to/release-tools/release-repo-scripts/rename_ignition_to_gazebo.bash
+```
+
+#### Example
+
+```bash
+git clone https://github.com/gazebo-release/gz-cmake3-release
+cd gz-cmake3-release
+./path/to/release-tools/release-repo-scripts/rename_ignition_to_gazebo.bash
 ```

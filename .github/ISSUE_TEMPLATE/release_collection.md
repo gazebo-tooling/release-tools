@@ -24,6 +24,9 @@ When opening PRs, add a link back to this issue for easier tracking.
 - [ ] Merge each library forward from previous versions
     * <!-- LINK PRS HERE -->
 - [ ] Create stable branches off of `main`
+    - [ ] `New branch` button on branches page ([example](https://github.com/gazebosim/sdformat/branches))
+    - [ ] Enable CI for stable branches ([example](https://github.com/gazebo-tooling/release-tools/pull/787))
+    - [ ] Use stable branch jobs in Jenkins view ([example part 1](https://github.com/gazebo-tooling/release-tools/pull/793) and [part 2](https://github.com/gazebo-tooling/release-tools/pull/806))
 - [ ] Pull requests previously targeted at `main`:
     - Bug fixes:
        - Retarget to the new stable branch.
@@ -45,7 +48,7 @@ When opening PRs, add a link back to this issue for easier tracking.
     - [ ] Enable nightlies for all `main` branches on `gzdev` ([example](https://github.com/gazebo-tooling/gzdev/pull/50))
     - [ ] Execute the tick-tock's "tock" for deprecations ([example](https://github.com/gazebosim/gz-sim/pull/875))
         * <!-- LINK PRs HERE -->
-- [ ] Pre-release libraries as all `beta` labels are merged.
+- [ ] Update Changelog and pre-release libraries as all `beta` labels are merged.
     * <!-- LINK PRS HERE -->
 - [ ] Make collection pre-release after all libraries are pre-released.
     * <!-- LINK PR HERE -->

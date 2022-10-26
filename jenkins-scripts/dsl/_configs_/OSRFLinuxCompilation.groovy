@@ -77,7 +77,11 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
               minimumSeverity {
                 name('LOW')
               }
-              filters { }
+              filters {
+                'io.jenkins.plugins.analysis.core.filter.ExcludeFile' {
+                  pattern('.*ALSA lib.*')
+                }
+              }
               isEnabledForFailure(false)
               isAggregatingResults(false)
               isBlameDisabled(false)

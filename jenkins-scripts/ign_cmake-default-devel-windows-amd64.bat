@@ -4,6 +4,9 @@ set VCS_DIRECTORY=gz-cmake
 set PLATFORM_TO_BUILD=x86_amd64
 set IGN_CLEAN_WORKSPACE=true
 
-set EXTRA_CMAKE_TEST_ARGS=-DBUILDSYSTEM_TESTING:BOOL=True
+:: This needs to be migrated to DSL to get multi-major versions correctly
+set COLCON_PACKAGE=gz-cmake
+set COLCON_AUTO_MAJOR_VERSION=true
+set COLCON_PACKAGE_EXTRA_CMAKE_ARGS="-DBUILDSYSTEM_TESTING:BOOL=True"
 
-call "%SCRIPT_DIR%/lib/generic-default-devel-windows.bat"
+call "%SCRIPT_DIR%\lib\colcon-default-devel-windows.bat"

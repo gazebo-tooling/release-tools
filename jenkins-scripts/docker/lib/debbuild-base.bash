@@ -44,7 +44,7 @@ if ${NIGHTLY_MODE}; then
   if ${USE_REPO_DIRECTORY_FOR_NIGHTLY}; then
     mv ${WORKSPACE}/repo \$REAL_PACKAGE_NAME
   else
-    git clone https://github.com/${GITHUB_ORG}/\$REAL_PACKAGE_NAME -b ${NIGHTLY_SRC_BRANCH}
+    git clone https://github.com/gazebosim/\$REAL_PACKAGE_NAME -b ${NIGHTLY_SRC_BRANCH}
   fi
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME
   cd \$REAL_PACKAGE_NAME

@@ -25,14 +25,12 @@
 #
 # ./merge_forward_pull_request.bash ign-rendering6 main
 
-FROM_BRANCH=${1}
+VERSION=${1}
 TO_BRANCH=${2}
+PREV_VER=${3}
 
-if [[ $# -ne 2 ]]; then
-  echo "./merge_forward_pull_request.bash <from_branch> <to_branch>"
-  exit 1
-elif [[ "$FROM_BRANCH" == "$TO_BRANCH" ]]; then
-  echo "Arguments ${FROM_BRANCH} and ${TO_BRANCH} must not be identical"
+if [[ $# -ne 3 ]]; then
+  echo "./release_pull_request.bash <version> <to_branch> <previous_version>"
   exit 1
 fi
 
@@ -43,15 +41,32 @@ CURRENT_BRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
 ORIGIN_URL=$(git remote get-url origin)
 ORIGIN_ORG_REPO=$(echo ${ORIGIN_URL} | sed -e 's@.*github\.com.@@' | sed -e 's/\.git//g')
 
-TITLE="Merge ${FROM_BRANCH} ➡️  ${TO_BRANCH}"
+PREV_TAG=$(git tag | grep "_${PREV_VER}$")
 
-BODY="# ➡️  Forward port
+TITLE="Prepare for ${VERSION} Release"
 
-Port \`${FROM_BRANCH} \` ➡️  \`${TO_BRANCH}\`
+BODY="# 🎈 Release
 
-Branch comparison: https://github.com/${ORIGIN_ORG_REPO}/compare/${TO_BRANCH}...${FROM_BRANCH}
+Preparation for ${VERSION} release.
 
-**Note to maintainers**: Remember to **Merge** with commit (not squash-merge or rebase)"
+Comparison to ${PREV_VER}: https://github.com/${ORIGIN_ORG_REPO}/compare/${PREV_TAG}...${TO_BRANCH}
+
+<!-- Add links to PRs that require this release (if needed) -->
+Needed by <PR(s)>
+
+## Checklist
+- [ ] Asked team if this is a good time for a release
+- [ ] There are no changes to be ported from the previous major version
+- [ ] No PRs targeted at this major version are close to getting in
+- [ ] Bumped minor for new features, patch for bug fixes
+- [ ] Updated changelog
+- [ ] Updated migration guide (as needed)
+- [ ] Link to PR updating dependency versions in appropriate repository in [gazebo-release](https://github.com/gazebo-release) (as needed): <LINK>
+
+<!-- Please refer to https://github.com/gazebo-tooling/release-tools#for-each-release for more information -->
+
+**Note to maintainers**: Remember to use **Squash-Merge** and edit the commit message to match the pull request summary while retaining \`Signed-off-by\` messages."
+
 
 gh pr create \
     --title "$TITLE" \
