@@ -32,12 +32,28 @@ ARCHS=( "amd64")
 DISTROS=( "ubuntu" )
 # No nightlies or pre-releases for arm
 if [[ $PACKAGE_REPO == "stable" ]]; then
-  ARCHS+=( "i386" "arm64" "armhf")
+  if [[ $COLLECTION == "citadel" || $COLLECTION == "fortress" ]]; then
+    ARCHS+=( "i386" )
+  fi
+
+  ARCHS+=( "arm64" "armhf")
   # No debian version supported across the stack right now
   # DISTROS+=( "debian" )
 fi
 
+# Search heuristics used and context:
+# We are assuming that all the gz- libraries have a package named libgz${LIB} or
+# libgz${LIB}-dev except for the collection packages starting with Garden.
+# Note that relying on the fact of having a packages available in a given
+# arch does not imply that build is successful since arch=all debs are built
+# once for amd64 and appear in all the arches.
+# The Source field (for source packages) is not mandatory and it is probably
+# not present when the binary package has the same name than the source
+# package.
 for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
+  if [[ "${LIB}" != "gz-${COLLECTION}" && "${LIB}" != "ignition-${COLLECTION}" ]]; then
+    LIB=lib${LIB}
+  fi
   echo -e "\e[107m\e[90m${LIB}\e[49m\e[39m"
 
   LIB_VER=""
@@ -70,10 +86,8 @@ for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
         if [[ $ARCH == "i386" && $VER != "bionic" && $VER != "buster" ]]; then
           PKG_VERSION="disabled"
         else
-          # The Source field is not mandatory and it is probably not present when
-          # the binary package has the same name than the source package
           PKG_VERSION=$(wget -qO- http://packages.osrfoundation.org/gazebo/${DISTRO}-${PACKAGE_REPO}/dists/${VER}/main/binary-${ARCH}/Packages | \
-            grep -2 -m 1 -e "Source: ${LIB}" -e "Package: ${LIB}" | \
+            grep -2 -m 1 -e "Package: ${LIB}$" -e "Package: ${LIB}-dev$"| \
             sed -n 's/^Version: \(.*\)/\1/p' | uniq)
         fi
 
