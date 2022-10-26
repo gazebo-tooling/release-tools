@@ -48,7 +48,7 @@ When opening PRs, add a link back to this issue for easier tracking.
     - [ ] Enable nightlies for all `main` branches on `gzdev` ([example](https://github.com/gazebo-tooling/gzdev/pull/50))
     - [ ] Execute the tick-tock's "tock" for deprecations ([example](https://github.com/gazebosim/gz-sim/pull/875))
         * <!-- LINK PRs HERE -->
-- [ ] Pre-release libraries as all `beta` labels are merged.
+- [ ] Update Changelog and pre-release libraries as all `beta` labels are merged.
     * <!-- LINK PRS HERE -->
 - [ ] Make collection pre-release after all libraries are pre-released.
     * <!-- LINK PR HERE -->

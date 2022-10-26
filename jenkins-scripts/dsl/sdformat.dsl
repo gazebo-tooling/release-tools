@@ -139,8 +139,8 @@ other_supported_distros.each { distro ->
 void generate_asan_ci_job(sdformat_ci_job, version, distro, arch)
 {
   generate_ci_job(sdformat_ci_job, version, distro, arch,
-                  '-DIGN_SANITIZER=Address',
-                  Globals.MAKETEST_SKIP_IGN,
+                  '-DGZ_SANITIZER=Address',
+                  Globals.MAKETEST_SKIP_GZ,
                   'export ASAN_OPTIONS=check_initialization_order=true')
 }
 
