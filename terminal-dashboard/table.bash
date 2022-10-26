@@ -49,7 +49,7 @@ fi
 # once for amd64 and appear in all the arches.
 # The Source field (for source packages) is not mandatory and it is probably
 # not present when the binary package has the same name than the source
-# package so here we are assuming.
+# package.
 for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
   if [[ "${LIB}" != "gz-${COLLECTION}" && "${LIB}" != "ignition-${COLLECTION}" ]]; then
     LIB=lib${LIB}
