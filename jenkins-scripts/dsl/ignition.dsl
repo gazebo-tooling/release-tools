@@ -499,7 +499,7 @@ void generate_asan_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
 {
   generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
                   '-DGZ_SANITIZER=Address',
-                  Globals.MAKETEST_SKIP_GZ,                  
+                  Globals.MAKETEST_SKIP_GZ,
                   'export ASAN_OPTIONS=check_initialization_order=true')
 }
 
@@ -727,6 +727,9 @@ gz_software.each { gz_sw ->
 // 1. any
 gz_software.each { gz_sw ->
 
+  if (gz_sw == 'sim')
+    return
+
   if (is_a_colcon_package(gz_sw)) {
     // colcon uses long paths and windows has a hard limit of 260 chars. Keep
     // names minimal
@@ -738,12 +741,10 @@ gz_software.each { gz_sw ->
   }
 
   supported_branches = []
-  gz_software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
 
   // ign-gazebo only support Windows from ign-gazebo5
   if (gz_sw == 'gazebo')
     supported_branches = [ 'ign-gazebo6', 'gz-sim7', 'main' ]
-    gz_software_name = "sim"
 
   // ign-launch only support Windows from ign-launch5
   if (gz_sw == 'launch')
@@ -815,6 +816,8 @@ gz_software.each { gz_sw ->
 
 // Main CI workflow
 gz_software.each { gz_sw ->
+  if (gz_sw == 'sim')
+    return
   def String ci_main_name = "ignition_${gz_sw}-ci-manual_any"
   def gz_ci_main = pipelineJob(ci_main_name)
   OSRFCIWorkFlowMultiAnyGitHub.create(gz_ci_main, ci_pr_any_list[gz_sw])
