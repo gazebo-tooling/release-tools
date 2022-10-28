@@ -367,6 +367,53 @@ gz_collections.each { gz_collection ->
       generate_install_job('ignition', gz_collection_name, distro, arch)
     }
     generate_install_job('gz', gz_collection_name, distro, arch)
+
+    // ROS BOOTSTRAP INSTALL JOBS:
+    // --------------------------------------------------------------
+    def install_ros_bootstrap_job =
+    job("ignition_${gz_collection_name}-install-pkg_ros_bootstrap-any-manual")
+    OSRFLinuxInstall.create(install_ros_bootstrap_job)
+    install_ros_bootstrap_job.with
+    {
+      parameters {
+        stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
+        stringParam("DISTRO", distro, "Linux release inside LINUX_DISTRO to build packages for")
+        stringParam("ARCH", arch, "Architecture to build packages for")
+        labelParam('JENKINS_NODE_TAG') {
+          description('Jenkins node or group to run the build on')
+          defaultValue('gpu-reliable')
+        }
+      }
+
+      // Designed to be run manually. No triggers.
+      label "gpu-reliable"
+
+      steps {
+        systemGroovyCommand("""\
+          build.setDescription(
+          '<b>' + build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
+                  build.buildVariableResolver.resolve('DISTRO') + '::' +
+                  build.buildVariableResolver.resolve('ARCH') + '</b>' +
+          '<br />' +
+          'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+          """.stripIndent())
+
+        shell("""\
+             #!/bin/bash -xe
+
+
+             export INSTALL_JOB_PKG=ignition-${gz_collection_name}
+             export USE_ROS_REPO=true
+             export ROS_BOOTSTRAP=true
+             # needed for arm64 machines and other arch tests
+             export ENABLE_GZ_SIM_RUNTIME_TEST=false
+             if [[ \${JENKINS_NODE_TAG} == 'gpu-reliable' ]]; then
+               export ENABLE_GZ_SIM_RUNTIME_TEST=true
+             fi
+             /bin/bash -x ./scripts/jenkins-scripts/docker/ign_launch-install-test-job.bash
+             """.stripIndent())
+      }
+    }
   }
 
   // MAC Brew CI job

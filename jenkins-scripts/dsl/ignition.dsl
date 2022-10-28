@@ -499,11 +499,13 @@ void generate_asan_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
 {
   generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
                   '-DGZ_SANITIZER=Address',
-                  Globals.MAKETEST_SKIP_GZ)
+                  Globals.MAKETEST_SKIP_GZ,                  
+                  'export ASAN_OPTIONS=check_initialization_order=true')
 }
 
+
 void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
-                     extra_cmake = '', extra_test = '')
+                     extra_cmake = '', extra_test = '', extra_cmd = '')
 {
   OSRFLinuxCompilation.create(gz_ci_job, enable_testing(software_name))
   OSRFGitHub.create(gz_ci_job,
@@ -521,6 +523,7 @@ void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
             #!/bin/bash -xe
 
             ${GLOBAL_SHELL_CMD}
+            ${extra_cmd}
             export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
             export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
             export DISTRO=${distro}

@@ -228,6 +228,12 @@ RUN echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/ros-archive-keyrin
         /etc/apt/sources.list.d/ros2-testing.list
 RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 DELIM_ROS_REPO
+  elif ${ROS_BOOTSTRAP}; then
+cat >> Dockerfile << DELIM_ROS_REPO
+RUN echo "deb http://repos.ros.org/repos/ros_bootstrap/ ${DISTRO} main" > \\
+                                                /etc/apt/sources.list.d/ros_bootstrap.list
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8EDB2EF661FC880E
+DELIM_ROS_REPO
   else
 cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
