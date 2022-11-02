@@ -44,7 +44,7 @@ if ${COVERAGE_ENABLED} ; then
   EXTRA_PACKAGES="${EXTRA_PACKAGES} wget"
 fi
 
-SOFTWARE_DIR="gazebo"
+SOFTWARE_DIR="gazebo-classic"
 
 cat > build.sh << DELIM_DART
 ###################################################
@@ -79,8 +79,8 @@ if ${COVERAGE_ENABLED} ; then
   set -x # back to debug
   # Set up Bullseyes for compiling
   export PATH=/usr/bullseyes/bin:\$PATH
-  export COVFILE=$WORKSPACE/gazebo/test.cov
-  cd $WORKSPACE/gazebo
+  export COVFILE=$WORKSPACE/${SOFTWARE_DIR}/test.cov
+  cd $WORKSPACE/${SOFTWARE_DIR}
   covselect --file test.cov --add .
   cov01 --on
   echo '# END SECTION'
@@ -205,7 +205,7 @@ if ${COVERAGE_ENABLED} ; then
   rm -fr $WORKSPACE/bullshtml
   mkdir -p $WORKSPACE/coverage
   covselect --add '!$WORKSPACE/build/' '!../build/' '!test/' '!tools/test/' '!deps/' '!/opt/' '!gazebo/rendering/skyx/' '!/tmp/'
-  covhtml --srcdir $WORKSPACE/gazebo/ $WORKSPACE/coverage
+  covhtml --srcdir $WORKSPACE/${SOFTWARE_DIR}/ $WORKSPACE/coverage
   # Generate valid cover.xml file using the bullshtml software
   # java is needed to run bullshtml
   apt-get install -y default-jre
