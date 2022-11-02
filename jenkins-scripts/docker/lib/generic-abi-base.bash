@@ -11,6 +11,8 @@
 # ABI_JOB_CMAKE_PARAMS: (option) cmake parameters to be pased to cmake configuration
 # ABI_JOB_IGNORE_HEADERS: (optional) relative (to root project path) list (space separated)
 #                         of path headers to ignore
+# ABI_JOB_EXTRA_GCC_OPTIONS: (optional) inject gcc_options in the descriptor file
+#                            one per line
 
 # Jenkins variables:
 # DEST_BRANCH
@@ -100,6 +102,10 @@ sudo perl Makefile.pl -install --prefix=/usr
 
 mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker
+
+PKG_HEADERS=\$(PKG_CONFIG_PATH=/usr/local/destination_branch \
+                 pkg-config gz-sim7 --cflags-only-I | tr " " "\n" | sed 's:^-I::')
+
 cat > pkg.xml << CURRENT_DELIM
  <version>
      branch: $DEST_BRANCH
@@ -107,6 +113,7 @@ cat > pkg.xml << CURRENT_DELIM
 
  <headers>
    /usr/local/destination_branch/include/\$DEST_DIR
+   ${PKG_HEADERS}
  </headers>
 
  ${EXTRA_INCLUDES}
@@ -126,6 +133,7 @@ cat >> pkg.xml << CURRENT_DELIM_LIBS
 
  <gcc_options>
      -std=${ABI_CXX_STANDARD}
+     ${ABI_JOB_EXTRA_GCC_OPTIONS}
  </gcc_options>
 CURRENT_DELIM_LIBS
 
@@ -156,6 +164,7 @@ cat >> devel.xml << DEVEL_DELIM_LIBS
 
  <gcc_options>
      -std=${ABI_CXX_STANDARD}
+     ${ABI_JOB_EXTRA_GCC_OPTIONS}
  </gcc_options>
 DEVEL_DELIM_LIBS
 echo '# END SECTION'
