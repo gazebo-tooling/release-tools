@@ -113,7 +113,7 @@ cat > pkg.xml << CURRENT_DELIM
 
  <headers>
    /usr/local/destination_branch/include/\$DEST_DIR
-   ${PKG_HEADERS}
+   \${PKG_HEADERS}
  </headers>
 
  ${EXTRA_INCLUDES}
@@ -144,6 +144,7 @@ cat > devel.xml << DEVEL_DELIM
 
  <headers>
    /usr/local/source_branch/include/\$SRC_DIR
+   \${PKG_HEADERS}
  </headers>
 
  ${EXTRA_INCLUDES}
