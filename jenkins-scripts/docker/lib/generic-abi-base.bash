@@ -103,7 +103,7 @@ sudo perl Makefile.pl -install --prefix=/usr
 mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker
 
-PKG_HEADERS=\$(PKG_CONFIG_PATH=/usr/local/destination_branch/lib/pkgconfig \
+PKG_INCLUDE_PATHS=\$(PKG_CONFIG_PATH=/usr/local/destination_branch/lib/pkgconfig \
                  pkg-config gz-sim7 --cflags-only-I | tr " " "\n" | sed 's:^-I::')
 
 cat > pkg.xml << CURRENT_DELIM
@@ -113,7 +113,6 @@ cat > pkg.xml << CURRENT_DELIM
 
  <headers>
    /usr/local/destination_branch/include/\$DEST_DIR
-   \${PKG_HEADERS}
  </headers>
 
  ${EXTRA_INCLUDES}
@@ -135,6 +134,10 @@ cat >> pkg.xml << CURRENT_DELIM_LIBS
      -std=${ABI_CXX_STANDARD}
      ${ABI_JOB_EXTRA_GCC_OPTIONS}
  </gcc_options>
+
+ <include_paths>
+   \${PKG_INCLUDE_PATHS}
+ </include_path>
 CURRENT_DELIM_LIBS
 
 cat > devel.xml << DEVEL_DELIM
@@ -144,7 +147,6 @@ cat > devel.xml << DEVEL_DELIM
 
  <headers>
    /usr/local/source_branch/include/\$SRC_DIR
-   \${PKG_HEADERS}
  </headers>
 
  ${EXTRA_INCLUDES}
@@ -167,6 +169,10 @@ cat >> devel.xml << DEVEL_DELIM_LIBS
      -std=${ABI_CXX_STANDARD}
      ${ABI_JOB_EXTRA_GCC_OPTIONS}
  </gcc_options>
+
+ <include_paths>
+   \${PKG_INCLUDE_PATHS}
+ </include_path>
 DEVEL_DELIM_LIBS
 echo '# END SECTION'
 
