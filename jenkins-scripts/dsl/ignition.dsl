@@ -741,9 +741,10 @@ gz_software.each { gz_sw ->
   gz_software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
 
   // ign-gazebo only support Windows from ign-gazebo5
-  if (gz_sw == 'gazebo')
+  if (gz_sw == 'gazebo') {
     supported_branches = [ 'ign-gazebo6', 'gz-sim7', 'main' ]
     gz_software_name = "sim"
+  }
 
   // ign-launch only support Windows from ign-launch5
   if (gz_sw == 'launch')
@@ -758,8 +759,12 @@ gz_software.each { gz_sw ->
                                     enable_cmake_warnings(gz_sw))
   gz_win_ci_any_job.with
   {
-      if (gz_sw == 'rendering')
+      if (gz_sw == 'gui' ||
+          gz_sw == 'rendering' ||
+          gz_sw == 'sensors' ||
+          gz_software_name == 'sim')
         label('win_rendering')
+
 
       steps {
         batchFile("""\
@@ -813,7 +818,10 @@ gz_software.each { gz_sw ->
                 """.stripIndent())
         }
 
-        if (gz_sw == 'rendering')
+        if (gz_sw == 'gui' ||
+            gz_sw == 'rendering' ||
+            gz_sw == 'sensors' ||
+            gz_software_name == 'sim')
           label('win_rendering')
     }
   }
