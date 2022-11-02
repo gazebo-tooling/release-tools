@@ -103,7 +103,7 @@ sudo perl Makefile.pl -install --prefix=/usr
 mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker
 
-PKG_HEADERS=\$(PKG_CONFIG_PATH=/usr/local/destination_branch \
+PKG_HEADERS=\$(PKG_CONFIG_PATH=/usr/local/destination_branch/lib/pkgconfig \
                  pkg-config gz-sim7 --cflags-only-I | tr " " "\n" | sed 's:^-I::')
 
 cat > pkg.xml << CURRENT_DELIM
