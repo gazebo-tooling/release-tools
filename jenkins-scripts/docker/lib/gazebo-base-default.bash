@@ -44,10 +44,6 @@ if ${COVERAGE_ENABLED} ; then
   EXTRA_PACKAGES="${EXTRA_PACKAGES} wget"
 fi
 
-if [[ $GAZEBO_MAJOR_VERSION -lt 8 ]]; then
-  GAZEBO_BASE_CMAKE_ARGS="${GAZEBO_BASE_CMAKE_ARGS} -DENABLE_TESTS_COMPILATION=True"
-fi
-
 SOFTWARE_DIR="gazebo"
 
 cat > build.sh << DELIM_DART
@@ -166,13 +162,11 @@ make -j${MAKE_JOBS}
 stop_stopwatch COMPILATION
 echo '# END SECTION'
 
-if [[ $GAZEBO_MAJOR_VERSION -ge 8 ]]; then
-  echo '# BEGIN SECTION: Tests compilation'
-  init_stopwatch TESTS_COMPILATION
-  make -j${MAKE_JOBS} tests
-  stop_stopwatch TESTS_COMPILATION
-  echo '# END SECTION'
-fi
+echo '# BEGIN SECTION: Tests compilation'
+init_stopwatch TESTS_COMPILATION
+make -j${MAKE_JOBS} tests
+stop_stopwatch TESTS_COMPILATION
+echo '# END SECTION'
 
 echo '# BEGIN SECTION: Gazebo installation'
 sudo make install
