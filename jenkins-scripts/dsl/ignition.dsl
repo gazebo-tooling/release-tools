@@ -758,6 +758,9 @@ gz_software.each { gz_sw ->
                                     enable_cmake_warnings(gz_sw))
   gz_win_ci_any_job.with
   {
+      if (gz_sw == 'rendering')
+        label('win_rendering')
+
       steps {
         batchFile("""\
               call "./scripts/jenkins-scripts/ign_${gz_sw}-default-devel-windows-amd64.bat"
@@ -809,6 +812,9 @@ gz_software.each { gz_sw ->
                 call "./scripts/jenkins-scripts/ign_${gz_sw}-default-devel-windows-amd64.bat"
                 """.stripIndent())
         }
+
+        if (gz_sw == 'rendering')
+          label('win_rendering')
     }
   }
 }
