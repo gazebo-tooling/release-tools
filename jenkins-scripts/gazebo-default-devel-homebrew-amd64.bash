@@ -15,4 +15,4 @@ echo '# END SECTION'
 # clear the heightmap paging cache
 rm -rf $HOME/.gazebo/paging
 
-. ${SCRIPT_DIR}/lib/project-default-devel-homebrew-amd64.bash gazebo
+. ${SCRIPT_DIR}/lib/project-default-devel-homebrew-amd64.bash gazebo-classic
