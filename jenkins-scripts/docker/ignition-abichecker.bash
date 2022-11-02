@@ -71,6 +71,7 @@ then
    </add_include_paths>
 """
   fi
+fi
 
 if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo"   && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 7 ]] || \
   [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gui"       && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 7 ]] || \
