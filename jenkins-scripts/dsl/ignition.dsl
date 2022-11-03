@@ -14,6 +14,7 @@ gz_software = [ 'cmake',
                 'plugin',
                 'rendering',
                 'sensors',
+                'sim',
                 'tools',
                 'transport',
                 'utils' ]
@@ -161,6 +162,10 @@ Map merge_maps(Map[] sources) {
 // -dev package.
 ArrayList supported_ign_branches(String ign_software)
 {
+  // sim was not used in ignition
+  if (ign_software == 'sim')
+    return ['']
+
   major_versions_registered = ignition_branches["${ign_software}"]
 
   if (major_versions_registered == null)
@@ -173,6 +178,10 @@ ArrayList supported_ign_branches(String ign_software)
 // -dev package.
 ArrayList supported_gz_branches(String gz_software)
 {
+  // sim was not used in ignition
+  if (gz_software == 'gazebo')
+    return ['']
+
   major_versions_registered = gz_branches["${gz_software}"]
 
   if (major_versions_registered == null)
@@ -255,7 +264,6 @@ ArrayList all_debbuilders()
 // return all ci branch names
 // Map with the form of: major versions as keys.
 // Lists of distros supported as values
-// @TODO[scpeters] update this to support gz_branches after garden release
 Map supported_install_pkg_branches(String gz_software)
 {
   major_versions_prerelease = gz_prerelease_pkgs["${gz_software}"]
@@ -264,14 +272,16 @@ Map supported_install_pkg_branches(String gz_software)
   // all_supported_distros
   map_of_stable_versions = [:]
   map_of_stable_versions[gz_software] = [:]
-  supported_ign_branches(gz_software).each { major_version ->
+  (supported_ign_branches(gz_software) + supported_gz_branches(gz_software)).each { major_version ->
+    if (! major_version)
+      return false  // keep looping
     new_relation = [:]
     new_relation[major_version] = all_supported_distros
     map_of_stable_versions[gz_software] << new_relation
   }
 
   if (major_versions_prerelease == null)
-    return map_of_stable_versions[gz_software];
+    return map_of_stable_versions[gz_software]
 
   return merge_maps(map_of_stable_versions[gz_software],
                     major_versions_prerelease)
@@ -417,7 +427,8 @@ gz_software.each { gz_sw ->
     } // end of ci_any_job
 
     // add ci-pr_any to the list for CIWorkflow
-    ci_pr_any_list[software_name] << gz_ci_job_name
+    if (gz_sw != 'sim')
+      ci_pr_any_list[software_name] << gz_ci_job_name
   }
 }
 
@@ -469,15 +480,16 @@ gz_software.each { gz_sw ->
 
         // No 1-dev or 0-dev packages (except special cases see
         // gz_debbuild variable), unversioned
+        major_version_in_pkgname = major_version
         if ("${major_version}" == "0" || "${major_version}" == "1")
-          major_version = ""
+          major_version_in_pkgname = ""
 
-        // --------------------------------------------------------------
-        // ignition_ prefix packages:
-        generate_install_job("ignition", gz_sw, major_version, distro, arch)
-        // --------------------------------------------------------------
-        // gz_ prefix packages:
+        // 1. gz_ prefix packages. All but not gazebo (replaced by sim)
         generate_install_job("gz", gz_sw.replace('gazebo', 'sim'), major_version, distro, arch)
+
+        // 2. ignition_ prefix packages. gz software does not have ignition packages
+        if (major_version in supported_ign_branches(gz_sw))
+          generate_install_job("ignition", gz_sw, major_version_in_pkgname, distro, arch)
       }
     }
   }
@@ -632,8 +644,10 @@ gz_software.each { gz_sw ->
       }
   }
 
+  // do not add gazebo twice
   // add ci-pr_any to the list for CIWorkflow
-  ci_pr_any_list[software_name] << gz_brew_ci_any_job_name
+  if (gz_sw != 'sim')
+    ci_pr_any_list[software_name] << gz_brew_ci_any_job_name
 
   // 2. main, release branches
   all_branches("${software_name}").each { branch ->
@@ -713,6 +727,9 @@ gz_software.each { gz_sw ->
 // 1. any
 gz_software.each { gz_sw ->
 
+  if (gz_sw == 'sim')
+    return
+
   if (is_a_colcon_package(gz_sw)) {
     // colcon uses long paths and windows has a hard limit of 260 chars. Keep
     // names minimal
@@ -724,12 +741,11 @@ gz_software.each { gz_sw ->
   }
 
   supported_branches = []
-  gz_software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
 
   // ign-gazebo only support Windows from ign-gazebo5
-  if (gz_sw == 'gazebo')
+  if (gz_sw == 'gazebo') {
     supported_branches = [ 'ign-gazebo6', 'gz-sim7', 'main' ]
-    gz_software_name = "sim"
+  }
 
   // ign-launch only support Windows from ign-launch5
   if (gz_sw == 'launch')
@@ -744,6 +760,13 @@ gz_software.each { gz_sw ->
                                     enable_cmake_warnings(gz_sw))
   gz_win_ci_any_job.with
   {
+      if (gz_sw == 'gui' ||
+          gz_sw == 'rendering' ||
+          gz_sw == 'sensors' ||
+          gz_sw == 'gazebo')
+        label('win_rendering')
+
+
       steps {
         batchFile("""\
               call "./scripts/jenkins-scripts/ign_${gz_sw}-default-devel-windows-amd64.bat"
@@ -795,12 +818,20 @@ gz_software.each { gz_sw ->
                 call "./scripts/jenkins-scripts/ign_${gz_sw}-default-devel-windows-amd64.bat"
                 """.stripIndent())
         }
+
+        if (gz_sw == 'gui' ||
+            gz_sw == 'rendering' ||
+            gz_sw == 'sensors' ||
+            gz_sw == 'gazebo')
+          label('win_rendering')
     }
   }
 }
 
 // Main CI workflow
 gz_software.each { gz_sw ->
+  if (gz_sw == 'sim')
+    return
   def String ci_main_name = "ignition_${gz_sw}-ci-manual_any"
   def gz_ci_main = pipelineJob(ci_main_name)
   OSRFCIWorkFlowMultiAnyGitHub.create(gz_ci_main, ci_pr_any_list[gz_sw])
