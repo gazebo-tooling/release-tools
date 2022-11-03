@@ -73,6 +73,16 @@ then
   fi
 fi
 
+if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo"   && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 7 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gui"       && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 7 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-launch"    && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-sensors"   && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 7 ]] || \
+  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-rendering" && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 7 ]]
+then
+  # -fPIC needed to compile Qt
+  export ABI_JOB_EXTRA_GCC_OPTIONS="-fPIC"
+fi
+
 # default to use stable repos
 export ABI_JOB_REPOS="stable"
 
