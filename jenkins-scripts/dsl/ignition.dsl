@@ -763,7 +763,7 @@ gz_software.each { gz_sw ->
       if (gz_sw == 'gui' ||
           gz_sw == 'rendering' ||
           gz_sw == 'sensors' ||
-          gz_software_name == 'sim')
+          gz_sw == 'gazebo')
         label('win_rendering')
 
 
@@ -822,7 +822,7 @@ gz_software.each { gz_sw ->
         if (gz_sw == 'gui' ||
             gz_sw == 'rendering' ||
             gz_sw == 'sensors' ||
-            gz_software_name == 'sim')
+            gz_sw == 'gazebo')
           label('win_rendering')
     }
   }
