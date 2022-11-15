@@ -49,6 +49,7 @@ echo # END SECTION
   echo # BEGIN SECTION: reusing workspace
   :: Remove gazebo copy
   IF EXIST %LOCAL_WS%\gazebo ( rmdir /s /q %LOCAL_WS%\gazebo ) || goto :error
+  IF EXIST %LOCAL_WS%\gazebo-classic ( rmdir /s /q %LOCAL_WS%\gazebo-classic ) || goto :error
   echo # END SECTION
 )
 
@@ -66,7 +67,7 @@ echo # END SECTION
 echo # BEGIN SECTION: compile and install sdformat
 set SDFORMAT_DIR=%WORKSPACE%\sdformat
 if EXIST %SDFORMAT_DIR% ( rmdir /s /q %SDFORMAT_DIR% )
-git clone https://github.com/osrf/sdformat %SDFORMAT_DIR% -b sdf6
+git clone https://github.com/gazebosim/sdformat %SDFORMAT_DIR% -b sdf6
 set VCS_DIRECTORY=sdformat
 set KEEP_WORKSPACE=TRUE
 set ENABLE_TESTS=FALSE
@@ -80,9 +81,9 @@ xcopy %WORKSPACE_INSTALL_DIR%\boost_1_67_0\lib64-msvc-14.1 %WORKSPACE_INSTALL_DI
 echo # END SECTION
 
 echo # BEGIN SECTION: copy gazebo sources to workspace
-:: Note that your jenkins job should put source in %WORKSPACE%/gazebo
-xcopy %WORKSPACE%\gazebo %LOCAL_WS%\gazebo /s /i /e > xcopy.log
-cd %LOCAL_WS%\gazebo
+:: Note that your jenkins job should put source in %WORKSPACE%/gazebo-classic
+xcopy %WORKSPACE%\gazebo-classic %LOCAL_WS%\gazebo-classic /s /i /e > xcopy.log
+cd %LOCAL_WS%\gazebo-classic
 echo # END SECTION
 
 echo # BEGIN SECTION: configure gazebo
