@@ -499,8 +499,8 @@ void generate_asan_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
 {
   generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
                   '-DGZ_SANITIZER=Address',
-                  Globals.MAKETEST_SKIP_GZ,
-                  'export ASAN_OPTIONS=check_initialization_order=true')
+                  Globals.MAKETEST_SKIP_GZ,                  
+                  'export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true')
 }
 
 
