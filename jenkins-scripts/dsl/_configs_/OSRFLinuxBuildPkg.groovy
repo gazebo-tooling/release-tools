@@ -99,21 +99,26 @@ class OSRFLinuxBuildPkg
             failBuildOnError(false)
         }
 
-        conditionalAction {
-          condition {
-            not {
-              expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
+        flexiblePublish
+        {
+          conditionalAction {
+            condition {
+              not {
+                expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
+              }
             }
-          }
-          downstreamParameterized {
-            trigger('repository_uploader_packages') {
-              condition('UNSTABLE_OR_BETTER')
-              parameters {
-                currentBuild()
-                predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-                // Workaround to avoid problems on repository uploader. Real
-                // issue: https://issues.jenkins-ci.org/browse/JENKINS-45005
-                predefinedProp("JENKINS_NODE_TAG", "master")
+            publishers {
+              downstreamParameterized {
+                trigger('repository_uploader_packages') {
+                  condition('UNSTABLE_OR_BETTER')
+                  parameters {
+                    currentBuild()
+                    predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+                    // Workaround to avoid problems on repository uploader. Real
+                    // issue: https://issues.jenkins-ci.org/browse/JENKINS-45005
+                    predefinedProp("JENKINS_NODE_TAG", "master")
+                  }
+                }
               }
             }
           }
