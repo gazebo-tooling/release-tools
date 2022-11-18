@@ -109,7 +109,7 @@ fi
 
 # Check destination repository
 if [[ -z ${UPLOAD_TO_REPO} ]]; then
-    echo "No UPLOAD_TO_REPO value was send. Which repository to use? (stable | prerelease | nightly)"
+    echo "No UPLOAD_TO_REPO value was send. Which repository to use? (stable | prerelease | nightly | none)"
     echo ""
     echo "Please check that the jenkins -debbuild job that called this uploader is defining the parameter"
     echo "UPLOAD_TO_REPO in the job configuration. If it is not, just define it as a string parameter"
@@ -117,32 +117,36 @@ if [[ -z ${UPLOAD_TO_REPO} ]]; then
 fi
 
 case ${UPLOAD_TO_REPO} in
-    "stable")
-	# Security checks not to upload nightly or prereleases
-        # No packages with ~git or ~pre
-	if [[ -n $(ls ${pkgs_path}/*~git*.*) && -n $(ls ${pkgs_path}/*~pre*.*) ]]; then
-	  echo "There are nightly packages in the upload directory. Not uploading to stable repo"
-	  exit 1
-	fi
-        # No source packages with ~git in version
-	if [[ -n $(cat ${pkgs_path}/*.dsc | grep ^Version: | grep '~git\|~pre') ]]; then
-          echo "There is a sorce package with nightly or pre in version. Not uploading to stable repo"
-	  exit 1
-        fi
-	;;
-    "nightly")
-	# No uploads for nightly packages
-	ENABLE_S3_UPLOAD=false
-	;;
-    "only_s3_upload")
-        # This should be fine, no repo, only s3 upload
-        ENABLE_S3_UPLOAD=true
-        ;;
-    *)
-	# Here we could find project repositories uploads or error values.
-	# Error values for UPLOAD_TO_REPO will be get in the next directory check
-	# some lines below so we do nothing.
-	;;
+  "stable")
+    # Security checks not to upload nightly or prereleases
+    # No packages with ~git or ~pre
+    if [[ -n $(ls ${pkgs_path}/*~git*.*) && -n $(ls ${pkgs_path}/*~pre*.*) ]]; then
+      echo "There are nightly packages in the upload directory. Not uploading to stable repo"
+      exit 1
+    fi
+          # No source packages with ~git in version
+    if [[ -n $(cat ${pkgs_path}/*.dsc | grep ^Version: | grep '~git\|~pre') ]]; then
+            echo "There is a sorce package with nightly or pre in version. Not uploading to stable repo"
+      exit 1
+    fi
+  ;;
+  "nightly")
+    # No uploads for nightly packages test runs
+    ENABLE_S3_UPLOAD=false
+  ;;
+  "none")
+    echo "UPLOAD_TO_REPO was set to none. No upload is done."
+    exit 0
+  ;;
+  "only_s3_upload")
+    # This should be fine, no repo, only s3 upload
+    ENABLE_S3_UPLOAD=true
+  ;;
+  *)
+    # Here we could find project repositories uploads or error values.
+    # Error values for UPLOAD_TO_REPO will be get in the next directory check
+    # some lines below so we do nothing.
+  ;;
 esac
 
 # .zip | (mostly) windows packages
