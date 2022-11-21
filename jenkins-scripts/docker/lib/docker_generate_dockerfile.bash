@@ -177,14 +177,6 @@ DELIM_DOCKER_ARCH
   fi
 fi
 
-# i386 image only have main by default
-if [[ ${LINUX_DISTRO} == 'ubuntu' && ${ARCH} == 'i386' ]]; then
-cat >> Dockerfile << DELIM_DOCKER_I386_APT
-RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} restricted universe" \\
-                                                       >> /etc/apt/sources.list
-DELIM_DOCKER_I386_APT
-fi
-
 # Workaround for: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=932019
 if [[ ${DISTRO} == 'buster' ]]; then
 cat >> Dockerfile << DELIM_BUSTER_DWZ
