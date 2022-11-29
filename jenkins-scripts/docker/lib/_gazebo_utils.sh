@@ -64,7 +64,13 @@ if $RUN_AUTOPKGTEST; then
 echo '# BEGIN SECTION: run autopkgtest'
 cd $WORKSPACE/pkgs
 set +e
-sudo autopkgtest --no-auto-control -B *.deb *.dsc -- null
+# Workaround of disabling hash on arm* platforms
+# See https://github.com/gazebosim/gz-common/issues/484
+SETUP_CMD=
+if [[ ${ARCH} == 'arm64' || ${ARCH} == 'armhf' ]]; then
+  SETUP_CMD=--setup-commands=$WORKSPACE/release-tools/jenkins-scripts/tools/disable_hash_checks_apt.bash
+fi
+sudo autopkgtest \${SETUP_CMD} --no-auto-control -B *.deb *.dsc -- null
 # autopkgtest will return 0 if there are successful tests and 8 if there are no tests
 testret=\$?
 if [[ \$testret != 0 ]] && [[ \$testret != 8 ]]; then
