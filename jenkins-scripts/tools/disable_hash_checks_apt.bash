@@ -6,6 +6,5 @@ Acquire::http::No-Cache=True;
 Acquire::BrokenProxy=true;
 EOF
 
-sudo rm  /var/lib/apt/lists/*
-sudo rm  /var/lib/apt/lists/partial/*
+sudo rm -fr /var/lib/apt/lists/
 sudo apt-get update
