@@ -84,7 +84,7 @@ gz_prerelease_branches = []
 // don't appear in gz_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
 gz_extra_debbuild = [ 'gui8',
-                      'launch8',
+                      'launch7',
                       'rendering8',
                       'sensors8',
                       'sim8',
