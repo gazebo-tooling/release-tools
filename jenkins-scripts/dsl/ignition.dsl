@@ -261,7 +261,11 @@ ArrayList all_debbuilders()
   }
   // add all extra debbuilders
   gz_extra_debbuild.each { gz_name ->
-    branches.add("ign-${gz_name}")
+    // utils1 is still using the ign preffix
+    if (gz_name == 'utils1')
+      branches.add("ign-${gz_name}")
+    else
+      branches.add("gz-${gz_name}")
   }
 
   return branches
