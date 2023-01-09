@@ -87,13 +87,6 @@ upload_dsc_package()
 		echo "MARK_BUILD_UNSTABLE"
 }
 
-NEEDED_HOST_PACKAGES="reprepro openssh-client jq gridsite-clients"
-QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
-if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
-  sudo apt-get update
-  sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
-fi
-
 # By default, enable s3 upload of packages
 ENABLE_S3_UPLOAD=true
 
