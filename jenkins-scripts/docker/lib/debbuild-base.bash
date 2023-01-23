@@ -268,7 +268,11 @@ test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 
 cat /etc/apt/sources.list
-${DEBBUILD_AUTOPKGTEST}
+# Run only autopkgtest on amd64
+# see https://github.com/gazebosim/gz-common/issues/484
+if [[ ${ARCH} == 'amd64' ]]; then
+  ${DEBBUILD_AUTOPKGTEST}
+fi
 DELIM
 
 OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
