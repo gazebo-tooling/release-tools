@@ -27,7 +27,7 @@ gz_collections = [
           'math'      : [ debbuild: 'gz-math7'       , branch: 'gz-math7' ],
           'plugin'    : [ debbuild: 'gz-plugin2'     , branch: 'gz-plugin2' ],
           'common'    : [ debbuild: 'gz-common5'     , branch: 'gz-common5' ],
-          'msgs'      : [ debbuild: 'gz-msgs9'       , branch: 'main' ],
+          'msgs'      : [ debbuild: 'gz-msgs10'       , branch: 'main' ],
           'rendering' : [ debbuild: 'gz-rendering8'  , branch: 'main' ],
           'sdformat'  : [ debbuild: 'sdformat13'     , branch: 'sdf13' ],
           'fuel-tools': [ debbuild: 'gz-fuel-tools8' , branch: 'gz-fuel-tools8' ],
