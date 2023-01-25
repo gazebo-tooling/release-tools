@@ -31,7 +31,7 @@ gz_collections = [
           'rendering' : [ debbuild: 'gz-rendering8'  , branch: 'main' ],
           'sdformat'  : [ debbuild: 'sdformat13'     , branch: 'sdf13' ],
           'fuel-tools': [ debbuild: 'gz-fuel-tools8' , branch: 'gz-fuel-tools8' ],
-          'transport' : [ debbuild: 'gz-transport12' , branch: 'main' ],
+          'transport' : [ debbuild: 'gz-transport13' , branch: 'main' ],
           'gui'       : [ debbuild: 'gz-gui8'        , branch: 'main' ],
           'sensors'   : [ debbuild: 'gz-sensors8'    , branch: 'main' ],
           'physics'   : [ debbuild: 'gz-physics6'    , branch: 'gz-physics6' ],
