@@ -89,7 +89,7 @@ gz_extra_debbuild = [ 'gui8',
                       'rendering8',
                       'sensors8',
                       'sim8',
-                      'transport12'
+                      'transport12',
                       'utils1' // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
                     ]
 // DESC: exclude ignition from generate any install testing job
