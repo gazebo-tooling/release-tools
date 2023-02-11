@@ -30,7 +30,7 @@ gz_collections = [
           'msgs'      : [ debbuild: 'gz-msgs10'       , branch: 'main' ],
           'rendering' : [ debbuild: 'gz-rendering8'  , branch: 'main' ],
           'sdformat'  : [ debbuild: 'sdformat13'     , branch: 'sdf13' ],
-          'fuel-tools': [ debbuild: 'gz-fuel-tools8' , branch: 'gz-fuel-tools8' ],
+          'fuel-tools': [ debbuild: 'gz-fuel-tools9' , branch: 'main' ],
           'transport' : [ debbuild: 'gz-transport13' , branch: 'main' ],
           'gui'       : [ debbuild: 'gz-gui8'        , branch: 'main' ],
           'sensors'   : [ debbuild: 'gz-sensors8'    , branch: 'main' ],
