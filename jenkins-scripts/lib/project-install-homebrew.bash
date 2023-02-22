@@ -22,6 +22,7 @@ fi
 
 # Step 1. Set up homebrew
 echo "# BEGIN SECTION: clean up ${HOMEBREW_PREFIX}"
+export HOMEBREW_NO_INSTALL_FROM_API=1
 . ${SCRIPT_DIR}/lib/_homebrew_cleanup.bash
 . ${SCRIPT_DIR}/lib/_homebrew_base_setup.bash
 brew cleanup || echo "brew cleanup couldn't be run"
