@@ -37,6 +37,8 @@ IF %PLATFORM_TO_BUILD% == x86 (
 )
 
 echo "Configure the VC++ compilation"
+set MSVC22_ON_WIN32_C=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat
+:: 2019 versions
 set MSVC_ON_WIN64_E=C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
 set MSVC_ON_WIN32_E=C:\Program Files\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
 set MSVC_ON_WIN64_C=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat
@@ -46,7 +48,9 @@ set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
 set PATH=%PATH%;%VCPKG_DIR%\installed\%VCPKG_DEFAULT_TRIPLET%\bin
 
-IF exist "%MSVC_ON_WIN64_E%" (
+IF exist "%MSVC22_ON_WIN32_C%" (
+   call "%MSVC22_ON_WIN32_C%" %MSVC_KEYWORD% || goto %win_lib% :error
+) ELSE IF exist "%MSVC_ON_WIN64_E%" (
    call "%MSVC_ON_WIN64_E%" %MSVC_KEYWORD% || goto %win_lib% :error
 ) ELSE IF exist "%MSVC_ON_WIN32_E%" (
    call "%MSVC_ON_WIN32_E%" %MSVC_KEYWORD% || goto %win_lib% :error
