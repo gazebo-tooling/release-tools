@@ -22,14 +22,12 @@ class Globals
    static ros_ci = [ 'melodic'  : ['bionic'] ,
                      'noetic'   : ['focal'] ,
                      'foxy'     : ['focal'] ,
-                     'galactic' : ['focal'] ,
                      'rolling'  : ['jammy']]
 
    // This should be in sync with archive_library
    static gz_version_by_rosdistro = [ 'melodic'  : ['9'] ,
                                       'noetic'   : ['11'] ,
                                       'foxy'     : ['11'] ,
-                                      'galactic' : ['11'] ,
                                       'rolling'  : ['11']]
 
    static String ign2gz(String str) {
@@ -115,7 +113,7 @@ class Globals
 
    static ArrayList get_ros2_suported_distros()
    {
-     return [ 'foxy', 'galactic', 'rolling' ]
+     return [ 'foxy', 'rolling' ]
    }
 
    static String get_ros2_development_distro() {
