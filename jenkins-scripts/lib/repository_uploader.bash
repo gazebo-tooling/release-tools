@@ -25,18 +25,7 @@ S3_upload()
 
     S3_DIR=$(mktemp -d ${HOME}/s3.XXXX)
     pushd ${S3_DIR}
-    # Hack for not failing when github is down
-    update_done=false
-    seconds_waiting=0
-    while (! $update_done); do
-      wget https://github.com/s3tools/s3cmd/archive/v1.5.0-rc1.tar.gz -O foo.tar.gz && update_done=true
-      sleep 1
-      seconds_waiting=$((seconds_waiting+1))
-      [ $seconds_waiting -gt 60 ] && exit 1
-    done
-    tar xzf foo.tar.gz
-    cd s3cmd-*
-    ./s3cmd put $pkg s3://osrf-distributions/${s3_destination_path}
+    s3cmd put $pkg s3://osrf-distributions/${s3_destination_path}
     popd
     rm -fr ${S3_DIR}
 }
@@ -47,7 +36,7 @@ dsc_package_exists_and_equal_or_greater()
 {
     local pkg=${1} new_version=${2} distro=${3}
 
-    current_dsc_info=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro -T dsc list "${distro}" "${pkg}" | tail -n 1)
+    current_dsc_info=$(GNUPGHOME=$HOME/.gnupg/ reprepro -T dsc list "${distro}" "${pkg}" | tail -n 1)
 
     if [[ -z ${current_dsc_info} ]]; then
         return 1 # do not exits, false
@@ -68,7 +57,7 @@ upload_package()
     [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
     [[ -z ${pkg_name} ]] && echo "Bad parameter pkg_name" && exit 1
 
-    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
+    GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
 
     # The path will end up being: s3://osrf-distributions/$pkg_root_name/releases/
     S3_upload ${pkg} ${pkg_name}/releases/
@@ -82,8 +71,8 @@ upload_dsc_package()
     # .dsc sometimes does not include priority or section,
     # try to upload and if failed, specify the values
     # see: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=768046
-    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg} || \
-	sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg} || \
+    GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg} || \
+	  GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg} || \
 		echo "MARK_BUILD_UNSTABLE"
 }
 
@@ -224,7 +213,7 @@ for pkg in `ls $pkgs_path/*.deb`; do
       all.deb)
 	# Check if the package already exists. i386 and amd64 generates the same binaries.
 	# all should be multiarch, so supposed to work on every platform
-	existing_version=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro ls ${pkg_name} | grep ${DISTRO} | awk '{ print $3 }')
+	existing_version=$(GNUPGHOME=$HOME/.gnupg/ reprepro ls ${pkg_name} | grep ${DISTRO} | awk '{ print $3 }')
 	if $(dpkg --compare-versions ${pkg_version} le ${existing_version}); then
 	    echo "${pkg_relative} for ${DISTRO} is already in the repo with same version or greater"
 	    echo "SKIP UPLOAD"
