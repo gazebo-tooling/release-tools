@@ -84,12 +84,15 @@ gz_prerelease_branches = []
 // don't appear in gz_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
 gz_extra_debbuild = [ 'gui8',
+                      'fuel-tools9',
                       'launch7',
+                      'msgs10',
                       'rendering8',
                       'sensors8',
                       'sim8',
+                      'transport13',
                       'utils1' // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
-                    ] 
+                    ]
 // DESC: exclude ignition from generate any install testing job
 gz_no_pkg_yet         = [  ]
 // DESC: major versions that has a package in the prerelease repo. Should

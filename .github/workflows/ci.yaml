@@ -41,7 +41,7 @@ jobs:
           java-version: '11'
       - name: Download job dsl jar
         if: steps.dsl_check.outputs.run_job == 'true'
-        run: curl https://repo.jenkins-ci.org/public/org/jenkins-ci/plugins/job-dsl-core/1.77/job-dsl-core-1.77-standalone.jar -o jobdsl.jar
+        run: curl -sSL https://repo.jenkins-ci.org/public/org/jenkins-ci/plugins/job-dsl-core/1.77/job-dsl-core-1.77-standalone.jar -o jobdsl.jar
       - name: Generate all DSL files
         if: steps.dsl_check.outputs.run_job == 'true'
         run: |

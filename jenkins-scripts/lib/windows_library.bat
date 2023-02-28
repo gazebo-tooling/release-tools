@@ -276,6 +276,10 @@ git pull origin master || goto :error
 popd
 
 %VCPKG_CMD% install --recurse "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
+:: vcpkg does not upgrade installed packages using the install command
+:: since most of the packages are coming from a frozen snapshot, it is
+:: not a problem. However upgrading is needed for the osrf port overlay
+%VCPKG_CMD% upgrade "%1" --no-dry-run --overlay-ports="%VCPKG_OSRF_DIR%"
 goto :EOF
 
 :: ##################################
