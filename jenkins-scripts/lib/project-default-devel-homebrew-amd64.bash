@@ -111,8 +111,7 @@ echo '# END SECTION'
 # Step 3. Manually compile and install ${PROJECT}
 echo "# BEGIN SECTION: configure ${PROJECT}"
 cd ${WORKSPACE}/${PROJECT_PATH}
-# Need the sudo since the test are running with roots perms to access to GUI
-sudo rm -fr ${WORKSPACE}/build
+rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
 cd ${WORKSPACE}/build
 
