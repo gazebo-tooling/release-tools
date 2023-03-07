@@ -240,7 +240,7 @@ gz_collection_jobs =
         'ign_tools-gz-2-win',
         'ign_transport-gz-12-win',
         'ign_utils-gz-2-win',
-        'sdformat-sdf-13-win'
+        'sdformat-sdf-13-win',
         'ignition_cmake-ci-gz-cmake3-focal-amd64',
         'ignition_cmake-ci-gz-cmake3-homebrew-amd64',
         'ignition_cmake3-install_bottle-homebrew-amd64',
