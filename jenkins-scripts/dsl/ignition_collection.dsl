@@ -255,7 +255,7 @@ gz_collection_jobs =
         'ignition_garden-install_bottle-homebrew-amd64',
         'ignition_gazebo-ci-gz-sim7-focal-amd64',
         'ignition_gazebo-ci-gz-sim7-homebrew-amd64',
-        //  'ignition_sim7-install_bottle-homebrew-amd64', // TODO (azeey) This doesn't exist yet
+        'ignition_sim7-install_bottle-homebrew-amd64',
         'ignition_gui-ci-gz-gui7-focal-amd64',
         'ignition_gui-ci-gz-gui7-homebrew-amd64',
         'ignition_gui6-install_bottle-homebrew-amd64',
