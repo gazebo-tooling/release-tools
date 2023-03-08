@@ -696,8 +696,8 @@ gz_software.each { gz_sw ->
   }
 
   // 3. install jobs to test bottles
-  supported_install_pkg_branches(software_name).each { major_version, supported_distros ->
-    def install_default_job = job("ignition_${software_name}${major_version}-install_bottle-homebrew-amd64")
+  supported_install_pkg_branches(gz_sw).each { major_version, supported_distros ->
+    def install_default_job = job("ignition_${gz_sw}${major_version}-install_bottle-homebrew-amd64")
     OSRFBrewInstall.create(install_default_job)
 
     install_default_job.with
@@ -710,7 +710,7 @@ gz_software.each { gz_sw ->
         cron('@daily')
       }
 
-      def bottle_name = "ignition-${software_name}${major_version}"
+      def bottle_name = "ignition-${gz_sw}${major_version}"
 
       steps {
        shell("""\
