@@ -27,7 +27,7 @@ export HOMEBREW_NO_INSTALL_FROM_API=1
 . ${SCRIPT_DIR}/lib/_homebrew_base_setup.bash
 brew cleanup || echo "brew cleanup couldn't be run"
 mkdir -p ${HOMEBREW_CELLAR}
-sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
+chmod -R ug+rwx ${HOMEBREW_CELLAR}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: brew information'
@@ -81,5 +81,5 @@ brew list | grep '^szip$' || brew doctor || echo MARK_AS_UNSTABLE
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: re-add group write permissions"
-sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
+chmod -R ug+rwx ${HOMEBREW_CELLAR}
 echo '# END SECTION'
