@@ -228,7 +228,7 @@ gz_collection_jobs =
         'ign_cmake-gz-3-win',
         'ign_common-gz-5-win',
         'ign_fuel-tools-gz-8-win',
-        'ign_gazebo-gz-sim7-win',
+        'ign_gazebo-gz-7-win',
         'ign_gui-gz-7-win',
         'ign_launch-gz-6-win',
         'ign_math-gz-7-win',
