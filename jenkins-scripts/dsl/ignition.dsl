@@ -799,6 +799,8 @@ gz_software.each { gz_sw ->
         branch_name = "ci"
       else
         branch_name = branch - gz_sw
+      // Deal with the special case of changing gazebo name by sim
+      branch_name = branch_name.replace('gz-sim','gz-')
       gz_win_ci_job_name = "ign_${gz_sw}-${branch_name}-win"
     } else {
       gz_win_ci_job_name = "ignition_${gz_sw}-ci-${branch}-windows7-amd64"
