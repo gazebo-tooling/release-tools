@@ -711,6 +711,10 @@ gz_software.each { gz_sw ->
       }
 
       def bottle_name = "ignition-${gz_sw}${major_version}"
+      // For transiting, use always gz-sim new name since new versions won't
+      // have ign-gazebo aliases
+      if ("${gz_sw}" == "sim" || "${gz_sw}" == "gazebo")
+        bottle_name = "gz-sim${major_version}"
 
       steps {
        shell("""\
