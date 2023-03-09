@@ -72,6 +72,28 @@ git clone https://github.com/gz-release/gz-rendering7-release
 cd gz-rendering7-release
 ./path/to/release-tools/release-repo-scripts/changelog_spawn.sh 7.1.0-1
 ```
+### convert_gazebodistro_to_release.py
+
+Convert a gazebodistro file into a vcs compatible file with the -release repositories
+associated to the repositories in the input file.
+
+### Usage
+
+Output will printed to stdout:
+
+```bash
+./path/to/release-tools/release-repo-scripts/convert_gazebodistro_to_release.py <gazbodistro_file>
+```
+
+### Example
+
+To import all release repositories related to gz Garden collection:
+
+```bash
+./path/to/release-tools/release-repo-scripts/convert_gazebodistro_to_release.py ~/code/gazebodistro/collection-garden.yaml  > collection-garden-release.yaml
+vcs import < collection-garden-release.yaml
+```
+
 ### new_ubuntu_distribution.bash
 
 The script will create a new directory to host a new Ubuntu distribution inside

@@ -44,14 +44,7 @@ if ${COVERAGE_ENABLED} ; then
   EXTRA_PACKAGES="${EXTRA_PACKAGES} wget"
 fi
 
-if [[ $GAZEBO_MAJOR_VERSION -lt 8 ]]; then
-  GAZEBO_BASE_CMAKE_ARGS="${GAZEBO_BASE_CMAKE_ARGS} -DENABLE_TESTS_COMPILATION=True"
-fi
-
-SOFTWARE_DIR="gazebo"
-if [ "${GAZEBO_EXPERIMENTAL_BUILD}" = true ]; then
-  SOFTWARE_DIR="${SOFTWARE_DIR}_experimental"
-fi
+SOFTWARE_DIR="gazebo-classic"
 
 cat > build.sh << DELIM_DART
 ###################################################
@@ -86,8 +79,8 @@ if ${COVERAGE_ENABLED} ; then
   set -x # back to debug
   # Set up Bullseyes for compiling
   export PATH=/usr/bullseyes/bin:\$PATH
-  export COVFILE=$WORKSPACE/gazebo/test.cov
-  cd $WORKSPACE/gazebo
+  export COVFILE=$WORKSPACE/${SOFTWARE_DIR}/test.cov
+  cd $WORKSPACE/${SOFTWARE_DIR}
   covselect --file test.cov --add .
   cov01 --on
   echo '# END SECTION'
@@ -169,13 +162,11 @@ make -j${MAKE_JOBS}
 stop_stopwatch COMPILATION
 echo '# END SECTION'
 
-if [[ $GAZEBO_MAJOR_VERSION -ge 8 ]]; then
-  echo '# BEGIN SECTION: Tests compilation'
-  init_stopwatch TESTS_COMPILATION
-  make -j${MAKE_JOBS} tests
-  stop_stopwatch TESTS_COMPILATION
-  echo '# END SECTION'
-fi
+echo '# BEGIN SECTION: Tests compilation'
+init_stopwatch TESTS_COMPILATION
+make -j${MAKE_JOBS} tests
+stop_stopwatch TESTS_COMPILATION
+echo '# END SECTION'
 
 echo '# BEGIN SECTION: Gazebo installation'
 sudo make install
@@ -214,7 +205,7 @@ if ${COVERAGE_ENABLED} ; then
   rm -fr $WORKSPACE/bullshtml
   mkdir -p $WORKSPACE/coverage
   covselect --add '!$WORKSPACE/build/' '!../build/' '!test/' '!tools/test/' '!deps/' '!/opt/' '!gazebo/rendering/skyx/' '!/tmp/'
-  covhtml --srcdir $WORKSPACE/gazebo/ $WORKSPACE/coverage
+  covhtml --srcdir $WORKSPACE/${SOFTWARE_DIR}/ $WORKSPACE/coverage
   # Generate valid cover.xml file using the bullshtml software
   # java is needed to run bullshtml
   apt-get install -y default-jre

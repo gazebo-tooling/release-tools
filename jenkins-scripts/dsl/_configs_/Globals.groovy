@@ -13,21 +13,21 @@ class Globals
    static CRON_EVERY_THREE_DAYS = 'H H * * H/3'
    static CRON_ON_WEEKEND = 'H H * * 6-7'
 
-   static MAKETEST_SKIP_IGN = "-E _ign_TEST"
+   // Only one -E regex can be passed, so make a regex that matches both
+   // _ign_TEST and _gz_TEST
+   static MAKETEST_SKIP_GZ = "-E _i?g[nz]_TEST"
 
    static gpu_by_distro  = [ bionic  : [ 'nvidia' ]]
 
    static ros_ci = [ 'melodic'  : ['bionic'] ,
                      'noetic'   : ['focal'] ,
                      'foxy'     : ['focal'] ,
-                     'galactic' : ['focal'] ,
                      'rolling'  : ['jammy']]
 
    // This should be in sync with archive_library
    static gz_version_by_rosdistro = [ 'melodic'  : ['9'] ,
                                       'noetic'   : ['11'] ,
                                       'foxy'     : ['11'] ,
-                                      'galactic' : ['11'] ,
                                       'rolling'  : ['11']]
 
    static String ign2gz(String str) {
@@ -113,7 +113,7 @@ class Globals
 
    static ArrayList get_ros2_suported_distros()
    {
-     return [ 'foxy', 'galactic', 'rolling' ]
+     return [ 'foxy', 'rolling' ]
    }
 
    static String get_ros2_development_distro() {

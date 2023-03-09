@@ -54,6 +54,7 @@ fi
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean up environment'
+export HOMEBREW_NO_INSTALL_FROM_API=1
 rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 . ${SCRIPT_LIBDIR}/_homebrew_cleanup.bash
 # don't use HOMEBREW_UPDATE_TO_TAG for bottle builds

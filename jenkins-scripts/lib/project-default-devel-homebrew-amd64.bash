@@ -27,7 +27,7 @@ PROJECT_PATH=${PROJECT_PATH/ign-sim/ign-gazebo}
 # Check for major version number
 # the PROJECT_FORMULA variable is only used for dependency resolution
 PROJECT_FORMULA=${PROJECT//[0-9]}$(\
-  python ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
   ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt || true)
 
 export HOMEBREW_PREFIX=/usr/local
@@ -44,11 +44,12 @@ fi
 
 # Step 1. Set up homebrew
 echo "# BEGIN SECTION: clean up ${HOMEBREW_PREFIX}"
+export HOMEBREW_NO_INSTALL_FROM_API=1
 . ${SCRIPT_DIR}/lib/_homebrew_cleanup.bash
 . ${SCRIPT_DIR}/lib/_homebrew_base_setup.bash
 brew cleanup || echo "brew cleanup couldn't be run"
 mkdir -p ${HOMEBREW_CELLAR}
-sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
+chmod -R ug+rwx ${HOMEBREW_CELLAR}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: brew information'
@@ -110,8 +111,7 @@ echo '# END SECTION'
 # Step 3. Manually compile and install ${PROJECT}
 echo "# BEGIN SECTION: configure ${PROJECT}"
 cd ${WORKSPACE}/${PROJECT_PATH}
-# Need the sudo since the test are running with roots perms to access to GUI
-sudo rm -fr ${WORKSPACE}/build
+rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
 cd ${WORKSPACE}/build
 
@@ -214,5 +214,5 @@ rm -fr \$HOME/.gazebo/models test_results*
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: re-add group write permissions"
-sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
+chmod -R ug+rwx ${HOMEBREW_CELLAR}
 echo '# END SECTION'

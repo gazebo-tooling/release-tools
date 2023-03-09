@@ -177,14 +177,6 @@ DELIM_DOCKER_ARCH
   fi
 fi
 
-# i386 image only have main by default
-if [[ ${LINUX_DISTRO} == 'ubuntu' && ${ARCH} == 'i386' ]]; then
-cat >> Dockerfile << DELIM_DOCKER_I386_APT
-RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} restricted universe" \\
-                                                       >> /etc/apt/sources.list
-DELIM_DOCKER_I386_APT
-fi
-
 # Workaround for: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=932019
 if [[ ${DISTRO} == 'buster' ]]; then
 cat >> Dockerfile << DELIM_BUSTER_DWZ
@@ -227,6 +219,12 @@ RUN echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/ros-archive-keyrin
 RUN echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://repo.ros2.org/ubuntu/testing ${DISTRO} main" > \\ 
         /etc/apt/sources.list.d/ros2-testing.list
 RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+DELIM_ROS_REPO
+  elif ${ROS_BOOTSTRAP}; then
+cat >> Dockerfile << DELIM_ROS_REPO
+RUN echo "deb http://repos.ros.org/repos/ros_bootstrap/ ${DISTRO} main" > \\
+                                                /etc/apt/sources.list.d/ros_bootstrap.list
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8EDB2EF661FC880E
 DELIM_ROS_REPO
   else
 cat >> Dockerfile << DELIM_ROS_REPO

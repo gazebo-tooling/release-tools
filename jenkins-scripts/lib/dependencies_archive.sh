@@ -142,79 +142,63 @@ if $DART_FROM_PKGS; then
   fi
 fi
 
-# By default, the stable version of gazebo
-[[ -z ${GAZEBO_EXPERIMENTAL_BUILD} ]] && GAZEBO_EXPERIMENTAL_BUILD=false
-if ! ${GAZEBO_EXPERIMENTAL_BUILD}; then
-  # --------------------------------------
-  # GAZEBO - current version
-  # --------------------------------------
+# --------------------------------------
+# GAZEBO classic
+# --------------------------------------
 
-  GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
-                            libprotoc-dev                    \\
-                            libprotobuf-dev                  \\
-                            protobuf-compiler                \\
-                            freeglut3-dev                    \\
-                            libcurl4-openssl-dev             \\
-                            libtinyxml-dev                   \\
-                            libtinyxml2-dev                  \\
-                            libtar-dev                       \\
-                            libtbb-dev                       \\
-                            ${ogre_pkg}                      \\
-                            libxml2-dev                      \\
-                            pkg-config                       \\
-                            qtbase5-dev                      \\
-                            libqwt-qt5-dev                   \\
-                            libltdl-dev                      \\
-                            libgts-dev                       \\
-                            libboost-thread-dev              \\
-                            libboost-system-dev              \\
-                            libboost-filesystem-dev          \\
-                            libboost-program-options-dev     \\
-                            libboost-regex-dev               \\
-                            libboost-iostreams-dev           \\
-                            ${bullet_pkg}                    \\
-                            libsimbody-dev                   \\
-                            ${dart_pkgs}"
+GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
+                          libprotoc-dev                    \\
+                          libprotobuf-dev                  \\
+                          protobuf-compiler                \\
+                          freeglut3-dev                    \\
+                          libcurl4-openssl-dev             \\
+                          libtinyxml-dev                   \\
+                          libtinyxml2-dev                  \\
+                          libtar-dev                       \\
+                          libtbb-dev                       \\
+                          ${ogre_pkg}                      \\
+                          libxml2-dev                      \\
+                          pkg-config                       \\
+                          qtbase5-dev                      \\
+                          libqwt-qt5-dev                   \\
+                          libltdl-dev                      \\
+                          libgts-dev                       \\
+                          libboost-thread-dev              \\
+                          libboost-system-dev              \\
+                          libboost-filesystem-dev          \\
+                          libboost-program-options-dev     \\
+                          libboost-regex-dev               \\
+                          libboost-iostreams-dev           \\
+                          ${bullet_pkg}                    \\
+                          libsimbody-dev                   \\
+                          ${dart_pkgs}"
 
-  if [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
-      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                                           libignition-common3-dev \\
-                                           libignition-fuel-tools4-dev \\
-                                           libignition-transport8-dev \\
-                                           libignition-math6-dev \\
-                                           libignition-msgs5-dev"
-  elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
-      GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                                           libignition-common-dev \\
-                                           libignition-fuel-tools1-dev \\
-                                           libignition-transport4-dev \\
-                                           libignition-math4-dev \\
-                                           libignition-msgs-dev"
-  fi
-
-  GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                            ${sdformat_pkg}"
-
-  GAZEBO_EXTRA_DEPENDENCIES="libavformat-dev  \\
-                             libavcodec-dev   \\
-                             libgdal-dev      \\
-                             libgraphviz-dev  \\
-                             libswscale-dev   \\
-                             libavdevice-dev   \\
-                             ruby-ronn"
-else
-  # --------------------------------------
-  # GAZEBO - experimental version
-  # --------------------------------------
-  GAZEBO_BASE_DEPENDENCIES="libgflags-dev            \\
-                            pkg-config               \\
-                            libprotoc-dev            \\
-                            libprotobuf-dev          \\
-                            protobuf-compiler        \\
-                            ${pythonv}-protobuf      \\
-                            libignition-common-dev   \\
-                            libignition-msgs-dev"
+if [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
+    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                         libignition-common3-dev \\
+                                         libignition-fuel-tools4-dev \\
+                                         libignition-transport8-dev \\
+                                         libignition-math6-dev \\
+                                         libignition-msgs5-dev"
+elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
+    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                                         libignition-common-dev \\
+                                         libignition-fuel-tools1-dev \\
+                                         libignition-transport4-dev \\
+                                         libignition-math4-dev \\
+                                         libignition-msgs-dev"
 fi
+
+GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
+                          ${sdformat_pkg}"
+
+GAZEBO_EXTRA_DEPENDENCIES="libavformat-dev  \\
+                           libavcodec-dev   \\
+                           libgdal-dev      \\
+                           libgraphviz-dev  \\
+                           libswscale-dev   \\
+                           libavdevice-dev   \\
+                           ruby-ronn"
 
 
 if [[ -z $ROS_DISTRO ]]; then
@@ -234,9 +218,6 @@ else
       ;;
       # ROS 2
       foxy)
-        GAZEBO_VERSION_FOR_ROS="11"
-      ;;
-      galactic)
         GAZEBO_VERSION_FOR_ROS="11"
       ;;
       rolling)
