@@ -65,7 +65,8 @@ When opening PRs, add a link back to this issue for easier tracking.
     * <!-- LINK POST HERE -->
 - [ ] Update references to the release install instructions
     * [ ] Versions doc https://github.com/gazebosim/docs/blob/master/tools/versions.md
-    * [ ] ROS2 integration https://github.com/gazebosim/docs/blob/master/\<new_release\>/ros2_integration.md
+    * [ ] ROS2 Installation https://github.com/gazebosim/docs/blob/master/ros_installation.md
+    * [ ] ROS2 Integration https://github.com/gazebosim/docs/blob/master/\<new_release\>/ros2_integration.md
     * [ ] ros_gz README https://github.com/gazebosim/ros_gz/blob/ros2/README.md
 - [ ] PRs fixing documentation and critical bugs can be merged and pre-released
 - As libraries have all their documentation reviewed:
