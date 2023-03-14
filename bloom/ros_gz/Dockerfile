@@ -17,3 +17,6 @@ RUN sudo bash -c \
   'wget https://raw.githubusercontent.com/osrf/osrf-rosdep/jrivero/rename_humble/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list -O /etc/ros/rosdep/sources.list.d/00-replace-gz-fortress-with-garden.list'
 RUN rosdep update
 RUN rosdep resolve gz-fortress | grep gz-garden
+
+ENV GZ_VERSION=garden
+
