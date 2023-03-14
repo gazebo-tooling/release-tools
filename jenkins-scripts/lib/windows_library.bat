@@ -224,7 +224,7 @@ echo # END SECTION
 :: two runs to get the dependencies built with testing and the package under
 :: test build with tests
 echo # BEGIN SECTION: colcon compilation without test for dependencies of !COLCON_PACKAGE!
-call :_colcon_build_cmd --packages-skip !COLCON_PACKAGE! "-DBUILD_TESTING=0" "-DCMAKE_CXX_FLAGS=-w3"
+call :_colcon_build_cmd --packages-skip !COLCON_PACKAGE! "-DBUILD_TESTING=0" "-DCMAKE_CXX_FLAGS=-w"
 echo # END SECTION
 echo # BEGIN SECTION: colcon compilation with tests for !COLCON_PACKAGE!
 call :_colcon_build_cmd --packages-select !COLCON_PACKAGE! %_COLCON_EXTRA_CMAKE_ARGS% " -DBUILD_TESTING=1"
