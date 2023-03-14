@@ -6,6 +6,7 @@ ENV LC_ALL C
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
+      python3-bloom \
       wget \
     && rm -rf /var/lib/apt/lists/*
 
