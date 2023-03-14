@@ -190,20 +190,21 @@ set COLCON_EXTRA_CMAKE_ARGS2=%4
 :: TODO: be sure that this way of defining MAKEFLAGS is working
 set MAKEFLAGS=-j%MAKE_JOBS%
 
-echo "COLCON_EXTRA_ARGS: %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%"
+echo "COLCON_EXTRA_ARGS: %COLCON_EXTRA_ARGS%"
 echo "COLCON_EXTRA_CMAKE_ARGS: %COLCON_EXTRA_CMAKE_ARGS%"
 echo "COLCON_EXTRA_CMAKE_ARGS2: %COLCON_EXTRA_CMAKE_ARGS2%"
 
 colcon build --build-base "build"^
-	     --install-base "install"^
-	     --parallel-workers %MAKE_JOBS%^
-	     %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
-	     --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
-              " -DCMAKE_VERBOSE_MAKEFILE=1"^
-		          " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
-	                  " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
-             %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%"
-             --event-handler console_cohesion+ || goto :error
+   --install-base "install"^
+   --parallel-workers %MAKE_JOBS%^
+   %COLCON_EXTRA_ARGS%^
+   %COLCON_PACKAGE%^
+   --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
+                " -DCMAKE_VERBOSE_MAKEFILE=1"^
+                " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
+                " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
+                " %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%"
+  --event-handler console_cohesion+ || goto :error
 goto :EOF
 
 :: ##################################
