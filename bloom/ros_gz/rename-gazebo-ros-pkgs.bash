@@ -1,52 +1,47 @@
 #!/bin/bash
 #
-# This script should be run on a fork of gazebo_ros_pkgs-release repository
+# This script should be run on a fork of ros_ign-release/ros_gz-release repository
 # and will modify control.em bloom templates for:
 #
-#   - Rename the Package name to $(Package)X (X being major version)
-#   - Define a conflict on current official versiona dn 2 previous major versions $(Package)
+#   - Rename the Package name modifying -gz- by -gz$DISTRO-
+#   - Define a conflict on current official name: $(Package)
 #
 
 if [[ ${#} -lt 2 ]]; then
-    echo "Usage: ${0} <major_version> <space separted list of rosdistros to release>"
-    exit -1
+  echo "Usage: ${0} <gz_release_to_use>> <space separted list of rosdistros to release>"
+  exit -1
 fi
 
-MAJOR_VERSION=${1}
+GZ_RELEASE=${1}
 ROS_DISTROS=${*:2}
 
-for i in $(seq 1 2); do
-  conflict_ver=$((MAJOR_VERSION - i)) 
-  CONFLICTS="${CONFLICTS}, @(Package.replace('gazebo-','gazebo${conflict_ver}-'))"
-done
-
-PKGS="gazebo_dev gazebo_plugins gazebo_msgs gazebo_ros gazebo_ros_control gazebo_ros_pkgs"
+PKGS="ros_gz ros_gz_bridge ros_gz_image ros_gz_interfaces ros_gz_sim ros_gz_sim_demos"
 
 for pkg in ${PKGS}; do
-    for distro in ${ROS_DISTROS}; do
-	echo " - Processing $pkg in $distro"
-        if ! git checkout "debian/$distro/$pkg"; then
-	    if [[ ${pkg} == "gazebo_ros_control" ]]; then
-		echo " [??] gazebo_ros_control not found in the repository"
-		echo " [??] assuming not avilable in this platform"
-		continue
-	    fi
-	    echo "The branch debian/$distro/$pkg was not found in the repo"
-	    echo "Did you forget to run git fetch?"
-	    exit 1
-	fi
-	if grep 'Package.replace' debian/control.em; then
-	    echo " + skip ${pkg} for ${distro}: seems to have changes in place"
-	    continue
-	fi
+  for distro in ${ROS_DISTROS}; do
+    echo " - Processing $pkg in $distro"
+      if ! git checkout "debian/$distro/$pkg"; then
+      echo "The branch debian/$distro/$pkg was not found in the repo"
+      echo "Did you forget to run git fetch?"
+      exit 1
+    fi
+    if grep 'Package.replace' debian/control.em; then
+      echo " + skip ${pkg} for ${distro}: seems to have changes in place"
+      continue
+    fi
+
 	# Modify package name
-	sed -i -e "s/Package: @(Package)/Package: @(Package.replace('gazebo-','gazebo${MAJOR_VERSION}-'))/" debian/control.em
-	sed -i -e "s/Source: @(Package)/Source: @(Package.replace('gazebo-','gazebo${MAJOR_VERSION}-'))/" debian/control.em
-	sed -i -e "s/@(Package)/@(Package.replace('gazebo-','gazebo${MAJOR_VERSION}-'))/" debian/changelog.em
-	git commit debian/control.em debian/changelog.em -m "Patch name to release ${MAJOR_VERSION} version"
-	# Include conflict with same package (not current)
-	sed -i -e "/^Depends/aConflicts: @(Package) ${CONFLICTS}" debian/control.em
-	git commit debian/control.em -m "Set up a conflict with official ROS packages and the two previous gazebo versions"
-	git push origin "debian/$distro/$pkg"
+	sed -e "s/Package: @(Package)/Package: @(Package.replace('-gz-','-gz${GZ_RELEASE}-'))/" debian/control.em
+	sed -e "s/Source: @(Package)/Source: @(Package.replace('-gz-','-gz${GZ_RELEASE}-'))/" debian/control.em
+	sed -e "s/@(Package)/@(Package.replace('-gz-','-gz${GZ_RELEASE}-'))/" debian/changelog.em
+	# git commit debian/control.em debian/changelog.em -m "Patch name to release ${GZ_RELEASE} version"
+	# Include conflict with initial package name in ROS
+	sed -e '/^Depends/a\
+    Conflicts: \@(Package)' debian/control.em
+	# git commit debian/control.em -m "Set up a conflict with official ROS packages"
+	# git push origin "debian/$distro/$pkg"
     done
+    echo "-----------------------------------------------------------"
+    cat debian/control.em
+    echo "-----------------------------------------------------------"
 done
