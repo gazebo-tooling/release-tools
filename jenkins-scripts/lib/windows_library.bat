@@ -199,9 +199,10 @@ colcon build --build-base "build"^
 	     --parallel-workers %MAKE_JOBS%^
 	     %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
 	     --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
+              " -DCMAKE_VERBOSE_MAKEFILE=1"^
 		          " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
 	                  " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
-             %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
+             %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%"
              --event-handler console_cohesion+ || goto :error
 goto :EOF
 
