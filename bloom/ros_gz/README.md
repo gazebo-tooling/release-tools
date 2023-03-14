@@ -57,13 +57,8 @@ will be one above since bloom needs to be run on top of the modified `-release r
 For a new official wrappers the notation used below correspond to:
 `gazeboX_rosY_pkgs` (`X` is major version in Gazebo, `Y` is 1 or 2 for ROS)
 
- 1. Create new repo under github.com/osrf/ organization named:
-    - ROS1 https://github.com/osrf/gazeboX_ros_pkgs-release
-    - ROS2 https://github.com/osrf/gazeboX_ros2_pkgs-release
-
- 1. Run initial_info_for_new_release_repo.bash
-    It will import all branches and tags from official gbp into the new repo
-    - Usage: *$ initial_info_for_new_release_repo X rosY*
+ 1. Fork (manually or using gh) current gbp repository:
+    https://github.com/ros2-gbp/ros_ign-release
 
  1. Clone the new repo, go to the directory and run rename-gazebo-ros-pkgs.bash
     - Usage: *$ rename-gazebo-ros-pkgs.bash X <space separted list of rosdistros to release>*
