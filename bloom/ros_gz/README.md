@@ -1,6 +1,4 @@
-# Scripts
-
-## Release new version of Gazebo unofficial wrappers
+# Release new version of Gazebo unofficial wrappers
 
 ### Quick commands
 
@@ -20,24 +18,25 @@
    $ ros_gazebo_pkgs-release.py.bash 3.4.4 https://github.com/osrf/gazebo11_ros2_pkgs-release foxy xxx -r 1 --dry-run
 ```
 
-### Background
+## Background
 
 Each ROS release defines one version of Gazebo supported officially through
 all the ROS packages. The different combinations of ROS <-> Gazebo can be
-found in the [REP-3](http://www.ros.org/reps/rep-0003.html). Some examples:
+found in the [REP-3](http://www.ros.org/reps/rep-2000.html). Some examples:
 
- * ROS Kinetic: Gazebo 7
- * ROS Lunar: Gazebo 7
- * ROS Melodic: Gazebo 9
+ * ROS 2 Foxy: Citadel
+ * ROS 2 Humble: Fortress
 
 Some use cases require the use of alternative combinations of ROS and Gazebo
-versions. The `gazebo_ros_pkgs` code is usually prepared to be compatible with
+versions. The `ros_gz` code is usually prepared to be compatible with
 different versions of Gazebo, especially the latest ones.
 
-To release a modified version of `gazebo_ros_pkgs` which supports a different
-major version of gazebo, before running bloom some actions need to be taken:
+To release a modified version of `ros_gz` which supports a different major
+version of gazebo, before running bloom some actions need to be taken:
 
- 1. Make the system resolve the Ubuntu package `gazebo` as `gazeboX`.
+TODO ######################
+
+ 1. Make the system resolve the Ubuntu packages for
  2. Fork and modify the official [gbp -release repo](https://github.com/ros-gbp/gazebo_ros_pkgs-release).
  3. Run bloom on the modified release repository.
  4. Custom infrastructure to create .deb packages.
@@ -52,7 +51,7 @@ the version of `gazebo_ros_pkgs` released will be the latest one existing in the
 official `gbp -release repository`. The version would be the same but the release number
 will be one above since bloom needs to be run on top of the modified `-release repository`.
 
-### Create a new gazeboX_{ros,ros2}_pkgs repository
+## Initial setup: Create a new gazeboX_{ros,ros2}_pkgs repository
 
 For a new official wrappers the notation used below correspond to:
 `gazeboX_rosY_pkgs` (`X` is major version in Gazebo, `Y` is 1 or 2 for ROS)
@@ -61,7 +60,10 @@ For a new official wrappers the notation used below correspond to:
     https://github.com/ros2-gbp/ros_ign-release
 
  1. Clone the new repo, go to the directory and run rename-gazebo-ros-pkgs.bash
-    - Usage: *$ rename-gazebo-ros-pkgs.bash X <space separted list of rosdistros to release>*
+    - Usage: *$ rename-gazebo-ros-pkgs.bash <desired_gz_version> <space separted list of rosdistros to release>*
+
+
+## Release a new version
 
 ### Make the system resolve gazeboX
 
