@@ -12,6 +12,13 @@ if [[ ${#} -lt 2 ]]; then
   exit -1
 fi
 
+# Safety check for ros2-gbp repo
+
+if [[ -n $(git config --get remote.origin.url | grep git@github.com:ros2-gbp/ros_ign-release.git) ]]; then
+  echo "This script refuses to modify the ros2-gbp repository. You probably don't want this."
+  exit -1
+fi
+
 GZ_RELEASE=${1}
 ROS_DISTROS=${*:2}
 
