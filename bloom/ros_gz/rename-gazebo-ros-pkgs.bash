@@ -36,19 +36,14 @@ for pkg in ${PKGS}; do
       echo " + skip ${pkg} for ${distro}: seems to have changes in place"
       continue
     fi
-
-	# Modify package name
-	sed -e "s/Package: @(Package)/Package: @(Package.replace('-gz-','-gz${GZ_RELEASE}-'))/" debian/control.em
-	sed -e "s/Source: @(Package)/Source: @(Package.replace('-gz-','-gz${GZ_RELEASE}-'))/" debian/control.em
-	sed -e "s/@(Package)/@(Package.replace('-gz-','-gz${GZ_RELEASE}-'))/" debian/changelog.em
-	# git commit debian/control.em debian/changelog.em -m "Patch name to release ${GZ_RELEASE} version"
-	# Include conflict with initial package name in ROS
-	sed -e '/^Depends/a\
-    Conflicts: \@(Package)' debian/control.em
-	# git commit debian/control.em -m "Set up a conflict with official ROS packages"
-	# git push origin "debian/$distro/$pkg"
-    done
-    echo "-----------------------------------------------------------"
-    cat debian/control.em
-    echo "-----------------------------------------------------------"
+    # Modify package name
+    sed -i -e "s/Package: @(Package)/Package: @(Package.replace('-gz-','-gz${GZ_RELEASE}-'))/" debian/control.em
+    sed -i -e "s/Source: @(Package)/Source: @(Package.replace('-gz-','-gz${GZ_RELEASE}-'))/" debian/control.em
+    sed -i -e "s/@(Package)/@(Package.replace('-gz-','-gz${GZ_RELEASE}-'))/" debian/changelog.em
+    git commit debian/control.em debian/changelog.em -m "Patch name to release ${GZ_RELEASE} version"
+    # Include conflict with initial package name in ROS
+    sed -i -e '/^Depends/a\Conflicts: \@(Package)' debian/control.em
+    git commit debian/control.em -m "Set up a conflict with official ROS packages"
+    git push origin "debian/$distro/$pkg"
+  done
 done
