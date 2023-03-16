@@ -1,5 +1,4 @@
 FROM ros:humble-ros-base-jammy
-MAINTAINER Jose Luis Rivero <jrivero@osrfoundation.org>
 
 ENV LANG C
 ENV LC_ALL C
@@ -13,11 +12,15 @@ RUN apt-get update && apt-get install -y \
 # Install osrf-rosdep for Garden
 RUN sudo bash -c \
   'wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/00-gazebo.list -O /etc/ros/rosdep/sources.list.d/00-gazebo.list'
-# Replace Fortress with Garden
+# Replace Fortress with Garden to make bloom to work
+# since it does not support arbitrary environemnt variables
 RUN sudo bash -c \
   'wget https://raw.githubusercontent.com/osrf/osrf-rosdep/jrivero/rename_humble/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list -O /etc/ros/rosdep/sources.list.d/00-replace-gz-fortress-with-garden.list'
-RUN rosdep update
-RUN rosdep resolve gz-fortress | grep gz-garden
 
+# Not for using bloom but useful for rosdep calls
 ENV GZ_VERSION=garden
+ENV IGNITION_VERSION=garden
 
+WORKDIR /tmp
+COPY rosdep_wrapper.bash .
+ENTRYPOINT ["/tmp/rosdep_wrapper.bash"]
