@@ -14,8 +14,7 @@ def bridge_packages = [
 bridge_packages.each { pkg ->
   pkg_dashed = pkg.replaceAll("_", "-")
 
-  postfix_job_str = "bloom-debbuilder"
-  def build_pkg_job = job("${pkg_dashed}-${postfix_job_str}")
+  def build_pkg_job = job("$pkg_dashed-bloom-debbuilder")
 
   // Use the linux install as base
   OSRFLinuxBuildPkgBase.create(build_pkg_job)
