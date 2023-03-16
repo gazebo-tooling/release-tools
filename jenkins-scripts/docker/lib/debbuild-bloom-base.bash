@@ -128,7 +128,7 @@ DEPENDENCY_PKGS="devscripts \
   equivs \
   dh-make \
   git \
-  python3-openssl \
+  ${pythonv}-openssl \
   ca-certificates \
   ${pythonv}-rosdep"
 
