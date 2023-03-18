@@ -3,7 +3,7 @@ package _configs_
 class Globals
 {
    // Notifications for email ext plugin
-   static default_emails = '$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org'
+   static default_emails = '$DEFAULT_RECIPIENTS'
    static build_cop_email = 'buildcop@osrfoundation.org'
    static extra_emails   = ''
 
