@@ -45,19 +45,28 @@ bridge_packages.each { pkg ->
     }
 
     // Blocks to control dependencies
+    projects_to_blockon = []
     if ("${pkg}" == 'ros_gz_sim_demos')
-      blockOn(["ros-gz-sim-${postfix_job_str}",
-               "ros-gz-bridge-${postfix_job_str}",
-               "ros-gz-image-${postfix_job_str}"])
+      projects_to_blockon = ["ros-gz-sim-${postfix_job_str}",
+                            "ros-gz-bridge-${postfix_job_str}",
+                            "ros-gz-image-${postfix_job_str}"]
     else if ("${pkg}" == 'ros_gz_image')
-      blockOn(["ros-gz-bridge-${postfix_job_str}"])
+      projects_to_blockon = ["ros-gz-bridge-${postfix_job_str}"]
     else if ("${pkg}" == 'ros_gz_bridge')
-      blockOn(["ros-gz-interfaces-${postfix_job_str}"])
+      projects_to_blockon = ["ros-gz-interfaces-${postfix_job_str}"]
     else if ("${pkg}" == 'ros_gz')
-      blockOn(["ros-gz-sim-demos-${postfix_job_str}",
-               "ros-gz-sim-${postfix_job_str}",
-               "ros-gz-bridge-${postfix_job_str}",
-               "ros-gz-image-${postfix_job_str}"])
+      projects_to_blockon = ["ros-gz-sim-demos-${postfix_job_str}",
+                            "ros-gz-sim-${postfix_job_str}",
+                            "ros-gz-bridge-${postfix_job_str}",
+                            "ros-gz-image-${postfix_job_str}"]
+
+    if (projects_to_blockon) {
+      blockOn(projects_to_blockon) {
+        blockLevel('GLOBAL')
+        scanQueueFor('ALL')
+      }
+    }
+
 
     // Blocks to control dependencies
     projects_to_blockon = []
