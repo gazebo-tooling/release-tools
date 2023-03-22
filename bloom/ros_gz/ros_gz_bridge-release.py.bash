@@ -1,7 +1,6 @@
 #!/bin/bash
-# Launch all the suite of ros_gazebo_pkgs:
+# Launch all the suite of gz_ros:
 # Usage: ros_gz_bridge-release.py.bash <version>
-#
 
 if [[ $# -lt 2 ]]; then
     echo "$0 <version> <release_repo> <ros_distro> <token> 'other arguments used in release.py'"
@@ -13,6 +12,7 @@ if [[ ${1%-*} != "${1}" ]]; then
   exit 1
 fi
 
-for p in ros-ign-image ros-ign-bridge ros-ign-gazebo-demos ros-ign-point-cloud ros-ign ros-ign-gazebo; do
-  ./release-bloom.py "${p}" $(for i in $@; do echo -n "$i "; done)
+# topological order to go into Jenkins in the best starting position to make blocks to work
+for p in ros-gz-interfaces ros-gz-sim ros-gz-bridge ros-gz-image ros-gz-sim-demos ros-gz; do
+  ./_release-bloom.py "${p}" $(for i in ""$@; do echo -n "$i "; done)
 done
