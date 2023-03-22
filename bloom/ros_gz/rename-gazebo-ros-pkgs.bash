@@ -9,14 +9,14 @@
 
 if [[ ${#} -lt 2 ]]; then
   echo "Usage: ${0} <gz_release_to_use>> <space separted list of rosdistros to release>"
-  exit -1
+  exit 1
 fi
 
 # Safety check for ros2-gbp repo
 
 if [[ -n $(git config --get remote.origin.url | grep git@github.com:ros2-gbp/ros_ign-release.git) ]]; then
   echo "This script refuses to modify the ros2-gbp repository. You probably don't want this."
-  exit -1
+  exit 1
 fi
 
 GZ_RELEASE=${1}
@@ -32,6 +32,10 @@ for pkg in ${PKGS}; do
       echo "Did you forget to run git fetch?"
       exit 1
     fi
+    # Add GZ_VERSION env variable in rules file
+    sed -i -e "/export DH_VERBOSE/a\export GZ_VERSION=${GZ_RELEASE}" debian/rules.em
+    git commit debian/rules.em -m "Export GZ_VERSION in rules file"
+    git push origin "debian/$distro/$pkg"
     if grep 'Package.replace' debian/control.em; then
       echo " + skip ${pkg} for ${distro}: seems to have changes in place"
       continue
@@ -43,6 +47,7 @@ for pkg in ${PKGS}; do
     git commit debian/control.em debian/changelog.em -m "Patch name to release ${GZ_RELEASE} version"
     # Include conflict with initial package name in ROS
     sed -i -e '/^Depends/a\Conflicts: \@(Package)' debian/control.em
+
     git commit debian/control.em -m "Set up a conflict with official ROS packages"
     git push origin "debian/$distro/$pkg"
   done
