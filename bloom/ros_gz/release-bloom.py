@@ -6,16 +6,15 @@ import sys
 import urllib
 import argparse
 
-USAGE = 'release-bloom.py <package> <version> <upstream_release_repo> <ros_distro> [--ignition-version version_name] <jenkinstoken>'
+USAGE = 'release-bloom.py <package> <version> <upstream_release_repo> <ros_distro> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-bloom-debbuilder'
 
 UBUNTU_ARCHS = ['amd64']
 # not releasing for precise by default
-UBUNTU_DISTROS_IN_ROS = {'melodic': ['bionic'],
-                         'noetic': ['focal']}
 UBUNTU_DISTROS_IN_ROS2 = {'foxy': ['focal'],
-                          'rolling': ['focal']}
+                          'humble': ['jammy'],
+                          'rolling': ['jammy']}
 DRY_RUN = False
 
 def parse_args(argv):
@@ -29,13 +28,14 @@ def parse_args(argv):
     parser.add_argument('jenkins_token', help='secret token to allow access to Jenkins to start builds')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
+    parser.add_argument('-b', '--release-repo-branch', dest='release_repo_branch',
+                        default='master',
+                        help='which version of the accompanying -release repo to use (if not master)')
     parser.add_argument('-r', '--release-version', dest='release_version',
                         default=None,
                         help='Release version suffix; usually 1 (e.g., 1')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
-    parser.add_argument('--ignition-version', action='store', default=None,
-                        help='Gazebo version to use in the binary packages')
 
     args = parser.parse_args()
     DRY_RUN = args.dry_run
@@ -70,15 +70,13 @@ def call_jenkins_jobs(argv):
     params['VERSION'] = args.version
     params['UPSTREAM_RELEASE_REPO'] = args.upstream_release_repo
     params['UPLOAD_TO_REPO'] = args.upload_to_repository
+    params['RTOOLS_BRANCH'] = args.release_repo_branch
 
-    ubuntu_per_ros_distro = UBUNTU_DISTROS_IN_ROS
+    if not args.ros_distro in UBUNTU_DISTROS_IN_ROS2:
+        print('ROS distribution: %s not found in internally defined ROS2 distributions')
+        sys.exit(1)
 
-    if args.ros_distro in UBUNTU_DISTROS_IN_ROS2:
-        params['ROS2'] = True
-        ubuntu_per_ros_distro = UBUNTU_DISTROS_IN_ROS2
-
-    if args.ignition_version:
-        params['IGNITION_VERSION'] = args.ignition_version
+    ubuntu_per_ros_distro = UBUNTU_DISTROS_IN_ROS2
 
     if not args.release_version:
         args.release_version = 0
