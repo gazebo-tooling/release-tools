@@ -72,9 +72,9 @@ Doing a release:
 
 We'll go over these steps in more detail below.
 
-## Initial setup
+## 2. Initial setup
 
-###  Create the alternative -release repository
+### 2.1 Create the alternative -release repository
 
 For a new official wrappers the notation used below correspond to:
 `ros_ign-release
@@ -83,8 +83,21 @@ For a new official wrappers the notation used below correspond to:
     https://github.com/ros2-gbp/ros_ign-release
 
  1. Clone the new repo, go to the directory and run rename-gazebo-ros-pkgs.bash
-    - Usage: *$ rename-gazebo-ros-pkgs.bash <desired_gz_version> <space separted list of rosdistros to release>*
+    - Usage: *$ rename-ros_gz-pkgs.bash <desired_gz_version> <space separted list of rosdistros to release>*
 
+
+### 2.2 Create a custom track in tracks.yml
+
+Copy the existing ROS 2 yaml track information and rename it to `${ros2}_gz${version}`.
+For example, the `humble` track to be used as base for Garden would be `humble_gzgarden`.
+
+New versioning requires bumping to large numbers. Set:
+
+```
+    release_inc: '1000'
+```
+
+All non ubuntu generators can be removed.
 
 ## Release a new version
 
@@ -106,7 +119,6 @@ Inside the docker container:
 ```bash
    bloom-release --no-pull-request --rosdistro humble --track humble_gzgarden \
      --override-release-repository-url https://github.com/j-rivero/gbp-ros_ign-release \
-     --override-release-repository-push-url https://github.com/j-rivero/ros_ign-release \
    ros_gz
 ```
 
