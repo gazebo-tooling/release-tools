@@ -295,7 +295,7 @@ cat >> Dockerfile << DELIM_DOCKER31
 # to run apt-get update again
 RUN (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
  && apt-get dist-upgrade -y \
- && apt-get install -y ${SOURCE_DEFINED_DEPS}
+ && apt-get install -y ${SOURCE_DEFINED_DEPS} \
  && apt-get clean
 
 # Map the workspace into the container
