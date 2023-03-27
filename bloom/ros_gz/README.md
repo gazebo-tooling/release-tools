@@ -10,7 +10,7 @@
   * Use Dockerfile with rocker
   * 
 
-### Quick commands
+## 0. Quick commands
 
 1. bloom in the osrf/ repository
 ```bash
@@ -29,7 +29,7 @@
    $ ros_gazebo_pkgs-release.py.bash 3.4.4 https://github.com/osrf/gazebo11_ros2_pkgs-release foxy xxx -r 1 --dry-run
 ```
 
-## Background
+## 1. Background
 
 Each ROS release defines one version of Gazebo supported officially through
 all the ROS packages. The different combinations of ROS <-> Gazebo can be
@@ -42,10 +42,23 @@ Some use cases require the use of alternative combinations of ROS and Gazebo
 versions. The `ros_gz` code is usually prepared to be compatible with
 different versions of Gazebo, especially the latest ones.
 
+Although using the officially supported version is the recommended way
+specially for non experienced users, some use cases might need to use a
+newer version of Gazebo than the one selected in REP-2000.
+
+### Upstream versions released using this tutorial
+
+The `gbp -release repository` hosts the latest version released by the
+maintainers of `ros_gz`. When using these instructions to release a new custom
+version the version of `ros_gz` released will be the latest one existing in the
+official `gbp -release repository`. The version would be the same but the
+release number will start on 1000.
+
+## 2. Initial setup 
+
 To release a modified version of `ros_gz` which supports a different major
 version of gazebo, before running bloom some actions need to be taken:
 
-TODO ######################
 
 Initial setup:
  1. (optional now?) Make rosdep to resolve the system packages changed
@@ -58,14 +71,6 @@ Doing a release:
  4. Custom infrastructure to create .deb packages.
 
 We'll go over these steps in more detail below.
-
-### Upstream versions released using this tutorial
-
-The `gbp -release repository` hosts the latest version released by the maintainers
-of `ros_gz`. When using these instructions to release a new custom version
-the version of `ros_gz` released will be the latest one existing in the
-official `gbp -release repository`. The version would be the same but the release number
-will be one above since bloom needs to be run on top of the modified `-release repository`.
 
 ## Initial setup
 
