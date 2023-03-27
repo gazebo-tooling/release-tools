@@ -266,27 +266,13 @@ SOURCE_DEFINED_DEPS="$(sort -u $(find ${DEPENDENCIES_PATH_TO_SEARCH} -iname 'pac
 
 # Packages that will be installed and cached by docker. In a non-cache
 # run below, the docker script will check for the latest updates
-PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS} ${SOURCE_DEFINED_DEPS}"
+# SOURCE_DEFINED_DEPS can not be cached before this point since the
+# osrfoundation repositories can be different (stable, prerelease, nightly)
+PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS}"
 
 if $USE_GPU_DOCKER; then
   PACKAGES_CACHE_AND_CHECK_UPDATES="${PACKAGES_CACHE_AND_CHECK_UPDATES} ${GRAPHIC_CARD_PKG}"
 fi
-
-cat >> Dockerfile << DELIM_DOCKER3
-# Invalidate cache monthly
-# This is the firt big installation of packages on top of the raw image.
-# The expection of updates is low and anyway it is cathed by the next
-# update command below
-# The rm after the fail of apt-get update is a workaround to deal with the error:
-# Could not open file *_Packages.diff_Index - open (2: No such file or directory)
-# TODO: remove workaround for 13.56.139.45 server
-RUN echo "${MONTH_YEAR_STR}"
-DELIM_DOCKER3
-
-# If the previous command invalidated the cache, a new install of gzdev is
-# needed to update to possible recent changes in configuration and/or code and
-# not being used since the docker cache did not get them.
-dockerfile_install_gzdev_repos
 
 cat >> Dockerfile << DELIM_DOCKER3_2
 RUN sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.list.d/* || true \
@@ -309,6 +295,7 @@ cat >> Dockerfile << DELIM_DOCKER31
 # to run apt-get update again
 RUN (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
  && apt-get dist-upgrade -y \
+ && apt-get install -y ${SOURCE_DEFINED_DEPS}
  && apt-get clean
 
 # Map the workspace into the container
