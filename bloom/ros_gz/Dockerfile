@@ -22,5 +22,5 @@ ENV GZ_VERSION=garden
 ENV IGNITION_VERSION=garden
 
 WORKDIR /tmp
-COPY rosdep_wrapper.bash .
-ENTRYPOINT ["/tmp/rosdep_wrapper.bash"]
+COPY _rosdep_wrapper.bash .
+ENTRYPOINT ["/tmp/_rosdep_wrapper.bash"]
