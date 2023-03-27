@@ -40,10 +40,11 @@ for pkg in ${PKGS}; do
       echo " + skip ${pkg} for ${distro}: seems to have changes in place"
       continue
     fi
-    # Modify package name
-    sed -i -e "s/Package: @(Package)/Package: @(Package.replace('-gz-','-gz${GZ_RELEASE}-'))/" debian/control.em
-    sed -i -e "s/Source: @(Package)/Source: @(Package.replace('-gz-','-gz${GZ_RELEASE}-'))/" debian/control.em
-    sed -i -e "s/@(Package)/@(Package.replace('-gz-','-gz${GZ_RELEASE}-'))/" debian/changelog.em
+    # Modify package name. Note that regexp can not be stricker than
+    # *-gz since there is a package named package ros-gz
+    sed -i -e "s/Package: @(Package)/Package: @(Package.replace('-gz','-gz${GZ_RELEASE}'))/" debian/control.em
+    sed -i -e "s/Source: @(Package)/Source: @(Package.replace('-gz','-gz${GZ_RELEASE}'))/" debian/control.em
+    sed -i -e "s/@(Package)/@(Package.replace('-gz','-gz${GZ_RELEASE}'))/" debian/changelog.em
     git commit debian/control.em debian/changelog.em -m "Patch name to release ${GZ_RELEASE} version"
     # Include conflict with initial package name in ROS
     sed -i -e '/^Depends/a\Conflicts: \@(Package)' debian/control.em
