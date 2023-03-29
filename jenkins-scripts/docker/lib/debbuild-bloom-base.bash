@@ -23,6 +23,7 @@ export ENABLE_REAPER=false
 PACKAGE_UNDERSCORE_NAME=${PACKAGE//-/_}
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
 cat > build.sh << DELIM
 ###################################################
@@ -118,18 +119,18 @@ DELIM
 OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
 USE_ROS_REPO=true
 DEPENDENCY_PKGS="devscripts \
-		 ubuntu-dev-tools \
-                 ubuntu-keyring \
-		 debhelper \
-                 cdbs \
-		 wget \
-		 ca-certificates \
-		 equivs \
-		 dh-make \
-		 git \
-		 python-openssl \
-                 ca-certificates \
-		 ${pythonv}-rosdep"
+  ubuntu-dev-tools \
+  ubuntu-keyring \
+  debhelper \
+  cdbs \
+  wget \
+  ca-certificates \
+  equivs \
+  dh-make \
+  git \
+  ${pythonv}-openssl \
+  ca-certificates \
+  ${pythonv}-rosdep"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
