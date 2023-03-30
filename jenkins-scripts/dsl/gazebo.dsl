@@ -447,7 +447,7 @@ def gazebo_brew_ci_any_job = job(ci_build_any_job_name_brew)
 OSRFBrewCompilationAnyGitHub.create(gazebo_brew_ci_any_job, "gazebosim/gazebo-classic")
 gazebo_brew_ci_any_job.with
 {
-    label "osx_gazebo"
+    label "osx"
 
     steps {
       shell("""\
@@ -482,7 +482,7 @@ all_branches.each { branch ->
   if (is_watched_by_buildcop(branch))
     Globals.extra_emails = Globals.build_cop_email
 
-  def osx_label = 'osx_gazebo'
+  def osx_label = 'osx'
 
   def gazebo_brew_ci_job = job("gazebo-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(gazebo_brew_ci_job)
