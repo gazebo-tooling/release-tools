@@ -9,6 +9,7 @@
 # ABI_JOB_PKG_DEPENDENCIES: (optional) list (space separated) of pkg dependencies
 # ABI_JOB_PKG_DEPENDENCIES_VAR_NAME: (option) variable in archive to get dependencies from
 # ABI_JOB_CMAKE_PARAMS: (option) cmake parameters to be pased to cmake configuration
+# ABI_JOB_HEADER_PREFIX: (optional) hint for identifying header install prefix
 # ABI_JOB_IGNORE_HEADERS: (optional) relative (to root project path) list (space separated)
 #                         of path headers to ignore
 # ABI_JOB_EXTRA_GCC_OPTIONS: (optional) inject gcc_options in the descriptor file
@@ -32,6 +33,9 @@ if [[ "${ABI_JOB_PKG_DEPENDENCIES_VAR_NAME}" != "" ]]; then
 fi
 if [[ -n "${DART_FROM_PKGS_VAR_NAME}" ]]; then
   eval DART_FROM_PKGS="\$${DART_FROM_PKGS_VAR_NAME}"
+fi
+if [[ -z "${ABI_JOB_HEADER_PREFIX}" ]]; then
+  eval ABI_JOB_HEADER_PREFIX="\$${ABI_JOB_SOFTWARE_NAME}-*"
 fi
 
 ABI_CXX_STANDARD=c++11
@@ -68,7 +72,7 @@ cmake ${ABI_JOB_CMAKE_PARAMS} \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
 sudo make install
-DEST_DIR=\$(find /usr/local/destination_branch/include -name ${ABI_JOB_SOFTWARE_NAME}-* -type d | sed -e 's:.*/::')
+DEST_DIR=\$(find /usr/local/destination_branch/include -name ${ABI_JOB_HEADER_PREFIX} -type d | sed -e 's:.*/include/::')
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: compile and install branch: ${SRC_BRANCH}'
@@ -89,7 +93,7 @@ cmake ${ABI_JOB_CMAKE_PARAMS} \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
 sudo make install
-SRC_DIR=\$(find /usr/local/source_branch/include -name ${ABI_JOB_SOFTWARE_NAME}-* -type d | sed -e 's:.*/::')
+SRC_DIR=\$(find /usr/local/source_branch/include -name ${ABI_JOB_HEADER_PREFIX} -type d | sed -e 's:.*/include/::')
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install the ABI checker'

@@ -32,6 +32,8 @@ export GZ_NAME_PREFIX_MAJOR_VERSION=$(\
   ${WORKSPACE}/${ABI_JOB_SOFTWARE_NAME}/CMakeLists.txt)
 export ${GZ_NAME_PREFIX}_MAJOR_VERSION=${GZ_NAME_PREFIX_MAJOR_VERSION}
 
+export ABI_JOB_HEADER_PREFIX=${ABI_JOB_SOFTWARE_NAME/[ignz]*-/}[0-9]*
+
 # check if NEED_C17_COMPILER should be set
 if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo" ]] || \
   [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-physics" ]] || \
