@@ -268,6 +268,17 @@ if NOT %VCPKG_HEAD% == %VCPKG_TAG% (
 goto :EOF
 
 :: ##################################
+:remove_vcpkg_installation
+:: remove the installed directory to simulate all packages removal
+:: vcpkg cli does not support the operation
+if not %VCPKG_INSTALLED_FILES_DIR% (
+  echo VCPKG_INSTALLED_FILES_DIR seems empty, refuse to delete
+  goto :error
+)
+del /s /f /q %VCPKG_INSTALLED_FILES_DIR%
+goto :EOF
+
+:: ##################################
 :install_vcpkg_package
 :: arg1: package to install
 set LIB_DIR=%~dp0

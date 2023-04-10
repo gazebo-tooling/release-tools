@@ -36,6 +36,9 @@ if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
    echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
 )
 
+:: remove all previous packages installed by vcpkg
+call %win_lib% :remove_vcpkg_installation || goto :error
+
 :: Check if package is in colcon workspace
 echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
 echo Packages in workspace:
