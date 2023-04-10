@@ -268,6 +268,19 @@ if NOT %VCPKG_HEAD% == %VCPKG_TAG% (
 goto :EOF
 
 :: ##################################
+:remove_vcpkg_installation
+:: remove the installed directory to simulate all packages removal
+:: vcpkg cli does not support the operation
+set LIB_DIR="%~dp0"
+call %LIB_DIR%\windows_env_vars.bat || goto :error
+if [%VCPKG_INSTALLED_FILES_DIR%]==[] (
+  echo VCPKG_INSTALLED_FILES_DIR seems empty, refuse to delete
+  goto :error
+)
+del /s /f /q %VCPKG_INSTALLED_FILES_DIR%
+goto :EOF
+
+:: ##################################
 :_prepare_vcpkg_to_install
 set LIB_DIR=%~dp0
 call %LIB_DIR%\windows_env_vars.bat || goto :error
