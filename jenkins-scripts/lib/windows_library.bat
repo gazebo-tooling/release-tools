@@ -271,12 +271,14 @@ goto :EOF
 :remove_vcpkg_installation
 :: remove the installed directory to simulate all packages removal
 :: vcpkg cli does not support the operation
+call %LIB_DIR%\windows_env_vars.bat || goto :error
 if not %VCPKG_INSTALLED_FILES_DIR% (
   echo VCPKG_INSTALLED_FILES_DIR seems empty, refuse to delete
   goto :error
 )
 del /s /f /q %VCPKG_INSTALLED_FILES_DIR%
 goto :EOF
+
 
 :: ##################################
 :install_vcpkg_package
