@@ -293,6 +293,8 @@ cd %VCPKG_OSRF_DIR%
 git pull origin master || goto :error
 popd
 
+:: workaround on permissions problems for default VCPKG_DEFAULT_BINARY_CACHE
+set VCPKG_DEFAULT_BINARY_CACHE=C:\Windows\Temp\vcpkg
 %VCPKG_CMD% install --debug --recurse "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
 :: vcpkg does not upgrade installed packages using the install command
 :: since most of the packages are coming from a frozen snapshot, it is
