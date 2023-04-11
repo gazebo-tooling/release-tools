@@ -295,7 +295,7 @@ popd
 
 :: workaround on permissions problems for default VCPKG_DEFAULT_BINARY_CACHE
 set VCPKG_DEFAULT_BINARY_CACHE=C:\Windows\Temp
-%VCPKG_CMD% install --debug --recurse "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
+%VCPKG_CMD% install --recurse "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
 :: vcpkg does not upgrade installed packages using the install command
 :: since most of the packages are coming from a frozen snapshot, it is
 :: not a problem. However upgrading is needed for the osrf port overlay
