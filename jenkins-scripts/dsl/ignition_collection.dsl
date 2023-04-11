@@ -361,7 +361,7 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
     def dev_package = "${prefix}-${gz_collection_name}"
     def job_name = 'ign_launch-install-test-job.bash'
 
-    label "gpu-reliable"
+    label Globals.nontest_label("gpu-reliable")
 
     steps {
      shell("""\
@@ -425,7 +425,7 @@ gz_collections.each { gz_collection ->
       }
 
       // Designed to be run manually. No triggers.
-      label "gpu-reliable"
+      label Globals.nontest_label("gpu-reliable")
 
       steps {
         systemGroovyCommand("""\
@@ -599,7 +599,7 @@ OSRFUNIXBase.create(nightly_scheduler_job)
 
 nightly_scheduler_job.with
 {
-  label "master"
+  label Globals.nontest_label("master")
 
   parameters
   {

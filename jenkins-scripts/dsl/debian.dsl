@@ -89,7 +89,7 @@ OSRFLinuxBase.create(ratt_pkg_job)
 ratt_pkg_job.with
 {
   // use only the most powerful nodes
-  label "large-memory"
+  label Globals.nontest_label("large-memory")
 
   parameters
   {

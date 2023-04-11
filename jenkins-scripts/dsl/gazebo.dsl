@@ -57,7 +57,7 @@ void generate_install_job(Job job, gz_branch, distro, arch, use_osrf_repos = fal
         gzdev_str = "export GZDEV_PROJECT_NAME=${gz_branch}"
 
     // Need gpu for running the runtime test
-    label "gpu-reliable"
+    label Globals.nontest_label("gpu-reliable")
 
     steps {
       shell("""\
@@ -91,7 +91,7 @@ abi_distro.each { distro ->
     GenericAnyJobGitHub.create(abi_job, 'gazebosim/gazebo-classic', gazebo_supported_branches)
     abi_job.with
     {
-      label "large-memory"
+      label Globals.nontest_label("large-memory")
 
       steps {
         shell("""\
@@ -122,7 +122,7 @@ ci_distro.each { distro ->
       OSRFLinuxCompilationAnyGitHub.create(gazebo_ci_any_job, "gazebosim/gazebo-classic")
       gazebo_ci_any_job.with
       {
-        label "gpu-reliable && large-memory"
+        label Globals.nontest_label("gpu-reliable && large-memory")
 
         steps
         {
@@ -164,7 +164,7 @@ other_supported_distros.each { distro ->
 
         // gazebo builds require a powerful node not to take too long and
         // block backup for hours
-        label "gpu-reliable && large-memory"
+        label Globals.nontest_label("gpu-reliable && large-memory")
 
         triggers {
           scm('@daily')
@@ -205,7 +205,7 @@ ci_distro.each { distro ->
           stringParam('IGN_TRANSPORT_BRANCH', 'main', 'ignition transport branch to use')
         }
 
-        label "gpu-reliable"
+        label Globals.nontest_label("gpu-reliable")
 
         steps {
             shell("""\
@@ -242,7 +242,7 @@ gazebo_supported_branches.each { branch ->
 
         gazebo_ci_job.with
         {
-          label "gpu-reliable && large-memory"
+          label Globals.nontest_label("gpu-reliable && large-memory")
 
           triggers {
             scm('@daily')
@@ -276,7 +276,7 @@ ci_distro.each { distro ->
 
     gazebo_ci_job.with
     {
-      label "gpu-reliable && large-memory"
+      label Globals.nontest_label("gpu-reliable && large-memory")
 
       triggers {
         scm('@weekly')
@@ -309,7 +309,7 @@ ci_distro.each { distro ->
           scm('@daily')
         }
 
-        label "gpu-reliable && large-memory"
+        label Globals.nontest_label("gpu-reliable && large-memory")
 
         // Problem with the compilation of Gazebo under bullseyes
         // See: https://github.com/gazebo-tooling/release-tools/issues/129
@@ -341,7 +341,7 @@ ci_distro.each { distro ->
 
       gazebo_ci_job.with
       {
-        label "gpu-reliable && large-memory"
+        label Globals.nontest_label("gpu-reliable && large-memory")
 
         triggers {
           scm('@daily')
@@ -376,7 +376,7 @@ all_supported_distros.each { distro ->
         cron(Globals.CRON_EVERY_THREE_DAYS)
       }
 
-      label "gpu-reliable"
+      label Globals.nontest_label("gpu-reliable")
 
       steps {
         shell("""\
@@ -447,7 +447,7 @@ def gazebo_brew_ci_any_job = job(ci_build_any_job_name_brew)
 OSRFBrewCompilationAnyGitHub.create(gazebo_brew_ci_any_job, "gazebosim/gazebo-classic")
 gazebo_brew_ci_any_job.with
 {
-    label "osx"
+    label Globals.nontest_label("osx")
 
     steps {
       shell("""\

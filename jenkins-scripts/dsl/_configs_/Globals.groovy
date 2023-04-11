@@ -119,4 +119,8 @@ class Globals
    static String get_ros2_development_distro() {
      return 'rolling'
    }
+
+   static String nontest_label(String original_label) {
+    return "(${original_label}) && !test-instance"
+   }
 }

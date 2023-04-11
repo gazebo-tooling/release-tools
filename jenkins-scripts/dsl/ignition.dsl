@@ -308,7 +308,7 @@ void include_gpu_label_if_needed(Job job, String gz_software_name)
     gz_gpu.each { gz_each ->
       if (gz_software_name == gz_each)
       {
-        label "gpu-reliable"
+        label Globals.nontest_label("gpu-reliable")
 
         // unstable build if missing valid gpu display
         publishers {
@@ -373,7 +373,7 @@ gz_software.each { gz_sw ->
         extra_str=""
         if (gz_sw == 'physics')
         {
-          label "huge-memory"
+          label Globals.nontest_label("huge-memory")
           // on ARM native nodes in buildfarm we need to restrict to 1 the
           // compilation threads to avoid OOM killer
           extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
@@ -421,7 +421,7 @@ gz_software.each { gz_sw ->
     gz_ci_any_job.with
     {
       if (gz_sw == 'physics')
-        label "huge-memory"
+        label Globals.nontest_label("huge-memory")
 
       steps
       {
@@ -529,7 +529,7 @@ void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
   gz_ci_job.with
   {
     if (gz_sw == 'physics')
-      label "huge-memory"
+      label Globals.nontest_label("huge-memory")
 
     steps {
       shell("""\

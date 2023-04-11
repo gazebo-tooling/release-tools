@@ -156,7 +156,7 @@ install_test_job.with
   }
 
   // Designed to be run manually. No triggers.
-  label "gpu-reliable"
+  label Globals.nontest_label("gpu-reliable")
 
   steps {
     systemGroovyCommand("""\
