@@ -32,6 +32,25 @@ export GZ_NAME_PREFIX_MAJOR_VERSION=$(\
   ${WORKSPACE}/${ABI_JOB_SOFTWARE_NAME}/CMakeLists.txt)
 export ${GZ_NAME_PREFIX}_MAJOR_VERSION=${GZ_NAME_PREFIX_MAJOR_VERSION}
 
+# Set the ABI_JOB_HEADER_PREFIX variable to help find the header locations.
+#
+# Since gz-cmake include paths are like the following:
+# <prefix>/include/ignition/gazebo6/*
+# <prefix>/include/ignition/math6/*
+# <prefix>/include/gz/math7/*
+# <prefix>/include/gz/sim7/*
+#
+# Set ABI_JOB_HEADER_PREFIX to match the last subfolder:
+#   gazebo6, math6, math7, sim7
+if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo" && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 7 ]]
+then
+  # special case for gz-sim7+
+  export ABI_JOB_HEADER_PREFIX=sim[0-9]*
+else
+  # otherwise, strip the ign- or gz- prefix and append "[0-9]*"
+  export ABI_JOB_HEADER_PREFIX=${ABI_JOB_SOFTWARE_NAME/[ignz]*-/}[0-9]*
+fi
+
 # check if NEED_C17_COMPILER should be set
 if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo" ]] || \
   [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-physics" ]] || \
