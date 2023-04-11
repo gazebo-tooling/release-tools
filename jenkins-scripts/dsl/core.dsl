@@ -44,7 +44,7 @@ testing_vcpkg_job.with
 
     steps
     {
-      label "win_testing"
+      label Globals.nontest_label("win_testing")
 
       batchFile("""\
             call "%WORKSPACE%/scripts/jenkins-scripts/vcpkg-bootstrap.bat" || exit /B %errorlevel%
@@ -58,7 +58,7 @@ def reprepro = job("reprepro_importer")
 OSRFUNIXBase.create(reprepro)
 reprepro.with
 {
-  label "packages"
+  label Globals.nontest_label("packages")
 
   parameters
   {
