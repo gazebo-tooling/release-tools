@@ -227,6 +227,7 @@ echo # BEGIN SECTION: colcon compilation without test for dependencies of !COLCO
 call :_colcon_build_cmd --packages-skip !COLCON_PACKAGE! "-DBUILD_TESTING=0" "-DCMAKE_CXX_FLAGS=-w"
 echo # END SECTION
 echo # BEGIN SECTION: colcon compilation with tests for !COLCON_PACKAGE!
+call install/setup.bat
 call :_colcon_build_cmd --packages-select !COLCON_PACKAGE! %_COLCON_EXTRA_CMAKE_ARGS% " -DBUILD_TESTING=1"
 echo # END SECTION
 goto :EOF
