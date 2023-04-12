@@ -244,6 +244,9 @@ goto :EOF
 set COLCON_PACKAGE=%1
 
 echo # BEGIN SECTION: colcon test for !COLCON_PACKAGE!
+echo Before source PATH: %PATH%
+call install/setup.bat
+echo PATH: %PATH%
 colcon test --merge-install --install-base "install"^
             --packages-select !COLCON_PACKAGE!^
             --executor sequential^
