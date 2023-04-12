@@ -282,7 +282,7 @@ goto :EOF
 :: ##################################
 :_install_and_upgrade_vcpkg_package
 :: arg1: package to install
-if [ %1 ] == [] (
+if [%1] == [] (
   echo "_install_and_upgrade_vcpkg_package called with no argument"
   goto :error
 )
@@ -296,7 +296,7 @@ goto :EOF
 :: ##################################
 :install_vcpkg_package
 :: arg1: package to install
-if [ %1 ] == [] (
+if [%1] == [] (
   echo "install_vcpkg_package called with no argument"
   goto :error
 )
@@ -323,11 +323,17 @@ goto :EOF
 %VCPKG_CMD% integrate remove || goto :error
 goto :EOF
 
-
-:: copy port to the official tree
-xcopy %VCPKG_OSRF_DIR%\%PKG% %PORT_DIR% /s /i /e || goto :error
-
-call %win_lib% :install_vcpkg_package %1 || goto :error
+:: ##################################
+:setup_vcpkg_all_dependencies
+set LIB_DIR=%~dp0
+call %LIB_DIR%\windows_env_vars.bat || goto :error
+call %win_lib% :enable_vcpkg_integration || goto :error
+call %win_lib% :_prepare_vcpkg_to_install|| goto :error
+for %%p in (%VCPKG_DEPENDENCIES_LEGACY%) do (
+  echo # BEGIN SECTION: install external dependency %%p
+  call %win_lib% :_install_and_upgrade_vcpkg_package %%p || goto :error
+  echo # END SECTION
+)
 goto :EOF
 
 :: ##################################
