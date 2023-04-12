@@ -343,9 +343,7 @@ call %LIB_DIR%\windows_env_vars.bat || goto :error
 call %win_lib% :enable_vcpkg_integration || goto :error
 call %win_lib% :_prepare_vcpkg_to_install|| goto :error
 for %%p in (%VCPKG_DEPENDENCIES_LEGACY%) do (
-  echo # BEGIN SECTION: install external dependency %%p
   call %win_lib% :_install_and_upgrade_vcpkg_package %%p || goto :error
-  echo # END SECTION
 )
 goto :EOF
 
