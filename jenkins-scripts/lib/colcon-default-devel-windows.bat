@@ -83,6 +83,12 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc2019_compiler
 echo # END SECTION
 
+:: Prepare a clean vcpkg environment with external dependencies
+call %win_lib% :remove_vcpkg_installation || goto :error
+echo # BEGIN SECTION: install all vcpkg dependencies
+call %win_lib% :setup_vcpkg_all_dependencies || goto :error
+echo # END SECTION
+
 echo # BEGIN SECTION: setup workspace
 if not defined KEEP_WORKSPACE (
   IF exist %LOCAL_WS_BUILD% (
@@ -104,12 +110,6 @@ echo # END SECTION
 echo # BEGIN SECTION: move %VCS_DIRECTORY% source to workspace
 if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
 xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i > xcopy_vcs_directory.log || goto :error
-echo # END SECTION
-
-:: Prepare a clean vcpkg environment with external dependencies
-call %win_lib% :remove_vcpkg_installation || goto :error
-echo # BEGIN SECTION: install all vcpkg dependencies
-call %win_lib% :setup_vcpkg_all_dependencies || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: packages in workspace
