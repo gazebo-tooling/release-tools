@@ -268,8 +268,7 @@ if NOT %VCPKG_HEAD% == %VCPKG_TAG% (
 goto :EOF
 
 :: ##################################
-:install_vcpkg_package
-:: arg1: package to install
+:_prepare_vcpkg_to_install
 set LIB_DIR=%~dp0
 call %LIB_DIR%\windows_env_vars.bat || goto :error
 call %win_lib% :check_vcpkg_snapshot || goto :error
@@ -278,12 +277,31 @@ pushd .
 cd %VCPKG_OSRF_DIR%
 git pull origin master || goto :error
 popd
+goto :EOF
 
+:: ##################################
+:_install_and_upgrade_vcpkg_package
+:: arg1: package to install
+if [ %1 ] == [] (
+  echo "_install_and_upgrade_vcpkg_package called with no argument"
+  goto :error
+)
 %VCPKG_CMD% install --recurse "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
 :: vcpkg does not upgrade installed packages using the install command
 :: since most of the packages are coming from a frozen snapshot, it is
 :: not a problem. However upgrading is needed for the osrf port overlay
 %VCPKG_CMD% upgrade "%1" --no-dry-run --overlay-ports="%VCPKG_OSRF_DIR%"
+goto :EOF
+
+:: ##################################
+:install_vcpkg_package
+:: arg1: package to install
+if [ %1 ] == [] (
+  echo "install_vcpkg_package called with no argument"
+  goto :error
+)
+call %win_lib% :_prepare_vcpkg_to_install|| goto :error
+call %win_lib% :_install_and_upgrade_vcpkg_package "%1" || goto :error
 goto :EOF
 
 :: ##################################
