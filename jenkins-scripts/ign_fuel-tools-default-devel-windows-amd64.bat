@@ -3,9 +3,6 @@ set SCRIPT_DIR=%~dp0
 set VCS_DIRECTORY=gz-fuel-tools
 set PLATFORM_TO_BUILD=x86_amd64
 set IGN_CLEAN_WORKSPACE=true
-
-:: tinyxml2 from msgs
-
 set COLCON_PACKAGE=gz-fuel_tools
 set COLCON_AUTO_MAJOR_VERSION=true
 
