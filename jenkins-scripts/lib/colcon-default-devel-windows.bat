@@ -7,14 +7,13 @@
 ::   - COLCON_AUTO_MAJOR_VERSION (default false): auto detect major version from CMakeLists
 ::   - COLCON_PACKAGE_EXTRA_CMAKE_ARGS : (optional) CMake arg to inject into colcon
 ::   - BUILD_TYPE     : (default Release) [ Release | Debug ] Build type to use
-::   - DEPEN_PKGS     : (optional) list of dependencies (separted by spaces)
 ::   - KEEP_WORKSPACE : (optional) true | false. Clean workspace at the end
 ::   - ENABLE_TESTS   : (optional) true | false. Do not compile and run tests
 ::
 :: Actions
 ::   - Configure the compiler
 ::   - Clean and create the WORKSPACE/ws
-::   - Download and unzip the DEPEN_PKGS
+::   - Install the binary external dependencies
 ::   - configure, compile and install
 ::   - run tests
 
@@ -35,9 +34,6 @@ if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
    set COLCON_PACKAGE=%COLCON_PACKAGE%!PKG_MAJOR_VERSION!
    echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
 )
-
-:: remove all previous packages installed by vcpkg
-call %win_lib% :remove_vcpkg_installation || goto :error
 
 :: Check if package is in colcon workspace
 echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
@@ -110,7 +106,8 @@ if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
 xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i > xcopy_vcs_directory.log || goto :error
 echo # END SECTION
 
-:: Install all 
+:: Prepare a clean vcpkg environment with external dependencies
+call %win_lib% :remove_vcpkg_installation || goto :error
 echo # BEGIN SECTION: install all vcpkg dependencies
 call %win_lib% :setup_vcpkg_all_dependencies || goto :error
 echo # END SECTION
