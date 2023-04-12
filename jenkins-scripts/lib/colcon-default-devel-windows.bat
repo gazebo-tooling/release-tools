@@ -110,12 +110,10 @@ if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
 xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i > xcopy_vcs_directory.log || goto :error
 echo # END SECTION
 
-for %%p in (%DEPEN_PKGS%) do (
-  call %win_lib% :enable_vcpkg_integration || goto :error
-  echo # BEGIN SECTION: install external dependency %%p
-  call %win_lib% :install_vcpkg_package %%p || goto :error
-  echo # END SECTION
-)
+:: Install all 
+echo # BEGIN SECTION: install all vcpkg dependencies
+call %win_lib% :setup_vcpkg_all_dependencies || goto :error
+echo # END SECTION
 
 echo # BEGIN SECTION: packages in workspace
 call %win_lib% :list_workspace_pkgs || goto :error
