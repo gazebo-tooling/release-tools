@@ -268,6 +268,11 @@ if NOT %VCPKG_HEAD% == %VCPKG_TAG% (
 goto :EOF
 
 :: ##################################
+:list_vcpkg_packages
+%VCPKG_CMD% list || goto :error
+goto :EOF
+
+:: ##################################
 :remove_vcpkg_installation
 :: remove the installed directory to simulate all packages removal
 :: vcpkg cli does not support the operation

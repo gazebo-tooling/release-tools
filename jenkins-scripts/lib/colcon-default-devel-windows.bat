@@ -85,8 +85,11 @@ echo # END SECTION
 
 :: Prepare a clean vcpkg environment with external dependencies
 call %win_lib% :remove_vcpkg_installation || goto :error
-echo # BEGIN SECTION: install all vcpkg dependencies
+echo # BEGIN SECTION: vcpkg: install all dependencies
 call %win_lib% :setup_vcpkg_all_dependencies || goto :error
+echo # END SECTION
+echo # BEGIN SECTION: vcpkg: list installed packages
+call %win_lib% :list_vcpkg_packages || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: setup workspace
