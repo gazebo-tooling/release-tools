@@ -3,7 +3,6 @@
 
 docker_version="$(sudo docker version --format '{{.Server.APIVersion}}')"
  if [[ $(echo "$docker_version > 1.25" | bc -l) ]]; then
-    echo "Running version of docker $(sudo docker version --format '{{.Server.APIVersion}}') with prune" 
         case $1 in
         # preferred utilizing each object prune to not affect the build cache in low and medium
         low)
