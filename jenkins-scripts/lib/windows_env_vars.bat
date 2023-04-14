@@ -1,3 +1,8 @@
+:: legacy option was to use MSVC19 by default with no configuration
+if NOT DEFINED MSVC_VERSION_REQUIRED (
+  set MSVC_VERSION_REQUIRED=2019
+)
+
 if exist D:\vcpkg (
   set VCPKG_DIR=D:\vcpkg
 ) else if exist C:\vcpkg (

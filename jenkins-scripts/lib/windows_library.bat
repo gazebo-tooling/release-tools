@@ -48,10 +48,15 @@ set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
 set PATH=%PATH%;%VCPKG_DIR%\installed\%VCPKG_DEFAULT_TRIPLET%\bin
 
-IF %MSVC_VERSION_REQUIRED% == 22 (
+IF [%MSVC_VERSION_REQUIRED%] == [2022] (
+  IF exist "%MSVC22_ON_WIN32_C%" (
    call "%MSVC22_ON_WIN32_C%" %MSVC_KEYWORD% || goto %win_lib% :error
-) else (
-  :: legacy option was to use MSVC19 by default with no configuration
+ ) ELSE (
+   :: TODO: implement other versions of MSVC 2022 if needed
+   echo "Not found a valid version of 2022 MSVC. Only Community is supported"
+   exit 1
+ )
+) ELSE IF [%MSVC_VERSION_REQUIRED%] == [2019] (
   IF exist "%MSVC_ON_WIN64_E%" (
      call "%MSVC_ON_WIN64_E%" %MSVC_KEYWORD% || goto %win_lib% :error
   ) ELSE IF exist "%MSVC_ON_WIN32_E%" (
@@ -61,9 +66,12 @@ IF %MSVC_VERSION_REQUIRED% == 22 (
   ) ELSE IF exist "%MSVC_ON_WIN32_C%" (
      call "%MSVC_ON_WIN32_C%" %MSVC_KEYWORD% || goto %win_lib% :error
   ) ELSE (
-     echo "Could not find the vcvarsall.bat file"
-     exit -1
+     echo "Not found a valid version of 
+     exit 1
   )
+) ELSE (
+  echo "MSVC_VERSION_REQUIRED variable not found. This is a bug"
+  exit 1
 )
 
 goto :EOF
