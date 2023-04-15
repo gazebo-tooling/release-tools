@@ -110,13 +110,6 @@ if [[ -z ${USE_OLD_SDFORMAT} ]]; then
     USE_OLD_SDFORMAT=false
 fi
 
-if ${USE_OLD_SDFORMAT}; then
-    sdformat_pkg="sdformat"
-elif [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
-    sdformat_pkg="libsdformat9-dev"
-elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
-    sdformat_pkg="libsdformat6-dev"
-fi
 
 ogre_pkg="libogre-1.9-dev"
 if [[ ${DISTRO} != 'xenial' ]]; then
@@ -130,16 +123,9 @@ bullet_pkg="libbullet-dev"
 if $DART_FROM_PKGS; then
   dart_pkgs="libdart-utils-urdf-dev \
              libdart-external-odelcpsolver-dev \
-             libdart-external-ikfast-dev"
-  if [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
-    dart_pkgs="${dart_pkgs} libdart-collision-bullet-dev \
-               libdart-collision-ode-dev"
-  fi
-  # If on Bionic/Xenial use custom dart packages, these have a different name
-  # dart -> dart6
-  if [[ ${DISTRO} == 'bionic' ]] || [[ ${DISTRO} == 'xenial' ]]; then
-    dart_pkgs="${dart_pkgs//dart/dart6}"
-  fi
+             libdart-external-ikfast-dev\
+             libdart-collision-bullet-dev \
+             libdart-collision-ode-dev"
 fi
 
 # --------------------------------------
@@ -171,26 +157,15 @@ GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="libfreeimage-dev     \\
                           libboost-iostreams-dev           \\
                           ${bullet_pkg}                    \\
                           libsimbody-dev                   \\
-                          ${dart_pkgs}"
-
-if [[ ${GAZEBO_MAJOR_VERSION} -ge 11 ]]; then
-    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                                         libignition-common3-dev \\
-                                         libignition-fuel-tools4-dev \\
-                                         libignition-transport8-dev \\
-                                         libignition-math6-dev \\
-                                         libignition-msgs5-dev"
-elif [[ ${GAZEBO_MAJOR_VERSION} -ge 9 ]]; then
-    GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                                         libignition-common-dev \\
-                                         libignition-fuel-tools1-dev \\
-                                         libignition-transport4-dev \\
-                                         libignition-math4-dev \\
-                                         libignition-msgs-dev"
-fi
+                          ${dart_pkgs}                     \\
+                          libignition-common3-dev          \\
+                          libignition-fuel-tools4-dev      \\
+                          libignition-transport8-dev       \\
+                          libignition-math6-dev            \\
+                          libignition-msgs5-dev"
 
 GAZEBO_BASE_DEPENDENCIES="${GAZEBO_BASE_DEPENDENCIES_NO_SDFORMAT} \\
-                          ${sdformat_pkg}"
+                          libsdformat9-dev"
 
 GAZEBO_EXTRA_DEPENDENCIES="libavformat-dev  \\
                            libavcodec-dev   \\

@@ -1,12 +1,10 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def gazebo_supported_branches = [ 'gazebo9', 'gazebo11' ]
+def gazebo_supported_branches = [ 'gazebo11' ]
 def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
 // testing official packages without osrf repo
-def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9',
-                                         'focal'  : 'gazebo9',
-                                         'jammy'  : 'gazebo11']
+def ubuntu_official_packages_distros = [ 'jammy'  : 'gazebo11']
 // Main platform using for quick CI
 def ci_distro               = [ 'focal' ]
 def ci_gpu                  = Globals.get_ci_gpu()
@@ -32,7 +30,7 @@ String abi_job_name = ''
 boolean is_watched_by_buildcop(branch, distro = 'bionic', gpu = 'nvidia')
 
 {
-  if (branch == 'master' || branch == 'gazebo9' || branch == 'gazebo11')
+  if (branch == 'master' || branch == 'gazebo11')
     return true
 
   return false

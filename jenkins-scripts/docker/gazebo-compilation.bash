@@ -20,9 +20,7 @@ OSRF_REPOS_TO_USE="stable"
 
 . ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
 
-if [[ $GAZEBO_MAJOR_VERSION -ge 11 ]]; then
-  NEED_C17_COMPILER=true
-fi
+NEED_C17_COMPILER=true
 
 export GZDEV_PROJECT_NAME="gazebo${GAZEBO_MAJOR_VERSION}"
 
