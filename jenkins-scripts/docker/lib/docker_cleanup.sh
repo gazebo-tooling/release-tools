@@ -5,7 +5,6 @@
 #                          low = cleanups dangling images and stopped containers created > 5 days ago
 #                          medium = cleanups dangling images and stopped containers created > 1 days ago
 #                          high = docker prune -a
-#                          extreme= cleans docker builder cache
 
 cleanup_level=${1}
 docker_version="$(sudo docker version --format '{{.Server.APIVersion}}')"
@@ -27,11 +26,6 @@ docker_version="$(sudo docker version --format '{{.Server.APIVersion}}')"
         high)
             echo "Cleaning all unusued images, containers, networks and cache ..."
             sudo docker system prune --all -f
-            ;;
-        extreme)
-            MAX_SIZE_FOR_BUILD_DIRS="5G"
-            echo "Removing all cache "
-            sudo docker builder prune -f --keep-storage $MAX_SIZE_FOR_BUILD_DIRS
             ;;
         *)
             echo "Did not run docker cleaner, level $cleanup_level not recognized (accepted values low | medium | high | extreme!! "
