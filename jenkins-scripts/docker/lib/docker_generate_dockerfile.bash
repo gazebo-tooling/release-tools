@@ -203,9 +203,6 @@ RUN apt-get ${APT_PARAMS} update && \\
     apt-get install -y dirmngr git python3 python3-docopt python3-yaml python3-distro
 DELIM_DOCKER_DIRMNGR
 
-# Install necessary repositories using gzdev
-dockerfile_install_gzdev_repos
-
 if ${USE_ROS_REPO}; then
   if ${ROS2}; then
 cat >> Dockerfile << DELIM_ROS_REPO
@@ -266,8 +263,9 @@ SOURCE_DEFINED_DEPS="$(sort -u $(find ${DEPENDENCIES_PATH_TO_SEARCH} -iname 'pac
 
 # Packages that will be installed and cached by docker. In a non-cache
 # run below, the docker script will check for the latest updates
-# SOURCE_DEFINED_DEPS can not be cached before this point since the
+# Note: SOURCE_DEFINED_DEPS can not be cached before this point since the
 # osrfoundation repositories can be different (stable, prerelease, nightly)
+# through the different builds if gzdev configuration changes.
 PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS}"
 
 if $USE_GPU_DOCKER; then
