@@ -31,43 +31,6 @@ fi
 
 export APT_PARAMS=
 
-GZDEV_DIR=${WORKSPACE}/gzdev
-GZDEV_BRANCH=${GZDEV_BRANCH:-master}
-if python3 ${SCRIPT_DIR}/../tools/detect_ci_matching_branch.py "${ghprbSourceBranch}"; then
-  GZDEV_TRY_BRANCH=$ghprbSourceBranch
-fi
-
-dockerfile_install_gzdev_repos()
-{
-cat >> Dockerfile << DELIM_OSRF_REPO_GIT
-RUN rm -fr ${GZDEV_DIR}
-RUN git clone https://github.com/gazebo-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
-RUN if [ -n $GZDEV_TRY_BRANCH ]; then \
-        git -C ${GZDEV_DIR} fetch origin $GZDEV_TRY_BRANCH || true; \
-        git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH || true; \
-    fi || true
-# print branch for informational purposes
-RUN git -C ${GZDEV_DIR} branch
-DELIM_OSRF_REPO_GIT
-if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
-# debian sid docker images does not return correct name so we need to use
-# force-linux-distro
-cat >> Dockerfile << DELIM_OSRF_REPO_GZDEV
-RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
-    if [ -n $GZDEV_TRY_BRANCH ]; then git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH; fi || true && \
-    ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} )
-DELIM_OSRF_REPO_GZDEV
-fi
-
-# This could duplicate repositories enabled in the step above. gzdev should warn about it without failing.
-for repo in ${OSRF_REPOS_TO_USE}; do
-cat >> Dockerfile << DELIM_OSRF_REPO
-RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO}  || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
-    if [ -n $GZDEV_TRY_BRANCH ]; then git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH; fi || true && \
-    ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} )
-DELIM_OSRF_REPO
-done
-}
 
 case ${LINUX_DISTRO} in
   'ubuntu')
@@ -203,9 +166,6 @@ RUN apt-get ${APT_PARAMS} update && \\
     apt-get install -y dirmngr git python3 python3-docopt python3-yaml python3-distro
 DELIM_DOCKER_DIRMNGR
 
-# Install necessary repositories using gzdev
-dockerfile_install_gzdev_repos
-
 if ${USE_ROS_REPO}; then
   if ${ROS2}; then
 cat >> Dockerfile << DELIM_ROS_REPO
@@ -260,13 +220,9 @@ RUN ${DOCKER_PREINSTALL_HOOK}
 DELIM_WORKAROUND_PRE_HOOK
 fi
 
-# Install debian dependencies defined on the source code
-DEPENDENCIES_PATH_TO_SEARCH=${SOFTWARE_DIR:=.}
-SOURCE_DEFINED_DEPS="$(sort -u $(find ${DEPENDENCIES_PATH_TO_SEARCH} -iname 'packages-'$DISTRO'.apt' -o -iname 'packages.apt' | grep -v '/\.git/') | tr '\n' ' ')"
-
 # Packages that will be installed and cached by docker. In a non-cache
 # run below, the docker script will check for the latest updates
-PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS} ${SOURCE_DEFINED_DEPS}"
+PACKAGES_CACHE_AND_CHECK_UPDATES="${BASE_DEPENDENCIES} ${DEPENDENCY_PKGS}"
 
 if $USE_GPU_DOCKER; then
   PACKAGES_CACHE_AND_CHECK_UPDATES="${PACKAGES_CACHE_AND_CHECK_UPDATES} ${GRAPHIC_CARD_PKG}"
@@ -283,11 +239,6 @@ cat >> Dockerfile << DELIM_DOCKER3
 RUN echo "${MONTH_YEAR_STR}"
 DELIM_DOCKER3
 
-# If the previous command invalidated the cache, a new install of gzdev is
-# needed to update to possible recent changes in configuration and/or code and
-# not being used since the docker cache did not get them.
-dockerfile_install_gzdev_repos
-
 cat >> Dockerfile << DELIM_DOCKER3_2
 RUN sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.list.d/* || true \
  && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get ${APT_PARAMS} update)) \
@@ -298,11 +249,6 @@ RUN sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.
 # update.
 RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))"
 DELIM_DOCKER3_2
-
-# A new install of gzdev is needed to update to possible recent changes in
-# configuration and/or code and not being used since the docker cache did
-# not get them.
-dockerfile_install_gzdev_repos
 
 cat >> Dockerfile << DELIM_DOCKER31
 # Note that we don't remove the apt/lists file here since it will make
