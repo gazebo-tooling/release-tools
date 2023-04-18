@@ -26,6 +26,12 @@ set -ex
 if $GENERIC_ENABLE_TIMING; then
   source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
 fi
+
+echo "# BEGIN SECTION: install binary dependencies
+source "${SCRIPT_DIR}/lib/_common_scripts.bash"
+_install_gzdev_repos
+_install_gz_source_defined_packages
+echo '# END SECTION'
 DELIM_HEADER
 
 # Process the source build of dependencies if needed
