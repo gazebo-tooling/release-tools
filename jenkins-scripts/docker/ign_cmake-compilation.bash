@@ -28,7 +28,11 @@ GZ_CMAKE_MAJOR_VERSION=$(\
 # Check GZ_CMAKE version is integer
 if ! [[ ${GZ_CMAKE_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   echo "Error! GZ_CMAKE_MAJOR_VERSION is not an integer, check the detection"
-  exit -1
+  exit 1
+fi
+
+if [ "${GZ_CMAKE_MAJOR_VERSION}" -ge 3 ]; then
+  BUILDING_EXTRA_CMAKE_PARAMS+=" -DGZ_ENABLE_RELOCATABLE_INSTALL=True"
 fi
 
 export GZDEV_PROJECT_NAME="gz-cmake${GZ_CMAKE_MAJOR_VERSION}"
