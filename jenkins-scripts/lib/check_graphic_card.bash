@@ -12,7 +12,7 @@ export_display_variable()
         # Strip the path and leading X from the X11 socket
         # but check that the resulting string is numeric and
         # non-empty before exporting.
-        DISPLAY=$(basename $i | sed -n -E 's:^X([0-9]+):\1:')
+        DISPLAY=$(basename $i | sed -n -E 's:^X([0-9]+):\1:p')
         if [ -n $DISPLAY ]; then
           export DISPLAY
         fi
