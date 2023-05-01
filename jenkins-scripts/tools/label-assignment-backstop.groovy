@@ -31,16 +31,12 @@ for (tup in exactly_one_labels) {
   if (label_nodes.size() < 1) {
     println("No host currently has the label " + tup[0])
     println("Appointing a node from the configured pool matching '" + tup[1] + "'")
-    node_set = Label.get(tup[1]).getNodes()
-    if (node_set.size() <= 0) {
+    node_pool = Label.get(tup[1]).getNodes()
+    if (node_pool.size() <= 0) {
       println("WARNING: Pool of '" + tup[1] + "' machines for " + tup[0] + " is empty!")
     }
-    node_pool = []
-    for (node in node_set) { 
-      node_pool.add(node)
-    }
-    Collections.shuffle(node_pool)
-    appointed_node = node_pool[0]
+    // Pick a random node from the pool to receive the label.
+    appointed_node = node_pool[(new Random()).nextInt(node_pool.size())]
     new_label_string = appointed_node.getAssignedLabels().join(" ")
     new_label_string = tup[0] + " " + new_label_string
     appointed_node.setLabelString(new_label_string)
