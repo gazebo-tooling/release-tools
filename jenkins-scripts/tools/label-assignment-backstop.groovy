@@ -2,6 +2,12 @@ import jenkins.*;
 import jenkins.model.*;
 import hudson.model.Label;
 
+/*
+  Each label is in a 2-tuple with a label expression that indicates its "pool"
+  of potential assignees.
+  The first field must be a single label (no spaces) but the second may be an
+  arbitrarily complex label expression like "(docker && linux) && !armhf"
+*/
 def exactly_one_labels = [
   ["linux-nightly-focal", "docker"],
   ["linux-nightly-jammy", "docker"],
