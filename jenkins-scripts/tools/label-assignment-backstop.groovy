@@ -29,7 +29,7 @@ for (tup in exactly_one_labels) {
     continue
   }
 
-  // Mark build as unstable there are problems with labels or if the
+  // return unstable if the labels are not set correctly before running this
   println("MARK_AS_UNSTABLE")
 
   if (label_nodes.size() > 1) {
