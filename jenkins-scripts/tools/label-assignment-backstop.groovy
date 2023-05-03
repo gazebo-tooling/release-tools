@@ -1,3 +1,11 @@
+/*
+ * The script is designed to assign the nightly labels
+ * for nodes dynamically, Only one node should build
+ * nightlies for each distribution in order to ensure
+ * the correct orchestration of the Gazebo libraries
+ * interdependencies.
+ */
+
 import jenkins.*;
 import jenkins.model.*;
 import hudson.model.Label;
