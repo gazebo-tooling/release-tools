@@ -23,6 +23,10 @@ if [[ ${SDFORMAT_MAJOR_VERSION} -ge 8 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
+if [[ ${SDFORMAT_MAJOR_VERSION} -ge 10 ]]; then
+  export ABI_JOB_HEADER_PREFIX=sdformat[0-9]*
+fi
+
 # default to use stable repos
 export ABI_JOB_REPOS="stable"
 

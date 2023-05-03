@@ -115,7 +115,7 @@ void include_common_params(Job gazebo_ros_pkgs_job,
         ros2_str = "export ROS2=false"
       }
 
-      label "gpu-reliable"
+      label Globals.nontest_label("gpu-reliable")
 
       steps {
         shell("""\

@@ -268,8 +268,25 @@ if NOT %VCPKG_HEAD% == %VCPKG_TAG% (
 goto :EOF
 
 :: ##################################
-:install_vcpkg_package
-:: arg1: package to install
+:list_vcpkg_packages
+%VCPKG_CMD% list || goto :error
+goto :EOF
+
+:: ##################################
+:remove_vcpkg_installation
+:: remove the installed directory to simulate all packages removal
+:: vcpkg cli does not support the operation
+set LIB_DIR="%~dp0"
+call %LIB_DIR%\windows_env_vars.bat || goto :error
+if [%VCPKG_INSTALLED_FILES_DIR%]==[] (
+  echo VCPKG_INSTALLED_FILES_DIR variable seems empty, this is a bug
+  goto :error
+)
+del /s /f /q %VCPKG_INSTALLED_FILES_DIR%
+goto :EOF
+
+:: ##################################
+:_prepare_vcpkg_to_install
 set LIB_DIR=%~dp0
 call %LIB_DIR%\windows_env_vars.bat || goto :error
 call %win_lib% :check_vcpkg_snapshot || goto :error
@@ -278,12 +295,34 @@ pushd .
 cd %VCPKG_OSRF_DIR%
 git pull origin master || goto :error
 popd
+goto :EOF
 
+:: ##################################
+:_install_and_upgrade_vcpkg_package
+:: arg1: package to install
+if [%1] == [] (
+  echo "_install_and_upgrade_vcpkg_package called with no argument"
+  goto :error
+)
+:: workaround on permissions problems for default VCPKG_DEFAULT_BINARY_CACHE
+set VCPKG_DEFAULT_BINARY_CACHE=C:\Windows\Temp\vcpkg
+if not exist %VCPKG_DEFAULT_BINARY_CACHE% mkdir %VCPKG_DEFAULT_BINARY_CACHE%
 %VCPKG_CMD% install --recurse "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
 :: vcpkg does not upgrade installed packages using the install command
 :: since most of the packages are coming from a frozen snapshot, it is
 :: not a problem. However upgrading is needed for the osrf port overlay
 %VCPKG_CMD% upgrade "%1" --no-dry-run --overlay-ports="%VCPKG_OSRF_DIR%"
+goto :EOF
+
+:: ##################################
+:install_vcpkg_package
+:: arg1: package to install
+if [%1] == [] (
+  echo "install_vcpkg_package called with no argument"
+  goto :error
+)
+call %win_lib% :_prepare_vcpkg_to_install|| goto :error
+call %win_lib% :_install_and_upgrade_vcpkg_package "%1" || goto :error
 goto :EOF
 
 :: ##################################
@@ -305,11 +344,15 @@ goto :EOF
 %VCPKG_CMD% integrate remove || goto :error
 goto :EOF
 
-
-:: copy port to the official tree
-xcopy %VCPKG_OSRF_DIR%\%PKG% %PORT_DIR% /s /i /e || goto :error
-
-call %win_lib% :install_vcpkg_package %1 || goto :error
+:: ##################################
+:setup_vcpkg_all_dependencies
+set LIB_DIR=%~dp0
+call %LIB_DIR%\windows_env_vars.bat || goto :error
+call %win_lib% :enable_vcpkg_integration || goto :error
+call %win_lib% :_prepare_vcpkg_to_install|| goto :error
+for %%p in (%VCPKG_DEPENDENCIES_LEGACY%) do (
+  call %win_lib% :_install_and_upgrade_vcpkg_package %%p || goto :error
+)
 goto :EOF
 
 :: ##################################

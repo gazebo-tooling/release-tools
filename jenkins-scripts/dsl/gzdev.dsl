@@ -55,7 +55,7 @@ supported_distros.each { distro ->
     gzdev_any_job.with
     {
       // use only the most powerful nodes
-      label "large-memory"
+      label Globals.nontest_label("large-memory")
 
       steps {
         shell("""\

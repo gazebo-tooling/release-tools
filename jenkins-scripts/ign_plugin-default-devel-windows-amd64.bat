@@ -4,7 +4,6 @@ set VCS_DIRECTORY=gz-plugin
 set PLATFORM_TO_BUILD=x86_amd64
 set IGN_CLEAN_WORKSPACE=true
 
-set DEPEN_PKGS="dlfcn-win32"
 
 set COLCON_PACKAGE=gz-plugin
 set COLCON_AUTO_MAJOR_VERSION=true

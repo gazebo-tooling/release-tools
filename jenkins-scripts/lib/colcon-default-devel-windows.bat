@@ -7,14 +7,13 @@
 ::   - COLCON_AUTO_MAJOR_VERSION (default false): auto detect major version from CMakeLists
 ::   - COLCON_PACKAGE_EXTRA_CMAKE_ARGS : (optional) CMake arg to inject into colcon
 ::   - BUILD_TYPE     : (default Release) [ Release | Debug ] Build type to use
-::   - DEPEN_PKGS     : (optional) list of dependencies (separted by spaces)
 ::   - KEEP_WORKSPACE : (optional) true | false. Clean workspace at the end
 ::   - ENABLE_TESTS   : (optional) true | false. Do not compile and run tests
 ::
 :: Actions
 ::   - Configure the compiler
 ::   - Clean and create the WORKSPACE/ws
-::   - Download and unzip the DEPEN_PKGS
+::   - Install the binary external dependencies
 ::   - configure, compile and install
 ::   - run tests
 
@@ -84,6 +83,15 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc2019_compiler
 echo # END SECTION
 
+:: Prepare a clean vcpkg environment with external dependencies
+call %win_lib% :remove_vcpkg_installation || goto :error
+echo # BEGIN SECTION: vcpkg: install all dependencies
+call %win_lib% :setup_vcpkg_all_dependencies || goto :error
+echo # END SECTION
+echo # BEGIN SECTION: vcpkg: list installed packages
+call %win_lib% :list_vcpkg_packages || goto :error
+echo # END SECTION
+
 echo # BEGIN SECTION: setup workspace
 if not defined KEEP_WORKSPACE (
   IF exist %LOCAL_WS_BUILD% (
@@ -106,13 +114,6 @@ echo # BEGIN SECTION: move %VCS_DIRECTORY% source to workspace
 if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
 xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i > xcopy_vcs_directory.log || goto :error
 echo # END SECTION
-
-for %%p in (%DEPEN_PKGS%) do (
-  call %win_lib% :enable_vcpkg_integration || goto :error
-  echo # BEGIN SECTION: install external dependency %%p
-  call %win_lib% :install_vcpkg_package %%p || goto :error
-  echo # END SECTION
-)
 
 echo # BEGIN SECTION: packages in workspace
 call %win_lib% :list_workspace_pkgs || goto :error
