@@ -104,6 +104,10 @@ nightly_labeler.with
 {
   label Globals.nontest_label("built-in")
 
+  triggers {
+    cron(Globals.CRON_PREPARE_NIGHTLY)
+  }
+
   steps
   {
     systemGroovyCommand(readFileFromWorkspace('../tools/label-assignment-backstop.groovy'))
