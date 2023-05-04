@@ -22,14 +22,15 @@ def exactly_one_labels = [
 ]
 
 for (tup in exactly_one_labels) {
-  label_nodes = Label.get(tup[0]).getNodes()
+  label_nodes = Label.get(tup[0]).getNodes().findAll { it.toComputer().isOnline() }
+
   if (label_nodes.size() == 1) {
     println(tup[0] + " is currently applied to " + label_nodes[0].name)
     continue
   }
 
   if (label_nodes.size() > 1) {
-    println("WARNING: Too many nodes with the label " + tup[0])
+    println("WARNING: Too many online nodes with the label " + tup[0])
     for (node in label_nodes) {
       println("  " + node.name)
     }
@@ -37,9 +38,9 @@ for (tup in exactly_one_labels) {
   }
 
   if (label_nodes.size() < 1) {
-    println("No host currently has the label " + tup[0])
+    println("No online host currently has the label " + tup[0])
     println("Appointing a node from the configured pool matching '" + tup[1] + "'")
-    node_pool = Label.get(tup[1]).getNodes()
+    node_pool = Label.get(tup[1]).getNodes().findAll { it.toComputer().isOnline() }
     if (node_pool.size() <= 0) {
       println("WARNING: Pool of '" + tup[1] + "' machines for " + tup[0] + " is empty!")
     }
