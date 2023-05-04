@@ -10,10 +10,10 @@ import javaposse.jobdsl.dsl.Job
      - allow concurrent builds
      - bash: RTOOLS checkout
 */
-class OSRFUNIXBase extends OSRFBase 
+class OSRFUNIXBase extends OSRFBase
 {
-  static void create(Job job) 
-  { 
+  static void create(Job job)
+  {
     OSRFBase.create(job)
 
     job.with
@@ -96,5 +96,4 @@ class OSRFUNIXBase extends OSRFBase
         
     }
   }
-
 }
