@@ -29,6 +29,9 @@ for (tup in exactly_one_labels) {
     continue
   }
 
+  // Mark build as unstable there are problems with labels or if the
+  println("MARK_AS_UNSTABLE")
+
   if (label_nodes.size() > 1) {
     println("WARNING: Too many online nodes with the label " + tup[0])
     for (node in label_nodes) {
