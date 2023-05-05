@@ -110,6 +110,7 @@ nightly_labeler.with
 
   steps
   {
-    systemGroovyCommand(readFileFromWorkspace('../tools/label-assignment-backstop.groovy'))
+    // path root changes from standalone to Jenkins. Be careful
+    systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/label-assignment-backstop.groovy'))
   }
 }
