@@ -96,3 +96,21 @@ reprepro.with
           """.stripIndent())
   }
 }
+
+// -------------------------------------------------------------------
+def nightly_labeler = job("_nightly_node_labeler")
+OSRFBase.create(nightly_labeler)
+nightly_labeler.with
+{
+  label Globals.nontest_label("built-in")
+
+  triggers {
+    cron(Globals.CRON_PREPARE_NIGHTLY)
+  }
+
+  steps
+  {
+    // path root changes from standalone to Jenkins. Be careful
+    systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/label-assignment-backstop.groovy'))
+  }
+}
