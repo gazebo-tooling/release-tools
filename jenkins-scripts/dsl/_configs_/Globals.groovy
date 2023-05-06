@@ -12,6 +12,8 @@ class Globals
 
    static CRON_EVERY_THREE_DAYS = 'H H * * H/3'
    static CRON_ON_WEEKEND = 'H H * * 6-7'
+   static CRON_PREPARE_NIGHTLY = '45 8 * * *'
+   static CRON_START_NIGHTLY = '0 9 * * *'
 
    // Only one -E regex can be passed, so make a regex that matches both
    // _ign_TEST and _gz_TEST
