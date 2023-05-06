@@ -611,7 +611,7 @@ nightly_scheduler_job.with
   }
 
   triggers {
-     cron('0   9    *    *    *')
+     cron(Globals.CRON_START_NIGHTLY)
   }
 
   cmake_branch = get_nightly_branch(collection_data, 'cmake')
