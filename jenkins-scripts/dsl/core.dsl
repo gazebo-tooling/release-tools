@@ -102,7 +102,7 @@ def nightly_labeler = job("_nightly_node_labeler")
 OSRFBase.create(nightly_labeler)
 nightly_labeler.with
 {
-  label Globals.nontest_label("built-in")
+  label Globals.nontest_label("master")
 
   triggers {
     cron(Globals.CRON_PREPARE_NIGHTLY)
@@ -112,5 +112,17 @@ nightly_labeler.with
   {
     // path root changes from standalone to Jenkins. Be careful
     systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/label-assignment-backstop.groovy'))
+  }
+
+  publishers
+  {
+    // Added the checker result parser (UNSTABLE if not success)
+    configure { project ->
+      project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+        unstableOnWarning true
+        failBuildOnError false
+        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+      }
+    }
   }
 }
