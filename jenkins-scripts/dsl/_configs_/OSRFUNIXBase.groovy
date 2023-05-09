@@ -55,7 +55,7 @@ class OSRFUNIXBase extends OSRFBase
 
                         println("# BEGIN SECTION: NVIDIA MISMATCH RECOVERY")
                         if (!(build.getLog(1000) =~ "nvml error: driver/library version mismatch")) {
-                          println("Build failed for other reason than NVIDIA error - Not performing any more steps")
+                          println(" NVIDIA driver/library version mismatch not detected in the log - Not performing any recovery automatic recovery step")
                           return 0;
                         } else {
                           try {
