@@ -12,9 +12,6 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFUNIXBase extends OSRFBase
 {
-  // NOTE: The starting whitespace is important to match exactly to a label gpu-nvidia and not no-gpu-nvidia\
-  static regexNvidiaLabel = ' gpu-nvidia+'
-
   static void create(Job job)
   {
     OSRFBase.create(job)
@@ -45,7 +42,7 @@ class OSRFUNIXBase extends OSRFBase
         // Manual insertion of xml for Naginator plugin because of this issue https://issues.jenkins.io/browse/JENKINS-66458
         configure { project -> 
           project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' {
-            regexpForRerun(this.regexNvidiaLabel)
+            regexpForRerun("nvml error: driver/library version mismatch")
             checkRegexp(true)
             maxSchedule(1)
             delay(class: 'com.chikli.hudson.plugin.naginator.FixedDelay') {
@@ -57,7 +54,7 @@ class OSRFUNIXBase extends OSRFBase
           steps{
             conditionalSteps {
               condition {
-                expression(this.regexNvidiaLabel,'${NODE_LABELS}')
+                expression("(.)* gpu-nvidia (.)*",'${NODE_LABELS}')
               }
               steps {
                 systemGroovyCommand('''\
