@@ -1,7 +1,1 @@
 .pyc
-### VS Code ###
-.vscode/
-
-### Mac OS ###
-.DS_Store
-jenkins-scripts/dsl/job-dsl-core-1.77-standalone.jar
