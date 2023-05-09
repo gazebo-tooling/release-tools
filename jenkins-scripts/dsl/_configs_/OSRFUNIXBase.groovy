@@ -42,6 +42,13 @@ class OSRFUNIXBase extends OSRFBase
              """.stripIndent())
       }
       publishers {
+        configure { project -> 
+          project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' {
+            regexpForRerun(this.regexNvidiaLabel)
+            checkRegexp(true)
+          }
+
+        }
         postBuildScripts {
           steps{
             conditionalSteps {
@@ -85,10 +92,6 @@ class OSRFUNIXBase extends OSRFBase
         retryBuild {
           fixedDelay(70)
           retryLimit(1)
-          configure { 
-            regexpForRerun(this.regexNvidiaLabel)
-            checkRegexp(true)
-          }
         }
       }
     }
