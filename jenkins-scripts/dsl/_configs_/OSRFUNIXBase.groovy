@@ -12,6 +12,9 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFUNIXBase extends OSRFBase
 {
+  // NOTE: The starting whitespace is important to match exactly to a label gpu-nvidia and not no-gpu-nvidia\
+  static regexNvidiaLabel = ' gpu-nvidia+'
+
   static void create(Job job)
   {
     OSRFBase.create(job)
@@ -43,8 +46,7 @@ class OSRFUNIXBase extends OSRFBase
           steps{
             conditionalSteps {
               condition {
-                // NOTE: The starting whitespace is important to match exactly to a label gpu-nvidia and not no-gpu-nvidia
-                expression(' gpu-nvidia+','${NODE_LABELS}')
+                expression(this.regexNvidiaLabel,'${NODE_LABELS}')
               }
               steps {
                 systemGroovyCommand('''\
@@ -63,18 +65,6 @@ class OSRFUNIXBase extends OSRFBase
                       println(" PROBLEM: NVIDIA driver/library version mismatch was detected in the log. Try to automatically resolve it:")
                       println("Removing labels and adding 'recovery-process' label to node")
                       node.setLabelString("recovery-process")
-                      println("Requeuing job :" + build.project.name)
-                      def job = Hudson.instance.getJob(build.project.name)
-                          
-                      def params = build.getAllActions().find{ it instanceof ParametersAction }?.parameters
-                      def cause = new UpstreamCause(build)
-                      // wait 70s to build again so that the computer has time to reboot (e.g only one agent available)
-                      def scheduled = job.scheduleBuild2(70, cause, new ParametersAction(params))
-                      if(!scheduled) {
-                        throw new Exception("Job could not be requeued!")
-                      }
-                      println("Job requeued!")
-
                     } catch (Exception ex) {
                       println("ERROR - CANNOT PERFORM RECOVERY ACTIONS FOR NVIDIA ERROR")
                       println("Restoring to previous state")
@@ -91,6 +81,14 @@ class OSRFUNIXBase extends OSRFBase
           }
           onlyIfBuildSucceeds(false)
           onlyIfBuildFails(true)
+        }
+        retryBuild {
+          fixedDelay(70)
+          retryLimit(1)
+          configure { 
+            regexpForRerun(this.regexNvidiaLabel)
+            checkRegexp(true)
+          }
         }
       }
     }
