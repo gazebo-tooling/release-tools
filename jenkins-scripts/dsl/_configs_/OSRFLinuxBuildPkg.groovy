@@ -1,6 +1,7 @@
 package _configs_
 
 import javaposse.jobdsl.dsl.Job
+import _configs_.Globals
 
 /*
   -> OSRFLinuxBuildPkgBase
@@ -71,7 +72,7 @@ class OSRFLinuxBuildPkg
                     "OSRF repos name to use when building the package")
         labelParam('JENKINS_NODE_TAG') {
           description('Jenkins node or group to run build')
-          defaultValue('docker')
+          defaultValue(Globals.nontest_label('docker'))
         }
       }
 
