@@ -1,6 +1,7 @@
 package _configs_
 
 import javaposse.jobdsl.dsl.Job
+import _configs_.Globals
 
 /*
   -> OSRFUNIXBase
@@ -17,7 +18,7 @@ class OSRFLinuxBase
 
     job.with
     {
-        label "docker"
+        label Globals.nontest_label("docker")
 
         publishers {
           archiveArtifacts {
