@@ -6,16 +6,15 @@ import sys
 import urllib
 import argparse
 
-USAGE = 'release-bloom.py <package> <version> <upstream_release_repo> <ros_distro> [--ignition-version version_name] <jenkinstoken>'
+USAGE = 'release-bloom.py <package> <version> <upstream_release_repo> <ros_distro> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-bloom-debbuilder'
 
 UBUNTU_ARCHS = ['amd64']
-# not releasing for precise by default
-UBUNTU_DISTROS_IN_ROS = {'melodic': ['bionic'],
-                         'noetic': ['focal']}
+UBUNTU_DISTROS_IN_ROS = {'noetic': ['focal']}
 UBUNTU_DISTROS_IN_ROS2 = {'foxy': ['focal'],
-                          'rolling': ['focal']}
+                          'humble': ['jammy'],
+                          'rolling': ['jammy']}
 DRY_RUN = False
 
 def parse_args(argv):
@@ -34,9 +33,6 @@ def parse_args(argv):
                         help='Release version suffix; usually 1 (e.g., 1')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
-    parser.add_argument('--ignition-version', action='store', default=None,
-                        help='Gazebo version to use in the binary packages')
-
     args = parser.parse_args()
     DRY_RUN = args.dry_run
     return args
