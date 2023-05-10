@@ -1,10 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
+import argparse
 import subprocess
 import sys
-import urllib
-import argparse
+import urllib.request
+import urllib.parse
 
 USAGE = 'release-bloom.py <package> <version> <upstream_release_repo> <ros_distro> [--ignition-version version_name] <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
@@ -77,13 +78,10 @@ def call_jenkins_jobs(argv):
         params['ROS2'] = True
         ubuntu_per_ros_distro = UBUNTU_DISTROS_IN_ROS2
 
-    if args.ignition_version:
-        params['IGNITION_VERSION'] = args.ignition_version
-
     if not args.release_version:
         args.release_version = 0
     params['RELEASE_VERSION'] = args.release_version
-    params_query = urllib.urlencode(params)
+    params_query = urllib.parse.urlencode(params)
     base_url = '%s/job/%s/buildWithParameters?%s' % \
                (JENKINS_URL, JOB_NAME_PATTERN % (args.package), params_query)
 
@@ -93,7 +91,7 @@ def call_jenkins_jobs(argv):
                   (base_url, arch, ubuntu_distro, args.ros_distro)
             print('Accessing: %s' % (url))
             if not DRY_RUN:
-                urllib.urlopen(url)
+                urllib.request.urlopen(url)
 
 
 if __name__ == '__main__':
