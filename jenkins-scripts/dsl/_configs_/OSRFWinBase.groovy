@@ -1,6 +1,7 @@
 package _configs_
 
 import javaposse.jobdsl.dsl.Job
+import _configs_.Globals
 
 /*
   Implements:
@@ -14,7 +15,7 @@ class OSRFWinBase extends OSRFBase
      OSRFBase.create(job)
      job.with
      {
-        label "win"
+        label Globals.nontest_label("win")
 
         steps
         {
