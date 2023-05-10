@@ -39,17 +39,6 @@ class OSRFUNIXBase extends OSRFBase
              """.stripIndent())
       }
       publishers {
-        // Manual insertion of xml for Naginator plugin because of this issue https://issues.jenkins.io/browse/JENKINS-66458
-        configure { project -> 
-          project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' {
-            regexpForRerun("nvml error: driver/library version mismatch")
-            checkRegexp(true)
-            maxSchedule(1)
-            delay(class: 'com.chikli.hudson.plugin.naginator.FixedDelay') {
-              delay(70)
-            }
-          }
-        }
         postBuildScripts {
           steps{
             conditionalSteps {
@@ -89,6 +78,17 @@ class OSRFUNIXBase extends OSRFBase
           }
           onlyIfBuildSucceeds(false)
           onlyIfBuildFails(true)
+        }
+        // Manual insertion of xml for Naginator plugin because of this issue https://issues.jenkins.io/browse/JENKINS-66458
+        configure { project -> 
+          project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' {
+            regexpForRerun("nvml error: driver/library version mismatch")
+            checkRegexp(true)
+            maxSchedule(1)
+            delay(class: 'com.chikli.hudson.plugin.naginator.FixedDelay') {
+              delay(70)
+            }
+          }
         }
       }
     }
