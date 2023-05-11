@@ -130,6 +130,8 @@ echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
     echo # BEGIN SECTION: running tests for !COLCON_PACKAGE!
+    echo "Testing environment info:"
+    echo "PATH --> %PATH%"
     call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
     echo # END SECTION
 
