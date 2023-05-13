@@ -176,7 +176,7 @@ install_test_job.with
          export INSTALL_JOB_REPOS=\${OSRF_REPOS_TO_USE}
          export USE_ROS_REPO=true
          export ROS2=true
-         /bin/bash -x ./scripts/jenkins-scripts/docker/ign_launch-install-test-job.bash
+         /bin/bash -x ./scripts/jenkins-scripts/docker/ros_gz-install-test-job.bash
          """.stripIndent())
   }
 }
