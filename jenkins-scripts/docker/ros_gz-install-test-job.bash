@@ -38,6 +38,8 @@ echo '# END SECTION'
 """
 
 # Need bc to proper testing and parsing the time
-export DEPENDENCY_PKGS="${DEPENDENCY_PKGS} wget bc ros-humble-ros-base"
+# TODO: fix gz-sim-cli dependency on ros_gz package
+# to avoid hardcoded version on gz-sim
+export DEPENDENCY_PKGS="${DEPENDENCY_PKGS} wget bc ros-${ROS_DISTRO}-ros-base gz-sim7-dev"
 
 . ${SCRIPT_DIR}/lib/generic-install-base.bash
