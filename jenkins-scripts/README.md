@@ -34,10 +34,6 @@ For more information go [here](https://github.com/jenkinsci/job-dsl-plugin/wiki/
 ### XML injection into DSL 
 Sometimes we find a situation where we have a plugin installed that it's not mapped to DSL and you may think: How can I use this plugin?. 
 
-There is a feature called [configure blocks](https://github.com/jenkinsci/job-dsl-plugin/wiki/The-Configure-Block) that allows us to represent xml job configs as DSL. Below is an example of it's usage with the retryBuild plugin: 
-
-https://github.com/gazebo-tooling/release-tools/blob/9fbfe60133d2b7b8b280b92f7c563dc64c8367a5/jenkins-scripts/dsl/_configs_/OSRFUNIXBase.groovy#LL83C1-L92C10
-
-Here `checkRegexp(true)` gets converted into `<checkRegexp>true</checkRegexp>` and the  hierarchy of the definition is respected, so `checkRegexp` exists as a child of `com.chikli.hudson.plugin.naginator.NaginatorPublisher` in the XML definition.
+There is a feature called [configure blocks](https://github.com/jenkinsci/job-dsl-plugin/wiki/The-Configure-Block) that allows us to represent xml job configs as DSL. [Here](https://github.com/gazebo-tooling/release-tools/blob/9fbfe60133d2b7b8b280b92f7c563dc64c8367a5/jenkins-scripts/dsl/_configs_/OSRFUNIXBase.groovy#LL83C1-L92C10) is an example of it's usage with the retryBuild plugin, where `checkRegexp(true)` gets converted into `<checkRegexp>true</checkRegexp>` and the  hierarchy of the definition is respected, so `checkRegexp` exists as a child of `com.chikli.hudson.plugin.naginator.NaginatorPublisher` in the XML definition.
 
 To check what are the corresponding names for the XML tags you can refer to the plugin documentation or as an alternative you can manually modify the job to add the information you want and then go to `https://build.osrfoundation.com/job/myjob/config.xml` and match the XML there in the DSL config. 
