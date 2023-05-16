@@ -1,6 +1,6 @@
 # Jenkins scripts
 
-We use [DSL Jenkins plugin](https://plugins.jenkins.io/job-dsl/) to allow us to manage and define the jobs as human readable code. You can find the different job configs under the [`dsl`](./dsl/) folder. 
+The release-tools repository uses the [DSL Jenkins plugin](https://plugins.jenkins.io/job-dsl/) to allow us to programmatically generate the job configuration (configuration as code).  You can find the different job configs under the [`dsl`](./dsl/) folder. 
 
 ## Useful links
 - [List of installed plugins in Jenkins](https://github.com/osrf/chef-osrf/blob/latest/cookbooks/osrfbuild/attributes/plugins.rb)
@@ -12,7 +12,7 @@ We use [DSL Jenkins plugin](https://plugins.jenkins.io/job-dsl/) to allow us to 
 
 To test locally the build of the different `dsl` jobs you need the following: 
 
-1. Download `job_dsl-core.standalone.jar` to be able to build the dsl jobs locally.  [Download here](https://repo.jenkins-ci.org/artifactory/releases/org/jenkins-ci/plugins/job-dsl-core/1.77/)
+1. Download `job_dsl-core.standalone.jar` to be able to build the dsl jobs locally. It's necessary to use the [same version](https://github.com/osrf/chef-osrf/blob/latest/cookbooks/osrfbuild/attributes/plugins.rb#L70) for the jarfrom the dsl plugin. [Download here](https://repo.jenkins-ci.org/artifactory/releases/org/jenkins-ci/plugins/job-dsl-core)
 2. Add the downloaded file to a folder not tracked in the repo.
 3. In the terminal execute: 
 ``` bash
