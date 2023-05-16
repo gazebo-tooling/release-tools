@@ -24,7 +24,7 @@ For more information go [here](https://github.com/jenkinsci/job-dsl-plugin/wiki/
 
 1. Make changes locally and test that it builds correctly.
 2. Push changes to a specific branch in `release-tools`
-3. Go to seed job for the job you wanna test (usually you would use `_dsl_test` to not affect the jobs in production) and build with the parameter pointing to your new custom branch. 
+3. Go to seed job for the job you wanna test (usually you would use [`_dsl_test`](https://build.osrfoundation.org/job/_dsl_test/) to not affect the jobs in production) and build with the parameter pointing to your new custom branch in the `RTOOLS_BRANCH` parameter. 
 4. After it builds correctly, you will have generated jobs with the changes you implemented. You can use and modify the generated job. 
 
 > WARNING! : Running the _dsl job for a specific job that it's not `test` will modify the configuration for production. You should always aim to utilize `test` jobs. 
