@@ -27,9 +27,11 @@ echo '# BEGIN SECTION: test gz_sim via ros2 launch'
 # fi
 # echo '# END SECTION'
 echo '# BEGIN SECTION: ros_gz talker/listener'
-ros2 run ros_gz_bridge parameter_bridge /chatter@std_msgs/msg/String@gz.msgs.StringMsg &
-ros2 topic echo /chatter > /tmp/echo_chatter
-gz topic -t /chatter -m gz.msgs.StringMsg -p 'data:\"Hello\"' &
+ros2 run ros_gz_bridge parameter_bridge /chatter@std_msgs/msg/String@gz.msgs.StringMsg \&
+ros2 topic echo /chatter > /tmp/echo_chatter \&
+sleep 1
+gz topic -t /chatter -m gz.msgs.StringMsg -p 'data:\"Hello\"' \&
+sleep 1
 if [[ -z \$(cat /tmp/echo_chatter) ]]; then
   echo 'chatter log file is empty'
   exit 1
