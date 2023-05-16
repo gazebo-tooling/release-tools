@@ -27,7 +27,8 @@ echo '# BEGIN SECTION: test gz_sim via ros2 launch'
 # fi
 # echo '# END SECTION'
 echo '# BEGIN SECTION: ros_gz talker/listener'
-ros2 run ros_gz_bridge parameter_bridge /chatter@std_msgs/msg/String@gz.msgs.StringMsg \&
+ros2 run ros_gz_bridge parameter_bridge /chatter@std_msgs/msg/String@gz.msgs.StringMsg 2 > /dev/null \&
+sleep 1
 ros2 topic echo /chatter > /tmp/echo_chatter \&
 sleep 1
 gz topic -t /chatter -m gz.msgs.StringMsg -p 'data:\"Hello\"' \&
