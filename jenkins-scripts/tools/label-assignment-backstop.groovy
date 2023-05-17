@@ -16,7 +16,7 @@ import hudson.model.Label;
   The first field must be a single label (no spaces) but the second may be an
   arbitrarily complex label expression like "(docker && linux) && !armhf"
 */
-def nightly_label_prefix = "linux-nightly-"
+def nightly_label_prefix = "linux-nightly"
 def exactly_one_labels = [
   ["${nightly_label_prefix}-focal", "docker"],
   ["${nightly_label_prefix}-jammy", "docker"],
