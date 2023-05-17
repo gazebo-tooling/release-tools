@@ -16,9 +16,10 @@ import hudson.model.Label;
   The first field must be a single label (no spaces) but the second may be an
   arbitrarily complex label expression like "(docker && linux) && !armhf"
 */
+def nightly_label_prefix = "linux-nightly-"
 def exactly_one_labels = [
-  ["linux-nightly-focal", "docker"],
-  ["linux-nightly-jammy", "docker"],
+  ["${nightly_label_prefix}-focal", "docker"],
+  ["${nightly_label_prefix}-jammy", "docker"],
 ]
 
 for (tup in exactly_one_labels) {
@@ -46,7 +47,14 @@ for (tup in exactly_one_labels) {
   if (label_nodes.size() < 1) {
     println("No online host currently has the label ${nightly_label}")
     println("Appointing a node from the configured pool matching '${pool_label}'")
-    node_pool = Label.get(pool_label).getNodes().findAll { it.toComputer().isOnline() }
+
+    def node_pool = Jenkins.instance.nodes.findAll { node ->
+      node.computer.online &&
+      node.getLabelString().contains(pool_label) &&
+      !node.getLabelString().contains(nightly_label_prefix) &&
+      !node.getLabelString().contains("gpu-nvidia") &&
+      !node.getLabelString().contains("test-instance")
+    }
 
     if (node_pool.size() <= 0) {
       println("WARNING: Pool of '${pool_label}' machines for ${nightly_label} is empty!")
