@@ -38,5 +38,15 @@ class OSRFBase
           }
         }
       }
+      publishers {
+        configure { project ->
+          // When a build fails because an agent disconnects, retry it once
+          project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' {
+            regexpForRerun("java.nio.channels.ClosedChannelException")
+            checkRegexp(true)
+            maxSchedule(1)
+          }
+        }
+      }
     }
 }
