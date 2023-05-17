@@ -40,8 +40,7 @@ version of gazebo, before running bloom some actions need to be taken:
 
 ### 2.1 Create the alternative -release repository
 
-For a new official wrappers the notation used below correspond to:
-`ros_ign-release
+For a new official wrappers the notation used below correspond to `ros_ign-release`:
 
  1. Fork (manually or using gh) current gbp repository:
     https://github.com/ros2-gbp/ros_ign-release
