@@ -83,6 +83,6 @@ class OSRFUNIXBase extends OSRFBase
     }
 
     // Add the new regex to naginator parameter
-    RetryFailures.update_retry_parameters(job, 'nvml error driver/library version mismatch')
+    RetryFailures.update_retry_parameters(job, 'nvml error driver/library version mismatch', 70)
   }
 }
