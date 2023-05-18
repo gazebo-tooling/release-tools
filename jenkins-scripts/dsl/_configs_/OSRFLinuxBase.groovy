@@ -29,6 +29,9 @@ class OSRFLinuxBase
             // present
             allowEmpty(true)
         }
+        steps {
+          shell('sudo shutdown -r now')
+        }
       }
     }
   }
