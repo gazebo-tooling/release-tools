@@ -37,16 +37,13 @@ class OSRFBase
              systemGroovyCommand("build.setDescription('RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));")
           }
         }
-        publishers {
-          configure { project ->
-            // When a build fails because an agent disconnects, retry it once
-            project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' {
-              regexpForRerun("java.nio.channels.ClosedChannelException")
-              checkRegexp(true)
-              maxSchedule(1)
-            }
-          }
-        }
+
+        // Create the naginator retry tag
+        HelperRetryFailures.create(job, [
+          regexpForRerun: "java.nio.channels.ClosedChannelException",
+          checkRegexp: true,
+          maxSchedule: 1
+        ])
       }
     }
 }

@@ -82,7 +82,11 @@ class OSRFUNIXBase extends OSRFBase
       }
     }
 
-    // Add the new regex to naginator parameter
-    RetryFailures.update_retry_parameters(job, 'nvml error driver/library version mismatch', 70)
+    // Add the new regex to naginator tag
+    // There is no need to specify checkRegexp and maxSchedule because they are the default values
+    HelperRetryFailures.create(job, [
+      regexpForRerun: "nvml error driver/library version mismatch",
+      delay: 70
+    ])
   }
 }
