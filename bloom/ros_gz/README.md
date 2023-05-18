@@ -5,6 +5,9 @@
 2. Initial setup
   * Create the alternative -release repository
   * Create a custom track in tracks.yaml
+3. Run a new release
+  * Prerequisites
+  * Bloom a new release 
 
 ## 1. Background
 
@@ -61,3 +64,32 @@ New versioning requires bumping to large numbers. Set:
 ```
 
 All non ubuntu generators can be removed.
+
+## 3. Run a new release
+
+To execute a new release of the ros_gz unofficial wrappers there are mainly two
+steps to do: use bloom to generate new metadata in the -release repo fork and
+use ros_gz-release.py script to trigger the builds builds.osrfoundation.org.
+
+The new version will be the latest one released in the rosdistro index of the
+official ros_gz packages.
+
+### Prerequisites
+
+The host system to release should have `docker` and `rocker` installed.
+
+### 3.1 Bloom a new release
+
+Blooming a new release of the ros_gz unofficial wrappers requires some changes
+to be done in the releasing enviroment affecting the rosdep rules. To facilitate
+this, there is a `Dockerfile` that provides the needed modifications and a script
+that encapsulates the bloom arguments to be passed and the use of this enviroment.
+
+```
+./bloom_from_special_env.bash
+```
+
+The script will create the docker enviroment with the rosdep modifications needed
+and invoke rocker with `--home` and `--user` flags to pass the credentials and
+customatizations needed for the bloom call. It will run the `bloom-release` command
+with the arguments required for the ros_gz wrappers.
