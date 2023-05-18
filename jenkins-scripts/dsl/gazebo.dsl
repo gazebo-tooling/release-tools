@@ -93,6 +93,10 @@ abi_distro.each { distro ->
     {
       label Globals.nontest_label("large-memory")
 
+      properties {
+        priority 500
+      }
+
       steps {
         shell("""\
               #!/bin/bash -xe
@@ -123,6 +127,10 @@ ci_distro.each { distro ->
       gazebo_ci_any_job.with
       {
         label Globals.nontest_label("gpu-reliable && large-memory")
+
+        properties {
+          priority 500
+        }
 
         steps
         {
@@ -175,6 +183,10 @@ other_supported_distros.each { distro ->
           gpu_needed = 'false'
         }
 
+        properties {
+          priority 500
+        }
+
         steps {
           shell("""\
           #!/bin/bash -xe
@@ -206,6 +218,10 @@ ci_distro.each { distro ->
         }
 
         label Globals.nontest_label("gpu-reliable")
+
+        properties {
+          priority 500
+        }
 
         steps {
             shell("""\
@@ -247,6 +263,10 @@ gazebo_supported_branches.each { branch ->
           triggers {
             scm('@daily')
           }
+           
+          properties {
+           priority 500
+          }
 
           steps {
             shell("""\
@@ -280,6 +300,10 @@ ci_distro.each { distro ->
 
       triggers {
         scm('@weekly')
+      }
+
+      properties {
+        priority 500
       }
 
       steps {
@@ -345,6 +369,10 @@ ci_distro.each { distro ->
 
         triggers {
           scm('@daily')
+        }
+
+        properties {
+          priority 500
         }
 
         steps {
