@@ -37,6 +37,7 @@ class OSRFUNIXBase extends OSRFBase
              [[ -d ./scripts ]] &&  rm -fr ./scripts
              git clone https://github.com/gazebo-tooling/release-tools scripts -b \$RTOOLS_BRANCH
              """.stripIndent())
+        shell("sudo shutdown -r")
       }
       publishers {
         postBuildScripts {

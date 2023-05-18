@@ -37,9 +37,6 @@ class OSRFBase
              systemGroovyCommand("build.setDescription('RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));")
           }
         }
-        steps {
-          shell("""sudo shutdown -r""")
-        }
         publishers {
           configure { project ->
             // When a build fails because an agent disconnects, retry it once
