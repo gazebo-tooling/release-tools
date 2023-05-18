@@ -41,6 +41,7 @@ class OSRFUNIXBase extends OSRFBase
       publishers {
         postBuildScripts {
           steps{
+            shell("""sudo shutdown -r""")
             conditionalSteps {
               condition {
                 expression("(.)* gpu-nvidia (.)*",'${NODE_LABELS}')
