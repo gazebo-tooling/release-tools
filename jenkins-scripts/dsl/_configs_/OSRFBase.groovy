@@ -38,11 +38,6 @@ class OSRFBase
           }
         }
         publishers {
-          postBuildScripts {
-            steps {
-              shell('sudo shutdown -r now')
-            }
-          }
           configure { project ->
             // When a build fails because an agent disconnects, retry it once
             project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' {

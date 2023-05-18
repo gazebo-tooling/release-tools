@@ -30,9 +30,6 @@ class OSRFLinuxBase
             allowEmpty(true)
         }
       }
-      steps {
-        shell('sudo shutdown -r now')
-      }
     }
   }
 }
