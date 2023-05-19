@@ -79,18 +79,14 @@ class OSRFUNIXBase extends OSRFBase
           onlyIfBuildSucceeds(false)
           onlyIfBuildFails(true)
         }
-        // Manual insertion of xml for Naginator plugin because of this issue https://issues.jenkins.io/browse/JENKINS-66458
-        configure { project -> 
-          project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' {
-            regexpForRerun("nvml error: driver/library version mismatch")
-            checkRegexp(true)
-            maxSchedule(1)
-            delay(class: 'com.chikli.hudson.plugin.naginator.FixedDelay') {
-              delay(70)
-            }
-          }
-        }
       }
     }
+
+    // Add the new regex to naginator tag
+    // There is no need to specify checkRegexp and maxSchedule because they are the default values
+    HelperRetryFailures.create(job, [
+      regexpForRerun: "nvml error driver/library version mismatch",
+      delay: 70
+    ])
   }
 }
