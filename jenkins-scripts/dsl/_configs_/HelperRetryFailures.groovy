@@ -5,7 +5,7 @@ import javaposse.jobdsl.dsl.Job
 class HelperRetryFailures {
 
   /**@
-    * Create method for Nagiator Publisher retry plugin
+    * Create method for Naginator Publisher retry plugin
     * @param job - Job to add the plugin to
     * @param args - Map of arguments to pass to the plugin
     * @param args.regexpForRerun - Regular expression to match against the console output
@@ -17,10 +17,12 @@ class HelperRetryFailures {
     job.with {
       publishers {
         configure { project ->
-          def old_regexpForRerun = (project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' / regexpForRerun).text()
-          def old_checkRegexp = (project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' / checkRegexp).text()
-          def old_maxSchedule = (project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' / maxSchedule).text()
-          def old_delay = (project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' / delay(class: 'com.chikli.hudson.plugin.naginator.FixedDelay') / delay).text()
+          def naginator_root = project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher'
+
+          def old_regexpForRerun = (naginator_root / regexpForRerun).text()
+          def old_checkRegexp = (naginator_root / checkRegexp).text()
+          def old_maxSchedule = (naginator_root / maxSchedule).text()
+          def old_delay = (naginator_root / delay(class: 'com.chikli.hudson.plugin.naginator.FixedDelay') / delay).text()
 
           // Convert the values to the correct type
           old_checkRegexp = old_checkRegexp ? old_checkRegexp.toBoolean() : null
@@ -31,7 +33,7 @@ class HelperRetryFailures {
           if (args.regexpForRerun) {
             // If the old value exists, append the new value to it
             def updated_regexpForRerun = old_regexpForRerun ? old_regexpForRerun + '|' + args.regexpForRerun : args.regexpForRerun
-            (project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' / regexpForRerun).value = updated_regexpForRerun
+            (naginator_root / regexpForRerun).value = updated_regexpForRerun
           }
 
           if (args.checkRegexp) {
@@ -39,7 +41,7 @@ class HelperRetryFailures {
             if (old_checkRegexp && old_checkRegexp != args.checkRegexp) {
               throw new Exception("checkRegexp is already set to ${old_checkRegexp} and cannot be changed to ${args.checkRegexp}")
             }
-            (project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' / checkRegexp).value = args.checkRegexp
+            (naginator_root / checkRegexp).value = args.checkRegexp
           }
 
           if (args.maxSchedule) {
@@ -47,13 +49,13 @@ class HelperRetryFailures {
             if (old_maxSchedule && old_maxSchedule != args.maxSchedule) {
               throw new Exception("maxSchedule is already set to ${old_maxSchedule} and cannot be changed to ${args.maxSchedule}")
             }
-            (project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' / maxSchedule).value = args.maxSchedule
+            (naginator_root / maxSchedule).value = args.maxSchedule
           }
 
           if (args.delay) {
             // Use the highest delay
             def updated_delay = old_delay > args.delay ? old_delay : args.delay
-            (project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' / delay(class: 'com.chikli.hudson.plugin.naginator.FixedDelay') / delay).value = updated_delay
+            (naginator_root / delay(class: 'com.chikli.hudson.plugin.naginator.FixedDelay') / delay).value = updated_delay
           }
         }
       }
