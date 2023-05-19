@@ -41,7 +41,7 @@ class HelperRetryFailures {
           if (args.checkRegexp) {
             // Fail if old and new checkRegexp are both set and different
             if (old_checkRegexp && old_checkRegexp != args.checkRegexp) {
-              throw new Exception("checkRegexp is already set to ${old_checkRegexp} and cannot be changed to ${args.checkRegexp}")
+              throw new Exception("checkRegexp is already set to ${old_checkRegexp} and cannot be changed to ${args.checkRegexp}. Both values needs to be the same.")
             }
             (naginator_root / checkRegexp).value = args.checkRegexp
           }
@@ -49,7 +49,7 @@ class HelperRetryFailures {
           if (args.maxSchedule) {
             // Fail if old and new maxSchedule are both set and different
             if (old_maxSchedule && old_maxSchedule != args.maxSchedule) {
-              throw new Exception("maxSchedule is already set to ${old_maxSchedule} and cannot be changed to ${args.maxSchedule}")
+              throw new Exception("maxSchedule is already set to ${old_maxSchedule} and cannot be changed to ${args.maxSchedule}. Both values needs to be the same.")
             }
             (naginator_root / maxSchedule).value = args.maxSchedule
           }
