@@ -5,13 +5,15 @@ import javaposse.jobdsl.dsl.Job
 class HelperRetryFailures {
 
   /**@
-    * Create method for Naginator Publisher retry plugin
-    * @param job - Job to add the plugin to
-    * @param args - Map of arguments to pass to the plugin
-    * @param args.regexpForRerun - Regular expression to match against the console output
-    * @param args.checkRegexp - Whether to check the regular expression
-    * @param args.maxSchedule - Maximum number of times to retry the build
-    * @param args.delay - Delay in seconds to wait before retrying the build
+    * Creates a Naginator Publisher retry plugin for a given job.
+    * 
+    * @param job - The job to add the plugin to.
+    * @param args - A map of arguments to pass to the plugin:
+    *     - args.regexpForRerun: Regular expression to match against the console output (new value is appended to the old value if it exists)
+    *     - args.checkRegexp: Whether to check the regular expression (true/false)
+    *     - args.maxSchedule: Maximum number of times to retry the build
+    *     - args.delay: Delay in seconds to wait before retrying the build (highest value between old and new is used)
+    * @throws Exception if there checkRegexp or maxSchedule are already set and different
     */
   static void create(Job job, Map args) {
     job.with {
