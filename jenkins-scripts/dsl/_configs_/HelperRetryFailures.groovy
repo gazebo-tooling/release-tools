@@ -35,15 +35,19 @@ class HelperRetryFailures {
           }
 
           if (args.checkRegexp) {
-            // Get the previous value if it exists (that means it only has to be set once)
-            def updated_checkRegexp = old_checkRegexp ? old_checkRegexp : args.checkRegexp
-            (project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' / checkRegexp).value = updated_checkRegexp
+            // Fail if old and new checkRegexp are both set and different
+            if (old_checkRegexp && old_checkRegexp != args.checkRegexp) {
+              throw new Exception("checkRegexp is already set to ${old_checkRegexp} and cannot be changed to ${args.checkRegexp}")
+            }
+            (project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' / checkRegexp).value = args.checkRegexp
           }
 
           if (args.maxSchedule) {
-            // Use the highest maxSchedule
-            def updated_maxSchedule = old_maxSchedule > args.maxSchedule ? old_maxSchedule : args.maxSchedule
-            (project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' / maxSchedule).value = updated_maxSchedule
+            // Fail if old and new maxSchedule are both set and different
+            if (old_maxSchedule && old_maxSchedule != args.maxSchedule) {
+              throw new Exception("maxSchedule is already set to ${old_maxSchedule} and cannot be changed to ${args.maxSchedule}")
+            }
+            (project / publishers / 'com.chikli.hudson.plugin.naginator.NaginatorPublisher' / maxSchedule).value = args.maxSchedule
           }
 
           if (args.delay) {
