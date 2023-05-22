@@ -42,7 +42,6 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
         echo "Kill the whole docker cache !!"
        source ${SCRIPT_DIR}/lib/docker_cleanup.sh high
     fi
-
 fi
 
 # Timing
