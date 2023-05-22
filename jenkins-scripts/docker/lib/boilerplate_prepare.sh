@@ -43,13 +43,6 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
        source ${SCRIPT_DIR}/lib/docker_cleanup.sh high
     fi
 
-    # if not enough, try to clean up build/ directories
-    PERCENT_DISK_USED=$(df -h ${docker_device} | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
-    if [[ $PERCENT_DISK_USED -gt 85 ]]; then
-        echo "Space left is low again: ${PERCENT_DISK_USED}% used"
-        echo "Clean up the whole cache was not enough. Look for build/ directories bigger than ${MAX_SIZE_FOR_BUILD_DIRS}:"
-        source ${SCRIPT_DIR}/lib/docker_cleanup.sh extreme
-    fi
 fi
 
 # Timing
