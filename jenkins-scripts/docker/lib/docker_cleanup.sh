@@ -28,7 +28,7 @@ docker_version="$(sudo docker version --format '{{.Server.APIVersion}}')"
             sudo docker system prune --all -f
             ;;
         *)
-            echo "Did not run docker cleaner, level $cleanup_level not recognized (accepted values low | medium | high !! "
+            echo "Did not run docker cleaner, level $cleanup_level not recognized (accepted values low | medium | high )"
             exit 1
             ;;
         esac
