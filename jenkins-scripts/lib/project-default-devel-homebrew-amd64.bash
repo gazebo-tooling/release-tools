@@ -32,7 +32,7 @@ PROJECT_FORMULA=${PROJECT//[0-9]}$(\
 
 export HOMEBREW_PREFIX=/usr/local
 export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
-export PATH=${HOMEBREW_PREFIX}/bin:$PATH
+export PATH=${HOMEBREW_PREFIX}/bin:${HOMEBREW_PREFIX}/sbin:$PATH
 
 export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python
 
