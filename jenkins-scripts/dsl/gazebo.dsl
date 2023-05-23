@@ -510,46 +510,8 @@ all_branches.each { branch ->
 }
 
 // --------------------------------------------------------------
-// WINDOWS: CI job
-
-// 1. any
-  String ci_build_any_job_name_win7 = "gazebo-ci-pr_any-windows7-amd64"
-  def gazebo_win_ci_any_job = job(ci_build_any_job_name_win7)
-  OSRFWinCompilationAnyGitHub.create(gazebo_win_ci_any_job, "gazebosim/gazebo-classic")
-  gazebo_win_ci_any_job.with
-  {
-      steps {
-        batchFile("""\
-              call "./scripts/jenkins-scripts/gazebo-default-devel-windows7-amd64.bat"
-              """.stripIndent())
-      }
-  }
-
-// 2. default / @ SCM/Daily
-all_branches = gazebo_supported_branches
-all_branches.each { branch ->
-  def gazebo_win_ci_job = job("gazebo-ci-${branch}-windows7-amd64")
-  OSRFWinCompilation.create(gazebo_win_ci_job)
-  OSRFGitHub.create(gazebo_win_ci_job, "gazebosim/gazebo-classic", branch)
-
-  gazebo_win_ci_job.with
-  {
-      triggers {
-        scm('@daily')
-      }
-
-      steps {
-        batchFile("""\
-              call "./scripts/jenkins-scripts/gazebo-default-devel-windows7-amd64.bat"
-              """.stripIndent())
-      }
-  }
-}
-
-// --------------------------------------------------------------
 // Create the main CI work flow job
 def gazebo_ci_main = pipelineJob("gazebo-ci-manual_any")
 OSRFCIWorkFlowMultiAnyGitHub.create(gazebo_ci_main,
                                    [ci_build_any_job_name_linux,
-                                    ci_build_any_job_name_win7,
                                     ci_build_any_job_name_brew])
