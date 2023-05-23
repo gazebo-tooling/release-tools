@@ -347,11 +347,53 @@ boolean is_a_colcon_package(String gz_software_name)
   return false
 }
 
-// ABI Checker job
+void generate_install_job(prefix, gz_sw, major_version, distro, arch)
+{
+  def install_default_job = job("${prefix}_${gz_sw}${major_version}-install-pkg-${distro}-${arch}")
+  OSRFLinuxInstall.create(install_default_job)
+  include_gpu_label_if_needed(install_default_job, gz_sw)
+
+  install_default_job.with
+  {
+    triggers {
+      cron(Globals.CRON_EVERY_THREE_DAYS)
+    }
+
+    def dev_package = "lib${prefix}-${gz_sw}${major_version}-dev"
+    def gzdev_project = "${prefix}-${gz_sw}${major_version}"
+
+    steps {
+     shell("""\
+           #!/bin/bash -xe
+
+           ${GLOBAL_SHELL_CMD}
+
+           export DISTRO=${distro}
+           export ARCH=${arch}
+           export INSTALL_JOB_PKG=${dev_package}
+           export GZDEV_PROJECT_NAME="${gzdev_project}"
+           /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+           """.stripIndent())
+    }
+  }
+}
+
 // Need to be before the ci-pr_any so the abi job name is defined
 gz_software.each { gz_sw ->
-  abi_distro.each { distro ->
-    supported_arches.each { arch ->
+  supported_arches.each { arch ->
+    // 1 Per library and per linux arch 
+    //   1.1 Per abi_distro
+    //     1.1.1 [job] ABI checker for main branches
+    //   1.2 Per ci_str_distro
+    //     1.2.1 [job] Main PR jobs (-ci-pr_any-) 
+    //   1.3 Per all supported_distros
+    //     1.3.1 Per all supported branches on each library
+    //       1.3.1.1 [job] Branch jobs -ci-$branch-
+    //       1.3.1.2 [job] Branch ASAN jobs -ci_asan-$branch-
+
+    // 1.1.1 ABI checker for main branches
+    // --------------------------------------------------------------
+    abi_distro.each { distro ->
       // Packages without ABI
       if (gz_sw == 'tools' || gz_sw == 'cmake')
         return
@@ -397,15 +439,10 @@ gz_software.each { gz_sw ->
                 """.stripIndent())
         } // end of steps
       }  // end of with
-    } // end of arch
-  } // end of distro
-} // end of ignition
+    } // end of abi_distro
 
-// MAIN CI JOBS (check every 5 minutes)
-gz_software.each { gz_sw ->
-  supported_arches.each { arch ->
+    // 1.2.1 Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
     // --------------------------------------------------------------
-    // 1. Create the any job
     software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
 
     if (gz_sw == 'sim')
@@ -442,39 +479,40 @@ gz_software.each { gz_sw ->
     // add ci-pr_any to the list for CIWorkflow
     if (gz_sw != 'sim')
       ci_pr_any_list[software_name] << gz_ci_job_name
-  }
-}
 
-void generate_install_job(prefix, gz_sw, major_version, distro, arch)
-{
-  def install_default_job = job("${prefix}_${gz_sw}${major_version}-install-pkg-${distro}-${arch}")
-  OSRFLinuxInstall.create(install_default_job)
-  include_gpu_label_if_needed(install_default_job, gz_sw)
+    all_supported_distros.each { distro ->
+        all_branches("${gz_sw}").each { branch ->
+          // 1. Standard CI
+          software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
 
-  install_default_job.with
-  {
-    triggers {
-      cron(Globals.CRON_EVERY_THREE_DAYS)
-    }
+          if (gz_sw == 'sim')
+            software_name = "gazebo"
 
-    def dev_package = "lib${prefix}-${gz_sw}${major_version}-dev"
-    def gzdev_project = "${prefix}-${gz_sw}${major_version}"
+          // 1.3.1.1 Branch jobs -ci-$branch-
+          // --------------------------------------------------------------
+          def gz_ci_job = job("ignition_${software_name}-ci-${branch}-${distro}-${arch}")
+          generate_ci_job(gz_ci_job, software_name, branch, distro, arch)
+          gz_ci_job.with
+          {
+            triggers {
+              scm('@daily')
+            }
+          }
+          // 1.3.1.2 Branch ASAN jobs -ci_asan-$branch- 
+          // --------------------------------------------------------------
+          def gz_ci_asan_job = job("ignition_${software_name}-ci_asan-${branch}-${distro}-${arch}")
+          generate_asan_ci_job(gz_ci_asan_job, software_name, branch, distro, arch)
+          gz_ci_asan_job.with
+          {
+            triggers {
+              scm(Globals.CRON_ON_WEEKEND)
+            }
+          }
+        }
+      } // end of all_supported_distros
+    } // end of supported_arches
+} // end of gz_software
 
-    steps {
-     shell("""\
-           #!/bin/bash -xe
-
-           ${GLOBAL_SHELL_CMD}
-
-           export DISTRO=${distro}
-           export ARCH=${arch}
-           export INSTALL_JOB_PKG=${dev_package}
-           export GZDEV_PROJECT_NAME="${gzdev_project}"
-           /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
-           """.stripIndent())
-    }
-  }
-}
 
 // INSTALL PACKAGE ALL PLATFORMS / DAILY
 gz_software.each { gz_sw ->
@@ -543,41 +581,6 @@ void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
             export ARCH=${arch}
             /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${software_name}-compilation.bash
             """.stripIndent())
-    }
-  }
-}
-
-// OTHER CI SUPPORTED JOBS
-gz_software.each { gz_sw ->
-  all_supported_distros.each { distro ->
-    supported_arches.each { arch ->
-      // --------------------------------------------------------------
-      // branches CI job scm@daily
-      all_branches("${gz_sw}").each { branch ->
-        // 1. Standard CI
-        software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
-
-        if (gz_sw == 'sim')
-          software_name = "gazebo"
-
-        def gz_ci_job = job("ignition_${software_name}-ci-${branch}-${distro}-${arch}")
-        generate_ci_job(gz_ci_job, software_name, branch, distro, arch)
-        gz_ci_job.with
-        {
-          triggers {
-            scm('@daily')
-          }
-        }
-        // 2. ASAN CI
-        def gz_ci_asan_job = job("ignition_${software_name}-ci_asan-${branch}-${distro}-${arch}")
-        generate_asan_ci_job(gz_ci_asan_job, software_name, branch, distro, arch)
-        gz_ci_asan_job.with
-        {
-          triggers {
-            scm(Globals.CRON_ON_WEEKEND)
-          }
-        }
-      }
     }
   }
 }
