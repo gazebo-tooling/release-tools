@@ -33,6 +33,10 @@ if [ -z "${sha1}" ]; then
     echo sha1 not specified
     exit -1
 fi
+
+# Set GITHUB_ACTIONS environment variable as a workaround for
+# https://github.com/Homebrew/brew/pull/15465
+export GITHUB_ACTIONS=1
 export GITHUB_BASE_REF=${ghprbTargetBranch}
 export GITHUB_REPOSITORY=${ghprbGhRepository}
 export GITHUB_REF=${sha1}
