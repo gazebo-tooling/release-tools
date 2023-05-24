@@ -1,0 +1,57 @@
+#
+# SPEC: no yet approved, used as draft
+#
+#---
+# spec_version: 0
+# collections:
+#   - name: gz-collection1
+#     libs:
+#       - gz-lib:
+#           target_branch: gz-lib1
+#           current_branch: main
+#     ci:
+#      - linux:
+#         pr_distro:
+#         abi_distro: 
+#         install_distros:
+#           - distro1
+#           - distro2
+#      - systems:
+#          - Jenkins:
+#            view:
+#             auto: false
+#             jobs:
+#               - job1
+#               - job2
+#     nightly:
+#       - linux:
+#           nightly_distros:
+#             - distro1
+
+spec_version: 0
+collections:
+  - name: 'citadel'
+    ci:
+     - linux:
+        reference_distro:
+          - bionic
+  - name: 'fortress'
+    ci:
+     - linux:
+        reference_distro:
+          - focal
+  - name: 'garden'
+    ci:
+     - linux:
+        reference_distro:
+          - focal
+  - name: 'harmonic'
+    ci:
+     - linux:
+        reference_distro:
+          - jammy
+    nightly:
+      - linux:
+          nightly_distros:
+            - jammy
+

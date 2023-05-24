@@ -1,21 +1,18 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
+# If failed to import locally be sure of using tools/ scripts
+import org.yaml.snakeyaml.Yaml
 
 // GZ COLLECTIONS
 arch = 'amd64'
 
-gz_nightly = 'harmonic'
+gz_collections_yaml = new Yaml().load(new FileReader('gz-collections.yaml'))
 
+gz_nightly = 'harmonic'
 gz_collections = [
-  [ name : 'citadel',
-    distros : [ 'bionic' ],
-  ],
-  [ name : 'fortress',
-    distros : [ 'focal' ],
-  ],
-  [ name : 'garden',
-    distros : [ 'focal' ],
-  ],
+  [ name : 'citadel' ],
+  [ name : 'fortress' ],
+  [ name : 'garden' ],
   [ name : 'harmonic',
     distros : [ 'focal' ],
     // These are the branches currently targeted at the upcoming collection
@@ -381,9 +378,13 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
 }
 
 // Testing compilation from source
-gz_collections.each { gz_collection ->
+gz_collections_yaml.collections.each { collection ->
+  gz_collection_name = collection.name
+  distros = collection.ci[0].linux.reference_distro
+
+  println("Processing ${gz_collection_name}")
+
   // COLCON - Windows
-  gz_collection_name = gz_collection.get('name')
 
   def gz_win_ci_job = job("ign_${gz_collection_name}-ci-win")
   Globals.gazebodistro_branch = true
@@ -399,7 +400,7 @@ gz_collections.each { gz_collection ->
   }
   Globals.gazebodistro_branch = false
 
-  gz_collection.get('distros').each { distro ->
+  distros.each { distro ->
     // INSTALL JOBS:
     // --------------------------------------------------------------
     if ((gz_collection_name == "citadel") || (gz_collection_name == "fortress")) {
