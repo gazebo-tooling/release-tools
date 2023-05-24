@@ -39,9 +39,10 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
-      - name: Download job dsl jar
+      - name: Download and setup job dsl jar
         if: steps.dsl_check.outputs.run_job == 'true'
-        run: curl -sSL https://repo.jenkins-ci.org/public/org/jenkins-ci/plugins/job-dsl-core/1.77/job-dsl-core-1.77-standalone.jar -o jobdsl.jar
+        run: ./jenkins-scripts/dsl/tools/setup_local_generation.bash
+
       - name: Generate all DSL files
         if: steps.dsl_check.outputs.run_job == 'true'
         run: |
