@@ -32,22 +32,22 @@ spec_version: 0
 collections:
   - name: 'citadel'
     ci:
-     - linux:
+      - linux:
         reference_distro:
           - bionic
   - name: 'fortress'
     ci:
-     - linux:
+      - linux:
         reference_distro:
           - focal
   - name: 'garden'
     ci:
-     - linux:
+      - linux:
         reference_distro:
           - focal
   - name: 'harmonic'
     ci:
-     - linux:
+      - linux:
         reference_distro:
           - jammy
     nightly:
