@@ -1,6 +1,6 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
-# If failed to import locally be sure of using tools/ scripts
+// If failed to import locally be sure of using tools/ scripts
 import org.yaml.snakeyaml.Yaml
 
 // GZ COLLECTIONS
@@ -10,9 +10,6 @@ gz_collections_yaml = new Yaml().load(new FileReader('gz-collections.yaml'))
 
 gz_nightly = 'harmonic'
 gz_collections = [
-  [ name : 'citadel' ],
-  [ name : 'fortress' ],
-  [ name : 'garden' ],
   [ name : 'harmonic',
     distros : [ 'focal' ],
     // These are the branches currently targeted at the upcoming collection
