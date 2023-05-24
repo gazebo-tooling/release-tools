@@ -379,10 +379,7 @@ gz_collections_yaml.collections.each { collection ->
   gz_collection_name = collection.name
   distros = collection.ci[0].linux.reference_distro
 
-  println("Processing ${gz_collection_name}")
-
   // COLCON - Windows
-
   def gz_win_ci_job = job("ign_${gz_collection_name}-ci-win")
   Globals.gazebodistro_branch = true
   OSRFWinCompilation.create(gz_win_ci_job, false)
