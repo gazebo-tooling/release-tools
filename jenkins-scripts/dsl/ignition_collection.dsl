@@ -7,7 +7,7 @@ import org.yaml.snakeyaml.Yaml
 arch = 'amd64'
 
 script_dir = new File(".").absolutePath
-gz_collections_yaml = new Yaml().load(new FileReader(script_dir + "/gz-collections.yaml")
+gz_collections_yaml = new Yaml().load(new FileReader(script_dir + "/gz-collections.yaml"))
 
 gz_nightly = 'harmonic'
 gz_collections = [
