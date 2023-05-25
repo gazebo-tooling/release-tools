@@ -12,32 +12,23 @@ file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
 gz_collections_yaml = new Yaml().load(file)
 
 gz_nightly = 'harmonic'
-gz_collections = [
-  [ name : 'harmonic',
-    distros : [ 'focal' ],
-    // These are the branches currently targeted at the upcoming collection
-    // They're in topological order
-    nightly_jobs: [
-          'cmake'     : [ debbuild: 'gz-cmake3'      , branch: 'gz-cmake3' ],
-          'tools'     : [ debbuild: 'gz-tools2'      , branch: 'gz-tools2' ],
-          'utils'     : [ debbuild: 'gz-utils2'      , branch: 'gz-utils2' ],
-          'math'      : [ debbuild: 'gz-math7'       , branch: 'gz-math7' ],
-          'plugin'    : [ debbuild: 'gz-plugin2'     , branch: 'gz-plugin2' ],
-          'common'    : [ debbuild: 'gz-common5'     , branch: 'gz-common5' ],
-          'msgs'      : [ debbuild: 'gz-msgs10'       , branch: 'main' ],
-          'rendering' : [ debbuild: 'gz-rendering8'  , branch: 'main' ],
-          'sdformat'  : [ debbuild: 'sdformat13'     , branch: 'sdf13' ],
-          'fuel-tools': [ debbuild: 'gz-fuel-tools9' , branch: 'main' ],
-          'transport' : [ debbuild: 'gz-transport13' , branch: 'main' ],
-          'gui'       : [ debbuild: 'gz-gui8'        , branch: 'main' ],
-          'sensors'   : [ debbuild: 'gz-sensors8'    , branch: 'main' ],
-          'physics'   : [ debbuild: 'gz-physics6'    , branch: 'gz-physics6' ],
-          'gazebo'    : [ debbuild: 'gz-sim8'        , branch: 'main' ],
-          'launch'    : [ debbuild: 'gz-launch7'     , branch: 'main' ],
-          'garden'    : [ debbuild: 'gz-garden'      , branch: 'main' ],
-    ],
-  ],
-]
+
+String build_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
+{
+  major_version = parsed_yaml_lib.major_version
+  prefix = parsed_yaml_packaging.linux.prefix
+
+  ignore_major_version = parsed_yaml_packaging.linux?.ignore_major_version
+  if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
+    major_version = ""
+
+  no_prefix = parsed_yaml_packaging.linux?.no_prefix
+  if (no_prefix && no_prefix.contains(parsed_yaml_lib.name))
+    prefix = ""
+
+  return  prefix + parsed_yaml_lib.name + major_version +
+          "-debbuilder"
+}
 
 gz_collection_jobs =
 [
@@ -525,15 +516,14 @@ gz_collections_yaml.collections.each { collection ->
   dashboardView("ign-${gz_collection_name}")
   {
       jobs {
-          gz_collection_jobs["${gz_collection_name}"].each { jobname ->
-            name(jobname)
+        gz_collection_jobs["${gz_collection_name}"].each { jobname ->
+          name(jobname)
+        }
+        if (collection.packaging?.linux?.nightly) {
+          collection.libs.each { lib ->
+            name(build_debbuilder_name(lib, collection.packaging))
           }
-          if (gz_collection_name == gz_nightly) {
-            // add nightly debbuild jobs too
-            gz_collections.find { it.get('name') == gz_nightly }.get('nightly_jobs').each { job ->
-              name(job.getValue().get('debbuild') + '-debbuilder')
-            }
-          }
+        }
       }
 
       columns {
@@ -570,27 +560,13 @@ gz_collections_yaml.collections.each { collection ->
 }
 
 // NIGHTLY GENERATION
-def get_nightly_branch(collection_data, ign_package)
+def get_nightly_branch(nightly_collection, lib)
 {
-  try {
-    if (collection_data.get(ign_package))
-      return collection_data.get(ign_package).get('branch')
-  } catch(Exception e) {
-    return 'not_enabled_in_DSL'
-  }
-  return 'not_enabled_in_DSL'
+  return nightly_collection.libs.find { it.name == lib }.repo.current_branch
 }
 
-collection_data = []
-list_of_pkgs = ""
-
-collection_data = gz_collections.find { it.get('name') == gz_nightly }
-collection_data = collection_data.get('nightly_jobs')
-
-collection_data.each { job ->
-  debbuild = job.getValue().get('debbuild')
-  list_of_pkgs = "${list_of_pkgs} ${debbuild}"
-}
+nightly_collection = gz_collections_yaml.collections
+  .find { it.name == gz_nightly }
 
 def nightly_scheduler_job = job("ignition-${gz_nightly}-nightly-scheduler")
 OSRFUNIXBase.create(nightly_scheduler_job)
@@ -601,8 +577,9 @@ nightly_scheduler_job.with
 
   parameters
   {
-     stringParam('NIGHTLY_PACKAGES',"${list_of_pkgs}",
-                 'space separated list of packages to build')
+     stringParam('NIGHTLY_PACKAGES',
+                nightly_collection.libs.collect{ it.name + it.major_version  }.join(" "),
+                'space separated list of packages to build')
 
      booleanParam('DRY_RUN',false,
                   'run a testing run with no effects')
@@ -612,22 +589,22 @@ nightly_scheduler_job.with
      cron(Globals.CRON_START_NIGHTLY)
   }
 
-  cmake_branch = get_nightly_branch(collection_data, 'cmake')
-  common_branch = get_nightly_branch(collection_data, 'common')
-  fuel_tools_branch = get_nightly_branch(collection_data, 'fuel-tools')
-  gazebo_branch = get_nightly_branch(collection_data, 'gazebo')
-  gui_branch = get_nightly_branch(collection_data, 'gui')
-  launch_branch = get_nightly_branch(collection_data, 'launch')
-  math_branch = get_nightly_branch(collection_data, 'math')
-  msgs_branch =  get_nightly_branch(collection_data, 'msgs')
-  physics_branch = get_nightly_branch(collection_data, 'physics')
-  plugin_branch = get_nightly_branch(collection_data, 'plugin')
-  rendering_branch = get_nightly_branch(collection_data, 'rendering')
-  sensors_branch = get_nightly_branch(collection_data, 'sensors')
-  sdformat_branch = get_nightly_branch(collection_data, 'sdformat')
-  tools_branch = get_nightly_branch(collection_data, 'tools')
-  transport_branch = get_nightly_branch(collection_data, 'transport')
-  utils_branch = get_nightly_branch(collection_data, 'utils')
+  cmake_branch = get_nightly_branch(nightly_collection, 'cmake')
+  common_branch = get_nightly_branch(nightly_collection, 'common')
+  fuel_tools_branch = get_nightly_branch(nightly_collection, 'fuel-tools')
+  sim_branch = get_nightly_branch(nightly_collection, 'sim')
+  gui_branch = get_nightly_branch(nightly_collection, 'gui')
+  launch_branch = get_nightly_branch(nightly_collection, 'launch')
+  math_branch = get_nightly_branch(nightly_collection, 'math')
+  msgs_branch =  get_nightly_branch(nightly_collection, 'msgs')
+  physics_branch = get_nightly_branch(nightly_collection, 'physics')
+  plugin_branch = get_nightly_branch(nightly_collection, 'plugin')
+  rendering_branch = get_nightly_branch(nightly_collection, 'rendering')
+  sensors_branch = get_nightly_branch(nightly_collection, 'sensors')
+  sdformat_branch = get_nightly_branch(nightly_collection, 'sdformat')
+  tools_branch = get_nightly_branch(nightly_collection, 'tools')
+  transport_branch = get_nightly_branch(nightly_collection, 'transport')
+  utils_branch = get_nightly_branch(nightly_collection, 'utils')
 
   steps {
     shell("""\
@@ -649,8 +626,8 @@ nightly_scheduler_job.with
                 src_branch="${common_branch}"
               elif [[ "\${n}" != "\${n/fuel-tools/}" ]]; then
                 src_branch="${fuel_tools_branch}"
-              elif  [[ "\${n}" != "\${n/gazebo/}" ]]; then
-                src_branch="${gazebo_branch}"
+              elif  [[ "\${n}" != "\${n/sim/}" ]]; then
+                src_branch="${sim_branch}"
               elif  [[ "\${n}" != "\${n/gui/}" ]]; then
                 src_branch="${gui_branch}"
               elif [[ "\${n}" != "\${n/launch/}" ]]; then
@@ -670,7 +647,7 @@ nightly_scheduler_job.with
               elif [[ "\${n}" != "\${n/sdformat/}" ]]; then
                 src_branch="${sdformat_branch}"
               elif  [[ "\${n}" != "\${n/sim/}" ]]; then
-                src_branch="${gazebo_branch}"
+                src_branch="${sim_branch}"
               elif [[ "\${n}" != "\${n/transport/}" ]]; then
                 src_branch="${transport_branch}"
               elif [[ "\${n}" != "\${n/tools/}" ]]; then

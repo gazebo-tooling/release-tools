@@ -31,27 +31,107 @@
 spec_version: 0
 collections:
   - name: 'citadel'
+    libs:
     ci:
       linux:
         reference_distro:
           - bionic
+    packaging:
   - name: 'fortress'
+    libs:
     ci:
       linux:
         reference_distro:
           - focal
+    packaging:
   - name: 'garden'
+    libs:
     ci:
       linux:
         reference_distro:
           - focal
+    packaging:
   - name: 'harmonic'
+    libs:
+      - name: cmake
+        major_version: 3
+        repo:
+          current_branch: gz-cmake3
+      - name: tools
+        major_version: 2
+        repo:
+          current_branch: gz-tools2
+      - name: utils
+        major_version: 2
+        repo:
+          current_branch: gz-utils2
+      - name: math
+        major_version: 7
+        repo:
+          current_branch: gz-math7
+      - name: plugin
+        major_version: 2
+        repo:
+          current_branch: gz-plugin2
+      - name: common
+        major_version: 5
+        repo:
+          current_branch: gz-common5
+      - name: msgs
+        major_version: 10
+        repo:
+          current_branch: main
+      - name: rendering
+        major_version: 8
+        repo:
+          current_branch: main
+      - name: sdformat
+        major_version: 13
+        repo:
+          current_branch: sdf13
+      - name: fuel-tools
+        major_version: 9
+        repo:
+          current_branch: main
+      - name: transport
+        major_version: 13
+        repo:
+          current_branch: main
+      - name: gui
+        major_version: 8
+        repo:
+          current_branch: main
+      - name: sensors
+        major_version: 8
+        repo:
+          current_branch: main
+      - name: physics
+        major_version: 6
+        repo:
+          current_branch: gz-physics6
+      - name: sim
+        major_version: 8
+        repo:
+          current_branch: main
+      - name: launch
+        major_version: 7
+        repo:
+          current_branch: main
+      - name: garden
+        major_version: 1
+        repo:
+          current_branch: main
     ci:
       linux:
         reference_distro:
           - jammy
-    nightly:
+    packaging:
       linux:
-          nightly_distros:
-            - jammy
-
+        ignore_major_version:
+          - garden
+        prefix: gz-
+        no_prefix:
+            - sdformat
+        nightly:
+            distros:
+              - jammy
