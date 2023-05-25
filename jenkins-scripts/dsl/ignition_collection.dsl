@@ -6,7 +6,9 @@ import org.yaml.snakeyaml.Yaml
 // GZ COLLECTIONS
 arch = 'amd64'
 
-script_dir = new File(".").absolutePath
+// Jenkins needs the relative path to work and locally the simulation is done
+// using a symlink
+script_dir = "scripts/jenkins-scripts/dsl/"
 gz_collections_yaml = new Yaml().load(new FileReader(script_dir + "/gz-collections.yaml"))
 
 gz_nightly = 'harmonic'
