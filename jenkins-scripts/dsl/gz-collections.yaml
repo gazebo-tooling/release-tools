@@ -127,11 +127,13 @@ collections:
           - jammy
     packaging:
       linux:
-        ignore_major_version:
-          - garden
-        prefix: gz-
-        no_prefix:
-            - sdformat
+        package_name:
+          ignore_major_version:
+            - garden
+          prefix:
+            default: gz-
+            exclude:
+              - sdformat
         nightly:
             distros:
               - jammy

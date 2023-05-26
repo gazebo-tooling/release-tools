@@ -16,13 +16,13 @@ gz_nightly = 'harmonic'
 String build_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
 {
   major_version = parsed_yaml_lib.major_version
-  prefix = parsed_yaml_packaging.linux.prefix
+  prefix = parsed_yaml_packaging.linux.package_name.prefix.default
 
-  ignore_major_version = parsed_yaml_packaging.linux?.ignore_major_version
+  ignore_major_version = parsed_yaml_packaging.linux?.package_name?.ignore_major_version
   if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
     major_version = ""
 
-  no_prefix = parsed_yaml_packaging.linux?.no_prefix
+  no_prefix = parsed_yaml_packaging.linux?.package_name?.prefix?.exclude
   if (no_prefix && no_prefix.contains(parsed_yaml_lib.name))
     prefix = ""
 
