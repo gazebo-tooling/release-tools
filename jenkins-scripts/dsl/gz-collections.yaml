@@ -113,7 +113,7 @@ collections:
         major_version: 7
         repo:
           current_branch: main
-      - name: gz-garden
+      - name: gz-harmonic
         major_version: 1
         repo:
           current_branch: main
@@ -125,7 +125,7 @@ collections:
       linux:
         package_name:
           ignore_major_version:
-            - garden
+            - harmonic
         nightly:
             distros:
               - jammy
