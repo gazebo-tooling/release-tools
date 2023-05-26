@@ -8,8 +8,19 @@ arch = 'amd64'
 
 // Jenkins needs the relative path to work and locally the simulation is done
 // using a symlink
+println("0")
+// println(hudson.model.Executor.currentExecutor().getCurrentWorkspace())
+println("1")
+//println(new File(__FILE__).parent.absolutePath)
+println("2")
+// println(build.getEnvironment(listener).get('workspace'))
+println("3")
+
 script_dir = "scripts/jenkins-scripts/dsl/"
-gz_collections_yaml = new Yaml().load(new FileReader(script_dir + "/gz-collections.yaml"))
+file = readFileFromWorkspace(script_dir + "/gz-collections.yaml")
+gz_collections_yaml = new Yaml().load(file)
+
+//gz_collections_yaml = new Yaml().load(new FileReader(script_dir + "/gz-collections.yaml"))
 
 gz_nightly = 'harmonic'
 gz_collections = [
