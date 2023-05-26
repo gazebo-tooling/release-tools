@@ -16,18 +16,12 @@ gz_nightly = 'harmonic'
 String build_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
 {
   major_version = parsed_yaml_lib.major_version
-  prefix = parsed_yaml_packaging.linux.package_name.prefix.default
 
   ignore_major_version = parsed_yaml_packaging.linux?.package_name?.ignore_major_version
   if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
     major_version = ""
 
-  no_prefix = parsed_yaml_packaging.linux?.package_name?.prefix?.exclude
-  if (no_prefix && no_prefix.contains(parsed_yaml_lib.name))
-    prefix = ""
-
-  return  prefix + parsed_yaml_lib.name + major_version +
-          "-debbuilder"
+  return parsed_yaml_lib.name + major_version + "-debbuilder"
 }
 
 gz_collection_jobs =
@@ -589,22 +583,22 @@ nightly_scheduler_job.with
      cron(Globals.CRON_START_NIGHTLY)
   }
 
-  cmake_branch = get_nightly_branch(nightly_collection, 'cmake')
-  common_branch = get_nightly_branch(nightly_collection, 'common')
-  fuel_tools_branch = get_nightly_branch(nightly_collection, 'fuel-tools')
-  sim_branch = get_nightly_branch(nightly_collection, 'sim')
-  gui_branch = get_nightly_branch(nightly_collection, 'gui')
-  launch_branch = get_nightly_branch(nightly_collection, 'launch')
-  math_branch = get_nightly_branch(nightly_collection, 'math')
-  msgs_branch =  get_nightly_branch(nightly_collection, 'msgs')
-  physics_branch = get_nightly_branch(nightly_collection, 'physics')
-  plugin_branch = get_nightly_branch(nightly_collection, 'plugin')
-  rendering_branch = get_nightly_branch(nightly_collection, 'rendering')
-  sensors_branch = get_nightly_branch(nightly_collection, 'sensors')
+  cmake_branch = get_nightly_branch(nightly_collection, 'gz-cmake')
+  common_branch = get_nightly_branch(nightly_collection, 'gz-common')
+  fuel_tools_branch = get_nightly_branch(nightly_collection, 'gz-fuel-tools')
+  sim_branch = get_nightly_branch(nightly_collection, 'gz-sim')
+  gui_branch = get_nightly_branch(nightly_collection, 'gz-gui')
+  launch_branch = get_nightly_branch(nightly_collection, 'gz-launch')
+  math_branch = get_nightly_branch(nightly_collection, 'gz-math')
+  msgs_branch =  get_nightly_branch(nightly_collection, 'gz-msgs')
+  physics_branch = get_nightly_branch(nightly_collection, 'gz-physics')
+  plugin_branch = get_nightly_branch(nightly_collection, 'gz-plugin')
+  rendering_branch = get_nightly_branch(nightly_collection, 'gz-rendering')
+  sensors_branch = get_nightly_branch(nightly_collection, 'gz-sensors')
   sdformat_branch = get_nightly_branch(nightly_collection, 'sdformat')
-  tools_branch = get_nightly_branch(nightly_collection, 'tools')
-  transport_branch = get_nightly_branch(nightly_collection, 'transport')
-  utils_branch = get_nightly_branch(nightly_collection, 'utils')
+  tools_branch = get_nightly_branch(nightly_collection, 'gz-tools')
+  transport_branch = get_nightly_branch(nightly_collection, 'gz-transport')
+  utils_branch = get_nightly_branch(nightly_collection, 'gz-utils')
 
   steps {
     shell("""\
