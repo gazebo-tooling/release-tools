@@ -129,10 +129,6 @@ call %win_lib% :build_workspace !COLCON_PACKAGE! !COLCON_PACKAGE_EXTRA_CMAKE_ARG
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
-::    echo # BEGIN SECTION: test info
-::    echo * PATH: %PATH%
-::    echo * OGRE2_RESOURCE_PATH: %OGRE2_RESOURCE_PATH%
-::    echo # END SECTION
     echo # BEGIN SECTION: running tests for !COLCON_PACKAGE!
     call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
     echo # END SECTION
