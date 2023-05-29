@@ -1,21 +1,18 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
+// If failed to import locally be sure of using tools/ scripts
+import org.yaml.snakeyaml.Yaml
 
 // GZ COLLECTIONS
 arch = 'amd64'
 
-gz_nightly = 'harmonic'
+// Jenkins needs the relative path to work and locally the simulation is done
+// using a symlink
+file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
+gz_collections_yaml = new Yaml().load(file)
 
+gz_nightly = 'harmonic'
 gz_collections = [
-  [ name : 'citadel',
-    distros : [ 'bionic' ],
-  ],
-  [ name : 'fortress',
-    distros : [ 'focal' ],
-  ],
-  [ name : 'garden',
-    distros : [ 'focal' ],
-  ],
   [ name : 'harmonic',
     distros : [ 'focal' ],
     // These are the branches currently targeted at the upcoming collection
@@ -381,10 +378,11 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
 }
 
 // Testing compilation from source
-gz_collections.each { gz_collection ->
-  // COLCON - Windows
-  gz_collection_name = gz_collection.get('name')
+gz_collections_yaml.collections.each { collection ->
+  gz_collection_name = collection.name
+  distros = collection.ci.linux.reference_distro
 
+  // COLCON - Windows
   def gz_win_ci_job = job("ign_${gz_collection_name}-ci-win")
   Globals.gazebodistro_branch = true
   OSRFWinCompilation.create(gz_win_ci_job, false)
@@ -399,7 +397,7 @@ gz_collections.each { gz_collection ->
   }
   Globals.gazebodistro_branch = false
 
-  gz_collection.get('distros').each { distro ->
+  distros.each { distro ->
     // INSTALL JOBS:
     // --------------------------------------------------------------
     if ((gz_collection_name == "citadel") || (gz_collection_name == "fortress")) {
