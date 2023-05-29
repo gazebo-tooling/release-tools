@@ -28,7 +28,7 @@ class OSRFWinBase extends OSRFBase
         publishers {
           consoleParsing {
             projectRules('scripts/jenkins-scripts/parser_rules/opengl_problem.parser')
-            failBuildOnError(true)
+            unstableOnWarning()
           }
         }
      }
