@@ -13,7 +13,7 @@ gz_collections_yaml = new Yaml().load(file)
 
 gz_nightly = 'harmonic'
 
-String build_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
+String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
 {
   major_version = parsed_yaml_lib.major_version
 
@@ -515,7 +515,7 @@ gz_collections_yaml.collections.each { collection ->
         }
         if (collection.packaging?.linux?.nightly) {
           collection.libs.each { lib ->
-            name(build_debbuilder_name(lib, collection.packaging))
+            name(get_debbuilder_name(lib, collection.packaging))
           }
         }
       }
@@ -572,7 +572,10 @@ nightly_scheduler_job.with
   parameters
   {
      stringParam('NIGHTLY_PACKAGES',
-                nightly_collection.libs.collect{ it.name + it.major_version  }.join(" "),
+                nightly_collection.libs.collect{
+                  get_debbuilder_name(it,nightly_collection.packaging)
+                    .replace("-debbuilder","")
+                }.join(" "),
                 'space separated list of packages to build')
 
      booleanParam('DRY_RUN',false,

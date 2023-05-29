@@ -125,7 +125,8 @@ collections:
       linux:
         package_name:
           ignore_major_version:
-            - harmonic
+            - gz-harmonic
         nightly:
             distros:
               - jammy
+
