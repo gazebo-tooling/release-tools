@@ -118,9 +118,20 @@ collections:
         repo:
           current_branch: main
     ci:
+      exclude:
+        - gz-harmonic
       linux:
         reference_distro:
           - jammy
+      requirements:
+          large_memory:
+            - gz-physics
+          nvidia_gpu:
+            - gz-sim
+            - gz-gui
+            - gz-rendering
+            - gz-sensors
+      tests_disabled:
     packaging:
       linux:
         package_name:
