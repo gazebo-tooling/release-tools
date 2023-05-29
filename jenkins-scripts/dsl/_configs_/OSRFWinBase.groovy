@@ -24,6 +24,13 @@ class OSRFWinBase extends OSRFBase
                 git clone https://github.com/gazebo-tooling/release-tools scripts -b %RTOOLS_BRANCH%
                 """.stripIndent())
         }
+
+        publishers {
+          consoleParsing {
+            projectRules('scripts/jenkins-scripts/parser_rules/opengl_problem.parser')
+            failBuildOnError(true)
+          }
+        }
      }
    }
 }
