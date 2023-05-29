@@ -16,17 +16,17 @@ jobs:
         id: files
         run: |
             git diff --name-only origin/${{ github.base_ref }}...origin/${{ github.head_ref }}
-            echo "name=changed-files::$(git diff --name-only origin/${{ github.base_ref }}...origin/${{ github.head_ref }}| tr '\n' ' ')"  >> $GITHUB_OUTPUT
+            echo "changed-files=$(git diff --name-only origin/${{ github.base_ref }}...origin/${{ github.head_ref }}| tr '\n' ' ')"  >> $GITHUB_OUTPUT
       - name: Run testing on changed config files
         id: dsl_check
         run: |
           for changed_file in ${{ steps.files.outputs.changed-files }}; do
             if [[ ${changed_file} != ${changed_file/dsl\/*} ]]; then
               echo "+ Detected at leat one config file: ${changed_file}."
-              echo "name=run_job::true" >> $GITHUB_OUTPUT
+              echo "run_job=true" >> $GITHUB_OUTPUT
               break
             else
-              echo "name=run_job::false" >> $GITHUB_OUTPUT
+              echo "run_job=false" >> $GITHUB_OUTPUT
             fi
           done
       - name: Checkout
