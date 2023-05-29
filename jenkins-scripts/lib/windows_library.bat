@@ -47,7 +47,6 @@ set MSVC_ON_WIN32_C=C:\Program Files\Microsoft Visual Studio\2019\Community\VC\A
 set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
 set PATH=%PATH%;%VCPKG_DIR%\installed\%VCPKG_DEFAULT_TRIPLET%\bin
-set PATH=%PATH%;%VCPKG_DIR%\installed\%VCPKG_DEFAULT_TRIPLET%\bin\OGRE-2.2
 
 IF exist "%MSVC22_ON_WIN32_C%" (
    call "%MSVC22_ON_WIN32_C%" %MSVC_KEYWORD% || goto %win_lib% :error
