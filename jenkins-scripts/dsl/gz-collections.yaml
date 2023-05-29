@@ -117,6 +117,7 @@ collections:
         major_version: 1
         repo:
           current_branch: main
+  - name: 'harmonic'
     ci:
       linux:
         reference_distro:
