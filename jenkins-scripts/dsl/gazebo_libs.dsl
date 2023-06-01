@@ -40,6 +40,8 @@ boolean include_gpu_label_if_needed(job, lib, ci_info)
   collection = gz_collections_yaml.collections. find { it.name == collection_name }
   collection.ci.linux.reference_distro.each { distro ->
     collection.libs.findAll { ! collection.ci.exclude.contains(it.name) }.each { lib ->
+      assert(lib.name)
+      assert(lib.repo.current_branch)
       // 1.2.1 Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
       // --------------------------------------------------------------
       def gz_ci_job_name = "${lib.name}${lib.major_version}-ci-pr_any-${distro}-${arch}"
@@ -49,7 +51,7 @@ boolean include_gpu_label_if_needed(job, lib, ci_info)
                                            "gazebosim/${lib.name}",
                                            enable_testing,
                                            ENABLE_CPPCHECK,
-                                           [ lib.current_branch ])
+                                           [ lib.repo.current_branch ])
       include_gpu_label_if_needed(gz_ci_any_job, lib, collection.ci)
       gz_ci_any_job.with
       {
