@@ -9,6 +9,7 @@ GLOBAL_SHELL_CMD=''
 
 // GZ COLLECTIONS
 arch = 'amd64'
+ENABLE_CPPCHECK = true
 
 // Jenkins needs the relative path to work and locally the simulation is done
 // using a symlink
@@ -43,10 +44,12 @@ boolean include_gpu_label_if_needed(job, lib, ci_info)
       // --------------------------------------------------------------
       def gz_ci_job_name = "${lib.name}${lib.major_version}-ci-pr_any-${distro}-${arch}"
       def gz_ci_any_job = job(gz_ci_job_name)
-      def tests_disabled = (collection.ci.tests_disabled?.contains(lib.name)) ? true : false
+      def enable_testing = (collection.ci.tests_disabled?.contains(lib.name)) ? false : true
       OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
-                                          "gazebosim/${lib.name}",
-                                           tests_disabled)
+                                           "gazebosim/${lib.name}",
+                                           enable_testing,
+                                           ENABLE_CPPCHECK,
+                                           [ lib.current_branch ])
       include_gpu_label_if_needed(gz_ci_any_job, lib, collection.ci)
       gz_ci_any_job.with
       {
