@@ -36,8 +36,7 @@ boolean include_gpu_label_if_needed(job, lib, ci_info)
   }
 }
 
-[ 'harmonic' ].each { collection_name ->
-  collection = gz_collections_yaml.collections. find { it.name == collection_name }
+gz_collections_yaml.collections.each { collection ->
   collection.ci.linux.reference_distro.each { distro ->
     collection.libs.findAll { ! collection.ci.exclude.contains(it.name) }.each { lib ->
       // 1.2.1 Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
