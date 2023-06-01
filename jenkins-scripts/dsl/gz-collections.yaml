@@ -124,13 +124,13 @@ collections:
         reference_distro:
           - jammy
       requirements:
-          large_memory:
-            - gz-physics
-          nvidia_gpu:
-            - gz-sim
-            - gz-gui
-            - gz-rendering
-            - gz-sensors
+        large_memory:
+          - gz-physics
+        nvidia_gpu:
+          - gz-sim
+          - gz-gui
+          - gz-rendering
+          - gz-sensors
       tests_disabled:
     packaging:
       linux:
