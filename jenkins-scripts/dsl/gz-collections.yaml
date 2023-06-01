@@ -28,11 +28,90 @@ spec_version: 0
 collections:
   - name: 'citadel'
     libs:
+      - name: ign-cmake
+        major_version: 2
+        repo:
+          current_branch: ign-cmake2
+      - name: ign-tools
+        major_version: 1
+        repo:
+          current_branch: ign-tools1
+      - name: ign-math
+        major_version: 6
+        repo:
+          current_branch: ign-math6
+      - name: ign-plugin
+        major_version: 1
+        repo:
+          current_branch: ign-plugin1
+      - name: ign-common
+        major_version: 3
+        repo:
+          current_branch: ign-common3
+      - name: ign-msgs
+        major_version: 5
+        repo:
+          current_branch: ign-msgs5
+      - name: ign-rendering
+        major_version: 3
+        repo:
+          current_branch: ign-rendering3
+      - name: sdformat
+        major_version: 9
+        repo:
+          current_branch: sdf9
+      - name: ign-fuel-tools
+        major_version: 4
+        repo:
+          current_branch: ign-fuel-tools4
+      - name: ign-transport
+        major_version: 8
+        repo:
+          current_branch: ign-transport8
+      - name: ign-gui
+        major_version: 3
+        repo:
+          current_branch: ign-gui3
+      - name: ign-sensors
+        major_version: 3
+        repo:
+          current_branch: ign-sensors3
+      - name: ign-physics
+        major_version: 2
+        repo:
+          current_branch: ign-physics2
+      - name: ign-gazebo
+        major_version: 7
+        repo:
+          current_branch: ign-gazebo3
+      - name: ign-launch
+        major_version: 2
+        repo:
+          current_branch: ign-launch2
+      - name: ign-citadel
+        major_version: 1
+        repo:
+          current_branch: main
     ci:
+      exclude:
+        - ign-citadel
       linux:
         reference_distro:
           - bionic
+      requirements:
+        large_memory:
+          - ign-physics
+        nvidia_gpu:
+          - ign-sim
+          - ign-gui
+          - ign-rendering
+          - ign-sensors
+      tests_disabled:
     packaging:
+      linux:
+        package_name:
+          ignore_major_version:
+            - ign-citadel
   - name: 'fortress'
     libs:
     ci:
