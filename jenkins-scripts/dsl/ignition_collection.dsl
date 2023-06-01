@@ -655,7 +655,7 @@ nightly_scheduler_job.with
                 src_branch="main"
               fi
 
-              echo "releasing \${n} (from branch \${src_branch}"
+              echo "releasing \${n} (from branch \${src_branch})"
               python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly "\${PASS}" --release-repo-branch main --nightly-src-branch \${src_branch} --upload-to-repo nightly > log || echo "MARK_AS_UNSTABLE"
               echo " - done"
           done
