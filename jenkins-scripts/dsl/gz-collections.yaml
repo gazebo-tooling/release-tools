@@ -273,9 +273,20 @@ collections:
         repo:
           current_branch: main
     ci:
+      exclude:
+        - gz-garden
       linux:
         reference_distro:
           - focal
+      requirements:
+        large_memory:
+          - gz-physics
+        nvidia_gpu:
+          - gz-sim
+          - gz-gui
+          - gz-rendering
+          - gz-sensors
+      tests_disabled:
     packaging:
       linux:
         package_name:
@@ -374,4 +385,3 @@ collections:
         nightly:
             distros:
               - jammy
-
