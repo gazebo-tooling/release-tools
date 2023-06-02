@@ -16,24 +16,28 @@ import hudson.model.Label;
   The first field must be a single label (no spaces) but the second may be an
   arbitrarily complex label expression like "(docker && linux) && !armhf"
 */
+def nightly_label_prefix = "linux-nightly"
 def exactly_one_labels = [
-  ["linux-nightly-focal", "docker"],
-  ["linux-nightly-jammy", "docker"],
+  ["${nightly_label_prefix}-focal", "docker"],
+  ["${nightly_label_prefix}-jammy", "docker"],
 ]
 
 for (tup in exactly_one_labels) {
   label_nodes = Label.get(tup[0]).getNodes().findAll { it.toComputer().isOnline() }
+  nightly_label = tup[0]
+  pool_label = tup[1]
 
   if (label_nodes.size() == 1) {
-    println(tup[0] + " is currently applied to " + label_nodes[0].name)
+    println("${nightly_label} is currently applied to " + label_nodes[0].name)
     continue
   }
 
-  // return unstable if the labels are not set correctly before running this
+  // return unstable if the labels are not set correctly before running the
+  // process to assign the new nightly labels.
   println("MARK_AS_UNSTABLE")
 
   if (label_nodes.size() > 1) {
-    println("WARNING: Too many online nodes with the label " + tup[0])
+    println("WARNING: Too many online nodes with the label ${nightly_label}")
     for (node in label_nodes) {
       println("  " + node.name)
     }
@@ -41,16 +45,25 @@ for (tup in exactly_one_labels) {
   }
 
   if (label_nodes.size() < 1) {
-    println("No online host currently has the label " + tup[0])
-    println("Appointing a node from the configured pool matching '" + tup[1] + "'")
-    node_pool = Label.get(tup[1]).getNodes().findAll { it.toComputer().isOnline() }
-    if (node_pool.size() <= 0) {
-      println("WARNING: Pool of '" + tup[1] + "' machines for " + tup[0] + " is empty!")
+    println("No online host currently has the label ${nightly_label}")
+    println("Appointing a node from the configured pool matching '${pool_label}'")
+
+    def node_pool = Jenkins.instance.nodes.findAll { node ->
+      node.computer.online &&
+      node.getLabelString().contains(pool_label) &&
+      !node.getLabelString().contains(nightly_label_prefix) &&
+      !node.getLabelString().contains("gpu-nvidia") &&
+      !node.getLabelString().contains("test-instance")
     }
+
+    if (node_pool.size() <= 0) {
+      println("WARNING: Pool of '${pool_label}' machines for ${nightly_label} is empty!")
+    }
+
     // Pick a random node from the pool to receive the label.
     appointed_node = node_pool[(new Random()).nextInt(node_pool.size())]
     new_label_string = appointed_node.getAssignedLabels().join(" ")
-    new_label_string = tup[0] + " " + new_label_string
+    new_label_string = nightly_label + " " + new_label_string
     appointed_node.setLabelString(new_label_string)
     appointed_node.save()
     println("Added label to " + appointed_node.name)

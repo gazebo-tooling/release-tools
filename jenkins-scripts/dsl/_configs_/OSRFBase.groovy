@@ -37,6 +37,13 @@ class OSRFBase
              systemGroovyCommand("build.setDescription('RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));")
           }
         }
+
+        // Create the naginator retry tag
+        HelperRetryFailures.create(job, [
+          regexpForRerun: "java.nio.channels.ClosedChannelException",
+          checkRegexp: true,
+          maxSchedule: 1
+        ])
       }
     }
 }

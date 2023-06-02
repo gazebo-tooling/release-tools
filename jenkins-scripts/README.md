@@ -12,11 +12,10 @@ The release-tools repository uses the [DSL Jenkins plugin](https://plugins.jenki
 
 To test locally the build of the different `dsl` jobs you need the following: 
 
-1. Download `job_dsl-core.standalone.jar` to be able to build the dsl jobs locally. It's necessary to use the [same version](https://github.com/osrf/chef-osrf/blob/latest/cookbooks/osrfbuild/attributes/plugins.rb#L70) for the jarfrom the dsl plugin. [Download here](https://repo.jenkins-ci.org/artifactory/releases/org/jenkins-ci/plugins/job-dsl-core)
-2. Add the downloaded file to a folder not tracked in the repo.
+1. Run the `dsl/tools/setup_local_generation.bash` script to produce the necessary jar files
 3. In the terminal execute: 
 ``` bash
-java -jar `PATH/job_dsl-core.jar` `PATH/job_name.dsl`
+java -jar <path-to-dsl-tools>/jobdsl.jar <file.dsl>
 ```
 For more information go [here](https://github.com/jenkinsci/job-dsl-plugin/wiki/User-Power-Moves#run-a-dsl-script-locally).
 
