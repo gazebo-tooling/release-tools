@@ -68,8 +68,6 @@ boolean include_gpu_label_if_needed(job, lib, ci_info)
                 ${GLOBAL_SHELL_CMD}
 
                 export ARCH=${arch}
-
-                // TODO: CREATE SYMLINKS TO ign-compilation to be gz-compilation
                 /bin/bash -xe ./scripts/jenkins-scripts/docker/${lib.name}-compilation.bash
                 """.stripIndent())
         } // end of steps
