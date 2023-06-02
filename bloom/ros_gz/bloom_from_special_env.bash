@@ -1,11 +1,17 @@
 #!/bin/bash
 
+if ! command rocker &> /dev/null
+then
+  echo "Please install the rocker app https://github.com/osrf/rocker"
+  exit 1
+fi
+
 # TODO: update URL for the release repo
 BLOOM_CMD="/usr/bin/bloom-release --no-pull-request \
-                         --rosdistro humble \
-                         --track humble_gzgarden \
-                         --override-release-repository-url \
-                         https://github.com/j-rivero/ros_ign-release ros_gz"
+   --rosdistro humble \
+   --track humble_gzgarden \
+   --override-release-repository-url \
+   https://github.com/j-rivero/ros_ign-release ros_gz"
 #
 TAG_NAME=${TAG_NAME:-ros_gz_fortress_garden_release}
 
