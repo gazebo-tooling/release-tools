@@ -67,6 +67,7 @@ boolean include_gpu_label_if_needed(job, lib, ci_info)
 
                 ${GLOBAL_SHELL_CMD}
 
+                export BUILDING_SOFTWARE_DIRECTORY=${lib.name}
                 export ARCH=${arch}
                 /bin/bash -xe ./scripts/jenkins-scripts/docker/${lib.name}-compilation.bash
                 """.stripIndent())

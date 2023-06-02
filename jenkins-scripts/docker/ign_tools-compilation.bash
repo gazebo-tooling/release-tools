@@ -14,7 +14,7 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-tools"
+export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-tools}"
 export BUILDING_JOB_REPOSITORIES="stable"
 export BUILDING_DEPENDENCIES="ruby"
 
