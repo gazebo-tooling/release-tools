@@ -14,7 +14,7 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-launch"
+export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-launch}"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_LAUNCH_DEPENDENCIES"
 
 # Identify GZ_LAUNCH_MAJOR_VERSION to help with dependency resolution

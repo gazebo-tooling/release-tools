@@ -14,7 +14,7 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-rendering"
+export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-rendering}"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_RENDERING_DEPENDENCIES"
 
 # Identify GZ_RENDERING_MAJOR_VERSION to help with dependency resolution
