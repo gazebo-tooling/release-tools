@@ -1,46 +1,28 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
+// If failed to import locally be sure of using tools/ scripts
+import org.yaml.snakeyaml.Yaml
 
 // GZ COLLECTIONS
 arch = 'amd64'
 
+// Jenkins needs the relative path to work and locally the simulation is done
+// using a symlink
+file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
+gz_collections_yaml = new Yaml().load(file)
+
 gz_nightly = 'harmonic'
 
-gz_collections = [
-  [ name : 'citadel',
-    distros : [ 'bionic' ],
-  ],
-  [ name : 'fortress',
-    distros : [ 'focal' ],
-  ],
-  [ name : 'garden',
-    distros : [ 'focal' ],
-  ],
-  [ name : 'harmonic',
-    distros : [ 'focal' ],
-    // These are the branches currently targeted at the upcoming collection
-    // They're in topological order
-    nightly_jobs: [
-          'cmake'     : [ debbuild: 'gz-cmake3'      , branch: 'gz-cmake3' ],
-          'tools'     : [ debbuild: 'gz-tools2'      , branch: 'gz-tools2' ],
-          'utils'     : [ debbuild: 'gz-utils2'      , branch: 'gz-utils2' ],
-          'math'      : [ debbuild: 'gz-math7'       , branch: 'gz-math7' ],
-          'plugin'    : [ debbuild: 'gz-plugin2'     , branch: 'gz-plugin2' ],
-          'common'    : [ debbuild: 'gz-common5'     , branch: 'gz-common5' ],
-          'msgs'      : [ debbuild: 'gz-msgs10'       , branch: 'main' ],
-          'rendering' : [ debbuild: 'gz-rendering8'  , branch: 'main' ],
-          'sdformat'  : [ debbuild: 'sdformat13'     , branch: 'sdf13' ],
-          'fuel-tools': [ debbuild: 'gz-fuel-tools9' , branch: 'main' ],
-          'transport' : [ debbuild: 'gz-transport13' , branch: 'main' ],
-          'gui'       : [ debbuild: 'gz-gui8'        , branch: 'main' ],
-          'sensors'   : [ debbuild: 'gz-sensors8'    , branch: 'main' ],
-          'physics'   : [ debbuild: 'gz-physics6'    , branch: 'gz-physics6' ],
-          'gazebo'    : [ debbuild: 'gz-sim8'        , branch: 'main' ],
-          'launch'    : [ debbuild: 'gz-launch7'     , branch: 'main' ],
-          'garden'    : [ debbuild: 'gz-garden'      , branch: 'main' ],
-    ],
-  ],
-]
+String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
+{
+  major_version = parsed_yaml_lib.major_version
+
+  ignore_major_version = parsed_yaml_packaging.linux?.package_name?.ignore_major_version
+  if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
+    major_version = ""
+
+  return parsed_yaml_lib.name + major_version + "-debbuilder"
+}
 
 gz_collection_jobs =
 [
@@ -359,7 +341,7 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
     }
 
     def dev_package = "${prefix}-${gz_collection_name}"
-    def job_name = 'ign_launch-install-test-job.bash'
+    def job_name = 'gz_launch-install-test-job.bash'
 
     label Globals.nontest_label("gpu-reliable")
 
@@ -381,10 +363,11 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
 }
 
 // Testing compilation from source
-gz_collections.each { gz_collection ->
-  // COLCON - Windows
-  gz_collection_name = gz_collection.get('name')
+gz_collections_yaml.collections.each { collection ->
+  gz_collection_name = collection.name
+  distros = collection.ci.linux.reference_distro
 
+  // COLCON - Windows
   def gz_win_ci_job = job("ign_${gz_collection_name}-ci-win")
   Globals.gazebodistro_branch = true
   OSRFWinCompilation.create(gz_win_ci_job, false)
@@ -399,7 +382,7 @@ gz_collections.each { gz_collection ->
   }
   Globals.gazebodistro_branch = false
 
-  gz_collection.get('distros').each { distro ->
+  distros.each { distro ->
     // INSTALL JOBS:
     // --------------------------------------------------------------
     if ((gz_collection_name == "citadel") || (gz_collection_name == "fortress")) {
@@ -449,7 +432,7 @@ gz_collections.each { gz_collection ->
              if [[ \${JENKINS_NODE_TAG} == 'gpu-reliable' ]]; then
                export ENABLE_GZ_SIM_RUNTIME_TEST=true
              fi
-             /bin/bash -x ./scripts/jenkins-scripts/docker/ign_launch-install-test-job.bash
+             /bin/bash -x ./scripts/jenkins-scripts/docker/gz_launch-install-test-job.bash
              """.stripIndent())
       }
     }
@@ -527,15 +510,14 @@ gz_collections.each { gz_collection ->
   dashboardView("ign-${gz_collection_name}")
   {
       jobs {
-          gz_collection_jobs["${gz_collection_name}"].each { jobname ->
-            name(jobname)
+        gz_collection_jobs["${gz_collection_name}"].each { jobname ->
+          name(jobname)
+        }
+        if (collection.packaging?.linux?.nightly) {
+          collection.libs.each { lib ->
+            name(get_debbuilder_name(lib, collection.packaging))
           }
-          if (gz_collection_name == gz_nightly) {
-            // add nightly debbuild jobs too
-            gz_collections.find { it.get('name') == gz_nightly }.get('nightly_jobs').each { job ->
-              name(job.getValue().get('debbuild') + '-debbuilder')
-            }
-          }
+        }
       }
 
       columns {
@@ -572,27 +554,13 @@ gz_collections.each { gz_collection ->
 }
 
 // NIGHTLY GENERATION
-def get_nightly_branch(collection_data, ign_package)
+def get_nightly_branch(nightly_collection, lib)
 {
-  try {
-    if (collection_data.get(ign_package))
-      return collection_data.get(ign_package).get('branch')
-  } catch(Exception e) {
-    return 'not_enabled_in_DSL'
-  }
-  return 'not_enabled_in_DSL'
+  return nightly_collection.libs.find { it.name == lib }.repo.current_branch
 }
 
-collection_data = []
-list_of_pkgs = ""
-
-collection_data = gz_collections.find { it.get('name') == gz_nightly }
-collection_data = collection_data.get('nightly_jobs')
-
-collection_data.each { job ->
-  debbuild = job.getValue().get('debbuild')
-  list_of_pkgs = "${list_of_pkgs} ${debbuild}"
-}
+nightly_collection = gz_collections_yaml.collections
+  .find { it.name == gz_nightly }
 
 def nightly_scheduler_job = job("ignition-${gz_nightly}-nightly-scheduler")
 OSRFUNIXBase.create(nightly_scheduler_job)
@@ -603,8 +571,12 @@ nightly_scheduler_job.with
 
   parameters
   {
-     stringParam('NIGHTLY_PACKAGES',"${list_of_pkgs}",
-                 'space separated list of packages to build')
+     stringParam('NIGHTLY_PACKAGES',
+                nightly_collection.libs.collect{
+                  get_debbuilder_name(it,nightly_collection.packaging)
+                    .replace("-debbuilder","")
+                }.join(" "),
+                'space separated list of packages to build')
 
      booleanParam('DRY_RUN',false,
                   'run a testing run with no effects')
@@ -614,22 +586,22 @@ nightly_scheduler_job.with
      cron(Globals.CRON_START_NIGHTLY)
   }
 
-  cmake_branch = get_nightly_branch(collection_data, 'cmake')
-  common_branch = get_nightly_branch(collection_data, 'common')
-  fuel_tools_branch = get_nightly_branch(collection_data, 'fuel-tools')
-  gazebo_branch = get_nightly_branch(collection_data, 'gazebo')
-  gui_branch = get_nightly_branch(collection_data, 'gui')
-  launch_branch = get_nightly_branch(collection_data, 'launch')
-  math_branch = get_nightly_branch(collection_data, 'math')
-  msgs_branch =  get_nightly_branch(collection_data, 'msgs')
-  physics_branch = get_nightly_branch(collection_data, 'physics')
-  plugin_branch = get_nightly_branch(collection_data, 'plugin')
-  rendering_branch = get_nightly_branch(collection_data, 'rendering')
-  sensors_branch = get_nightly_branch(collection_data, 'sensors')
-  sdformat_branch = get_nightly_branch(collection_data, 'sdformat')
-  tools_branch = get_nightly_branch(collection_data, 'tools')
-  transport_branch = get_nightly_branch(collection_data, 'transport')
-  utils_branch = get_nightly_branch(collection_data, 'utils')
+  cmake_branch = get_nightly_branch(nightly_collection, 'gz-cmake')
+  common_branch = get_nightly_branch(nightly_collection, 'gz-common')
+  fuel_tools_branch = get_nightly_branch(nightly_collection, 'gz-fuel-tools')
+  sim_branch = get_nightly_branch(nightly_collection, 'gz-sim')
+  gui_branch = get_nightly_branch(nightly_collection, 'gz-gui')
+  launch_branch = get_nightly_branch(nightly_collection, 'gz-launch')
+  math_branch = get_nightly_branch(nightly_collection, 'gz-math')
+  msgs_branch =  get_nightly_branch(nightly_collection, 'gz-msgs')
+  physics_branch = get_nightly_branch(nightly_collection, 'gz-physics')
+  plugin_branch = get_nightly_branch(nightly_collection, 'gz-plugin')
+  rendering_branch = get_nightly_branch(nightly_collection, 'gz-rendering')
+  sensors_branch = get_nightly_branch(nightly_collection, 'gz-sensors')
+  sdformat_branch = get_nightly_branch(nightly_collection, 'sdformat')
+  tools_branch = get_nightly_branch(nightly_collection, 'gz-tools')
+  transport_branch = get_nightly_branch(nightly_collection, 'gz-transport')
+  utils_branch = get_nightly_branch(nightly_collection, 'gz-utils')
 
   steps {
     shell("""\
@@ -651,8 +623,8 @@ nightly_scheduler_job.with
                 src_branch="${common_branch}"
               elif [[ "\${n}" != "\${n/fuel-tools/}" ]]; then
                 src_branch="${fuel_tools_branch}"
-              elif  [[ "\${n}" != "\${n/gazebo/}" ]]; then
-                src_branch="${gazebo_branch}"
+              elif  [[ "\${n}" != "\${n/sim/}" ]]; then
+                src_branch="${sim_branch}"
               elif  [[ "\${n}" != "\${n/gui/}" ]]; then
                 src_branch="${gui_branch}"
               elif [[ "\${n}" != "\${n/launch/}" ]]; then
@@ -672,7 +644,7 @@ nightly_scheduler_job.with
               elif [[ "\${n}" != "\${n/sdformat/}" ]]; then
                 src_branch="${sdformat_branch}"
               elif  [[ "\${n}" != "\${n/sim/}" ]]; then
-                src_branch="${gazebo_branch}"
+                src_branch="${sim_branch}"
               elif [[ "\${n}" != "\${n/transport/}" ]]; then
                 src_branch="${transport_branch}"
               elif [[ "\${n}" != "\${n/tools/}" ]]; then
@@ -683,7 +655,7 @@ nightly_scheduler_job.with
                 src_branch="main"
               fi
 
-              echo "releasing \${n} (from branch \${src_branch}"
+              echo "releasing \${n} (from branch \${src_branch})"
               python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly "\${PASS}" --release-repo-branch main --nightly-src-branch \${src_branch} --upload-to-repo nightly > log || echo "MARK_AS_UNSTABLE"
               echo " - done"
           done

@@ -1,12 +1,10 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def gazebo_supported_branches = [ 'gazebo9', 'gazebo11' ]
+def gazebo_supported_branches = [ 'gazebo11' ]
 def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
 // testing official packages without osrf repo
-def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9',
-                                         'focal'  : 'gazebo9',
-                                         'jammy'  : 'gazebo11']
+def ubuntu_official_packages_distros = [ 'jammy'  : 'gazebo11']
 // Main platform using for quick CI
 def ci_distro               = [ 'focal' ]
 def ci_gpu                  = Globals.get_ci_gpu()
@@ -32,7 +30,7 @@ String abi_job_name = ''
 boolean is_watched_by_buildcop(branch, distro = 'bionic', gpu = 'nvidia')
 
 {
-  if (branch == 'master' || branch == 'gazebo9' || branch == 'gazebo11')
+  if (branch == 'master' || branch == 'gazebo11')
     return true
 
   return false
@@ -510,46 +508,8 @@ all_branches.each { branch ->
 }
 
 // --------------------------------------------------------------
-// WINDOWS: CI job
-
-// 1. any
-  String ci_build_any_job_name_win7 = "gazebo-ci-pr_any-windows7-amd64"
-  def gazebo_win_ci_any_job = job(ci_build_any_job_name_win7)
-  OSRFWinCompilationAnyGitHub.create(gazebo_win_ci_any_job, "gazebosim/gazebo-classic")
-  gazebo_win_ci_any_job.with
-  {
-      steps {
-        batchFile("""\
-              call "./scripts/jenkins-scripts/gazebo-default-devel-windows7-amd64.bat"
-              """.stripIndent())
-      }
-  }
-
-// 2. default / @ SCM/Daily
-all_branches = gazebo_supported_branches
-all_branches.each { branch ->
-  def gazebo_win_ci_job = job("gazebo-ci-${branch}-windows7-amd64")
-  OSRFWinCompilation.create(gazebo_win_ci_job)
-  OSRFGitHub.create(gazebo_win_ci_job, "gazebosim/gazebo-classic", branch)
-
-  gazebo_win_ci_job.with
-  {
-      triggers {
-        scm('@daily')
-      }
-
-      steps {
-        batchFile("""\
-              call "./scripts/jenkins-scripts/gazebo-default-devel-windows7-amd64.bat"
-              """.stripIndent())
-      }
-  }
-}
-
-// --------------------------------------------------------------
 // Create the main CI work flow job
 def gazebo_ci_main = pipelineJob("gazebo-ci-manual_any")
 OSRFCIWorkFlowMultiAnyGitHub.create(gazebo_ci_main,
                                    [ci_build_any_job_name_linux,
-                                    ci_build_any_job_name_win7,
                                     ci_build_any_job_name_brew])

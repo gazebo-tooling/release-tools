@@ -347,104 +347,6 @@ boolean is_a_colcon_package(String gz_software_name)
   return false
 }
 
-// ABI Checker job
-// Need to be before the ci-pr_any so the abi job name is defined
-gz_software.each { gz_sw ->
-  abi_distro.each { distro ->
-    supported_arches.each { arch ->
-      // Packages without ABI
-      if (gz_sw == 'tools' || gz_sw == 'cmake')
-        return
-
-      software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
-
-      if (gz_sw == 'sim')
-        software_name = "gazebo"
-
-      abi_job_names[software_name] = "ignition_${software_name}-abichecker-any_to_any-ubuntu_auto-${arch}"
-      def abi_job = job(abi_job_names[software_name])
-      checkout_subdir = "ign-${software_name}"
-      OSRFLinuxABIGitHub.create(abi_job)
-      GenericAnyJobGitHub.create(abi_job,
-                        "gazebosim/ign-${software_name}",
-                        all_branches(software_name) - [ 'main'])
-      abi_job.with
-      {
-        extra_str=""
-        if (gz_sw == 'physics')
-        {
-          label Globals.nontest_label("huge-memory")
-          // on ARM native nodes in buildfarm we need to restrict to 1 the
-          // compilation threads to avoid OOM killer
-          extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
-        }
-
-        steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                export DISTRO=${distro}
-
-                ${GLOBAL_SHELL_CMD}
-                ${extra_str}
-
-                export ARCH=${arch}
-                export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
-                export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
-                export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
-                export ABI_JOB_SOFTWARE_NAME=${checkout_subdir}
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/ignition-abichecker.bash
-                """.stripIndent())
-        } // end of steps
-      }  // end of with
-    } // end of arch
-  } // end of distro
-} // end of ignition
-
-// MAIN CI JOBS (check every 5 minutes)
-gz_software.each { gz_sw ->
-  supported_arches.each { arch ->
-    // --------------------------------------------------------------
-    // 1. Create the any job
-    software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
-
-    if (gz_sw == 'sim')
-      software_name = "gazebo"
-
-    def gz_ci_job_name = "ignition_${software_name}-ci-pr_any-ubuntu_auto-${arch}"
-    def gz_ci_any_job = job(gz_ci_job_name)
-    def gz_checkout_dir = "ign-${software_name}"
-    OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
-                                        "gazebosim/${gz_checkout_dir}",
-                                         enable_testing(software_name))
-    include_gpu_label_if_needed(gz_ci_any_job, software_name)
-    gz_ci_any_job.with
-    {
-      if (gz_sw == 'physics')
-        label Globals.nontest_label("huge-memory")
-
-      steps
-      {
-         shell("""\
-              #!/bin/bash -xe
-
-              export DISTRO=${ci_distro_str}
-
-              ${GLOBAL_SHELL_CMD}
-
-              export ARCH=${arch}
-
-              /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${software_name}-compilation.bash
-              """.stripIndent())
-      } // end of steps
-    } // end of ci_any_job
-
-    // add ci-pr_any to the list for CIWorkflow
-    if (gz_sw != 'sim')
-      ci_pr_any_list[software_name] << gz_ci_job_name
-  }
-}
-
 void generate_install_job(prefix, gz_sw, major_version, distro, arch)
 {
   def install_default_job = job("${prefix}_${gz_sw}${major_version}-install-pkg-${distro}-${arch}")
@@ -475,6 +377,142 @@ void generate_install_job(prefix, gz_sw, major_version, distro, arch)
     }
   }
 }
+
+// Need to be before the ci-pr_any so the abi job name is defined
+gz_software.each { gz_sw ->
+  supported_arches.each { arch ->
+    // 1 Per library and per linux arch 
+    //   1.1 Per abi_distro
+    //     1.1.1 [job] ABI checker for main branches
+    //   1.2 Per ci_str_distro
+    //     1.2.1 [job] Main PR jobs (-ci-pr_any-) 
+    //   1.3 Per all supported_distros
+    //     1.3.1 Per all supported branches on each library
+    //       1.3.1.1 [job] Branch jobs -ci-$branch-
+    //       1.3.1.2 [job] Branch ASAN jobs -ci_asan-$branch-
+
+    // 1.1.1 ABI checker for main branches
+    // --------------------------------------------------------------
+    abi_distro.each { distro ->
+      // Packages without ABI
+      if (gz_sw == 'tools' || gz_sw == 'cmake')
+        return
+
+      software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
+
+      if (gz_sw == 'sim')
+        software_name = "gazebo"
+
+      abi_job_names[software_name] = "ignition_${software_name}-abichecker-any_to_any-ubuntu_auto-${arch}"
+      def abi_job = job(abi_job_names[software_name])
+      checkout_subdir = "ign-${software_name}"
+      OSRFLinuxABIGitHub.create(abi_job)
+      GenericAnyJobGitHub.create(abi_job,
+                        "gazebosim/ign-${software_name}",
+                        all_branches(software_name) - [ 'main'])
+      abi_job.with
+      {
+        extra_str=""
+        if (gz_sw == 'physics')
+        {
+          label Globals.nontest_label("large-memory")
+          // on ARM native nodes in buildfarm we need to restrict to 1 the
+          // compilation threads to avoid OOM killer
+          extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
+        }
+
+        steps {
+          shell("""\
+                #!/bin/bash -xe
+
+                export DISTRO=${distro}
+
+                ${GLOBAL_SHELL_CMD}
+                ${extra_str}
+
+                export ARCH=${arch}
+                export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
+                export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
+                export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
+                export ABI_JOB_SOFTWARE_NAME=${checkout_subdir}
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/ignition-abichecker.bash
+                """.stripIndent())
+        } // end of steps
+      }  // end of with
+    } // end of abi_distro
+
+    // 1.2.1 Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
+    // --------------------------------------------------------------
+    software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
+
+    if (gz_sw == 'sim')
+      software_name = "gazebo"
+
+    def gz_ci_job_name = "ignition_${software_name}-ci-pr_any-ubuntu_auto-${arch}"
+    def gz_ci_any_job = job(gz_ci_job_name)
+    def gz_checkout_dir = "ign-${software_name}"
+    OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
+                                        "gazebosim/${gz_checkout_dir}",
+                                         enable_testing(software_name))
+    include_gpu_label_if_needed(gz_ci_any_job, software_name)
+    gz_ci_any_job.with
+    {
+      if (gz_sw == 'physics')
+        label Globals.nontest_label("large-memory")
+
+      steps
+      {
+         shell("""\
+              #!/bin/bash -xe
+
+              export DISTRO=${ci_distro_str}
+
+              ${GLOBAL_SHELL_CMD}
+
+              export ARCH=${arch}
+
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_${software_name}-compilation.bash
+              """.stripIndent())
+      } // end of steps
+    } // end of ci_any_job
+
+    // add ci-pr_any to the list for CIWorkflow
+    if (gz_sw != 'sim')
+      ci_pr_any_list[software_name] << gz_ci_job_name
+
+    all_supported_distros.each { distro ->
+        all_branches("${gz_sw}").each { branch ->
+          // 1. Standard CI
+          software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
+
+          if (gz_sw == 'sim')
+            software_name = "gazebo"
+
+          // 1.3.1.1 Branch jobs -ci-$branch-
+          // --------------------------------------------------------------
+          def gz_ci_job = job("ignition_${software_name}-ci-${branch}-${distro}-${arch}")
+          generate_ci_job(gz_ci_job, software_name, branch, distro, arch)
+          gz_ci_job.with
+          {
+            triggers {
+              scm('@daily')
+            }
+          }
+          // 1.3.1.2 Branch ASAN jobs -ci_asan-$branch- 
+          // --------------------------------------------------------------
+          def gz_ci_asan_job = job("ignition_${software_name}-ci_asan-${branch}-${distro}-${arch}")
+          generate_asan_ci_job(gz_ci_asan_job, software_name, branch, distro, arch)
+          gz_ci_asan_job.with
+          {
+            triggers {
+              scm(Globals.CRON_ON_WEEKEND)
+            }
+          }
+        }
+      } // end of all_supported_distros
+    } // end of supported_arches
+} // end of gz_software
+
 
 // INSTALL PACKAGE ALL PLATFORMS / DAILY
 gz_software.each { gz_sw ->
@@ -529,7 +567,7 @@ void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
   gz_ci_job.with
   {
     if (gz_sw == 'physics')
-      label Globals.nontest_label("huge-memory")
+      label Globals.nontest_label("large-memory")
 
     steps {
       shell("""\
@@ -541,43 +579,8 @@ void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
             export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
             export DISTRO=${distro}
             export ARCH=${arch}
-            /bin/bash -xe ./scripts/jenkins-scripts/docker/ign_${software_name}-compilation.bash
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_${software_name}-compilation.bash
             """.stripIndent())
-    }
-  }
-}
-
-// OTHER CI SUPPORTED JOBS
-gz_software.each { gz_sw ->
-  all_supported_distros.each { distro ->
-    supported_arches.each { arch ->
-      // --------------------------------------------------------------
-      // branches CI job scm@daily
-      all_branches("${gz_sw}").each { branch ->
-        // 1. Standard CI
-        software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
-
-        if (gz_sw == 'sim')
-          software_name = "gazebo"
-
-        def gz_ci_job = job("ignition_${software_name}-ci-${branch}-${distro}-${arch}")
-        generate_ci_job(gz_ci_job, software_name, branch, distro, arch)
-        gz_ci_job.with
-        {
-          triggers {
-            scm('@daily')
-          }
-        }
-        // 2. ASAN CI
-        def gz_ci_asan_job = job("ignition_${software_name}-ci_asan-${branch}-${distro}-${arch}")
-        generate_asan_ci_job(gz_ci_asan_job, software_name, branch, distro, arch)
-        gz_ci_asan_job.with
-        {
-          triggers {
-            scm(Globals.CRON_ON_WEEKEND)
-          }
-        }
-      }
     }
   }
 }
