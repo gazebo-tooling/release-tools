@@ -12,8 +12,11 @@ class Globals
 
    static CRON_EVERY_THREE_DAYS = 'H H * * H/3'
    static CRON_ON_WEEKEND = 'H H * * 6-7'
-   static CRON_PREPARE_NIGHTLY = '45 8 * * *'
    static CRON_START_NIGHTLY = '0 9 * * *'
+   // Run nightly scheduler during the nightly creation to be sure
+   // that any possible node killed is replaced. Starting -15min
+   // before CRON_NIGHTLY_NODES and evert 20min for 3 hours
+   static CRON_NIGHTLY_NODES = '45/20 8-11 * * *'
 
    // Only one -E regex can be passed, so make a regex that matches both
    // _ign_TEST and _gz_TEST

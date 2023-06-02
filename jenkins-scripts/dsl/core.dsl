@@ -105,7 +105,7 @@ nightly_labeler.with
   label Globals.nontest_label("master")
 
   triggers {
-    cron(Globals.CRON_PREPARE_NIGHTLY)
+    cron(Globals.CRON_NIGHTLY_NODES)
   }
 
   steps
