@@ -174,7 +174,7 @@ install_test_job.with
 
          export INSTALL_JOB_PKG=ros-\${ROS_DISTRO}-ros-gz\${GZ_VERSION}-sim
          export ROS2=true
-         /bin/bash -x ./scripts/jenkins-scripts/docker/ign_launch-install-test-job.bash
+         /bin/bash -x ./scripts/jenkins-scripts/docker/gz_launch-install-test-job.bash
          """.stripIndent())
   }
 }

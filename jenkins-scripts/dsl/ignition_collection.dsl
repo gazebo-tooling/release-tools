@@ -341,7 +341,7 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
     }
 
     def dev_package = "${prefix}-${gz_collection_name}"
-    def job_name = 'ign_launch-install-test-job.bash'
+    def job_name = 'gz_launch-install-test-job.bash'
 
     label Globals.nontest_label("gpu-reliable")
 
@@ -432,7 +432,7 @@ gz_collections_yaml.collections.each { collection ->
              if [[ \${JENKINS_NODE_TAG} == 'gpu-reliable' ]]; then
                export ENABLE_GZ_SIM_RUNTIME_TEST=true
              fi
-             /bin/bash -x ./scripts/jenkins-scripts/docker/ign_launch-install-test-job.bash
+             /bin/bash -x ./scripts/jenkins-scripts/docker/gz_launch-install-test-job.bash
              """.stripIndent())
       }
     }
