@@ -21,12 +21,11 @@ ros2 run ros_gz_bridge parameter_bridge /chatter@std_msgs/msg/String@gz.msgs.Str
 sleep 1
 ros2 topic echo /chatter > /tmp/echo_chatter &
 sleep 1
-gz topic -t /chatter -m gz.msgs.StringMsg -p 'data:Hello' &
+gz topic -t /chatter -m gz.msgs.StringMsg -p 'data:\"Hello\"' &
 sleep 1
-if ! \$(grep Hello /tmp/echo_chatter); then
+if ! grep -v Hello /tmp/echo_chatter; then
   echo 'chatter log file does not contain the expected Hello string'
-  # TODO ACTIVATE EXIT
-  # exit 1
+  exit 1
 fi
 echo '# END SECTION'
 
