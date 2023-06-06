@@ -43,7 +43,8 @@ boolean include_gpu_label_if_needed(job, lib, ci_info)
       assert(lib.repo.current_branch)
       // 1.2.1 Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
       // --------------------------------------------------------------
-      def gz_ci_job_name = "${lib.name}${lib.major_version}-ci-pr_any-${distro}-${arch}"
+      def gz_job_name_prefix = lib.name.replaceAll('-','_')
+      def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
       def gz_ci_any_job = job(gz_ci_job_name)
       def enable_testing = (collection.ci.tests_disabled?.contains(lib.name)) ? false : true
       OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
@@ -68,7 +69,7 @@ boolean include_gpu_label_if_needed(job, lib, ci_info)
 
                 export BUILDING_SOFTWARE_DIRECTORY=${lib.name}
                 export ARCH=${arch}
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/${lib.name}-compilation.bash
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/${gz_job_name_prefix}-compilation.bash
                 """.stripIndent())
         } // end of steps
       } // end of ci_any_job
