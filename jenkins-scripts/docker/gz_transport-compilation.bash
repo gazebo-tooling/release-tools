@@ -14,7 +14,7 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-transport"
+export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-transport}"
   export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_TRANSPORT_DEPENDENCIES"
 
 # Identify GZ_TRANSPORT_MAJOR_VERSION to help with dependency resolution

@@ -14,7 +14,7 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-common"
+export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-common}"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_COMMON_DEPENDENCIES"
 
 # Identify GZ_COMMON_MAJOR_VERSION to help with dependency resolution
