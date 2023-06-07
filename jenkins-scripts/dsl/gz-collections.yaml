@@ -121,7 +121,6 @@ collections:
       exclude:
         - gz-harmonic
 # Remove the exclusion after gz-cmake testing
-        - gz-cmake
         - gz-tools
         - gz-utils
         - gz-math
@@ -136,6 +135,7 @@ collections:
         - gz-physics
         - gz-sim
         - gz-launch
+        - sdformat
       linux:
         reference_distro:
           - jammy
