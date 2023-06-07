@@ -20,7 +20,7 @@ export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_RENDERING_DEPENDENCIES"
 # Identify GZ_RENDERING_MAJOR_VERSION to help with dependency resolution
 GZ_RENDERING_MAJOR_VERSION=$(\
   python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
-  ${WORKSPACE}/ign-rendering/CMakeLists.txt)
+  ${WORKSPACE}/${BUILDING_SOFTWARE_DIRECTORY}/CMakeLists.txt)
 
 # Check GZ_RENDERING version is integer
 if ! [[ ${GZ_RENDERING_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
