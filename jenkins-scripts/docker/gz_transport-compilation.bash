@@ -20,7 +20,7 @@ export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-transport
 # Identify GZ_TRANSPORT_MAJOR_VERSION to help with dependency resolution
 GZ_TRANSPORT_MAJOR_VERSION=$(\
   python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
-  ${WORKSPACE}/ign-transport/CMakeLists.txt)
+  ${WORKSPACE}/${BUILDING_SOFTWARE_DIRECTORY}/CMakeLists.txt)
 
 # Check GZ_TRANSPORT version is integer
 if ! [[ ${GZ_TRANSPORT_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
