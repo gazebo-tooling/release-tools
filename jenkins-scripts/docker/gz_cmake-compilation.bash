@@ -14,7 +14,7 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-cmake"
+export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-cmake}"
 export BUILDING_DEPENDENCIES="pkg-config"
 
 # Enable long-running ign-cmake tests in CI.

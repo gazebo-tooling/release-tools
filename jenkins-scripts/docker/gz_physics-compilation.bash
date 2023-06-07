@@ -14,7 +14,7 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-physics"
+export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-physics}"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_PHYSICS_DEPENDENCIES"
 
 # Identify GZ_PHYSICS_MAJOR_VERSION to help with dependency resolution
