@@ -14,13 +14,13 @@ if [[ -z ${DISTRO} ]]; then
   exit 1
 fi
 
-export BUILDING_SOFTWARE_DIRECTORY="ign-physics"
+export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-physics}"
 export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_PHYSICS_DEPENDENCIES"
 
 # Identify GZ_PHYSICS_MAJOR_VERSION to help with dependency resolution
 GZ_PHYSICS_MAJOR_VERSION=$(\
   python3 ${SCRIPT_DIR}/../tools/detect_cmake_major_version.py \
-  ${WORKSPACE}/ign-physics/CMakeLists.txt)
+  ${WORKSPACE}/${BUILDING_SOFTWARE_DIRECTORY}/CMakeLists.txt)
 
 # Check GZ_PHYSICS version is integer
 if ! [[ ${GZ_PHYSICS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
