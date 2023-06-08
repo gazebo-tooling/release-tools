@@ -39,8 +39,6 @@ release number will start on 1000.
 To release a modified version of `ros_gz` which supports a different major
 version of gazebo, before running bloom some actions need to be taken:
 
-## 2. Initial setup
-
 ### 2.1 Create the alternative -release repository
 
 For a new official wrappers the notation used below correspond to `ros_ign-release`:
@@ -49,7 +47,8 @@ For a new official wrappers the notation used below correspond to `ros_ign-relea
     https://github.com/ros2-gbp/ros_ign-release
 
  1. Clone the new repo, go to the directory and run rename-gazebo-ros-pkgs.bash
-    - Usage: *$ rename-ros_gz-pkgs.bash <desired_gz_version> <space separted list of rosdistros to release>*
+    - Usage: `$ rename-ros_gz-pkgs.bash <desired_gz_version> <space separted list of rosdistros to release>`
+    - Example: `$ rename-ros_gz-pkgs.bash garden humble`
 
 
 ### 2.2 Create a custom track in tracks.yml
@@ -63,7 +62,7 @@ New versioning requires bumping to large numbers. Set:
     release_inc: '1000'
 ```
 
-All non ubuntu generators can be removed.
+Debian, rhel and fedora generators can be removed.
 
 ## 3. Run a new release
 
