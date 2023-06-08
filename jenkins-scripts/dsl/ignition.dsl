@@ -471,7 +471,7 @@ gz_software.each { gz_sw ->
 
               export ARCH=${arch}
 
-              /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_${software_name}-compilation.bash
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_${gz_sw}-compilation.bash
               """.stripIndent())
       } // end of steps
     } // end of ci_any_job
