@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if ! command rocker &> /dev/null
+if ! command rocker --version &> /dev/null
 then
   echo "Please install the rocker app https://github.com/osrf/rocker"
   exit 1
