@@ -11,8 +11,8 @@ BLOOM_CMD="/usr/bin/bloom-release --no-pull-request \
    --rosdistro humble \
    --track humble_gzgarden \
    --override-release-repository-url \
-   https://github.com/j-rivero/ros_ign-release ros_gz"
-#
+   https://github.com/gazebo-release/ros_ign-release ros_gz"
+
 TAG_NAME=${TAG_NAME:-ros_gz_fortress_garden_release}
 
 echo " * Build the docker release environment"
