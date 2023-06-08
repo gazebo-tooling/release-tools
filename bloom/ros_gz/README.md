@@ -1,13 +1,13 @@
 # Release new version of Gazebo unofficial wrappers
 
 1. Background
-  * Upstream versions released using this tutorial
+   * Upstream versions released using this tutorial
 2. Initial setup
-  * Create the alternative -release repository
-  * Create a custom track in tracks.yaml
+   * Create the alternative -release repository
+   * Create a custom track in tracks.yaml
 3. Run a new release
-  * Prerequisites
-  * Bloom a new release 
+   * Prerequisites
+   * Bloom a new release 
 
 ## 1. Background
 
