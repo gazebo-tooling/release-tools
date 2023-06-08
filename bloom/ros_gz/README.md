@@ -1,13 +1,13 @@
 # Release new version of Gazebo unofficial wrappers
 
 1. Background
-  * Upstream versions released using this tutorial
+   * Upstream versions released using this tutorial
 2. Initial setup
-  * Create the alternative -release repository
-  * Create a custom track in tracks.yaml
+   * Create the alternative -release repository
+   * Create a custom track in tracks.yaml
 3. Run a new release
-  * Prerequisites
-  * Bloom a new release 
+   * Prerequisites
+   * Bloom a new release 
 
 ## 1. Background
 
@@ -39,8 +39,6 @@ release number will start on 1000.
 To release a modified version of `ros_gz` which supports a different major
 version of gazebo, before running bloom some actions need to be taken:
 
-## 2. Initial setup
-
 ### 2.1 Create the alternative -release repository
 
 For a new official wrappers the notation used below correspond to `ros_ign-release`:
@@ -49,7 +47,8 @@ For a new official wrappers the notation used below correspond to `ros_ign-relea
     https://github.com/ros2-gbp/ros_ign-release
 
  1. Clone the new repo, go to the directory and run rename-gazebo-ros-pkgs.bash
-    - Usage: *$ rename-ros_gz-pkgs.bash <desired_gz_version> <space separted list of rosdistros to release>*
+    - Usage: `$ rename-ros_gz-pkgs.bash <desired_gz_version> <space separted list of rosdistros to release>`
+    - Example: `$ rename-ros_gz-pkgs.bash garden humble`
 
 
 ### 2.2 Create a custom track in tracks.yml
@@ -63,7 +62,7 @@ New versioning requires bumping to large numbers. Set:
     release_inc: '1000'
 ```
 
-All non ubuntu generators can be removed.
+Debian, rhel and fedora generators can be removed.
 
 ## 3. Run a new release
 
@@ -93,3 +92,18 @@ The script will create the docker enviroment with the rosdep modifications neede
 and invoke rocker with `--home` and `--user` flags to pass the credentials and
 customatizations needed for the bloom call. It will run the `bloom-release` command
 with the arguments required for the ros_gz wrappers.
+
+### 3.2 Launching jobs in the osrf buildfarm
+
+The previous step generates the metadata needed to build the debians but there is
+a final step to call the jobs inside the buildfarm that will create the debians.
+
+To do so, for simulating the calls to be done to the buildfarm:
+
+```
+./ros_gz-release.py.bash <version-without-revision> <release-repo> <ros_distro> <token> --dry-run -r <revision>
+# Example for 0.244.11-1001 version for ROS Humble in ros_ign-release
+./ros_gz-release.py.bash 0.244.11 https://github.com/gazebo-release/ros_ign-release humble foo --dry-run -r 1001
+```
+
+For releasing directly, just remove the `--dry-run` argument.

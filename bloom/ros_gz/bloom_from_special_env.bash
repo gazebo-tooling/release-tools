@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if ! command rocker &> /dev/null
+if ! command rocker --version &> /dev/null
 then
   echo "Please install the rocker app https://github.com/osrf/rocker"
   exit 1
@@ -11,8 +11,8 @@ BLOOM_CMD="/usr/bin/bloom-release --no-pull-request \
    --rosdistro humble \
    --track humble_gzgarden \
    --override-release-repository-url \
-   https://github.com/j-rivero/ros_ign-release ros_gz"
-#
+   https://github.com/gazebo-release/ros_ign-release ros_gz"
+
 TAG_NAME=${TAG_NAME:-ros_gz_fortress_garden_release}
 
 echo " * Build the docker release environment"
