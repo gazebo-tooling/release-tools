@@ -92,3 +92,18 @@ The script will create the docker enviroment with the rosdep modifications neede
 and invoke rocker with `--home` and `--user` flags to pass the credentials and
 customatizations needed for the bloom call. It will run the `bloom-release` command
 with the arguments required for the ros_gz wrappers.
+
+### 3.2 Launching jobs in the osrf buildfarm
+
+The previous step generates the metadata needed to build the debians but there is
+a final step to call the jobs inside the buildfarm that will create the debians.
+
+To do so, for simulating the calls to be done to the buildfarm:
+
+```
+./ros_gz-release.py.bash <version-without-revision> <release-repo> <ros_distro> <token> --dry-run -r <revision>
+# Example for 0.244.11-1001 version for ROS Humble in ros_ign-release
+./ros_gz-release.py.bash 0.244.11 https://github.com/gazebo-release/ros_ign-release humble foo --dry-run -r 1001
+```
+
+For releasing directly, just remove the `--dry-run` argument.
