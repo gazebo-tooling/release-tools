@@ -471,7 +471,7 @@ gz_software.each { gz_sw ->
 
               export ARCH=${arch}
 
-              /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_${software_name}-compilation.bash
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_${gz_sw.replaceAll('-','_')}-compilation.bash
               """.stripIndent())
       } // end of steps
     } // end of ci_any_job
@@ -579,7 +579,7 @@ void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
             export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
             export DISTRO=${distro}
             export ARCH=${arch}
-            /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_${software_name}-compilation.bash
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_${software_name.replaceAll('-','_')}-compilation.bash
             """.stripIndent())
     }
   }

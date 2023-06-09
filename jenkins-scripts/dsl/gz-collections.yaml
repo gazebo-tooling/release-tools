@@ -365,22 +365,6 @@ collections:
     ci:
       exclude:
         - gz-harmonic
-# Remove the exclusion after gz-cmake testing
-        - gz-tools
-        - gz-utils
-        - gz-math
-        - gz-plugin
-        - gz-common
-        - gz-msgs
-        - gz-rendering
-        - gz-fuel-tools
-        - gz-transport
-        - gz-gui
-        - gz-sensors
-        - gz-physics
-        - gz-sim
-        - gz-launch
-        - sdformat
       linux:
         reference_distro:
           - jammy
