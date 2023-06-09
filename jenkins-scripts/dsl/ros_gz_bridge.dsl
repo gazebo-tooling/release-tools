@@ -137,46 +137,72 @@ bridge_packages.each { pkg ->
   }
 }
 
-def install_test_job =
-job("ros_gz_bridge-install-pkg_unofficial-any-manual")
-OSRFLinuxInstall.create(install_test_job)
-install_test_job.with
+void generate_install_test_job(Job install_test_job)
 {
-  parameters {
-    stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
-    stringParam("DISTRO", '', "Linux release inside LINUX_DISTRO to build packages for")
-    stringParam("ARCH", '', "Architecture to build packages for")
-    stringParam("ROS_DISTRO", 'humble', "ROS distribution")
-    stringParam("GZ_VERSION", 'garden', "Gazebo version")
-    stringParam("OSRF_REPOS_TO_USE", 'stable prerelease', "Repositories to add to the testing install")
-    labelParam('JENKINS_NODE_TAG') {
-      description('Jenkins node or group to run the build on')
-      defaultValue('gpu-reliable')
+  OSRFLinuxInstall.create(install_test_job)
+  install_test_job.with
+  {
+    parameters {
+      stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
+      stringParam("OSRF_REPOS_TO_USE", 'stable', "Repositories to add to the testing install")
+      labelParam('JENKINS_NODE_TAG') {
+        description('Jenkins node or group to run the build on')
+        defaultValue('gpu-reliable')
+      }
+    }
+
+    // Designed to be run manually. No triggers.
+    label Globals.nontest_label("gpu-reliable")
+
+    steps {
+      systemGroovyCommand("""\
+        build.setDescription(
+        '<b>' + build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
+                build.buildVariableResolver.resolve('DISTRO') + '::' +
+                build.buildVariableResolver.resolve('ROS_DISTRO') + '::' +
+                build.buildVariableResolver.resolve('GZ_VERSION') + '</b>' +
+        '<br />' +
+        'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+        """.stripIndent())
+
+      shell("""\
+           #!/bin/bash -xe
+
+           export INSTALL_JOB_PKG=ros-\${ROS_DISTRO}-ros-gz\${GZ_VERSION}
+           export INSTALL_JOB_REPOS=\${OSRF_REPOS_TO_USE}
+           export USE_ROS_REPO=true
+           export ROS2=true
+           /bin/bash -x ./scripts/jenkins-scripts/docker/ros_gz-install-test-job.bash
+           """.stripIndent())
     }
   }
+}
 
-  // Designed to be run manually. No triggers.
-  label Globals.nontest_label("gpu-reliable")
+def manual_install_test_job = job("ros_gz_bridge-install-pkg_unofficial-any-manual")
+generate_install_test_job(manual_install_test_job)
 
-  steps {
-    systemGroovyCommand("""\
-      build.setDescription(
-      '<b>' + build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
-              build.buildVariableResolver.resolve('DISTRO') + '::' +
-              build.buildVariableResolver.resolve('ROS_DISTRO') + '::' +
-              build.buildVariableResolver.resolve('GZ_VERSION') + '</b>' +
-      '<br />' +
-      'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
-      """.stripIndent())
+manual_install_test_job.with
+{
+  parameters {
+    stringParam("DISTRO", '', "Linux release inside LINUX_DISTRO to build packages for")
+    stringParam("ARCH", '', "Architecture to build packages for")
+    stringParam("ROS_DISTRO", '', "ROS distribution")
+    stringParam("GZ_VERSION", '', "Gazebo version")
+  }
+}
 
-    shell("""\
-         #!/bin/bash -xe
+def periodic_install_test_job = job("ros_gzgarden_bridge-install-pkg_humble-ci-jammy-amd64")
+generate_install_test_job(periodic_install_test_job)
+periodic_install_test_job.with
+{
+  parameters {
+    stringParam("DISTRO", 'jammy', "Linux release inside LINUX_DISTRO to build packages for")
+    stringParam("ARCH", 'amd64', "Architecture to build packages for")
+    stringParam("ROS_DISTRO", 'humble', "ROS distribution")
+    stringParam("GZ_VERSION", 'garden', "Gazebo version")
+  }
 
-         export INSTALL_JOB_PKG=ros-\${ROS_DISTRO}-ros-gz\${GZ_VERSION}
-         export INSTALL_JOB_REPOS=\${OSRF_REPOS_TO_USE}
-         export USE_ROS_REPO=true
-         export ROS2=true
-         /bin/bash -x ./scripts/jenkins-scripts/docker/ros_gz-install-test-job.bash
-         """.stripIndent())
+  triggers {
+    scm('@daily')
   }
 }
