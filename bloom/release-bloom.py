@@ -15,6 +15,7 @@ UBUNTU_ARCHS = ['amd64']
 UBUNTU_DISTROS_IN_ROS = {'noetic': ['focal']}
 UBUNTU_DISTROS_IN_ROS2 = {'foxy': ['focal'],
                           'humble': ['jammy'],
+                          'iron': ['jammy'],
                           'rolling': ['jammy']}
 DRY_RUN = False
 
