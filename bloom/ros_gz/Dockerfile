@@ -1,4 +1,6 @@
-FROM ros:humble-ros-base-jammy
+ARG ROS_DISTRO=humble
+
+FROM ros:$ROS_DISTRO-ros-base
 
 ENV LANG C
 ENV LC_ALL C
