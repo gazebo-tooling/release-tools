@@ -7,6 +7,8 @@ ENV LC_ALL C
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
+      coreutils \
+      dpkg-dev \
       python3-bloom \
       wget \
     && rm -rf /var/lib/apt/lists/*
@@ -24,5 +26,6 @@ ENV GZ_VERSION=garden
 ENV IGNITION_VERSION=garden
 
 WORKDIR /tmp
+COPY _check_metadata.bash .
 COPY _rosdep_wrapper.bash .
 ENTRYPOINT ["/tmp/_rosdep_wrapper.bash"]
