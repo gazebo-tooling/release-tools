@@ -568,6 +568,8 @@ void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
   {
     if (gz_sw == 'physics')
       label Globals.nontest_label("large-memory")
+    if (gz_sw == 'gazebo')
+      gz_sw = 'sim'
 
     steps {
       shell("""\
@@ -579,7 +581,7 @@ void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
             export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
             export DISTRO=${distro}
             export ARCH=${arch}
-            /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_${software_name.replaceAll('-','_')}-compilation.bash
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_${gz_sw.replaceAll('-','_')}-compilation.bash
             """.stripIndent())
     }
   }
