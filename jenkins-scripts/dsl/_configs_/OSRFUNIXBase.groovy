@@ -55,7 +55,7 @@ class OSRFUNIXBase extends OSRFBase
 
                   println("Checking if nvidia mismatch error is present in log")
                   if (!(build.getLog(1000) =~ "nvml error: driver/library version mismatch")) {
-                    println(" NVIDIA driver/library version mismatch not detected in the log - Not performing any recovery automatic recovery step")
+                    println(" NVIDIA driver/library version mismatch not detected in the log - Not performing any automatic recovery steps")
                     return 1;
                   } else {
                     println("# BEGIN SECTION: NVIDIA MISMATCH RECOVERY")
@@ -69,8 +69,8 @@ class OSRFUNIXBase extends OSRFBase
                       node.setLabelString(old_labels)
                       throw ex
                     }
+                    println("# END SECTION: NVIDIA MISMATCH RECOVERY")
                   }
-                  println("# END SECTION: NVIDIA MISMATCH RECOVERY")
                   '''.stripIndent()
                 )
                 shell("""sudo shutdown -r +1""")
