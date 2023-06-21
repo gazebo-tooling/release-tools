@@ -27,10 +27,6 @@ def runJob(String jobName) {
 long eightDaysAgoMillis = System.currentTimeMillis() - 8 * 24 * 60 * 60 * 1000; // 8 days ago in milis
 Date eightDaysAgoDate = new Date(eightDaysAgoMillis);
 
-def isOutdatedJob(Project job) {
-    return !job.disabled && tracked_jobs.contains(job.displayName) && job.lastBuild.getTime().before(eightDaysAgoDate)
-}
-
 def jenkinsJobs = Hudson.instance
 
 def linux_jobs_to_run = []
@@ -39,7 +35,7 @@ def windows_jobs_to_run = []
 
 jenkinsJobs.getItems(Project).each { project ->
     // Filter jobs that have not been updated in the last 8 days
-    if (isOutdatedJob(project)) {
+    if (!project.disabled && tracked_jobs.contains(project.displayName) && project.lastBuild.getTime().before(eightDaysAgoDate)) {
         if (project.displayName.contains('focal') || project.displayName.contains('jammy')) {
             linux_jobs_to_run << project.displayName
         } else if (project.displayName.contains('homebrew')) {
