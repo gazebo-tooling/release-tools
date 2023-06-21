@@ -24,9 +24,9 @@ nightly_runner.with
 {
   label Globals.nontest_label("master")
 
-  triggers {
-    cron(Globals.CRON_NIGHLTY_NODES)
-  }
+//  triggers {
+//    cron(Globals.CRON_NIGHLTY_NODES)
+//  }
 
   steps
   {
