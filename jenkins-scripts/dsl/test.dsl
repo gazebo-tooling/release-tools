@@ -16,3 +16,33 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
                                      false,
                                      false,
                                      ['main'])
+
+// -------------------------------------------------------------------
+def nightly_runner = job("_nightly_job_runner")
+OSRFBase.create(nightly_runner)
+nightly_runner.with
+{
+  label Globals.nontest_label("master")
+
+  triggers {
+    cron(Globals.CRON_NIGHLTY_NODES)
+  }
+
+  steps
+  {
+    systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/nightly-runner.groovy'))
+  }
+
+  publishers
+  {
+    // Added the checker result parser (UNSTABLE if not success)
+    configure { project ->
+      project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+        unstableOnWarning true
+        failBuildOnError false
+        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+      }
+    }
+  }
+}
+
