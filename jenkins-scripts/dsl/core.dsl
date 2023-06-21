@@ -128,19 +128,19 @@ nightly_labeler.with
 }
 
 // -------------------------------------------------------------------
-def nightly_runner = job("_nightly_job_runner")
-OSRFBase.create(nightly_runner)
-nightly_runner.with
+def outdated_job_runner = job("_outdated_job_runner")
+OSRFBase.create(outdated_job_runner)
+outdated_job_runner.with
 {
   label Globals.nontest_label("master")
 
   triggers {
-    cron(Globals.CRON_NIGHLTY_NODES)
+    cron(Globals.CRON_NIGHTLY_NODES)
   }
 
   steps
   {
-    systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/nightly-runner.groovy'))
+    systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/outdated-job-runner.groovy'))
   }
 
   publishers
