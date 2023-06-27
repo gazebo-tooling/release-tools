@@ -17,37 +17,37 @@ Date eightDaysAgoDate = new Date(eightDaysAgoMillis);
 
 def jenkinsJobs = Hudson.instance
 
-def linux_jobs_to_run = []
-def homebrew_jobs_to_run = []
-def windows_jobs_to_run = []
+def linuxJobsToRun = []
+def homebrewJobsToRun = []
+def windowsJobsToRun = []
 
 jenkinsJobs.getItems(Project).each { project ->
     // Filter jobs that have not been updated in the last 8 days
     if (!project.disabled && trackedJobs.contains(project.displayName) && project.lastBuild.getTime().before(eightDaysAgoDate)) {
         if (project.displayName.contains('homebrew')) {
-            homebrew_jobs_to_run << project.displayName
+            homebrewJobsToRun << project.displayName
         } else if (project.displayName.contains('win')) {
-            windows_jobs_to_run << project.displayName
+            windowsJobsToRun << project.displayName
         } else {
-            linux_jobs_to_run << project.displayName
+            linuxJobsToRun << project.displayName
         }
     }
 }
 
-def jobs_to_run = []
+def jobsToRun = []
 def maxJobsToRun = 7 // Maximum number of jobs to run per OS
 def addJobsToList = { list, jobs -> jobs.subList(0, Math.min(maxJobsToRun, jobs.size())).each { list << it } }
 
-addJobsToList(jobs_to_run, linux_jobs_to_run)
-addJobsToList(jobs_to_run, homebrew_jobs_to_run)
-addJobsToList(jobs_to_run, windows_jobs_to_run)
+addJobsToList(jobsToRun, linuxJobsToRun)
+addJobsToList(jobsToRun, homebrewJobsToRun)
+addJobsToList(jobsToRun, windowsJobsToRun)
 
-println('Linux outdated jobs: ' + linux_jobs_to_run)
-println('Homebrew outdated jobs: ' + homebrew_jobs_to_run)
-println('Windows outdated jobs: ' + windows_jobs_to_run)
-println('Jobs to run: ' + jobs_to_run)
+println('Linux outdated jobs: ' + linuxJobsToRun)
+println('Homebrew outdated jobs: ' + homebrewJobsToRun)
+println('Windows outdated jobs: ' + windowsJobsToRun)
+println('Jobs to run: ' + jobsToRun)
 
-jobs_to_run.each { job ->
+jobsToRun.each { job ->
     println('Running: ' + job)
     runJob(job)
 }
