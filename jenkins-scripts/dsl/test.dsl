@@ -18,7 +18,7 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
                                      ['main'])
 
 // -------------------------------------------------------------------
-def outdated_job_runner = job("_outdated_job_runner")
+def outdated_job_runner = job("_test_outdated_job_runner")
 OSRFBase.create(outdated_job_runner)
 outdated_job_runner.with
 {
@@ -27,17 +27,5 @@ outdated_job_runner.with
   steps
   {
     systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/outdated-job-runner.groovy'))
-  }
-
-  publishers
-  {
-    // Added the checker result parser (UNSTABLE if not success)
-    configure { project ->
-      project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
-        unstableOnWarning true
-        failBuildOnError false
-        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
-      }
-    }
   }
 }

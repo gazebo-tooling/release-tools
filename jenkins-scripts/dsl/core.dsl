@@ -142,16 +142,4 @@ outdated_job_runner.with
   {
     systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/outdated-job-runner.groovy'))
   }
-
-  publishers
-  {
-    // Added the checker result parser (UNSTABLE if not success)
-    configure { project ->
-      project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
-        unstableOnWarning true
-        failBuildOnError false
-        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
-      }
-    }
-  }
 }
