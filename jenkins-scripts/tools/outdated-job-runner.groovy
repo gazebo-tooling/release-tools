@@ -143,42 +143,63 @@ def runJob(String jobName) {
     job.scheduleBuild(0)
 }
 
-long eightDaysAgoMillis = System.currentTimeMillis() - 8 * 24 * 60 * 60 * 1000; // 8 days ago in milis
-Date eightDaysAgoDate = new Date(eightDaysAgoMillis);
+def findAvailableNodes() {
+    def availableNodes = [osx: [], win: [], linux: []]
+
+    Jenkins.instance.nodes.each { node ->
+        if (node.computer.online && node.computer.countIdle() > 0) {
+            if (node.getLabelString().contains("win")) {
+                availableNodes.win << node.name
+            } else if (node.getLabelString().contains("osx")) {
+                availableNodes.osx << node.name
+            } else if (node.getLabelString().contains("docker")) {
+                availableNodes.linux << node.name
+            }
+        }
+    }
+
+    return availableNodes
+}
+
+def runJobsInAvailableNodes(LinkedHashMap outdatedJobs) {
+    def availableNodes = findAvailableNodes()
+
+    availableNodes.each { os -> 
+        os.value.each { node ->
+                if (outdatedJobs[os.key].size() > 0) {
+                    def jobName = outdatedJobs[os.key].remove(0)
+                    println("Running job ${jobName} in node ${node}")
+                    runJob(jobName)
+                }
+            }
+        }
+}
 
 def jenkinsJobs = Hudson.instance
 
-def linuxJobsToRun = []
-def homebrewJobsToRun = []
-def windowsJobsToRun = []
+def jobsToRun = [osx: [], win: [], linux: []]
+
+long eightDaysAgoMillis = System.currentTimeMillis() - 8 * 24 * 60 * 60 * 1000; // 8 days ago in milis
+Date eightDaysAgoDate = new Date(eightDaysAgoMillis);
 
 jenkinsJobs.getItems(Project).each { project ->
     // Filter jobs that have not been updated in the last 8 days
     if (!project.disabled && trackedJobs.contains(project.displayName) && project.lastBuild.getTime().before(eightDaysAgoDate)) {
         if (project.displayName.contains('homebrew')) {
-            homebrewJobsToRun << project.displayName
+            jobsToRun.osx << project.displayName
         } else if (project.displayName.contains('win')) {
-            windowsJobsToRun << project.displayName
+            jobsToRun.win << project.displayName
         } else {
-            linuxJobsToRun << project.displayName
+            jobsToRun.linux << project.displayName
         }
     }
 }
 
-def jobsToRun = []
-def maxJobsToRun = 7 // Maximum number of jobs to run per OS
-def addJobsToList = { list, jobs -> jobs.subList(0, Math.min(maxJobsToRun, jobs.size())).each { list << it } }
+println('\n--- Jobs to run: ---')
+println('OSX: ' + jobsToRun.osx)
+println('WIN: ' + jobsToRun.win)
+println('LINUX: ' + jobsToRun.linux)
 
-addJobsToList(jobsToRun, linuxJobsToRun)
-addJobsToList(jobsToRun, homebrewJobsToRun)
-addJobsToList(jobsToRun, windowsJobsToRun)
+println('\n--- Running jobs: ---')
+runJobsInAvailableNodes(jobsToRun)
 
-println('Linux outdated jobs: ' + linuxJobsToRun)
-println('Homebrew outdated jobs: ' + homebrewJobsToRun)
-println('Windows outdated jobs: ' + windowsJobsToRun)
-println('Jobs to run: ' + jobsToRun)
-
-jobsToRun.each { job ->
-    println('Running: ' + job)
-    runJob(job)
-}
