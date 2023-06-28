@@ -8,8 +8,8 @@ import hudson.model.*;
 import jenkins.model.Jenkins;
 import java.util.Date;
 
-// TODO: This is a hardcoded list of jobs that we're tracking. I'd like
-// to find a way to get this list dynamically
+// TODO (Cristobal): This is a hardcoded list of jobs that we're tracking. We should get this list dynamically
+// Currently is the result of https://github.com/osrf/buildfarmer/blob/main/common.py#L51 minus debbuilders
 def trackedJobsList = [
     'ign_cmake-gz-3-win',
     'ign_cmake-ign-2-win',
