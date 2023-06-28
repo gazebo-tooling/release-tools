@@ -23,7 +23,7 @@ def runJob(String jobName) {
  * linux: docker
  */
 def findAvailableNodes() {
-    def availableNodes = [osx: [], win: [], linux: []]
+    def availableNodes = [osx: [], win: [], docker: []]
 
     Jenkins.instance.nodes.each { node ->
         if (node.computer.online && node.computer.countIdle() > 0) {
@@ -32,7 +32,7 @@ def findAvailableNodes() {
             } else if (node.getLabelString().contains("osx")) {
                 availableNodes.osx << node.name
             } else if (node.getLabelString().contains("docker")) {
-                availableNodes.linux << node.name
+                availableNodes.docker << node.name
             }
         }
     }
@@ -194,7 +194,7 @@ def trackedJobs = new LinkedHashSet(trackedJobsList);
 
 def jenkinsJobs = Hudson.instance
 
-def jobsToRun = [osx: [], win: [], linux: []]
+def jobsToRun = [osx: [], win: [], docker: []]
 
 long eightDaysAgoMillis = System.currentTimeMillis() - 8 * 24 * 60 * 60 * 1000; // 8 days ago in milis
 Date eightDaysAgoDate = new Date(eightDaysAgoMillis);
@@ -207,7 +207,7 @@ jenkinsJobs.getItems(Project).each { project ->
         } else if (project.displayName.contains('win')) {
             jobsToRun.win << project.displayName
         } else {
-            jobsToRun.linux << project.displayName
+            jobsToRun.docker << project.displayName
         }
     }
 }
@@ -215,7 +215,7 @@ jenkinsJobs.getItems(Project).each { project ->
 println('\n--- Jobs to run: ---')
 println('OSX: ' + jobsToRun.osx)
 println('WIN: ' + jobsToRun.win)
-println('LINUX: ' + jobsToRun.linux)
+println('docker: ' + jobsToRun.docker)
 
 println('\n--- Running jobs: ---')
 runJobsInAvailableNodes(jobsToRun)
