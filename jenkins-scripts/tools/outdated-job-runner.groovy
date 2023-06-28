@@ -49,9 +49,15 @@ def runJobsInAvailableNodes(LinkedHashMap outdatedJobs) {
     availableNodes.each { os -> 
         os.value.each { node ->
                 if (outdatedJobs[os.key].size() > 0) {
-                    def jobName = outdatedJobs[os.key].remove(0)
-                    println("Running job ${jobName} in node ${node}")
-                    runJob(jobName)
+                    try {
+                        def jobName = outdatedJobs[os.key].remove(0)
+                        println("Running job ${jobName}")
+                        runJob(jobName)
+                    } catch (Exception e) {
+                        println("Error running job ${jobName}")
+                        println(e)
+                        println("MARK_AS_UNSTABLE")
+                    }
                 }
             }
         }
