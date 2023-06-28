@@ -134,7 +134,7 @@ cat > Dockerfile << DELIM_DOCKER
 # Docker file to run build.sh
 
 FROM ${FROM_VALUE}
-MAINTAINER Jose Luis Rivero <jrivero@osrfoundation.org>
+LABEL maintainer="Jose Luis Rivero <jrivero@osrfoundation.org>"
 
 # setup environment
 ENV LANG C
