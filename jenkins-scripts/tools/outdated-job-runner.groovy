@@ -8,21 +8,21 @@ import hudson.model.*;
 import jenkins.model.Jenkins;
 import java.util.Date;
 
+/*
+ * Schedule a job to run immediately
+ */
 def runJob(String jobName) {
-    /*
-     * Schedule a job to run immediately
-     */
     def job = Jenkins.instance.getItemByFullName(jobName)
     job.scheduleBuild(0)
 }
 
+/*
+ * Find available nodes to run jobs per OS using labels
+ * win: windows
+ * osx: macos
+ * linux: docker
+ */
 def findAvailableNodes() {
-    /*
-     * Find available nodes to run jobs per OS using labels
-     * win: windows
-     * osx: macos
-     * linux: docker
-     */
     def availableNodes = [osx: [], win: [], linux: []]
 
     Jenkins.instance.nodes.each { node ->
@@ -40,10 +40,10 @@ def findAvailableNodes() {
     return availableNodes
 }
 
+/*
+ * For each node in each OS, run a job if there are jobs to run
+ */
 def runJobsInAvailableNodes(LinkedHashMap outdatedJobs) {
-    /*
-     * For each node in each OS, run a job if there are jobs to run
-     */
     def availableNodes = findAvailableNodes()
 
     availableNodes.each { os -> 
