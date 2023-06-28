@@ -8,6 +8,55 @@ import hudson.model.*;
 import jenkins.model.Jenkins;
 import java.util.Date;
 
+def runJob(String jobName) {
+    /*
+     * Schedule a job to run immediately
+     */
+    def job = Jenkins.instance.getItemByFullName(jobName)
+    job.scheduleBuild(0)
+}
+
+def findAvailableNodes() {
+    /*
+     * Find available nodes to run jobs per OS using labels
+     * win: windows
+     * osx: macos
+     * linux: docker
+     */
+    def availableNodes = [osx: [], win: [], linux: []]
+
+    Jenkins.instance.nodes.each { node ->
+        if (node.computer.online && node.computer.countIdle() > 0) {
+            if (node.getLabelString().contains("win")) {
+                availableNodes.win << node.name
+            } else if (node.getLabelString().contains("osx")) {
+                availableNodes.osx << node.name
+            } else if (node.getLabelString().contains("docker")) {
+                availableNodes.linux << node.name
+            }
+        }
+    }
+
+    return availableNodes
+}
+
+def runJobsInAvailableNodes(LinkedHashMap outdatedJobs) {
+    /*
+     * For each node in each OS, run a job if there are jobs to run
+     */
+    def availableNodes = findAvailableNodes()
+
+    availableNodes.each { os -> 
+        os.value.each { node ->
+                if (outdatedJobs[os.key].size() > 0) {
+                    def jobName = outdatedJobs[os.key].remove(0)
+                    println("Running job ${jobName} in node ${node}")
+                    runJob(jobName)
+                }
+            }
+        }
+}
+
 // TODO (Cristobal): This is a hardcoded list of jobs that we're tracking. We should get this list dynamically
 // Currently is the result of https://github.com/osrf/buildfarmer/blob/main/common.py#L51 minus debbuilders
 def trackedJobsList = [
@@ -141,57 +190,7 @@ def trackedJobsList = [
     'sdformat-sdf-13-win',
     'sdformat-sdf-9-win',
 ];
-
 def trackedJobs = new LinkedHashSet(trackedJobsList);
-
-def runJob(String jobName) {
-    /*
-     * Schedule a job to run immediately
-     */
-    def job = Jenkins.instance.getItemByFullName(jobName)
-    job.scheduleBuild(0)
-}
-
-def findAvailableNodes() {
-    /*
-     * Find available nodes to run jobs per OS using labels
-     * win: windows
-     * osx: macos
-     * linux: docker
-     */
-    def availableNodes = [osx: [], win: [], linux: []]
-
-    Jenkins.instance.nodes.each { node ->
-        if (node.computer.online && node.computer.countIdle() > 0) {
-            if (node.getLabelString().contains("win")) {
-                availableNodes.win << node.name
-            } else if (node.getLabelString().contains("osx")) {
-                availableNodes.osx << node.name
-            } else if (node.getLabelString().contains("docker")) {
-                availableNodes.linux << node.name
-            }
-        }
-    }
-
-    return availableNodes
-}
-
-def runJobsInAvailableNodes(LinkedHashMap outdatedJobs) {
-    /*
-     * For each node in each OS, run a job if there are jobs to run
-     */
-    def availableNodes = findAvailableNodes()
-
-    availableNodes.each { os -> 
-        os.value.each { node ->
-                if (outdatedJobs[os.key].size() > 0) {
-                    def jobName = outdatedJobs[os.key].remove(0)
-                    println("Running job ${jobName} in node ${node}")
-                    runJob(jobName)
-                }
-            }
-        }
-}
 
 def jenkinsJobs = Hudson.instance
 
