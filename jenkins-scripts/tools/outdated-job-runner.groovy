@@ -1,3 +1,9 @@
+/*
+ * This script is used to run a job that checks if there are any
+ * outdated jobs in the buildfarm. It also runs the jobs
+ * if there is any node available.
+ */ 
+
 import hudson.model.*;
 import jenkins.model.Jenkins;
 import java.util.Date;
@@ -139,11 +145,20 @@ def trackedJobsList = [
 def trackedJobs = new LinkedHashSet(trackedJobsList);
 
 def runJob(String jobName) {
+    /*
+     * Schedule a job to run immediately
+     */
     def job = Jenkins.instance.getItemByFullName(jobName)
     job.scheduleBuild(0)
 }
 
 def findAvailableNodes() {
+    /*
+     * Find available nodes to run jobs per OS using labels
+     * win: windows
+     * osx: macos
+     * linux: docker
+     */
     def availableNodes = [osx: [], win: [], linux: []]
 
     Jenkins.instance.nodes.each { node ->
@@ -162,6 +177,9 @@ def findAvailableNodes() {
 }
 
 def runJobsInAvailableNodes(LinkedHashMap outdatedJobs) {
+    /*
+     * For each node in each OS, run a job if there are jobs to run
+     */
     def availableNodes = findAvailableNodes()
 
     availableNodes.each { os -> 
