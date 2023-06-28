@@ -135,7 +135,7 @@ outdated_job_runner.with
   label Globals.nontest_label("master")
 
   triggers {
-    cron(Globals.CRON_NIGHTLY_NODES)
+    cron(Globals.CRON_HOURLY)
   }
 
   steps

@@ -19,6 +19,7 @@ class Globals
    // Start the nightly generation 10 minutes after the nigthly node
    // initial generation
    static CRON_START_NIGHTLY = '10 9 * * *'
+   static CRON_HOURLY = '* H * * *'
 
    // Only one -E regex can be passed, so make a regex that matches both
    // _ign_TEST and _gz_TEST
