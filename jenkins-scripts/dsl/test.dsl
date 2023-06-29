@@ -1,6 +1,20 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
+/*
+ * Creates a core job and a test job for a given job name
+ * Returns a list with the core and test jobs
+ */
+def createCoreTestJobs(String jobName) {
+  def coreJob = job(jobName)
+  OSRFBase.create(coreJob)
+
+  def testJob = job("_test_${jobName}")
+  OSRFBase.create(testJob)
+
+  return [core: coreJob, test: testJob]
+}
+
 Globals.default_emails = "jrivero@osrfoundation.org"
 
 // Jobs
@@ -17,15 +31,34 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
                                      false,
                                      ['main'])
 
-// -------------------------------------------------------------------
-def outdated_job_runner = job("_test_outdated_job_runner")
-OSRFBase.create(outdated_job_runner)
-outdated_job_runner.with
-{
-  label Globals.nontest_label("master")
+def outdated_runner_jobs = createCoreTestJobs("outdated_job_runner")
 
-  steps
+outdated_runner_jobs.each { job ->
+  job.value.with {
+    label Globals.nontest_label("master")
+
+    steps
+    {
+      systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/outdated-job-runner.groovy'))
+    }
+  }
+}
+
+outdated_runner_jobs.core.with {
+  triggers
   {
-    systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/outdated-job-runner.groovy'))
+    cron(Globals.CRON_HOURLY)
+  }
+
+  publishers
+  {
+    // Added the checker result parser (UNSTABLE if not success)
+    configure { project ->
+      project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+        unstableOnWarning true
+        failBuildOnError false
+        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+      }
+    }
   }
 }
