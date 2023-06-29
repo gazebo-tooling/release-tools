@@ -35,43 +35,63 @@ boolean include_gpu_label_if_needed(job, lib, ci_info)
   }
 }
 
-gz_collections_yaml.collections.each { collection ->
-  collection.ci.linux.reference_distro.each { distro ->
-    collection.libs.findAll { ! collection.ci.exclude.contains(it.name) }.each { lib ->
-      assert(lib.name)
-      assert(lib.repo.current_branch)
-      // 1.2.1 Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
-      // --------------------------------------------------------------
-      def gz_job_name_prefix = lib.name.replaceAll('-','_')
-      def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
-      def gz_ci_any_job = job(gz_ci_job_name)
-      def enable_testing = (collection.ci.tests_disabled?.contains(lib.name)) ? false : true
-      OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
-                                           "gazebosim/${lib.name}",
-                                           enable_testing,
-                                           ENABLE_CPPCHECK,
-                                           [ lib.repo.current_branch ])
-      include_gpu_label_if_needed(gz_ci_any_job, lib, collection.ci)
-      gz_ci_any_job.with
+void generate_platorms_by_lib(collections, libVersions)
+{
+  collections.each { collection ->
+    def collectionName = collection.name
+    def libs = collection.libs
+
+    libs.each { lib ->
+        def libName = lib.name
+        def branch = lib.repo.current_branch
+        def referencePlatform = collection.ci.linux.reference_distro[0]
+
+        libVersions["$libName@$branch"].contains(referencePlatform) ?: libVersions["$libName@$branch"] << referencePlatform
+    }
+  }
+}
+
+def libVersions = [:].withDefault { [] }
+generate_platorms_by_lib(gz_collections_yaml.collections, libVersions)
+
+libVersions.each { lib, ref_distros ->
+  println "Library: $lib, Major Version: ${lib.split('@')[1]}, Reference Platforms: $ref_distros"
+  def lib_name = lib.split('@')[0]
+  def lib_branch = lib.split('@')[1]
+  ref_distros.each { distro ->
+    assert(lib_name)
+    assert(lib_branch)
+    // 1.2.1 Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
+    // --------------------------------------------------------------
+    def gz_job_name_prefix = lib_name.replaceAll('-','_')
+    def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
+    def gz_ci_any_job = job(gz_ci_job_name)
+    def enable_testing = (collection.ci.tests_disabled?.contains(lib_name)) ? false : true
+    OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
+                                         "gazebosim/${lib_name}",
+                                         enable_testing,
+                                         ENABLE_CPPCHECK,
+                                         [ lib_branch ])
+    include_gpu_label_if_needed(gz_ci_any_job, lib, collection.ci)
+    gz_ci_any_job.with
+    {
+      if (collection.ci.requirements.large_memory?.contains(lib_name))
+        label Globals.nontest_label("large-memory")
+
+      steps
       {
-        if (collection.ci.requirements.large_memory?.contains(lib.name))
-          label Globals.nontest_label("large-memory")
+         shell("""\
+              #!/bin/bash -xe
 
-        steps
-        {
-           shell("""\
-                #!/bin/bash -xe
+              export DISTRO=${distro}
 
-                export DISTRO=${distro}
+              ${GLOBAL_SHELL_CMD}
 
-                ${GLOBAL_SHELL_CMD}
-
-                export BUILDING_SOFTWARE_DIRECTORY=${lib.name}
-                export ARCH=${arch}
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/${gz_job_name_prefix}-compilation.bash
-                """.stripIndent())
-        } // end of steps
-      } // end of ci_any_job
-    } //en of lib
-  } // end of distro
-} // end of collection
+              export BUILDING_SOFTWARE_DIRECTORY=${lib.name}
+              export ARCH=${arch}
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/${gz_job_name_prefix}-compilation.bash
+              """.stripIndent())
+      } // end of steps
+    } // end of ci_any_job
+  } //en of distro
+} // end of lib
