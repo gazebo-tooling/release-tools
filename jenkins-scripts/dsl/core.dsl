@@ -9,7 +9,7 @@ def NO_GITHUB_PR_INTEGRATION = false
  * Creates a core job and a test job for a given job name
  * Returns a list with the core and test jobs
  */
-def createCoreTestJobs(String jobName) {
+static createCoreTestJobs(String jobName) {
   def coreJob = job(jobName)
   OSRFBase.create(coreJob)
 

@@ -1,19 +1,6 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
-
-/*
- * Creates a core job and a test job for a given job name
- * Returns a list with the core and test jobs
- */
-def createCoreTestJobs(String jobName) {
-  def coreJob = job(jobName)
-  OSRFBase.create(coreJob)
-
-  def testJob = job("_test_${jobName}")
-  OSRFBase.create(testJob)
-
-  return [core: coreJob, test: testJob]
-}
+import static core.createCoreTestJobs
 
 Globals.default_emails = "jrivero@osrfoundation.org"
 
@@ -31,7 +18,7 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
                                      false,
                                      ['main'])
 
-def outdated_runner_jobs = createCoreTestJobs("outdated_job_runner")
+def outdated_runner_jobs = core.createCoreTestJobs("outdated_job_runner")
 
 outdated_runner_jobs.each { job ->
   job.value.with {
