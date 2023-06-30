@@ -5,20 +5,6 @@ def NO_TESTING = false
 def NO_BRANCHES = []
 def NO_GITHUB_PR_INTEGRATION = false
 
-/*
- * Creates a core job and a test job for a given job name
- * Returns a list with the core and test jobs
- */
-static createCoreTestJobs(String jobName) {
-  def coreJob = job(jobName)
-  OSRFBase.create(coreJob)
-
-  def testJob = job("_test_${jobName}")
-  OSRFBase.create(testJob)
-
-  return [core: coreJob, test: testJob]
-}
-
 def update_vcpkg_snapshot_job = job("_vcpkg_update_snapshot")
 OSRFWinBase.create(update_vcpkg_snapshot_job)
 update_vcpkg_snapshot_job.with
@@ -142,34 +128,18 @@ nightly_labeler.with
 }
 
 // -------------------------------------------------------------------
-def outdated_runner_jobs = createCoreTestJobs("outdated_job_runner")
+def outdated_job_runner = job("_outdated_job_runner")
+OSRFBase.create(outdated_job_runner)
+outdated_job_runner.with
+{
+  label Globals.nontest_label("master")
 
-outdated_runner_jobs.each { job ->
-  job.value.with {
-    label Globals.nontest_label("master")
-
-    steps
-    {
-      systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/outdated-job-runner.groovy'))
-    }
-  }
-}
-
-outdated_runner_jobs.core.with {
-  triggers
-  {
+  triggers {
     cron(Globals.CRON_HOURLY)
   }
 
-  publishers
+  steps
   {
-    // Added the checker result parser (UNSTABLE if not success)
-    configure { project ->
-      project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
-        unstableOnWarning true
-        failBuildOnError false
-        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
-      }
-    }
+    systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/outdated-job-runner.groovy'))
   }
 }
