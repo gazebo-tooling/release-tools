@@ -16,3 +16,16 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
                                      false,
                                      false,
                                      ['main'])
+
+// -------------------------------------------------------------------
+def outdated_job_runner = job("_test_outdated_job_runner")
+OSRFBase.create(outdated_job_runner)
+outdated_job_runner.with
+{
+  label Globals.nontest_label("master")
+
+  steps
+  {
+    systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/outdated-job-runner.groovy'))
+  }
+}
