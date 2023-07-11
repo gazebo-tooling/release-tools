@@ -95,18 +95,8 @@ collections:
     ci:
       exclude:
         - ign-citadel
-      linux:
-        reference_distro:
-          - bionic
-      requirements:
-        large_memory:
-          - ign-physics
-        nvidia_gpu:
-          - ign-sim
-          - ign-gui
-          - ign-rendering
-          - ign-sensors
-      tests_disabled:
+      platforms:
+        - bionic
     packaging:
       linux:
         package_name:
@@ -185,18 +175,8 @@ collections:
     ci:
       exclude:
         - gz-fortress
-      linux:
-        reference_distro:
-          - focal
-      requirements:
-        large_memory:
-          - gz-physics
-        nvidia_gpu:
-          - gz-sim
-          - gz-gui
-          - gz-rendering
-          - gz-sensors
-      tests_disabled:
+      platforms:
+        - focal
     packaging:
       linux:
         package_name:
@@ -275,18 +255,8 @@ collections:
     ci:
       exclude:
         - gz-garden
-      linux:
-        reference_distro:
-          - focal
-      requirements:
-        large_memory:
-          - gz-physics
-        nvidia_gpu:
-          - gz-sim
-          - gz-gui
-          - gz-rendering
-          - gz-sensors
-      tests_disabled:
+      platforms:
+        - focal
     packaging:
       linux:
         package_name:
@@ -365,18 +335,8 @@ collections:
     ci:
       exclude:
         - gz-harmonic
-      linux:
-        reference_distro:
-          - jammy
-      requirements:
-        large_memory:
-          - gz-physics
-        nvidia_gpu:
-          - gz-sim
-          - gz-gui
-          - gz-rendering
-          - gz-sensors
-      tests_disabled:
+      platforms:
+        - jammy
     packaging:
       linux:
         package_name:
@@ -420,15 +380,45 @@ collections:
         repo:
           current_branch: main
     ci:
-      linux:
-        reference_distro:
-          - jammy
-      requirements:
-        large_memory:
-          - gz-physics
-        nvidia_gpu:
-          - gz-sim
-          - gz-gui
-          - gz-rendering
-          - gz-sensors
-      tests_disabled:
+      platforms:
+        - jammy
+ci_platforms:
+  - name: bionic
+    so: linux
+    distribution: ubuntu
+    version: bionic
+    requirements:
+      large_memory:
+        - gz-physics
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
+    tests_disabled:
+  - name: focal
+    so: linux
+    distribution: ubuntu
+    version: focal
+    requirements:
+      large_memory:
+        - gz-physics
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
+    tests_disabled:
+  - name: jammy
+    so: linux
+    distribution: ubuntu
+    version: jammy
+    requirements:
+      large_memory:
+        - gz-physics
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
+    tests_disabled:

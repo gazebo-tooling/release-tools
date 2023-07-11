@@ -15,11 +15,11 @@ ENABLE_CPPCHECK = true
 file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
 gz_collections_yaml = new Yaml().load(file)
 
-boolean include_gpu_label_if_needed(job, lib, ci_info)
+boolean include_gpu_label_if_needed(job, lib, nvidia_gpu_libs)
 {
   job.with
   {
-    if (ci_info.requirements.nvidia_gpu.contains(lib.name))
+    if (nvidia_gpu_libs.contains(lib))
     {
       label Globals.nontest_label("gpu-reliable")
 
@@ -35,47 +35,49 @@ boolean include_gpu_label_if_needed(job, lib, ci_info)
   }
 }
 
-void generate_platorms_by_lib(collections, libVersions)
+void generate_platorms_by_lib(config, libVersions)
 {
-  collections.each { collection ->
+  config.collections.each { collection ->
     def collectionName = collection.name
     def libs = collection.libs
 
     libs.each { lib ->
-        def libName = lib.name
-        def branch = lib.repo.current_branch
-        def referencePlatform = collection.ci.linux.reference_distro[0]
-
-        libVersions["$libName@$branch"].contains(referencePlatform) ?: libVersions["$libName@$branch"] << referencePlatform
+      def libName = lib.name
+      def branch = lib.repo.current_branch
+      collection.ci.platforms.each { platform ->
+        libVersions["$libName@$branch"].contains(platform) ?: libVersions["$libName@$branch"] << platform
+      }
     }
   }
 }
 
 def libVersions = [:].withDefault { [] }
-generate_platorms_by_lib(gz_collections_yaml.collections, libVersions)
+generate_platorms_by_lib(gz_collections_yaml, libVersions)
 
 libVersions.each { lib, ref_distros ->
   println "Library: $lib, Major Version: ${lib.split('@')[1]}, Reference Platforms: $ref_distros"
   def lib_name = lib.split('@')[0]
   def lib_branch = lib.split('@')[1]
   ref_distros.each { distro ->
+    def platform_config = gz_collections_yaml.ci_platforms.findAll{ it.name == distro }
     assert(lib_name)
     assert(lib_branch)
+    assert(platform_config)
     // 1.2.1 Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
     // --------------------------------------------------------------
     def gz_job_name_prefix = lib_name.replaceAll('-','_')
     def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
     def gz_ci_any_job = job(gz_ci_job_name)
-    def enable_testing = (collection.ci.tests_disabled?.contains(lib_name)) ? false : true
+    def enable_testing = platform_config.tests_disabled?.contains(lib_name) ? false : true
     OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
                                          "gazebosim/${lib_name}",
                                          enable_testing,
                                          ENABLE_CPPCHECK,
                                          [ lib_branch ])
-    include_gpu_label_if_needed(gz_ci_any_job, lib, collection.ci)
+    include_gpu_label_if_needed(gz_ci_any_job, lib_name, platform_config.requirements.nvidia_gpu)
     gz_ci_any_job.with
     {
-      if (collection.ci.requirements.large_memory?.contains(lib_name))
+      if (platform_config.requirements.large_memory?.contains(lib_name))
         label Globals.nontest_label("large-memory")
 
       steps
@@ -87,7 +89,7 @@ libVersions.each { lib, ref_distros ->
 
               ${GLOBAL_SHELL_CMD}
 
-              export BUILDING_SOFTWARE_DIRECTORY=${lib.name}
+              export BUILDING_SOFTWARE_DIRECTORY=${lib_name}
               export ARCH=${arch}
               /bin/bash -xe ./scripts/jenkins-scripts/docker/${gz_job_name_prefix}-compilation.bash
               """.stripIndent())
