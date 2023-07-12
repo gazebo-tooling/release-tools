@@ -43,8 +43,8 @@ void generate_platorms_by_lib(config, libVersions)
     libs.each { lib ->
       def libName = lib.name
       def branch = lib.repo.current_branch
-      collection.ci.platforms.each { platform ->
-        libVersions["$libName@$branch"].contains(platform) ?: libVersions["$libName@$branch"] << platform
+      collection.ci.configs.each { config_name ->
+        libVersions["$libName@$branch"].contains(config_name) ?: libVersions["$libName@$branch"] << config_name
       }
     }
   }
@@ -53,31 +53,31 @@ void generate_platorms_by_lib(config, libVersions)
 def libVersions = [:].withDefault { [] }
 generate_platorms_by_lib(gz_collections_yaml, libVersions)
 
-libVersions.each { lib, platforms ->
+libVersions.each { lib, configs ->
   def lib_name = lib.split('@')[0]
   def lib_branch = lib.split('@')[1]
-  platforms.each { ci_platform_name ->
-    def platform_config = gz_collections_yaml.ci_platforms.find{ it.name == ci_platform_name }
+  configs.each { ci_config_name ->
+    def ci_config = gz_collections_yaml.ci_configs.find{ it.name == ci_config_name }
     assert(lib_name)
     assert(lib_branch)
-    assert(platform_config)
+    assert(ci_config)
     // 1.2.1 Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
     // --------------------------------------------------------------
-    def distro = platform_config.system.version
-    def arch = platform_config.system.arch
+    def distro = ci_config.system.version
+    def arch = ci_config.system.arch
     def gz_job_name_prefix = lib_name.replaceAll('-','_')
     def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
     def gz_ci_any_job = job(gz_ci_job_name)
-    def enable_testing = platform_config.tests_disabled?.contains(lib_name) ? false : true
+    def enable_testing = ci_config.tests_disabled?.contains(lib_name) ? false : true
     OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
                                          "gazebosim/${lib_name}",
                                          enable_testing,
                                          ENABLE_CPPCHECK,
                                          [ lib_branch ])
-    include_gpu_label_if_needed(gz_ci_any_job, lib_name, platform_config.requirements.nvidia_gpu)
+    include_gpu_label_if_needed(gz_ci_any_job, lib_name, ci_config.requirements.nvidia_gpu)
     gz_ci_any_job.with
     {
-      if (platform_config.requirements.large_memory?.contains(lib_name))
+      if (ci_config.requirements.large_memory?.contains(lib_name))
         label Globals.nontest_label("large-memory")
 
       steps

@@ -95,7 +95,7 @@ collections:
     ci:
       exclude:
         - ign-citadel
-      platforms:
+      configs:
         - bionic
     packaging:
       linux:
@@ -175,7 +175,7 @@ collections:
     ci:
       exclude:
         - gz-fortress
-      platforms:
+      configs:
         - focal
     packaging:
       linux:
@@ -255,7 +255,7 @@ collections:
     ci:
       exclude:
         - gz-garden
-      platforms:
+      configs:
         - focal
     packaging:
       linux:
@@ -335,7 +335,7 @@ collections:
     ci:
       exclude:
         - gz-harmonic
-      platforms:
+      configs:
         - jammy
     packaging:
       linux:
@@ -380,9 +380,9 @@ collections:
         repo:
           current_branch: main
     ci:
-      platforms:
+      configs:
         - jammy
-ci_platforms:
+ci_configs:
   - name: bionic
     system:
       so: linux
