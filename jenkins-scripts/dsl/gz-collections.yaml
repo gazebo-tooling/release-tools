@@ -384,9 +384,11 @@ collections:
         - jammy
 ci_platforms:
   - name: bionic
-    so: linux
-    distribution: ubuntu
-    version: bionic
+    system:
+      so: linux
+      distribution: ubuntu
+      version: bionic
+      arch: amd64
     requirements:
       large_memory:
         - ign-physics
@@ -397,9 +399,11 @@ ci_platforms:
         - ign-sensors
     tests_disabled:
   - name: focal
-    so: linux
-    distribution: ubuntu
-    version: focal
+    system:
+      so: linux
+      distribution: ubuntu
+      version: focal
+      arch: amd64
     requirements:
       large_memory:
         - gz-physics
@@ -410,9 +414,11 @@ ci_platforms:
         - gz-sensors
     tests_disabled:
   - name: jammy
-    so: linux
-    distribution: ubuntu
-    version: jammy
+    system:
+      so: linux
+      distribution: ubuntu
+      version: jammy
+      arch: amd64
     requirements:
       large_memory:
         - gz-physics

@@ -7,7 +7,6 @@ import org.yaml.snakeyaml.Yaml
 GLOBAL_SHELL_CMD=''
 
 // GZ COLLECTIONS
-arch = 'amd64'
 ENABLE_CPPCHECK = true
 
 // Jenkins needs the relative path to work and locally the simulation is done
@@ -54,16 +53,18 @@ void generate_platorms_by_lib(config, libVersions)
 def libVersions = [:].withDefault { [] }
 generate_platorms_by_lib(gz_collections_yaml, libVersions)
 
-libVersions.each { lib, ref_distros ->
+libVersions.each { lib, platforms ->
   def lib_name = lib.split('@')[0]
   def lib_branch = lib.split('@')[1]
-  ref_distros.each { distro ->
-    def platform_config = gz_collections_yaml.ci_platforms.find{ it.name == distro  }
+  platforms.each { ci_platform_name ->
+    def platform_config = gz_collections_yaml.ci_platforms.find{ it.name == ci_platform_name }
     assert(lib_name)
     assert(lib_branch)
     assert(platform_config)
     // 1.2.1 Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
     // --------------------------------------------------------------
+    def distro = platform_config.system.version
+    def arch = platform_config.system.arch
     def gz_job_name_prefix = lib_name.replaceAll('-','_')
     def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
     def gz_ci_any_job = job(gz_ci_job_name)
