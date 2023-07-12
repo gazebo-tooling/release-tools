@@ -389,12 +389,12 @@ ci_platforms:
     version: bionic
     requirements:
       large_memory:
-        - gz-physics
+        - ign-physics
       nvidia_gpu:
-        - gz-sim
-        - gz-gui
-        - gz-rendering
-        - gz-sensors
+        - ign-gazebo
+        - ign-gui
+        - ign-rendering
+        - ign-sensors
     tests_disabled:
   - name: focal
     so: linux

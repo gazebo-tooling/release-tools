@@ -55,11 +55,10 @@ def libVersions = [:].withDefault { [] }
 generate_platorms_by_lib(gz_collections_yaml, libVersions)
 
 libVersions.each { lib, ref_distros ->
-  println "Library: $lib, Major Version: ${lib.split('@')[1]}, Reference Platforms: $ref_distros"
   def lib_name = lib.split('@')[0]
   def lib_branch = lib.split('@')[1]
   ref_distros.each { distro ->
-    def platform_config = gz_collections_yaml.ci_platforms.findAll{ it.name == distro }
+    def platform_config = gz_collections_yaml.ci_platforms.find{ it.name == distro  }
     assert(lib_name)
     assert(lib_branch)
     assert(platform_config)
