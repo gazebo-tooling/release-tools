@@ -17,9 +17,10 @@ import hudson.model.Label;
   arbitrarily complex label expression like "(docker && linux) && !armhf"
 */
 def nightly_label_prefix = "linux-nightly"
+def linux_pool_label_expression = "(large-memory) && !test-instance"
 def exactly_one_labels = [
-  ["${nightly_label_prefix}-focal", "docker"],
-  ["${nightly_label_prefix}-jammy", "docker"],
+  ["${nightly_label_prefix}-focal", linux_pool_label_expression ],
+  ["${nightly_label_prefix}-jammy", linux_pool_label_expression ],
 ]
 
 for (tup in exactly_one_labels) {
