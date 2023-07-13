@@ -34,7 +34,20 @@ boolean include_gpu_label_if_needed(job, lib, nvidia_gpu_libs)
   }
 }
 
-void generate_ciconfigs_by_lib(config, libVersions)
+/*
+ * Generate the indexes that facilitates the operations with the yaml values
+ * avoiding to parse them all the time:
+ *
+ * Index 1:
+ *         lib_name : [ ci_config_name : [ branches ] ]
+ *
+ *   Map main entries keys are the lib names (i.e: gz-cmake) associated them
+ *   another map of CI configuration name entries as keys (i.e: jammy) with
+ *   list of associated branches for that configuration  (i.e [gz-cmake3, gz-cmake4])
+ *   Groovy spec
+ */
+
+void generate_ciconfigs_by_lib(config, configs_per_lib_index)
 {
   config.collections.each { collection ->
     def collectionName = collection.name
@@ -44,18 +57,18 @@ void generate_ciconfigs_by_lib(config, libVersions)
       def libName = lib.name
       def branch = lib.repo.current_branch
       collection.ci.configs.each { config_name ->
-        libVersions["$libName"]["${config_name}"] = libVersions["$libName"]["${config_name}"]?: []
-        libVersions["$libName"]["${config_name}"].contains(branch) ?: libVersions["$libName"]["${config_name}"] << branch
+        configs_per_lib_index["$libName"]["${config_name}"] = configs_per_lib_index["$libName"]["${config_name}"]?: []
+        configs_per_lib_index["$libName"]["${config_name}"].contains(branch) ?: configs_per_lib_index["$libName"]["${config_name}"] << branch
       }
     }
   }
 }
 
-def libVersions = [:].withDefault { [:] }
-generate_ciconfigs_by_lib(gz_collections_yaml, libVersions)
+def configs_per_lib_index = [:].withDefault { [:] }
+generate_ciconfigs_by_lib(gz_collections_yaml, configs_per_lib_index)
 
 // Generate PR jobs: 1 per ci configuration on each lib
-libVersions.each { lib_name, lib_configs ->
+configs_per_lib_index.each { lib_name, lib_configs ->
   lib_configs.each { ci_configs ->
     def config_name = ci_configs.getKey()
     def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
