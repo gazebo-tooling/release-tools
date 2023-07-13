@@ -34,7 +34,7 @@ boolean include_gpu_label_if_needed(job, lib, nvidia_gpu_libs)
   }
 }
 
-void generate_platorms_by_lib(config, libVersions)
+void generate_ciconfigs_by_lib(config, libVersions)
 {
   config.collections.each { collection ->
     def collectionName = collection.name
@@ -44,26 +44,25 @@ void generate_platorms_by_lib(config, libVersions)
       def libName = lib.name
       def branch = lib.repo.current_branch
       collection.ci.configs.each { config_name ->
-        libVersions["$libName"]["${branch}"] = libVersions["$libName"]["${branch}"]?: []
-        libVersions["$libName"]["${branch}"].contains(config_name) ?: libVersions["$libName"]["${branch}"] << config_name
+        libVersions["$libName"]["${config_name}"] = libVersions["$libName"]["${config_name}"]?: []
+        libVersions["$libName"]["${config_name}"].contains(branch) ?: libVersions["$libName"]["${config_name}"] << branch
       }
     }
   }
 }
 
 def libVersions = [:].withDefault { [:] }
-generate_platorms_by_lib(gz_collections_yaml, libVersions)
+generate_ciconfigs_by_lib(gz_collections_yaml, libVersions)
 
 // Generate PR jobs: 1 per ci configuration on each lib
-  println(libVersions)
-libVersions.each { lib_name, config_per_branch ->
-  println(config_per_branch)
-  def lib_branch = config_per_branch.getKey()
-  println(lib_branch)
-  configs_per_branch.getValue().each { ci_configs ->
-    def ci_config = gz_collections_yaml.ci_configs.find{ it.name == ci_config_name }
+libVersions.each { lib_name, lib_configs ->
+  lib_configs.each { ci_configs ->
+    def config_name = ci_configs.getKey()
+    def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
+    def branch_names = ci_configs.getValue()
+    println("config name: ${config_name} branch_names ${branch_names} ci_config ${ci_config}")
     assert(lib_name)
-    assert(lib_branch)
+    assert(branch_names)
     assert(ci_config)
     // 1.2.1 Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
     // --------------------------------------------------------------
@@ -77,7 +76,7 @@ libVersions.each { lib_name, config_per_branch ->
                                          "gazebosim/${lib_name}",
                                          enable_testing,
                                          ENABLE_CPPCHECK,
-                                         brach_names)
+                                         branch_names)
     include_gpu_label_if_needed(gz_ci_any_job, lib_name, ci_config.requirements.nvidia_gpu)
     gz_ci_any_job.with
     {
