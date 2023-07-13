@@ -105,9 +105,9 @@ collections:
   - name: 'fortress'
     libs:
       - name: gz-cmake
-        major_version: 3
+        major_version: 2
         repo:
-          current_branch: gz-cmake3
+          current_branch: gz-cmake2
       - name: gz-tools
         major_version: 1
         repo:
