@@ -56,7 +56,7 @@ boolean is_testing_enabled(lib_name, ci_config)
 
 /*
  * Generate the indexes that facilitates the operations with the yaml values
- * avoiding to parse them all the time:
+ * avoiding to parse them several times.
  *
  * Index 1:
  *         lib_name : [ ci_config_name : [ branches ] ]
@@ -126,6 +126,8 @@ configs_per_lib_index.each { lib_name, lib_configs ->
     def config_name = ci_configs.getKey()
     def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
     def branch_names = ci_configs.getValue()
+    if (ci_config.exclude.contains(lib_name))
+      return
     assert(lib_name)
     assert(branch_names)
     assert(ci_config)
