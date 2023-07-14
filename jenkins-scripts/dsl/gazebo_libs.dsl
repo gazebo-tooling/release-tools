@@ -23,11 +23,13 @@ void generate_label_by_requirements(job, lib_name, requirements)
      exit(1)
   }
 
-  label = requirements.nvidia_gpu.contains(lib_name) ? "nvidia" : null
-  label = requirements.large_memory.contains(lib_name) ? "large-memory" : null
-
+  label = requirements.nvidia_gpu.contains(lib_name) ? "gpu-nvidia" : null
   if (! label)
-    return
+    label = requirements.large_memory.contains(lib_name) ? "large-memory" : null
+    if (! label)
+      return
+
+  println("label ${label} -- lib ${lib_name}")
 
   job.with
   {
@@ -124,7 +126,6 @@ configs_per_lib_index.each { lib_name, lib_configs ->
     def config_name = ci_configs.getKey()
     def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
     def branch_names = ci_configs.getValue()
-    println("config name: ${config_name} branch_names ${branch_names} ci_config ${ci_config}")
     assert(lib_name)
     assert(branch_names)
     assert(ci_config)
