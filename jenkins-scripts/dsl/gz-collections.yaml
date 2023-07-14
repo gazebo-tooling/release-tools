@@ -93,8 +93,6 @@ collections:
         repo:
           current_branch: main
     ci:
-      exclude:
-        - ign-citadel
       configs:
         - bionic
     packaging:
@@ -105,7 +103,7 @@ collections:
   - name: 'fortress'
     libs:
       - name: gz-cmake
-        major_version: 2
+        major_version: 3
         repo:
           current_branch: gz-cmake2
       - name: gz-tools
@@ -173,8 +171,6 @@ collections:
         repo:
           current_branch: main
     ci:
-      exclude:
-        - gz-fortress
       configs:
         - focal
     packaging:
@@ -253,8 +249,6 @@ collections:
         repo:
           current_branch: main
     ci:
-      exclude:
-        - gz-garden
       configs:
         - focal
     packaging:
@@ -333,8 +327,6 @@ collections:
         repo:
           current_branch: main
     ci:
-      exclude:
-        - gz-harmonic
       configs:
         - jammy
     packaging:
@@ -389,6 +381,8 @@ ci_configs:
       distribution: ubuntu
       version: bionic
       arch: amd64
+    exclude:
+      - ign-citadel
     requirements:
       large_memory:
         - ign-physics
@@ -412,6 +406,9 @@ ci_configs:
         - gz-gui
         - gz-rendering
         - gz-sensors
+    exclude:
+      - gz-fortress
+      - gz-garden
     tests_disabled:
   - name: jammy
     system:
@@ -427,4 +424,6 @@ ci_configs:
         - gz-gui
         - gz-rendering
         - gz-sensors
+    exclude:
+      - gz-harmonic
     tests_disabled:
