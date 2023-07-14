@@ -29,23 +29,17 @@ collections:
   - name: 'citadel'
     libs:
     ci:
-      linux:
-        reference_distro:
-          - bionic
+      configs:
     packaging:
   - name: 'fortress'
     libs:
     ci:
-      linux:
-        reference_distro:
-          - focal
+      configs:
     packaging:
   - name: 'garden'
     libs:
     ci:
-      linux:
-        reference_distro:
-          - focal
+      configs:
     packaging:
   - name: 'harmonic'
     libs:
@@ -118,20 +112,8 @@ collections:
         repo:
           current_branch: main
     ci:
-      exclude:
-        - gz-harmonic
-      linux:
-        reference_distro:
-          - jammy
-      requirements:
-        large_memory:
-          - gz-physics
-        nvidia_gpu:
-          - gz-sim
-          - gz-gui
-          - gz-rendering
-          - gz-sensors
-      tests_disabled:
+      configs:
+        - jammy
     packaging:
       linux:
         package_name:
@@ -140,4 +122,24 @@ collections:
         nightly:
             distros:
               - jammy
-
+ci_configs:
+  - name: jammy
+    system:
+      so: linux
+      distribution: ubuntu
+      version: jammy
+      arch: amd64
+    build:
+      requirements:
+        large_memory:
+          - gz-physics
+    exclude:
+      - gz-harmonic
+    tests:
+      requirements:
+        nvidia_gpu:
+          - gz-sim
+          - gz-gui
+          - gz-rendering
+          - gz-sensors
+      disabled:
