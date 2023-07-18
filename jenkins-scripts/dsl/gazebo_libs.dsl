@@ -23,7 +23,7 @@ void generate_label_by_requirements(job, lib_name, requirements)
      exit(1)
   }
 
-  label = requirements.nvidia_gpu.contains(lib_name) ? "gpu-nvidia" : null
+  label = requirements.nvidia_gpu.contains(lib_name) ? "gpu-reliable" : null
   if (! label)
     label = requirements.large_memory.contains(lib_name) ? "large-memory" : null
     if (! label)
