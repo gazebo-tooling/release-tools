@@ -381,10 +381,10 @@ gz_collections_yaml.collections.each { collection ->
   }
   Globals.gazebodistro_branch = false
 
-  collection.ci_configs.each { ci_config_name ->
-    ci_config = collection.ci_configs.find { it.name == ci_config_name }
+  collection.ci.configs.each { ci_config_name ->
+    ci_config = gz_collections_yaml.ci_configs.find { it.name == ci_config_name }
     distro = ci_config.system.version
-    arch = ci_config_name.system.arch
+    arch = ci_config.system.arch
 
     // INSTALL JOBS:
     // --------------------------------------------------------------
