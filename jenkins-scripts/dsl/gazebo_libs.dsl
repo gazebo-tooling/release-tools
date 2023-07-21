@@ -53,21 +53,21 @@ boolean is_testing_enabled(lib_name, ci_config)
 
 
 /*
- * Generate the indexes that facilitates the operations with the yaml values
+ * Generate an index that facilitates the operations with the yaml values,
  * avoiding to parse them several times.
  *
- * Index 1:
- *         lib_name : [ ci_config_name : [ branches ] ]
+ * ci_configs_by_lib index structure:
+ *   lib_name : [ ci_config_name : [ branches ] ]
  *
- *   Map main entries keys are the lib names (i.e: gz-cmake) associated them
- *   another map of CI configuration name entries as keys (i.e: jammy) with
- *   list of associated branches for that configuration  (i.e [gz-cmake3, gz-cmake4])
- *   Groovy spec
+ *   The index main keys are the lib names (i.e: gz-cmake) and associated them
+ *   another map of CI configuration names supported as keys (i.e: jammy) with the
+ *   list of associated branches for that CI configuration  (i.e [gz-cmake3, gz-cmake4])
+ *   as values.
  */
 void generate_ciconfigs_by_lib(config, configs_per_lib_index)
 {
   config.collections.each { collection ->
-    // TODO(jriveor): limit to harmonic for testing proposes
+    // TODO(jrivero): limit to harmonic for testing proposes
     if (collection.name != 'harmonic')
       return
 
