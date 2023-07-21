@@ -82,6 +82,39 @@ void generate_ciconfigs_by_lib(config, configs_per_lib_index)
   }
 }
 
+void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
+                     extra_cmake = '', extra_test = '', extra_cmd = '')
+{
+  def distro = ci_config.system.version
+  def arch = ci_config.system.arch
+
+  OSRFLinuxCompilation.create(gz_ci_job, is_testing_enabled(lib_name, ci_config))
+  OSRFGitHub.create(gz_ci_job,
+                    "gazebosim/${lib_name}", "${branch}")
+  generate_label_by_requirements(gz_ci_job, lib_name, ci_config.requirements)
+  gz_ci_job.with
+  {
+    if (lib_name == 'physics')
+      label Globals.nontest_label("large-memory")
+    if (lib_name == 'gazebo')
+      lib_name = 'sim'
+
+    steps {
+      shell("""\
+            #!/bin/bash -xe
+
+            ${GLOBAL_SHELL_CMD}
+            ${extra_cmd}
+            export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
+            export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
+            export DISTRO=${distro}
+            export ARCH=${arch}
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/${lib_name.replaceAll('-','_')}-compilation.bash
+            """.stripIndent())
+    }
+  }
+}
+
 def configs_per_lib_index = [:].withDefault { [:] }
 generate_ciconfigs_by_lib(gz_collections_yaml, configs_per_lib_index)
 
@@ -100,7 +133,7 @@ configs_per_lib_index.each { lib_name, lib_configs ->
     if (ci_config.exclude.contains(lib_name))
       return
 
-    // 1.2.1 Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
+    // Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
     // --------------------------------------------------------------
     def distro = ci_config.system.version
     def arch = ci_config.system.arch
@@ -130,5 +163,18 @@ configs_per_lib_index.each { lib_name, lib_configs ->
               """.stripIndent())
       } // end of steps
     } // end of ci_any_job
+
+    // CI branch jobs (-ci-$branch-) (pulling check every 5 minutes)
+    branch_names.each { branch_name ->
+      def gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
+      generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+      gz_ci_job.with
+      {
+        triggers {
+          scm('@daily')
+        }
+      }
+    } // end_of_branch
+
   } //en of lib_configs
 } // end of lib
