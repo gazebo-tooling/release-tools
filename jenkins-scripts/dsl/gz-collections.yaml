@@ -29,23 +29,20 @@ collections:
   - name: 'citadel'
     libs:
     ci:
-      linux:
-        reference_distro:
-          - bionic
+      configs:
+        - bionic
     packaging:
   - name: 'fortress'
     libs:
     ci:
-      linux:
-        reference_distro:
-          - focal
+      configs:
+        - focal
     packaging:
   - name: 'garden'
     libs:
     ci:
-      linux:
-        reference_distro:
-          - focal
+      configs:
+        - focal
     packaging:
   - name: 'harmonic'
     libs:
@@ -118,20 +115,8 @@ collections:
         repo:
           current_branch: main
     ci:
-      exclude:
-        - gz-harmonic
-      linux:
-        reference_distro:
-          - jammy
-      requirements:
-        large_memory:
-          - gz-physics
-        nvidia_gpu:
-          - gz-sim
-          - gz-gui
-          - gz-rendering
-          - gz-sensors
-      tests_disabled:
+      configs:
+        - jammy
     packaging:
       linux:
         package_name:
@@ -140,4 +125,56 @@ collections:
         nightly:
             distros:
               - jammy
-
+ci_configs:
+  - name: bionic
+    system:
+      so: linux
+      distribution: ubuntu
+      version: bionic
+      arch: amd64
+    exclude:
+      - ign-citadel
+    requirements:
+      large_memory:
+        - ign-physics
+      nvidia_gpu:
+        - ign-gazebo
+        - ign-gui
+        - ign-rendering
+        - ign-sensors
+    tests_disabled:
+  - name: focal
+    system:
+      so: linux
+      distribution: ubuntu
+      version: focal
+      arch: amd64
+    requirements:
+      large_memory:
+        - gz-physics
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
+    exclude:
+      - gz-fortress
+      - gz-garden
+    tests_disabled:
+  - name: jammy
+    system:
+      so: linux
+      distribution: ubuntu
+      version: jammy
+      arch: amd64
+    requirements:
+      large_memory:
+        - gz-physics
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
+    exclude:
+      - gz-harmonic
+    tests_disabled:
