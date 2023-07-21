@@ -365,7 +365,6 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
 // Testing compilation from source
 gz_collections_yaml.collections.each { collection ->
   gz_collection_name = collection.name
-  distros = collection.ci.linux.reference_distro
 
   // COLCON - Windows
   def gz_win_ci_job = job("ign_${gz_collection_name}-ci-win")
@@ -382,7 +381,11 @@ gz_collections_yaml.collections.each { collection ->
   }
   Globals.gazebodistro_branch = false
 
-  distros.each { distro ->
+  collection.ci.configs.each { ci_config_name ->
+    ci_config = gz_collections_yaml.ci_configs.find { it.name == ci_config_name }
+    distro = ci_config.system.version
+    arch = ci_config.system.arch
+
     // INSTALL JOBS:
     // --------------------------------------------------------------
     if ((gz_collection_name == "citadel") || (gz_collection_name == "fortress")) {
