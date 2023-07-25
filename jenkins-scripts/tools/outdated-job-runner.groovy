@@ -226,7 +226,7 @@ def jenkinsJobs = Hudson.instance
 
 def jobsToRun = [osx: [], win: [], docker: []]
 
-long eightDaysAgoMillis = System.currentTimeMillis() - 8 * 24 * 60 * 60 * 1000; // 8 days ago in milis
+long eightDaysAgoMillis = System.currentTimeMillis() - 4 * 24 * 60 * 60 * 1000; // 4 days ago in milis
 Date eightDaysAgoDate = new Date(eightDaysAgoMillis);
 
 jenkinsJobs.getItems(Project).each { project ->
