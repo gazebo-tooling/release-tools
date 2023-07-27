@@ -82,7 +82,7 @@ if $GPU_SUPPORT_NEEDED; then
     if [[ ${DISPLAY} == "" ]]; then
       echo "GPU support needed by the script but DISPLAY var is empty"
       # Try to restart lightdm. It should stop the script in the case of failure
-      sudo service lightdm restart
+      sudo systemctl restart lightdm
       # Wait for lightdm service to restart X11.
       sleep 5
       # Second try to get display variable
