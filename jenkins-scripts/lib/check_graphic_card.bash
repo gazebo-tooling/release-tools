@@ -8,7 +8,7 @@ export_display_variable()
     do
       # If a process is running with the open socket then
       # lsof will exit successfully.
-      if lsof -Fp $i ; then
+      if sudo bash -c "lsof -Fp $i" ; then
         # Strip the path and leading X from the X11 socket
         # but check that the resulting string is numeric and
         # non-empty before exporting.
