@@ -107,6 +107,7 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
             ${extra_cmd}
             export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
             export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
+            export BUILDING_SOFTWARE_DIRECTORY="${lib_name}"
             export DISTRO=${distro}
             export ARCH=${arch}
             /bin/bash -xe ./scripts/jenkins-scripts/docker/${lib_name.replaceAll('-','_')}-compilation.bash
