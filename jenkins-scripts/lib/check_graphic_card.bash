@@ -13,7 +13,7 @@ export_display_variable()
         # but check that the resulting string is numeric and
         # non-empty before exporting.
         DISPLAY=:$(basename $i | sed -n -E 's/^X([0-9]+)/:\1/p')
-        if [ -n $DISPLAY ]; then
+        if [ -n "$DISPLAY" ]; then
           export DISPLAY
         fi
       fi
