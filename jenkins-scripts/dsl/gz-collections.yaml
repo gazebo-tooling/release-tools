@@ -79,9 +79,9 @@ collections:
         repo:
           current_branch: main
       - name: sdformat
-        major_version: 13
+        major_version: 14
         repo:
-          current_branch: sdf13
+          current_branch: main
       - name: gz-fuel-tools
         major_version: 9
         repo:
