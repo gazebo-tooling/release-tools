@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 NIGHTLY_MODE=${NIGHTLY_MODE:-false}
-if [ "${UPLOAD_TO_REPO}" = "nightly" ]; then
+if [ "${VERSION}" = "nightly" ]; then
    OSRF_REPOS_TO_USE="${OSRF_REPOS_TO_USE:-stable nightly}"
    NIGHTLY_MODE=true
    # SOURCE_TARBALL_URI is reused in nightly mode to indicate the branch
