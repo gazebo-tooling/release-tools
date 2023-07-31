@@ -3,19 +3,16 @@ GRAPHIC_CARD_PKG=""
 
 export_display_variable()
 {
-    # Check for an active X11 display socket.
-    for i in $(find /tmp/.X11-unix -type s)
+    # Hack to found the current display (if available) two steps:
+    # Check for /tmp/.X11-unix/ socket and check if the process is running
+    for i in $(ls /tmp/.X11-unix/ | sed -e 's@^X@:@')
     do
-      # If a process is running with the open socket then
-      # lsof will exit successfully.
-      if sudo bash -c "lsof -Fp $i" ; then
-        # Strip the path and leading X from the X11 socket
-        # but check that the resulting string is numeric and
-        # non-empty before exporting.
-        DISPLAY=:$(basename $i | sed -n -E 's/^X([0-9]+)/:\1/p')
-        if [ -n "$DISPLAY" ]; then
-          export DISPLAY
-        fi
+      # grep can fail so let's disable the fail or error during its call
+      set +e
+      ps aux | grep bin/X.*$i | grep -v grep
+      set -e
+      if [ $? -eq 0 ] ; then
+	export DISPLAY=$i
       fi
     done
 }
@@ -82,9 +79,7 @@ if $GPU_SUPPORT_NEEDED; then
     if [[ ${DISPLAY} == "" ]]; then
       echo "GPU support needed by the script but DISPLAY var is empty"
       # Try to restart lightdm. It should stop the script in the case of failure
-      sudo systemctl restart lightdm
-      # Wait for lightdm service to restart X11.
-      sleep 5
+      sudo service lightdm restart
       # Second try to get display variable
       export_display_variable
       if [[ ${DISPLAY} == "" ]]; then
