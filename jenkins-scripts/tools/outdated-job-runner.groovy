@@ -64,7 +64,7 @@ def runJobsInAvailableNodes(LinkedHashMap outdatedJobs) {
 }
 
 // TODO (Cristobal): This is a hardcoded list of jobs that we're tracking. We should get this list dynamically
-// Currently is the result of https://github.com/osrf/buildfarmer/blob/main/common.py#L51 minus debbuilders
+// Currently is the result of https://github.com/osrf/buildfarmer/blob/main/scripts/gazebo_non_nightly_jobs.py
 def trackedJobsList = [
     'gz_cmake-ci-gz-cmake3-jammy-amd64',
     'gz_common-ci-gz-common5-jammy-amd64',
