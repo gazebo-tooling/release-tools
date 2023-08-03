@@ -321,9 +321,9 @@ gz_collection_jobs =
         'ignition_tools-ci-gz-tools2-homebrew-amd64',
         'ignition_transport-ci-gz-transport13-homebrew-amd64',
         'ignition_utils-ci-gz-utils2-homebrew-amd64',
-        'sdformat-ci-sdf13-jammy-amd64.xml',
-        'sdformat-ci-sdformat13-homebrew-amd64',
-        'sdformat-sdf-13-win'
+        'sdformat-ci-main-jammy-amd64',
+        'sdformat-ci-main-homebrew-amd64',
+        'sdformat-sdf-main-win'
   ],
 ]
 

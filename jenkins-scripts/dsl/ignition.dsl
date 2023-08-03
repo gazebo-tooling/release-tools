@@ -89,6 +89,7 @@ gz_extra_debbuild = [ 'gui8',
                       'msgs10',
                       'rendering8',
                       'sensors8',
+                      'sdformat14',
                       'sim8',
                       'transport13',
                       'utils1' // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
