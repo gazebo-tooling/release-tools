@@ -52,8 +52,9 @@ jobs:
           cd jenkins-scripts/dsl
           WRITE_JOB_LOG=1 java -jar tools/jobdsl.jar *.dsl
           # export files for later diff
-          mkdir /tmp/pr_xml_configuration
+          mkdir /tmp/pr_xml_configuration && mkdir /tmp/pr_log_generated/
           mv *.xml /tmp/pr_xml_configuration/
+          mv *.txt /tmp/pr_log_generated/
       - name: Geneate master DSL files
         if: steps.dsl_check.outputs.run_job == 'true'
         run: |
@@ -61,14 +62,16 @@ jobs:
           git checkout master
           cd jenkins-scripts/dsl
           WRITE_JOB_LOG=1 java -jar tools/jobdsl.jar *.dsl
-          mkdir /tmp/current_xml_configuration
+          mkdir /tmp/current_xml_configuration && mkdir /tmp/current_log_generated/
           mv *.xml /tmp/current_xml_configuration/
+          mv *.txt /tmp/current_log_generated/
       - name: Generating diffs
         if: steps.dsl_check.outputs.run_job == 'true'
         run: |
           # somehow the Jenkins views changed the portlet_ id on every run.
           diff -qr -I '.*<id>dashboard_portlet_.*</id>.*' /tmp/current_xml_configuration /tmp/pr_xml_configuration > /tmp/xml_config_files_changed.diff || true
           diff -ur -I '.*<id>dashboard_portlet_.*</id>.*' /tmp/current_xml_configuration /tmp/pr_xml_configuration > /tmp/xml_config_content_changed.diff || true
+          diff -ur /tmp/current_log_generated /tmp/pr_log_generated > /tmp/log_content_changed.diff || true
       - name: Archive files changes
         if: steps.dsl_check.outputs.run_job == 'true'
         uses: actions/upload-artifact@v3
@@ -81,3 +84,9 @@ jobs:
         with:
           name: xml_config_content_changed
           path: /tmp/xml_config_content_changed.diff
+      - name: Archive log changes
+        if: steps.dsl_check.outputs.run_job == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: log_content_changed
+          path: /tmp/log_content_changed.diff
