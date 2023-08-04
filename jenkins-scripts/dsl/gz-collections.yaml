@@ -142,6 +142,9 @@ ci_configs:
         - ign-gui
         - ign-rendering
         - ign-sensors
+    pre_setup_script_hook:
+      gz-physics:
+        - "export MAKE_JOBS=1"
     tests_disabled:
   - name: focal
     system:
@@ -160,6 +163,9 @@ ci_configs:
     exclude:
       - gz-fortress
       - gz-garden
+    pre_setup_script_hook:
+      ign-physics:
+        - "export MAKE_JOBS=1"
     tests_disabled:
   - name: jammy
     system:
@@ -177,4 +183,7 @@ ci_configs:
         - gz-sensors
     exclude:
       - gz-harmonic
+    pre_setup_script_hook:
+      gz-physics:
+        - "export MAKE_JOBS=1"
     tests_disabled:

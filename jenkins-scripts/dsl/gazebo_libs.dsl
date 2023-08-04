@@ -87,6 +87,8 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
 {
   def distro = ci_config.system.version
   def arch = ci_config.system.arch
+  def pre_setup_script = ci_config.pre_setup_script_hook.get(lib_name)?.join('\n')
+  extra_cmd = [extra_cmd, pre_setup_script].findAll({ it != null }).join()
 
   OSRFLinuxCompilation.create(gz_ci_job, is_testing_enabled(lib_name, ci_config))
   OSRFGitHub.create(gz_ci_job,
@@ -141,6 +143,8 @@ configs_per_lib_index.each { lib_name, lib_configs ->
     def gz_job_name_prefix = lib_name.replaceAll('-','_')
     def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
     def gz_ci_any_job = job(gz_ci_job_name)
+    def pre_setup_script = ci_config.pre_setup_script_hook.get(lib_name)?.join('\n')
+    def extra_cmd = pre_setup_script ?: ""
     OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
                                          "gazebosim/${lib_name}",
                                          is_testing_enabled(lib_name, ci_config),
@@ -157,6 +161,7 @@ configs_per_lib_index.each { lib_name, lib_configs ->
               export DISTRO=${distro}
 
               ${GLOBAL_SHELL_CMD}
+              ${extra_cmd}
 
               export BUILDING_SOFTWARE_DIRECTORY=${lib_name}
               export ARCH=${arch}
