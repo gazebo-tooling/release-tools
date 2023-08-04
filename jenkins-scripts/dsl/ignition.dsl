@@ -419,7 +419,7 @@ gz_software.each { gz_sw ->
           label Globals.nontest_label("large-memory")
           // on ARM native nodes in buildfarm we need to restrict to 1 the
           // compilation threads to avoid OOM killer
-          extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
+          extra_str += '\nexport MAKE_JOBS=1'
         }
 
         steps {
@@ -458,8 +458,10 @@ gz_software.each { gz_sw ->
     include_gpu_label_if_needed(gz_ci_any_job, software_name)
     gz_ci_any_job.with
     {
-      if (gz_sw == 'physics')
+      if (gz_sw == 'physics') {
         label Globals.nontest_label("large-memory")
+        extra_str += '\nexport MAKE_JOBS=1'
+      }
 
       steps
       {
@@ -567,8 +569,10 @@ void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
   include_gpu_label_if_needed(gz_ci_job, gz_sw)
   gz_ci_job.with
   {
-    if (gz_sw == 'physics')
+    if (gz_sw == 'physics') {
       label Globals.nontest_label("large-memory")
+      extra_str += '\nexport MAKE_JOBS=1'
+    }
     if (gz_sw == 'gazebo')
       gz_sw = 'sim'
 
@@ -598,7 +602,7 @@ all_debbuilders().each { debbuilder_name ->
   // Gazebo physics consumes huge amount of memory making arm node to FAIL
   // Force here to use one compilation thread
   if (debbuilder_name.contains("-physics"))
-    extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
+    extra_str += '\nexport MAKE_JOBS=1'
 
   def build_pkg_job = job("${debbuilder_name}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
