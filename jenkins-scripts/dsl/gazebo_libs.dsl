@@ -10,7 +10,8 @@ GLOBAL_SHELL_CMD=''
 ENABLE_CPPCHECK = true
 
 def WRITE_JOB_LOG = System.getenv('WRITE_JOB_LOG') ?: false
-logging_list = []
+logging_list = [:]
+logging_list['branch_ci'] = []
 
 // Jenkins needs the relative path to work and locally the simulation is done
 // using a symlink
@@ -174,7 +175,6 @@ configs_per_lib_index.each { lib_name, lib_configs ->
     } // end of ci_any_job
 
     // CI branch jobs (-ci-$branch-) (pulling check every 5 minutes)
-    logging_list = []
     branches_with_collections.each { branch_and_collection ->
       branch_name = branch_and_collection.branch
       def gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
@@ -186,7 +186,9 @@ configs_per_lib_index.each { lib_name, lib_configs ->
         }
       }
 
-      logging_list.add([collection: branch_and_collection.collection, job_name: gz_ci_job.name])
+      logging_list['branch_ci'].add(
+        [collection: branch_and_collection.collection,
+         job_name: gz_ci_job.name])
     } // end_of_branch
 
   } //en of lib_configs
@@ -195,6 +197,8 @@ configs_per_lib_index.each { lib_name, lib_configs ->
 if (WRITE_JOB_LOG) {
   File log_file = new File("jobs.txt")
   log_file.withWriter{ file_writer ->
-    logging_list.each {file_writer.println "${it.collection} ${it.job_name}"}
+    logging_list.each { log_type, items ->
+      items.each {file_writer.println "${log_type} ${it.collection} ${it.job_name}"}
+    }
   }
 }
