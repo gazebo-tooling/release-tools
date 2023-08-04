@@ -9,6 +9,9 @@ GLOBAL_SHELL_CMD=''
 // GZ COLLECTIONS
 ENABLE_CPPCHECK = true
 
+def WRITE_JOB_LOG = System.getenv('WRITE_JOB_LOG') ?: false
+logging_list = []
+
 // Jenkins needs the relative path to work and locally the simulation is done
 // using a symlink
 file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
@@ -57,12 +60,16 @@ boolean is_testing_enabled(lib_name, ci_config)
  * avoiding to parse them several times.
  *
  * ci_configs_by_lib index structure:
- *   lib_name : [ ci_config_name : [ branches ] ]
+ *   lib_name : [ ci_config_name : [ .branch .collection ] ]
  *
  *   The index main keys are the lib names (i.e: gz-cmake) and associated them
  *   another map of CI configuration names supported as keys (i.e: jammy) with the
- *   list of associated branches for that CI configuration  (i.e [gz-cmake3, gz-cmake4])
- *   as values.
+ *   list of associated items composed by a map: branch (and collection) that CI configuration
+ *   (i.e [[branch:gz-cmake3, collection: harmonic], [branch: gz-cmake3, collection: garden])
+ *   as values. In a graphic;
+ *
+ *   index[gz-cmake][jammy] -> [ branch: gz-cmake3, collection: garden ,
+ *                               branch: gz-cmake3, collection: harmonic]
  */
 void generate_ciconfigs_by_lib(config, configs_per_lib_index)
 {
@@ -76,7 +83,7 @@ void generate_ciconfigs_by_lib(config, configs_per_lib_index)
       def branch = lib.repo.current_branch
       collection.ci.configs.each { config_name ->
         configs_per_lib_index["$libName"]["${config_name}"] = configs_per_lib_index["$libName"]["${config_name}"]?: []
-        configs_per_lib_index["$libName"]["${config_name}"].contains(branch) ?: configs_per_lib_index["$libName"]["${config_name}"] << branch
+        configs_per_lib_index["$libName"]["${config_name}"].contains(branch) ?: configs_per_lib_index["$libName"]["${config_name}"] << [branch: branch, collection: collection.name]
       }
     }
   }
@@ -124,7 +131,8 @@ configs_per_lib_index.each { lib_name, lib_configs ->
   lib_configs.each { ci_configs ->
     def config_name = ci_configs.getKey()
     def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
-    def branch_names = ci_configs.getValue()
+    def branches_with_collections = ci_configs.getValue()
+    def branch_names = branches_with_collections.collect { it.branch }.unique()
     if (ci_config.exclude.contains(lib_name))
       return
     assert(lib_name)
@@ -166,7 +174,9 @@ configs_per_lib_index.each { lib_name, lib_configs ->
     } // end of ci_any_job
 
     // CI branch jobs (-ci-$branch-) (pulling check every 5 minutes)
-    branch_names.each { branch_name ->
+    logging_list = []
+    branches_with_collections.each { branch_and_collection ->
+      branch_name = branch_and_collection.branch
       def gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
       generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
       gz_ci_job.with
@@ -175,7 +185,16 @@ configs_per_lib_index.each { lib_name, lib_configs ->
           scm('@daily')
         }
       }
+
+      logging_list.add([collection: branch_and_collection.collection, job_name: gz_ci_job.name])
     } // end_of_branch
 
   } //en of lib_configs
 } // end of lib
+
+if (WRITE_JOB_LOG) {
+  File log_file = new File("jobs.txt")
+  log_file.withWriter{ file_writer ->
+    logging_list.each {file_writer.println "${it.collection} ${it.job_name}"}
+  }
+}
