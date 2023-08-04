@@ -55,7 +55,7 @@ jobs:
           mkdir /tmp/pr_xml_configuration && mkdir /tmp/pr_log_generated/
           mv *.xml /tmp/pr_xml_configuration/
           mv *.txt /tmp/pr_log_generated/
-      - name: Geneate master DSL files
+      - name: Generate master DSL files
         if: steps.dsl_check.outputs.run_job == 'true'
         run: |
           git clean -f -e jobdsl.jar
@@ -64,7 +64,7 @@ jobs:
           WRITE_JOB_LOG=1 java -jar tools/jobdsl.jar *.dsl
           mkdir /tmp/current_xml_configuration && mkdir /tmp/current_log_generated/
           mv *.xml /tmp/current_xml_configuration/
-          mv *.txt /tmp/current_log_generated/
+          mv *.txt /tmp/current_log_generated/ || true
       - name: Generating diffs
         if: steps.dsl_check.outputs.run_job == 'true'
         run: |
