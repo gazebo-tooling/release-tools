@@ -99,9 +99,9 @@ collections:
         repo:
           current_branch: main
       - name: gz-physics
-        major_version: 6
+        major_version: 7
         repo:
-          current_branch: gz-physics6
+          current_branch: main
       - name: gz-sim
         major_version: 8
         repo:
