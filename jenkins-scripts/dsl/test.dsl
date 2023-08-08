@@ -98,7 +98,7 @@ gz_source_job.with
         }
       }
       steps {
-        copyArtifacts('test_repository_uplaoder') {
+        copyArtifacts('_test_repository_uploader') {
           excludePatterns("${pkg_sources_dir}/*.tar.*")
           buildSelector {
             upstreamBuild()
