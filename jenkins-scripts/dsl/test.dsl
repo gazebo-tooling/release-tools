@@ -37,7 +37,7 @@ repo_uploader.with
   
   steps
   {
-    copyArtifacts('_test_repository_uploader') {
+    copyArtifacts('_test_gz_source')
       includePatterns("${pkg_sources_dir}/*.tar.*")
       buildSelector {
         upstreamBuild()
