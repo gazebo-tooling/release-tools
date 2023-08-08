@@ -12,7 +12,6 @@ used (can check this in the Jenkins UI)
 | docker   | Node has capabilities to run Docker CI (standard Linux CI) | Linux system with docker installed |
 | gpu-reliable | Node has a real GPU able to run simulation for Gazebo | Nvidia card and nvidia-docker installed on Linux |
 | large-memory  | Node has enough RAM to run really demanding RAM compilations | Hardware has no less than 16Gb of RAM and can run abichecker on ign-physics |
-| large-memory | Node has enough RAM to run non trivial compilations | Hardware has no less than 16GB of RAM on Linux |
 | linux-arm64 | Node has capabilities to run native arm64 code (mostly used in packaging) | Bare-metal ARM machine |
 | linux-armhf | Node has capabilities to run native armhf code (mostly used in packaging) | Bare-metal ARM machine |
 | osx | Node has capabilities to run native OsX code | Apple system |
