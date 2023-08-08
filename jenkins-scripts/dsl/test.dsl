@@ -31,9 +31,16 @@ repo_uploader.with
   {
     stringParam('UPLOAD_TO_REPO','none','repo to upload')
   }
-
+  
   steps
   {
+    copyArtifacts('_test_repository_uploader') {
+      excludePatterns("${pkg_sources_dir}/*.tar.*")
+      buildSelector {
+        upstreamBuild()
+      }
+    }
+
     shell("""\
           #!/bin/bash -xe
 
@@ -97,14 +104,6 @@ gz_source_job.with
           expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
         }
       }
-      steps {
-        copyArtifacts('_test_repository_uploader') {
-          excludePatterns("${pkg_sources_dir}/*.tar.*")
-          buildSelector {
-            upstreamBuild()
-          }
-        }
-
         downstreamParameterized {
           // TODO(implement) in repository_uploader tarball push to S3
           trigger('_test_repository_uploader') {
