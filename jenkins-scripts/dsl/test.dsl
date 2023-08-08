@@ -17,6 +17,9 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
                                      false,
                                      ['main'])
 
+// relative to WORKSPACE
+def pkg_sources_dir="pkg_sources"
+
 def repo_uploader = job("_test_repository_uploader")
 OSRFBase.create(repo_uploader)
 repo_uploader.with
@@ -35,7 +38,7 @@ repo_uploader.with
   steps
   {
     copyArtifacts('_test_repository_uploader') {
-      excludePatterns("${pkg_sources_dir}/*.tar.*")
+      includePatterns("${pkg_sources_dir}/*.tar.*")
       buildSelector {
         upstreamBuild()
       }
@@ -76,8 +79,6 @@ gz_source_job.with
 
   label Globals.nontest_label("docker")
 
-  // relative to WORKSPACE
-  def pkg_sources_dir="pkg_sources"
 
   steps {
     shell("""\
