@@ -104,17 +104,16 @@ gz_source_job.with
           expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
         }
       }
-        downstreamParameterized {
-          // TODO(implement) in repository_uploader tarball push to S3
-          trigger('_test_repository_uploader') {
-            block {
-              buildStepFailure('FAILURE')
-              failure('FAILURE')
-              unstable('UNSTABLE')
-            }
-            parameters {
-              predefinedProps([UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
-            }
+      downstreamParameterized {
+        // TODO(implement) in repository_uploader tarball push to S3
+        trigger('_test_repository_uploader') {
+          block {
+            buildStepFailure('FAILURE')
+            failure('FAILURE')
+            unstable('UNSTABLE')
+          }
+          parameters {
+            predefinedProps([UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
           }
         }
       }
