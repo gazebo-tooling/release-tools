@@ -34,10 +34,11 @@ repo_uploader.with
   {
     stringParam('UPLOAD_TO_REPO','none','repo to upload')
   }
-  
+
   steps
   {
     copyArtifacts('_test_gz_source')
+    {
       includePatterns("${pkg_sources_dir}/*.tar.*")
       buildSelector {
         upstreamBuild()
