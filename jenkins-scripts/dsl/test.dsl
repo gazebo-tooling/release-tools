@@ -18,7 +18,7 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
                                      ['main'])
 
 // relative to WORKSPACE
-def pkg_sources_dir="pkg_sources"
+def pkg_sources_dir="pkgs"
 
 def releasepy_job = job("_test_releasepy")
 OSRFReleasepy.create(releasepy_job, [DRY_RUN: true])
@@ -77,11 +77,12 @@ gz_source_job.with
 
   label Globals.nontest_label("docker")
 
+  def PACKAGE_NAME="gz-cmake3"
+
   steps {
     shell("""\
           #!/bin/bash -xe
 
-          # export PACKAGE="gz-cmake3"  # TODO(implement)
           # Use Jammy/amd64 as base image to generate sources
           # export DISTRO=jammy
           # export ARCH=amd64
@@ -98,8 +99,6 @@ gz_source_job.with
   }
 
   publishers {
-    archiveArtifacts("${pkg_sources_dir}")
-
     flexiblePublish
     {
       conditionalAction {
@@ -118,13 +117,16 @@ gz_source_job.with
             trigger('_test_repository_uploader') {
               parameters {
                 predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
+                                 PACKAGE: "${PACKAGE_NAME}",
                                  UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
               }
             }
             trigger('_test_releasepy') {
+              condition('SUCCESS')
               parameters {
                 currentBuild()
                 predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
+                                 PACKAGE: "${PACKAGE_NAME}",
                                  SOURCE_TARBALL_URI: 'S3_PATH_TO_IMPLEMENT'])
               }
             }
