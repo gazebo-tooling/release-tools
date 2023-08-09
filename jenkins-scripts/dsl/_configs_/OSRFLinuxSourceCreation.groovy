@@ -3,22 +3,12 @@ package _configs_
 import javaposse.jobdsl.dsl.Job
 import _configs_.Globals
 
-class OSRFLinuxSourceCreation {
-  static void create(Job job, Map default_params = [:])
+class OSRFLinuxSourceCreation
+{
+  static void addParameters(Job job, Map default_params = [:])
   {
-    OSRFLinuxBuildPkgBase.create(job)
-    GenericRemoteToken.create(job)
-
     job.with
     {
-      wrappers {
-        preBuildCleanup()
-      }
-      
-      properties {
-        priority 100
-      }
-
       parameters {
         stringParam("VERSION",
                     default_params.find{ it.key == "VERSION"}?.value,
@@ -32,6 +22,24 @@ class OSRFLinuxSourceCreation {
         stringParam("UPLOAD_TO_REPO",
                     default_params.find{ it.key == "UPLOAD_TO_REPO"}?.value,
                     "OSRF repo name to upload the package to: stable | prerelease | nightly | none (for testing proposes)")
+      }
+    }
+  }
+
+  static void create(Job job, Map default_params = [:])
+  {
+    OSRFLinuxBuildPkgBase.create(job)
+    GenericRemoteToken.create(job)
+    OSRFLinuxSourceCreation.addParameters(job, default_params)
+
+    job.with
+    {
+      wrappers {
+        preBuildCleanup()
+      }
+
+      properties {
+        priority 100
       }
 
       steps {
@@ -48,5 +56,5 @@ class OSRFLinuxSourceCreation {
         )
       }
     }
-  } 
+  }
 }

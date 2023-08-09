@@ -57,6 +57,61 @@ repo_uploader.with
   }
 }
 
+def upload_and_releasepy_job = job("_test_uploadtar_and_releasepy")
+OSRFBase.create(upload_and_releasepy_job)
+OSRFLinuxSourceCreation.addParameters(upload_and_releasepy_job, [DRY_RUN: true])
+upload_and_releasepy_job.with
+{
+  parameters
+  {
+    stringParam('PACKAGE','','')
+    stringParam('SOURCE_TARBALL_URI','','')
+  }
+
+  steps {
+    // Step 1 :: call _test_repository_uploader
+    conditionalSteps {
+     condition {
+      not {
+        expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
+        }
+      }
+      steps {
+        downstreamParameterized {
+          trigger('_test_repository_uploader') {
+            block {
+                buildStepFailure('FAILURE')
+                failure('FAILURE')
+                unstable('UNSTABLE')
+            }
+            parameters {
+              predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
+                               PACKAGE: '${PACKAGE}',
+                               UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
+            }
+          }
+        }
+      }
+    }
+    // Step 2 :: call _test_releasepy
+    downstreamParameterized {
+      trigger('_test_releasepy') {
+        block {
+            buildStepFailure('FAILURE')
+            failure('FAILURE')
+            unstable('UNSTABLE')
+        }
+        parameters {
+          currentBuild()
+          predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
+                           PACKAGE: '${PACKAGE}',
+                           SOURCE_TARBALL_URI: 'S3_PATH_TO_IMPLEMENT'])
+        }
+      }
+    }
+  }
+}
+
 def gz_source_job = job("_test_gz_source")
 OSRFLinuxSourceCreation.create(gz_source_job)
 gz_source_job.with
@@ -99,38 +154,14 @@ gz_source_job.with
   }
 
   publishers {
-    flexiblePublish
-    {
-      conditionalAction {
-        condition {
-          and {
-            status('SUCCESS','SUCCESS')
-          } {
-            not {
-              expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
-            }
-          }
-        }
-
-        publishers {
-          downstreamParameterized {
-            trigger('_test_repository_uploader') {
-              parameters {
-                predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
-                                 PACKAGE: "${PACKAGE_NAME}",
-                                 UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
-              }
-            }
-            trigger('_test_releasepy') {
-              condition('SUCCESS')
-              parameters {
-                currentBuild()
-                predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
-                                 PACKAGE: "${PACKAGE_NAME}",
-                                 SOURCE_TARBALL_URI: 'S3_PATH_TO_IMPLEMENT'])
-              }
-            }
-          }
+    downstreamParameterized {
+      trigger('_test_uploadtar_and_releasepy') {
+        condition('SUCCESS')
+        parameters {
+          currentBuild()
+          predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
+                           PACKAGE: "${PACKAGE_NAME}",
+                           SOURCE_TARBALL_URI: 'S3_PATH_TO_IMPLEMENT'])
         }
       }
     }
