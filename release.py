@@ -9,7 +9,6 @@ import urllib.parse
 import urllib.request
 import argparse
 import shutil
-import re
 
 USAGE = 'release.py <package> <version> <jenkinstoken>'
 try:
@@ -94,19 +93,6 @@ def github_repo_exists(url):
         error("Unexpected problem checking for git repo: " + str(e))
     return True
 
-def generate_package_source(srcdir, builddir):
-    cmake_cmd = ["cmake"]
-
-    if is_catkin_package():
-        cmake_cmd = cmake_cmd + ['-DCATKIN_BUILD_BINARY_PACKAGE="1"']
-
-    # configure and make package_source
-    os.mkdir(builddir)
-    os.chdir(builddir)
-    check_call(cmake_cmd + [srcdir])
-    check_call(['make', 'package_source'])
-
-
 def exists_main_branch(github_url):
     check_main_cmd = ['git', 'ls-remote', '--exit-code', '--heads', github_url, 'main']
     try:
@@ -139,6 +125,8 @@ def parse_args(argv):
     parser.add_argument('-r', '--release-version', dest='release_version',
                         default=None,
                         help='Release version suffix; usually 1 (e.g., 1')
+    parser.add_argument('--source-tarball-url', dest='source_tarball_uri',
+                        default=None)
     parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
                         help='no-sanity-checks; i.e. skip sanity checks commands')
     parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
@@ -316,20 +304,6 @@ def sanity_use_prerelease_branch(release_branch):
 
     return
 
-def check_s3cmd_configuration():
-    # Need to check if s3cmd is installed
-    try:
-        subprocess.call(["s3cmd", "--version"])
-    except OSError as e:
-        error("s3cmd command for uploading is not available. Install it using: apt-get install s3cmd")
-
-    # Need to check if configuration for s3 exists
-    s3_config = os.path.expanduser('~') + "/.s3cfg"
-    if not os.path.isfile(s3_config):
-        error(s3_config + " does not exists. Please configure s3: s3cmd --configure")
-
-    return True
-
 def sanity_checks(args, repo_dir):
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
@@ -337,7 +311,6 @@ def sanity_checks(args, repo_dir):
     sanity_use_prerelease_branch(args.release_repo_branch)
 
     if not NIGHTLY:
-        check_s3cmd_configuration()
         sanity_package_version(repo_dir, args.version, str(args.release_version))
         sanity_check_gazebo_versions(args.package, args.version)
         sanity_check_sdformat_versions(args.package, args.version)
@@ -416,132 +389,6 @@ def check_call(cmd, ignore_dry_run = False):
             raise Exception('subprocess call failed')
         return out, err
 
-
-# Returns tarball name: package name/alias without versions
-def create_tarball_name(args):
-    # For ignition, we use the package_alias instead of package
-    return re.sub(r'[0-9]+$', '',
-                  args.package if not IGN_REPO else args.package_alias)
-
-
-# Returns: sha, tarball file name, tarball full path
-def create_tarball_path(tarball_name, version, builddir, dry_run):
-    tarball_fname = '%s-%s.tar.bz2'%(tarball_name, version)
-    # Try using the tarball_name as it is
-    tarball_path = os.path.join(builddir, tarball_fname)
-
-    if not os.path.isfile(tarball_path):
-        # Try looking for special project names using underscores
-        alt_tarball_name = "_".join(tarball_name.rsplit("-",1))
-        alt_tarball_fname = '%s-%s.tar.bz2'%(alt_tarball_name, version)
-        alt_tarball_path = os.path.join(builddir, alt_tarball_fname)
-        if (not dry_run):
-            if not os.path.isfile(alt_tarball_path):
-                error("Can not find a tarball at: " + tarball_path + " or at " + alt_tarball_path)
-            else:
-                tarball_fname = alt_tarball_fname
-        tarball_path = alt_tarball_path
-
-    out, err = check_call(['shasum', '--algorithm', '256', tarball_path])
-    if err:
-        error("shasum returned an error: " + err.decode())
-    if isinstance(out, bytes):
-        out = out.decode()
-
-    return out.split(' ')[0], tarball_fname, tarball_path
-
-def generate_upload_tarball(args):
-    ###################################################
-    # Platform-agnostic stuff.
-    # The goal is to tag the repo and prepare a tarball.
-
-    sourcedir = os.getcwd()
-    tmpdir    = tempfile.mkdtemp()
-    builddir  = os.path.join(tmpdir, 'build')
-
-    # Note for bump_rev_linux_only: there are some adjustment to the tarball name
-    # that are done after generating it, even if the tarball upload is not
-    # needed, it should be generated to get changes in the name
-    if args.bump_rev_linux_only:
-        print('\nINFO: bump revision is enabled. It needs to generate a local tarball although it will not upload it')
-
-    # Check for uncommitted changes; abort if present
-    cmd = ['git', 'diff-index', 'HEAD']
-    out, err = check_call(cmd)
-    if out:
-        print('git says that you have uncommitted changes')
-        print('Please clean up your working copy so that "%s" outputs nothing' % (' '.join(cmd)))
-        print('stdout: %s' % (out.decode()))
-        sys.exit(1)
-
-    # Make a clean copy, to avoid pulling in other stuff that the user has
-    # sitting in the working copy.
-    srcdir = os.path.join(tmpdir, 'src')
-    os.mkdir(srcdir)
-    tmp_tar = os.path.join(tmpdir, 'orig.tar')
-    check_call(['git', 'archive', '--format=tar', 'HEAD', '-o', tmp_tar])
-    check_call(['tar', 'xf', tmp_tar, '-C', srcdir])
-    if not args.dry_run:
-        os.remove(tmp_tar)
-
-    # use cmake to generate package_source
-    generate_package_source(srcdir, builddir)
-    # For ignition, we use the alias without version numbers as package name
-    tarball_name = re.sub(r'[0-9]+$', '', args.package_alias)
-    tarball_sha, tarball_fname, tarball_path = create_tarball_path(tarball_name, args.version, builddir, args.dry_run)
-
-    # If we're releasing under a different name, then rename the tarball (the
-    # package itself doesn't know anything about this).
-    if args.package != args.package_alias:
-        tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
-        if (not args.dry_run):
-            dest_file = os.path.join(builddir, tarball_fname)
-            # Do not copy if files are the same
-            if not (tarball_path == dest_file):
-                shutil.copyfile(tarball_path, dest_file)
-                tarball_path = dest_file
-
-    s3_tarball_directory = UPLOAD_DEST_PATTERN % get_canonical_package_name(args.package)
-    source_tarball_uri = DOWNLOAD_URI_PATTERN % get_canonical_package_name(args.package) + tarball_fname
-
-    # If the release only bump revision does not need to upload tarball but
-    # checkout that the one that should be already uploaded exists
-    if args.bump_rev_linux_only:
-        if urllib.request.urlopen(source_tarball_uri).getcode() == '404':
-            print('Can not find tarball: %s' % (source_tarball_uri))
-            sys.exit(1)
-    else:
-        check_call(['s3cmd', 'sync', tarball_path, s3_tarball_directory])
-        shutil.rmtree(tmpdir)
-
-        # Tag repo
-        os.chdir(sourcedir)
-
-        try:
-            # tilde is not a valid character in git
-            tag = '%s_%s' % (args.package_alias, args.version.replace('~','-'))
-            check_call(['git', 'tag', '-f', tag])
-            check_call(['git', 'push', '--tags'])
-        except ErrorNoPermsRepo as e:
-            print('The Git server reports problems with permissions')
-            print('The branch could be blocked by configuration if you do not have')
-            print('rights to push code in default branch.')
-            sys.exit(1)
-        except ErrorNoUsernameSupplied as e:
-            print('git tag could not be committed because you have not configured')
-            print('your username. Use "git config --username" to set your username.')
-            sys.exit(1)
-        except Exception as e:
-            print('There was a problem with pushing tags to the git repository')
-            print('Do you have write perms in the repository?')
-            sys.exit(1)
-
-    # TODO: Consider auto-updating the Ubuntu changelog.  It requires
-    # cloning the <package>-release repo, making a change, and pushing it back.
-    # Until we do that, the user must have first updated it manually.
-    return source_tarball_uri, tarball_sha
-
-
 def go(argv):
     args = parse_args(argv)
 
@@ -559,20 +406,12 @@ def go(argv):
         if not args.no_sanity_checks:
             sanity_checks(args, repo_dir)
 
-    source_tarball_uri = ''
-    source_tarball_sha = ''
-
-    # Do not generate source file if not needed or impossible
-    if not args.no_source_file:
-        source_tarball_uri, source_tarball_sha = generate_upload_tarball(args)
-
     # Kick off Jenkins jobs
     params = {}
     params['token'] = args.jenkins_token
     params['PACKAGE'] = args.package
     params['VERSION'] = args.version
-    params['SOURCE_TARBALL_URI'] = source_tarball_uri
-    params['SOURCE_TARBALL_SHA'] = source_tarball_sha
+    params['SOURCE_TARBALL_URI'] = args.source_tarball_uri
     params['RELEASE_REPO_BRANCH'] = args.release_repo_branch
     params['PACKAGE_ALIAS'] = args.package_alias
     params['RELEASE_VERSION'] = args.release_version
