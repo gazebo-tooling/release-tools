@@ -17,11 +17,11 @@ except KeyError:
     JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuilder'
 JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
-GENERIC_BREW_PULLREQUEST_JOB='generic-release-homebrew_pull_request_updater'
+GENERIC_BREW_PULLREQUEST_JOB = 'generic-release-homebrew_pull_request_updater'
 UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
-DOWNLOAD_URI_PATTERN = 'https://osrf-distributions.s3.amazonaws.com/%s/releases/'
+DOWNLOAD_URI_PATTERN = 'https://osrf-distributions.s3.amazonaws.com/%s/releases/'   # noqa: E501
 
-LINUX_DISTROS = [ 'ubuntu', 'debian' ]
+LINUX_DISTROS = ['ubuntu', 'debian']
 SUPPORTED_ARCHS = ['amd64', 'i386', 'armhf', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 
@@ -56,33 +56,42 @@ GARDEN_IGN_PACKAGES = ['ign-cmake3',
                        'ign-transport12',
                        'ign-utils2']
 
+
 class ErrorNoPermsRepo(Exception):
     pass
+
 
 class ErrorNoUsernameSupplied(Exception):
     pass
 
+
 class ErrorURLNotFound404(Exception):
     pass
 
+
 class ErrorNoOutput(Exception):
     pass
+
 
 def error(msg):
     print("\n !! " + msg + "\n")
     sys.exit(1)
 
+
 def print_success(msg):
     print("     + OK " + msg)
+
 
 # Remove the last character if it is a number.
 # That should leave just the package name instead of packageVersion
 # I.E gazebo5 -> gazebo
 def get_canonical_package_name(pkg_name):
-     return pkg_name.rstrip('1234567890')
+    return pkg_name.rstrip('1234567890')
+
 
 def is_catkin_package():
     return os.path.isfile("package.xml")
+
 
 def github_repo_exists(url):
     try:
@@ -93,6 +102,7 @@ def github_repo_exists(url):
         error("Unexpected problem checking for git repo: " + str(e))
     return True
 
+
 def exists_main_branch(github_url):
     check_main_cmd = ['git', 'ls-remote', '--exit-code', '--heads', github_url, 'main']
     try:
@@ -100,6 +110,7 @@ def exists_main_branch(github_url):
             return True
     except Exception as e:
         return False
+
 
 def parse_args(argv):
     global DRY_RUN
@@ -170,16 +181,17 @@ def parse_args(argv):
 
     return args
 
+
 def get_release_repository_info(package):
     # Do not use git@github method since it fails in non existant repositories
     # asking for stdin user/pass. Same happen if no user/pass is provided
     # using the fake foo:foo here seems to work
-    github_test_url = "https://foo:foo@github.com/gazebo-release/" + package + "-release"
-    if (github_repo_exists(github_test_url)):
-        github_url = "https://github.com/gazebo-release/" + package + "-release"
-        return 'git', github_url
+    github_test_url = f"https://foo:foo@github.com/gazebo-release/" + package + "-release"
+    if (not github_repo_exists(github_test_url)):
+        error("release repository not found in github.com/gazebo-release")
+    github_url = "https://github.com/gazebo-release/" + package + "-release"
+    return 'git', github_url
 
-    error("release repository not found in github.com/gazebo-release")
 
 def download_release_repository(package, release_branch):
     vcs, url = get_release_repository_info(package)
@@ -198,6 +210,7 @@ def download_release_repository(package, release_branch):
     check_call(cmd, IGNORE_DRY_RUN)
     return release_tmp_dir, release_branch
 
+
 def sanity_package_name_underscore(package, package_alias):
     # Alias is never empty. It hosts a exect copy of package if not provided
     if '_' in package_alias and package_alias != package:
@@ -208,6 +221,7 @@ def sanity_package_name_underscore(package, package_alias):
 
     print_success("No underscore in package name")
 
+
 def sanity_package_name(repo_dir, package, package_alias):
     expected_name = package
 
@@ -215,10 +229,11 @@ def sanity_package_name(repo_dir, package, package_alias):
         expected_name = package_alias
 
     # Use igntiion for Citadel and Fortress, gz for Garden and beyond
-    gz_name = expected_name.replace("ignition", "gz");
-    gz_name = gz_name.replace("gazebo", "sim");
+    gz_name = expected_name.replace("ignition", "gz")
+    gz_name = gz_name.replace("gazebo", "sim")
 
-    cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
+    cmd = ["find", repo_dir, "-name", "changelog",
+           "-exec", "head", "-n", "1", "{}", ";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.decode().split('\n'):
         if not line:
@@ -237,6 +252,7 @@ def sanity_package_name(repo_dir, package, package_alias):
             error("Error in source package. File:  " + line.partition(' ')[1] + ". Got " + line.partition(' ')[2] + " expected " + expected_name + " or " + gz_name)
 
     print_success("Package names in changelog and control")
+
 
 def sanity_package_version(repo_dir, version, release_version):
     cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
@@ -259,6 +275,7 @@ def sanity_package_version(repo_dir, version, release_version):
     print_success("Package versions in changelog")
     print_success("Package release versions in changelog")
 
+
 def sanity_check_gazebo_versions(package, version):
     if package == 'gazebo':
         if int(version[0]) > 1:
@@ -271,6 +288,7 @@ def sanity_check_gazebo_versions(package, version):
 
     print_success("Gazebo version in proper gazebo package")
 
+
 def sanity_check_sdformat_versions(package, version):
     if package == 'sdformat':
         if int(version[0]) > 1:
@@ -280,11 +298,13 @@ def sanity_check_sdformat_versions(package, version):
 
     print_success("sdformat version in proper sdformat package")
 
+
 def sanity_check_repo_name(repo_name):
     if repo_name in OSRF_REPOS_SUPPORTED:
         return
 
     error("Upload repo value: " + repo_name + " is not valid. stable | prerelease | nightly")
+
 
 def sanity_project_package_in_stable(version, repo_name):
     if repo_name != 'stable':
@@ -298,11 +318,13 @@ def sanity_project_package_in_stable(version, repo_name):
 
     return
 
+
 def sanity_use_prerelease_branch(release_branch):
     if release_branch == 'prerelease':
         error("The use of prerelease branch is now deprecated. Please check internal wiki instructions")
 
     return
+
 
 def sanity_checks(args, repo_dir):
     sanity_package_name_underscore(args.package, args.package_alias)
@@ -327,6 +349,7 @@ def get_exclusion_arches(files):
             r.append(arch)
 
     return r
+
 
 def discover_distros(repo_dir):
     if not os.path.isdir(repo_dir):
@@ -399,10 +422,12 @@ def go(argv):
     # Sanity checks and dicover supported distributions before proceed.
     # UPSTREAM repository is not known in release-tools script
     if not UPSTREAM:
-        repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
+        repo_dir, args.release_repo_branch = download_release_repository(
+                args.package,
+                args.release_repo_branch)
         # The supported distros are the ones in the top level of -release repo
-        ubuntu_distros = discover_distros(repo_dir) # top level, ubuntu
-        debian_distros = discover_distros(repo_dir + '/debian/') # debian dir top level, Debian
+        ubuntu_distros = discover_distros(repo_dir)  # top level, ubuntu
+        debian_distros = discover_distros(repo_dir + '/debian/')  # debian dir top level, Debian
         if not args.no_sanity_checks:
             sanity_checks(args, repo_dir)
 
@@ -431,26 +456,25 @@ def go(argv):
         params['SOURCE_TARBALL_URI'] = args.nightly_branch
 
     if UPSTREAM:
-        job_name = JOB_NAME_UPSTREAM_PATTERN%(args.package)
+        job_name = JOB_NAME_UPSTREAM_PATTERN % (args.package)
     else:
-        job_name = JOB_NAME_PATTERN%(args.package)
+        job_name = JOB_NAME_PATTERN % (args.package)
 
     params_query = urllib.parse.urlencode(params)
 
     # RELEASING FOR BREW
-    brew_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL,
-                                                   GENERIC_BREW_PULLREQUEST_JOB,
-                                                   params_query)
+    brew_url = '%s/job/%s/buildWithParameters?%s' % \
+        (JENKINS_URL, GENERIC_BREW_PULLREQUEST_JOB, params_query)
     if not NIGHTLY and not args.bump_rev_linux_only:
         print('- Brew: %s' % (brew_url))
         if not DRY_RUN:
             urllib.request.urlopen(brew_url)
 
     # RELEASING FOR LINUX
-    for l in LINUX_DISTROS:
-        if (l == 'ubuntu'):
+    for linux_distro in LINUX_DISTROS:
+        if (linux_distro == 'ubuntu'):
             distros_dic = ubuntu_distros
-        elif (l == 'debian'):
+        elif (linux_distro == 'debian'):
             if (PRERELEASE or NIGHTLY):
                 continue
             if not debian_distros:
@@ -466,12 +490,12 @@ def go(argv):
                     if (a == 'armhf' or a == 'arm64'):
                         continue
                 # Only i386 for Ubuntu in Bionic
-                if (a == 'i386' and l != 'debian' and d != 'bionic'):
+                if (a == 'i386' and linux_distro != 'debian' and d != 'bionic'):
                     continue
 
                 linux_platform_params = params.copy()
                 linux_platform_params['ARCH'] = a
-                linux_platform_params['LINUX_DISTRO'] = l
+                linux_platform_params['LINUX_DISTRO'] = linux_distro
                 linux_platform_params['DISTRO'] = d
 
                 if (a == 'armhf' or a == 'arm64'):
@@ -479,8 +503,8 @@ def go(argv):
                     # https://hub.docker.com/r/aarch64/debian/ fails on Jenkins
                     if (d == 'sid'):
                         continue
-                    # Need to use JENKINS_NODE_TAG parameter for large memory nodes
-                    # since it runs qemu emulation
+                    # Need to use JENKINS_NODE_TAG parameter for large memory
+                    # nodes since it runs qemu emulation
                     linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
                 elif ('ignition-physics' in args.package_alias) or \
                      ('gz-physics' in args.package_alias):
@@ -495,16 +519,20 @@ def go(argv):
                 # tags.
                 # https://github.com/gazebo-tooling/release-tools/issues/644
                 if (NIGHTLY):
-                    assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
-                    linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
+                    assert a == 'amd64', \
+                        f'Nightly tag assumed amd64 but arch is {a}'
+                    linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d  # noqa 501
 
-                linux_platform_params_query = urllib.parse.urlencode(linux_platform_params)
+                linux_platform_params_query = \
+                    urllib.parse.urlencode(linux_platform_params)
 
-                url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, linux_platform_params_query)
-                print('- Linux: %s'%(url))
+                url = '%s/job/%s/buildWithParameters?%s' \
+                    % (JENKINS_URL, job_name, linux_platform_params_query)
+                print('- Linux: %s' % (url))
 
                 if not DRY_RUN:
                     urllib.request.urlopen(url)
+
 
 if __name__ == '__main__':
     go(sys.argv)
