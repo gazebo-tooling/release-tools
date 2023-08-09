@@ -20,6 +20,9 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
 // relative to WORKSPACE
 def pkg_sources_dir="pkg_sources"
 
+def releasepy_job = job("_test_releasepy")
+OSRFReleasepy.create(releasepy_job, [DRY_RUN: true])
+
 def repo_uploader = job("_test_repository_uploader")
 OSRFBase.create(repo_uploader)
 repo_uploader.with
@@ -58,12 +61,6 @@ def gz_source_job = job("_test_gz_source")
 OSRFLinuxSourceCreation.create(gz_source_job)
 gz_source_job.with
 {
-    // Input parameters
-  //  - VERSION
-  //  - RELEASE_VERSION
-  //  - RELEASE_REPO_BRANCH
-  //  - UPLOAD_TO_REPO
-
   // dsl should know the
   //   - PACKAGE name (idem PACKAGE_ALIAS)
 
@@ -79,7 +76,6 @@ gz_source_job.with
   //  - OSRF_REPOS_TO_USE
 
   label Globals.nontest_label("docker")
-
 
   steps {
     shell("""\
@@ -99,23 +95,39 @@ gz_source_job.with
           mkdir ${pkg_sources_dir}
           touch ${pkg_sources_dir}/_test.tar.bz2
           """.stripIndent())
+  }
 
-    conditionalSteps {
-      condition {
-        not {
-          expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
-        }
-      }
-      downstreamParameterized {
-        // TODO(implement) in repository_uploader tarball push to S3
-        trigger('_test_repository_uploader') {
-          block {
-            buildStepFailure('FAILURE')
-            failure('FAILURE')
-            unstable('UNSTABLE')
+  publishers {
+    archiveArtifacts("${pkg_sources_dir}")
+
+    flexiblePublish
+    {
+      conditionalAction {
+        condition {
+          and {
+            status('SUCCESS','SUCCESS')
+          } {
+            not {
+              expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
+            }
           }
-          parameters {
-            predefinedProps([UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
+        }
+
+        publishers {
+          downstreamParameterized {
+            trigger('_test_repository_uploader') {
+              parameters {
+                predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
+                                 UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
+              }
+            }
+            trigger('_test_releasepy') {
+              parameters {
+                currentBuild()
+                predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
+                                 SOURCE_TARBALL_URI: 'S3_PATH_TO_IMPLEMENT'])
+              }
+            }
           }
         }
       }
