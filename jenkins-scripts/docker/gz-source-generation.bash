@@ -14,7 +14,7 @@ set -ex
 
 PKG_DIR=\$WORKSPACE/pkgs
 
-git clone --depth 1 --branch ${VERSION} ${SOURCE_REPO_URI} sources
+git clone --depth 1 --branch ${PACKAGE_NAME}_${VERSION} ${SOURCE_REPO_URI} sources
 mkdir sources/build
 cd sources/build
 cmake .. -DPACKAGE_SOURCE_ONLY
