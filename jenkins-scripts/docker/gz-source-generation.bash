@@ -17,6 +17,7 @@ SOURCES_DIR=\$WORKSPACE/sources
 BUILD_DIR=\$WORKSPACE\sources\build
 
 cd \${WORKSPACE}
+rm -fr \$SOURCES_DIR && mkdir \$SOURCES_DIR
 git clone --depth 1 --branch ${PACKAGE_NAME}_${VERSION} ${SOURCE_REPO_URI} \${SOURCES_DIR}
 rm -fr \$BUILD_DIR && mkdir \$BUILD_DIR
 cd \${BUILD_DIR}
