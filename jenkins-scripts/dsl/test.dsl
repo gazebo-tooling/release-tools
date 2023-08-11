@@ -139,17 +139,11 @@ gz_source_job.with
           #!/bin/bash -xe
 
           # Use Jammy/amd64 as base image to generate sources
-          # export DISTRO=jammy
-          # export ARCH=amd64
+          export DISTRO=jammy
+          export ARCH=amd64
+          export SOURCE_REPO_URI=https://github.com/gazebosim/gz-cmake.git
 
-          # Check out sources from gazebosim/\${PACKAGE}
-          # git cmake
-          # cd source
-          # cmake .. -DPACKAGE_SOURCE_ONLY
-          # find the tarball + archive
-          cd \${WORKSPACE}
-          mkdir ${pkg_sources_dir}
-          touch ${pkg_sources_dir}/_test.tar.bz2
+          /bin/bash -x ./scripts/jenkins-scripts/docker/lib/gz-source-generation.bash
           """.stripIndent())
   }
 
