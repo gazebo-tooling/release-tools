@@ -143,7 +143,7 @@ gz_source_job.with
           export ARCH=amd64
           export SOURCE_REPO_URI=https://github.com/gazebosim/gz-cmake.git
 
-          /bin/bash -x ./scripts/jenkins-scripts/docker/lib/gz-source-generation.bash
+          /bin/bash -x ./scripts/jenkins-scripts/docker/gz-source-generation.bash
           """.stripIndent())
   }
 
