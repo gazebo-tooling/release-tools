@@ -18,7 +18,7 @@ cd \${WORKSPACE}
 git clone --depth 1 --branch ${PACKAGE_NAME}_${VERSION} ${SOURCE_REPO_URI} sources
 mkdir sources/build
 cd sources/build
-cmake .. -DPACKAGE_SOURCE_ONLY
+cmake .. -DPACKAGE_SOURCE_ONLY:BOOL=ON
 make package_source
 
 mkdir -p \${PKG_DIR}
