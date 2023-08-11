@@ -24,7 +24,7 @@ cmake .. -DPACKAGE_SOURCE_ONLY:BOOL=ON
 make package_source
 
 mkdir -p \${PKG_DIR}
-find \${BUILD_DIR} -maxdepth 1 -name *${VERSION}.tar.bz2 -exec mv {} \${PKG_DIR} \\;
+find \${BUILD_DIR} -maxdepth 1 -name '*${VERSION}.tar.*' -exec mv {} \${PKG_DIR} \\;
 
 if [ $(ls 2>/dev/null -Ubad1 -- "\${PKG_DIR}" | wc -l) -gt 1 ]; then
   echo "Found more than one file inside pkgs directory:"
