@@ -14,7 +14,7 @@ set -ex
 
 PKG_DIR=\$WORKSPACE/pkgs
 SOURCES_DIR=\$WORKSPACE/sources
-BUILD_DIR=\$WORKSPACE\sources\build
+BUILD_DIR=\$SOURCES_DIR/build
 
 cd \${WORKSPACE}
 rm -fr \$SOURCES_DIR && mkdir \$SOURCES_DIR
