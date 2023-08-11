@@ -1,5 +1,6 @@
-#!/bin/bash -x
-set -e
+#!/bin/bash -xe
+[[ -L ${0} ]] && SCRIPT_DIR=$(readlink ${0}) || SCRIPT_DIR=${0}
+SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 echo '# BEGIN SECTION: setup the testing enviroment'
 # Define the name to be used in docker
