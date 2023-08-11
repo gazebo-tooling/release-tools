@@ -18,12 +18,12 @@ BUILD_DIR=\$WORKSPACE\sources\build
 
 cd \${WORKSPACE}
 git clone --depth 1 --branch ${PACKAGE_NAME}_${VERSION} ${SOURCE_REPO_URI} \${SOURCES_DIR}
-mkdir \$PKG_DIR
+rm -fr \$BUILD_DIR && mkdir \$BUILD_DIR
 cd \${BUILD_DIR}
 cmake .. -DPACKAGE_SOURCE_ONLY:BOOL=ON
 make package_source
 
-mkdir -p \${PKG_DIR}
+rm -fr \$PKG_DIR && mkdir \$PKG_DIR
 find \${BUILD_DIR} -maxdepth 1 -name '*${VERSION}.tar.*' -exec mv {} \${PKG_DIR} \\;
 
 if [ $(ls 2>/dev/null -Ubad1 -- "\${PKG_DIR}" | wc -l) -gt 1 ]; then
