@@ -20,6 +20,11 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
 // releasing testing job
 def releasepy_job = job("_test_releasepy")
 OSRFReleasepy.create(releasepy_job, [DRY_RUN: true])
+// gz source testing job
+def gz_source_job = job("_test_gz_source")
+OSRFSourceCreation.create(gz_source_job, [
+  PACKAGE_NAME: "gz-cmake3",
+  SOURCE_REPO_URI: "https://github.com/gazebosim/gz-cmake.git"])
 
 // -------------------------------------------------------------------
 def outdated_job_runner = job("_test_outdated_job_runner")
