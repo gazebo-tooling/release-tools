@@ -17,6 +17,30 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
                                      false,
                                      ['main'])
 
+
+
+def gz_source_job = job("_test_gz_source")
+OSRFSourceCreation.create(gz_source_job)
+gz_source_job.with
+{
+  label Globals.nontest_label("docker")
+
+  def PACKAGE_NAME="gz-cmake3"
+
+  steps {
+    shell("""\
+          #!/bin/bash -xe
+
+          # Use Jammy/amd64 as base image to generate sources
+          export DISTRO=jammy
+          export ARCH=amd64
+          export PACKAGE_NAME=${PACKAGE_NAME}
+          export SOURCE_REPO_URI=https://github.com/gazebosim/gz-cmake.git
+
+          /bin/bash -x ./scripts/jenkins-scripts/docker/gz-source-generation.bash
+          """.stripIndent())
+  }
+}
 // -------------------------------------------------------------------
 def outdated_job_runner = job("_test_outdated_job_runner")
 OSRFBase.create(outdated_job_runner)
