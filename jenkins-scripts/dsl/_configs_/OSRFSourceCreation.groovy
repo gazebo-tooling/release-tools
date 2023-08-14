@@ -10,6 +10,12 @@ class OSRFSourceCreation
     job.with
     {
       parameters {
+        stringParam("PACKAGE_NAME",
+                    default_params.find{ it.key == "PACKAGE_NAME"}?.value,
+                    "Software name (i.e gz-cmake3)")
+        stringParam("SOURCE_REPO_URI",
+                    default_params.find{ it.key == "SOURCE_REPO_URI"}?.value,
+                    "GitHub URI to release the sources from (i.e: https://github.com/gazebosim/gz-cmake.git)")
         stringParam("VERSION",
                     default_params.find{ it.key == "VERSION"}?.value,
                     "Packages version to be built or nightly (enable nightly build mode)")
@@ -34,6 +40,8 @@ class OSRFSourceCreation
 
     job.with
     {
+      label Globals.nontest_label("docker")
+
       wrappers {
         preBuildCleanup()
       }
@@ -54,6 +62,14 @@ class OSRFSourceCreation
           'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
           """.stripIndent()
         )
+
+        shell("""\
+            #!/bin/bash -xe
+            export DISTRO=jammy
+            export ARCH=amd64
+
+            /bin/bash -x ./scripts/jenkins-scripts/docker/gz-source-generation.bash
+            """.stripIndent())
       }
     }
   }
