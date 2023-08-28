@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 
 // first distro in list is used as touchstone
-brew_supported_distros         = [ "bigsur", "monterey" ]
+brew_supported_distros         = [ "bigsur", "monterey", "ventura" ]
 bottle_hash_updater_job_name   = 'generic-release-homebrew_pr_bottle_hash_updater'
 bottle_builder_job_name        = 'generic-release-homebrew_triggered_bottle_builder'
 directory_for_bottles          = 'pkgs'
