@@ -285,7 +285,7 @@ gz_collection_jobs =
         'ign_msgs-gz-10-win',
         'ign_physics-gz-6-win',
         'ign_plugin-gz-2-win',
-        'ign_rendering-ci-win',
+        'ign_rendering-gz-8-win',
         'ign_sensors-ci-win',
         'ign_tools-gz-2-win',
         'ign_transport-gz-13-win',
@@ -299,7 +299,7 @@ gz_collection_jobs =
         'gz_msgs-ci-gz-msgs10-jammy-amd64',
         'gz_physics-ci-gz-physics6-jammy-amd64',
         'gz_plugin-ci-gz-plugin2-jammy-amd64',
-        'gz_rendering-ci-main-jammy-amd64',
+        'gz_rendering-ci-gz-rendering8-jammy-amd64',
         'gz_sensors-ci-main-jammy-amd64',
         'gz_sim-ci-main-jammy-amd64',
         'gz_tools-ci-gz-tools2-jammy-amd64',
@@ -316,14 +316,14 @@ gz_collection_jobs =
         'ignition_msgs-ci-gz-msgs10-homebrew-amd64',
         'ignition_physics-ci-gz-physics6-homebrew-amd64',
         'ignition_plugin-ci-gz-plugin2-homebrew-amd64',
-        'ignition_rendering-ci-main-homebrew-amd64',
+        'ignition_rendering-ci-gz-rendering8-homebrew-amd64',
         'ignition_sensors-ci-main-homebrew-amd64',
         'ignition_tools-ci-gz-tools2-homebrew-amd64',
         'ignition_transport-ci-gz-transport13-homebrew-amd64',
         'ignition_utils-ci-gz-utils2-homebrew-amd64',
-        'sdformat-ci-main-jammy-amd64',
-        'sdformat-ci-main-homebrew-amd64',
-        'sdformat-sdf-main-win'
+        'sdformat-ci-sdformat14-jammy-amd64',
+        'sdformat-ci-sdformat14-homebrew-amd64',
+        'sdformat-sdf-14-win'
   ],
 ]
 
