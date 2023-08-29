@@ -38,7 +38,10 @@ fi
 
 set -e
 
-CURRENT_BRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
+LOCAL_BRANCH=$(git rev-parse --abbrev-ref  HEAD)
+REMOTE_BRANCH=$(git rev-parse --abbrev-ref  HEAD@{upstream})
+REMOTE=${REMOTE_BRANCH/\/$LOCAL_BRANCH/}
+CURRENT_BRANCH="${REMOTE}:${LOCAL_BRANCH}"
 
 ORIGIN_URL=$(git remote get-url origin)
 ORIGIN_ORG_REPO=$(echo ${ORIGIN_URL} | sed -e 's@.*github\.com.@@' | sed -e 's/\.git//g')
@@ -58,4 +61,5 @@ gh pr create \
     --repo "$ORIGIN_ORG_REPO" \
     --base "$TO_BRANCH" \
     --body "$BODY" \
-    --head "$CURRENT_BRANCH"
+    --head "$CURRENT_BRANCH" \
+    --web

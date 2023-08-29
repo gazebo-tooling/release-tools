@@ -77,11 +77,11 @@ collections:
       - name: gz-rendering
         major_version: 8
         repo:
-          current_branch: main
+          current_branch: gz-rendering8
       - name: sdformat
         major_version: 14
         repo:
-          current_branch: main
+          current_branch: sdf14
       - name: gz-fuel-tools
         major_version: 9
         repo:
