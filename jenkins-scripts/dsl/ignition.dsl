@@ -67,7 +67,7 @@ gz_branches                 = [ 'cmake'      : [ '3' ],
                                 'gui'        : [ '7' ],
                                 'launch'     : [ '6' ],
                                 'math'       : [ '7' ],
-                                'msgs'       : [ '9' ],
+                                'msgs'       : [ '9', '10' ],
                                 'physics'    : [ '6' ],
                                 'plugin'     : [ '2' ],
                                 'rendering'  : [ '7' ],
@@ -86,7 +86,7 @@ gz_prerelease_branches = []
 gz_extra_debbuild = [ 'gui8',
                       'fuel-tools9',
                       'launch7',
-                      'msgs10',
+                      'physics7',
                       'rendering8',
                       'sensors8',
                       'sim8',
@@ -418,7 +418,7 @@ gz_software.each { gz_sw ->
           label Globals.nontest_label("large-memory")
           // on ARM native nodes in buildfarm we need to restrict to 1 the
           // compilation threads to avoid OOM killer
-          extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
+          extra_str += '\nexport MAKE_JOBS=1'
         }
 
         steps {
@@ -457,8 +457,10 @@ gz_software.each { gz_sw ->
     include_gpu_label_if_needed(gz_ci_any_job, software_name)
     gz_ci_any_job.with
     {
-      if (gz_sw == 'physics')
+      if (gz_sw == 'physics') {
         label Globals.nontest_label("large-memory")
+        extra_str += '\nexport MAKE_JOBS=1'
+      }
 
       steps
       {
@@ -566,8 +568,12 @@ void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
   include_gpu_label_if_needed(gz_ci_job, gz_sw)
   gz_ci_job.with
   {
-    if (gz_sw == 'physics')
+    if (gz_sw == 'physics') {
       label Globals.nontest_label("large-memory")
+      extra_str += '\nexport MAKE_JOBS=1'
+    }
+    if (gz_sw == 'gazebo')
+      gz_sw = 'sim'
 
     steps {
       shell("""\
@@ -579,7 +585,7 @@ void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
             export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
             export DISTRO=${distro}
             export ARCH=${arch}
-            /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_${software_name.replaceAll('-','_')}-compilation.bash
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_${gz_sw.replaceAll('-','_')}-compilation.bash
             """.stripIndent())
     }
   }
@@ -595,7 +601,7 @@ all_debbuilders().each { debbuilder_name ->
   // Gazebo physics consumes huge amount of memory making arm node to FAIL
   // Force here to use one compilation thread
   if (debbuilder_name.contains("-physics"))
-    extra_str += '\nif [ $(uname -m) = "aarch64" ]; then export MAKE_JOBS=1; fi'
+    extra_str += '\nexport MAKE_JOBS=1'
 
   def build_pkg_job = job("${debbuilder_name}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)

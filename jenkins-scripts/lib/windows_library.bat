@@ -305,7 +305,7 @@ if [%1] == [] (
   goto :error
 )
 :: workaround on permissions problems for default VCPKG_DEFAULT_BINARY_CACHE
-set VCPKG_DEFAULT_BINARY_CACHE=C:\Windows\Temp\vcpkg
+set VCPKG_DEFAULT_BINARY_CACHE=C:\Users\Administrator\AppData\Local\vcpkg\archives
 if not exist %VCPKG_DEFAULT_BINARY_CACHE% mkdir %VCPKG_DEFAULT_BINARY_CACHE%
 %VCPKG_CMD% install --recurse "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
 :: vcpkg does not upgrade installed packages using the install command

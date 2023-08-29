@@ -11,15 +11,13 @@ import jenkins.model.*;
 import hudson.model.Label;
 
 /*
-  Each label is in a 2-tuple with a label expression that indicates its "pool"
-  of potential assignees.
-  The first field must be a single label (no spaces) but the second may be an
-  arbitrarily complex label expression like "(docker && linux) && !armhf"
+  Each label is in a 2-tuple with a label tag that indicates its "pool"
+  of potential assignees. The fields must be a single label (no spaces).
 */
 def nightly_label_prefix = "linux-nightly"
 def exactly_one_labels = [
-  ["${nightly_label_prefix}-focal", "docker"],
-  ["${nightly_label_prefix}-jammy", "docker"],
+  ["${nightly_label_prefix}-focal", "large-memory"],
+  ["${nightly_label_prefix}-jammy", "large-memory"],
 ]
 
 for (tup in exactly_one_labels) {
@@ -52,7 +50,6 @@ for (tup in exactly_one_labels) {
       node.computer.online &&
       node.getLabelString().contains(pool_label) &&
       !node.getLabelString().contains(nightly_label_prefix) &&
-      !node.getLabelString().contains("gpu-nvidia") &&
       !node.getLabelString().contains("test-instance")
     }
 

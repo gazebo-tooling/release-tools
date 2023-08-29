@@ -134,7 +134,7 @@ cat > Dockerfile << DELIM_DOCKER
 # Docker file to run build.sh
 
 FROM ${FROM_VALUE}
-MAINTAINER Jose Luis Rivero <jrivero@osrfoundation.org>
+LABEL maintainer="Jose Luis Rivero <jrivero@osrfoundation.org>"
 
 # setup environment
 ENV LANG C
@@ -456,8 +456,8 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN chown -R \$USER:\$USER /home/\$USER
 
 # permit access to USER variable inside docker
-ENV USER ${USER}
-USER $USER
+ENV USER \$USER
+USER \$USER
 # Must use sudo where necessary from this point on
 DELIM_DOCKER_USER
 

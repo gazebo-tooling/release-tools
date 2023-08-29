@@ -290,40 +290,40 @@ gz_collection_jobs =
         'ign_tools-gz-2-win',
         'ign_transport-gz-13-win',
         'ign_utils-gz-2-win',
-        'ignition_cmake-ci-gz-cmake3-focal-amd64',
+        'gz_cmake-ci-gz-cmake3-jammy-amd64',
+        'gz_common-ci-gz-common5-jammy-amd64',
+        'gz_fuel_tools-ci-main-jammy-amd64',
+        'gz_gui-ci-main-jammy-amd64',
+        'gz_launch-ci-main-jammy-amd64',
+        'gz_math-ci-gz-math7-jammy-amd64',
+        'gz_msgs-ci-gz-msgs10-jammy-amd64',
+        'gz_physics-ci-gz-physics6-jammy-amd64',
+        'gz_plugin-ci-gz-plugin2-jammy-amd64',
+        'gz_rendering-ci-main-jammy-amd64',
+        'gz_sensors-ci-main-jammy-amd64',
+        'gz_sim-ci-main-jammy-amd64',
+        'gz_tools-ci-gz-tools2-jammy-amd64',
+        'gz_transport-ci-main-jammy-amd64',
+        'gz_utils-ci-gz-utils2-jammy-amd64',
         'ignition_cmake-ci-gz-cmake3-homebrew-amd64',
-        'ignition_common-ci-gz-common5-focal-amd64',
         'ignition_common-ci-gz-common5-homebrew-amd64',
-        'ignition_fuel-tools-ci-gz-fuel-tools9-focal-amd64',
         'ignition_fuel-tools-ci-gz-fuel-tools9-homebrew-amd64',
         'ignition_harmonic-ci-main-homebrew-amd64',
-        'ignition_gazebo-ci-main-focal-amd64',
         'ignition_gazebo-ci-main-homebrew-amd64',
-        'ignition_gui-ci-main-focal-amd64',
         'ignition_gui-ci-main-homebrew-amd64',
-        'ignition_launch-ci-main-focal-amd64',
         'ignition_launch-ci-main-homebrew-amd64',
-        'ignition_math-ci-gz-math7-focal-amd64',
         'ignition_math-ci-gz-math7-homebrew-amd64',
-        'ignition_msgs-ci-gz-msgs10-focal-amd64',
         'ignition_msgs-ci-gz-msgs10-homebrew-amd64',
-        'ignition_physics-ci-gz-physics6-focal-amd64',
         'ignition_physics-ci-gz-physics6-homebrew-amd64',
-        'ignition_plugin-ci-gz-plugin2-focal-amd64',
         'ignition_plugin-ci-gz-plugin2-homebrew-amd64',
-        'ignition_rendering-ci-main-focal-amd64',
         'ignition_rendering-ci-main-homebrew-amd64',
-        'ignition_sensors-ci-main-focal-amd64',
         'ignition_sensors-ci-main-homebrew-amd64',
-        'ignition_tools-ci-gz-tools2-focal-amd64',
         'ignition_tools-ci-gz-tools2-homebrew-amd64',
-        'ignition_transport-ci-gz-transport13-focal-amd64',
         'ignition_transport-ci-gz-transport13-homebrew-amd64',
-        'ignition_utils-ci-gz-utils2-focal-amd64',
         'ignition_utils-ci-gz-utils2-homebrew-amd64',
-        'sdformat-ci-sdformat13-focal-amd64',
-        'sdformat-ci-sdformat13-homebrew-amd64',
-        'sdformat-sdf-13-win'
+        'sdformat-ci-main-jammy-amd64',
+        'sdformat-ci-main-homebrew-amd64',
+        'sdformat-sdf-main-win'
   ],
 ]
 
@@ -365,7 +365,6 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
 // Testing compilation from source
 gz_collections_yaml.collections.each { collection ->
   gz_collection_name = collection.name
-  distros = collection.ci.linux.reference_distro
 
   // COLCON - Windows
   def gz_win_ci_job = job("ign_${gz_collection_name}-ci-win")
@@ -382,7 +381,11 @@ gz_collections_yaml.collections.each { collection ->
   }
   Globals.gazebodistro_branch = false
 
-  distros.each { distro ->
+  collection.ci.configs.each { ci_config_name ->
+    ci_config = gz_collections_yaml.ci_configs.find { it.name == ci_config_name }
+    distro = ci_config.system.version
+    arch = ci_config.system.arch
+
     // INSTALL JOBS:
     // --------------------------------------------------------------
     if ((gz_collection_name == "citadel") || (gz_collection_name == "fortress")) {

@@ -42,7 +42,7 @@ class OSRFLinuxBuildPkg
                     "Package name to be built")
         stringParam("VERSION",
                     default_params.find{ it.key == "VERSION"}?.value,
-                    "Packages version to be built")
+                    "Packages version to be built or nightly (enable nightly build mode)")
         stringParam("RELEASE_VERSION",
                     default_params.find{ it.key == "RELEASE_VERSION"}?.value,
                     "Packages release version")

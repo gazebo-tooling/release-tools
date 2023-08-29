@@ -11,6 +11,7 @@ class Globals
    static gazebodistro_branch = false
 
    static CRON_EVERY_THREE_DAYS = 'H H * * H/3'
+   static CRON_HOURLY = 'H * * * *'
    static CRON_ON_WEEKEND = 'H H * * 6-7'
    // Run nightly scheduler during the nightly creation to be sure
    // that any possible node killed is replaced. Starting -15min
