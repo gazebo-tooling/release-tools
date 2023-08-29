@@ -73,7 +73,7 @@ collections:
       - name: gz-msgs
         major_version: 10
         repo:
-          current_branch: main
+          current_branch: gz-msgs10
       - name: gz-rendering
         major_version: 8
         repo:

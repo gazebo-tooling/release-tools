@@ -296,7 +296,7 @@ gz_collection_jobs =
         'gz_gui-ci-main-jammy-amd64',
         'gz_launch-ci-main-jammy-amd64',
         'gz_math-ci-gz-math7-jammy-amd64',
-        'gz_msgs-ci-main-jammy-amd64',
+        'gz_msgs-ci-gz-msgs10-jammy-amd64',
         'gz_physics-ci-gz-physics6-jammy-amd64',
         'gz_plugin-ci-gz-plugin2-jammy-amd64',
         'gz_rendering-ci-main-jammy-amd64',
