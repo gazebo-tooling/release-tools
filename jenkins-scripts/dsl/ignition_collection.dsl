@@ -292,7 +292,7 @@ gz_collection_jobs =
         'ign_utils-gz-2-win',
         'gz_cmake-ci-gz-cmake3-jammy-amd64',
         'gz_common-ci-gz-common5-jammy-amd64',
-        'gz_fuel_tools-ci-main-jammy-amd64',
+        'gz_fuel_tools-ci-gz-fuel-tools9-jammy-amd64',
         'gz_gui-ci-main-jammy-amd64',
         'gz_launch-ci-main-jammy-amd64',
         'gz_math-ci-gz-math7-jammy-amd64',

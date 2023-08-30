@@ -63,7 +63,7 @@ ignition_branches           = [ 'cmake'      : [ '2' ],
 
 gz_branches                 = [ 'cmake'      : [ '3' ],
                                 'common'     : [ '5' ],
-                                'fuel-tools' : [ '8' ],
+                                'fuel-tools' : [ '8', '9' ],
                                 'gui'        : [ '7' ],
                                 'launch'     : [ '6' ],
                                 'math'       : [ '7' ],
@@ -84,7 +84,6 @@ gz_prerelease_branches = []
 // don't appear in gz_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
 gz_extra_debbuild = [ 'gui8',
-                      'fuel-tools9',
                       'launch7',
                       'physics7',
                       'sensors8',
@@ -380,11 +379,11 @@ void generate_install_job(prefix, gz_sw, major_version, distro, arch)
 // Need to be before the ci-pr_any so the abi job name is defined
 gz_software.each { gz_sw ->
   supported_arches.each { arch ->
-    // 1 Per library and per linux arch 
+    // 1 Per library and per linux arch
     //   1.1 Per abi_distro
     //     1.1.1 [job] ABI checker for main branches
     //   1.2 Per ci_str_distro
-    //     1.2.1 [job] Main PR jobs (-ci-pr_any-) 
+    //     1.2.1 [job] Main PR jobs (-ci-pr_any-)
     //   1.3 Per all supported_distros
     //     1.3.1 Per all supported branches on each library
     //       1.3.1.1 [job] Branch jobs -ci-$branch-
@@ -499,7 +498,7 @@ gz_software.each { gz_sw ->
               scm('@daily')
             }
           }
-          // 1.3.1.2 Branch ASAN jobs -ci_asan-$branch- 
+          // 1.3.1.2 Branch ASAN jobs -ci_asan-$branch-
           // --------------------------------------------------------------
           def gz_ci_asan_job = job("ignition_${software_name}-ci_asan-${branch}-${distro}-${arch}")
           generate_asan_ci_job(gz_ci_asan_job, software_name, branch, distro, arch)
@@ -551,7 +550,7 @@ void generate_asan_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
 {
   generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
                   '-DGZ_SANITIZER=Address',
-                  Globals.MAKETEST_SKIP_GZ,                  
+                  Globals.MAKETEST_SKIP_GZ,
                   'export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true')
 }
 
