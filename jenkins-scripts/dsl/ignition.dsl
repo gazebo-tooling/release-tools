@@ -65,14 +65,14 @@ gz_branches                 = [ 'cmake'      : [ '3' ],
                                 'common'     : [ '5' ],
                                 'fuel-tools' : [ '8', '9' ],
                                 'gui'        : [ '7', '8' ],
-                                'launch'     : [ '6' ],
+                                'launch'     : [ '6', '7' ],
                                 'math'       : [ '7' ],
                                 'msgs'       : [ '9', '10'],
                                 'physics'    : [ '6', '7' ],
                                 'plugin'     : [ '2' ],
                                 'rendering'  : [ '7', '8' ],
                                 'sensors'    : [ '7', '8' ],
-                                'sim'        : [ '7' ],
+                                'sim'        : [ '7', '8' ],
                                 'tools'      : [ '2' ],
                                 'transport'  : [ '12', '13' ],
                                 'utils'      : [ '2' ]]
@@ -83,9 +83,7 @@ gz_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in gz_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
-gz_extra_debbuild = [ 'launch7',
-                      'sim8',
-                      'utils1' // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
+gz_extra_debbuild = [ 'utils1' // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
                     ]
 // DESC: exclude ignition from generate any install testing job
 gz_no_pkg_yet         = [  ]

@@ -105,11 +105,11 @@ collections:
       - name: gz-sim
         major_version: 8
         repo:
-          current_branch: main
+          current_branch: gz-sim8
       - name: gz-launch
         major_version: 7
         repo:
-          current_branch: main
+          current_branch: gz-launch7
       - name: gz-harmonic
         major_version: 1
         repo:
