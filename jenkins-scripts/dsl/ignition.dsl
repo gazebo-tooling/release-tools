@@ -70,11 +70,11 @@ gz_branches                 = [ 'cmake'      : [ '3' ],
                                 'msgs'       : [ '9', '10'],
                                 'physics'    : [ '6' ],
                                 'plugin'     : [ '2' ],
-                                'rendering'  : [ '7' , '8'],
-                                'sensors'    : [ '7' ],
+                                'rendering'  : [ '7', '8' ],
+                                'sensors'    : [ '7', '8' ],
                                 'sim'        : [ '7' ],
                                 'tools'      : [ '2' ],
-                                'transport'  : [ '12' ],
+                                'transport'  : [ '12', '13' ],
                                 'utils'      : [ '2' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
@@ -87,9 +87,7 @@ gz_extra_debbuild = [ 'gui8',
                       'fuel-tools9',
                       'launch7',
                       'physics7',
-                      'sensors8',
                       'sim8',
-                      'transport13',
                       'utils1' // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
                     ]
 // DESC: exclude ignition from generate any install testing job
