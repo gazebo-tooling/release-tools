@@ -67,6 +67,8 @@ for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
         VERS=( "bionic" "focal" "jammy" )
       elif [[ $COLLECTION == "garden" ]]; then
         VERS=( "focal" "jammy" )
+      elif [[ $COLLECTION == "harmonic" ]]; then
+        VERS=( "jammy" )
       fi
     fi
 
