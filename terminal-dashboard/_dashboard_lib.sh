@@ -62,9 +62,27 @@ get_libraries_by_collection()
 	gz-sim7
 	gz-launch6
 	gz-garden"
+   elif [ "$COLLECTION" = "harmonic" ]; then
+      LIBS="
+	gz-cmake3
+	gz-math7
+	gz-utils2
+	gz-tools2
+	gz-common5
+	gz-msgs10
+	gz-transport13
+	gz-fuel-tools9
+	gz-plugin2
+	gz-rendering8
+	sdformat14
+	gz-physics7
+	gz-sensors8
+	gz-gui8
+	gz-sim8
+	gz-launch7
+	gz-harmonic"
     else
       return 1
     fi
-
     echo "$LIBS"
 }
