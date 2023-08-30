@@ -286,7 +286,7 @@ gz_collection_jobs =
         'ign_physics-gz-6-win',
         'ign_plugin-gz-2-win',
         'ign_rendering-gz-8-win',
-        'ign_sensors-ci-win',
+        'ign_sensors-gz-8-win',
         'ign_tools-gz-2-win',
         'ign_transport-gz-13-win',
         'ign_utils-gz-2-win',
