@@ -89,7 +89,7 @@ collections:
       - name: gz-transport
         major_version: 13
         repo:
-          current_branch: main
+          current_branch: gz-transport13
       - name: gz-gui
         major_version: 8
         repo:
@@ -97,7 +97,7 @@ collections:
       - name: gz-sensors
         major_version: 8
         repo:
-          current_branch: main
+          current_branch: gz-sensors8
       - name: gz-physics
         major_version: 7
         repo:
