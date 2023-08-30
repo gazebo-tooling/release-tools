@@ -7,7 +7,7 @@
    * Create a custom track in tracks.yaml
 3. Run a new release
    * Prerequisites
-   * Bloom a new release 
+   * Bloom a new release
 
 ## 1. Background
 
@@ -17,6 +17,7 @@ found in the [REP-3](http://www.ros.org/reps/rep-2000.html). Some examples:
 
  * ROS 2 Foxy: Citadel
  * ROS 2 Humble: Fortress
+ * ROS 2 Iron: Fortress
 
 Some use cases require the use of alternative combinations of ROS and Gazebo
 versions. The `ros_gz` code is usually prepared to be compatible with
@@ -34,7 +35,7 @@ version the version of `ros_gz` released will be the latest one existing in the
 official `gbp -release repository`. The version would be the same but the
 release number will start on 1000.
 
-## 2. Initial setup 
+## 2. Initial setup
 
 To release a modified version of `ros_gz` which supports a different major
 version of gazebo, before running bloom some actions need to be taken:
@@ -45,6 +46,10 @@ For a new official wrappers the notation used below correspond to `ros_ign-relea
 
  1. Fork (manually or using gh) current gbp repository:
     https://github.com/ros2-gbp/ros_ign-release
+
+Note: the same -release repository can obviously hosts multiple ROS 2 releases but
+can not have multipe Gazebo releases since the bloom templates are set to just one
+package name.
 
  1. Clone the new repo, go to the directory and run rename-gazebo-ros-pkgs.bash
     - Usage: `$ rename-ros_gz-pkgs.bash <desired_gz_version> <space separted list of rosdistros to release>`
@@ -85,7 +90,13 @@ this, there is a `Dockerfile` that provides the needed modifications and a scrip
 that encapsulates the bloom arguments to be passed and the use of this enviroment.
 
 ```
-./bloom_from_special_env.bash
+./bloom_from_special_env.bash <ROS_DISTRO> <TARGET_NEW_GAZEBO_COLLECTION> <URL_OSRF_ROSDEP>
+
+i.e: release ros_gz on ROS 2 Humble replacing Gazebo Fortress by Gazebo Garden
+./bloom_from_special_env.bash \
+    humble \
+    garden \
+    https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list
 ```
 
 The script will create the docker enviroment with the rosdep modifications needed
