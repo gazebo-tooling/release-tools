@@ -10,7 +10,7 @@
 #     ci:
 #      - linux:
 #         pr_distro:
-#         abi_distro: 
+#         abi_distro:
 #         install_distros:
 #           - distro1
 #           - distro2
@@ -85,7 +85,7 @@ collections:
       - name: gz-fuel-tools
         major_version: 9
         repo:
-          current_branch: main
+          current_branch: gz-fuel-tools9
       - name: gz-transport
         major_version: 13
         repo:
