@@ -55,6 +55,19 @@ package name.
     - Usage: `$ rename-ros_gz-pkgs.bash <desired_gz_version> <space separted list of rosdistros to release>`
     - Example: `$ rename-ros_gz-pkgs.bash garden humble`
 
+The script supports to inject a custom RELEASE_REPO_URL that points to a bloom gbp
+repository different than https://github.com/gazebo-release/ros_ign-release.
+
+```
+i.e use a https://github.com/gazebo-testing/ros_ign-gzharmonic-release as gbp testing repository
+
+RELEASE_REPO_URL=https://github.com/gazebo-testing/ros_ign-gzharmonic-release \
+  ./bloom_from_special_env.bash \
+    humble \
+    garden \
+    https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list
+```
+
 
 ### 2.2 Create a custom track in tracks.yml
 
