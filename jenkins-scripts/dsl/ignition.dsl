@@ -64,17 +64,17 @@ ignition_branches           = [ 'cmake'      : [ '2' ],
 gz_branches                 = [ 'cmake'      : [ '3' ],
                                 'common'     : [ '5' ],
                                 'fuel-tools' : [ '8', '9' ],
-                                'gui'        : [ '7' ],
-                                'launch'     : [ '6' ],
+                                'gui'        : [ '7', '8' ],
+                                'launch'     : [ '6', '7' ],
                                 'math'       : [ '7' ],
                                 'msgs'       : [ '9', '10'],
-                                'physics'    : [ '6' ],
+                                'physics'    : [ '6', '7' ],
                                 'plugin'     : [ '2' ],
-                                'rendering'  : [ '7' , '8'],
-                                'sensors'    : [ '7' ],
-                                'sim'        : [ '7' ],
+                                'rendering'  : [ '7', '8' ],
+                                'sensors'    : [ '7', '8' ],
+                                'sim'        : [ '7', '8' ],
                                 'tools'      : [ '2' ],
-                                'transport'  : [ '12' ],
+                                'transport'  : [ '12', '13' ],
                                 'utils'      : [ '2' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
@@ -83,13 +83,7 @@ gz_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in gz_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
-gz_extra_debbuild = [ 'gui8',
-                      'launch7',
-                      'physics7',
-                      'sensors8',
-                      'sim8',
-                      'transport13',
-                      'utils1' // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
+gz_extra_debbuild = [ 'utils1' // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
                     ]
 // DESC: exclude ignition from generate any install testing job
 gz_no_pkg_yet         = [  ]

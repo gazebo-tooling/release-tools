@@ -89,27 +89,27 @@ collections:
       - name: gz-transport
         major_version: 13
         repo:
-          current_branch: main
+          current_branch: gz-transport13
       - name: gz-gui
         major_version: 8
         repo:
-          current_branch: main
+          current_branch: gz-gui8
       - name: gz-sensors
         major_version: 8
         repo:
-          current_branch: main
+          current_branch: gz-sensors8
       - name: gz-physics
         major_version: 7
         repo:
-          current_branch: main
+          current_branch: gz-physics7
       - name: gz-sim
         major_version: 8
         repo:
-          current_branch: main
+          current_branch: gz-sim8
       - name: gz-launch
         major_version: 7
         repo:
-          current_branch: main
+          current_branch: gz-launch7
       - name: gz-harmonic
         major_version: 1
         repo:
