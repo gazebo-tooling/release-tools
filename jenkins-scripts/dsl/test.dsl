@@ -22,6 +22,12 @@ def pkg_sources_dir="pkgs"
 
 def releasepy_job = job("_test_releasepy")
 OSRFReleasepy.create(releasepy_job, [DRY_RUN: true])
+releasepy_job.with {
+      blockOn("_test_repository_uploader") {
+        blockLevel('GLOBAL')
+        scanQueueFor('ALL')
+      }
+}
 
 def repo_uploader = job("_test_repository_uploader")
 OSRFBase.create(repo_uploader)
@@ -57,79 +63,10 @@ repo_uploader.with
   }
 }
 
-def upload_and_releasepy_job = job("_test_uploadtar_and_releasepy")
-OSRFBase.create(upload_and_releasepy_job)
-OSRFLinuxSourceCreation.addParameters(upload_and_releasepy_job, [DRY_RUN: true])
-upload_and_releasepy_job.with
-{
-  parameters
-  {
-    stringParam('PACKAGE','','')
-    stringParam('SOURCE_TARBALL_URI','','')
-  }
-
-  steps {
-    // Step 1 :: call _test_repository_uploader
-    conditionalSteps {
-     condition {
-      not {
-        expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
-        }
-      }
-      steps {
-        downstreamParameterized {
-          trigger('_test_repository_uploader') {
-            block {
-                buildStepFailure('FAILURE')
-                failure('FAILURE')
-                unstable('UNSTABLE')
-            }
-            parameters {
-              predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
-                               PACKAGE: '${PACKAGE}',
-                               UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
-            }
-          }
-        }
-      }
-    }
-    // Step 2 :: call _test_releasepy
-    downstreamParameterized {
-      trigger('_test_releasepy') {
-        block {
-            buildStepFailure('FAILURE')
-            failure('FAILURE')
-            unstable('UNSTABLE')
-        }
-        parameters {
-          currentBuild()
-          predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
-                           PACKAGE: '${PACKAGE}',
-                           SOURCE_TARBALL_URI: 'S3_PATH_TO_IMPLEMENT'])
-        }
-      }
-    }
-  }
-}
-
 def gz_source_job = job("_test_gz_source")
 OSRFLinuxSourceCreation.create(gz_source_job)
 gz_source_job.with
 {
-  // dsl should know the
-  //   - PACKAGE name (idem PACKAGE_ALIAS)
-
-  // release.py PACKAGE VERSION TOKEN -r RELEASE_VERSION --upload-to UPLOAD_TO_REPO
-
-  // IMPLEMENT: SOURCE_TARBALL_URI
-
-  // release.py generates:
-  //  - LINUX_DISTRO unconditionally
-  //  - DISTRO
-  //  - ARCH
-  //  - JENKINS_NODE_TAG
-  //  - OSRF_REPOS_TO_USE
-
   label Globals.nontest_label("docker")
 
   def PACKAGE_NAME="gz-cmake3"
@@ -149,15 +86,37 @@ gz_source_job.with
   }
 
   publishers {
-    downstreamParameterized {
-      trigger('_test_uploadtar_and_releasepy') {
-        condition('SUCCESS')
-        parameters {
-          currentBuild()
-          predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
-                           PACKAGE: "${PACKAGE_NAME}",
-                           SOURCE_TARBALL_URI: 'S3_PATH_TO_IMPLEMENT'])
-        }
+    postBuildScripts {
+      steps {
+        conditionalSteps {
+             condition {
+              not {
+                expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
+                }
+              }
+              steps {
+                // Invoke repository_uploader
+                downstreamParameterized {
+                  trigger('_test_repository_uploader') {
+                    parameters {
+                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
+                                       PACKAGE: '${PACKAGE_NAME}',
+                                       UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
+                    }
+                  }
+                }
+                downstreamParameterized {
+                  trigger('_test_releasepy') {
+                    parameters {
+                      currentBuild()
+                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
+                                       PACKAGE: '${PACKAGE_NAME}',
+                                       SOURCE_TARBALL_URI: 'S3_PATH_TO_IMPLEMENT'])
+                    }
+                  }
+                }
+              }
+            }
       }
     }
   }

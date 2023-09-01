@@ -14,6 +14,11 @@ class OSRFReleasepy
     {
       label Globals.nontest_label("master")
 
+      blockOn("repository_uploader_packages") {
+        blockLevel('GLOBAL')
+        scanQueueFor('ALL')
+      }
+
       parameters
       {
         stringParam("PACKAGE",
