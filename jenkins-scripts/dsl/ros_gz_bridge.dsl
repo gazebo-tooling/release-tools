@@ -168,7 +168,8 @@ void generate_install_test_job(Job install_test_job)
       shell("""\
            #!/bin/bash -xe
 
-           export INSTALL_JOB_PKG=ros-\${ROS_DISTRO}-ros-gz\${GZ_VERSION}
+           export INSTALL_JOB_PKG="ros-\${ROS_DISTRO}-ros-gz\${GZ_VERSION}
+           export INSTALL_JOB_PKG_APT_PARAMS="--install-suggests"
            export INSTALL_JOB_REPOS=\${OSRF_REPOS_TO_USE}
            export USE_ROS_REPO=true
            export ROS2=true

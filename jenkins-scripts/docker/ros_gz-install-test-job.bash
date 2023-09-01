@@ -42,9 +42,6 @@ if [ \$DIFF -lt 180 ]; then
 fi
 """
 
-# Need bc to proper testing and parsing the time
-# TODO: fix gz-sim-cli dependency on ros_gz package
-# to avoid hardcoded version on gz-sim
-export DEPENDENCY_PKGS="${DEPENDENCY_PKGS} wget ros-${ROS_DISTRO}-ros-base gz-sim7-cli"
+export DEPENDENCY_PKGS="${DEPENDENCY_PKGS} wget ros-${ROS_DISTRO}-ros-base"
 
 . ${SCRIPT_DIR}/lib/generic-install-base.bash
