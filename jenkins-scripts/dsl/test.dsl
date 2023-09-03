@@ -70,15 +70,17 @@ gz_source_job.with
   label Globals.nontest_label("docker")
 
   def PACKAGE_NAME="gz-cmake3"
+  def properties_file="package_name.prop"
 
   steps {
     shell("""\
           #!/bin/bash -xe
 
+          echo "PACKAGE=${PACKAGE_NAME}" > ${properties_file}
+
           # Use Jammy/amd64 as base image to generate sources
           export DISTRO=jammy
           export ARCH=amd64
-          export PACKAGE_NAME=${PACKAGE_NAME}
           export SOURCE_REPO_URI=https://github.com/gazebosim/gz-cmake.git
 
           /bin/bash -x ./scripts/jenkins-scripts/docker/gz-source-generation.bash
@@ -100,8 +102,8 @@ gz_source_job.with
                   trigger('_test_repository_uploader') {
                     parameters {
                       predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
-                                       PACKAGE: '${PACKAGE_NAME}',
                                        UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
+                      propertiesFile(properties_file)
                     }
                   }
                 }
@@ -110,8 +112,8 @@ gz_source_job.with
                     parameters {
                       currentBuild()
                       predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
-                                       PACKAGE: '${PACKAGE_NAME}',
                                        SOURCE_TARBALL_URI: 'S3_PATH_TO_IMPLEMENT'])
+                      propertiesFile(properties_file)
                     }
                   }
                 }
