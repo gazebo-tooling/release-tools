@@ -41,6 +41,9 @@ repo_uploader.with
 
   parameters
   {
+    stringParam('PACKAGE','','Package name')
+    stringParam('TARBALL_NAME', '', 'Tarball name to upload')
+    stringParam('S3_UPLOAD_PATH','', 'S3 path to upload')
     stringParam('UPLOAD_TO_REPO','none','repo to upload')
   }
 
@@ -57,8 +60,12 @@ repo_uploader.with
     shell("""\
           #!/bin/bash -xe
 
-          ls -R \${WORKSPACE}
+          # check that the tarball name actually exist
 
+          ls -R \${WORKSPACE}
+          test -f \${WORKSPACE}/\${TARBALL_NAME}
+
+          echo "Fake upload of \${TARBALL_NAME} to \${S3_UPLOAD_PATH}"
           """.stripIndent())
   }
 }
@@ -70,6 +77,7 @@ gz_source_job.with
   label Globals.nontest_label("docker")
 
   def package_name="gz-cmake3"
+  def canonical_package_name=Globals.get_canonical_package_name(package_name)
   def properties_file="package_name.prop"
 
   steps {
@@ -82,10 +90,25 @@ gz_source_job.with
           export ARCH=amd64
           export SOURCE_REPO_URI=https://github.com/gazebosim/gz-cmake.git
 
-          echo "PACKAGE=${package_name}" > ${properties_file}
-
           /bin/bash -x ./scripts/jenkins-scripts/docker/gz-source-generation.bash
           """.stripIndent())
+
+    shell("""\
+          #!/bin/bash -xe
+
+          # Export information from the build in properties_files. The tarball extraction helps to
+          # deal with changes in the compression of the tarballs.
+
+          tarball=\$(ls \${WORKSPACE}/${pkg_sources_dir}/${canonical_package_name}-\${VERSION}.tar.*)
+          if [[ -z \${tarball} ]] || [[ wc -w <<< \${tarball} != 1 ]]; then
+            echo "Tarball name extraction returned "\${tarball} which is not a one word string"
+            exit 1
+          fi
+
+          echo "PACKAGE=${package_name}" > ${properties_file}
+          echo "TARBALL_NAME=\${tarball}" >> ${properties_file}
+          """.stripIndent())
+
   }
 
   publishers {
@@ -103,8 +126,11 @@ gz_source_job.with
                   trigger('_test_repository_uploader') {
                     parameters {
                       predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
+                                       S3_UPLOAD_PATH: Globals.s3_upload_tarball_path(package_name),
                                        UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
                       propertiesFile(properties_file)
+                                      // PACKAGE
+                                      // TARBALL_NAME
                     }
                   }
                 }
@@ -115,6 +141,8 @@ gz_source_job.with
                       predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
                                        SOURCE_TARBALL_URI: 'S3_PATH_TO_IMPLEMENT'])
                       propertiesFile(properties_file)
+                                      // PACKAGE
+                                      // TARBALL_NAME
                     }
                   }
                 }

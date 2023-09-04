@@ -131,4 +131,26 @@ class Globals
    static String nontest_label(String original_label) {
     return "(${original_label}) && !test-instance"
    }
+
+   static String get_canonical_package_name(String package_name) {
+    return package_name.replaceAll('\\d*$', '')
+  }
+
+   static String _s3_releases_dir(String package_name) {
+    return get_canonical_package_name(package_name) + '/releases'
+   }
+
+   static String _s3_build_tarball_name(String package_name, String version) {
+    // canonical_name + version
+    return package_name.replaceAll('\\d*$', '') + '-' + version
+   }
+
+   static String s3_upload_tarball_path(String package_name) {
+    return 's3://osrf-distributions/' + _s3_releases_dir(package_name)
+   }
+   static String s3_download_uri(String package_name, String version) {
+    return 'https://osrf-distributions.s3.amazonaws.com/' + \
+            _s3_releases_dir(package_name) + \
+            _s3_build_tarball_name(package_name, version)
+   }
 }

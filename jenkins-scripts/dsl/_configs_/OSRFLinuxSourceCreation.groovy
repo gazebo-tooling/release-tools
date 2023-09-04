@@ -15,16 +15,18 @@ class OSRFLinuxSourceCreation
                     "Packages version to be built or nightly (enable nightly build mode)")
         stringParam("RELEASE_VERSION",
                     default_params.find{ it.key == "RELEASE_VERSION"}?.value,
-                    "Packages release version")
+                    "For downstream jobs: Packages release version")
         stringParam("RELEASE_REPO_BRANCH",
                     default_params.find{ it.key == "RELEASE_REPO_BRANCH"}?.value,
-                    "Branch from the -release repo to be used")
+                    "For downstream jobs: Branch from the -release repo to be used")
         stringParam("UPLOAD_TO_REPO",
                     default_params.find{ it.key == "UPLOAD_TO_REPO"}?.value,
-                    "OSRF repo name to upload the package to: stable | prerelease | nightly | none (for testing proposes)")
+                    "For downstream jobs: OSRF repo name to upload the package to: stable | prerelease | nightly | none (for testing proposes)")
       }
     }
   }
+
+  static String get_tarball_
 
   static void create(Job job, Map default_params = [:])
   {
