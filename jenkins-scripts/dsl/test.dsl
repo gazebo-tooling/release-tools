@@ -69,19 +69,20 @@ gz_source_job.with
 {
   label Globals.nontest_label("docker")
 
-  def PACKAGE_NAME="gz-cmake3"
+  def package_name="gz-cmake3"
   def properties_file="package_name.prop"
 
   steps {
     shell("""\
           #!/bin/bash -xe
 
-          echo "PACKAGE=${PACKAGE_NAME}" > ${properties_file}
-
           # Use Jammy/amd64 as base image to generate sources
+          export PACKAGE=${package_name}
           export DISTRO=jammy
           export ARCH=amd64
           export SOURCE_REPO_URI=https://github.com/gazebosim/gz-cmake.git
+
+          echo "PACKAGE=${package_name}" > ${properties_file}
 
           /bin/bash -x ./scripts/jenkins-scripts/docker/gz-source-generation.bash
           """.stripIndent())
