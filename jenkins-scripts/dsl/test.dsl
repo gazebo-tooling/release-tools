@@ -98,9 +98,11 @@ gz_source_job.with
 
           # Export information from the build in properties_files. The tarball extraction helps to
           # deal with changes in the compression of the tarballs.
-
-          tarball=\$(ls \${WORKSPACE}/${pkg_sources_dir}/${canonical_package_name}-\${VERSION}.tar.*)
-          if [[ -z \${tarball} ]] || [[ wc -w <<< \${tarball} != 1 ]]; then
+          tarball=\$(find \${WORKSPACE}/${pkg_sources_dir} \
+                       -type f \
+                       -name ${canonical_package_name}-\${VERSION}.tar.* \
+                       -printf "%f\\n")
+          if [[ -z \${tarball} ]] || [[ \$(wc -w <<< \${tarball}) != 1 ]]; then
             echo "Tarball name extraction returned \${tarball} which is not a one word string"
             exit 1
           fi
