@@ -101,7 +101,7 @@ gz_source_job.with
 
           tarball=\$(ls \${WORKSPACE}/${pkg_sources_dir}/${canonical_package_name}-\${VERSION}.tar.*)
           if [[ -z \${tarball} ]] || [[ wc -w <<< \${tarball} != 1 ]]; then
-            echo "Tarball name extraction returned "\${tarball} which is not a one word string"
+            echo "Tarball name extraction returned \${tarball} which is not a one word string"
             exit 1
           fi
 
@@ -138,8 +138,7 @@ gz_source_job.with
                   trigger('_test_releasepy') {
                     parameters {
                       currentBuild()
-                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
-                                       SOURCE_TARBALL_URI: 'S3_PATH_TO_IMPLEMENT'])
+                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}"])
                       propertiesFile(properties_file)
                                       // PACKAGE
                                       // TARBALL_NAME

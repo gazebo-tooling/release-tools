@@ -148,6 +148,8 @@ class Globals
    static String s3_upload_tarball_path(String package_name) {
     return 's3://osrf-distributions/' + _s3_releases_dir(package_name)
    }
+
+   // Not yet in use. Requires changing release.py
    static String s3_download_uri(String package_name, String version) {
     return 'https://osrf-distributions.s3.amazonaws.com/' + \
             _s3_releases_dir(package_name) + \
