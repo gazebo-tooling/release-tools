@@ -127,7 +127,8 @@ gz_source_job.with
                 downstreamParameterized {
                   trigger('_test_repository_uploader') {
                     parameters {
-                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
+                      predefinedProps([RTOOLS_BRANCH: "\${RTOOLS_BRANCH}",
+                                       PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
                                        S3_UPLOAD_PATH: Globals.s3_upload_tarball_path(package_name),
                                        UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
                       propertiesFile(properties_file)
