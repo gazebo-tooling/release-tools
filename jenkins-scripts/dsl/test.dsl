@@ -63,7 +63,7 @@ repo_uploader.with
           # check that the tarball name actually exist
 
           ls -R \${WORKSPACE}
-          test -f \${WORKSPACE}/\${TARBALL_NAME}
+          test -f \${WORKSPACE}/${pkg_sources_dir}/\${TARBALL_NAME}
 
           echo "Fake upload of \${TARBALL_NAME} to \${S3_UPLOAD_PATH}"
           """.stripIndent())
