@@ -63,18 +63,18 @@ ignition_branches           = [ 'cmake'      : [ '2' ],
 
 gz_branches                 = [ 'cmake'      : [ '3' ],
                                 'common'     : [ '5' ],
-                                'fuel-tools' : [ '8' ],
-                                'gui'        : [ '7' ],
-                                'launch'     : [ '6' ],
+                                'fuel-tools' : [ '8', '9' ],
+                                'gui'        : [ '7', '8' ],
+                                'launch'     : [ '6', '7' ],
                                 'math'       : [ '7' ],
-                                'msgs'       : [ '9' ],
-                                'physics'    : [ '6' ],
+                                'msgs'       : [ '9', '10'],
+                                'physics'    : [ '6', '7' ],
                                 'plugin'     : [ '2' ],
-                                'rendering'  : [ '7' ],
-                                'sensors'    : [ '7' ],
-                                'sim'        : [ '7' ],
+                                'rendering'  : [ '7', '8' ],
+                                'sensors'    : [ '7', '8' ],
+                                'sim'        : [ '7', '8' ],
                                 'tools'      : [ '2' ],
-                                'transport'  : [ '12' ],
+                                'transport'  : [ '12', '13' ],
                                 'utils'      : [ '2' ]]
 // DESC: prerelease branches are managed as any other supported branches for
 // special cases different to major branches: get compilation CI on the branch
@@ -83,16 +83,7 @@ gz_prerelease_branches = []
 // DESC: versioned names to generate debbuild jobs for special cases that
 // don't appear in gz_branches (like nightly builders or 0-debbuild
 // jobs for the special cases of foo0 packages)
-gz_extra_debbuild = [ 'gui8',
-                      'fuel-tools9',
-                      'launch7',
-                      'msgs10',
-                      'physics7',
-                      'rendering8',
-                      'sensors8',
-                      'sim8',
-                      'transport13',
-                      'utils1' // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
+gz_extra_debbuild = [ 'utils1' // see comment https://github.com/gazebo-tooling/release-tools/pull/431#issuecomment-815099918
                     ]
 // DESC: exclude ignition from generate any install testing job
 gz_no_pkg_yet         = [  ]
@@ -382,11 +373,11 @@ void generate_install_job(prefix, gz_sw, major_version, distro, arch)
 // Need to be before the ci-pr_any so the abi job name is defined
 gz_software.each { gz_sw ->
   supported_arches.each { arch ->
-    // 1 Per library and per linux arch 
+    // 1 Per library and per linux arch
     //   1.1 Per abi_distro
     //     1.1.1 [job] ABI checker for main branches
     //   1.2 Per ci_str_distro
-    //     1.2.1 [job] Main PR jobs (-ci-pr_any-) 
+    //     1.2.1 [job] Main PR jobs (-ci-pr_any-)
     //   1.3 Per all supported_distros
     //     1.3.1 Per all supported branches on each library
     //       1.3.1.1 [job] Branch jobs -ci-$branch-
@@ -501,7 +492,7 @@ gz_software.each { gz_sw ->
               scm('@daily')
             }
           }
-          // 1.3.1.2 Branch ASAN jobs -ci_asan-$branch- 
+          // 1.3.1.2 Branch ASAN jobs -ci_asan-$branch-
           // --------------------------------------------------------------
           def gz_ci_asan_job = job("ignition_${software_name}-ci_asan-${branch}-${distro}-${arch}")
           generate_asan_ci_job(gz_ci_asan_job, software_name, branch, distro, arch)
@@ -553,7 +544,7 @@ void generate_asan_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
 {
   generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
                   '-DGZ_SANITIZER=Address',
-                  Globals.MAKETEST_SKIP_GZ,                  
+                  Globals.MAKETEST_SKIP_GZ,
                   'export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true')
 }
 

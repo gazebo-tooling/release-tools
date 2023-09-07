@@ -10,7 +10,7 @@
 #     ci:
 #      - linux:
 #         pr_distro:
-#         abi_distro: 
+#         abi_distro:
 #         install_distros:
 #           - distro1
 #           - distro2
@@ -73,43 +73,43 @@ collections:
       - name: gz-msgs
         major_version: 10
         repo:
-          current_branch: main
+          current_branch: gz-msgs10
       - name: gz-rendering
         major_version: 8
         repo:
-          current_branch: main
+          current_branch: gz-rendering8
       - name: sdformat
         major_version: 14
         repo:
-          current_branch: main
+          current_branch: sdf14
       - name: gz-fuel-tools
         major_version: 9
         repo:
-          current_branch: main
+          current_branch: gz-fuel-tools9
       - name: gz-transport
         major_version: 13
         repo:
-          current_branch: main
+          current_branch: gz-transport13
       - name: gz-gui
         major_version: 8
         repo:
-          current_branch: main
+          current_branch: gz-gui8
       - name: gz-sensors
         major_version: 8
         repo:
-          current_branch: main
+          current_branch: gz-sensors8
       - name: gz-physics
         major_version: 7
         repo:
-          current_branch: main
+          current_branch: gz-physics7
       - name: gz-sim
         major_version: 8
         repo:
-          current_branch: main
+          current_branch: gz-sim8
       - name: gz-launch
         major_version: 7
         repo:
-          current_branch: main
+          current_branch: gz-launch7
       - name: gz-harmonic
         major_version: 1
         repo:
