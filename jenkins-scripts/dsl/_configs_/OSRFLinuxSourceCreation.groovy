@@ -6,9 +6,12 @@ import _configs_.Globals
 class OSRFLinuxSourceCreation
 {
   static String properties_file = "package_name.prop"
+  static String package_name = ""
 
   static void addParameters(Job job, Map default_params = [:])
   {
+    package_name = default_params.find{ it.key == "PACKAGE"}?.value
+
     job.with
     {
       parameters {
@@ -121,7 +124,7 @@ class OSRFLinuxSourceCreation
                     parameters {
                       currentBuild()
                       predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: '${JOB_NAME}',
-                                       S3_UPLOAD_PATH: Globals.s3_upload_tarball_path('${PACKAGE}'))
+                                       S3_UPLOAD_PATH: Globals.s3_upload_tarball_path(package_name)])
                       propertiesFile(properties_file) // TARBALL_NAME
                     }
                   }
