@@ -119,10 +119,9 @@ class OSRFLinuxSourceCreation
                 downstreamParameterized {
                   trigger(repository_uploader_jobname) {
                     parameters {
-                      predefinedProps([RTOOLS_BRANCH: '${RTOOLS_BRANCH}',
-                                       PROJECT_NAME_TO_COPY_ARTIFACTS: '${JOB_NAME}',
-                                       S3_UPLOAD_PATH: Globals.s3_upload_tarball_path('${PACKAGE}'),
-                                       UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
+                      currentBuild()
+                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: '${JOB_NAME}',
+                                       S3_UPLOAD_PATH: Globals.s3_upload_tarball_path('${PACKAGE}'))
                       propertiesFile(properties_file) // TARBALL_NAME
                     }
                   }
