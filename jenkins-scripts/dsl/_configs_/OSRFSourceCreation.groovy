@@ -5,29 +5,34 @@ import _configs_.Globals
 
 class OSRFSourceCreation
 {
+  static String properties_file = "package_name.prop"
+  static String package_name = ""
+
   static void addParameters(Job job, Map default_params = [:])
   {
+    package_name = default_params.find{ it.key == "PACKAGE"}?.value
+
     job.with
     {
       parameters {
-        stringParam("PACKAGE_NAME",
-                    default_params.find{ it.key == "PACKAGE_NAME"}?.value,
-                    "Software name (i.e gz-cmake3)")
-        stringParam("SOURCE_REPO_URI",
-                    default_params.find{ it.key == "SOURCE_REPO_URI"}?.value,
-                    "GitHub URI to release the sources from (i.e: https://github.com/gazebosim/gz-cmake.git)")
+        choiceParam('PACKAGE',
+                    [default_params.find{ it.key == "PACKAGE"}?.value],
+                    "Package name (can not be modified)")
+        choiceParam('SOURCE_REPO_URI',
+                    [default_params.find{ it.key == "SOURCE_REPO_URI"}?.value],
+                    "Software repository URL (can not be modified)")
         stringParam("VERSION",
                     default_params.find{ it.key == "VERSION"}?.value,
                     "Packages version to be built or nightly (enable nightly build mode)")
         stringParam("RELEASE_VERSION",
                     default_params.find{ it.key == "RELEASE_VERSION"}?.value,
-                    "Packages release version")
+                    "For downstream jobs: Packages release version")
         stringParam("RELEASE_REPO_BRANCH",
                     default_params.find{ it.key == "RELEASE_REPO_BRANCH"}?.value,
-                    "Branch from the -release repo to be used")
+                    "For downstream jobs: Branch from the -release repo to be used")
         stringParam("UPLOAD_TO_REPO",
                     default_params.find{ it.key == "UPLOAD_TO_REPO"}?.value,
-                    "OSRF repo name to upload the package to: stable | prerelease | nightly | none (for testing proposes)")
+                    "For downstream jobs: OSRF repo name to upload the package to: stable | prerelease | nightly | none (for testing proposes)")
       }
     }
   }
