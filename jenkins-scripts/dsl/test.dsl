@@ -71,85 +71,50 @@ repo_uploader.with
 }
 
 def gz_source_job = job("_test_gz_source")
-OSRFLinuxSourceCreation.create(gz_source_job)
+OSRFLinuxSourceCreation.create(gz_source_job, [
+  PACKAGE: "gz-cmake3" ,
+  SOURCE_REPO_URI: "https://github.com/gazebosim/gz-cmake.git"])
+
+def properties_file="package_name.prop"
 gz_source_job.with
 {
-  label Globals.nontest_label("docker")
-
-  def package_name="gz-cmake3"
-  def canonical_package_name=Globals.get_canonical_package_name(package_name)
-  def properties_file="package_name.prop"
-
-  steps {
-    shell("""\
-          #!/bin/bash -xe
-
-          # Use Jammy/amd64 as base image to generate sources
-          export PACKAGE=${package_name}
-          export DISTRO=jammy
-          export ARCH=amd64
-          export SOURCE_REPO_URI=https://github.com/gazebosim/gz-cmake.git
-
-          /bin/bash -x ./scripts/jenkins-scripts/docker/gz-source-generation.bash
-          """.stripIndent())
-
-    shell("""\
-          #!/bin/bash -xe
-
-          # Export information from the build in properties_files. The tarball extraction helps to
-          # deal with changes in the compression of the tarballs.
-          tarball=\$(find \${WORKSPACE}/${pkg_sources_dir} \
-                       -type f \
-                       -name ${canonical_package_name}-\${VERSION}.tar.* \
-                       -printf "%f\\n")
-          if [[ -z \${tarball} ]] || [[ \$(wc -w <<< \${tarball}) != 1 ]]; then
-            echo "Tarball name extraction returned \${tarball} which is not a one word string"
-            exit 1
-          fi
-
-          echo "PACKAGE=${package_name}" > ${properties_file}
-          echo "TARBALL_NAME=\${tarball}" >> ${properties_file}
-          """.stripIndent())
-
-  }
-
   publishers {
     postBuildScripts {
       steps {
         conditionalSteps {
-             condition {
-              not {
-                expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
-                }
-              }
-              steps {
-                // Invoke repository_uploader
-                downstreamParameterized {
-                  trigger('_test_repository_uploader') {
-                    parameters {
-                      predefinedProps([RTOOLS_BRANCH: "\${RTOOLS_BRANCH}",
-                                       PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
-                                       S3_UPLOAD_PATH: Globals.s3_upload_tarball_path(package_name),
-                                       UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
-                      propertiesFile(properties_file)
-                                      // PACKAGE
-                                      // TARBALL_NAME
-                    }
-                  }
-                }
-                downstreamParameterized {
-                  trigger('_test_releasepy') {
-                    parameters {
-                      currentBuild()
-                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}"])
-                      propertiesFile(properties_file)
-                                      // PACKAGE
-                                      // TARBALL_NAME
-                    }
-                  }
+         condition {
+          not {
+            expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
+            }
+          }
+          steps {
+            // Invoke repository_uploader
+            downstreamParameterized {
+              trigger('_test_repository_uploader') {
+                parameters {
+                  predefinedProps([RTOOLS_BRANCH: "\${RTOOLS_BRANCH}",
+                                   PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
+                                   S3_UPLOAD_PATH: Globals.s3_upload_tarball_path("gz-cmake3"),
+                                   UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
+                  propertiesFile(properties_file)
+                                  // PACKAGE
+                                  // TARBALL_NAME
                 }
               }
             }
+            downstreamParameterized {
+              trigger('_test_releasepy') {
+                parameters {
+                  currentBuild()
+                  predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}"])
+                  propertiesFile(properties_file)
+                                  // PACKAGE
+                                  // TARBALL_NAME
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
