@@ -20,6 +20,12 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
 // releasing testing job
 def releasepy_job = job("_test_releasepy")
 OSRFReleasepy.create(releasepy_job, [DRY_RUN: true])
+releasepy_job.with {
+      blockOn("_test_repository_uploader") {
+        blockLevel('GLOBAL')
+        scanQueueFor('ALL')
+      }
+}
 // gz source testing job
 def gz_source_job = job("_test_gz_source")
 OSRFSourceCreation.create(gz_source_job, [
@@ -28,6 +34,48 @@ OSRFSourceCreation.create(gz_source_job, [
 OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
   '_test_repository_uploader',
   '_test_releasepy')
+// repository_uploader fake test job
+// TODO: implement the S3_FILES_TO_UPLOAD support in this
+def repo_uploader = job("_test_repository_uploader")
+OSRFBase.create(repo_uploader)
+repo_uploader.with
+{
+  label Globals.nontest_label("docker")
+
+  wrappers {
+      preBuildCleanup()
+  }
+
+  parameters
+  {
+    stringParam('PACKAGE','','Package name')
+    stringParam('TARBALL_NAME', '', 'Tarball name to upload')
+    stringParam('S3_UPLOAD_PATH','', 'S3 path to upload')
+    stringParam('UPLOAD_TO_REPO','none','repo to upload')
+  }
+
+  steps
+  {
+    copyArtifacts('_test_gz_source')
+    {
+      includePatterns("${pkg_sources_dir}/${TARBALL_NAME}")
+      buildSelector {
+        upstreamBuild()
+      }
+    }
+
+    shell("""\
+          #!/bin/bash -xe
+
+          # check that the tarball name actually exist
+
+          ls -R \${WORKSPACE}
+          test -f \${WORKSPACE}/${pkg_sources_dir}/\${TARBALL_NAME}
+
+          echo "Fake upload of \${TARBALL_NAME} to \${S3_UPLOAD_PATH}"
+          """.stripIndent())
+  }
+}
 
 // -------------------------------------------------------------------
 def outdated_job_runner = job("_test_outdated_job_runner")
