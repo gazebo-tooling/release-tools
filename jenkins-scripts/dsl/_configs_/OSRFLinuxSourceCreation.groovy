@@ -5,6 +5,8 @@ import _configs_.Globals
 
 class OSRFLinuxSourceCreation
 {
+  static String properties_file = "package_name.prop"
+
   static void addParameters(Job job, Map default_params = [:])
   {
     job.with
@@ -38,7 +40,6 @@ class OSRFLinuxSourceCreation
     GenericRemoteToken.create(job)
     OSRFLinuxSourceCreation.addParameters(job, default_params)
 
-    def properties_file="package_name.prop"
     def pkg_sources_dir="pkgs"
 
     job.with
@@ -93,6 +94,52 @@ class OSRFLinuxSourceCreation
           echo "TARBALL_NAME=\${tarball}" >> ${properties_file}
           """.stripIndent()
         )
+      }
+    }
+  }
+
+  // Useful to inject testing jobs
+  static void call_uploader_and_releasepy(Job job,
+                                          String repository_uploader_jobname,
+                                          String releasepy_jobname)
+  {
+    job.with
+    {
+      publishers {
+        postBuildScripts {
+          steps {
+            conditionalSteps {
+             condition {
+              not {
+                expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
+                }
+              }
+              steps {
+                // Invoke repository_uploader
+                downstreamParameterized {
+                  trigger(repository_uploader_jobname) {
+                    parameters {
+                      predefinedProps([RTOOLS_BRANCH: '${RTOOLS_BRANCH}',
+                                       PROJECT_NAME_TO_COPY_ARTIFACTS: '${JOB_NAME}',
+                                       S3_UPLOAD_PATH: Globals.s3_upload_tarball_path('${PACKAGE}'),
+                                       UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
+                      propertiesFile(properties_file) // TARBALL_NAME
+                    }
+                  }
+                }
+                downstreamParameterized {
+                  trigger(releasepy_jobname) {
+                    parameters {
+                      currentBuild()
+                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}"])
+                      propertiesFile(properties_file) // TARBALL_NAME
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

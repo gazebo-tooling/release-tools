@@ -74,51 +74,9 @@ def gz_source_job = job("_test_gz_source")
 OSRFLinuxSourceCreation.create(gz_source_job, [
   PACKAGE: "gz-cmake3" ,
   SOURCE_REPO_URI: "https://github.com/gazebosim/gz-cmake.git"])
-
-def properties_file="package_name.prop"
-gz_source_job.with
-{
-  publishers {
-    postBuildScripts {
-      steps {
-        conditionalSteps {
-         condition {
-          not {
-            expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
-            }
-          }
-          steps {
-            // Invoke repository_uploader
-            downstreamParameterized {
-              trigger('_test_repository_uploader') {
-                parameters {
-                  predefinedProps([RTOOLS_BRANCH: "\${RTOOLS_BRANCH}",
-                                   PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}",
-                                   S3_UPLOAD_PATH: Globals.s3_upload_tarball_path("gz-cmake3"),
-                                   UPLOAD_TO_REPO: '${UPLOAD_TO_REPO}'])
-                  propertiesFile(properties_file)
-                                  // PACKAGE
-                                  // TARBALL_NAME
-                }
-              }
-            }
-            downstreamParameterized {
-              trigger('_test_releasepy') {
-                parameters {
-                  currentBuild()
-                  predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}"])
-                  propertiesFile(properties_file)
-                                  // PACKAGE
-                                  // TARBALL_NAME
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
+OSRFLinuxSourceCreation.call_uploader_and_releasepy(gz_source_job,
+  '_test_repository_uploader',
+  '_test_releasepy')
 
 // -------------------------------------------------------------------
 def outdated_job_runner = job("_test_outdated_job_runner")
