@@ -37,16 +37,16 @@ class OSRFSourceCreation
     }
   }
 
-  static void create(Job job, Map default_params = [:])
+  static void create(Job job, Map default_params = [:], Map default_hidden_params = [:])
   {
     OSRFLinuxBuildPkgBase.create(job)
     GenericRemoteToken.create(job)
     OSRFSourceCreation.addParameters(job, default_params)
 
+    def pkg_sources_dir="pkgs"
+
     job.with
     {
-      label Globals.nontest_label("docker")
-
       wrappers {
         preBuildCleanup()
       }
@@ -54,6 +54,9 @@ class OSRFSourceCreation
       properties {
         priority 100
       }
+
+      def canonical_package_name = Globals.get_canonical_package_name(
+        default_params.find{ it.key == "PACKAGE"}.value)
 
       steps {
         systemGroovyCommand("""\
@@ -98,6 +101,47 @@ class OSRFSourceCreation
     }
   }
 
+  // Useful to inject testing jobs
+  static void call_uploader_and_releasepy(Job job,
+                                          String repository_uploader_jobname,
+                                          String releasepy_jobname)
+  {
+    job.with
+    {
+      publishers {
+        postBuildScripts {
+          steps {
+            conditionalSteps {
+             condition {
+              not {
+                expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
+                }
+              }
+              steps {
+                // Invoke repository_uploader
+                downstreamParameterized {
+                  trigger(repository_uploader_jobname) {
+                    parameters {
+                      currentBuild()
+                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: '${JOB_NAME}',
+                                       S3_UPLOAD_PATH: Globals.s3_upload_tarball_path(package_name)])
+                      propertiesFile(properties_file) // TARBALL_NAME
+                    }
+                  }
+                }
+                downstreamParameterized {
+                  trigger(releasepy_jobname) {
+                    parameters {
+                      currentBuild()
+                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}"])
+                      propertiesFile(properties_file) // TARBALL_NAME
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
