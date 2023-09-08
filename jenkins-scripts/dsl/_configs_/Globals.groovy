@@ -150,9 +150,8 @@ class Globals
    }
 
    // Not yet in use. Requires changing release.py
-   static String s3_download_uri(String package_name, String version) {
+   static String s3_download_uri(String package_name, String tarball_name) {
     return 'https://osrf-distributions.s3.amazonaws.com/' + \
-            _s3_releases_dir(package_name) + \
-            _s3_build_tarball_name(package_name, version)
+            _s3_releases_dir(package_name) + "/${tarball_name}"
    }
 }

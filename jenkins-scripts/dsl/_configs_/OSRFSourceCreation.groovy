@@ -94,7 +94,9 @@ class OSRFSourceCreation
             exit 1
           fi
 
+          # Same value, two exported names: S3_FILES_TO_UPLOAD for repository_uploader
           echo "TARBALL_NAME=\${tarball}" >> ${properties_file}
+          echo "S3_FILES_TO_UPLOAD=\${tarball}" >> ${properties_file}
           """.stripIndent()
         )
       }

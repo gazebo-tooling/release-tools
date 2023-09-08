@@ -19,7 +19,8 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
 
 // releasing testing job
 def releasepy_job = job("_test_releasepy")
-OSRFReleasepy.create(releasepy_job, [DRY_RUN: true])
+OSRFReleasepy.create(releasepy_job, [
+  DRY_RUN: true])
 releasepy_job.with {
       blockOn("_test_repository_uploader") {
         blockLevel('GLOBAL')
@@ -35,7 +36,7 @@ OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
   '_test_repository_uploader',
   '_test_releasepy')
 
-def pkg_sources_dir = 'pkgs/'
+def pkg_sources_dir = 'pkgs'
 
 // repository_uploader fake test job
 // TODO: implement the S3_FILES_TO_UPLOAD support in this
@@ -52,7 +53,7 @@ repo_uploader.with
   parameters
   {
     stringParam('PACKAGE','','Package name')
-    stringParam('TARBALL_NAME', '', 'Tarball name to upload')
+    stringParam('S3_FILE_TO_UPLOAD', '', 'Tarball name to upload')
     stringParam('S3_UPLOAD_PATH','', 'S3 path to upload')
     stringParam('UPLOAD_TO_REPO','none','repo to upload')
   }
@@ -61,7 +62,7 @@ repo_uploader.with
   {
     copyArtifacts('_test_gz_source')
     {
-      includePatterns("${pkg_sources_dir}/\${TARBALL_NAME}")
+      includePatterns("${pkg_sources_dir}/\${S3_FILE_TO_UPLOAD}")
       buildSelector {
         upstreamBuild()
       }
@@ -73,9 +74,9 @@ repo_uploader.with
           # check that the tarball name actually exist
 
           ls -R \${WORKSPACE}
-          test -f \${WORKSPACE}/${pkg_sources_dir}/\${TARBALL_NAME}
+          test -f \${WORKSPACE}/${pkg_sources_dir}/\${S3_FILE_TO_UPLOAD}
 
-          echo "Fake upload of \${TARBALL_NAME} to \${S3_UPLOAD_PATH}"
+          echo "Fake upload of \${S3_FILE_TO_UPLOAD} to \${S3_UPLOAD_PATH}"
           """.stripIndent())
   }
 }
