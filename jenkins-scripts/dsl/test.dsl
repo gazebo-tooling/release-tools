@@ -34,6 +34,9 @@ OSRFSourceCreation.create(gz_source_job, [
 OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
   '_test_repository_uploader',
   '_test_releasepy')
+
+def pkg_sources_dir = 'pkgs/'
+
 // repository_uploader fake test job
 // TODO: implement the S3_FILES_TO_UPLOAD support in this
 def repo_uploader = job("_test_repository_uploader")
@@ -58,7 +61,7 @@ repo_uploader.with
   {
     copyArtifacts('_test_gz_source')
     {
-      includePatterns("${pkg_sources_dir}/${TARBALL_NAME}")
+      includePatterns("${pkg_sources_dir}/\${TARBALL_NAME}")
       buildSelector {
         upstreamBuild()
       }
