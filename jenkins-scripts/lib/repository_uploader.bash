@@ -131,8 +131,12 @@ case ${UPLOAD_TO_REPO} in
   ;;
 esac
 
-# .zip | (mostly) windows packages
-for pkg in `ls $pkgs_path/*.zip`; do
+
+# S3_FILES_TO_UPLOAD can contain a list of filenames relative to $pkgs_path that will be uploaded to S3
+# together with any .zip (mostly old windows packages) if they exists
+S3_FILES_TO_UPLOAD="${S3_FILES_TO_UPLOAD} $(find "$pkgs_path" -type f -name '*.zip' -printf '%f\n' || true)"
+
+for pkg in ${S3_FILES_TO_UPLOAD}; do
   # S3_UPLOAD_PATH should be send by the upstream job
   if [[ -z ${S3_UPLOAD_PATH} ]]; then
     echo "S3_UPLOAD_PATH was not defined. Not uploading"
@@ -140,7 +144,7 @@ for pkg in `ls $pkgs_path/*.zip`; do
   fi
 
   # Seems important to upload the path with a final slash
-  S3_upload ${pkg} "${S3_UPLOAD_PATH}"
+  S3_upload "${pkgs_path}/${pkg}" "${S3_UPLOAD_PATH}"
 done
 
 # .bottle | brew binaries
