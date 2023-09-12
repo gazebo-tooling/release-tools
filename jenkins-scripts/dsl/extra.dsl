@@ -99,8 +99,10 @@ gbp_repo_debbuilds.each { software ->
     // autopkgtest is broken for lark-parser
     if (software == "lark-parser")
        str_extra_bash = 'export RUN_AUTOPKGTEST=false'
-    if (software == "ogre-2.3")
+    if (software == "ogre-2.3") {
       str_extra_bash = "[[ \$DISTRO == 'focal' && \$BRANCH != 'focal' ]] && echo 'focal needs to be released from focal branch' && exit 1"
+      str_extra_bash += "\n[[ \$DISTRO == 'jammy' && \$BRANCH != 'master' ]] && echo 'jammy needs to be released from master branch' && exit 1"
+    }
 
     steps {
       systemGroovyCommand("""\
