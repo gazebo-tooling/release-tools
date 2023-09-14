@@ -14,27 +14,32 @@
 # limitations under the License.
 #
 
-# The script will open a pull request for a forward port.
+# The script will open a pull request a release PR (actually opens the PR page in your web browser)
 #
 # Requires the 'gh' CLI to be installed.
 #
 # Usage:
-# $ ./merge_forward_pull_request.bash <from_branch> <to_branch>
+# $ ./release_pull_request.bash <from_branch> <to_branch>
 #
-# For example, to merge `ign-rendering6` forward to `main`:
+# For example, to release `gz-rendering7` 7.1.0
 #
-# ./merge_forward_pull_request.bash ign-rendering6 main
+# ./release_pull_request.bash 7.1.0 gz-rendering7
+#
+# Make sure you've checked out the branch that has the changes for the release
+# and that the changes have been pushed.
 
 VERSION=${1}
 TO_BRANCH=${2}
-PREV_VER=${3}
 
-if [[ $# -ne 3 ]]; then
-  echo "./release_pull_request.bash <version> <to_branch> <previous_version>"
+if [[ $# -ne 2 ]]; then
+  echo "./release_pull_request.bash <version> <to_branch>"
   exit 1
 fi
 
 set -e
+
+git fetch --tags
+PREV_VER=$(git describe --tags --abbrev=0 | sed 's/.*_//')
 
 LOCAL_BRANCH=$(git rev-parse --abbrev-ref  HEAD)
 REMOTE_BRANCH=$(git rev-parse --abbrev-ref  HEAD@{upstream})
@@ -44,7 +49,10 @@ CURRENT_BRANCH="${REMOTE}:${LOCAL_BRANCH}"
 ORIGIN_URL=$(git remote get-url origin)
 ORIGIN_ORG_REPO=$(echo ${ORIGIN_URL} | sed -e 's@.*github\.com.@@' | sed -e 's/\.git//g')
 
-PREV_TAG=$(git tag | grep "_${PREV_VER}$")
+if [[ $PREV_VER == $VERSION ]] then
+  echo "Previous version ($PREV_VER) and current ($VERSION) version should be different"
+  exit 1
+fi
 
 TITLE="Prepare for ${VERSION} Release"
 
