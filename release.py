@@ -17,7 +17,6 @@ try:
 except KeyError:
     JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = ' %s-debbuilder'
-JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
 GENERIC_BREW_PULLREQUEST_JOB = 'generic-release-homebrew_pull_request_updater'
 UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
 DOWNLOAD_URI_PATTERN = 'https://osrf-distributions.s3.amazonaws.com/%s/releases/'
@@ -36,7 +35,6 @@ OSRF_REPOS_SELF_CONTAINED = ""
 DRY_RUN = False
 NIGHTLY = False
 PRERELEASE = False
-UPSTREAM = False
 NO_SRC_FILE = False
 
 IGNORE_DRY_RUN = True
@@ -130,7 +128,6 @@ def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
     global PRERELEASE
-    global UPSTREAM
     global NO_SRC_FILE
 
     parser = argparse.ArgumentParser(description='Make releases.')
@@ -139,8 +136,6 @@ def parse_args(argv):
     parser.add_argument('jenkins_token', help='secret token to allow access to Jenkins to start builds')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
-    parser.add_argument('-u', '--upstream', dest='upstream', action='store_true', default=False,
-                        help='release non OSRF software (do not generate and upload source tar.bz)')
     parser.add_argument('-a', '--package-alias', dest='package_alias',
                         default=None,
                         help='different name that we are releasing under')
@@ -173,14 +168,13 @@ def parse_args(argv):
     args.package_alias = args.package
 
     DRY_RUN = args.dry_run
-    UPSTREAM = args.upstream
     NO_SRC_FILE = args.no_source_file
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
     if args.upload_to_repository == 'prerelease':
         PRERELEASE = True
-    # Upstream and nightly do not generate a tar.bz2 file
-    if args.upstream or NIGHTLY:
+    # Nightly do not generate a tar.bz2 file
+    if NIGHTLY:
         NO_SRC_FILE = True
         args.no_source_file = True
 
@@ -558,14 +552,12 @@ def go(argv):
         args.release_version = 1
 
     # Sanity checks and dicover supported distributions before proceed.
-    # UPSTREAM repository is not known in release-tools script
-    if not UPSTREAM:
-        repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
-        # The supported distros are the ones in the top level of -release repo
-        ubuntu_distros = discover_distros(repo_dir)  # top level, ubuntu
-        debian_distros = discover_distros(repo_dir + '/debian/')  # debian dir top level, Debian
-        if not args.no_sanity_checks:
-            sanity_checks(args, repo_dir)
+    repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
+    # The supported distros are the ones in the top level of -release repo
+    ubuntu_distros = discover_distros(repo_dir)  # top level, ubuntu
+    debian_distros = discover_distros(repo_dir + '/debian/')  # debian dir top level, Debian
+    if not args.no_sanity_checks:
+        sanity_checks(args, repo_dir)
 
     source_tarball_uri = ''
     source_tarball_sha = ''
@@ -599,11 +591,7 @@ def go(argv):
         # name must be modified in the future
         params['SOURCE_TARBALL_URI'] = args.nightly_branch
 
-    if UPSTREAM:
-        job_name = JOB_NAME_UPSTREAM_PATTERN % (args.package)
-    else:
-        job_name = JOB_NAME_PATTERN % (args.package)
-
+    job_name = JOB_NAME_PATTERN % (args.package)
     params_query = urllib.parse.urlencode(params)
 
     # RELEASING FOR BREW
