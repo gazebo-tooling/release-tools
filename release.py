@@ -22,7 +22,7 @@ GENERIC_BREW_PULLREQUEST_JOB = 'generic-release-homebrew_pull_request_updater'
 UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
 DOWNLOAD_URI_PATTERN = 'https://osrf-distributions.s3.amazonaws.com/%s/releases/'
 
-LINUX_DISTROS = [ 'ubuntu', 'debian' ]
+LINUX_DISTROS = ['ubuntu', 'debian']
 SUPPORTED_ARCHS = ['amd64', 'i386', 'armhf', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 
@@ -87,7 +87,7 @@ def print_success(msg):
 # That should leave just the package name instead of packageVersion
 # I.E gazebo5 -> gazebo
 def get_canonical_package_name(pkg_name):
-     return pkg_name.rstrip('1234567890')
+    return pkg_name.rstrip('1234567890')
 
 
 def is_catkin_package():
@@ -97,7 +97,7 @@ def is_catkin_package():
 def github_repo_exists(url):
     try:
         check_call(['git', 'ls-remote', '-q', '--exit-code', url], IGNORE_DRY_RUN)
-    except (ErrorURLNotFound404, ErrorNoOutput) as e:
+    except (ErrorURLNotFound404, ErrorNoOutput):
         return False
     except Exception as e:
         error("Unexpected problem checking for git repo: " + str(e))
@@ -122,7 +122,7 @@ def exists_main_branch(github_url):
     try:
         if (check_call(check_main_cmd, IGNORE_DRY_RUN)):
             return True
-    except Exception as e:
+    except Exception:
         return False
 
 
@@ -220,10 +220,10 @@ def download_release_repository(package, release_branch):
 def sanity_package_name_underscore(package, package_alias):
     # Alias is never empty. It hosts a exect copy of package if not provided
     if '_' in package_alias and package_alias != package:
-      error("Found an underscore in package_alias. It will conflict with debian package names. May be fixed changing the underscore for a dash.")
+        error("Found an underscore in package_alias. It will conflict with debian package names. May be fixed changing the underscore for a dash.")
 
     if '_' in package and package_alias == package:
-      error("Found an underscore in package name without providing a package alias (-a <alias>). You probably want to match the package name in the debian changelog")
+        error("Found an underscore in package name without providing a package alias (-a <alias>). You probably want to match the package name in the debian changelog")
 
     print_success("No underscore in package name")
 
@@ -235,10 +235,10 @@ def sanity_package_name(repo_dir, package, package_alias):
         expected_name = package_alias
 
     # Use igntiion for Citadel and Fortress, gz for Garden and beyond
-    gz_name = expected_name.replace("ignition", "gz");
-    gz_name = gz_name.replace("gazebo", "sim");
+    gz_name = expected_name.replace("ignition", "gz")
+    gz_name = gz_name.replace("gazebo", "sim")
 
-    cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
+    cmd = ["find", repo_dir, "-name", "changelog", "-exec", "head", "-n", "1", "{}", ";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.decode().split('\n'):
         if not line:
@@ -247,7 +247,7 @@ def sanity_package_name(repo_dir, package, package_alias):
         if line.partition(' ')[0] != expected_name and line.partition(' ')[0] != gz_name:
             error("Error in changelog package name or alias: " + line)
 
-    cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
+    cmd = ["find", repo_dir, "-name", "control", "-exec", "grep", "-H", "Source:", "{}", ";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.decode().split('\n'):
         if not line:
@@ -258,17 +258,18 @@ def sanity_package_name(repo_dir, package, package_alias):
 
     print_success("Package names in changelog and control")
 
+
 def sanity_package_version(repo_dir, version, release_version):
-    cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
+    cmd = ["find", repo_dir, "-name", "changelog", "-exec", "head", "-n", "1", "{}", ";"]
     out, err = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.decode().split('\n'):
         if not line:
             continue
         # return full version in brackets
-        full_version=line.split(' ')[1]
+        full_version = line.split(' ')[1]
         # get only version (not release) in brackets
-        c_version=full_version[full_version.find("(")+1:full_version.find("-")]
-        c_revision=full_version[full_version.find("-")+1:full_version.rfind("~")]
+        c_version = full_version[full_version.find("(")+1:full_version.find("-")]
+        c_revision = full_version[full_version.find("-")+1:full_version.rfind("~")]
 
         if c_version != version:
             error("Error in package version. Repo version: " + c_version + " Provided version: " + version)
@@ -398,12 +399,12 @@ def discover_distros(repo_dir):
 
     print('Releasing for distributions: ')
     for k in distro_arch_list:
-        print( "- " + k + " (" + ', '.join(distro_arch_list[k]) +")")
+        print("- " + k + " (" + ', '.join(distro_arch_list[k]) + ")")
 
     return distro_arch_list
 
 
-def check_call(cmd, ignore_dry_run = False):
+def check_call(cmd, ignore_dry_run=False):
     if ignore_dry_run:
         # Commands that do not change anything in repo level
         print('Dry-run running:\n  %s\n' % (' '.join(cmd)))
@@ -437,8 +438,7 @@ def check_call(cmd, ignore_dry_run = False):
 # Returns tarball name: package name/alias without versions
 def create_tarball_name(args):
     # For ignition, we use the package_alias instead of package
-    return re.sub(r'[0-9]+$', '',
-                  args.package if not IGN_REPO else args.package_alias)
+    return re.sub(r'[0-9]+$', '', args.package if not IGN_REPO else args.package_alias)
 
 
 # Returns: sha, tarball file name, tarball full path
@@ -449,7 +449,7 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
 
     if not os.path.isfile(tarball_path):
         # Try looking for special project names using underscores
-        alt_tarball_name = "_".join(tarball_name.rsplit("-",1))
+        alt_tarball_name = "_".join(tarball_name.rsplit("-", 1))
         alt_tarball_fname = ' %s-%s.tar.bz2' % (alt_tarball_name, version)
         alt_tarball_path = os.path.join(builddir, alt_tarball_fname)
         if (not dry_run):
@@ -572,8 +572,8 @@ def go(argv):
     if not UPSTREAM:
         repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
         # The supported distros are the ones in the top level of -release repo
-        ubuntu_distros = discover_distros(repo_dir) # top level, ubuntu
-        debian_distros = discover_distros(repo_dir + '/debian/') # debian dir top level, Debian
+        ubuntu_distros = discover_distros(repo_dir)  # top level, ubuntu
+        debian_distros = discover_distros(repo_dir + '/debian/')  # debian dir top level, Debian
         if not args.no_sanity_checks:
             sanity_checks(args, repo_dir)
 
@@ -610,16 +610,18 @@ def go(argv):
         params['SOURCE_TARBALL_URI'] = args.nightly_branch
 
     if UPSTREAM:
-        job_name = JOB_NAME_UPSTREAM_PATTERN% (args.package)
+        job_name = JOB_NAME_UPSTREAM_PATTERN % (args.package)
     else:
-        job_name = JOB_NAME_PATTERN% (args.package)
+        job_name = JOB_NAME_PATTERN % (args.package)
 
     params_query = urllib.parse.urlencode(params)
 
     # RELEASING FOR BREW
-    brew_url = ' %s/job/%s/buildWithParameters?%s' % (JENKINS_URL,
-                                                   GENERIC_BREW_PULLREQUEST_JOB,
-                                                   params_query)
+    brew_url = ' %s/job/%s/buildWithParameters?%s' % (
+        JENKINS_URL,
+        GENERIC_BREW_PULLREQUEST_JOB,
+        params_query)
+
     if not NIGHTLY and not args.bump_rev_linux_only:
         print('- Brew: %s' % (brew_url))
         if not DRY_RUN:
