@@ -437,8 +437,7 @@ def check_call(cmd, ignore_dry_run=False):
 
 # Returns tarball name: package name/alias without versions
 def create_tarball_name(args):
-    # For ignition, we use the package_alias instead of package
-    return re.sub(r'[0-9]+$', '', args.package if not IGN_REPO else args.package_alias)
+    return re.sub(r'[0-9]+$', '', args.package)
 
 
 # Returns: sha, tarball file name, tarball full path
