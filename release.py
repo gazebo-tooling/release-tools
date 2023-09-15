@@ -157,7 +157,7 @@ def parse_args(argv):
 
     if args.package in GARDEN_IGN_PACKAGES:
         print(f"Garden packages start with gz- prefix, changing {args.package} to {args.package.replace('ign-','gz-')}",)
-        args.package = args.package.replace('ign-','gz-')
+        args.package = args.package.replace('ign-', 'gz-')
 
     args.package_alias = args.package
 
@@ -175,6 +175,7 @@ def parse_args(argv):
 
     return args
 
+
 def get_release_repository_info(package):
     # Do not use git@github method since it fails in non existant repositories
     # asking for stdin user/pass. Same happen if no user/pass is provided
@@ -185,6 +186,7 @@ def get_release_repository_info(package):
         return 'git', github_url
 
     error("release repository not found in github.com/gazebo-release")
+
 
 def download_release_repository(package, release_branch):
     vcs, url = get_release_repository_info(package)
@@ -203,6 +205,7 @@ def download_release_repository(package, release_branch):
     check_call(cmd, IGNORE_DRY_RUN)
     return release_tmp_dir, release_branch
 
+
 def sanity_package_name_underscore(package, package_alias):
     # Alias is never empty. It hosts a exect copy of package if not provided
     if '_' in package_alias and package_alias != package:
@@ -212,6 +215,7 @@ def sanity_package_name_underscore(package, package_alias):
       error("Found an underscore in package name without providing a package alias (-a <alias>). You probably want to match the package name in the debian changelog")
 
     print_success("No underscore in package name")
+
 
 def sanity_package_name(repo_dir, package, package_alias):
     expected_name = package
@@ -264,6 +268,7 @@ def sanity_package_version(repo_dir, version, release_version):
     print_success("Package versions in changelog")
     print_success("Package release versions in changelog")
 
+
 def sanity_check_gazebo_versions(package, version):
     if package == 'gazebo':
         if int(version[0]) > 1:
@@ -276,6 +281,7 @@ def sanity_check_gazebo_versions(package, version):
 
     print_success("Gazebo version in proper gazebo package")
 
+
 def sanity_check_sdformat_versions(package, version):
     if package == 'sdformat':
         if int(version[0]) > 1:
@@ -285,11 +291,13 @@ def sanity_check_sdformat_versions(package, version):
 
     print_success("sdformat version in proper sdformat package")
 
+
 def sanity_check_repo_name(repo_name):
     if repo_name in OSRF_REPOS_SUPPORTED:
         return
 
     error("Upload repo value: " + repo_name + " is not valid. stable | prerelease | nightly")
+
 
 def sanity_project_package_in_stable(version, repo_name):
     if repo_name != 'stable':
@@ -303,11 +311,13 @@ def sanity_project_package_in_stable(version, repo_name):
 
     return
 
+
 def sanity_use_prerelease_branch(release_branch):
     if release_branch == 'prerelease':
         error("The use of prerelease branch is now deprecated. Please check internal wiki instructions")
 
     return
+
 
 def check_s3cmd_configuration():
     # Need to check if s3cmd is installed
@@ -322,6 +332,7 @@ def check_s3cmd_configuration():
         error(s3_config + " does not exists. Please configure s3: s3cmd --configure")
 
     return True
+
 
 def sanity_checks(args, repo_dir):
     sanity_package_name_underscore(args.package, args.package_alias)
@@ -347,6 +358,7 @@ def get_exclusion_arches(files):
             r.append(arch)
 
     return r
+
 
 def discover_distros(repo_dir):
     if not os.path.isdir(repo_dir):
@@ -378,6 +390,7 @@ def discover_distros(repo_dir):
         print( "- " + k + " (" + ', '.join(distro_arch_list[k]) +")")
 
     return distro_arch_list
+
 
 def check_call(cmd, ignore_dry_run = False):
     if ignore_dry_run:
@@ -442,6 +455,7 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
         out = out.decode()
 
     return out.split(' ')[0], tarball_fname, tarball_path
+
 
 def generate_upload_tarball(args):
     ###################################################
@@ -659,6 +673,7 @@ def go(argv):
 
                 if not DRY_RUN:
                     urllib.request.urlopen(url)
+
 
 if __name__ == '__main__':
     go(sys.argv)
