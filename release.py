@@ -365,12 +365,16 @@ def discover_distros(repo_dir):
     _, subdirs, files = os.walk(repo_dir).__next__()
     repo_arch_exclusion = get_exclusion_arches(files)
 
-    if '.git' in subdirs: subdirs.remove('.git')
-    # remove ubuntu (common stuff) and debian (new supported distro at top level)
-    if 'ubuntu' in subdirs: subdirs.remove('ubuntu')
-    if 'debian' in subdirs: subdirs.remove('debian')
+    if '.git' in subdirs:
+        subdirs.remove('.git')
+    # remove ubuntu (common stuff) and debian (supported distro at top level)
+    if 'ubuntu' in subdirs:
+        subdirs.remove('ubuntu')
+    if 'debian' in subdirs:
+        subdirs.remove('debian')
     # Some releasing methods use patches/ in root
-    if 'patches' in subdirs: subdirs.remove('patches')
+    if 'patches' in subdirs:
+        subdirs.remove('patches')
 
     if not subdirs:
         error('Can not find distributions directories in the -release repo')
@@ -397,7 +401,7 @@ def check_call(cmd, ignore_dry_run=False):
     else:
         print('Running:\n  %s' % (' '.join(cmd)))
     if DRY_RUN and not ignore_dry_run:
-        return '', ''
+        return b'', b''
     else:
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = po.communicate()
