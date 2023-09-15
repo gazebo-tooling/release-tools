@@ -143,8 +143,6 @@ def parse_args(argv):
                         help='no-sanity-checks; i.e. skip sanity checks commands')
     parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
                         help='Do not generate source file when building')
-    parser.add_argument('--no-ignition-auto', dest='no_ignition_auto', action='store_true', default=False,
-                        help='Use package name to create --package-alias if package name starts with ign-')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
     parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
@@ -162,9 +160,6 @@ def parse_args(argv):
         args.package = args.package.replace('ign-','gz-')
 
     args.package_alias = args.package
-    # If ignition auto is enabled, replace ign- with ignition- at the beginning
-    if not args.no_ignition_auto and args.package.startswith('ign-'):
-        args.package_alias = args.package.replace('ign-', 'ignition-')
 
     DRY_RUN = args.dry_run
     UPSTREAM = args.upstream
