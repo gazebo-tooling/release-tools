@@ -164,10 +164,8 @@ def parse_args(argv):
     DRY_RUN = args.dry_run
     UPSTREAM = args.upstream
     NO_SRC_FILE = args.no_source_file
-    UPLOAD_REPO = args.upload_to_repository
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
-        NIGHTLY_BRANCH = args.nightly_branch
     if args.upload_to_repository == 'prerelease':
         PRERELEASE = True
     # Upstream and nightly do not generate a tar.bz2 file
