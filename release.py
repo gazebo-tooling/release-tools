@@ -192,11 +192,12 @@ def get_release_repository_info(package):
     # asking for stdin user/pass. Same happen if no user/pass is provided
     # using the fake foo:foo here seems to work
     github_test_url = "https://foo:foo@github.com/gazebo-release/" + package + "-release"
-    if (github_repo_exists(github_test_url)):
-        github_url = "https://github.com/gazebo-release/" + package + "-release"
-        return 'git', github_url
+    if (not github_repo_exists(github_test_url)):
+        error("release repository not found in github.com/gazebo-release")
 
-    error("release repository not found in github.com/gazebo-release")
+    github_url = "https://github.com/gazebo-release/" + package + "-release"
+    return 'git', github_url
+
 
 
 def download_release_repository(package, release_branch):
@@ -239,7 +240,7 @@ def sanity_package_name(repo_dir, package, package_alias):
     gz_name = gz_name.replace("gazebo", "sim")
 
     cmd = ["find", repo_dir, "-name", "changelog", "-exec", "head", "-n", "1", "{}", ";"]
-    out, err = check_call(cmd, IGNORE_DRY_RUN)
+    out, _ = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.decode().split('\n'):
         if not line:
             continue
@@ -248,7 +249,7 @@ def sanity_package_name(repo_dir, package, package_alias):
             error("Error in changelog package name or alias: " + line)
 
     cmd = ["find", repo_dir, "-name", "control", "-exec", "grep", "-H", "Source:", "{}", ";"]
-    out, err = check_call(cmd, IGNORE_DRY_RUN)
+    out, _ = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.decode().split('\n'):
         if not line:
             continue
@@ -261,7 +262,7 @@ def sanity_package_name(repo_dir, package, package_alias):
 
 def sanity_package_version(repo_dir, version, release_version):
     cmd = ["find", repo_dir, "-name", "changelog", "-exec", "head", "-n", "1", "{}", ";"]
-    out, err = check_call(cmd, IGNORE_DRY_RUN)
+    out, _ = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.decode().split('\n'):
         if not line:
             continue
@@ -529,16 +530,16 @@ def generate_upload_tarball(args):
             tag = ' %s_%s' % (args.package_alias, args.version.replace('~','-'))
             check_call(['git', 'tag', '-f', tag])
             check_call(['git', 'push', '--tags'])
-        except ErrorNoPermsRepo as e:
+        except ErrorNoPermsRepo:
             print('The Git server reports problems with permissions')
             print('The branch could be blocked by configuration if you do not have')
             print('rights to push code in default branch.')
             sys.exit(1)
-        except ErrorNoUsernameSupplied as e:
+        except ErrorNoUsernameSupplied:
             print('git tag could not be committed because you have not configured')
             print('your username. Use "git config --username" to set your username.')
             sys.exit(1)
-        except Exception as e:
+        except Exception:
             print('There was a problem with pushing tags to the git repository')
             print('Do you have write perms in the repository?')
             sys.exit(1)
