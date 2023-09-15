@@ -281,19 +281,6 @@ def sanity_package_version(repo_dir, version, release_version):
     print_success("Package release versions in changelog")
 
 
-def sanity_check_gazebo_versions(package, version):
-    if package == 'gazebo':
-        if int(version[0]) > 1:
-            error("Error in gazebo version. Please use 'gazebo-current' package for gazebo 2")
-    elif package == 'gazebo-current':
-        if int(version[0]) < 2:
-            error("Error in gazebo-current version. Please use 'gazebo' package for gazebo 1.x")
-    else:
-        return
-
-    print_success("Gazebo version in proper gazebo package")
-
-
 def sanity_check_sdformat_versions(package, version):
     if package == 'sdformat':
         if int(version[0]) > 1:
@@ -335,7 +322,7 @@ def check_s3cmd_configuration():
     # Need to check if s3cmd is installed
     try:
         subprocess.call(["s3cmd", "--version"])
-    except OSError as e:
+    except OSError:
         error("s3cmd command for uploading is not available. Install it using: apt-get install s3cmd")
 
     # Need to check if configuration for s3 exists
@@ -355,7 +342,6 @@ def sanity_checks(args, repo_dir):
     if not NIGHTLY:
         check_s3cmd_configuration()
         sanity_package_version(repo_dir, args.version, str(args.release_version))
-        sanity_check_gazebo_versions(args.package, args.version)
         sanity_check_sdformat_versions(args.package, args.version)
         sanity_project_package_in_stable(args.version, args.upload_to_repository)
 
