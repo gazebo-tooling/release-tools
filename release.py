@@ -22,7 +22,7 @@ UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
 DOWNLOAD_URI_PATTERN = 'https://osrf-distributions.s3.amazonaws.com/%s/releases/'
 
 LINUX_DISTROS = ['ubuntu', 'debian']
-SUPPORTED_ARCHS = ['amd64', 'i386', 'armhf', 'arm64']
+SUPPORTED_ARCHS = ['amd64', 'armhf', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 
 # Ubuntu distributions are automatically taken from the top directory of
@@ -624,9 +624,6 @@ def go(argv):
                 if (PRERELEASE or NIGHTLY):
                     if (a == 'armhf' or a == 'arm64'):
                         continue
-                # Only i386 for Ubuntu in Bionic
-                if (a == 'i386' and l != 'debian' and d != 'bionic'):
-                    continue
 
                 linux_platform_params = params.copy()
                 linux_platform_params['ARCH'] = a
@@ -644,9 +641,6 @@ def go(argv):
                 elif ('ignition-physics' in args.package_alias) or \
                      ('gz-physics' in args.package_alias):
                     linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
-
-                if (NIGHTLY and a == 'i386'):
-                    continue
 
                 # control nightly generation using a single machine to process
                 # all distribution builds to avoid race conditions. Note: this
