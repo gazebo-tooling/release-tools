@@ -16,9 +16,9 @@ try:
     JENKINS_URL = os.environ['JENKINS_URL']
 except KeyError:
     JENKINS_URL = 'http://build.osrfoundation.org'
-JOB_NAME_PATTERN = '%s-debbuilder'
+JOB_NAME_PATTERN = ' %s-debbuilder'
 JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
-GENERIC_BREW_PULLREQUEST_JOB='generic-release-homebrew_pull_request_updater'
+GENERIC_BREW_PULLREQUEST_JOB = 'generic-release-homebrew_pull_request_updater'
 UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
 DOWNLOAD_URI_PATTERN = 'https://osrf-distributions.s3.amazonaws.com/%s/releases/'
 
@@ -57,24 +57,31 @@ GARDEN_IGN_PACKAGES = ['ign-cmake3',
                        'ign-transport12',
                        'ign-utils2']
 
+
 class ErrorNoPermsRepo(Exception):
     pass
+
 
 class ErrorNoUsernameSupplied(Exception):
     pass
 
+
 class ErrorURLNotFound404(Exception):
     pass
 
+
 class ErrorNoOutput(Exception):
     pass
+
 
 def error(msg):
     print("\n !! " + msg + "\n")
     sys.exit(1)
 
+
 def print_success(msg):
     print("     + OK " + msg)
+
 
 # Remove the last character if it is a number.
 # That should leave just the package name instead of packageVersion
@@ -82,8 +89,10 @@ def print_success(msg):
 def get_canonical_package_name(pkg_name):
      return pkg_name.rstrip('1234567890')
 
+
 def is_catkin_package():
     return os.path.isfile("package.xml")
+
 
 def github_repo_exists(url):
     try:
@@ -93,6 +102,7 @@ def github_repo_exists(url):
     except Exception as e:
         error("Unexpected problem checking for git repo: " + str(e))
     return True
+
 
 def generate_package_source(srcdir, builddir):
     cmake_cmd = ["cmake"]
@@ -114,6 +124,7 @@ def exists_main_branch(github_url):
             return True
     except Exception as e:
         return False
+
 
 def parse_args(argv):
     global DRY_RUN
@@ -395,9 +406,9 @@ def discover_distros(repo_dir):
 def check_call(cmd, ignore_dry_run = False):
     if ignore_dry_run:
         # Commands that do not change anything in repo level
-        print('Dry-run running:\n  %s\n'%(' '.join(cmd)))
+        print('Dry-run running:\n  %s\n' % (' '.join(cmd)))
     else:
-        print('Running:\n  %s'%(' '.join(cmd)))
+        print('Running:\n  %s' % (' '.join(cmd)))
     if DRY_RUN and not ignore_dry_run:
         return '', ''
     else:
@@ -416,9 +427,9 @@ def check_call(cmd, ignore_dry_run = False):
                 raise ErrorNoOutput()
 
             # Unkown exception
-            print('Error running command (%s).'%(' '.join(cmd)))
-            print('stdout: %s'%(out.decode()))
-            print('stderr: %s'%(err.decode()))
+            print('Error running command (%s).' % (' '.join(cmd)))
+            print('stdout: %s' % (out.decode()))
+            print('stderr: %s' % (err.decode()))
             raise Exception('subprocess call failed')
         return out, err
 
@@ -432,14 +443,14 @@ def create_tarball_name(args):
 
 # Returns: sha, tarball file name, tarball full path
 def create_tarball_path(tarball_name, version, builddir, dry_run):
-    tarball_fname = '%s-%s.tar.bz2'%(tarball_name, version)
+    tarball_fname = ' %s-%s.tar.bz2' % (tarball_name, version)
     # Try using the tarball_name as it is
     tarball_path = os.path.join(builddir, tarball_fname)
 
     if not os.path.isfile(tarball_path):
         # Try looking for special project names using underscores
         alt_tarball_name = "_".join(tarball_name.rsplit("-",1))
-        alt_tarball_fname = '%s-%s.tar.bz2'%(alt_tarball_name, version)
+        alt_tarball_fname = ' %s-%s.tar.bz2' % (alt_tarball_name, version)
         alt_tarball_path = os.path.join(builddir, alt_tarball_fname)
         if (not dry_run):
             if not os.path.isfile(alt_tarball_path):
@@ -500,7 +511,7 @@ def generate_upload_tarball(args):
     # If we're releasing under a different name, then rename the tarball (the
     # package itself doesn't know anything about this).
     if args.package != args.package_alias:
-        tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
+        tarball_fname = ' %s-%s.tar.bz2' % (args.package_alias, args.version)
         if (not args.dry_run):
             dest_file = os.path.join(builddir, tarball_fname)
             # Do not copy if files are the same
@@ -526,7 +537,7 @@ def generate_upload_tarball(args):
 
         try:
             # tilde is not a valid character in git
-            tag = '%s_%s' % (args.package_alias, args.version.replace('~','-'))
+            tag = ' %s_%s' % (args.package_alias, args.version.replace('~','-'))
             check_call(['git', 'tag', '-f', tag])
             check_call(['git', 'push', '--tags'])
         except ErrorNoPermsRepo as e:
@@ -599,14 +610,14 @@ def go(argv):
         params['SOURCE_TARBALL_URI'] = args.nightly_branch
 
     if UPSTREAM:
-        job_name = JOB_NAME_UPSTREAM_PATTERN%(args.package)
+        job_name = JOB_NAME_UPSTREAM_PATTERN% (args.package)
     else:
-        job_name = JOB_NAME_PATTERN%(args.package)
+        job_name = JOB_NAME_PATTERN% (args.package)
 
     params_query = urllib.parse.urlencode(params)
 
     # RELEASING FOR BREW
-    brew_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL,
+    brew_url = ' %s/job/%s/buildWithParameters?%s' % (JENKINS_URL,
                                                    GENERIC_BREW_PULLREQUEST_JOB,
                                                    params_query)
     if not NIGHTLY and not args.bump_rev_linux_only:
@@ -668,8 +679,8 @@ def go(argv):
 
                 linux_platform_params_query = urllib.parse.urlencode(linux_platform_params)
 
-                url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, linux_platform_params_query)
-                print('- Linux: %s'%(url))
+                url = ' %s/job/%s/buildWithParameters?%s' % (JENKINS_URL, job_name, linux_platform_params_query)
+                print('- Linux: %s' % (url))
 
                 if not DRY_RUN:
                     urllib.request.urlopen(url)
