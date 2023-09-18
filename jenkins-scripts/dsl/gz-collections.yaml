@@ -374,6 +374,9 @@ collections:
     ci:
       configs:
         - jammy
+    packaging:
+      exclude:
+        - __upcoming__
 ci_configs:
   - name: bionic
     system:
@@ -432,6 +435,7 @@ ci_configs:
         - gz-sensors
     exclude:
       - gz-harmonic
+      - __upcoming__
     pre_setup_script_hook:
       gz-physics:
         - "export MAKE_JOBS=1"
