@@ -27,6 +27,14 @@ Although using the officially supported version is the recommended way
 specially for non experienced users, some use cases might need to use a
 newer version of Gazebo than the one selected in REP-2000.
 
+### List of active relases
+
+| Gazebo Release | ROS / ROS 2 Release | status     | ros_gz branch | -release repository |
+| ---------------|---------------------|------------|---------------|---------------------|
+| Garden         | Humble              | stable     | humble        | https://github.com/gazebo-release/ros_ign-release |
+| Garden         | Iron                | prerelease | iron          | https://github.com/gazebo-release/ros_ign-release |
+| Harmonic       | Iron                | prerelease | ros2          | https://github.com/j-rivero/ros_ign-gzharmonic-release |
+
 ### Upstream versions released using this tutorial
 
 The `gbp -release repository` hosts the latest version released by the
@@ -34,6 +42,7 @@ maintainers of `ros_gz`. When using these instructions to release a new custom
 version the version of `ros_gz` released will be the latest one existing in the
 official `gbp -release repository`. The version would be the same but the
 release number will start on 1000.
+
 
 ## 2. Initial setup
 
