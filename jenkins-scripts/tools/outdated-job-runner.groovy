@@ -213,7 +213,7 @@ def trackedJobsList = [
     'ignition_utils-ci-gz-utils2-homebrew-amd64',
     'ignition_utils-ci-ign-utils1-focal-amd64',
     'ignition_utils-ci-ign-utils1-homebrew-amd64',
-    'sdformat-ci-sdf13-jammy-amd64',
+    'sdformat-ci-sdf14-jammy-amd64',
     'sdformat-ci-sdformat12-focal-amd64',
     'sdformat-ci-sdformat12-homebrew-amd64',
     'sdformat-ci-sdformat13-focal-amd64',
