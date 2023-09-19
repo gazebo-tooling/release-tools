@@ -90,8 +90,13 @@ while (! \$update_done); do
     -r -i ../debian/control \
     --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes' \
   && break
+  # Try the apt-cudf solver for multiple versions problems
+  apt-get update && apt-get install -y apt-cudf
+  sudo DEBIAN_FRONTEND=noninteractive mk-build-deps \
+    -r -i ../debian/control \
+    --tool 'apt-cudf-get --solver aspcud --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes' \
+  && break
   sleep 60 && seconds_waiting=\$((seconds_waiting+60))
-  apt-get update
   [ \$seconds_waiting -ge \$timeout ] && exit 1
 done
 cd ..
