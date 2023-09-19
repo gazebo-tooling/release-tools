@@ -40,7 +40,6 @@ git clone "${REPREPRO_GIT_REPO}" -b "${REPREPRO_GIT_BRANCH}" "${REPREPRO_REPO_PA
 echo '# END SECTION'
 
 export PYTHONPATH="${REPREPRO_REPO_PATH}/src"
-export GNUPGHOME=/var/lib/jenkins/.gnupg 
 
 echo '# BEGIN SECTION: run reprepro'
 cd "${REPREPRO_REPO_PATH}/scripts"
