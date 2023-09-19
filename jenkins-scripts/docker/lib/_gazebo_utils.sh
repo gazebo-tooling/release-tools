@@ -94,7 +94,7 @@ while (! \$update_done); do
   sudo apt-get update && sudo apt-get install -y apt-cudf
   sudo DEBIAN_FRONTEND=noninteractive mk-build-deps \
     -r -i ../debian/control \
-    --tool 'apt-cudf-get --solver aspcud --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes' \
+    --tool 'apt-cudf-get --solver aspcud -o APT::Get::Assume-Yes=1 -o Debug::pkgProblemResolver=yes -o Debug::BuildDeps=yes' \
   && break
   sleep 60 && seconds_waiting=\$((seconds_waiting+60))
   [ \$seconds_waiting -ge \$timeout ] && exit 1
