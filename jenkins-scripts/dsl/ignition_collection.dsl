@@ -434,7 +434,6 @@ gz_collections_yaml.collections.each { collection ->
     }
   }
 
-  Globals.gazebodistro_branch = false
 
   collection.ci.configs.each { ci_config_name ->
     ci_config = gz_collections_yaml.ci_configs.find { it.name == ci_config_name }
@@ -502,8 +501,8 @@ gz_collections_yaml.collections.each { collection ->
     }
 
     // COLCON - Windows
-    def gz_win_ci_job = job("ign_${gz_collection_name}-ci-win")
     Globals.gazebodistro_branch = true
+    def gz_win_ci_job = job("ign_${gz_collection_name}-ci-win")
     OSRFWinCompilation.create(gz_win_ci_job, false)
     gz_win_ci_job.with
     {
@@ -514,6 +513,7 @@ gz_collections_yaml.collections.each { collection ->
                 """.stripIndent())
         }
     }
+    Globals.gazebodistro_branch = false
 
     // MAC Brew CI job
     // --------------------------------------------------------------
