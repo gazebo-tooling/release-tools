@@ -110,9 +110,8 @@ def generate_package_source(srcdir, builddir):
 
     # configure and make package_source
     os.mkdir(builddir)
-    os.chdir(builddir)
     check_call(cmake_cmd + [srcdir])
-    check_call(['make', 'package_source'])
+    check_call(['make', 'package_source', '-C', builddir])
 
 
 def exists_main_branch(github_url):
@@ -457,7 +456,6 @@ def generate_upload_tarball(args):
     # Platform-agnostic stuff.
     # The goal is to tag the repo and prepare a tarball.
 
-    sourcedir = os.getcwd()
     tmpdir    = tempfile.mkdtemp()
     builddir  = os.path.join(tmpdir, 'build')
 
@@ -516,32 +514,33 @@ def generate_upload_tarball(args):
         check_call(['s3cmd', 'sync', tarball_path, s3_tarball_directory])
         shutil.rmtree(tmpdir)
 
-        # Tag repo
-        os.chdir(sourcedir)
-
-        try:
-            # tilde is not a valid character in git
-            tag = ' %s_%s' % (args.package_alias, args.version.replace('~','-'))
-            check_call(['git', 'tag', '-f', tag])
-            check_call(['git', 'push', '--tags'])
-        except ErrorNoPermsRepo:
-            print('The Git server reports problems with permissions')
-            print('The branch could be blocked by configuration if you do not have')
-            print('rights to push code in default branch.')
-            sys.exit(1)
-        except ErrorNoUsernameSupplied:
-            print('git tag could not be committed because you have not configured')
-            print('your username. Use "git config --username" to set your username.')
-            sys.exit(1)
-        except Exception:
-            print('There was a problem with pushing tags to the git repository')
-            print('Do you have write perms in the repository?')
-            sys.exit(1)
-
     # TODO: Consider auto-updating the Ubuntu changelog.  It requires
     # cloning the <package>-release repo, making a change, and pushing it back.
     # Until we do that, the user must have first updated it manually.
     return source_tarball_uri, tarball_sha
+
+
+def tag_repo(args):
+    try:
+        # tilde is not a valid character in git
+        tag = ' %s_%s' % (args.package_alias, args.version.replace('~','-'))
+        check_call(['git', 'tag', '-f', tag])
+        check_call(['git', 'push', '--tags'])
+    except ErrorNoPermsRepo:
+        print('The Git server reports problems with permissions')
+        print('The branch could be blocked by configuration if you do not have')
+        print('rights to push code in default branch.')
+        sys.exit(1)
+    except ErrorNoUsernameSupplied:
+        print('git tag could not be committed because you have not configured')
+        print('your username. Use "git config --username" to set your username.')
+        sys.exit(1)
+    except Exception:
+        print('There was a problem with pushing tags to the git repository')
+        print('Do you have write perms in the repository?')
+        sys.exit(1)
+
+    return tag
 
 
 def go(argv):
@@ -565,6 +564,7 @@ def go(argv):
     # Do not generate source file if not needed or impossible
     if not args.no_source_file:
         source_tarball_uri, source_tarball_sha = generate_upload_tarball(args)
+        _ = tag_repo(args)
 
     # Kick off Jenkins jobs
     params = {}
