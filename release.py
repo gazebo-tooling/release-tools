@@ -451,75 +451,6 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
     return out.split(' ')[0], tarball_fname, tarball_path
 
 
-def generate_upload_tarball(args):
-    ###################################################
-    # Platform-agnostic stuff.
-    # The goal is to tag the repo and prepare a tarball.
-
-    tmpdir    = tempfile.mkdtemp()
-    builddir  = os.path.join(tmpdir, 'build')
-
-    # Note for bump_rev_linux_only: there are some adjustment to the tarball name
-    # that are done after generating it, even if the tarball upload is not
-    # needed, it should be generated to get changes in the name
-    if args.bump_rev_linux_only:
-        print('\nINFO: bump revision is enabled. It needs to generate a local tarball although it will not upload it')
-
-    # Check for uncommitted changes; abort if present
-    cmd = ['git', 'diff-index', 'HEAD']
-    out, err = check_call(cmd)
-    if out:
-        print('git says that you have uncommitted changes')
-        print('Please clean up your working copy so that "%s" outputs nothing' % (' '.join(cmd)))
-        print('stdout: %s' % (out.decode()))
-        sys.exit(1)
-
-    # Make a clean copy, to avoid pulling in other stuff that the user has
-    # sitting in the working copy.
-    srcdir = os.path.join(tmpdir, 'src')
-    os.mkdir(srcdir)
-    tmp_tar = os.path.join(tmpdir, 'orig.tar')
-    check_call(['git', 'archive', '--format=tar', 'HEAD', '-o', tmp_tar])
-    check_call(['tar', 'xf', tmp_tar, '-C', srcdir])
-    if not args.dry_run:
-        os.remove(tmp_tar)
-
-    # use cmake to generate package_source
-    generate_package_source(srcdir, builddir)
-    # For ignition, we use the alias without version numbers as package name
-    tarball_name = re.sub(r'[0-9]+$', '', args.package_alias)
-    tarball_sha, tarball_fname, tarball_path = create_tarball_path(tarball_name, args.version, builddir, args.dry_run)
-
-    # If we're releasing under a different name, then rename the tarball (the
-    # package itself doesn't know anything about this).
-    if args.package != args.package_alias:
-        tarball_fname = ' %s-%s.tar.bz2' % (args.package_alias, args.version)
-        if (not args.dry_run):
-            dest_file = os.path.join(builddir, tarball_fname)
-            # Do not copy if files are the same
-            if not (tarball_path == dest_file):
-                shutil.copyfile(tarball_path, dest_file)
-                tarball_path = dest_file
-
-    s3_tarball_directory = UPLOAD_DEST_PATTERN % get_canonical_package_name(args.package)
-    source_tarball_uri = DOWNLOAD_URI_PATTERN % get_canonical_package_name(args.package) + tarball_fname
-
-    # If the release only bump revision does not need to upload tarball but
-    # checkout that the one that should be already uploaded exists
-    if args.bump_rev_linux_only:
-        if urllib.request.urlopen(source_tarball_uri).getcode() == '404':
-            print('Can not find tarball: %s' % (source_tarball_uri))
-            sys.exit(1)
-    else:
-        check_call(['s3cmd', 'sync', tarball_path, s3_tarball_directory])
-        shutil.rmtree(tmpdir)
-
-    # TODO: Consider auto-updating the Ubuntu changelog.  It requires
-    # cloning the <package>-release repo, making a change, and pushing it back.
-    # Until we do that, the user must have first updated it manually.
-    return source_tarball_uri, tarball_sha
-
-
 def tag_repo(args):
     try:
         # tilde is not a valid character in git
@@ -558,12 +489,8 @@ def go(argv):
     if not args.no_sanity_checks:
         sanity_checks(args, repo_dir)
 
-    source_tarball_uri = ''
-    source_tarball_sha = ''
-
     # Do not generate source file if not needed or impossible
     if not args.no_source_file:
-        source_tarball_uri, source_tarball_sha = generate_upload_tarball(args)
         _ = tag_repo(args)
 
     # Kick off Jenkins jobs
@@ -571,8 +498,6 @@ def go(argv):
     params['token'] = args.jenkins_token
     params['PACKAGE'] = args.package
     params['VERSION'] = args.version
-    params['SOURCE_TARBALL_URI'] = source_tarball_uri
-    params['SOURCE_TARBALL_SHA'] = source_tarball_sha
     params['RELEASE_REPO_BRANCH'] = args.release_repo_branch
     params['PACKAGE_ALIAS'] = args.package_alias
     params['RELEASE_VERSION'] = args.release_version
