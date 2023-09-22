@@ -112,8 +112,8 @@ case ${UPLOAD_TO_REPO} in
       exit 1
     fi
   ;;
-  "nightly")
-    # No uploads for nightly packages test runs
+  "nightly" | "testing")
+    # No uploads for nightly or testing packages test runs
     ENABLE_S3_UPLOAD=false
   ;;
   "none")
