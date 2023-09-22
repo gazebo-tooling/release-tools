@@ -152,6 +152,10 @@ def parse_args(argv):
                         dest='source_repo_uri',
                         default=None,
                         help='Override automatic calculation of the URI of source repo to grab the sources from')  # NOQA
+    parser.add_argument('--call-debbuilders-with-src-uri',
+                        dest='debbuilders_src_uri', default=None,
+                        help='Call to debbuilders with an URI that points to \
+                              a tarball source code to be built.')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
     parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
@@ -496,6 +500,31 @@ def generate_source_repository_uri(args):
     return f"https://github.com/{org_repo}.git"  # NOQA
 
 
+def generate_source_params(args):
+    params = {}
+    # Handle the main two kind of calls:
+    # 1. Launch source jobs (default)
+    #   call gz-*-source jobs with SOURCE_REPO_URI
+    #     1.1 using args.source_repo_uri (if it was passed)
+    #     1.2 autogenerating it
+    #
+    # 2. Launch builders (If --call-debbuilders-with-src-uri is used)
+    #   call -debbuilders jobs with SOURCE_TARBALL_URI
+    #     2.1 using args.debbuilders_src_uri
+    #     2.2 pass the nightly branch if NIGHTLY enabled
+    #
+    if not args.debbuilders_src_uri:
+        params['SOURCE_REPO_URI'] = \
+            args.source_repo_uri if args.source_repo_uri else \
+            generate_source_repository_uri(args)
+    else:
+        params['SOURCE_TARBALL_URI'] = \
+            args.debbuilders_src_uri if not NIGHTLY else \
+            args.nightly_branch
+
+    return params
+
+
 def go(argv):
     args = parse_args(argv)
 
@@ -511,18 +540,10 @@ def go(argv):
     if not args.no_sanity_checks:
         sanity_checks(args, repo_dir)
 
-    source_repo_uri = args.source_repo_uri if args.source_repo_uri else \
-        generate_source_repository_uri(args)
-
-    # Do not generate source file if not needed or impossible
-    if not args.no_source_file:
-        _ = tag_repo(args)
-
-    # Kick off Jenkins jobs
-    params = {}
+    params = generate_source_params(args)
     params['token'] = args.jenkins_token
     params['PACKAGE'] = args.package
-    params['VERSION'] = args.version
+    params['VERSION'] = args.version if not NIGHTLY else 'nightly'
     params['RELEASE_REPO_BRANCH'] = args.release_repo_branch
     params['PACKAGE_ALIAS'] = args.package_alias
     params['RELEASE_VERSION'] = args.release_version
@@ -535,17 +556,15 @@ def go(argv):
     if args.upload_to_repository in OSRF_REPOS_SELF_CONTAINED:
         params['OSRF_REPOS_TO_USE'] = args.upload_to_repository
 
-    params['SOURCE_REPO_URI'] = source_repo_uri
-
-    if NIGHTLY:
-        params['VERSION'] = 'nightly'
-        # reuse SOURCE_TARBALL_URI to indicate the nightly branch
-        # name must be modified in the future
-        params['SOURCE_TARBALL_URI'] = args.nightly_branch
 
     job_name = f"{args.package_alias}-source"
     # job_name = JOB_NAME_PATTERN % (args.package)
     params_query = urllib.parse.urlencode(params)
+
+    # Tag should not go before any method or step that can fail and just before
+    # the calls to the servers.
+    if not args.no_source_file or args.debbuilders_src_uri:
+        _ = tag_repo(args)
 
     # RELEASING FOR BREW
     brew_url = ' %s/job/%s/buildWithParameters?%s' % (
