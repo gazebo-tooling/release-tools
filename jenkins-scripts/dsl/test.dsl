@@ -59,7 +59,7 @@ repo_uploader.with
   {
     copyArtifacts('_test_gz_source')
     {
-      includePatterns("${pkg_sources_dir}/${TARBALL_NAME}")
+      includePatterns("${pkg_sources_dir}/\${TARBALL_NAME}")
       buildSelector {
         upstreamBuild()
       }
