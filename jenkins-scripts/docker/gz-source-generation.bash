@@ -18,7 +18,7 @@ BUILD_DIR=\$SOURCES_DIR/build
 
 cd \${WORKSPACE}
 rm -fr \$SOURCES_DIR && mkdir \$SOURCES_DIR
-git clone --depth 1 --branch ${PACKAGE_NAME}_${VERSION} ${SOURCE_REPO_URI} \${SOURCES_DIR}
+git clone --depth 1 --branch ${PACKAGE_NAME}_${VERSION/~/-} ${SOURCE_REPO_URI} \${SOURCES_DIR}
 rm -fr \$BUILD_DIR && mkdir \$BUILD_DIR
 cd \${BUILD_DIR}
 cmake .. -DPACKAGE_SOURCE_ONLY:BOOL=ON
