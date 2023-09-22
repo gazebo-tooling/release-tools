@@ -35,7 +35,8 @@ OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
   '_test_repository_uploader',
   '_test_releasepy')
 // repository_uploader fake test job
-// TODO: implement the S3_FILES_TO_UPLOAD support in this
+
+def pkg_sources_dir = 'pkgs'
 def repo_uploader = job("_test_repository_uploader")
 OSRFBase.create(repo_uploader)
 repo_uploader.with
