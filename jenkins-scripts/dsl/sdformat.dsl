@@ -1,10 +1,10 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def sdformat_supported_versions = [ 'sdformat6' , 'sdformat9', 'sdformat12', 'sdformat13' ]
+def sdformat_supported_versions = [ 'sdformat6' , 'sdformat9', 'sdformat12', 'sdformat13', 'sdformat14' ]
 def sdformat_gz11_versions = [ 'sdformat9', 'sdformat12', 'sdformat13', 'main' ]
 // nightly and prereleases
-def extra_sdformat_debbuilder = ['sdformat14']
+def extra_sdformat_debbuilder = []
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()
@@ -89,7 +89,6 @@ ci_distro.each { distro ->
     // --------------------------------------------------------------
     // 2. Create the any job
     String sdf_repo = "gazebosim/sdformat"
-
     def sdformat_ci_any_job = job(ci_build_any_job_name_linux)
     OSRFLinuxCompilationAnyGitHub.create(sdformat_ci_any_job, sdf_repo)
     sdformat_ci_any_job.with

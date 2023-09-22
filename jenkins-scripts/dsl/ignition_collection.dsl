@@ -432,6 +432,9 @@ gz_collections_yaml.collections.each { collection ->
              export ROS_BOOTSTRAP=true
              # needed for arm64 machines and other arch tests
              export ENABLE_GZ_SIM_RUNTIME_TEST=false
+             if [[ ${gz_collection_name} == 'citadel' || ${gz_collection_name} == 'fortress' ]]; then
+                export GZ_SIM_RUNTIME_TEST_USE_IGN=true
+             fi
              if [[ \${JENKINS_NODE_TAG} == 'gpu-reliable' ]]; then
                export ENABLE_GZ_SIM_RUNTIME_TEST=true
              fi
