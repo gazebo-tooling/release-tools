@@ -148,6 +148,10 @@ def parse_args(argv):
                         help='no-sanity-checks; i.e. skip sanity checks commands')
     parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
                         help='Do not generate source file when building')
+    parser.add_argument('--source-repo-uri',
+                        dest='source_repo_uri',
+                        default=None,
+                        help='Override automatic calculation of the URI of source repo to grab the sources from')  # NOQA
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
     parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
@@ -474,6 +478,24 @@ def tag_repo(args):
     return tag
 
 
+def generate_source_repository_uri(args):
+    org_repo = f"gazebosim/{get_canonical_package_name(args.package_alias)}"
+    out, err = check_call(['git', 'ls-remote', '--get-url', 'origin'], IGNORE_DRY_RUN)
+    if err:
+        print(f"An error happened running git ls-remote: ${err}")
+        sys.exit(1)
+
+    git_remote = out.decode().split('\n')[0]
+    if org_repo not in git_remote:
+        print(f""" !! Automatic calculation of SOURCE_REPO_URI failed.\
+              \n   * git remote origin is: {git_remote}\
+              \n   * Package name generated org/repo: {org_repo}\
+              \n >> Please use --source-repo-uri parameter""")
+        sys.exit(1)
+
+    return f"https://github.com/{org_repo}.git"  # NOQA
+
+
 def go(argv):
     args = parse_args(argv)
 
@@ -488,6 +510,9 @@ def go(argv):
     debian_distros = discover_distros(repo_dir + '/debian/')  # debian dir top level, Debian
     if not args.no_sanity_checks:
         sanity_checks(args, repo_dir)
+
+    source_repo_uri = args.source_repo_uri if args.source_repo_uri else \
+        generate_source_repository_uri(args)
 
     # Do not generate source file if not needed or impossible
     if not args.no_source_file:
@@ -510,13 +535,16 @@ def go(argv):
     if args.upload_to_repository in OSRF_REPOS_SELF_CONTAINED:
         params['OSRF_REPOS_TO_USE'] = args.upload_to_repository
 
+    params['SOURCE_REPO_URI'] = source_repo_uri
+
     if NIGHTLY:
         params['VERSION'] = 'nightly'
         # reuse SOURCE_TARBALL_URI to indicate the nightly branch
         # name must be modified in the future
         params['SOURCE_TARBALL_URI'] = args.nightly_branch
 
-    job_name = JOB_NAME_PATTERN % (args.package)
+    job_name = f"{args.package_alias}-source"
+    # job_name = JOB_NAME_PATTERN % (args.package)
     params_query = urllib.parse.urlencode(params)
 
     # RELEASING FOR BREW
