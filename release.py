@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from __future__ import print_function
+from argparse import RawTextHelpFormatter
 import subprocess
 import sys
 import tempfile
@@ -19,7 +20,6 @@ except KeyError:
 JOB_NAME_PATTERN = ' %s-debbuilder'
 GENERIC_BREW_PULLREQUEST_JOB = 'generic-release-homebrew_pull_request_updater'
 UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
-DOWNLOAD_URI_PATTERN = 'https://osrf-distributions.s3.amazonaws.com/%s/releases/'
 
 LINUX_DISTROS = ['ubuntu', 'debian']
 SUPPORTED_ARCHS = ['amd64', 'armhf', 'arm64']
@@ -35,7 +35,6 @@ OSRF_REPOS_SELF_CONTAINED = ""
 DRY_RUN = False
 NIGHTLY = False
 PRERELEASE = False
-NO_SRC_FILE = False
 
 IGNORE_DRY_RUN = True
 
@@ -127,9 +126,24 @@ def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
     global PRERELEASE
-    global NO_SRC_FILE
 
-    parser = argparse.ArgumentParser(description='Make releases.')
+    parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter,
+    description="""
+Script to handle the release process for the Gazebo devs.
+Examples:
+A) Local repository tag + call source job:
+   $ release.py <package> <version> <jenkins_token>
+   (auto calculate source-repo-url from local directory) \n
+
+B) Reuse existing tarball version + call build jobs:
+   $ release.py --source-tarball-url <URL> <package> <version> <jenkins_token>
+   (no call to source job, directly build jobs with tarball URL)
+
+C) Nightly builds
+   $ release.py --source-repo-existing-ref <git_branch> --upload-to-repo nightly <URL> <package> <version> <jenkins_token>
+
+
+                                     """)
     parser.add_argument('package', help='which package to release')
     parser.add_argument('version', help='which version to release')
     parser.add_argument('jenkins_token', help='secret token to allow access to Jenkins to start builds')
@@ -146,16 +160,18 @@ def parse_args(argv):
                         help='Release version suffix; usually 1 (e.g., 1')
     parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
                         help='no-sanity-checks; i.e. skip sanity checks commands')
-    parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
-                        help='Do not generate source file when building')
-    parser.add_argument('--source-repo-uri',
-                        dest='source_repo_uri',
+    parser.add_argument('--source-repo-url',
+                        dest='source_repo_url',
                         default=None,
-                        help='Override automatic calculation of the URI of source repo to grab the sources from')  # NOQA
-    parser.add_argument('--call-debbuilders-with-src-uri',
-                        dest='debbuilders_src_uri', default=None,
-                        help='Call to debbuilders with an URI that points to \
-                              a tarball source code to be built.')
+                        help='Indicate the repository URL to grab the source from (overriding the heristics to calculate it from the local directory)')  # NOQA
+    parser.add_argument('--source-repo-existing-ref',
+                        dest='source_repo_ref',
+                        default=None,
+                        help='Optionally, when using --source-repo-url, indicate the Git reference (branch|tag) to grab the release sources from.\
+                              If used: avoid to tag the local repository. If not used: tag the local repository with <version> and use it as ref')  # NOQA
+    parser.add_argument('--source-tarball_url',
+                        dest='source_tarball_url', default=None,
+                        help='Indicate the URL of the sources to grab the release sources from.')  # NOQA
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
     parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
@@ -175,15 +191,10 @@ def parse_args(argv):
     args.package_alias = args.package
 
     DRY_RUN = args.dry_run
-    NO_SRC_FILE = args.no_source_file
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
     if args.upload_to_repository == 'prerelease':
         PRERELEASE = True
-    # Nightly do not generate a tar.bz2 file
-    if NIGHTLY:
-        NO_SRC_FILE = True
-        args.no_source_file = True
 
     return args
 
@@ -192,7 +203,7 @@ def get_release_repository_info(package):
     # Do not use git@github method since it fails in non existant repositories
     # asking for stdin user/pass. Same happen if no user/pass is provided
     # using the fake foo:foo here seems to work
-    github_test_url = "https://foo:foo@github.com/gazebo-release/" + package + "-release"
+    github_test_url = "https://github.com/gazebo-release/" + package + "-release"
     if (not github_repo_exists(github_test_url)):
         error("release repository not found in github.com/gazebo-release")
 
@@ -482,7 +493,7 @@ def tag_repo(args):
     return tag
 
 
-def generate_source_repository_uri(args):
+def generate_source_repository_url(args):
     org_repo = f"gazebosim/{get_canonical_package_name(args.package_alias)}"
     out, err = check_call(['git', 'ls-remote', '--get-url', 'origin'], IGNORE_DRY_RUN)
     if err:
@@ -491,10 +502,10 @@ def generate_source_repository_uri(args):
 
     git_remote = out.decode().split('\n')[0]
     if org_repo not in git_remote:
-        print(f""" !! Automatic calculation of SOURCE_REPO_URI failed.\
+        print(f""" !! Automatic calculation of SOURCE_REPO_URL failed.\
               \n   * git remote origin is: {git_remote}\
               \n   * Package name generated org/repo: {org_repo}\
-              \n >> Please use --source-repo-uri parameter""")
+              \n >> Please use --source-repo-url parameter""")
         sys.exit(1)
 
     return f"https://github.com/{org_repo}.git"  # NOQA
@@ -504,22 +515,22 @@ def generate_source_params(args):
     params = {}
     # Handle the main two kind of calls:
     # 1. Launch source jobs (default)
-    #   call gz-*-source jobs with SOURCE_REPO_URI
-    #     1.1 using args.source_repo_uri (if it was passed)
+    #   call gz-*-source jobs with SOURCE_REPO_URL
+    #     1.1 using args.source_repo_url (if it was passed)
     #     1.2 autogenerating it
     #
-    # 2. Launch builders (If --call-debbuilders-with-src-uri is used)
-    #   call -debbuilders jobs with SOURCE_TARBALL_URI
-    #     2.1 using args.debbuilders_src_uri
+    # 2. Launch builders (If --call-debbuilders-with-src-url is used)
+    #   call -debbuilders jobs with SOURCE_TARBALL_URL
+    #     2.1 using args.source_tarball_url
     #     2.2 pass the nightly branch if NIGHTLY enabled
     #
-    if not args.debbuilders_src_uri:
-        params['SOURCE_REPO_URI'] = \
-            args.source_repo_uri if args.source_repo_uri else \
-            generate_source_repository_uri(args)
+    if not args.source_tarball_url:
+        params['SOURCE_REPO_URL'] = \
+            args.source_repo_url if args.source_repo_url else \
+            generate_source_repository_url(args)
     else:
-        params['SOURCE_TARBALL_URI'] = \
-            args.debbuilders_src_uri if not NIGHTLY else \
+        params['SOURCE_TARBALL_URL'] = \
+            args.source_tarball_url if not NIGHTLY else \
             args.nightly_branch
 
     return params
@@ -556,14 +567,22 @@ def go(argv):
     if args.upload_to_repository in OSRF_REPOS_SELF_CONTAINED:
         params['OSRF_REPOS_TO_USE'] = args.upload_to_repository
 
-
-    job_name = f"{args.package_alias}-source"
-    # job_name = JOB_NAME_PATTERN % (args.package)
     params_query = urllib.parse.urlencode(params)
 
     # Tag should not go before any method or step that can fail and just before
     # the calls to the servers.
-    if not args.no_source_file or args.debbuilders_src_uri:
+    if args.source_repo_ref:
+        print("INFO: --source-repo-existing-ref used, calling -debbuilders\
+            jobs")
+        job_name_postfix = "debbuilder"
+    else:
+        print("INFO: no --source-repo-existing-ref used, tag the local "
+              "repository as the reference for the source code of the release")
+        job_name_postfix = "source"
+        # Ideally the reference build by the tag_repo method should be passed
+        # to the servers. Not supported in the PARAMS defined by now and
+        # rebuild in the building scripts using the same logic based on
+        # NAME_VERSION.
         _ = tag_repo(args)
 
     # RELEASING FOR BREW
@@ -624,6 +643,11 @@ def go(argv):
                     linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
 
                 linux_platform_params_query = urllib.parse.urlencode(linux_platform_params)
+
+                if job_name_postfix == 'source':
+                    job_name_postfix = d + "-source"
+
+                job_name = f"{args.package_alias}-{job_name_postfix}"
 
                 url = ' %s/job/%s/buildWithParameters?%s' % (JENKINS_URL, job_name, linux_platform_params_query)
                 print('- Linux: %s' % (url))
