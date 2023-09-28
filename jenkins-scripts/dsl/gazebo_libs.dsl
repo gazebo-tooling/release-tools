@@ -178,7 +178,7 @@ configs_per_lib_index.each { lib_name, lib_configs ->
     // CI branch jobs (-ci-$branch-) (pulling check every 5 minutes)
     branches_with_collections.each { branch_and_collection ->
       // TODO: remove after testing
-      if (branch_and_collection.collection == 'harmonic')
+      if (branch_and_collection.collection != 'harmonic')
         return
 
       branch_name = branch_and_collection.branch
