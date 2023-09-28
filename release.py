@@ -16,7 +16,7 @@ try:
     JENKINS_URL = os.environ['JENKINS_URL']
 except KeyError:
     JENKINS_URL = 'http://build.osrfoundation.org'
-JOB_NAME_PATTERN = ' %s-debbuilder'
+JOB_NAME_PATTERN = '%s-debbuilder'
 GENERIC_BREW_PULLREQUEST_JOB = 'generic-release-homebrew_pull_request_updater'
 UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
 DOWNLOAD_URI_PATTERN = 'https://osrf-distributions.s3.amazonaws.com/%s/releases/'
@@ -434,7 +434,7 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
     if not os.path.isfile(tarball_path):
         # Try looking for special project names using underscores
         alt_tarball_name = "_".join(tarball_name.rsplit("-", 1))
-        alt_tarball_fname = ' %s-%s.tar.bz2' % (alt_tarball_name, version)
+        alt_tarball_fname = '%s-%s.tar.bz2' % (alt_tarball_name, version)
         alt_tarball_path = os.path.join(builddir, alt_tarball_fname)
         if (not dry_run):
             if not os.path.isfile(alt_tarball_path):
@@ -495,7 +495,7 @@ def generate_upload_tarball(args):
     # If we're releasing under a different name, then rename the tarball (the
     # package itself doesn't know anything about this).
     if args.package != args.package_alias:
-        tarball_fname = ' %s-%s.tar.bz2' % (args.package_alias, args.version)
+        tarball_fname = '%s-%s.tar.bz2' % (args.package_alias, args.version)
         if (not args.dry_run):
             dest_file = os.path.join(builddir, tarball_fname)
             # Do not copy if files are the same
@@ -595,7 +595,7 @@ def go(argv):
     params_query = urllib.parse.urlencode(params)
 
     # RELEASING FOR BREW
-    brew_url = ' %s/job/%s/buildWithParameters?%s' % (
+    brew_url = '%s/job/%s/buildWithParameters?%s' % (
         JENKINS_URL,
         GENERIC_BREW_PULLREQUEST_JOB,
         params_query)
@@ -653,7 +653,7 @@ def go(argv):
 
                 linux_platform_params_query = urllib.parse.urlencode(linux_platform_params)
 
-                url = ' %s/job/%s/buildWithParameters?%s' % (JENKINS_URL, job_name, linux_platform_params_query)
+                url = '%s/job/%s/buildWithParameters?%s' % (JENKINS_URL, job_name, linux_platform_params_query)
                 print('- Linux: %s' % (url))
 
                 if not DRY_RUN:
