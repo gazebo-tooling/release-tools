@@ -427,7 +427,7 @@ def create_tarball_name(args):
 
 # Returns: sha, tarball file name, tarball full path
 def create_tarball_path(tarball_name, version, builddir, dry_run):
-    tarball_fname = ' %s-%s.tar.bz2' % (tarball_name, version)
+    tarball_fname = '%s-%s.tar.bz2' % (tarball_name, version)
     # Try using the tarball_name as it is
     tarball_path = os.path.join(builddir, tarball_fname)
 
@@ -521,7 +521,7 @@ def generate_upload_tarball(args):
 
         try:
             # tilde is not a valid character in git
-            tag = ' %s_%s' % (args.package_alias, args.version.replace('~','-'))
+            tag = '%s_%s' % (args.package_alias, args.version.replace('~', '-'))
             check_call(['git', 'tag', '-f', tag])
             check_call(['git', 'push', '--tags'])
         except ErrorNoPermsRepo:
