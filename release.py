@@ -644,10 +644,10 @@ def go(argv):
 
                 linux_platform_params_query = urllib.parse.urlencode(linux_platform_params)
 
-                if job_name_postfix == 'source':
-                    job_name_postfix = d + "-source"
-
                 job_name = f"{args.package_alias}-{job_name_postfix}"
+                if job_name_postfix == 'source':
+                    job_name = f"{args.package_alias}-{d}-{job_name_postfix}"
+
 
                 url = ' %s/job/%s/buildWithParameters?%s' % (JENKINS_URL, job_name, linux_platform_params_query)
                 print('- Linux: %s' % (url))
