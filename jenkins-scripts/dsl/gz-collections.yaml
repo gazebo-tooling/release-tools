@@ -330,6 +330,8 @@ collections:
       configs:
         - jammy
     packaging:
+      configs:
+        - jammy
       linux:
         package_name:
           ignore_major_version:
@@ -440,3 +442,14 @@ ci_configs:
       gz-physics:
         - "export MAKE_JOBS=1"
     tests_disabled:
+packaging_configs:
+  - name: jammy
+    system:
+      so: linux
+      distribution: ubuntu
+      version: jammy
+      arch:
+        - amd64
+        - arm64
+        - armhf
+

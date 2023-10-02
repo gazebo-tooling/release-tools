@@ -55,7 +55,6 @@ boolean is_testing_enabled(lib_name, ci_config)
   return ! ci_config.tests_disabled?.contains(lib_name)
 }
 
-
 /*
  * Generate an index that facilitates the operations with the yaml values,
  * avoiding to parse them several times.
@@ -71,8 +70,12 @@ boolean is_testing_enabled(lib_name, ci_config)
  *
  *   index[gz-cmake][jammy] -> [ branch: gz-cmake3, collection: garden ,
  *                               branch: gz-cmake3, collection: harmonic]
+ *
+ *   pkg_src_name : [ packaging_config_name : [ .collection ] ]
+ *
+ *   index[gz-cmake3][jammy] -> [ harmonic ]
  */
-void generate_ciconfigs_by_lib(config, configs_per_lib_index)
+void generate_ciconfigs_by_lib(config, ciconf_per_lib_index, pkgconf_per_src_index)
 {
   config.collections.each { collection ->
     // TODO(jrivero): limit to harmonic for testing proposes
@@ -83,8 +86,13 @@ void generate_ciconfigs_by_lib(config, configs_per_lib_index)
       def libName = lib.name
       def branch = lib.repo.current_branch
       collection.ci.configs.each { config_name ->
-        configs_per_lib_index["$libName"]["${config_name}"] = configs_per_lib_index["$libName"]["${config_name}"]?: []
-        configs_per_lib_index["$libName"]["${config_name}"].contains(branch) ?: configs_per_lib_index["$libName"]["${config_name}"] << [branch: branch, collection: collection.name]
+        ciconf_per_lib_index["$libName"]["${config_name}"] = ciconf_per_lib_index["$libName"]["${config_name}"]?: []
+        ciconf_per_lib_index["$libName"]["${config_name}"].contains(branch) ?: ciconf_per_lib_index["$libName"]["${config_name}"] << [branch: branch, collection: collection.name]
+      }
+      def pkg_name = lib.name + lib.major_version
+      collection.packaging.configs?.each { config_name ->
+        pkgconf_per_src_index[pkg_name][config_name] = pkgconf_per_src_index[pkg_name][config_name]?: []
+        pkgconf_per_src_index[pkg_name][config_name] << collection.name
       }
     }
   }
@@ -126,11 +134,13 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
   }
 }
 
-def configs_per_lib_index = [:].withDefault { [:] }
-generate_ciconfigs_by_lib(gz_collections_yaml, configs_per_lib_index)
+def ciconf_per_lib_index = [:].withDefault { [:] }
+def pkgconf_per_src_index = [:].withDefault { [:] }
+generate_ciconfigs_by_lib(gz_collections_yaml, ciconf_per_lib_index, pkgconf_per_src_index)
+println(pkgconf_per_src_index)
 
 // Generate PR jobs: 1 per ci configuration on each lib
-configs_per_lib_index.each { lib_name, lib_configs ->
+ciconf_per_lib_index.each { lib_name, lib_configs ->
   lib_configs.each { ci_configs ->
     def config_name = ci_configs.getKey()
     def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
@@ -144,6 +154,7 @@ configs_per_lib_index.each { lib_name, lib_configs ->
 
     if (ci_config.exclude.contains(lib_name))
       return
+
 
     // Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
     // --------------------------------------------------------------
@@ -198,6 +209,13 @@ configs_per_lib_index.each { lib_name, lib_configs ->
 
   } //en of lib_configs
 } // end of lib
+
+pkgconf_per_src_index.each { pkg_src, pkg_configs ->
+  pkg_configs.each { pkg_configuration ->
+    def config_name = pkg_configuration.getKey()
+    def gz_source = job("${pkg_src}-${config_name}-source")
+  }
+}
 
 if (WRITE_JOB_LOG) {
   File log_file = new File("jobs.txt")
