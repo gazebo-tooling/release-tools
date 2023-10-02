@@ -183,12 +183,8 @@ def parse_args(argv):
     return args
 
 def get_release_repository_info(package):
-    # Do not use git@github method since it fails in non existant repositories
-    # asking for stdin user/pass. Same happen if no user/pass is provided
-    # using the fake foo:foo here seems to work
-    github_test_url = "https://foo:foo@github.com/gazebo-release/" + package + "-release"
-    if (github_repo_exists(github_test_url)):
-        github_url = "https://github.com/gazebo-release/" + package + "-release"
+    github_url = "https://github.com/gazebo-release/" + package + "-release"
+    if (github_repo_exists(github_url)):
         return 'git', github_url
 
     error("release repository not found in github.com/gazebo-release")
