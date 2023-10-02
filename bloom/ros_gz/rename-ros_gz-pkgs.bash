@@ -47,7 +47,9 @@ for pkg in ${PKGS}; do
     git commit debian/control.em debian/changelog.em -m "Patch name to release ${GZ_RELEASE} version"
     # Include conflict with initial package name in ROS
     sed -i -e '/^Depends/a\Conflicts: \@(Package)' debian/control.em
-
+    if [[ -n ${GZ_RELEASE_TO_CONFLICT} ]]; then
+      sed -i -e "s/Conflicts: @(Package)/Conflicts: @(Package.replace('-gz','-gz${GZ_RELEASE_TO_CONFLICT}'))/" debian/control.em
+    fi
     git commit debian/control.em -m "Set up a conflict with official ROS packages"
     git push origin "debian/$distro/$pkg"
   done
