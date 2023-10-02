@@ -1,7 +1,7 @@
 name: CI
 
 # base_ref / head_reaf are only available in PRs
-on: [pull_request]
+on: [pull_request, push]
 
 jobs:
   dsl_ci:
@@ -18,7 +18,8 @@ jobs:
             git fetch origin ${{ github.ref }}
             git diff --name-only origin/${{ github.base_ref }}...FETCH_HEAD
             echo "changed-files=$(git diff --name-only origin/${{ github.base_ref }}...FETCH_HEAD| tr '\n' ' ')"  >> $GITHUB_OUTPUT
-      - name: Run testing on changed config files
+      - name: Run testing on changed config files in PRs
+        if: github.event_name == 'pull_request'
         id: dsl_check
         run: |
           for changed_file in ${{ steps.files.outputs.changed-files }}; do
@@ -30,6 +31,10 @@ jobs:
               echo "run_job=false" >> $GITHUB_OUTPUT
             fi
           done
+      - name: Run testing always on not PRs
+        if: github.event_name != 'pull_request'
+        id: dsl_check
+        run: echo "run_job=true" >> $GITHUB_OUTPUT
       - name: Checkout
         if: steps.dsl_check.outputs.run_job == 'true'
         uses: actions/checkout@v3
