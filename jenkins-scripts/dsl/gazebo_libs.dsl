@@ -71,28 +71,24 @@ boolean is_testing_enabled(lib_name, ci_config)
  *   index[gz-cmake][jammy] -> [ branch: gz-cmake3, collection: garden ,
  *                               branch: gz-cmake3, collection: harmonic]
  *
- *   pkg_src_name : [ packaging_config_name : [ .collection ] ]
+ *   pkg_src_name : [ packaging_config_name : [ .lib_name .collection ] ]
  *
- *   index[gz-cmake3][jammy] -> [ harmonic ]
+ *   index[gz-cmake3][jammy] -> [ lib_name: gz-cmake, collection: harmonic ]
  */
 void generate_ciconfigs_by_lib(config, ciconf_per_lib_index, pkgconf_per_src_index)
 {
   config.collections.each { collection ->
-    // TODO(jrivero): limit to harmonic for testing proposes
-    if (collection.name != 'harmonic')
-      return
-
     collection.libs.each { lib ->
       def libName = lib.name
       def branch = lib.repo.current_branch
       collection.ci.configs.each { config_name ->
-        ciconf_per_lib_index["$libName"]["${config_name}"] = ciconf_per_lib_index["$libName"]["${config_name}"]?: []
-        ciconf_per_lib_index["$libName"]["${config_name}"].contains(branch) ?: ciconf_per_lib_index["$libName"]["${config_name}"] << [branch: branch, collection: collection.name]
+        ciconf_per_lib_index[libName][config_name] = ciconf_per_lib_index[libName][config_name]?: []
+        ciconf_per_lib_index[libName][config_name].contains(branch) ?: ciconf_per_lib_index[libName][config_name] << [branch: branch, collection: collection.name]
       }
       def pkg_name = lib.name + lib.major_version
       collection.packaging.configs?.each { config_name ->
         pkgconf_per_src_index[pkg_name][config_name] = pkgconf_per_src_index[pkg_name][config_name]?: []
-        pkgconf_per_src_index[pkg_name][config_name] << collection.name
+        pkgconf_per_src_index[pkg_name][config_name] << [ lib_name: libName, collection: collection.name ]
       }
     }
   }
@@ -213,7 +209,16 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
 pkgconf_per_src_index.each { pkg_src, pkg_configs ->
   pkg_configs.each { pkg_configuration ->
     def config_name = pkg_configuration.getKey()
-    def gz_source = job("${pkg_src}-${config_name}-source")
+    // lib_names are the same in all the entries
+    def lib_name = pkg_configuration.getValue()[0].lib_name
+    def gz_source_job = job("${pkg_src}-${config_name}-source")
+    OSRFSourceCreation.create(gz_source_job, [
+      PACKAGE: pkg_src ,
+      SOURCE_REPO_URI: "https://github.com/gazebosim/${lib_name}.git"])
+    // WIP: call testing jobs
+    OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
+      '_test_repository_uploader',
+      '_test_releasepy')
   }
 }
 

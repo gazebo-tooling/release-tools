@@ -377,6 +377,8 @@ collections:
       configs:
         - jammy
     packaging:
+      configs:
+        - jammy
       exclude:
         - __upcoming__
 ci_configs:
@@ -452,4 +454,3 @@ packaging_configs:
         - amd64
         - arm64
         - armhf
-
