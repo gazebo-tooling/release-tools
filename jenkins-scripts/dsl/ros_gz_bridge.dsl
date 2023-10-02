@@ -10,6 +10,11 @@ def bridge_packages = [
   'ros_gz_sim_demos'
 ]
 
+def gzgarden_ros_distros_ci = [
+  'humble',
+  'iron'
+]
+
 // BLOOM PACKAGE BUILDER JOBS
 bridge_packages.each { pkg ->
   pkg_dashed = pkg.replaceAll("_", "-")
@@ -40,7 +45,7 @@ bridge_packages.each { pkg ->
         stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
         stringParam("DISTRO", "jammy", "Linux release inside LINUX_DISTRO to build packages for")
         stringParam("ARCH", "amd64", "Architecture to build packages for")
-        stringParam('ROS_DISTRO', 'humble','ROS DISTRO to build pakcages for')
+        stringParam('ROS_DISTRO', null,'ROS DISTRO to build pakcages for')
         stringParam("UPLOAD_TO_REPO", 'stable', "OSRF repo name to upload the package to")
         stringParam('UPSTREAM_RELEASE_REPO', 'https://github.com/j-rivero/ros_ign-release', 'Release repository url')
     }
@@ -191,18 +196,20 @@ manual_install_test_job.with
   }
 }
 
-def periodic_install_test_job = job("ros_gzgarden_bridge-install-pkg_humble-ci-jammy-amd64")
-generate_install_test_job(periodic_install_test_job)
-periodic_install_test_job.with
-{
-  parameters {
-    stringParam("DISTRO", 'jammy', "Linux release inside LINUX_DISTRO to build packages for")
-    stringParam("ARCH", 'amd64', "Architecture to build packages for")
-    stringParam("ROS_DISTRO", 'humble', "ROS distribution")
-    stringParam("GZ_VERSION", 'garden', "Gazebo version")
-  }
+gzgarden_ros_distros_ci.each { ros_distro ->
+  def periodic_install_test_job = job("ros_gzgarden_bridge-install-pkg_${ros_distro}-ci-jammy-amd64")
+  generate_install_test_job(periodic_install_test_job)
+  periodic_install_test_job.with
+  {
+    parameters {
+      stringParam("DISTRO", 'jammy', "Linux release inside LINUX_DISTRO to build packages for")
+      stringParam("ARCH", 'amd64', "Architecture to build packages for")
+      stringParam("ROS_DISTRO", ros_distro, "ROS distribution")
+      stringParam("GZ_VERSION", 'garden', "Gazebo version")
+    }
 
-  triggers {
-    scm('@daily')
+    triggers {
+      scm('@daily')
+    }
   }
 }
