@@ -211,6 +211,9 @@ pkgconf_per_src_index.each { pkg_src, pkg_configs ->
     def config_name = pkg_configuration.getKey()
     // lib_names are the same in all the entries
     def lib_name = pkg_configuration.getValue()[0].lib_name
+    // TODO: REMOVE - for testing proposes
+    if (lib_name != 'gz-cmake')
+      return 
     def gz_source_job = job("${pkg_src}-${config_name}-source")
     OSRFSourceCreation.create(gz_source_job, [
       PACKAGE: pkg_src ,
