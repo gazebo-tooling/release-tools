@@ -78,6 +78,11 @@ boolean is_testing_enabled(lib_name, ci_config)
 void generate_ciconfigs_by_lib(config, ciconf_per_lib_index, pkgconf_per_src_index)
 {
   config.collections.each { collection ->
+
+    // TODO(jrivero): limit to harmonic for testing proposes
+    if (collection.name != 'harmonic')
+      return
+
     collection.libs.each { lib ->
       def libName = lib.name
       def branch = lib.repo.current_branch
