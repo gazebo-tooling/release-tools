@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 if [[ $# -lt 3 ]]; then
   echo "Usage: $0 <ROS_DISTRO> <TARGET_NEW_GAZEBO_COLLECTION> <URL_OSRF_ROSDEP_REPLACE>"
