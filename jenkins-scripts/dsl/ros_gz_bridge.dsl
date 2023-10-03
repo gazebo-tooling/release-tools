@@ -1,6 +1,8 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
+def WRITE_JOB_LOG = System.getenv('WRITE_JOB_LOG') ?: false
+
 def bridge_packages = [
   'ros_gz',
   'ros_gz_bridge',
@@ -14,6 +16,14 @@ def gzgarden_ros_distros_ci = [
   'humble',
   'iron'
 ]
+
+def unofficial_combinations = [
+  'garden' : ['humble', 'iron'],
+  'harmonic' : ['iron']
+]
+
+logging_list = [:]
+logging_list['unofficial_wrappers_install_pkg_ci'] = []
 
 // BLOOM PACKAGE BUILDER JOBS
 bridge_packages.each { pkg ->
@@ -196,20 +206,36 @@ manual_install_test_job.with
   }
 }
 
-gzgarden_ros_distros_ci.each { ros_distro ->
-  def periodic_install_test_job = job("ros_gzgarden_bridge-install-pkg_${ros_distro}-ci-jammy-amd64")
-  generate_install_test_job(periodic_install_test_job)
-  periodic_install_test_job.with
-  {
-    parameters {
-      stringParam("DISTRO", 'jammy', "Linux release inside LINUX_DISTRO to build packages for")
-      stringParam("ARCH", 'amd64', "Architecture to build packages for")
-      stringParam("ROS_DISTRO", ros_distro, "ROS distribution")
-      stringParam("GZ_VERSION", 'garden', "Gazebo version")
+unofficial_combinations.each { gz_release, ros_distros ->
+  ros_distros.each { ros_distro ->
+    def periodic_install_test_job = job("ros_gz${gz_release}_bridge-install-pkg_${ros_distro}-ci-jammy-amd64")
+    generate_install_test_job(periodic_install_test_job)
+    periodic_install_test_job.with
+    {
+      parameters {
+        stringParam("DISTRO", 'jammy', "Linux release inside LINUX_DISTRO to build packages for")
+        stringParam("ARCH", 'amd64', "Architecture to build packages for")
+        stringParam("ROS_DISTRO", ros_distro, "ROS distribution")
+        stringParam("GZ_VERSION", gz_release, "Gazebo version")
+      }
+
+      triggers {
+        scm('@daily')
+      }
     }
 
-    triggers {
-      scm('@daily')
+    logging_list['unofficial_wrappers_install_pkg_ci'].add(
+      [collection: gz_release,
+       job_name: periodic_install_test_job.name])
+  }
+}
+
+
+if (WRITE_JOB_LOG) {
+  File log_file = new File("jobs.txt")
+  log_file.withWriter{ file_writer ->
+    logging_list.each { log_type, items ->
+      items.each {file_writer.println "${log_type} ${it.collection} ${it.job_name}"}
     }
   }
 }
