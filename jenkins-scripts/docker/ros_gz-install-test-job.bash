@@ -32,7 +32,7 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: test gz_sim via ros2 launch'
 # Workaround until ros_gz defines a dependency on gz-sim*-cli. Avoid to use
 # apt --install-suggests since it installs the whole universe of packages
-VER=\$(dpkg -l | grep libgz-sim | grep ^ii | head -1 | awk '{ print \$3 '})
+VER=\$(dpkg -l | grep libgz-sim | grep ^ii | head -1 | awk '{ print \$3 }')
 sudo apt-get install -y gz-sim\${VER:0:1}-cli
 TEST_START=\`date +%s\`
 # preserve-status did not work here
