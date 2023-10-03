@@ -29,11 +29,11 @@ newer version of Gazebo than the one selected in REP-2000.
 
 ### List of active relases
 
-| Gazebo Release | ROS / ROS 2 Release | status     | ros_gz branch | -release repository |
-| ---------------|---------------------|------------|---------------|---------------------|
-| Garden         | Humble              | stable     | humble        | https://github.com/gazebo-release/ros_ign-release |
-| Garden         | Iron                | prerelease | iron          | https://github.com/gazebo-release/ros_ign-release |
-| Harmonic       | Iron                | prerelease | ros2          | https://github.com/j-rivero/ros_ign-gzharmonic-release |
+| Gazebo Release | ROS / ROS 2 Release | status     | ros_gz branch | -release repository | release cmd |
+| ---------------|---------------------|------------|---------------|---------------------|-------------|
+| Garden         | Humble              | stable     | humble        | https://github.com/gazebo-release/ros_ign-release | <details>```RELEASE_REPO_URL=https://github.com/gazebo-release/ros_ign-release ./bloom_from_special_env.bash humble garden https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list```</details> |
+| Garden         | Iron                | prerelease | iron          | https://github.com/gazebo-release/ros_ign-release |  <details>```RELEASE_REPO_URL=https://github.com/gazebo-release/ros_ign-release ./bloom_from_special_env.bash iron garden https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list```</details> |
+| Harmonic       | Iron                | stable     | ros2          | https://github.com/gazebo-release/ros_gz-gzharmonic-release| <details>```RELEASE_REPO_URL=https://github.com/gazebo-release/ros_gz-gzharmonic-release   ./bloom_from_special_env.bash iron harmonic https://raw.githubusercontent.com/osrf/osrf-rosdep```</details> |
 
 ### Upstream versions released using this tutorial
 
