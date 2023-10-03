@@ -213,10 +213,10 @@ unofficial_combinations.each { gz_release, ros_distros ->
     periodic_install_test_job.with
     {
       parameters {
-        choiceParam("DISTRO", 'jammy', "Linux release inside LINUX_DISTRO to build packages for")
-        choiceParam("ARCH", 'amd64', "Architecture to build packages for")
-        choiceParam("ROS_DISTRO", ros_distro, "ROS distribution")
-        choiceParam("GZ_VERSION", gz_release, "Gazebo version")
+        choiceParam("DISTRO", ['jammy'], "Linux release inside LINUX_DISTRO to build packages for")
+        choiceParam("ARCH", ['amd64'], "Architecture to build packages for")
+        choiceParam("ROS_DISTRO", [ros_distro], "ROS distribution")
+        choiceParam("GZ_VERSION", [gz_release], "Gazebo version")
       }
 
       triggers {
