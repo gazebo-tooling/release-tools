@@ -15,7 +15,7 @@ TMP_DIR=$(mktemp -d)
 git clone -q "${RELEASE_REPO_URL}" "${TMP_DIR}"
 pushd "${TMP_DIR}" 2> /dev/null > /dev/null || exit
 DEBIAN_LATEST_TAG=$(git for-each-ref --sort=creatordate --format '%(refname)' refs/tags | \
-          grep -v 'ros-ign-' | grep "debian/ros-${ROS_DISTRO}"  \
+          grep -v 'ros-ign' | grep "debian/ros-${ROS_DISTRO}" | \
           tail -1 | sed 's:refs/tags/::')
 git checkout -q "${DEBIAN_LATEST_TAG}"
 if ! dpkg-parsechangelog -SSource 2> /dev/null | grep -q "gz${GAZEBO_DISTRO}"; then
