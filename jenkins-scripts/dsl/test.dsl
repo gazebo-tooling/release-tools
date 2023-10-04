@@ -53,6 +53,9 @@ repo_uploader.with
     stringParam('TARBALL_NAME', '', 'Tarball name to upload')
     stringParam('S3_UPLOAD_PATH','', 'S3 path to upload')
     stringParam('UPLOAD_TO_REPO','none','repo to upload')
+    stringParam("PROJECT_NAME_TO_COPY_ARTIFACTS",
+                "",
+                "Internal use: parent job name passed by the job to be used in copy artifacts")
   }
 
   steps
