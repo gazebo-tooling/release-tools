@@ -29,7 +29,7 @@ RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 # the release repositories, when needed.
 UBUNTU_DISTROS = []
 
-OSRF_REPOS_SUPPORTED = "stable prerelease nightly"
+OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing"
 OSRF_REPOS_SELF_CONTAINED = ""
 
 DRY_RUN = False
