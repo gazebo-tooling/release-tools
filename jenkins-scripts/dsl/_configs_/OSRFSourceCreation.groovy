@@ -33,9 +33,6 @@ class OSRFSourceCreation
         stringParam("UPLOAD_TO_REPO",
                     default_params.find{ it.key == "UPLOAD_TO_REPO"}?.value,
                     "For downstream jobs: OSRF repo name to upload the package to: stable | prerelease | nightly | none (for testing proposes)")
-        stringParam("PROJECT_NAME_TO_COPY_ARTIFACTS",
-                    "",
-                    "Internal use: parent job name passed by the job to be used in copy artifacts")
       }
     }
   }
@@ -99,7 +96,7 @@ class OSRFSourceCreation
             exit 1
           fi
 
-          echo "TARBALL_NAME=\${tarball}" >> ${properties_file}
+          echo "S3_FILES_TO_UPLOAD=\${tarball}" >> ${properties_file}
           echo "SOURCE_TARBALL_URI=$s3_download_url_basedir/\${tarball}" >> ${properties_file}
           """.stripIndent()
         )
@@ -130,8 +127,8 @@ class OSRFSourceCreation
                     parameters {
                       currentBuild()
                       predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: '${JOB_NAME}',
-                                       S3_UPLOAD_PATH: Globals.s3_upload_tarball_path(package_name)])
-                      propertiesFile(properties_file) // TARBALL_NAME
+                                       S3_UPLOAD_PATH: Globals.s3_releases_dir(package_name)])  // relative path
+                      propertiesFile(properties_file)  // S3_FILES_TO_UPLOAD
                     }
                   }
                 }

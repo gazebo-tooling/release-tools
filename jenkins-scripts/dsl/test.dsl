@@ -52,6 +52,7 @@ repo_uploader.with
     stringParam('PACKAGE','','Package name')
     stringParam('TARBALL_NAME', '', 'Tarball name to upload')
     stringParam('S3_UPLOAD_PATH','', 'S3 path to upload')
+    stringParam('S3_FILES_TO_UPLOAD','', 'S3 file names to upload')
     stringParam('UPLOAD_TO_REPO','none','repo to upload')
     stringParam("PROJECT_NAME_TO_COPY_ARTIFACTS",
                 "",
@@ -76,7 +77,22 @@ repo_uploader.with
           ls -R \${WORKSPACE}
           test -f \${WORKSPACE}/${pkg_sources_dir}/\${TARBALL_NAME}
 
-          echo "Fake upload of \${TARBALL_NAME} to \${S3_UPLOAD_PATH}"
+          echo "Fake upload of \${S3_FILES_TO_UPLOAD} to \${S3_UPLOAD_PATH}"
+          # code copied from repository_uploader
+          pkgs_path="\$WORKSPACE/pkgs"
+
+          for pkg in \${S3_FILES_TO_UPLOAD}; do
+            # S3_UPLOAD_PATH should be send by the upstream job
+            if [[ -z \${S3_UPLOAD_PATH} ]]; then
+              echo "S3_UPLOAD_PATH was not defined. Not uploading"
+              exit 1
+            fi
+
+            # Seems important to upload the path with a final slash
+            echo "WILL RUN: s3cmd \${pkgs_path}/\${pkg} \${S3_UPLOAD_PATH}"
+          done
+
+
           """.stripIndent())
   }
 }
