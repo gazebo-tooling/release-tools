@@ -60,6 +60,8 @@ class OSRFSourceCreation
 
       def canonical_package_name = Globals.get_canonical_package_name(
         default_params.find{ it.key == "PACKAGE"}.value)
+      def s3_download_url_basedir = Globals.s3_download_url_basedir(
+        default_params.find{ it.key == "PACKAGE"}?.value)
 
       steps {
         systemGroovyCommand("""\
@@ -98,6 +100,7 @@ class OSRFSourceCreation
           fi
 
           echo "TARBALL_NAME=\${tarball}" >> ${properties_file}
+          echo "SOURCE_TARBALL_URI=$s3_download_url_basedir/\${tarball}" >> ${properties_file}
           """.stripIndent()
         )
       }
