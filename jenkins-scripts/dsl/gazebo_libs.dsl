@@ -201,9 +201,7 @@ configs_per_lib_index.each { lib_name, lib_configs ->
 
 if (WRITE_JOB_LOG) {
   File log_file = new File("jobs.txt")
-  log_file.withWriter{ file_writer ->
-    logging_list.each { log_type, items ->
-      items.each {file_writer.println "${log_type} ${it.collection} ${it.job_name}"}
-    }
+  logging_list.each { log_type, items ->
+    items.each { log_file.append("${log_type} ${it.collection} ${it.job_name}\n") }
   }
 }
