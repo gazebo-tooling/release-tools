@@ -136,7 +136,7 @@ A) Generate source: local repository tag + call source job:
    (auto calculate source-repo-uri from local directory)
 
 B) Call builders: reuse existing tarball version + call build jobs:
-   $ release.py --source-tarball-url <URL> <package> <version> <jenkins_token>
+   $ release.py --source-tarball-uri <URL> <package> <version> <jenkins_token>
    (no call to source job, directly build jobs with tarball URL)
 
 C) Nightly builds (linux)
@@ -167,8 +167,8 @@ C) Nightly builds (linux)
                         default=None,
                         help='Optionally, when using --source-repo-urr, indicate the Git reference (branch|tag) to grab the release sources from.\
                               If used: avoid to tag the local repository. If not used: tag the local repository with <version> and use it as ref')  # NOQA
-    parser.add_argument('--source-tarball-url',
-                        dest='source_tarball_url', default=None,
+    parser.add_argument('--source-tarball-uri',
+                        dest='source_tarball_uri', default=None,
                         help='Indicate the URL of the sources to grab the release sources from.')  # NOQA
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
@@ -507,24 +507,21 @@ def generate_source_repository_uri(args):
 
 def generate_source_params(args):
     params = {}
-    # Handle the main two kind of calls:
-    # 1. Launch source jobs (default)
-    #   call gz-*-source jobs with source_repo_uri
+    # 1. Launch source jobs (SOURCE_REPO_URI)
     #     1.1 using args.source_repo_uri (if it was passed)
     #     1.2 autogenerating it
     #
-    # 2. Launch builders (If --call-debbuilders-with-src-url is used)
-    #   call -debbuilders jobs with SOURCE_TARBALL_URL
-    #     2.1 using args.source_tarball_url
+    # 2. Launch builders (SOURCE_TARBALL_URI)
+    #     2.1 using args.source_tarball_uri
     #     2.2 pass the nightly branch if NIGHTLY enabled
     #
-    if not args.source_tarball_url:
+    if not args.source_tarball_uri:
         params['SOURCE_REPO_URI'] = \
             args.source_repo_uri if args.source_repo_uri else \
             generate_source_repository_uri(args)
     else:
         params['SOURCE_TARBALL_URI'] = \
-            args.source_tarball_url if not NIGHTLY else \
+            args.source_tarball_uri if not NIGHTLY else \
             args.nightly_branch
 
     return params
@@ -572,7 +569,7 @@ def go(argv):
         params['OSRF_REPOS_TO_USE'] = args.upload_to_repository
 
     # a) Mode nightly or builders:
-    if NIGHTLY or args.source_tarball_url:
+    if NIGHTLY or args.source_tarball_uri:
         # RELEASING FOR BREW
         if not NIGHTLY and not args.bump_rev_linux_only:
             call_jenkins_build(GENERIC_BREW_PULLREQUEST_JOB,
