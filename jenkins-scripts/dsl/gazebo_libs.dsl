@@ -214,7 +214,7 @@ pkgconf_per_src_index.each { pkg_src, pkg_configs ->
     // TODO: REMOVE - for testing proposes
     if (lib_name != 'gz-cmake')
       return 
-    def gz_source_job = job("${pkg_src}-${config_name}-source")
+    def gz_source_job = job("${pkg_src}-source")
     OSRFSourceCreation.create(gz_source_job, [
       PACKAGE: pkg_src ,
       SOURCE_REPO_URI: "https://github.com/gazebosim/${lib_name}.git"])
