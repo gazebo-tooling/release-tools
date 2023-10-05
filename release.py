@@ -17,20 +17,13 @@ try:
     JENKINS_URL = os.environ['JENKINS_URL']
 except KeyError:
     JENKINS_URL = 'http://build.osrfoundation.org'
-JOB_NAME_PATTERN = ' %s-debbuilder'
 GENERIC_BREW_PULLREQUEST_JOB = 'generic-release-homebrew_pull_request_updater'
-UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
 
 LINUX_DISTROS = ['ubuntu', 'debian']
 SUPPORTED_ARCHS = ['amd64', 'armhf', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 
-# Ubuntu distributions are automatically taken from the top directory of
-# the release repositories, when needed.
-UBUNTU_DISTROS = []
-
 OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing"
-OSRF_REPOS_SELF_CONTAINED = ""
 
 DRY_RUN = False
 NIGHTLY = False
@@ -321,13 +314,6 @@ def sanity_project_package_in_stable(version, repo_name):
     return
 
 
-def sanity_use_prerelease_branch(release_branch):
-    if release_branch == 'prerelease':
-        error("The use of prerelease branch is now deprecated. Please check internal wiki instructions")
-
-    return
-
-
 def check_s3cmd_configuration():
     # Need to check if s3cmd is installed
     try:
@@ -347,7 +333,6 @@ def sanity_checks(args, repo_dir):
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
-    sanity_use_prerelease_branch(args.release_repo_branch)
 
     if not NIGHTLY:
         check_s3cmd_configuration()
@@ -564,9 +549,6 @@ def go(argv):
     params['OSRF_REPOS_TO_USE'] = "stable " + args.upload_to_repository
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
-
-    if args.upload_to_repository in OSRF_REPOS_SELF_CONTAINED:
-        params['OSRF_REPOS_TO_USE'] = args.upload_to_repository
 
     # a) Mode nightly or builders:
     if NIGHTLY or args.source_tarball_uri:
