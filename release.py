@@ -131,19 +131,17 @@ def parse_args(argv):
     description="""
 Script to handle the release process for the Gazebo devs.
 Examples:
-A) Local repository tag + call source job:
+A) Generate source: local repository tag + call source job:
    $ release.py <package> <version> <jenkins_token>
-   (auto calculate source-repo-url from local directory) \n
+   (auto calculate source-repo-uri from local directory)
 
-B) Reuse existing tarball version + call build jobs:
+B) Call builders: reuse existing tarball version + call build jobs:
    $ release.py --source-tarball-url <URL> <package> <version> <jenkins_token>
    (no call to source job, directly build jobs with tarball URL)
 
-C) Nightly builds
+C) Nightly builds (linux)
    $ release.py --source-repo-existing-ref <git_branch> --upload-to-repo nightly <URL> <package> <version> <jenkins_token>
-
-
-                                     """)
+ """)
     parser.add_argument('package', help='which package to release')
     parser.add_argument('version', help='which version to release')
     parser.add_argument('jenkins_token', help='secret token to allow access to Jenkins to start builds')
@@ -160,16 +158,16 @@ C) Nightly builds
                         help='Release version suffix; usually 1 (e.g., 1')
     parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
                         help='no-sanity-checks; i.e. skip sanity checks commands')
-    parser.add_argument('--source-repo-url',
-                        dest='source_repo_url',
+    parser.add_argument('--source-repo-uri',
+                        dest='source_repo_uri',
                         default=None,
                         help='Indicate the repository URL to grab the source from (overriding the heristics to calculate it from the local directory)')  # NOQA
     parser.add_argument('--source-repo-existing-ref',
                         dest='source_repo_ref',
                         default=None,
-                        help='Optionally, when using --source-repo-url, indicate the Git reference (branch|tag) to grab the release sources from.\
+                        help='Optionally, when using --source-repo-urr, indicate the Git reference (branch|tag) to grab the release sources from.\
                               If used: avoid to tag the local repository. If not used: tag the local repository with <version> and use it as ref')  # NOQA
-    parser.add_argument('--source-tarball_url',
+    parser.add_argument('--source-tarball-url',
                         dest='source_tarball_url', default=None,
                         help='Indicate the URL of the sources to grab the release sources from.')  # NOQA
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
@@ -209,7 +207,6 @@ def get_release_repository_info(package):
 
     github_url = "https://github.com/gazebo-release/" + package + "-release"
     return 'git', github_url
-
 
 
 def download_release_repository(package, release_branch):
@@ -408,14 +405,11 @@ def discover_distros(repo_dir):
 
 
 def check_call(cmd, ignore_dry_run=False):
-    if ignore_dry_run:
-        # Commands that do not change anything in repo level
-        print('Dry-run running:\n  %s\n' % (' '.join(cmd)))
-    else:
-        print('Running:\n  %s' % (' '.join(cmd)))
     if DRY_RUN and not ignore_dry_run:
+        print('Dry-run running:\n  %s\n' % (' '.join(cmd)))
         return b'', b''
     else:
+        print('Running:\n  %s' % (' '.join(cmd)))
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = po.communicate()
         if po.returncode != 0:
@@ -493,7 +487,7 @@ def tag_repo(args):
     return tag
 
 
-def generate_source_repository_url(args):
+def generate_source_repository_uri(args):
     org_repo = f"gazebosim/{get_canonical_package_name(args.package_alias)}"
     out, err = check_call(['git', 'ls-remote', '--get-url', 'origin'], IGNORE_DRY_RUN)
     if err:
@@ -502,10 +496,10 @@ def generate_source_repository_url(args):
 
     git_remote = out.decode().split('\n')[0]
     if org_repo not in git_remote:
-        print(f""" !! Automatic calculation of SOURCE_REPO_URL failed.\
+        print(f""" !! Automatic calculation of source_repo_uri failed.\
               \n   * git remote origin is: {git_remote}\
               \n   * Package name generated org/repo: {org_repo}\
-              \n >> Please use --source-repo-url parameter""")
+              \n >> Please use --source-repo-uri parameter""")
         sys.exit(1)
 
     return f"https://github.com/{org_repo}.git"  # NOQA
@@ -515,8 +509,8 @@ def generate_source_params(args):
     params = {}
     # Handle the main two kind of calls:
     # 1. Launch source jobs (default)
-    #   call gz-*-source jobs with SOURCE_REPO_URL
-    #     1.1 using args.source_repo_url (if it was passed)
+    #   call gz-*-source jobs with source_repo_uri
+    #     1.1 using args.source_repo_uri (if it was passed)
     #     1.2 autogenerating it
     #
     # 2. Launch builders (If --call-debbuilders-with-src-url is used)
@@ -525,15 +519,25 @@ def generate_source_params(args):
     #     2.2 pass the nightly branch if NIGHTLY enabled
     #
     if not args.source_tarball_url:
-        params['SOURCE_REPO_URL'] = \
-            args.source_repo_url if args.source_repo_url else \
-            generate_source_repository_url(args)
+        params['SOURCE_REPO_URI'] = \
+            args.source_repo_uri if args.source_repo_uri else \
+            generate_source_repository_uri(args)
     else:
-        params['SOURCE_TARBALL_URL'] = \
+        params['SOURCE_TARBALL_URI'] = \
             args.source_tarball_url if not NIGHTLY else \
             args.nightly_branch
 
     return params
+
+
+def call_jenkins_build(job_name, params, output_string):
+    params_query = urllib.parse.urlencode(params)
+    url = ' %s/job/%s/buildWithParameters?%s' % (JENKINS_URL,
+                                                 job_name,
+                                                 params_query)
+    print(f"- {output_string}: {url}")
+    if not DRY_RUN:
+        urllib.request.urlopen(url)
 
 
 def go(argv):
@@ -567,93 +571,74 @@ def go(argv):
     if args.upload_to_repository in OSRF_REPOS_SELF_CONTAINED:
         params['OSRF_REPOS_TO_USE'] = args.upload_to_repository
 
-    params_query = urllib.parse.urlencode(params)
-
-    # Tag should not go before any method or step that can fail and just before
-    # the calls to the servers.
-    if args.source_repo_ref:
-        print("INFO: --source-repo-existing-ref used, calling -debbuilders\
-            jobs")
-        job_name_postfix = "debbuilder"
-    else:
-        print("INFO: no --source-repo-existing-ref used, tag the local "
-              "repository as the reference for the source code of the release")
-        job_name_postfix = "source"
-        # Ideally the reference build by the tag_repo method should be passed
-        # to the servers. Not supported in the PARAMS defined by now and
-        # rebuild in the building scripts using the same logic based on
-        # NAME_VERSION.
-        _ = tag_repo(args)
-
-    # RELEASING FOR BREW
-    brew_url = ' %s/job/%s/buildWithParameters?%s' % (
-        JENKINS_URL,
-        GENERIC_BREW_PULLREQUEST_JOB,
-        params_query)
-
-    if not NIGHTLY and not args.bump_rev_linux_only:
-        print('- Brew: %s' % (brew_url))
-        if not DRY_RUN:
-            urllib.request.urlopen(brew_url)
-
-    # RELEASING FOR LINUX
-    for l in LINUX_DISTROS:
-        if (l == 'ubuntu'):
-            distros_dic = ubuntu_distros
-        elif (l == 'debian'):
-            if (PRERELEASE or NIGHTLY):
-                continue
-            if not debian_distros:
-                continue
-            distros_dic = debian_distros
-        else:
-            error("Distro not supported in code")
-
-        for d in distros_dic:
-            for a in distros_dic[d]:
-                # Filter prerelease and nightly architectures
+    # a) Mode nightly or builders:
+    if NIGHTLY or args.source_tarball_url:
+        # RELEASING FOR BREW
+        if not NIGHTLY and not args.bump_rev_linux_only:
+            call_jenkins_build(GENERIC_BREW_PULLREQUEST_JOB,
+                               params, 'Brew')
+        # RELEASING FOR LINUX
+        for l in LINUX_DISTROS:
+            if (l == 'ubuntu'):
+                distros_dic = ubuntu_distros
+            elif (l == 'debian'):
                 if (PRERELEASE or NIGHTLY):
+                    continue
+                if not debian_distros:
+                    continue
+                distros_dic = debian_distros
+            else:
+                error("Distro not supported in code")
+
+            for d in distros_dic:
+                for a in distros_dic[d]:
+                    # Filter prerelease and nightly architectures
+                    if (PRERELEASE or NIGHTLY):
+                        if (a == 'armhf' or a == 'arm64'):
+                            continue
+
+                    linux_platform_params = params.copy()
+                    linux_platform_params['ARCH'] = a
+                    linux_platform_params['LINUX_DISTRO'] = l
+                    linux_platform_params['DISTRO'] = d
+
                     if (a == 'armhf' or a == 'arm64'):
-                        continue
+                        # No sid releases for arm64/armhf lack of docker image
+                        # https://hub.docker.com/r/aarch64/debian/ fails on Jenkins
+                        if (d == 'sid'):
+                            continue
+                        # Need to use JENKINS_NODE_TAG parameter for large memory nodes
+                        # since it runs qemu emulation
+                        linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
+                    elif ('ignition-physics' in args.package_alias) or \
+                         ('gz-physics' in args.package_alias):
+                        linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
 
-                linux_platform_params = params.copy()
-                linux_platform_params['ARCH'] = a
-                linux_platform_params['LINUX_DISTRO'] = l
-                linux_platform_params['DISTRO'] = d
+                    # control nightly generation using a single machine to process
+                    # all distribution builds to avoid race conditions. Note: this
+                    # assumes that large-memory nodes are beind used for nightly
+                    # tags.
+                    # https://github.com/gazebo-tooling/release-tools/issues/644
+                    if (NIGHTLY):
+                        assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
+                        linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
 
-                if (a == 'armhf' or a == 'arm64'):
-                    # No sid releases for arm64/armhf lack of docker image
-                    # https://hub.docker.com/r/aarch64/debian/ fails on Jenkins
-                    if (d == 'sid'):
-                        continue
-                    # Need to use JENKINS_NODE_TAG parameter for large memory nodes
-                    # since it runs qemu emulation
-                    linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
-                elif ('ignition-physics' in args.package_alias) or \
-                     ('gz-physics' in args.package_alias):
-                    linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
+                    call_jenkins_build(f"{args.package_alias}-debbuilder",
+                                       linux_platform_params, f"{l} {d}/{a}")
+    else:
+        # b) Mode generate source
+        # Tag should not go before any method or step that can fail and just before
+        # the calls to the servers.
+        if not args.source_repo_ref:
+            print("INFO: no --source-repo-existing-ref used, tag the local "
+                  "repository as the reference for the source code of the release")
+            # Ideally the reference build by the tag_repo method should be passed
+            # to the servers. Not supported in the PARAMS defined by now and
+            # rebuild in the building scripts using the same logic based on
+            # NAME_VERSION.
+            _ = tag_repo(args)
 
-                # control nightly generation using a single machine to process
-                # all distribution builds to avoid race conditions. Note: this
-                # assumes that large-memory nodes are beind used for nightly
-                # tags.
-                # https://github.com/gazebo-tooling/release-tools/issues/644
-                if (NIGHTLY):
-                    assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
-                    linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
-
-                linux_platform_params_query = urllib.parse.urlencode(linux_platform_params)
-
-                job_name = f"{args.package_alias}-{job_name_postfix}"
-                if job_name_postfix == 'source':
-                    job_name = f"{args.package_alias}-{d}-{job_name_postfix}"
-
-
-                url = ' %s/job/%s/buildWithParameters?%s' % (JENKINS_URL, job_name, linux_platform_params_query)
-                print('- Linux: %s' % (url))
-
-                if not DRY_RUN:
-                    urllib.request.urlopen(url)
+        call_jenkins_build(f"{args.package_alias}-source", params, 'Source')
 
 
 if __name__ == '__main__':
