@@ -370,12 +370,8 @@ def discover_distros(repo_dir):
 
 
 def check_call(cmd, ignore_dry_run=False):
-    if ignore_dry_run:
-        # Commands that do not change anything in repo level
-        print('Dry-run running:\n  %s\n' % (' '.join(cmd)))
-    else:
-        print('Running:\n  %s' % (' '.join(cmd)))
     if DRY_RUN and not ignore_dry_run:
+        print('Dry-run running:\n  %s\n' % (' '.join(cmd)))
         return b'', b''
     else:
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
