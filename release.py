@@ -436,6 +436,29 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
     return out.split(' ')[0], tarball_fname, tarball_path
 
 
+def tag_repo(args):
+    try:
+        # tilde is not a valid character in git
+        tag = '%s_%s' % (args.package_alias, args.version.replace('~', '-'))
+        check_call(['git', 'tag', '-f', tag])
+        check_call(['git', 'push', '--tags'])
+    except ErrorNoPermsRepo:
+        print('The Git server reports problems with permissions')
+        print('The branch could be blocked by configuration if you do not have')
+        print('rights to push code in default branch.')
+        sys.exit(1)
+    except ErrorNoUsernameSupplied:
+        print('git tag could not be committed because you have not configured')
+        print('your username. Use "git config --username" to set your username.')
+        sys.exit(1)
+    except Exception:
+        print('There was a problem with pushing tags to the git repository')
+        print('Do you have write perms in the repository?')
+        sys.exit(1)
+
+    return tag
+
+
 def generate_upload_tarball(args):
     ###################################################
     # Platform-agnostic stuff.
@@ -502,25 +525,7 @@ def generate_upload_tarball(args):
 
         # Tag repo
         os.chdir(sourcedir)
-
-        try:
-            # tilde is not a valid character in git
-            tag = '%s_%s' % (args.package_alias, args.version.replace('~', '-'))
-            check_call(['git', 'tag', '-f', tag])
-            check_call(['git', 'push', '--tags'])
-        except ErrorNoPermsRepo:
-            print('The Git server reports problems with permissions')
-            print('The branch could be blocked by configuration if you do not have')
-            print('rights to push code in default branch.')
-            sys.exit(1)
-        except ErrorNoUsernameSupplied:
-            print('git tag could not be committed because you have not configured')
-            print('your username. Use "git config --username" to set your username.')
-            sys.exit(1)
-        except Exception:
-            print('There was a problem with pushing tags to the git repository')
-            print('Do you have write perms in the repository?')
-            sys.exit(1)
+        _ = tag_repo(args)
 
     # TODO: Consider auto-updating the Ubuntu changelog.  It requires
     # cloning the <package>-release repo, making a change, and pushing it back.
