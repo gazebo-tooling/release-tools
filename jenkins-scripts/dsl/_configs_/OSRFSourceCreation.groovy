@@ -33,6 +33,9 @@ class OSRFSourceCreation
         stringParam("UPLOAD_TO_REPO",
                     default_params.find{ it.key == "UPLOAD_TO_REPO"}?.value,
                     "For downstream jobs: OSRF repo name to upload the package to: stable | prerelease | nightly | none (for testing proposes)")
+        stringParam("EXTRA_OSRF_REPO",
+                    default_params.find{ it.key == "EXTRA_OSRF_REPO"}?.value,
+                    "For downstream jobs: OSRF extra repositories to add")
       }
     }
   }
