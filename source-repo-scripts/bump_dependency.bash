@@ -109,7 +109,7 @@ cloneIfNeeded() {
 
   if [ ! -d "$REPO" ]; then
     echo -e "${GREEN}${REPO}: Cloning ${ORG}/${REPO}${DEFAULT}"
-    git clone git@github.com:${ORG}/${REPO}
+    git clone https://github.com/${ORG}/${REPO}
   else
     echo -e "${GREEN}${REPO}: ${REPO} is already cloned${DEFAULT}"
   fi
@@ -197,7 +197,7 @@ commitAndPR() {
   if [ "$CONTINUE" = "y" ]; then
     git commit -sam"${COMMIT_MSG} ${LIB}"
     git push origin ${CURRENT_BRANCH}
-    gh pr create --title "${COMMIT_MSG} ${LIB}" --body "${PR_TEXT}" --repo ${ORG}/${REPO} --base ${BASE_BRANCH}
+    gh pr create --title "${COMMIT_MSG} ${LIB}" --body "${PR_TEXT}" --repo ${ORG}/${REPO} --base ${BASE_BRANCH} --web
   fi
 }
 
@@ -215,7 +215,7 @@ startFromCleanBranch bump_${COLLECTION} master
 cloneIfNeeded ${GZ_ORG} docs
 startFromCleanBranch bump_${COLLECTION} ${DOCS_BRANCH}
 
-# # homebrew
+# homebrew
 cloneIfNeeded ${OSRF_ORG} homebrew-simulation
 startFromCleanBranch bump_${COLLECTION} master
 
@@ -322,172 +322,171 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   # release repo
   ##################
 
-  # echo -e "${GREEN}${LIB}: release repo${DEFAULT}"
-  #
-  # RELEASE_REPO=${LIB}${VER}-release
-  # cloneIfNeeded ${RELEASE_ORG} ${RELEASE_REPO}
-  # startFromCleanBranch ${BUMP_BRANCH} main
-  #
-  # for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
-  #
-  #   DEP_LIB=${LIBRARIES[$j]#"gz-"}
-  #   DEP_VER=${VERSIONS[$j]}
-  #   DEP_PREV_VER="$((${DEP_VER}-1))"
-  #
-  #   find . -type f -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
-  # done
-  #
-  # commitAndPR ${RELEASE_ORG} main
+  echo -e "${GREEN}${LIB}: release repo${DEFAULT}"
+
+  RELEASE_REPO=${LIB}${VER}-release
+  cloneIfNeeded ${RELEASE_ORG} ${RELEASE_REPO}
+  startFromCleanBranch ${BUMP_BRANCH} main
+
+  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+
+    DEP_LIB=${LIBRARIES[$j]#"gz-"}
+    DEP_VER=${VERSIONS[$j]}
+    DEP_PREV_VER="$((${DEP_VER}-1))"
+
+    find . -type f -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
+  done
+
+  commitAndPR ${RELEASE_ORG} main
 
   ##################
   # homebrew
   ##################
 
-  # echo -e "${GREEN}${LIB}: homebrew${DEFAULT}"
-  #
-  # cd ${TEMP_DIR}/homebrew-simulation
-  # startFromCleanBranch ${BUMP_BRANCH} master
-  #
-  # # expand ign-* to ignition-*
-  # FORMULA_BASE=${LIB/ign/ignition}
-  # # construct path with major version suffix
-  # FORMULA="Formula/${FORMULA_BASE}${VER}.rb"
-  # if [ ! -f "$FORMULA" ]; then
-  #   echo -e "${GREEN}${LIB}: Creating ${FORMULA}${DEFAULT}"
-  #
-  #   git rm Aliases/${FORMULA_BASE}${VER}
-  #
-  #   # Collection
-  #   if ! [[ $VER == ?(-)+([0-9]) ]] ; then
-  #     cp Formula/gz-${PREV_COLLECTION}.rb $FORMULA
-  #   else
-  #     cp Formula/${FORMULA_BASE}${PREV_VER}.rb $FORMULA
-  #   fi
-  #
-  #   git add $FORMULA
-  # fi
-  #
-  # echo -e "${GREEN}${LIB}: Updating ${FORMULA}${DEFAULT}"
-  # URL="https://github.com/${ORG}/${LIB}.git"
-  #
-  # # libN
-  # sed -i -E "s ((${LIB#"gz-"}))${PREV_VER} \1${VER} g" $FORMULA
-  # sed -i -E "s ((${LIB_#"gz_"}))${PREV_VER} \1${VER} g" $FORMULA
-  # # gz-libN -> main
-  # sed -i "s ${LIB}${PREV_VER} main g" $FORMULA
-  # # class GzLibN
-  # sed -i -E "s/((class Gz.*))${PREV_VER}/\1${VER}/g" $FORMULA
-  # sed -i -E "s/((class Sdformat))${PREV_VER}/\1${VER}/g" $FORMULA
-  # # remove bottle - TODO: this is only needed for new formulae
-  # sed -i -e "/bottle do/,/end/d" $FORMULA
-  # # URL from release to commit - TODO: remove manual step
-  # sed -i "s@^  url.*@  url \"$URL\", branch: \"main\"@g" $FORMULA
-  # # SHA - remove in favor of building from `main` branch
-  # sed -i "/^  sha256.*/d" $FORMULA
-  # # revision - remove if present
-  # sed -i "/^  revision.*/d" $FORMULA
-  # # version
-  # PREV_VER_NONNEGATIVE=$([[ "${PREV_VER}" -lt 0 ]] && echo "0" || echo "${PREV_VER}")
-  # sed -i "/ version /d" $FORMULA
-  # sed -i "/^  url.*/a\  version \"${PREV_VER_NONNEGATIVE}.999.999~0~`date +"%Y%m%d"`\"" $FORMULA
-  # # Remove extra blank lines
-  # cat -s $FORMULA | tee $FORMULA
-  #
-  # for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
-  #
-  #   DEP_LIB=${LIBRARIES[$j]#"gz-"}
-  #
-  #   DEP_VER=${VERSIONS[$j]}
-  #   DEP_PREV_VER="$((${DEP_VER}-1))"
-  #
-  #   sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g" $FORMULA
-  # done
-  #
-  # commitAndPR ${OSRF_ORG} master
+  echo -e "${GREEN}${LIB}: homebrew${DEFAULT}"
+
+  cd ${TEMP_DIR}/homebrew-simulation
+  startFromCleanBranch ${BUMP_BRANCH} master
+
+  FORMULA_BASE=$LIB
+  # construct path with major version suffix
+  FORMULA="Formula/${FORMULA_BASE}${VER}.rb"
+  if [ ! -f "$FORMULA" ]; then
+    echo -e "${GREEN}${LIB}: Creating ${FORMULA}${DEFAULT}"
+
+    git rm Aliases/${FORMULA_BASE}${VER}
+
+    # Collection
+    if ! [[ $VER == ?(-)+([0-9]) ]] ; then
+      cp Formula/gz-${PREV_COLLECTION}.rb $FORMULA
+    else
+      cp Formula/${FORMULA_BASE}${PREV_VER}.rb $FORMULA
+    fi
+
+    git add $FORMULA
+  fi
+
+  echo -e "${GREEN}${LIB}: Updating ${FORMULA}${DEFAULT}"
+  URL="https://github.com/${ORG}/${LIB}.git"
+
+  # libN
+  sed -i -E "s ((${LIB#"gz-"}))${PREV_VER} \1${VER} g" $FORMULA
+  sed -i -E "s ((${LIB_#"gz_"}))${PREV_VER} \1${VER} g" $FORMULA
+  # gz-libN -> main
+  sed -i "s ${LIB}${PREV_VER} main g" $FORMULA
+  # class GzLibN
+  sed -i -E "s/((class Gz.*))${PREV_VER}/\1${VER}/g" $FORMULA
+  sed -i -E "s/((class Sdformat))${PREV_VER}/\1${VER}/g" $FORMULA
+  # remove bottle - TODO: this is only needed for new formulae
+  sed -i -e "/bottle do/,/end/d" $FORMULA
+  # URL from release to commit - TODO: remove manual step
+  sed -i "s@^  url.*@  url \"$URL\", branch: \"main\"@g" $FORMULA
+  # SHA - remove in favor of building from `main` branch
+  sed -i "/^  sha256.*/d" $FORMULA
+  # revision - remove if present
+  sed -i "/^  revision.*/d" $FORMULA
+  # version
+  PREV_VER_NONNEGATIVE=$([[ "${PREV_VER}" -lt 0 ]] && echo "0" || echo "${PREV_VER}")
+  sed -i "/ version /d" $FORMULA
+  sed -i "/^  url.*/a\  version \"${PREV_VER_NONNEGATIVE}.999.999~0~`date +"%Y%m%d"`\"" $FORMULA
+  # Remove extra blank lines
+  cat -s $FORMULA | tee $FORMULA
+
+  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+
+    DEP_LIB=${LIBRARIES[$j]#"gz-"}
+
+    DEP_VER=${VERSIONS[$j]}
+    DEP_PREV_VER="$((${DEP_VER}-1))"
+
+    sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g" $FORMULA
+  done
+
+  commitAndPR ${OSRF_ORG} master
 
   ##################
   # gazebodistro
   ##################
-  # echo -e "${GREEN}${LIB}: gazebodistro${DEFAULT}"
-  #
-  # cd ${TEMP_DIR}/gazebodistro
-  # startFromCleanBranch ${BUMP_BRANCH} master
-  #
-  # # Collection
-  # if ! [[ $VER == ?(-)+([0-9]) ]] ; then
-  #   YAML_FILE=collection-${COLLECTION}.yaml
-  # else
-  #   YAML_FILE=${LIB}${VER}.yaml
-  # fi
-  # for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
-  #
-  #   DEP_LIB=${LIBRARIES[$j]/sdformat/sdf}
-  #   DEP_VER=${VERSIONS[$j]}
-  #   DEP_PREV_VER="$((${DEP_VER}-1))"
-  #
-  #   sed -i "s ${DEP_LIB}${DEP_PREV_VER} main g" $YAML_FILE
-  #   DEP_LIB=${DEP_LIB//-/_} # fuel_tools
-  #   sed -i "s ${DEP_LIB}${DEP_PREV_VER} main g" $YAML_FILE
-  # done
-  #
-  # commitAndPR ${TOOLING_ORG} master
+  echo -e "${GREEN}${LIB}: gazebodistro${DEFAULT}"
+
+  cd ${TEMP_DIR}/gazebodistro
+  startFromCleanBranch ${BUMP_BRANCH} master
+
+  # Collection
+  if ! [[ $VER == ?(-)+([0-9]) ]] ; then
+    YAML_FILE=collection-${COLLECTION}.yaml
+  else
+    YAML_FILE=${LIB}${VER}.yaml
+  fi
+  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+
+    DEP_LIB=${LIBRARIES[$j]/sdformat/sdf}
+    DEP_VER=${VERSIONS[$j]}
+    DEP_PREV_VER="$((${DEP_VER}-1))"
+
+    sed -i "s ${DEP_LIB}${DEP_PREV_VER} main g" $YAML_FILE
+    DEP_LIB=${DEP_LIB//-/_} # fuel_tools
+    sed -i "s ${DEP_LIB}${DEP_PREV_VER} main g" $YAML_FILE
+  done
+
+  commitAndPR ${TOOLING_ORG} master
 
   ##################
   # source code
   ##################
 
-  # echo -e "${GREEN}${LIB}: source code${DEFAULT}"
-  #
-  # cloneIfNeeded ${ORG} ${LIB}
-  # startFromCleanBranch ${BUMP_BRANCH} main
-  #
-  # # Check if main branch of that library is the correct version
-  # PROJECT_NAME="${LIB_}${VER}"
-  # PROJECT_NAME="${PROJECT_NAME/gz_/gz-}"
-  # PROJECT="project.*(${PROJECT_NAME}"
-  # if ! grep -q ${PROJECT} "CMakeLists.txt"; then
-  #   echo -e "${RED}Wrong project name on [CMakeLists.txt], looking for [$PROJECT_NAME].${DEFAULT}"
-  #   exit
-  # fi
-  #
-  # echo -e "${GREEN}${LIB}: Updating source code${DEFAULT}"
-  # for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
-  #
-  #   DEP_LIB=${LIBRARIES[$j]#"gz-"}
-  #
-  #   DEP_VER=${VERSIONS[$j]}
-  #   DEP_PREV_VER="$((${DEP_VER}-1))"
-  #
-  #   # Replace lines like "find_package(gz-cmake2 2.0.0)"
-  #   #               with "find_package(gz-cmake3)"
-  #   find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1${DEP_VER}@g"
-  #
-  #   # Replace lines like "gz_find_package(gz-math6 VERSION 6.5.0)"
-  #   #               with "gz_find_package(gz-math7)"
-  #   # Preserves other args and handles edge cases:
-  #   #               like "gz_find_package(gz-math6 VERSION 6.5.0 REQUIRED)"
-  #   #               with "gz_find_package(gz-math6 REQUIRED)"
-  #   #               like "gz_find_package(gz-math6 REQUIRED COMPONENTS VERSION 6.10 eigen3)"
-  #   #               with "gz_find_package(gz-math7 REQUIRED COMPONENTS eigen3)"
-  #   find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\(.*\) \+VERSION \+${DEP_PREV_VER}[^ )]*@\1${DEP_VER}\2@g"
-  #
-  #
-  #   # Rule: *plugin2 -> *plugin3
-  #   # Replace lines like: "find_package(gz-cmake2)"
-  #   #               with: "find_package(gz-cmake3)"
-  #   find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
-  #
-  #   # Replace collection yaml branch names with main
-  #   if [[ "${LIB}" == "gz-${COLLECTION}" ]]; then
-  #     find . -type f -name "collection-${COLLECTION}.yaml" -print0 | xargs -0 sed -i "s gz-${DEP_LIB}${DEP_VER} main g"
-  #   fi
-  #
-  #   # Second run with _ instead of -, to support multiple variations of fuel-tools
-  #   DEP_LIB=${DEP_LIB//-/_}
-  #   find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
-  # done
-  #
-  # commitAndPR ${ORG} main
+  echo -e "${GREEN}${LIB}: source code${DEFAULT}"
+
+  cloneIfNeeded ${ORG} ${LIB}
+  startFromCleanBranch ${BUMP_BRANCH} main
+
+  # Check if main branch of that library is the correct version
+  PROJECT_NAME="${LIB_}${VER}"
+  PROJECT_NAME="${PROJECT_NAME/gz_/gz-}"
+  PROJECT="project.*(${PROJECT_NAME}"
+  if ! grep -q ${PROJECT} "CMakeLists.txt"; then
+    echo -e "${RED}Wrong project name on [CMakeLists.txt], looking for [$PROJECT_NAME].${DEFAULT}"
+    exit
+  fi
+
+  echo -e "${GREEN}${LIB}: Updating source code${DEFAULT}"
+  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+
+    DEP_LIB=${LIBRARIES[$j]#"gz-"}
+
+    DEP_VER=${VERSIONS[$j]}
+    DEP_PREV_VER="$((${DEP_VER}-1))"
+
+    # Replace lines like "find_package(gz-cmake2 2.0.0)"
+    #               with "find_package(gz-cmake3)"
+    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1${DEP_VER}@g"
+
+    # Replace lines like "gz_find_package(gz-math6 VERSION 6.5.0)"
+    #               with "gz_find_package(gz-math7)"
+    # Preserves other args and handles edge cases:
+    #               like "gz_find_package(gz-math6 VERSION 6.5.0 REQUIRED)"
+    #               with "gz_find_package(gz-math6 REQUIRED)"
+    #               like "gz_find_package(gz-math6 REQUIRED COMPONENTS VERSION 6.10 eigen3)"
+    #               with "gz_find_package(gz-math7 REQUIRED COMPONENTS eigen3)"
+    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\(.*\) \+VERSION \+${DEP_PREV_VER}[^ )]*@\1${DEP_VER}\2@g"
+
+
+    # Rule: *plugin2 -> *plugin3
+    # Replace lines like: "find_package(gz-cmake2)"
+    #               with: "find_package(gz-cmake3)"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
+
+    # Replace collection yaml branch names with main
+    if [[ "${LIB}" == "gz-${COLLECTION}" ]]; then
+      find . -type f -name "collection-${COLLECTION}.yaml" -print0 | xargs -0 sed -i "s gz-${DEP_LIB}${DEP_VER} main g"
+    fi
+
+    # Second run with _ instead of -, to support multiple variations of fuel-tools
+    DEP_LIB=${DEP_LIB//-/_}
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
+  done
+
+  commitAndPR ${ORG} main
 
   # Collection ends here
   if ! [[ $VER == ?(-)+([0-9]) ]] ; then
@@ -497,16 +496,16 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   ##################
   # release-tools
   ##################
-  echo -e "${GREEN}${LIB}: release-tools${DEFAULT}"
-
-  cd ${TEMP_DIR}/release-tools
-  startFromCleanBranch ${BUMP_BRANCH} master
-
-  # Build nightlies from main
-  LIB_SHORT=${LIB/sdformat/sdf}
-  DSL_FILE="jenkins-scripts/dsl/ignition_collection.dsl"
-  sed -i "s/\(debbuild.*\)${LIB}${PREV_VER}\(.*\)${LIB_SHORT}${PREV_VER}/\1${LIB}${VER}\2main/g" $DSL_FILE
-
-  commitAndPR ${TOOLING_ORG} master
+  # echo -e "${GREEN}${LIB}: release-tools${DEFAULT}"
+  #
+  # cd ${TEMP_DIR}/release-tools
+  # startFromCleanBranch ${BUMP_BRANCH} master
+  #
+  # # Build nightlies from main
+  # LIB_SHORT=${LIB/sdformat/sdf}
+  # DSL_FILE="jenkins-scripts/dsl/ignition_collection.dsl"
+  # sed -i "s/\(debbuild.*\)${LIB}${PREV_VER}\(.*\)${LIB_SHORT}${PREV_VER}/\1${LIB}${VER}\2main/g" $DSL_FILE
+  #
+  # commitAndPR ${TOOLING_ORG} master
 
 done
