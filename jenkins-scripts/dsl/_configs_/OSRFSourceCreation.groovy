@@ -137,7 +137,7 @@ class OSRFSourceCreation
                     parameters {
                       currentBuild()
                       predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}"])
-                      propertiesFile(properties_file) // TARBALL_NAME
+                      propertiesFile(properties_file) // SOURCE_TARBALL_URI
                     }
                   }
                 }

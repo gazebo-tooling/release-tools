@@ -50,7 +50,6 @@ repo_uploader.with
   parameters
   {
     stringParam('PACKAGE','','Package name')
-    stringParam('TARBALL_NAME', '', 'Tarball name to upload')
     stringParam('S3_UPLOAD_PATH','', 'S3 path to upload')
     stringParam('S3_FILES_TO_UPLOAD','', 'S3 file names to upload')
     stringParam('UPLOAD_TO_REPO','none','repo to upload')
@@ -63,7 +62,7 @@ repo_uploader.with
   {
     copyArtifacts('${PROJECT_NAME_TO_COPY_ARTIFACTS}')
     {
-      includePatterns("${pkg_sources_dir}/\${TARBALL_NAME}")
+      includePatterns("${pkg_sources_dir}/*")
       buildSelector {
         upstreamBuild()
       }
@@ -75,7 +74,10 @@ repo_uploader.with
           # check that the tarball name actually exist
 
           ls -R \${WORKSPACE}
-          test -f \${WORKSPACE}/${pkg_sources_dir}/\${TARBALL_NAME}
+
+          for pkg in \$(ls ${pkg_sources_dir}/); do
+            test -f \${WORKSPACE}/${pkg_sources_dir}/\${pkg}
+          done
 
           echo "Fake upload of \${S3_FILES_TO_UPLOAD} to \${S3_UPLOAD_PATH}"
           # code copied from repository_uploader
