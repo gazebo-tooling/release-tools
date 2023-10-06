@@ -416,7 +416,7 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
 def tag_repo(args):
     try:
         # tilde is not a valid character in git
-        tag = ' %s_%s' % (args.package_alias, args.version.replace('~','-'))
+        tag = '%s_%s' % (args.package_alias, args.version.replace('~','-'))
         check_call(['git', 'tag', '-f', tag])
         check_call(['git', 'push', '--tags'])
     except ErrorNoPermsRepo:
@@ -478,7 +478,7 @@ def generate_source_params(args):
 
 def call_jenkins_build(job_name, params, output_string):
     params_query = urllib.parse.urlencode(params)
-    url = ' %s/job/%s/buildWithParameters?%s' % (JENKINS_URL,
+    url = '%s/job/%s/buildWithParameters?%s' % (JENKINS_URL,
                                                  job_name,
                                                  params_query)
     print(f"- {output_string}: {url}")
