@@ -57,6 +57,8 @@ class OSRFSourceCreation
 
       def canonical_package_name = Globals.get_canonical_package_name(
         default_params.find{ it.key == "PACKAGE"}.value)
+      def s3_download_url_basedir = Globals.s3_download_url_basedir(
+        default_params.find{ it.key == "PACKAGE"}?.value)
 
       steps {
         systemGroovyCommand("""\
@@ -94,7 +96,8 @@ class OSRFSourceCreation
             exit 1
           fi
 
-          echo "TARBALL_NAME=\${tarball}" >> ${properties_file}
+          echo "S3_FILES_TO_UPLOAD=\${tarball}" >> ${properties_file}
+          echo "SOURCE_TARBALL_URI=$s3_download_url_basedir/\${tarball}" >> ${properties_file}
           """.stripIndent()
         )
       }
@@ -124,8 +127,8 @@ class OSRFSourceCreation
                     parameters {
                       currentBuild()
                       predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: '${JOB_NAME}',
-                                       S3_UPLOAD_PATH: Globals.s3_upload_tarball_path(package_name)])
-                      propertiesFile(properties_file) // TARBALL_NAME
+                                       S3_UPLOAD_PATH: Globals.s3_releases_dir(package_name)])  // relative path
+                      propertiesFile(properties_file)  // S3_FILES_TO_UPLOAD
                     }
                   }
                 }
@@ -134,7 +137,7 @@ class OSRFSourceCreation
                     parameters {
                       currentBuild()
                       predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}"])
-                      propertiesFile(properties_file) // TARBALL_NAME
+                      propertiesFile(properties_file) // SOURCE_TARBALL_URI
                     }
                   }
                 }
