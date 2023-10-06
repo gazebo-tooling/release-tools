@@ -76,7 +76,7 @@ def error(msg):
 
 
 def print_success(msg):
-    print("     + OK " + msg)
+    print(" + OK " + msg)
 
 
 # Remove the last character if it is a number.
@@ -185,7 +185,6 @@ def download_release_repository(package, release_branch):
     # If main branch exists, prefer it over master
     if release_branch == "master":
         if exists_main_branch(url):
-            print_success('Found main branch in repo, use it instead master')
             release_branch = 'main'
 
     cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
@@ -303,6 +302,7 @@ def check_s3cmd_configuration():
 
 
 def sanity_checks(args, repo_dir):
+    print("Safety checks:")
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
@@ -367,6 +367,7 @@ def check_call(cmd, ignore_dry_run=False):
         print('Dry-run running:\n  %s\n' % (' '.join(cmd)))
         return b'', b''
     else:
+        print('Running:\n  %s' % (' '.join(cmd)))
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = po.communicate()
         if po.returncode != 0:
