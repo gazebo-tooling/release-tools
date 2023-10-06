@@ -86,10 +86,6 @@ def get_canonical_package_name(pkg_name):
     return pkg_name.rstrip('1234567890')
 
 
-def is_catkin_package():
-    return os.path.isfile("package.xml")
-
-
 def github_repo_exists(url):
     try:
         check_call(['git', 'ls-remote', '-q', '--exit-code', url], IGNORE_DRY_RUN)
@@ -102,9 +98,6 @@ def github_repo_exists(url):
 
 def generate_package_source(srcdir, builddir):
     cmake_cmd = ["cmake"]
-
-    if is_catkin_package():
-        cmake_cmd = cmake_cmd + ['-DCATKIN_BUILD_BINARY_PACKAGE="1"']
 
     # configure and make package_source
     os.mkdir(builddir)
