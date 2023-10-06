@@ -314,28 +314,12 @@ def sanity_project_package_in_stable(version, repo_name):
     return
 
 
-def check_s3cmd_configuration():
-    # Need to check if s3cmd is installed
-    try:
-        subprocess.call(["s3cmd", "--version"])
-    except OSError:
-        error("s3cmd command for uploading is not available. Install it using: apt-get install s3cmd")
-
-    # Need to check if configuration for s3 exists
-    s3_config = os.path.expanduser('~') + "/.s3cfg"
-    if not os.path.isfile(s3_config):
-        error(s3_config + " does not exists. Please configure s3: s3cmd --configure")
-
-    return True
-
-
 def sanity_checks(args, repo_dir):
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
 
     if not NIGHTLY:
-        check_s3cmd_configuration()
         sanity_package_version(repo_dir, args.version, str(args.release_version))
         sanity_check_sdformat_versions(args.package, args.version)
         sanity_project_package_in_stable(args.version, args.upload_to_repository)
