@@ -30,6 +30,10 @@ fi
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: test gz_sim via ros2 launch'
+# Workaround until ros_gz defines a dependency on gz-sim*-cli. Avoid to use
+# apt --install-suggests since it installs the whole universe of packages
+VER=\$(dpkg -l | grep libgz-sim | grep ^ii | head -1 | awk '{ print \$3 }')
+sudo apt-get install -y gz-sim\${VER:0:1}-cli
 TEST_START=\`date +%s\`
 # preserve-status did not work here
 timeout 180 ros2 launch ros_gz_sim gz_sim.launch.py gz_args:=shapes.sdf || true
@@ -42,9 +46,6 @@ if [ \$DIFF -lt 180 ]; then
 fi
 """
 
-# Need bc to proper testing and parsing the time
-# TODO: fix gz-sim-cli dependency on ros_gz package
-# to avoid hardcoded version on gz-sim
-export DEPENDENCY_PKGS="${DEPENDENCY_PKGS} wget ros-${ROS_DISTRO}-ros-base gz-sim7-cli"
+export DEPENDENCY_PKGS="${DEPENDENCY_PKGS} wget ros-${ROS_DISTRO}-ros-base"
 
 . ${SCRIPT_DIR}/lib/generic-install-base.bash

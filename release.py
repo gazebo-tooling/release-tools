@@ -191,12 +191,8 @@ C) Nightly builds (linux)
 
 
 def get_release_repository_info(package):
-    # Do not use git@github method since it fails in non existant repositories
-    # asking for stdin user/pass. Same happen if no user/pass is provided
-    # using the fake foo:foo here seems to work
-    github_test_url = "https://foo:foo@github.com/gazebo-release/" + package + "-release"
-    if (github_repo_exists(github_test_url)):
-        github_url = "https://github.com/gazebo-release/" + package + "-release"
+    github_url = "https://github.com/gazebo-release/" + package + "-release"
+    if (github_repo_exists(github_url)):
         return 'git', github_url
 
     error("release repository not found in github.com/gazebo-release")
@@ -408,14 +404,14 @@ def create_tarball_name(args):
 
 # Returns: sha, tarball file name, tarball full path
 def create_tarball_path(tarball_name, version, builddir, dry_run):
-    tarball_fname = ' %s-%s.tar.bz2' % (tarball_name, version)
+    tarball_fname = '%s-%s.tar.bz2' % (tarball_name, version)
     # Try using the tarball_name as it is
     tarball_path = os.path.join(builddir, tarball_fname)
 
     if not os.path.isfile(tarball_path):
         # Try looking for special project names using underscores
         alt_tarball_name = "_".join(tarball_name.rsplit("-", 1))
-        alt_tarball_fname = ' %s-%s.tar.bz2' % (alt_tarball_name, version)
+        alt_tarball_fname = '%s-%s.tar.bz2' % (alt_tarball_name, version)
         alt_tarball_path = os.path.join(builddir, alt_tarball_fname)
         if (not dry_run):
             if not os.path.isfile(alt_tarball_path):
