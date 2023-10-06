@@ -34,7 +34,6 @@ OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing"
 DRY_RUN = False
 NIGHTLY = False
 PRERELEASE = False
-NO_SRC_FILE = False
 
 IGNORE_DRY_RUN = True
 
@@ -127,7 +126,6 @@ def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
     global PRERELEASE
-    global NO_SRC_FILE
 
     parser = argparse.ArgumentParser(description='Make releases.')
     parser.add_argument('package', help='which package to release')
@@ -167,14 +165,12 @@ def parse_args(argv):
     args.package_alias = args.package
 
     DRY_RUN = args.dry_run
-    NO_SRC_FILE = args.no_source_file
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
     if args.upload_to_repository == 'prerelease':
         PRERELEASE = True
     # Nightly do not generate a tar.bz2 file
     if NIGHTLY:
-        NO_SRC_FILE = True
         args.no_source_file = True
 
     return args
