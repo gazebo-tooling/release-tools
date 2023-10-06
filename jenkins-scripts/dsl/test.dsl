@@ -50,8 +50,8 @@ repo_uploader.with
   parameters
   {
     stringParam('PACKAGE','','Package name')
-    stringParam('TARBALL_NAME', '', 'Tarball name to upload')
     stringParam('S3_UPLOAD_PATH','', 'S3 path to upload')
+    stringParam('S3_FILES_TO_UPLOAD','', 'S3 file names to upload')
     stringParam('UPLOAD_TO_REPO','none','repo to upload')
   }
 
@@ -59,7 +59,7 @@ repo_uploader.with
   {
     copyArtifacts('_test_gz_source')
     {
-      includePatterns("${pkg_sources_dir}/\${TARBALL_NAME}")
+      includePatterns("${pkg_sources_dir}/*")
       buildSelector {
         upstreamBuild()
       }
@@ -71,9 +71,27 @@ repo_uploader.with
           # check that the tarball name actually exist
 
           ls -R \${WORKSPACE}
-          test -f \${WORKSPACE}/${pkg_sources_dir}/\${TARBALL_NAME}
 
-          echo "Fake upload of \${TARBALL_NAME} to \${S3_UPLOAD_PATH}"
+          for pkg in \$(ls ${pkg_sources_dir}/); do
+            test -f \${WORKSPACE}/${pkg_sources_dir}/\${pkg}
+          done
+
+          echo "Fake upload of \${S3_FILES_TO_UPLOAD} to \${S3_UPLOAD_PATH}"
+          # code copied from repository_uploader
+          pkgs_path="\$WORKSPACE/pkgs"
+
+          for pkg in \${S3_FILES_TO_UPLOAD}; do
+            # S3_UPLOAD_PATH should be send by the upstream job
+            if [[ -z \${S3_UPLOAD_PATH} ]]; then
+              echo "S3_UPLOAD_PATH was not defined. Not uploading"
+              exit 1
+            fi
+
+            # Seems important to upload the path with a final slash
+            echo "WILL RUN: s3cmd put \${pkgs_path}/\${pkg} s3://osrf-distributions/\${S3_UPLOAD_PATH}"
+          done
+
+
           """.stripIndent())
   }
 }
