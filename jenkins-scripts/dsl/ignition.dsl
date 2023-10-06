@@ -443,31 +443,13 @@ gz_software.each { gz_sw ->
     def gz_ci_job_name = "ignition_${software_name}-ci-pr_any-ubuntu_auto-${arch}"
     def gz_ci_any_job = job(gz_ci_job_name)
     def gz_checkout_dir = "ign-${software_name}"
-    OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
-                                        "gazebosim/${gz_checkout_dir}",
-                                         enable_testing(software_name))
-    include_gpu_label_if_needed(gz_ci_any_job, software_name)
+    GenericAnyJobGitHub.create(gz_ci_any_job,
+                              "gazebosim/${gz_checkout_dir}",
+                               [],
+                               true)
     gz_ci_any_job.with
     {
-      if (gz_sw == 'physics') {
-        label Globals.nontest_label("large-memory")
-        extra_str += '\nexport MAKE_JOBS=1'
-      }
-
-      steps
-      {
-         shell("""\
-              #!/bin/bash -xe
-
-              export DISTRO=${ci_distro_str}
-
-              ${GLOBAL_SHELL_CMD}
-
-              export ARCH=${arch}
-
-              /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_${gz_sw.replaceAll('-','_')}-compilation.bash
-              """.stripIndent())
-      } // end of steps
+      description 'Automatic generated job by DSL jenkins. Stub job for migration, not doing any check'
     } // end of ci_any_job
 
     // add ci-pr_any to the list for CIWorkflow

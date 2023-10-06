@@ -87,24 +87,12 @@ ci_distro.each { distro ->
     }
 
     // --------------------------------------------------------------
-    // 2. Create the any job
+    // 2. Create a fake any job for migrating
+    // TODO: remove the job once the migration in https://github.com/gazebo-tooling/release-tools/issues/1010
+    // is done.
     String sdf_repo = "gazebosim/sdformat"
     def sdformat_ci_any_job = job(ci_build_any_job_name_linux)
-    OSRFLinuxCompilationAnyGitHub.create(sdformat_ci_any_job, sdf_repo)
-    sdformat_ci_any_job.with
-    {
-      steps
-      {
-         shell("""\
-         #!/bin/bash -xe
-
-         export DISTRO=${ci_distro_str}
-
-         export ARCH=${arch}
-         /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
-         """.stripIndent())
-       }
-     }
+    GenericAnyJobGitHub.create(sdformat_ci_any_job, sdf_repo)
   } // end of arch
 } // end of distro
 
