@@ -91,7 +91,7 @@ repo_uploader.with
             fi
 
             # Seems important to upload the path with a final slash
-            echo "WILL RUN: s3cmd \${pkgs_path}/\${pkg} \${S3_UPLOAD_PATH}"
+            echo "WILL RUN: s3cmd put \${pkgs_path}/\${pkg} s3://osrf-distributions/\${S3_UPLOAD_PATH}"
           done
 
 
