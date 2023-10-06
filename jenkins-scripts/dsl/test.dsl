@@ -53,11 +53,14 @@ repo_uploader.with
     stringParam('S3_UPLOAD_PATH','', 'S3 path to upload')
     stringParam('S3_FILES_TO_UPLOAD','', 'S3 file names to upload')
     stringParam('UPLOAD_TO_REPO','none','repo to upload')
+    stringParam("PROJECT_NAME_TO_COPY_ARTIFACTS",
+                "",
+                "Internal use: parent job name passed by the job to be used in copy artifacts")
   }
 
   steps
   {
-    copyArtifacts('_test_gz_source')
+    copyArtifacts('${PROJECT_NAME_TO_COPY_ARTIFACTS}')
     {
       includePatterns("${pkg_sources_dir}/*")
       buildSelector {
