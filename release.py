@@ -30,7 +30,6 @@ RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 UBUNTU_DISTROS = []
 
 OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing"
-OSRF_REPOS_SELF_CONTAINED = ""
 
 DRY_RUN = False
 NIGHTLY = False
@@ -566,9 +565,6 @@ def go(argv):
     params['OSRF_REPOS_TO_USE'] = "stable " + args.upload_to_repository
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
-
-    if args.upload_to_repository in OSRF_REPOS_SELF_CONTAINED:
-        params['OSRF_REPOS_TO_USE'] = args.upload_to_repository
 
     if NIGHTLY:
         params['VERSION'] = 'nightly'
