@@ -442,7 +442,7 @@ gz_software.each { gz_sw ->
                 export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
                 export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
                 export ABI_JOB_SOFTWARE_NAME=${checkout_subdir}
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/ignition-abichecker.bash
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/gz-abichecker.bash
                 """.stripIndent())
         } // end of steps
       }  // end of with
