@@ -519,6 +519,16 @@ def generate_upload_tarball(args):
     return source_tarball_uri, tarball_sha
 
 
+def call_jenkins_build(job_name, params, output_string):
+    params_query = urllib.parse.urlencode(params)
+    url = '%s/job/%s/buildWithParameters?%s' % (JENKINS_URL,
+                                                job_name,
+                                                params_query)
+    print(f"- {output_string}: {url}")
+    if not DRY_RUN:
+        urllib.request.urlopen(url)
+
+
 def go(argv):
     args = parse_args(argv)
 
@@ -564,18 +574,11 @@ def go(argv):
         params['SOURCE_TARBALL_URI'] = args.nightly_branch
 
     job_name = JOB_NAME_PATTERN % (args.package)
-    params_query = urllib.parse.urlencode(params)
 
     # RELEASING FOR BREW
-    brew_url = '%s/job/%s/buildWithParameters?%s' % (
-        JENKINS_URL,
-        GENERIC_BREW_PULLREQUEST_JOB,
-        params_query)
-
     if not NIGHTLY and not args.bump_rev_linux_only:
-        print('- Brew: %s' % (brew_url))
-        if not DRY_RUN:
-            urllib.request.urlopen(brew_url)
+        call_jenkins_build(GENERIC_BREW_PULLREQUEST_JOB,
+                           params, 'Brew')
 
     # RELEASING FOR LINUX
     for l in LINUX_DISTROS:
@@ -623,13 +626,7 @@ def go(argv):
                     assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
                     linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
 
-                linux_platform_params_query = urllib.parse.urlencode(linux_platform_params)
-
-                url = '%s/job/%s/buildWithParameters?%s' % (JENKINS_URL, job_name, linux_platform_params_query)
-                print('- Linux: %s' % (url))
-
-                if not DRY_RUN:
-                    urllib.request.urlopen(url)
+                call_jenkins_build(job_name, linux_platform_params, 'Linux')
 
 
 if __name__ == '__main__':
