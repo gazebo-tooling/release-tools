@@ -299,13 +299,6 @@ def sanity_project_package_in_stable(version, repo_name):
     return
 
 
-def sanity_use_prerelease_branch(release_branch):
-    if release_branch == 'prerelease':
-        error("The use of prerelease branch is now deprecated. Please check internal wiki instructions")
-
-    return
-
-
 def check_s3cmd_configuration():
     # Need to check if s3cmd is installed
     try:
@@ -325,7 +318,6 @@ def sanity_checks(args, repo_dir):
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
-    sanity_use_prerelease_branch(args.release_repo_branch)
 
     if not NIGHTLY:
         check_s3cmd_configuration()
