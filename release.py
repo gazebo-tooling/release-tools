@@ -25,10 +25,6 @@ LINUX_DISTROS = ['ubuntu', 'debian']
 SUPPORTED_ARCHS = ['amd64', 'armhf', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 
-# Ubuntu distributions are automatically taken from the top directory of
-# the release repositories, when needed.
-UBUNTU_DISTROS = []
-
 OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing"
 
 DRY_RUN = False
