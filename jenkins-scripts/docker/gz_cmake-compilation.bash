@@ -31,6 +31,11 @@ if ! [[ ${GZ_CMAKE_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
+
+if [ "${GZ_CMAKE_MAJOR_VERSION}" -ge 3 ]; then
+  BUILDING_EXTRA_CMAKE_PARAMS+=" -DGZ_ENABLE_RELOCATABLE_INSTALL=True"
+fi
+
 export GZDEV_PROJECT_NAME="gz-cmake${GZ_CMAKE_MAJOR_VERSION}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
