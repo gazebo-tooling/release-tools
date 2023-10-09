@@ -554,8 +554,6 @@ def go(argv):
         # name must be modified in the future
         params['SOURCE_TARBALL_URI'] = args.nightly_branch
 
-    job_name = JOB_NAME_PATTERN % (args.package)
-
     # RELEASING FOR BREW
     if not NIGHTLY and not args.bump_rev_linux_only:
         call_jenkins_build(GENERIC_BREW_PULLREQUEST_JOB,
@@ -607,7 +605,8 @@ def go(argv):
                     assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
                     linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
 
-                call_jenkins_build(job_name, linux_platform_params, 'Linux')
+                call_jenkins_build(f"{args.package}-debbuilder",
+                                   linux_platform_params, f"{l} {d}/{a}")
 
 
 if __name__ == '__main__':
