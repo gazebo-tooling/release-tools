@@ -496,6 +496,9 @@ ci_configs:
     exclude:
       all:
         - ign-citadel
+      abichecker:
+        - ign-cmake
+        - ign-tools
     requirements:
       large_memory:
         - ign-physics
@@ -526,6 +529,9 @@ ci_configs:
       all:
         - gz-fortress
         - gz-garden
+      abichecker:
+        - gz-cmake
+        - gz-tools
     pre_setup_script_hook:
       ign-physics:
         - "export MAKE_JOBS=1"
@@ -548,6 +554,9 @@ ci_configs:
       all:
         - gz-harmonic
         - __upcoming__
+      abichecker:
+        - gz-cmake
+        - gz-tools
     pre_setup_script_hook:
       gz-physics:
         - "export MAKE_JOBS=1"

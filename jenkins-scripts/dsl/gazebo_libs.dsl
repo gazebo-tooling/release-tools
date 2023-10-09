@@ -173,34 +173,36 @@ configs_per_lib_index.each { lib_name, lib_configs ->
       } // end of steps
     } // end of ci_any_job
 
-    // ABI branch jobs (-ci-abichecker-) for non main branches
-    def abi_job_name = "${gz_job_name_prefix}-abichecker-any_to_any-ubuntu-${distro}-${arch}"
-    def abi_job = job(abi_job_name)
-    OSRFLinuxABIGitHub.create(abi_job)
-    GenericAnyJobGitHub.create(abi_job,
-                      "gazebosim/${lib_name}",
-                      branch_names - [ 'main'])
-    generate_label_by_requirements(abi_job, lib_name, ci_config.requirements)
-    abi_job.with
-    {
-      steps {
-        shell("""\
-              #!/bin/bash -xe
+    if (! ci_config.exclude.abichecker?.contains(lib_name)) {
+      // ABI branch jobs (-ci-abichecker-) for non main branches
+      def abi_job_name = "${gz_job_name_prefix}-abichecker-any_to_any-ubuntu-${distro}-${arch}"
+      def abi_job = job(abi_job_name)
+      OSRFLinuxABIGitHub.create(abi_job)
+      GenericAnyJobGitHub.create(abi_job,
+                        "gazebosim/${lib_name}",
+                        branch_names - [ 'main'])
+      generate_label_by_requirements(abi_job, lib_name, ci_config.requirements)
+      abi_job.with
+      {
+        steps {
+          shell("""\
+                #!/bin/bash -xe
 
-              export DISTRO=${distro}
+                export DISTRO=${distro}
 
-              ${GLOBAL_SHELL_CMD}
-              ${extra_cmd}
+                ${GLOBAL_SHELL_CMD}
+                ${extra_cmd}
 
-              export ARCH=${arch}
-              export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
-              export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
-              export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
-              export ABI_JOB_SOFTWARE_NAME=${lib_name}
-              /bin/bash -xe ./scripts/jenkins-scripts/docker/gz-abichecker.bash
-              """.stripIndent())
-      } // end of steps
-    }  // end of with
+                export ARCH=${arch}
+                export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
+                export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
+                export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
+                export ABI_JOB_SOFTWARE_NAME=${lib_name}
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/gz-abichecker.bash
+                """.stripIndent())
+        } // end of steps
+      }  // end of with
+    }
 
     // CI branch jobs (-ci-$branch-) (pulling check every 5 minutes)
     branches_with_collections.each { branch_and_collection ->
