@@ -485,7 +485,7 @@ collections:
         - jammy
     packaging:
       exclude:
-        - __upcoming__
+          - __upcoming__
 ci_configs:
   - name: bionic
     system:
@@ -494,7 +494,8 @@ ci_configs:
       version: bionic
       arch: amd64
     exclude:
-      - ign-citadel
+      all:
+        - ign-citadel
     requirements:
       large_memory:
         - ign-physics
@@ -522,8 +523,9 @@ ci_configs:
         - gz-rendering
         - gz-sensors
     exclude:
-      - gz-fortress
-      - gz-garden
+      all:
+        - gz-fortress
+        - gz-garden
     pre_setup_script_hook:
       ign-physics:
         - "export MAKE_JOBS=1"
@@ -543,8 +545,9 @@ ci_configs:
         - gz-rendering
         - gz-sensors
     exclude:
-      - gz-harmonic
-      - __upcoming__
+      all:
+        - gz-harmonic
+        - __upcoming__
     pre_setup_script_hook:
       gz-physics:
         - "export MAKE_JOBS=1"

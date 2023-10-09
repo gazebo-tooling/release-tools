@@ -132,7 +132,7 @@ configs_per_lib_index.each { lib_name, lib_configs ->
     def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
     def branches_with_collections = ci_configs.getValue()
     def branch_names = branches_with_collections.collect { it.branch }.unique()
-    if (ci_config.exclude.contains(lib_name))
+    if (ci_config.exclude.all?.contains(lib_name))
       return
     assert(lib_name)
     assert(branch_names)
