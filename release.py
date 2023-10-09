@@ -170,6 +170,7 @@ def get_release_repository_info(package):
     if (github_repo_exists(github_url)):
         return 'git', github_url
 
+    error("release repository not found in github.com/gazebo-release")
 
 def download_release_repository(package, release_branch):
     vcs, url = get_release_repository_info(package)
