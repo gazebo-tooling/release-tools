@@ -55,12 +55,11 @@ boolean is_testing_enabled(lib_name, ci_config)
   return ! ci_config.tests_disabled?.contains(lib_name)
 }
 
-
 /*
  * Generate an index that facilitates the operations with the yaml values,
  * avoiding to parse them several times.
  *
- * ci_configs_by_lib index structure:
+ * # ci_configs_by_lib index structure:
  *   lib_name : [ ci_config_name : [ .branch .collection ] ]
  *
  *   The index main keys are the lib names (i.e: gz-cmake) and associated them
@@ -71,16 +70,33 @@ boolean is_testing_enabled(lib_name, ci_config)
  *
  *   index[gz-cmake][jammy] -> [ branch: gz-cmake3, collection: garden ,
  *                               branch: gz-cmake3, collection: harmonic]
+ *
+ * # pkgconf_per_src_inde index structure:
+ *   pkg_src_name : [ packaging_config_name : [ .lib_name .collection ] ]
+ *
+ *   The index main keys are package source names (i.e gz-cmake3 or gz-harmonic and associated them
+ *   another map of packaging configuration names supported as keys (i.e: jammy) with the
+ *   list of associated items composed by a map: lib_name (canonical name for the source package)
+ *   (and collection)
+ *
+ *   index[gz-cmake3][jammy] -> [ lib_name: gz-cmake, collection: harmonic ]
  */
-void generate_ciconfigs_by_lib(config, configs_per_lib_index)
+void generate_ciconfigs_by_lib(config, ciconf_per_lib_index, pkgconf_per_src_index)
 {
   config.collections.each { collection ->
     collection.libs.each { lib ->
       def libName = lib.name
       def branch = lib.repo.current_branch
       collection.ci.configs.each { config_name ->
-        configs_per_lib_index["$libName"]["${config_name}"] = configs_per_lib_index["$libName"]["${config_name}"]?: []
-        configs_per_lib_index["$libName"]["${config_name}"].contains(branch) ?: configs_per_lib_index["$libName"]["${config_name}"] << [branch: branch, collection: collection.name]
+        ciconf_per_lib_index[libName][config_name] = ciconf_per_lib_index[libName][config_name]?: []
+        ciconf_per_lib_index[libName][config_name].contains(branch) ?: ciconf_per_lib_index[libName][config_name] << [branch: branch, collection: collection.name]
+      }
+      def pkg_name = lib.name + lib.major_version
+      if (collection.packaging.linux?.ignore_major_version?.contains(libName))
+        pkg_name = lib.name
+      collection.packaging.configs?.each { config_name ->
+        pkgconf_per_src_index[pkg_name][config_name] = pkgconf_per_src_index[pkg_name][config_name]?: []
+        pkgconf_per_src_index[pkg_name][config_name] << [ lib_name: libName, collection: collection.name ]
       }
     }
   }
@@ -122,11 +138,12 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
   }
 }
 
-def configs_per_lib_index = [:].withDefault { [:] }
-generate_ciconfigs_by_lib(gz_collections_yaml, configs_per_lib_index)
+def ciconf_per_lib_index = [:].withDefault { [:] }
+def pkgconf_per_src_index = [:].withDefault { [:] }
+generate_ciconfigs_by_lib(gz_collections_yaml, ciconf_per_lib_index, pkgconf_per_src_index)
 
 // Generate PR jobs: 1 per ci configuration on each lib
-configs_per_lib_index.each { lib_name, lib_configs ->
+ciconf_per_lib_index.each { lib_name, lib_configs ->
   lib_configs.each { ci_configs ->
     def config_name = ci_configs.getKey()
     def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
@@ -140,6 +157,7 @@ configs_per_lib_index.each { lib_name, lib_configs ->
 
     if (ci_config.exclude.contains(lib_name))
       return
+
 
     // Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
     // --------------------------------------------------------------
@@ -180,7 +198,6 @@ configs_per_lib_index.each { lib_name, lib_configs ->
       // TODO: remove after testing
       if (branch_and_collection.collection != 'harmonic')
         return
-
       branch_name = branch_and_collection.branch
       def gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
       generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
@@ -198,6 +215,26 @@ configs_per_lib_index.each { lib_name, lib_configs ->
 
   } //en of lib_configs
 } // end of lib
+
+pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
+  pkg_src_configs.each { pkg_src_config ->
+    def config_name = pkg_src_config.getKey()
+    def pkg_config = gz_collections_yaml.packaging_configs.find{ it.name == config_name }
+    // lib_names are the same in all the entries
+    def canonical_lib_name = pkg_src_config.getValue()[0].lib_name
+
+    if (pkg_config.exclude?.contains(canonical_lib_name))
+      return
+
+    def gz_source_job = job("${pkg_src}-source")
+    OSRFSourceCreation.create(gz_source_job, [
+      PACKAGE: pkg_src ,
+      SOURCE_REPO_URI: "https://github.com/gazebosim/${canonical_lib_name}.git"])
+    OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
+      'repository_uploader_packages',
+      '_releasepy')
+  }
+}
 
 if (WRITE_JOB_LOG) {
   File log_file = new File("jobs.txt")

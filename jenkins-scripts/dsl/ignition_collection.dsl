@@ -17,7 +17,7 @@ String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
 {
   major_version = parsed_yaml_lib.major_version
 
-  ignore_major_version = parsed_yaml_packaging.linux?.package_name?.ignore_major_version
+  ignore_major_version = parsed_yaml_packaging.linux?.ignore_major_version
   if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
     major_version = ""
 
