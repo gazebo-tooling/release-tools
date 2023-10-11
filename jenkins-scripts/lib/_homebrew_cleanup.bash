@@ -39,6 +39,9 @@ git stash && git clean -d -f
 ${BREW_BINARY} audit cmake || restore_brew
 popd 2> /dev/null
 
+# Remove any locks to avoid any errors about another active Homebrew process being active.
+rm -rf $(${BREW_BINARY} --prefix)/var/homebrew/locks
+
 # test-bot needs variables and does not work just with config not sure why
 export GIT_AUTHOR_NAME="OSRF Build Bot"
 export GIT_COMMITTER_NAME=${GIT_AUTHOR_NAME}
