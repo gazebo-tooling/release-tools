@@ -514,6 +514,7 @@ def go(argv):
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
+
     # a) Mode nightly or builders:
     if NIGHTLY or args.source_tarball_uri:
         # RELEASING FOR BREW
@@ -580,6 +581,16 @@ def go(argv):
             # rebuild in the building scripts using the same logic based on
             # NAME_VERSION.
             _ = tag_repo(args)
+
+        # Choose platform to run gz-source on. It will need to install gz-cmake
+        if ubuntu_distros:
+            params['LINUX_DISTRO'] = 'ubuntu'
+            params['DISTRO'] = list(ubuntu_distros.keys())[0]
+        elif debian_distros:
+            params['LINUX_DISTRO'] = 'debian'
+            params['DISTRO'] = list(debian_distros.keys())[0]
+        else:
+            error("No distributions where found in the release repo")
 
         call_jenkins_build(f"{args.package_alias}-source", params, 'Source')
 
