@@ -346,7 +346,7 @@ def discover_distros(repo_dir):
         arches_supported = [x for x in SUPPORTED_ARCHS if x not in excluded_arches]
         distro_arch_list[d] = arches_supported
 
-    print('Releasing for distributions: ')
+    print('Distributions in release-repo:')
     for k in distro_arch_list:
         print("- " + k + " (" + ', '.join(distro_arch_list[k]) + ")")
 
@@ -583,6 +583,8 @@ def go(argv):
             _ = tag_repo(args)
 
         # Choose platform to run gz-source on. It will need to install gz-cmake
+        # Take the first key in the supported distros since all them should be
+        # able to install the needed gz-cmake.
         if ubuntu_distros:
             params['LINUX_DISTRO'] = 'ubuntu'
             params['DISTRO'] = list(ubuntu_distros.keys())[0]
