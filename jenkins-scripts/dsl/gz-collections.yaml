@@ -367,8 +367,40 @@ collections:
         major_version: 11
         repo:
           current_branch: main
+      - name: gz-rendering
+        major_version: 8
+        repo:
+          current_branch: main
+      - name: sdformat
+        major_version: 15
+        repo:
+          current_branch: main
+      - name: gz-fuel-tools
+        major_version: 10
+        repo:
+          current_branch: main
+      - name: gz-transport
+        major_version: 14
+        repo:
+          current_branch: main
+      - name: gz-gui
+        major_version: 9
+        repo:
+          current_branch: main
+      - name: gz-sensors
+        major_version: 9
+        repo:
+          current_branch: main
       - name: gz-physics
         major_version: 7
+        repo:
+          current_branch: main
+      - name: gz-sim
+        major_version: 9
+        repo:
+          current_branch: main
+      - name: gz-launch
+        major_version: 8
         repo:
           current_branch: main
     ci:
