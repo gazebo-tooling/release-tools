@@ -368,7 +368,7 @@ collections:
         repo:
           current_branch: main
       - name: gz-rendering
-        major_version: 8
+        major_version: 9
         repo:
           current_branch: main
       - name: sdformat
@@ -392,7 +392,7 @@ collections:
         repo:
           current_branch: main
       - name: gz-physics
-        major_version: 7
+        major_version: 8
         repo:
           current_branch: main
       - name: gz-sim
