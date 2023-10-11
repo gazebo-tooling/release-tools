@@ -36,6 +36,12 @@ class OSRFSourceCreation
         stringParam("EXTRA_OSRF_REPO",
                     default_params.find{ it.key == "EXTRA_OSRF_REPO"}?.value,
                     "For downstream jobs: OSRF extra repositories to add")
+        stringParam("LINUX_DISTRO",
+                    default_params.find{ it.key == "LINUX_DISTRO"}?.value,
+                    "Linux distribution to use to generate sources")
+        stringParam("DISTRO",
+                    default_params.find{ it.key == "DISTRO"}?.value,
+                    "Linux release inside LINUX_DISTRO to generate sources on")
       }
     }
   }
@@ -78,10 +84,7 @@ class OSRFSourceCreation
         shell("""\
           #!/bin/bash -xe
 
-          # Use Jammy/amd64 as base image to generate sources
-          export DISTRO=jammy
           export ARCH=amd64
-
           /bin/bash -x ./scripts/jenkins-scripts/docker/gz-source-generation.bash
           """.stripIndent()
         )
