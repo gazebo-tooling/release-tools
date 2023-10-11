@@ -24,6 +24,15 @@ class OSRFSourceCreation
         stringParam("VERSION",
                     default_params.find{ it.key == "VERSION"}?.value,
                     "Packages version to be built or nightly (enable nightly build mode)")
+        stringParam("OSRF_REPOS_TO_USE",
+                    default_params.find{ it.key == "OSRF_REPOS_TO_USE"}?.value,
+                    "OSRF repos name to use when building the package")
+        stringParam("LINUX_DISTRO",
+                    default_params.find{ it.key == "LINUX_DISTRO"}?.value,
+                    "Linux distribution to use to generate sources")
+        stringParam("DISTRO",
+                    default_params.find{ it.key == "DISTRO"}?.value,
+                    "Linux release inside LINUX_DISTRO to generate sources on")
         stringParam("RELEASE_VERSION",
                     default_params.find{ it.key == "RELEASE_VERSION"}?.value,
                     "For downstream jobs: Packages release version")
@@ -36,12 +45,6 @@ class OSRFSourceCreation
         stringParam("EXTRA_OSRF_REPO",
                     default_params.find{ it.key == "EXTRA_OSRF_REPO"}?.value,
                     "For downstream jobs: OSRF extra repositories to add")
-        stringParam("LINUX_DISTRO",
-                    default_params.find{ it.key == "LINUX_DISTRO"}?.value,
-                    "Linux distribution to use to generate sources")
-        stringParam("DISTRO",
-                    default_params.find{ it.key == "DISTRO"}?.value,
-                    "Linux release inside LINUX_DISTRO to generate sources on")
       }
     }
   }
