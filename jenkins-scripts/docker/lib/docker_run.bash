@@ -12,6 +12,11 @@ mkdir -p ${PACKAGE_DIR}
 sudo rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
 
+# Remove old core dumps to conserve space
+CORE_DUMPS_DIR="${WORKSPACE}/core_dumps"
+sudo rm -rf ${CORE_DUMPS_DIR}
+mkdir -p ${CORE_DUMPS_DIR}
+
 [[ -z ${DOCKER_DO_NOT_CACHE} ]] && DOCKER_DO_NOT_CACHE=false
 [[ -z ${USE_DOCKER_IN_DOCKER} ]] && export USE_DOCKER_IN_DOCKER=false
 
@@ -81,6 +86,8 @@ if [[ -d /dev/snd ]]; then
     DEVICE_SND="--device /dev/snd"
 fi
 
+echo "${CORE_DUMPS_DIR}/core.%e.%p" | sudo tee /proc/sys/kernel/core_pattern
+
 # DOCKER_FIX is for workaround https://github.com/docker/docker/issues/14203
 sudo ${docker_cmd} run ${PLAFTORM_PARAM} $EXTRA_PARAMS_STR  \
             -e DOCKER_FIX=''  \
@@ -93,6 +100,8 @@ sudo ${docker_cmd} run ${PLAFTORM_PARAM} $EXTRA_PARAMS_STR  \
             ${DEVICE_SND} \
             --tty \
             --rm \
+            --init \
+            --ulimit core=-1 \
             ${DOCKER_TAG} \
             /bin/bash build.sh
 
