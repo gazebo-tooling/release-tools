@@ -74,6 +74,7 @@ class OSRFReleasepy
 
             echo "releasing \${n} (from branch \${src_branch})"
               python3 ./scripts/release.py \${dry_run_str} "\${PACKAGE}" "\${VERSION}" "\${PASS}" \${extra_osrf_repo} \
+                      --source-tarball-uri \${SOURCE_TARBALL_URI} \
                       --release-repo-branch \${RELEASE_REPO_BRANCH} \
                       --upload-to-repo \${UPLOAD_TO_REPO} > log || echo "MARK_AS_UNSTABLE"
             echo " - done"
