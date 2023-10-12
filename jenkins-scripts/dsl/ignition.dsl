@@ -532,7 +532,7 @@ void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
   {
     if (gz_sw == 'physics') {
       label Globals.nontest_label("large-memory")
-      extra_str += '\nexport MAKE_JOBS=1'
+      extra_cmd += '\nexport MAKE_JOBS=1'
     }
     if (gz_sw == 'gazebo')
       gz_sw = 'sim'
