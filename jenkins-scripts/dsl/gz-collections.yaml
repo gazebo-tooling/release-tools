@@ -334,9 +334,6 @@ collections:
         package_name:
           ignore_major_version:
             - gz-harmonic
-        nightly:
-            distros:
-              - jammy
   - name: 'ionic'
     libs:
       - name: gz-cmake
