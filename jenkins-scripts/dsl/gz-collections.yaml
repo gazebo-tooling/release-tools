@@ -96,8 +96,9 @@ collections:
       configs:
         - bionic
     packaging:
+      configs:
+        - bionic
       linux:
-        package_name:
           ignore_major_version:
             - ign-citadel
   - name: 'fortress'
@@ -174,10 +175,11 @@ collections:
       configs:
         - focal
     packaging:
+      configs:
+        - focal
       linux:
-        package_name:
-          ignore_major_version:
-            - gz-fortress
+        ignore_major_version:
+          - gz-fortress
   - name: 'garden'
     libs:
       - name: gz-cmake
@@ -252,10 +254,11 @@ collections:
       configs:
         - focal
     packaging:
+      configs:
+        - focal
       linux:
-        package_name:
-          ignore_major_version:
-            - gz-garden
+        ignore_major_version:
+          - gz-garden
   - name: 'harmonic'
     libs:
       - name: gz-cmake
@@ -330,10 +333,11 @@ collections:
       configs:
         - jammy
     packaging:
+      configs:
+        - jammy
       linux:
-        package_name:
-          ignore_major_version:
-            - gz-harmonic
+        ignore_major_version:
+          - gz-harmonic     
   - name: 'ionic'
     libs:
       - name: gz-cmake
@@ -405,12 +409,11 @@ collections:
         - jammy
     packaging:
       linux:
-        package_name:
-          ignore_major_version:
-            - gz-ionic
+        ignore_major_version:
+          - gz-ionic
         nightly:
-            distros:
-              - jammy
+          distros:
+            - jammy
   - name: '__upcoming__'
     libs:
       - name: gz-cmake
@@ -481,6 +484,8 @@ collections:
       configs:
         - jammy
     packaging:
+      configs:
+        - jammy
       exclude:
           - __upcoming__
 ci_configs:
@@ -558,3 +563,30 @@ ci_configs:
       gz-physics:
         - "export MAKE_JOBS=1"
     tests_disabled:
+packaging_configs:
+  - name: bionic
+    system:
+      so: linux
+      distribution: ubuntu
+      version: bionic
+      arch:
+        - i386
+        - amd64
+        - arm64
+  - name: focal
+    system:
+      so: linux
+      distribution: ubuntu
+      version: focal
+      arch:
+        - amd64
+        - arm64
+  - name: jammy
+    system:
+      so: linux
+      distribution: ubuntu
+      version: jammy
+      arch:
+        - amd64
+        - arm64
+        - armhf
