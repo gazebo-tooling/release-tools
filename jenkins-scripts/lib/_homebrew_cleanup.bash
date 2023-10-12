@@ -39,8 +39,15 @@ git stash && git clean -d -f
 ${BREW_BINARY} audit cmake || restore_brew
 popd 2> /dev/null
 
-# Remove any locks to avoid any errors about another active Homebrew process being active.
-rm -rf $(${BREW_BINARY} --prefix)/var/homebrew/locks
+# There might be a background process that blocks `brew update`, so we try to
+# run it several times until it succeeds.
+# See https://github.com/Homebrew/brew/issues/1155
+brew_update_retry_count=0
+until brew update || (( brew_update_retry_count++ > 6 ))
+do
+  brew update
+  sleep 10
+done
 
 # test-bot needs variables and does not work just with config not sure why
 export GIT_AUTHOR_NAME="OSRF Build Bot"
