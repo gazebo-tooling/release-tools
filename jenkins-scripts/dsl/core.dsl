@@ -146,7 +146,7 @@ outdated_job_runner.with
 
 // -------------------------------------------------------------------
 def releasepy_job = job("_releasepy")
-OSRFReleasepy.create(releasepy_job)
+OSRFReleasepy.create(releasepy_job, [DRY_RUN: false])
 releasepy_job.with {
       blockOn("repository_uploader_packages") {
         blockLevel('GLOBAL')

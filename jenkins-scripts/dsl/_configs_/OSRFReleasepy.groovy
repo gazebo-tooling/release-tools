@@ -37,7 +37,6 @@ class OSRFReleasepy
         stringParam("EXTRA_OSRF_REPO",
                     default_params.find{ it.key == "OSRF_REPOS_TO_USE"}?.value,
                     "OSRF repos name to use when building the package")
-  
         booleanParam('DRY_RUN',
                     default_params.find{ it.key == "DRY_RUN"}?.value,
                     'run a testing run with no effects')
