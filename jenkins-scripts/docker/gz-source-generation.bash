@@ -16,6 +16,10 @@ PKG_DIR=\$WORKSPACE/pkgs
 SOURCES_DIR=\$WORKSPACE/sources
 BUILD_DIR=\$SOURCES_DIR/build
 
+# Need to intall all supported gz-cmake* packages in the platform
+(sudo apt-get install -y *gz-cmake* || sudo apt-get install -y *ign-cmake*) || \
+  (echo "Can not find any ign-cmake/gz-cmake package" && exit 1)
+
 cd \${WORKSPACE}
 rm -fr \$SOURCES_DIR && mkdir \$SOURCES_DIR
 git clone --depth 1 --branch ${PACKAGE}_${VERSION/\~/-} ${SOURCE_REPO_URI} \${SOURCES_DIR}

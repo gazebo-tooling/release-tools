@@ -24,6 +24,15 @@ class OSRFSourceCreation
         stringParam("VERSION",
                     default_params.find{ it.key == "VERSION"}?.value,
                     "Packages version to be built or nightly (enable nightly build mode)")
+        stringParam("OSRF_REPOS_TO_USE",
+                    default_params.find{ it.key == "OSRF_REPOS_TO_USE"}?.value,
+                    "OSRF repos name to use when building the package")
+        stringParam("LINUX_DISTRO",
+                    default_params.find{ it.key == "LINUX_DISTRO"}?.value,
+                    "Linux distribution to use to generate sources")
+        stringParam("DISTRO",
+                    default_params.find{ it.key == "DISTRO"}?.value,
+                    "Linux release inside LINUX_DISTRO to generate sources on")
         stringParam("RELEASE_VERSION",
                     default_params.find{ it.key == "RELEASE_VERSION"}?.value,
                     "For downstream jobs: Packages release version")
@@ -78,10 +87,7 @@ class OSRFSourceCreation
         shell("""\
           #!/bin/bash -xe
 
-          # Use Jammy/amd64 as base image to generate sources
-          export DISTRO=jammy
           export ARCH=amd64
-
           /bin/bash -x ./scripts/jenkins-scripts/docker/gz-source-generation.bash
           """.stripIndent()
         )

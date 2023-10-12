@@ -29,11 +29,11 @@ newer version of Gazebo than the one selected in REP-2000.
 
 ### List of active relases
 
-| Gazebo Release | ROS / ROS 2 Release | status     | ros_gz branch | -release repository |
-| ---------------|---------------------|------------|---------------|---------------------|
-| Garden         | Humble              | stable     | humble        | https://github.com/gazebo-release/ros_ign-release |
-| Garden         | Iron                | prerelease | iron          | https://github.com/gazebo-release/ros_ign-release |
-| Harmonic       | Iron                | prerelease | ros2          | https://github.com/j-rivero/ros_ign-gzharmonic-release |
+| Gazebo Release | ROS / ROS 2 Release | status     | ros_gz branch | -release repository | CI | release cmd |
+| ---------------|---------------------|------------|---------------|---------------------|----|-------------|
+| Garden         | Humble              | stable     | humble        | https://github.com/gazebo-release/ros_ign-release | [![Build Status](https://build.osrfoundation.org/buildStatus/icon?job=ros_gzgarden_bridge-install-pkg_humble-ci-jammy-amd64)](https://build.osrfoundation.org/job/ros_gzgarden_bridge-install-pkg_humble-ci-jammy-amd64/) | <details>```RELEASE_REPO_URL=https://github.com/gazebo-release/ros_ign-release ./bloom_from_special_env.bash humble garden https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list```</details> |
+| Garden         | Iron                | stable     | iron          | https://github.com/gazebo-release/ros_ign-release | [![Build Status](https://build.osrfoundation.org/buildStatus/icon?job=ros_gzgarden_bridge-install-pkg_iron-ci-jammy-amd64)](https://build.osrfoundation.org/job/ros_gzgarden_bridge-install-pkg_iron-ci-jammy-amd64/) | <details>```RELEASE_REPO_URL=https://github.com/gazebo-release/ros_ign-release ./bloom_from_special_env.bash iron garden https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list```</details> |
+| Harmonic       | Iron                | stable     | ros2          | https://github.com/gazebo-release/ros_gz-gzharmonic-release | [![Build Status](https://build.osrfoundation.org/buildStatus/icon?job=ros_gzharmonic_bridge-install-pkg_iron-ci-jammy-amd64)](https://build.osrfoundation.org/job/ros_gzharmonic_bridge-install-pkg_iron-ci-jammy-amd64/) | <details>```RELEASE_REPO_URL=https://github.com/gazebo-release/ros_gz-gzharmonic-release   ./bloom_from_special_env.bash iron harmonic https://raw.githubusercontent.com/osrf/osrf-rosdep```</details> |
 
 ### Upstream versions released using this tutorial
 

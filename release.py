@@ -25,17 +25,11 @@ LINUX_DISTROS = ['ubuntu', 'debian']
 SUPPORTED_ARCHS = ['amd64', 'armhf', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 
-# Ubuntu distributions are automatically taken from the top directory of
-# the release repositories, when needed.
-UBUNTU_DISTROS = []
-
-OSRF_REPOS_SUPPORTED = "stable prerelease nightly"
-OSRF_REPOS_SELF_CONTAINED = ""
+OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing"
 
 DRY_RUN = False
 NIGHTLY = False
 PRERELEASE = False
-NO_SRC_FILE = False
 
 IGNORE_DRY_RUN = True
 
@@ -78,7 +72,7 @@ def error(msg):
 
 
 def print_success(msg):
-    print("     + OK " + msg)
+    print(" + OK " + msg)
 
 
 # Remove the last character if it is a number.
@@ -86,10 +80,6 @@ def print_success(msg):
 # I.E gazebo5 -> gazebo
 def get_canonical_package_name(pkg_name):
     return pkg_name.rstrip('1234567890')
-
-
-def is_catkin_package():
-    return os.path.isfile("package.xml")
 
 
 def github_repo_exists(url):
@@ -104,9 +94,6 @@ def github_repo_exists(url):
 
 def generate_package_source(srcdir, builddir):
     cmake_cmd = ["cmake"]
-
-    if is_catkin_package():
-        cmake_cmd = cmake_cmd + ['-DCATKIN_BUILD_BINARY_PACKAGE="1"']
 
     # configure and make package_source
     os.mkdir(builddir)
@@ -128,7 +115,6 @@ def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
     global PRERELEASE
-    global NO_SRC_FILE
 
     parser = argparse.ArgumentParser(description='Make releases.')
     parser.add_argument('package', help='which package to release')
@@ -168,14 +154,12 @@ def parse_args(argv):
     args.package_alias = args.package
 
     DRY_RUN = args.dry_run
-    NO_SRC_FILE = args.no_source_file
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
     if args.upload_to_repository == 'prerelease':
         PRERELEASE = True
     # Nightly do not generate a tar.bz2 file
     if NIGHTLY:
-        NO_SRC_FILE = True
         args.no_source_file = True
 
     return args
@@ -186,6 +170,7 @@ def get_release_repository_info(package):
     if (github_repo_exists(github_url)):
         return 'git', github_url
 
+    error("release repository not found in github.com/gazebo-release")
 
 def download_release_repository(package, release_branch):
     vcs, url = get_release_repository_info(package)
@@ -197,7 +182,6 @@ def download_release_repository(package, release_branch):
     # If main branch exists, prefer it over master
     if release_branch == "master":
         if exists_main_branch(url):
-            print_success('Found main branch in repo, use it instead master')
             release_branch = 'main'
 
     cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
@@ -299,36 +283,13 @@ def sanity_project_package_in_stable(version, repo_name):
     return
 
 
-def sanity_use_prerelease_branch(release_branch):
-    if release_branch == 'prerelease':
-        error("The use of prerelease branch is now deprecated. Please check internal wiki instructions")
-
-    return
-
-
-def check_s3cmd_configuration():
-    # Need to check if s3cmd is installed
-    try:
-        subprocess.call(["s3cmd", "--version"])
-    except OSError:
-        error("s3cmd command for uploading is not available. Install it using: apt-get install s3cmd")
-
-    # Need to check if configuration for s3 exists
-    s3_config = os.path.expanduser('~') + "/.s3cfg"
-    if not os.path.isfile(s3_config):
-        error(s3_config + " does not exists. Please configure s3: s3cmd --configure")
-
-    return True
-
-
 def sanity_checks(args, repo_dir):
+    print("Safety checks:")
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
-    sanity_use_prerelease_branch(args.release_repo_branch)
 
     if not NIGHTLY:
-        check_s3cmd_configuration()
         sanity_package_version(repo_dir, args.version, str(args.release_version))
         sanity_check_sdformat_versions(args.package, args.version)
         sanity_project_package_in_stable(args.version, args.upload_to_repository)
@@ -383,14 +344,11 @@ def discover_distros(repo_dir):
 
 
 def check_call(cmd, ignore_dry_run=False):
-    if ignore_dry_run:
-        # Commands that do not change anything in repo level
-        print('Dry-run running:\n  %s\n' % (' '.join(cmd)))
-    else:
-        print('Running:\n  %s' % (' '.join(cmd)))
     if DRY_RUN and not ignore_dry_run:
+        print('Dry-run running:\n  %s\n' % (' '.join(cmd)))
         return b'', b''
     else:
+        print('Running:\n  %s' % (' '.join(cmd)))
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = po.communicate()
         if po.returncode != 0:
@@ -443,6 +401,29 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
         out = out.decode()
 
     return out.split(' ')[0], tarball_fname, tarball_path
+
+
+def tag_repo(args):
+    try:
+        # tilde is not a valid character in git
+        tag = '%s_%s' % (args.package_alias, args.version.replace('~', '-'))
+        check_call(['git', 'tag', '-f', tag])
+        check_call(['git', 'push', '--tags'])
+    except ErrorNoPermsRepo:
+        print('The Git server reports problems with permissions')
+        print('The branch could be blocked by configuration if you do not have')
+        print('rights to push code in default branch.')
+        sys.exit(1)
+    except ErrorNoUsernameSupplied:
+        print('git tag could not be committed because you have not configured')
+        print('your username. Use "git config --username" to set your username.')
+        sys.exit(1)
+    except Exception:
+        print('There was a problem with pushing tags to the git repository')
+        print('Do you have write perms in the repository?')
+        sys.exit(1)
+
+    return tag
 
 
 def generate_upload_tarball(args):
@@ -511,30 +492,22 @@ def generate_upload_tarball(args):
 
         # Tag repo
         os.chdir(sourcedir)
-
-        try:
-            # tilde is not a valid character in git
-            tag = '%s_%s' % (args.package_alias, args.version.replace('~', '-'))
-            check_call(['git', 'tag', '-f', tag])
-            check_call(['git', 'push', '--tags'])
-        except ErrorNoPermsRepo:
-            print('The Git server reports problems with permissions')
-            print('The branch could be blocked by configuration if you do not have')
-            print('rights to push code in default branch.')
-            sys.exit(1)
-        except ErrorNoUsernameSupplied:
-            print('git tag could not be committed because you have not configured')
-            print('your username. Use "git config --username" to set your username.')
-            sys.exit(1)
-        except Exception:
-            print('There was a problem with pushing tags to the git repository')
-            print('Do you have write perms in the repository?')
-            sys.exit(1)
+        _ = tag_repo(args)
 
     # TODO: Consider auto-updating the Ubuntu changelog.  It requires
     # cloning the <package>-release repo, making a change, and pushing it back.
     # Until we do that, the user must have first updated it manually.
     return source_tarball_uri, tarball_sha
+
+
+def call_jenkins_build(job_name, params, output_string):
+    params_query = urllib.parse.urlencode(params)
+    url = '%s/job/%s/buildWithParameters?%s' % (JENKINS_URL,
+                                                job_name,
+                                                params_query)
+    print(f"- {output_string}: {url}")
+    if not DRY_RUN:
+        urllib.request.urlopen(url)
 
 
 def go(argv):
@@ -575,28 +548,16 @@ def go(argv):
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
-    if args.upload_to_repository in OSRF_REPOS_SELF_CONTAINED:
-        params['OSRF_REPOS_TO_USE'] = args.upload_to_repository
-
     if NIGHTLY:
         params['VERSION'] = 'nightly'
         # reuse SOURCE_TARBALL_URI to indicate the nightly branch
         # name must be modified in the future
         params['SOURCE_TARBALL_URI'] = args.nightly_branch
 
-    job_name = JOB_NAME_PATTERN % (args.package)
-    params_query = urllib.parse.urlencode(params)
-
     # RELEASING FOR BREW
-    brew_url = '%s/job/%s/buildWithParameters?%s' % (
-        JENKINS_URL,
-        GENERIC_BREW_PULLREQUEST_JOB,
-        params_query)
-
     if not NIGHTLY and not args.bump_rev_linux_only:
-        print('- Brew: %s' % (brew_url))
-        if not DRY_RUN:
-            urllib.request.urlopen(brew_url)
+        call_jenkins_build(GENERIC_BREW_PULLREQUEST_JOB,
+                           params, 'Brew')
 
     # RELEASING FOR LINUX
     for l in LINUX_DISTROS:
@@ -644,13 +605,8 @@ def go(argv):
                     assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
                     linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
 
-                linux_platform_params_query = urllib.parse.urlencode(linux_platform_params)
-
-                url = '%s/job/%s/buildWithParameters?%s' % (JENKINS_URL, job_name, linux_platform_params_query)
-                print('- Linux: %s' % (url))
-
-                if not DRY_RUN:
-                    urllib.request.urlopen(url)
+                call_jenkins_build(f"{args.package}-debbuilder",
+                                   linux_platform_params, f"{l} {d}/{a}")
 
 
 if __name__ == '__main__':

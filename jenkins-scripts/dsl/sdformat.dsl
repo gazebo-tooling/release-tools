@@ -2,9 +2,9 @@ import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
 def sdformat_supported_versions = [ 'sdformat6' , 'sdformat9', 'sdformat12', 'sdformat13', 'sdformat14' ]
-def sdformat_gz11_versions = [ 'sdformat9', 'sdformat12', 'sdformat13', 'main' ]
+def sdformat_gz11_versions = [ 'sdformat9', 'sdformat12', 'sdformat13', 'sdformat14', 'main' ]
 // nightly and prereleases
-def extra_sdformat_debbuilder = []
+def extra_sdformat_debbuilder = ['sdformat15']
 
 // Main platform using for quick CI
 def ci_distro               = Globals.get_ci_distro()

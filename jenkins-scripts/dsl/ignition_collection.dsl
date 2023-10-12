@@ -11,7 +11,7 @@ arch = 'amd64'
 file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
 gz_collections_yaml = new Yaml().load(file)
 
-gz_nightly = 'harmonic'
+gz_nightly = 'ionic'
 
 String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
 {
@@ -324,6 +324,57 @@ gz_collection_jobs =
         'sdformat-ci-sdformat14-jammy-amd64',
         'sdformat-ci-sdformat14-homebrew-amd64',
         'sdformat-sdf-14-win'
+  ],
+  'ionic' : [
+        'ign_cmake-gz-4-win',
+        'ign_common-gz-6-win',
+        'ign_fuel-tools-gz-10-win',
+        'ign_gazebo-gz-9-win',
+        'ign_gui-gz-9-win',
+        'ign_launch-gz-8-win',
+        'ign_math-gz-8-win',
+        'ign_msgs-gz-11-win',
+        'ign_physics-gz-8-win',
+        'ign_plugin-gz-3-win',
+        'ign_rendering-gz-9-win',
+        'ign_sensors-gz-9-win',
+        'ign_tools-gz-2-win',
+        'ign_transport-gz-14-win',
+        'ign_utils-gz-3-win',
+        'gz_cmake-ci-gz-cmake4-jammy-amd64',
+        'gz_common-ci-gz-common6-jammy-amd64',
+        'gz_fuel_tools-ci-gz-fuel-tools10-jammy-amd64',
+        'gz_gui-ci-gz-gui9-jammy-amd64',
+        'gz_launch-ci-gz-launch8-jammy-amd64',
+        'gz_math-ci-gz-math8-jammy-amd64',
+        'gz_msgs-ci-gz-msgs11-jammy-amd64',
+        'gz_physics-ci-gz-physics8-jammy-amd64',
+        'gz_plugin-ci-gz-plugin3-jammy-amd64',
+        'gz_rendering-ci-gz-rendering9-jammy-amd64',
+        'gz_sensors-ci-gz-sensors9-jammy-amd64',
+        'gz_sim-ci-gz-sim9-jammy-amd64',
+        'gz_tools-ci-gz-tools2-jammy-amd64',
+        'gz_transport-ci-gz-transport14-jammy-amd64',
+        'gz_utils-ci-gz-utils3-jammy-amd64',
+        'ignition_cmake-ci-gz-cmake4-homebrew-amd64',
+        'ignition_common-ci-gz-common6-homebrew-amd64',
+        'ignition_fuel-tools-ci-gz-fuel-tools10-homebrew-amd64',
+        'ignition_ionic-ci-main-homebrew-amd64',
+        'ignition_gazebo-ci-gz-sim9-homebrew-amd64',
+        'ignition_gui-ci-gz-gui9-homebrew-amd64',
+        'ignition_launch-gz-launch8-homebrew-amd64',
+        'ignition_math-ci-gz-math8-homebrew-amd64',
+        'ignition_msgs-ci-gz-msgs11-homebrew-amd64',
+        'ignition_physics-ci-gz-physics8-homebrew-amd64',
+        'ignition_plugin-ci-gz-plugin3-homebrew-amd64',
+        'ignition_rendering-ci-gz-rendering9-homebrew-amd64',
+        'ignition_sensors-ci-gz-sensors9-homebrew-amd64',
+        'ignition_tools-ci-gz-tools2-homebrew-amd64',
+        'ignition_transport-ci-gz-transport14-homebrew-amd64',
+        'ignition_utils-ci-gz-utils3-homebrew-amd64',
+        'sdformat-ci-sdformat15-jammy-amd64',
+        'sdformat-ci-sdformat15-homebrew-amd64',
+        'sdformat-sdf-15-win'
   ],
 ]
 

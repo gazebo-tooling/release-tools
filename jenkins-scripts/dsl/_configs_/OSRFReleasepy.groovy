@@ -37,7 +37,6 @@ class OSRFReleasepy
         stringParam("EXTRA_OSRF_REPO",
                     default_params.find{ it.key == "OSRF_REPOS_TO_USE"}?.value,
                     "OSRF repos name to use when building the package")
-  
         booleanParam('DRY_RUN',
                     default_params.find{ it.key == "DRY_RUN"}?.value,
                     'run a testing run with no effects')
@@ -74,6 +73,7 @@ class OSRFReleasepy
 
             echo "releasing \${n} (from branch \${src_branch})"
               python3 ./scripts/release.py \${dry_run_str} "\${PACKAGE}" "\${VERSION}" "\${PASS}" \${extra_osrf_repo} \
+                      --source-tarball-uri \${SOURCE_TARBALL_URI} \
                       --release-repo-branch \${RELEASE_REPO_BRANCH} \
                       --upload-to-repo \${UPLOAD_TO_REPO} > log || echo "MARK_AS_UNSTABLE"
             echo " - done"
