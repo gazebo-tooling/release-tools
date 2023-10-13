@@ -377,6 +377,25 @@ def tag_repo(args):
     return tag
 
 
+def generate_source_repository_uri(args):
+    org_repo = f"gazebosim/{get_canonical_package_name(args.package_alias)}"
+    out, err = check_call(['git', 'ls-remote', '--get-url', 'origin'],
+                          IGNORE_DRY_RUN)
+    if err:
+        print(f"An error happened running git ls-remote: ${err}")
+        sys.exit(1)
+
+    git_remote = out.decode().split('\n')[0]
+    if org_repo not in git_remote:
+        print(f""" !! Automatic calculation of source_repo_uri failed.\
+              \n   * git remote origin is: {git_remote}\
+              \n   * Package name generated org/repo: {org_repo}\
+              \n >> Please use --source-repo-uri parameter""")
+        sys.exit(1)
+
+    return f"https://github.com/{org_repo}.git"  # NOQA
+
+
 def call_jenkins_build(job_name, params, output_string):
     params_query = urllib.parse.urlencode(params)
     url = '%s/job/%s/buildWithParameters?%s' % (JENKINS_URL,
