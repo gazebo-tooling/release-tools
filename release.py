@@ -121,6 +121,18 @@ def parse_args(argv):
                         help='Release version suffix; usually 1 (e.g., 1')
     parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
                         help='no-sanity-checks; i.e. skip sanity checks commands')
+    parser.add_argument('--source-repo-uri',
+                        dest='source_repo_uri',
+                        default=None,
+                        help='Indicate the repository URL to grab the source from (overriding the heristics to calculate it from the local directory)')  # NOQA
+    parser.add_argument('--source-repo-existing-ref',
+                        dest='source_repo_ref',
+                        default=None,
+                        help='Optionally, when using --source-repo-urr, indicate the Git reference (branch|tag) to grab the release sources from.\
+                              If used: avoid to tag the local repository. If not used: tag the local repository with <version> and use it as ref')  # NOQA
+    parser.add_argument('--source-tarball-uri',
+                        dest='source_tarball_uri', default=None,
+                        help='Indicate the URL of the sources to grab the release sources from.')  # NOQA
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
     parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
@@ -396,6 +408,28 @@ def generate_source_repository_uri(args):
     return f"https://github.com/{org_repo}.git"  # NOQA
 
 
+def generate_source_params(args):
+    params = {}
+    # 1. Launch source jobs (SOURCE_REPO_URI)
+    #     1.1 using args.source_repo_uri (if it was passed)
+    #     1.2 autogenerating it
+    #
+    # 2. Launch builders (SOURCE_TARBALL_URI)
+    #     2.1 using args.source_tarball_uri
+    #     2.2 pass the nightly branch if NIGHTLY enabled
+    #
+    if args.source_tarball_uri:
+        params['SOURCE_TARBALL_URI'] = \
+            args.source_tarball_uri if not NIGHTLY else \
+            args.nightly_branch
+    else:
+        params['SOURCE_REPO_URI'] = \
+            args.source_repo_uri if args.source_repo_uri else \
+            generate_source_repository_uri(args)
+
+    return params
+
+
 def call_jenkins_build(job_name, params, output_string):
     params_query = urllib.parse.urlencode(params)
     url = '%s/job/%s/buildWithParameters?%s' % (JENKINS_URL,
@@ -421,8 +455,7 @@ def go(argv):
     if not args.no_sanity_checks:
         sanity_checks(args, repo_dir)
 
-    # Kick off Jenkins jobs
-    params = {}
+    params = generate_source_params(args)
     params['token'] = args.jenkins_token
     params['PACKAGE'] = args.package
     params['VERSION'] = args.version if not NIGHTLY else 'nightly'
