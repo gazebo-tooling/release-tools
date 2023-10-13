@@ -161,7 +161,6 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
     def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
     def extra_cmd = pre_setup_script ?: ""
 
-
     // Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
     // --------------------------------------------------------------
     def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
