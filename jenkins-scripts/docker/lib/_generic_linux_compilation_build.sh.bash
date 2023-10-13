@@ -101,7 +101,7 @@ if $GENERIC_ENABLE_TESTS; then
     cd $WORKSPACE/core_dumps
     for corefile in core.*
     do
-      gdb --batch -ex "thread apply all bt" --core $corefile > ${corefile}_backtrace.txt
+      gdb --batch -ex "thread apply all bt" --core \$corefile > \${corefile}_backtrace.txt
     done
   fi
   stop_stopwatch TEST
