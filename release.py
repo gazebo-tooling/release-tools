@@ -121,8 +121,6 @@ def parse_args(argv):
                         help='Release version suffix; usually 1 (e.g., 1')
     parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
                         help='no-sanity-checks; i.e. skip sanity checks commands')
-    parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
-                        help='Do not generate source file when building')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
     parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
@@ -146,9 +144,6 @@ def parse_args(argv):
         NIGHTLY = True
     if args.upload_to_repository == 'prerelease':
         PRERELEASE = True
-    # Nightly do not generate a tar.bz2 file
-    if NIGHTLY:
-        args.no_source_file = True
 
     return args
 
@@ -324,7 +319,7 @@ def discover_distros(repo_dir):
         arches_supported = [x for x in SUPPORTED_ARCHS if x not in excluded_arches]
         distro_arch_list[d] = arches_supported
 
-    print('Releasing for distributions: ')
+    print('Distributions in release-repo:')
     for k in distro_arch_list:
         print("- " + k + " (" + ', '.join(distro_arch_list[k]) + ")")
 
@@ -411,7 +406,7 @@ def go(argv):
     params = {}
     params['token'] = args.jenkins_token
     params['PACKAGE'] = args.package
-    params['VERSION'] = args.version
+    params['VERSION'] = args.version if not NIGHTLY else 'nightly'
     params['RELEASE_REPO_BRANCH'] = args.release_repo_branch
     params['PACKAGE_ALIAS'] = args.package_alias
     params['RELEASE_VERSION'] = args.release_version
