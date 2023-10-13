@@ -24,7 +24,7 @@ LINUX_DISTROS = ['ubuntu', 'debian']
 SUPPORTED_ARCHS = ['amd64', 'armhf', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 
-OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing"
+OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing none"
 
 DRY_RUN = False
 NIGHTLY = False
@@ -277,7 +277,8 @@ def sanity_check_repo_name(repo_name):
     if repo_name in OSRF_REPOS_SUPPORTED:
         return
 
-    error("Upload repo value: " + repo_name + " is not valid. stable | prerelease | nightly")
+    error(f"Upload repo value: {repo_name} is not valid. \
+            Supported values are: {OSRF_REPOS_SUPPORTED}")
 
 
 def sanity_project_package_in_stable(version, repo_name):
