@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from __future__ import print_function
+from argparse import RawTextHelpFormatter
 import subprocess
 import sys
 import tempfile
@@ -104,7 +105,21 @@ def parse_args(argv):
     global NIGHTLY
     global PRERELEASE
 
-    parser = argparse.ArgumentParser(description='Make releases.')
+    parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter,
+    description="""
+Script to handle the release process for the Gazebo devs.
+Examples:
+A) Generate source: local repository tag + call source job:
+   $ release.py <package> <version> <jenkins_token>
+   (auto calculate source-repo-uri from local directory)
+
+B) Call builders: reuse existing tarball version + call build jobs:
+   $ release.py --source-tarball-uri <URL> <package> <version> <jenkins_token>
+   (no call to source job, directly build jobs with tarball URL)
+
+C) Nightly builds (linux)
+   $ release.py --source-repo-existing-ref <git_branch> --upload-to-repo nightly <URL> <package> <version> <jenkins_token>
+ """)
     parser.add_argument('package', help='which package to release')
     parser.add_argument('version', help='which version to release')
     parser.add_argument('jenkins_token', help='secret token to allow access to Jenkins to start builds')
