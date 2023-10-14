@@ -100,7 +100,7 @@ if $GENERIC_ENABLE_TESTS; then
   if [[ -d $WORKSPACE/core_dumps ]]; then
     for corefile in $WORKSPACE/core_dumps/core.*
     do
-      gdb --batch -ex "sharedlibrary; thread apply all bt" --core \$corefile | tee $WORKSPACE/core_dumps/\${corefile}_backtrace.txt
+      gdb --batch -ex "sharedlibrary; thread apply all bt" --core \$corefile | tee \${corefile}_backtrace.txt
     done
   fi
   stop_stopwatch TEST
