@@ -98,10 +98,9 @@ if $GENERIC_ENABLE_TESTS; then
   mkdir -p \$HOME
   make test ARGS="-VV ${BUILDING_EXTRA_MAKETEST_PARAMS}" || true
   if [[ -d $WORKSPACE/core_dumps ]]; then
-    cd $WORKSPACE/core_dumps
-    for corefile in core.*
+    for corefile in core_dumps/core.*
     do
-      gdb --batch -ex "sharedlibrary; thread apply all bt" --core \$corefile | tee \${corefile}_backtrace.txt
+      gdb --batch -ex "sharedlibrary; thread apply all bt" --core \$corefile | tee core_dumps/\${corefile}_backtrace.txt
     done
   fi
   stop_stopwatch TEST
