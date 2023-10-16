@@ -155,6 +155,9 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
     assert(branch_names)
     assert(ci_config)
 
+
+    // Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
+    // --------------------------------------------------------------
     def distro = ci_config.system.version
     def arch = ci_config.system.arch
     def gz_job_name_prefix = lib_name.replaceAll('-','_')
@@ -226,7 +229,6 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
       // TODO: remove after testing
       if (branch_and_collection.collection != 'harmonic')
         return
-
       branch_name = branch_and_collection.branch
       def gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
       generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
