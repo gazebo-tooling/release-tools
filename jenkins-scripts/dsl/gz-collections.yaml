@@ -106,35 +106,35 @@ collections:
       - name: gz-cmake
         major_version: 3
         repo:
-          current_branch: gz-cmake2
+          current_brach: ign-cmake2
       - name: gz-tools
         major_version: 1
         repo:
-          current_branch: gz-tools1
+          current_brach: ign-tools1
       - name: gz-utils
         major_version: 1
         repo:
-          current_branch: gz-utils1
+          current_brach: ign-utils1
       - name: gz-math
         major_version: 6
         repo:
-          current_branch: gz-math6
+          current_brach: ign-math6
       - name: gz-plugin
         major_version: 1
         repo:
-          current_branch: gz-plugin1
+          current_brach: ign-plugin1
       - name: gz-common
         major_version: 4
         repo:
-          current_branch: gz-common4
+          current_brach: ign-common4
       - name: gz-msgs
         major_version: 8
         repo:
-          current_branch: gz-msgs8
+          current_brach: ign-msgs8
       - name: gz-rendering
         major_version: 6
         repo:
-          current_branch: gz-rendering6
+          current_brach: ign-rendering6
       - name: sdformat
         major_version: 12
         repo:
@@ -142,31 +142,31 @@ collections:
       - name: gz-fuel-tools
         major_version: 7
         repo:
-          current_branch: gz-fuel-tools7
+          current_brach: ign-fuel-tools7
       - name: gz-transport
         major_version: 11
         repo:
-          current_branch: gz-transport11
+          current_brach: ign-transport11
       - name: gz-gui
         major_version: 6
         repo:
-          current_branch: gz-gui6
+          current_brach: ign-gui6
       - name: gz-sensors
         major_version: 7
         repo:
-          current_branch: gz-sensors7
+          current_brach: ign-sensors7
       - name: gz-physics
         major_version: 6
         repo:
-          current_branch: gz-physics6
+          current_brach: ign-physics6
       - name: gz-sim
         major_version: 6
         repo:
-          current_branch: gz-sim6
+          current_brach: ign-sim6
       - name: gz-launch
         major_version: 5
         repo:
-          current_branch: gz-launch5
+          current_brach: ign-launch5
       - name: gz-fortress
         major_version: 1
         repo:
