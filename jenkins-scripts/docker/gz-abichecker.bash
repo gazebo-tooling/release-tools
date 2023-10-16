@@ -42,7 +42,7 @@ export ${GZ_NAME_PREFIX}_MAJOR_VERSION=${GZ_NAME_PREFIX_MAJOR_VERSION}
 #
 # Set ABI_JOB_HEADER_PREFIX to match the last subfolder:
 #   gazebo6, math6, math7, sim7
-if [[ "${ABI_JOB_SOFTWARE_NAME}" = "gz-gazebo" && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 7 ]]
+if [[ "${ABI_JOB_SOFTWARE_NAME}" = "gz-sim" && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 7 ]]
 then
   # special case for gz-sim7+
   export ABI_JOB_HEADER_PREFIX=sim[0-9]*
