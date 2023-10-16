@@ -515,12 +515,12 @@ void generate_asan_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
   generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
                   '-DGZ_SANITIZER=Address',
                   Globals.MAKETEST_SKIP_GZ,
-                  'export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true')
+                  ['export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true'])
 }
 
 
 void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
-                     extra_cmake = '', extra_test = '', extra_cmd = '')
+                     extra_cmake = '', extra_test = '', extra_cmd = [])
 {
   OSRFLinuxCompilation.create(gz_ci_job, enable_testing(software_name))
   OSRFGitHub.create(gz_ci_job,
@@ -532,17 +532,16 @@ void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
   {
     if (gz_sw == 'physics') {
       label Globals.nontest_label("large-memory")
-      extra_cmd += '\nexport MAKE_JOBS=1'
+      extra_cmd += "export MAKE_JOBS=1"
     }
     if (gz_sw == 'gazebo')
       gz_sw = 'sim'
 
     steps {
-      shell("""\
-            #!/bin/bash -xe
+      shell("""#!/bin/bash -xe
 
             ${GLOBAL_SHELL_CMD}
-            ${extra_cmd}
+            ${extra_cmd.join('\n')}
             export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
             export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
             export DISTRO=${distro}
