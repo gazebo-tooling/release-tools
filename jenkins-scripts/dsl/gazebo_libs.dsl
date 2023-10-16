@@ -149,14 +149,11 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
     def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
     def branches_with_collections = ci_configs.getValue()
     def branch_names = branches_with_collections.collect { it.branch }.unique()
-    if (ci_config.exclude.contains(lib_name))
+    if (ci_config.exclude.all?.contains(lib_name))
       return
     assert(lib_name)
     assert(branch_names)
     assert(ci_config)
-
-    if (ci_config.exclude.contains(lib_name))
-      return
 
 
     // Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
@@ -164,10 +161,13 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
     def distro = ci_config.system.version
     def arch = ci_config.system.arch
     def gz_job_name_prefix = lib_name.replaceAll('-','_')
-    def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
-    def gz_ci_any_job = job(gz_ci_job_name)
     def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
     def extra_cmd = pre_setup_script ?: ""
+
+    // Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
+    // --------------------------------------------------------------
+    def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
+    def gz_ci_any_job = job(gz_ci_job_name)
     OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
                                          "gazebosim/${lib_name}",
                                          is_testing_enabled(lib_name, ci_config),
@@ -193,6 +193,37 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
       } // end of steps
     } // end of ci_any_job
 
+    if (! ci_config.exclude.abichecker?.contains(lib_name)) {
+      // ABI branch jobs (-ci-abichecker-) for non main branches
+      def abi_job_name = "${gz_job_name_prefix}-abichecker-any_to_any-ubuntu-${distro}-${arch}"
+      def abi_job = job(abi_job_name)
+      OSRFLinuxABIGitHub.create(abi_job)
+      GenericAnyJobGitHub.create(abi_job,
+                        "gazebosim/${lib_name}",
+                        branch_names - [ 'main'])
+      generate_label_by_requirements(abi_job, lib_name, ci_config.requirements)
+      abi_job.with
+      {
+        steps {
+          shell("""\
+                #!/bin/bash -xe
+
+                export DISTRO=${distro}
+
+                ${GLOBAL_SHELL_CMD}
+                ${extra_cmd}
+
+                export ARCH=${arch}
+                export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
+                export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
+                export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
+                export ABI_JOB_SOFTWARE_NAME=${lib_name}
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/gz-abichecker.bash
+                """.stripIndent())
+        } // end of steps
+      }  // end of with
+    }
+
     // CI branch jobs (-ci-$branch-) (pulling check every 5 minutes)
     branches_with_collections.each { branch_and_collection ->
       // TODO: remove after testing
@@ -212,7 +243,6 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
         [collection: branch_and_collection.collection,
          job_name: gz_ci_job.name])
     } // end_of_branch
-
   } //en of lib_configs
 } // end of lib
 
