@@ -91,6 +91,7 @@ void generate_ciconfigs_by_lib(config, ciconf_per_lib_index, pkgconf_per_src_ind
         ciconf_per_lib_index[libName][config_name] = ciconf_per_lib_index[libName][config_name]?: []
         ciconf_per_lib_index[libName][config_name].contains(branch) ?: ciconf_per_lib_index[libName][config_name] << [branch: branch, collection: collection.name]
       }
+      println(ciconf_per_lib_index)
       def pkg_name = lib.name + lib.major_version
       if (collection.packaging.linux?.ignore_major_version?.contains(libName))
         pkg_name = lib.name
