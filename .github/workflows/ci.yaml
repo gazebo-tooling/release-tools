@@ -66,6 +66,14 @@ jobs:
           mkdir /tmp/current_xml_configuration && mkdir /tmp/current_log_generated/
           mv *.xml /tmp/current_xml_configuration/
           mv *.txt /tmp/current_log_generated/ || true
+      - name: Check single abichecker jobs
+        if: steps.dsl_check.outputs.run_job == 'true'
+        run: |
+          if [[ -n $( grep '\<branch>' *abichecker*.xml | awk '{ print $2 }' | sort | uniq -d )  ]]; then
+            echo "found a duplicate in an abichecker branch (see above this line)."
+            echo "please exclude one of the versions in the yaml file to reduce the server workload"
+            exit 1
+          fi
       - name: Generating diffs
         if: steps.dsl_check.outputs.run_job == 'true'
         run: |

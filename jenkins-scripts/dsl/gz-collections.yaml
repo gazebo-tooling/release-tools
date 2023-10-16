@@ -534,6 +534,10 @@ ci_configs:
       abichecker:
         - gz-cmake
         - gz-tools
+        # These have a Jammy counterpart in Harmonic
+        - gz-math
+        - gz-plugin
+        - gz-utils
     pre_setup_script_hook:
       ign-physics:
         - "export MAKE_JOBS=1"
