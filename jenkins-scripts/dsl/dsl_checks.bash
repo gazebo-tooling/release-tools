@@ -5,7 +5,15 @@ if [[ -z $(ls -- *.xml) ]]; then
   echo "https://github.com/gazebo-tooling/release-tools/blob/master/jenkins-scripts/README.md#L11"
 fi
 
-main=$(grep '<branch>main</branch>' *-abichecker-*.xml || true)
+not_null=$(grep 'null' -- *.xml || true)
+if [[ -n ${not_null} ]]; then
+  echo "Found a null value in a configuration file:"
+  echo "${not_null}"
+  echo "Probably a problem in the code"
+  exit 1
+fi
+
+main=$(grep '<branch>main</branch>' -- *-abichecker-*.xml || true)
 if [[ -n ${main} ]]; then
   echo "Found a main branch in an abichecker job:"
   echo "${main}"
