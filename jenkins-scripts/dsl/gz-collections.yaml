@@ -535,6 +535,7 @@ ci_configs:
         - gz-cmake
         - gz-tools
         # These have a Jammy counterpart in Harmonic
+        - gz-common
         - gz-math
         - gz-plugin
         - gz-utils
