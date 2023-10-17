@@ -50,6 +50,13 @@ void generate_label_by_requirements(job, lib_name, requirements)
   }
 }
 
+/* Generate the release-tools script name based on lib_name. The ign replacement can be
+ * removed after EOL of Bionic */
+String cleanup_library_name(lib_name)
+{
+  return lib_name.replaceAll('-','_').replaceAll('ign_','gz_').replaceAll('gazebo','sim')
+}
+
 boolean is_testing_enabled(lib_name, ci_config)
 {
   return ! ci_config.tests_disabled?.contains(lib_name)
@@ -105,6 +112,7 @@ void generate_ciconfigs_by_lib(config, ciconf_per_lib_index, pkgconf_per_src_ind
 void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
                      extra_cmake = '', extra_test = '', extra_cmd = '')
 {
+  def script_name_prefix = cleanup_library_name(lib_name)
   def distro = ci_config.system.version
   def arch = ci_config.system.arch
   def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
@@ -116,11 +124,6 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
   generate_label_by_requirements(gz_ci_job, lib_name, ci_config.requirements)
   gz_ci_job.with
   {
-    if (lib_name == 'physics')
-      label Globals.nontest_label("large-memory")
-    if (lib_name == 'gazebo')
-      lib_name = 'sim'
-
     steps {
       shell("""\
             #!/bin/bash -xe
@@ -132,7 +135,7 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
             export BUILDING_SOFTWARE_DIRECTORY="${lib_name}"
             export DISTRO=${distro}
             export ARCH=${arch}
-            /bin/bash -xe ./scripts/jenkins-scripts/docker/${lib_name.replaceAll('-','_')}-compilation.bash
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/${script_name_prefix}-compilation.bash
             """.stripIndent())
     }
   }
@@ -155,9 +158,9 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
     assert(branch_names)
     assert(ci_config)
 
-
     // Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
     // --------------------------------------------------------------
+    def script_name_prefix = cleanup_library_name(lib_name)
     def distro = ci_config.system.version
     def arch = ci_config.system.arch
     def gz_job_name_prefix = lib_name.replaceAll('-','_')
@@ -188,7 +191,7 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
 
               export BUILDING_SOFTWARE_DIRECTORY=${lib_name}
               export ARCH=${arch}
-              /bin/bash -xe ./scripts/jenkins-scripts/docker/${gz_job_name_prefix}-compilation.bash
+              /bin/bash -xe ./scripts/jenkins-scripts/docker/${script_name_prefix}-compilation.bash
               """.stripIndent())
       } // end of steps
     } // end of ci_any_job
