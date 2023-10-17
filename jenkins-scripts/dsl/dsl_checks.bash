@@ -13,10 +13,17 @@ if [[ -n ${not_null} ]]; then
   exit 1
 fi
 
-main=$(grep '<branch>main</branch>' -- *-abichecker-*.xml || true)
-if [[ -n ${main} ]]; then
+# Check for existing scripts
+for f in $(grep -Eh -o './scripts/.*.bash' -- *.xml | sort | uniq); do
+  if ! test -f "${f}"; then
+    echo "${f} script not found in the repository"
+  fi
+done
+
+abichecker_main=$(grep '<branch>main</branch>' -- *-abichecker-*.xml || true)
+if [[ -n ${abichecker_main} ]]; then
   echo "Found a main branch in an abichecker job:"
-  echo "${main}"
+  echo "${abichecker_main}"
   echo "Main branches are not target of abichecking. Fix the code."
   exit 1
 fi
