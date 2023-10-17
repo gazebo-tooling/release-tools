@@ -56,13 +56,17 @@ jobs:
         if: steps.dsl_check.outputs.run_job == 'true'
         run: |
           cd jenkins-scripts/dsl
-          if [[ -n $( grep '\<branch>' *-abichecker-*.xml | awk '{ print $2 }' | sort | uniq -d )  ]]; then
-            echo "Found a duplicate in an abichecker branch (see above this line)."
+          repeated=$(grep '\<branch>' *-abichecker-*.xml | awk '{ print $2 }' | sort | uniq -d)
+          if [[ -n ${repeated} ]]; then
+            echo "Found a duplicate in an abichecker branch:"
+            echo "${repeated}"
             echo "please exclude one of the versions in the yaml file to reduce the server workload"
             exit 1
           fi
-          if [[ -n $( grep '<branch>main</branch>' *-abichecker-*.xml )]]; then
-            echo "Found a main branch in an abichecker job (see above this line)."
+          main=$(grep '<branch>main</branch>' *-abichecker-*.xml)
+          if [[ -n ${main} ]]; then
+            echo "Found a main branch in an abichecker job:"
+            echo "${main}"
             echo "Main branches are not target of abichecking. Fix the code."
             exit 1
           fi
