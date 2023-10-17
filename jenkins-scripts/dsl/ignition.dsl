@@ -614,15 +614,9 @@ gz_software.each { gz_sw ->
         shell("""\
               #!/bin/bash -xe
 
-              export HOMEBREW_SCRIPT="./scripts/jenkins-scripts/ign_${software_name}-default-devel-homebrew-amd64.bash"
-              if [ -s "\$HOMEBREW_SCRIPT" ]
-              then
-                /bin/bash -xe "\$HOMEBREW_SCRIPT"
-              else
-                software_name="gz-${software_name}"
-                [[ ${software_name} == 'gazebo' ]] && software_name="gz-sim"
-                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
-              fi
+              software_name="gz-${software_name}"
+              [[ ${software_name} == 'gazebo' ]] && software_name="gz-sim"
+              /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
               """.stripIndent())
       }
   }
@@ -651,15 +645,9 @@ gz_software.each { gz_sw ->
           shell("""\
                 #!/bin/bash -xe
 
-                export HOMEBREW_SCRIPT="./scripts/jenkins-scripts/ign_${software_name}-default-devel-homebrew-amd64.bash"
-                if [ -s "\$HOMEBREW_SCRIPT" ]
-                then
-                  /bin/bash -xe "\$HOMEBREW_SCRIPT"
-                else
-                  software_name="gz-${software_name}"
-                  [[ ${software_name} == 'gazebo' ]] && software_name="gz-sim"
-                  /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
-                fi
+                software_name="gz-${software_name}"
+                [[ ${software_name} == 'gazebo' ]] && software_name="gz-sim"
+                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
                 """.stripIndent())
         }
     }
