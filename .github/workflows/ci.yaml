@@ -52,11 +52,11 @@ jobs:
           sudo chown -R ${USER} /var/lib/jenkins
           cd jenkins-scripts/dsl
           WRITE_JOB_LOG=1 java -jar tools/jobdsl.jar *.dsl
-      - name: Checks for abichecker jobs
+      - name: Checks for DSL Code
         if: steps.dsl_check.outputs.run_job == 'true'
         run: |
           cd jenkins-scripts/dsl
-          ./dsl_check.bash
+          ./dsl_checks.bash
       - name: Export XML generated configuration for diff
         if: steps.dsl_check.outputs.run_job == 'true'
         run: |
