@@ -52,6 +52,24 @@ jobs:
           sudo chown -R ${USER} /var/lib/jenkins
           cd jenkins-scripts/dsl
           WRITE_JOB_LOG=1 java -jar tools/jobdsl.jar *.dsl
+      - name: Checks for abichecker jobs
+        if: steps.dsl_check.outputs.run_job == 'true'
+        run: |
+          cd jenkins-scripts/dsl
+          if [[ -n $( grep '\<branch>' *-abichecker-*.xml | awk '{ print $2 }' | sort | uniq -d )  ]]; then
+            echo "Found a duplicate in an abichecker branch (see above this line)."
+            echo "please exclude one of the versions in the yaml file to reduce the server workload"
+            exit 1
+          fi
+          if [[ -n $( grep '<branch>main</branch>' *-abichecker-*.xml )]]; then
+            echo "Found a main branch in an abichecker job (see above this line)."
+            echo "Main branches are not target of abichecking. Fix the code."
+            exit 1
+          fi
+      - name: Export XML generated configuration for diff
+        if: steps.dsl_check.outputs.run_job == 'true'
+        run: |
+          cd jenkins-scripts/dsl
           # export files for later diff
           mkdir /tmp/pr_xml_configuration && mkdir /tmp/pr_log_generated/
           mv *.xml /tmp/pr_xml_configuration/
@@ -66,19 +84,6 @@ jobs:
           mkdir /tmp/current_xml_configuration && mkdir /tmp/current_log_generated/
           mv *.xml /tmp/current_xml_configuration/
           mv *.txt /tmp/current_log_generated/ || true
-      - name: Checks for abichecker jobs
-        if: steps.dsl_check.outputs.run_job == 'true'
-        run: |
-          if [[ -n $( grep '\<branch>' *abichecker*.xml | awk '{ print $2 }' | sort | uniq -d )  ]]; then
-            echo "Found a duplicate in an abichecker branch (see above this line)."
-            echo "please exclude one of the versions in the yaml file to reduce the server workload"
-            exit 1
-          fi
-          if [[ -n $( grep '<branch>main</branch>' *-abichecker-*.xml )]]; then
-            echo "Found a main branch in an abichecker job (see above this line)."
-            echo "Main branches are not target of abichecking. Fix the code."
-            exit 1
-          fi
       - name: Generating diffs
         if: steps.dsl_check.outputs.run_job == 'true'
         run: |
