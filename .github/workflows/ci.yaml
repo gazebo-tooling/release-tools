@@ -56,18 +56,23 @@ jobs:
         if: steps.dsl_check.outputs.run_job == 'true'
         run: |
           cd jenkins-scripts/dsl
+          main=$(grep '<branch>main</branch>' *-abichecker-*.xml || true)
+          if [[ -n ${main} ]]; then
+            echo "Found a main branch in an abichecker job:"
+            echo "${main}"
+            echo "Main branches are not target of abichecking. Fix the code."
+            exit 1
+          fi
+          # Filter out the previous auto jobs
+          mkdir /tmp/abichecker_filtered_jobs
+          cp *-abichecker-*.xml /tmp/abichecker_filtered_jobs
+          cd /tmp/abichecker_filtered_jobs
+          rm *ubuntu_auto*.xml
           repeated=$(grep '\<branch>' *-abichecker-*.xml | awk '{ print $2 }' | sort | uniq -d)
           if [[ -n ${repeated} ]]; then
             echo "Found a duplicate in an abichecker branch:"
             echo "${repeated}"
             echo "please exclude one of the versions in the yaml file to reduce the server workload"
-            exit 1
-          fi
-          main=$(grep '<branch>main</branch>' *-abichecker-*.xml)
-          if [[ -n ${main} ]]; then
-            echo "Found a main branch in an abichecker job:"
-            echo "${main}"
-            echo "Main branches are not target of abichecking. Fix the code."
             exit 1
           fi
       - name: Export XML generated configuration for diff
