@@ -389,9 +389,9 @@ void generate_install_job(prefix, gz_sw, major_version, distro, arch)
 gz_software.each { gz_sw ->
   supported_arches.each { arch ->
     // 1 Per library and per linux arch
-    //   1.1 Per abi_distro
+    //   1.1 DEPRECATED Per abi_distro
     //     1.1.1 [job] ABI checker for main branches
-    //   1.2 Per ci_str_distro
+    //   1.2 DEPRECATED Per ci_str_distro
     //     1.2.1 [job] Main PR jobs (-ci-pr_any-)
     //   1.3 Per all supported_distros
     //     1.3.1 Per all supported branches on each library
@@ -412,39 +412,12 @@ gz_software.each { gz_sw ->
 
       abi_job_names[software_name] = "ignition_${software_name}-abichecker-any_to_any-ubuntu_auto-${arch}"
       def abi_job = job(abi_job_names[software_name])
-      checkout_subdir = "ign-${software_name}"
-      OSRFLinuxABIGitHub.create(abi_job)
       GenericAnyJobGitHub.create(abi_job,
                         "gazebosim/ign-${software_name}",
                         all_branches(software_name) - [ 'main'])
       abi_job.with
       {
-        extra_str=""
-        if (gz_sw == 'physics')
-        {
-          label Globals.nontest_label("large-memory")
-          // on ARM native nodes in buildfarm we need to restrict to 1 the
-          // compilation threads to avoid OOM killer
-          extra_str += '\nexport MAKE_JOBS=1'
-        }
-
-        steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                export DISTRO=${distro}
-
-                ${GLOBAL_SHELL_CMD}
-                ${extra_str}
-
-                export ARCH=${arch}
-                export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
-                export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
-                export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
-                export ABI_JOB_SOFTWARE_NAME=${checkout_subdir}
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/ignition-abichecker.bash
-                """.stripIndent())
-        } // end of steps
+        description 'Automatic generated job by DSL jenkins. Stub job for migration, not doing any check'
       }  // end of with
     } // end of abi_distro
 
@@ -542,12 +515,12 @@ void generate_asan_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
   generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
                   '-DGZ_SANITIZER=Address',
                   Globals.MAKETEST_SKIP_GZ,
-                  'export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true')
+                  ['export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true'])
 }
 
 
 void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
-                     extra_cmake = '', extra_test = '', extra_cmd = '')
+                     extra_cmake = '', extra_test = '', extra_cmd = [])
 {
   OSRFLinuxCompilation.create(gz_ci_job, enable_testing(software_name))
   OSRFGitHub.create(gz_ci_job,
@@ -559,17 +532,16 @@ void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
   {
     if (gz_sw == 'physics') {
       label Globals.nontest_label("large-memory")
-      extra_str += '\nexport MAKE_JOBS=1'
+      extra_cmd += "export MAKE_JOBS=1"
     }
     if (gz_sw == 'gazebo')
       gz_sw = 'sim'
 
     steps {
-      shell("""\
-            #!/bin/bash -xe
+      shell("""#!/bin/bash -xe
 
             ${GLOBAL_SHELL_CMD}
-            ${extra_cmd}
+            ${extra_cmd.join('\n')}
             export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
             export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
             export DISTRO=${distro}
