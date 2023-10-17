@@ -21,9 +21,9 @@ export HOMEBREW_UPDATE_TO_TAG=1
 # run it several times until it succeeds.
 # See https://github.com/Homebrew/brew/issues/1155
 brew_update_retry_count=0
-until ${BREW_BINARY} update || (( brew_update_retry_count++ > 6 ))
+until ${BREW_BINARY} update || (( brew_update_retry_count++ > 10 ))
 do
-  sleep 10
+  sleep 60
 done
 # manually exclude a ruby warning that jenkins thinks is from clang
 # https://github.com/osrf/homebrew-simulation/issues/1343
