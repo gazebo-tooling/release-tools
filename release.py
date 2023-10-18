@@ -181,21 +181,25 @@ def get_release_repository_info(package):
 
     error("release repository not found in github.com/gazebo-release")
 
+
 def download_release_repository(package, release_branch):
-    vcs, url = get_release_repository_info(package)
-    release_tmp_dir = tempfile.mkdtemp()
+    try:
+        return os.environ['_RELEASEPY_TEST_RELEASE_REPO'], 'main'
+    except KeyError:
+        vcs, url = get_release_repository_info(package)
+        release_tmp_dir = tempfile.mkdtemp()
 
-    if vcs == "git" and release_branch == "default":
-        release_branch = "master"
+        if vcs == "git" and release_branch == "default":
+            release_branch = "master"
 
-    # If main branch exists, prefer it over master
-    if release_branch == "master":
-        if exists_main_branch(url):
-            release_branch = 'main'
+        # If main branch exists, prefer it over master
+        if release_branch == "master":
+            if exists_main_branch(url):
+                release_branch = 'main'
 
-    cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
-    check_call(cmd, IGNORE_DRY_RUN)
-    return release_tmp_dir, release_branch
+        cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
+        check_call(cmd, IGNORE_DRY_RUN)
+        return release_tmp_dir, release_branch
 
 
 def sanity_package_name_underscore(package, package_alias):
