@@ -10,7 +10,6 @@ import urllib.parse
 import urllib.request
 import argparse
 import shutil
-import re
 
 USAGE = 'release.py <package> <version> <jenkinstoken>'
 try:
@@ -484,62 +483,86 @@ def go(argv):
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
-    if NIGHTLY:
-        params['VERSION'] = 'nightly'
 
-    # RELEASING FOR BREW
-    if not NIGHTLY and not args.bump_rev_linux_only:
-        call_jenkins_build(GENERIC_BREW_PULLREQUEST_JOB,
-                           params, 'Brew')
-
-    # RELEASING FOR LINUX
-    for l in LINUX_DISTROS:
-        if (l == 'ubuntu'):
-            distros_dic = ubuntu_distros
-        elif (l == 'debian'):
-            if (PRERELEASE or NIGHTLY):
-                continue
-            if not debian_distros:
-                continue
-            distros_dic = debian_distros
-        else:
-            error("Distro not supported in code")
-
-        for d in distros_dic:
-            for a in distros_dic[d]:
-                # Filter prerelease and nightly architectures
+    # a) Mode nightly or builders:
+    if NIGHTLY or args.source_tarball_uri:
+        # RELEASING FOR BREW
+        if not NIGHTLY and not args.bump_rev_linux_only:
+            call_jenkins_build(GENERIC_BREW_PULLREQUEST_JOB,
+                               params, 'Brew')
+        # RELEASING FOR LINUX
+        for l in LINUX_DISTROS:
+            if (l == 'ubuntu'):
+                distros_dic = ubuntu_distros
+            elif (l == 'debian'):
                 if (PRERELEASE or NIGHTLY):
+                    continue
+                if not debian_distros:
+                    continue
+                distros_dic = debian_distros
+            else:
+                error("Distro not supported in code")
+
+            for d in distros_dic:
+                for a in distros_dic[d]:
+                    # Filter prerelease and nightly architectures
+                    if (PRERELEASE or NIGHTLY):
+                        if (a == 'armhf' or a == 'arm64'):
+                            continue
+
+                    linux_platform_params = params.copy()
+                    linux_platform_params['ARCH'] = a
+                    linux_platform_params['LINUX_DISTRO'] = l
+                    linux_platform_params['DISTRO'] = d
+
                     if (a == 'armhf' or a == 'arm64'):
-                        continue
+                        # No sid releases for arm64/armhf lack of docker image
+                        # https://hub.docker.com/r/aarch64/debian/ fails on Jenkins
+                        if (d == 'sid'):
+                            continue
+                        # Need to use JENKINS_NODE_TAG parameter for large memory nodes
+                        # since it runs qemu emulation
+                        linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
+                    elif ('ignition-physics' in args.package_alias) or \
+                         ('gz-physics' in args.package_alias):
+                        linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
 
-                linux_platform_params = params.copy()
-                linux_platform_params['ARCH'] = a
-                linux_platform_params['LINUX_DISTRO'] = l
-                linux_platform_params['DISTRO'] = d
+                    # control nightly generation using a single machine to process
+                    # all distribution builds to avoid race conditions. Note: this
+                    # assumes that large-memory nodes are beind used for nightly
+                    # tags.
+                    # https://github.com/gazebo-tooling/release-tools/issues/644
+                    if (NIGHTLY):
+                        assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
+                        linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
 
-                if (a == 'armhf' or a == 'arm64'):
-                    # No sid releases for arm64/armhf lack of docker image
-                    # https://hub.docker.com/r/aarch64/debian/ fails on Jenkins
-                    if (d == 'sid'):
-                        continue
-                    # Need to use JENKINS_NODE_TAG parameter for large memory nodes
-                    # since it runs qemu emulation
-                    linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
-                elif ('ignition-physics' in args.package_alias) or \
-                     ('gz-physics' in args.package_alias):
-                    linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
+                    call_jenkins_build(f"{args.package_alias}-debbuilder",
+                                       linux_platform_params, f"{l} {d}/{a}")
+    else:
+        # b) Mode generate source
+        # Choose platform to run gz-source on. It will need to install gz-cmake
+        # Take the first key in the supported distros since all them should be
+        # able to install the needed gz-cmake.
+        if ubuntu_distros:
+            params['LINUX_DISTRO'] = 'ubuntu'
+            params['DISTRO'] = list(ubuntu_distros.keys())[0]
+        elif debian_distros:
+            params['LINUX_DISTRO'] = 'debian'
+            params['DISTRO'] = list(debian_distros.keys())[0]
+        else:
+            error("No distributions where found in the release repo")
 
-                # control nightly generation using a single machine to process
-                # all distribution builds to avoid race conditions. Note: this
-                # assumes that large-memory nodes are beind used for nightly
-                # tags.
-                # https://github.com/gazebo-tooling/release-tools/issues/644
-                if (NIGHTLY):
-                    assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
-                    linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
+        # Tag should not go before any method or step that can fail and just
+        # before the calls to the servers.
+        if not args.source_repo_ref:
+            print('INFO: no --source-repo-existing-ref used, tag the local'
+                  'repository as the reference for the source code of the'
+                  'release')
 
-                call_jenkins_build(f"{args.package}-debbuilder",
-                                   linux_platform_params, f"{l} {d}/{a}")
+        params['SOURCE_REPO_REF'] = tag_repo(args) \
+            if not args.source_repo_ref else args.source_repo_ref
+
+        call_jenkins_build(f"{args.package_alias}-source", params, 'Source')
 
 
 if __name__ == '__main__':
