@@ -425,18 +425,18 @@ def generate_source_repository_uri(args):
 
 def generate_source_params(args):
     params = {}
-    # 1. Launch source jobs (SOURCE_REPO_URI)
+    # 1. NIGHTLY (launch builders):
+    #     Pass the nightly branch if NIGHTLY enabled
+    # 2. Launch builders
+    #     Using args.source_tarball_uri if present
+    # 3. Launch source jobs (SOURCE_REPO_URI)
     #     1.1 using args.source_repo_uri (if it was passed)
     #     1.2 autogenerating it
-    #
-    # 2. Launch builders (SOURCE_TARBALL_URI)
-    #     2.1 using args.source_tarball_uri
-    #     2.2 pass the nightly branch if NIGHTLY enabled
-    #
-    if args.source_tarball_uri:
-        params['SOURCE_TARBALL_URI'] = \
-            args.source_tarball_uri if not NIGHTLY else \
-            args.nightly_branch
+
+    if NIGHTLY:
+        params['SOURCE_TARBALL_URI'] = args.nightly_branch
+    elif args.source_tarball_uri:
+        params['SOURCE_TARBALL_URI'] = args.source_tarball_uri
     else:
         params['SOURCE_REPO_URI'] = \
             args.source_repo_uri if args.source_repo_uri else \
