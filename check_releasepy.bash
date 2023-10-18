@@ -11,14 +11,14 @@ exec_releasepy_test()
     ./release.py \
       --dry-run \
       --no-sanity-checks \
-    gz-foo 1.2.3 token ${test_params}
+    gz-foo 1.2.3 token ${test_params}""
 }
 
 expect_job_run()
 {
   output="${1}" job="${2}"
 
-  if ! $(grep -q "job/${job}/buildWith" <<< "${output}"); then
+  if ! grep -q "job/${job}/buildWith" <<< "${output}"; then
     echo "${job} not found in test output"
     exit 1
   fi
@@ -28,7 +28,7 @@ expect_job_not_run()
 {
   output="${1}" job="${2}"
 
-  if $(grep -q "job/${job}/buildWith" <<< "${output}"); then
+  if grep -q "job/${job}/buildWith" <<< "${output}"; then
     echo "${job} found in test output. Should not appear."
     exit 1
   fi
@@ -38,7 +38,7 @@ expect_number_of_jobs()
 {
   output=${1} njobs=${2}
 
-  if [[ `grep  "job/.*/buildWithParameters" <<< "${output}" | wc -l` != "${njobs}" ]]; then
+  if [[ $(grep  -c "job/.*/buildWithParameters" <<< "${output}") != "${njobs}" ]]; then
     echo "Number of jobs caled is not the expected ${njobs}"
     exit 1
   fi
@@ -48,7 +48,7 @@ expect_param()
 {
   output="${1}" param="${2}"
 
-  if ! $(grep -q "[&\?]${param}" <<< "${output}"); then
+  if ! grep -q "[&\?]${param}" <<< "${output}"; then
     echo "${param} not found in test output"
     exit 1
   fi
