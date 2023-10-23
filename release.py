@@ -297,11 +297,22 @@ def sanity_project_package_in_stable(version, repo_name):
     return
 
 
+def sanity_check_source_repo_uri(source_repo_uri):
+    # Check if the scheme is "https" and the path ends with ".git"
+    parsed_uri = urllib.parse.urlparse(source_repo_uri)
+    if not parsed_uri.scheme == "https" or \
+       not parsed_uri.path.endswith(".git"):
+        error("--source-repo-uri parameter should start with https:// and end with .git")
+
+
 def sanity_checks(args, repo_dir):
     print("Safety checks:")
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
+
+    if args.source_repo_uri:
+        sanity_check_source_repo_uri(args.source_repo_uri)
 
     if not NIGHTLY:
         sanity_package_version(repo_dir, args.version, str(args.release_version))
