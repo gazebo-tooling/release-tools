@@ -137,7 +137,7 @@ class Globals
   }
 
    static String s3_releases_dir(String package_name) {
-    return get_canonical_package_name(package_name) + '/releases/'
+    return get_canonical_package_name(package_name) + '/releases'
    }
 
    static String s3_upload_tarball_path(String package_name) {
