@@ -144,7 +144,7 @@ for pkg in ${S3_FILES_TO_UPLOAD}; do
   fi
 
   # Seems important to upload the path with a final slash
-  S3_upload "${pkgs_path}/${pkg}" "${S3_UPLOAD_PATH}"
+  S3_upload "${pkgs_path}/${pkg}" "${S3_UPLOAD_PATH%%*(/)}/"
 done
 
 # .bottle | brew binaries
