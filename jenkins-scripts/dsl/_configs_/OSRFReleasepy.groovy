@@ -75,7 +75,7 @@ class OSRFReleasepy
               python3 ./scripts/release.py \${dry_run_str} "\${PACKAGE}" "\${VERSION}" "\${PASS}" \${extra_osrf_repo} \
                       --source-tarball-uri \${SOURCE_TARBALL_URI} \
                       --release-repo-branch \${RELEASE_REPO_BRANCH} \
-                      --upload-to-repo \${UPLOAD_TO_REPO} > log || echo "MARK_AS_UNSTABLE"
+                      --upload-to-repo \${UPLOAD_TO_REPO} > log
             echo " - done"
             """.stripIndent())
       }
