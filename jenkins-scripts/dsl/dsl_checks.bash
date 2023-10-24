@@ -5,7 +5,7 @@ if [[ -z $(ls -- *.xml) ]]; then
   echo "https://github.com/gazebo-tooling/release-tools/blob/master/jenkins-scripts/README.md#L11"
 fi
 
-not_null=$(grep 'null' -- *.xml || true)
+not_null=$(grep -3 'null' -- *.xml || true)
 if [[ -n ${not_null} ]]; then
   echo "Found a null value in a configuration file:"
   echo "${not_null}"
