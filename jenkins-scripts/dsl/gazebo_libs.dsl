@@ -261,7 +261,7 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
 
     def gz_source_job = job("${pkg_src}-source")
     OSRFSourceCreation.create(gz_source_job, [
-      PACKAGE: pkg_src ,
+      PACKAGE: pkg_src,
       SOURCE_REPO_URI: "https://github.com/gazebosim/${canonical_lib_name}.git"])
     OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
       'repository_uploader_packages',

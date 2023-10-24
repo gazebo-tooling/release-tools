@@ -18,8 +18,8 @@ class OSRFSourceCreation
         choiceParam('SOURCE_REPO_URI',
                     [default_params.find{ it.key == "SOURCE_REPO_URI"}?.value],
                     "Software repository URL (can not be modified)")
-        choiceParam('SOURCE_REPO_REF',
-                    [default_params.find{ it.key == "SOURCE_REPO_REF"}?.value],
+        stringParam('SOURCE_REPO_REF',
+                    default_params.find{ it.key == "SOURCE_REPO_REF"}?.value,
                     "Git branch or tag to build sources from")
         stringParam("VERSION",
                     default_params.find{ it.key == "VERSION"}?.value,
