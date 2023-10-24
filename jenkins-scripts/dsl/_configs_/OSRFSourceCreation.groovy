@@ -15,12 +15,12 @@ class OSRFSourceCreation
     job.with
     {
       parameters {
-        choiceParam('PACKAGE',
-                    [default_params.find{ it.key == "PACKAGE"}?.value],
-                    "Package name (can not be modified)")
         choiceParam('SOURCE_REPO_URI',
                     [default_params.find{ it.key == "SOURCE_REPO_URI"}?.value],
                     "Software repository URL (can not be modified)")
+        stringParam('SOURCE_REPO_REF',
+                    default_params.find{ it.key == "SOURCE_REPO_REF"}?.value,
+                    "Git branch or tag to build sources from")
         stringParam("VERSION",
                     default_params.find{ it.key == "VERSION"}?.value,
                     "Packages version to be built or nightly (enable nightly build mode)")
@@ -33,6 +33,9 @@ class OSRFSourceCreation
         stringParam("DISTRO",
                     default_params.find{ it.key == "DISTRO"}?.value,
                     "Linux release inside LINUX_DISTRO to generate sources on")
+        choiceParam('PACKAGE',
+                    [default_params.find{ it.key == "PACKAGE"}?.value],
+                    "For downstream use: Package name (can not be modified)")
         stringParam("RELEASE_VERSION",
                     default_params.find{ it.key == "RELEASE_VERSION"}?.value,
                     "For downstream jobs: Packages release version")
