@@ -452,16 +452,6 @@ gz_software.each { gz_sw ->
           if (gz_sw == 'sim')
             software_name = "gazebo"
 
-          // 1.3.1.1 Branch jobs -ci-$branch-
-          // --------------------------------------------------------------
-          def gz_ci_job = job("ignition_${software_name}-ci-${branch}-${distro}-${arch}")
-          generate_ci_job(gz_ci_job, software_name, branch, distro, arch)
-          gz_ci_job.with
-          {
-            triggers {
-              scm('@daily')
-            }
-          }
           // 1.3.1.2 Branch ASAN jobs -ci_asan-$branch-
           // --------------------------------------------------------------
           def gz_ci_asan_job = job("ignition_${software_name}-ci_asan-${branch}-${distro}-${arch}")
