@@ -52,6 +52,15 @@ jobs:
           sudo chown -R ${USER} /var/lib/jenkins
           cd jenkins-scripts/dsl
           WRITE_JOB_LOG=1 java -jar tools/jobdsl.jar *.dsl
+      - name: Checks for DSL Code
+        if: steps.dsl_check.outputs.run_job == 'true'
+        run: |
+          cd jenkins-scripts/dsl
+          ./dsl_checks.bash
+      - name: Export XML generated configuration for diff
+        if: steps.dsl_check.outputs.run_job == 'true'
+        run: |
+          cd jenkins-scripts/dsl
           # export files for later diff
           mkdir /tmp/pr_xml_configuration && mkdir /tmp/pr_log_generated/
           mv *.xml /tmp/pr_xml_configuration/

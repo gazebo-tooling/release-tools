@@ -104,37 +104,37 @@ collections:
   - name: 'fortress'
     libs:
       - name: gz-cmake
-        major_version: 3
+        major_version: 2
         repo:
-          current_branch: gz-cmake2
+          current_branch: ign-cmake2
       - name: gz-tools
         major_version: 1
         repo:
-          current_branch: gz-tools1
+          current_branch: ign-tools1
       - name: gz-utils
         major_version: 1
         repo:
-          current_branch: gz-utils1
+          current_branch: ign-utils1
       - name: gz-math
         major_version: 6
         repo:
-          current_branch: gz-math6
+          current_branch: ign-math6
       - name: gz-plugin
         major_version: 1
         repo:
-          current_branch: gz-plugin1
+          current_branch: ign-plugin1
       - name: gz-common
         major_version: 4
         repo:
-          current_branch: gz-common4
+          current_branch: ign-common4
       - name: gz-msgs
         major_version: 8
         repo:
-          current_branch: gz-msgs8
+          current_branch: ign-msgs8
       - name: gz-rendering
         major_version: 6
         repo:
-          current_branch: gz-rendering6
+          current_branch: ign-rendering6
       - name: sdformat
         major_version: 12
         repo:
@@ -142,31 +142,31 @@ collections:
       - name: gz-fuel-tools
         major_version: 7
         repo:
-          current_branch: gz-fuel-tools7
+          current_branch: ign-fuel-tools7
       - name: gz-transport
         major_version: 11
         repo:
-          current_branch: gz-transport11
+          current_branch: ign-transport11
       - name: gz-gui
         major_version: 6
         repo:
-          current_branch: gz-gui6
+          current_branch: ign-gui6
       - name: gz-sensors
         major_version: 7
         repo:
-          current_branch: gz-sensors7
+          current_branch: ign-sensors7
       - name: gz-physics
         major_version: 6
         repo:
-          current_branch: gz-physics6
+          current_branch: ign-physics6
       - name: gz-sim
         major_version: 6
         repo:
-          current_branch: gz-sim6
+          current_branch: ign-sim6
       - name: gz-launch
         major_version: 5
         repo:
-          current_branch: gz-launch5
+          current_branch: ign-launch5
       - name: gz-fortress
         major_version: 1
         repo:
@@ -487,7 +487,7 @@ collections:
       configs:
         - jammy
       exclude:
-        - __upcoming__
+          - __upcoming__
 ci_configs:
   - name: bionic
     system:
@@ -496,7 +496,11 @@ ci_configs:
       version: bionic
       arch: amd64
     exclude:
-      - ign-citadel
+      all:
+        - ign-citadel
+      abichecker:
+        - ign-cmake
+        - ign-tools
     requirements:
       large_memory:
         - ign-physics
@@ -524,8 +528,17 @@ ci_configs:
         - gz-rendering
         - gz-sensors
     exclude:
-      - gz-fortress
-      - gz-garden
+      all:
+        - gz-fortress
+        - gz-garden
+      abichecker:
+        - gz-cmake
+        - gz-tools
+        # These have a Jammy counterpart in Harmonic
+        - gz-common
+        - gz-math
+        - gz-plugin
+        - gz-utils
     pre_setup_script_hook:
       ign-physics:
         - "export MAKE_JOBS=1"
@@ -545,8 +558,12 @@ ci_configs:
         - gz-rendering
         - gz-sensors
     exclude:
-      - gz-harmonic
-      - __upcoming__
+      all:
+        - gz-harmonic
+        - __upcoming__
+      abichecker:
+        - gz-cmake
+        - gz-tools
     pre_setup_script_hook:
       gz-physics:
         - "export MAKE_JOBS=1"
