@@ -59,70 +59,6 @@ abi_distro.each { distro ->
   } // end of arch
 } // end of distro
 
-// MAIN CI job
-// CI JOBS @ SCM/5 min
-ci_distro.each { distro ->
-  supported_arches.each { arch ->
-    // --------------------------------------------------------------
-    // 1. Create the main ci jobs
-    def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
-    OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGitHub.create(sdformat_ci_job, "gazebosim/sdformat", "main")
-
-    sdformat_ci_job.with
-    {
-      triggers {
-      	scm('*/5 * * * *')
-      }
-
-      steps {
-        shell("""\
-	      #!/bin/bash -xe
-
-              export DISTRO=${distro}
-              export ARCH=${arch}
-	      /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
-	      """.stripIndent())
-      }
-    }
-
-    // --------------------------------------------------------------
-    // 2. Create a fake any job for migrating
-    // TODO: remove the job once the migration in https://github.com/gazebo-tooling/release-tools/issues/1010
-    // is done.
-    String sdf_repo = "gazebosim/sdformat"
-    def sdformat_ci_any_job = job(ci_build_any_job_name_linux)
-    GenericAnyJobGitHub.create(sdformat_ci_any_job, sdf_repo)
-  } // end of arch
-} // end of distro
-
-// OTHER CI SUPPORTED JOBS (main branch) @ SCM/DAILY
-other_supported_distros.each { distro ->
-  supported_arches.each { arch ->
-    // ci_main job for the rest of arches / scm@daily
-    def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
-    OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGitHub.create(sdformat_ci_job, "gazebosim/sdformat", "main")
-
-    sdformat_ci_job.with
-    {
-      triggers {
-        scm('@daily')
-      }
-
-      steps {
-        shell("""\
-        #!/bin/bash -xe
-
-	export DISTRO=${distro}
-        export ARCH=${arch}
-        /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
-        """.stripIndent())
-      }
-    }
-  } // end of arch
-} // end of distro
-
 void generate_asan_ci_job(sdformat_ci_job, version, distro, arch)
 {
   generate_ci_job(sdformat_ci_job, version, distro, arch,
@@ -159,15 +95,6 @@ void generate_ci_job(sdformat_ci_job, version, distro, arch,
 sdformat_supported_versions.each { version ->
   ci_distro.each { distro ->
     supported_arches.each { arch ->
-      // ci job for the rest of arches / scm@daily
-      def sdformat_ci_job = job("sdformat-ci-${version}-${distro}-${arch}")
-      generate_ci_job(sdformat_ci_job, version, distro, arch)
-      sdformat_ci_job.with
-      {
-        triggers {
-          scm('@daily')
-        }
-      }
       // ci_asan job for the rest of arches / scm@weekend
       def sdformat_ci_asan_job = job("sdformat-ci_asan-${version}-${distro}-${arch}")
       generate_asan_ci_job(sdformat_ci_asan_job, version, distro, arch)
@@ -176,32 +103,6 @@ sdformat_supported_versions.each { version ->
         triggers {
           scm(Globals.CRON_ON_WEEKEND)
         }
-      }
-    }
-  }
-}
-
-// EXPERIMENTAL ARCHES @ SCM/WEEKLY
-ci_distro.each { distro ->
-  experimental_arches.each { arch ->
-    def sdformat_ci_job = job("sdformat-ci-main-${distro}-${arch}")
-    OSRFLinuxCompilation.create(sdformat_ci_job)
-    OSRFGitHub.create(sdformat_ci_job, "gazebosim/sdformat", "main")
-
-    sdformat_ci_job.with
-    {
-      triggers {
-        scm('@weekly')
-      }
-
-      steps {
-        shell("""\
-        #!/bin/bash -xe
-
-        export DISTRO=${distro}
-        export ARCH=${arch}
-        /bin/bash -xe ./scripts/jenkins-scripts/docker/sdformat-compilation.bash
-        """.stripIndent())
       }
     }
   }
