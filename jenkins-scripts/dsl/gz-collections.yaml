@@ -408,6 +408,8 @@ collections:
       configs:
         - jammy
     packaging:
+      configs:
+        - jammy
       linux:
         ignore_major_version:
           - gz-ionic
