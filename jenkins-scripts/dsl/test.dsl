@@ -29,8 +29,9 @@ releasepy_job.with {
 // gz source testing job
 def gz_source_job = job("_test_gz_source")
 OSRFSourceCreation.create(gz_source_job, [
-  PACKAGE: "gz-plugin2" ,
-  SOURCE_REPO_URI: "https://github.com/gazebosim/gz-plugin.git"])
+  PACKAGE: "gz-plugin2",
+  SOURCE_REPO_URI: "https://github.com/gazebosim/gz-plugin.git",
+  SOURCE_REPO_REF: "gz-plugin2"])
 OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
   '_test_repository_uploader',
   '_test_releasepy')
