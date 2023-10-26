@@ -59,6 +59,20 @@ abi_distro.each { distro ->
   } // end of arch
 } // end of distro
 
+// MAIN CI job
+// CI JOBS @ SCM/5 min
+ci_distro.each { distro ->
+  supported_arches.each { arch ->
+    // --------------------------------------------------------------
+    // 2. Create a fake any job for migrating
+    // TODO: remove the job once the migration in https://github.com/gazebo-tooling/release-tools/issues/1010
+    // is done.
+    String sdf_repo = "gazebosim/sdformat"
+    def sdformat_ci_any_job = job(ci_build_any_job_name_linux)
+    GenericAnyJobGitHub.create(sdformat_ci_any_job, sdf_repo)
+  } // end of arch
+} // end of distro
+
 void generate_asan_ci_job(sdformat_ci_job, version, distro, arch)
 {
   generate_ci_job(sdformat_ci_job, version, distro, arch,
