@@ -305,11 +305,20 @@ def sanity_check_source_repo_uri(source_repo_uri):
         error("--source-repo-uri parameter should start with https:// and end with .git")
 
 
+def sanity_check_bump_linux(source_tarball_uri):
+    if (not source_tarball_uri):
+        error('--only-bump-revision-linux needs --source-tarball-uri argument'
+              'to call builders and not source generation')
+
+
 def sanity_checks(args, repo_dir):
     print("Safety checks:")
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
+
+    if (args.bump_rev_linux_only):
+        sanity_check_bump_linux(args.source_tarball_uri)
 
     if args.source_repo_uri:
         sanity_check_source_repo_uri(args.source_repo_uri)

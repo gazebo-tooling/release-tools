@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 
 test_dir=$(mktemp -d)
 mkdir -p ${test_dir}/{focal,jammy,ubuntu}/debian
@@ -74,3 +74,9 @@ expect_job_not_run "${nightly_test}" "gz-foo-source"
 expect_number_of_jobs "${nightly_test}" "2"
 expect_param "${nightly_test}" "SOURCE_TARBALL_URI=my-nightly-branch3"
 
+bump_linux_test=$(exec_releasepy_test "--source-tarball-uri https://gazebosim/gz-foo-1.2.3.tar.gz --only-bump-revision-linux -r 2")
+expect_job_run "${bump_linux_test}" "gz-foo-debbuilder"
+expect_job_not_run "${bump_linux_test}" "generic-release-homebrew_pull_request_updater"
+expect_job_not_run "${bump_linux_test}" "gz-foo-source"
+expect_number_of_jobs "${bump_linux_test}" "6"
+expect_param "${bump_linux_test}" "RELEASE_VERSION=2"
