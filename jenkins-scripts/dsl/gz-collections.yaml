@@ -95,6 +95,7 @@ collections:
     ci:
       configs:
         - bionic
+        - brew
     packaging:
       configs:
         - bionic
@@ -174,6 +175,7 @@ collections:
     ci:
       configs:
         - focal
+        - brew
     packaging:
       configs:
         - focal
@@ -253,6 +255,7 @@ collections:
     ci:
       configs:
         - focal
+        - brew
     packaging:
       configs:
         - focal
@@ -332,6 +335,7 @@ collections:
     ci:
       configs:
         - jammy
+        - brew
     packaging:
       configs:
         - jammy
@@ -407,6 +411,7 @@ collections:
     ci:
       configs:
         - jammy
+        - brew
     packaging:
       configs:
         - jammy
@@ -425,6 +430,7 @@ collections:
     ci:
       configs:
         - jammy
+        - brew
     packaging:
       configs:
         - jammy
@@ -510,6 +516,35 @@ ci_configs:
       gz-physics:
         - "export MAKE_JOBS=1"
     tests_disabled:
+  - name: brew
+    system:
+      so: darwin
+      distribution: macOSX
+      version: all
+      arch: amd64
+    exclude:
+      all:
+        - ign-citadel
+        - gz-fortress
+        - gz-garden
+        - gz-harmonic
+        - gz-ionic
+        - __upcoming__
+    cmake_warnings_disabled:
+      - gz-cmake
+      - gz-common
+      - gz-fuel-tools
+      - gz-sim
+      - gz-gui
+      - gz-launch
+      - gz-math
+      - gz-msgs
+      - gz-physics
+      - gz-rendering
+      - gz-sensors
+      - gz-tools
+      - gz-transport
+      - gz-utils
 packaging_configs:
   - name: bionic
     system:
