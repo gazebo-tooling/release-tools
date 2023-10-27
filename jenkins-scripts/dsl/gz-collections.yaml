@@ -152,13 +152,13 @@ collections:
         repo:
           current_branch: ign-gui6
       - name: gz-sensors
-        major_version: 7
-        repo:
-          current_branch: ign-sensors7
-      - name: gz-physics
         major_version: 6
         repo:
-          current_branch: ign-physics6
+          current_branch: ign-sensors6
+      - name: gz-physics
+        major_version: 5
+        repo:
+          current_branch: ign-physics5
       - name: gz-sim
         major_version: 6
         repo:
