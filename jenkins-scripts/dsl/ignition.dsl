@@ -589,32 +589,15 @@ gz_software.each { gz_sw ->
     software_name = "gazebo"
 
   String gz_brew_ci_any_job_name = "ignition_${software_name}-ci-pr_any-homebrew-amd64"
-
-
   def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
-  OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
-                                      "gazebosim/ign-${software_name}",
-                                      enable_testing(software_name),
-                                      GITHUB_SUPPORT_ALL_BRANCHES,
-                                      ENABLE_GITHUB_PR_INTEGRATION,
-                                      enable_cmake_warnings(software_name))
+  GenericAnyJobGitHub.create(gz_brew_ci_any_job,
+                             "gazebosim/ign-${software_name}",
+                             GITHUB_SUPPORT_ALL_BRANCHES,
+                             ENABLE_GITHUB_PR_INTEGRATION)
   gz_brew_ci_any_job.with
   {
-      steps {
-        shell("""\
-              #!/bin/bash -xe
-
-              software_name="gz-${software_name}"
-              [[ ${software_name} == 'gazebo' ]] && software_name="gz-sim"
-              /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
-              """.stripIndent())
-      }
+    description 'Automatic generated job by DSL jenkins. Stub job for migration, not doing any check'
   }
-
-  // do not add gazebo twice
-  // add ci-pr_any to the list for CIWorkflow
-  if (gz_sw != 'sim')
-    ci_pr_any_list[software_name] << gz_brew_ci_any_job_name
 
   // 2. main, release branches
   all_branches("${software_name}").each { branch ->
