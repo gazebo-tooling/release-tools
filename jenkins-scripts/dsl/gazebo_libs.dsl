@@ -229,9 +229,6 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
 
     // CI branch jobs (-ci-$branch-) (pulling check every 5 minutes)
     branches_with_collections.each { branch_and_collection ->
-      // TODO: remove after testing
-      if (branch_and_collection.collection != 'harmonic')
-        return
       branch_name = branch_and_collection.branch
       def gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
       generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
