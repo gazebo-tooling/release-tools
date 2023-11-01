@@ -22,4 +22,3 @@ When opening PRs, add a link back to this issue for easier tracking.
 - [ ] Add new collection label:
     - [ ] Add to pr-collection-labeler ([example](https://github.com/gazebo-tooling/pr-collection-labeler/pull/11))
     - [ ] Add to all libraries ([handy script](https://github.com/chapulina/github-label-maker/tree/chapulina/ign#ignition))
-- [ ] Add new collection tag to Gazebo Answers [here](https://answers.gazebosim.org/settings/FORUM_DATA_RULES/)
