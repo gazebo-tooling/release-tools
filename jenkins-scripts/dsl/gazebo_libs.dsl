@@ -116,11 +116,14 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
   def distro = ci_config.system.version
   def arch = ci_config.system.arch
   def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
+  def ws_checkout_dir = lib_name
   extra_cmd = [extra_cmd, pre_setup_script].findAll({ it != null }).join()
 
   OSRFLinuxCompilation.create(gz_ci_job, is_testing_enabled(lib_name, ci_config))
   OSRFGitHub.create(gz_ci_job,
-                    "gazebosim/${lib_name}", "${branch}")
+                    "gazebosim/${lib_name}",
+                    branch,
+                    ws_checkout_dir)
   generate_label_by_requirements(gz_ci_job, lib_name, ci_config.requirements)
   gz_ci_job.with
   {
@@ -132,7 +135,7 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
             ${extra_cmd}
             export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
             export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
-            export BUILDING_SOFTWARE_DIRECTORY="${lib_name}"
+            export BUILDING_SOFTWARE_DIRECTORY="${ws_checkout_dir}"
             export DISTRO=${distro}
             export ARCH=${arch}
             /bin/bash -xe ./scripts/jenkins-scripts/docker/${script_name_prefix}-compilation.bash
