@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-# The script will open a pull request a release PR (actually opens the PR page in your web browser)
+# The script will open a pull request for a release PR (actually opens the PR page in your web browser)
 #
 # Requires the 'gh' CLI to be installed.
 #
