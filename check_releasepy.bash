@@ -39,7 +39,7 @@ expect_number_of_jobs()
   output=${1} njobs=${2}
 
   if [[ $(grep  -c "job/.*/buildWithParameters" <<< "${output}") != "${njobs}" ]]; then
-    echo "Number of jobs caled is not the expected ${njobs}"
+    echo "Number of jobs called is not the expected ${njobs}"
     exit 1
   fi
 }
