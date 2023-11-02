@@ -491,7 +491,9 @@ gz_collections_yaml.collections.each { collection ->
     distro = ci_config.system.version
     arch = ci_config.system.arch
 
-    if (ci_config.exclude.all?.contains(gz_collection_name))
+    if (ci_config.exclude.all?.contains(gz_collection_name) ||
+        ci_config.exclude.all?.contains("gz-" + gz_collection_name) ||
+        ci_config.exclude.all?.contains("ign-" + gz_collection_name))
       return
 
     // INSTALL JOBS:
