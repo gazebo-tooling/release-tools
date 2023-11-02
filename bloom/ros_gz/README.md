@@ -27,6 +27,14 @@ Although using the officially supported version is the recommended way
 specially for non experienced users, some use cases might need to use a
 newer version of Gazebo than the one selected in REP-2000.
 
+### List of active relases
+
+| Gazebo Release | ROS / ROS 2 Release | status     | ros_gz branch | -release repository | CI | release cmd |
+| ---------------|---------------------|------------|---------------|---------------------|----|-------------|
+| Garden         | Humble              | stable     | humble        | https://github.com/gazebo-release/ros_ign-release | [![Build Status](https://build.osrfoundation.org/buildStatus/icon?job=ros_gzgarden_bridge-install-pkg_humble-ci-jammy-amd64)](https://build.osrfoundation.org/job/ros_gzgarden_bridge-install-pkg_humble-ci-jammy-amd64/) | <details>```RELEASE_REPO_URL=https://github.com/gazebo-release/ros_ign-release ./bloom_from_special_env.bash humble garden https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list```</details> |
+| Garden         | Iron                | stable     | iron          | https://github.com/gazebo-release/ros_ign-release | [![Build Status](https://build.osrfoundation.org/buildStatus/icon?job=ros_gzgarden_bridge-install-pkg_iron-ci-jammy-amd64)](https://build.osrfoundation.org/job/ros_gzgarden_bridge-install-pkg_iron-ci-jammy-amd64/) | <details>```RELEASE_REPO_URL=https://github.com/gazebo-release/ros_ign-release ./bloom_from_special_env.bash iron garden https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list```</details> |
+| Harmonic       | Iron                | stable     | ros2          | https://github.com/gazebo-release/ros_gz-gzharmonic-release | [![Build Status](https://build.osrfoundation.org/buildStatus/icon?job=ros_gzharmonic_bridge-install-pkg_iron-ci-jammy-amd64)](https://build.osrfoundation.org/job/ros_gzharmonic_bridge-install-pkg_iron-ci-jammy-amd64/) | <details>```RELEASE_REPO_URL=https://github.com/gazebo-release/ros_gz-gzharmonic-release   ./bloom_from_special_env.bash iron harmonic https://raw.githubusercontent.com/osrf/osrf-rosdep```</details> |
+
 ### Upstream versions released using this tutorial
 
 The `gbp -release repository` hosts the latest version released by the
@@ -44,17 +52,24 @@ version of gazebo, before running bloom some actions need to be taken:
 
 For a new official wrappers the notation used below correspond to `ros_ign-release`:
 
- 1. Fork (manually or using gh) current gbp repository:
+ 1. Fork (or create a new repo with all the tags and branches) the current gbp repository:
     https://github.com/ros2-gbp/ros_ign-release
 
 Note: the same -release repository can obviously hosts multiple ROS 2 releases but
 can not have multipe Gazebo releases since the bloom templates are set to just one
 package name.
 
+On the fork, the `rename-ros_gz-pkgs.bash` script will change the bloom templates to modify package names and inject the `GZ_VERSION` needed:
+
  1. Clone the new repo, go to the directory and run rename-gazebo-ros-pkgs.bash
     - Usage: `$ rename-ros_gz-pkgs.bash <desired_gz_version> <space separted list of rosdistros to release>`
     - Example: `$ rename-ros_gz-pkgs.bash garden humble`
 
+If several unofficial wrappers using different Gazebo releases are going to exist for the same ROS 2 distribution (i.e: Garden and Harmonic for ROS 2 Iron), the rename script supports to declare a conflict using the `GZ_RELEASE_TO_CONFLICT` variable:
+
+```
+GZ_RELEASE_TO_CONFLICT=garden ./rename-ros_gz-pkgs.bash harmonic humble
+```
 
 ### 2.2 Create a custom track in tracks.yml
 
@@ -103,6 +118,19 @@ The script will create the docker enviroment with the rosdep modifications neede
 and invoke rocker with `--home` and `--user` flags to pass the credentials and
 customatizations needed for the bloom call. It will run the `bloom-release` command
 with the arguments required for the ros_gz wrappers.
+
+The script supports to inject a custom RELEASE_REPO_URL that points to a bloom gbp
+repository different than https://github.com/gazebo-release/ros_ign-release.
+
+```
+i.e use a https://github.com/gazebo-testing/ros_ign-gzharmonic-release as gbp testing repository
+
+RELEASE_REPO_URL=https://github.com/gazebo-testing/ros_ign-gzharmonic-release \
+  ./bloom_from_special_env.bash \
+    humble \
+    garden \
+    https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list
+```
 
 ### 3.2 Launching jobs in the osrf buildfarm
 

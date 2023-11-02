@@ -387,7 +387,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   # version
   PREV_VER_NONNEGATIVE=$([[ "${PREV_VER}" -lt 0 ]] && echo "0" || echo "${PREV_VER}")
   sed -i "/ version /d" $FORMULA
-  sed -i "/^  url.*/a\  version \"${PREV_VER_NONNEGATIVE}.999.999~0~`date +"%Y%m%d"`\"" $FORMULA
+  sed -i "/^  url.*/a\  version \"${PREV_VER_NONNEGATIVE}.999.999-0-`date +"%Y%m%d"`\"" $FORMULA
   # Remove extra blank lines
   cat -s $FORMULA | tee $FORMULA
 

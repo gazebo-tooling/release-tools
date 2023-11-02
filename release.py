@@ -17,27 +17,19 @@ try:
 except KeyError:
     JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuilder'
-JOB_NAME_UPSTREAM_PATTERN = 'upstream-%s-debbuilder'
-GENERIC_BREW_PULLREQUEST_JOB='generic-release-homebrew_pull_request_updater'
+GENERIC_BREW_PULLREQUEST_JOB = 'generic-release-homebrew_pull_request_updater'
 UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
 DOWNLOAD_URI_PATTERN = 'https://osrf-distributions.s3.amazonaws.com/%s/releases/'
 
-LINUX_DISTROS = [ 'ubuntu', 'debian' ]
-SUPPORTED_ARCHS = ['amd64', 'i386', 'armhf', 'arm64']
+LINUX_DISTROS = ['ubuntu', 'debian']
+SUPPORTED_ARCHS = ['amd64', 'armhf', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 
-# Ubuntu distributions are automatically taken from the top directory of
-# the release repositories, when needed.
-UBUNTU_DISTROS = []
-
-OSRF_REPOS_SUPPORTED = "stable prerelease nightly"
-OSRF_REPOS_SELF_CONTAINED = ""
+OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing"
 
 DRY_RUN = False
 NIGHTLY = False
 PRERELEASE = False
-UPSTREAM = False
-NO_SRC_FILE = False
 
 IGNORE_DRY_RUN = True
 
@@ -57,48 +49,51 @@ GARDEN_IGN_PACKAGES = ['ign-cmake3',
                        'ign-transport12',
                        'ign-utils2']
 
+
 class ErrorNoPermsRepo(Exception):
     pass
+
 
 class ErrorNoUsernameSupplied(Exception):
     pass
 
+
 class ErrorURLNotFound404(Exception):
     pass
 
+
 class ErrorNoOutput(Exception):
     pass
+
 
 def error(msg):
     print("\n !! " + msg + "\n")
     sys.exit(1)
 
+
 def print_success(msg):
-    print("     + OK " + msg)
+    print(" + OK " + msg)
+
 
 # Remove the last character if it is a number.
 # That should leave just the package name instead of packageVersion
 # I.E gazebo5 -> gazebo
 def get_canonical_package_name(pkg_name):
-     return pkg_name.rstrip('1234567890')
+    return pkg_name.rstrip('1234567890')
 
-def is_catkin_package():
-    return os.path.isfile("package.xml")
 
 def github_repo_exists(url):
     try:
         check_call(['git', 'ls-remote', '-q', '--exit-code', url], IGNORE_DRY_RUN)
-    except (ErrorURLNotFound404, ErrorNoOutput) as e:
+    except (ErrorURLNotFound404, ErrorNoOutput):
         return False
     except Exception as e:
         error("Unexpected problem checking for git repo: " + str(e))
     return True
 
+
 def generate_package_source(srcdir, builddir):
     cmake_cmd = ["cmake"]
-
-    if is_catkin_package():
-        cmake_cmd = cmake_cmd + ['-DCATKIN_BUILD_BINARY_PACKAGE="1"']
 
     # configure and make package_source
     os.mkdir(builddir)
@@ -112,15 +107,14 @@ def exists_main_branch(github_url):
     try:
         if (check_call(check_main_cmd, IGNORE_DRY_RUN)):
             return True
-    except Exception as e:
+    except Exception:
         return False
+
 
 def parse_args(argv):
     global DRY_RUN
     global NIGHTLY
     global PRERELEASE
-    global UPSTREAM
-    global NO_SRC_FILE
 
     parser = argparse.ArgumentParser(description='Make releases.')
     parser.add_argument('package', help='which package to release')
@@ -128,8 +122,6 @@ def parse_args(argv):
     parser.add_argument('jenkins_token', help='secret token to allow access to Jenkins to start builds')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
-    parser.add_argument('-u', '--upstream', dest='upstream', action='store_true', default=False,
-                        help='release non OSRF software (do not generate and upload source tar.bz)')
     parser.add_argument('-a', '--package-alias', dest='package_alias',
                         default=None,
                         help='different name that we are releasing under')
@@ -143,8 +135,6 @@ def parse_args(argv):
                         help='no-sanity-checks; i.e. skip sanity checks commands')
     parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
                         help='Do not generate source file when building')
-    parser.add_argument('--no-ignition-auto', dest='no_ignition_auto', action='store_true', default=False,
-                        help='Use package name to create --package-alias if package name starts with ign-')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
     parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
@@ -159,36 +149,25 @@ def parse_args(argv):
 
     if args.package in GARDEN_IGN_PACKAGES:
         print(f"Garden packages start with gz- prefix, changing {args.package} to {args.package.replace('ign-','gz-')}",)
-        args.package = args.package.replace('ign-','gz-')
+        args.package = args.package.replace('ign-', 'gz-')
 
     args.package_alias = args.package
-    # If ignition auto is enabled, replace ign- with ignition- at the beginning
-    if not args.no_ignition_auto and args.package.startswith('ign-'):
-        args.package_alias = args.package.replace('ign-', 'ignition-')
 
     DRY_RUN = args.dry_run
-    UPSTREAM = args.upstream
-    NO_SRC_FILE = args.no_source_file
-    UPLOAD_REPO = args.upload_to_repository
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
-        NIGHTLY_BRANCH = args.nightly_branch
     if args.upload_to_repository == 'prerelease':
         PRERELEASE = True
-    # Upstream and nightly do not generate a tar.bz2 file
-    if args.upstream or NIGHTLY:
-        NO_SRC_FILE = True
+    # Nightly do not generate a tar.bz2 file
+    if NIGHTLY:
         args.no_source_file = True
 
     return args
 
+
 def get_release_repository_info(package):
-    # Do not use git@github method since it fails in non existant repositories
-    # asking for stdin user/pass. Same happen if no user/pass is provided
-    # using the fake foo:foo here seems to work
-    github_test_url = "https://foo:foo@github.com/gazebo-release/" + package + "-release"
-    if (github_repo_exists(github_test_url)):
-        github_url = "https://github.com/gazebo-release/" + package + "-release"
+    github_url = "https://github.com/gazebo-release/" + package + "-release"
+    if (github_repo_exists(github_url)):
         return 'git', github_url
 
     error("release repository not found in github.com/gazebo-release")
@@ -203,22 +182,23 @@ def download_release_repository(package, release_branch):
     # If main branch exists, prefer it over master
     if release_branch == "master":
         if exists_main_branch(url):
-            print_success('Found main branch in repo, use it instead master')
             release_branch = 'main'
 
     cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
     check_call(cmd, IGNORE_DRY_RUN)
     return release_tmp_dir, release_branch
 
+
 def sanity_package_name_underscore(package, package_alias):
     # Alias is never empty. It hosts a exect copy of package if not provided
     if '_' in package_alias and package_alias != package:
-      error("Found an underscore in package_alias. It will conflict with debian package names. May be fixed changing the underscore for a dash.")
+        error("Found an underscore in package_alias. It will conflict with debian package names. May be fixed changing the underscore for a dash.")
 
     if '_' in package and package_alias == package:
-      error("Found an underscore in package name without providing a package alias (-a <alias>). You probably want to match the package name in the debian changelog")
+        error("Found an underscore in package name without providing a package alias (-a <alias>). You probably want to match the package name in the debian changelog")
 
     print_success("No underscore in package name")
+
 
 def sanity_package_name(repo_dir, package, package_alias):
     expected_name = package
@@ -227,11 +207,11 @@ def sanity_package_name(repo_dir, package, package_alias):
         expected_name = package_alias
 
     # Use igntiion for Citadel and Fortress, gz for Garden and beyond
-    gz_name = expected_name.replace("ignition", "gz");
-    gz_name = gz_name.replace("gazebo", "sim");
+    gz_name = expected_name.replace("ignition", "gz")
+    gz_name = gz_name.replace("gazebo", "sim")
 
-    cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
-    out, err = check_call(cmd, IGNORE_DRY_RUN)
+    cmd = ["find", repo_dir, "-name", "changelog", "-exec", "head", "-n", "1", "{}", ";"]
+    out, _ = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.decode().split('\n'):
         if not line:
             continue
@@ -239,8 +219,8 @@ def sanity_package_name(repo_dir, package, package_alias):
         if line.partition(' ')[0] != expected_name and line.partition(' ')[0] != gz_name:
             error("Error in changelog package name or alias: " + line)
 
-    cmd = ["find", repo_dir, "-name", "control","-exec","grep","-H","Source:","{}",";"]
-    out, err = check_call(cmd, IGNORE_DRY_RUN)
+    cmd = ["find", repo_dir, "-name", "control", "-exec", "grep", "-H", "Source:", "{}", ";"]
+    out, _ = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.decode().split('\n'):
         if not line:
             continue
@@ -250,17 +230,18 @@ def sanity_package_name(repo_dir, package, package_alias):
 
     print_success("Package names in changelog and control")
 
+
 def sanity_package_version(repo_dir, version, release_version):
-    cmd = ["find", repo_dir, "-name", "changelog","-exec","head","-n","1","{}",";"]
-    out, err = check_call(cmd, IGNORE_DRY_RUN)
+    cmd = ["find", repo_dir, "-name", "changelog", "-exec", "head", "-n", "1", "{}", ";"]
+    out, _ = check_call(cmd, IGNORE_DRY_RUN)
     for line in out.decode().split('\n'):
         if not line:
             continue
         # return full version in brackets
-        full_version=line.split(' ')[1]
+        full_version = line.split(' ')[1]
         # get only version (not release) in brackets
-        c_version=full_version[full_version.find("(")+1:full_version.find("-")]
-        c_revision=full_version[full_version.find("-")+1:full_version.rfind("~")]
+        c_version = full_version[full_version.find("(")+1:full_version.find("-")]
+        c_revision = full_version[full_version.find("-")+1:full_version.rfind("~")]
 
         if c_version != version:
             error("Error in package version. Repo version: " + c_version + " Provided version: " + version)
@@ -271,17 +252,6 @@ def sanity_package_version(repo_dir, version, release_version):
     print_success("Package versions in changelog")
     print_success("Package release versions in changelog")
 
-def sanity_check_gazebo_versions(package, version):
-    if package == 'gazebo':
-        if int(version[0]) > 1:
-            error("Error in gazebo version. Please use 'gazebo-current' package for gazebo 2")
-    elif package == 'gazebo-current':
-        if int(version[0]) < 2:
-            error("Error in gazebo-current version. Please use 'gazebo' package for gazebo 1.x")
-    else:
-        return
-
-    print_success("Gazebo version in proper gazebo package")
 
 def sanity_check_sdformat_versions(package, version):
     if package == 'sdformat':
@@ -292,11 +262,13 @@ def sanity_check_sdformat_versions(package, version):
 
     print_success("sdformat version in proper sdformat package")
 
+
 def sanity_check_repo_name(repo_name):
     if repo_name in OSRF_REPOS_SUPPORTED:
         return
 
     error("Upload repo value: " + repo_name + " is not valid. stable | prerelease | nightly")
+
 
 def sanity_project_package_in_stable(version, repo_name):
     if repo_name != 'stable':
@@ -310,36 +282,15 @@ def sanity_project_package_in_stable(version, repo_name):
 
     return
 
-def sanity_use_prerelease_branch(release_branch):
-    if release_branch == 'prerelease':
-        error("The use of prerelease branch is now deprecated. Please check internal wiki instructions")
-
-    return
-
-def check_s3cmd_configuration():
-    # Need to check if s3cmd is installed
-    try:
-        subprocess.call(["s3cmd", "--version"])
-    except OSError as e:
-        error("s3cmd command for uploading is not available. Install it using: apt-get install s3cmd")
-
-    # Need to check if configuration for s3 exists
-    s3_config = os.path.expanduser('~') + "/.s3cfg"
-    if not os.path.isfile(s3_config):
-        error(s3_config + " does not exists. Please configure s3: s3cmd --configure")
-
-    return True
 
 def sanity_checks(args, repo_dir):
+    print("Safety checks:")
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
-    sanity_use_prerelease_branch(args.release_repo_branch)
 
     if not NIGHTLY:
-        check_s3cmd_configuration()
         sanity_package_version(repo_dir, args.version, str(args.release_version))
-        sanity_check_gazebo_versions(args.package, args.version)
         sanity_check_sdformat_versions(args.package, args.version)
         sanity_project_package_in_stable(args.version, args.upload_to_repository)
 
@@ -355,6 +306,7 @@ def get_exclusion_arches(files):
 
     return r
 
+
 def discover_distros(repo_dir):
     if not os.path.isdir(repo_dir):
         return None
@@ -362,12 +314,16 @@ def discover_distros(repo_dir):
     _, subdirs, files = os.walk(repo_dir).__next__()
     repo_arch_exclusion = get_exclusion_arches(files)
 
-    if '.git' in subdirs: subdirs.remove('.git')
-    # remove ubuntu (common stuff) and debian (new supported distro at top level)
-    if 'ubuntu' in subdirs: subdirs.remove('ubuntu')
-    if 'debian' in subdirs: subdirs.remove('debian')
+    if '.git' in subdirs:
+        subdirs.remove('.git')
+    # remove ubuntu (common stuff) and debian (supported distro at top level)
+    if 'ubuntu' in subdirs:
+        subdirs.remove('ubuntu')
+    if 'debian' in subdirs:
+        subdirs.remove('debian')
     # Some releasing methods use patches/ in root
-    if 'patches' in subdirs: subdirs.remove('patches')
+    if 'patches' in subdirs:
+        subdirs.remove('patches')
 
     if not subdirs:
         error('Can not find distributions directories in the -release repo')
@@ -382,19 +338,17 @@ def discover_distros(repo_dir):
 
     print('Releasing for distributions: ')
     for k in distro_arch_list:
-        print( "- " + k + " (" + ', '.join(distro_arch_list[k]) +")")
+        print("- " + k + " (" + ', '.join(distro_arch_list[k]) + ")")
 
     return distro_arch_list
 
-def check_call(cmd, ignore_dry_run = False):
-    if ignore_dry_run:
-        # Commands that do not change anything in repo level
-        print('Dry-run running:\n  %s\n'%(' '.join(cmd)))
-    else:
-        print('Running:\n  %s'%(' '.join(cmd)))
+
+def check_call(cmd, ignore_dry_run=False):
     if DRY_RUN and not ignore_dry_run:
-        return '', ''
+        print('Dry-run running:\n  %s\n' % (' '.join(cmd)))
+        return b'', b''
     else:
+        print('Running:\n  %s' % (' '.join(cmd)))
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = po.communicate()
         if po.returncode != 0:
@@ -410,30 +364,28 @@ def check_call(cmd, ignore_dry_run = False):
                 raise ErrorNoOutput()
 
             # Unkown exception
-            print('Error running command (%s).'%(' '.join(cmd)))
-            print('stdout: %s'%(out.decode()))
-            print('stderr: %s'%(err.decode()))
+            print('Error running command (%s).' % (' '.join(cmd)))
+            print('stdout: %s' % (out.decode()))
+            print('stderr: %s' % (err.decode()))
             raise Exception('subprocess call failed')
         return out, err
 
 
 # Returns tarball name: package name/alias without versions
 def create_tarball_name(args):
-    # For ignition, we use the package_alias instead of package
-    return re.sub(r'[0-9]+$', '',
-                  args.package if not IGN_REPO else args.package_alias)
+    return re.sub(r'[0-9]+$', '', args.package)
 
 
 # Returns: sha, tarball file name, tarball full path
 def create_tarball_path(tarball_name, version, builddir, dry_run):
-    tarball_fname = '%s-%s.tar.bz2'%(tarball_name, version)
+    tarball_fname = '%s-%s.tar.bz2' % (tarball_name, version)
     # Try using the tarball_name as it is
     tarball_path = os.path.join(builddir, tarball_fname)
 
     if not os.path.isfile(tarball_path):
         # Try looking for special project names using underscores
-        alt_tarball_name = "_".join(tarball_name.rsplit("-",1))
-        alt_tarball_fname = '%s-%s.tar.bz2'%(alt_tarball_name, version)
+        alt_tarball_name = "_".join(tarball_name.rsplit("-", 1))
+        alt_tarball_fname = '%s-%s.tar.bz2' % (alt_tarball_name, version)
         alt_tarball_path = os.path.join(builddir, alt_tarball_fname)
         if (not dry_run):
             if not os.path.isfile(alt_tarball_path):
@@ -449,6 +401,30 @@ def create_tarball_path(tarball_name, version, builddir, dry_run):
         out = out.decode()
 
     return out.split(' ')[0], tarball_fname, tarball_path
+
+
+def tag_repo(args):
+    try:
+        # tilde is not a valid character in git
+        tag = '%s_%s' % (args.package_alias, args.version.replace('~', '-'))
+        check_call(['git', 'tag', '-f', tag])
+        check_call(['git', 'push', '--tags'])
+    except ErrorNoPermsRepo:
+        print('The Git server reports problems with permissions')
+        print('The branch could be blocked by configuration if you do not have')
+        print('rights to push code in default branch.')
+        sys.exit(1)
+    except ErrorNoUsernameSupplied:
+        print('git tag could not be committed because you have not configured')
+        print('your username. Use "git config --username" to set your username.')
+        sys.exit(1)
+    except Exception:
+        print('There was a problem with pushing tags to the git repository')
+        print('Do you have write perms in the repository?')
+        sys.exit(1)
+
+    return tag
+
 
 def generate_upload_tarball(args):
     ###################################################
@@ -493,7 +469,7 @@ def generate_upload_tarball(args):
     # If we're releasing under a different name, then rename the tarball (the
     # package itself doesn't know anything about this).
     if args.package != args.package_alias:
-        tarball_fname = '%s-%s.tar.bz2'%(args.package_alias, args.version)
+        tarball_fname = '%s-%s.tar.bz2' % (args.package_alias, args.version)
         if (not args.dry_run):
             dest_file = os.path.join(builddir, tarball_fname)
             # Do not copy if files are the same
@@ -516,30 +492,22 @@ def generate_upload_tarball(args):
 
         # Tag repo
         os.chdir(sourcedir)
-
-        try:
-            # tilde is not a valid character in git
-            tag = '%s_%s' % (args.package_alias, args.version.replace('~','-'))
-            check_call(['git', 'tag', '-f', tag])
-            check_call(['git', 'push', '--tags'])
-        except ErrorNoPermsRepo as e:
-            print('The Git server reports problems with permissions')
-            print('The branch could be blocked by configuration if you do not have')
-            print('rights to push code in default branch.')
-            sys.exit(1)
-        except ErrorNoUsernameSupplied as e:
-            print('git tag could not be committed because you have not configured')
-            print('your username. Use "git config --username" to set your username.')
-            sys.exit(1)
-        except Exception as e:
-            print('There was a problem with pushing tags to the git repository')
-            print('Do you have write perms in the repository?')
-            sys.exit(1)
+        _ = tag_repo(args)
 
     # TODO: Consider auto-updating the Ubuntu changelog.  It requires
     # cloning the <package>-release repo, making a change, and pushing it back.
     # Until we do that, the user must have first updated it manually.
     return source_tarball_uri, tarball_sha
+
+
+def call_jenkins_build(job_name, params, output_string):
+    params_query = urllib.parse.urlencode(params)
+    url = '%s/job/%s/buildWithParameters?%s' % (JENKINS_URL,
+                                                job_name,
+                                                params_query)
+    print(f"- {output_string}: {url}")
+    if not DRY_RUN:
+        urllib.request.urlopen(url)
 
 
 def go(argv):
@@ -550,14 +518,12 @@ def go(argv):
         args.release_version = 1
 
     # Sanity checks and dicover supported distributions before proceed.
-    # UPSTREAM repository is not known in release-tools script
-    if not UPSTREAM:
-        repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
-        # The supported distros are the ones in the top level of -release repo
-        ubuntu_distros = discover_distros(repo_dir) # top level, ubuntu
-        debian_distros = discover_distros(repo_dir + '/debian/') # debian dir top level, Debian
-        if not args.no_sanity_checks:
-            sanity_checks(args, repo_dir)
+    repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
+    # The supported distros are the ones in the top level of -release repo
+    ubuntu_distros = discover_distros(repo_dir)  # top level, ubuntu
+    debian_distros = discover_distros(repo_dir + '/debian/')  # debian dir top level, Debian
+    if not args.no_sanity_checks:
+        sanity_checks(args, repo_dir)
 
     source_tarball_uri = ''
     source_tarball_sha = ''
@@ -582,30 +548,16 @@ def go(argv):
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
-    if args.upload_to_repository in OSRF_REPOS_SELF_CONTAINED:
-        params['OSRF_REPOS_TO_USE'] = args.upload_to_repository
-
     if NIGHTLY:
         params['VERSION'] = 'nightly'
         # reuse SOURCE_TARBALL_URI to indicate the nightly branch
         # name must be modified in the future
         params['SOURCE_TARBALL_URI'] = args.nightly_branch
 
-    if UPSTREAM:
-        job_name = JOB_NAME_UPSTREAM_PATTERN%(args.package)
-    else:
-        job_name = JOB_NAME_PATTERN%(args.package)
-
-    params_query = urllib.parse.urlencode(params)
-
     # RELEASING FOR BREW
-    brew_url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL,
-                                                   GENERIC_BREW_PULLREQUEST_JOB,
-                                                   params_query)
     if not NIGHTLY and not args.bump_rev_linux_only:
-        print('- Brew: %s' % (brew_url))
-        if not DRY_RUN:
-            urllib.request.urlopen(brew_url)
+        call_jenkins_build(GENERIC_BREW_PULLREQUEST_JOB,
+                           params, 'Brew')
 
     # RELEASING FOR LINUX
     for l in LINUX_DISTROS:
@@ -626,9 +578,6 @@ def go(argv):
                 if (PRERELEASE or NIGHTLY):
                     if (a == 'armhf' or a == 'arm64'):
                         continue
-                # Only i386 for Ubuntu in Bionic
-                if (a == 'i386' and l != 'debian' and d != 'bionic'):
-                    continue
 
                 linux_platform_params = params.copy()
                 linux_platform_params['ARCH'] = a
@@ -647,9 +596,6 @@ def go(argv):
                      ('gz-physics' in args.package_alias):
                     linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
 
-                if (NIGHTLY and a == 'i386'):
-                    continue
-
                 # control nightly generation using a single machine to process
                 # all distribution builds to avoid race conditions. Note: this
                 # assumes that large-memory nodes are beind used for nightly
@@ -659,13 +605,9 @@ def go(argv):
                     assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
                     linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
 
-                linux_platform_params_query = urllib.parse.urlencode(linux_platform_params)
+                call_jenkins_build(f"{args.package}-debbuilder",
+                                   linux_platform_params, f"{l} {d}/{a}")
 
-                url = '%s/job/%s/buildWithParameters?%s'%(JENKINS_URL, job_name, linux_platform_params_query)
-                print('- Linux: %s'%(url))
-
-                if not DRY_RUN:
-                    urllib.request.urlopen(url)
 
 if __name__ == '__main__':
     go(sys.argv)

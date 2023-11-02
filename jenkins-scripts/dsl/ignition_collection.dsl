@@ -11,13 +11,13 @@ arch = 'amd64'
 file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
 gz_collections_yaml = new Yaml().load(file)
 
-gz_nightly = 'harmonic'
+gz_nightly = 'ionic'
 
 String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
 {
   major_version = parsed_yaml_lib.major_version
 
-  ignore_major_version = parsed_yaml_packaging.linux?.package_name?.ignore_major_version
+  ignore_major_version = parsed_yaml_packaging.linux?.ignore_major_version
   if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
     major_version = ""
 
@@ -325,6 +325,57 @@ gz_collection_jobs =
         'sdformat-ci-sdformat14-homebrew-amd64',
         'sdformat-sdf-14-win'
   ],
+  'ionic' : [
+        'ign_cmake-gz-4-win',
+        'ign_common-gz-6-win',
+        'ign_fuel-tools-gz-10-win',
+        'ign_gazebo-gz-9-win',
+        'ign_gui-gz-9-win',
+        'ign_launch-gz-8-win',
+        'ign_math-gz-8-win',
+        'ign_msgs-gz-11-win',
+        'ign_physics-gz-8-win',
+        'ign_plugin-gz-3-win',
+        'ign_rendering-gz-9-win',
+        'ign_sensors-gz-9-win',
+        'ign_tools-gz-2-win',
+        'ign_transport-gz-14-win',
+        'ign_utils-gz-3-win',
+        'gz_cmake-ci-gz-cmake4-jammy-amd64',
+        'gz_common-ci-gz-common6-jammy-amd64',
+        'gz_fuel_tools-ci-gz-fuel-tools10-jammy-amd64',
+        'gz_gui-ci-gz-gui9-jammy-amd64',
+        'gz_launch-ci-gz-launch8-jammy-amd64',
+        'gz_math-ci-gz-math8-jammy-amd64',
+        'gz_msgs-ci-gz-msgs11-jammy-amd64',
+        'gz_physics-ci-gz-physics8-jammy-amd64',
+        'gz_plugin-ci-gz-plugin3-jammy-amd64',
+        'gz_rendering-ci-gz-rendering9-jammy-amd64',
+        'gz_sensors-ci-gz-sensors9-jammy-amd64',
+        'gz_sim-ci-gz-sim9-jammy-amd64',
+        'gz_tools-ci-gz-tools2-jammy-amd64',
+        'gz_transport-ci-gz-transport14-jammy-amd64',
+        'gz_utils-ci-gz-utils3-jammy-amd64',
+        'ignition_cmake-ci-gz-cmake4-homebrew-amd64',
+        'ignition_common-ci-gz-common6-homebrew-amd64',
+        'ignition_fuel-tools-ci-gz-fuel-tools10-homebrew-amd64',
+        'ignition_ionic-ci-main-homebrew-amd64',
+        'ignition_gazebo-ci-gz-sim9-homebrew-amd64',
+        'ignition_gui-ci-gz-gui9-homebrew-amd64',
+        'ignition_launch-gz-launch8-homebrew-amd64',
+        'ignition_math-ci-gz-math8-homebrew-amd64',
+        'ignition_msgs-ci-gz-msgs11-homebrew-amd64',
+        'ignition_physics-ci-gz-physics8-homebrew-amd64',
+        'ignition_plugin-ci-gz-plugin3-homebrew-amd64',
+        'ignition_rendering-ci-gz-rendering9-homebrew-amd64',
+        'ignition_sensors-ci-gz-sensors9-homebrew-amd64',
+        'ignition_tools-ci-gz-tools2-homebrew-amd64',
+        'ignition_transport-ci-gz-transport14-homebrew-amd64',
+        'ignition_utils-ci-gz-utils3-homebrew-amd64',
+        'sdformat-ci-sdformat15-jammy-amd64',
+        'sdformat-ci-sdformat15-homebrew-amd64',
+        'sdformat-sdf-15-win'
+  ],
 ]
 
 def DISABLE_TESTS           = false
@@ -366,25 +417,82 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
 gz_collections_yaml.collections.each { collection ->
   gz_collection_name = collection.name
 
-  // COLCON - Windows
-  def gz_win_ci_job = job("ign_${gz_collection_name}-ci-win")
-  Globals.gazebodistro_branch = true
-  OSRFWinCompilation.create(gz_win_ci_job, false)
-  gz_win_ci_job.with
+  dashboard_name = "ign-${gz_collection_name}"
+  if (gz_collection_name == "__upcoming__")
+    dashboard_name = gz_collection_name
+
+  // Gazebo dashboards
+  // --------------------------------------------------------------
+  dashboardView(dashboard_name)
   {
+    jobs {
+      gz_collection_jobs["${gz_collection_name}"].each { jobname ->
+        name(jobname)
+      }
+      if (collection.packaging?.linux?.nightly) {
+        collection.libs.each { lib ->
+          name(get_debbuilder_name(lib, collection.packaging))
+        }
+      }
+    }
+
+    columns {
+      status()
+      weather()
+      name()
+      testResult(0)
+      lastSuccess()
+      lastFailure()
+      lastDuration()
+      buildButton()
+
+    }
+
+    bottomPortlets {
+      jenkinsJobsList {
+          displayName('Jenkins jobs list')
+      }
+    }
+
+    configure { view ->
+      view / columns << "hudson.plugins.warnings.WarningsColumn" (plugin: 'warnings@5.0.1')
+
+      def topPortlets = view / NodeBuilder.newInstance().topPortlets {}
+
+      topPortlets << 'hudson.plugins.view.dashboard.core.UnstableJobsPortlet' {
+          id createPortletId()
+          name 'Failing jobs'
+          showOnlyFailedJobs 'true'
+          recurse 'false'
+      }
+    }
+  }
+
+  if (! collection.packaging.exclude?.contains(gz_collection_name)) {
+    // DEBBUILD: linux package builder
+    // --------------------------------------------------------------
+    def build_pkg_job = job("gz-${gz_collection_name}-debbuilder")
+    OSRFLinuxBuildPkg.create(build_pkg_job)
+    build_pkg_job.with
+    {
       steps {
-        batchFile("""\
-              set IGNITION_COLLECTION=${gz_collection_name}
-              call "./scripts/jenkins-scripts/lib/ign_collection-base.bat"
+        shell("""\
+              #!/bin/bash -xe
+
+              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
               """.stripIndent())
       }
+    }
   }
-  Globals.gazebodistro_branch = false
+
 
   collection.ci.configs.each { ci_config_name ->
     ci_config = gz_collections_yaml.ci_configs.find { it.name == ci_config_name }
     distro = ci_config.system.version
     arch = ci_config.system.arch
+
+    if (ci_config.exclude.all?.contains(gz_collection_name))
+      return
 
     // INSTALL JOBS:
     // --------------------------------------------------------------
@@ -432,6 +540,9 @@ gz_collections_yaml.collections.each { collection ->
              export ROS_BOOTSTRAP=true
              # needed for arm64 machines and other arch tests
              export ENABLE_GZ_SIM_RUNTIME_TEST=false
+             if [[ ${gz_collection_name} == 'citadel' || ${gz_collection_name} == 'fortress' ]]; then
+                export GZ_SIM_RUNTIME_TEST_USE_IGN=true
+             fi
              if [[ \${JENKINS_NODE_TAG} == 'gpu-reliable' ]]; then
                export ENABLE_GZ_SIM_RUNTIME_TEST=true
              fi
@@ -439,121 +550,75 @@ gz_collections_yaml.collections.each { collection ->
              """.stripIndent())
       }
     }
-  }
 
-  // MAC Brew CI job
-  // --------------------------------------------------------------
-  def gz_brew_ci_job = job("ignition_${gz_collection_name}-ci-main-homebrew-amd64")
-  OSRFBrewCompilation.create(gz_brew_ci_job, DISABLE_TESTS)
-  OSRFGitHub.create(gz_brew_ci_job,
-                    "gazebosim/gz-${gz_collection_name}",
-                    "main",
-                    "ign-${gz_collection_name}")
-  gz_brew_ci_job.with
-  {
-      steps {
-        shell("""\
-              #!/bin/bash -xe
-
-              /bin/bash -xe
-              "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "gz-${gz_collection_name}"
-              """.stripIndent())
-      }
-  }
-
-  // MAC Brew bottle install job
-  // --------------------------------------------------------------
-  def gz_brew_install_bottle_job = job("ignition_${gz_collection_name}-install_bottle-homebrew-amd64")
-  OSRFBrewInstall.create(gz_brew_install_bottle_job)
-
-  gz_brew_install_bottle_job.with
-  {
-    triggers {
-      cron('@daily')
-    }
-
-    def bottle_name = "ignition-${gz_collection_name}"
-
-    steps {
-     shell("""\
-           #!/bin/bash -xe
-
-           /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${bottle_name}
-           """.stripIndent())
-    }
-
-    publishers
+    // COLCON - Windows
+    Globals.gazebodistro_branch = true
+    def gz_win_ci_job = job("ign_${gz_collection_name}-ci-win")
+    OSRFWinCompilation.create(gz_win_ci_job, false)
+    gz_win_ci_job.with
     {
-       configure { project ->
-         project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
-            unstableOnWarning true
-            failBuildOnError false
-            parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+        steps {
+          batchFile("""\
+                set IGNITION_COLLECTION=${gz_collection_name}
+                call "./scripts/jenkins-scripts/lib/ign_collection-base.bat"
+                """.stripIndent())
+        }
+    }
+    Globals.gazebodistro_branch = false
+
+    // MAC Brew CI job
+    // --------------------------------------------------------------
+    def gz_brew_ci_job = job("ignition_${gz_collection_name}-ci-main-homebrew-amd64")
+    OSRFBrewCompilation.create(gz_brew_ci_job, DISABLE_TESTS)
+    OSRFGitHub.create(gz_brew_ci_job,
+                      "gazebosim/gz-${gz_collection_name}",
+                      "main",
+                      "ign-${gz_collection_name}")
+    gz_brew_ci_job.with
+    {
+        steps {
+          shell("""\
+                #!/bin/bash -xe
+
+                /bin/bash -xe
+                "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "gz-${gz_collection_name}"
+                """.stripIndent())
+        }
+    }
+
+    // MAC Brew bottle install job
+    // --------------------------------------------------------------
+    def gz_brew_install_bottle_job = job("ignition_${gz_collection_name}-install_bottle-homebrew-amd64")
+    OSRFBrewInstall.create(gz_brew_install_bottle_job)
+
+    gz_brew_install_bottle_job.with
+    {
+      triggers {
+        cron('@daily')
+      }
+
+      def bottle_name = "ignition-${gz_collection_name}"
+
+      steps {
+       shell("""\
+             #!/bin/bash -xe
+
+             /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${bottle_name}
+             """.stripIndent())
+      }
+
+      publishers
+      {
+        configure { project ->
+          project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+              unstableOnWarning true
+              failBuildOnError false
+              parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
           }
-       }
+        }
+      }
     }
   }
-
-  // DEBBUILD: linux package builder
-  // --------------------------------------------------------------
-  def build_pkg_job = job("gz-${gz_collection_name}-debbuilder")
-  OSRFLinuxBuildPkg.create(build_pkg_job)
-  build_pkg_job.with
-  {
-      steps {
-        shell("""\
-              #!/bin/bash -xe
-
-              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
-              """.stripIndent())
-      }
-   }
-
-  // Gazebo dashboards
-  dashboardView("ign-${gz_collection_name}")
-  {
-      jobs {
-        gz_collection_jobs["${gz_collection_name}"].each { jobname ->
-          name(jobname)
-        }
-        if (collection.packaging?.linux?.nightly) {
-          collection.libs.each { lib ->
-            name(get_debbuilder_name(lib, collection.packaging))
-          }
-        }
-      }
-
-      columns {
-        status()
-        weather()
-        name()
-        testResult(0)
-        lastSuccess()
-        lastFailure()
-        lastDuration()
-        buildButton()
-
-      }
-
-      bottomPortlets {
-        jenkinsJobsList {
-            displayName('Jenkins jobs list')
-        }
-      }
-
-      configure { view ->
-        view / columns << "hudson.plugins.warnings.WarningsColumn" (plugin: 'warnings@5.0.1')
-
-        def topPortlets = view / NodeBuilder.newInstance().topPortlets {}
-
-        topPortlets << 'hudson.plugins.view.dashboard.core.UnstableJobsPortlet' {
-            id createPortletId()
-            name 'Failing jobs'
-            showOnlyFailedJobs 'true'
-            recurse 'false'
-        }
-      }
-   }
 }
 
 // NIGHTLY GENERATION

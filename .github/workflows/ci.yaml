@@ -15,8 +15,9 @@ jobs:
       - name: Idenfify files changed in this PR
         id: files
         run: |
-            git diff --name-only origin/${{ github.base_ref }}...origin/${{ github.head_ref }}
-            echo "changed-files=$(git diff --name-only origin/${{ github.base_ref }}...origin/${{ github.head_ref }}| tr '\n' ' ')"  >> $GITHUB_OUTPUT
+            git fetch origin ${{ github.ref }}
+            git diff --name-only origin/${{ github.base_ref }}...FETCH_HEAD
+            echo "changed-files=$(git diff --name-only origin/${{ github.base_ref }}...FETCH_HEAD| tr '\n' ' ')"  >> $GITHUB_OUTPUT
       - name: Run testing on changed config files
         id: dsl_check
         run: |
@@ -51,6 +52,15 @@ jobs:
           sudo chown -R ${USER} /var/lib/jenkins
           cd jenkins-scripts/dsl
           WRITE_JOB_LOG=1 java -jar tools/jobdsl.jar *.dsl
+      - name: Checks for DSL Code
+        if: steps.dsl_check.outputs.run_job == 'true'
+        run: |
+          cd jenkins-scripts/dsl
+          ./dsl_checks.bash
+      - name: Export XML generated configuration for diff
+        if: steps.dsl_check.outputs.run_job == 'true'
+        run: |
+          cd jenkins-scripts/dsl
           # export files for later diff
           mkdir /tmp/pr_xml_configuration && mkdir /tmp/pr_log_generated/
           mv *.xml /tmp/pr_xml_configuration/

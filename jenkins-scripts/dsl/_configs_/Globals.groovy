@@ -131,4 +131,23 @@ class Globals
    static String nontest_label(String original_label) {
     return "(${original_label}) && !test-instance"
    }
+
+   static String get_canonical_package_name(String package_name) {
+    return package_name.replaceAll('\\d*$', '')
+  }
+
+   static String s3_releases_dir(String package_name) {
+    return get_canonical_package_name(package_name) + '/releases'
+   }
+
+   static String s3_upload_tarball_path(String package_name) {
+    return 's3://osrf-distributions/' + s3_releases_dir(package_name)
+   }
+
+   static String s3_download_url_basedir(String package_name) {
+    return 'https://osrf-distributions.s3.amazonaws.com/' + s3_releases_dir(package_name)
+   }
+
+   /* rest of the s3 paths need to be cumputed during job running time since
+    * they depend on VERSION and it is not avialble at DSL time */
 }

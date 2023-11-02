@@ -26,6 +26,10 @@ if [ -z "${SOURCE_TARBALL_SHA}" ]; then
 fi
 echo '# END SECTION'
 
+# brew does not support ~ in VERSION string, so convert it to -
+VERSION_SANITIZED=$(echo "${VERSION}" | tr '~' '-')
+echo Sanitizing version string ${VERSION} to ${VERSION_SANITIZED}
+
 PULL_REQUEST_HEAD_REPO=git@github.com:osrfbuild/homebrew-simulation.git
 
 . ${SCRIPT_LIBDIR}/_homebrew_github_setup.bash
@@ -48,7 +52,7 @@ echo
 VERSION_LINE=$(awk \
   "/^  version ['\"]/ {print FNR}" ${FORMULA_PATH} | head -1)
 # check if version can be correctly auto-detected from url
-if ${BREW} ruby -e "exit Version.parse(\"${SOURCE_TARBALL_URI}\").to_s == \"${VERSION}\""
+if ${BREW} ruby -e "exit Version.parse(\"${SOURCE_TARBALL_URI}\").to_s == \"${VERSION_SANITIZED}\""
 then
   echo Version can be correctly auto-detected from URL
   if [ -n "${VERSION_LINE}" ]; then
@@ -59,12 +63,12 @@ else
   if [ -z "${VERSION_LINE}" ]; then
     # Need to insert explicit version tag after url
     echo Adding explicit version tag after URL
-    sed -i -e "${URI_LINE}a\  version \"${VERSION}\"" ${FORMULA_PATH}
+    sed -i -e "${URI_LINE}a\  version \"${VERSION_SANITIZED}\"" ${FORMULA_PATH}
   else
     echo Changing version to
-    echo ${VERSION}
+    echo ${VERSION_SANITIZED}
     echo on line number ${VERSION_LINE}
-    sed -i -e "${VERSION_LINE}c\  version \"${VERSION}\"" ${FORMULA_PATH}
+    sed -i -e "${VERSION_LINE}c\  version \"${VERSION_SANITIZED}\"" ${FORMULA_PATH}
   fi
 fi
 
@@ -104,6 +108,6 @@ if [ "$FORMULA_REVISION" -gt 0 ]; then
 fi
 
 # create branch with name and sanitized version string
-PULL_REQUEST_BRANCH="${PACKAGE_ALIAS}_`echo ${VERSION} | tr ' ~:^?*[' '_'`"
+PULL_REQUEST_BRANCH="${PACKAGE_ALIAS}_`echo ${VERSION_SANITIZED} | tr ' ~:^?*[' '_'`"
 
 . ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash

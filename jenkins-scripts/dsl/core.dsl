@@ -143,3 +143,13 @@ outdated_job_runner.with
     systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/outdated-job-runner.groovy'))
   }
 }
+
+// -------------------------------------------------------------------
+def releasepy_job = job("_releasepy")
+OSRFReleasepy.create(releasepy_job, [DRY_RUN: false])
+releasepy_job.with {
+      blockOn("repository_uploader_packages") {
+        blockLevel('GLOBAL')
+        scanQueueFor('ALL')
+      }
+}

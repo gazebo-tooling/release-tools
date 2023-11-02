@@ -136,25 +136,18 @@ if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name
   CMAKE_ARGS='-DQWT_WIN_INCLUDE_DIR=/usr/local/opt/qwt-qt5/lib/qwt.framework/Headers -DQWT_WIN_LIBRARY_DIR=/usr/local/opt/qwt-qt5/lib'
 fi
 # Workaround for cmake@3.21.4: set PATH
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'cmake@3.21.4' }.empty?"; then
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/cmake@3.21.4' }.empty?"; then
   export PATH=/usr/local/opt/cmake@3.21.4/bin:${PATH}
 fi
-# Workaround for ffmpeg 4: set CMAKE_PREFIX_PATH and PKG_CONFIG_PATH if we are using ffmpeg@4
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'ffmpeg@4' }.empty?"; then
+# Workaround for ffmpeg 4: set PKG_CONFIG_PATH if we are using ffmpeg@4
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/ffmpeg@4' }.empty?"; then
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/opt/ffmpeg@4/lib/pkgconfig
 fi
 # Workaround for tbb@2020_u3: set CPATH, LIBRARY_PATH, and CMAKE_PREFIX_PATH
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'tbb@2020_u3' }.empty?"; then
-  if [ "${ghprbSourceBranch}" != "replace_deprecated_tbb_task" ]; then
-    export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/tbb@2020_u3
-    export CPATH=${CPATH}:/usr/local/opt/tbb@2020_u3/include
-    export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/tbb@2020_u3/lib
-  fi
-fi
-# Workaround for tinyxml2 6.2.0: set CMAKE_PREFIX_PATH and PKG_CONFIG_PATH if we are using tinyxml2@6.2.0
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'tinyxml2@6.2.0' }.empty?"; then
-  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/tinyxml2@6.2.0
-  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/opt/tinyxml2@6.2.0/lib/pkgconfig
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/tbb@2020_u3' }.empty?"; then
+  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/tbb@2020_u3
+  export CPATH=${CPATH}:/usr/local/opt/tbb@2020_u3/include
+  export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/tbb@2020_u3/lib
 fi
 # if we are using gts, need to add gettext library path since it is keg-only
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'gettext' }.empty?"; then
@@ -166,7 +159,7 @@ if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name
 fi
 
 # if we are using dart@6.10.0 (custom OR port), need to add dartsim library path since it is keg-only
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'dartsim@6.10.0' }.empty?"; then
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/dartsim@6.10.0' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/dartsim@6.10.0
   export DYLD_FALLBACK_LIBRARY_PATH=${DYLD_FALLBACK_LIBRARY_PATH}:/usr/local/opt/dartsim@6.10.0/lib:/usr/local/opt/octomap/local
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/opt/dartsim@6.10.0/lib/pkgconfig
