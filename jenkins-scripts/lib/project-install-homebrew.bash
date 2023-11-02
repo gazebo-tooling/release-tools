@@ -47,12 +47,12 @@ brew tap osrf/simulation
 echo '# END SECTION'
 
 if [[ -n "${RTOOLS_BRANCH}" ]] && \
-   python3 ${SCRIPT_DIR}/tools/detect_ci_matching_branch.py "${RTOOLS_BRANCH}"
+   python3 "${SCRIPT_DIR}/tools/detect_ci_matching_branch.py" "${RTOOLS_BRANCH}"
 then
   echo "# BEGIN SECTION: trying to checkout branch ${RTOOLS_BRANCH} from osrf/simulation"
-  pushd $(brew --repo osrf/simulation)
-  git fetch origin ${RTOOLS_BRANCH} || true
-  git checkout ${RTOOLS_BRANCH} || true
+  pushd "$(brew --repo osrf/simulation)"
+  git fetch origin "${RTOOLS_BRANCH}" || true
+  git checkout "${RTOOLS_BRANCH}" || true
   popd
   echo '# END SECTION'
 fi
