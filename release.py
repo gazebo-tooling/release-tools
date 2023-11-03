@@ -142,7 +142,7 @@ C) Nightly builds (linux)
     parser.add_argument('--source-repo-existing-ref',
                         dest='source_repo_ref',
                         default=None,
-                        help='Optionally, when using --source-repo-urr, indicate the Git reference (branch|tag) to grab the release sources from.\
+                        help='Optionally, when using --source-repo-uri, indicate the Git reference (branch|tag) to grab the release sources from.\
                               If used: avoid to tag the local repository. If not used: tag the local repository with <version> and use it as ref')  # NOQA
     parser.add_argument('--source-tarball-uri',
                         dest='source_tarball_uri', default=None,
