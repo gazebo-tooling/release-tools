@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from __future__ import print_function
+from argparse import RawTextHelpFormatter
 import subprocess
 import sys
 import tempfile
@@ -9,7 +10,6 @@ import urllib.parse
 import urllib.request
 import argparse
 import shutil
-import re
 
 USAGE = 'release.py <package> <version> <jenkinstoken>'
 try:
@@ -18,14 +18,12 @@ except KeyError:
     JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuilder'
 GENERIC_BREW_PULLREQUEST_JOB = 'generic-release-homebrew_pull_request_updater'
-UPLOAD_DEST_PATTERN = 's3://osrf-distributions/%s/releases/'
-DOWNLOAD_URI_PATTERN = 'https://osrf-distributions.s3.amazonaws.com/%s/releases/'
 
 LINUX_DISTROS = ['ubuntu', 'debian']
 SUPPORTED_ARCHS = ['amd64', 'armhf', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 
-OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing"
+OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing none"
 
 DRY_RUN = False
 NIGHTLY = False
@@ -92,16 +90,6 @@ def github_repo_exists(url):
     return True
 
 
-def generate_package_source(srcdir, builddir):
-    cmake_cmd = ["cmake"]
-
-    # configure and make package_source
-    os.mkdir(builddir)
-    os.chdir(builddir)
-    check_call(cmake_cmd + [srcdir])
-    check_call(['make', 'package_source'])
-
-
 def exists_main_branch(github_url):
     check_main_cmd = ['git', 'ls-remote', '--exit-code', '--heads', github_url, 'main']
     try:
@@ -116,7 +104,21 @@ def parse_args(argv):
     global NIGHTLY
     global PRERELEASE
 
-    parser = argparse.ArgumentParser(description='Make releases.')
+    parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter,
+    description="""
+Script to handle the release process for the Gazebo devs.
+Examples:
+A) Generate source: local repository tag + call source job:
+   $ release.py <package> <version> <jenkins_token>
+   (auto calculate source-repo-uri from local directory)
+
+B) Call builders: reuse existing tarball version + call build jobs:
+   $ release.py --source-tarball-uri <URL> <package> <version> <jenkins_token>
+   (no call to source job, directly build jobs with tarball URL)
+
+C) Nightly builds (linux)
+   $ release.py --source-repo-existing-ref <git_branch> --upload-to-repo nightly <URL> <package> <version> <jenkins_token>
+ """)
     parser.add_argument('package', help='which package to release')
     parser.add_argument('version', help='which version to release')
     parser.add_argument('jenkins_token', help='secret token to allow access to Jenkins to start builds')
@@ -133,8 +135,18 @@ def parse_args(argv):
                         help='Release version suffix; usually 1 (e.g., 1')
     parser.add_argument('--no-sanity-checks', dest='no_sanity_checks', action='store_true', default=False,
                         help='no-sanity-checks; i.e. skip sanity checks commands')
-    parser.add_argument('--no-generate-source-file', dest='no_source_file', action='store_true', default=False,
-                        help='Do not generate source file when building')
+    parser.add_argument('--source-repo-uri',
+                        dest='source_repo_uri',
+                        default=None,
+                        help='Indicate the repository URL to grab the source from (overriding the heristics to calculate it from the local directory)')  # NOQA
+    parser.add_argument('--source-repo-existing-ref',
+                        dest='source_repo_ref',
+                        default=None,
+                        help='Optionally, when using --source-repo-uri, indicate the Git reference (branch|tag) to grab the release sources from.\
+                              If used: avoid to tag the local repository. If not used: tag the local repository with <version> and use it as ref')  # NOQA
+    parser.add_argument('--source-tarball-uri',
+                        dest='source_tarball_uri', default=None,
+                        help='Indicate the URL of the sources to grab the release sources from.')  # NOQA
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
     parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
@@ -158,9 +170,6 @@ def parse_args(argv):
         NIGHTLY = True
     if args.upload_to_repository == 'prerelease':
         PRERELEASE = True
-    # Nightly do not generate a tar.bz2 file
-    if NIGHTLY:
-        args.no_source_file = True
 
     return args
 
@@ -172,21 +181,25 @@ def get_release_repository_info(package):
 
     error("release repository not found in github.com/gazebo-release")
 
+
 def download_release_repository(package, release_branch):
-    vcs, url = get_release_repository_info(package)
-    release_tmp_dir = tempfile.mkdtemp()
+    try:
+        return os.environ['_RELEASEPY_TEST_RELEASE_REPO'], 'main'
+    except KeyError:
+        vcs, url = get_release_repository_info(package)
+        release_tmp_dir = tempfile.mkdtemp()
 
-    if vcs == "git" and release_branch == "default":
-        release_branch = "master"
+        if vcs == "git" and release_branch == "default":
+            release_branch = "master"
 
-    # If main branch exists, prefer it over master
-    if release_branch == "master":
-        if exists_main_branch(url):
-            release_branch = 'main'
+        # If main branch exists, prefer it over master
+        if release_branch == "master":
+            if exists_main_branch(url):
+                release_branch = 'main'
 
-    cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
-    check_call(cmd, IGNORE_DRY_RUN)
-    return release_tmp_dir, release_branch
+        cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
+        check_call(cmd, IGNORE_DRY_RUN)
+        return release_tmp_dir, release_branch
 
 
 def sanity_package_name_underscore(package, package_alias):
@@ -267,7 +280,8 @@ def sanity_check_repo_name(repo_name):
     if repo_name in OSRF_REPOS_SUPPORTED:
         return
 
-    error("Upload repo value: " + repo_name + " is not valid. stable | prerelease | nightly")
+    error(f"Upload repo value: {repo_name} is not valid. \
+            Supported values are: {OSRF_REPOS_SUPPORTED}")
 
 
 def sanity_project_package_in_stable(version, repo_name):
@@ -283,11 +297,31 @@ def sanity_project_package_in_stable(version, repo_name):
     return
 
 
+def sanity_check_source_repo_uri(source_repo_uri):
+    # Check if the scheme is "https" and the path ends with ".git"
+    parsed_uri = urllib.parse.urlparse(source_repo_uri)
+    if not parsed_uri.scheme == "https" or \
+       not parsed_uri.path.endswith(".git"):
+        error("--source-repo-uri parameter should start with https:// and end with .git")
+
+
+def sanity_check_bump_linux(source_tarball_uri):
+    if (not source_tarball_uri):
+        error('--only-bump-revision-linux needs --source-tarball-uri argument'
+              'to call builders and not source generation')
+
+
 def sanity_checks(args, repo_dir):
     print("Safety checks:")
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
+
+    if (args.bump_rev_linux_only):
+        sanity_check_bump_linux(args.source_tarball_uri)
+
+    if args.source_repo_uri:
+        sanity_check_source_repo_uri(args.source_repo_uri)
 
     if not NIGHTLY:
         sanity_package_version(repo_dir, args.version, str(args.release_version))
@@ -336,7 +370,7 @@ def discover_distros(repo_dir):
         arches_supported = [x for x in SUPPORTED_ARCHS if x not in excluded_arches]
         distro_arch_list[d] = arches_supported
 
-    print('Releasing for distributions: ')
+    print('Distributions in release-repo:')
     for k in distro_arch_list:
         print("- " + k + " (" + ', '.join(distro_arch_list[k]) + ")")
 
@@ -371,38 +405,6 @@ def check_call(cmd, ignore_dry_run=False):
         return out, err
 
 
-# Returns tarball name: package name/alias without versions
-def create_tarball_name(args):
-    return re.sub(r'[0-9]+$', '', args.package)
-
-
-# Returns: sha, tarball file name, tarball full path
-def create_tarball_path(tarball_name, version, builddir, dry_run):
-    tarball_fname = '%s-%s.tar.bz2' % (tarball_name, version)
-    # Try using the tarball_name as it is
-    tarball_path = os.path.join(builddir, tarball_fname)
-
-    if not os.path.isfile(tarball_path):
-        # Try looking for special project names using underscores
-        alt_tarball_name = "_".join(tarball_name.rsplit("-", 1))
-        alt_tarball_fname = '%s-%s.tar.bz2' % (alt_tarball_name, version)
-        alt_tarball_path = os.path.join(builddir, alt_tarball_fname)
-        if (not dry_run):
-            if not os.path.isfile(alt_tarball_path):
-                error("Can not find a tarball at: " + tarball_path + " or at " + alt_tarball_path)
-            else:
-                tarball_fname = alt_tarball_fname
-        tarball_path = alt_tarball_path
-
-    out, err = check_call(['shasum', '--algorithm', '256', tarball_path])
-    if err:
-        error("shasum returned an error: " + err.decode())
-    if isinstance(out, bytes):
-        out = out.decode()
-
-    return out.split(' ')[0], tarball_fname, tarball_path
-
-
 def tag_repo(args):
     try:
         # tilde is not a valid character in git
@@ -426,78 +428,45 @@ def tag_repo(args):
     return tag
 
 
-def generate_upload_tarball(args):
-    ###################################################
-    # Platform-agnostic stuff.
-    # The goal is to tag the repo and prepare a tarball.
-
-    sourcedir = os.getcwd()
-    tmpdir    = tempfile.mkdtemp()
-    builddir  = os.path.join(tmpdir, 'build')
-
-    # Note for bump_rev_linux_only: there are some adjustment to the tarball name
-    # that are done after generating it, even if the tarball upload is not
-    # needed, it should be generated to get changes in the name
-    if args.bump_rev_linux_only:
-        print('\nINFO: bump revision is enabled. It needs to generate a local tarball although it will not upload it')
-
-    # Check for uncommitted changes; abort if present
-    cmd = ['git', 'diff-index', 'HEAD']
-    out, err = check_call(cmd)
-    if out:
-        print('git says that you have uncommitted changes')
-        print('Please clean up your working copy so that "%s" outputs nothing' % (' '.join(cmd)))
-        print('stdout: %s' % (out.decode()))
+def generate_source_repository_uri(args):
+    org_repo = f"gazebosim/{get_canonical_package_name(args.package_alias)}"
+    out, err = check_call(['git', 'ls-remote', '--get-url', 'origin'],
+                          IGNORE_DRY_RUN)
+    if err:
+        print(f"An error happened running git ls-remote: ${err}")
         sys.exit(1)
 
-    # Make a clean copy, to avoid pulling in other stuff that the user has
-    # sitting in the working copy.
-    srcdir = os.path.join(tmpdir, 'src')
-    os.mkdir(srcdir)
-    tmp_tar = os.path.join(tmpdir, 'orig.tar')
-    check_call(['git', 'archive', '--format=tar', 'HEAD', '-o', tmp_tar])
-    check_call(['tar', 'xf', tmp_tar, '-C', srcdir])
-    if not args.dry_run:
-        os.remove(tmp_tar)
+    git_remote = out.decode().split('\n')[0]
+    if org_repo not in git_remote:
+        print(f""" !! Automatic calculation of source_repo_uri failed.\
+              \n   * git remote origin is: {git_remote}\
+              \n   * Package name generated org/repo: {org_repo}\
+              \n >> Please use --source-repo-uri parameter""")
+        sys.exit(1)
 
-    # use cmake to generate package_source
-    generate_package_source(srcdir, builddir)
-    # For ignition, we use the alias without version numbers as package name
-    tarball_name = re.sub(r'[0-9]+$', '', args.package_alias)
-    tarball_sha, tarball_fname, tarball_path = create_tarball_path(tarball_name, args.version, builddir, args.dry_run)
+    return f"https://github.com/{org_repo}.git"  # NOQA
 
-    # If we're releasing under a different name, then rename the tarball (the
-    # package itself doesn't know anything about this).
-    if args.package != args.package_alias:
-        tarball_fname = '%s-%s.tar.bz2' % (args.package_alias, args.version)
-        if (not args.dry_run):
-            dest_file = os.path.join(builddir, tarball_fname)
-            # Do not copy if files are the same
-            if not (tarball_path == dest_file):
-                shutil.copyfile(tarball_path, dest_file)
-                tarball_path = dest_file
 
-    s3_tarball_directory = UPLOAD_DEST_PATTERN % get_canonical_package_name(args.package)
-    source_tarball_uri = DOWNLOAD_URI_PATTERN % get_canonical_package_name(args.package) + tarball_fname
+def generate_source_params(args):
+    params = {}
+    # 1. NIGHTLY (launch builders):
+    #     Pass the nightly branch if NIGHTLY enabled
+    # 2. Launch builders
+    #     Using args.source_tarball_uri if present
+    # 3. Launch source jobs (SOURCE_REPO_URI)
+    #     1.1 using args.source_repo_uri (if it was passed)
+    #     1.2 autogenerating it
 
-    # If the release only bump revision does not need to upload tarball but
-    # checkout that the one that should be already uploaded exists
-    if args.bump_rev_linux_only:
-        if urllib.request.urlopen(source_tarball_uri).getcode() == '404':
-            print('Can not find tarball: %s' % (source_tarball_uri))
-            sys.exit(1)
+    if NIGHTLY:
+        params['SOURCE_TARBALL_URI'] = args.nightly_branch
+    elif args.source_tarball_uri:
+        params['SOURCE_TARBALL_URI'] = args.source_tarball_uri
     else:
-        check_call(['s3cmd', 'sync', tarball_path, s3_tarball_directory])
-        shutil.rmtree(tmpdir)
+        params['SOURCE_REPO_URI'] = \
+            args.source_repo_uri if args.source_repo_uri else \
+            generate_source_repository_uri(args)
 
-        # Tag repo
-        os.chdir(sourcedir)
-        _ = tag_repo(args)
-
-    # TODO: Consider auto-updating the Ubuntu changelog.  It requires
-    # cloning the <package>-release repo, making a change, and pushing it back.
-    # Until we do that, the user must have first updated it manually.
-    return source_tarball_uri, tarball_sha
+    return params
 
 
 def call_jenkins_build(job_name, params, output_string):
@@ -525,20 +494,10 @@ def go(argv):
     if not args.no_sanity_checks:
         sanity_checks(args, repo_dir)
 
-    source_tarball_uri = ''
-    source_tarball_sha = ''
-
-    # Do not generate source file if not needed or impossible
-    if not args.no_source_file:
-        source_tarball_uri, source_tarball_sha = generate_upload_tarball(args)
-
-    # Kick off Jenkins jobs
-    params = {}
+    params = generate_source_params(args)
     params['token'] = args.jenkins_token
     params['PACKAGE'] = args.package
-    params['VERSION'] = args.version
-    params['SOURCE_TARBALL_URI'] = source_tarball_uri
-    params['SOURCE_TARBALL_SHA'] = source_tarball_sha
+    params['VERSION'] = args.version if not NIGHTLY else 'nightly'
     params['RELEASE_REPO_BRANCH'] = args.release_repo_branch
     params['PACKAGE_ALIAS'] = args.package_alias
     params['RELEASE_VERSION'] = args.release_version
@@ -548,65 +507,86 @@ def go(argv):
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
-    if NIGHTLY:
-        params['VERSION'] = 'nightly'
-        # reuse SOURCE_TARBALL_URI to indicate the nightly branch
-        # name must be modified in the future
-        params['SOURCE_TARBALL_URI'] = args.nightly_branch
 
-    # RELEASING FOR BREW
-    if not NIGHTLY and not args.bump_rev_linux_only:
-        call_jenkins_build(GENERIC_BREW_PULLREQUEST_JOB,
-                           params, 'Brew')
-
-    # RELEASING FOR LINUX
-    for l in LINUX_DISTROS:
-        if (l == 'ubuntu'):
-            distros_dic = ubuntu_distros
-        elif (l == 'debian'):
-            if (PRERELEASE or NIGHTLY):
-                continue
-            if not debian_distros:
-                continue
-            distros_dic = debian_distros
-        else:
-            error("Distro not supported in code")
-
-        for d in distros_dic:
-            for a in distros_dic[d]:
-                # Filter prerelease and nightly architectures
+    # a) Mode nightly or builders:
+    if NIGHTLY or args.source_tarball_uri:
+        # RELEASING FOR BREW
+        if not NIGHTLY and not args.bump_rev_linux_only:
+            call_jenkins_build(GENERIC_BREW_PULLREQUEST_JOB,
+                               params, 'Brew')
+        # RELEASING FOR LINUX
+        for l in LINUX_DISTROS:
+            if (l == 'ubuntu'):
+                distros_dic = ubuntu_distros
+            elif (l == 'debian'):
                 if (PRERELEASE or NIGHTLY):
+                    continue
+                if not debian_distros:
+                    continue
+                distros_dic = debian_distros
+            else:
+                error("Distro not supported in code")
+
+            for d in distros_dic:
+                for a in distros_dic[d]:
+                    # Filter prerelease and nightly architectures
+                    if (PRERELEASE or NIGHTLY):
+                        if (a == 'armhf' or a == 'arm64'):
+                            continue
+
+                    linux_platform_params = params.copy()
+                    linux_platform_params['ARCH'] = a
+                    linux_platform_params['LINUX_DISTRO'] = l
+                    linux_platform_params['DISTRO'] = d
+
                     if (a == 'armhf' or a == 'arm64'):
-                        continue
+                        # No sid releases for arm64/armhf lack of docker image
+                        # https://hub.docker.com/r/aarch64/debian/ fails on Jenkins
+                        if (d == 'sid'):
+                            continue
+                        # Need to use JENKINS_NODE_TAG parameter for large memory nodes
+                        # since it runs qemu emulation
+                        linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
+                    elif ('ignition-physics' in args.package_alias) or \
+                         ('gz-physics' in args.package_alias):
+                        linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
 
-                linux_platform_params = params.copy()
-                linux_platform_params['ARCH'] = a
-                linux_platform_params['LINUX_DISTRO'] = l
-                linux_platform_params['DISTRO'] = d
+                    # control nightly generation using a single machine to process
+                    # all distribution builds to avoid race conditions. Note: this
+                    # assumes that large-memory nodes are beind used for nightly
+                    # tags.
+                    # https://github.com/gazebo-tooling/release-tools/issues/644
+                    if (NIGHTLY):
+                        assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
+                        linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
 
-                if (a == 'armhf' or a == 'arm64'):
-                    # No sid releases for arm64/armhf lack of docker image
-                    # https://hub.docker.com/r/aarch64/debian/ fails on Jenkins
-                    if (d == 'sid'):
-                        continue
-                    # Need to use JENKINS_NODE_TAG parameter for large memory nodes
-                    # since it runs qemu emulation
-                    linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
-                elif ('ignition-physics' in args.package_alias) or \
-                     ('gz-physics' in args.package_alias):
-                    linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
+                    call_jenkins_build(f"{args.package_alias}-debbuilder",
+                                       linux_platform_params, f"{l} {d}/{a}")
+    else:
+        # b) Mode generate source
+        # Choose platform to run gz-source on. It will need to install gz-cmake
+        # Take the first key in the supported distros since all them should be
+        # able to install the needed gz-cmake.
+        if ubuntu_distros:
+            params['LINUX_DISTRO'] = 'ubuntu'
+            params['DISTRO'] = list(ubuntu_distros.keys())[0]
+        elif debian_distros:
+            params['LINUX_DISTRO'] = 'debian'
+            params['DISTRO'] = list(debian_distros.keys())[0]
+        else:
+            error("No distributions where found in the release repo")
 
-                # control nightly generation using a single machine to process
-                # all distribution builds to avoid race conditions. Note: this
-                # assumes that large-memory nodes are beind used for nightly
-                # tags.
-                # https://github.com/gazebo-tooling/release-tools/issues/644
-                if (NIGHTLY):
-                    assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
-                    linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
+        # Tag should not go before any method or step that can fail and just
+        # before the calls to the servers.
+        if not args.source_repo_ref:
+            print('INFO: no --source-repo-existing-ref used, tag the local'
+                  'repository as the reference for the source code of the'
+                  'release')
 
-                call_jenkins_build(f"{args.package}-debbuilder",
-                                   linux_platform_params, f"{l} {d}/{a}")
+        params['SOURCE_REPO_REF'] = tag_repo(args) \
+            if not args.source_repo_ref else args.source_repo_ref
+
+        call_jenkins_build(f"{args.package_alias}-source", params, 'Source')
 
 
 if __name__ == '__main__':
