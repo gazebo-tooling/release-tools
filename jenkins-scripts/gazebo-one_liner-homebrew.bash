@@ -9,6 +9,8 @@ echo '# BEGIN SECTION: cleanup brew installation'
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run the one-liner installation'
-# curl -ssL https://get.gazebosim.org | sh -x
-sh -x ${SCRIPT_DIR}/../one-line-installations/gazebo.sh
+curl -ssL https://get.gazebosim.org | sh -x
+# to test undeployed changes to gazebo.sh, comment out the
+# curl invocation and uncomment the line below
+# sh -x ${SCRIPT_DIR}/../one-line-installations/gazebo.sh
 echo '# END SECTION'
