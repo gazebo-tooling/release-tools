@@ -97,7 +97,7 @@ def trackedJobsList = [
     'gz_sensors-ci-ign-sensors6-focal-amd64',
     'gz_sim-ci-gz-sim7-focal-amd64',
     'gz_sim-ci-gz-sim8-jammy-amd64',
-    'gz_sim-ci-ign-gazebo6-focal-amd64',
+    'gz_sim-ci-ign-sim6-focal-amd64',
     'gz_tools-ci-gz-tools2-jammy-amd64',
     'gz_tools-ci-ign-tools1-focal-amd64',
     'gz_transport-ci-gz-transport12-focal-amd64',
