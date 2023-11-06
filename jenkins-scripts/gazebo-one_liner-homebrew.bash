@@ -10,5 +10,5 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: run the one-liner installation'
 # curl -ssL https://get.gazebosim.org | sh -x
-sh -x ${SCRIPT_DIR}/one-line-installations/gazebo.sh
+sh -x ${SCRIPT_DIR}/../one-line-installations/gazebo.sh
 echo '# END SECTION'
