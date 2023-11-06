@@ -9,6 +9,6 @@ echo '# BEGIN SECTION: cleanup brew installation'
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run the one-liner installation'
-# TODO: change this to 'curl -ssL https://get.gazebosim.org' once that supports https
-curl -ssL https://github.com/gazebo-tooling/release-tools/raw/master/one-line-installations/gazebo.sh | sh -x
+# curl -ssL https://get.gazebosim.org | sh -x
+sh -x ${SCRIPT_DIR}/one-line-installations/gazebo.sh
 echo '# END SECTION'
