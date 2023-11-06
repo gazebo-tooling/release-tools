@@ -522,6 +522,7 @@ ci_configs:
       distribution: macOSX
       version: all
       arch: amd64
+    requirements:
     exclude:
       all:
         - ign-citadel

@@ -151,6 +151,32 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
   }
 }
 
+void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
+{
+  def script_name_prefix = cleanup_library_name(lib_name)
+  def ws_checkout_dir = lib_name
+  OSRFBrewCompilation.create(gz_brew_ci_job,
+                             is_testing_enabled(lib_name, ci_config),
+                             are_cmake_warnings_enabled(lib_name, ci_config))
+  OSRFGitHub.create(gz_brew_ci_job,
+                    branch,
+                    ws_checkout_dir)
+  gz_brew_ci_job.with
+  {
+    triggers {
+      scm('@daily')
+    }
+
+    steps {
+      shell("""\
+            #!/bin/bash -xe
+
+            /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "${lib_name}"
+            """.stripIndent())
+      }
+  }
+}
+
 def ciconf_per_lib_index = [:].withDefault { [:] }
 def pkgconf_per_src_index = [:].withDefault { [:] }
 generate_ciconfigs_by_lib(gz_collections_yaml, ciconf_per_lib_index, pkgconf_per_src_index)
@@ -164,15 +190,39 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
     def branch_names = branches_with_collections.collect { it.branch }.unique()
     def script_name_prefix = cleanup_library_name(lib_name)
     def gz_job_name_prefix = lib_name.replaceAll('-','_')
+    def distro = ci_config.system.version
+    def arch = ci_config.system.arch
     if (ci_config.exclude.all?.contains(lib_name))
       return
     assert(lib_name)
     assert(branch_names)
     assert(ci_config)
 
+    // CI branch jobs (-ci-$branch-) (pulling check every 5 minutes)
+    branches_with_collections.each { branch_and_collection ->
+      def gz_ci_job
+      branch_name = branch_and_collection.branch
+      if (ci_config.system.so == 'linux') {
+        gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
+        generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+      } else if (ci_config.system.so == 'darwin') {
+        gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-homebrew-${arch}")
+        generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+      }
+
+      gz_ci_job.with
+      {
+        triggers {
+          scm('@daily')
+        }
+      }
+
+      logging_list['branch_ci'].add(
+        [collection: branch_and_collection.collection,
+         job_name: gz_ci_job.name])
+    } // end_of_branch
+
     if (ci_config.system.so == 'linux') {
-      def distro = ci_config.system.version
-      def arch = ci_config.system.arch
       def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
       def extra_cmd = pre_setup_script ?: ""
 
@@ -233,23 +283,6 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
           } // end of steps
         }  // end of with
       }
-
-      // CI branch jobs (-ci-$branch-) (pulling check every 5 minutes)
-      branches_with_collections.each { branch_and_collection ->
-        branch_name = branch_and_collection.branch
-        def gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
-        generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
-        gz_ci_job.with
-        {
-          triggers {
-            scm('@daily')
-          }
-        }
-
-        logging_list['branch_ci'].add(
-          [collection: branch_and_collection.collection,
-           job_name: gz_ci_job.name])
-      } // end_of_branch
     } else if (ci_config.system.so == 'darwin') {
       // --------------------------------------------------------------
       def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-amd64"
