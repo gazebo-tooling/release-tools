@@ -508,7 +508,14 @@ gz_collections_yaml.collections.each { collection ->
     distro = ci_config.system.version
     arch = ci_config.system.arch
 
-    if (ci_config.exclude.all?.contains(gz_collection_name))
+    // This should really include these two conditions to be effective:
+    //   ci_config.exclude.all?.contains("gz-" + gz_collection_name)
+    //   ci_config.exclude.all?.contains("ign-" + gz_collection_name)
+    // However the collection package being processed here are superseed by the migration
+    // to yaml efforts. Remove from here when -install- and -win- jobs are implemented
+    // in gazebo_libs
+    if (ci_config.exclude.all?.contains(gz_collection_name) ||
+        ci_config.name == "brew" )
       return
 
     // INSTALL JOBS:
