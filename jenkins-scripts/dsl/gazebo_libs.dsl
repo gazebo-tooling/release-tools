@@ -254,14 +254,10 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
       // --------------------------------------------------------------
       def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-amd64"
       def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
-      // TODO: Instead of GITHUB_SUPPORT_ALL_BRANCHES the right configuration would be $branch_names
-      // leave all the branches since we only support one brew platform and it covers the
-      // cases of PRs targeting not stable branches, see:
-      // https://github.com/gazebo-tooling/release-tools/issues/1044
       OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
                                           "gazebosim/${lib_name}",
                                           is_testing_enabled(lib_name, ci_config),
-                                          GITHUB_SUPPORT_ALL_BRANCHES,
+                                          branch_names,
                                           ENABLE_GITHUB_PR_INTEGRATION,
                                           are_cmake_warnings_enabled(lib_name, ci_config))
       gz_brew_ci_any_job.with
