@@ -182,47 +182,7 @@ all_debbuild_versions.each { version ->
 // --------------------------------------------------------------
 // BREW: CI jobs
 
-// 1. ANY job @ SCM/5min
-String ci_build_any_job_name_brew = "sdformat-ci-pr_any-homebrew-amd64"
-def sdformat_brew_ci_any_job = job(ci_build_any_job_name_brew)
-OSRFBrewCompilationAnyGitHub.create(sdformat_brew_ci_any_job,
-                                    "gazebosim/sdformat")
-sdformat_brew_ci_any_job.with
-{
-    steps {
-      shell("""\
-            #!/bin/bash -xe
-
-            /bin/bash -xe ./scripts/jenkins-scripts/sdformat-default-devel-homebrew-amd64.bash
-            """.stripIndent())
-    }
-}
-
-// 2. main in all branches @SCM/daily
-all_versions = sdformat_supported_versions + 'main'
-all_versions.each { version ->
-  def sdformat_brew_ci_job = job("sdformat-ci-${version}-homebrew-amd64")
-  OSRFBrewCompilation.create(sdformat_brew_ci_job)
-  OSRFGitHub.create(sdformat_brew_ci_job, "gazebosim/sdformat",
-                         get_sdformat_branch_name(version))
-
-  sdformat_brew_ci_job.with
-  {
-      triggers {
-        scm('@daily')
-      }
-
-      steps {
-        shell("""\
-              #!/bin/bash -xe
-
-              /bin/bash -xe ./scripts/jenkins-scripts/sdformat-default-devel-homebrew-amd64.bash
-              """.stripIndent())
-      }
-  }
-}
-
-// 3. install jobs to test bottles
+// install jobs to test bottles
 sdformat_supported_versions.each { version ->
   def install_default_job = job("${version}-install_bottle-homebrew-amd64")
   OSRFBrewInstall.create(install_default_job)
