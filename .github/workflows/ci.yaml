@@ -64,6 +64,8 @@ jobs:
           cd jenkins-scripts/dsl
           # export files for later diff
           mkdir /tmp/pr_xml_configuration && mkdir /tmp/pr_log_generated/
+          # sort jobs.txt
+          sort jobs.txt -o jobs.txt
           mv *.xml /tmp/pr_xml_configuration/
           mv *.txt /tmp/pr_log_generated/
       - name: Generate master DSL files
@@ -74,6 +76,8 @@ jobs:
           cd jenkins-scripts/dsl
           WRITE_JOB_LOG=1 java -jar tools/jobdsl.jar *.dsl
           mkdir /tmp/current_xml_configuration && mkdir /tmp/current_log_generated/
+          # sort jobs.txt
+          sort jobs.txt -o jobs.txt
           mv *.xml /tmp/current_xml_configuration/
           mv *.txt /tmp/current_log_generated/ || true
       - name: Generating diffs
