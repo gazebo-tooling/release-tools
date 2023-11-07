@@ -206,6 +206,11 @@ DELIM_DOCKER_DIRMNGR
 # Install necessary repositories using gzdev
 dockerfile_install_gzdev_repos
 
+KEYSERVER="keyserver.ubuntu.com"
+if [ "${DISTRO}" == 'bionic' ]; then
+  KEYSERVER="keys.openpgp.org"
+fi
+
 if ${USE_ROS_REPO}; then
   if ${ROS2}; then
 cat >> Dockerfile << DELIM_ROS_REPO
@@ -224,14 +229,14 @@ DELIM_ROS_REPO
 cat >> Dockerfile << DELIM_ROS_REPO
 RUN echo "deb http://repos.ros.org/repos/ros_bootstrap/ ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros_bootstrap.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8EDB2EF661FC880E
+RUN apt-key adv --keyserver ${KEYSERVER} --recv-keys 8EDB2EF661FC880E
 DELIM_ROS_REPO
   else
 cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
 RUN echo "deb http://packages.ros.org/${ROS_REPO_NAME}/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F42ED6FBAB17C654
+RUN apt-key adv --keyserver ${KEYSERVER} --recv-keys F42ED6FBAB17C654
 DELIM_ROS_REPO
 # Need ros stable for the cases of ros-testing
 if [[ ${ROS_REPO_NAME} != "ros" ]]; then
