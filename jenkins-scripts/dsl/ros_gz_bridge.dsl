@@ -57,7 +57,7 @@ bridge_packages.each { pkg ->
         stringParam("ARCH", "amd64", "Architecture to build packages for")
         stringParam('ROS_DISTRO', null,'ROS DISTRO to build pakcages for')
         stringParam("UPLOAD_TO_REPO", 'stable', "OSRF repo name to upload the package to")
-        stringParam('UPSTREAM_RELEASE_REPO', 'https://github.com/j-rivero/ros_ign-release', 'Release repository url')
+        stringParam('UPSTREAM_RELEASE_REPO', 'https://github.com/ros2-gbp/ros_ign-release', 'Release repository url')
     }
 
     // Blocks to control dependencies

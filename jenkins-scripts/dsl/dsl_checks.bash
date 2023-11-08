@@ -3,6 +3,7 @@
 if [[ -z $(ls -- *.xml) ]]; then
   echo "No .xml file founds. Generate them using:"
   echo "https://github.com/gazebo-tooling/release-tools/blob/master/jenkins-scripts/README.md#L11"
+  exit 1
 fi
 
 not_null=$(grep -3 'null' -- *.xml || true)
@@ -25,6 +26,18 @@ if [[ -n ${abichecker_main} ]]; then
   echo "Found a main branch in an abichecker job:"
   echo "${abichecker_main}"
   echo "Main branches are not target of abichecking. Fix the code."
+  exit 1
+fi
+
+# Check authorized/expected github organizations and/or repositories
+non_github_orgs=$(grep -R "https?://github.com/" -- *.xml | \
+  grep -E -v '/gazebosim/|/gazebo-tooling/|/gazebo-release/|/gazebo-forks/' | \
+  grep -E -v '/osrf/|/ros-simulation/|/ros2?-gbp/' | \
+  grep -E -v '/j-rivero/ratt/' || true)
+if [[ -n ${non_github_orgs} ]]; then
+  echo "Unexpected github orgs in XML files:"
+  echo "${non_github_orgs}"
+  echo "either update this test or fix the DSL code"
   exit 1
 fi
 
