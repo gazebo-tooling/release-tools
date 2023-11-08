@@ -154,13 +154,13 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
 void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
 {
   def script_name_prefix = cleanup_library_name(lib_name)
-  def ws_checkout_dir = lib_name
   OSRFBrewCompilation.create(gz_brew_ci_job,
                              is_testing_enabled(lib_name, ci_config),
                              are_cmake_warnings_enabled(lib_name, ci_config))
   OSRFGitHub.create(gz_brew_ci_job,
+                    "gazebosim/${lib_name}",
                     branch,
-                    ws_checkout_dir)
+                    lib_name)
   gz_brew_ci_job.with
   {
     triggers {
