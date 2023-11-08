@@ -171,7 +171,7 @@ void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
       shell("""\
             #!/bin/bash -xe
 
-            /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "${lib_name}"
+            /bin/bash -xe ./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash "${lib_name}"
             """.stripIndent())
       }
   }
