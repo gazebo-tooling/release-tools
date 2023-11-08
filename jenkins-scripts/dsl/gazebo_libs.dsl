@@ -163,10 +163,6 @@ void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
                     lib_name)
   gz_brew_ci_job.with
   {
-    triggers {
-      scm('@daily')
-    }
-
     steps {
       shell("""\
             #!/bin/bash -xe
