@@ -341,7 +341,7 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
                                           branch_names,
                                           ENABLE_GITHUB_PR_INTEGRATION,
                                           are_cmake_warnings_enabled(lib_name, ci_config))
-      add_win_devel_bat_call(gz_win_ci_any_job_name, lib_name)
+      add_win_devel_bat_call(gz_win_ci_any_job, lib_name)
       Globals.gazebodistro_branch = false
     }
   } //en of lib_configs
