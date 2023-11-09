@@ -173,6 +173,26 @@ void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
   }
 }
 
+void generate_win_ci_job(gz_win_ci_job, lib_name, branch, ci_config)
+{
+  def script_name_prefix = cleanup_library_name(lib_name)
+  OSRFWinCompilation.create(gz_win_ci_job,
+                            is_testing_enabled(lib_name, ci_config),
+                            are_cmake_warnings_enabled(lib_name, ci_config))
+  OSRFGitHub.create(gz_win_ci_job,
+                    "gazebosim/${lib_name}",
+                    branch,
+                    lib_name)
+  gz_win_ci_job.with
+  {
+    steps {
+      batchFile("""\
+            call "./scripts/jenkins-scripts/${script_name_prefix}-default-devel-windows-amd64.bat"
+            """.stripIndent())
+    }
+  }
+}
+
 def ciconf_per_lib_index = [:].withDefault { [:] }
 def pkgconf_per_src_index = [:].withDefault { [:] }
 generate_ciconfigs_by_lib(gz_collections_yaml, ciconf_per_lib_index, pkgconf_per_src_index)
@@ -204,6 +224,14 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
       } else if (ci_config.system.so == 'darwin') {
         gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-homebrew-${arch}")
         generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+      } else if (ci_config.system.so == 'windows') {
+        branch_number = branch_name - lib_name
+        Globals.gazebodistro_branch = true
+        gz_ci_job = job("${gz_job_name_prefix}-${branch_number}-win")
+        generate_win_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+        Globals.gazebodistro_branch = false
+      } else {
+        assert false : "Unexpected config.system.so type: ${ci_config.system.so}"
       }
 
       gz_ci_job.with
