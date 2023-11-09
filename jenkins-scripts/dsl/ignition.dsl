@@ -599,33 +599,6 @@ gz_software.each { gz_sw ->
     description 'Automatic generated job by DSL jenkins. Stub job for migration, not doing any check'
   }
 
-  // 2. main, release branches
-  all_branches("${software_name}").each { branch ->
-    def gz_brew_ci_job = job("ignition_${software_name}-ci-${branch}-homebrew-amd64")
-    OSRFBrewCompilation.create(gz_brew_ci_job,
-                               enable_testing(software_name),
-                               enable_cmake_warnings(software_name))
-    OSRFGitHub.create(gz_brew_ci_job,
-                              "gazebosim/ign-${software_name}",
-                              "${branch}", "ign-${software_name}")
-    gz_brew_ci_job.with
-    {
-        triggers {
-          scm('@daily')
-        }
-
-        steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                software_name="gz-${software_name}"
-                [[ ${software_name} == 'gazebo' ]] && software_name="gz-sim"
-                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "\${software_name}"
-                """.stripIndent())
-        }
-    }
-  }
-
   // 3. install jobs to test bottles
   supported_install_pkg_branches(gz_sw).each { major_version, supported_distros ->
     def install_default_job = job("ignition_${gz_sw}${major_version}-install_bottle-homebrew-amd64")
