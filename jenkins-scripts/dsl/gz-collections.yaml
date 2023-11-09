@@ -96,6 +96,7 @@ collections:
       configs:
         - bionic
         - brew
+        - win
     packaging:
       configs:
         - bionic
@@ -521,6 +522,36 @@ ci_configs:
       so: darwin
       distribution: macOSX
       version: all
+      arch: amd64
+    requirements:
+    exclude:
+      all:
+        - ign-citadel
+        - gz-fortress
+        - gz-garden
+        - gz-harmonic
+        - gz-ionic
+        - __upcoming__
+    cmake_warnings_disabled:
+      - gz-cmake
+      - gz-common
+      - gz-fuel-tools
+      - gz-sim
+      - gz-gui
+      - gz-launch
+      - gz-math
+      - gz-msgs
+      - gz-physics
+      - gz-rendering
+      - gz-sensors
+      - gz-tools
+      - gz-transport
+      - gz-utils
+  - name: win
+    system:
+      so: windows
+      distribution: windows
+      version: "10"
       arch: amd64
     requirements:
     exclude:
