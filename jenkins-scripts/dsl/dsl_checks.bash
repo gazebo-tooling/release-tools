@@ -14,8 +14,17 @@ if [[ -n ${not_null} ]]; then
   exit 1
 fi
 
-# Check for existing scripts
-for f in $(grep -Eh -o './scripts/.*' -- *.xml | awk '{print $1}' | sed 's/"//' | sort | uniq); do
+# Check for existing scripts. Lines:
+# 1. lookg for ./scripts/. and exclude comment lnes
+# 2. replaces %WORKSPACE% by .
+# 3. grab only the path from ./scripts/
+# 4. remove spurious "
+# 5. sor and uniq to get clean output
+for f in $(grep -Eh './scripts/.*' -- *.xml | grep -v '//' | \
+           sed 's/%WORKSPACE%/./g' | \
+           grep -Eh -o './scripts/.*' | awk '{print $1}' | \
+           sed 's/"//g' | \
+           sort | uniq); do
   if ! test -f "${f}"; then
     echo "${f} script not found in the repository"
   fi
