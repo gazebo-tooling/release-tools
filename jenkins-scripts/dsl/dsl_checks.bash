@@ -15,7 +15,7 @@ if [[ -n ${not_null} ]]; then
 fi
 
 # Check for existing scripts
-for f in $(grep -Eh -o './scripts/.*.bash' -- *.xml | sort | uniq); do
+for f in $(grep -Eh -o './scripts/.*' -- *.xml | awk '{print $1}' | sed 's/"//' | sort | uniq); do
   if ! test -f "${f}"; then
     echo "${f} script not found in the repository"
   fi
