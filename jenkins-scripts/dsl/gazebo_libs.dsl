@@ -153,7 +153,6 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
 
 void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
 {
-  def script_name_prefix = cleanup_library_name(lib_name)
   OSRFBrewCompilation.create(gz_brew_ci_job,
                              is_testing_enabled(lib_name, ci_config),
                              are_cmake_warnings_enabled(lib_name, ci_config))
@@ -173,16 +172,9 @@ void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
   }
 }
 
-void generate_win_ci_job(gz_win_ci_job, lib_name, branch, ci_config)
+void add_win_devel_bat_call(gz_win_ci_job, lib_name)
 {
   def script_name_prefix = cleanup_library_name(lib_name)
-  OSRFWinCompilation.create(gz_win_ci_job,
-                            is_testing_enabled(lib_name, ci_config),
-                            are_cmake_warnings_enabled(lib_name, ci_config))
-  OSRFGitHub.create(gz_win_ci_job,
-                    "gazebosim/${lib_name}",
-                    branch,
-                    lib_name)
   gz_win_ci_job.with
   {
     steps {
@@ -191,6 +183,18 @@ void generate_win_ci_job(gz_win_ci_job, lib_name, branch, ci_config)
             """.stripIndent())
     }
   }
+}
+
+void generate_win_ci_job(gz_win_ci_job, lib_name, branch, ci_config)
+{
+  OSRFWinCompilation.create(gz_win_ci_job,
+                            is_testing_enabled(lib_name, ci_config),
+                            are_cmake_warnings_enabled(lib_name, ci_config))
+  OSRFGitHub.create(gz_win_ci_job,
+                    "gazebosim/${lib_name}",
+                    branch,
+                    lib_name)
+  add_win_devel_bat_call(gz_win_ci_job, lib_name)
 }
 
 def ciconf_per_lib_index = [:].withDefault { [:] }
@@ -327,6 +331,18 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
                 """.stripIndent())
         }
       }
+    } else if (ci_config.system.so == 'windows') {
+      def gz_win_ci_any_job_name = "${gz_job_name_prefix}-pr-win"
+      def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
+      Globals.gazebodistro_branch = true
+      OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_job,
+                                          "gazebosim/${lib_name}",
+                                          is_testing_enabled(lib_name, ci_config),
+                                          branch_names,
+                                          ENABLE_GITHUB_PR_INTEGRATION,
+                                          are_cmake_warnings_enabled(lib_name, ci_config))
+      add_win_devel_bat_call(gz_win_ci_any_job_name, lib_name)
+      Globals.gazebodistro_branch = false
     }
   } //en of lib_configs
 } // end of lib
