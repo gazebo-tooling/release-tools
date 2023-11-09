@@ -681,11 +681,7 @@ gz_software.each { gz_sw ->
                                     enable_cmake_warnings(gz_sw))
   gz_win_ci_any_job.with
   {
-      steps {
-        batchFile("""\
-              call "./scripts/jenkins-scripts/ign_${gz_sw}-default-devel-windows-amd64.bat"
-              """.stripIndent())
-      }
+    description 'Automatic generated job by DSL jenkins. Stub job for migration, not doing any check'
   }
 
   // add ci-pr_any to the list for CIWorkflow
