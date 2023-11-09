@@ -177,6 +177,7 @@ collections:
       configs:
         - focal
         - brew
+        - win
     packaging:
       configs:
         - focal
@@ -257,6 +258,7 @@ collections:
       configs:
         - focal
         - brew
+        - win
     packaging:
       configs:
         - focal
@@ -337,6 +339,7 @@ collections:
       configs:
         - jammy
         - brew
+        - win
     packaging:
       configs:
         - jammy
@@ -413,6 +416,7 @@ collections:
       configs:
         - jammy
         - brew
+        - win
     packaging:
       configs:
         - jammy
@@ -432,6 +436,7 @@ collections:
       configs:
         - jammy
         - brew
+        - win
     packaging:
       configs:
         - jammy
