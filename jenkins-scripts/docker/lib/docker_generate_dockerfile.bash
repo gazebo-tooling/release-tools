@@ -29,10 +29,10 @@ fi
 
 [[ -z ${INSTALL_C17_COMPILER} ]] && INSTALL_C17_COMPILER=false
 
-# Bionic builds were affected by a "gpg: keyserver receive failed" in apt-key execution
+# Bionic|Focal builds were affected by a "gpg: keyserver receive failed" in apt-key execution
 # that poisoned a lot of docker cache in different builds and nodes. Force invalidation
 # during a couple of month to rotate images
-if [[ "${DISTRO}" == 'bionic' ]] && \
+if [[ "${DISTRO}" == 'bionic' || "${DISTRO}" == 'focal' ]] && \
    [[ "$(date '+%s')" -lt "$(date -d '+60 days' '+%s')" ]]; then
   export INVALIDATE_DOCKER_CACHE=true
 fi
