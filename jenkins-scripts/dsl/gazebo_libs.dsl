@@ -154,19 +154,23 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
 void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
 {
   def script_name_prefix = cleanup_library_name(lib_name)
+  def ws_checkout_dir = lib_name
+  def project_formula = lib_name.replaceAll(/^ign_/, 'ignition_')
   OSRFBrewCompilation.create(gz_brew_ci_job,
                              is_testing_enabled(lib_name, ci_config),
                              are_cmake_warnings_enabled(lib_name, ci_config))
   OSRFGitHub.create(gz_brew_ci_job,
                     "gazebosim/${lib_name}",
                     branch,
-                    lib_name)
+                    ws_checkout_dir)
   gz_brew_ci_job.with
   {
     steps {
       shell("""\
             #!/bin/bash -xe
 
+            export PROJECT_PATH="${ws_checkout_dir}"
+            export PROJECT_FORMULA="${project_formula}"
             /bin/bash -xe ./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash "${lib_name}"
             """.stripIndent())
       }
@@ -283,6 +287,8 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
       // --------------------------------------------------------------
       def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-amd64"
       def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
+      def ws_checkout_dir = lib_name
+      def project_formula = lib_name.replaceAll(/^ign_/, 'ignition_')
       OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
                                           "gazebosim/${lib_name}",
                                           is_testing_enabled(lib_name, ci_config),
@@ -295,6 +301,8 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
           shell("""\
                 #!/bin/bash -xe
 
+                export PROJECT_PATH="${ws_checkout_dir}"
+                export PROJECT_FORMULA="${project_formula}"
                 /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "${lib_name}"
                 """.stripIndent())
         }
