@@ -39,7 +39,7 @@ fi
 
 KEYSERVER="keyserver.ubuntu.com"
 if [[ "${DISTRO}" == 'bionic' || "${DISTRO}" == 'focal' ]]; then
-  KEYSERVER="keys.openpgp.org"
+  KEYSERVER="hkps://pgp.surf.nl"
 fi
 
 dockerfile_install_gzdev_repos()
