@@ -32,8 +32,9 @@ fi
 # Bionic|Focal builds were affected by a "gpg: keyserver receive failed" in apt-key execution
 # that poisoned a lot of docker cache in different builds and nodes. Force invalidation
 # during a couple of month to rotate images
+ref_date='2023-11-13'
 if [[ "${DISTRO}" == 'bionic' || "${DISTRO}" == 'focal' ]] && \
-   [[ "$(date '+%s')" -lt "$(date -d '+60 days' '+%s')" ]]; then
+   [[ "$(date '+%s')" -lt "$(date -d "${ref_date}+60 days" '+%s')" ]]; then
   export INVALIDATE_DOCKER_CACHE=true
 fi
 
