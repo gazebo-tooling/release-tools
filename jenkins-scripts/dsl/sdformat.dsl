@@ -17,7 +17,6 @@ def supported_arches        = Globals.get_supported_arches()
 def experimental_arches     = Globals.get_experimental_arches()
 
 String ci_distro_str = ci_distro[0]
-String ci_build_any_job_name_linux = "sdformat-ci-pr_any-ubuntu_auto-amd64"
 
 // Need to be used in ci_pr
 String abi_job_name = ''
@@ -56,20 +55,6 @@ abi_distro.each { distro ->
 	      """.stripIndent())
       } // end of steps
     }  // end of with
-  } // end of arch
-} // end of distro
-
-// MAIN CI job
-// CI JOBS @ SCM/5 min
-ci_distro.each { distro ->
-  supported_arches.each { arch ->
-    // --------------------------------------------------------------
-    // 2. Create a fake any job for migrating
-    // TODO: remove the job once the migration in https://github.com/gazebo-tooling/release-tools/issues/1010
-    // is done.
-    String sdf_repo = "gazebosim/sdformat"
-    def sdformat_ci_any_job = job(ci_build_any_job_name_linux)
-    GenericAnyJobGitHub.create(sdformat_ci_any_job, sdf_repo)
   } // end of arch
 } // end of distro
 
@@ -213,8 +198,3 @@ sdformat_supported_versions.each { version ->
     }
   }
 }
-
-// Create the manual all-platforms jobs
-def sdformat_ci_main = pipelineJob("sdformat-ci-manual_any")
-OSRFCIWorkFlowMultiAnyGitHub.create(sdformat_ci_main,
-                                    [ci_build_any_job_name_linux])

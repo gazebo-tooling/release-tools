@@ -164,7 +164,7 @@ collections:
       - name: gz-sim
         major_version: 6
         repo:
-          current_branch: ign-sim6
+          current_branch: ign-gazebo6
       - name: gz-launch
         major_version: 5
         repo:

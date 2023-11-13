@@ -12,9 +12,8 @@ export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 # Get project name as first argument to this script
 PROJECT=$1 # project will have the major version included (ex gazebo2)
 PROJECT_ARGS=${2}
-
-PROJECT_PATH=${PROJECT}
-
+# PROJECT_PATH can be passed as env variable or assume that is the same than project name
+PROJECT_PATH=${PROJECT_PATH:-$PROJECT}
 # Check for major version number
 # the PROJECT_FORMULA variable is only used for dependency resolution
 PROJECT_FORMULA=${PROJECT//[0-9]}$(\

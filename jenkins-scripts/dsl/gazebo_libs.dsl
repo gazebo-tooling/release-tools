@@ -151,25 +151,35 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
   }
 }
 
-void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
+void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
 {
-  OSRFBrewCompilation.create(gz_brew_ci_job,
-                             is_testing_enabled(lib_name, ci_config),
-                             are_cmake_warnings_enabled(lib_name, ci_config))
-  OSRFGitHub.create(gz_brew_ci_job,
-                    "gazebosim/${lib_name}",
-                    branch,
-                    lib_name)
+  // ignition formulas does not match the lib name, expand the prefix
+  lib_name = lib_name.replaceAll(/^ign-/, 'ignition-')
   gz_brew_ci_job.with
   {
     steps {
       shell("""\
             #!/bin/bash -xe
 
+            export PROJECT_PATH="${ws_checkout_dir}"
             /bin/bash -xe ./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash "${lib_name}"
             """.stripIndent())
       }
   }
+}
+
+void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
+{
+  def script_name_prefix = cleanup_library_name(lib_name)
+  def ws_checkout_dir = lib_name
+  OSRFBrewCompilation.create(gz_brew_ci_job,
+                             is_testing_enabled(lib_name, ci_config),
+                             are_cmake_warnings_enabled(lib_name, ci_config))
+  OSRFGitHub.create(gz_brew_ci_job,
+                    "gazebosim/${lib_name}",
+                    branch,
+                    ws_checkout_dir)
+  add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
 }
 
 void add_win_devel_bat_call(gz_win_ci_job, lib_name)
@@ -315,22 +325,14 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
       // --------------------------------------------------------------
       def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-amd64"
       def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
+      def ws_checkout_dir = lib_name
       OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
                                           "gazebosim/${lib_name}",
                                           is_testing_enabled(lib_name, ci_config),
                                           branch_names,
                                           ENABLE_GITHUB_PR_INTEGRATION,
                                           are_cmake_warnings_enabled(lib_name, ci_config))
-      gz_brew_ci_any_job.with
-      {
-        steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "${lib_name}"
-                """.stripIndent())
-        }
-      }
+      add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir)
     } else if (ci_config.system.so == 'windows') {
       def gz_win_ci_any_job_name = "${gz_job_name_prefix}-pr-win"
       def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
