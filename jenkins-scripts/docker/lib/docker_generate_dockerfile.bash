@@ -46,6 +46,11 @@ if python3 ${SCRIPT_DIR}/../tools/detect_ci_matching_branch.py "${ghprbSourceBra
   GZDEV_TRY_BRANCH=$ghprbSourceBranch
 fi
 
+KEYSERVER="keyserver.ubuntu.com"
+if [[ "${DISTRO}" == 'bionic' || "${DISTRO}" == 'focal' ]]; then
+  KEYSERVER="hkps://pgp.surf.nl"
+fi
+
 dockerfile_install_gzdev_repos()
 {
 cat >> Dockerfile << DELIM_OSRF_REPO_GIT
@@ -62,18 +67,18 @@ if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
 # debian sid docker images does not return correct name so we need to use
 # force-linux-distro
 cat >> Dockerfile << DELIM_OSRF_REPO_GZDEV
-RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
+RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} --keyserver ${KEYSERVER} || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
     if [ -n $GZDEV_TRY_BRANCH ]; then git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH; fi || true && \
-    ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} )
+    ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} --keyserver ${KEYSERVER})
 DELIM_OSRF_REPO_GZDEV
 fi
 
 # This could duplicate repositories enabled in the step above. gzdev should warn about it without failing.
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
-RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO}  || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
+RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} --keyserver ${KEYSERVER} || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
     if [ -n $GZDEV_TRY_BRANCH ]; then git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH; fi || true && \
-    ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} )
+    ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} --keyserver ${KEYSERVER})
 DELIM_OSRF_REPO
 done
 }
@@ -214,11 +219,6 @@ DELIM_DOCKER_DIRMNGR
 
 # Install necessary repositories using gzdev
 dockerfile_install_gzdev_repos
-
-KEYSERVER="keyserver.ubuntu.com"
-if [ "${DISTRO}" == 'bionic' ]; then
-  KEYSERVER="keys.openpgp.org"
-fi
 
 if ${USE_ROS_REPO}; then
   if ${ROS2}; then
