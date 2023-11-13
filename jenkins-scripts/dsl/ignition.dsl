@@ -421,29 +421,6 @@ gz_software.each { gz_sw ->
       }  // end of with
     } // end of abi_distro
 
-    // 1.2.1 Main PR jobs (-ci-pr_any-) (pulling check every 5 minutes)
-    // --------------------------------------------------------------
-    software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
-
-    if (gz_sw == 'sim')
-      software_name = "gazebo"
-
-    def gz_ci_job_name = "ignition_${software_name}-ci-pr_any-ubuntu_auto-${arch}"
-    def gz_ci_any_job = job(gz_ci_job_name)
-    def gz_checkout_dir = "ign-${software_name}"
-    GenericAnyJobGitHub.create(gz_ci_any_job,
-                              "gazebosim/${gz_checkout_dir}",
-                               [],
-                               true)
-    gz_ci_any_job.with
-    {
-      description 'Automatic generated job by DSL jenkins. Stub job for migration, not doing any check'
-    } // end of ci_any_job
-
-    // add ci-pr_any to the list for CIWorkflow
-    if (gz_sw != 'sim')
-      ci_pr_any_list[software_name] << gz_ci_job_name
-
     all_supported_distros.each { distro ->
         all_branches("${gz_sw}").each { branch ->
           // 1. Standard CI
