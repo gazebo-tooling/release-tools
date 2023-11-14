@@ -582,6 +582,20 @@ ci_configs:
       - gz-tools
       - gz-transport
       - gz-utils
+      - ign-cmake
+      - ign-common
+      - ign-fuel-tools
+      - ign-sim
+      - ign-gui
+      - ign-launch
+      - ign-math
+      - ign-msgs
+      - ign-physics
+      - ign-rendering
+      - ign-sensors
+      - ign-tools
+      - ign-transport
+      - ign-utils
       - sdformat
 packaging_configs:
   - name: bionic
