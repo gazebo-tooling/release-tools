@@ -182,13 +182,14 @@ void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
   add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
 }
 
-void add_win_devel_bat_call(gz_win_ci_job, lib_name)
+void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir)
 {
   def script_name_prefix = cleanup_library_name(lib_name)
   gz_win_ci_job.with
   {
     steps {
       batchFile("""\
+            set VCS_DIRECTORY=${ws_checkout_dir}
             call "./scripts/jenkins-scripts/${script_name_prefix}-default-devel-windows-amd64.bat"
             """.stripIndent())
     }
@@ -197,14 +198,15 @@ void add_win_devel_bat_call(gz_win_ci_job, lib_name)
 
 void generate_win_ci_job(gz_win_ci_job, lib_name, branch, ci_config)
 {
+  def ws_checkout_dir = lib_name
   OSRFWinCompilation.create(gz_win_ci_job,
                             is_testing_enabled(lib_name, ci_config),
                             are_cmake_warnings_enabled(lib_name, ci_config))
   OSRFGitHub.create(gz_win_ci_job,
                     "gazebosim/${lib_name}",
                     branch,
-                    lib_name)
-  add_win_devel_bat_call(gz_win_ci_job, lib_name)
+                    ws_checkout_dir)
+  add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir)
 }
 
 def ciconf_per_lib_index = [:].withDefault { [:] }
@@ -222,6 +224,7 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
     def gz_job_name_prefix = lib_name.replaceAll('-','_')
     def distro = ci_config.system.version
     def arch = ci_config.system.arch
+    def ws_checkout_dir = lib_name
     if (ci_config.exclude.all?.contains(lib_name))
       return
     assert(lib_name)
@@ -325,7 +328,6 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
       // --------------------------------------------------------------
       def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-amd64"
       def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
-      def ws_checkout_dir = lib_name
       OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
                                           "gazebosim/${lib_name}",
                                           is_testing_enabled(lib_name, ci_config),
@@ -343,7 +345,7 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
                                           branch_names,
                                           ENABLE_GITHUB_PR_INTEGRATION,
                                           are_cmake_warnings_enabled(lib_name, ci_config))
-      add_win_devel_bat_call(gz_win_ci_any_job, lib_name)
+      add_win_devel_bat_call(gz_win_ci_any_job, lib_name, ws_checkout_dir)
       Globals.gazebodistro_branch = false
     }
   } //en of lib_configs
