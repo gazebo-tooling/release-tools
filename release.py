@@ -73,6 +73,11 @@ def print_success(msg):
     print(" + OK " + msg)
 
 
+def print_only_dbg(msg):
+    if '_RELEASEPY_DEBUG' in os.environ:
+        print(msg)
+
+
 # Remove the last character if it is a number.
 # That should leave just the package name instead of packageVersion
 # I.E gazebo5 -> gazebo
@@ -379,10 +384,10 @@ def discover_distros(repo_dir):
 
 def check_call(cmd, ignore_dry_run=False):
     if DRY_RUN and not ignore_dry_run:
-        print('Dry-run running:\n  %s\n' % (' '.join(cmd)))
+        print_only_dbg('Dry-run running:\n  %s\n' % (' '.join(cmd)))
         return b'', b''
     else:
-        print('Running:\n  %s' % (' '.join(cmd)))
+        print_only_dbg('Running:\n  %s' % (' '.join(cmd)))
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = po.communicate()
         if po.returncode != 0:
@@ -474,7 +479,8 @@ def call_jenkins_build(job_name, params, output_string):
     url = '%s/job/%s/buildWithParameters?%s' % (JENKINS_URL,
                                                 job_name,
                                                 params_query)
-    print(f"- {output_string}: {url}")
+    print(f" + Releasing {output_string} in {JENKINS_URL}/job/{job_name}")
+    print_only_dbg(f" -- {output_string}: {url}")
     if not DRY_RUN:
         urllib.request.urlopen(url)
 
@@ -507,7 +513,7 @@ def go(argv):
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
-
+    print("Triggering release jobs:")
     # a) Mode nightly or builders:
     if NIGHTLY or args.source_tarball_uri:
         # RELEASING FOR BREW
