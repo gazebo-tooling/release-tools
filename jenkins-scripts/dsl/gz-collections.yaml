@@ -552,6 +552,7 @@ ci_configs:
       - gz-tools
       - gz-transport
       - gz-utils
+      - sdformat
   - name: win
     system:
       so: windows
@@ -582,6 +583,7 @@ ci_configs:
       - gz-tools
       - gz-transport
       - gz-utils
+      - sdformat
 packaging_configs:
   - name: bionic
     system:
