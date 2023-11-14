@@ -375,9 +375,9 @@ def discover_distros(repo_dir):
         arches_supported = [x for x in SUPPORTED_ARCHS if x not in excluded_arches]
         distro_arch_list[d] = arches_supported
 
-    print('Distributions in release-repo:')
-    for k in distro_arch_list:
-        print("- " + k + " (" + ', '.join(distro_arch_list[k]) + ")")
+    print('Linux distributions in the -release repository:')
+    for distro in distro_arch_list:
+        print(f" + {distro}  {*distro_arch_list[distro],}")
 
     return distro_arch_list
 
@@ -492,6 +492,7 @@ def go(argv):
     if not args.release_version:
         args.release_version = 1
 
+    print(f"Dowloading releasing info for {args.package}")
     # Sanity checks and dicover supported distributions before proceed.
     repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
     # The supported distros are the ones in the top level of -release repo
@@ -585,9 +586,9 @@ def go(argv):
         # Tag should not go before any method or step that can fail and just
         # before the calls to the servers.
         if not args.source_repo_ref:
-            print('INFO: no --source-repo-existing-ref used, tag the local'
-                  'repository as the reference for the source code of the'
-                  'release')
+            print(' * INFO: no --source-repo-existing-ref used, tag the local'
+                  ' repository as the reference for the source code of the'
+                  ' release')
 
         params['SOURCE_REPO_REF'] = tag_repo(args) \
             if not args.source_repo_ref else args.source_repo_ref
