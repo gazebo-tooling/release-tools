@@ -560,23 +560,7 @@ all_debbuilders().each { debbuilder_name ->
 
 // 1. any job
 gz_software.each { gz_sw ->
-  software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
-
-  if (gz_sw == 'sim')
-    software_name = "gazebo"
-
-  String gz_brew_ci_any_job_name = "ignition_${software_name}-ci-pr_any-homebrew-amd64"
-  def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
-  GenericAnyJobGitHub.create(gz_brew_ci_any_job,
-                             "gazebosim/ign-${software_name}",
-                             GITHUB_SUPPORT_ALL_BRANCHES,
-                             ENABLE_GITHUB_PR_INTEGRATION)
-  gz_brew_ci_any_job.with
-  {
-    description 'Automatic generated job by DSL jenkins. Stub job for migration, not doing any check'
-  }
-
-  // 3. install jobs to test bottles
+  // Install jobs to test bottles
   supported_install_pkg_branches(gz_sw).each { major_version, supported_distros ->
     def install_default_job = job("ignition_${gz_sw}${major_version}-install_bottle-homebrew-amd64")
     OSRFBrewInstall.create(install_default_job)
