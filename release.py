@@ -438,7 +438,7 @@ def generate_source_repository_uri(args):
     out, err = check_call(['git', 'ls-remote', '--get-url', 'origin'],
                           IGNORE_DRY_RUN)
     if err:
-        print(f"An error happened running git ls-remote: ${err}")
+        print(f"An error happened running git ls-remote: {err}")
         sys.exit(1)
 
     git_remote = out.decode().split('\n')[0]
@@ -483,6 +483,27 @@ def call_jenkins_build(job_name, params, output_string):
     print_only_dbg(f" -- {output_string}: {url}")
     if not DRY_RUN:
         urllib.request.urlopen(url)
+
+
+def display_help_job_chain_for_source_calls(args):
+    # Encode the different ways using in the job descriptions to filter builds
+    #   - "package version" in repository_uploader_packages
+    #   - "packages/version-rev" in _releasepy
+    url_search_params = urllib.parse.urlencode(
+        {'search':
+            f'{args.package_alias} {args.version}'})
+    pkgs_upload_check_url = \
+        f'{JENKINS_URL}/job/repository_uploader_packages/?{url_search_params}'
+    rel_search_params = urllib.parse.urlencode(
+        {'search':
+            f'{args.package_alias}/{args.version}-{args.release_version}'})
+    releasepy_check_url = \
+        f'{JENKINS_URL}/job/_releasepy/?{rel_search_params}'
+    print('\tINFO: After the source job finished, the release process will trigger:\n'
+          '\t  * Source upload:'
+          f'{pkgs_upload_check_url}\n'
+          '\t  * Builders using release.py --source-tarball-uri:'
+          f'{releasepy_check_url}')
 
 
 def go(argv):
@@ -594,6 +615,7 @@ def go(argv):
             if not args.source_repo_ref else args.source_repo_ref
 
         call_jenkins_build(f"{args.package_alias}-source", params, 'Source')
+        display_help_job_chain_for_source_calls(args)
 
 
 if __name__ == '__main__':
