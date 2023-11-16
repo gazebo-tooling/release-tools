@@ -521,7 +521,7 @@ def go(argv):
     if not args.release_version:
         args.release_version = 1
 
-    print(f"Dowloading releasing info for {args.package}")
+    print(f"Downloading releasing info for {args.package}")
     # Sanity checks and dicover supported distributions before proceed.
     repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
     # The supported distros are the ones in the top level of -release repo
@@ -593,7 +593,7 @@ def go(argv):
 
                     # control nightly generation using a single machine to process
                     # all distribution builds to avoid race conditions. Note: this
-                    # assumes that large-memory nodes are beind used for nightly
+                    # assumes that large-memory nodes are being used for nightly
                     # tags.
                     # https://github.com/gazebo-tooling/release-tools/issues/644
                     if (NIGHTLY):
