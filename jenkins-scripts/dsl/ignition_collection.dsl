@@ -515,7 +515,8 @@ gz_collections_yaml.collections.each { collection ->
     // to yaml efforts. Remove from here when -install- and -win- jobs are implemented
     // in gazebo_libs
     if (ci_config.exclude.all?.contains(gz_collection_name) ||
-        ci_config.name == "brew" )
+        ci_config.system.so == 'darwin' ||
+        ci_config.system.so == 'windows')
       return
 
     // INSTALL JOBS:

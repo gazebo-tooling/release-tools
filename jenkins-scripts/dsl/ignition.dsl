@@ -642,61 +642,11 @@ gz_software.each { gz_sw ->
                                     enable_cmake_warnings(gz_sw))
   gz_win_ci_any_job.with
   {
-      steps {
-        batchFile("""\
-              call "./scripts/jenkins-scripts/ign_${gz_sw}-default-devel-windows-amd64.bat"
-              """.stripIndent())
-      }
+    description 'Automatic generated job by DSL jenkins. Stub job for migration, not doing any check'
   }
 
   // add ci-pr_any to the list for CIWorkflow
   ci_pr_any_list[gz_sw] << gz_win_ci_any_job_name
-
-  // 2. main, release branches
-  all_branches("${gz_sw}").each { branch ->
-    if (is_a_colcon_package(gz_sw)) {
-      // colcon uses long paths and windows has a hard limit of 260 chars. Keep
-      // names minimal
-      if (branch == 'main')
-        branch_name = "ci"
-      else
-        branch_name = branch - gz_sw
-      // Deal with the special case of changing gazebo name by sim
-      branch_name = branch_name.replace('gz-sim','gz-')
-      gz_win_ci_job_name = "ign_${gz_sw}-${branch_name}-win"
-    } else {
-      gz_win_ci_job_name = "ignition_${gz_sw}-ci-${branch}-windows7-amd64"
-    }
-
-    def gz_win_ci_job = job(gz_win_ci_job_name)
-    OSRFWinCompilation.create(gz_win_ci_job,
-                              enable_testing(gz_sw),
-                              enable_cmake_warnings(gz_sw))
-    OSRFGitHub.create(gz_win_ci_job,
-                              "gazebosim/gz-${gz_sw}",
-                              "${branch}")
-
-    gz_win_ci_job.with
-    {
-        // ign-gazebo only works on Windows from ign-gazebo5
-        if (branch == 'ign-gazebo3')
-          disabled()
-
-        // ign-launch was not ported to windows until 5
-        if (branch == 'ign-launch2')
-          disabled()
-
-        triggers {
-          scm('@daily')
-        }
-
-        steps {
-          batchFile("""\
-                call "./scripts/jenkins-scripts/ign_${gz_sw}-default-devel-windows-amd64.bat"
-                """.stripIndent())
-        }
-    }
-  }
 }
 
 // Main CI workflow
