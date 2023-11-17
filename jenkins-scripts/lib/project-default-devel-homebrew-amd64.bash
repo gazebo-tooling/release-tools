@@ -24,7 +24,7 @@ export HOMEBREW_PREFIX=/usr/local
 export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
 export PATH=${HOMEBREW_PREFIX}/bin:${HOMEBREW_PREFIX}/sbin:$PATH
 
-export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python
+export PYTHONPATH=$PYTHONPATH:${HOMEBREW_PREFIX}/lib/python
 
 # make verbose mode?
 MAKE_VERBOSE_STR=""
