@@ -419,7 +419,7 @@ gz_software.each { gz_sw ->
         description 'Automatic generated job by DSL jenkins. Stub job for migration, not doing any check'
       }  // end of with
     } // end of abi_distro
-
+  } // end of arch
 } // end of gz_software
 
 
