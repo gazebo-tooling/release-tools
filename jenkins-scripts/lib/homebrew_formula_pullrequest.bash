@@ -108,6 +108,6 @@ if [ "$FORMULA_REVISION" -gt 0 ]; then
 fi
 
 # create branch with name and sanitized version string
-PULL_REQUEST_BRANCH="${PACKAGE_ALIAS}_`echo ${VERSION_SANITIZED} | tr ' ~:^?*[' '_'`"
+PULL_REQUEST_BRANCH="${PACKAGE_ALIAS}_$(echo ${VERSION_SANITIZED} | tr ' ~:^?*[' '_')_$(date +%s)"
 
 . ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
