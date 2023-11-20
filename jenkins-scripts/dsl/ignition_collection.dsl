@@ -102,7 +102,7 @@ gz_collection_jobs =
         'sdformat-ci-sdf9-focal-amd64',
         'sdformat-ci-sdf9-homebrew-amd64',
         'sdformat-install-sdformat9_pkg-focal-amd64',
-        'sdformat-sdf-9-win'
+        'sdformat-sdf9-win'
   ],
   'fortress' : [
         'ign_cmake-2-win',
