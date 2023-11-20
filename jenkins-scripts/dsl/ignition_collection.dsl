@@ -99,9 +99,8 @@ gz_collection_jobs =
         'ignition_transport-ci-ign-transport8-homebrew-amd64',
         'ignition_transport8-install-pkg-focal-amd64',
         'ignition_transport8-install_bottle-homebrew-amd64',
-        'sdformat-ci-sdformat9-focal-amd64',
-        'sdformat-ci-sdformat9-homebrew-amd64',
-        'sdformat-ci-sdformat9-windows7-amd64',
+        'sdformat-ci-sdf9-focal-amd64',
+        'sdformat-ci-sdf9-homebrew-amd64',
         'sdformat-install-sdformat9_pkg-focal-amd64',
         'sdformat-sdf-9-win'
   ],
@@ -184,10 +183,10 @@ gz_collection_jobs =
         'gz_utils-ci-ign-utils1-homebrew-amd64',
         'gz_utils-install-pkg-focal-amd64',
         'ignition_utils1-install_bottle-homebrew-amd64',
-        'sdformat-ci-sdformat12-focal-amd64',
-        'sdformat-ci-sdformat12-homebrew-amd64',
+        'sdformat-ci-sdf12-focal-amd64',
+        'sdformat-ci-sdf12-homebrew-amd64',
         'sdformat-install-sdformat12_pkg-focal-amd64',
-        'sdformat-sdf-12-win.xml'
+        'sdformat-sdf12-win'
   ],
   'garden' : [
         'gz_cmake3-install-pkg-focal-amd64',
@@ -222,7 +221,7 @@ gz_collection_jobs =
         'gz_tools-2-win',
         'gz_transport-12-win',
         'gz_utils-2-win',
-        'sdformat-sdf-13-win',
+        'sdformat-sdf13-win',
         'gz_cmake-ci-gz-cmake3-focal-amd64',
         'gz_cmake-ci-gz-cmake3-homebrew-amd64',
         'ignition_cmake3-install_bottle-homebrew-amd64',
@@ -271,8 +270,8 @@ gz_collection_jobs =
         'gz_utils-ci-gz-utils2-focal-amd64',
         'gz_utils-ci-gz-utils2-homebrew-amd64',
         'ignition_utils2-install_bottle-homebrew-amd64',
-        'sdformat-ci-sdformat13-focal-amd64',
-        'sdformat-ci-sdformat13-homebrew-amd64'
+        'sdformat-ci-sdf13-focal-amd64',
+        'sdformat-ci-sdf13-homebrew-amd64'
   ],
   'harmonic' : [
         'gz_cmake-3-win',
@@ -337,10 +336,10 @@ gz_collection_jobs =
         'ignition_transport13-install_bottle-homebrew-amd64',
         'gz_utils-ci-gz-utils2-homebrew-amd64',
         'ignition_utils2-install_bottle-homebrew-amd64',
-        'sdformat-ci-sdformat14-jammy-amd64',
-        'sdformat-ci-sdformat14-homebrew-amd64',
+        'sdformat-ci-sdf14-jammy-amd64',
+        'sdformat-ci-sdf14-homebrew-amd64',
         'sdformat14-install_bottle-homebrew-amd64',
-        'sdformat-sdf-14-win'
+        'sdformat-sdf14-win'
   ],
   'ionic' : [
         'ign_cmake-gz-4-win',
