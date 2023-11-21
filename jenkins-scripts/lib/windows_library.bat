@@ -149,7 +149,7 @@ set gzdistro_dir=gazebodistro
 if "%GAZEBODISTRO_BRANCH%" == "" (set GAZEBODISTRO_BRANCH=master)
 
 if exist %gzdistro_dir% (rmdir /s /q %gzdistro_dir%)
-git clone https://github.com/gazebo-tooling/gazebodistro %gzdistro_dir% -b %GAZEBODISTRO_BRANCH%
+git clone -c core.symlinks=true https://github.com/gazebo-tooling/gazebodistro %gzdistro_dir% -b %GAZEBODISTRO_BRANCH%
 :: Check if ci_matching_branch name is used
 if "%ghprbSourceBranch%" == "" (echo ghprbSourceBranch is unset) else (
   python "%SCRIPT_DIR%\tools\detect_ci_matching_branch.py" "%ghprbSourceBranch%"
