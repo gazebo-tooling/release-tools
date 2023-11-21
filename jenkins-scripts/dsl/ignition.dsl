@@ -606,49 +606,6 @@ gz_software.each { gz_sw ->
 // --------------------------------------------------------------
 // WINDOWS: CI job
 
-// 1. any
-gz_software.each { gz_sw ->
-
-  if (gz_sw == 'sim')
-    return
-
-  if (is_a_colcon_package(gz_sw)) {
-    // colcon uses long paths and windows has a hard limit of 260 chars. Keep
-    // names minimal
-    gz_win_ci_any_job_name = "ign_${gz_sw}-pr-win"
-    Globals.gazebodistro_branch = true
-  } else {
-    gz_win_ci_any_job_name = "ignition_${gz_sw}-ci-pr_any-windows7-amd64"
-    Globals.gazebodistro_branch = false
-  }
-
-  supported_branches = []
-
-  // ign-gazebo only support Windows from ign-gazebo5
-  if (gz_sw == 'gazebo') {
-    supported_branches = [ 'ign-gazebo6', 'gz-sim7', 'main' ]
-  }
-
-  // ign-launch only support Windows from ign-launch5
-  if (gz_sw == 'launch')
-    supported_branches = [ 'ign-launch5', 'gz-launch6', 'main' ]
-
-  def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
-  OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_job,
-                                    "gazebosim/gz-${gz_sw}",
-                                    enable_testing(gz_sw),
-                                    supported_branches,
-                                    ENABLE_GITHUB_PR_INTEGRATION,
-                                    enable_cmake_warnings(gz_sw))
-  gz_win_ci_any_job.with
-  {
-    description 'Automatic generated job by DSL jenkins. Stub job for migration, not doing any check'
-  }
-
-  // add ci-pr_any to the list for CIWorkflow
-  ci_pr_any_list[gz_sw] << gz_win_ci_any_job_name
-}
-
 // Main CI workflow
 gz_software.each { gz_sw ->
   if (gz_sw == 'sim')
