@@ -40,10 +40,10 @@ __Knowing actions and their parts__:
  * `source`: job creating the sources when releasing `{package_name}`
  * `install`: check for the correct installation of the Linux `{package_name}` 
    * `pkg`: TODO: remove pkg or merge with install name
-     * `{distro}`: Debian/Ubuntu distribution name used by the job. Example`: `jammy`
+     * `{distro}`: Debian/Ubuntu distribution name used by the job. Example: `jammy`
      * `{arch}`: `{package_name}` architecture tested. Example `arm64`
  * `install_bottle`: check for the correct installation of Mac `{package_name}`
-   * `{mac_flavour}`: variant of Mac package manager used by the job. Example`: `homebrew` 
+   * `{mac_flavour}`: variant of Mac package manager used by the job. Example: `homebrew` 
      * `{arch}`: `{package_name}` architecture tested. Exmaple `amd64`
 
 ### Jobs affecting the continuous integration of Gazebo libraries
