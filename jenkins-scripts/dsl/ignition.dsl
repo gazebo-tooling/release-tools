@@ -560,23 +560,7 @@ all_debbuilders().each { debbuilder_name ->
 
 // 1. any job
 gz_software.each { gz_sw ->
-  software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
-
-  if (gz_sw == 'sim')
-    software_name = "gazebo"
-
-  String gz_brew_ci_any_job_name = "ignition_${software_name}-ci-pr_any-homebrew-amd64"
-  def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
-  GenericAnyJobGitHub.create(gz_brew_ci_any_job,
-                             "gazebosim/ign-${software_name}",
-                             GITHUB_SUPPORT_ALL_BRANCHES,
-                             ENABLE_GITHUB_PR_INTEGRATION)
-  gz_brew_ci_any_job.with
-  {
-    description 'Automatic generated job by DSL jenkins. Stub job for migration, not doing any check'
-  }
-
-  // 3. install jobs to test bottles
+  // Install jobs to test bottles
   supported_install_pkg_branches(gz_sw).each { major_version, supported_distros ->
     def install_default_job = job("ignition_${gz_sw}${major_version}-install_bottle-homebrew-amd64")
     OSRFBrewInstall.create(install_default_job)
@@ -621,99 +605,6 @@ gz_software.each { gz_sw ->
 
 // --------------------------------------------------------------
 // WINDOWS: CI job
-
-// 1. any
-gz_software.each { gz_sw ->
-
-  if (gz_sw == 'sim')
-    return
-
-  if (is_a_colcon_package(gz_sw)) {
-    // colcon uses long paths and windows has a hard limit of 260 chars. Keep
-    // names minimal
-    gz_win_ci_any_job_name = "ign_${gz_sw}-pr-win"
-    Globals.gazebodistro_branch = true
-  } else {
-    gz_win_ci_any_job_name = "ignition_${gz_sw}-ci-pr_any-windows7-amd64"
-    Globals.gazebodistro_branch = false
-  }
-
-  supported_branches = []
-
-  // ign-gazebo only support Windows from ign-gazebo5
-  if (gz_sw == 'gazebo') {
-    supported_branches = [ 'ign-gazebo6', 'gz-sim7', 'main' ]
-  }
-
-  // ign-launch only support Windows from ign-launch5
-  if (gz_sw == 'launch')
-    supported_branches = [ 'ign-launch5', 'gz-launch6', 'main' ]
-
-  def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
-  OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_job,
-                                    "gazebosim/gz-${gz_sw}",
-                                    enable_testing(gz_sw),
-                                    supported_branches,
-                                    ENABLE_GITHUB_PR_INTEGRATION,
-                                    enable_cmake_warnings(gz_sw))
-  gz_win_ci_any_job.with
-  {
-      steps {
-        batchFile("""\
-              call "./scripts/jenkins-scripts/ign_${gz_sw}-default-devel-windows-amd64.bat"
-              """.stripIndent())
-      }
-  }
-
-  // add ci-pr_any to the list for CIWorkflow
-  ci_pr_any_list[gz_sw] << gz_win_ci_any_job_name
-
-  // 2. main, release branches
-  all_branches("${gz_sw}").each { branch ->
-    if (is_a_colcon_package(gz_sw)) {
-      // colcon uses long paths and windows has a hard limit of 260 chars. Keep
-      // names minimal
-      if (branch == 'main')
-        branch_name = "ci"
-      else
-        branch_name = branch - gz_sw
-      // Deal with the special case of changing gazebo name by sim
-      branch_name = branch_name.replace('gz-sim','gz-')
-      gz_win_ci_job_name = "ign_${gz_sw}-${branch_name}-win"
-    } else {
-      gz_win_ci_job_name = "ignition_${gz_sw}-ci-${branch}-windows7-amd64"
-    }
-
-    def gz_win_ci_job = job(gz_win_ci_job_name)
-    OSRFWinCompilation.create(gz_win_ci_job,
-                              enable_testing(gz_sw),
-                              enable_cmake_warnings(gz_sw))
-    OSRFGitHub.create(gz_win_ci_job,
-                              "gazebosim/gz-${gz_sw}",
-                              "${branch}")
-
-    gz_win_ci_job.with
-    {
-        // ign-gazebo only works on Windows from ign-gazebo5
-        if (branch == 'ign-gazebo3')
-          disabled()
-
-        // ign-launch was not ported to windows until 5
-        if (branch == 'ign-launch2')
-          disabled()
-
-        triggers {
-          scm('@daily')
-        }
-
-        steps {
-          batchFile("""\
-                call "./scripts/jenkins-scripts/ign_${gz_sw}-default-devel-windows-amd64.bat"
-                """.stripIndent())
-        }
-    }
-  }
-}
 
 // Main CI workflow
 gz_software.each { gz_sw ->

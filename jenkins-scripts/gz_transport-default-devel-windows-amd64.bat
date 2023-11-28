@@ -2,7 +2,7 @@
 
 set SCRIPT_DIR=%~dp0
 
-set VCS_DIRECTORY=gz-transport
+if not defined VCS_DIRECTORY set VCS_DIRECTORY=gz-transport
 set PLATFORM_TO_BUILD=amd64
 set IGN_CLEAN_WORKSPACE=true
 

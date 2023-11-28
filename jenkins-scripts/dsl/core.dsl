@@ -31,10 +31,9 @@ update_vcpkg_snapshot_job.with
     }
 }
 
-def ignition_testing_software = 'gazebo'
 def testing_vcpkg_job = job("_vcpkg_testing_snapshot")
 OSRFWinCompilationAnyGitHub.create(testing_vcpkg_job,
-                                  "gazebosim/ign-${ignition_testing_software}",
+                                  "gazebosim/gz-sim",
                                   NO_TESTING, NO_BRANCHES, NO_GITHUB_PR_INTEGRATION)
 testing_vcpkg_job.with
 {
@@ -48,7 +47,7 @@ testing_vcpkg_job.with
 
       batchFile("""\
             call "%WORKSPACE%/scripts/jenkins-scripts/vcpkg-bootstrap.bat" || exit /B %errorlevel%
-            call "%WORKSPACE%/scripts/jenkins-scripts/ign_${ignition_testing_software}-default-devel-windows-amd64.bat"
+            call "%WORKSPACE%/scripts/jenkins-scripts/gz_sim-default-devel-windows-amd64.bat"
             """.stripIndent())
     }
 }
