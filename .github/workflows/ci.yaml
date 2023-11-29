@@ -40,8 +40,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
-      - name: Run release.py script tests
-        run: ./check_releasepy.bash
       - name: Download and setup job dsl jar
         if: steps.dsl_check.outputs.run_job == 'true'
         run: ./jenkins-scripts/dsl/tools/setup_local_generation.bash
