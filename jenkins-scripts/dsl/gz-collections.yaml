@@ -99,7 +99,7 @@ collections:
         - win
     packaging:
       configs:
-        - bionic
+        - focal
       linux:
           ignore_major_version:
             - gz-citadel
@@ -562,15 +562,6 @@ ci_configs:
       - gz-utils
       - sdformat
 packaging_configs:
-  - name: bionic
-    system:
-      so: linux
-      distribution: ubuntu
-      version: bionic
-      arch:
-        - i386
-        - amd64
-        - arm64
   - name: focal
     system:
       so: linux
