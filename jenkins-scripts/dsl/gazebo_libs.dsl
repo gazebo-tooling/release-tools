@@ -372,7 +372,7 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
 }
 
 if (WRITE_JOB_LOG) {
-  File log_file = new File("jobs.txt")
+  File log_file = new File("logs/generated_jobs.txt")
   logging_list.each { log_type, items ->
     items.each { log_file.append("${log_type} ${it.collection} ${it.job_name}\n") }
   }
