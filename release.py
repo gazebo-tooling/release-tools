@@ -73,6 +73,11 @@ def print_success(msg):
     print(" + OK " + msg)
 
 
+def print_only_dbg(msg):
+    if '_RELEASEPY_DEBUG' in os.environ:
+        print(msg)
+
+
 # Remove the last character if it is a number.
 # That should leave just the package name instead of packageVersion
 # I.E gazebo5 -> gazebo
@@ -370,19 +375,19 @@ def discover_distros(repo_dir):
         arches_supported = [x for x in SUPPORTED_ARCHS if x not in excluded_arches]
         distro_arch_list[d] = arches_supported
 
-    print('Distributions in release-repo:')
-    for k in distro_arch_list:
-        print("- " + k + " (" + ', '.join(distro_arch_list[k]) + ")")
+    print('Linux distributions in the -release repository:')
+    for distro in distro_arch_list:
+        print(f" + {distro}  {*distro_arch_list[distro],}")
 
     return distro_arch_list
 
 
 def check_call(cmd, ignore_dry_run=False):
     if DRY_RUN and not ignore_dry_run:
-        print('Dry-run running:\n  %s\n' % (' '.join(cmd)))
+        print_only_dbg('Dry-run running:\n  %s\n' % (' '.join(cmd)))
         return b'', b''
     else:
-        print('Running:\n  %s' % (' '.join(cmd)))
+        print_only_dbg('Running:\n  %s' % (' '.join(cmd)))
         po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = po.communicate()
         if po.returncode != 0:
@@ -433,7 +438,7 @@ def generate_source_repository_uri(args):
     out, err = check_call(['git', 'ls-remote', '--get-url', 'origin'],
                           IGNORE_DRY_RUN)
     if err:
-        print(f"An error happened running git ls-remote: ${err}")
+        print(f"An error happened running git ls-remote: {err}")
         sys.exit(1)
 
     git_remote = out.decode().split('\n')[0]
@@ -469,14 +474,44 @@ def generate_source_params(args):
     return params
 
 
-def call_jenkins_build(job_name, params, output_string):
+def call_jenkins_build(job_name, params, output_string,
+                       search_description_help):
+    # Only to help user feedback this block
+    help_url = f'{JENKINS_URL}/job/{job_name}'
+    if search_description_help:
+        search_param = urllib.parse.urlencode(
+                {'search': search_description_help})
+        help_url += f'?{search_param}'
+    print(f" + Releasing {output_string} in {help_url}")
+    # Real action happen here
     params_query = urllib.parse.urlencode(params)
     url = '%s/job/%s/buildWithParameters?%s' % (JENKINS_URL,
                                                 job_name,
                                                 params_query)
-    print(f"- {output_string}: {url}")
+    print_only_dbg(f" -- {output_string}: {url}")
     if not DRY_RUN:
         urllib.request.urlopen(url)
+
+
+def display_help_job_chain_for_source_calls(args):
+    # Encode the different ways using in the job descriptions to filter builds
+    #   - "package version" in repository_uploader_packages
+    #   - "packages/version-rev" in _releasepy
+    url_search_params = urllib.parse.urlencode(
+        {'search':
+            f'{args.package_alias} {args.version}'})
+    pkgs_upload_check_url = \
+        f'{JENKINS_URL}/job/repository_uploader_packages/?{url_search_params}'
+    rel_search_params = urllib.parse.urlencode(
+        {'search':
+            f'{args.package_alias}/{args.version}-{args.release_version}'})
+    releasepy_check_url = \
+        f'{JENKINS_URL}/job/_releasepy/?{rel_search_params}'
+    print('\tINFO: After the source job finished, the release process will trigger:\n'
+          '\t  * Source upload:'
+          f'{pkgs_upload_check_url}\n'
+          '\t  * Builders using release.py --source-tarball-uri:'
+          f'{releasepy_check_url}')
 
 
 def go(argv):
@@ -486,6 +521,7 @@ def go(argv):
     if not args.release_version:
         args.release_version = 1
 
+    print(f"Downloading releasing info for {args.package}")
     # Sanity checks and dicover supported distributions before proceed.
     repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
     # The supported distros are the ones in the top level of -release repo
@@ -507,13 +543,17 @@ def go(argv):
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
-
+    if args.dry_run:
+        print("Simulation of jobs to be called if not dry-run:")
+    else:
+        print("Triggering release jobs:")
     # a) Mode nightly or builders:
     if NIGHTLY or args.source_tarball_uri:
         # RELEASING FOR BREW
         if not NIGHTLY and not args.bump_rev_linux_only:
             call_jenkins_build(GENERIC_BREW_PULLREQUEST_JOB,
-                               params, 'Brew')
+                               params, 'Brew',
+                               f'{args.package_alias}-{args.version}')
         # RELEASING FOR LINUX
         for l in LINUX_DISTROS:
             if (l == 'ubuntu'):
@@ -553,15 +593,21 @@ def go(argv):
 
                     # control nightly generation using a single machine to process
                     # all distribution builds to avoid race conditions. Note: this
-                    # assumes that large-memory nodes are beind used for nightly
+                    # assumes that large-memory nodes are being used for nightly
                     # tags.
                     # https://github.com/gazebo-tooling/release-tools/issues/644
                     if (NIGHTLY):
                         assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
                         linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
-
+                    # TODO: last parameter of providing help for -debbuilders
+                    # does not currently work. Somehow the string composed by
+                    # "-()" do not work even in the web UI directly. Real
+                    # string should be:
+                    # f"{args.version}-{args.release_version}({l}/{d}::{a})")
                     call_jenkins_build(f"{args.package_alias}-debbuilder",
-                                       linux_platform_params, f"{l} {d}/{a}")
+                                       linux_platform_params,
+                                       f"{l} {d}/{a}",
+                                       f"{args.version}-{args.release_version}")
     else:
         # b) Mode generate source
         # Choose platform to run gz-source on. It will need to install gz-cmake
@@ -579,14 +625,18 @@ def go(argv):
         # Tag should not go before any method or step that can fail and just
         # before the calls to the servers.
         if not args.source_repo_ref:
-            print('INFO: no --source-repo-existing-ref used, tag the local'
-                  'repository as the reference for the source code of the'
-                  'release')
+            print(' * INFO: no --source-repo-existing-ref used, tag the local'
+                  ' repository as the reference for the source code of the'
+                  ' release')
 
         params['SOURCE_REPO_REF'] = tag_repo(args) \
             if not args.source_repo_ref else args.source_repo_ref
 
-        call_jenkins_build(f"{args.package_alias}-source", params, 'Source')
+        call_jenkins_build(f"{args.package_alias}-source",
+                           params,
+                           'Source',
+                           args.version)
+        display_help_job_chain_for_source_calls(args)
 
 
 if __name__ == '__main__':
