@@ -209,6 +209,17 @@ void generate_win_ci_job(gz_win_ci_job, lib_name, branch, ci_config)
   add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir)
 }
 
+String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
+{
+  major_version = parsed_yaml_lib.major_version
+
+  ignore_major_version = parsed_yaml_packaging.linux?.ignore_major_version
+  if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
+    major_version = ""
+
+  return parsed_yaml_lib.name + major_version + "-debbuilder"
+}
+
 def ciconf_per_lib_index = [:].withDefault { [:] }
 def pkgconf_per_src_index = [:].withDefault { [:] }
 generate_ciconfigs_by_lib(gz_collections_yaml, ciconf_per_lib_index, pkgconf_per_src_index)
@@ -371,9 +382,66 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
   }
 }
 
+def File log_file
 if (WRITE_JOB_LOG) {
-  File log_file = new File("jobs.txt")
-  logging_list.each { log_type, items ->
-    items.each { log_file.append("${log_type} ${it.collection} ${it.job_name}\n") }
+  log_file = new File("jobs.txt")
+}
+
+def collection_job_names = [:].withDefault {[]}
+logging_list.each { log_type, items ->
+  items.each {
+    collection_job_names[it.collection] << it.job_name
+    if (WRITE_JOB_LOG) {
+      log_file.append("${log_type} ${it.collection} ${it.job_name}\n") }
+    }
+}
+
+collection_job_names.each { collection_name, job_names ->
+  // TODO: change ign by gz when testing is ready
+  dashboardView("ign-${collection_name}")
+  {
+    jobs {
+      job_names.each { jobname ->
+        name(jobname)
+      }
+      def collection = gz_collections_yaml.collections.find { it.name == collection_name }
+      println(collection)
+      if (collection.packaging?.linux?.nightly) {
+        collection.libs.each { lib ->
+          name(get_debbuilder_name(lib, collection.packaging))
+        }
+      }
+    }
+
+    columns {
+      status()
+      weather()
+      name()
+      testResult(0)
+      lastSuccess()
+      lastFailure()
+      lastDuration()
+      buildButton()
+
+    }
+
+    bottomPortlets {
+      jenkinsJobsList {
+          displayName('Jenkins jobs list')
+      }
+    }
+
+    configure { view ->
+      view / columns << "hudson.plugins.warnings.WarningsColumn" (plugin: 'warnings@5.0.1')
+
+      def topPortlets = view / NodeBuilder.newInstance().topPortlets {}
+
+      topPortlets << 'hudson.plugins.view.dashboard.core.UnstableJobsPortlet' {
+          id createPortletId()
+          name 'Failing jobs'
+          showOnlyFailedJobs 'true'
+          recurse 'false'
+      }
+    }
   }
 }
