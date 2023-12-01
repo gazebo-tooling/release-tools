@@ -64,7 +64,7 @@ def runJobsInAvailableNodes(LinkedHashMap outdatedJobs) {
 }
 
 // TODO (Cristobal): This is a hardcoded list of jobs that we're tracking. We should get this list dynamically
-// Currently is the result of https://github.com/osrf/buildfarmer/blob/main/scripts/gazebo_non_nightly_jobs.py
+// Ideally generated automatically after: https://github.com/gazebo-tooling/release-tools/pull/1089
 def trackedJobsList = [
 'gz_cmake-ci-ign-cmake2-focal-amd64',
 'gz_cmake-ci-ign-cmake2-homebrew-amd64',
