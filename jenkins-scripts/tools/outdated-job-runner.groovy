@@ -10,10 +10,11 @@ import java.util.Date;
 
 /*
  * Schedule a job to run immediately
+ * Will return true or false depending on if the job was scheduled
  */
 def runJob(String jobName) {
     def job = Jenkins.instance.getItemByFullName(jobName)
-    job.scheduleBuild(0)
+    return job.scheduleBuild(0)
 }
 
 /*
@@ -52,11 +53,13 @@ def runJobsInAvailableNodes(LinkedHashMap outdatedJobs) {
                     try {
                         def jobName = outdatedJobs[os.key].remove(0)
                         println("Running job ${jobName}")
-                        runJob(jobName)
-                    } catch (Exception e) {
-                        println("Error running job ${jobName}")
-                        println(e)
-                        println("MARK_AS_UNSTABLE")
+                        if (!runJob(jobName)) {
+                            println("Error scheduling job ${jobName}. Project disabled?")
+                            println("MARK_AS_UNSTABLE")
+                        }
+                    } catch (NullPointerException e) {
+                        println("Error running job ${jobName}. Project exist?")
+                        throw e
                     }
                 }
             }
