@@ -9,6 +9,8 @@ jobs:
   xml_generation:
     runs-on: ubuntu-latest
     name: Generate XML config from DSL
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
