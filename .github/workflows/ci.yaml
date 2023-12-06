@@ -34,7 +34,7 @@ jobs:
           find logs/* -exec sort {} -o {} \;
           popd
       - name: Update and commit logs generated
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d  # v5 sha
         with:
           file_pattern: jenkins-scripts/dsl/logs/
           commit_message: 'Automated change: update logs [skip ci]'
