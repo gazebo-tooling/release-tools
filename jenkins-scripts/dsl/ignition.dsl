@@ -354,37 +354,6 @@ boolean is_a_colcon_package(String gz_software_name)
   return false
 }
 
-void generate_install_job(prefix, gz_sw, major_version, distro, arch)
-{
-  def install_default_job = job("${prefix}_${gz_sw}${major_version}-install-pkg-${distro}-${arch}")
-  OSRFLinuxInstall.create(install_default_job)
-  include_gpu_label_if_needed(install_default_job, gz_sw)
-
-  install_default_job.with
-  {
-    triggers {
-      cron(Globals.CRON_EVERY_THREE_DAYS)
-    }
-
-    def dev_package = "lib${prefix}-${gz_sw}${major_version}-dev"
-    def gzdev_project = "${prefix}-${gz_sw}${major_version}"
-
-    steps {
-     shell("""\
-           #!/bin/bash -xe
-
-           ${GLOBAL_SHELL_CMD}
-
-           export DISTRO=${distro}
-           export ARCH=${arch}
-           export INSTALL_JOB_PKG=${dev_package}
-           export GZDEV_PROJECT_NAME="${gzdev_project}"
-           /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
-           """.stripIndent())
-    }
-  }
-}
-
 // Need to be before the ci-pr_any so the abi job name is defined
 gz_software.each { gz_sw ->
   supported_arches.each { arch ->
@@ -443,39 +412,6 @@ gz_software.each { gz_sw ->
       } // end of all_supported_distros
     } // end of supported_arches
 } // end of gz_software
-
-
-// INSTALL PACKAGE ALL PLATFORMS / DAILY
-gz_software.each { gz_sw ->
-  // Exclusion list
-  if (gz_sw in gz_no_pkg_yet)
-    return
-
-  supported_arches.each { arch ->
-    supported_install_pkg_branches(gz_sw).each { major_version, supported_distros ->
-      supported_distros.each { distro ->
-        extra_repos_str=""
-        if ((gz_sw in gz_prerelease_pkgs) &&
-           (major_version in gz_prerelease_pkgs[gz_sw]) &&
-           (distro in gz_prerelease_pkgs[gz_sw][major_version]))
-          extra_repos_str="prerelease"
-
-        // No 1-dev or 0-dev packages (except special cases see
-        // gz_debbuild variable), unversioned
-        major_version_in_pkgname = major_version
-        if ("${major_version}" == "0" || "${major_version}" == "1")
-          major_version_in_pkgname = ""
-
-        // 1. gz_ prefix packages. All but not gazebo (replaced by sim)
-        generate_install_job("gz", gz_sw.replace('gazebo', 'sim'), major_version, distro, arch)
-
-        // 2. ignition_ prefix packages. gz software does not have ignition packages
-        if (major_version in supported_ign_branches(gz_sw))
-          generate_install_job("ignition", gz_sw, major_version_in_pkgname, distro, arch)
-      }
-    }
-  }
-}
 
 void generate_asan_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
 {
