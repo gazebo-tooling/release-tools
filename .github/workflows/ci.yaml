@@ -29,7 +29,7 @@ jobs:
           sudo mkdir -p /var/lib/jenkins/ && sudo touch /var/lib/jenkins/remote_token
           sudo chown -R ${USER} /var/lib/jenkins
           pushd jenkins-scripts/dsl
-          rm -r logs/*
+          rm -fr logs/*
           WRITE_JOB_LOG=1 java -jar tools/jobdsl.jar *.dsl
           find logs/* -exec sort {} -o {} \;
           popd
