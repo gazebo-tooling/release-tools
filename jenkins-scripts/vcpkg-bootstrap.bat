@@ -38,6 +38,10 @@ move %dfcln_portfile%.new %dfcln_portfile% || goto :error
 :: replace it to lowercase
 set ogre_portfile=%VCPKG_DIR%\ports\ogre\portfile.cmake
 powershell -Command "(Get-Content %ogre_portfile%) -replace 'Release', 'release' | Out-File -encoding ASCII %ogre_portfile%" || goto :error
+:: 4. Fix for bug in hash in zeromq
+:: https://github.com/microsoft/vcpkg/issues/23461
+set zeromq_portfile=%VCPKG_DIR%\ports\zeromq\portfile.cmake
+powershell -Command "(Get-Content %zeromq_portfile%) -replace '64e6d37ab843e5b9aa9e56ba7904423ce0a2c6b4101dbd86b7b8b22c52c384ed7ea9764f9e0a53be04e7ade09923ca95452104e9760b66ebc0ed3ffef08a75c5', '42663c9b16a09a5c30d61a027c544ea318a9f745129579dcc0d5dd2d529be42e8dbaee1b9406497c4da7815fa60fc877d2e26f807135b2bbc0ea7ea4214b8af6' | Out-File -encoding ASCII %zeromq_portfile%" || goto :error
 echo # END SECTION
 
 echo "Using SNAPSHOT: bootstrap vcpkg executable"

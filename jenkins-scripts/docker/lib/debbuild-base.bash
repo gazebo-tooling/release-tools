@@ -1,12 +1,15 @@
 #!/bin/bash -x
 
 NIGHTLY_MODE=${NIGHTLY_MODE:-false}
-if [ "${UPLOAD_TO_REPO}" = "nightly" ]; then
+if [ "${VERSION}" = "nightly" ]; then
    OSRF_REPOS_TO_USE="${OSRF_REPOS_TO_USE:-stable nightly}"
    NIGHTLY_MODE=true
    # SOURCE_TARBALL_URI is reused in nightly mode to indicate the branch
    # to built nightly packages from
    NIGHTLY_SRC_BRANCH=${SOURCE_TARBALL_URI}
+   # There are many problem in the nightlies with package versions preventing
+   # the dependency solver to work properly. Set INVALIDATE_DOCKER_CACHE
+   export INVALIDATE_DOCKER_CACHE=true
 fi
 
 # Option to use $WORKSPACE/repo as container (git or hg) for the nightly source
@@ -17,6 +20,7 @@ fi
 export ENABLE_REAPER=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
 cat > build.sh << DELIM
 ###################################################
@@ -40,7 +44,7 @@ if ${NIGHTLY_MODE}; then
   if ${USE_REPO_DIRECTORY_FOR_NIGHTLY}; then
     mv ${WORKSPACE}/repo \$REAL_PACKAGE_NAME
   else
-    git clone https://github.com/${GITHUB_ORG}/\$REAL_PACKAGE_NAME -b ${NIGHTLY_SRC_BRANCH}
+    git clone https://github.com/gazebosim/\$REAL_PACKAGE_NAME -b ${NIGHTLY_SRC_BRANCH}
   fi
   PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME
   cd \$REAL_PACKAGE_NAME
@@ -75,7 +79,7 @@ fi
 
 # Step 4: add debian/ subdirectory with necessary metadata files to unpacked source tarball
 rm -rf /tmp/$PACKAGE-release
-git clone https://github.com/ignition-release/$PACKAGE-release -b $RELEASE_REPO_BRANCH /tmp/$PACKAGE-release
+git clone https://github.com/gazebo-release/$PACKAGE-release -b $RELEASE_REPO_BRANCH /tmp/$PACKAGE-release
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
@@ -101,7 +105,7 @@ fi
 case \${BUILD_METHOD} in
     "OVERWRITE_BASE")
 	# 1. Clone the base branch
-        git clone https://github.com/ignition-release/\${PACKAGE}-release \\
+        git clone https://github.com/gazebo-release/\${PACKAGE}-release \\
             -b \${RELEASE_BASE_BRANCH} \\
 	    /tmp/base_$PACKAGE-release
 	# 2. Overwrite the information
@@ -132,10 +136,17 @@ esac
 
 cd \${PACKAGE_RELEASE_DIR}
 
+# Helper for transition of ign to gz
+PACKAGE_ALIAS=${PACKAGE_ALIAS}
+SRC_PACKAGE_NAME=\$(grep-dctrl -sSource -n  '' debian/control)
+if [[ \${SRC_PACKAGE_NAME} != \${SRC_PACKAGE_NAME/gz-} ]]; then
+  PACKAGE_ALIAS=\${SRC_PACKAGE_NAME}
+fi
+
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
   NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV}-${RELEASE_VERSION}~${DISTRO}
-  debchange --package ${PACKAGE_ALIAS} \\
+  debchange --package \${PACKAGE_ALIAS} \\
               --newversion \${NIGHTLY_VERSION_SUFFIX} \\
               --distribution ${DISTRO} \\
               --force-distribution \\
@@ -148,7 +159,14 @@ cd \`find $WORKSPACE/build -mindepth 1 -type d |head -n 1\`
 # If use the quilt 3.0 format for debian (drcsim) it needs a tar.gz with sources
 if $NIGHTLY_MODE; then
   rm -fr .hg* .git*
-  echo | dh_make -y -s --createorig -p${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
+  # Versions of dh-make lower than 2.202003 are buggy using defaultless
+  # see: https://salsa.debian.org/debian/dh-make/-/merge_requests/8
+  extra_dh_make_str='--defaultless'
+  if dpkg --compare-versions \$(apt-cache show dh-make | sed -n "s/Version: \\(.*\\)/\\1/p") lt 2.202003; then
+    extra_dh_make_str=''
+  fi
+  echo | dh_make -y -s --createorig \${extra_dh_make_str} -p\${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
+  rm -fr debian/
 fi
 
 # Adding extra directories to code. debian has no problem but some extra directories
@@ -164,35 +182,30 @@ sudo apt-get update
 if [ ${DISTRO} = 'buster' ]; then
   sudo apt-get install -y dwz=0.13-5~bpo10+1
 fi
-sudo DEBIAN_FRONTEND=noninteractive mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
-# new versions of mk-build-deps > 2.21.1 left buildinfo and changes files in the code
-rm -f ${PACKAGE_ALIAS}-build-deps_*.{buildinfo,changes}
-echo '# END SECTION'
+
+timeout=0
+# Help to debug race conditions in nightly generation or other problems with versions
+if ${NIGHTLY_MODE}; then
+  apt-cache show *gz-* | ( grep 'Package\\|Version' || true)
+  # 5 minutes to give time to the uploader
+  timeout=300
+fi
+
+${MKBUILD_INSTALL_DEPS}
 
 if [ -f /usr/bin/rosdep ]; then
   rosdep init
 fi
 
-if $NEED_C11_COMPILER || $NEED_GCC48_COMPILER; then
-echo '# BEGIN SECTION: install C++11 compiler'
-if [ ${DISTRO} = 'precise' ]; then
-sudo apt-get install -y python-software-propertie software-properties-common || true
-sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-sudo apt-get update
-fi
-sudo apt-get install -y gcc-4.8 g++-4.8
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
-sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
-g++ --version
-echo '# END SECTION'
-fi
-
-if $NEED_C17_COMPILER; then
-echo '# BEGIN SECTION: install C++17 compiler'
-sudo apt-get install -y gcc-8 g++-8
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
-g++ --version
-echo '# END SECTION'
+# Be sure that a previous bug using g++8 compiler is not present anymore
+if [[ ${DISTRO} == 'jammy' || ${DISTRO} == 'focal' ]]; then
+ [[ \$(/usr/bin/gcc --version | grep 'gcc-8') ]] && ( echo "gcc-8 version found. A bug." ; exit 1 )
+elif $INSTALL_C17_COMPILER; then
+  echo '# BEGIN SECTION: install C++17 compiler'
+  sudo apt-get install -y gcc-8 g++-8
+  sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
+  g++ --version
+  echo '# END SECTION'
 fi
 
 echo '# BEGIN SECTION: create source package' \${OSRF_VERSION}
@@ -203,7 +216,18 @@ if [[ ${DISTRO} == 'focal' && (${ARCH} == 'arm64' || ${ARCH} == 'armhf') ]]; the
   no_lintian_param="--no-lintian"
 fi
 
-debuild \${no_lintian_param} --no-tgz-check -uc -us -S --source-option=--include-binaries
+# our packages.o.o running xenial does not support default zstd compression of
+# .deb files in jammy. Keep using xz. Not a trivial change, requires wrapper over dpkg-deb
+if [[ ${DISTRO} == 'jammy' ]]; then
+  sudo bash -c 'echo \#\!/bin/bash > /usr/local/bin/dpkg-deb'
+  sudo bash -c 'echo "/usr/bin/dpkg-deb -Zxz \\\$@" >> /usr/local/bin/dpkg-deb'
+  sudo cat /usr/local/bin/dpkg-deb
+  sudo chmod +x /usr/local/bin/dpkg-deb
+  export PATH=/usr/local/bin:\$PATH
+  preserve_path='--preserve-envvar PATH'
+fi
+
+debuild \${no_lintian_param} \${preserve_path} --no-tgz-check -uc -us -S --source-option=--include-binaries
 
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
@@ -225,7 +249,7 @@ if [[ $DISTRO != 'bionic' ]]; then
 fi
 
 echo '# BEGIN SECTION: create deb packages'
-debuild \${no_lintian_param} --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
+debuild \${no_lintian_param} \${preserve_path} --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
@@ -242,17 +266,25 @@ done
 # check at least one upload
 test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
+
+cat /etc/apt/sources.list
+# Run only autopkgtest on amd64
+# see https://github.com/gazebosim/gz-common/issues/484
+if [[ ${ARCH} == 'amd64' ]]; then
+  ${DEBBUILD_AUTOPKGTEST}
+fi
 DELIM
 
 OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
 DEPENDENCY_PKGS="devscripts \
-		 ubuntu-dev-tools \
-		 debhelper \
-		 wget \
-		 ca-certificates \
-		 equivs \
-		 dh-make \
-		 git"
+                ubuntu-dev-tools \
+                debhelper \
+                wget \
+                ca-certificates \
+                equivs \
+                dh-make \
+                git \
+                autopkgtest"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash

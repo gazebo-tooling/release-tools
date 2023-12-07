@@ -1,22 +1,22 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
+import argparse
 import subprocess
 import sys
-import urllib
-import argparse
+import urllib.request
+import urllib.parse
 
-USAGE = 'release-bloom.py <package> <version> <upstream_release_repo> <ros_distro> [--ignition-version version_name] <jenkinstoken>'
+USAGE = 'release-bloom.py <package> <version> <upstream_release_repo> <ros_distro> <jenkinstoken>'
 JENKINS_URL = 'http://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-bloom-debbuilder'
 
 UBUNTU_ARCHS = ['amd64']
-# not releasing for precise by default
-UBUNTU_DISTROS_IN_ROS = {'melodic': ['bionic'],
-                         'noetic': ['focal']}
+UBUNTU_DISTROS_IN_ROS = {'noetic': ['focal']}
 UBUNTU_DISTROS_IN_ROS2 = {'foxy': ['focal'],
-                          'galactic': ['focal'],
-                          'rolling': ['focal']}
+                          'humble': ['jammy'],
+                          'iron': ['jammy'],
+                          'rolling': ['jammy']}
 DRY_RUN = False
 
 def parse_args(argv):
@@ -35,9 +35,6 @@ def parse_args(argv):
                         help='Release version suffix; usually 1 (e.g., 1')
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
-    parser.add_argument('--ignition-version', action='store', default=None,
-                        help='Ignition version to use in the binary packages')
-
     args = parser.parse_args()
     DRY_RUN = args.dry_run
     return args
@@ -78,13 +75,10 @@ def call_jenkins_jobs(argv):
         params['ROS2'] = True
         ubuntu_per_ros_distro = UBUNTU_DISTROS_IN_ROS2
 
-    if args.ignition_version:
-        params['IGNITION_VERSION'] = args.ignition_version
-
     if not args.release_version:
         args.release_version = 0
     params['RELEASE_VERSION'] = args.release_version
-    params_query = urllib.urlencode(params)
+    params_query = urllib.parse.urlencode(params)
     base_url = '%s/job/%s/buildWithParameters?%s' % \
                (JENKINS_URL, JOB_NAME_PATTERN % (args.package), params_query)
 
@@ -94,7 +88,7 @@ def call_jenkins_jobs(argv):
                   (base_url, arch, ubuntu_distro, args.ros_distro)
             print('Accessing: %s' % (url))
             if not DRY_RUN:
-                urllib.urlopen(url)
+                urllib.request.urlopen(url)
 
 
 if __name__ == '__main__':

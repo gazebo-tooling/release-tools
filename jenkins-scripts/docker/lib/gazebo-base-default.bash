@@ -6,13 +6,13 @@
 #                           piece of code to run in the testing section
 #  - GAZEBO_BUILD_$DEP      (optional) [default false]
 #                           build dependencies from source.
-#                           DEP = SDFORMAT | IGN_MATH | IGN_TRANSPORT | IGN_GUI | IGN_COMMON
+#                           DEP = SDFORMAT | GZ_MATH | GZ_TRANSPORT | GZ_GUI | GZ_COMMON
 #                           branch parameter = $DEP_BRANCH
 
 #stop on error
 set -e
 
-GAZEBO_OSRF_DEPS="SDFORMAT IGN_MATH IGN_TRANSPORT IGN_GUI IGN_COMMON"
+GAZEBO_OSRF_DEPS="SDFORMAT GZ_MATH GZ_TRANSPORT GZ_GUI GZ_COMMON"
 
 . ${SCRIPT_DIR}/lib/_gazebo_version_hook.bash
 
@@ -44,14 +44,7 @@ if ${COVERAGE_ENABLED} ; then
   EXTRA_PACKAGES="${EXTRA_PACKAGES} wget"
 fi
 
-if [[ $GAZEBO_MAJOR_VERSION -lt 8 ]]; then
-  GAZEBO_BASE_CMAKE_ARGS="${GAZEBO_BASE_CMAKE_ARGS} -DENABLE_TESTS_COMPILATION=True"
-fi
-
-SOFTWARE_DIR="gazebo"
-if [ "${GAZEBO_EXPERIMENTAL_BUILD}" = true ]; then
-  SOFTWARE_DIR="${SOFTWARE_DIR}_experimental"
-fi
+SOFTWARE_DIR="gazebo-classic"
 
 cat > build.sh << DELIM_DART
 ###################################################
@@ -67,8 +60,8 @@ if ${COVERAGE_ENABLED} ; then
   # Download and install Bullseyes
   cd $WORKSPACE
   rm -fr $WORKSPACE/Bulls*
-  
-  # Look for current version. NOT IN USE since we lost the maintenance support on 2014 
+
+  # Look for current version. NOT IN USE since we lost the maintenance support on 2014
   # reenable if the support is back.
   # wget http://www.bullseye.com/download/ -O bull_index.html
   # BULL_TAR=\$( grep -R BullseyeCoverage-.*-Linux-x64.tar bull_index.html | head -n 1 | sed 's/.*">//' | sed 's/<.*//' )
@@ -86,8 +79,8 @@ if ${COVERAGE_ENABLED} ; then
   set -x # back to debug
   # Set up Bullseyes for compiling
   export PATH=/usr/bullseyes/bin:\$PATH
-  export COVFILE=$WORKSPACE/gazebo/test.cov
-  cd $WORKSPACE/gazebo
+  export COVFILE=$WORKSPACE/${SOFTWARE_DIR}/test.cov
+  cd $WORKSPACE/${SOFTWARE_DIR}
   covselect --file test.cov --add .
   cov01 --on
   echo '# END SECTION'
@@ -134,7 +127,7 @@ cat >> build.sh << DELIM_BUILD_DEPS
       dependency_repo="osrf/${dep}"
     else
       # need to replace _ by -
-      dependency_repo="ignitionrobotics/${dep/_/-}"
+      dependency_repo="gazebosim/${dep/_/-}"
     fi
 
     git clone http://github.com/\$dependency_repo -b ${dep_branch} \
@@ -169,13 +162,11 @@ make -j${MAKE_JOBS}
 stop_stopwatch COMPILATION
 echo '# END SECTION'
 
-if [[ $GAZEBO_MAJOR_VERSION -ge 8 ]]; then
-  echo '# BEGIN SECTION: Tests compilation'
-  init_stopwatch TESTS_COMPILATION
-  make -j${MAKE_JOBS} tests
-  stop_stopwatch TESTS_COMPILATION
-  echo '# END SECTION'
-fi
+echo '# BEGIN SECTION: Tests compilation'
+init_stopwatch TESTS_COMPILATION
+make -j${MAKE_JOBS} tests
+stop_stopwatch TESTS_COMPILATION
+echo '# END SECTION'
 
 echo '# BEGIN SECTION: Gazebo installation'
 sudo make install
@@ -214,7 +205,7 @@ if ${COVERAGE_ENABLED} ; then
   rm -fr $WORKSPACE/bullshtml
   mkdir -p $WORKSPACE/coverage
   covselect --add '!$WORKSPACE/build/' '!../build/' '!test/' '!tools/test/' '!deps/' '!/opt/' '!gazebo/rendering/skyx/' '!/tmp/'
-  covhtml --srcdir $WORKSPACE/gazebo/ $WORKSPACE/coverage
+  covhtml --srcdir $WORKSPACE/${SOFTWARE_DIR}/ $WORKSPACE/coverage
   # Generate valid cover.xml file using the bullshtml software
   # java is needed to run bullshtml
   apt-get install -y default-jre
@@ -242,29 +233,29 @@ DEPENDENCY_PKGS="${BASE_DEPENDENCIES} \
 		 ${GAZEBO_EXTRA_DEPENDENCIES} \
 		 ${EXTRA_PACKAGES}"
 
-[[ -z ${GAZEBO_BUILD_IGN_MATH} ]] && GAZEBO_BUILD_IGN_MATH=false
-if $GAZEBO_BUILD_IGN_MATH; then
-  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${IGN_MATH_DEPENDENCIES}"
+[[ -z ${GAZEBO_BUILD_GZ_MATH} ]] && GAZEBO_BUILD_GZ_MATH=false
+if $GAZEBO_BUILD_GZ_MATH; then
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${GZ_MATH_DEPENDENCIES}"
 fi
 
-[[ -z ${GAZEBO_BUILD_IGN_MSGS} ]] && GAZEBO_BUILD_IGN_MSGS=false
-if $GAZEBO_BUILD_IGN_MSGS; then
-  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${IGN_MSGS_DEPENDENCIES}"
+[[ -z ${GAZEBO_BUILD_GZ_MSGS} ]] && GAZEBO_BUILD_GZ_MSGS=false
+if $GAZEBO_BUILD_GZ_MSGS; then
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${GZ_MSGS_DEPENDENCIES}"
 fi
 
-[[ -z ${GAZEBO_BUILD_IGN_TRANSPORT} ]] && GAZEBO_BUILD_IGN_TRANSPORT=false
-if $GAZEBO_BUILD_IGN_TRANSPORT; then
-  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${IGN_TRANSPORT_DEPENDENCIES}"
+[[ -z ${GAZEBO_BUILD_GZ_TRANSPORT} ]] && GAZEBO_BUILD_GZ_TRANSPORT=false
+if $GAZEBO_BUILD_GZ_TRANSPORT; then
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${GZ_TRANSPORT_DEPENDENCIES}"
 fi
 
-[[ -z ${GAZEBO_BUILD_IGN_GUI} ]] && GAZEBO_BUILD_IGN_GUI=false
-if $GAZEBO_BUILD_IGN_GUI; then
-  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${IGN_GUI_DEPENDENCIES}"
+[[ -z ${GAZEBO_BUILD_GZ_GUI} ]] && GAZEBO_BUILD_GZ_GUI=false
+if $GAZEBO_BUILD_GZ_GUI; then
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${GZ_GUI_DEPENDENCIES}"
 fi
 
-[[ -z ${GAZEBO_BUILD_IGN_COMMON} ]] && GAZEBO_BUILD_IGN_COMMON=false
-if $GAZEBO_BUILD_IGN_COMMON; then
-  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${IGN_COMMON_DEPENDENCIES}"
+[[ -z ${GAZEBO_BUILD_GZ_COMMON} ]] && GAZEBO_BUILD_GZ_COMMON=false
+if $GAZEBO_BUILD_GZ_COMMON; then
+  DEPENDENCY_PKGS="${DEPENDENCY_PKGS} ${GZ_COMMON_DEPENDENCIES}"
 fi
 
 [[ -z ${GAZEBO_BUILD_SDFORMAT} ]] && GAZEBO_BUILD_SDFORMAT=false

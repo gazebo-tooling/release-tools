@@ -1,0 +1,78 @@
+name: DSL logs and checks
+
+on:
+  pull_request:
+    paths:
+      - 'jenkins-scripts/dsl/**'
+
+jobs:
+  dsl_ci:
+    runs-on: ubuntu-latest
+    name: Diff for DSL code
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+      - name: Download and setup job dsl jar
+        run: ./jenkins-scripts/dsl/tools/setup_local_generation.bash
+      - name: Generate all DSL files
+        run: |
+          # simulate token for brew_release
+          sudo mkdir -p /var/lib/jenkins/ && sudo touch /var/lib/jenkins/remote_token
+          sudo chown -R ${USER} /var/lib/jenkins
+          cd jenkins-scripts/dsl
+          WRITE_JOB_LOG=1 java -jar tools/jobdsl.jar *.dsl
+      - name: Checks for DSL Code
+        run: |
+          cd jenkins-scripts/dsl
+          ./dsl_checks.bash
+      - name: Export XML generated configuration for diff
+        run: |
+          cd jenkins-scripts/dsl
+          # export files for later diff
+          mkdir /tmp/pr_xml_configuration && mkdir /tmp/pr_log_generated/
+          # sort jobs.txt
+          sort jobs.txt -o jobs.txt
+          mv *.xml /tmp/pr_xml_configuration/
+          mv *.txt /tmp/pr_log_generated/
+      - name: Generate master DSL files
+        run: |
+          git clean -f -e jobdsl.jar
+          git checkout master
+          cd jenkins-scripts/dsl
+          WRITE_JOB_LOG=1 java -jar tools/jobdsl.jar *.dsl
+          mkdir /tmp/current_xml_configuration && mkdir /tmp/current_log_generated/
+          # sort jobs.txt
+          sort jobs.txt -o jobs.txt
+          mv *.xml /tmp/current_xml_configuration/
+          mv *.txt /tmp/current_log_generated/ || true
+      - name: Generating diffs
+        run: |
+          # somehow the Jenkins views changed the portlet_ id on every run.
+          diff -qr -I '.*<id>dashboard_portlet_.*</id>.*' /tmp/current_xml_configuration /tmp/pr_xml_configuration | sort > /tmp/xml_config_files_changed.diff || true
+          diff -ur -I '.*<id>dashboard_portlet_.*</id>.*' /tmp/current_xml_configuration /tmp/pr_xml_configuration > /tmp/xml_config_content_changed.diff || true
+          diff -ur /tmp/current_log_generated /tmp/pr_log_generated > /tmp/log_content_changed.diff || true
+      - name: Archive files changes
+        uses: actions/upload-artifact@v3
+        with:
+          name: xml_config_files_changed
+          path: /tmp/xml_config_files_changed.diff
+      - name: Archive content changes
+        uses: actions/upload-artifact@v3
+        with:
+          name: xml_config_content_changed
+          path: /tmp/xml_config_content_changed.diff
+      - name: Archive log changes
+        uses: actions/upload-artifact@v3
+        with:
+          name: log_content_changed
+          path: /tmp/log_content_changed.diff

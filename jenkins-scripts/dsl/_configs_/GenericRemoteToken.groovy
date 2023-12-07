@@ -15,7 +15,12 @@ class GenericRemoteToken
       println("check your filesystem in the jenkins node for: ")
       println(token_file)
       // We can not use exit here, DSL job hangs
-      buildUnstable()
+      job.with
+      {
+        steps {
+          setBuildResult('UNSTABLE')
+        }
+      }
     }
 
     job.with

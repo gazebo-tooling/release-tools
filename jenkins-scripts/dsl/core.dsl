@@ -31,10 +31,9 @@ update_vcpkg_snapshot_job.with
     }
 }
 
-def ignition_testing_software = 'gazebo'
 def testing_vcpkg_job = job("_vcpkg_testing_snapshot")
 OSRFWinCompilationAnyGitHub.create(testing_vcpkg_job,
-                                  "ignitionrobotics/ign-${ignition_testing_software}",
+                                  "gazebosim/gz-sim",
                                   NO_TESTING, NO_BRANCHES, NO_GITHUB_PR_INTEGRATION)
 testing_vcpkg_job.with
 {
@@ -44,11 +43,11 @@ testing_vcpkg_job.with
 
     steps
     {
-      label "win_testing"
+      label Globals.nontest_label("win_testing")
 
       batchFile("""\
             call "%WORKSPACE%/scripts/jenkins-scripts/vcpkg-bootstrap.bat" || exit /B %errorlevel%
-            call "%WORKSPACE%/scripts/jenkins-scripts/ign_${ignition_testing_software}-default-devel-windows-amd64.bat"
+            call "%WORKSPACE%/scripts/jenkins-scripts/gz_sim-default-devel-windows-amd64.bat"
             """.stripIndent())
     }
 }
@@ -58,7 +57,7 @@ def reprepro = job("reprepro_importer")
 OSRFUNIXBase.create(reprepro)
 reprepro.with
 {
-  label "packages"
+  label Globals.nontest_label("packages")
 
   parameters
   {
@@ -95,4 +94,61 @@ reprepro.with
           /bin/bash -xe ./scripts/jenkins-scripts/docker/reprepro_updater.bash
           """.stripIndent())
   }
+}
+
+// -------------------------------------------------------------------
+def nightly_labeler = job("_nightly_node_labeler")
+OSRFBase.create(nightly_labeler)
+nightly_labeler.with
+{
+  label Globals.nontest_label("master")
+
+  triggers {
+    cron(Globals.CRON_NIGHTLY_NODES)
+  }
+
+  steps
+  {
+    // path root changes from standalone to Jenkins. Be careful
+    systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/label-assignment-backstop.groovy'))
+  }
+
+  publishers
+  {
+    // Added the checker result parser (UNSTABLE if not success)
+    configure { project ->
+      project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+        unstableOnWarning true
+        failBuildOnError false
+        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+      }
+    }
+  }
+}
+
+// -------------------------------------------------------------------
+def outdated_job_runner = job("_outdated_job_runner")
+OSRFBase.create(outdated_job_runner)
+outdated_job_runner.with
+{
+  label Globals.nontest_label("master")
+
+  triggers {
+    cron(Globals.CRON_HOURLY)
+  }
+
+  steps
+  {
+    systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/outdated-job-runner.groovy'))
+  }
+}
+
+// -------------------------------------------------------------------
+def releasepy_job = job("_releasepy")
+OSRFReleasepy.create(releasepy_job, [DRY_RUN: false])
+releasepy_job.with {
+      blockOn("repository_uploader_packages") {
+        blockLevel('GLOBAL')
+        scanQueueFor('ALL')
+      }
 }

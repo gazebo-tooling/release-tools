@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Copyright (C) 2019 Open Source Robotics Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -118,8 +119,8 @@ for f in $(find . -name control -type f); do
     # Change short version of ign-too
     sed -i -e "s:${old_software_name/ignition/ign}:${new_software_name/ignition/ign}:g" "${f}"
     # Change bitbucket for github
-    sed -i -e "s:https\://bitbucket.org/ignitionrobotics/:https\://github.com/ignition-release/:g" "${f}"
-    sed -i -e "s:https\://bitbucket.org/osrf/:https\://github.com/ignition-release/:g" "${f}"
+    sed -i -e "s:https\://bitbucket.org/ignitionrobotics/:https\://github.com/gazebo-release/:g" "${f}"
+    sed -i -e "s:https\://bitbucket.org/osrf/:https\://github.com/gazebo-release/:g" "${f}"
     echo " * Safety checks in control"
     # 1. Check for custom version modifiers in control file
     # 2. Breaks or replaces clause?

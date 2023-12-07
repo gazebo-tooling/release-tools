@@ -12,23 +12,19 @@ export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 # Get project name as first argument to this script
 PROJECT=$1 # project will have the major version included (ex gazebo2)
 PROJECT_ARGS=${2}
-
-# In ignition projects, the name of the repo and the formula does not match
-PROJECT_PATH=${PROJECT}
-if [[ ${PROJECT/ignition} != ${PROJECT} ]]; then
-    PROJECT_PATH="ign${PROJECT/ignition}"
-    PROJECT_PATH="${PROJECT_PATH/[0-9]*}"
-fi
-
+# PROJECT_PATH can be passed as env variable or assume that is the same than project name
+PROJECT_PATH=${PROJECT_PATH:-$PROJECT}
 # Check for major version number
 # the PROJECT_FORMULA variable is only used for dependency resolution
 PROJECT_FORMULA=${PROJECT//[0-9]}$(\
-  python ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
   ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt || true)
 
 export HOMEBREW_PREFIX=/usr/local
 export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
-export PATH=${HOMEBREW_PREFIX}/bin:$PATH
+export PATH=${HOMEBREW_PREFIX}/bin:${HOMEBREW_PREFIX}/sbin:$PATH
+
+export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python
 
 # make verbose mode?
 MAKE_VERBOSE_STR=""
@@ -38,11 +34,12 @@ fi
 
 # Step 1. Set up homebrew
 echo "# BEGIN SECTION: clean up ${HOMEBREW_PREFIX}"
+export HOMEBREW_NO_INSTALL_FROM_API=1
 . ${SCRIPT_DIR}/lib/_homebrew_cleanup.bash
 . ${SCRIPT_DIR}/lib/_homebrew_base_setup.bash
 brew cleanup || echo "brew cleanup couldn't be run"
 mkdir -p ${HOMEBREW_CELLAR}
-sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
+chmod -R ug+rwx ${HOMEBREW_CELLAR}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: brew information'
@@ -54,22 +51,32 @@ export HOMEBREW_NO_AUTO_UPDATE=1
 # Run brew config to print system information
 brew config
 # Run brew doctor to check for problems with the system
-brew doctor
+brew doctor || echo MARK_AS_UNSTABLE
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: setup the osrf/simulation tap'
 brew tap osrf/simulation
 echo '# END SECTION'
 
-if [[ -n "${PULL_REQUEST_URL}" ]]; then
-  echo "# BEGIN SECTION: pulling ${PULL_REQUEST_URL}"
-  brew pull ${PULL_REQUEST_URL}
+if [[ -n "${ghprbSourceBranch}" ]] && \
+   python3 ${SCRIPT_DIR}/tools/detect_ci_matching_branch.py "${ghprbSourceBranch}"
+then
+  echo "# BEGIN SECTION: trying to checkout branch ${ghprbSourceBranch} from osrf/simulation"
+  pushd $(brew --repo osrf/simulation)
+  git fetch origin ${ghprbSourceBranch} || true
+  git checkout ${ghprbSourceBranch} || true
+  popd
   echo '# END SECTION'
 fi
 
 echo "# BEGIN SECTION: install ${PROJECT_FORMULA} dependencies"
 # Process the package dependencies
 brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies
+# the following is needed to install :build dependencies of a formula
+brew install $(brew deps --1 --include-build ${PROJECT_FORMULA})
+
+# pytest is needed to run python tests with junit xml output
+PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} pytest"
 
 if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   # Install lxml for flaky_junit_merge.py
@@ -94,8 +101,7 @@ echo '# END SECTION'
 # Step 3. Manually compile and install ${PROJECT}
 echo "# BEGIN SECTION: configure ${PROJECT}"
 cd ${WORKSPACE}/${PROJECT_PATH}
-# Need the sudo since the test are running with roots perms to access to GUI
-sudo rm -fr ${WORKSPACE}/build
+rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
 cd ${WORKSPACE}/build
 
@@ -110,20 +116,28 @@ export DISPLAY=$(ps ax \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
 
+CMAKE_ARGS=""
 # set CMAKE_PREFIX_PATH if we are using qt@5
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt@5' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/qt@5
 fi
+# set cmake args if we are using qwt-qt5
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qwt-qt5' }.empty?"; then
+  CMAKE_ARGS='-DQWT_WIN_INCLUDE_DIR=/usr/local/opt/qwt-qt5/lib/qwt.framework/Headers -DQWT_WIN_LIBRARY_DIR=/usr/local/opt/qwt-qt5/lib'
+fi
+# Workaround for cmake@3.21.4: set PATH
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/cmake@3.21.4' }.empty?"; then
+  export PATH=/usr/local/opt/cmake@3.21.4/bin:${PATH}
+fi
+# Workaround for ffmpeg 4: set PKG_CONFIG_PATH if we are using ffmpeg@4
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/ffmpeg@4' }.empty?"; then
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/opt/ffmpeg@4/lib/pkgconfig
+fi
 # Workaround for tbb@2020_u3: set CPATH, LIBRARY_PATH, and CMAKE_PREFIX_PATH
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'tbb@2020_u3' }.empty?"; then
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/tbb@2020_u3' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/tbb@2020_u3
   export CPATH=${CPATH}:/usr/local/opt/tbb@2020_u3/include
   export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/tbb@2020_u3/lib
-fi
-# Workaround for tinyxml2 6.2.0: set CMAKE_PREFIX_PATH and PKG_CONFIG_PATH if we are using tinyxml2@6.2.0
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'tinyxml2@6.2.0' }.empty?"; then
-  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/tinyxml2@6.2.0
-  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/opt/tinyxml2@6.2.0/lib/pkgconfig
 fi
 # if we are using gts, need to add gettext library path since it is keg-only
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'gettext' }.empty?"; then
@@ -135,7 +149,7 @@ if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name
 fi
 
 # if we are using dart@6.10.0 (custom OR port), need to add dartsim library path since it is keg-only
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'dartsim@6.10.0' }.empty?"; then
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/dartsim@6.10.0' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/dartsim@6.10.0
   export DYLD_FALLBACK_LIBRARY_PATH=${DYLD_FALLBACK_LIBRARY_PATH}:/usr/local/opt/dartsim@6.10.0/lib:/usr/local/opt/octomap/local
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/opt/dartsim@6.10.0/lib/pkgconfig
@@ -143,6 +157,7 @@ fi
 
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT_FORMULA}/HEAD \
+     ${CMAKE_ARGS} \
      ${WORKSPACE}/${PROJECT_PATH}
 echo '# END SECTION'
 
@@ -153,10 +168,10 @@ echo '# END SECTION'
 
 echo "#BEGIN SECTION: brew doctor analysis"
 brew missing || brew install $(brew missing | awk '{print $2}') && brew missing
-# if sdl installed, skip brew doctor
-# remove this line when open-scene-graph stops depending on sdl
-# https://github.com/Homebrew/homebrew-core/pull/81101
-brew list | grep '^sdl$' || brew doctor
+# if szip is installed, skip brew doctor
+# remove this line when hdf5 stops depending on the deprecated szip formula
+# https://github.com/Homebrew/homebrew-core/issues/96930
+brew list | grep '^szip$' || brew doctor || echo MARK_AS_UNSTABLE
 echo '# END SECTION'
 
 # CHECK PRE_TESTS_EXECUTION_HOOK AND RUN
@@ -182,5 +197,5 @@ rm -fr \$HOME/.gazebo/models test_results*
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: re-add group write permissions"
-sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
+chmod -R ug+rwx ${HOMEBREW_CELLAR}
 echo '# END SECTION'

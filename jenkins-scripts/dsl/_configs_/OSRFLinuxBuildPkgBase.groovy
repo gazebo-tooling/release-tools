@@ -23,7 +23,6 @@ class OSRFLinuxBuildPkgBase
 
        wrappers {
          preBuildCleanup {
-           includePattern('pkgs/*')
            // the sudo does not seems to be able to remove root owned packaged
            deleteCommand('sudo rm -rf %s')
          }

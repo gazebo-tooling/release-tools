@@ -1,7 +1,7 @@
 :: sdformat base script
 ::
 :: Parameters:
-::  - USE_IGNITION_ZIP : (default true) [true | false]. Use zip to install ignition
+::  - USE_GZ_ZIP : (default true) [true | false]. Use zip to install ignition
 ::                       instead of compile
 ::  - BUILD_TYPE       : (default Release) [ Release | Debug ] Build type to use
 ::
@@ -13,7 +13,7 @@ findstr /r /b "find_package(ignition-math" %WORKSPACE%\sdformat\cmake\SearchForS
 set /p IGN_MATH_REQUIRED_VERSION=<version.txt
 set IGN_MATH_REQUIRED_VERSION=%IGN_MATH_REQUIRED_VERSION:~26,1%
 set IGNMATH_BRANCH="ign-math%IGN_MATH_REQUIRED_VERSION%"
-@if "%USE_IGNITION_ZIP%" == "" set USE_IGNITION_ZIP=FALSE
+@if "%USE_GZ_ZIP%" == "" set USE_GZ_ZIP=FALSE
 set IGNMATH_ZIP=%IGNMATH_BRANCH% :: should not be needed
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
@@ -32,10 +32,10 @@ mkdir %LOCAL_WS%
 cd %LOCAL_WS%
 echo # END SECTION
 
-IF %USE_IGNITION_ZIP% == FALSE (
+IF %USE_GZ_ZIP% == FALSE (
   echo # BEGIN SECTION: compile and install ign-math
   IF exist %WORKSPACE%\ign-math ( rmdir /s /q %WORKSPACE%\ign-math ) || goto :error
-  git clone https://github.com/ignitionrobotics/ign-math %WORKSPACE%\ign-math -u %IGNMATH_BRANCH% || goto :error
+  git clone https://github.com/gazebosim/gz-math %WORKSPACE%\ign-math -u %IGNMATH_BRANCH% || goto :error
   set VCS_DIRECTORY=ign-math
   set KEEP_WORKSPACE=TRUE
   call "%SCRIPT_DIR%\lib\project-default-devel-windows.bat"
@@ -51,7 +51,7 @@ call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/boost_1_56_0.z
 
 call %win_lib% :download_7za
 call %win_lib% :unzip_7za boost_1_56_0.zip > install_boost.log
-IF %USE_IGNITION_ZIP% == TRUE (
+IF %USE_GZ_ZIP% == TRUE (
   call %win_lib% :wget http://packages.osrfoundation.org/win32/deps/%IGNMATH_ZIP%.zip %IGNMATH_ZIP%.zip
   call %win_lib% :unzip_7za %IGNMATH_ZIP%.zip
 )

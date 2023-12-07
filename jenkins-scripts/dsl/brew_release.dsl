@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 
 // first distro in list is used as touchstone
-brew_supported_distros         = [ "catalina", "bigsur" ]
+brew_supported_distros         = [ "monterey", "ventura" ]
 bottle_hash_updater_job_name   = 'generic-release-homebrew_pr_bottle_hash_updater'
 bottle_builder_job_name        = 'generic-release-homebrew_triggered_bottle_builder'
 directory_for_bottles          = 'pkgs'
@@ -177,7 +177,7 @@ bottle_job_builder.with
      }
      project  / triggers / 'org.jenkinsci.plugins.ghprb.GhprbTrigger' {
          adminlist 'osrf-jenkins j-rivero scpeters'
-         orgslist 'ignitionrobotics'
+         orgslist 'gazebosim'
          whitelist 'osrfbuild'
          useGitHubHooks(true)
          allowMembersOfWhitelistedOrgsAsAdmin(true)
@@ -227,6 +227,7 @@ bottle_job_builder.with
           parameters {
             currentBuild()
               predefinedProp("PULL_REQUEST_URL", "https://github.com/osrf/homebrew-simulation/pull/\${ghprbPullId}")
+              predefinedProp("ghprbCommentBody", "\${ghprbCommentBody}")
           }
         }
      }
@@ -252,9 +253,12 @@ bottle_job_hash_updater.with
 
   parameters
   {
-     // reuse the pull request created by homebrew_pull_request_updater in step 1
-     stringParam("PULL_REQUEST_URL", '',
-                 'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
+    // copy the github trigger comment for extra parameter parsing
+    stringParam("ghprbCommentBody", '',
+                'GitHub trigger comment, which can be parsed for extra parameters.')
+    // reuse the pull request created by homebrew_pull_request_updater in step 1
+    stringParam("PULL_REQUEST_URL", '',
+                'Pull request URL (osrf/homebrew-simulation) pointing to a pull request.')
   }
 
   steps

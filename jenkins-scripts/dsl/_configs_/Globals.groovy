@@ -3,30 +3,49 @@ package _configs_
 class Globals
 {
    // Notifications for email ext plugin
-   static default_emails = '$DEFAULT_RECIPIENTS, scpeters@osrfoundation.org'
+   static default_emails = '$DEFAULT_RECIPIENTS'
    static build_cop_email = 'buildcop@osrfoundation.org'
    static extra_emails   = ''
 
    static rtools_description = true
    static gazebodistro_branch = false
 
-
    static CRON_EVERY_THREE_DAYS = 'H H * * H/3'
+   static CRON_HOURLY = 'H * * * *'
+   static CRON_ON_WEEKEND = 'H H * * 6-7'
+   // Run nightly scheduler during the nightly creation to be sure
+   // that any possible node killed is replaced. Starting -15min
+   // before CRON_NIGHTLY_NODES and evert 20min for 3 hours
+   static CRON_NIGHTLY_NODES = '*/20 9-11 * * *'
+   // Start the nightly generation 10 minutes after the nigthly node
+   // initial generation
+   static CRON_START_NIGHTLY = '10 9 * * *'
+
+   // Only one -E regex can be passed, so make a regex that matches both
+   // _ign_TEST and _gz_TEST
+   static MAKETEST_SKIP_GZ = "-E _i?g[nz]_TEST"
 
    static gpu_by_distro  = [ bionic  : [ 'nvidia' ]]
 
    static ros_ci = [ 'melodic'  : ['bionic'] ,
                      'noetic'   : ['focal'] ,
                      'foxy'     : ['focal'] ,
-                     'galactic' : ['focal'] ,
-                     'rolling'  : ['focal']]
+                     'rolling'  : ['jammy']]
 
    // This should be in sync with archive_library
    static gz_version_by_rosdistro = [ 'melodic'  : ['9'] ,
                                       'noetic'   : ['11'] ,
                                       'foxy'     : ['11'] ,
-                                      'galactic' : ['11'] ,
                                       'rolling'  : ['11']]
+
+   static String ign2gz(String str) {
+     str = str.replaceAll("ignitionrobotics","gazebosim")
+     str = str.replaceAll("ign-gazebo","gz-sim")
+     // This one is to workaround failures in main DSL files generating
+     // gz-gazebo instead of gz-sim
+     str = str.replaceAll("gz-gazebo","gz-sim")
+     return str.replaceAll("ign-","gz-")
+   }
 
    static ArrayList get_ros_distros_by_ubuntu_distro(String ubuntu_distro)
    {
@@ -57,12 +76,12 @@ class Globals
    // Main CI platform
    static ArrayList get_ci_distro()
    {
-    return [ 'bionic' ]
+    return [ 'focal' ]
    }
 
    static ArrayList get_abi_distro()
    {
-     return [ 'bionic' ]
+     return [ 'focal' ]
    }
 
    static ArrayList get_ci_gpu()
@@ -72,7 +91,7 @@ class Globals
 
    static ArrayList get_other_supported_distros()
    {
-     return [ 'bionic' ]
+     return [  ]
    }
 
    static ArrayList get_supported_arches()
@@ -102,20 +121,33 @@ class Globals
 
    static ArrayList get_ros2_suported_distros()
    {
-     return [ 'foxy', 'galactic', 'rolling' ]
+     return [ 'foxy', 'rolling' ]
    }
 
    static String get_ros2_development_distro() {
      return 'rolling'
    }
 
-   static String get_gz11_ubuntu_distro()
-   {
-     return 'bionic'
+   static String nontest_label(String original_label) {
+    return "(${original_label}) && !test-instance"
    }
 
-   static String get_gz11_mac_distro()
-   {
-     return 'mojave'
+   static String get_canonical_package_name(String package_name) {
+    return package_name.replaceAll('\\d*$', '')
+  }
+
+   static String s3_releases_dir(String package_name) {
+    return get_canonical_package_name(package_name) + '/releases'
    }
+
+   static String s3_upload_tarball_path(String package_name) {
+    return 's3://osrf-distributions/' + s3_releases_dir(package_name)
+   }
+
+   static String s3_download_url_basedir(String package_name) {
+    return 'https://osrf-distributions.s3.amazonaws.com/' + s3_releases_dir(package_name)
+   }
+
+   /* rest of the s3 paths need to be cumputed during job running time since
+    * they depend on VERSION and it is not avialble at DSL time */
 }

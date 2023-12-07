@@ -1,17 +1,12 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def gazebo_supported_branches = [ 'gazebo9', 'gazebo11' ]
+def gazebo_supported_branches = [ 'gazebo11' ]
 def gazebo_supported_build_types = [ 'Release', 'Debug', 'Coverage' ]
-// nightly_gazebo_branch is not the branch used to get the code from but
-// the one used to generate the corresponding debbuild job.
-def nightly_gazebo_branch = [ 'gazebo11' ]
 // testing official packages without osrf repo
-def ubuntu_official_packages_distros = [ 'bionic' : 'gazebo9' ]
-
+def ubuntu_official_packages_distros = [ 'jammy'  : 'gazebo11']
 // Main platform using for quick CI
-def ci_distro_default       = [ 'bionic' ]
-def ci_distro               = Globals.get_ci_distro()
+def ci_distro               = [ 'focal' ]
 def ci_gpu                  = Globals.get_ci_gpu()
 def abi_distro              = Globals.get_abi_distro()
 // Other supported platform to be checked but no for quick
@@ -25,7 +20,6 @@ def all_supported_gpus      = Globals.get_all_supported_gpus()
 def DISABLE_TESTS = false
 def DISABLE_GITHUB_INTEGRATION = false
 
-String ci_distro_default_str = ci_distro_default[0]
 String ci_distro_str = ci_distro[0]
 String ci_gpu_str = ci_gpu[0]
 String ci_build_any_job_name_linux = "gazebo-ci-pr_any-ubuntu_auto-amd64-gpu-${ci_gpu_str}"
@@ -36,7 +30,7 @@ String abi_job_name = ''
 boolean is_watched_by_buildcop(branch, distro = 'bionic', gpu = 'nvidia')
 
 {
-  if (branch == 'master' || branch == 'gazebo9' || branch == 'gazebo11')
+  if (branch == 'master' || branch == 'gazebo11')
     return true
 
   return false
@@ -52,13 +46,16 @@ void generate_install_job(Job job, gz_branch, distro, arch, use_osrf_repos = fal
 
     // Branch is exactly in the form of gazeboN
     def dev_packages = "lib${gz_branch}-dev ${gz_branch}"
+    // Ubuntu Jammy has no versioned gazebo package
+    if (distro == 'jammy')
+      dev_packages = "libgazebo-dev gazebo"
 
     def gzdev_str = ""
     if (use_osrf_repos)
         gzdev_str = "export GZDEV_PROJECT_NAME=${gz_branch}"
 
     // Need gpu for running the runtime test
-    label "gpu-reliable"
+    label Globals.nontest_label("gpu-reliable")
 
     steps {
       shell("""\
@@ -89,10 +86,10 @@ abi_distro.each { distro ->
     abi_job_name = "gazebo-abichecker-any_to_any-ubuntu_auto-${arch}"
     def abi_job = job(abi_job_name)
     OSRFLinuxABIGitHub.create(abi_job)
-    GenericAnyJobGitHub.create(abi_job, 'osrf/gazebo', gazebo_supported_branches)
+    GenericAnyJobGitHub.create(abi_job, 'gazebosim/gazebo-classic', gazebo_supported_branches)
     abi_job.with
     {
-      label "large-memory"
+      label Globals.nontest_label("large-memory")
 
       steps {
         shell("""\
@@ -120,10 +117,10 @@ ci_distro.each { distro ->
       // 1. Create the any job
       def gazebo_ci_any_job_name = "gazebo-ci-pr_any-ubuntu_auto-${arch}-gpu-${gpu}"
       def gazebo_ci_any_job      = job(gazebo_ci_any_job_name)
-      OSRFLinuxCompilationAnyGitHub.create(gazebo_ci_any_job, "osrf/gazebo")
+      OSRFLinuxCompilationAnyGitHub.create(gazebo_ci_any_job, "gazebosim/gazebo-classic")
       gazebo_ci_any_job.with
       {
-        label "gpu-reliable && large-memory"
+        label Globals.nontest_label("gpu-reliable && large-memory")
 
         steps
         {
@@ -139,43 +136,13 @@ ci_distro.each { distro ->
          }
       }
 
-      // --------------------------------------------------------------
-      // 2. Create the master ci jobs
-      def gazebo_ci_job = job("gazebo-ci-master-${ci_distro_default_str}-${arch}-gpu-${gpu}")
-      if (is_watched_by_buildcop('master', ci_distro_default_str, gpu))
-      {
-        Globals.extra_emails = Globals.build_cop_email
-      }
-      OSRFLinuxCompilation.create(gazebo_ci_job)
-      OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo")
-
-      gazebo_ci_job.with
-      {
-        label "gpu-reliable && large-memory"
-
-        triggers {
-          scm('*/5 * * * *')
-        }
-
-        steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                export DISTRO=${ci_distro_default_str}
-                export ARCH=${arch}
-                export GPU_SUPPORT_NEEDED=true
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
-                """.stripIndent())
-        }
-      }
-
       // reset build cop email in global list of mails
       Globals.extra_emails = ''
     } // end of gpu
   } // end of arch
 } // end of distro
 
-// OTHER CI SUPPORTED JOBS (master branch) @ SCM/DAILY
+// OTHER CI SUPPORTED JOBS (gazebo11 branch) @ SCM/DAILY
 other_supported_distros.each { distro ->
   supported_arches.each { arch ->
 
@@ -185,17 +152,17 @@ other_supported_distros.each { distro ->
       gpus = [ 'none' ]
 
     gpus.each { gpu ->
-      // ci_master job for the rest of arches / scm@daily
-      def gazebo_ci_job = job("gazebo-ci-master-${distro}-${arch}-gpu-${gpu}")
+      // gazebo11 job for the rest of arches / scm@daily
+      def gazebo_ci_job = job("gazebo-ci-gazebo11-${distro}-${arch}-gpu-${gpu}")
       OSRFLinuxCompilation.create(gazebo_ci_job)
-      OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo")
+      OSRFGitHub.create(gazebo_ci_job, "gazebosim/gazebo-classic")
 
       gazebo_ci_job.with
       {
 
         // gazebo builds require a powerful node not to take too long and
         // block backup for hours
-        label "gpu-reliable && large-memory"
+        label Globals.nontest_label("gpu-reliable && large-memory")
 
         triggers {
           scm('@daily')
@@ -226,7 +193,7 @@ ci_distro.each { distro ->
   supported_arches.each { arch ->
     ci_gpu.each { gpu ->
       def multi_any_job = job("gazebo-ci-pr_any+sdformat_any+ign_any-${distro}-${arch}-gpu-${gpu}")
-      OSRFLinuxCompilationAnyGitHub.create(multi_any_job, "osrf/gazebo", true, true, [], DISABLE_GITHUB_INTEGRATION)
+      OSRFLinuxCompilationAnyGitHub.create(multi_any_job, "gazebosim/gazebo-classic", true, true, [], DISABLE_GITHUB_INTEGRATION)
       multi_any_job.with
       {
         parameters
@@ -236,7 +203,7 @@ ci_distro.each { distro ->
           stringParam('IGN_TRANSPORT_BRANCH', 'main', 'ignition transport branch to use')
         }
 
-        label "gpu-reliable"
+        label Globals.nontest_label("gpu-reliable")
 
         steps {
             shell("""\
@@ -246,8 +213,8 @@ ci_distro.each { distro ->
             export ARCH=${arch}
             export GPU_SUPPORT_NEEDED=true
             export GAZEBO_BUILD_SDFORMAT=true
-            export GAZEBO_BUILD_IGN_MATH=true
-            export GAZEBO_BUILD_IGN_TRANSPORT=true
+            export GAZEBO_BUILD_GZ_MATH=true
+            export GAZEBO_BUILD_GZ_TRANSPORT=true
             /bin/bash -xe ./scripts/jenkins-scripts/docker/gazebo-compilation.bash
             """.stripIndent())
         }
@@ -259,10 +226,6 @@ ci_distro.each { distro ->
 // BRANCHES CI JOB @ SCM/DAILY
 gazebo_supported_branches.each { branch ->
   distros = ci_distro
-  if (branch == 'gazebo11')
-  {
-    distros = ci_distro_default
-  }
   distros.each { distro ->
     supported_arches.each { arch ->
       ci_gpu.each { gpu ->
@@ -273,11 +236,11 @@ gazebo_supported_branches.each { branch ->
         if (is_watched_by_buildcop(branch, distro, gpu))
           Globals.extra_emails = Globals.build_cop_email
         OSRFLinuxCompilation.create(gazebo_ci_job)
-        OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo", branch)
+        OSRFGitHub.create(gazebo_ci_job, "gazebosim/gazebo-classic", branch)
 
         gazebo_ci_job.with
         {
-          label "gpu-reliable && large-memory"
+          label Globals.nontest_label("gpu-reliable && large-memory")
 
           triggers {
             scm('@daily')
@@ -303,15 +266,15 @@ gazebo_supported_branches.each { branch ->
 } // end of branch
 
 // EXPERIMENTAL ARCHES @ SCM/WEEKLY
-ci_distro_default.each { distro ->
+ci_distro.each { distro ->
   experimental_arches.each { arch ->
-    def gazebo_ci_job = job("gazebo-ci-master-${distro}-${arch}-gpu-none")
+    def gazebo_ci_job = job("gazebo-ci-gazebo11-${distro}-${arch}-gpu-none")
     OSRFLinuxCompilation.create(gazebo_ci_job)
-    OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo")
+    OSRFGitHub.create(gazebo_ci_job, "gazebosim/gazebo-classic", "gazebo11")
 
     gazebo_ci_job.with
     {
-      label "gpu-reliable && large-memory"
+      label Globals.nontest_label("gpu-reliable && large-memory")
 
       triggers {
         scm('@weekly')
@@ -332,22 +295,22 @@ ci_distro_default.each { distro ->
 }
 
 // COVERAGE TYPE @ SCM/DAILY
-ci_distro_default.each { distro ->
+ci_distro.each { distro ->
   supported_arches.each { arch ->
     ci_gpu.each { gpu ->
       def gazebo_ci_job = job("gazebo-ci-coverage-${distro}-${arch}-gpu-${gpu}")
       OSRFLinuxCompilation.create(gazebo_ci_job)
-      OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo", "master")
+      OSRFGitHub.create(gazebo_ci_job, "gazebosim/gazebo-classic", "gazebo11")
       gazebo_ci_job.with
       {
         triggers {
           scm('@daily')
         }
 
-        label "gpu-reliable && large-memory"
+        label Globals.nontest_label("gpu-reliable && large-memory")
 
         // Problem with the compilation of Gazebo under bullseyes
-        // See: https://github.com/ignition-tooling/release-tools/issues/129
+        // See: https://github.com/gazebo-tooling/release-tools/issues/129
         disabled()
 
         steps {
@@ -367,16 +330,16 @@ ci_distro_default.each { distro ->
 }
 
 // BUILD TYPES CI JOBS @ SCM/DAILY
-ci_distro_default.each { distro ->
+ci_distro.each { distro ->
   supported_arches.each { arch ->
     gazebo_supported_build_types.each { build_type ->
-      def gazebo_ci_job = job("gazebo-ci_BT${build_type}-master-${distro}-${arch}-gpu-none")
+      def gazebo_ci_job = job("gazebo-ci_BT${build_type}-gazebo11-${distro}-${arch}-gpu-none")
       OSRFLinuxCompilation.create(gazebo_ci_job)
-      OSRFGitHub.create(gazebo_ci_job, "osrf/gazebo")
+      OSRFGitHub.create(gazebo_ci_job, "gazebosim/gazebo-classic", "gazebo11")
 
       gazebo_ci_job.with
       {
-        label "gpu-reliable && large-memory"
+        label Globals.nontest_label("gpu-reliable && large-memory")
 
         triggers {
           scm('@daily')
@@ -411,7 +374,7 @@ all_supported_distros.each { distro ->
         cron(Globals.CRON_EVERY_THREE_DAYS)
       }
 
-      label "gpu-reliable"
+      label Globals.nontest_label("gpu-reliable")
 
       steps {
         shell("""\
@@ -429,10 +392,6 @@ all_supported_distros.each { distro ->
 // INSTALL LINUX -DEV PACKAGES ALL PLATFORMS @ CRON/DAILY
 gazebo_supported_branches.each { branch ->
   distros = ci_distro
-  if (branch == 'gazebo11')
-  {
-    distros = ci_distro_default
-  }
   distros.each { distro ->
     supported_arches.each { arch ->
       // --------------------------------------------------------------
@@ -459,7 +418,7 @@ ubuntu_official_packages_distros.each { distro, branch ->
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
 
-all_debbuild_branches = gazebo_supported_branches + nightly_gazebo_branch
+all_debbuild_branches = gazebo_supported_branches
 all_debbuild_branches.each { branch ->
   def build_pkg_job = job("${branch}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
@@ -483,10 +442,10 @@ all_debbuild_branches.each { branch ->
 // 1. ANY job @ SCM/5min
 String ci_build_any_job_name_brew = "gazebo-ci-pr_any-homebrew-amd64"
 def gazebo_brew_ci_any_job = job(ci_build_any_job_name_brew)
-OSRFBrewCompilationAnyGitHub.create(gazebo_brew_ci_any_job, "osrf/gazebo")
+OSRFBrewCompilationAnyGitHub.create(gazebo_brew_ci_any_job, "gazebosim/gazebo-classic")
 gazebo_brew_ci_any_job.with
 {
-    label "osx_gazebo"
+    label Globals.nontest_label("osx")
 
     steps {
       shell("""\
@@ -516,16 +475,16 @@ install_brew_job.with
 
 // 2. default in all branches @SCM/daily
 // No gazebo2 for brew
-all_branches = gazebo_supported_branches + 'master'
+all_branches = gazebo_supported_branches
 all_branches.each { branch ->
   if (is_watched_by_buildcop(branch))
     Globals.extra_emails = Globals.build_cop_email
 
-  def osx_label = 'osx_gazebo'
+  def osx_label = 'osx'
 
   def gazebo_brew_ci_job = job("gazebo-ci-${branch}-homebrew-amd64")
   OSRFBrewCompilation.create(gazebo_brew_ci_job)
-  OSRFGitHub.create(gazebo_brew_ci_job, "osrf/gazebo", branch)
+  OSRFGitHub.create(gazebo_brew_ci_job, "gazebosim/gazebo-classic", branch)
 
   gazebo_brew_ci_job.with
   {
@@ -549,46 +508,8 @@ all_branches.each { branch ->
 }
 
 // --------------------------------------------------------------
-// WINDOWS: CI job
-
-// 1. any
-  String ci_build_any_job_name_win7 = "gazebo-ci-pr_any-windows7-amd64"
-  def gazebo_win_ci_any_job = job(ci_build_any_job_name_win7)
-  OSRFWinCompilationAnyGitHub.create(gazebo_win_ci_any_job, "osrf/gazebo")
-  gazebo_win_ci_any_job.with
-  {
-      steps {
-        batchFile("""\
-              call "./scripts/jenkins-scripts/gazebo-default-devel-windows7-amd64.bat"
-              """.stripIndent())
-      }
-  }
-
-// 2. default / @ SCM/Daily
-all_branches = gazebo_supported_branches
-all_branches.each { branch ->
-  def gazebo_win_ci_job = job("gazebo-ci-${branch}-windows7-amd64")
-  OSRFWinCompilation.create(gazebo_win_ci_job)
-  OSRFGitHub.create(gazebo_win_ci_job, "osrf/gazebo", branch)
-
-  gazebo_win_ci_job.with
-  {
-      triggers {
-        scm('@daily')
-      }
-
-      steps {
-        batchFile("""\
-              call "./scripts/jenkins-scripts/gazebo-default-devel-windows7-amd64.bat"
-              """.stripIndent())
-      }
-  }
-}
-
-// --------------------------------------------------------------
 // Create the main CI work flow job
 def gazebo_ci_main = pipelineJob("gazebo-ci-manual_any")
 OSRFCIWorkFlowMultiAnyGitHub.create(gazebo_ci_main,
                                    [ci_build_any_job_name_linux,
-                                    ci_build_any_job_name_win7,
                                     ci_build_any_job_name_brew])

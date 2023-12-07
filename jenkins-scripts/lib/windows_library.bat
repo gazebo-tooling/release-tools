@@ -37,6 +37,8 @@ IF %PLATFORM_TO_BUILD% == x86 (
 )
 
 echo "Configure the VC++ compilation"
+set MSVC22_ON_WIN32_C=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat
+:: 2019 versions
 set MSVC_ON_WIN64_E=C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
 set MSVC_ON_WIN32_E=C:\Program Files\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
 set MSVC_ON_WIN64_C=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat
@@ -46,7 +48,9 @@ set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
 set PATH=%PATH%;%VCPKG_DIR%\installed\%VCPKG_DEFAULT_TRIPLET%\bin
 
-IF exist "%MSVC_ON_WIN64_E%" (
+IF exist "%MSVC22_ON_WIN32_C%" (
+   call "%MSVC22_ON_WIN32_C%" %MSVC_KEYWORD% || goto %win_lib% :error
+) ELSE IF exist "%MSVC_ON_WIN64_E%" (
    call "%MSVC_ON_WIN64_E%" %MSVC_KEYWORD% || goto %win_lib% :error
 ) ELSE IF exist "%MSVC_ON_WIN32_E%" (
    call "%MSVC_ON_WIN32_E%" %MSVC_KEYWORD% || goto %win_lib% :error
@@ -123,10 +127,10 @@ set IGN_PROJECT_DEPENDENCY_DIR=%LOCAL_WS%\%1
 if exist %IGN_PROJECT_DEPENDENCY_DIR% ( rmdir /s /q %IGN_PROJECT_DEPENDENCY_DIR% )
 if "%2"=="" (
   echo Installing master branch of %1
-  git clone https://github.com/ignitionrobotics/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b master
+  git clone https://github.com/gazebosim/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b master
 ) else (
   echo Installing branch %2 of %1
-  git clone https://github.com/ignitionrobotics/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b %2
+  git clone https://github.com/gazebosim/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b %2
 )
 cd /d %IGN_PROJECT_DEPENDENCY_DIR%
 call .\configure.bat
@@ -139,13 +143,29 @@ goto :EOF
 ::
 :: arg1: Name of the yaml file in the gazebodistro repro
 :: arg2: directory destination (default .)
+setlocal EnableDelayedExpansion
 set gzdistro_dir=gazebodistro
 
 if "%GAZEBODISTRO_BRANCH%" == "" (set GAZEBODISTRO_BRANCH=master)
 
 if exist %gzdistro_dir% (rmdir /s /q %gzdistro_dir%)
-git clone https://github.com/ignition-tooling/gazebodistro %gzdistro_dir% -b %GAZEBODISTRO_BRANCH%
-vcs import --retry 5  < "%gzdistro_dir%\%1" "%2" || goto :error
+git clone https://github.com/gazebo-tooling/gazebodistro %gzdistro_dir% -b %GAZEBODISTRO_BRANCH%
+:: Check if ci_matching_branch name is used
+if "%ghprbSourceBranch%" == "" (echo ghprbSourceBranch is unset) else (
+  python "%SCRIPT_DIR%\tools\detect_ci_matching_branch.py" "%ghprbSourceBranch%"
+  :: "if ERRORLEVEL N" tests for ">= N"
+  :: To test for error code == 0, use !(error >= 1)
+  if NOT ERRORLEVEL 1 (
+    echo trying to checkout branch %ghprbSourceBranch% from gazebodistro
+    git -C %gzdistro_dir% fetch origin %ghprbSourceBranch% || rem
+    git -C %gzdistro_dir% checkout %ghprbSourceBranch% || rem
+  ) else (
+    echo branch name %ghprbSourceBranch% is not a match
+  )
+  :: print branch for informational purposes
+  git -C %gzdistro_dir% branch
+)
+vcs import --retry 5 --force < "%gzdistro_dir%\%1" "%2" || goto :error
 vcs pull || goto :error
 goto :EOF
 
@@ -190,23 +210,31 @@ goto :EOF
 :: Build all the workspaces packages except the package provided in arg1
 ::
 :: arg1: name of the colcon package excluded from building
+:: arg2: extra cmake parameter to pass to the target package COLCON_PACKAGE
 :build_workspace
 
 set COLCON_PACKAGE=%1
+set _COLCON_EXTRA_CMAKE_ARGS=%2
+
+:: Check if package is in colcon workspace
+echo # BEGIN SECTION Packages in workspace:
+colcon list --names-only
+echo # END SECTION
 
 :: two runs to get the dependencies built with testing and the package under
 :: test build with tests
-echo # BEGIN SECTION: colcon compilation without test for dependencies of %COLCON_PACKAGE%
-call :_colcon_build_cmd --packages-skip %COLCON_PACKAGE% "-DBUILD_TESTING=0" "-DCMAKE_CXX_FLAGS=-w"
+echo # BEGIN SECTION: colcon compilation without test for dependencies of !COLCON_PACKAGE!
+call :_colcon_build_cmd --packages-skip !COLCON_PACKAGE! "-DBUILD_TESTING=0" "-DCMAKE_CXX_FLAGS=-w"
 echo # END SECTION
-echo # BEGIN SECTION: colcon compilation with tests for %COLCON_PACKAGE%
-call :_colcon_build_cmd --packages-select %COLCON_PACKAGE% " -DBUILD_TESTING=1"
+echo # BEGIN SECTION: colcon compilation with tests for !COLCON_PACKAGE!
+call :_colcon_build_cmd --packages-select !COLCON_PACKAGE! %_COLCON_EXTRA_CMAKE_ARGS% " -DBUILD_TESTING=1"
 echo # END SECTION
 goto :EOF
 
 :: ##################################
 :list_workspace_pkgs
 colcon list -t || goto :error
+vcs export --exact || goto :error
 goto :EOF
 
 :: ##################################
@@ -214,9 +242,9 @@ goto :EOF
 :: arg1: package whitelist to test
 set COLCON_PACKAGE=%1
 
-echo # BEGIN SECTION: colcon test for %COLCON_PACKAGE%
+echo # BEGIN SECTION: colcon test for !COLCON_PACKAGE!
 colcon test --install-base "install"^
-            --packages-select %COLCON_PACKAGE%^
+            --packages-select !COLCON_PACKAGE!^
             --executor sequential^
             --event-handler console_direct+
 echo # END SECTION
@@ -228,17 +256,37 @@ goto :EOF
 :: ##################################
 :check_vcpkg_snapshot
 setlocal EnableDelayedExpansion
-for /f %%i in ('git -C %VCPKG_DIR% describe --tags HEAD') do set VCPKG_HEAD=%%i
-echo "VCPKG_HEAD is %VCPKG_HEAD%"
-if NOT %VCPKG_HEAD% == %VCPKG_SNAPSHOT% (
+:: look for same sha in repository HEAD and in the tag
+for /f %%i in ('git -C %VCPKG_DIR% rev-parse HEAD') do set VCPKG_HEAD=%%i
+for /f %%i in ('git -C %VCPKG_DIR% rev-list -n 1 %VCPKG_SNAPSHOT%') do set VCPKG_TAG=%%i
+if NOT %VCPKG_HEAD% == %VCPKG_TAG% (
   echo The vpckg directory is not using the expected snapshot %VCPKG_SNAPSHOT%
+  echo VCPKG_HEAD points to %VCPKG_HEAD% while VCPKG_TAG points to %VCPKG_TAG%
+  echo They should point to the same commit hash
   goto :error
 )
 goto :EOF
 
 :: ##################################
-:install_vcpkg_package
-:: arg1: package to install
+:list_vcpkg_packages
+%VCPKG_CMD% list || goto :error
+goto :EOF
+
+:: ##################################
+:remove_vcpkg_installation
+:: remove the installed directory to simulate all packages removal
+:: vcpkg cli does not support the operation
+set LIB_DIR="%~dp0"
+call %LIB_DIR%\windows_env_vars.bat || goto :error
+if [%VCPKG_INSTALLED_FILES_DIR%]==[] (
+  echo VCPKG_INSTALLED_FILES_DIR variable seems empty, this is a bug
+  goto :error
+)
+del /s /f /q %VCPKG_INSTALLED_FILES_DIR%
+goto :EOF
+
+:: ##################################
+:_prepare_vcpkg_to_install
 set LIB_DIR=%~dp0
 call %LIB_DIR%\windows_env_vars.bat || goto :error
 call %win_lib% :check_vcpkg_snapshot || goto :error
@@ -247,8 +295,34 @@ pushd .
 cd %VCPKG_OSRF_DIR%
 git pull origin master || goto :error
 popd
+goto :EOF
 
-%VCPKG_CMD% install "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
+:: ##################################
+:_install_and_upgrade_vcpkg_package
+:: arg1: package to install
+if [%1] == [] (
+  echo "_install_and_upgrade_vcpkg_package called with no argument"
+  goto :error
+)
+:: workaround on permissions problems for default VCPKG_DEFAULT_BINARY_CACHE
+set VCPKG_DEFAULT_BINARY_CACHE=C:\Users\Administrator\AppData\Local\vcpkg\archives
+if not exist %VCPKG_DEFAULT_BINARY_CACHE% mkdir %VCPKG_DEFAULT_BINARY_CACHE%
+%VCPKG_CMD% install --recurse "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
+:: vcpkg does not upgrade installed packages using the install command
+:: since most of the packages are coming from a frozen snapshot, it is
+:: not a problem. However upgrading is needed for the osrf port overlay
+%VCPKG_CMD% upgrade "%1" --no-dry-run --overlay-ports="%VCPKG_OSRF_DIR%"
+goto :EOF
+
+:: ##################################
+:install_vcpkg_package
+:: arg1: package to install
+if [%1] == [] (
+  echo "install_vcpkg_package called with no argument"
+  goto :error
+)
+call %win_lib% :_prepare_vcpkg_to_install|| goto :error
+call %win_lib% :_install_and_upgrade_vcpkg_package "%1" || goto :error
 goto :EOF
 
 :: ##################################
@@ -270,15 +344,19 @@ goto :EOF
 %VCPKG_CMD% integrate remove || goto :error
 goto :EOF
 
-
-:: copy port to the official tree
-xcopy %VCPKG_OSRF_DIR%\%PKG% %PORT_DIR% /s /i /e || goto :error
-
-call %win_lib% :install_vcpkg_package %1 || goto :error
+:: ##################################
+:setup_vcpkg_all_dependencies
+set LIB_DIR=%~dp0
+call %LIB_DIR%\windows_env_vars.bat || goto :error
+call %win_lib% :enable_vcpkg_integration || goto :error
+call %win_lib% :_prepare_vcpkg_to_install|| goto :error
+for %%p in (%VCPKG_DEPENDENCIES_LEGACY%) do (
+  call %win_lib% :_install_and_upgrade_vcpkg_package %%p || goto :error
+)
 goto :EOF
 
 :: ##################################
 :error - error routine
 ::
 echo Failed in windows_library with error #%errorlevel%.
-exit /B %errorlevel%
+exit %errorlevel%

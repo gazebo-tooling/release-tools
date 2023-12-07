@@ -11,7 +11,8 @@ release_repo_debbuilds = [ 'opensplice' ]
 // package) method used by debian
 gbp_repo_debbuilds = [ 'lark-parser',
                        'ogre-2.1',
-                       'ogre-2.2' ]
+                       'ogre-2.2',
+                       'ogre-2.3']
 
 release_repo_debbuilds.each { software ->
   // --------------------------------------------------------------
@@ -22,7 +23,7 @@ release_repo_debbuilds.each { software ->
   build_pkg_job.with
   {
     // use only the most powerful nodes
-    label "large-memory"
+    label Globals.nontest_label("large-memory")
 
     steps {
       shell("""\
@@ -42,7 +43,7 @@ gbp_repo_debbuilds.each { software ->
   build_pkg_job.with
   {
     // use only the most powerful nodes
-    label "large-memory"
+    label Globals.nontest_label("large-memory")
 
     parameters
     {
@@ -58,10 +59,14 @@ gbp_repo_debbuilds.each { software ->
                    'OSRF repo name to upload the package to')
     }
 
+    properties {
+      priority 100
+    }
+
     scm {
       git {
         remote {
-          github("ignition-forks/${software}-release", 'https')
+          github("gazebo-forks/${software}-release", 'https')
           branch('${BRANCH}')
         }
 

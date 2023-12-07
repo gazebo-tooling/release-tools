@@ -15,6 +15,7 @@ export HOMEBREW_UPDATE_TO_TAG=1
 ${BREW_BINARY} up || { restore_brew && ${BREW_BINARY} up ; }
 
 # Clear all installed homebrew packages, links, taps, and kegs
+${BREW_BINARY} list --formula > /dev/null || { restore_brew && ${BREW_BINARY} list --formula > /dev/null; }
 BREW_LIST=$(${BREW_BINARY} list --formula)
 if [[ -n "${BREW_LIST}" ]]; then
   ${BREW_BINARY} remove --force --ignore-dependencies ${BREW_LIST}
@@ -30,7 +31,7 @@ for t in $(HOMEBREW_NO_AUTO_UPDATE=1 \
           | grep -v '^homebrew/core$'); do
   ${BREW_BINARY} untap $t
 done
-brew cleanup --prune-prefix
+${BREW_BINARY} cleanup --prune-prefix
 
 pushd $(${BREW_BINARY} --prefix)/Homebrew/Library 2> /dev/null
 git stash && git clean -d -f
@@ -45,5 +46,8 @@ export HOMEBREW_GIT_NAME=${GIT_AUTHOR_NAME}
 export GIT_AUTHOR_EMAIL="osrfbuild@osrfoundation.org"
 export GIT_COMMITTER_EMAIL=${GIT_AUTHOR_EMAIL}
 export HOMEBREW_GIT_EMAIL=${GIT_AUTHOR_EMAIL}
+# Cleanup any existing lock left behind from aborted builds
+# see https://github.com/osrf/buildfarmer/issues/257
+rm -f ${HOME}/.gitconfig.lock
 git config --global user.name "${GIT_AUTHOR_NAME}"
 git config --global user.email "${GIT_AUTHOR_EMAIL}"
