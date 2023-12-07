@@ -12,7 +12,7 @@ GITHUB_SUPPORT_ALL_BRANCHES = []
 ENABLE_GITHUB_PR_INTEGRATION = true
 
 def WRITE_JOB_LOG = System.getenv('WRITE_JOB_LOG') ?: false
-logging_list = [:]
+logging_list = [:].withDefault {[]}
 logging_list['branch_ci'] = []
 
 // Jenkins needs the relative path to work and locally the simulation is done
@@ -208,12 +208,12 @@ void generate_win_ci_job(gz_win_ci_job, lib_name, branch, ci_config)
   add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir)
 }
 
-void generate_linux_install(src_name, lib_name, platform, arch)
+String generate_linux_install(src_name, lib_name, platform, arch)
 {
   def script_name_prefix = cleanup_library_name(src_name)
-  def install_default_job = job("${script_name_prefix}-install-pkg-${platform}-${arch}")
+  def job_name = "${script_name_prefix}-install-pkg-${platform}-${arch}"
+  def install_default_job = job(job_name)
   OSRFLinuxInstall.create(install_default_job)
-
   install_default_job.with
   {
     triggers {
@@ -235,6 +235,7 @@ void generate_linux_install(src_name, lib_name, platform, arch)
            """.stripIndent())
     }
   }
+  return job_name
 }
 
 def ciconf_per_lib_index = [:].withDefault { [:] }
@@ -396,10 +397,15 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
     OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
       'repository_uploader_packages',
       '_releasepy')
-
     // --------------------------------------------------------------
     pkg_system.arch.each { arch ->
-      generate_linux_install(pkg_src, canonical_lib_name, pkg_system.version, arch)
+      def job_name = generate_linux_install(
+        pkg_src, canonical_lib_name, pkg_system.version, arch)
+      pkg_src_config.getValue().each { index_entry ->
+        logging_list['install_ci'].add(
+          [collection: index_entry.collection,
+           job_name: job_name])
+      }
     }
   }
 }
