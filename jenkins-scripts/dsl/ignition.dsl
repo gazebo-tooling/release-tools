@@ -365,7 +365,6 @@ gz_software.each { gz_sw ->
     //   1.3 Per all supported_distros
     //     1.3.1 Per all supported branches on each library
     //       1.3.1.1 [job] Branch jobs -ci-$branch-
-    //       1.3.1.2 [job] Branch ASAN jobs -ci_asan-$branch-
 
     // 1.1.1 ABI checker for main branches
     // --------------------------------------------------------------
@@ -389,71 +388,8 @@ gz_software.each { gz_sw ->
         description 'Automatic generated job by DSL jenkins. Stub job for migration, not doing any check'
       }  // end of with
     } // end of abi_distro
-
-    all_supported_distros.each { distro ->
-        all_branches("${gz_sw}").each { branch ->
-          // 1. Standard CI
-          software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
-
-          if (gz_sw == 'sim')
-            software_name = "gazebo"
-
-          // 1.3.1.2 Branch ASAN jobs -ci_asan-$branch-
-          // --------------------------------------------------------------
-          def gz_ci_asan_job = job("ignition_${software_name}-ci_asan-${branch}-${distro}-${arch}")
-          generate_asan_ci_job(gz_ci_asan_job, software_name, branch, distro, arch)
-          gz_ci_asan_job.with
-          {
-            triggers {
-              scm(Globals.CRON_ON_WEEKEND)
-            }
-          }
-        }
-      } // end of all_supported_distros
-    } // end of supported_arches
+  } // end of arch
 } // end of gz_software
-
-void generate_asan_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
-{
-  generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
-                  '-DGZ_SANITIZER=Address',
-                  Globals.MAKETEST_SKIP_GZ,
-                  ['export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true'])
-}
-
-
-void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
-                     extra_cmake = '', extra_test = '', extra_cmd = [])
-{
-  OSRFLinuxCompilation.create(gz_ci_job, enable_testing(software_name))
-  OSRFGitHub.create(gz_ci_job,
-                        "gazebosim/ign-${software_name}",
-                        "${branch}", "ign-${software_name}")
-
-  include_gpu_label_if_needed(gz_ci_job, gz_sw)
-  gz_ci_job.with
-  {
-    if (gz_sw == 'physics') {
-      label Globals.nontest_label("large-memory")
-      extra_cmd += "export MAKE_JOBS=1"
-    }
-    if (gz_sw == 'gazebo')
-      gz_sw = 'sim'
-
-    steps {
-      shell("""#!/bin/bash -xe
-
-            ${GLOBAL_SHELL_CMD}
-            ${extra_cmd.join('\n')}
-            export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
-            export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
-            export DISTRO=${distro}
-            export ARCH=${arch}
-            /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_${gz_sw.replaceAll('-','_')}-compilation.bash
-            """.stripIndent())
-    }
-  }
-}
 
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
