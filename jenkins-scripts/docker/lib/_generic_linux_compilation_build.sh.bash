@@ -79,7 +79,7 @@ cd $WORKSPACE
 [[ ! -d $WORKSPACE/build ]] && mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake $WORKSPACE/${SOFTWARE_DIR} ${BUILDING_EXTRA_CMAKE_PARAMS} \
-    -DCMAKE_INSTALL_PREFIX=/usr
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: compiling'
@@ -97,6 +97,12 @@ if $GENERIC_ENABLE_TESTS; then
   init_stopwatch TEST
   mkdir -p \$HOME
   make test ARGS="-VV ${BUILDING_EXTRA_MAKETEST_PARAMS}" || true
+  if [[ -d $WORKSPACE/core_dumps ]]; then
+    for corefile in $WORKSPACE/core_dumps/core.*
+    do
+      gdb --batch -ex "sharedlibrary; thread apply all bt" --core \$corefile | tee \${corefile}_backtrace.txt
+    done
+  fi
   stop_stopwatch TEST
   echo '# END SECTION'
 else

@@ -36,6 +36,7 @@ fi
 # gnupg apt-key requires gnupg, gnupg2 or gnupg1
 BASE_DEPENDENCIES="build-essential \\
                    cmake           \\
+                   gdb             \\
                    debhelper       \\
                    mesa-utils      \\
                    x11-utils       \\
