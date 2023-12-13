@@ -404,6 +404,10 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
 }
 
 def File log_file
+if (WRITE_JOB_LOG) {
+  log_file = new File("logs/generated_jobs.txt")
+}
+
 def collection_job_names = [:].withDefault {[]}
 logging_list.each { log_type, items ->
   items.each {
