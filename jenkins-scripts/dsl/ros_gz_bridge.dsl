@@ -232,7 +232,7 @@ unofficial_combinations.each { gz_release, ros_distros ->
 
 
 if (WRITE_JOB_LOG) {
-  File log_file = new File("jobs.txt")
+  File log_file = new File("logs/generated_jobs.txt")
   logging_list.each { log_type, items ->
     items.each { log_file.append("${log_type} ${it.collection} ${it.job_name}\n") }
   }
