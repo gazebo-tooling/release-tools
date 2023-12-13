@@ -14,6 +14,7 @@ ENABLE_GITHUB_PR_INTEGRATION = true
 def WRITE_JOB_LOG = System.getenv('WRITE_JOB_LOG') ?: false
 logging_list = [:]
 logging_list['branch_ci'] = []
+logging_list['asan_ci'] = []
 
 // Jenkins needs the relative path to work and locally the simulation is done
 // using a symlink
@@ -124,7 +125,7 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
   def arch = ci_config.system.arch
   def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
   def ws_checkout_dir = lib_name
-  extra_cmd = [extra_cmd, pre_setup_script].findAll({ it != null }).join()
+  extra_cmd = [extra_cmd, pre_setup_script].findAll({ it != null }).join('\n')
 
   OSRFLinuxCompilation.create(gz_ci_job, is_testing_enabled(lib_name, ci_config))
   OSRFGitHub.create(gz_ci_job,
@@ -149,6 +150,14 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
             """.stripIndent())
     }
   }
+}
+
+void generate_asan_ci_job(gz_ci_job, lib_name, branch, ci_config)
+{
+  generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
+                  '-DGZ_SANITIZER=Address',
+                  Globals.MAKETEST_SKIP_GZ,
+                  'export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true')
 }
 
 void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
@@ -249,6 +258,18 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
       if (ci_config.system.so == 'linux') {
         gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
         generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+        // Generate asan jobs on Linux
+        def gz_ci_asan_job =  job("${gz_job_name_prefix}-ci_asan-${branch_name}-${distro}-${arch}")
+        generate_asan_ci_job(gz_ci_asan_job, lib_name, branch_name, ci_config)
+        gz_ci_asan_job.with
+        {
+          triggers {
+            scm(Globals.CRON_ON_WEEKEND)
+          }
+        }
+        logging_list['asan_ci'].add(
+          [collection: branch_and_collection.collection,
+           job_name: gz_ci_asan_job.name])
       } else if (ci_config.system.so == 'darwin') {
         gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-homebrew-${arch}")
         generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
@@ -383,10 +404,6 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
 }
 
 def File log_file
-if (WRITE_JOB_LOG) {
-  log_file = new File("jobs.txt")
-}
-
 def collection_job_names = [:].withDefault {[]}
 logging_list.each { log_type, items ->
   items.each {
@@ -396,6 +413,11 @@ logging_list.each { log_type, items ->
     }
 }
 
+/*
+ * -------------------------------------------------------
+ * DASHBOARD VIEWS
+ * -------------------------------------------------------
+ */
 collection_job_names.each { collection_name, job_names ->
   // TODO: change ign by gz when testing is ready
   dashboardView("ign-${collection_name}")
