@@ -33,6 +33,16 @@ jobs:
           WRITE_JOB_LOG=1 java -jar tools/jobdsl.jar *.dsl
           find logs/* -exec sort {} -o {} \;
           popd
+      - name: Checks for DSL Code
+        run: |
+          cd jenkins-scripts/dsl
+          ./dsl_checks.bash
+      - name: Export XML generated configuration for diff
+        run: |
+          cd jenkins-scripts/dsl
+          # export files for later diff
+          mkdir /tmp/pr_xml_configuration
+          mv *.xml /tmp/pr_xml_configuration/
       - name: Update and commit logs generated
         uses: stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d  # v5 sha
         with:
