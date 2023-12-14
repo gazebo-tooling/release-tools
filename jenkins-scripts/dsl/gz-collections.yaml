@@ -440,8 +440,6 @@ collections:
     packaging:
       configs:
         - jammy
-      exclude:
-          - __upcoming__
 ci_configs:
   - name: focal
     system:
@@ -569,7 +567,6 @@ packaging_configs:
       version: focal
       arch:
         - amd64
-        - arm64
   - name: jammy
     system:
       so: linux
@@ -577,5 +574,5 @@ packaging_configs:
       version: jammy
       arch:
         - amd64
-        - arm64
-        - armhf
+    exclude:
+        - __upcoming__
