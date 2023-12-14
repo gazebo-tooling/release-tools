@@ -428,54 +428,6 @@ all_debbuilders().each { debbuilder_name ->
 }
 
 // --------------------------------------------------------------
-// BREW: CI jobs
-
-// 1. any job
-gz_software.each { gz_sw ->
-  // Install jobs to test bottles
-  supported_install_pkg_branches(gz_sw).each { major_version, supported_distros ->
-    def install_default_job = job("ignition_${gz_sw}${major_version}-install_bottle-homebrew-amd64")
-    OSRFBrewInstall.create(install_default_job)
-
-    install_default_job.with
-    {
-      // disable some bottles
-      if (("${gz_sw}" == "gui" && "${major_version}" == "0"))
-        disabled()
-
-      triggers {
-        cron('@daily')
-      }
-
-      def bottle_name = "ignition-${gz_sw}${major_version}"
-      // For transiting, use always gz-sim new name since new versions won't
-      // have ign-gazebo aliases
-      if ("${gz_sw}" == "sim" || "${gz_sw}" == "gazebo")
-        bottle_name = "gz-sim${major_version}"
-
-      steps {
-       shell("""\
-             #!/bin/bash -xe
-
-             /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${bottle_name}
-             """.stripIndent())
-      }
-
-      publishers
-      {
-         configure { project ->
-           project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
-              unstableOnWarning true
-              failBuildOnError false
-              parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
-            }
-         }
-      }
-    }
-  }
-}
-
-// --------------------------------------------------------------
 // WINDOWS: CI job
 
 // Main CI workflow
