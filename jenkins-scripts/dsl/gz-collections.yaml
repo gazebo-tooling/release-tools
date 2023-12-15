@@ -96,7 +96,7 @@ collections:
       configs:
         - focal
         - brew
-        - win
+        - win_citadel
     packaging:
       configs:
         - focal
@@ -559,7 +559,6 @@ ci_configs:
     requirements:
     exclude:
       all:
-        - gz-citadel
         - gz-fortress
         - gz-garden
         - gz-harmonic
@@ -572,6 +571,33 @@ ci_configs:
       - gz-sim
       - gz-gui
       - gz-launch
+      - gz-math
+      - gz-msgs
+      - gz-physics
+      - gz-rendering
+      - gz-sensors
+      - gz-tools
+      - gz-transport
+      - gz-utils
+      - sdformat
+  # No gz-sim and gz-launch on Citadel
+  - name: win_citadel
+    system:
+      so: windows
+      distribution: windows
+      version: "10"
+      arch: amd64
+    requirements:
+    exclude:
+      all:
+        - gz-citadel
+        - gz-sim
+        - gz-launch
+    cmake_warnings_disabled:
+      - gz-cmake
+      - gz-common
+      - gz-fuel-tools
+      - gz-gui
       - gz-math
       - gz-msgs
       - gz-physics
