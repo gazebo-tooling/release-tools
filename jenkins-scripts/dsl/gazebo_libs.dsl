@@ -281,6 +281,33 @@ String generate_brew_install(src_name, lib_name, arch)
   return job_name
 }
 
+def generate_debbuilder_job(src_name, lib_name, pkg_config)
+{
+  def pre_setup_script = pkg_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
+  def extra_cmd = pre_setup_script ?: ""
+
+  def build_pkg_job = job("${src_name}-debbuilder")
+  OSRFLinuxBuildPkg.create(build_pkg_job)
+  build_pkg_job.with
+  {
+      concurrentBuild(true)
+
+      throttleConcurrentBuilds {
+        maxPerNode(1)
+        maxTotal(8)
+      }
+
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+              ${GLOBAL_SHELL_CMD}
+              ${extra_cmd}
+              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
+              """.stripIndent())
+      }
+  }
+}
+
 def ciconf_per_lib_index = [:].withDefault { [:] }
 def pkgconf_per_src_index = [:].withDefault { [:] }
 generate_ciconfigs_by_lib(gz_collections_yaml, ciconf_per_lib_index, pkgconf_per_src_index)
@@ -444,7 +471,12 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
     if (pkg_config.exclude?.contains(canonical_lib_name))
       return
     def pkg_system = pkg_config.system
-    // --------------------------------------------------------------
+    // - DEBBUILD jobs -------------------------------------------------
+    generate_debbuilder_job(pkg_src,
+      canonical_lib_name,
+      pkg_config
+    )
+    // - SOURCE jobs ---------------------------------------------------
     def gz_source_job = job("${pkg_src}-source")
     OSRFSourceCreation.create(gz_source_job, [
       PACKAGE: pkg_src,
@@ -452,7 +484,7 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
     OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
       'repository_uploader_packages',
       '_releasepy')
-    // --------------------------------------------------------------
+    // - CI-INSTALL jobs ------------------------------------------------
     pkg_system.arch.each { arch ->
       def linux_install_job_name = generate_linux_install(
         pkg_src,

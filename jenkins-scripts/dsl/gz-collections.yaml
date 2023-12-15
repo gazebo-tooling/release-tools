@@ -588,6 +588,9 @@ packaging_configs:
       version: focal
       arch:
         - amd64
+    pre_setup_script_hook:
+      gz-physics:
+        - "export MAKE_JOBS=1"
   - name: jammy
     system:
       so: linux
@@ -595,5 +598,8 @@ packaging_configs:
       version: jammy
       arch:
         - amd64
+    pre_setup_script_hook:
+      gz-physics:
+        - "export MAKE_JOBS=1"
     exclude:
         - __upcoming__
