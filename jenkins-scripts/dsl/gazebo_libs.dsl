@@ -13,8 +13,6 @@ ENABLE_GITHUB_PR_INTEGRATION = true
 
 def WRITE_JOB_LOG = System.getenv('WRITE_JOB_LOG') ?: false
 logging_list = [:].withDefault {[]}
-logging_list['branch_ci'] = []
-logging_list['asan_ci'] = []
 
 // Jenkins needs the relative path to work and locally the simulation is done
 // using a symlink
@@ -259,6 +257,42 @@ String generate_linux_install(src_name, lib_name, platform, arch)
   return job_name
 }
 
+String generate_brew_install(src_name, lib_name, arch)
+{
+  def script_name_prefix = cleanup_library_name(src_name)
+  def job_name = "${script_name_prefix}-install_bottle-homebrew-${arch}"
+  def install_default_job = job(job_name)
+  OSRFBrewInstall.create(install_default_job)
+
+  install_default_job.with
+  {
+    triggers {
+      cron('@daily')
+    }
+
+    steps {
+     shell("""\
+           #!/bin/bash -xe
+
+           /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${src_name}
+           """.stripIndent())
+    }
+
+    publishers
+    {
+       configure { project ->
+         project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+            unstableOnWarning true
+            failBuildOnError false
+            parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+          }
+       }
+    }
+  }
+
+  return job_name
+}
+
 def ciconf_per_lib_index = [:].withDefault { [:] }
 def pkgconf_per_src_index = [:].withDefault { [:] }
 generate_ciconfigs_by_lib(gz_collections_yaml, ciconf_per_lib_index, pkgconf_per_src_index)
@@ -432,12 +466,23 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
       '_releasepy')
     // --------------------------------------------------------------
     pkg_system.arch.each { arch ->
-      def job_name = generate_linux_install(
-        pkg_src, canonical_lib_name, pkg_system.version, arch)
+      def linux_install_job_name = generate_linux_install(
+        pkg_src,
+        canonical_lib_name,
+        pkg_system.version,
+        arch)
+      def brew_install_job_name = generate_brew_install(
+        pkg_src,
+        canonical_lib_name,
+        arch)
+
       pkg_src_config.getValue().each { index_entry ->
         logging_list['install_ci'].add(
           [collection: index_entry.collection,
-           job_name: job_name])
+           job_name: linux_install_job_name])
+        logging_list['install_ci'].add(
+          [collection: index_entry.collection,
+           job_name: brew_install_job_name])
       }
     }
   }
