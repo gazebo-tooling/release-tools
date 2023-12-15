@@ -95,7 +95,6 @@ branch_ci citadel gz_gui-ci-ign-gui3-homebrew-amd64
 branch_ci citadel gz_gui-ign-gui3-win
 branch_ci citadel gz_launch-ci-ign-launch2-focal-amd64
 branch_ci citadel gz_launch-ci-ign-launch2-homebrew-amd64
-branch_ci citadel gz_launch-ign-launch2-win
 branch_ci citadel gz_math-ci-ign-math6-focal-amd64
 branch_ci citadel gz_math-ci-ign-math6-homebrew-amd64
 branch_ci citadel gz_math-ign-math6-win
@@ -116,7 +115,6 @@ branch_ci citadel gz_sensors-ci-ign-sensors3-homebrew-amd64
 branch_ci citadel gz_sensors-ign-sensors3-win
 branch_ci citadel gz_sim-ci-ign-gazebo3-focal-amd64
 branch_ci citadel gz_sim-ci-ign-gazebo3-homebrew-amd64
-branch_ci citadel gz_sim-ign-gazebo3-win
 branch_ci citadel gz_tools-ci-ign-tools1-focal-amd64
 branch_ci citadel gz_tools-ci-ign-tools1-homebrew-amd64
 branch_ci citadel gz_tools-ign-tools1-win
