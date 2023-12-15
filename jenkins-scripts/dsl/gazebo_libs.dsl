@@ -255,7 +255,7 @@ String generate_brew_install(src_name, lib_name, arch)
   install_default_job.with
   {
     triggers {
-      cron(Globals.CRON_EVERY_THREE_DAYS)
+      cron('@daily')
     }
 
     steps {
