@@ -509,7 +509,7 @@ logging_list.each { log_type, items ->
  */
 collection_job_names.each { collection_name, job_names ->
   // TODO: change ign by gz when testing is ready
-  dashboardView("ign-${collection_name}")
+  dashboardView("gz-${collection_name}")
   {
     jobs {
       job_names.each { jobname ->
