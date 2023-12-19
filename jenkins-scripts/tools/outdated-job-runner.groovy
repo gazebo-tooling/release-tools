@@ -66,7 +66,7 @@ def runJobsInAvailableNodes(LinkedHashMap outdatedJobs) {
         }
 }
 
-def JOBS_URL = 'https://raw.githubusercontent.com/Crola1702/release-tools/master/jenkins-scripts/dsl/jobs.txt'
+def JOBS_URL = 'https://raw.githubusercontent.com/gazebo-tooling/release-tools/master/jenkins-scripts/dsl/logs/generated_jobs.txt'
 
 def trackedJobs = new LinkedHashSet();
 
