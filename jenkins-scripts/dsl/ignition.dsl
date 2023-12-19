@@ -354,37 +354,6 @@ boolean is_a_colcon_package(String gz_software_name)
   return false
 }
 
-void generate_install_job(prefix, gz_sw, major_version, distro, arch)
-{
-  def install_default_job = job("${prefix}_${gz_sw}${major_version}-install-pkg-${distro}-${arch}")
-  OSRFLinuxInstall.create(install_default_job)
-  include_gpu_label_if_needed(install_default_job, gz_sw)
-
-  install_default_job.with
-  {
-    triggers {
-      cron(Globals.CRON_EVERY_THREE_DAYS)
-    }
-
-    def dev_package = "lib${prefix}-${gz_sw}${major_version}-dev"
-    def gzdev_project = "${prefix}-${gz_sw}${major_version}"
-
-    steps {
-     shell("""\
-           #!/bin/bash -xe
-
-           ${GLOBAL_SHELL_CMD}
-
-           export DISTRO=${distro}
-           export ARCH=${arch}
-           export INSTALL_JOB_PKG=${dev_package}
-           export GZDEV_PROJECT_NAME="${gzdev_project}"
-           /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
-           """.stripIndent())
-    }
-  }
-}
-
 // Need to be before the ci-pr_any so the abi job name is defined
 gz_software.each { gz_sw ->
   supported_arches.each { arch ->
@@ -396,7 +365,6 @@ gz_software.each { gz_sw ->
     //   1.3 Per all supported_distros
     //     1.3.1 Per all supported branches on each library
     //       1.3.1.1 [job] Branch jobs -ci-$branch-
-    //       1.3.1.2 [job] Branch ASAN jobs -ci_asan-$branch-
 
     // 1.1.1 ABI checker for main branches
     // --------------------------------------------------------------
@@ -420,104 +388,8 @@ gz_software.each { gz_sw ->
         description 'Automatic generated job by DSL jenkins. Stub job for migration, not doing any check'
       }  // end of with
     } // end of abi_distro
-
-    all_supported_distros.each { distro ->
-        all_branches("${gz_sw}").each { branch ->
-          // 1. Standard CI
-          software_name = gz_sw  // Necessary substitution. gz_sw won't overwrite
-
-          if (gz_sw == 'sim')
-            software_name = "gazebo"
-
-          // 1.3.1.2 Branch ASAN jobs -ci_asan-$branch-
-          // --------------------------------------------------------------
-          def gz_ci_asan_job = job("ignition_${software_name}-ci_asan-${branch}-${distro}-${arch}")
-          generate_asan_ci_job(gz_ci_asan_job, software_name, branch, distro, arch)
-          gz_ci_asan_job.with
-          {
-            triggers {
-              scm(Globals.CRON_ON_WEEKEND)
-            }
-          }
-        }
-      } // end of all_supported_distros
-    } // end of supported_arches
+  } // end of arch
 } // end of gz_software
-
-
-// INSTALL PACKAGE ALL PLATFORMS / DAILY
-gz_software.each { gz_sw ->
-  // Exclusion list
-  if (gz_sw in gz_no_pkg_yet)
-    return
-
-  supported_arches.each { arch ->
-    supported_install_pkg_branches(gz_sw).each { major_version, supported_distros ->
-      supported_distros.each { distro ->
-        extra_repos_str=""
-        if ((gz_sw in gz_prerelease_pkgs) &&
-           (major_version in gz_prerelease_pkgs[gz_sw]) &&
-           (distro in gz_prerelease_pkgs[gz_sw][major_version]))
-          extra_repos_str="prerelease"
-
-        // No 1-dev or 0-dev packages (except special cases see
-        // gz_debbuild variable), unversioned
-        major_version_in_pkgname = major_version
-        if ("${major_version}" == "0" || "${major_version}" == "1")
-          major_version_in_pkgname = ""
-
-        // 1. gz_ prefix packages. All but not gazebo (replaced by sim)
-        generate_install_job("gz", gz_sw.replace('gazebo', 'sim'), major_version, distro, arch)
-
-        // 2. ignition_ prefix packages. gz software does not have ignition packages
-        if (major_version in supported_ign_branches(gz_sw))
-          generate_install_job("ignition", gz_sw, major_version_in_pkgname, distro, arch)
-      }
-    }
-  }
-}
-
-void generate_asan_ci_job(gz_ci_job, gz_sw, branch, distro, arch)
-{
-  generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
-                  '-DGZ_SANITIZER=Address',
-                  Globals.MAKETEST_SKIP_GZ,
-                  ['export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true'])
-}
-
-
-void generate_ci_job(gz_ci_job, gz_sw, branch, distro, arch,
-                     extra_cmake = '', extra_test = '', extra_cmd = [])
-{
-  OSRFLinuxCompilation.create(gz_ci_job, enable_testing(software_name))
-  OSRFGitHub.create(gz_ci_job,
-                        "gazebosim/ign-${software_name}",
-                        "${branch}", "ign-${software_name}")
-
-  include_gpu_label_if_needed(gz_ci_job, gz_sw)
-  gz_ci_job.with
-  {
-    if (gz_sw == 'physics') {
-      label Globals.nontest_label("large-memory")
-      extra_cmd += "export MAKE_JOBS=1"
-    }
-    if (gz_sw == 'gazebo')
-      gz_sw = 'sim'
-
-    steps {
-      shell("""#!/bin/bash -xe
-
-            ${GLOBAL_SHELL_CMD}
-            ${extra_cmd.join('\n')}
-            export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
-            export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
-            export DISTRO=${distro}
-            export ARCH=${arch}
-            /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_${gz_sw.replaceAll('-','_')}-compilation.bash
-            """.stripIndent())
-    }
-  }
-}
 
 // --------------------------------------------------------------
 // DEBBUILD: linux package builder
@@ -552,54 +424,6 @@ all_debbuilders().each { debbuilder_name ->
               /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
               """.stripIndent())
       }
-  }
-}
-
-// --------------------------------------------------------------
-// BREW: CI jobs
-
-// 1. any job
-gz_software.each { gz_sw ->
-  // Install jobs to test bottles
-  supported_install_pkg_branches(gz_sw).each { major_version, supported_distros ->
-    def install_default_job = job("ignition_${gz_sw}${major_version}-install_bottle-homebrew-amd64")
-    OSRFBrewInstall.create(install_default_job)
-
-    install_default_job.with
-    {
-      // disable some bottles
-      if (("${gz_sw}" == "gui" && "${major_version}" == "0"))
-        disabled()
-
-      triggers {
-        cron('@daily')
-      }
-
-      def bottle_name = "ignition-${gz_sw}${major_version}"
-      // For transiting, use always gz-sim new name since new versions won't
-      // have ign-gazebo aliases
-      if ("${gz_sw}" == "sim" || "${gz_sw}" == "gazebo")
-        bottle_name = "gz-sim${major_version}"
-
-      steps {
-       shell("""\
-             #!/bin/bash -xe
-
-             /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${bottle_name}
-             """.stripIndent())
-      }
-
-      publishers
-      {
-         configure { project ->
-           project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
-              unstableOnWarning true
-              failBuildOnError false
-              parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
-            }
-         }
-      }
-    }
   }
 }
 

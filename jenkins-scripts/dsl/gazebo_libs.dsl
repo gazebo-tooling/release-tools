@@ -12,8 +12,7 @@ GITHUB_SUPPORT_ALL_BRANCHES = []
 ENABLE_GITHUB_PR_INTEGRATION = true
 
 def WRITE_JOB_LOG = System.getenv('WRITE_JOB_LOG') ?: false
-logging_list = [:]
-logging_list['branch_ci'] = []
+logging_list = [:].withDefault {[]}
 
 // Jenkins needs the relative path to work and locally the simulation is done
 // using a symlink
@@ -124,7 +123,7 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
   def arch = ci_config.system.arch
   def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
   def ws_checkout_dir = lib_name
-  extra_cmd = [extra_cmd, pre_setup_script].findAll({ it != null }).join()
+  extra_cmd = [extra_cmd, pre_setup_script].findAll({ it != null }).join('\n')
 
   OSRFLinuxCompilation.create(gz_ci_job, is_testing_enabled(lib_name, ci_config))
   OSRFGitHub.create(gz_ci_job,
@@ -151,6 +150,14 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
   }
 }
 
+void generate_asan_ci_job(gz_ci_job, lib_name, branch, ci_config)
+{
+  generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
+                  '-DGZ_SANITIZER=Address',
+                  Globals.MAKETEST_SKIP_GZ,
+                  'export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true')
+}
+
 void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
 {
   // ignition formulas does not match the lib name, expand the prefix
@@ -170,7 +177,6 @@ void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
 
 void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
 {
-  def script_name_prefix = cleanup_library_name(lib_name)
   def ws_checkout_dir = lib_name
   OSRFBrewCompilation.create(gz_brew_ci_job,
                              is_testing_enabled(lib_name, ci_config),
@@ -209,6 +215,84 @@ void generate_win_ci_job(gz_win_ci_job, lib_name, branch, ci_config)
   add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir)
 }
 
+
+String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
+{
+  major_version = parsed_yaml_lib.major_version
+
+  ignore_major_version = parsed_yaml_packaging.linux?.ignore_major_version
+  if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
+    major_version = ""
+
+  return parsed_yaml_lib.name + major_version + "-debbuilder"
+}
+
+String generate_linux_install(src_name, lib_name, platform, arch)
+{
+  def script_name_prefix = cleanup_library_name(src_name)
+  def job_name = "${script_name_prefix}-install-pkg-${platform}-${arch}"
+  def install_default_job = job(job_name)
+  OSRFLinuxInstall.create(install_default_job)
+  install_default_job.with
+  {
+    triggers {
+      cron(Globals.CRON_EVERY_THREE_DAYS)
+    }
+
+    def dev_package = "lib${src_name}-dev"
+
+    steps {
+     shell("""\
+           #!/bin/bash -xe
+
+           ${GLOBAL_SHELL_CMD}
+           export DISTRO=${platform}
+           export ARCH=${arch}
+           export INSTALL_JOB_PKG=${dev_package}
+           export GZDEV_PROJECT_NAME="${src_name}"
+           /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
+           """.stripIndent())
+    }
+  }
+  return job_name
+}
+
+String generate_brew_install(src_name, lib_name, arch)
+{
+  def script_name_prefix = cleanup_library_name(src_name)
+  def job_name = "${script_name_prefix}-install_bottle-homebrew-${arch}"
+  def install_default_job = job(job_name)
+  OSRFBrewInstall.create(install_default_job)
+
+  install_default_job.with
+  {
+    triggers {
+      cron('@daily')
+    }
+
+    steps {
+     shell("""\
+           #!/bin/bash -xe
+
+           /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${src_name}
+           """.stripIndent())
+    }
+
+    publishers
+    {
+       configure { project ->
+         project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+            unstableOnWarning true
+            failBuildOnError false
+            parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+          }
+       }
+    }
+  }
+
+  return job_name
+}
+
 def ciconf_per_lib_index = [:].withDefault { [:] }
 def pkgconf_per_src_index = [:].withDefault { [:] }
 generate_ciconfigs_by_lib(gz_collections_yaml, ciconf_per_lib_index, pkgconf_per_src_index)
@@ -238,6 +322,18 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
       if (ci_config.system.so == 'linux') {
         gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
         generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+        // Generate asan jobs on Linux
+        def gz_ci_asan_job =  job("${gz_job_name_prefix}-ci_asan-${branch_name}-${distro}-${arch}")
+        generate_asan_ci_job(gz_ci_asan_job, lib_name, branch_name, ci_config)
+        gz_ci_asan_job.with
+        {
+          triggers {
+            scm(Globals.CRON_ON_WEEKEND)
+          }
+        }
+        logging_list['asan_ci'].add(
+          [collection: branch_and_collection.collection,
+           job_name: gz_ci_asan_job.name])
       } else if (ci_config.system.so == 'darwin') {
         gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-homebrew-${arch}")
         generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
@@ -357,10 +453,10 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
     def pkg_config = gz_collections_yaml.packaging_configs.find{ it.name == config_name }
     // lib_names are the same in all the entries
     def canonical_lib_name = pkg_src_config.getValue()[0].lib_name
-
     if (pkg_config.exclude?.contains(canonical_lib_name))
       return
-
+    def pkg_system = pkg_config.system
+    // --------------------------------------------------------------
     def gz_source_job = job("${pkg_src}-source")
     OSRFSourceCreation.create(gz_source_job, [
       PACKAGE: pkg_src,
@@ -368,12 +464,95 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
     OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
       'repository_uploader_packages',
       '_releasepy')
+    // --------------------------------------------------------------
+    pkg_system.arch.each { arch ->
+      def linux_install_job_name = generate_linux_install(
+        pkg_src,
+        canonical_lib_name,
+        pkg_system.version,
+        arch)
+      def brew_install_job_name = generate_brew_install(
+        pkg_src,
+        canonical_lib_name,
+        arch)
+
+      pkg_src_config.getValue().each { index_entry ->
+        logging_list['install_ci'].add(
+          [collection: index_entry.collection,
+           job_name: linux_install_job_name])
+        logging_list['install_ci'].add(
+          [collection: index_entry.collection,
+           job_name: brew_install_job_name])
+      }
+    }
   }
 }
 
+def File log_file
 if (WRITE_JOB_LOG) {
-  File log_file = new File("jobs.txt")
-  logging_list.each { log_type, items ->
-    items.each { log_file.append("${log_type} ${it.collection} ${it.job_name}\n") }
+  log_file = new File("logs/generated_jobs.txt")
+}
+
+def collection_job_names = [:].withDefault {[]}
+logging_list.each { log_type, items ->
+  items.each {
+    collection_job_names[it.collection] << it.job_name
+    if (WRITE_JOB_LOG) {
+      log_file.append("${log_type} ${it.collection} ${it.job_name}\n") }
+    }
+}
+
+/*
+ * -------------------------------------------------------
+ * DASHBOARD VIEWS
+ * -------------------------------------------------------
+ */
+collection_job_names.each { collection_name, job_names ->
+  // TODO: change ign by gz when testing is ready
+  dashboardView("gz-${collection_name}")
+  {
+    jobs {
+      job_names.each { jobname ->
+        name(jobname)
+      }
+      def collection = gz_collections_yaml.collections.find { it.name == collection_name }
+      println(collection)
+      if (collection.packaging?.linux?.nightly) {
+        collection.libs.each { lib ->
+          name(get_debbuilder_name(lib, collection.packaging))
+        }
+      }
+    }
+
+    columns {
+      status()
+      weather()
+      name()
+      testResult(0)
+      lastSuccess()
+      lastFailure()
+      lastDuration()
+      buildButton()
+
+    }
+
+    bottomPortlets {
+      jenkinsJobsList {
+          displayName('Jenkins jobs list')
+      }
+    }
+
+    configure { view ->
+      view / columns << "hudson.plugins.warnings.WarningsColumn" (plugin: 'warnings@5.0.1')
+
+      def topPortlets = view / NodeBuilder.newInstance().topPortlets {}
+
+      topPortlets << 'hudson.plugins.view.dashboard.core.UnstableJobsPortlet' {
+          id createPortletId()
+          name 'Failing jobs'
+          showOnlyFailedJobs 'true'
+          recurse 'false'
+      }
+    }
   }
 }

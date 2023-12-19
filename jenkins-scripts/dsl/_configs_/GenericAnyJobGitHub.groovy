@@ -4,6 +4,7 @@ import javaposse.jobdsl.dsl.Job
 
 /*
    Implements:
+     - priority 200
      - parameters: SRC_REPO, SRC_BRANCH, JOB_DESCRIPTION
      - job.Description
      - scm check with SRC_REPO + SRC_BRANCH
@@ -33,6 +34,14 @@ class GenericAnyJobGitHub
 
     job.with
     {
+      // Overrwrite the priority set by other classes
+      configure { project ->
+        project / 'properties' / 'jenkins.advancedqueue.priority.strategy.PriorityJobProperty' {
+          'useJobPriority'(true)
+          'priority'(200)
+        }
+      }
+
       parameters
       {
         stringParam('sha1', 'main', 'commit or refname to build. To manually use a branch: origin/$branch_name')

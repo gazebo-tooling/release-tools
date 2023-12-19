@@ -3,6 +3,7 @@
 test_dir=$(mktemp -d)
 mkdir -p ${test_dir}/{focal,jammy,ubuntu}/debian
 export _RELEASEPY_TEST_RELEASE_REPO=${test_dir}
+export _RELEASEPY_DEBUG=1
 
 exec_releasepy_test()
 {
