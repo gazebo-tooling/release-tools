@@ -19,7 +19,7 @@ def gzgarden_ros_distros_ci = [
 
 def unofficial_combinations = [
   'garden' : ['humble', 'iron'],
-  'harmonic' : ['iron']
+  'harmonic' : ['humble', 'iron']
 ]
 
 logging_list = [:]
