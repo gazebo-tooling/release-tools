@@ -72,13 +72,12 @@ def trackedJobs = new LinkedHashSet();
 
 def get = new URL(JOBS_URL).openConnection();
 def getRC = get.getResponseCode();
-println(getRC);
 if(getRC.equals(200)) {
     get.getInputStream().getText().split('\n').each {
   	    line -> trackedJobs << (line  =~ /.+? .+? (.+)/)[0][1];
     };
 } else {
-    throw new Exception("Error getting jobs list from ${JOBS_URL}");
+    throw new Exception("Error getting jobs list from ${JOBS_URL}. Return code: ${getRC}");
 }
 
 def jenkinsJobs = Hudson.instance
