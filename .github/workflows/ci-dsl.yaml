@@ -1,7 +1,7 @@
 name: DSL logs and checks
 
 on:
-  pull_request:
+  push:
     paths:
       - 'jenkins-scripts/dsl/**'
 
