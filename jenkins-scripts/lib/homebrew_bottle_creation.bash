@@ -113,7 +113,7 @@ for j in $(ls *.bottle.json); do
   SRC_BOTTLE=$(brew ruby -e \
     "puts JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['local_filename']")
   DEST_BOTTLE=$(brew ruby -e \
-    "puts URI.decode(JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['filename'])")
+    "puts URI::DEFAULT_PARSER.unescape(JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['filename'])")
   mv ${SRC_BOTTLE} ${DEST_BOTTLE}
 done
 mv *.bottle*.tar.gz ${PKG_DIR}
