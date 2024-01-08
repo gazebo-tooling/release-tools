@@ -486,4 +486,5 @@ install_ci ionic sdformat15-install-pkg-jammy-amd64
 install_ci ionic sdformat15-install_bottle-homebrew-amd64
 unofficial_wrappers_install_pkg_ci garden ros_gzgarden_bridge-install-pkg_humble-ci-jammy-amd64
 unofficial_wrappers_install_pkg_ci garden ros_gzgarden_bridge-install-pkg_iron-ci-jammy-amd64
+unofficial_wrappers_install_pkg_ci harmonic ros_gzharmonic_bridge-install-pkg_humble-ci-jammy-amd64
 unofficial_wrappers_install_pkg_ci harmonic ros_gzharmonic_bridge-install-pkg_iron-ci-jammy-amd64
