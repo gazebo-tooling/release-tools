@@ -169,6 +169,8 @@ C) Nightly builds (linux)
         args.package = args.package.replace('ign-', 'gz-')
 
     args.package_alias = args.package
+    if args.package.startswith('ign-'):
+        args.package_alias = args.package.replace('ign-', 'ignition-')
 
     DRY_RUN = args.dry_run
     if args.upload_to_repository == 'nightly':

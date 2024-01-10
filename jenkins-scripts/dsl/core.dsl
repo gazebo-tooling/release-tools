@@ -63,6 +63,8 @@ reprepro.with
   {
     stringParam('UPLOAD_TO_REPO','ubuntu-testing',
                 'Repository to host the new imported packages. Should match entry in reprepro.ini')
+    stringParam('REPREPRO_GIT_BRANCH', '',
+                'Branch of the repository to be used for code and REPREPRO_IMPORT_YAML_FILE (empty implies uses default)')
     stringParam('REPREPRO_IMPORT_YAML_FILE','',
                 'Name of the reprepo import file')
     booleanParam('COMMIT',false,
