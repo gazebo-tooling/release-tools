@@ -15,6 +15,16 @@ exec_releasepy_test()
     gz-foo 1.2.3 token ${test_params}""
 }
 
+exec_ignition_releasepy_test()
+{
+  test_params=${1}
+
+    ./release.py \
+      --dry-run \
+      --no-sanity-checks \
+    ign-foo 1.2.3 token ${test_params}""
+}
+
 expect_job_run()
 {
   output="${1}" job="${2}"
@@ -81,3 +91,15 @@ expect_job_not_run "${bump_linux_test}" "generic-release-homebrew_pull_request_u
 expect_job_not_run "${bump_linux_test}" "gz-foo-source"
 expect_number_of_jobs "${bump_linux_test}" "6"
 expect_param "${bump_linux_test}" "RELEASE_VERSION=2"
+
+ignition_test=$(exec_ignition_releasepy_test "--source-repo-uri https://github.org/gazebosim/gz-foo")
+expect_job_run "${ignition_test}" "gz-foo-source"
+expect_job_not_run "${ignition_test}" "ignition-foo-source"
+expect_number_of_jobs "${ignition_test}" "1"
+
+ignition_source_tarball_uri_test=$(exec_ignition_releasepy_test "--source-tarball-uri https://gazebosim/gz-foo-1.2.3.tar.gz")
+expect_job_run "${ignition_source_tarball_uri_test}" "ignition-foo-debbuilder"
+expect_job_run "${ignition_source_tarball_uri_test}" "generic-release-homebrew_pull_request_updater"
+expect_job_not_run "${ignition_source_tarball_uri_test}" "ignition-foo-source"
+expect_number_of_jobs "${ignition_source_tarball_uri_test}" "7"
+expect_param "${ignition_source_tarball_uri_test}" "SOURCE_TARBALL_URI=https%3A%2F%2Fgazebosim%2Fgz-foo-1.2.3.tar.gz"
