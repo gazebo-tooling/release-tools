@@ -521,6 +521,8 @@ def go(argv):
     if not args.release_version:
         args.release_version = 1
 
+    package_alias_force_gz = args.package_alias.replace('ignition-','gz-')
+
     print(f"Downloading releasing info for {args.package}")
     # Sanity checks and dicover supported distributions before proceed.
     repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
@@ -604,7 +606,7 @@ def go(argv):
                     # "-()" do not work even in the web UI directly. Real
                     # string should be:
                     # f"{args.version}-{args.release_version}({l}/{d}::{a})")
-                    call_jenkins_build(f"{args.package_alias}-debbuilder",
+                    call_jenkins_build(f'{package_alias_force_gz}-debbuilder',
                                        linux_platform_params,
                                        f"{l} {d}/{a}",
                                        f"{args.version}-{args.release_version}")
@@ -632,7 +634,7 @@ def go(argv):
         params['SOURCE_REPO_REF'] = tag_repo(args) \
             if not args.source_repo_ref else args.source_repo_ref
 
-        call_jenkins_build(f"{args.package_alias}-source",
+        call_jenkins_build(f'{package_alias_force_gz}-source',
                            params,
                            'Source',
                            args.version)
