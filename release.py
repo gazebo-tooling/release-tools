@@ -169,6 +169,8 @@ C) Nightly builds (linux)
         args.package = args.package.replace('ign-', 'gz-')
 
     args.package_alias = args.package
+    if args.package.startswith('ign-'):
+        args.package_alias = args.package.replace('ign-', 'ignition-')
 
     DRY_RUN = args.dry_run
     if args.upload_to_repository == 'nightly':
@@ -521,6 +523,8 @@ def go(argv):
     if not args.release_version:
         args.release_version = 1
 
+    package_alias_force_gz = args.package_alias.replace('ignition-','gz-')
+
     print(f"Downloading releasing info for {args.package}")
     # Sanity checks and dicover supported distributions before proceed.
     repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
@@ -632,7 +636,7 @@ def go(argv):
         params['SOURCE_REPO_REF'] = tag_repo(args) \
             if not args.source_repo_ref else args.source_repo_ref
 
-        call_jenkins_build(f"{args.package_alias}-source",
+        call_jenkins_build(f'{package_alias_force_gz}-source',
                            params,
                            'Source',
                            args.version)
