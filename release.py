@@ -608,7 +608,7 @@ def go(argv):
                     # "-()" do not work even in the web UI directly. Real
                     # string should be:
                     # f"{args.version}-{args.release_version}({l}/{d}::{a})")
-                    call_jenkins_build(f"{args.package_alias}-debbuilder",
+                    call_jenkins_build(f'{package_alias_force_gz}-debbuilder',
                                        linux_platform_params,
                                        f"{l} {d}/{a}",
                                        f"{args.version}-{args.release_version}")

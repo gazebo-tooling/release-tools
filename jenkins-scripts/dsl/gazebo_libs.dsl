@@ -84,7 +84,7 @@ boolean are_cmake_warnings_enabled(lib_name, ci_config)
  *   index[gz-cmake][jammy] -> [ branch: gz-cmake3, collection: garden ,
  *                               branch: gz-cmake3, collection: harmonic]
  *
- * # pkgconf_per_src_inde index structure:
+ * # pkgconf_per_src index structure:
  *   pkg_src_name : [ packaging_config_name : [ .lib_name .collection ] ]
  *
  *   The index main keys are package source names (i.e gz-cmake3 or gz-harmonic and associated them
@@ -293,6 +293,33 @@ String generate_brew_install(src_name, lib_name, arch)
   return job_name
 }
 
+def generate_debbuilder_job(src_name, ArrayList pre_setup_script_hooks)
+{
+  def extra_cmd = pre_setup_script_hooks.join('\n')
+  assert extra_cmd instanceof String
+
+  def build_pkg_job = job("${src_name}-debbuilder")
+  OSRFLinuxBuildPkg.create(build_pkg_job)
+  build_pkg_job.with
+  {
+      concurrentBuild(true)
+
+      throttleConcurrentBuilds {
+        maxPerNode(1)
+        maxTotal(8)
+      }
+
+      steps {
+        shell("""\
+              #!/bin/bash -xe
+              ${GLOBAL_SHELL_CMD}
+              ${extra_cmd}
+              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
+              """.stripIndent())
+      }
+  }
+}
+
 def ciconf_per_lib_index = [:].withDefault { [:] }
 def pkgconf_per_src_index = [:].withDefault { [:] }
 generate_ciconfigs_by_lib(gz_collections_yaml, ciconf_per_lib_index, pkgconf_per_src_index)
@@ -448,15 +475,38 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
 } // end of lib
 
 pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
-  pkg_src_configs.each { pkg_src_config ->
-    def config_name = pkg_src_config.getKey()
-    def pkg_config = gz_collections_yaml.packaging_configs.find{ it.name == config_name }
-    // lib_names are the same in all the entries
-    def canonical_lib_name = pkg_src_config.getValue()[0].lib_name
-    if (pkg_config.exclude?.contains(canonical_lib_name))
-      return
-    def pkg_system = pkg_config.system
-    // --------------------------------------------------------------
+  // For each entry in the index perform two steps:
+  //  1. Generate Linux builders artifacts (-source and -debbuilders)
+  //  2. Generate all -ci-install- jobs looping in the index entries
+
+  // 1. Generate Linux builders
+  // All entries are the same for canonical_lib_name, pick the first
+  def canonical_lib_name = pkg_src_configs.values()[0].lib_name[0]
+  def linux_ciconfigs = gz_collections_yaml.packaging_configs.findAll{
+    it.name in pkg_src_configs.keySet() &&
+    it.system.so == 'linux'}
+  // Collect the pre_setup_script_hooks defined in all the linux distributions
+  // Each distribution commands are joined in a signle item.
+  // Unique + findall { it } should clean up all null values
+  def pre_setup_script_hooks = linux_ciconfigs.findAll {
+    it.keySet().contains('pre_setup_script_hook')
+  }.collect {
+    it -> it.pre_setup_script_hook.get(canonical_lib_name)
+  }.flatten().unique().findAll { it }
+
+  def exclusion_list = linux_ciconfigs.findAll {
+    it.keySet().contains('exclude')
+  }.collect{
+    it -> it.exclude
+  }
+
+  if (linux_ciconfigs && !exclusion_list.contains(canonical_lib_name))
+  {
+    // - DEBBUILD jobs -------------------------------------------------
+    generate_debbuilder_job(pkg_src,
+      pre_setup_script_hooks
+    )
+    // - SOURCE jobs ---------------------------------------------------
     def gz_source_job = job("${pkg_src}-source")
     OSRFSourceCreation.create(gz_source_job, [
       PACKAGE: pkg_src,
@@ -464,7 +514,16 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
     OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
       'repository_uploader_packages',
       '_releasepy')
-    // --------------------------------------------------------------
+  }
+
+  // 2. Generate all -ci-install jobs
+  pkg_src_configs.each { pkg_src_config ->
+    def config_name = pkg_src_config.getKey()
+    def pkg_config = gz_collections_yaml.packaging_configs.find{ it.name == config_name }
+    if (pkg_config.exclude?.contains(canonical_lib_name))
+      return
+    def pkg_system = pkg_config.system
+      // - CI-INSTALL jobs ------------------------------------------------
     pkg_system.arch.each { arch ->
       def linux_install_job_name = generate_linux_install(
         pkg_src,

@@ -391,45 +391,6 @@ gz_software.each { gz_sw ->
   } // end of arch
 } // end of gz_software
 
-// --------------------------------------------------------------
-// DEBBUILD: linux package builder
-all_debbuilders().each { debbuilder_name ->
-  extra_str = ""
-  if (debbuilder_name.contains("gazebo") || debbuilder_name == "transport7")
-    extra_str="export NEED_C17_COMPILER=true"
-
-  // Gazebo physics consumes huge amount of memory making arm node to FAIL
-  // Force here to use one compilation thread
-  if (debbuilder_name.contains("-physics"))
-    extra_str += '\nexport MAKE_JOBS=1'
-
-  def build_pkg_job = job("${debbuilder_name}-debbuilder")
-  OSRFLinuxBuildPkg.create(build_pkg_job)
-  build_pkg_job.with
-  {
-
-      concurrentBuild(true)
-
-      throttleConcurrentBuilds {
-        maxPerNode(1)
-        maxTotal(8)
-      }
-
-      steps {
-        shell("""\
-              #!/bin/bash -xe
-
-              ${GLOBAL_SHELL_CMD}
-              ${extra_str}
-              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
-              """.stripIndent())
-      }
-  }
-}
-
-// --------------------------------------------------------------
-// WINDOWS: CI job
-
 // Main CI workflow
 gz_software.each { gz_sw ->
   if (gz_sw == 'sim')
