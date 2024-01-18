@@ -30,8 +30,14 @@ make package_source
 
 rm -fr \$PKG_DIR && mkdir \$PKG_DIR
 find \${BUILD_DIR} -maxdepth 1 -name '*${VERSION}.tar.*' -exec mv {} \${PKG_DIR} \\;
-
-if [ $(ls 2>/dev/null -Ubad1 -- "\${PKG_DIR}" | wc -l) -gt 1 ]; then
+# Check that exactly one file is moved here
+count=\$(find "\${PKG_DIR}" -maxdepth 1 -type f -name "*${VERSION}.tar.*" | wc -l)
+if [ \$count -lt 1 ]; then
+  echo "No package was exported using the pattern: "${VERSION}.tar.*"
+  echo "Packages in the build directory are (check versions):"
+  ls \${BUILD_DIR}
+  exit 1
+elseif [ \${count} -gt 1]; then
   echo "Found more than one file inside pkgs directory:"
   ls \${PKG_DIR}
   exit 1
