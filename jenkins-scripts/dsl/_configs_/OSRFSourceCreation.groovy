@@ -103,7 +103,14 @@ class OSRFSourceCreation
                        -type f \
                        -name ${canonical_package_name}-\${VERSION}.tar.* \
                        -printf "%f\\n")
-          if [[ -z \${tarball} ]] || [[ \$(wc -w <<< \${tarball}) != 1 ]]; then
+          if [[ -z \${tarball} ]]; then
+            echo "Expected tarball was not found: ${canonical_package_name}-\${VERSION}.tar.*"
+            echo "Files in the build directory:
+            ls \${WORKSPACE}/${pkg_sources_dir}
+            exit 1
+          fi
+
+          if [[ \$(wc -w <<< \${tarball}) != 1 ]]; then
             echo "Tarball name extraction returned \${tarball} which is not a one word string"
             exit 1
           fi
