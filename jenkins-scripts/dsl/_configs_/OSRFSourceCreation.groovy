@@ -72,8 +72,6 @@ class OSRFSourceCreation
         priority 100
       }
 
-      def canonical_package_name = Globals.get_canonical_package_name(
-        default_params.find{ it.key == "PACKAGE"}.value)
       def s3_download_url_basedir = Globals.s3_download_url_basedir(
         default_params.find{ it.key == "PACKAGE"}?.value)
 
@@ -96,6 +94,14 @@ class OSRFSourceCreation
           /bin/bash -x ./scripts/jenkins-scripts/docker/gz-source-generation.bash
           """.stripIndent()
         )
+
+        // This can be enabled after the complete deprecation of ign- names
+        // that uses ignition aliases.
+        // def canonical_package_name = Globals.get_canonical_package_name(
+        //  default_params.find{ it.key == "PACKAGE"}.value)
+        //
+        // then improve the find command below with:
+        //  -name ${canonical_package_name}-\${VERSION}.tar.* \
         shell("""\
           #!/bin/bash -xe
 
@@ -103,7 +109,7 @@ class OSRFSourceCreation
           # deal with changes in the compression of the tarballs.
           tarball=\$(find \${WORKSPACE}/${pkg_sources_dir} \
                        -type f \
-                       -name ${canonical_package_name}-\${VERSION}.tar.* \
+                       -name *-\${VERSION}.tar.* \
                        -printf "%f\\n")
           if [[ -z \${tarball} ]] || [[ \$(wc -w <<< \${tarball}) != 1 ]]; then
             echo "Tarball name extraction returned \${tarball} which is not a one word string"
