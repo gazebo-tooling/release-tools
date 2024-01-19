@@ -446,7 +446,7 @@ def generate_source_repository_uri(args):
     git_remote = out.decode().split('\n')[0]
     if org_repo not in git_remote:
         # Handle the special case for citadel ignition repositories
-        if org_repo.replace("/ignition-","/gz-") not in git_remote:
+        if org_repo.replace("/ignition-", "/gz-") not in git_remote:
             print(f""" !! Automatic calculation of the source repository URI\
                   failed with different information:\
                   \n   * git remote origin in the local direcotry is: {git_remote}\
@@ -455,7 +455,9 @@ def generate_source_repository_uri(args):
             sys.exit(1)
         else:
             print(f' ~ Ignition found in generated org/repo assuming a gz repo ')
+            org_repo = org_repo.replace("/ignition-", "/gz-")
 
+    # Always use github.com
     return f"https://github.com/{org_repo}.git"  # NOQA
 
 
