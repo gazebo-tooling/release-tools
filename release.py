@@ -310,6 +310,11 @@ def sanity_check_source_repo_uri(source_repo_uri):
     if not parsed_uri.scheme == "https" or \
        not parsed_uri.path.endswith(".git"):
         error("--source-repo-uri parameter should start with https:// and end with .git")
+    # Needs to be fully in sync for SOURCE_REPO_URI values in
+    # OSRFSourceCreation
+    # https://github.com/gazebo-tooling/release-tools/blob/master/jenkins-scripts/dsl/gazebo_libs.dsl#L513
+    if parsed_uri.netloc.startswith("github.org"):
+        error("--source-repo-uri needs github.com instead of github.org")
 
 
 def sanity_check_bump_linux(source_tarball_uri):
