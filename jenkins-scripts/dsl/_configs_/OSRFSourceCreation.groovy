@@ -147,6 +147,7 @@ class OSRFSourceCreation
                     parameters {
                       currentBuild()
                       predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: '${JOB_NAME}',
+                                       PACKAGE_ALIAS: '${PACKAGE_ALIAS}',
                                        S3_UPLOAD_PATH: "${Globals.s3_releases_dir(package_name)}/"])  // relative path with a final /
                       propertiesFile(properties_file)  // S3_FILES_TO_UPLOAD
                     }

@@ -519,7 +519,7 @@ def display_help_job_chain_for_source_calls(args):
         f'{JENKINS_URL}/job/repository_uploader_packages/?{url_search_params}'
     rel_search_params = urllib.parse.urlencode(
         {'search':
-            f'{args.package_alias}/{args.version}-{args.release_version}'})
+            f'{args.package}/{args.version}-{args.release_version}'})
     releasepy_check_url = \
         f'{JENKINS_URL}/job/_releasepy/?{rel_search_params}'
     print('\tINFO: After the source job finished, the release process will trigger:\n'
