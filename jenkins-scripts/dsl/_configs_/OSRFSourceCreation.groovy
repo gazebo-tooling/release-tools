@@ -33,9 +33,11 @@ class OSRFSourceCreation
         stringParam("DISTRO",
                     default_params.find{ it.key == "DISTRO"}?.value,
                     "Linux release inside LINUX_DISTRO to generate sources on")
-        choiceParam('PACKAGE',
-                    [default_params.find{ it.key == "PACKAGE"}?.value],
-                    "For downstream use: Package name (can not be modified)")
+        // Not using choiceParam here to support Citadel/Fortress ign-* packages not only
+        // gz-* packages
+        stringParam('PACKAGE',
+                    default_params.find{ it.key == "PACKAGE"}?.value,
+                    "For downstream use: Package name")
         stringParam("RELEASE_VERSION",
                     default_params.find{ it.key == "RELEASE_VERSION"}?.value,
                     "For downstream jobs: Packages release version")
