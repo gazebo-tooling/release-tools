@@ -147,6 +147,10 @@ fi
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'icu4c' }.empty?"; then
   export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/icu4c/lib
 fi
+# set Python3_EXECUTABLE if this homebrew formula defines the python_cmake_arg method
+if brew ruby -e "exit '${PROJECT_FORMULA}'.f.respond_to?(:python_cmake_arg)"; then
+  CMAKE_ARGS="${CMAKE_ARGS} -DPython3_EXECUTABLE=$(which python3)"
+fi
 
 # if we are using dart@6.10.0 (custom OR port), need to add dartsim library path since it is keg-only
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/dartsim@6.10.0' }.empty?"; then
