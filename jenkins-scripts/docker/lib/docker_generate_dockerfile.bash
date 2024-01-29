@@ -172,8 +172,8 @@ fi
 # The redirection fails too many times using us ftp
 if [[ ${LINUX_DISTRO} == 'debian' ]]; then
 cat >> Dockerfile << DELIM_DEBIAN_APT
-  RUN sed -i -e 's:httpredir:ftp.us:g' /etc/apt/sources.list
-  RUN echo "deb-src ${SOURCE_LIST_URL} ${DISTRO} main" >> /etc/apt/sources.list
+  RUN sed -i -e 's/URIs: .*/URIs: http:\/\/ftp.us.debian.org\/debian/g' /etc/apt/sources.list.d/debian.sources
+  RUN sed -i -e 's/Types: deb/Types: deb deb-src/' /etc/apt/sources.list.d/debian.sources
 DELIM_DEBIAN_APT
 fi
 
