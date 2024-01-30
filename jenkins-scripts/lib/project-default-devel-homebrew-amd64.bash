@@ -123,7 +123,7 @@ if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name
 fi
 # set cmake args if we are using qwt-qt5
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qwt-qt5' }.empty?"; then
-  CMAKE_ARGS='-DQWT_WIN_INCLUDE_DIR=/usr/local/opt/qwt-qt5/lib/qwt.framework/Headers -DQWT_WIN_LIBRARY_DIR=/usr/local/opt/qwt-qt5/lib'
+  CMAKE_ARGS="${CMAKE_ARGS} -DQWT_WIN_INCLUDE_DIR=/usr/local/opt/qwt-qt5/lib/qwt.framework/Headers -DQWT_WIN_LIBRARY_DIR=/usr/local/opt/qwt-qt5/lib"
 fi
 # Workaround for cmake@3.21.4: set PATH
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/cmake@3.21.4' }.empty?"; then
@@ -146,6 +146,10 @@ fi
 # if we are using boost, need to add icu4c library path since it is keg-only
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'icu4c' }.empty?"; then
   export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/icu4c/lib
+fi
+# set Python3_EXECUTABLE if this homebrew formula defines the python_cmake_arg method
+if brew ruby -e "exit '${PROJECT_FORMULA}'.f.respond_to?(:python_cmake_arg)"; then
+  CMAKE_ARGS="${CMAKE_ARGS} -DPython3_EXECUTABLE=$(which python3)"
 fi
 
 # if we are using dart@6.10.0 (custom OR port), need to add dartsim library path since it is keg-only
