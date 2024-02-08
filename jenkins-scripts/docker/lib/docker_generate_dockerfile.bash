@@ -198,8 +198,9 @@ DELIM_DOCKER_PAM_BUG
 fi
 
 cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
+# REVERT: do not add gpg as this list of dependencies but facilitate the run of gzdev without gpg
 RUN apt-get ${APT_PARAMS} update && \\
-    apt-get install -y dirmngr git python3 python3-docopt python3-yaml python3-distro
+    apt-get install -y dirmngr git python3 python3-docopt python3-yaml python3-distro gpg
 DELIM_DOCKER_DIRMNGR
 
 # Install necessary repositories using gzdev
