@@ -13,10 +13,12 @@ class Globals
    static CRON_EVERY_THREE_DAYS = 'H H * * H/3'
    static CRON_HOURLY = 'H * * * *'
    static CRON_ON_WEEKEND = 'H H * * 6-7'
-   // Run nightly scheduler during the nightly creation to be sure
-   // that any possible node killed is replaced. Starting -15min
-   // before CRON_NIGHTLY_NODES and evert 20min for 3 hours
-   static CRON_NIGHTLY_NODES = '*/20 9-11 * * *'
+   // Run nightly scheduler every 20 minutes being sure to
+   // run it at 9 just before the nightly creation.
+   static CRON_NIGHTLY_NODES = [
+    '*/20 9-23 * * *',
+    '*/20 0-8 * * *']
+
    // Start the nightly generation 10 minutes after the nigthly node
    // initial generation
    static CRON_START_NIGHTLY = '10 9 * * *'
