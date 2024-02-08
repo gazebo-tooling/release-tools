@@ -31,22 +31,6 @@ PRERELEASE = False
 
 IGNORE_DRY_RUN = True
 
-GARDEN_IGN_PACKAGES = ['ign-cmake3',
-                       'ign-common5',
-                       'ign-fuel-tools8',
-                       'ign-sim7',
-                       'ign-gui7',
-                       'ign-launch6',
-                       'ign-math7',
-                       'ign-msgs9',
-                       'ign-physics6',
-                       'ign-plugin2',
-                       'ign-rendering7',
-                       'ign-sensors7',
-                       'ign-tools2',
-                       'ign-transport12',
-                       'ign-utils2']
-
 
 class ErrorNoPermsRepo(Exception):
     pass
@@ -83,6 +67,12 @@ def print_only_dbg(msg):
 # I.E gazebo5 -> gazebo
 def get_canonical_package_name(pkg_name):
     return pkg_name.rstrip('1234567890')
+
+
+def replace_ignition_gz(pkg_name):
+    return pkg_name \
+        .replace('ignition-gazebo', 'gz-sim') \
+        .replace('ignition-', 'gz-')
 
 
 def github_repo_exists(url):
@@ -163,10 +153,6 @@ C) Nightly builds (linux)
                         help='Bump only revision number. Do not upload new tarball.')
 
     args = parser.parse_args()
-
-    if args.package in GARDEN_IGN_PACKAGES:
-        print(f"Garden packages start with gz- prefix, changing {args.package} to {args.package.replace('ign-','gz-')}",)
-        args.package = args.package.replace('ign-', 'gz-')
 
     args.package_alias = args.package
     if args.package.startswith('ign-'):
@@ -451,7 +437,7 @@ def generate_source_repository_uri(args):
     git_remote = out.decode().split('\n')[0]
     if org_repo not in git_remote:
         # Handle the special case for citadel ignition repositories
-        if org_repo.replace('/ignition-', '/gz-') not in git_remote:
+        if replace_ignition_gz(org_repo) not in git_remote:
             print(f""" !! Automatic calculation of the source repository URI\
                   failed with different information:\
                   \n   * git remote origin in the local direcotry is: {git_remote}\
@@ -459,7 +445,7 @@ def generate_source_repository_uri(args):
                   \n >> Please use --source-repo-uri parameter""")
             sys.exit(1)
         else:
-            org_repo = org_repo.replace('/ignition-', '/gz-')
+            org_repo = replace_ignition_gz(org_repo)
             print(' ~ Ignition found in generated org/repo assuming gz repo: '
                   + org_repo)
 
@@ -536,7 +522,7 @@ def go(argv):
     if not args.release_version:
         args.release_version = 1
 
-    package_alias_force_gz = args.package_alias.replace('ignition-','gz-')
+    package_alias_force_gz = replace_ignition_gz(args.package_alias)
 
     print(f"Downloading releasing info for {args.package}")
     # Sanity checks and dicover supported distributions before proceed.

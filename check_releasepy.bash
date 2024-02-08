@@ -25,6 +25,16 @@ exec_ignition_releasepy_test()
     ign-foo 1.2.3 token ${test_params}""
 }
 
+exec_ignition_gazebo_releasepy_test()
+{
+  test_params=${1}
+
+    ./release.py \
+      --dry-run \
+      --no-sanity-checks \
+    ign-gazebo 1.2.3 token ${test_params}""
+}
+
 expect_job_run()
 {
   output="${1}" job="${2}"
@@ -109,3 +119,12 @@ expect_number_of_jobs "${ignition_source_tarball_uri_test}" "7"
 expect_param "${ignition_source_tarball_uri_test}" "SOURCE_TARBALL_URI=https%3A%2F%2Fgazebosim%2Fgz-foo-1.2.3.tar.gz"
 expect_param "${ignition_source_tarball_uri_test}" "PACKAGE=ign-foo"
 expect_param "${ignition_source_tarball_uri_test}" "PACKAGE_ALIAS=ignition-foo"
+
+ign_gazebo_source_tarball_uri_test=$(exec_ignition_gazebo_releasepy_test "--source-tarball-uri https://gazebosim/ign-gazebo-1.2.3.tar.gz")
+expect_job_run "${ign_gazebo_source_tarball_uri_test}" "gz-sim-debbuilder"
+expect_job_run "${ign_gazebo_source_tarball_uri_test}" "generic-release-homebrew_pull_request_updater"
+expect_job_not_run "${ign_gazebo_source_tarball_uri_test}" "gz-sim-source"
+expect_number_of_jobs "${ign_gazebo_source_tarball_uri_test}" "7"
+expect_param "${ign_gazebo_source_tarball_uri_test}" "SOURCE_TARBALL_URI=https%3A%2F%2Fgazebosim%2Fign-gazebo-1.2.3.tar.gz"
+expect_param "${ign_gazebo_source_tarball_uri_test}" "PACKAGE=ign-gazebo"
+expect_param "${ign_gazebo_source_tarball_uri_test}" "PACKAGE_ALIAS=ignition-gazebo"
