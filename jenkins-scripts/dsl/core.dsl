@@ -106,7 +106,9 @@ nightly_labeler.with
   label Globals.nontest_label("master")
 
   triggers {
-    cron(Globals.CRON_NIGHTLY_NODES)
+    Globals.CRON_NIGHTLY_NODES.each { cron_entry ->
+      cron(cron_entry)
+    }
   }
 
   steps
