@@ -18,6 +18,7 @@ def nightly_label_prefix = "linux-nightly"
 def exactly_one_labels = [
   ["${nightly_label_prefix}-focal", "large-memory"],
   ["${nightly_label_prefix}-jammy", "large-memory"],
+  ["${nightly_label_prefix}-noble", "large-memory"],
 ]
 
 for (tup in exactly_one_labels) {
