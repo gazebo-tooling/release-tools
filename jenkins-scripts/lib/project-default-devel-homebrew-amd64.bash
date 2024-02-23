@@ -89,9 +89,8 @@ if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   if ! which ${PIP}; then
     PIP=/usr/local/opt/python/bin/pip3
   fi
-  echo Skipping ${PIP} install ${PIP_PACKAGES_NEEDED}
-  echo since it is currently broken
-  # ${PIP} install ${PIP_PACKAGES_NEEDED}
+  # TODO use a python3 venv instead.
+  ${PIP} install --break-system-packages ${PIP_PACKAGES_NEEDED}
 fi
 
 if [[ -z "${DISABLE_CCACHE}" ]]; then
