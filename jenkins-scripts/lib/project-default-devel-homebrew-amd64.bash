@@ -84,12 +84,14 @@ if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
 fi
 
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
-  brew install python
+  brew install python3
   PIP=pip3
   if ! which ${PIP}; then
     PIP=/usr/local/opt/python/bin/pip3
   fi
-  ${PIP} install ${PIP_PACKAGES_NEEDED}
+  echo Skipping ${PIP} install ${PIP_PACKAGES_NEEDED}
+  echo since it is currently broken
+  # ${PIP} install ${PIP_PACKAGES_NEEDED}
 fi
 
 if [[ -z "${DISABLE_CCACHE}" ]]; then
