@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def supported_distros = [ 'bionic' ]
+def supported_distros = [ 'jammy' ]
 def supported_arches = [ 'amd64' ]
 
 
@@ -17,6 +17,8 @@ supported_distros.each { distro ->
 
     gzdev_ci_job.with
     {
+    
+      label Globals.nontest_label("large-memory")
 
       scm {
         git {
@@ -54,7 +56,6 @@ supported_distros.each { distro ->
 
     gzdev_any_job.with
     {
-      // use only the most powerful nodes
       label Globals.nontest_label("large-memory")
 
       steps {
