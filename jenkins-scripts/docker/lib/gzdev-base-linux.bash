@@ -13,7 +13,7 @@ set -ex
 export MAKE_JOBS=${MAKE_JOBS}
 export DISPLAY=${DISPLAY}
 
-${INSTALL_NVIDIA_DOCKER1}
+${INSTALL_NVIDIA_DOCKER2}
 
 echo '# BEGIN SECTION: install pip requirements'
 cd ${WORKSPACE}/gzdev
