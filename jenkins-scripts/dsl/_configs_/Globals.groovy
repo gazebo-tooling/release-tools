@@ -15,9 +15,7 @@ class Globals
    static CRON_ON_WEEKEND = 'H H * * 6-7'
    // Run nightly scheduler every 20 minutes being sure to
    // run it at 9 just before the nightly creation.
-   static CRON_NIGHTLY_NODES = [
-    '*/20 9-23 * * *',
-    '*/20 0-8 * * *']
+   static CRON_NIGHTLY_NODES = '*/20 9-23 * * * \n20 0-8 * * *'
 
    // Start the nightly generation 10 minutes after the nigthly node
    // initial generation
