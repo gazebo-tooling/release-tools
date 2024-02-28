@@ -27,6 +27,8 @@ pip3 install git+https://github.com/adlarkin/ign-rocker.git
 ./gzdev ign-docker-env dome --linux-distro ubuntu:bionic
 echo '# END SECTION'
 
+DELIM
+
 export USE_DOCKER_IN_DOCKER=true
 export OSRF_REPOS_TO_USE="stable"
 export DEPENDENCY_PKGS="python3-pip \
@@ -35,8 +37,7 @@ export DEPENDENCY_PKGS="python3-pip \
                  ca-certificates \
                  curl \
                  software-properties-common \
-		 psmisc" # killall
-DELIM
+                 psmisc" # killall
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
 . "${SCRIPT_DIR}/lib/docker_run.bash"
