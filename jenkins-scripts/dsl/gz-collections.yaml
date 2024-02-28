@@ -420,6 +420,7 @@ collections:
     packaging:
       configs:
         - jammy
+        - noble
       linux:
         ignore_major_version:
           - gz-ionic
@@ -603,3 +604,30 @@ packaging_configs:
         - "export MAKE_JOBS=1"
     exclude:
         - __upcoming__
+  - name: noble
+    system:
+      so: linux
+      distribution: ubuntu
+      version: noble
+      arch:
+        - amd64
+    pre_setup_script_hook:
+      gz-physics:
+        - "export MAKE_JOBS=1"
+    exclude:
+      - gz-cmake
+      - gz-common
+      - gz-fuel-tools
+      - gz-sim
+      - gz-gui
+      - gz-launch
+      - gz-math
+      - gz-msgs
+      - gz-physics
+      - gz-rendering
+      - gz-sensors
+      - gz-tools
+      - gz-transport
+      - gz-utils
+      - sdformat
+      - gz-ionic
