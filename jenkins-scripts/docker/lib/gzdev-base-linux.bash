@@ -24,7 +24,7 @@ echo '# BEGIN SECTION: smoke tests for ign-docker-env'
 pip3 install wheel
 pip3 install rocker
 pip3 install git+https://github.com/adlarkin/ign-rocker.git
-./gzdev ign-docker-env dome --linux-distro ubuntu:bionic
+./gzdev.py ign-docker-env dome --linux-distro ubuntu:bionic
 echo '# END SECTION'
 
 DELIM
