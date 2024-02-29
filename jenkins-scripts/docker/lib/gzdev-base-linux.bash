@@ -37,6 +37,7 @@ export DEPENDENCY_PKGS="python3-pip \
                  ca-certificates \
                  curl \
                  software-properties-common \
+                 python3-rocker \
                  psmisc" # killall
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
