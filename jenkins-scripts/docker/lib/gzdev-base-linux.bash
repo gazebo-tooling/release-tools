@@ -24,9 +24,18 @@ echo '# BEGIN SECTION: smoke tests for ign-docker-env'
 pip3 install wheel
 pip3 install rocker
 pip3 install git+https://github.com/adlarkin/ign-rocker.git
-./gzdev.py ign-docker-env dome --linux-distro ubuntu:bionic
-echo '# END SECTION'
 
+TEST_TIMEOUT=300
+TEST_START=\`date +%s\`
+timeout --preserve-status \$TEST_TIMEOUT ./gzdev.py ign-docker-env dome --linux-distro ubuntu:bionic
+TEST_END=\`date +%s\`
+DIFF=\$(expr \$TEST_END - \$TEST_START)
+
+if [ \$DIFF -lt \$TEST_TIMEOUT ]; then
+   echo 'The test took less than \$TEST_TIMEOUT. Something bad happened'
+   exit 1
+fi
+echo '# END SECTION'
 DELIM
 
 export USE_DOCKER_IN_DOCKER=true
