@@ -40,6 +40,7 @@ DELIM
 
 export USE_DOCKER_IN_DOCKER=true
 export OSRF_REPOS_TO_USE="stable"
+export USE_ROS_REPO=true
 export DEPENDENCY_PKGS="python3-pip \
                  bash \
                  apt-transport-https \
