@@ -109,7 +109,7 @@ class OSRFSourceCreation
             # is to just search for the VERSION (not so safety but should work)
             tarball=\$(find \${WORKSPACE}/${pkg_sources_dir} \
                          -type f \
-                         -name .*-\${VERSION}.tar.* \
+                         -name *-\${VERSION}.tar.* \
                          -printf "%f\\n")
             if [[ -z \${tarball} ]] || [[ \$(wc -w <<< \${tarball}) != 1 ]]; then
               echo "Tarball name extraction returned \${tarball} which is not a one word string"
