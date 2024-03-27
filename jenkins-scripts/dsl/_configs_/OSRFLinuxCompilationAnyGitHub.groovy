@@ -26,5 +26,13 @@ class OSRFLinuxCompilationAnyGitHub
     Globals.rtools_description = true
 
     GenericAnyJobGitHub.create(job, github_repo, supported_branches, enable_github_pr_integration)
+
+    job.with
+    {
+      parameters
+      {
+        stringParam('GZDEV_BRANCH', 'master', 'gzdev repository branch name. Useful for modifying the repositories (stable|prerelease|...) used for testing the packages ')
+      }
+    }
   }
 } // end of class
