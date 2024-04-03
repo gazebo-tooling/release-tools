@@ -467,6 +467,11 @@ ci_configs:
       gz-physics:
         - "export MAKE_JOBS=1"
     tests_disabled:
+    ci_categories_enabled:
+      - pr
+      - pr_abichecker
+      - stable_branches
+      - stable_branches_asan
   - name: jammy
     system:
       so: linux
@@ -492,6 +497,11 @@ ci_configs:
       gz-physics:
         - "export MAKE_JOBS=1"
     tests_disabled:
+    ci_categories_enabled:
+      - pr
+      - pr_abichecker
+      - stable_branches
+      - stable_branches_asan
   - name: brew
     system:
       so: darwin
@@ -523,6 +533,9 @@ ci_configs:
       - gz-transport
       - gz-utils
       - sdformat
+    ci_categories_enabled:
+      - pr
+      - stable_branches
   - name: win
     system:
       so: windows
@@ -553,6 +566,9 @@ ci_configs:
       - gz-transport
       - gz-utils
       - sdformat
+    ci_categories_enabled:
+      - pr
+      - stable_branches
   # No gz-sim and gz-launch on Citadel
   - name: win_citadel
     system:
@@ -580,6 +596,9 @@ ci_configs:
       - gz-transport
       - gz-utils
       - sdformat
+    ci_categories_enabled:
+      - pr
+      - stable_branches
 packaging_configs:
   - name: focal
     system:
