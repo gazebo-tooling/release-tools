@@ -348,7 +348,7 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
     branches_with_collections.each { branch_and_collection ->
       def gz_ci_job
       branch_name = branch_and_collection.branch
-      if (categories_enabled.contains('daily'))
+      if (categories_enabled.contains('stable_branches'))
       {
         if (ci_config.system.so == 'linux') {
           gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
