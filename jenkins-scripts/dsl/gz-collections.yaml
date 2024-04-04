@@ -338,6 +338,7 @@ collections:
     ci:
       configs:
         - jammy
+        - noble
         - brew
         - win
     packaging:
@@ -502,6 +503,33 @@ ci_configs:
       - pr_abichecker
       - stable_branches
       - stable_branches_asan
+  - name: noble
+    system:
+      so: linux
+      distribution: ubuntu
+      version: noble 
+      arch: amd64
+    requirements:
+      large_memory:
+        - gz-physics
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
+    exclude:
+      all:
+        - gz-harmonic
+        - __upcoming__
+      abichecker:
+        - gz-cmake
+        - gz-tools
+    pre_setup_script_hook:
+      gz-physics:
+        - "export MAKE_JOBS=1"
+    tests_disabled:
+    ci_categories_enabled:
+      - stable_branches
   - name: brew
     system:
       so: darwin
