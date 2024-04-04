@@ -73,7 +73,7 @@ boolean are_cmake_warnings_enabled(lib_name, ci_config)
  * avoiding to parse them several times.
  *
  * # ci_configs_by_lib index structure:
- *   lib_name : [ ci_config_name : [ .branch .collection ] ]
+ *   lib_name : [ job_ref_platform : [ config_name [ .branch .collection .ci_config_name ] ]
  *
  *   The index main keys are the lib names (i.e: gz-cmake) and associated them
  *   another map of CI configuration names supported as keys (i.e: jammy) with the
@@ -101,8 +101,16 @@ void generate_ciconfigs_by_lib(config, ciconf_per_lib_index, pkgconf_per_src_ind
       def libName = lib.name
       def branch = lib.repo.current_branch
       collection.ci.configs.each { config_name ->
-        ciconf_per_lib_index[libName][config_name] = ciconf_per_lib_index[libName][config_name]?: []
-        ciconf_per_lib_index[libName][config_name].contains(branch) ?: ciconf_per_lib_index[libName][config_name] << [branch: branch, collection: collection.name]
+        println("Indexing")
+        println(config_name)
+        def platform = config.ci_configs.find { it.name == config_name }
+        if (platform.system.so == 'linux')
+          config_index = platform.system.version
+        else
+          config_index = platform.system.distribution
+        ciconf_per_lib_index[libName][config_index] = ciconf_per_lib_index[libName][config_index]?: []
+        ciconf_per_lib_index[libName][config_index][config_name] = ciconf_per_lib_index[libName][config_index][config_name]?: []
+        ciconf_per_lib_index[libName][config_index][config_name].contains(branch) ?: ciconf_per_lib_index[libName][config_index][config_name] << [branch: branch, collection: collection.name]
       }
       def pkg_name = lib.name + lib.major_version
       if (collection.packaging.linux?.ignore_major_version?.contains(libName))
@@ -326,11 +334,20 @@ generate_ciconfigs_by_lib(gz_collections_yaml, ciconf_per_lib_index, pkgconf_per
 
 // Generate PR jobs: 1 per ci configuration on each lib
 ciconf_per_lib_index.each { lib_name, lib_configs ->
+  println("Processing: ${lib_name} \n")
   lib_configs.each { ci_configs ->
+    println(ci_configs)
     def config_name = ci_configs.getKey()
+    println(config_name)
     def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
+    assert(ci_config)
     def branches_with_collections = ci_configs.getValue()
+    println("branches_with_collections")
+    println(branches_with_collections)
     def branch_names = branches_with_collections.collect { it.branch }.unique()
+    println("branch_names")
+    println(branch_names)
+    println()
     def script_name_prefix = cleanup_library_name(lib_name)
     def gz_job_name_prefix = lib_name.replaceAll('-','_')
     def distro = ci_config.system.version
@@ -341,7 +358,6 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
       return
     assert(lib_name)
     assert(branch_names)
-    assert(ci_config)
     assert(categories_enabled)
 
     // CI branch jobs (-ci-$branch-) (pulling check every 5 minutes)
@@ -589,7 +605,6 @@ collection_job_names.each { collection_name, job_names ->
         name(jobname)
       }
       def collection = gz_collections_yaml.collections.find { it.name == collection_name }
-      println(collection)
       if (collection.packaging?.linux?.nightly) {
         collection.libs.each { lib ->
           name(get_debbuilder_name(lib, collection.packaging))
