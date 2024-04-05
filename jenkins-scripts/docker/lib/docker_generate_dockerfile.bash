@@ -295,6 +295,7 @@ cat >> Dockerfile << DELIM_DOCKER3
 # Could not open file *_Packages.diff_Index - open (2: No such file or directory)
 # TODO: remove workaround for 13.56.139.45 server
 RUN echo "${MONTH_YEAR_STR}"
+RUN echo "Force invalidate"
 DELIM_DOCKER3
 
 # If the previous command invalidated the cache, a new install of gzdev is
