@@ -324,38 +324,23 @@ def ciconf_per_lib_index = [:].withDefault { [:] }
 def pkgconf_per_src_index = [:].withDefault { [:] }
 generate_ciconfigs_by_lib(gz_collections_yaml, ciconf_per_lib_index, pkgconf_per_src_index)
 
-// Generate PR jobs: 1 per ci configuration on each lib
-ciconf_per_lib_index.each { lib_name, lib_configs ->
-  lib_configs.each { ci_configs ->
-    def config_name = ci_configs.getKey()
+gz_collections_yaml.collections.each { collection ->
+  collection.ci.configs.each { config_name ->
     def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
-    def branches_with_collections = ci_configs.getValue()
-    def branch_names = branches_with_collections.collect { it.branch }.unique()
-    def script_name_prefix = cleanup_library_name(lib_name)
-    def gz_job_name_prefix = lib_name.replaceAll('-','_')
     def distro = ci_config.system.version
     def arch = ci_config.system.arch
     def categories_enabled = ci_config.ci_categories_enabled
-    def ws_checkout_dir = lib_name
-    if (ci_config.exclude.all?.contains(lib_name))
-      return
-    assert(lib_name)
-    assert(branch_names)
-    assert(ci_config)
-    assert(categories_enabled)
+    collection.libs.each { lib ->
+      def lib_name = lib.name
+      def branch_name = lib.repo.current_branch
+      def gz_job_name_prefix = lib_name.replaceAll('-','_')
 
-    // CI branch jobs (-ci-$branch-) (pulling check every 5 minutes)
-    branches_with_collections.each { branch_and_collection ->
-      def gz_ci_job
-      branch_name = branch_and_collection.branch
-      if (categories_enabled.contains('stable_branches'))
-      {
+      if (categories_enabled.contains('stable_branches')) {
         if (ci_config.system.so == 'linux') {
           gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
           generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
           if (categories_enabled.contains('stable_branches_asan'))
           {
-            // Generate asan jobs on Linux
             def gz_ci_asan_job =  job("${gz_job_name_prefix}-ci_asan-${branch_name}-${distro}-${arch}")
             generate_asan_ci_job(gz_ci_asan_job, lib_name, branch_name, ci_config)
             gz_ci_asan_job.with
@@ -364,8 +349,9 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
                 scm(Globals.CRON_ON_WEEKEND)
               }
             }
+
             logging_list['asan_ci'].add(
-              [collection: branch_and_collection.collection,
+               [collection: collection.name,
                job_name: gz_ci_asan_job.name])
           }
         } else if (ci_config.system.so == 'darwin') {
@@ -389,10 +375,34 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
         }
 
         logging_list['branch_ci'].add(
-          [collection: branch_and_collection.collection,
+         [collection: collection.name,
            job_name: gz_ci_job.name])
       } // end of daily category enabled
-    } // end_of_branch
+    }
+  }
+}
+
+return
+
+// Generate PR jobs: 1 per ci configuration on each lib
+ciconf_per_lib_index.each { lib_name, lib_configs ->
+  lib_configs.each { ci_configs ->
+    def config_name = ci_configs.getKey()
+    def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
+    def branches_with_collections = ci_configs.getValue()
+    def branch_names = branches_with_collections.collect { it.branch }.unique()
+    def script_name_prefix = cleanup_library_name(lib_name)
+    def gz_job_name_prefix = lib_name.replaceAll('-','_')
+    def distro = ci_config.system.version
+    def arch = ci_config.system.arch
+    def categories_enabled = ci_config.ci_categories_enabled
+    def ws_checkout_dir = lib_name
+    if (ci_config.exclude.all?.contains(lib_name))
+      return
+    assert(lib_name)
+    assert(branch_names)
+    assert(ci_config)
+    assert(categories_enabled)
 
     if (categories_enabled.contains('pr'))
     {
@@ -429,7 +439,7 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
         } // end of ci_any_job
 
         if (categories_enabled.contains('stable_branches') && \
-           (! ci_config.exclude.abichecker?.contains(lib_name))) 
+           (! ci_config.exclude.abichecker?.contains(lib_name)))
         {
           // ABI branch jobs (-ci-abichecker-) for non main branches
           def abi_job_name = "${gz_job_name_prefix}-abichecker-any_to_any-ubuntu-${distro}-${arch}"
