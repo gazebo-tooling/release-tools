@@ -23,7 +23,7 @@ ros2 topic echo /chatter > /tmp/echo_chatter &
 sleep 1
 gz topic -t /chatter -m gz.msgs.StringMsg -p 'data:\"Hello\"' &
 sleep 1
-if ! grep -v Hello /tmp/echo_chatter; then
+if ! grep Hello /tmp/echo_chatter; then
   echo 'chatter log file does not contain the expected Hello string'
   exit 1
 fi
