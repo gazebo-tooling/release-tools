@@ -13,6 +13,9 @@ set -ex
 export MAKE_JOBS=${MAKE_JOBS}
 export DISPLAY=${DISPLAY}
 
+# workaround problems for docker in docker sin policy-rc.d
+printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d
+
 ${INSTALL_NVIDIA_DOCKER2}
 
 echo '# BEGIN SECTION: install pip requirements'
@@ -21,8 +24,6 @@ pip3 install -r requirements.txt
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: smoke tests for ign-docker-env'
-pip3 install wheel
-pip3 install rocker
 pip3 install git+https://github.com/adlarkin/ign-rocker.git
 
 TEST_TIMEOUT=300
