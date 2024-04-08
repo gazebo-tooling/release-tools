@@ -413,6 +413,13 @@ DELIM_DISPLAY
   fi
 fi
 
+if ${USE_DOCKER_IN_DOCKER}; then
+cat >> Dockerfile << DELIM_WORKAROUND_DOCKER_IN_DOCKER_HOOK
+# Avoid ERROR: invoke-rc.d: policy-rc.d denied execution of start.
+RUN sed -i "s/^exit 101$/exit 0/" /usr/sbin/policy-rc.d
+DELIM_WORKAROUND_DOCKER_IN_DOCKER_HOOK
+fi
+
 if [ `expr length "${DOCKER_POSTINSTALL_HOOK}"` -gt 1 ]; then
 cat >> Dockerfile << DELIM_WORKAROUND_POST_HOOK
 RUN ${DOCKER_POSTINSTALL_HOOK}

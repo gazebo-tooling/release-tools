@@ -13,9 +13,6 @@ set -ex
 export MAKE_JOBS=${MAKE_JOBS}
 export DISPLAY=${DISPLAY}
 
-# workaround problems for docker in docker sin policy-rc.d
-printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d
-
 ${INSTALL_NVIDIA_DOCKER2}
 
 echo '# BEGIN SECTION: install pip requirements'
