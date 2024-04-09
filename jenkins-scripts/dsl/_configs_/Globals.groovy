@@ -15,9 +15,7 @@ class Globals
    static CRON_ON_WEEKEND = 'H H * * 6-7'
    // Run nightly scheduler every 20 minutes being sure to
    // run it at 9 just before the nightly creation.
-   static CRON_NIGHTLY_NODES = [
-    '*/20 9-23 * * *',
-    '*/20 0-8 * * *']
+   static CRON_NIGHTLY_NODES = '*/20 9-23 * * * \n20 0-8 * * *'
 
    // Start the nightly generation 10 minutes after the nigthly node
    // initial generation
@@ -29,16 +27,12 @@ class Globals
 
    static gpu_by_distro  = [ bionic  : [ 'nvidia' ]]
 
-   static ros_ci = [ 'melodic'  : ['bionic'] ,
-                     'noetic'   : ['focal'] ,
-                     'foxy'     : ['focal'] ,
-                     'rolling'  : ['jammy']]
+   static ros_ci = [ 'noetic'   : ['focal'] ,
+                     'foxy'     : ['focal']]
 
    // This should be in sync with archive_library
-   static gz_version_by_rosdistro = [ 'melodic'  : ['9'] ,
-                                      'noetic'   : ['11'] ,
-                                      'foxy'     : ['11'] ,
-                                      'rolling'  : ['11']]
+   static gz_version_by_rosdistro = [ 'noetic'   : ['11'] ,
+                                      'foxy'     : ['11']]
 
    static String ign2gz(String str) {
      str = str.replaceAll("ignitionrobotics","gazebosim")
@@ -119,15 +113,6 @@ class Globals
    static ArrayList get_ros_suported_distros()
    {
      return [ 'melodic', 'noetic' ]
-   }
-
-   static ArrayList get_ros2_suported_distros()
-   {
-     return [ 'foxy', 'rolling' ]
-   }
-
-   static String get_ros2_development_distro() {
-     return 'rolling'
    }
 
    static String nontest_label(String original_label) {

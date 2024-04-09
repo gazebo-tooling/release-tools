@@ -335,101 +335,85 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
     def gz_job_name_prefix = lib_name.replaceAll('-','_')
     def distro = ci_config.system.version
     def arch = ci_config.system.arch
+    def categories_enabled = ci_config.ci_categories_enabled
     def ws_checkout_dir = lib_name
     if (ci_config.exclude.all?.contains(lib_name))
       return
     assert(lib_name)
     assert(branch_names)
     assert(ci_config)
+    assert(categories_enabled)
 
     // CI branch jobs (-ci-$branch-) (pulling check every 5 minutes)
     branches_with_collections.each { branch_and_collection ->
       def gz_ci_job
       branch_name = branch_and_collection.branch
-      if (ci_config.system.so == 'linux') {
-        gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
-        generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
-        // Generate asan jobs on Linux
-        def gz_ci_asan_job =  job("${gz_job_name_prefix}-ci_asan-${branch_name}-${distro}-${arch}")
-        generate_asan_ci_job(gz_ci_asan_job, lib_name, branch_name, ci_config)
-        gz_ci_asan_job.with
+      if (categories_enabled.contains('stable_branches'))
+      {
+        if (ci_config.system.so == 'linux') {
+          gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
+          generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+          if (categories_enabled.contains('stable_branches_asan'))
+          {
+            // Generate asan jobs on Linux
+            def gz_ci_asan_job =  job("${gz_job_name_prefix}-ci_asan-${branch_name}-${distro}-${arch}")
+            generate_asan_ci_job(gz_ci_asan_job, lib_name, branch_name, ci_config)
+            gz_ci_asan_job.with
+            {
+              triggers {
+                scm(Globals.CRON_ON_WEEKEND)
+              }
+            }
+            logging_list['asan_ci'].add(
+              [collection: branch_and_collection.collection,
+               job_name: gz_ci_asan_job.name])
+          }
+        } else if (ci_config.system.so == 'darwin') {
+          gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-homebrew-${arch}")
+          generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+        } else if (ci_config.system.so == 'windows') {
+          branch_number = branch_name - lib_name
+          Globals.gazebodistro_branch = true
+          gz_ci_job = job("${gz_job_name_prefix}-${branch_number}-win")
+          generate_win_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+          Globals.gazebodistro_branch = false
+        } else {
+          assert false : "Unexpected config.system.so type: ${ci_config.system.so}"
+        }
+
+        gz_ci_job.with
         {
           triggers {
-            scm(Globals.CRON_ON_WEEKEND)
+            scm('@daily')
           }
         }
-        logging_list['asan_ci'].add(
+
+        logging_list['branch_ci'].add(
           [collection: branch_and_collection.collection,
-           job_name: gz_ci_asan_job.name])
-      } else if (ci_config.system.so == 'darwin') {
-        gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-homebrew-${arch}")
-        generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
-      } else if (ci_config.system.so == 'windows') {
-        branch_number = branch_name - lib_name
-        Globals.gazebodistro_branch = true
-        gz_ci_job = job("${gz_job_name_prefix}-${branch_number}-win")
-        generate_win_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
-        Globals.gazebodistro_branch = false
-      } else {
-        assert false : "Unexpected config.system.so type: ${ci_config.system.so}"
-      }
-
-      gz_ci_job.with
-      {
-        triggers {
-          scm('@daily')
-        }
-      }
-
-      logging_list['branch_ci'].add(
-        [collection: branch_and_collection.collection,
-         job_name: gz_ci_job.name])
+           job_name: gz_ci_job.name])
+      } // end of daily category enabled
     } // end_of_branch
 
-    if (ci_config.system.so == 'linux') {
-      def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
-      def extra_cmd = pre_setup_script ?: ""
-
-      def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
-      def gz_ci_any_job = job(gz_ci_job_name)
-      OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
-                                           "gazebosim/${lib_name}",
-                                           is_testing_enabled(lib_name, ci_config),
-                                           ENABLE_CPPCHECK,
-                                           branch_names)
-      generate_label_by_requirements(gz_ci_any_job, lib_name, ci_config.requirements)
-      gz_ci_any_job.with
+    if (categories_enabled.contains('pr'))
+    {
+      if (ci_config.system.so == 'linux')
       {
-        steps
+        def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
+        def extra_cmd = pre_setup_script ?: ""
+
+        def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
+        def gz_ci_any_job = job(gz_ci_job_name)
+        OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
+                                             "gazebosim/${lib_name}",
+                                             is_testing_enabled(lib_name, ci_config),
+                                             ENABLE_CPPCHECK,
+                                             branch_names)
+        generate_label_by_requirements(gz_ci_any_job, lib_name, ci_config.requirements)
+        gz_ci_any_job.with
         {
-           shell("""\
-                #!/bin/bash -xe
-
-                export DISTRO=${distro}
-
-                ${GLOBAL_SHELL_CMD}
-                ${extra_cmd}
-
-                export BUILDING_SOFTWARE_DIRECTORY=${lib_name}
-                export ARCH=${arch}
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/${script_name_prefix}-compilation.bash
-                """.stripIndent())
-        } // end of steps
-      } // end of ci_any_job
-
-      if (! ci_config.exclude.abichecker?.contains(lib_name)) {
-        // ABI branch jobs (-ci-abichecker-) for non main branches
-        def abi_job_name = "${gz_job_name_prefix}-abichecker-any_to_any-ubuntu-${distro}-${arch}"
-        def abi_job = job(abi_job_name)
-        OSRFLinuxABIGitHub.create(abi_job)
-        GenericAnyJobGitHub.create(abi_job,
-                          "gazebosim/${lib_name}",
-                          branch_names - [ 'main'])
-        generate_label_by_requirements(abi_job, lib_name, ci_config.requirements)
-        abi_job.with
-        {
-          steps {
-            shell("""\
+          steps
+          {
+             shell("""\
                   #!/bin/bash -xe
 
                   export DISTRO=${distro}
@@ -437,41 +421,71 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
                   ${GLOBAL_SHELL_CMD}
                   ${extra_cmd}
 
+                  export BUILDING_SOFTWARE_DIRECTORY=${lib_name}
                   export ARCH=${arch}
-                  export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
-                  export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
-                  export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
-                  export ABI_JOB_SOFTWARE_NAME=${lib_name}
-                  /bin/bash -xe ./scripts/jenkins-scripts/docker/gz-abichecker.bash
+                  /bin/bash -xe ./scripts/jenkins-scripts/docker/${script_name_prefix}-compilation.bash
                   """.stripIndent())
           } // end of steps
-        }  // end of with
+        } // end of ci_any_job
+
+        if (categories_enabled.contains('stable_branches') && \
+           (! ci_config.exclude.abichecker?.contains(lib_name))) 
+        {
+          // ABI branch jobs (-ci-abichecker-) for non main branches
+          def abi_job_name = "${gz_job_name_prefix}-abichecker-any_to_any-ubuntu-${distro}-${arch}"
+          def abi_job = job(abi_job_name)
+          OSRFLinuxABIGitHub.create(abi_job)
+          GenericAnyJobGitHub.create(abi_job,
+                            "gazebosim/${lib_name}",
+                            branch_names - [ 'main'])
+          generate_label_by_requirements(abi_job, lib_name, ci_config.requirements)
+          abi_job.with
+          {
+            steps {
+              shell("""\
+                    #!/bin/bash -xe
+
+                    export DISTRO=${distro}
+
+                    ${GLOBAL_SHELL_CMD}
+                    ${extra_cmd}
+
+                    export ARCH=${arch}
+                    export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
+                    export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
+                    export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
+                    export ABI_JOB_SOFTWARE_NAME=${lib_name}
+                    /bin/bash -xe ./scripts/jenkins-scripts/docker/gz-abichecker.bash
+                    """.stripIndent())
+            } // end of steps
+          }  // end of with
+        }
+      } else if (ci_config.system.so == 'darwin') {
+        // --------------------------------------------------------------
+        def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-amd64"
+        def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
+        OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
+                                            "gazebosim/${lib_name}",
+                                            is_testing_enabled(lib_name, ci_config),
+                                            branch_names,
+                                            ENABLE_GITHUB_PR_INTEGRATION,
+                                            are_cmake_warnings_enabled(lib_name, ci_config))
+        add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir)
+      } else if (ci_config.system.so == 'windows') {
+        def gz_win_ci_any_job_name = "${gz_job_name_prefix}-pr-win"
+        def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
+        Globals.gazebodistro_branch = true
+        OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_job,
+                                            "gazebosim/${lib_name}",
+                                            is_testing_enabled(lib_name, ci_config),
+                                            branch_names,
+                                            ENABLE_GITHUB_PR_INTEGRATION,
+                                            are_cmake_warnings_enabled(lib_name, ci_config))
+        add_win_devel_bat_call(gz_win_ci_any_job, lib_name, ws_checkout_dir)
+        Globals.gazebodistro_branch = false
       }
-    } else if (ci_config.system.so == 'darwin') {
-      // --------------------------------------------------------------
-      def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-amd64"
-      def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
-      OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
-                                          "gazebosim/${lib_name}",
-                                          is_testing_enabled(lib_name, ci_config),
-                                          branch_names,
-                                          ENABLE_GITHUB_PR_INTEGRATION,
-                                          are_cmake_warnings_enabled(lib_name, ci_config))
-      add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir)
-    } else if (ci_config.system.so == 'windows') {
-      def gz_win_ci_any_job_name = "${gz_job_name_prefix}-pr-win"
-      def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
-      Globals.gazebodistro_branch = true
-      OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_job,
-                                          "gazebosim/${lib_name}",
-                                          is_testing_enabled(lib_name, ci_config),
-                                          branch_names,
-                                          ENABLE_GITHUB_PR_INTEGRATION,
-                                          are_cmake_warnings_enabled(lib_name, ci_config))
-      add_win_devel_bat_call(gz_win_ci_any_job, lib_name, ws_checkout_dir)
-      Globals.gazebodistro_branch = false
-    }
-  } //en of lib_configs
+    } //end of pr enabled
+  } //end of lib_configs
 } // end of lib
 
 pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->

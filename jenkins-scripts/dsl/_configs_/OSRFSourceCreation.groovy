@@ -104,8 +104,17 @@ class OSRFSourceCreation
                        -name ${canonical_package_name}-\${VERSION}.tar.* \
                        -printf "%f\\n")
           if [[ -z \${tarball} ]] || [[ \$(wc -w <<< \${tarball}) != 1 ]]; then
-            echo "Tarball name extraction returned \${tarball} which is not a one word string"
-            exit 1
+            # There is one use case that can be valid but failed to find canonical_package_name
+            # which are package using _ (underscores) in their name like gz-fuel_tools. Workaround
+            # is to just search for the VERSION (not so safety but should work)
+            tarball=\$(find \${WORKSPACE}/${pkg_sources_dir} \
+                         -type f \
+                         -name *-\${VERSION}.tar.* \
+                         -printf "%f\\n")
+            if [[ -z \${tarball} ]] || [[ \$(wc -w <<< \${tarball}) != 1 ]]; then
+              echo "Tarball name extraction returned \${tarball} which is not a one word string"
+              exit 1
+            fi
           fi
 
           echo "S3_FILES_TO_UPLOAD=\${tarball}" >> ${properties_file}

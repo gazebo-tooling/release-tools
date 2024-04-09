@@ -78,6 +78,9 @@ brew install $(brew deps --1 --include-build ${PROJECT_FORMULA})
 # pytest is needed to run python tests with junit xml output
 PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} pytest"
 
+# Add protobuf since the homebrew protobuf bottle dropped support for python bindings
+PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} protobuf"
+
 if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   # Install lxml for flaky_junit_merge.py
   PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} lxml"
