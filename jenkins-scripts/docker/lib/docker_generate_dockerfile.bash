@@ -475,11 +475,16 @@ RUN adduser --uid \$USERID --gid \$GID --gecos "Developer" --disabled-password \
 RUN adduser \$USER sudo
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN chown -R \$USER:\$USER /home/\$USER
+# Needed if USE_DOCKER_IN_DOCKER is active. Harmless to be here
+RUN groupadd docker
+RUN gpasswd -a \$USER docker
+RUN newgrp docker
 
 # permit access to USER variable inside docker
 ENV USER \$USER
 USER \$USER
 # Must use sudo where necessary from this point on
+
 DELIM_DOCKER_USER
 
 if [[ -n ${SOFTWARE_DIR} ]]; then

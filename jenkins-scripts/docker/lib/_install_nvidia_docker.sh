@@ -14,11 +14,8 @@ curl -s -L https://nvidia.github.io/nvidia-docker/\$distribution/nvidia-docker.l
   sudo tee /etc/apt/sources.list.d/nvidia-docker.list
 sudo apt-get update
 sudo apt-get install -y nvidia-docker2
-# systemctl daemon-reload
-# systemctl restart docker
+sudo docker info
 echo '# END SECTION'
 """
-
-DOCKER2_CMD="sudo docker run --privileged -e DISPLAY=unix:0 -v /sys:/sys:ro -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/.X11-unix:/tmp/.X11-unix:rw --runtime=nvidia -e DOCKER_FIX= -v /dev/log:/dev/log:ro -v /run/log:/run/log:ro -v /sys/fs/cgroup:/sys/fs/cgroup:ro --device /dev/snd --tty --rm"
 
 DEPENDENCY_PKGS="${DEPENDENCY_PKGS} curl software-properties-common"
