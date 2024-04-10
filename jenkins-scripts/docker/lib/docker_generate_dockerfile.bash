@@ -62,6 +62,9 @@ RUN if [ -n $GZDEV_TRY_BRANCH ]; then \
     fi || true
 # print branch for informational purposes
 RUN git -C ${GZDEV_DIR} branch
+# clean all _gzdev_ repository installations from the system before handling the configuration
+# otherwise the docker cache could contain unexpected repositories
+RUN ${GZDEV_DIR}/gzdev.py repository purge
 DELIM_OSRF_REPO_GIT
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
 # debian sid docker images does not return correct name so we need to use
