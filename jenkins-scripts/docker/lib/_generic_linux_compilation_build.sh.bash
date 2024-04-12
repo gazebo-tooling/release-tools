@@ -99,6 +99,7 @@ if $GENERIC_ENABLE_TESTS; then
   make test ARGS="-VV ${BUILDING_EXTRA_MAKETEST_PARAMS} --output-junit cmake_junit_output.xml" || true
   if [ -f cmake_junit_output.xml ]; then
     python3 $WORKSPACE/scripts/jenkins-scripts/tools/cmake_to_gtest_junit_output.py cmake_junit_output.xml test_results  || true
+    cp cmake_junit_output.xml ${WORKSPACE}/build/test_results
   fi
   stop_stopwatch TEST
   echo '# END SECTION'
