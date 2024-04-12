@@ -72,8 +72,15 @@ def main(argv=sys.argv[1:]):
                 results_doc.write(results_file_name)
 
         except Exception as e:
-            print(e)
+            print(e) if str(e).startswith('[Errno 2]') else exit(1)
 
+    print("""
+      Possible failures above in the script are expected due to:
+      - Tests written directly in CTest and not using gtest
+        (INTEGRATION_versioned_symbols as an example)
+      - Tests in Python using pytest have different name:
+        right name in CTest vs filepath name in current setup
+      """)
 
 if __name__ == "__main__":
     main()
