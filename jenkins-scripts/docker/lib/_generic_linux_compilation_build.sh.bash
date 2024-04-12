@@ -10,6 +10,8 @@
 #  - BUILD_<lib name> (optional) build dependency from source, for example, BUILD_GZ_MATH
 #    - <lib name>_BRANCH (optional [default: master]) branch for BUILD_<lib_name>
 
+. "${SCRIPT_DIR}/lib/_common_scripts.bash"
+
 if [[ -z ${SOFTWARE_DIR} ]]; then
     echo "SOFTWARE_DIR variable is unset. Please fix the code"
     exit 1
@@ -96,7 +98,7 @@ if $GENERIC_ENABLE_TESTS; then
   echo '# BEGIN SECTION: running tests'
   init_stopwatch TEST
   mkdir -p \$HOME
-  make test ARGS="-VV ${BUILDING_EXTRA_MAKETEST_PARAMS} --output-junit cmake_junit_output.xml" || true
+  make test ARGS="\$(default_make_test_args) ${BUILDING_EXTRA_MAKETEST_PARAMS}" || true
   if [ -f cmake_junit_output.xml ]; then
     python3 $WORKSPACE/scripts/jenkins-scripts/tools/cmake_to_gtest_junit_output.py cmake_junit_output.xml test_results  || true
   fi
