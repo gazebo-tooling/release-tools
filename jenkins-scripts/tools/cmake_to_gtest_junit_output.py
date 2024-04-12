@@ -39,14 +39,14 @@ def main(argv=sys.argv[1:]):
     doc = ET.parse(args.cmake_junit_file)
 
     for testcase in doc.findall("testcase"):
+        # Ignore tests that start with 'check_'. Those are tests that simply
+        # run the check_test_run.py script, so we don't need their output.
+        if testcase.attrib["name"].startswith("check_"):
+            continue
+
         results_file_name = os.path.join(
             args.gtest_results_dir, testcase.attrib["name"] + ".xml"
         )
-
-        # Ignore tests that start with 'check_'. Those are tests that simply run
-        # the check_test_run.py script, so we don't need their output.
-        if results_file_name.startswith("check_"):
-            continue
         system_output = testcase.find(SYSTEM_OUT_TAG)
         assert system_output is not None
         try:
