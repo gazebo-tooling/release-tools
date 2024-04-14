@@ -25,12 +25,19 @@ def main(argv=sys.argv[1:]):
         results_file_name = os.path.join(
             args.gtest_results_dir, testcase.attrib["name"] + ".xml"
         )
+        print("foo.xml")
         system_output = testcase.find(SYSTEM_OUT_TAG)
         assert system_output is not None
         try:
+            print(f"Parsing {results_file_name}")
             results_doc = ET.parse(results_file_name)
             should_write_to_file = False
             for result_testsuite in results_doc.findall("testsuite"):
+                print(testcase.attrib["status"])
+                print(result_testsuite.attrib["errors"])
+                if testcase.attrib["status"] == 'fail':
+                    print("Detected failure in foo.xml")
+                    result_testsuite.attrib["failures"] = "1"
                 if result_testsuite.find(SYSTEM_OUT_TAG) is None:
                     result_testsuite.append(system_output)
                     should_write_to_file = True
