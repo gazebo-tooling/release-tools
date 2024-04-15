@@ -38,7 +38,11 @@ def main(argv=sys.argv[1:]):
                     print(f" - failures {testcase_failures} in {testcase.attrib['name']}")
                     result_testsuite.attrib["failures"] = \
                         f'{testcase_failures}'
-                if result_testsuite.find(SYSTEM_OUT_TAG) is None:
+                    error_tag = ET.Element(
+                        'error', {'message': 'test message'})
+                    error_tag.text = system_output.text
+                    result_testsuite.append(error_tag)
+                elif result_testsuite.find(SYSTEM_OUT_TAG) is None:
                     result_testsuite.append(system_output)
                     should_write_to_file = True
 
@@ -54,14 +58,13 @@ def main(argv=sys.argv[1:]):
                     should_write_to_file = True
 
             if testcase_failures > 0:
-                print(f" - update root testsuites to {testcase_failures}")
+                print(f' - update root testsuites failures tag to {testcase_failures}')
                 a = results_doc.getroot()
                 a.attrib["failures"] = f'{testcase_failures}'
                 should_write_to_file = True
 
             if should_write_to_file:
                 results_doc.write(results_file_name)
-                a = results_doc.getroot()
 
         except Exception as e:
             print(e)
