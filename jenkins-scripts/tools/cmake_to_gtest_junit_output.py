@@ -22,22 +22,22 @@ def main(argv=sys.argv[1:]):
     doc = ET.parse(args.cmake_junit_file)
 
     for testcase in doc.findall("testcase"):
+        testcase_failures = 0
         results_file_name = os.path.join(
             args.gtest_results_dir, testcase.attrib["name"] + ".xml"
         )
-        print("foo.xml")
         system_output = testcase.find(SYSTEM_OUT_TAG)
         assert system_output is not None
         try:
-            print(f"Parsing {results_file_name}")
+            print(f"Processing {results_file_name}")
             results_doc = ET.parse(results_file_name)
             should_write_to_file = False
             for result_testsuite in results_doc.findall("testsuite"):
-                print(testcase.attrib["status"])
-                print(result_testsuite.attrib["errors"])
                 if testcase.attrib["status"] == 'fail':
-                    print("Detected failure in foo.xml")
-                    result_testsuite.attrib["failures"] = "1"
+                    testcase_failures += 1
+                    print(f" - failures {testcase_failures} in {testcase.attrib['name']}")
+                    result_testsuite.attrib["failures"] = \
+                        f'"{testcase_failures}"'
                 if result_testsuite.find(SYSTEM_OUT_TAG) is None:
                     result_testsuite.append(system_output)
                     should_write_to_file = True
@@ -53,8 +53,15 @@ def main(argv=sys.argv[1:]):
                     result_test_case.append(system_output)
                     should_write_to_file = True
 
+            if testcase_failures > 0:
+                print(f" - update root testsuites to {testcase_failures}")
+                a = results_doc.getroot()
+                a.attrib["failures"] = f"{testcase_failures}"
+                should_write_to_file = True
+
             if should_write_to_file:
                 results_doc.write(results_file_name)
+                a = results_doc.getroot()
 
         except Exception as e:
             print(e)
