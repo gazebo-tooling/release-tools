@@ -48,12 +48,25 @@ def main(argv=sys.argv[1:]):
             args.gtest_results_dir, testcase.attrib["name"] + ".xml"
         )
         system_output = testcase.find(SYSTEM_OUT_TAG)
+        testcase_failures = 0
         assert system_output is not None
         try:
+            print(f"Processing {results_file_name}")
             results_doc = ET.parse(results_file_name)
             should_write_to_file = False
             for result_testsuite in results_doc.findall("testsuite"):
-                if result_testsuite.find(SYSTEM_OUT_TAG) is None:
+                if testcase.attrib["status"] == 'fail':
+                    testcase_failures += 1
+                    print(f" - failure {testcase_failures} in {testcase.attrib['name']}")
+                    result_testsuite.attrib['failures'] = \
+                        f'{testcase_failures}'
+                    error_tag = ET.Element('error', {'message':
+                        f'Failure injected from CTest by tools/{os.path.basename(__file__)}'})
+                    error_tag.text = system_output.text
+                    print(f" - inject error in {testcase.attrib['name']}")
+                    result_testsuite.append(error_tag)
+                elif result_testsuite.find(SYSTEM_OUT_TAG) is None:
+                    print(f" - inject system-out in {testcase.attrib['name']}")
                     result_testsuite.append(system_output)
                     should_write_to_file = True
 
@@ -67,6 +80,12 @@ def main(argv=sys.argv[1:]):
                 if result_test_case.find(SYSTEM_OUT_TAG) is None:
                     result_test_case.append(system_output)
                     should_write_to_file = True
+
+            if testcase_failures > 0:
+                print(f' - update root testsuites failures tag to {testcase_failures}')
+                a = results_doc.getroot()
+                a.attrib["failures"] = f'{testcase_failures}'
+                should_write_to_file = True
 
             if should_write_to_file:
                 results_doc.write(results_file_name)
