@@ -37,7 +37,7 @@ def main(argv=sys.argv[1:]):
                     testcase_failures += 1
                     print(f" - failures {testcase_failures} in {testcase.attrib['name']}")
                     result_testsuite.attrib["failures"] = \
-                        f'"{testcase_failures}"'
+                        f'{testcase_failures}'
                 if result_testsuite.find(SYSTEM_OUT_TAG) is None:
                     result_testsuite.append(system_output)
                     should_write_to_file = True
@@ -56,7 +56,7 @@ def main(argv=sys.argv[1:]):
             if testcase_failures > 0:
                 print(f" - update root testsuites to {testcase_failures}")
                 a = results_doc.getroot()
-                a.attrib["failures"] = f"{testcase_failures}"
+                a.attrib["failures"] = f'{testcase_failures}'
                 should_write_to_file = True
 
             if should_write_to_file:
