@@ -96,7 +96,10 @@ if $GENERIC_ENABLE_TESTS; then
   echo '# BEGIN SECTION: running tests'
   init_stopwatch TEST
   mkdir -p \$HOME
-  make test ARGS="-VV ${BUILDING_EXTRA_MAKETEST_PARAMS}" || true
+  make test ARGS="-VV ${BUILDING_EXTRA_MAKETEST_PARAMS} --output-junit cmake_junit_output.xml" || true
+  if [ -f cmake_junit_output.xml ]; then
+    python3 $WORKSPACE/scripts/jenkins-scripts/tools/cmake_to_gtest_junit_output.py cmake_junit_output.xml test_results  || true
+  fi
   stop_stopwatch TEST
   echo '# END SECTION'
 else
