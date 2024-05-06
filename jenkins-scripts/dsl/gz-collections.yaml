@@ -435,12 +435,12 @@ collections:
           current_branch: main
     ci:
       configs:
-        - jammy
+        - noble
         - brew
         - win
     packaging:
       configs:
-        - jammy
+        - noble
 ci_configs:
   - name: focal
     system:
@@ -520,6 +520,7 @@ ci_configs:
     exclude:
       all:
         - gz-harmonic
+        - gz-ionic
         - __upcoming__
       abichecker:
         - gz-cmake
@@ -643,6 +644,16 @@ packaging_configs:
       so: linux
       distribution: ubuntu
       version: jammy
+      arch:
+        - amd64
+    pre_setup_script_hook:
+      gz-physics:
+        - "export MAKE_JOBS=1"
+  - name: noble
+    system:
+      so: linux
+      distribution: ubuntu
+      version: noble
       arch:
         - amd64
     pre_setup_script_hook:
