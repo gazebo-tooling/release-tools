@@ -346,7 +346,7 @@ collections:
         - jammy
       linux:
         ignore_major_version:
-          - gz-harmonic     
+          - gz-harmonic
   - name: 'ionic'
     libs:
       - name: gz-cmake
@@ -415,12 +415,12 @@ collections:
           current_branch: main
     ci:
       configs:
-        - jammy
+        - noble
         - brew
         - win
     packaging:
       configs:
-        - jammy
+        - noble
       linux:
         ignore_major_version:
           - gz-ionic
@@ -507,7 +507,7 @@ ci_configs:
     system:
       so: linux
       distribution: ubuntu
-      version: noble 
+      version: noble
       arch: amd64
     requirements:
       large_memory:
