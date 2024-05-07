@@ -33,9 +33,11 @@ class OSRFSourceCreation
         stringParam("DISTRO",
                     default_params.find{ it.key == "DISTRO"}?.value,
                     "Linux release inside LINUX_DISTRO to generate sources on")
-        choiceParam('PACKAGE',
-                    [default_params.find{ it.key == "PACKAGE"}?.value],
-                    "For downstream use: Package name (can not be modified)")
+        // Not using choiceParam here to support Citadel/Fortress ign-* packages not only
+        // gz-* packages
+        stringParam('PACKAGE',
+                    default_params.find{ it.key == "PACKAGE"}?.value,
+                    "For downstream use: Package name")
         stringParam("RELEASE_VERSION",
                     default_params.find{ it.key == "RELEASE_VERSION"}?.value,
                     "For downstream jobs: Packages release version")
@@ -70,8 +72,6 @@ class OSRFSourceCreation
         priority 100
       }
 
-      def canonical_package_name = Globals.get_canonical_package_name(
-        default_params.find{ it.key == "PACKAGE"}.value)
       def s3_download_url_basedir = Globals.s3_download_url_basedir(
         default_params.find{ it.key == "PACKAGE"}?.value)
 
@@ -94,6 +94,14 @@ class OSRFSourceCreation
           /bin/bash -x ./scripts/jenkins-scripts/docker/gz-source-generation.bash
           """.stripIndent()
         )
+
+        // This can be enabled after the complete deprecation of ign- names
+        // that uses ignition aliases.
+        // def canonical_package_name = Globals.get_canonical_package_name(
+        //  default_params.find{ it.key == "PACKAGE"}.value)
+        //
+        // then improve the find command below with:
+        //  -name ${canonical_package_name}-\${VERSION}.tar.* \
         shell("""\
           #!/bin/bash -xe
 
@@ -101,7 +109,7 @@ class OSRFSourceCreation
           # deal with changes in the compression of the tarballs.
           tarball=\$(find \${WORKSPACE}/${pkg_sources_dir} \
                        -type f \
-                       -name ${canonical_package_name}-\${VERSION}.tar.* \
+                       -name *-\${VERSION}.tar.* \
                        -printf "%f\\n")
           if [[ -z \${tarball} ]] || [[ \$(wc -w <<< \${tarball}) != 1 ]]; then
             # There is one use case that can be valid but failed to find canonical_package_name
@@ -148,6 +156,7 @@ class OSRFSourceCreation
                     parameters {
                       currentBuild()
                       predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: '${JOB_NAME}',
+                                       PACKAGE_ALIAS: '${PACKAGE_ALIAS}',
                                        S3_UPLOAD_PATH: "${Globals.s3_releases_dir(package_name)}/"])  // relative path with a final /
                       propertiesFile(properties_file)  // S3_FILES_TO_UPLOAD
                     }
