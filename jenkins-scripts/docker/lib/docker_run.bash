@@ -26,7 +26,9 @@ USER=$(whoami)
 # platform support starts on versions greater than 17.07
 PLAFTORM_PARAM=
 DOCKER_CLI_PLUGIN=
-if [[ ${DISTRO} == 'jammy' && ${ARCH} == 'armhf' ]]; then
+if [[ ${LINUX_DISTRO} == 'ubuntu' && \
+      ${DISTRO} != 'focal' && \
+      ${ARCH} == 'armhf' ]]; then
   PLAFTORM_PARAM="--platform=linux/armhf"
   DOCKER_CLI_PLUGIN="buildx"
 fi
