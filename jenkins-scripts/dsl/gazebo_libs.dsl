@@ -340,6 +340,8 @@ gz_collections_yaml.collections.each { collection ->
       def lib_name = lib.name
       def branch_name = lib.repo.current_branch
       def gz_job_name_prefix = lib_name.replaceAll('-','_')
+      if (ci_config.exclude.all?.contains(lib_name))
+        return
 
       // Build the branch_index while going through all the libraries to avoid
       // looping twice.
@@ -351,19 +353,15 @@ gz_collections_yaml.collections.each { collection ->
         platform = 'windows'
       }
       branch_index[lib_name][platform] = branch_index[lib_name][platform]?: ['pr':[], 'pr_abichecker':[]]
-      if (! ci_config.exclude.all?.contains(lib_name))
+      if (categories_enabled.contains('pr'))
       {
-        if (categories_enabled.contains('pr'))
-        {
-          branch_index[lib_name][platform]['pr'].contains(branch_name) ?:
-            branch_index[lib_name][platform]['pr'] << [branch: branch_name, ci_name: config_name]
-        }
-        if (categories_enabled.contains('pr_abichecker') &&
-         (! ci_config.exclude.abichecker?.contains(lib_name)))
-        {
-          branch_index[lib_name][platform]['pr_abichecker'].contains(branch_name) ?:
-            branch_index[lib_name][platform]['pr_abichecker'] << [branch: branch_name, ci_name: config_name]
-        }
+        branch_index[lib_name][platform]['pr'].contains(branch_name) ?:
+          branch_index[lib_name][platform]['pr'] << [branch: branch_name, ci_name: config_name]
+      }
+      if (categories_enabled.contains('pr_abichecker')
+      {
+        branch_index[lib_name][platform]['pr_abichecker'].contains(branch_name) ?:
+          branch_index[lib_name][platform]['pr_abichecker'] << [branch: branch_name, ci_name: config_name]
       }
 
       // Generate jobs for the library entry being parsed
