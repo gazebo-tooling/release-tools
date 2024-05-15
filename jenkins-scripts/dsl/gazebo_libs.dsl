@@ -358,7 +358,8 @@ gz_collections_yaml.collections.each { collection ->
         branch_index[lib_name][platform]['pr'].contains(branch_name) ?:
           branch_index[lib_name][platform]['pr'] << [branch: branch_name, ci_name: config_name]
       }
-      if (categories_enabled.contains('pr_abichecker'))
+      if (categories_enabled.contains('pr_abichecker') &&
+         (! ci_config.exclude.abichecker?.contains(lib_name)))
       {
         branch_index[lib_name][platform]['pr_abichecker'].contains(branch_name) ?:
           branch_index[lib_name][platform]['pr_abichecker'] << [branch: branch_name, ci_name: config_name]
