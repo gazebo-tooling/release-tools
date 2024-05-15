@@ -1,5 +1,4 @@
 asan_ci __upcoming__ gz_tools-ci_asan-main-jammy-amd64
-asan_ci citadel gz_citadel-ci_asan-main-focal-amd64
 asan_ci citadel gz_cmake-ci_asan-ign-cmake2-focal-amd64
 asan_ci citadel gz_common-ci_asan-ign-common3-focal-amd64
 asan_ci citadel gz_fuel_tools-ci_asan-ign-fuel-tools4-focal-amd64
@@ -17,7 +16,6 @@ asan_ci citadel gz_transport-ci_asan-ign-transport8-focal-amd64
 asan_ci citadel sdformat-ci_asan-sdf9-focal-amd64
 asan_ci fortress gz_cmake-ci_asan-ign-cmake2-focal-amd64
 asan_ci fortress gz_common-ci_asan-ign-common4-focal-amd64
-asan_ci fortress gz_fortress-ci_asan-main-focal-amd64
 asan_ci fortress gz_fuel_tools-ci_asan-ign-fuel-tools7-focal-amd64
 asan_ci fortress gz_gui-ci_asan-ign-gui6-focal-amd64
 asan_ci fortress gz_launch-ci_asan-ign-launch5-focal-amd64
@@ -35,7 +33,6 @@ asan_ci fortress sdformat-ci_asan-sdf12-focal-amd64
 asan_ci garden gz_cmake-ci_asan-gz-cmake3-focal-amd64
 asan_ci garden gz_common-ci_asan-gz-common5-focal-amd64
 asan_ci garden gz_fuel_tools-ci_asan-gz-fuel-tools8-focal-amd64
-asan_ci garden gz_garden-ci_asan-main-focal-amd64
 asan_ci garden gz_gui-ci_asan-gz-gui7-focal-amd64
 asan_ci garden gz_launch-ci_asan-gz-launch6-focal-amd64
 asan_ci garden gz_math-ci_asan-gz-math7-focal-amd64
@@ -53,7 +50,6 @@ asan_ci harmonic gz_cmake-ci_asan-gz-cmake3-jammy-amd64
 asan_ci harmonic gz_common-ci_asan-gz-common5-jammy-amd64
 asan_ci harmonic gz_fuel_tools-ci_asan-gz-fuel-tools9-jammy-amd64
 asan_ci harmonic gz_gui-ci_asan-gz-gui8-jammy-amd64
-asan_ci harmonic gz_harmonic-ci_asan-main-jammy-amd64
 asan_ci harmonic gz_launch-ci_asan-gz-launch7-jammy-amd64
 asan_ci harmonic gz_math-ci_asan-gz-math7-jammy-amd64
 asan_ci harmonic gz_msgs-ci_asan-gz-msgs10-jammy-amd64
@@ -85,9 +81,6 @@ asan_ci ionic sdformat-ci_asan-main-jammy-amd64
 branch_ci __upcoming__ gz_tools-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_tools-ci-main-jammy-amd64
 branch_ci __upcoming__ gz_tools-main-win
-branch_ci citadel gz_citadel-ci-main-focal-amd64
-branch_ci citadel gz_citadel-ci-main-homebrew-amd64
-branch_ci citadel gz_citadel-main-win
 branch_ci citadel gz_cmake-ci-ign-cmake2-focal-amd64
 branch_ci citadel gz_cmake-ci-ign-cmake2-homebrew-amd64
 branch_ci citadel gz_cmake-ign-cmake2-win
@@ -102,7 +95,6 @@ branch_ci citadel gz_gui-ci-ign-gui3-homebrew-amd64
 branch_ci citadel gz_gui-ign-gui3-win
 branch_ci citadel gz_launch-ci-ign-launch2-focal-amd64
 branch_ci citadel gz_launch-ci-ign-launch2-homebrew-amd64
-branch_ci citadel gz_launch-ign-launch2-win
 branch_ci citadel gz_math-ci-ign-math6-focal-amd64
 branch_ci citadel gz_math-ci-ign-math6-homebrew-amd64
 branch_ci citadel gz_math-ign-math6-win
@@ -123,7 +115,6 @@ branch_ci citadel gz_sensors-ci-ign-sensors3-homebrew-amd64
 branch_ci citadel gz_sensors-ign-sensors3-win
 branch_ci citadel gz_sim-ci-ign-gazebo3-focal-amd64
 branch_ci citadel gz_sim-ci-ign-gazebo3-homebrew-amd64
-branch_ci citadel gz_sim-ign-gazebo3-win
 branch_ci citadel gz_tools-ci-ign-tools1-focal-amd64
 branch_ci citadel gz_tools-ci-ign-tools1-homebrew-amd64
 branch_ci citadel gz_tools-ign-tools1-win
@@ -139,9 +130,6 @@ branch_ci fortress gz_cmake-ign-cmake2-win
 branch_ci fortress gz_common-ci-ign-common4-focal-amd64
 branch_ci fortress gz_common-ci-ign-common4-homebrew-amd64
 branch_ci fortress gz_common-ign-common4-win
-branch_ci fortress gz_fortress-ci-main-focal-amd64
-branch_ci fortress gz_fortress-ci-main-homebrew-amd64
-branch_ci fortress gz_fortress-main-win
 branch_ci fortress gz_fuel_tools-ci-ign-fuel-tools7-focal-amd64
 branch_ci fortress gz_fuel_tools-ci-ign-fuel-tools7-homebrew-amd64
 branch_ci fortress gz_fuel_tools-ign-fuel-tools7-win
@@ -193,9 +181,6 @@ branch_ci garden gz_common-ci-gz-common5-homebrew-amd64
 branch_ci garden gz_fuel_tools-8-win
 branch_ci garden gz_fuel_tools-ci-gz-fuel-tools8-focal-amd64
 branch_ci garden gz_fuel_tools-ci-gz-fuel-tools8-homebrew-amd64
-branch_ci garden gz_garden-ci-main-focal-amd64
-branch_ci garden gz_garden-ci-main-homebrew-amd64
-branch_ci garden gz_garden-main-win
 branch_ci garden gz_gui-7-win
 branch_ci garden gz_gui-ci-gz-gui7-focal-amd64
 branch_ci garden gz_gui-ci-gz-gui7-homebrew-amd64
@@ -251,10 +236,6 @@ branch_ci harmonic gz_gui-8-win
 branch_ci harmonic gz_gui-ci-gz-gui8-homebrew-amd64
 branch_ci harmonic gz_gui-ci-gz-gui8-jammy-amd64
 branch_ci harmonic gz_gui-ci-gz-gui8-noble-amd64
-branch_ci harmonic gz_harmonic-ci-main-homebrew-amd64
-branch_ci harmonic gz_harmonic-ci-main-jammy-amd64
-branch_ci harmonic gz_harmonic-ci-main-noble-amd64
-branch_ci harmonic gz_harmonic-main-win
 branch_ci harmonic gz_launch-7-win
 branch_ci harmonic gz_launch-ci-gz-launch7-homebrew-amd64
 branch_ci harmonic gz_launch-ci-gz-launch7-jammy-amd64
