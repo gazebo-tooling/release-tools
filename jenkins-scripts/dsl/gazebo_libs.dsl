@@ -69,6 +69,9 @@ boolean are_cmake_warnings_enabled(lib_name, ci_config)
 }
 
 /*
+ * TODO: deprecated, migrate the pkgconf_per_src index to use new branch_index
+ * or generate a new one together with the branch_index
+ *
  * Generate an index that facilitates the operations with the yaml values,
  * avoiding to parse them several times.
  *
