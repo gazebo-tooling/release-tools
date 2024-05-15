@@ -72,18 +72,6 @@ boolean are_cmake_warnings_enabled(lib_name, ci_config)
  * Generate an index that facilitates the operations with the yaml values,
  * avoiding to parse them several times.
  *
- * # ci_configs_by_lib index structure:
- *   lib_name : [ ci_config_name : [ .branch .collection ] ]
- *
- *   The index main keys are the lib names (i.e: gz-cmake) and associated them
- *   another map of CI configuration names supported as keys (i.e: jammy) with the
- *   list of associated items composed by a map: branch (and collection) that CI configuration
- *   (i.e [[branch:gz-cmake3, collection: harmonic], [branch: gz-cmake3, collection: garden])
- *   as values. In a graphic;
- *
- *   index[gz-cmake][jammy] -> [ branch: gz-cmake3, collection: garden ,
- *                               branch: gz-cmake3, collection: harmonic]
- *
  * # pkgconf_per_src index structure:
  *   pkg_src_name : [ packaging_config_name : [ .lib_name .collection ] ]
  *
@@ -94,16 +82,12 @@ boolean are_cmake_warnings_enabled(lib_name, ci_config)
  *
  *   index[gz-cmake3][jammy] -> [ lib_name: gz-cmake, collection: harmonic ]
  */
-void generate_ciconfigs_by_lib(config, ciconf_per_lib_index, pkgconf_per_src_index)
+void generate_ciconfigs_by_lib(config, pkgconf_per_src_index)
 {
   config.collections.each { collection ->
     collection.libs.each { lib ->
       def libName = lib.name
       def branch = lib.repo.current_branch
-      collection.ci.configs.each { config_name ->
-        ciconf_per_lib_index[libName][config_name] = ciconf_per_lib_index[libName][config_name]?: []
-        ciconf_per_lib_index[libName][config_name].contains(branch) ?: ciconf_per_lib_index[libName][config_name] << [branch: branch, collection: collection.name]
-      }
       def pkg_name = lib.name + lib.major_version
       if (collection.packaging.linux?.ignore_major_version?.contains(libName))
         pkg_name = lib.name
@@ -320,9 +304,8 @@ def generate_debbuilder_job(src_name, ArrayList pre_setup_script_hooks)
   }
 }
 
-def ciconf_per_lib_index = [:].withDefault { [:] }
 def pkgconf_per_src_index = [:].withDefault { [:] }
-generate_ciconfigs_by_lib(gz_collections_yaml, ciconf_per_lib_index, pkgconf_per_src_index)
+generate_ciconfigs_by_lib(gz_collections_yaml, pkgconf_per_src_index)
 /*
  *
  * Loop over each collection, inside each collection loop over the ci configurations assigned
