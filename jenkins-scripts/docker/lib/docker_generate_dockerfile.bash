@@ -116,12 +116,10 @@ case ${ARCH} in
      fi
      ;;
    'armhf')
-     # There is no osrf/jammy_armhf image. Trying new
-     # platform support in docker
-     if [[ ${DISTRO} == 'jammy' ]]; then
-      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
-     else
+     if [[ ${DISTRO} == 'focal' ]]; then
       FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
+     else
+      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      fi
      ;;
   'arm64')
