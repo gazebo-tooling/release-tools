@@ -358,7 +358,7 @@ gz_collections_yaml.collections.each { collection ->
         branch_index[lib_name][platform]['pr'].contains(branch_name) ?:
           branch_index[lib_name][platform]['pr'] << [branch: branch_name, ci_name: config_name]
       }
-      if (categories_enabled.contains('pr_abichecker')
+      if (categories_enabled.contains('pr_abichecker'))
       {
         branch_index[lib_name][platform]['pr_abichecker'].contains(branch_name) ?:
           branch_index[lib_name][platform]['pr_abichecker'] << [branch: branch_name, ci_name: config_name]
@@ -436,6 +436,24 @@ branch_index.each { lib_name, distro_configs ->
                                              ENABLE_CPPCHECK,
                                              branch_names)
         generate_label_by_requirements(gz_ci_any_job, lib_name, ci_config.requirements)
+        gz_ci_any_job.with
+        {
+          steps
+          {
+             shell("""\
+                  #!/bin/bash -xe
+
+                  export DISTRO=${distro}
+
+                  ${GLOBAL_SHELL_CMD}
+                  ${extra_cmd}
+
+                  export BUILDING_SOFTWARE_DIRECTORY=${lib_name}
+                  export ARCH=${arch}
+                  /bin/bash -xe ./scripts/jenkins-scripts/docker/${script_name_prefix}-compilation.bash
+                  """.stripIndent())
+          } // end of steps
+        } // end of ci_any_job
       } else if (ci_config.system.so == 'darwin') {
         // --------------------------------------------------------------
         def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-amd64"
