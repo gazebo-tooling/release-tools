@@ -379,6 +379,22 @@ gz_collections_yaml.collections.each { collection ->
            job_name: gz_ci_job.name])
       } // end of daily category enabled
     }
+
+    if (categories_enabled.contains('pr'))
+    {
+      if (ci_config.system.so == 'linux')
+      {
+        def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
+        def extra_cmd = pre_setup_script ?: ""
+        if (categories_enabled.contains('stable_branches') && \
+             (! ci_config.exclude.abichecker?.contains(lib_name)))
+        {
+          // generate_label_by_requirements(gz_ci_any_job, lib_name, ci_config.requirements)
+        }
+      } else if (ci_config.system.so == 'darwin') {
+      } else if (ci_config.system.so == 'windows') {
+      }
+
   }
 }
 
