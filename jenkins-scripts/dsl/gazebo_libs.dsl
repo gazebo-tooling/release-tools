@@ -340,6 +340,8 @@ gz_collections_yaml.collections.each { collection ->
       def lib_name = lib.name
       def branch_name = lib.repo.current_branch
       def gz_job_name_prefix = lib_name.replaceAll('-','_')
+      if (ci_config.exclude.all?.contains(lib_name))
+        return
 
       // Build the branch_index while going through all the libraries to avoid
       // looping twice.
