@@ -18,12 +18,14 @@ export INSTALL_JOB_POSTINSTALL_HOOK="""
 
 echo '# BEGIN SECTION: ros_gz talker/listener'
 ros2 run ros_gz_bridge parameter_bridge /chatter@std_msgs/msg/String@gz.msgs.StringMsg 2>/dev/null &
-sleep 1
+ros2 topic info /chatter
 # ros2 listener
 ros2 topic echo /chatter > /tmp/echo_chatter &
+# print debug info the chatter topic
+gz topic -i -t /chatter
 # gz transport talker
 gz topic -t /chatter -m gz.msgs.StringMsg -p 'data:\"Hello\"' &
-gz topic -i -t /chatter
+sleep 2
 if ! grep -q Hello /tmp/echo_chatter; then
   echo 'chatter log file does not contain the expected Hello string'
   exit 1
