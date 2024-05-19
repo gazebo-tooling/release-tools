@@ -45,7 +45,7 @@ GZDEV_BRANCH=${GZDEV_BRANCH:-master}
 if python3 ${SCRIPT_DIR}/../tools/detect_ci_matching_branch.py "${ghprbSourceBranch}"; then
   GZDEV_TRY_BRANCH=$ghprbSourceBranch
 fi
-
+ 
 KEYSERVER="keyserver.ubuntu.com"
 if [[ "${DISTRO}" == 'bionic' || "${DISTRO}" == 'focal' ]]; then
   KEYSERVER="hkps://pgp.surf.nl"
@@ -62,23 +62,26 @@ RUN if [ -n $GZDEV_TRY_BRANCH ]; then \
     fi || true
 # print branch for informational purposes
 RUN git -C ${GZDEV_DIR} branch
+# clean all _gzdev_ repository installations from the system before handling the configuration
+# otherwise the docker cache could contain unexpected repositories
+RUN ${GZDEV_DIR}/gzdev.py repository purge
 DELIM_OSRF_REPO_GIT
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
 # debian sid docker images does not return correct name so we need to use
 # force-linux-distro
 cat >> Dockerfile << DELIM_OSRF_REPO_GZDEV
-RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} --keyserver ${KEYSERVER} || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
+RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
     if [ -n $GZDEV_TRY_BRANCH ]; then git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH; fi || true && \
-    ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} --keyserver ${KEYSERVER})
+    ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} )
 DELIM_OSRF_REPO_GZDEV
 fi
 
 # This could duplicate repositories enabled in the step above. gzdev should warn about it without failing.
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
-RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} --keyserver ${KEYSERVER} || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
+RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
     if [ -n $GZDEV_TRY_BRANCH ]; then git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH; fi || true && \
-    ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} --keyserver ${KEYSERVER})
+    ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} )
 DELIM_OSRF_REPO
 done
 }
@@ -113,12 +116,10 @@ case ${ARCH} in
      fi
      ;;
    'armhf')
-     # There is no osrf/jammy_armhf image. Trying new
-     # platform support in docker
-     if [[ ${DISTRO} == 'jammy' ]]; then
-      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
-     else
+     if [[ ${DISTRO} == 'focal' ]]; then
       FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
+     else
+      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      fi
      ;;
   'arm64')
@@ -413,6 +414,13 @@ DELIM_DISPLAY
   fi
 fi
 
+if ${USE_DOCKER_IN_DOCKER}; then
+cat >> Dockerfile << DELIM_WORKAROUND_DOCKER_IN_DOCKER_HOOK
+# Avoid ERROR: invoke-rc.d: policy-rc.d denied execution of start.
+RUN sed -i "s/^exit 101$/exit 0/" /usr/sbin/policy-rc.d
+DELIM_WORKAROUND_DOCKER_IN_DOCKER_HOOK
+fi
+
 if [ `expr length "${DOCKER_POSTINSTALL_HOOK}"` -gt 1 ]; then
 cat >> Dockerfile << DELIM_WORKAROUND_POST_HOOK
 RUN ${DOCKER_POSTINSTALL_HOOK}
@@ -468,11 +476,16 @@ RUN adduser --uid \$USERID --gid \$GID --gecos "Developer" --disabled-password \
 RUN adduser \$USER sudo
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN chown -R \$USER:\$USER /home/\$USER
+# Needed if USE_DOCKER_IN_DOCKER is active. Harmless to be here
+RUN groupadd docker
+RUN gpasswd -a \$USER docker
+RUN newgrp docker
 
 # permit access to USER variable inside docker
 ENV USER \$USER
 USER \$USER
 # Must use sudo where necessary from this point on
+
 DELIM_DOCKER_USER
 
 if [[ -n ${SOFTWARE_DIR} ]]; then

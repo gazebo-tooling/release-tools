@@ -30,6 +30,7 @@ releasepy_job.with {
 def gz_source_job = job("_test_gz_source")
 OSRFSourceCreation.create(gz_source_job, [
   PACKAGE: "gz-plugin2",
+  PACKAGE_ALIAS: "gz-plugin2",
   SOURCE_REPO_URI: "https://github.com/gazebosim/gz-plugin.git",
   SOURCE_REPO_REF: "gz-plugin2"])
 OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
@@ -50,7 +51,7 @@ repo_uploader.with
 
   parameters
   {
-    stringParam('PACKAGE','','Package name')
+    stringParam('PACKAGE_ALIAS','','Used by real repository_uploader')
     stringParam('S3_UPLOAD_PATH','', 'S3 path to upload')
     stringParam('S3_FILES_TO_UPLOAD','', 'S3 file names to upload')
     stringParam('UPLOAD_TO_REPO','none','repo to upload')
