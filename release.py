@@ -85,10 +85,12 @@ def github_repo_exists(url):
     return True
 
 
-def exists_main_branch(github_url):
-    check_main_cmd = ['git', 'ls-remote', '--exit-code', '--heads', github_url, 'main']
+def exists_branch(github_url, branch):
+    check_cmd = ['git', 'ls-remote', '--exit-code', '--heads',
+                 github_url,
+                 branch]
     try:
-        if (check_call(check_main_cmd, IGNORE_DRY_RUN)):
+        if (check_call(check_cmd, IGNORE_DRY_RUN)):
             return True
     except Exception:
         return False
@@ -187,7 +189,7 @@ def download_release_repository(package, release_branch):
 
         # If main branch exists, prefer it over master
         if release_branch == "master":
-            if exists_main_branch(url):
+            if exists_branch(url, 'main'):
                 release_branch = 'main'
 
         cmd = [vcs, "clone", "-b", release_branch, url, release_tmp_dir]
@@ -307,6 +309,9 @@ def sanity_check_bump_linux(source_tarball_uri):
     if (not source_tarball_uri):
         error('--only-bump-revision-linux needs --source-tarball-uri argument'
               'to call builders and not source generation')
+
+def sanity_checks_tag_right_branch(args):
+    if needs_repo_tag(args):
 
 
 def sanity_checks(args, repo_dir):
