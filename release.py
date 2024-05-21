@@ -310,8 +310,24 @@ def sanity_check_bump_linux(source_tarball_uri):
         error('--only-bump-revision-linux needs --source-tarball-uri argument'
               'to call builders and not source generation')
 
-def sanity_checks_tag_right_branch(args):
-    if needs_repo_tag(args):
+
+def needs_repo_tag(args):
+    if NIGHTLY or args.source_tarball_uri:
+        return False
+
+    return True if not args.source_repo_ref else False
+
+
+def sanity_checks_tag_right_branch(package_name):
+    # Expect to find same branch than package name
+    out, _ = check_call(['git', 'branch', '--show-current'],
+                        IGNORE_DRY_RUN)
+    current_branch = out.decode().strip()
+    if current_branch != package_name:
+        error(f'Current local branch to tag the release is: '
+              f'"{current_branch}" but package name is : '
+              f'"{package_name}". They usally match. If you '
+              'are sure about this, use --no-sanity-checks')
 
 
 def sanity_checks(args, repo_dir):
@@ -319,6 +335,9 @@ def sanity_checks(args, repo_dir):
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
+
+    if (needs_repo_tag(args)):
+        sanity_checks_tag_right_branch(args.package)
 
     if (args.bump_rev_linux_only):
         sanity_check_bump_linux(args.source_tarball_uri)
@@ -406,10 +425,6 @@ def check_call(cmd, ignore_dry_run=False):
             print('stderr: %s' % (err.decode()))
             raise Exception('subprocess call failed')
         return out, err
-
-
-def needs_repo_tag(args):
-    return not args.source_repo_ref
 
 
 def tag_repo(args):
