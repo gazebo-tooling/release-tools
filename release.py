@@ -403,6 +403,10 @@ def check_call(cmd, ignore_dry_run=False):
         return out, err
 
 
+def needs_repo_tag(args):
+    return not args.source_repo_ref
+
+
 def tag_repo(args):
     try:
         # tilde is not a valid character in git
@@ -627,13 +631,13 @@ def go(argv):
 
         # Tag should not go before any method or step that can fail and just
         # before the calls to the servers.
-        if not args.source_repo_ref:
+        if needs_repo_tag(args):
             print(' * INFO: no --source-repo-existing-ref used, tag the local'
                   ' repository as the reference for the source code of the'
                   ' release')
 
-        params['SOURCE_REPO_REF'] = tag_repo(args) \
-            if not args.source_repo_ref else args.source_repo_ref
+        params['SOURCE_REPO_REF'] = tag_repo(args) if needs_repo_tag(args) \
+            else args.source_repo_ref
 
         call_jenkins_build(f'{package_alias_force_gz}-source',
                            params,
