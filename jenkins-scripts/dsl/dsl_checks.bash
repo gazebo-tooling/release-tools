@@ -50,6 +50,15 @@ if [[ -n ${non_github_orgs} ]]; then
   exit 1
 fi
 
+# Check that whiteListedTargetBranches are non empty
+# see https://github.com/gazebo-tooling/release-tools/pull/1144
+empty_branches_on_github_triggered=$(grep '<whiteListTargetBranches></whiteListTargetBranches>' -- *.xml)
+if [[ -n ${empty_branches_on_github_triggered} ]]; then
+  echo "Unexpected whiteListTargetBranches without values. It will trigger all branches:"
+  echo "${empty_branches_on_github_triggered}"
+  exit 1
+fi
+
 # re-enable after https://github.com/gazebo-tooling/release-tools/issues/1095
 
 # Filter out the previous auto jobs
