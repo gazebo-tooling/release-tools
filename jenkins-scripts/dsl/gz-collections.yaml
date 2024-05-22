@@ -524,6 +524,7 @@ ci_configs:
     exclude:
       all:
         - gz-harmonic
+        - gz-ionic
         - __upcoming__
       abichecker:
         - gz-cmake
