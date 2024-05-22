@@ -26,61 +26,9 @@ String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
 
 def DISABLE_TESTS           = false
 
-void generate_install_job(prefix, gz_collection_name, distro, arch)
-{
-  def install_default_job = job("${prefix}_${gz_collection_name}-install-pkg-${distro}-${arch}")
-  OSRFLinuxInstall.create(install_default_job)
-
-  install_default_job.with
-  {
-    triggers {
-      cron(Globals.CRON_EVERY_THREE_DAYS)
-    }
-
-    def dev_package = "${prefix}-${gz_collection_name}"
-    def job_name = 'gz_launch-install-test-job.bash'
-
-    label Globals.nontest_label("gpu-reliable")
-
-    steps {
-     shell("""\
-           #!/bin/bash -xe
-
-           export DISTRO=${distro}
-           export ARCH=${arch}
-           export INSTALL_JOB_PKG=${dev_package}
-           export GZDEV_PROJECT_NAME="${dev_package}"
-           if [[ ${gz_collection_name} == 'citadel' || ${gz_collection_name} == 'fortress' ]]; then
-              export GZ_SIM_RUNTIME_TEST_USE_IGN=true
-           fi
-           /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
-           """.stripIndent())
-    }
-  }
-}
-
 // Testing compilation from source
 gz_collections_yaml.collections.each { collection ->
   gz_collection_name = collection.name
-
-  if (! collection.packaging.exclude?.contains(gz_collection_name)) {
-    // DEBBUILD: linux package builder
-    // --------------------------------------------------------------
-    def build_pkg_job = job("gz-${gz_collection_name}-debbuilder")
-    OSRFLinuxBuildPkg.create(build_pkg_job)
-    build_pkg_job.with
-    {
-      steps {
-        shell("""\
-              #!/bin/bash -xe
-
-              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
-              """.stripIndent())
-      }
-    }
-  }
-
-
   collection.ci.configs.each { ci_config_name ->
     ci_config = gz_collections_yaml.ci_configs.find { it.name == ci_config_name }
     distro = ci_config.system.version
@@ -96,13 +44,6 @@ gz_collections_yaml.collections.each { collection ->
         ci_config.system.so == 'darwin' ||
         ci_config.system.so == 'windows')
       return
-
-    // INSTALL JOBS:
-    // --------------------------------------------------------------
-    if ((gz_collection_name == "citadel") || (gz_collection_name == "fortress")) {
-      generate_install_job('ignition', gz_collection_name, distro, arch)
-    }
-    generate_install_job('gz', gz_collection_name, distro, arch)
 
     // ROS BOOTSTRAP INSTALL JOBS:
     // --------------------------------------------------------------
