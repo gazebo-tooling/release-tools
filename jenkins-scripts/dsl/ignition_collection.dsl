@@ -62,25 +62,6 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
 // Testing compilation from source
 gz_collections_yaml.collections.each { collection ->
   gz_collection_name = collection.name
-
-  if (! collection.packaging.exclude?.contains(gz_collection_name)) {
-    // DEBBUILD: linux package builder
-    // --------------------------------------------------------------
-    def build_pkg_job = job("gz-${gz_collection_name}-debbuilder")
-    OSRFLinuxBuildPkg.create(build_pkg_job)
-    build_pkg_job.with
-    {
-      steps {
-        shell("""\
-              #!/bin/bash -xe
-
-              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
-              """.stripIndent())
-      }
-    }
-  }
-
-
   collection.ci.configs.each { ci_config_name ->
     ci_config = gz_collections_yaml.ci_configs.find { it.name == ci_config_name }
     distro = ci_config.system.version

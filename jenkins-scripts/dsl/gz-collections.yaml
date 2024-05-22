@@ -413,6 +413,10 @@ collections:
         major_version: 8
         repo:
           current_branch: main
+      - name: gz-ionic
+        major_version: 1
+        repo:
+          current_branch: main
     ci:
       configs:
         - noble
