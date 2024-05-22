@@ -345,7 +345,6 @@ gz_collections_yaml.collections.each { collection ->
           branch_index[lib_name][platform]['pr'] << [branch: branch_name, ci_name: config_name]
       }
       if (categories_enabled.contains('pr_abichecker') &&
-         (branch_name != 'main') &&
          (! ci_config.exclude.abichecker?.contains(lib_name)))
       {
         branch_index[lib_name][platform]['pr_abichecker'].contains(branch_name) ?:
@@ -483,7 +482,7 @@ branch_index.each { lib_name, distro_configs ->
       OSRFLinuxABIGitHub.create(abi_job)
       GenericAnyJobGitHub.create(abi_job,
                         "gazebosim/${lib_name}",
-                        branch_names)
+                        branch_names - [ 'main'])
       generate_label_by_requirements(abi_job, lib_name, ci_config.requirements)
       abi_job.with
       {
