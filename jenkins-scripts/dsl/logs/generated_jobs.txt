@@ -66,7 +66,6 @@ asan_ci ionic gz_cmake-ci_asan-main-noble-amd64
 asan_ci ionic gz_common-ci_asan-main-noble-amd64
 asan_ci ionic gz_fuel_tools-ci_asan-main-noble-amd64
 asan_ci ionic gz_gui-ci_asan-main-noble-amd64
-asan_ci ionic gz_ionic-ci_asan-main-noble-amd64
 asan_ci ionic gz_launch-ci_asan-main-noble-amd64
 asan_ci ionic gz_math-ci_asan-main-noble-amd64
 asan_ci ionic gz_msgs-ci_asan-main-noble-amd64
@@ -297,7 +296,6 @@ branch_ci ionic gz_fuel_tools-main-win
 branch_ci ionic gz_gui-ci-main-homebrew-amd64
 branch_ci ionic gz_gui-ci-main-noble-amd64
 branch_ci ionic gz_gui-main-win
-branch_ci ionic gz_ionic-ci-main-noble-amd64
 branch_ci ionic gz_launch-ci-main-homebrew-amd64
 branch_ci ionic gz_launch-ci-main-noble-amd64
 branch_ci ionic gz_launch-main-win
