@@ -62,25 +62,6 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
 // Testing compilation from source
 gz_collections_yaml.collections.each { collection ->
   gz_collection_name = collection.name
-
-  if (! collection.packaging.exclude?.contains(gz_collection_name)) {
-    // DEBBUILD: linux package builder
-    // --------------------------------------------------------------
-    def build_pkg_job = job("gz-${gz_collection_name}-debbuilder")
-    OSRFLinuxBuildPkg.create(build_pkg_job)
-    build_pkg_job.with
-    {
-      steps {
-        shell("""\
-              #!/bin/bash -xe
-
-              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
-              """.stripIndent())
-      }
-    }
-  }
-
-
   collection.ci.configs.each { ci_config_name ->
     ci_config = gz_collections_yaml.ci_configs.find { it.name == ci_config_name }
     distro = ci_config.system.version
@@ -151,74 +132,6 @@ gz_collections_yaml.collections.each { collection ->
              fi
              /bin/bash -x ./scripts/jenkins-scripts/docker/gz_launch-install-test-job.bash
              """.stripIndent())
-      }
-    }
-
-    // COLCON - Windows
-    Globals.gazebodistro_branch = true
-    def gz_win_ci_job = job("ign_${gz_collection_name}-ci-win")
-    OSRFWinCompilation.create(gz_win_ci_job, false)
-    gz_win_ci_job.with
-    {
-        steps {
-          batchFile("""\
-                set IGNITION_COLLECTION=${gz_collection_name}
-                call "./scripts/jenkins-scripts/lib/ign_collection-base.bat"
-                """.stripIndent())
-        }
-    }
-    Globals.gazebodistro_branch = false
-
-    // MAC Brew CI job
-    // --------------------------------------------------------------
-    def gz_brew_ci_job = job("ignition_${gz_collection_name}-ci-main-homebrew-amd64")
-    OSRFBrewCompilation.create(gz_brew_ci_job, DISABLE_TESTS)
-    OSRFGitHub.create(gz_brew_ci_job,
-                      "gazebosim/gz-${gz_collection_name}",
-                      "main",
-                      "ign-${gz_collection_name}")
-    gz_brew_ci_job.with
-    {
-        steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                /bin/bash -xe
-                "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "gz-${gz_collection_name}"
-                """.stripIndent())
-        }
-    }
-
-    // MAC Brew bottle install job
-    // --------------------------------------------------------------
-    def gz_brew_install_bottle_job = job("ignition_${gz_collection_name}-install_bottle-homebrew-amd64")
-    OSRFBrewInstall.create(gz_brew_install_bottle_job)
-
-    gz_brew_install_bottle_job.with
-    {
-      triggers {
-        cron('@daily')
-      }
-
-      def bottle_name = "ignition-${gz_collection_name}"
-
-      steps {
-       shell("""\
-             #!/bin/bash -xe
-
-             /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${bottle_name}
-             """.stripIndent())
-      }
-
-      publishers
-      {
-        configure { project ->
-          project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
-              unstableOnWarning true
-              failBuildOnError false
-              parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
-          }
-        }
       }
     }
   }
