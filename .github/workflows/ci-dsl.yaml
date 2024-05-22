@@ -36,7 +36,7 @@ jobs:
       - name: Checks for DSL Code
         run: |
           cd jenkins-scripts/dsl
-          ./dsl_checks.bash
+          bash -x ./dsl_checks.bash
       - name: Export XML generated configuration for diff
         run: |
           cd jenkins-scripts/dsl
