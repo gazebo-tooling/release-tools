@@ -88,7 +88,7 @@ long fourDaysAgoMillis = System.currentTimeMillis() - 4 * 24 * 60 * 60 * 1000; /
 Date fourDaysAgoDate = new Date(fourDaysAgoMillis);
 
 jenkinsJobs.getItems(Project).each { project ->
-    // Filter jobs that have not been run in 4 days (or that don't have run yet)
+    // Filter jobs that have not been run in 4 days (or that have not yet run)
     if (!project.disabled && trackedJobs.contains(project.displayName) && (project.lastBuild == null || project.lastBuild.getTime().before(fourDaysAgoDate))) {
         if (project.displayName.contains('homebrew')) {
             jobsToRun.osx << project.displayName
