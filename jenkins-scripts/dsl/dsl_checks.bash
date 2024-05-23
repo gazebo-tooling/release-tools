@@ -50,6 +50,17 @@ if [[ -n ${non_github_orgs} ]]; then
   exit 1
 fi
 
+# Check that whiteListedTargetBranches are non empty in all generated gazebo_libs
+# see https://github.com/gazebo-tooling/release-tools/pull/1144
+# For other jobs the use case is valid since pr can be enabled on all branches
+empty_branches_on_github_triggered=$(grep '<whiteListTargetBranches></whiteListTargetBranches>' \
+                                      -- {gz_,sdformat}*{-abichecker-,-pr_any-}*.xml || true)
+if [[ -n ${empty_branches_on_github_triggered} ]]; then
+  echo "Unexpected whiteListTargetBranches without values. It will trigger all branches:"
+  echo "${empty_branches_on_github_triggered}"
+  exit 1
+fi
+
 # re-enable after https://github.com/gazebo-tooling/release-tools/issues/1095
 
 # Filter out the previous auto jobs
