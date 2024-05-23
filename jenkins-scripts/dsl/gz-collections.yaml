@@ -413,6 +413,10 @@ collections:
         major_version: 8
         repo:
           current_branch: main
+      - name: gz-ionic
+        major_version: 1
+        repo:
+          current_branch: main
     ci:
       configs:
         - noble
@@ -557,6 +561,7 @@ ci_configs:
     exclude:
       all:
         - gz-harmonic
+        - gz-ionic
         - __upcoming__
       abichecker:
         - gz-cmake
