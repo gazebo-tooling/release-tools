@@ -194,7 +194,7 @@ echo "COLCON_EXTRA_ARGS: %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%"
 echo "COLCON_EXTRA_CMAKE_ARGS: %COLCON_EXTRA_CMAKE_ARGS%"
 echo "COLCON_EXTRA_CMAKE_ARGS2: %COLCON_EXTRA_CMAKE_ARGS2%"
 
-colcon build --build-base "build"^
+colcon build --merge-install --build-base "build"^
 	     --install-base "install"^
 	     --parallel-workers %MAKE_JOBS%^
 	     %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
@@ -243,7 +243,7 @@ goto :EOF
 set COLCON_PACKAGE=%1
 
 echo # BEGIN SECTION: colcon test for !COLCON_PACKAGE!
-colcon test --install-base "install"^
+colcon test --merge-install --install-base "install"^
             --packages-select !COLCON_PACKAGE!^
             --executor sequential^
             --event-handler console_direct+
