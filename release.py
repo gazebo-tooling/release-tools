@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 from argparse import RawTextHelpFormatter
+from tempfile import NamedTemporaryFile
 import subprocess
 import sys
 import tempfile
@@ -515,8 +516,50 @@ def display_help_job_chain_for_source_calls(args):
           f'{releasepy_check_url}')
 
 
+def get_vendor_repo_name(args):
+    canonical_name = get_canonical_package_name(args.package)
+    return canonical_name.replace('-', '_') + "_vendor"
+
+
+def create_issue_in_repo(github_repo, title, body):
+    _out = ""
+    with NamedTemporaryFile("w", delete=True) as f:
+        f.write(body)
+        f.flush()
+        cmd = ['gh', 'issue', 'create',
+               '--repo', github_repo,
+               '--title', title,
+               '--body-file', f.name]
+        _out, _err = check_call(cmd)
+        if _err:
+            print(f"An error happened running gh issue cmd: {_err}")
+            sys.exit(1)
+    return _out
+
+
+
+def create_issue_in_gz_vendor_repo(args, ros_distro):
+    gz_vendor_repo = 'gazebo-release/' + get_vendor_repo_name(args)
+    print(gz_vendor_repo)
+    gz_vendor_repo = 'j-rivero/test'
+    title = f'Update version for {ros_distro} to the latest tag of {args.package}: {args.version}'
+    body = f'The {get_canonical_package_name(args.package)} repository tagged a new: {args.version} '\
+           'This repository needs to be updated accordingly for the branch ${ros_distro}:\n'\
+           ' * Sync to the new version in CMakelists.txt \n'\
+           ' * Bump the patch version in package.xml \n'\
+           ' * Run the release process for this ROS package'
+
+    return create_issue_in_repo(gz_vendor_repo, title, body)
+
+
+
 def go(argv):
     args = parse_args(argv)
+
+    ros_distro = 'rolling'
+    out = create_issue_in_gz_vendor_repo(args, ros_distro)
+    print(out)
+    sys.exit(2)
 
     # Default to release 1 if not present
     if not args.release_version:
