@@ -539,21 +539,21 @@ def get_vendor_github_repo(package_name):
 
 
 def create_issue_in_repo(github_repo, title, body):
-    _out = ""
+    _out = b""
     with NamedTemporaryFile("w", delete=True) as f:
         f.write(body)
         f.flush()
-        cmd = ['gh', 'issue', 'create',
+        cmd = ['ghxx', 'issue', 'create',
                '--repo', github_repo,
                '--title', title,
                '--body-file', f.name]
-        _out, _err = check_call(cmd)
-        if _err:
-            print(f"An error happened running gh issue cmd: {_err}")
-            sys.exit(1)
+        try:
+            _out, _err = check_call(cmd)
+        except Exception as e:
+            _err = str(e)
         if DRY_RUN:
-            return f"http://github.com/{github_repo}/issues/#dry-run-no-number"
-    return _out.decode().replace('\n', '')
+            return f"http://github.com/{github_repo}/issues/#dry-run-no-number", ""
+    return _out.decode().replace('\n', ''), _err
 
 
 def create_issue_in_gz_vendor_repo(args, ros_distro):
@@ -565,7 +565,13 @@ def create_issue_in_gz_vendor_repo(args, ros_distro):
            ' * Sync to the new version in CMakelists.txt \n'\
            ' * Bump the patch version in package.xml \n'\
            ' * Run the release process for this ROS package'
-    return create_issue_in_repo(gz_vendor_repo, title, body)
+    _out, _err = create_issue_in_repo(gz_vendor_repo, title, body)
+    if _err:
+        print('  !! An error happened running the "gh issue" cmd. Do not run this script again.\n'
+              '     Please create the issue manually. The error reported was:\n'
+              f'     {_err}')
+        sys.exit(1)
+    return _out
 
 
 def go(argv):
