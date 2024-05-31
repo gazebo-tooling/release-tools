@@ -6,7 +6,9 @@ if [[ -z $(ls -- *.xml) ]]; then
   exit 1
 fi
 
-not_null=$(grep -3 'null' -- *.xml || true)
+# Some XML generated files include valid Groovy code using null
+# like the _outdated_jobs job. Do not search for null unconditionally
+not_null=$(grep -3 '>.*null.*<' -- *.xml || true)
 if [[ -n ${not_null} ]]; then
   echo "Found a null value in a configuration file:"
   echo "${not_null}"
