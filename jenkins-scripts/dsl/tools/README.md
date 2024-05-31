@@ -2,7 +2,10 @@
 
 ## DSL 
 
-## setup_local_generation.bash (jobdsl.jar)
+DSL is the Jenkins plugins that allows to use code for creating
+the different Jenkins jobs and configurations.
+
+### setup_local_generation.bash (jobdsl.jar)
 
 Script use to generate job configuration locally for Jenkins. See
 [Jenkins script README](../README.md) 
