@@ -23,6 +23,7 @@ GENERIC_BREW_PULLREQUEST_JOB = 'generic-release-homebrew_pull_request_updater'
 LINUX_DISTROS = ['ubuntu', 'debian']
 SUPPORTED_ARCHS = ['amd64', 'armhf', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
+ROS_VENDOR = {'harmonic': 'rolling'}
 
 OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing none"
 
@@ -516,9 +517,25 @@ def display_help_job_chain_for_source_calls(args):
           f'{releasepy_check_url}')
 
 
-def get_vendor_repo_name(args):
-    canonical_name = get_canonical_package_name(args.package)
-    return canonical_name.replace('-', '_') + "_vendor"
+def get_collections_for_package(package_name, version):
+    script_directory = os.path.dirname(os.path.abspath(sys.argv[0]))
+    helper_script = f'{script_directory}/jenkins-scripts/dsl/tools/get_collections_from_package_and_version.py'
+    collection_yaml = f'{script_directory}/jenkins-scripts/dsl/gz-collections.yaml'
+    cmd = [helper_script,
+           get_canonical_package_name(package_name),
+           version,
+           collection_yaml]
+    _out, _err = check_call(cmd, IGNORE_DRY_RUN)
+    if _err:
+        print(f"An error happened running get_collections_from_package_and_version: {_err}")
+        sys.exit(1)
+    collection_list = _out.decode().strip().split(' ')
+    return collection_list
+
+
+def get_vendor_github_repo(package_name):
+    canonical_name = get_canonical_package_name(package_name)
+    return f"gazebo-release/{canonical_name.replace('-', '_')}_vendor"
 
 
 def create_issue_in_repo(github_repo, title, body):
@@ -534,32 +551,25 @@ def create_issue_in_repo(github_repo, title, body):
         if _err:
             print(f"An error happened running gh issue cmd: {_err}")
             sys.exit(1)
-    return _out
-
+        if DRY_RUN:
+            return f"http://github.com/{github_repo}/issues/#dry-run-no-number"
+    return _out.decode().replace('\n', '')
 
 
 def create_issue_in_gz_vendor_repo(args, ros_distro):
-    gz_vendor_repo = 'gazebo-release/' + get_vendor_repo_name(args)
-    print(gz_vendor_repo)
+    gz_vendor_repo = get_vendor_github_repo(args.package)
     gz_vendor_repo = 'j-rivero/test'
     title = f'Update version for {ros_distro} to the latest tag of {args.package}: {args.version}'
     body = f'The {get_canonical_package_name(args.package)} repository tagged a new: {args.version} '\
-           'This repository needs to be updated accordingly for the branch ${ros_distro}:\n'\
+           'This repository needs to be updated accordingly for the branch {ros_distro}:\n'\
            ' * Sync to the new version in CMakelists.txt \n'\
            ' * Bump the patch version in package.xml \n'\
            ' * Run the release process for this ROS package'
-
     return create_issue_in_repo(gz_vendor_repo, title, body)
-
 
 
 def go(argv):
     args = parse_args(argv)
-
-    ros_distro = 'rolling'
-    out = create_issue_in_gz_vendor_repo(args, ros_distro)
-    print(out)
-    sys.exit(2)
 
     # Default to release 1 if not present
     if not args.release_version:
@@ -683,6 +693,15 @@ def go(argv):
                            'Source',
                            args.version)
         display_help_job_chain_for_source_calls(args)
+
+        print("ROS vendor packages that can be updated:")
+        for collection in get_collections_for_package(args.package, args.version):
+            if collection in ROS_VENDOR:
+                ros_distro = ROS_VENDOR[collection]
+                print(f" * Github {get_vendor_github_repo(args.package)} "
+                      f"part of {collection} in ROS 2 {ros_distro}")
+                issue_url = create_issue_in_gz_vendor_repo(args, ros_distro)
+                print(f"   + Issue created: {issue_url}")
 
 
 if __name__ == '__main__':
