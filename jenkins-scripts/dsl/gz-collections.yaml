@@ -1,4 +1,4 @@
-#
+
 # SPEC: not yet approved, used as draft
 #
 #---
@@ -256,7 +256,7 @@ collections:
           current_branch: main
     ci:
       configs:
-        - focal
+        - focal_exclude_harmonic_abi_dups
         - brew
         - win
     packaging:
@@ -413,6 +413,10 @@ collections:
         major_version: 8
         repo:
           current_branch: main
+      - name: gz-ionic
+        major_version: 1
+        repo:
+          current_branch: main
     ci:
       configs:
         - noble
@@ -503,6 +507,43 @@ ci_configs:
       - pr_abichecker
       - stable_branches
       - stable_branches_asan
+  - name: focal_exclude_harmonic_abi_dups
+    system:
+      so: linux
+      distribution: ubuntu
+      version: focal
+      arch: amd64
+    requirements:
+      large_memory:
+        - gz-physics
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
+    exclude:
+      all:
+        - gz-citadel
+        - gz-fortress
+        - gz-garden
+      abichecker:
+        - gz-cmake
+        - gz-tools
+        # Exclude the abichecker that are duplicate with Harmonic
+        # The ones on Harmonic run on jammy
+        - gz-common
+        - gz-math
+        - gz-plugin
+        - gz-utils
+    pre_setup_script_hook:
+      gz-physics:
+        - "export MAKE_JOBS=1"
+    tests_disabled:
+    ci_categories_enabled:
+      - pr
+      - pr_abichecker
+      - stable_branches
+      - stable_branches_asan
   - name: noble
     system:
       so: linux
@@ -520,6 +561,7 @@ ci_configs:
     exclude:
       all:
         - gz-harmonic
+        - gz-ionic
         - __upcoming__
       abichecker:
         - gz-cmake
