@@ -540,6 +540,8 @@ def get_vendor_github_repo(package_name):
 
 def create_issue_in_repo(github_repo, title, body):
     _out = b""
+    # For parsing the \n correctly we need to store the content in a temp
+    # file and pass it as --body-file
     with NamedTemporaryFile("w", delete=True) as f:
         f.write(body)
         f.flush()
@@ -558,7 +560,6 @@ def create_issue_in_repo(github_repo, title, body):
 
 def create_issue_in_gz_vendor_repo(args, ros_distro):
     gz_vendor_repo = get_vendor_github_repo(args.package)
-    gz_vendor_repo = 'j-rivero/test'
     title = f'Update version for {ros_distro} to the latest tag of {args.package}: {args.version}'
     body = f'The {get_canonical_package_name(args.package)} repository tagged a new: {args.version} '\
            'This repository needs to be updated accordingly for the branch {ros_distro}:\n'\
