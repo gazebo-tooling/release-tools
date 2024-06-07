@@ -3,6 +3,7 @@
 from __future__ import print_function
 from argparse import RawTextHelpFormatter
 from tempfile import NamedTemporaryFile
+from tempfile import TemporaryDirectory
 import subprocess
 import sys
 import tempfile
@@ -538,45 +539,60 @@ def get_vendor_github_repo(package_name):
     return f"gazebo-release/{canonical_name.replace('-', '_')}_vendor"
 
 
-def create_issue_in_repo(github_repo, title, body):
-    _out = b""
-    # For parsing the \n correctly we need to store the content in a temp
-    # file and pass it as --body-file
-    with NamedTemporaryFile("w", delete=True) as f:
-        f.write(body)
-        f.flush()
-        cmd = ['ghxx', 'issue', 'create',
-               '--repo', github_repo,
-               '--title', title,
-               '--body-file', f.name]
-        try:
-            _out, _err = check_call(cmd)
-        except Exception as e:
-            _err = str(e)
-        if DRY_RUN:
-            return f"http://github.com/{github_repo}/issues/#dry-run-no-number", ""
-    return _out.decode().replace('\n', ''), _err
+def get_vendor_repo_url(package_name):
+    return f"https://github.com/{get_vendor_github_repo(package_name)}"
 
 
-def create_issue_in_gz_vendor_repo(args, ros_distro):
-    gz_vendor_repo = get_vendor_github_repo(args.package)
-    title = f'Update version for {ros_distro} to the latest tag of {args.package}: {args.version}'
-    body = f'The {get_canonical_package_name(args.package)} repository tagged a new: {args.version} '\
-           'This repository needs to be updated accordingly for the branch {ros_distro}:\n'\
-           ' * Sync to the new version in CMakelists.txt \n'\
-           ' * Bump the patch version in package.xml \n'\
-           ' * Run the release process for this ROS package'
-    _out, _err = create_issue_in_repo(gz_vendor_repo, title, body)
-    if _err:
-        print('  !! An error happened running the "gh issue" cmd. Do not run this script again.\n'
-              '     Please create the issue manually. The error reported was:\n'
-              f'     {_err}')
+def prepare_vendor_pr_temp_workspace(package_name):
+    pr_ws_dir = tempfile.mkdtemp()
+    gz_vendor_tool = os.path.join(pr_ws_dir, "gz_vendor")
+    cmd = ['git', 'clone', '-q',
+           'https://github.com/gazebo-tooling/gz_vendor/',
+           gz_vendor_tool]
+    _, _err_tool = check_call(cmd)
+    gz_vendor_repo = os.path.join(pr_ws_dir, 'gz_vendor_repo')
+    cmd = ['git', 'clone', '-q',
+           get_vendor_repo_url(package_name),
+           gz_vendor_repo]
+    _, _err_repo = check_call(cmd)
+    if _err_tool or _err_repo:
+        print("Problems with cloning vendor and tool repos:")
+        print(f"{_err_tool} {_err_repo}")
         sys.exit(1)
-    return _out
+
+    return gz_vendor_tool, gz_vendor_repo
+
+
+def execute_update_vendor_package_tool(vendor_tool_path, vendor_repo_path):
+    run_cmd = ['python3',
+               f"{vendor_tool_path}/create_gz_vendor_pkg/create_vendor_package.py",
+               'package.xml',
+               '--output_dir', vendor_repo_path]
+    _, _err_run = check_call(run_cmd)
+    if _err_run:
+        print("Problems running the create_vendor_package.py script:")
+        sys.exit(1)
+
+
+def create_pr_in_gz_vendor_repo(args):
+    vendor_tool_path, vendor_repo_path = \
+        prepare_vendor_pr_temp_workspace(args.package)
+    execute_update_vendor_package_tool(
+        vendor_tool_path, vendor_repo_path)
+
+    cmd_diff = ['git', "-C", vendor_repo_path, 'diff']
+    _out, _ = check_call(cmd_diff)
+    print(vendor_repo_path)
+    print(_out.decode())
+
+
 
 
 def go(argv):
     args = parse_args(argv)
+
+    create_pr_in_gz_vendor_repo(args)
+    sys.exit(0)
 
     # Default to release 1 if not present
     if not args.release_version:
