@@ -26,11 +26,8 @@ The script return the Gazebo releases (also known as collections) that
 contains a given library and major version that are provided as input
 parameters.
 
-The output is provid
-
-The output is provided as a space separated list in a single line.
-Nothing if not found.ed as a space separated list in a single line.
-Nothing if not found.
+The output is provided as a space separated list in a single line. If
+no match is found, the result is an empty string.
 
 #### Usage
 
