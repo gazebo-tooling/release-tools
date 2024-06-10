@@ -6,9 +6,10 @@ Gazebo software.
 ## Scripts
 
   * [release.py](release.py): Triggers new debian and homebrew releases (major, minor, patch, pre-release...).
-  * For -release repository scripts, please see [release-repo-scripts/README.md](release-repo-scripts/README.md)
-  * For source repository scripts, please see [source-repo-scripts/README.md](source-repo-scripts/README.md)
+  * For scripts working on -release repositories, please see [release-repo-scripts/README.md](release-repo-scripts/README.md)
+  * For scripts working on library source repositories, please see [source-repo-scripts/README.md](source-repo-scripts/README.md)
   * For scripts related to unofficial ROS packages, please see [bloom scripts](bloom/ros_gazebo_pkgs/README.md)
+  * For scripts working on DSL Jenkins code and/or gz-collections.yaml, please see [dsl/tools](jenkins-scripts/dsl/tools/README.md)
 
 ### Making releases
 
