@@ -548,7 +548,6 @@ def get_vendor_repo_url(package_name) -> str:
 
 
 def prepare_vendor_pr_temp_workspace(package_name, ws_dir) -> tuple[str, str]:
-    print(ws_dir)
     gz_vendor_tool = os.path.join(ws_dir, "gz_vendor")
     cmd = ['git', 'clone', '-q',
            'https://github.com/gazebo-tooling/gz_vendor/',
