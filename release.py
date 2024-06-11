@@ -530,10 +530,17 @@ def get_collections_for_package(package_name, version) -> list:
            get_canonical_package_name(package_name),
            version,
            collection_yaml]
-    _out, _err = check_call(cmd, IGNORE_DRY_RUN)
-    if _err:
-        print(f"An error happened running get_collections_from_package_and_version: {_err}")
-        sys.exit(1)
+    try:
+        _out, _err = check_call(cmd, IGNORE_DRY_RUN)
+    except ErrorNoOutput:
+        # no output is a valid result
+        _out = b""
+        _err = ""
+    else:
+        if _err:
+            print(f"An error happened running get_collections_from_package_and_version: {_err}")
+            sys.exit(1)
+
     collection_list = _out.decode().strip().split(' ')
     return collection_list
 

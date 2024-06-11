@@ -90,7 +90,7 @@ expect_vendor_repo()
 {
   output="${1}" repo="${2}"
 
-  if ! grep "Github ${repo}" <<< "${output}"; then
+  if ! grep -q "Github ${repo}" <<< "${output}"; then
     echo "${repo} not found in test output"
     exit 1
   fi
