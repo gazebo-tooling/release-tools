@@ -2,8 +2,6 @@
 
 from __future__ import print_function
 from argparse import RawTextHelpFormatter
-from tempfile import NamedTemporaryFile
-from tempfile import TemporaryDirectory
 import subprocess
 import sys
 import tempfile
@@ -48,6 +46,10 @@ class ErrorURLNotFound404(Exception):
 
 
 class ErrorNoOutput(Exception):
+    pass
+
+
+class ErrorAlreadyExists(Exception):
     pass
 
 
@@ -378,13 +380,13 @@ def discover_distros(repo_dir):
     return distro_arch_list
 
 
-def check_call(cmd, ignore_dry_run=False):
+def check_call(cmd, ignore_dry_run=False, cwd=None):
     if DRY_RUN and not ignore_dry_run:
         print_only_dbg('Dry-run running:\n  %s\n' % (' '.join(cmd)))
         return b'', b''
     else:
         print_only_dbg('Running:\n  %s' % (' '.join(cmd)))
-        po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        po = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
         out, err = po.communicate()
         if po.returncode != 0:
             # bitbucket for the first one, github for the second
@@ -394,6 +396,8 @@ def check_call(cmd, ignore_dry_run=False):
                 raise ErrorNoPermsRepo()
             if b"abort: no username supplied" in err:
                 raise ErrorNoUsernameSupplied()
+            if b"already exists:" in err:
+                raise ErrorAlreadyExists()
             if not out and not err:
                 # assume that call is only for getting return code
                 raise ErrorNoOutput()
@@ -518,7 +522,7 @@ def display_help_job_chain_for_source_calls(args):
           f'{releasepy_check_url}')
 
 
-def get_collections_for_package(package_name, version):
+def get_collections_for_package(package_name, version) -> list:
     script_directory = os.path.dirname(os.path.abspath(sys.argv[0]))
     helper_script = f'{script_directory}/jenkins-scripts/dsl/tools/get_collections_from_package_and_version.py'
     collection_yaml = f'{script_directory}/jenkins-scripts/dsl/gz-collections.yaml'
@@ -534,27 +538,27 @@ def get_collections_for_package(package_name, version):
     return collection_list
 
 
-def get_vendor_github_repo(package_name):
+def get_vendor_github_repo(package_name) -> str:
     canonical_name = get_canonical_package_name(package_name)
     return f"gazebo-release/{canonical_name.replace('-', '_')}_vendor"
 
 
-def get_vendor_repo_url(package_name):
+def get_vendor_repo_url(package_name) -> str:
     return f"https://github.com/{get_vendor_github_repo(package_name)}"
 
 
-def prepare_vendor_pr_temp_workspace(package_name):
-    pr_ws_dir = tempfile.mkdtemp()
-    gz_vendor_tool = os.path.join(pr_ws_dir, "gz_vendor")
+def prepare_vendor_pr_temp_workspace(package_name, ws_dir) -> tuple[str, str]:
+    print(ws_dir)
+    gz_vendor_tool = os.path.join(ws_dir, "gz_vendor")
     cmd = ['git', 'clone', '-q',
            'https://github.com/gazebo-tooling/gz_vendor/',
            gz_vendor_tool]
-    _, _err_tool = check_call(cmd)
-    gz_vendor_repo = os.path.join(pr_ws_dir, 'gz_vendor_repo')
+    _, _err_tool = check_call(cmd, IGNORE_DRY_RUN)
+    gz_vendor_repo = os.path.join(ws_dir, 'gz_vendor_repo')
     cmd = ['git', 'clone', '-q',
            get_vendor_repo_url(package_name),
            gz_vendor_repo]
-    _, _err_repo = check_call(cmd)
+    _, _err_repo = check_call(cmd, IGNORE_DRY_RUN)
     if _err_tool or _err_repo:
         print("Problems with cloning vendor and tool repos:")
         print(f"{_err_tool} {_err_repo}")
@@ -563,7 +567,7 @@ def prepare_vendor_pr_temp_workspace(package_name):
     return gz_vendor_tool, gz_vendor_repo
 
 
-def execute_update_vendor_package_tool(vendor_tool_path, vendor_repo_path):
+def execute_update_vendor_package_tool(vendor_tool_path, vendor_repo_path) -> None:
     run_cmd = ['python3',
                f"{vendor_tool_path}/create_gz_vendor_pkg/create_vendor_package.py",
                'package.xml',
@@ -571,28 +575,67 @@ def execute_update_vendor_package_tool(vendor_tool_path, vendor_repo_path):
     _, _err_run = check_call(run_cmd)
     if _err_run:
         print("Problems running the create_vendor_package.py script:")
+        print(_err_run.decode())
         sys.exit(1)
 
 
-def create_pr_in_gz_vendor_repo(args):
-    vendor_tool_path, vendor_repo_path = \
-        prepare_vendor_pr_temp_workspace(args.package)
-    execute_update_vendor_package_tool(
-        vendor_tool_path, vendor_repo_path)
+def create_pr_for_vendor_package(args, repo_path, base_branch) -> str:
+    cmd_diff = ['git', "-C", repo_path, 'diff']
+    _out, _ = check_call(cmd_diff, IGNORE_DRY_RUN)
 
-    cmd_diff = ['git', "-C", vendor_repo_path, 'diff']
-    _out, _ = check_call(cmd_diff)
-    print(vendor_repo_path)
-    print(_out.decode())
+    branch_name = f'releasepy/{args.version}'
+    vendor_repo = get_vendor_repo_url(args.package)
+    branch_cmd = ['git', "-C", repo_path,
+                  'checkout', '-b',  branch_name]
+    _, _ = check_call(branch_cmd, IGNORE_DRY_RUN)
+    commit_cmd = ['git', "-C", repo_path,
+                  'commit',
+                  '-m', f'Bump version to {args.version}',
+                  'CMakeLists.txt', 'package.xml']
+    _, _ = check_call(commit_cmd)
+    push_cmd = ['git', "-C", repo_path,
+                'push', '--force',
+                vendor_repo, branch_name]
+    _, _ = check_call(push_cmd)
+    pr_cmd = ['gh', 'pr', 'create',
+              '--base', base_branch,
+              '--head', branch_name,
+              '--title', f'Bump version to {args.version}',
+              '--body', 'PR automatically created by release.py']
+    try:
+        _out, _err = check_call(pr_cmd, cwd=repo_path)
+    except ErrorAlreadyExists:
+        return 'there is already a PR for the branch.'\
+               'Please check it out manuallly.'
+
+    if _err:
+        print("Problems creating the PR for the vendor package:")
+        print(_err.decode())
+        sys.exit(1)
+
+    return _out.decode()
 
 
+def create_pr_in_gz_vendor_repo(args, ros_distro) -> str:
+    pr_msg = ''
+    with tempfile.TemporaryDirectory() as ws_dir:
+        ws_dir = tempfile.mkdtemp()
+        # Prepare the temporary workspace
+        vendor_tool_path, vendor_repo_path = \
+            prepare_vendor_pr_temp_workspace(args.package, ws_dir)
+        # Run updating script on the temporary workspace
+        execute_update_vendor_package_tool(
+            vendor_tool_path, vendor_repo_path)
+        # Commits and PR creation
+        pr_msg = create_pr_for_vendor_package(
+            args, vendor_repo_path, ros_distro)
+
+    return pr_msg
 
 
 def go(argv):
     args = parse_args(argv)
 
-    create_pr_in_gz_vendor_repo(args)
-    sys.exit(0)
 
     # Default to release 1 if not present
     if not args.release_version:
@@ -718,13 +761,15 @@ def go(argv):
         display_help_job_chain_for_source_calls(args)
 
         print("ROS vendor packages that can be updated:")
-        for collection in get_collections_for_package(args.package, args.version):
+        for collection in get_collections_for_package(args.package,
+                                                      args.version):
             if collection in ROS_VENDOR:
                 ros_distro = ROS_VENDOR[collection]
                 print(f" * Github {get_vendor_github_repo(args.package)} "
                       f"part of {collection} in ROS 2 {ros_distro}")
-                issue_url = create_issue_in_gz_vendor_repo(args, ros_distro)
-                print(f"   + Issue created: {issue_url}")
+                print("   + Preparing a PR: ", end='', flush=True)
+                pr_url = create_pr_in_gz_vendor_repo(args, ros_distro)
+                print(pr_url)
 
 
 if __name__ == '__main__':
