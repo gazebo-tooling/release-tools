@@ -4,7 +4,6 @@
 distributions:
   global:
     ci_builds:
-      benchmark: global/ci-benchmark.yaml
       nightly-connext: global/ci-nightly-connext.yaml
       nightly-cross-vendor-connext-cyclonedds: global/ci-nightly-cross-vendor-connext-cyclonedds.yaml
       nightly-cross-vendor-connext-fastrtps: global/ci-nightly-cross-vendor-connext-fastrtps.yaml
@@ -17,7 +16,6 @@ distributions:
       nightly-extra-rmw-release: global/ci-nightly-extra-rmw-release.yaml
       nightly-fastrtps: global/ci-nightly-fastrtps.yaml
       nightly-fastrtps-dynamic: global/ci-nightly-fastrtps-dynamic.yaml
-      nightly-performance: global/ci-nightly-performance.yaml
       nightly-release: global/ci-nightly-release.yaml
       overlay: global/ci-overlay.yaml
     notification_emails:
