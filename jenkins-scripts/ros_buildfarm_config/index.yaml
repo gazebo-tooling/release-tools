@@ -2,24 +2,23 @@
 # ROS buildfarm index file
 ---
 distributions:
-  global:
-    ci_builds:
-      nightly-connext: global/ci-nightly-connext.yaml
-      nightly-cross-vendor-connext-cyclonedds: global/ci-nightly-cross-vendor-connext-cyclonedds.yaml
-      nightly-cross-vendor-connext-fastrtps: global/ci-nightly-cross-vendor-connext-fastrtps.yaml
-      nightly-cross-vendor-connext-fastrtps-dynamic: global/ci-nightly-cross-vendor-connext-fastrtps-dynamic.yaml
-      nightly-cross-vendor-cyclonedds-fastrtps: global/ci-nightly-cross-vendor-cyclonedds-fastrtps.yaml
-      nightly-cross-vendor-cyclonedds-fastrtps-dynamic: global/ci-nightly-cross-vendor-cyclonedds-fastrtps-dynamic.yaml
-      nightly-cross-vendor-fastrtps-fastrtps-dynamic: global/ci-nightly-cross-vendor-fastrtps-fastrtps-dynamic.yaml
-      nightly-cyclonedds: global/ci-nightly-cyclonedds.yaml
-      nightly-debug: global/ci-nightly-debug.yaml
-      nightly-extra-rmw-release: global/ci-nightly-extra-rmw-release.yaml
-      nightly-fastrtps: global/ci-nightly-fastrtps.yaml
-      nightly-fastrtps-dynamic: global/ci-nightly-fastrtps-dynamic.yaml
-      nightly-release: global/ci-nightly-release.yaml
-      overlay: global/ci-overlay.yaml
-    notification_emails:
-    - jrivero@osrfoundation.org
+  ci_builds:
+    nightly-connext: global/ci-nightly-connext.yaml
+    nightly-cross-vendor-connext-cyclonedds: global/ci-nightly-cross-vendor-connext-cyclonedds.yaml
+    nightly-cross-vendor-connext-fastrtps: global/ci-nightly-cross-vendor-connext-fastrtps.yaml
+    nightly-cross-vendor-connext-fastrtps-dynamic: global/ci-nightly-cross-vendor-connext-fastrtps-dynamic.yaml
+    nightly-cross-vendor-cyclonedds-fastrtps: global/ci-nightly-cross-vendor-cyclonedds-fastrtps.yaml
+    nightly-cross-vendor-cyclonedds-fastrtps-dynamic: global/ci-nightly-cross-vendor-cyclonedds-fastrtps-dynamic.yaml
+    nightly-cross-vendor-fastrtps-fastrtps-dynamic: global/ci-nightly-cross-vendor-fastrtps-fastrtps-dynamic.yaml
+    nightly-cyclonedds: global/ci-nightly-cyclonedds.yaml
+    nightly-debug: global/ci-nightly-debug.yaml
+    nightly-extra-rmw-release: global/ci-nightly-extra-rmw-release.yaml
+    nightly-fastrtps: global/ci-nightly-fastrtps.yaml
+    nightly-fastrtps-dynamic: global/ci-nightly-fastrtps-dynamic.yaml
+    nightly-release: global/ci-nightly-release.yaml
+    overlay: global/ci-overlay.yaml
+  notification_emails:
+  - jrivero@osrfoundation.org
 jenkins_url: https://citest.build.osrfoundation.org
 notification_emails:
 - jrivero@osrfoundation.org
