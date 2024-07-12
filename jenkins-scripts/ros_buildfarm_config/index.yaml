@@ -2,8 +2,8 @@
 # ROS buildfarm index file
 ---
 ci_builds:
-  ci_linux: global/ci-linux.yaml
-  ci_linux_gpu: global/ci-linux-gpu.yaml
+  linux: global/linux.yaml
+  linux_gpu: global/linux-gpu.yaml
 jenkins_url: https://citest.build.osrfoundation.org
 notification_emails:
 - jrivero@osrfoundation.org
