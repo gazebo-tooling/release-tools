@@ -78,8 +78,7 @@ repositories:
     -----END PGP PUBLIC KEY BLOCK-----
   urls:
   - https://packages.osrfoundation.org/gazebo/ubuntu-stable
-  # Needed for getting the ROS building tools packages like python3-rosdep
-  - http://repos.ros.org/repos/ros_bootstrap
+  - http://repos.ros.org/repos/ros_bootstrap  # Needed for getting the ROS building tools packages like python3-rosdep
 skip_rosdep_keys: 
  - python3-distutils
 targets:
