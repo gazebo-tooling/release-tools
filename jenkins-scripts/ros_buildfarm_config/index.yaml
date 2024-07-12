@@ -7,6 +7,7 @@ ci_builds:
 jenkins_url: https://citest.build.osrfoundation.org
 notification_emails:
 - jrivero@osrfoundation.org
+prerequisites:
 rosdistro_index_url: https://raw.githubusercontent.com/ros/rosdistro/master/index-v4.yaml
 status_page_repositories:
   default:
