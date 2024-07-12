@@ -46,7 +46,6 @@ repositories:
     =YM5F
     -----END PGP PUBLIC KEY BLOCK-----
   urls:
-  - http://repo.ros2.org/ubuntu/testing
   - https://packages.osrfoundation.org/gazebo/ubuntu-stable
 skip_rosdep_keys: 
  - python3-distutils
