@@ -2,8 +2,8 @@
 # ROS buildfarm index file
 ---
 ci_builds:
-  linux: global/linux.yaml
-  linux_gpu: global/linux-gpu.yaml
+  colcon_any-manual: global/colcon_any-manual.yaml
+  colcon_gpu_any-manual: global/colcon_gpu_any-manual.yaml
 jenkins_url: https://citest.build.osrfoundation.org
 notification_emails:
 - jrivero@osrfoundation.org
