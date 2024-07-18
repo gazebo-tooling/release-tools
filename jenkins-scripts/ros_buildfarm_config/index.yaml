@@ -9,14 +9,5 @@ notification_emails:
 - jrivero@osrfoundation.org
 prerequisites:
 rosdistro_index_url: https://raw.githubusercontent.com/ros/rosdistro/master/index-v4.yaml
-status_page_repositories:
-  default:
-  - http://repo.ros2.org/ubuntu/building
-  - http://repo.ros2.org/ubuntu/testing
-  - http://repo.ros2.org/ubuntu/main
-  rhel:
-  - http://repo.ros2.org/rhel/building
-  - http://repo.ros2.org/rhel/testing
-  - http://repo.ros2.org/rhel/main
 type: buildfarm
 version: 1
