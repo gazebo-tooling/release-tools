@@ -158,6 +158,11 @@ C) Nightly builds (linux)
     parser.add_argument('--only-bump-revision-linux', dest='bump_rev_linux_only',
                         action='store_true', default=False,
                         help='Bump only revision number. Do not upload new tarball.')
+    parser.add_argument('--only-bump-ros-vendor-package', dest='bump_ros_vendor_only',
+                        action='store_true', default=False,
+                        help='Only process the ROS vendor package (if any).')
+
+
 
     args = parser.parse_args()
 
@@ -624,8 +629,8 @@ def create_pr_for_vendor_package(args, repo_path, base_branch) -> str:
     try:
         _out, _err = check_call(pr_cmd, cwd=repo_path)
     except ErrorAlreadyExists:
-        return 'there is already a PR for the branch.'\
-               'Please check it out manuallly.'
+        return f'there is already a PR for the branch: {branch_name} .'\
+                'Please check it out manuallly.'
 
     if _err:
         print("Problems creating the PR for the vendor package:")
@@ -652,9 +657,26 @@ def create_pr_in_gz_vendor_repo(args, ros_distro) -> str:
     return pr_msg
 
 
+def process_ros_vendor_package(args):
+    print("ROS vendor packages that can be updated:")
+    for collection in get_collections_for_package(args.package,
+                                                  args.version):
+        if collection in ROS_VENDOR:
+            ros_distro = ROS_VENDOR[collection]
+            print(f" * Github {get_vendor_github_repo(args.package)} "
+                  f"part of {collection} in ROS 2 {ros_distro}")
+            print("   + Preparing a PR: ", end='', flush=True)
+            pr_url = create_pr_in_gz_vendor_repo(args, ros_distro)
+            print(pr_url)
+
+
 def go(argv):
     args = parse_args(argv)
 
+    # If only the process of ROS vendor package is set, just do it
+    if args.bump_ros_vendor_only:
+        process_ros_vendor_package(args)
+        sys.exit(0)
 
     # Default to release 1 if not present
     if not args.release_version:
@@ -778,18 +800,8 @@ def go(argv):
                            'Source',
                            args.version)
         display_help_job_chain_for_source_calls(args)
-
-        print("ROS vendor packages that can be updated:")
-        for collection in get_collections_for_package(args.package,
-                                                      args.version):
-            if collection in ROS_VENDOR:
-                ros_distro = ROS_VENDOR[collection]
-                print(f" * Github {get_vendor_github_repo(args.package)} "
-                      f"part of {collection} in ROS 2 {ros_distro}")
-                print("   + Preparing a PR: ", end='', flush=True)
-                pr_url = create_pr_in_gz_vendor_repo(args, ros_distro)
-                print(pr_url)
-
+        # Process the possible update of an associated ROS vendor package
+        process_ros_vendor_package(args)
 
 if __name__ == '__main__':
     go(sys.argv)
