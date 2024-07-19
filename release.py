@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 from argparse import RawTextHelpFormatter
+from typing import Tuple
 import subprocess
 import sys
 import tempfile
@@ -10,6 +11,7 @@ import urllib.parse
 import urllib.request
 import argparse
 import shutil
+import venv
 
 USAGE = 'release.py <package> <version> <jenkinstoken>'
 try:
@@ -554,8 +556,15 @@ def get_vendor_repo_url(package_name) -> str:
     return f"https://github.com/{get_vendor_github_repo(package_name)}"
 
 
-def prepare_vendor_pr_temp_workspace(package_name, ws_dir) -> tuple[str, str]:
+def prepare_vendor_pr_temp_workspace(package_name, ws_dir) -> Tuple[str, str, str]:
     gz_vendor_tool = os.path.join(ws_dir, "gz_vendor")
+    # Create virtualenv for vendor dependencies
+    venv_dir = os.path.join(ws_dir, "venv")
+    venv.create(venv_dir, system_site_packages=True, with_pip=True)
+    subprocess.run([os.path.join(venv_dir, 'bin', 'pip3'), 'install', '-q',
+                    'jinja2==3.1.2',
+                    'catkin_pkg==1.0.0',
+                    'argparse'])
     cmd = ['git', 'clone', '-q',
            'https://github.com/gazebo-tooling/gz_vendor/',
            gz_vendor_tool]
@@ -570,11 +579,13 @@ def prepare_vendor_pr_temp_workspace(package_name, ws_dir) -> tuple[str, str]:
         print(f"{_err_tool} {_err_repo}")
         sys.exit(1)
 
-    return gz_vendor_tool, gz_vendor_repo
+    return gz_vendor_tool, gz_vendor_repo, venv_dir
 
 
-def execute_update_vendor_package_tool(vendor_tool_path, vendor_repo_path) -> None:
-    run_cmd = ['python3',
+def execute_update_vendor_package_tool(vendor_tool_path,
+                                       vendor_repo_path,
+                                       vendor_venv) -> None:
+    run_cmd = [os.path.join(vendor_venv, 'bin', 'python3'),
                f"{vendor_tool_path}/create_gz_vendor_pkg/create_vendor_package.py",
                'package.xml',
                '--output_dir', vendor_repo_path]
@@ -588,6 +599,8 @@ def execute_update_vendor_package_tool(vendor_tool_path, vendor_repo_path) -> No
 def create_pr_for_vendor_package(args, repo_path, base_branch) -> str:
     cmd_diff = ['git', "-C", repo_path, 'diff']
     _out, _ = check_call(cmd_diff, IGNORE_DRY_RUN)
+    if not _out.decode():
+        return 'vendor tool did not produce any change, avoid the PR'
 
     branch_name = f'releasepy/{args.version}'
     vendor_repo = get_vendor_repo_url(args.package)
@@ -627,11 +640,11 @@ def create_pr_in_gz_vendor_repo(args, ros_distro) -> str:
     with tempfile.TemporaryDirectory() as ws_dir:
         ws_dir = tempfile.mkdtemp()
         # Prepare the temporary workspace
-        vendor_tool_path, vendor_repo_path = \
+        vendor_tool_path, vendor_repo_path, venv_dir = \
             prepare_vendor_pr_temp_workspace(args.package, ws_dir)
         # Run updating script on the temporary workspace
         execute_update_vendor_package_tool(
-            vendor_tool_path, vendor_repo_path)
+            vendor_tool_path, vendor_repo_path, venv_dir)
         # Commits and PR creation
         pr_msg = create_pr_for_vendor_package(
             args, vendor_repo_path, ros_distro)
