@@ -69,20 +69,11 @@ boolean are_cmake_warnings_enabled(lib_name, ci_config)
 }
 
 /*
+ * TODO: deprecated, migrate the pkgconf_per_src index to use new branch_index
+ * or generate a new one together with the branch_index
+ *
  * Generate an index that facilitates the operations with the yaml values,
  * avoiding to parse them several times.
- *
- * # ci_configs_by_lib index structure:
- *   lib_name : [ ci_config_name : [ .branch .collection ] ]
- *
- *   The index main keys are the lib names (i.e: gz-cmake) and associated them
- *   another map of CI configuration names supported as keys (i.e: jammy) with the
- *   list of associated items composed by a map: branch (and collection) that CI configuration
- *   (i.e [[branch:gz-cmake3, collection: harmonic], [branch: gz-cmake3, collection: garden])
- *   as values. In a graphic;
- *
- *   index[gz-cmake][jammy] -> [ branch: gz-cmake3, collection: garden ,
- *                               branch: gz-cmake3, collection: harmonic]
  *
  * # pkgconf_per_src index structure:
  *   pkg_src_name : [ packaging_config_name : [ .lib_name .collection ] ]
@@ -94,16 +85,12 @@ boolean are_cmake_warnings_enabled(lib_name, ci_config)
  *
  *   index[gz-cmake3][jammy] -> [ lib_name: gz-cmake, collection: harmonic ]
  */
-void generate_ciconfigs_by_lib(config, ciconf_per_lib_index, pkgconf_per_src_index)
+void generate_ciconfigs_by_lib(config, pkgconf_per_src_index)
 {
   config.collections.each { collection ->
     collection.libs.each { lib ->
       def libName = lib.name
       def branch = lib.repo.current_branch
-      collection.ci.configs.each { config_name ->
-        ciconf_per_lib_index[libName][config_name] = ciconf_per_lib_index[libName][config_name]?: []
-        ciconf_per_lib_index[libName][config_name].contains(branch) ?: ciconf_per_lib_index[libName][config_name] << [branch: branch, collection: collection.name]
-      }
       def pkg_name = lib.name + lib.major_version
       if (collection.packaging.linux?.ignore_major_version?.contains(libName))
         pkg_name = lib.name
@@ -320,116 +307,128 @@ def generate_debbuilder_job(src_name, ArrayList pre_setup_script_hooks)
   }
 }
 
-def ciconf_per_lib_index = [:].withDefault { [:] }
 def pkgconf_per_src_index = [:].withDefault { [:] }
-generate_ciconfigs_by_lib(gz_collections_yaml, ciconf_per_lib_index, pkgconf_per_src_index)
-
-// Generate PR jobs: 1 per ci configuration on each lib
-ciconf_per_lib_index.each { lib_name, lib_configs ->
-  lib_configs.each { ci_configs ->
-    def config_name = ci_configs.getKey()
+generate_ciconfigs_by_lib(gz_collections_yaml, pkgconf_per_src_index)
+/*
+ *
+ * Loop over each collection, inside each collection loop over the ci configurations assigned
+ * and finally loop over each collection library listed.
+ *
+ */
+def branch_index = [:].withDefault { [:] }
+gz_collections_yaml.collections.each { collection ->
+  collection.ci.configs.each { config_name ->
     def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
-    def branches_with_collections = ci_configs.getValue()
-    def branch_names = branches_with_collections.collect { it.branch }.unique()
-    def script_name_prefix = cleanup_library_name(lib_name)
-    def gz_job_name_prefix = lib_name.replaceAll('-','_')
     def distro = ci_config.system.version
     def arch = ci_config.system.arch
-    def ws_checkout_dir = lib_name
-    if (ci_config.exclude.all?.contains(lib_name))
-      return
-    assert(lib_name)
-    assert(branch_names)
-    assert(ci_config)
+    def categories_enabled = ci_config.ci_categories_enabled
+    collection.libs.each { lib ->
+      def lib_name = lib.name
+      def branch_name = lib.repo.current_branch
+      def gz_job_name_prefix = lib_name.replaceAll('-','_')
+      if (ci_config.exclude.all?.contains(lib_name))
+        return
 
-    // CI branch jobs (-ci-$branch-) (pulling check every 5 minutes)
-    branches_with_collections.each { branch_and_collection ->
-      def gz_ci_job
-      branch_name = branch_and_collection.branch
+      // Build the branch_index while going through all the libraries to avoid
+      // looping twice.
       if (ci_config.system.so == 'linux') {
-        gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
-        generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
-        // Generate asan jobs on Linux
-        def gz_ci_asan_job =  job("${gz_job_name_prefix}-ci_asan-${branch_name}-${distro}-${arch}")
-        generate_asan_ci_job(gz_ci_asan_job, lib_name, branch_name, ci_config)
-        gz_ci_asan_job.with
+        platform = distro
+      } else if (ci_config.system.so == 'darwin') {
+        platform = 'homebrew'
+      } else if (ci_config.system.so == 'windows') {
+        platform = 'windows'
+      }
+      branch_index[lib_name][platform] = branch_index[lib_name][platform]?: ['pr':[], 'pr_abichecker':[]]
+      if (categories_enabled.contains('pr'))
+      {
+        branch_index[lib_name][platform]['pr'].contains(branch_name) ?:
+          branch_index[lib_name][platform]['pr'] << [branch: branch_name, ci_name: config_name]
+      }
+      if (categories_enabled.contains('pr_abichecker') &&
+         (branch_name != 'main') &&
+         (! ci_config.exclude.abichecker?.contains(lib_name)))
+      {
+        branch_index[lib_name][platform]['pr_abichecker'].contains(branch_name) ?:
+          branch_index[lib_name][platform]['pr_abichecker'] << [branch: branch_name, ci_name: config_name]
+      }
+
+      // Generate jobs for the library entry being parsed
+      if (categories_enabled.contains('stable_branches')) {
+        if (ci_config.system.so == 'linux') {
+          gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
+          generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+          if (categories_enabled.contains('stable_branches_asan'))
+          {
+            def gz_ci_asan_job =  job("${gz_job_name_prefix}-ci_asan-${branch_name}-${distro}-${arch}")
+            generate_asan_ci_job(gz_ci_asan_job, lib_name, branch_name, ci_config)
+            gz_ci_asan_job.with
+            {
+              triggers {
+                scm(Globals.CRON_ON_WEEKEND)
+              }
+            }
+
+            logging_list['asan_ci'].add(
+               [collection: collection.name,
+               job_name: gz_ci_asan_job.name])
+          }
+        } else if (ci_config.system.so == 'darwin') {
+          gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-homebrew-${arch}")
+          generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+        } else if (ci_config.system.so == 'windows') {
+          branch_number = branch_name - lib_name
+          Globals.gazebodistro_branch = true
+          gz_ci_job = job("${gz_job_name_prefix}-${branch_number}-win")
+          generate_win_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+          Globals.gazebodistro_branch = false
+        } else {
+          assert false : "Unexpected config.system.so type: ${ci_config.system.so}"
+        }
+
+        gz_ci_job.with
         {
           triggers {
-            scm(Globals.CRON_ON_WEEKEND)
+            scm('@daily')
           }
         }
-        logging_list['asan_ci'].add(
-          [collection: branch_and_collection.collection,
-           job_name: gz_ci_asan_job.name])
-      } else if (ci_config.system.so == 'darwin') {
-        gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-homebrew-${arch}")
-        generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
-      } else if (ci_config.system.so == 'windows') {
-        branch_number = branch_name - lib_name
-        Globals.gazebodistro_branch = true
-        gz_ci_job = job("${gz_job_name_prefix}-${branch_number}-win")
-        generate_win_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
-        Globals.gazebodistro_branch = false
-      } else {
-        assert false : "Unexpected config.system.so type: ${ci_config.system.so}"
-      }
 
-      gz_ci_job.with
+        logging_list['branch_ci'].add(
+         [collection: collection.name,
+           job_name: gz_ci_job.name])
+      } // end of daily category enabled
+    }
+  }
+}
+
+branch_index.each { lib_name, distro_configs ->
+  distro_configs.each { distro, branches_with_ciconfig ->
+    if (branches_with_ciconfig['pr']) {
+      def branch_names = branches_with_ciconfig['pr'].collect { it.branch }.unique()
+      // Hack that assumes that pre_setup_script_hook, arch and requirements are equal on all
+      // ciconfigs associated to a given branch and distro combination
+      def config_name = branches_with_ciconfig['pr'].collect { it.ci_name }.unique()[0]
+      def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
+      def script_name_prefix = cleanup_library_name(lib_name)
+      def gz_job_name_prefix = lib_name.replaceAll('-','_')
+      def arch = ci_config.system.arch
+      def ws_checkout_dir = lib_name
+      if (ci_config.system.so == 'linux')
       {
-        triggers {
-          scm('@daily')
-        }
-      }
-
-      logging_list['branch_ci'].add(
-        [collection: branch_and_collection.collection,
-         job_name: gz_ci_job.name])
-    } // end_of_branch
-
-    if (ci_config.system.so == 'linux') {
-      def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
-      def extra_cmd = pre_setup_script ?: ""
-
-      def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
-      def gz_ci_any_job = job(gz_ci_job_name)
-      OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
-                                           "gazebosim/${lib_name}",
-                                           is_testing_enabled(lib_name, ci_config),
-                                           ENABLE_CPPCHECK,
-                                           branch_names)
-      generate_label_by_requirements(gz_ci_any_job, lib_name, ci_config.requirements)
-      gz_ci_any_job.with
-      {
-        steps
+        def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
+        def extra_cmd = pre_setup_script ?: ""
+        def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
+        def gz_ci_any_job = job(gz_ci_job_name)
+        OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
+                                             "gazebosim/${lib_name}",
+                                             is_testing_enabled(lib_name, ci_config),
+                                             ENABLE_CPPCHECK,
+                                             branch_names)
+        generate_label_by_requirements(gz_ci_any_job, lib_name, ci_config.requirements)
+        gz_ci_any_job.with
         {
-           shell("""\
-                #!/bin/bash -xe
-
-                export DISTRO=${distro}
-
-                ${GLOBAL_SHELL_CMD}
-                ${extra_cmd}
-
-                export BUILDING_SOFTWARE_DIRECTORY=${lib_name}
-                export ARCH=${arch}
-                /bin/bash -xe ./scripts/jenkins-scripts/docker/${script_name_prefix}-compilation.bash
-                """.stripIndent())
-        } // end of steps
-      } // end of ci_any_job
-
-      if (! ci_config.exclude.abichecker?.contains(lib_name)) {
-        // ABI branch jobs (-ci-abichecker-) for non main branches
-        def abi_job_name = "${gz_job_name_prefix}-abichecker-any_to_any-ubuntu-${distro}-${arch}"
-        def abi_job = job(abi_job_name)
-        OSRFLinuxABIGitHub.create(abi_job)
-        GenericAnyJobGitHub.create(abi_job,
-                          "gazebosim/${lib_name}",
-                          branch_names - [ 'main'])
-        generate_label_by_requirements(abi_job, lib_name, ci_config.requirements)
-        abi_job.with
-        {
-          steps {
-            shell("""\
+          steps
+          {
+             shell("""\
                   #!/bin/bash -xe
 
                   export DISTRO=${distro}
@@ -437,42 +436,78 @@ ciconf_per_lib_index.each { lib_name, lib_configs ->
                   ${GLOBAL_SHELL_CMD}
                   ${extra_cmd}
 
+                  export BUILDING_SOFTWARE_DIRECTORY=${lib_name}
                   export ARCH=${arch}
-                  export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
-                  export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
-                  export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
-                  export ABI_JOB_SOFTWARE_NAME=${lib_name}
-                  /bin/bash -xe ./scripts/jenkins-scripts/docker/gz-abichecker.bash
+                  /bin/bash -xe ./scripts/jenkins-scripts/docker/${script_name_prefix}-compilation.bash
                   """.stripIndent())
           } // end of steps
-        }  // end of with
+        } // end of ci_any_job
+      } else if (ci_config.system.so == 'darwin') {
+        // --------------------------------------------------------------
+        def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-amd64"
+        def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
+        OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
+                                            "gazebosim/${lib_name}",
+                                            is_testing_enabled(lib_name, ci_config),
+                                            branch_names,
+                                            ENABLE_GITHUB_PR_INTEGRATION,
+                                            are_cmake_warnings_enabled(lib_name, ci_config))
+        add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir)
+      } else if (ci_config.system.so == 'windows') {
+        def gz_win_ci_any_job_name = "${gz_job_name_prefix}-pr-win"
+        def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
+        Globals.gazebodistro_branch = true
+        OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_job,
+                                            "gazebosim/${lib_name}",
+                                            is_testing_enabled(lib_name, ci_config),
+                                            branch_names,
+                                            ENABLE_GITHUB_PR_INTEGRATION,
+                                            are_cmake_warnings_enabled(lib_name, ci_config))
+        add_win_devel_bat_call(gz_win_ci_any_job, lib_name, ws_checkout_dir)
+        Globals.gazebodistro_branch = false
       }
-    } else if (ci_config.system.so == 'darwin') {
-      // --------------------------------------------------------------
-      def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-amd64"
-      def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
-      OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
-                                          "gazebosim/${lib_name}",
-                                          is_testing_enabled(lib_name, ci_config),
-                                          branch_names,
-                                          ENABLE_GITHUB_PR_INTEGRATION,
-                                          are_cmake_warnings_enabled(lib_name, ci_config))
-      add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir)
-    } else if (ci_config.system.so == 'windows') {
-      def gz_win_ci_any_job_name = "${gz_job_name_prefix}-pr-win"
-      def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
-      Globals.gazebodistro_branch = true
-      OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_job,
-                                          "gazebosim/${lib_name}",
-                                          is_testing_enabled(lib_name, ci_config),
-                                          branch_names,
-                                          ENABLE_GITHUB_PR_INTEGRATION,
-                                          are_cmake_warnings_enabled(lib_name, ci_config))
-      add_win_devel_bat_call(gz_win_ci_any_job, lib_name, ws_checkout_dir)
-      Globals.gazebodistro_branch = false
     }
-  } //en of lib_configs
-} // end of lib
+
+    if (branches_with_ciconfig['pr_abichecker']) {
+      def branch_names = branches_with_ciconfig['pr_abichecker'].collect { it.branch }.unique()
+      // Hack that assumes that pre_setup_script_hook, arch and requirements are equal on all
+      // ciconfigs associated to a given branch and distro combination
+      def config_name = branches_with_ciconfig['pr_abichecker'].collect { it.ci_name }.unique()[0]
+      def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
+      def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
+      def extra_cmd = pre_setup_script ?: ""
+      def arch = ci_config.system.arch
+      def gz_job_name_prefix = lib_name.replaceAll('-','_')
+      def abi_job_name = "${gz_job_name_prefix}-abichecker-any_to_any-ubuntu-${distro}-${arch}"
+      def abi_job = job(abi_job_name)
+      OSRFLinuxABIGitHub.create(abi_job)
+      GenericAnyJobGitHub.create(abi_job,
+                        "gazebosim/${lib_name}",
+                        branch_names)
+      generate_label_by_requirements(abi_job, lib_name, ci_config.requirements)
+      abi_job.with
+      {
+        steps {
+          shell("""\
+                #!/bin/bash -xe
+
+                export DISTRO=${distro}
+
+                ${GLOBAL_SHELL_CMD}
+                ${extra_cmd}
+
+                export ARCH=${arch}
+                export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
+                export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
+                export SRC_REPO=\${SRC_REPO:-\$ghprbAuthorRepoGitUrl}
+                export ABI_JOB_SOFTWARE_NAME=${lib_name}
+                /bin/bash -xe ./scripts/jenkins-scripts/docker/gz-abichecker.bash
+                """.stripIndent())
+        } // end of steps
+      }  // end of with
+    }
+  }
+}
 
 pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
   // For each entry in the index perform two steps:
@@ -575,7 +610,6 @@ collection_job_names.each { collection_name, job_names ->
         name(jobname)
       }
       def collection = gz_collections_yaml.collections.find { it.name == collection_name }
-      println(collection)
       if (collection.packaging?.linux?.nightly) {
         collection.libs.each { lib ->
           name(get_debbuilder_name(lib, collection.packaging))

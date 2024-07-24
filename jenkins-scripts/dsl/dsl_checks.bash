@@ -6,7 +6,9 @@ if [[ -z $(ls -- *.xml) ]]; then
   exit 1
 fi
 
-not_null=$(grep -3 'null' -- *.xml || true)
+# Some XML generated files include valid Groovy code using null
+# like the _outdated_jobs job. Do not search for null unconditionally
+not_null=$(grep -3 '>.*null.*<' -- *.xml || true)
 if [[ -n ${not_null} ]]; then
   echo "Found a null value in a configuration file:"
   echo "${not_null}"
@@ -50,16 +52,27 @@ if [[ -n ${non_github_orgs} ]]; then
   exit 1
 fi
 
+# Check that whiteListedTargetBranches are non empty in all generated gazebo_libs
+# see https://github.com/gazebo-tooling/release-tools/pull/1144
+# For other jobs the use case is valid since pr can be enabled on all branches
+empty_branches_on_github_triggered=$(grep '<whiteListTargetBranches></whiteListTargetBranches>' \
+                                      -- {gz_,sdformat}*{-abichecker-,-pr_any-}*.xml || true)
+if [[ -n ${empty_branches_on_github_triggered} ]]; then
+  echo "Unexpected whiteListTargetBranches without values. It will trigger all branches:"
+  echo "${empty_branches_on_github_triggered}"
+  exit 1
+fi
+
 # re-enable after https://github.com/gazebo-tooling/release-tools/issues/1095
 
 # Filter out the previous auto jobs
-# filtered_dir=$(mktemp -d)
-# cp -- *-abichecker-*.xml "${filtered_dir}"
-# rm -f "${filtered_dir}"/*-ubuntu_auto*.xml
-# repeated=$(grep '\<branch>' "${filtered_dir}"/*-abichecker-*.xml | awk '{ print $2 }' | sort | uniq -d)
-# if [[ -n ${repeated} ]]; then
-#   echo "Found a duplicate in an abichecker branch:"
-#   echo "${repeated}"
-#   echo "please exclude one of the versions in the yaml file to reduce the server workload"
-#   exit 1
-# fi
+filtered_dir=$(mktemp -d)
+cp -- *-abichecker-*.xml "${filtered_dir}"
+rm -f "${filtered_dir}"/*-ubuntu_auto*.xml
+repeated=$(grep '\<branch>' "${filtered_dir}"/*-abichecker-*.xml | awk '{ print $2 }' | sort | uniq -d)
+if [[ -n ${repeated} ]]; then
+   echo "Found a duplicate in an abichecker branch:"
+   echo "${repeated}"
+   echo "please exclude one of the versions in the yaml file to reduce the server workload"
+   exit 1
+fi

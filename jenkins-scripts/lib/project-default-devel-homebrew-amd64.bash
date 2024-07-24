@@ -78,18 +78,22 @@ brew install $(brew deps --1 --include-build ${PROJECT_FORMULA})
 # pytest is needed to run python tests with junit xml output
 PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} pytest"
 
+# Add protobuf since the homebrew protobuf bottle dropped support for python bindings
+PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} protobuf"
+
 if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   # Install lxml for flaky_junit_merge.py
   PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} lxml"
 fi
 
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
-  brew install python
+  brew install python3
   PIP=pip3
   if ! which ${PIP}; then
     PIP=/usr/local/opt/python/bin/pip3
   fi
-  ${PIP} install ${PIP_PACKAGES_NEEDED}
+  # TODO use a python3 venv instead.
+  ${PIP} install --break-system-packages ${PIP_PACKAGES_NEEDED}
 fi
 
 if [[ -z "${DISABLE_CCACHE}" ]]; then
@@ -123,7 +127,7 @@ if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name
 fi
 # set cmake args if we are using qwt-qt5
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qwt-qt5' }.empty?"; then
-  CMAKE_ARGS='-DQWT_WIN_INCLUDE_DIR=/usr/local/opt/qwt-qt5/lib/qwt.framework/Headers -DQWT_WIN_LIBRARY_DIR=/usr/local/opt/qwt-qt5/lib'
+  CMAKE_ARGS="${CMAKE_ARGS} -DQWT_WIN_INCLUDE_DIR=/usr/local/opt/qwt-qt5/lib/qwt.framework/Headers -DQWT_WIN_LIBRARY_DIR=/usr/local/opt/qwt-qt5/lib"
 fi
 # Workaround for cmake@3.21.4: set PATH
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/cmake@3.21.4' }.empty?"; then
@@ -146,6 +150,10 @@ fi
 # if we are using boost, need to add icu4c library path since it is keg-only
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'icu4c' }.empty?"; then
   export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/icu4c/lib
+fi
+# set Python3_EXECUTABLE if this homebrew formula defines the python_cmake_arg method
+if brew ruby -e "exit '${PROJECT_FORMULA}'.f.respond_to?(:python_cmake_arg)"; then
+  CMAKE_ARGS="${CMAKE_ARGS} -DPython3_EXECUTABLE=$(which python3)"
 fi
 
 # if we are using dart@6.10.0 (custom OR port), need to add dartsim library path since it is keg-only
