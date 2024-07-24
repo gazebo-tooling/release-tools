@@ -330,17 +330,6 @@ RUN (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
 RUN mkdir -p ${WORKSPACE}
 DELIM_DOCKER31
 
-# Beware of moving this code since it needs to run update-alternative after
-# installing the default compiler in PACKAGES_CACHE_AND_CHECK_UPDATES
-if ${INSTALL_C17_COMPILER}; then
-cat >> Dockerfile << DELIM_GCC8
-   RUN apt-get update \\
-   && apt-get install -y g++-8 \\
-   && rm -rf /var/lib/apt/lists/* \\
-   && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
-DELIM_GCC8
-fi
-
 if ${USE_SQUID}; then
   cat >> Dockerfile << DELIM_DOCKER_SQUID
 # If host is running squid-deb-proxy on port 8000, populate /etc/apt/apt.conf.d/30proxy
