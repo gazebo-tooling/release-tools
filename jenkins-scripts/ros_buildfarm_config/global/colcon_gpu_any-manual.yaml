@@ -78,7 +78,7 @@ repositories:
   - https://packages.osrfoundation.org/gazebo/ubuntu-stable
   - http://repos.ros.org/repos/ros_bootstrap  # Needed for getting the ROS building tools packages like python3-rosdep
 skip_rosdep_keys: 
- - python3-distutils
+- python3-distutils
 targets:
   ubuntu:
     noble:
