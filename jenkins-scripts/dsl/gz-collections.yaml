@@ -181,6 +181,7 @@ collections:
     packaging:
       configs:
         - focal
+        - jammy
       linux:
         ignore_major_version:
           - gz-fortress
@@ -262,6 +263,7 @@ collections:
     packaging:
       configs:
         - focal
+        - jammy
       linux:
         ignore_major_version:
           - gz-garden
