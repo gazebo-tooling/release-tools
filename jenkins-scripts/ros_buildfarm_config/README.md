@@ -32,7 +32,7 @@ generation.
 ### Running job generation
 
 Note that the Gazebo buildfarm can not execute the script
-`ros_buildfarm/scripts//generate_all_jobs.py` since it will create some
+`ros_buildfarm/scripts/generate_all_jobs.py` since it will create some
 maintenance views and jobs that are not in the scope of this buildfarm.
 
 Instead of that, the job generation is done manually per configuration
