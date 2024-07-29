@@ -100,6 +100,7 @@ collections:
     packaging:
       configs:
         - focal
+        - brew
       linux:
           ignore_major_version:
             - gz-citadel
@@ -182,6 +183,7 @@ collections:
       configs:
         - focal
         - jammy
+        - brew
       linux:
         ignore_major_version:
           - gz-fortress
@@ -264,6 +266,7 @@ collections:
       configs:
         - focal
         - jammy
+        - brew
       linux:
         ignore_major_version:
           - gz-garden
@@ -346,6 +349,7 @@ collections:
     packaging:
       configs:
         - jammy
+        - brew
       linux:
         ignore_major_version:
           - gz-harmonic
@@ -447,6 +451,7 @@ collections:
     packaging:
       configs:
         - noble
+        - brew
 ci_configs:
   - name: focal
     system:
@@ -736,3 +741,10 @@ packaging_configs:
         - "export MAKE_JOBS=1"
     exclude:
         - __upcoming__
+  - name: brew
+    system:
+      so: darwin
+      distribution: macOSX
+      version: all
+      arch:
+        - amd64
