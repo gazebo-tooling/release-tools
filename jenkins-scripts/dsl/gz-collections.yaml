@@ -431,6 +431,7 @@ collections:
     packaging:
       configs:
         - noble
+        - brew
       linux:
         ignore_major_version:
           - gz-ionic
