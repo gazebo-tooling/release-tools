@@ -187,6 +187,7 @@ bottle_job_builder.with
          useGitHubHooks(true)
          onlyTriggerPhrase(true)
          permitAll(false)
+         spec()
          cron()
          triggerPhrase '.*build bottle.*'
          extensions {
