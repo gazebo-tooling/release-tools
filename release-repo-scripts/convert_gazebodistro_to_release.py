@@ -16,7 +16,7 @@ def _load_gazebodistro_file(filepath) -> dict:
 def _convert_to_release(input_yaml) -> None:
     repos = {}
     for repo, repo_info in input_yaml['repositories'].items():
-        branch = repo_info['version'].replace('sdf', 'sdformat')
+        branch = repo_info['version'].replace('sdf', 'sdformat').replace('fuel_tools', 'fuel-tools')
         repo_name = ''
         if branch == 'main':
             import requests
