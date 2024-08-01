@@ -57,7 +57,8 @@ then
 fi
 
 echo "# BEGIN SECTION: install ${BOTTLE_NAME}"
-brew install --include-test --verbose ${BOTTLE_NAME}
+brew install --include-test --verbose ${BOTTLE_NAME} \
+  || brew postinstall ruby --verbose --debug
 
 # add X11 path so glxinfo can be found
 export PATH="${PATH}:/opt/X11/bin"
