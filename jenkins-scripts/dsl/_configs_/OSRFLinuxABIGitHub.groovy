@@ -40,7 +40,7 @@ class OSRFLinuxABIGitHub
 
       logRotator {
         artifactNumToKeep(10)
-        numToKeep(200)
+        numToKeep(125)
       }
 
       concurrentBuild(true)

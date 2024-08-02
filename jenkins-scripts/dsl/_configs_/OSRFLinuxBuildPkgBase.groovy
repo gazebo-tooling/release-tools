@@ -18,7 +18,7 @@ class OSRFLinuxBuildPkgBase
      {
        logRotator {
          artifactNumToKeep(25)
-         numToKeep(200)
+         numToKeep(125)
        }
 
        wrappers {
