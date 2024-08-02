@@ -41,7 +41,7 @@ file using the following (empty quotes are mandatory):
 ```
 # remove the --dry-run for real execution
 ./generate_ci_jobs.py --dry-run \
-    https://raw.githubusercontent.com/gazebo-tooling/release-tools/jrivero/ros_buildfarm/jenkins-scripts/ros_buildfarm_config/index.yaml \
+    https://raw.githubusercontent.com/gazebo-tooling/release-tools/master/jenkins-scripts/ros_buildfarm_config/index.yaml \
     "" <ci_build>
 ```
 
@@ -51,7 +51,7 @@ The different `<ci_build>` are defined in the index file just before the key
 ```
 # remove the --dry-run for real execution
 ./generate_ci_jobs.py --dry-run \
-    https://raw.githubusercontent.com/gazebo-tooling/release-tools/jrivero/ros_buildfarm/jenkins-scripts/ros_buildfarm_config/index.yaml \
+    https://raw.githubusercontent.com/gazebo-tooling/release-tools/master/jenkins-scripts/ros_buildfarm_config/index.yaml \
     "" colcon_any-manual
 ```
 
@@ -61,7 +61,7 @@ To automate the process using the `yq` tool:
 wget https://raw.githubusercontent.com/gazebo-tooling/release-tools/master/jenkins-scripts/ros_buildfarm_config/index.yaml
 for ci_build in $(yq '.ci_builds | keys' < index.yaml | sed 's:^- ::'); do 
 ./generate_ci_jobs.py --dry-run \
-    https://raw.githubusercontent.com/gazebo-tooling/release-tools/jrivero/ros_buildfarm/jenkins-scripts/ros_buildfarm_config/index.yaml \
+    https://raw.githubusercontent.com/gazebo-tooling/release-tools/master/jenkins-scripts/ros_buildfarm_config/index.yaml \
     "" $ci_build
 done
 ```
