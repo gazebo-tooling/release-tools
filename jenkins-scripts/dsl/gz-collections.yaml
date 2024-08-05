@@ -735,7 +735,7 @@ packaging_configs:
     system:
       so: linux
       distribution: ubuntu
-      version: jammy
+      version: noble
       arch:
         - amd64
     pre_setup_script_hook:
