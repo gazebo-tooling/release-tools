@@ -349,6 +349,7 @@ collections:
     packaging:
       configs:
         - jammy
+        - noble
         - brew
       linux:
         ignore_major_version:
