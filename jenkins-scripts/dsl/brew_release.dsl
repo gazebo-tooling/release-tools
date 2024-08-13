@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 
 // first distro in list is used as touchstone
-brew_supported_distros         = [ "catalina", "bigsur" ]
+brew_supported_distros         = [ "monterey", "ventura" ]
 bottle_hash_updater_job_name   = 'generic-release-homebrew_pr_bottle_hash_updater'
 bottle_builder_job_name        = 'generic-release-homebrew_triggered_bottle_builder'
 directory_for_bottles          = 'pkgs'
@@ -59,7 +59,7 @@ release_job.with
    String PR_URL_export_file_name = 'pull_request_created.properties'
    String PR_URL_export_file = '${WORKSPACE}/' + PR_URL_export_file_name
 
-   label "master"
+   label Globals.nontest_label("master")
 
    wrappers {
         preBuildCleanup()
@@ -180,13 +180,14 @@ bottle_job_builder.with
      }
      project  / triggers / 'org.jenkinsci.plugins.ghprb.GhprbTrigger' {
          adminlist 'osrf-jenkins j-rivero scpeters'
-         orgslist 'ignitionrobotics'
+         orgslist 'gazebosim'
          whitelist 'osrfbuild'
          useGitHubHooks(true)
          allowMembersOfWhitelistedOrgsAsAdmin(true)
          useGitHubHooks(true)
          onlyTriggerPhrase(true)
          permitAll(false)
+         spec()
          cron()
          triggerPhrase '.*build bottle.*'
          extensions {
@@ -246,7 +247,7 @@ GenericRemoteToken.create(bottle_job_hash_updater)
 include_common_params(bottle_job_hash_updater)
 bottle_job_hash_updater.with
 {
-  label "master"
+  label Globals.nontest_label("master")
 
   wrappers
   {

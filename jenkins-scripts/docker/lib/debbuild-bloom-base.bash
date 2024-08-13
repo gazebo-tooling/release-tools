@@ -23,6 +23,7 @@ export ENABLE_REAPER=false
 PACKAGE_UNDERSCORE_NAME=${PACKAGE//-/_}
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
 cat > build.sh << DELIM
 ###################################################
@@ -52,9 +53,7 @@ cat debian/control
 fi
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: install build dependencies'
-sudo mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
-echo '# END SECTION'
+${MKBUILD_INSTALL_DEPS}
 
 echo '# BEGIN SECTION: run rosdep'
 sudo rosdep init
@@ -100,6 +99,13 @@ PKGS=\`find .. -name '*.deb' || true\`
 FOUND_PKG=0
 for pkg in \${PKGS}; do
     echo "found \$pkg"
+    # Check for problems in gazebo_ros_pkgs unofficial wrappers to avoid
+    # uploads with the same name than official ROS packages
+    # ros-DISTRO-gazebo-* instead of ros-DISTRO-gazeboX-*
+    if [[ \${pkg}  !=  \${pkg/-gazebo-} ]]; then
+       echo "Detected official ROS names in gazebo_ros_pkgs"
+       exit -1
+    fi
     # Check for correctly generated packages size > 3Kb
     [[ \$(find \$pkg -size +3k) ]] || echo "WARNING: empty package?"
     cp \${pkg} $WORKSPACE/pkgs
@@ -113,18 +119,18 @@ DELIM
 OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
 USE_ROS_REPO=true
 DEPENDENCY_PKGS="devscripts \
-		 ubuntu-dev-tools \
-                 ubuntu-keyring \
-		 debhelper \
-                 cdbs \
-		 wget \
-		 ca-certificates \
-		 equivs \
-		 dh-make \
-		 git \
-		 python-openssl \
-                 ca-certificates \
-		 ${pythonv}-rosdep"
+  ubuntu-dev-tools \
+  ubuntu-keyring \
+  debhelper \
+  cdbs \
+  wget \
+  ca-certificates \
+  equivs \
+  dh-make \
+  git \
+  ${pythonv}-openssl \
+  ca-certificates \
+  ${pythonv}-rosdep"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash

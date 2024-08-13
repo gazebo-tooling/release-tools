@@ -40,7 +40,7 @@ for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
   COMPACT_VERSION=${PKG_VERSION#*  }
   COMPACT_VERSION=${COMPACT_VERSION%%-*}
 
-  echo https://github.com/ignitionrobotics/${LIB_NAME}/compare/${LIB}_${COMPACT_VERSION}...${LIB_SHORT}
+  echo https://github.com/gazebosim/${LIB_NAME}/compare/${LIB}_${COMPACT_VERSION}...${LIB_SHORT}
 
 done
 

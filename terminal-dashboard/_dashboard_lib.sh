@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# TODO:jrivero https://github.com/ignition-tooling/release-tools/issues/551
+# TODO:jrivero https://github.com/gazebo-tooling/release-tools/issues/551
 
 get_libraries_by_collection()
 {
@@ -45,26 +45,44 @@ get_libraries_by_collection()
 	ignition-fortress"
     elif [ "$COLLECTION" = "garden" ]; then
       LIBS="
-	ignition-cmake2
-	ignition-math7
-	ignition-utils1
-	ignition-tools
-	ignition-common5
-	ignition-msgs9
-	ignition-transport12
-	ignition-fuel-tools8
-	ignition-plugin
-	ignition-rendering7
+	gz-cmake3
+	gz-math7
+	gz-utils2
+	gz-tools2
+	gz-common5
+	gz-msgs9
+	gz-transport12
+	gz-fuel-tools8
+	gz-plugin2
+	gz-rendering7
 	sdformat13
-	ignition-physics6
-	ignition-sensors7
-	ignition-gui7
-	ignition-gazebo7
-	ignition-launch6
-	ignition-garden"
+	gz-physics6
+	gz-sensors7
+	gz-gui7
+	gz-sim7
+	gz-launch6
+	gz-garden"
+   elif [ "$COLLECTION" = "harmonic" ]; then
+      LIBS="
+	gz-cmake3
+	gz-math7
+	gz-utils2
+	gz-tools2
+	gz-common5
+	gz-msgs10
+	gz-transport13
+	gz-fuel-tools9
+	gz-plugin2
+	gz-rendering8
+	sdformat14
+	gz-physics7
+	gz-sensors8
+	gz-gui8
+	gz-sim8
+	gz-launch7
+	gz-harmonic"
     else
       return 1
     fi
-
     echo "$LIBS"
 }

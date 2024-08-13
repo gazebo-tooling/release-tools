@@ -1,0 +1,13 @@
+%YAML 1.1
+# ROS buildfarm index file
+---
+ci_builds:
+  colcon_any-manual: global/colcon_any-manual.yaml
+  colcon_gpu_any-manual: global/colcon_gpu_any-manual.yaml
+jenkins_url: https://build.osrfoundation.org
+notification_emails:
+- jrivero@osrfoundation.org
+prerequisites:
+rosdistro_index_url: https://raw.githubusercontent.com/ros/rosdistro/master/index-v4.yaml
+type: buildfarm
+version: 1

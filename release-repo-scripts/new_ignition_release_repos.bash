@@ -10,7 +10,7 @@ set -e
 SCRIPT_DIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 if [[ $# -lt 1 ]]; then
-    echo "$0 <list_of_new_ignition_names_space_separated"
+    echo "$0 <list_of_new_ignition_names_space_separated>"
     echo " example: $0 ign-cmake3 ign-common22"
     exit 1
 fi
@@ -42,7 +42,7 @@ empty_directory()
 for repo_name in ${NEW_REPOS}; do
     echo "Procesing ${repo_name}"
     repo_fname="${repo_name}-release"
-    repo_github="ignition-release/${repo_fname}"
+    repo_github="gazebo-release/${repo_fname}"
 
     echo " + creating the repository "
     # check destination directory

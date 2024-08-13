@@ -1,0 +1,1 @@
+warning /.*Ogre::RenderingAPIException::RenderingAPIException: OpenGL .* is not supported in GLRenderSystem::initialiseContext.*/

@@ -21,8 +21,10 @@ class OSRFWinCompilationAnyGitHub
     OSRFWinCompilation.create(job, enable_testing, enable_cmake_warnings)
 
     /* Properties from generic any */
+    // TODO(jrivero): remove replace once the rest of the migraton code is
+    // deployed in the ignition.dsl file
     GenericAnyJobGitHub.create(job,
-                               github_repo,
+                               github_repo.replace('gz-gazebo','gz-sim'),
                                supported_branches,
                                enable_github_pr_integration)
   }

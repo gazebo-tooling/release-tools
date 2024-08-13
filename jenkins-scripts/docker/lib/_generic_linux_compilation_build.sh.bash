@@ -6,7 +6,8 @@
 #  - GENERIC_ENABLE_CPPCHECK (optional) [default true] run cppcheck
 #  - GENERIC_ENABLE_TESTS (optional) [default true] run tests
 #  - BUILDING_EXTRA_CMAKE_PARAMS (optional) extra cmake params
-#  - BUILD_<lib name> (optional) build dependency from source, for example, BUILD_IGN_MATH
+#  - BUILDING_EXTRA_MAKETEST_PARAMS (optional) extra "make test ARGS=" params
+#  - BUILD_<lib name> (optional) build dependency from source, for example, BUILD_GZ_MATH
 #    - <lib name>_BRANCH (optional [default: master]) branch for BUILD_<lib_name>
 
 if [[ -z ${SOFTWARE_DIR} ]]; then
@@ -28,7 +29,7 @@ fi
 DELIM_HEADER
 
 # Process the source build of dependencies if needed
-OSRF_DEPS="IGN_CMAKE IGN_UTILS IGN_TOOLS IGN_MATH IGN_MSGS IGN_TRANSPORT IGN_COMMON IGN_FUEL_TOOLS SDFORMAT IGN_PHYSICS IGN_RENDERING IGN_SENSORS IGN_GUI IGN_GAZEBO"
+OSRF_DEPS="GZ_CMAKE GZ_UTILS GZ_TOOLS GZ_MATH GZ_MSGS GZ_TRANSPORT GZ_COMMON GZ_FUEL_TOOLS SDFORMAT GZ_PHYSICS GZ_RENDERING GZ_SENSORS GZ_GUI GZ_SIM"
 OSRF_DEPS_DONE=""
 for dep_uppercase in $OSRF_DEPS; do
   dep=`echo $dep_uppercase | tr '[:upper:]' '[:lower:]'`
@@ -54,7 +55,7 @@ cat >> build.sh << DELIM_BUILD_DEPS
       dependency_repo="osrf/${dep}"
     else
       # need to replace _ by -
-      dependency_repo="ignitionrobotics/${dep//_/-}"
+      dependency_repo="gazebosim/${dep//_/-}"
     fi
 
     git clone http://github.com/\$dependency_repo -b ${dep_branch} \
@@ -95,7 +96,10 @@ if $GENERIC_ENABLE_TESTS; then
   echo '# BEGIN SECTION: running tests'
   init_stopwatch TEST
   mkdir -p \$HOME
-  make test ARGS="-VV" || true
+  make test ARGS="-VV ${BUILDING_EXTRA_MAKETEST_PARAMS} --output-junit cmake_junit_output.xml" || true
+  if [ -f cmake_junit_output.xml ]; then
+    python3 $WORKSPACE/scripts/jenkins-scripts/tools/cmake_to_gtest_junit_output.py cmake_junit_output.xml test_results  || true
+  fi
   stop_stopwatch TEST
   echo '# END SECTION'
 else

@@ -29,6 +29,15 @@ fi
 
 [[ -z ${INSTALL_C17_COMPILER} ]] && INSTALL_C17_COMPILER=false
 
+# Bionic|Focal builds were affected by a "gpg: keyserver receive failed" in apt-key execution
+# that poisoned a lot of docker cache in different builds and nodes. Force invalidation
+# during a couple of month to rotate images
+ref_date='2023-11-13'
+if [[ "${DISTRO}" == 'bionic' || "${DISTRO}" == 'focal' ]] && \
+   [[ "$(date '+%s')" -lt "$(date -d "${ref_date}+60 days" '+%s')" ]]; then
+  export INVALIDATE_DOCKER_CACHE=true
+fi
+
 export APT_PARAMS=
 
 GZDEV_DIR=${WORKSPACE}/gzdev
@@ -36,18 +45,26 @@ GZDEV_BRANCH=${GZDEV_BRANCH:-master}
 if python3 ${SCRIPT_DIR}/../tools/detect_ci_matching_branch.py "${ghprbSourceBranch}"; then
   GZDEV_TRY_BRANCH=$ghprbSourceBranch
 fi
+ 
+KEYSERVER="keyserver.ubuntu.com"
+if [[ "${DISTRO}" == 'bionic' || "${DISTRO}" == 'focal' ]]; then
+  KEYSERVER="hkps://pgp.surf.nl"
+fi
 
 dockerfile_install_gzdev_repos()
 {
 cat >> Dockerfile << DELIM_OSRF_REPO_GIT
 RUN rm -fr ${GZDEV_DIR}
-RUN git clone https://github.com/ignition-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
+RUN git clone https://github.com/gazebo-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
 RUN if [ -n $GZDEV_TRY_BRANCH ]; then \
         git -C ${GZDEV_DIR} fetch origin $GZDEV_TRY_BRANCH || true; \
         git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH || true; \
     fi || true
 # print branch for informational purposes
 RUN git -C ${GZDEV_DIR} branch
+# clean all _gzdev_ repository installations from the system before handling the configuration
+# otherwise the docker cache could contain unexpected repositories
+RUN ${GZDEV_DIR}/gzdev.py repository purge
 DELIM_OSRF_REPO_GIT
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
 # debian sid docker images does not return correct name so we need to use
@@ -57,15 +74,16 @@ RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --fo
     if [ -n $GZDEV_TRY_BRANCH ]; then git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH; fi || true && \
     ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} )
 DELIM_OSRF_REPO_GZDEV
-else
+fi
+
+# This could duplicate repositories enabled in the step above. gzdev should warn about it without failing.
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
-RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO}  || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
+RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
     if [ -n $GZDEV_TRY_BRANCH ]; then git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH; fi || true && \
     ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} )
 DELIM_OSRF_REPO
 done
-fi
 }
 
 case ${LINUX_DISTRO} in
@@ -98,12 +116,10 @@ case ${ARCH} in
      fi
      ;;
    'armhf')
-     # There is no osrf/jammy_armhf image. Trying new
-     # platform support in docker
-     if [[ ${DISTRO} == 'jammy' ]]; then
-      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
-     else
+     if [[ ${DISTRO} == 'focal' ]]; then
       FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
+     else
+      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      fi
      ;;
   'arm64')
@@ -133,7 +149,7 @@ cat > Dockerfile << DELIM_DOCKER
 # Docker file to run build.sh
 
 FROM ${FROM_VALUE}
-MAINTAINER Jose Luis Rivero <jrivero@osrfoundation.org>
+LABEL maintainer="Jose Luis Rivero <jrivero@osrfoundation.org>"
 
 # setup environment
 ENV LANG C
@@ -163,20 +179,17 @@ DELIM_DEBIAN_APT
 fi
 
 if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
+# Opt-out of phased updates, which can create inconsistencies between installed package versions as different containers end up on different phases.
+# https://wiki.ubuntu.com/PhasedUpdates
+cat >> Dockerfile << DELIM_PHASED
+RUN echo 'APT::Get::Never-Include-Phased-Updates "true";' > /etc/apt/apt.conf.d/90-phased-updates
+DELIM_PHASED
   if [[ ${ARCH} != 'armhf' && ${ARCH} != 'arm64' ]]; then
 cat >> Dockerfile << DELIM_DOCKER_ARCH
   RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO}-security main restricted universe multiverse" && \\
                                                      >> /etc/apt/sources.list
 DELIM_DOCKER_ARCH
   fi
-fi
-
-# i386 image only have main by default
-if [[ ${LINUX_DISTRO} == 'ubuntu' && ${ARCH} == 'i386' ]]; then
-cat >> Dockerfile << DELIM_DOCKER_I386_APT
-RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO} restricted universe" \\
-                                                       >> /etc/apt/sources.list
-DELIM_DOCKER_I386_APT
 fi
 
 # Workaround for: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=932019
@@ -222,12 +235,18 @@ RUN echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/ros-archive-keyrin
         /etc/apt/sources.list.d/ros2-testing.list
 RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 DELIM_ROS_REPO
+  elif ${ROS_BOOTSTRAP}; then
+cat >> Dockerfile << DELIM_ROS_REPO
+RUN echo "deb http://repos.ros.org/repos/ros_bootstrap/ ${DISTRO} main" > \\
+                                                /etc/apt/sources.list.d/ros_bootstrap.list
+RUN apt-key adv --keyserver ${KEYSERVER} --recv-keys 8EDB2EF661FC880E
+DELIM_ROS_REPO
   else
 cat >> Dockerfile << DELIM_ROS_REPO
 # Note that ROS uses ubuntu hardcoded in the paths of repositories
 RUN echo "deb http://packages.ros.org/${ROS_REPO_NAME}/ubuntu ${DISTRO} main" > \\
                                                 /etc/apt/sources.list.d/ros.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F42ED6FBAB17C654
+RUN apt-key adv --keyserver ${KEYSERVER} --recv-keys F42ED6FBAB17C654
 DELIM_ROS_REPO
 # Need ros stable for the cases of ros-testing
 if [[ ${ROS_REPO_NAME} != "ros" ]]; then
@@ -278,6 +297,11 @@ cat >> Dockerfile << DELIM_DOCKER3
 # TODO: remove workaround for 13.56.139.45 server
 RUN echo "${MONTH_YEAR_STR}"
 DELIM_DOCKER3
+
+# If the previous command invalidated the cache, a new install of gzdev is
+# needed to update to possible recent changes in configuration and/or code and
+# not being used since the docker cache did not get them.
+dockerfile_install_gzdev_repos
 
 cat >> Dockerfile << DELIM_DOCKER3_2
 RUN sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.list.d/* || true \
@@ -347,6 +371,10 @@ cat >> Dockerfile << DELIM_NVIDIA2_GPU
     ${NVIDIA_VISIBLE_DEVICES:-all}
   ENV NVIDIA_DRIVER_CAPABILITIES \
     ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
+DELIM_NVIDIA2_GPU
+
+if [[ ${LINUX_DISTRO} == 'ubuntu' ]] && [[ ${DISTRO} == 'bionic' || ${DISTRO} == 'focal' ]]; then
+cat >> Dockerfile << DELIM_NVIDIA3_GPU
 # Install libglvnd for OpenGL using nvidia-docker2
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
@@ -368,7 +396,8 @@ RUN mkdir -p /opt/libglvnd && cd /opt/libglvnd && \
     make install-strip && \
     find /usr/local/lib/x86_64-linux-gnu -type f -name 'lib*.la' -delete
 ENV LD_LIBRARY_PATH /usr/local/lib/x86_64-linux-gnu\${LD_LIBRARY_PATH:+:\${LD_LIBRARY_PATH}}
-DELIM_NVIDIA2_GPU
+DELIM_NVIDIA3_GPU
+fi
   fi
  else
   # No NVIDIA cards needs to have the same X stack than the host
@@ -383,6 +412,13 @@ RUN CHROOT_GRAPHIC_CARD_PKG_VERSION=\$(dpkg -l | grep "^ii.*${GRAPHIC_CARD_PKG}\
    fi
 DELIM_DISPLAY
   fi
+fi
+
+if ${USE_DOCKER_IN_DOCKER}; then
+cat >> Dockerfile << DELIM_WORKAROUND_DOCKER_IN_DOCKER_HOOK
+# Avoid ERROR: invoke-rc.d: policy-rc.d denied execution of start.
+RUN sed -i "s/^exit 101$/exit 0/" /usr/sbin/policy-rc.d
+DELIM_WORKAROUND_DOCKER_IN_DOCKER_HOOK
 fi
 
 if [ `expr length "${DOCKER_POSTINSTALL_HOOK}"` -gt 1 ]; then
@@ -440,11 +476,16 @@ RUN adduser --uid \$USERID --gid \$GID --gecos "Developer" --disabled-password \
 RUN adduser \$USER sudo
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN chown -R \$USER:\$USER /home/\$USER
+# Needed if USE_DOCKER_IN_DOCKER is active. Harmless to be here
+RUN groupadd docker
+RUN gpasswd -a \$USER docker
+RUN newgrp docker
 
 # permit access to USER variable inside docker
-ENV USER ${USER}
-USER $USER
+ENV USER \$USER
+USER \$USER
 # Must use sudo where necessary from this point on
+
 DELIM_DOCKER_USER
 
 if [[ -n ${SOFTWARE_DIR} ]]; then

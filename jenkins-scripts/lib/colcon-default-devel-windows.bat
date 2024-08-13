@@ -5,15 +5,15 @@
 ::   - GAZEBODISTRO_FILE : (optional) vcs yaml file in the gazebodistro repository
 ::   - COLCON_PACKAGE : package name to test in colcon ws
 ::   - COLCON_AUTO_MAJOR_VERSION (default false): auto detect major version from CMakeLists
+::   - COLCON_PACKAGE_EXTRA_CMAKE_ARGS : (optional) CMake arg to inject into colcon
 ::   - BUILD_TYPE     : (default Release) [ Release | Debug ] Build type to use
-::   - DEPEN_PKGS     : (optional) list of dependencies (separted by spaces)
 ::   - KEEP_WORKSPACE : (optional) true | false. Clean workspace at the end
 ::   - ENABLE_TESTS   : (optional) true | false. Do not compile and run tests
 ::
 :: Actions
 ::   - Configure the compiler
 ::   - Clean and create the WORKSPACE/ws
-::   - Download and unzip the DEPEN_PKGS
+::   - Install the binary external dependencies
 ::   - configure, compile and install
 ::   - run tests
 
@@ -35,7 +35,25 @@ if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
    echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
 )
 
-set TEST_RESULT_PATH=%WORKSPACE%\ws\build\%COLCON_PACKAGE%\test_results
+:: Check if package is in colcon workspace
+echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
+echo Packages in workspace:
+colcon list --names-only
+
+colcon list --names-only | find "!COLCON_PACKAGE!"
+if errorlevel 1 (
+  set COLCON_PACKAGE=!COLCON_PACKAGE:gz=ignition!
+  set COLCON_PACKAGE=!COLCON_PACKAGE:sim=gazebo!
+)
+colcon list --names-only | find "!COLCON_PACKAGE!"
+if errorlevel 1 (
+  echo Failed to find package !COLCON_PACKAGE! in workspace.
+  goto :error
+)
+echo Using package name !COLCON_PACKAGE!
+echo # END SECTION
+
+set TEST_RESULT_PATH=%WORKSPACE%\ws\build\!COLCON_PACKAGE!\test_results
 
 setlocal ENABLEDELAYEDEXPANSION
 if not defined GAZEBODISTRO_FILE (
@@ -65,6 +83,15 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc2019_compiler
 echo # END SECTION
 
+:: Prepare a clean vcpkg environment with external dependencies
+call %win_lib% :remove_vcpkg_installation || goto :error
+echo # BEGIN SECTION: vcpkg: install all dependencies
+call %win_lib% :setup_vcpkg_all_dependencies || goto :error
+echo # END SECTION
+echo # BEGIN SECTION: vcpkg: list installed packages
+call %win_lib% :list_vcpkg_packages || goto :error
+echo # END SECTION
+
 echo # BEGIN SECTION: setup workspace
 if not defined KEEP_WORKSPACE (
   IF exist %LOCAL_WS_BUILD% (
@@ -88,13 +115,6 @@ if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
 xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i > xcopy_vcs_directory.log || goto :error
 echo # END SECTION
 
-for %%p in (%DEPEN_PKGS%) do (
-  call %win_lib% :enable_vcpkg_integration || goto :error
-  echo # BEGIN SECTION: install external dependency %%p
-  call %win_lib% :install_vcpkg_package %%p || goto :error
-  echo # END SECTION
-)
-
 echo # BEGIN SECTION: packages in workspace
 call %win_lib% :list_workspace_pkgs || goto :error
 echo # END SECTION
@@ -105,12 +125,12 @@ if exist %LOCAL_WS_SOFTWARE_DIR%\configure.bat (
 
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
 cd %LOCAL_WS%
-call %win_lib% :build_workspace %COLCON_PACKAGE% || goto :error
+call %win_lib% :build_workspace !COLCON_PACKAGE! !COLCON_PACKAGE_EXTRA_CMAKE_ARGS! || goto :error
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
-    echo # BEGIN SECTION: running tests for %COLCON_PACKAGE%
-    call %win_lib% :tests_in_workspace %COLCON_PACKAGE%
+    echo # BEGIN SECTION: running tests for !COLCON_PACKAGE!
+    call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
     echo # END SECTION
 
     echo # BEGIN SECTION: export testing results

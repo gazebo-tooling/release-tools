@@ -12,7 +12,7 @@ BOTTLE_NAME=$1 # project will have the major version included (ex gazebo2)
 
 export HOMEBREW_PREFIX=/usr/local
 export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
-export PATH=${HOMEBREW_PREFIX}/bin:$PATH
+export PATH=${HOMEBREW_PREFIX}/bin:${HOMEBREW_PREFIX}/sbin:$PATH
 
 # make verbose mode?
 MAKE_VERBOSE_STR=""
@@ -22,11 +22,12 @@ fi
 
 # Step 1. Set up homebrew
 echo "# BEGIN SECTION: clean up ${HOMEBREW_PREFIX}"
+export HOMEBREW_NO_INSTALL_FROM_API=1
 . ${SCRIPT_DIR}/lib/_homebrew_cleanup.bash
 . ${SCRIPT_DIR}/lib/_homebrew_base_setup.bash
 brew cleanup || echo "brew cleanup couldn't be run"
 mkdir -p ${HOMEBREW_CELLAR}
-sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
+chmod -R ug+rwx ${HOMEBREW_CELLAR}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: brew information'
@@ -44,6 +45,16 @@ echo '# END SECTION'
 echo '# BEGIN SECTION: setup the osrf/simulation tap'
 brew tap osrf/simulation
 echo '# END SECTION'
+
+if python3 "${SCRIPT_DIR}/tools/detect_ci_matching_branch.py" "${RTOOLS_BRANCH}"
+then
+  echo "# BEGIN SECTION: trying to checkout branch ${RTOOLS_BRANCH} from osrf/simulation"
+  pushd "$(brew --repo osrf/simulation)"
+  git fetch origin "${RTOOLS_BRANCH}" || true
+  git checkout "${RTOOLS_BRANCH}" || true
+  popd
+  echo '# END SECTION'
+fi
 
 echo "# BEGIN SECTION: install ${BOTTLE_NAME}"
 brew install --include-test ${BOTTLE_NAME}
@@ -80,5 +91,5 @@ brew list | grep '^szip$' || brew doctor || echo MARK_AS_UNSTABLE
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: re-add group write permissions"
-sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
+chmod -R ug+rwx ${HOMEBREW_CELLAR}
 echo '# END SECTION'

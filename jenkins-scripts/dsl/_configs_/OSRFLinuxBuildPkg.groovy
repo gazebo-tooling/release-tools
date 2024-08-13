@@ -1,6 +1,7 @@
 package _configs_
 
 import javaposse.jobdsl.dsl.Job
+import _configs_.Globals
 
 /*
   -> OSRFLinuxBuildPkgBase
@@ -41,7 +42,7 @@ class OSRFLinuxBuildPkg
                     "Package name to be built")
         stringParam("VERSION",
                     default_params.find{ it.key == "VERSION"}?.value,
-                    "Packages version to be built")
+                    "Packages version to be built or nightly (enable nightly build mode)")
         stringParam("RELEASE_VERSION",
                     default_params.find{ it.key == "RELEASE_VERSION"}?.value,
                     "Packages release version")
@@ -65,13 +66,13 @@ class OSRFLinuxBuildPkg
                     "If not empty, package name to be used instead of PACKAGE")
         stringParam("UPLOAD_TO_REPO",
                     default_params.find{ it.key == "UPLOAD_TO_REPO"}?.value,
-                    "OSRF repo name to upload the package to")
+                    "OSRF repo name to upload the package to: stable | prerelease | nightly | none (for testing proposes)")
         stringParam("OSRF_REPOS_TO_USE",
                     default_params.find{ it.key == "OSRF_REPOS_TO_USE"}?.value,
                     "OSRF repos name to use when building the package")
         labelParam('JENKINS_NODE_TAG') {
           description('Jenkins node or group to run build')
-          defaultValue('docker')
+          defaultValue(Globals.nontest_label('docker'))
         }
       }
 
@@ -99,23 +100,34 @@ class OSRFLinuxBuildPkg
             failBuildOnError(false)
         }
 
-        downstreamParameterized {
-	  trigger('repository_uploader_packages') {
-	    condition('UNSTABLE_OR_BETTER')
-	    parameters {
-	      currentBuild()
-	      predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
-	      // Workaround to avoid problems on repository uploader. Real
-	      // issue: https://issues.jenkins-ci.org/browse/JENKINS-45005
-	      predefinedProp("JENKINS_NODE_TAG", "master")
-	    }
-	  }
+        flexiblePublish
+        {
+          conditionalAction {
+            condition {
+              not {
+                expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
+              }
+            }
+            publishers {
+              downstreamParameterized {
+                trigger('repository_uploader_packages') {
+                  condition('UNSTABLE_OR_BETTER')
+                  parameters {
+                    currentBuild()
+                    predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
+                    // Workaround to avoid problems on repository uploader. Real
+                    // issue: https://issues.jenkins-ci.org/browse/JENKINS-45005
+                    predefinedProp("JENKINS_NODE_TAG", "master")
+                  }
+                }
+              }
+            }
+          }
         }
-      }
-
-      configure { project ->
-        project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
-          'string' 'repository_uploader_*'
+        configure { project ->
+          project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
+            'string' 'repository_uploader_*'
+          }
         }
       }
     } // end of job

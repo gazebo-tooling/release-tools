@@ -1,520 +1,191 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
+// If failed to import locally be sure of using tools/ scripts
+import org.yaml.snakeyaml.Yaml
 
-// IGNITION COLLECTIONS
+// GZ COLLECTIONS
 arch = 'amd64'
 
-ignition_nightly = 'garden'
+// Jenkins needs the relative path to work and locally the simulation is done
+// using a symlink
+file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
+gz_collections_yaml = new Yaml().load(file)
 
-ignition_collections = [
-  [ name : 'citadel',
-    distros : [ 'bionic' ],
-  ],
-  [ name : 'fortress',
-    distros : [ 'focal' ],
-  ],
-  [ name : 'garden',
-    distros : [ 'focal' ],
-    // These are the branches currently targeted at the upcoming collection
-    // They're in topological order
-    nightly_jobs: [
-          'tools'     : [ debbuild: 'ign-tools'       , branch: 'ign-tools1' ],
-          'cmake'     : [ debbuild: 'ign-cmake3'      , branch: 'main' ],
-          'utils'     : [ debbuild: 'ign-utils2'      , branch: 'main' ],
-          'math'      : [ debbuild: 'ign-math7'       , branch: 'main' ],
-          'plugin'    : [ debbuild: 'ign-plugin2'     , branch: 'main' ],
-          'common'    : [ debbuild: 'ign-common5'     , branch: 'main' ],
-          'msgs'      : [ debbuild: 'ign-msgs9'       , branch: 'main' ],
-          'rendering' : [ debbuild: 'ign-rendering7'  , branch: 'main' ],
-          'sdformat'  : [ debbuild: 'sdformat13'      , branch: 'main' ],
-          'fuel-tools': [ debbuild: 'ign-fuel-tools8' , branch: 'main' ],
-          'transport' : [ debbuild: 'ign-transport12' , branch: 'main' ],
-          'gui'       : [ debbuild: 'ign-gui7'        , branch: 'main' ],
-          'sensors'   : [ debbuild: 'ign-sensors7'    , branch: 'main' ],
-          'physics'   : [ debbuild: 'ign-physics6'    , branch: 'main' ],
-          'gazebo'    : [ debbuild: 'ign-gazebo7'     , branch: 'main' ],
-          'launch'    : [ debbuild: 'ign-launch6'     , branch: 'main' ],
-          'garden'    : [ debbuild: 'ign-garden'      , branch: 'main' ],
-    ],
-  ],
-]
+gz_nightly = 'ionic'
 
-ignition_collection_jobs =
-[
-  'citadel' : [
-        'ign_common-ign-3-win',
-        'ign_fuel-tools-ign-4-win',
-        'ign_gazebo-ign-3-win',
-        'ign_gui-ign-3-win',
-        'ign_math-ign-6-win',
-        'ign_msgs-ign-5-win',
-        'ign_physics-ign-2-win',
-        'ign_plugin-ign-1-win',
-        'ign_rendering-ign-3-win',
-        'ign_sensors-ign-3-win',
-        'ign_tools-ign-1-win',
-        'ign_transport-ign-8-win',
-        'ignition_citadel-ci-main-homebrew-amd64',
-        'ignition_citadel-install-pkg-bionic-amd64',
-        'ignition_citadel-install_bottle-homebrew-amd64',
-        'ignition_cmake-ci-ign-cmake2-focal-amd64',
-        'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
-        'ignition_cmake-ci-ign-cmake2-windows7-amd64',
-        'ignition_cmake2-install-pkg-focal-amd64',
-        'ignition_cmake2-install_bottle-homebrew-amd64',
-        'ignition_common-ci-ign-common3-focal-amd64',
-        'ignition_common-ci-ign-common3-homebrew-amd64',
-        'ignition_common3-install-pkg-focal-amd64',
-        'ignition_common3-install_bottle-homebrew-amd64',
-        'ignition_fuel-tools-ci-ign-fuel-tools4-focal-amd64',
-        'ignition_fuel-tools-ci-ign-fuel-tools4-homebrew-amd64',
-        'ignition_fuel-tools4-install-pkg-focal-amd64',
-        'ignition_fuel-tools4-install_bottle-homebrew-amd64',
-        'ignition_gazebo-ci-ign-gazebo3-focal-amd64',
-        'ignition_gazebo-ci-ign-gazebo3-homebrew-amd64',
-        'ignition_gazebo3-install-pkg-focal-amd64',
-        'ignition_gazebo3-install_bottle-homebrew-amd64',
-        'ignition_gui-ci-ign-gui3-focal-amd64',
-        'ignition_gui-ci-ign-gui3-homebrew-amd64',
-        'ignition_gui3-install-pkg-focal-amd64',
-        'ignition_gui3-install_bottle-homebrew-amd64',
-        'ignition_launch-ci-ign-launch2-focal-amd64',
-        'ignition_launch-ci-ign-launch2-homebrew-amd64',
-        'ignition_launch2-install-pkg-focal-amd64',
-        'ignition_launch2-install_bottle-homebrew-amd64',
-        'ignition_math-ci-ign-math6-focal-amd64',
-        'ignition_math-ci-ign-math6-homebrew-amd64',
-        'ignition_math6-install-pkg-focal-amd64',
-        'ignition_math6-install_bottle-homebrew-amd64',
-        'ignition_msgs-ci-ign-msgs5-focal-amd64',
-        'ignition_msgs-ci-ign-msgs5-homebrew-amd64',
-        'ignition_msgs5-install-pkg-focal-amd64',
-        'ignition_msgs5-install_bottle-homebrew-amd64',
-        'ignition_physics-ci-ign-physics2-focal-amd64',
-        'ignition_physics-ci-ign-physics2-homebrew-amd64',
-        'ignition_physics2-install-pkg-focal-amd64',
-        'ignition_physics2-install_bottle-homebrew-amd64',
-        'ignition_plugin-ci-ign-plugin1-focal-amd64',
-        'ignition_plugin-ci-ign-plugin1-homebrew-amd64',
-        'ignition_plugin-install-pkg-focal-amd64',
-        'ignition_plugin1-install_bottle-homebrew-amd64',
-        'ignition_rendering-ci-ign-rendering3-focal-amd64',
-        'ignition_rendering-ci-ign-rendering3-homebrew-amd64',
-        'ignition_rendering3-install-pkg-focal-amd64',
-        'ignition_rendering3-install_bottle-homebrew-amd64',
-        'ignition_sensors-ci-ign-sensors3-focal-amd64',
-        'ignition_sensors-ci-ign-sensors3-homebrew-amd64',
-        'ignition_sensors3-install-pkg-focal-amd64',
-        'ignition_sensors3-install_bottle-homebrew-amd64',
-        'ignition_tools-ci-ign-tools1-focal-amd64',
-        'ignition_tools-ci-ign-tools1-homebrew-amd64',
-        'ignition_tools-install-pkg-focal-amd64',
-        'ignition_tools1-install_bottle-homebrew-amd64',
-        'ignition_transport-ci-ign-transport8-focal-amd64',
-        'ignition_transport-ci-ign-transport8-homebrew-amd64',
-        'ignition_transport8-install-pkg-focal-amd64',
-        'ignition_transport8-install_bottle-homebrew-amd64',
-        'sdformat-ci-sdformat9-focal-amd64',
-        'sdformat-ci-sdformat9-homebrew-amd64',
-        'sdformat-ci-sdformat9-windows7-amd64',
-        'sdformat-install-sdformat9_pkg-focal-amd64'
-  ],
-  'fortress' : [
-        'ign_common-ign-4-win',
-        'ign_fuel-tools-ign-7-win',
-        'ign_gazebo-ign-6-win',
-        'ign_gui-ign-6-win',
-        'ign_launch-ign-5-win',
-        'ign_math-ign-6-win',
-        'ign_msgs-ign-8-win',
-        'ign_physics-ign-5-win',
-        'ign_plugin-ign-1-win',
-        'ign_rendering-ign-6-win',
-        'ign_sensors-ign-6-win',
-        'ign_tools-ign-1-win',
-        'ign_transport-ign-11-win',
-        'ign_utils-ign-1-win',
-        'ignition_cmake-ci-ign-cmake2-focal-amd64',
-        'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
-        'ignition_cmake-ci-ign-cmake2-windows7-amd64',
-        'ignition_cmake2-install-pkg-focal-amd64',
-        'ignition_cmake2-install_bottle-homebrew-amd64',
-        'ignition_common-ci-ign-common4-focal-amd64',
-        'ignition_common-ci-ign-common4-homebrew-amd64',
-        'ignition_common4-install-pkg-focal-amd64',
-        'ignition_common4-install_bottle-homebrew-amd64',
-        'ignition_fortress-ci-main-homebrew-amd64',
-        'ignition_fortress-install-pkg-focal-amd64',
-        'ignition_fortress-install_bottle-homebrew-amd64',
-        'ignition_fuel-tools-ci-ign-fuel-tools7-focal-amd64',
-        'ignition_fuel-tools-ci-ign-fuel-tools7-homebrew-amd64',
-        'ignition_fuel-tools7-install-pkg-focal-amd64',
-        'ignition_fuel-tools7-install_bottle-homebrew-amd64',
-        'ignition_gazebo-ci-ign-gazebo6-focal-amd64',
-        'ignition_gazebo-ci-ign-gazebo6-homebrew-amd64',
-        'ignition_gazebo6-install-pkg-focal-amd64',
-        'ignition_gazebo6-install_bottle-homebrew-amd64',
-        'ignition_gui-ci-ign-gui6-focal-amd64',
-        'ignition_gui-ci-ign-gui6-homebrew-amd64',
-        'ignition_gui6-install-pkg-focal-amd64',
-        'ignition_gui6-install_bottle-homebrew-amd64',
-        'ignition_launch-ci-ign-launch5-focal-amd64',
-        'ignition_launch-ci-ign-launch5-homebrew-amd64',
-        'ignition_launch5-install-pkg-focal-amd64',
-        'ignition_launch5-install_bottle-homebrew-amd64',
-        'ignition_math-ci-ign-math6-focal-amd64',
-        'ignition_math-ci-ign-math6-homebrew-amd64',
-        'ignition_math6-install-pkg-focal-amd64',
-        'ignition_math6-install_bottle-homebrew-amd64',
-        'ignition_msgs-ci-ign-msgs8-focal-amd64',
-        'ignition_msgs-ci-ign-msgs8-homebrew-amd64',
-        'ignition_msgs8-install-pkg-focal-amd64',
-        'ignition_msgs8-install_bottle-homebrew-amd64',
-        'ignition_physics-ci-ign-physics5-focal-amd64',
-        'ignition_physics-ci-ign-physics5-homebrew-amd64',
-        'ignition_physics5-install-pkg-focal-amd64',
-        'ignition_physics5-install_bottle-homebrew-amd64',
-        'ignition_plugin-ci-ign-plugin1-focal-amd64',
-        'ignition_plugin-ci-ign-plugin1-homebrew-amd64',
-        'ignition_plugin-install-pkg-focal-amd64',
-        'ignition_plugin1-install_bottle-homebrew-amd64',
-        'ignition_rendering-ci-ign-rendering6-focal-amd64',
-        'ignition_rendering-ci-ign-rendering6-homebrew-amd64',
-        'ignition_rendering6-install-pkg-focal-amd64',
-        'ignition_rendering6-install_bottle-homebrew-amd64',
-        'ignition_sensors-ci-ign-sensors6-focal-amd64',
-        'ignition_sensors-ci-ign-sensors6-homebrew-amd64',
-        'ignition_sensors6-install-pkg-focal-amd64',
-        'ignition_sensors6-install_bottle-homebrew-amd64',
-        'ignition_tools-ci-ign-tools1-focal-amd64',
-        'ignition_tools-ci-ign-tools1-homebrew-amd64',
-        'ignition_tools-install-pkg-focal-amd64',
-        'ignition_tools1-install_bottle-homebrew-amd64',
-        'ignition_transport-ci-ign-transport11-focal-amd64',
-        'ignition_transport-ci-ign-transport11-homebrew-amd64',
-        'ignition_transport11-install-pkg-focal-amd64',
-        'ignition_transport11-install_bottle-homebrew-amd64',
-        'ignition_utils-ci-ign-utils1-focal-amd64',
-        'ignition_utils-ci-ign-utils1-homebrew-amd64',
-        'ignition_utils-install-pkg-focal-amd64',
-        'ignition_utils1-install_bottle-homebrew-amd64',
-        'sdformat-ci-sdformat12-focal-amd64',
-        'sdformat-ci-sdformat12-homebrew-amd64',
-        'sdformat-ci-sdformat12-windows7-amd64',
-        'sdformat-install-sdformat12_pkg-focal-amd64'
-  ],
-  'garden' : [
-        'ign_common-ci-win',
-        'ign_fuel-tools-ci-win',
-        'ign_gazebo-ci-win',
-        'ign_gui-ci-win',
-        'ign_launch-ci-win',
-        'ign_math-ci-win',
-        'ign_msgs-ci-win',
-        'ign_physics-ci-win',
-        'ign_plugin-ign-1-win',
-        'ign_rendering-ci-win',
-        'ign_sensors-ci-win',
-        'ign_tools-ign-1-win',
-        'ign_transport-ci-win',
-        'ign_utils-ign-1-win',
-        'ignition_cmake-ci-ign-cmake2-focal-amd64',
-        'ignition_cmake-ci-ign-cmake2-homebrew-amd64',
-        'ignition_cmake-ci-ign-cmake2-windows7-amd64',
-        'ignition_cmake2-install-pkg-focal-amd64',
-        'ignition_cmake2-install_bottle-homebrew-amd64',
-        'ignition_common-ci-main-focal-amd64',
-        'ignition_common-ci-main-homebrew-amd64',
-        'ignition_common4-install-pkg-focal-amd64',
-        'ignition_common4-install_bottle-homebrew-amd64',
-        'ignition_garden-ci-main-homebrew-amd64',
-        'ignition_garden-install-pkg-focal-amd64',
-        'ignition_garden-install_bottle-homebrew-amd64',
-        'ignition_fuel-tools-ci-main-focal-amd64',
-        'ignition_fuel-tools-ci-main-homebrew-amd64',
-        'ignition_fuel-tools7-install-pkg-focal-amd64',
-        'ignition_fuel-tools7-install_bottle-homebrew-amd64',
-        'ignition_gazebo-ci-main-focal-amd64',
-        'ignition_gazebo-ci-main-homebrew-amd64',
-        'ignition_gazebo6-install-pkg-focal-amd64',
-        'ignition_gazebo6-install_bottle-homebrew-amd64',
-        'ignition_gui-ci-main-focal-amd64',
-        'ignition_gui-ci-main-homebrew-amd64',
-        'ignition_gui6-install-pkg-focal-amd64',
-        'ignition_gui6-install_bottle-homebrew-amd64',
-        'ignition_launch-ci-main-focal-amd64',
-        'ignition_launch-ci-main-homebrew-amd64',
-        'ignition_launch5-install-pkg-focal-amd64',
-        'ignition_launch5-install_bottle-homebrew-amd64',
-        'ignition_math-ci-main-focal-amd64',
-        'ignition_math-ci-main-homebrew-amd64',
-        'ignition_math6-install-pkg-focal-amd64',
-        'ignition_math6-install_bottle-homebrew-amd64',
-        'ignition_msgs-ci-main-focal-amd64',
-        'ignition_msgs-ci-main-homebrew-amd64',
-        'ignition_msgs8-install-pkg-focal-amd64',
-        'ignition_msgs8-install_bottle-homebrew-amd64',
-        'ignition_physics-ci-main-focal-amd64',
-        'ignition_physics-ci-main-homebrew-amd64',
-        'ignition_physics5-install-pkg-focal-amd64',
-        'ignition_physics5-install_bottle-homebrew-amd64',
-        'ignition_plugin-ci-ign-plugin1-focal-amd64',
-        'ignition_plugin-ci-ign-plugin1-homebrew-amd64',
-        'ignition_plugin-install-pkg-focal-amd64',
-        'ignition_plugin1-install_bottle-homebrew-amd64',
-        'ignition_rendering-ci-main-focal-amd64',
-        'ignition_rendering-ci-main-homebrew-amd64',
-        'ignition_rendering6-install-pkg-focal-amd64',
-        'ignition_rendering6-install_bottle-homebrew-amd64',
-        'ignition_sensors-ci-main-focal-amd64',
-        'ignition_sensors-ci-main-homebrew-amd64',
-        'ignition_sensors6-install-pkg-focal-amd64',
-        'ignition_sensors6-install_bottle-homebrew-amd64',
-        'ignition_tools-ci-ign-tools1-focal-amd64',
-        'ignition_tools-ci-ign-tools1-homebrew-amd64',
-        'ignition_tools-install-pkg-focal-amd64',
-        'ignition_tools1-install_bottle-homebrew-amd64',
-        'ignition_transport-ci-main-focal-amd64',
-        'ignition_transport-ci-main-homebrew-amd64',
-        'ignition_transport11-install-pkg-focal-amd64',
-        'ignition_transport11-install_bottle-homebrew-amd64',
-        'ignition_utils-ci-ign-utils1-focal-amd64',
-        'ignition_utils-ci-ign-utils1-homebrew-amd64',
-        'ignition_utils-install-pkg-focal-amd64',
-        'ignition_utils1-install_bottle-homebrew-amd64',
-        'sdformat-ci-main-focal-amd64',
-        'sdformat-ci-main-homebrew-amd64',
-        'sdformat-ci-main-windows7-amd64',
-        'sdformat-install-sdformat12_pkg-focal-amd64'
-  ],
-]
+String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
+{
+  major_version = parsed_yaml_lib.major_version
+
+  ignore_major_version = parsed_yaml_packaging.linux?.ignore_major_version
+  if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
+    major_version = ""
+
+  return parsed_yaml_lib.name + major_version + "-debbuilder"
+}
 
 def DISABLE_TESTS           = false
 
-// Testing compilation from source
-ignition_collections.each { ign_collection ->
-  // COLCON - Windows
-  ign_collection_name = ign_collection.get('name')
-  def ignition_win_ci_job = job("ign_${ign_collection_name}-ci-win")
-  Globals.gazebodistro_branch = true
-  OSRFWinCompilation.create(ignition_win_ci_job, false)
-  ignition_win_ci_job.with
-  {
-      steps {
-        batchFile("""\
-              set IGNITION_COLLECTION=${ign_collection_name}
-              call "./scripts/jenkins-scripts/lib/ign_collection-base.bat"
-              """.stripIndent())
-      }
-  }
-  Globals.gazebodistro_branch = false
+void generate_install_job(prefix, gz_collection_name, distro, arch)
+{
+  def install_default_job = job("${prefix}_${gz_collection_name}-install-pkg-${distro}-${arch}")
+  OSRFLinuxInstall.create(install_default_job)
 
-  ign_collection.get('distros').each { distro ->
-    // INSTALL JOBS:
-    // --------------------------------------------------------------
-    def install_default_job = job("ignition_${ign_collection_name}-install-pkg-${distro}-${arch}")
-    OSRFLinuxInstall.create(install_default_job)
-
-    install_default_job.with
-    {
-      triggers {
-        cron(Globals.CRON_EVERY_THREE_DAYS)
-      }
-
-      def dev_package = "ignition-${ign_collection_name}"
-
-      label "gpu-reliable"
-
-      def job_name = 'ign_launch-install-test-job.bash'
-
-      steps {
-       shell("""\
-             #!/bin/bash -xe
-
-             export DISTRO=${distro}
-             export ARCH=${arch}
-             export INSTALL_JOB_PKG=${dev_package}
-             export GZDEV_PROJECT_NAME="${dev_package}"
-             /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
-             """.stripIndent())
-      }
-    }
-  }
-
-  // MAC Brew CI job
-  // --------------------------------------------------------------
-  def ignition_brew_ci_job = job("ignition_${ign_collection_name}-ci-main-homebrew-amd64")
-  OSRFBrewCompilation.create(ignition_brew_ci_job, DISABLE_TESTS)
-  OSRFGitHub.create(ignition_brew_ci_job,
-                    "ignitionrobotics/ign-${ign_collection_name}",
-                    "main",
-                    "ign-${ign_collection_name}")
-  ignition_brew_ci_job.with
-  {
-      steps {
-        shell("""\
-              #!/bin/bash -xe
-
-              /bin/bash -xe "./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash" "ignition-${ign_collection_name}"
-              """.stripIndent())
-      }
-  }
-
-  // MAC Brew bottle install job
-  // --------------------------------------------------------------
-  def ignition_brew_install_bottle_job = job("ignition_${ign_collection_name}-install_bottle-homebrew-amd64")
-  OSRFBrewInstall.create(ignition_brew_install_bottle_job)
-
-  ignition_brew_install_bottle_job.with
+  install_default_job.with
   {
     triggers {
-      cron('@daily')
+      cron(Globals.CRON_EVERY_THREE_DAYS)
     }
 
-    def bottle_name = "ignition-${ign_collection_name}"
+    def dev_package = "${prefix}-${gz_collection_name}"
+    def job_name = 'gz_launch-install-test-job.bash'
+
+    label Globals.nontest_label("gpu-reliable")
 
     steps {
      shell("""\
            #!/bin/bash -xe
 
-           /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${bottle_name}
+           export DISTRO=${distro}
+           export ARCH=${arch}
+           export INSTALL_JOB_PKG=${dev_package}
+           export GZDEV_PROJECT_NAME="${dev_package}"
+           if [[ ${gz_collection_name} == 'citadel' || ${gz_collection_name} == 'fortress' ]]; then
+              export GZ_SIM_RUNTIME_TEST_USE_IGN=true
+           fi
+           /bin/bash -x ./scripts/jenkins-scripts/docker/${job_name}
            """.stripIndent())
     }
+  }
+}
 
-    publishers
+// Testing compilation from source
+gz_collections_yaml.collections.each { collection ->
+  gz_collection_name = collection.name
+  collection.ci.configs.each { ci_config_name ->
+    ci_config = gz_collections_yaml.ci_configs.find { it.name == ci_config_name }
+    distro = ci_config.system.version
+    arch = ci_config.system.arch
+
+    // This should really include these two conditions to be effective:
+    //   ci_config.exclude.all?.contains("gz-" + gz_collection_name)
+    //   ci_config.exclude.all?.contains("ign-" + gz_collection_name)
+    // However the collection package being processed here are superseed by the migration
+    // to yaml efforts. Remove from here when -install- and -win- jobs are implemented
+    // in gazebo_libs
+    if (ci_config.exclude.all?.contains(gz_collection_name) ||
+        ci_config.system.so == 'darwin' ||
+        ci_config.system.so == 'windows')
+      return
+
+    // INSTALL JOBS:
+    // --------------------------------------------------------------
+    if ((gz_collection_name == "citadel") || (gz_collection_name == "fortress")) {
+      generate_install_job('ignition', gz_collection_name, distro, arch)
+    }
+    generate_install_job('gz', gz_collection_name, distro, arch)
+
+    // ROS BOOTSTRAP INSTALL JOBS:
+    // --------------------------------------------------------------
+    def install_ros_bootstrap_job =
+    job("ignition_${gz_collection_name}-install-pkg_ros_bootstrap-any-manual")
+    OSRFLinuxInstall.create(install_ros_bootstrap_job)
+    install_ros_bootstrap_job.with
     {
-       configure { project ->
-         project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
-            unstableOnWarning true
-            failBuildOnError false
-            parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
-          }
-       }
+      parameters {
+        stringParam("LINUX_DISTRO", 'ubuntu', "Linux distribution to build packages for")
+        stringParam("DISTRO", distro, "Linux release inside LINUX_DISTRO to build packages for")
+        stringParam("ARCH", arch, "Architecture to build packages for")
+        labelParam('JENKINS_NODE_TAG') {
+          description('Jenkins node or group to run the build on')
+          defaultValue('gpu-reliable')
+        }
+      }
+
+      // Designed to be run manually. No triggers.
+      label Globals.nontest_label("gpu-reliable")
+
+      steps {
+        systemGroovyCommand("""\
+          build.setDescription(
+          '<b>' + build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
+                  build.buildVariableResolver.resolve('DISTRO') + '::' +
+                  build.buildVariableResolver.resolve('ARCH') + '</b>' +
+          '<br />' +
+          'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+          """.stripIndent())
+
+        shell("""\
+             #!/bin/bash -xe
+
+
+             export INSTALL_JOB_PKG=ignition-${gz_collection_name}
+             export USE_ROS_REPO=true
+             export ROS_BOOTSTRAP=true
+             # needed for arm64 machines and other arch tests
+             export ENABLE_GZ_SIM_RUNTIME_TEST=false
+             if [[ ${gz_collection_name} == 'citadel' || ${gz_collection_name} == 'fortress' ]]; then
+                export GZ_SIM_RUNTIME_TEST_USE_IGN=true
+             fi
+             if [[ \${JENKINS_NODE_TAG} == 'gpu-reliable' ]]; then
+               export ENABLE_GZ_SIM_RUNTIME_TEST=true
+             fi
+             /bin/bash -x ./scripts/jenkins-scripts/docker/gz_launch-install-test-job.bash
+             """.stripIndent())
+      }
     }
   }
-
-  // DEBBUILD: linux package builder
-  // --------------------------------------------------------------
-  def build_pkg_job = job("ign-${ign_collection_name}-debbuilder")
-  OSRFLinuxBuildPkg.create(build_pkg_job)
-  build_pkg_job.with
-  {
-      steps {
-        shell("""\
-              #!/bin/bash -xe
-
-              /bin/bash -x ./scripts/jenkins-scripts/docker/multidistribution-ignition-debbuild.bash
-              """.stripIndent())
-      }
-   }
-
-  // Ignition dashboards
-  dashboardView("ign-${ign_collection_name}")
-  {
-      jobs {
-          ignition_collection_jobs["${ign_collection_name}"].each { jobname ->
-            name(jobname)
-          }
-          if (ign_collection_name == ignition_nightly) {
-            // add nightly debbuild jobs too
-            ignition_collections.find { it.get('name') == ignition_nightly }.get('nightly_jobs').each { job ->
-              name(job.getValue().get('debbuild') + '-debbuilder')
-            }
-          }
-      }
-
-      columns {
-        status()
-        weather()
-        name()
-        testResult(0)
-        lastSuccess()
-        lastFailure()
-        lastDuration()
-        buildButton()
-
-      }
-
-      bottomPortlets {
-        jenkinsJobsList {
-            displayName('Jenkins jobs list')
-        }
-      }
-
-      configure { view ->
-        view / columns << "hudson.plugins.warnings.WarningsColumn" (plugin: 'warnings@5.0.1')
-
-        def topPortlets = view / NodeBuilder.newInstance().topPortlets {}
-
-        topPortlets << 'hudson.plugins.view.dashboard.core.UnstableJobsPortlet' {
-            id createPortletId()
-            name 'Failing jobs'
-            showOnlyFailedJobs 'true'
-            recurse 'false'
-        }
-      }
-   }
 }
 
 // NIGHTLY GENERATION
-def get_nightly_branch(collection_data, ign_package)
+def get_nightly_branch(nightly_collection, lib)
 {
-  try {
-    if (collection_data.get(ign_package))
-      return collection_data.get(ign_package).get('branch')
-  } catch(Exception e) {
-    return 'not_enabled_in_DSL'
-  }
-  return 'not_enabled_in_DSL'
+  return nightly_collection.libs.find { it.name == lib }.repo.current_branch
 }
 
-collection_data = []
-list_of_pkgs = ""
+nightly_collection = gz_collections_yaml.collections
+  .find { it.name == gz_nightly }
 
-collection_data = ignition_collections.find { it.get('name') == ignition_nightly }
-collection_data = collection_data.get('nightly_jobs')
-
-collection_data.each { job ->
-  debbuild = job.getValue().get('debbuild')
-  list_of_pkgs = "${list_of_pkgs} ${debbuild}"
-}
-
-def nightly_scheduler_job = job("ignition-${ignition_nightly}-nightly-scheduler")
+def nightly_scheduler_job = job("ignition-${gz_nightly}-nightly-scheduler")
 OSRFUNIXBase.create(nightly_scheduler_job)
 
 nightly_scheduler_job.with
 {
-  label "master"
+  label Globals.nontest_label("master")
 
   parameters
   {
-     stringParam('NIGHTLY_PACKAGES',"${list_of_pkgs}",
-                 'space separated list of packages to build')
+     stringParam('NIGHTLY_PACKAGES',
+                nightly_collection.libs.collect{
+                  get_debbuilder_name(it,nightly_collection.packaging)
+                    .replace("-debbuilder","")
+                }.join(" "),
+                'space separated list of packages to build')
 
      booleanParam('DRY_RUN',false,
                   'run a testing run with no effects')
   }
 
   triggers {
-     cron('0   9    *    *    *')
+     cron(Globals.CRON_START_NIGHTLY)
   }
 
-  cmake_branch = get_nightly_branch(collection_data, 'cmake')
-  common_branch = get_nightly_branch(collection_data, 'common')
-  fuel_tools_branch = get_nightly_branch(collection_data, 'fuel-tools')
-  gazebo_branch = get_nightly_branch(collection_data, 'gazebo')
-  gui_branch = get_nightly_branch(collection_data, 'gui')
-  launch_branch = get_nightly_branch(collection_data, 'launch')
-  math_branch = get_nightly_branch(collection_data, 'math')
-  msgs_branch =  get_nightly_branch(collection_data, 'msgs')
-  physics_branch = get_nightly_branch(collection_data, 'physics')
-  plugin_branch = get_nightly_branch(collection_data, 'plugin')
-  rendering_branch = get_nightly_branch(collection_data, 'rendering')
-  sensors_branch = get_nightly_branch(collection_data, 'sensors')
-  sdformat_branch = get_nightly_branch(collection_data, 'sdformat')
-  tools_branch = get_nightly_branch(collection_data, 'tools')
-  transport_branch = get_nightly_branch(collection_data, 'transport')
-  utils_branch = get_nightly_branch(collection_data, 'utils')
+  cmake_branch = get_nightly_branch(nightly_collection, 'gz-cmake')
+  common_branch = get_nightly_branch(nightly_collection, 'gz-common')
+  fuel_tools_branch = get_nightly_branch(nightly_collection, 'gz-fuel-tools')
+  sim_branch = get_nightly_branch(nightly_collection, 'gz-sim')
+  gui_branch = get_nightly_branch(nightly_collection, 'gz-gui')
+  launch_branch = get_nightly_branch(nightly_collection, 'gz-launch')
+  math_branch = get_nightly_branch(nightly_collection, 'gz-math')
+  msgs_branch =  get_nightly_branch(nightly_collection, 'gz-msgs')
+  physics_branch = get_nightly_branch(nightly_collection, 'gz-physics')
+  plugin_branch = get_nightly_branch(nightly_collection, 'gz-plugin')
+  rendering_branch = get_nightly_branch(nightly_collection, 'gz-rendering')
+  sensors_branch = get_nightly_branch(nightly_collection, 'gz-sensors')
+  sdformat_branch = get_nightly_branch(nightly_collection, 'sdformat')
+  tools_branch = get_nightly_branch(nightly_collection, 'gz-tools')
+  transport_branch = get_nightly_branch(nightly_collection, 'gz-transport')
+  utils_branch = get_nightly_branch(nightly_collection, 'gz-utils')
 
   steps {
     shell("""\
@@ -536,8 +207,8 @@ nightly_scheduler_job.with
                 src_branch="${common_branch}"
               elif [[ "\${n}" != "\${n/fuel-tools/}" ]]; then
                 src_branch="${fuel_tools_branch}"
-              elif  [[ "\${n}" != "\${n/gazebo/}" ]]; then
-                src_branch="${gazebo_branch}"
+              elif  [[ "\${n}" != "\${n/sim/}" ]]; then
+                src_branch="${sim_branch}"
               elif  [[ "\${n}" != "\${n/gui/}" ]]; then
                 src_branch="${gui_branch}"
               elif [[ "\${n}" != "\${n/launch/}" ]]; then
@@ -556,6 +227,8 @@ nightly_scheduler_job.with
                 src_branch="${sensors_branch}"
               elif [[ "\${n}" != "\${n/sdformat/}" ]]; then
                 src_branch="${sdformat_branch}"
+              elif  [[ "\${n}" != "\${n/sim/}" ]]; then
+                src_branch="${sim_branch}"
               elif [[ "\${n}" != "\${n/transport/}" ]]; then
                 src_branch="${transport_branch}"
               elif [[ "\${n}" != "\${n/tools/}" ]]; then
@@ -566,7 +239,7 @@ nightly_scheduler_job.with
                 src_branch="main"
               fi
 
-              echo "releasing \${n} (from branch \${src_branch}"
+              echo "releasing \${n} (from branch \${src_branch})"
               python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly "\${PASS}" --release-repo-branch main --nightly-src-branch \${src_branch} --upload-to-repo nightly > log || echo "MARK_AS_UNSTABLE"
               echo " - done"
           done
