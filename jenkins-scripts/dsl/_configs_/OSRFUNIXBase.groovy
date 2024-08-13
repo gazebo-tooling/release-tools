@@ -36,7 +36,8 @@ class OSRFUNIXBase extends OSRFBase
 
              [[ -d ./scripts ]] &&  rm -fr ./scripts
              # try to recover from corrupted git on macOS
-             git --version || brew remove --force git \$(brew deps git)
+             git --version \
+               || brew remove --force git \$(brew deps git) && brew install git
              git clone https://github.com/gazebo-tooling/release-tools scripts -b \$RTOOLS_BRANCH
              """.stripIndent())
       }
