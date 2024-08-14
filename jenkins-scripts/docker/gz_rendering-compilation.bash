@@ -35,4 +35,10 @@ fi
 export GPU_SUPPORT_NEEDED=true
 export GZDEV_PROJECT_NAME="gz-rendering${GZ_RENDERING_MAJOR_VERSION}"
 
+# set SKIP_optix=true for Harmonic and earlier
+# not needed for ionic since https://github.com/gazebosim/gz-rendering/pull/1032
+if [[ ${GZ_RENDERING_MAJOR_VERSION} -le 8 ]]; then
+  export BUILDING_EXTRA_CMAKE_PARAMS+=" -DSKIP_optix=true"
+fi
+
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
