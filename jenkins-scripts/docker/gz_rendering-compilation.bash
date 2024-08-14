@@ -35,6 +35,4 @@ fi
 export GPU_SUPPORT_NEEDED=true
 export GZDEV_PROJECT_NAME="gz-rendering${GZ_RENDERING_MAJOR_VERSION}"
 
-export BUILDING_EXTRA_CMAKE_PARAMS+=" -DSKIP_optix=true"
-
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
