@@ -359,7 +359,7 @@ collections:
       - name: gz-cmake
         major_version: 4
         repo:
-          current_branch: main
+          current_branch: gz-cmake4
       - name: gz-tools
         major_version: 2
         repo:
@@ -443,6 +443,10 @@ collections:
     libs:
       - name: gz-tools
         major_version: 3
+        repo:
+          current_branch: main
+      - name: gz-cmake
+        major_version: 4
         repo:
           current_branch: main
     ci:
