@@ -1,5 +1,6 @@
 asan_ci __upcoming__ gz_cmake-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_tools-ci_asan-main-noble-amd64
+asan_ci __upcoming__ gz_utils-ci_asan-main-noble-amd64
 asan_ci citadel gz_cmake-ci_asan-ign-cmake2-focal-amd64
 asan_ci citadel gz_common-ci_asan-ign-common3-focal-amd64
 asan_ci citadel gz_fuel_tools-ci_asan-ign-fuel-tools4-focal-amd64
@@ -77,7 +78,7 @@ asan_ci ionic gz_sensors-ci_asan-main-noble-amd64
 asan_ci ionic gz_sim-ci_asan-main-noble-amd64
 asan_ci ionic gz_tools-ci_asan-gz-tools2-noble-amd64
 asan_ci ionic gz_transport-ci_asan-main-noble-amd64
-asan_ci ionic gz_utils-ci_asan-main-noble-amd64
+asan_ci ionic gz_utils-ci_asan-gz-utils3-noble-amd64
 asan_ci ionic sdformat-ci_asan-main-noble-amd64
 branch_ci __upcoming__ gz_cmake-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_cmake-ci-main-noble-amd64
@@ -85,6 +86,9 @@ branch_ci __upcoming__ gz_cmake-main-win
 branch_ci __upcoming__ gz_tools-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_tools-ci-main-noble-amd64
 branch_ci __upcoming__ gz_tools-main-win
+branch_ci __upcoming__ gz_utils-ci-main-homebrew-amd64
+branch_ci __upcoming__ gz_utils-ci-main-noble-amd64
+branch_ci __upcoming__ gz_utils-main-win
 branch_ci citadel gz_cmake-ci-ign-cmake2-focal-amd64
 branch_ci citadel gz_cmake-ci-ign-cmake2-homebrew-amd64
 branch_ci citadel gz_cmake-ign-cmake2-win
@@ -330,9 +334,9 @@ branch_ci ionic gz_tools-ci-gz-tools2-noble-amd64
 branch_ci ionic gz_transport-ci-main-homebrew-amd64
 branch_ci ionic gz_transport-ci-main-noble-amd64
 branch_ci ionic gz_transport-main-win
-branch_ci ionic gz_utils-ci-main-homebrew-amd64
-branch_ci ionic gz_utils-ci-main-noble-amd64
-branch_ci ionic gz_utils-main-win
+branch_ci ionic gz_utils-3-win
+branch_ci ionic gz_utils-ci-gz-utils3-homebrew-amd64
+branch_ci ionic gz_utils-ci-gz-utils3-noble-amd64
 branch_ci ionic sdformat-ci-main-homebrew-amd64
 branch_ci ionic sdformat-ci-main-noble-amd64
 branch_ci ionic sdformat-main-win
@@ -340,6 +344,8 @@ install_ci __upcoming__ gz_cmake4-install-pkg-noble-amd64
 install_ci __upcoming__ gz_cmake4-install_bottle-homebrew-amd64
 install_ci __upcoming__ gz_tools3-install-pkg-noble-amd64
 install_ci __upcoming__ gz_tools3-install_bottle-homebrew-amd64
+install_ci __upcoming__ gz_utils3-install-pkg-noble-amd64
+install_ci __upcoming__ gz_utils3-install_bottle-homebrew-amd64
 install_ci citadel gz_citadel-install-pkg-focal-amd64
 install_ci citadel gz_citadel-install_bottle-homebrew-amd64
 install_ci citadel gz_cmake2-install-pkg-focal-amd64
