@@ -367,7 +367,7 @@ collections:
       - name: gz-utils
         major_version: 3
         repo:
-          current_branch: main
+          current_branch: gz-utils3
       - name: gz-math
         major_version: 8
         repo:
@@ -447,6 +447,10 @@ collections:
           current_branch: main
       - name: gz-cmake
         major_version: 4
+        repo:
+          current_branch: main
+      - name: gz-utils
+        major_version: 3
         repo:
           current_branch: main
     ci:
