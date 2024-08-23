@@ -371,7 +371,7 @@ collections:
       - name: gz-math
         major_version: 8
         repo:
-          current_branch: main
+          current_branch: gz-math8
       - name: gz-plugin
         major_version: 3
         repo:
@@ -451,6 +451,10 @@ collections:
           current_branch: main
       - name: gz-utils
         major_version: 3
+        repo:
+          current_branch: main
+      - name: gz-math
+        major_version: 8
         repo:
           current_branch: main
     ci:
