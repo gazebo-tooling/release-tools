@@ -453,7 +453,7 @@ collections:
         major_version: 3
         repo:
           current_branch: main
-      - name: gz-math8
+      - name: gz-math
         major_version: 8
         repo:
           current_branch: main
