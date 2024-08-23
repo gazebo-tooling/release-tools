@@ -403,7 +403,7 @@ collections:
       - name: gz-gui
         major_version: 9
         repo:
-          current_branch: main
+          current_branch: gz-gui9
       - name: gz-sensors
         major_version: 9
         repo:
@@ -449,8 +449,8 @@ collections:
         major_version: 4
         repo:
           current_branch: main
-      - name: gz-utils
-        major_version: 3
+      - name: gz-gui
+        major_version: 9
         repo:
           current_branch: main
       - name: gz-math
@@ -459,6 +459,10 @@ collections:
           current_branch: main
       - name: gz-rendering
         major_version: 9
+        repo:
+          current_branch: main
+      - name: gz-utils
+        major_version: 3
         repo:
           current_branch: main
     ci:
