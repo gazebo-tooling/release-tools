@@ -1,4 +1,5 @@
 asan_ci __upcoming__ gz_cmake-ci_asan-main-noble-amd64
+asan_ci __upcoming__ gz_math8-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_tools-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_utils-ci_asan-main-noble-amd64
 asan_ci citadel gz_cmake-ci_asan-ign-cmake2-focal-amd64
@@ -69,7 +70,7 @@ asan_ci ionic gz_common-ci_asan-main-noble-amd64
 asan_ci ionic gz_fuel_tools-ci_asan-main-noble-amd64
 asan_ci ionic gz_gui-ci_asan-main-noble-amd64
 asan_ci ionic gz_launch-ci_asan-main-noble-amd64
-asan_ci ionic gz_math-ci_asan-main-noble-amd64
+asan_ci ionic gz_math-ci_asan-gz-math8-noble-amd64
 asan_ci ionic gz_msgs-ci_asan-main-noble-amd64
 asan_ci ionic gz_physics-ci_asan-main-noble-amd64
 asan_ci ionic gz_plugin-ci_asan-main-noble-amd64
@@ -83,6 +84,9 @@ asan_ci ionic sdformat-ci_asan-main-noble-amd64
 branch_ci __upcoming__ gz_cmake-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_cmake-ci-main-noble-amd64
 branch_ci __upcoming__ gz_cmake-main-win
+branch_ci __upcoming__ gz_math8-ci-main-homebrew-amd64
+branch_ci __upcoming__ gz_math8-ci-main-noble-amd64
+branch_ci __upcoming__ gz_math8-main-win
 branch_ci __upcoming__ gz_tools-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_tools-ci-main-noble-amd64
 branch_ci __upcoming__ gz_tools-main-win
@@ -307,9 +311,9 @@ branch_ci ionic gz_gui-main-win
 branch_ci ionic gz_launch-ci-main-homebrew-amd64
 branch_ci ionic gz_launch-ci-main-noble-amd64
 branch_ci ionic gz_launch-main-win
-branch_ci ionic gz_math-ci-main-homebrew-amd64
-branch_ci ionic gz_math-ci-main-noble-amd64
-branch_ci ionic gz_math-main-win
+branch_ci ionic gz_math-8-win
+branch_ci ionic gz_math-ci-gz-math8-homebrew-amd64
+branch_ci ionic gz_math-ci-gz-math8-noble-amd64
 branch_ci ionic gz_msgs-ci-main-homebrew-amd64
 branch_ci ionic gz_msgs-ci-main-noble-amd64
 branch_ci ionic gz_msgs-main-win
@@ -342,6 +346,8 @@ branch_ci ionic sdformat-ci-main-noble-amd64
 branch_ci ionic sdformat-main-win
 install_ci __upcoming__ gz_cmake4-install-pkg-noble-amd64
 install_ci __upcoming__ gz_cmake4-install_bottle-homebrew-amd64
+install_ci __upcoming__ gz_math88-install-pkg-noble-amd64
+install_ci __upcoming__ gz_math88-install_bottle-homebrew-amd64
 install_ci __upcoming__ gz_tools3-install-pkg-noble-amd64
 install_ci __upcoming__ gz_tools3-install_bottle-homebrew-amd64
 install_ci __upcoming__ gz_utils3-install-pkg-noble-amd64
