@@ -391,7 +391,7 @@ collections:
       - name: sdformat
         major_version: 15
         repo:
-          current_branch: main
+          current_branch: sdf15
       - name: gz-fuel-tools
         major_version: 10
         repo:
@@ -467,6 +467,10 @@ collections:
           current_branch: main
       - name: gz-utils
         major_version: 3
+        repo:
+          current_branch: main
+      - name: sdformat
+        major_version: 15
         repo:
           current_branch: main
     ci:
