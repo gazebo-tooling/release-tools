@@ -5,7 +5,7 @@ asan_ci __upcoming__ gz_msgs-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_rendering-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_sensors-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_tools-ci_asan-main-noble-amd64
-asan_ci __upcoming__ gz_transport-ci_asan-gz-transport14-noble-amd64
+asan_ci __upcoming__ gz_transport-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_utils-ci_asan-main-noble-amd64
 asan_ci __upcoming__ sdformat-ci_asan-main-noble-amd64
 asan_ci citadel gz_cmake-ci_asan-ign-cmake2-focal-amd64
@@ -108,9 +108,9 @@ branch_ci __upcoming__ gz_sensors-main-win
 branch_ci __upcoming__ gz_tools-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_tools-ci-main-noble-amd64
 branch_ci __upcoming__ gz_tools-main-win
-branch_ci __upcoming__ gz_transport-14-win
-branch_ci __upcoming__ gz_transport-ci-gz-transport14-homebrew-amd64
-branch_ci __upcoming__ gz_transport-ci-gz-transport14-noble-amd64
+branch_ci __upcoming__ gz_transport-ci-main-homebrew-amd64
+branch_ci __upcoming__ gz_transport-ci-main-noble-amd64
+branch_ci __upcoming__ gz_transport-main-win
 branch_ci __upcoming__ gz_utils-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_utils-ci-main-noble-amd64
 branch_ci __upcoming__ gz_utils-main-win
