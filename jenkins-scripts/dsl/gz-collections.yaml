@@ -383,7 +383,7 @@ collections:
       - name: gz-msgs
         major_version: 11
         repo:
-          current_branch: main
+          current_branch: gz-msgs11
       - name: gz-rendering
         major_version: 9
         repo:
@@ -455,6 +455,10 @@ collections:
           current_branch: main
       - name: gz-math
         major_version: 8
+        repo:
+          current_branch: main
+      - name: gz-msgs
+        major_version: 11
         repo:
           current_branch: main
       - name: gz-rendering
