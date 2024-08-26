@@ -1,6 +1,7 @@
 asan_ci __upcoming__ gz_cmake-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_gui-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_math-ci_asan-main-noble-amd64
+asan_ci __upcoming__ gz_msgs-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_rendering-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_sensors-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_tools-ci_asan-main-noble-amd64
@@ -75,7 +76,7 @@ asan_ci ionic gz_fuel_tools-ci_asan-main-noble-amd64
 asan_ci ionic gz_gui-ci_asan-gz-gui9-noble-amd64
 asan_ci ionic gz_launch-ci_asan-main-noble-amd64
 asan_ci ionic gz_math-ci_asan-gz-math8-noble-amd64
-asan_ci ionic gz_msgs-ci_asan-main-noble-amd64
+asan_ci ionic gz_msgs-ci_asan-gz-msgs11-noble-amd64
 asan_ci ionic gz_physics-ci_asan-main-noble-amd64
 asan_ci ionic gz_plugin-ci_asan-main-noble-amd64
 asan_ci ionic gz_rendering-ci_asan-gz-rendering9-noble-amd64
@@ -94,6 +95,9 @@ branch_ci __upcoming__ gz_gui-main-win
 branch_ci __upcoming__ gz_math-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_math-ci-main-noble-amd64
 branch_ci __upcoming__ gz_math-main-win
+branch_ci __upcoming__ gz_msgs-ci-main-homebrew-amd64
+branch_ci __upcoming__ gz_msgs-ci-main-noble-amd64
+branch_ci __upcoming__ gz_msgs-main-win
 branch_ci __upcoming__ gz_rendering-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_rendering-ci-main-noble-amd64
 branch_ci __upcoming__ gz_rendering-main-win
@@ -330,9 +334,9 @@ branch_ci ionic gz_launch-main-win
 branch_ci ionic gz_math-8-win
 branch_ci ionic gz_math-ci-gz-math8-homebrew-amd64
 branch_ci ionic gz_math-ci-gz-math8-noble-amd64
-branch_ci ionic gz_msgs-ci-main-homebrew-amd64
-branch_ci ionic gz_msgs-ci-main-noble-amd64
-branch_ci ionic gz_msgs-main-win
+branch_ci ionic gz_msgs-ci-gz-msgs11-homebrew-amd64
+branch_ci ionic gz_msgs-ci-gz-msgs11-noble-amd64
+branch_ci ionic gz_msgs-11-win
 branch_ci ionic gz_physics-ci-main-homebrew-amd64
 branch_ci ionic gz_physics-ci-main-noble-amd64
 branch_ci ionic gz_physics-main-win
@@ -366,6 +370,8 @@ install_ci __upcoming__ gz_gui9-install-pkg-noble-amd64
 install_ci __upcoming__ gz_gui9-install_bottle-homebrew-amd64
 install_ci __upcoming__ gz_math8-install-pkg-noble-amd64
 install_ci __upcoming__ gz_math8-install_bottle-homebrew-amd64
+install_ci __upcoming__ gz_msgs11-install-pkg-noble-amd64
+install_ci __upcoming__ gz_msgs11-install_bottle-homebrew-amd64
 install_ci __upcoming__ gz_rendering9-install-pkg-noble-amd64
 install_ci __upcoming__ gz_rendering9-install_bottle-homebrew-amd64
 install_ci __upcoming__ gz_sensors9-install-pkg-noble-amd64
