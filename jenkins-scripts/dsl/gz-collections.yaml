@@ -472,7 +472,7 @@ collections:
       - name: gz-transport
         major_version: 14
         repo:
-          current_branch: gz-transport14
+          current_branch: main
       - name: gz-utils
         major_version: 3
         repo:
