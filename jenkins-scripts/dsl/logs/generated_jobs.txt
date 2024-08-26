@@ -334,9 +334,9 @@ branch_ci ionic gz_launch-main-win
 branch_ci ionic gz_math-8-win
 branch_ci ionic gz_math-ci-gz-math8-homebrew-amd64
 branch_ci ionic gz_math-ci-gz-math8-noble-amd64
+branch_ci ionic gz_msgs-11-win
 branch_ci ionic gz_msgs-ci-gz-msgs11-homebrew-amd64
 branch_ci ionic gz_msgs-ci-gz-msgs11-noble-amd64
-branch_ci ionic gz_msgs-11-win
 branch_ci ionic gz_physics-ci-main-homebrew-amd64
 branch_ci ionic gz_physics-ci-main-noble-amd64
 branch_ci ionic gz_physics-main-win
