@@ -145,6 +145,7 @@ fi
 
 echo '# BEGIN SECTION: create the Dockerfile'
 cat > Dockerfile << DELIM_DOCKER
+#!/bin/bash
 #######################################################
 # Docker file to run build.sh
 
