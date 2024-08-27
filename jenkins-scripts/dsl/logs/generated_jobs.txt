@@ -352,9 +352,9 @@ branch_ci ionic gz_msgs-ci-gz-msgs11-noble-amd64
 branch_ci ionic gz_physics-ci-main-homebrew-amd64
 branch_ci ionic gz_physics-ci-main-noble-amd64
 branch_ci ionic gz_physics-main-win
+branch_ci ionic gz_plugin-3-win
 branch_ci ionic gz_plugin-ci-gz-plugin3-homebrew-amd64
 branch_ci ionic gz_plugin-ci-gz-plugin3-noble-amd64
-branch_ci ionic gz_plugin-3-win
 branch_ci ionic gz_rendering-9-win
 branch_ci ionic gz_rendering-ci-gz-rendering9-homebrew-amd64
 branch_ci ionic gz_rendering-ci-gz-rendering9-noble-amd64
