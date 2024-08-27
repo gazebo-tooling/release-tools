@@ -411,7 +411,7 @@ collections:
       - name: gz-physics
         major_version: 8
         repo:
-          current_branch: main
+          current_branch: gz-physics8
       - name: gz-sim
         major_version: 9
         repo:
@@ -463,6 +463,10 @@ collections:
           current_branch: main
       - name: gz-msgs
         major_version: 11
+        repo:
+          current_branch: main
+      - name: gz-physics
+        major_version: 8
         repo:
           current_branch: main
       - name: gz-plugin
