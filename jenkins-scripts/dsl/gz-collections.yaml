@@ -379,7 +379,7 @@ collections:
       - name: gz-common
         major_version: 6
         repo:
-          current_branch: main
+          current_branch: gz-common6
       - name: gz-msgs
         major_version: 11
         repo:
@@ -447,6 +447,10 @@ collections:
           current_branch: main
       - name: gz-cmake
         major_version: 4
+        repo:
+          current_branch: main
+      - name: gz-common
+        major_version: 6
         repo:
           current_branch: main
       - name: gz-fuel-tools
