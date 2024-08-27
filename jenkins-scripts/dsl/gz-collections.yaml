@@ -399,7 +399,7 @@ collections:
       - name: gz-transport
         major_version: 14
         repo:
-          current_branch: main
+          current_branch: gz-transport14
       - name: gz-gui
         major_version: 9
         repo:
@@ -471,6 +471,10 @@ collections:
           current_branch: main
       - name: gz-sensors
         major_version: 9
+        repo:
+          current_branch: main
+      - name: gz-transport
+        major_version: 14
         repo:
           current_branch: main
       - name: gz-utils
