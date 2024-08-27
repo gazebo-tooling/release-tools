@@ -1,4 +1,5 @@
 asan_ci __upcoming__ gz_cmake-ci_asan-main-noble-amd64
+asan_ci __upcoming__ gz_fuel_tools-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_gui-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_math-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_msgs-ci_asan-main-noble-amd64
@@ -72,7 +73,7 @@ asan_ci harmonic gz_utils-ci_asan-gz-utils2-jammy-amd64
 asan_ci harmonic sdformat-ci_asan-sdf14-jammy-amd64
 asan_ci ionic gz_cmake-ci_asan-gz-cmake4-noble-amd64
 asan_ci ionic gz_common-ci_asan-main-noble-amd64
-asan_ci ionic gz_fuel_tools-ci_asan-main-noble-amd64
+asan_ci ionic gz_fuel_tools-ci_asan-gz-fuel-tools10-noble-amd64
 asan_ci ionic gz_gui-ci_asan-gz-gui9-noble-amd64
 asan_ci ionic gz_launch-ci_asan-main-noble-amd64
 asan_ci ionic gz_math-ci_asan-gz-math8-noble-amd64
@@ -89,6 +90,9 @@ asan_ci ionic sdformat-ci_asan-sdf15-noble-amd64
 branch_ci __upcoming__ gz_cmake-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_cmake-ci-main-noble-amd64
 branch_ci __upcoming__ gz_cmake-main-win
+branch_ci __upcoming__ gz_fuel_tools-ci-main-homebrew-amd64
+branch_ci __upcoming__ gz_fuel_tools-ci-main-noble-amd64
+branch_ci __upcoming__ gz_fuel_tools-main-win
 branch_ci __upcoming__ gz_gui-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_gui-ci-main-noble-amd64
 branch_ci __upcoming__ gz_gui-main-win
@@ -322,9 +326,9 @@ branch_ci ionic gz_cmake-ci-gz-cmake4-noble-amd64
 branch_ci ionic gz_common-ci-main-homebrew-amd64
 branch_ci ionic gz_common-ci-main-noble-amd64
 branch_ci ionic gz_common-main-win
-branch_ci ionic gz_fuel_tools-ci-main-homebrew-amd64
-branch_ci ionic gz_fuel_tools-ci-main-noble-amd64
-branch_ci ionic gz_fuel_tools-main-win
+branch_ci ionic gz_fuel_tools-10-win
+branch_ci ionic gz_fuel_tools-ci-gz-fuel-tools10-homebrew-amd64
+branch_ci ionic gz_fuel_tools-ci-gz-fuel-tools10-noble-amd64
 branch_ci ionic gz_gui-9-win
 branch_ci ionic gz_gui-ci-gz-gui9-homebrew-amd64
 branch_ci ionic gz_gui-ci-gz-gui9-noble-amd64
@@ -366,6 +370,8 @@ branch_ci ionic sdformat-ci-sdf15-noble-amd64
 branch_ci ionic sdformat-sdf15-win
 install_ci __upcoming__ gz_cmake4-install-pkg-noble-amd64
 install_ci __upcoming__ gz_cmake4-install_bottle-homebrew-amd64
+install_ci __upcoming__ gz_fuel_tools10-install-pkg-noble-amd64
+install_ci __upcoming__ gz_fuel_tools10-install_bottle-homebrew-amd64
 install_ci __upcoming__ gz_gui9-install-pkg-noble-amd64
 install_ci __upcoming__ gz_gui9-install_bottle-homebrew-amd64
 install_ci __upcoming__ gz_math8-install-pkg-noble-amd64

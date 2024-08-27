@@ -395,7 +395,7 @@ collections:
       - name: gz-fuel-tools
         major_version: 10
         repo:
-          current_branch: main
+          current_branch: gz-fuel-tools10
       - name: gz-transport
         major_version: 14
         repo:
@@ -447,6 +447,10 @@ collections:
           current_branch: main
       - name: gz-cmake
         major_version: 4
+        repo:
+          current_branch: main
+      - name: gz-fuel-tools
+        major_version: 10
         repo:
           current_branch: main
       - name: gz-gui
