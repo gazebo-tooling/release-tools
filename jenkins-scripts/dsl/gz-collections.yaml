@@ -415,7 +415,7 @@ collections:
       - name: gz-sim
         major_version: 9
         repo:
-          current_branch: main
+          current_branch: gz-sim9
       - name: gz-launch
         major_version: 8
         repo:
@@ -486,6 +486,10 @@ collections:
         repo:
           current_branch: main
       - name: gz-sensors
+        major_version: 9
+        repo:
+          current_branch: main
+      - name: gz-sim
         major_version: 9
         repo:
           current_branch: main
