@@ -9,6 +9,7 @@ asan_ci __upcoming__ gz_physics-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_plugin-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_rendering-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_sensors-ci_asan-main-noble-amd64
+asan_ci __upcoming__ gz_sim-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_tools-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_transport-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_utils-ci_asan-main-noble-amd64
@@ -87,7 +88,7 @@ asan_ci ionic gz_physics-ci_asan-gz-physics8-noble-amd64
 asan_ci ionic gz_plugin-ci_asan-gz-plugin3-noble-amd64
 asan_ci ionic gz_rendering-ci_asan-gz-rendering9-noble-amd64
 asan_ci ionic gz_sensors-ci_asan-gz-sensors9-noble-amd64
-asan_ci ionic gz_sim-ci_asan-main-noble-amd64
+asan_ci ionic gz_sim-ci_asan-gz-sim9-noble-amd64
 asan_ci ionic gz_tools-ci_asan-gz-tools2-noble-amd64
 asan_ci ionic gz_transport-ci_asan-gz-transport14-noble-amd64
 asan_ci ionic gz_utils-ci_asan-gz-utils3-noble-amd64
@@ -125,6 +126,9 @@ branch_ci __upcoming__ gz_rendering-main-win
 branch_ci __upcoming__ gz_sensors-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_sensors-ci-main-noble-amd64
 branch_ci __upcoming__ gz_sensors-main-win
+branch_ci __upcoming__ gz_sim-ci-main-homebrew-amd64
+branch_ci __upcoming__ gz_sim-ci-main-noble-amd64
+branch_ci __upcoming__ gz_sim-main-win
 branch_ci __upcoming__ gz_tools-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_tools-ci-main-noble-amd64
 branch_ci __upcoming__ gz_tools-main-win
@@ -373,9 +377,9 @@ branch_ci ionic gz_rendering-ci-gz-rendering9-noble-amd64
 branch_ci ionic gz_sensors-9-win
 branch_ci ionic gz_sensors-ci-gz-sensors9-homebrew-amd64
 branch_ci ionic gz_sensors-ci-gz-sensors9-noble-amd64
-branch_ci ionic gz_sim-ci-main-homebrew-amd64
-branch_ci ionic gz_sim-ci-main-noble-amd64
-branch_ci ionic gz_sim-main-win
+branch_ci ionic gz_sim-9-win
+branch_ci ionic gz_sim-ci-gz-sim9-homebrew-amd64
+branch_ci ionic gz_sim-ci-gz-sim9-noble-amd64
 branch_ci ionic gz_tools-2-win
 branch_ci ionic gz_tools-ci-gz-tools2-homebrew-amd64
 branch_ci ionic gz_tools-ci-gz-tools2-noble-amd64
@@ -410,6 +414,8 @@ install_ci __upcoming__ gz_rendering9-install-pkg-noble-amd64
 install_ci __upcoming__ gz_rendering9-install_bottle-homebrew-amd64
 install_ci __upcoming__ gz_sensors9-install-pkg-noble-amd64
 install_ci __upcoming__ gz_sensors9-install_bottle-homebrew-amd64
+install_ci __upcoming__ gz_sim9-install-pkg-noble-amd64
+install_ci __upcoming__ gz_sim9-install_bottle-homebrew-amd64
 install_ci __upcoming__ gz_tools3-install-pkg-noble-amd64
 install_ci __upcoming__ gz_tools3-install_bottle-homebrew-amd64
 install_ci __upcoming__ gz_transport14-install-pkg-noble-amd64
