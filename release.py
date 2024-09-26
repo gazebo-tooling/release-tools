@@ -594,7 +594,7 @@ def execute_update_vendor_package_tool(vendor_tool_path,
                f"{vendor_tool_path}/create_gz_vendor_pkg/create_vendor_package.py",
                'package.xml',
                '--output_dir', vendor_repo_path]
-    _, _err_run = check_call(run_cmd)
+    _, _err_run = check_call(run_cmd, IGNORE_DRY_RUN)
     if _err_run:
         print("Problems running the create_vendor_package.py script:")
         print(_err_run.decode())
