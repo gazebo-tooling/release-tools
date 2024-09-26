@@ -11,7 +11,8 @@
 git fetch --tags
 
 PREV_VER=${1:-$(git describe --tags --abbrev=0 | sed 's/.*_//')}
-echo "Changes since $PREV_VER"
+echo "1. **Baseline:** this includes all changes from $PREV_VER and earlier."
+echo ""
 
 ORIGIN_URL=$(git remote get-url origin)
 REPO=$(basename ${ORIGIN_URL%.git})
