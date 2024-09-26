@@ -568,8 +568,7 @@ def prepare_vendor_pr_temp_workspace(package_name, ws_dir) -> Tuple[str, str, st
     venv.create(venv_dir, system_site_packages=True, with_pip=True)
     subprocess.run([os.path.join(venv_dir, 'bin', 'pip3'), 'install', '-q',
                     'jinja2==3.1.2',
-                    'catkin_pkg==1.0.0',
-                    'argparse'])
+                    'catkin_pkg==1.0.0'])
     cmd = ['git', 'clone', '-q',
            'https://github.com/gazebo-tooling/gz_vendor/',
            gz_vendor_tool]
