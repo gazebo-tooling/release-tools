@@ -162,8 +162,6 @@ C) Nightly builds (linux)
                         action='store_true', default=False,
                         help='Only process the ROS vendor package (if any).')
 
-
-
     args = parser.parse_args()
 
     args.package_alias = args.package
@@ -589,9 +587,16 @@ def prepare_vendor_pr_temp_workspace(package_name, ws_dir) -> Tuple[str, str, st
 def execute_update_vendor_package_tool(vendor_tool_path,
                                        vendor_repo_path,
                                        vendor_venv) -> None:
+    # The source repository when releasing matches the
+    src_repo = os.getcwd()
+    try:
+        src_repo = os.environ['_RELEASEPY_TEST_SOURCE_REPO']
+    except KeyError:
+        pass
+
     run_cmd = [os.path.join(vendor_venv, 'bin', 'python3'),
                f"{vendor_tool_path}/create_gz_vendor_pkg/create_vendor_package.py",
-               'package.xml',
+               f"{os.path.join(src_repo, 'package.xml')}",
                '--output_dir', vendor_repo_path]
     _, _err_run = check_call(run_cmd, IGNORE_DRY_RUN)
     if _err_run:
@@ -635,6 +640,9 @@ def create_pr_for_vendor_package(args, repo_path, base_branch) -> str:
         print("Problems creating the PR for the vendor package:")
         print(_err.decode())
         sys.exit(1)
+
+    if DRY_RUN:
+        return ' (skipped the creation on --dry-run)'
 
     return _out.decode()
 

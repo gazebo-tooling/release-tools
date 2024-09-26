@@ -1,9 +1,22 @@
 #!/bin/bash -e
 
-test_dir=$(mktemp -d)
-mkdir -p ${test_dir}/{focal,jammy,ubuntu}/debian
-export _RELEASEPY_TEST_RELEASE_REPO=${test_dir}
 export _RELEASEPY_DEBUG=1
+test_dir=$(mktemp -d)
+export _RELEASEPY_TEST_RELEASE_REPO="${test_dir}/test-release"
+mkdir -p ${_RELEASEPY_TEST_RELEASE_REPO}/{focal,jammy,ubuntu}/debian
+export _RELEASEPY_TEST_SOURCE_REPO="${test_dir}/src"
+mkdir -p ${_RELEASEPY_TEST_SOURCE_REPO}
+# Fake packages.xml to make the vendor package script happy
+cat > "${_RELEASEPY_TEST_SOURCE_REPO}/package.xml" <<-EOF
+<?xml version="1.0"?>
+<package format="2">
+  <name>gz-foo</name>
+  <version>0.0.0</version>
+  <description>test</description>
+  <maintainer email="test@test.foo">Testing maintainer</maintainer>
+  <license>Foo License</license>
+</package>
+EOF
 
 exec_releasepy_test()
 {
@@ -167,4 +180,4 @@ ros_vendor_test=$(exec_releasepy_with_real_gz gz-fuel-tools 9)
 expect_vendor_repo "${ros_vendor_test}" gazebo-release/gz_fuel_tools_vendor
 
 ros_vendor_test=$(exec_releasepy_with_real_gz gz-cmake 2)
-expect_no_vendor "${bump_linux_test}"
+expect_no_vendor "${ros_vendor_test}"
