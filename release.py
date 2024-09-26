@@ -614,7 +614,7 @@ def create_pr_for_vendor_package(args, repo_path, base_branch) -> str:
     commit_cmd = ['git', "-C", repo_path,
                   'commit',
                   '-m', f'Bump version to {args.version}',
-                  'CMakeLists.txt', 'package.xml']
+                  '--all']
     _, _ = check_call(commit_cmd)
     push_cmd = ['git', "-C", repo_path,
                 'push', '--force',
