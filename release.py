@@ -24,7 +24,7 @@ GENERIC_BREW_PULLREQUEST_JOB = 'generic-release-homebrew_pull_request_updater'
 LINUX_DISTROS = ['ubuntu', 'debian']
 SUPPORTED_ARCHS = ['amd64', 'armhf', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
-ROS_VENDOR = {'harmonic': 'rolling'}
+ROS_VENDOR = {'harmonic': 'jazzy', 'ionic': 'rolling'}
 
 OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing none"
 
