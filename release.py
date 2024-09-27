@@ -669,6 +669,9 @@ def create_pr_in_gz_vendor_repo(args, ros_distro) -> str:
 
 def process_ros_vendor_package(args):
     print("ROS vendor packages that can be updated:")
+    if  args.package.replace('gz-','') in ROS_VENDOR:
+        print(" - There are no gz metapackages in ROS")
+        return
     for collection in get_collections_for_package(args.package,
                                                   args.version):
         if collection in ROS_VENDOR:

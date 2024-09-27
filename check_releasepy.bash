@@ -181,3 +181,6 @@ expect_vendor_repo "${ros_vendor_test}" gazebo-release/gz_fuel_tools_vendor
 
 ros_vendor_test=$(exec_releasepy_with_real_gz gz-cmake 2)
 expect_no_vendor "${ros_vendor_test}"
+
+ros_vendor_test=$(exec_releasepy_with_real_gz gz-ionic 3)
+expect_no_vendor "${ros_vendor_test}"
