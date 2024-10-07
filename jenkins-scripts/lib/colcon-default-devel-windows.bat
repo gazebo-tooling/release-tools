@@ -83,13 +83,24 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc2019_compiler
 echo # END SECTION
 
-:: Prepare a clean vcpkg environment with external dependencies
-call %win_lib% :remove_vcpkg_installation || goto :error
-echo # BEGIN SECTION: vcpkg: install all dependencies
-call %win_lib% :setup_vcpkg_all_dependencies || goto :error
+echo # BEGIN SECTION: conda: install miniforge
+call %win_lib% :install_miniforge || goto :error
 echo # END SECTION
-echo # BEGIN SECTION: vcpkg: list installed packages
-call %win_lib% :list_vcpkg_packages || goto :error
+
+echo # BEGIN SECTION: conda: info
+call %win_lib% :conda_info || goto :error
+echo # END SECTION
+
+echo # BEGIN SECTION: conda: create conda-lock
+call %win_lib% :conda_create_lock_environment || goto :error
+echo # END SECTION
+
+echo # BEGIN SECTION: conda-lock: create gz environment
+call %win_lib% :conda_lock_create_gazebo_env || goto :error
+echo # END SECTION
+
+echo # BEGIN SECTION: conda: list installed packages
+call %win_lib% :conda_list || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: setup workspace
