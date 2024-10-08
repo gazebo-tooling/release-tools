@@ -379,7 +379,7 @@ collections:
       - name: gz-common
         major_version: 6
         repo:
-          current_branch: main
+          current_branch: gz-common6
       - name: gz-msgs
         major_version: 11
         repo:
@@ -411,15 +411,15 @@ collections:
       - name: gz-physics
         major_version: 8
         repo:
-          current_branch: main
+          current_branch: gz-physics8
       - name: gz-sim
         major_version: 9
         repo:
-          current_branch: main
+          current_branch: gz-sim9
       - name: gz-launch
         major_version: 8
         repo:
-          current_branch: main
+          current_branch: gz-launch8
       - name: gz-ionic
         major_version: 1
         repo:
@@ -449,6 +449,10 @@ collections:
         major_version: 4
         repo:
           current_branch: main
+      - name: gz-common
+        major_version: 6
+        repo:
+          current_branch: main
       - name: gz-fuel-tools
         major_version: 10
         repo:
@@ -457,12 +461,20 @@ collections:
         major_version: 9
         repo:
           current_branch: main
+      - name: gz-launch
+        major_version: 8
+        repo:
+          current_branch: main
       - name: gz-math
         major_version: 8
         repo:
           current_branch: main
       - name: gz-msgs
         major_version: 11
+        repo:
+          current_branch: main
+      - name: gz-physics
+        major_version: 8
         repo:
           current_branch: main
       - name: gz-plugin
@@ -474,6 +486,10 @@ collections:
         repo:
           current_branch: main
       - name: gz-sensors
+        major_version: 9
+        repo:
+          current_branch: main
+      - name: gz-sim
         major_version: 9
         repo:
           current_branch: main
