@@ -79,6 +79,7 @@ gbp_repo_debbuilds.each { software ->
 
     logRotator {
       artifactNumToKeep(10)
+      numToKeep(75)
     }
 
     concurrentBuild(true)
