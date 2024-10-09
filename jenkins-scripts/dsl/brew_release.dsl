@@ -145,6 +145,7 @@ bottle_job_builder.with
 
    logRotator {
      artifactNumToKeep(10)
+     numToKeep(75)
    }
 
    axes {
