@@ -75,7 +75,7 @@ if [[ -n ${repeated} ]]; then
    exit 1
 fi
 
-avoid_infinite_build_archive=$(grep '<numToKeep>-1</numToKeep>' -- *.xml)
+avoid_infinite_build_archive=$(grep '<numToKeep>-1</numToKeep>' -- *.xml || true)
 if [[ -n ${avoid_infinite_build_archive} ]]; then
   echo "Found a job setup to keep infinite number of builds. This is BAD"
   echo "${avoid_infinite_build_archive}"
