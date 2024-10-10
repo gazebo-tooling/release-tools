@@ -244,7 +244,7 @@ colcon test-result --all
 echo # END SECTION
 goto :EOF
 
-
+:: ##################################
 :install_pixi
 echo "Installing pixi"
 
@@ -283,12 +283,12 @@ goto :EOF
 :install_miniforge
 if exist %CONDA_BASE_PATH% (
   echo "Miniforge installation exists. Removing"
-  del /s /f /q %CONDA_BASE_PATH%
+  rmdir /s /q %CONDA_BASE_PATH%
 )
 mkdir %CONDA_BASE_PATH%
 cd %CONDA_BASE_PATH%
 call :wget https://github.com/conda-forge/miniforge/releases/download/24.7.1-0/Miniforge3-Windows-x86_64.exe Miniforge3-Windows-x86_64.exe|| goto :error
-dir /s
+dir
 Miniforge3-Windows-x86_64 /help
 echo "Installing miniforge 1"
 Miniforge3-Windows-x86_64 /InstallationType=JustMe /RegisterPython=0 /S /D=%miniforge_install%" || goto :error
