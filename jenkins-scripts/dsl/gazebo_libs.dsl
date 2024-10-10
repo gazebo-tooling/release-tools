@@ -428,16 +428,6 @@ branch_index.each { lib_name, distro_configs ->
         add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir)
       } else if (ci_config.system.so == 'windows') {
         def gz_win_ci_any_job_name = "${gz_job_name_prefix}-pr-win"
-        def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
-        Globals.gazebodistro_branch = true
-        OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_job,
-                                            "gazebosim/${lib_name}",
-                                            is_testing_enabled(lib_name, ci_config),
-                                            branch_names,
-                                            ENABLE_GITHUB_PR_INTEGRATION,
-                                            are_cmake_warnings_enabled(lib_name, ci_config))
-        add_win_devel_bat_call(gz_win_ci_any_job, lib_name, ws_checkout_dir)
-        Globals.gazebodistro_branch = false
       }
     }
 
