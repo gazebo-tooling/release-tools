@@ -414,34 +414,7 @@ branch_index.each { lib_name, distro_configs ->
       def ws_checkout_dir = lib_name
       if (ci_config.system.so == 'linux')
       {
-        def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
-        def extra_cmd = pre_setup_script ?: ""
-        def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
-        def gz_ci_any_job = job(gz_ci_job_name)
-        OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
-                                             "gazebosim/${lib_name}",
-                                             is_testing_enabled(lib_name, ci_config),
-                                             ENABLE_CPPCHECK,
-                                             branch_names)
-        generate_label_by_requirements(gz_ci_any_job, lib_name, ci_config.requirements)
-        gz_ci_any_job.with
-        {
-          steps
-          {
-             shell("""\
-                  #!/bin/bash -xe
-
-                  export DISTRO=${distro}
-
-                  ${GLOBAL_SHELL_CMD}
-                  ${extra_cmd}
-
-                  export BUILDING_SOFTWARE_DIRECTORY=${lib_name}
-                  export ARCH=${arch}
-                  /bin/bash -xe ./scripts/jenkins-scripts/docker/${script_name_prefix}-compilation.bash
-                  """.stripIndent())
-          } // end of steps
-        } // end of ci_any_job
+        // TODO def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
       } else if (ci_config.system.so == 'darwin') {
         // --------------------------------------------------------------
         def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-amd64"
