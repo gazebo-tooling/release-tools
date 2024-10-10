@@ -267,9 +267,10 @@ REM certutil -urlcache -split -f "%PIXI_URL%" "%PIXI_TMP%"
 
 echo Importing environment
 pushd "%REPO_ROOT%"
-call :wget "https://raw.githubusercontent.com/j-rivero/conda_testing/refs/heads/main/gz-environment.yaml" "requirements.yaml"
-call "%PIXI_TMP%" init --import requirements.yaml --platform win-64
-if errorlevel 1 exit 1
+git clone https://github.com/j-rivero/conda_testing conda_testing
+cd conda_testing
+REM call "%PIXI_TMP%" init
+REM if errorlevel 1 exit 1
 echo Creating environment
 call "%PIXI_TMP%" install
 if errorlevel 1 exit 1
@@ -288,14 +289,12 @@ if exist %CONDA_BASE_PATH% (
 mkdir %CONDA_BASE_PATH%
 cd %CONDA_BASE_PATH%
 call :wget https://github.com/conda-forge/miniforge/releases/download/24.7.1-0/Miniforge3-Windows-x86_64.exe Miniforge3-Windows-x86_64.exe|| goto :error
-dir
-Miniforge3-Windows-x86_64 /help
-echo "Installing miniforge 1"
-Miniforge3-Windows-x86_64 /InstallationType=JustMe /RegisterPython=0 /S /D=%miniforge_install%" || goto :error
-echo "Installing miniforge 2"
-start /wait "" Miniforge3-Windows-x86_64.exe /InstallationType=JustMe /RegisterPython=0 /S /D=%miniforge_install%" || goto :error
+echo "Installing miniforge"
+Miniforge3-Windows-x86_64.exe /InstallationType=JustMe /RegisterPython=0 /S /D=%miniforge_install%" || goto :error
 echo "Miniforge installed!"
-%CONDA_CMD% /help
+dir 
+echo "Running %CONDA_CMD%"
+%CONDA_CMD% --help
 goto :EOF
 
 :: ##################################

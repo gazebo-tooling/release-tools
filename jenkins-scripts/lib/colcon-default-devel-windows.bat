@@ -89,6 +89,7 @@ echo # END SECTION
 
 echo # BEGIN SECTION: conda: install miniforge
 call %win_lib% :install_miniforge || goto :error
+echo "INSTALLED OUT"
 echo # END SECTION
 
 echo # BEGIN SECTION: conda: info
