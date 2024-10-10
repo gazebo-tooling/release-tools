@@ -249,12 +249,12 @@ goto :EOF
 if exist %CONDA_BASE_PATH% (
   echo "Miniforge installation exists. Removing"
   del /s /f /q %CONDA_BASE_PATH%
-) else (
-  mkdir %CONDA_BASE_PATH%
-  cd %CONDA_BASE_PATH%
-  call :wget https://github.com/conda-forge/miniforge/releases/download/24.7.1-0/Miniforge3-Windows-x86_64.exe || GOTO :ERROR
-  start /wait "" Miniforge3-Windows-x86_64.exe /InstallationType=JustMe /RegisterPython=0 /S /D=%CONDA_BASE_PATH%\Miniforge3
 )
+mkdir %CONDA_BASE_PATH%
+cd %CONDA_BASE_PATH%
+call :wget https://github.com/conda-forge/miniforge/releases/download/24.7.1-0/Miniforge3-Windows-x86_64.exe || GOTO :ERROR
+start /wait "" Miniforge3-Windows-x86_64.exe /InstallationType=JustMe /RegisterPython=0 /S /D=%miniforge_install""
+echo "Miniforge installed!"
 goto :EOF
 
 :: ##################################
