@@ -246,7 +246,7 @@ goto :EOF
 
 :: ##################################
 :install_miniforge
-if exists %CONDA_BASE_PATH% (
+if exist %CONDA_BASE_PATH% (
   echo "Miniforge installation exists. Removing"
   del /s /f /q %CONDA_BASE_PATH%
 ) else (
