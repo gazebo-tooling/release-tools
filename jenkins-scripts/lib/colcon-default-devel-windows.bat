@@ -78,33 +78,80 @@ if not exist %WORKSPACE%\%VCS_DIRECTORY% (
   exit 1
 )
 
+:: CLEAN UP PATH
+setlocal enabledelayedexpansion
+
+rem Define the original PATH variable
+set "originalPath=%PATH%"
+
+rem Remove unwanted paths
+set "newPath="
+for %%i in (!originalPath!) do (
+    set "currentPath=%%i"
+    if /i not "!currentPath!"=="C:\Program Files\Python311\Scripts\" (
+        if /i not "!currentPath!"=="C:\Program Files\Python311\" (
+            if /i not "!currentPath!"=="C:\vcpkg\installed\x64-windows\bin" (
+                if defined newPath (
+                    set "newPath=!newPath!;!currentPath!"
+                ) else (
+                    set "newPath=!currentPath!"
+                )
+            )
+        )
+    )
+)
+
+echo Update the PATH variable
+setx PATH "!newPath!"
+endlocal
+
 :: Call vcvarsall and all the friends
 echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc2019_compiler
 echo # END SECTION
 
-echo # BEGIN SECTION: conda: install pixi
-call %win_lib% :install_pixi || goto :error
-echo # END SECTION
-
 echo # BEGIN SECTION: conda: install miniforge
-call %win_lib% :install_miniforge || goto :error
+call %win_lib% :install_miniforge
+REM call %win_lib% :install_miniforge || goto :error
+echo "INSTALLED OUT"
 echo # END SECTION
 
-echo # BEGIN SECTION: conda: info
-call %win_lib% :conda_info || goto :error
+REM echo # BEGIN SECTION: conda: info
+REM call %win_lib% :conda_info || goto :error
+REM echo # END SECTION
+
+REM echo # BEGIN SECTION: conda: create conda-lock
+REM call %win_lib% :conda_create_lock_environment || goto :error
+REM echo # END SECTION
+
+REM echo # BEGIN SECTION: conda-lock: create gz environment
+REM call %win_lib% :conda_lock_create_gazebo_env || goto :error
+REM echo # END SECTION
+
+REM echo # BEGIN SECTION: conda: list installed packages
+REM call %win_lib% :conda_list || goto :error
+REM echo # END SECTION
+
+echo # BEGIN SECTION: pixi: installation
+call %win_lib% :pixi_installation || goto :error
 echo # END SECTION
 
-echo # BEGIN SECTION: conda: create conda-lock
-call %win_lib% :conda_create_lock_environment || goto :error
+echo # BEGIN SECTION: pixi: create legacy environment
+call %win_lib% :pixi_create_gz_environment_legacy || goto :error
 echo # END SECTION
 
-echo # BEGIN SECTION: conda-lock: create gz environment
-call %win_lib% :conda_lock_create_gazebo_env || goto :error
+echo # BEGIN SECTION: pixi: info
+call %win_lib% :pixi_cmd info || goto :error
 echo # END SECTION
 
-echo # BEGIN SECTION: conda: list installed packages
-call %win_lib% :conda_list || goto :error
+echo # BEGIN SECTION: pixi: list packages
+call %win_lib% :pixi_cmd list || goto :error
+echo # END SECTION
+
+echo # BEGIN SECTION: pixi: enable shell
+call %win_lib% :pixi_cmd shell --locked
+echo %PATH%
+where vcs
 echo # END SECTION
 
 echo # BEGIN SECTION: setup workspace
@@ -131,7 +178,14 @@ xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i > xcopy_vcs_d
 echo # END SECTION
 
 echo # BEGIN SECTION: packages in workspace
+echo "Checking pixi shell standard"
+set %PATH%
+where vcs
 call %win_lib% :list_workspace_pkgs || goto :error
+echo "Checking alternative pixi shell"
+%PIXI_TMP% shell --locked --manifest-path %PIXI_PROJECT_PATH%
+set %PATH%
+where vcs
 echo # END SECTION
 
 if exist %LOCAL_WS_SOFTWARE_DIR%\configure.bat (
