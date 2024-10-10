@@ -244,6 +244,41 @@ colcon test-result --all
 echo # END SECTION
 goto :EOF
 
+
+:install_pixi
+echo "Installing pixi"
+
+set "PIXI_VERSION=0.30.0"
+set "PIXI_URL=https://github.com/prefix-dev/pixi/releases/download/v%PIXI_VERSION%/pixi-x86_64-pc-windows-msvc.exe"
+set "PIXI_TMPDIR=%TMP%\pixi-%RANDOM%"
+set "PIXI_TMP=%PIXI_TMPDIR%\pixi.exe"
+set "REPO_ROOT=C:\Conda"
+echo "REPO_ROOT is %REPO_ROOT%"
+set "MINIFORGE_ROOT=%REPO_ROOT%\.pixi\envs\default"
+
+echo Downloading pixi %PIXI_VERSION% in %PIXI_TMPDIR%
+if not exist "%PIXI_TMPDIR%" mkdir "%PIXI_TMPDIR%"
+pushd %PIXI_TMPDIR%
+call :wget "%PIXI_URL%" pixi.exe
+if errorlevel 1 exit 1
+popd 
+REM echo "calling certuil"
+REM certutil -urlcache -split -f "%PIXI_URL%" "%PIXI_TMP%"
+
+echo Importing environment
+pushd "%REPO_ROOT%"
+call :wget "https://raw.githubusercontent.com/j-rivero/conda_testing/refs/heads/main/gz-environment.yaml" "requirements.yaml"
+call "%PIXI_TMP%" init --import requirements.yaml --platform win-64
+if errorlevel 1 exit 1
+echo Creating environment
+call "%PIXI_TMP%" install
+if errorlevel 1 exit 1
+echo Listing environment
+call "%PIXI_TMP%" list
+if errorlevel 1 exit 1
+popd
+goto :EOF
+
 :: ##################################
 :install_miniforge
 if exist %CONDA_BASE_PATH% (
@@ -252,14 +287,20 @@ if exist %CONDA_BASE_PATH% (
 )
 mkdir %CONDA_BASE_PATH%
 cd %CONDA_BASE_PATH%
-call :wget https://github.com/conda-forge/miniforge/releases/download/24.7.1-0/Miniforge3-Windows-x86_64.exe || GOTO :ERROR
-echo "Installing miniforge"
-start /wait "" Miniforge3-Windows-x86_64.exe /InstallationType=JustMe /RegisterPython=0 /S /D=%miniforge_install%"
+call :wget https://github.com/conda-forge/miniforge/releases/download/24.7.1-0/Miniforge3-Windows-x86_64.exe Miniforge3-Windows-x86_64.exe|| goto :error
+dir /s
+Miniforge3-Windows-x86_64 /help
+echo "Installing miniforge 1"
+Miniforge3-Windows-x86_64 /InstallationType=JustMe /RegisterPython=0 /S /D=%miniforge_install%" || goto :error
+echo "Installing miniforge 2"
+start /wait "" Miniforge3-Windows-x86_64.exe /InstallationType=JustMe /RegisterPython=0 /S /D=%miniforge_install%" || goto :error
 echo "Miniforge installed!"
+%CONDA_CMD% /help
 goto :EOF
 
 :: ##################################
 :conda_info
+echo "Running %CONDA_CMD%"
 %CONDA_CMD% info
 goto :EOF
 

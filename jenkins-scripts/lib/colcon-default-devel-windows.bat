@@ -83,6 +83,10 @@ echo # BEGIN SECTION: configure the MSVC compiler
 call %win_lib% :configure_msvc2019_compiler
 echo # END SECTION
 
+echo # BEGIN SECTION: conda: install pixi
+call %win_lib% :install_pixi || goto :error
+echo # END SECTION
+
 echo # BEGIN SECTION: conda: install miniforge
 call %win_lib% :install_miniforge || goto :error
 echo # END SECTION
