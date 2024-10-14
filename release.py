@@ -558,8 +558,8 @@ def get_vendor_github_repo(package_name) -> str:
 def get_vendor_repo_url(package_name) -> str:
     # Clone needs ssh for real pushing operations. In simulation prefer https to avoid
     # unexpected pushes and facilitate testing
-    protocol = 'https://github.com/' if DRY_RUN else 'ssh://git@github.com:'
-    return f"{protocol}{get_vendor_github_repo(package_name)}"
+    protocol = 'https://github.com' if DRY_RUN else 'ssh://git@github.com'
+    return f"{protocol}/{get_vendor_github_repo(package_name)}"
 
 
 def prepare_vendor_pr_temp_workspace(package_name, ws_dir) -> Tuple[str, str, str]:
