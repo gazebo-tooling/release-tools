@@ -73,7 +73,11 @@ echo Downloading %~1
 :: version of the website. However the jenkins machine fails to validate the secure
 :: https version, so we use the --no-check-certificate option to prevent wget from
 :: quitting prematurely.
-wget %~1 --no-check-certificate -O %cd%\%~2 || goto :error
+:: wget %~1 --no-check-certificate -O %cd%\%~2 || goto :error
+:: Blocked by firewall/antivirus probably
+certutil.exe -urlcache -split -f %~1 %cd%\%~2
+powershell -command "Invoke-WebRequest -Uri %~1 -OutFile %cd%\%~2"
+if errorlevel 1 exit 1
 goto :EOF
 
 :: ##################################
@@ -191,9 +195,8 @@ colcon build --build-base "build"^
 	     --install-base "install"^
 	     --parallel-workers %MAKE_JOBS%^
 	     %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
-	     --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
-             %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
-             --event-handler console_cohesion+ || goto :error
+	     --cmake-args %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
+       --event-handler console_cohesion+ || goto :error
 goto :EOF
 
 :: ##################################
@@ -259,7 +262,7 @@ goto :EOF
 if exist %PIXI_PROJECT_PATH% ( rmdir /s /q %PIXI_PROJECT_PATH% )
 git clone "https://github.com/j-rivero/conda_testing" %PIXI_PROJECT_PATH%
 if errorlevel 1 exit 1
-call :pixi_cmd install
+call %win_lib% :pixi_cmd install
 if errorlevel 1 exit 1
 goto :EOF
 
@@ -289,52 +292,6 @@ pushd %PIXI_PROJECT_PATH%
 call "%PIXI_TMP%" %1 %2
 if errorlevel 1 exit 1
 popd
-goto :EOF
-
-:: ##################################
-:install_miniforge
-if exist %CONDA_BASE_PATH% (
-  echo "Miniforge installation exists. Removing"
-  rmdir /s /q %CONDA_BASE_PATH%
-)
-mkdir %CONDA_BASE_PATH%
-cd %CONDA_BASE_PATH%
-call :wget https://github.com/conda-forge/miniforge/releases/download/24.7.1-0/Miniforge3-Windows-x86_64.exe Miniforge3-Windows-x86_64.exe|| goto :error
-echo "Installing miniforge Miniforge3-Windows-x86_64.exe /InstallationType=JustMe /RegisterPython=0 /S /D=%miniforge_install%"
-Miniforge3-Windows-x86_64.exe /InstallationType=JustMe /RegisterPython=0 /S /D=%miniforge_install% || goto :error
-echo "Miniforge installed!"
-dir 
-dir Miniforge3\*
-dir Miniforge3\condabin\*
-echo "Running %CONDA_CMD% init"
-%CONDA_CMD% init
-echo "Running call %CONDA_CMD% init"
-call %CONDA_CMD% init
-echo "Runing activate"
-%miniforge_install%\condabin\activate.bat
-echo "deactivate"
-%miniforge_install%\condabin\deactivate.bat
-goto :EOF
-
-:: ##################################
-:conda_info
-echo "Running %CONDA_CMD%"
-%CONDA_CMD% info
-goto :EOF
-
-:: ##################################
-:conda_list
-%CONDA_CMD% list
-goto :EOF
-
-:: ##################################
-:conda_create_lock_environment
-%CONDA_CMD% create -n conda-lock conda-lock
-goto :EOF
-
-:: ##################################
-:conda_lock_create_gazebo_env
-conda-lock install -n gz-locked-env gz-environment.conda-lock.yml	
 goto :EOF
 
 :: ##################################

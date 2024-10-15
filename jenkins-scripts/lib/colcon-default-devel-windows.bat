@@ -23,6 +23,8 @@ set LOCAL_WS=%WORKSPACE%\ws
 set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS%\%VCS_DIRECTORY%
 set LOCAL_WS_BUILD=%WORKSPACE%\build
 
+call %SCRIPT_DIR%\lib\windows_env_vars.bat
+
 :: default values
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
 @if "%ENABLE_TESTS%" == "" set ENABLE_TESTS=TRUE
@@ -78,62 +80,12 @@ if not exist %WORKSPACE%\%VCS_DIRECTORY% (
   exit 1
 )
 
-:: CLEAN UP PATH
-setlocal enabledelayedexpansion
-
-rem Define the original PATH variable
-set "originalPath=%PATH%"
-
-rem Remove unwanted paths
-set "newPath="
-for %%i in (!originalPath!) do (
-    set "currentPath=%%i"
-    if /i not "!currentPath!"=="C:\Program Files\Python311\Scripts\" (
-        if /i not "!currentPath!"=="C:\Program Files\Python311\" (
-            if /i not "!currentPath!"=="C:\vcpkg\installed\x64-windows\bin" (
-                if defined newPath (
-                    set "newPath=!newPath!;!currentPath!"
-                ) else (
-                    set "newPath=!currentPath!"
-                )
-            )
-        )
-    )
-)
-
-echo Update the PATH variable
-setx PATH "!newPath!"
-endlocal
-
-:: Call vcvarsall and all the friends
-echo # BEGIN SECTION: configure the MSVC compiler
-call %win_lib% :configure_msvc2019_compiler
-echo # END SECTION
-
-echo # BEGIN SECTION: conda: install miniforge
-call %win_lib% :install_miniforge
-REM call %win_lib% :install_miniforge || goto :error
-echo "INSTALLED OUT"
-echo # END SECTION
-
-REM echo # BEGIN SECTION: conda: info
-REM call %win_lib% :conda_info || goto :error
-REM echo # END SECTION
-
-REM echo # BEGIN SECTION: conda: create conda-lock
-REM call %win_lib% :conda_create_lock_environment || goto :error
-REM echo # END SECTION
-
-REM echo # BEGIN SECTION: conda-lock: create gz environment
-REM call %win_lib% :conda_lock_create_gazebo_env || goto :error
-REM echo # END SECTION
-
-REM echo # BEGIN SECTION: conda: list installed packages
-REM call %win_lib% :conda_list || goto :error
-REM echo # END SECTION
-
 echo # BEGIN SECTION: pixi: installation
 call %win_lib% :pixi_installation || goto :error
+echo # END SECTION
+
+echo # BEGIN SECTION: filtering PATH
+set "PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.2\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.2\libnvvp;;c:\Program Files\AdoptOpenJDK\jdk-8.0.242.08-openj9\bin;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Amazon\cfn-bootstrap\;C:\cinc-project\cinc\bin\;C:\ProgramData\chocolatey\bin;C:\Program Files\Git\cmd;C:\Program Files\PowerShell\7\;C:\Program Files\NVIDIA Corporation\Nsight Compute 2019.5.0\;C:\Windows\system32\config\systemprofile\AppData\Local\Microsoft\WindowsApps"
 echo # END SECTION
 
 echo # BEGIN SECTION: pixi: create legacy environment
@@ -178,19 +130,8 @@ xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i > xcopy_vcs_d
 echo # END SECTION
 
 echo # BEGIN SECTION: packages in workspace
-echo "Checking pixi shell standard"
-set %PATH%
-where vcs
 call %win_lib% :list_workspace_pkgs || goto :error
-echo "Checking alternative pixi shell"
-%PIXI_TMP% shell --locked --manifest-path %PIXI_PROJECT_PATH%
-set %PATH%
-where vcs
 echo # END SECTION
-
-if exist %LOCAL_WS_SOFTWARE_DIR%\configure.bat (
-  echo "DEPRECATED configure.bat file detected. It should be removed from upstream sources"
-)
 
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
 cd %LOCAL_WS%
