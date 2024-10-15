@@ -149,7 +149,7 @@ call %win_lib% :pixi_cmd list || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: pixi: enable shell
-call %win_lib% :pixi_cmd shell --locked
+call %win_lib% :pixi_load_shell
 echo %PATH%
 where vcs
 echo # END SECTION

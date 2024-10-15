@@ -259,7 +259,22 @@ goto :EOF
 if exist %PIXI_PROJECT_PATH% ( rmdir /s /q %PIXI_PROJECT_PATH% )
 git clone "https://github.com/j-rivero/conda_testing" %PIXI_PROJECT_PATH%
 if errorlevel 1 exit 1
-call :pixi_cmd install || goto :error
+call :pixi_cmd install
+if errorlevel 1 exit 1
+goto :EOF
+
+:: ##################################
+:pixi_load_shell
+:: pixi shell won't work since it spawns a blocking cmd inside Jenkins
+:: instead use the hook and execute them in the current shell
+pushd %PIXI_PROJECT_PATH%
+call %win_lib% :pixi_cmd shell-hook --locked > hooks.bat
+type hooks.bat
+call hooks.bat
+del hooks.bat
+:: ERRORS in hooks will make the build to fail. Be permissive
+:: if errorlevel 1 exit 1
+popd
 goto :EOF
 
 :: ##################################
@@ -267,13 +282,13 @@ goto :EOF
 :: arg1 pixi command to run on PIXI_PROJECT_PATH
 :: arg2 pixi second argument
 echo Running pixi %~1 %~2
-:: pushd %PIXI_PROJECT_PATH%
-call "%PIXI_TMP%" %1 %2 --manifest-path %PIXI_PROJECT_PATH%
-echo "Inside pixi_cmd before popd"
-echo %PATH%
-where vcs
-:: if errorlevel 1 exit 1
-:: popd
+:: If using --manifest-file Windows will complain about permissions
+:: using error number 5 :?. Use pushd and popd to go into the 
+:: project directory.
+pushd %PIXI_PROJECT_PATH%
+call "%PIXI_TMP%" %1 %2
+if errorlevel 1 exit 1
+popd
 goto :EOF
 
 :: ##################################
