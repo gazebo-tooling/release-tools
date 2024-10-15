@@ -13,8 +13,9 @@ The script will bump the major version of a library for the packaging files
 inside a -release repository. Mostly designed to be run when a new -release
 repository is forked for a new major release.
 
-*Note: this script is being used from new_ignition_release_repos script in this
-repository which also creates new repositories.*
+*Note: this script is being used from new_gazebo_release_repos script in
+this repository which also creates new repositories. You'll probably want
+to use that instead since it automates the forking and cloning process.*
 
 #### Usage
 
@@ -34,12 +35,12 @@ than any other expected in the repository.
 
 #### Example
 
-To bump `ign-rendering6` and create a new `ign-rendering7` release repositories,
-first fork the `ign-rendering6` in GitHub.
+To bump `gz-rendering6` and create a new `gz-rendering7` release repositories,
+first fork the `gz-rendering6-release` in GitHub and call the fork `gz-rendering7-release`.
 
 ```bash
-git clone https://github.com/gz-release/gz-rendering6-release
-cd gz-rendering6-release
+git clone https://github.com/gz-release/gz-rendering7-release
+cd gz-rendering7-release
 ./path/to/release-tools/release-repo-scripts/bump_major_version 6 7
 ```
 
@@ -127,7 +128,7 @@ cd gz-cmake3-release
 ./path/to/release-tools/release-repo-scripts/new_ubuntu_distribution.bash kinetic
 ```
 
-### new_ignition_release_repos.bash
+### new_gazebo_release_repos.bash
 
 The script will create new -release repositories as forks from the previous version
 and run the `bump_major_version` script in the repository to update all files and
@@ -140,16 +141,17 @@ script in this repository.
 
 ```bash
 cd /tmp/
-./path/to/release-tools/release-repo-scripts/new_ignition_release_repos.bash <list_of_new_ignition_names_space_separated>
+./path/to/release-tools/release-repo-scripts/new_gazebo_release_repos.bash <list_of_new_gazebo_names_space_separated>
 ```
 
-`list_of_new_ignition_names_space_separated` is composed from one or more
+`list_of_new_gazebo_names_space_separated` is composed from one or more
 repository names to be created.
 
 Sequence of actions expected:
- * Create ign-fooY-release if it does not exits
+ * Create gz-fooY-release if it does not exits
  * Clone to the current directory
- * Pull from main/master branch from previous version, ign-fooX-release repository to have the whole history
+ * Pull from main/master branch from previous version, gz repository to
+   have the whole history
  * Run the bump_major_version from X to Y
  * Show the results
  * Commit/push all the changes
@@ -158,11 +160,11 @@ The -release repositories used by this tool will be created on current directory
 
 #### Example
 
-To create `ign-rendering7-release` repository copying files in `ign-rendering6-release`:
+To create `gz-rendering7-release` repository copying files in `gz-rendering6-release`:
 
 ```bash
 cd /tmp/
-./path/to/release-tools/release-repo-scripts/new_ignition_release_repos.bash ign-rendering7
+./path/to/release-tools/release-repo-scripts/new_gazebo_release_repos.bash gz-rendering7
 ```
 
 ### rename_ignition_to_gazebo.bash

@@ -10,8 +10,8 @@ set -e
 SCRIPT_DIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 if [[ $# -lt 1 ]]; then
-    echo "$0 <list_of_new_ignition_names_space_separated>"
-    echo " example: $0 ign-cmake3 ign-common22"
+    echo "$0 <list_of_new_gazebo_names_space_separated>"
+    echo " example: $0 gz-cmake3 gz-common6"
     exit 1
 fi
 
