@@ -69,13 +69,6 @@ goto :EOF
 :: arg1 URL to download
 :: arg2 filename (not including the path, just the filename)
 echo Downloading %~1
-:: Note that http://gazebosim.org/distributions/win32/deps/ redirects to an https
-:: version of the website. However the jenkins machine fails to validate the secure
-:: https version, so we use the --no-check-certificate option to prevent wget from
-:: quitting prematurely.
-:: wget %~1 --no-check-certificate -O %cd%\%~2 || goto :error
-:: Blocked by firewall/antivirus probably
-certutil.exe -urlcache -split -f %~1 %cd%\%~2
 powershell -command "Invoke-WebRequest -Uri %~1 -OutFile %cd%\%~2"
 if errorlevel 1 exit 1
 goto :EOF
@@ -261,9 +254,13 @@ goto :EOF
 :pixi_create_gz_environment_legacy
 if exist %PIXI_PROJECT_PATH% ( rmdir /s /q %PIXI_PROJECT_PATH% )
 git clone "https://github.com/j-rivero/conda_testing" %PIXI_PROJECT_PATH%
+pushd %PIXI_PROJECT_PATH%
 if errorlevel 1 exit 1
 call %win_lib% :pixi_cmd install
 if errorlevel 1 exit 1
+echo "CHECK ASSIMP MATERIAL"
+type ".pixi\envs\default\Library\include\assimp\material.h"
+popd
 goto :EOF
 
 :: ##################################
