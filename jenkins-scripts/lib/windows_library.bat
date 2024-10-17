@@ -184,12 +184,13 @@ echo "COLCON_EXTRA_ARGS: %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%"
 echo "COLCON_EXTRA_CMAKE_ARGS: %COLCON_EXTRA_CMAKE_ARGS%"
 echo "COLCON_EXTRA_CMAKE_ARGS2: %COLCON_EXTRA_CMAKE_ARGS2%"
 
+set VERBOSE=1
 colcon build --build-base "build"^
 	     --install-base "install"^
 	     --parallel-workers %MAKE_JOBS%^
 	     %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
-	     --cmake-args %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
-       --event-handler console_cohesion+ || goto :error
+	     --cmake-args " -D VERBOSE=ON" " -DCMAKE_VERBOSE_MAKEFILE=ON" %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
+       --event-handler console_direct+ || goto :error
 goto :EOF
 
 :: ##################################
