@@ -67,7 +67,7 @@ call %win_lib% :pixi_installation || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: filtering PATH
-set "PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.2\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.2\libnvvp;;c:\Program Files\AdoptOpenJDK\jdk-8.0.242.08-openj9\bin;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Amazon\cfn-bootstrap\;C:\cinc-project\cinc\bin\;C:\ProgramData\chocolatey\bin;C:\Program Files\Git\cmd;C:\Program Files\PowerShell\7\;C:\Program Files\NVIDIA Corporation\Nsight Compute 2019.5.0\;C:\Windows\system32\config\systemprofile\AppData\Local\Microsoft\WindowsApps"
+set "PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Amazon\cfn-bootstrap\;C:\cinc-project\cinc\bin\;C:\Program Files\Git\cmd;C:\Program Files\PowerShell\7\;C:\Windows\system32\config\systemprofile\AppData\Local\Microsoft\WindowsApps"
 echo # END SECTION
 
 echo # BEGIN SECTION: pixi: create legacy environment
