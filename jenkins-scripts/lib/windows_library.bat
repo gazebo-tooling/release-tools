@@ -188,7 +188,7 @@ REM --parallel-workers %MAKE_JOBS%^
 colcon build --build-base "build"^
 	     --install-base "install"^
 	     %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
-	     --cmake-args " -D VERBOSE=ON" " -DCMAKE_VERBOSE_MAKEFILE=ON" %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
+	     --cmake-args %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
        --event-handler console_direct+ || goto :error
 goto :EOF
 
