@@ -66,7 +66,8 @@ echo # BEGIN SECTION: pixi: installation
 call %win_lib% :pixi_installation || goto :error
 echo # END SECTION
 
-echo # BEGIN SECTION: filtering PATH
+echo # BEGIN SECTION: filtering PATH and remove vcpkg
+rmdir /s /q C:\vcpkg
 set "PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Amazon\cfn-bootstrap\;C:\cinc-project\cinc\bin\;C:\Program Files\Git\cmd;C:\Program Files\PowerShell\7\;C:\Windows\system32\config\systemprofile\AppData\Local\Microsoft\WindowsApps"
 echo # END SECTION
 
