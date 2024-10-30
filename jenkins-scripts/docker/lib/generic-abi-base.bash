@@ -25,6 +25,7 @@ echo '# BEGIN SECTION: setup the testing enviroment'
 # Define the name to be used in docker
 DOCKER_JOB_NAME="abi_job"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_common_scripts.bash
 echo '# END SECTION'
 
 # Could be empty, just fine
@@ -44,12 +45,7 @@ if [[ "${NEED_C17_COMPILER}" == "true" ]]; then
 fi
 
 cat > build.sh << DELIM
-#!/bin/bash
-
-###################################################
-# Make project-specific changes here
-#
-set -ex
+$(generate_buildsh_header)
 
 if [ `expr length "${ABI_JOB_PRECHECKER_HOOK} "` -gt 1 ]; then
 echo '# BEGIN SECTION: running pre ABI hook'

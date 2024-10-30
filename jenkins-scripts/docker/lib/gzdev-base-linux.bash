@@ -1,14 +1,12 @@
 echo '# BEGIN SECTION: setup the testing enviroment'
 export DOCKER_JOB_NAME="gzdev"
 . "${SCRIPT_DIR}/lib/boilerplate_prepare.sh"
+. "${SCRIPT_DIR}/lib/_common_scripts.bash"
+. "${SCRIPT_DIR}/lib/_install_nvidia_docker.sh"
 echo '# END SECTION'
 
-. ${SCRIPT_DIR}/lib/_install_nvidia_docker.sh
-
 cat > build.sh << DELIM
-###################################################
-#
-set -ex
+$(generate_buildsh_header)
 
 export MAKE_JOBS=${MAKE_JOBS}
 export DISPLAY=${DISPLAY}
