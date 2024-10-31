@@ -1,7 +1,6 @@
 name: gazebo
 channels:
   - conda-forge
-# plaforms works on conda-lock https://github.com/conda/conda-lock?tab=readme-ov-file#platform-specification
 platforms:
   - win-64
 dependencies:
