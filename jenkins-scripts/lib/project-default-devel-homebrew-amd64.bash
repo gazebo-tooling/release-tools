@@ -93,7 +93,7 @@ if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
     PIP=${HOMEBREW_PREFIX}/opt/python/bin/pip3
   fi
   # TODO use a python3 venv instead.
-  ${PIP} install --break-system-packages ${PIP_PACKAGES_NEEDED}
+  ${PIP} install --break-system-packages --upgrade ${PIP_PACKAGES_NEEDED}
 fi
 
 if [[ -z "${DISABLE_CCACHE}" ]]; then
