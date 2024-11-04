@@ -88,12 +88,10 @@ fi
 
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   brew install python3
-  PIP=pip3
-  if ! which ${PIP}; then
-    PIP=${HOMEBREW_PREFIX}/opt/python/bin/pip3
-  fi
-  # TODO use a python3 venv instead.
-  ${PIP} install --break-system-packages ${PIP_PACKAGES_NEEDED}
+  rm -rf ${WORKSPACE}/venv
+  python3 -m venv ${WORKSPACE}/venv
+  . ${WORKSPACE}/venv/bin/activate
+  pip3 install ${PIP_PACKAGES_NEEDED}
 fi
 
 if [[ -z "${DISABLE_CCACHE}" ]]; then
