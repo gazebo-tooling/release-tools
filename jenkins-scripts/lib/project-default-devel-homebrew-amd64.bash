@@ -88,6 +88,7 @@ fi
 
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   brew install python3
+  rm -rf ${WORKSPACE}/venv
   python3 -m venv ${WORKSPACE}/venv
   . ${WORKSPACE}/venv/bin/activate
   pip3 install ${PIP_PACKAGES_NEEDED}
