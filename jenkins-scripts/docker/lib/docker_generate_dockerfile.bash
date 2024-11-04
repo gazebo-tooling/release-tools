@@ -143,9 +143,12 @@ if [[ -z ${OSRF_REPOS_TO_USE} ]]; then
   fi
 fi
 
+# Enable shell on errors is designed to help debuging but never
+# to be run on Jenkins.
+SHELL_ON_ERRORS=${SHELL_ON_ERRORS:-false}
+
 echo '# BEGIN SECTION: create the Dockerfile'
 cat > Dockerfile << DELIM_DOCKER
-#!/bin/bash
 #######################################################
 # Docker file to run build.sh
 

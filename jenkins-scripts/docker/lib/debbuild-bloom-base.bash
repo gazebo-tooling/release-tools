@@ -23,14 +23,11 @@ export ENABLE_REAPER=false
 PACKAGE_UNDERSCORE_NAME=${PACKAGE//-/_}
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_common_scripts.bash
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
 cat > build.sh << DELIM
-###################################################
-# Make project-specific changes here
-#
-#!/usr/bin/env bash
-set -ex
+$(generate_buildsh_header)
 
 cd $WORKSPACE/build
 
