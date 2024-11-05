@@ -53,20 +53,25 @@ fi
 
 dockerfile_install_gzdev_repos()
 {
-cat >> Dockerfile << DELIM_OSRF_REPO_GIT
+cat >> Dockerfile << DELIM_OSRF_REPO_GIT_1
 ADD https://api.github.com/repos/gazebo-tooling/gzdev/git/refs/heads/$GZDEV_BRANCH version.json
 RUN rm -fr ${GZDEV_DIR} \
     && git clone https://github.com/gazebo-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
-RUN if [ -n $GZDEV_TRY_BRANCH ]; then \
-        git -C ${GZDEV_DIR} fetch origin $GZDEV_TRY_BRANCH || true; \
-        git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH || true; \
-    fi || true
+DELIM_OSRF_REPO_GIT_1
+if [ -n $GZDEV_TRY_BRANCH ]; then
+cat >> Dockerfile << DELIM_OSRF_REPO_GIT_2
+ADD https://api.github.com/repos/gazebo-tooling/gzdev/git/refs/heads/$GZDEV_TRY_BRANCHH version.json
+RUN git -C ${GZDEV_DIR} fetch origin $GZDEV_TRY_BRANCH || true;
+RUN git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH || true;
+DELIM_OSRF_REPO_GIT_2
+fi
+cat >> Dockerfile << DELIM_OSRF_REPO_GIT_3
 # print branch for informational purposes
 RUN git -C ${GZDEV_DIR} branch
 # clean all _gzdev_ repository installations from the system before handling the configuration
 # otherwise the docker cache could contain unexpected repositories
 RUN ${GZDEV_DIR}/gzdev.py repository purge
-DELIM_OSRF_REPO_GIT
+DELIM_OSRF_REPO_GIT_3
 
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
 # debian sid docker images does not return correct name so we need to use force-linux-distro
