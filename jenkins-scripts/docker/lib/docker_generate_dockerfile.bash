@@ -177,8 +177,8 @@ fi
 # The redirection fails too many times using us ftp
 if [[ ${LINUX_DISTRO} == 'debian' ]]; then
 cat >> Dockerfile << DELIM_DEBIAN_APT
-  RUN sed -i -e 's:httpredir:ftp.us:g' /etc/apt/sources.list
-  RUN echo "deb-src ${SOURCE_LIST_URL} ${DISTRO} main" >> /etc/apt/sources.list
+  RUN sed -i -e 's/URIs: .*/URIs: http:\/\/ftp.us.debian.org\/debian/g' /etc/apt/sources.list.d/debian.sources
+  RUN sed -i -e 's/Types: deb/Types: deb deb-src/' /etc/apt/sources.list.d/debian.sources
 DELIM_DEBIAN_APT
 fi
 
@@ -333,17 +333,6 @@ RUN (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
 # Map the workspace into the container
 RUN mkdir -p ${WORKSPACE}
 DELIM_DOCKER31
-
-# Beware of moving this code since it needs to run update-alternative after
-# installing the default compiler in PACKAGES_CACHE_AND_CHECK_UPDATES
-if ${INSTALL_C17_COMPILER}; then
-cat >> Dockerfile << DELIM_GCC8
-   RUN apt-get update \\
-   && apt-get install -y g++-8 \\
-   && rm -rf /var/lib/apt/lists/* \\
-   && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
-DELIM_GCC8
-fi
 
 if ${USE_SQUID}; then
   cat >> Dockerfile << DELIM_DOCKER_SQUID
