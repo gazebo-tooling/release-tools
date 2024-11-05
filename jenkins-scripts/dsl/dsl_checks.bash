@@ -63,8 +63,6 @@ if [[ -n ${empty_branches_on_github_triggered} ]]; then
   exit 1
 fi
 
-# re-enable after https://github.com/gazebo-tooling/release-tools/issues/1095
-
 # Filter out the previous auto jobs
 filtered_dir=$(mktemp -d)
 cp -- *-abichecker-*.xml "${filtered_dir}"
@@ -75,4 +73,11 @@ if [[ -n ${repeated} ]]; then
    echo "${repeated}"
    echo "please exclude one of the versions in the yaml file to reduce the server workload"
    exit 1
+fi
+
+avoid_infinite_build_archive=$(grep '<numToKeep>-1</numToKeep>' -- *.xml || true)
+if [[ -n ${avoid_infinite_build_archive} ]]; then
+  echo "Found a job setup to keep infinite number of builds. This is BAD"
+  echo "${avoid_infinite_build_archive}"
+  exit 1
 fi

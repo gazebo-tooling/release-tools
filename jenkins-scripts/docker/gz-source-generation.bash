@@ -6,11 +6,11 @@ echo '# BEGIN SECTION: setup the testing enviroment'
 # Define the name to be used in docker
 export DOCKER_JOB_NAME="source_generation_job"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_common_scripts.bash
 echo '# END SECTION'
 
 cat > build.sh << DELIM
-#!/bin/bash
-set -ex
+$(generate_buildsh_header)
 
 PKG_DIR=\$WORKSPACE/pkgs
 SOURCES_DIR=\$WORKSPACE/sources

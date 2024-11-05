@@ -40,6 +40,7 @@ class OSRFLinuxBackportPkg
 
       logRotator {
         artifactNumToKeep(20)
+        numToKeep(75)
       }
 
       parameters {

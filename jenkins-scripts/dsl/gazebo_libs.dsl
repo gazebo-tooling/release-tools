@@ -560,23 +560,25 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
     def pkg_system = pkg_config.system
       // - CI-INSTALL jobs ------------------------------------------------
     pkg_system.arch.each { arch ->
-      def linux_install_job_name = generate_linux_install(
-        pkg_src,
-        canonical_lib_name,
-        pkg_system.version,
-        arch)
-      def brew_install_job_name = generate_brew_install(
-        pkg_src,
-        canonical_lib_name,
-        arch)
-
+      def install_job_name = ""
+      if (pkg_system.so == 'linux') {
+        install_job_name = generate_linux_install(
+          pkg_src,
+          canonical_lib_name,
+          pkg_system.version,
+          arch)
+      } else if (pkg_system.so == 'darwin') {
+        install_job_name = generate_brew_install(
+          pkg_src,
+          canonical_lib_name,
+          arch)
+      } else {
+        assert("Unexpected pkg_system.so: " + pkg_system.so)
+      }
       pkg_src_config.getValue().each { index_entry ->
         logging_list['install_ci'].add(
           [collection: index_entry.collection,
-           job_name: linux_install_job_name])
-        logging_list['install_ci'].add(
-          [collection: index_entry.collection,
-           job_name: brew_install_job_name])
+           job_name: install_job_name])
       }
     }
   }

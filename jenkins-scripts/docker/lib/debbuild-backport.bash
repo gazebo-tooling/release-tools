@@ -12,13 +12,10 @@ fi
 export ENABLE_REAPER=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_common_scripts.bash
 
 cat > build.sh << DELIM
-###################################################
-# Make project-specific changes here
-#
-#!/usr/bin/env bash
-set -ex
+$(generate_buildsh_header)
 
 cd $WORKSPACE/build
 

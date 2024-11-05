@@ -105,6 +105,7 @@ ratt_pkg_job.with
 
   logRotator {
     artifactNumToKeep(10)
+    numToKeep(75)
   }
 
   concurrentBuild(true)
