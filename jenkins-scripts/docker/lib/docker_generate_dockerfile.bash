@@ -60,7 +60,7 @@ RUN rm -fr ${GZDEV_DIR} \
 DELIM_OSRF_REPO_GIT_1
 if [ -n $GZDEV_TRY_BRANCH ]; then
 cat >> Dockerfile << DELIM_OSRF_REPO_GIT_2
-ADD https://api.github.com/repos/gazebo-tooling/gzdev/git/refs/heads/$GZDEV_TRY_BRANCHH version.json
+ADD https://api.github.com/repos/gazebo-tooling/gzdev/git/refs/heads/$GZDEV_TRY_BRANCH version.json
 RUN git -C ${GZDEV_DIR} fetch origin $GZDEV_TRY_BRANCH || true;
 RUN git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH || true;
 DELIM_OSRF_REPO_GIT_2
