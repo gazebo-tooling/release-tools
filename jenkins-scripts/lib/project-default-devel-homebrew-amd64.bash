@@ -88,6 +88,8 @@ fi
 
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   brew install python3
+  # reset command hash since python3 has already been invoked in this script
+  hash -r
   rm -rf ${WORKSPACE}/venv
   python3 -m venv ${WORKSPACE}/venv
   . ${WORKSPACE}/venv/bin/activate
