@@ -1,0 +1,23 @@
+name: Conda env testing
+
+on:
+  pull_request:
+  push:
+    paths:
+      - 'conda/envs/legacy/**'
+
+jobs:
+  legacy_pixi_test:
+    runs-on: ubuntu-latest
+    name: Legacy Pixi
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install pixi
+        uses: prefix-dev/setup-pixi@ba3bb36eb2066252b2363392b7739741bb777659  # v0.8.1
+        with:
+          locked: true
+          cache: false  # 10Gb limit might be too low for caching
+          manifest-path: conda/envs/legacy/pixi.toml
