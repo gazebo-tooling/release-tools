@@ -21,4 +21,13 @@ if NOT DEFINED VCPKG_SNAPSHOT (
 :: Set of common gz dependencies expected up to Garden
 set VCPKG_DEPENDENCIES_LEGACY=assimp boost-core bullet3 ccd console-bridge cppzmq cuda curl dlfcn-win32 eigen3 fcl ffmpeg freeimage gdal gflags glib gts jsoncpp libyaml libzip ogre ogre2 ogre22 openssl protobuf pybind11 qt5 qt5-winextras qwt spdlog sqlite3 tinyxml2 zeromq
 
+set "CONDA_BASE_PATH=C:\conda"
+set "CONDA_CMD=%miniforge_install%\condabin\conda.bat"
+
+set "PIXI_VERSION=0.30.0"
+set "PIXI_URL=https://github.com/prefix-dev/pixi/releases/download/v%PIXI_VERSION%/pixi-x86_64-pc-windows-msvc.exe"
+set "PIXI_TMPDIR=%TMP%\pixi-%RANDOM%"
+set "PIXI_TMP=%PIXI_TMPDIR%\pixi.exe"
+set "PIXI_PROJECT_PATH=%CONDA_BASE_PATH%\conda_testing"
+
 goto :EOF
