@@ -72,11 +72,8 @@ goto :EOF
 :: arg1 URL to download
 :: arg2 filename (not including the path, just the filename)
 echo Downloading %~1
-:: Note that http://gazebosim.org/distributions/win32/deps/ redirects to an https
-:: version of the website. However the jenkins machine fails to validate the secure
-:: https version, so we use the --no-check-certificate option to prevent wget from
-:: quitting prematurely.
-wget %~1 --no-check-certificate -O %cd%\%~2 || goto :error
+powershell -command "Invoke-WebRequest -Uri %~1 -OutFile %cd%\%~2"
+if errorlevel 1 exit 1
 goto :EOF
 
 :: ##################################
