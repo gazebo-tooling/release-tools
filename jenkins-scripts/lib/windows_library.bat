@@ -191,15 +191,28 @@ echo "COLCON_EXTRA_ARGS: %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%"
 echo "COLCON_EXTRA_CMAKE_ARGS: %COLCON_EXTRA_CMAKE_ARGS%"
 echo "COLCON_EXTRA_CMAKE_ARGS2: %COLCON_EXTRA_CMAKE_ARGS2%"
 
-colcon build --build-base "build"^
-	     --install-base "install"^
-	     --parallel-workers %MAKE_JOBS%^
-	     %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
-	     --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
-		          " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
-	                  " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
-             %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
-             --event-handler console_cohesion+ || goto :error
+if defined COLCON_EXTRA_CMAKE_ARGS (
+  COLCON_EXTRA_CMAKE_ARGS_STR=--cmake args %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%
+)
+
+if defined USE_PIXI (
+  colcon build --build-base "build"^
+    --install-base "install"^
+    --parallel-workers %MAKE_JOBS%^
+    %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
+    %COLCON_EXTRA_CMAKE_ARGS_STR%^
+    --event-handler console_cohesion+ || goto :error
+) else (
+  colcon build --build-base "build"^
+    --install-base "install"^
+    --parallel-workers %MAKE_JOBS%^
+    %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
+    --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
+                 " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
+                 " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
+    %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
+    --event-handler console_cohesion+ || goto :error
+)
 goto :EOF
 
 :: ##################################
@@ -350,6 +363,60 @@ call %win_lib% :_prepare_vcpkg_to_install|| goto :error
 for %%p in (%VCPKG_DEPENDENCIES_LEGACY%) do (
   call %win_lib% :_install_and_upgrade_vcpkg_package %%p || goto :error
 )
+goto :EOF
+
+:: ##################################
+:: 
+:: Download the pixi binary to the system
+:pixi_installation
+echo Downloading pixi %PIXI_VERSION% in %PIXI_TMPDIR%
+if not exist "%PIXI_TMPDIR%" mkdir "%PIXI_TMPDIR%"
+pushd %PIXI_TMPDIR%
+call :wget "%PIXI_URL%" pixi.exe
+if errorlevel 1 exit 1
+popd 
+goto :EOF
+
+:: ##################################
+:: 
+:: Create a pixi environment
+:pixi_create_gz_environment_legacy
+if exist %PIXI_PROJECT_PATH% ( rmdir /s /q %PIXI_PROJECT_PATH% )
+:: TODO: release-tools is available in the WORKSPACE, use that copy instead of git again
+git clone "https://github.com/gazebo-tooling/release-tools" %PIXI_PROJECT_PATH% -b jrivero/conda_configs
+pushd %PIXI_PROJECT_PATH%
+if errorlevel 1 exit 1
+call %win_lib% :pixi_cmd install
+if errorlevel 1 exit 1
+popd
+goto :EOF
+
+:: ##################################
+:pixi_load_shell
+:: pixi shell won't work since it spawns a blocking cmd inside Jenkins
+:: instead use the hook and execute them in the current shell
+pushd %PIXI_PROJECT_PATH%
+call %win_lib% :pixi_cmd shell-hook --locked > hooks.bat
+type hooks.bat
+call hooks.bat
+del hooks.bat
+:: ERRORS in hooks will make the build to fail. Be permissive
+:: if errorlevel 1 exit 1
+popd
+goto :EOF
+
+:: ##################################
+:pixi_cmd
+:: arg1 pixi command to run on PIXI_PROJECT_PATH
+:: arg2 pixi second argument
+echo Running pixi %~1 %~2
+:: If using --manifest-file Windows will complain about permissions
+:: using error number 5 :?. Use pushd and popd to go into the 
+:: project directory.
+pushd %PIXI_PROJECT_PATH%
+call "%PIXI_TMP%" %1 %2
+if errorlevel 1 exit 1
+popd
 goto :EOF
 
 :: ##################################
