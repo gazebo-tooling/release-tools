@@ -78,19 +78,49 @@ if not exist %WORKSPACE%\%VCS_DIRECTORY% (
   exit 1
 )
 
-:: Call vcvarsall and all the friends
-echo # BEGIN SECTION: configure the MSVC compiler
-call %win_lib% :configure_msvc2019_compiler
-echo # END SECTION
-
+echo # BEGIN SECTION: remove vcpkg install directory
 :: Prepare a clean vcpkg environment with external dependencies
 call %win_lib% :remove_vcpkg_installation || goto :error
-echo # BEGIN SECTION: vcpkg: install all dependencies
-call %win_lib% :setup_vcpkg_all_dependencies || goto :error
 echo # END SECTION
-echo # BEGIN SECTION: vcpkg: list installed packages
-call %win_lib% :list_vcpkg_packages || goto :error
-echo # END SECTION
+
+if defined USE_PIXI (
+  echo # BEGIN SECTION: pixi: installation
+  call %win_lib% :pixi_installation || goto :error
+  echo # END SECTION
+
+  echo # BEGIN SECTION: filtering PATH and remove vcpkg
+  rmdir /s /q C:\vcpkg
+  echo # END SECTION
+
+  echo # BEGIN SECTION: pixi: create legacy environment
+  call %win_lib% :pixi_create_gz_environment_legacy || goto :error
+  echo # END SECTION
+
+  echo # BEGIN SECTION: pixi: info
+  call %win_lib% :pixi_cmd info || goto :error
+  echo # END SECTION
+
+  echo # BEGIN SECTION: pixi: list packages
+  call %win_lib% :pixi_cmd list || goto :error
+  echo # END SECTION
+
+  echo # BEGIN SECTION: pixi: enable shell
+  call %win_lib% :pixi_load_shell
+  echo # END SECTION  
+) else (
+  :: Call vcvarsall and all the friends
+  echo # BEGIN SECTION: configure the MSVC compiler
+  call %win_lib% :configure_msvc2019_compiler
+  echo # END SECTION
+
+  echo # BEGIN SECTION: vcpkg: install all dependencies
+  call %win_lib% :setup_vcpkg_all_dependencies || goto :error
+  echo # END SECTION
+
+  echo # BEGIN SECTION: vcpkg: list installed packages
+  call %win_lib% :list_vcpkg_packages || goto :error
+  echo # END SECTION
+)
 
 echo # BEGIN SECTION: setup workspace
 if not defined KEEP_WORKSPACE (
