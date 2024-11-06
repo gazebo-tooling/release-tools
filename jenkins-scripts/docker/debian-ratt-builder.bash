@@ -48,7 +48,10 @@ sudo sbuild-adduser \${USER}
 if $USE_UNSTABLE; then
   sudo sbuild-createchroot unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian
 else
-  sudo sbuild-createchroot --extra-repository='deb http://ftp.us.debian.org/debian experimental main' unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian
+  sudo sbuild-createchroot \
+    --extra-repository='deb http://ftp.us.debian.org/debian experimental main' \
+    --extra-repository='deb-src http://ftp.us.debian.org/debian experimental main' \
+    unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian
 fi
 
 echo '# END SECTION'
