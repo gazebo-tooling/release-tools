@@ -174,14 +174,6 @@ RUN echo 'END SECTION'
 DELIM_DOCKER_INVALIDATE
 fi
 
-# The redirection fails too many times using us ftp
-if [[ ${LINUX_DISTRO} == 'debian' ]]; then
-cat >> Dockerfile << DELIM_DEBIAN_APT
-  RUN sed -i -e 's/URIs: .*/URIs: http:\/\/ftp.us.debian.org\/debian/g' /etc/apt/sources.list.d/debian.sources
-  RUN sed -i -e 's/Types: deb/Types: deb deb-src/' /etc/apt/sources.list.d/debian.sources
-DELIM_DEBIAN_APT
-fi
-
 if [[ ${LINUX_DISTRO} == 'ubuntu' ]]; then
 # Opt-out of phased updates, which can create inconsistencies between installed package versions as different containers end up on different phases.
 # https://wiki.ubuntu.com/PhasedUpdates
@@ -202,19 +194,6 @@ cat >> Dockerfile << DELIM_BUSTER_DWZ
 RUN echo "deb ${SOURCE_LIST_URL} ${DISTRO}-backports main" \\
                                                        >> /etc/apt/sources.list
 DELIM_BUSTER_DWZ
-fi
-
-# Workaround for: https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1325142
-if [[ ${ARCH} == 'i386' ]]; then
-cat >> Dockerfile << DELIM_DOCKER_PAM_BUG
-RUN echo "Workaround on i386 to bug in libpam. Needs first apt-get update"
-RUN dpkg-divert --rename --add /usr/sbin/invoke-rc.d \\
-        && ln -s /bin/true /usr/sbin/invoke-rc.d \\
-	&& apt-get ${APT_PARAMS} update \\
-        && apt-get install -y libpam-systemd \\
-	&& rm /usr/sbin/invoke-rc.d \\
-        && dpkg-divert --rename --remove /usr/sbin/invoke-rc.d
-DELIM_DOCKER_PAM_BUG
 fi
 
 cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
@@ -296,9 +275,6 @@ cat >> Dockerfile << DELIM_DOCKER3
 # This is the firt big installation of packages on top of the raw image.
 # The expection of updates is low and anyway it is cathed by the next
 # update command below
-# The rm after the fail of apt-get update is a workaround to deal with the error:
-# Could not open file *_Packages.diff_Index - open (2: No such file or directory)
-# TODO: remove workaround for 13.56.139.45 server
 RUN echo "${MONTH_YEAR_STR}"
 DELIM_DOCKER3
 
@@ -308,8 +284,7 @@ DELIM_DOCKER3
 dockerfile_install_gzdev_repos
 
 cat >> Dockerfile << DELIM_DOCKER3_2
-RUN sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.list.d/* || true \
- && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get ${APT_PARAMS} update)) \
+RUN apt-get update \
  && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
@@ -326,7 +301,7 @@ dockerfile_install_gzdev_repos
 cat >> Dockerfile << DELIM_DOCKER31
 # Note that we don't remove the apt/lists file here since it will make
 # to run apt-get update again
-RUN (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
+RUN apt-get update \
  && apt-get dist-upgrade -y \
  && apt-get clean
 
