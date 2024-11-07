@@ -10,7 +10,7 @@ if exist D:\vcpkg (
 ) else (
   if defined USE_PIXI (
     echo "vcpkg removed by pixi? Recreate one"
-    VCPKG_DIR=C:\vcpkg
+    set "VCPKG_DIR=C:\vcpkg"
     mkdir %VCPKG_DIR%
   ) else (
     echo "Can not find a vcpkg installation"
@@ -31,3 +31,5 @@ if NOT DEFINED VCPKG_SNAPSHOT (
 )
 :: Set of common gz dependencies expected up to Garden
 set VCPKG_DEPENDENCIES_LEGACY=assimp boost-core bullet3 ccd console-bridge cppzmq cuda curl dlfcn-win32 eigen3 fcl ffmpeg freeimage gdal gflags glib gts jsoncpp libyaml libzip ogre ogre2 ogre22 openssl protobuf pybind11 qt5 qt5-winextras qwt spdlog sqlite3 tinyxml2 zeromq
+
+goto :EOF
