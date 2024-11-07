@@ -288,9 +288,11 @@ goto :EOF
 :: vcpkg cli does not support the operation
 set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat || goto :error
-if exist %VCPKG_INSTALLED_FILES_DIR% (
-  del /s /f /q %VCPKG_INSTALLED_FILES_DIR%
+if [%VCPKG_INSTALLED_FILES_DIR%]==[] (
+  echo VCPKG_INSTALLED_FILES_DIR variable seems empty, this is a bug
+  goto :error
 )
+del /s /f /q %VCPKG_INSTALLED_FILES_DIR%
 goto :EOF
 
 :: ##################################
