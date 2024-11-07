@@ -88,7 +88,7 @@ if defined USE_PIXI (
   call %win_lib% :pixi_installation || goto :error
   echo # END SECTION
 
-  echo # BEGIN SECTION: filtering PATH and remove vcpkg
+  echo # BEGIN SECTION: remove vcpkg installed (if any)
   rmdir /s /q C:\vcpkg
   echo # END SECTION
 
