@@ -35,6 +35,8 @@ if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
    echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
 )
 
+:: We should not assume that colcon is present at this stage
+if not defined USE_PIXI (
 :: Check if package is in colcon workspace
 echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
 echo Packages in workspace:
@@ -52,12 +54,14 @@ if errorlevel 1 (
 )
 echo Using package name !COLCON_PACKAGE!
 echo # END SECTION
+)
 
 set TEST_RESULT_PATH=%WORKSPACE%\ws\build\!COLCON_PACKAGE!\test_results
 
 setlocal ENABLEDELAYEDEXPANSION
 if not defined GAZEBODISTRO_FILE (
   for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
+  if errorlevel 1 exit 1
   set GAZEBODISTRO_FILE=%VCS_DIRECTORY%!PKG_MAJOR_VERSION!.yaml
 ) else (
   echo Using user defined GAZEBODISTRO_FILE: %GAZEBODISTRO_FILE%
@@ -84,17 +88,19 @@ call %win_lib% :remove_vcpkg_installation || goto :error
 echo # END SECTION
 
 if defined USE_PIXI (
-  echo # BEGIN SECTION: pixi: installation
-  call %win_lib% :pixi_installation || goto :error
-  echo # END SECTION
+  if not defined REUSE_PIXI_INSTALLATION (
+    echo # BEGIN SECTION: pixi: installation
+    call %win_lib% :pixi_installation || goto :error
+    echo # END SECTION
 
-  echo # BEGIN SECTION: remove vcpkg installed (if any)
-  rmdir /s /q C:\vcpkg
-  echo # END SECTION
+    echo # BEGIN SECTION: remove vcpkg if installed
+    rmdir /s /q C:\vcpkg
+    echo # END SECTION
 
-  echo # BEGIN SECTION: pixi: create legacy environment
-  call %win_lib% :pixi_create_gz_environment_legacy || goto :error
-  echo # END SECTION
+    echo # BEGIN SECTION: pixi: create legacy environment
+    call %win_lib% :pixi_create_gz_environment_legacy || goto :error
+    echo # END SECTION
+  )
 
   echo # BEGIN SECTION: pixi: info
   call %win_lib% :pixi_cmd info || goto :error
@@ -106,7 +112,7 @@ if defined USE_PIXI (
 
   echo # BEGIN SECTION: pixi: enable shell
   call %win_lib% :pixi_load_shell
-  echo # END SECTION  
+  echo # END SECTION
 ) else (
   :: Call vcvarsall and all the friends
   echo # BEGIN SECTION: configure the MSVC compiler

@@ -1,17 +1,18 @@
 set "PIXI_VERSION=0.30.0"
 set "PIXI_URL=https://github.com/prefix-dev/pixi/releases/download/v%PIXI_VERSION%/pixi-x86_64-pc-windows-msvc.exe"
-set "PIXI_TMPDIR=%TMP%\pixi-%RANDOM%"
-set "PIXI_TMP=%PIXI_TMPDIR%\pixi.exe"
 set "PIXI_PROJECT_PATH=%TMP%\pixi\project"
+set "PIXI_TMPDIR=%TMP%\pixi"
+set "PIXI_TMP=%PIXI_TMPDIR%\pixi.exe"
+
 if exist D:\vcpkg (
   set VCPKG_DIR=D:\vcpkg
 ) else if exist C:\vcpkg (
     set VCPKG_DIR=C:\vcpkg
 ) else (
   if defined USE_PIXI (
-    echo "vcpkg removed by pixi? Recreate one"
-    set "VCPKG_DIR=C:\vcpkg"
-    mkdir %VCPKG_DIR%
+    set "VCPKG_DIR=%TMP%\%RANDOM%\vcpkg"
+    mkdir !VCPKG_DIR!
+    echo "vcpkg removed by pixi. Recreate a fake one"
   ) else (
     echo "Can not find a vcpkg installation"
     exit -1

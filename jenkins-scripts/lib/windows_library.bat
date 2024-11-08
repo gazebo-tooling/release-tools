@@ -180,39 +180,43 @@ call %LIB_DIR%\windows_env_vars.bat
 :: batch is failing to parse correctly two arguments (--package-select foo)
 :: in just one variable. Workaround here passing EXTRA_ARGS + COLCON_PACKAGE
 set COLCON_EXTRA_ARGS=%1
-set COLCON_PACKAGE=%2
+set COLCON_EXTRA_ARGS2=%2
 set COLCON_EXTRA_CMAKE_ARGS=%3
 set COLCON_EXTRA_CMAKE_ARGS2=%4
 
 :: TODO: be sure that this way of defining MAKEFLAGS is working
 set MAKEFLAGS=-j%MAKE_JOBS%
 
-echo "COLCON_EXTRA_ARGS: %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%"
-echo "COLCON_EXTRA_CMAKE_ARGS: %COLCON_EXTRA_CMAKE_ARGS%"
-echo "COLCON_EXTRA_CMAKE_ARGS2: %COLCON_EXTRA_CMAKE_ARGS2%"
-
-if defined COLCON_EXTRA_CMAKE_ARGS (
-  COLCON_EXTRA_CMAKE_ARGS_STR=--cmake args %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%
-)
+echo "COLCON_EXTRA_ARGS: %COLCON_EXTRA_ARGS% %COLCON_EXTRA_ARGS2%"
 
 if defined USE_PIXI (
+  if defined COLCON_EXTRA_CMAKE_ARGS (
+    set COLCON_EXTRA_CMAKE_ARGS_STR=--cmake-args %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%
+    echo "COLCON_EXTRA_CMAKE_ARGS_STR:" !COLCON_EXTRA_CMAKE_ARGS_STR!
+  )
+  @echo on
   colcon build --build-base "build"^
     --install-base "install"^
     --parallel-workers %MAKE_JOBS%^
-    %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
-    %COLCON_EXTRA_CMAKE_ARGS_STR%^
+    %COLCON_EXTRA_ARGS% %COLCON_EXTRA_ARGS2%^
+    !COLCON_EXTRA_CMAKE_ARGS_STR!^
     --event-handler console_cohesion+ || goto :error
 ) else (
+  echo "COLCON_EXTRA_CMAKE_ARGS: %COLCON_EXTRA_CMAKE_ARGS%"
+  echo "COLCON_EXTRA_CMAKE_ARGS2: %COLCON_EXTRA_CMAKE_ARGS2%"
+  @echo on
   colcon build --build-base "build"^
     --install-base "install"^
     --parallel-workers %MAKE_JOBS%^
-    %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
+    %COLCON_EXTRA_ARGS% %COLCON_EXTRA_ARGS2%^
     --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
                  " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
                  " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
     %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
     --event-handler console_cohesion+ || goto :error
 )
+@echo off
+
 goto :EOF
 
 :: ##################################
@@ -383,7 +387,11 @@ goto :EOF
 :pixi_create_gz_environment_legacy
 if exist %PIXI_PROJECT_PATH% ( rmdir /s /q %PIXI_PROJECT_PATH% )
 :: TODO: release-tools is available in the WORKSPACE, use that copy instead of git again
-git clone "https://github.com/gazebo-tooling/release-tools" %PIXI_PROJECT_PATH% -b jrivero/conda_configs
+git clone "https://github.com/gazebo-tooling/release-tools" %PIXI_PROJECT_PATH%/release-tools -b jrivero/conda_configs
+if errorlevel 1 exit 1
+move %PIXI_PROJECT_PATH%\release-tools\conda\envs\legacy\pixi.* %PIXI_PROJECT_PATH%
+del /s /f /q %PIXI_PROJECT_PATH%\release-tools
+if errorlevel 1 exit 1
 pushd %PIXI_PROJECT_PATH%
 if errorlevel 1 exit 1
 call %win_lib% :pixi_cmd install
