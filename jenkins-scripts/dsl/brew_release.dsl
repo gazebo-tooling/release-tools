@@ -51,7 +51,6 @@ void include_common_params(Job job)
 // 1. BREW pull request SHA updater
 def release_job = job("generic-release-homebrew_pull_request_updater")
 OSRFUNIXBase.create(release_job)
-GenericRemoteToken.create(release_job)
 
 include_common_params(release_job)
 release_job.with
@@ -127,8 +126,6 @@ OSRFBrewCompilationAnyGitHub.create(bottle_job_builder,
                                     DISABLE_TESTS,
                                     NO_SUPPORTED_BRANCHES,
                                     DISABLE_GITHUB_INTEGRATION)
-GenericRemoteToken.create(bottle_job_builder)
-
 bottle_job_builder.with
 {
    wrappers {
@@ -243,7 +240,6 @@ bottle_job_builder.with
 // 4. BREW bottle hash update
 def bottle_job_hash_updater = job(bottle_hash_updater_job_name)
 OSRFUNIXBase.create(bottle_job_hash_updater)
-GenericRemoteToken.create(bottle_job_hash_updater)
 
 include_common_params(bottle_job_hash_updater)
 bottle_job_hash_updater.with
