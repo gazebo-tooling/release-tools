@@ -34,7 +34,6 @@ bridge_packages.each { pkg ->
 
   // Use the linux install as base
   OSRFLinuxBuildPkgBase.create(build_pkg_job)
-  GenericRemoteToken.create(build_pkg_job)
 
   build_pkg_job.with
   {

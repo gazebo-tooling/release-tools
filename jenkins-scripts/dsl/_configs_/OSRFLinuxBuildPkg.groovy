@@ -5,7 +5,6 @@ import _configs_.Globals
 
 /*
   -> OSRFLinuxBuildPkgBase
-  -> GenericRemoteToken
 
   Implements:
     - priority 100
@@ -28,7 +27,6 @@ class OSRFLinuxBuildPkg
   static void create(Job job, Map default_params = [:])
   {
     OSRFLinuxBuildPkgBase.create(job)
-    GenericRemoteToken.create(job)
 
     job.with
     {
