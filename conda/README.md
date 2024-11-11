@@ -32,3 +32,6 @@ The legacy environment has the goal of replacing the previous vcpkg
 installation used by the Gazebo Buildfarm for testing Garden, Harmonic
 and Ionic. The software versions chosen are mostly based on the Ubuntu
 Jammy versions.
+
+The legacy enviroment is locked to use always the same exact set of
+version dependencies.
