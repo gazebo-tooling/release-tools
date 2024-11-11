@@ -10,9 +10,9 @@ if exist D:\vcpkg (
     set VCPKG_DIR=C:\vcpkg
 ) else (
   if defined USE_PIXI (
-    set "VCPKG_DIR=%TMP%\%RANDOM%\vcpkg"
+    :: vcpkg removed by pixi. Recreate a fake one until vcpkg is removed from nodes
+    if not exist VCPKG_DIR set "VCPKG_DIR=%TMP%\%RANDOM%\vcpkg"
     mkdir !VCPKG_DIR!
-    echo "vcpkg removed by pixi. Recreate a fake one"
   ) else (
     echo "Can not find a vcpkg installation"
     exit -1
