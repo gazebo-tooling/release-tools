@@ -3,6 +3,7 @@ set "PIXI_URL=https://github.com/prefix-dev/pixi/releases/download/v%PIXI_VERSIO
 set "PIXI_PROJECT_PATH=%TMP%\pixi\project"
 set "PIXI_TMPDIR=%TMP%\pixi"
 set "PIXI_TMP=%PIXI_TMPDIR%\pixi.exe"
+set "CONDA_ENVS_DIR=%SCRIPT_DIR%\..\conda\envs\"
 
 if exist D:\vcpkg (
   set VCPKG_DIR=D:\vcpkg

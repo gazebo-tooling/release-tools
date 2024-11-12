@@ -406,7 +406,7 @@ goto :EOF
 :: Create a pixi environment
 :pixi_create_gz_environment_legacy
 if exist %PIXI_PROJECT_PATH% ( rmdir /s /q %PIXI_PROJECT_PATH% )
-copy %SCRIPT_DIR%\conda\envs\legacy\pixi.* %PIXI_PROJECT_PATH%
+copy %CONDA_ENVS_DIR%\legacy\pixi.* %PIXI_PROJECT_PATH%
 if errorlevel 1 exit 1
 pushd %PIXI_PROJECT_PATH%
 if errorlevel 1 exit 1
