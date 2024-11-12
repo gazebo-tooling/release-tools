@@ -9,6 +9,7 @@ export ENABLE_REAPER=false
 
 DOCKER_JOB_NAME="gazebo_ros_pkgs_ci"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_common_scripts.bash
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
 ROS_SETUP_PREINSTALL_HOOK="""
@@ -20,7 +21,8 @@ ${GAZEBO_MODEL_INSTALLATION}
 
 if ${ROS2}; then
 cat > build.sh << DELIM_CHECKOUT
-set -ex
+$(generate_buildsh_header)
+
 source /opt/ros/${ROS_DISTRO}/setup.bash
 TEST_TIMEOUT=90
 
@@ -36,10 +38,7 @@ fi
 DELIM_CHECKOUT
 else
 cat > build.sh << DELIM_CHECKOUT
-###################################################
-# Make project-specific changes here
-#
-set -ex
+$(generate_buildsh_header)
 
 [[ -d ${WORKSPACE}/gazebo_ros_demos ]] && rm -fr ${WORKSPACE}/gazebo_ros_demos
 git clone https://github.com/ros-simulation/gazebo_ros_demos ${WORKSPACE}/gazebo_ros_demos

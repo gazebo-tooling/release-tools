@@ -19,13 +19,10 @@ fi
 [[ -z $GENERIC_ENABLE_CPPCHECK ]] && GENERIC_ENABLE_CPPCHECK=true
 [[ -z $GENERIC_ENABLE_TESTS ]] && GENERIC_ENABLE_TESTS=true
 
-cat > build.sh << DELIM_HEADER
-#!/bin/bash
-set -ex
+. ${SCRIPT_DIR}/lib/_common_scripts.bash
 
-if $GENERIC_ENABLE_TIMING; then
-  source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
-fi
+cat > build.sh << DELIM_HEADER
+$(generate_buildsh_header)
 DELIM_HEADER
 
 # Process the source build of dependencies if needed

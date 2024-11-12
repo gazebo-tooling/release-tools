@@ -5,6 +5,7 @@
 export ENABLE_REAPER=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_common_scripts.bash
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
 # The git plugin leaves a repository copy with a detached HEAD
@@ -26,11 +27,7 @@ if [[ -z ${BRANCH} ]]; then
 fi
 
 cat > build.sh << DELIM
-###################################################
-# Make project-specific changes here
-#
-#!/usr/bin/env bash
-set -ex
+$(generate_buildsh_header)
 
 if ${CLONE_NEEDED}; then
 echo '# BEGIN SECTION: clone the git repo'

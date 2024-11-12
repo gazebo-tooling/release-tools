@@ -49,6 +49,10 @@ source ${SCRIPT_DIR}/../lib/boilerplate_timing_prepare.sh
 init_stopwatch TOTAL_TIME
 init_stopwatch CREATE_TESTING_ENVIROMENT
 
+# Enable shell on errors is designed to help debuging but never
+# to be run on Jenkins.
+SHELL_ON_ERRORS=${SHELL_ON_ERRORS:-false}
+
 # Default values - Provide them is prefered
 if [ -z ${DISTRO} ]; then
     DISTRO=bionic

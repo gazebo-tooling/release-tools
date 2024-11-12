@@ -88,12 +88,20 @@ fi
 
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   brew install python3
-  PIP=pip3
-  if ! which ${PIP}; then
-    PIP=${HOMEBREW_PREFIX}/opt/python/bin/pip3
-  fi
-  # TODO use a python3 venv instead.
-  ${PIP} install --break-system-packages ${PIP_PACKAGES_NEEDED}
+  # reset command hash since python3 has already been invoked in this script
+  hash -r
+  rm -rf ${WORKSPACE}/venv
+  python3 -m venv ${WORKSPACE}/venv
+  . ${WORKSPACE}/venv/bin/activate
+  pip3 install ${PIP_PACKAGES_NEEDED}
+  # For python 3.X, our formulae install python bindings to
+  # ${HOMEBREW_PREFIX}/lib/python3.X/site-packages
+  # so add that folder to PYTHONPATH
+  python_minor_version=$(python3 -c 'import sys; print(sys.version_info[1])')
+  export PYTHONPATH=${HOMEBREW_PREFIX}/lib/python3.$python_minor_version/site-packages:$PYTHONPATH
+  # also add the venv site-packages to PYTHONPATH
+  # this seems to be needed by the gz-sim python system loader test
+  export PYTHONPATH=${WORKSPACE}/venv/lib/python3.$python_minor_version/site-packages:$PYTHONPATH
 fi
 
 if [[ -z "${DISABLE_CCACHE}" ]]; then
