@@ -2,22 +2,25 @@
 
 from __future__ import print_function
 from argparse import RawTextHelpFormatter
+from configparser import ConfigParser
 from typing import Tuple
+from urllib3.exceptions import RequestError
+from urllib3.util import make_headers
 import subprocess
 import sys
 import tempfile
 import os
 import urllib.parse
-import urllib.request
+import urllib3
 import argparse
 import shutil
 import venv
 
-USAGE = 'release.py <package> <version> <jenkinstoken>'
+USAGE = 'release.py <package> <version>'
 try:
     JENKINS_URL = os.environ['JENKINS_URL']
 except KeyError:
-    JENKINS_URL = 'http://build.osrfoundation.org'
+    JENKINS_URL = 'https://build.osrfoundation.org'
 JOB_NAME_PATTERN = '%s-debbuilder'
 GENERIC_BREW_PULLREQUEST_JOB = 'generic-release-homebrew_pull_request_updater'
 
@@ -111,19 +114,18 @@ def parse_args(argv):
 Script to handle the release process for the Gazebo devs.
 Examples:
 A) Generate source: local repository tag + call source job:
-   $ release.py <package> <version> <jenkins_token>
+   $ release.py <package> <version>
    (auto calculate source-repo-uri from local directory)
 
 B) Call builders: reuse existing tarball version + call build jobs:
-   $ release.py --source-tarball-uri <URL> <package> <version> <jenkins_token>
+   $ release.py --source-tarball-uri <URL> <package> <version>
    (no call to source job, directly build jobs with tarball URL)
 
 C) Nightly builds (linux)
-   $ release.py --source-repo-existing-ref <git_branch> --upload-to-repo nightly <URL> <package> <version> <jenkins_token>
+   $ release.py --source-repo-existing-ref <git_branch> --upload-to-repo nightly <URL> <package> <version>
  """)
     parser.add_argument('package', help='which package to release')
     parser.add_argument('version', help='which version to release')
-    parser.add_argument('jenkins_token', help='secret token to allow access to Jenkins to start builds')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
     parser.add_argument('-a', '--package-alias', dest='package_alias',
@@ -176,6 +178,50 @@ C) Nightly builds (linux)
 
     return args
 
+#
+# BEGIN: Credentials code copied from ros_buildfarm
+#
+def get_credentials(jenkins_url=None):
+    try:
+        if os.environ['_RELEASEPY_TEST_CREDENTIALS']:
+            return 'fake_user', 'fake_api_token'
+    except KeyError:
+        pass
+
+    config = ConfigParser()
+    config_file = get_credential_path()
+    if not os.path.exists(config_file):
+        print("Could not find credential file '%s'" % config_file,
+              file=sys.stderr)
+        return None, None
+
+    config.read(config_file)
+    section_name = None
+    if jenkins_url is not None and jenkins_url in config:
+        section_name = jenkins_url
+    if section_name is None and 'DEFAULT' in config:
+        section_name = 'DEFAULT'
+
+    if section_name is None or 'username' not in config[section_name] or \
+            'password' not in config[section_name]:
+        print(
+            "Could not find credentials for '%s' in file '%s'" %
+            (jenkins_url, config_file), file=sys.stderr)
+        return None, None
+    return config[section_name]['username'], config[section_name]['password']
+
+
+def get_credential_path():
+    return os.path.join(
+        os.path.expanduser('~'), get_relative_credential_path())
+
+
+def get_relative_credential_path():
+    return os.path.join('.buildfarm', 'jenkins.ini')
+
+#
+# END: Credentials code copied from ros_buildfarm
+#
 
 def get_release_repository_info(package):
     github_url = "https://github.com/gazebo-release/" + package + "-release"
@@ -336,6 +382,13 @@ def sanity_checks(args, repo_dir):
         sanity_check_sdformat_versions(args.package, args.version)
         sanity_project_package_in_stable(args.version, args.upload_to_repository)
 
+    try:
+        if os.environ['_RELEASEPY_TEST_CREDENTIALS']:
+           pass
+    except KeyError:
+        check_credentials()
+        print_success("Jenkins credentials are good")
+
     shutil.rmtree(repo_dir)
 
 
@@ -486,6 +539,20 @@ def generate_source_params(args):
 
     return params
 
+def build_credentials_header():
+    username, api_token = get_credentials(JENKINS_URL)
+    if not username:
+        exit(1)
+
+    return make_headers(basic_auth=f'{username}:{api_token}')
+
+def check_credentials():
+    http = urllib3.PoolManager()
+    response = http.request('GET', JENKINS_URL, headers=build_credentials_header())
+    if response.status != 200:
+        print(f"Crendentials error: {response.status}: {response.reason}")
+        http.clear()
+        exit(1)
 
 def call_jenkins_build(job_name, params, output_string,
                        search_description_help):
@@ -502,9 +569,21 @@ def call_jenkins_build(job_name, params, output_string,
                                                 job_name,
                                                 params_query)
     print_only_dbg(f" -- {output_string}: {url}")
-    if not DRY_RUN:
-        urllib.request.urlopen(url)
 
+    if not DRY_RUN:
+        http = urllib3.PoolManager()
+        try :
+            response = http.request('POST', url , headers=build_credentials_header())
+            # 201 code is "created", it is the expected return of POST
+            if response.status != 201:
+                print(f"Error {response.status}: {response.reason}")
+                exit(1)
+        except RequestError as e:
+            print(f"An error occurred in the http request: {e}")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+        finally:
+            http.clear()
 
 def display_help_job_chain_for_source_calls(args):
     # Encode the different ways using in the job descriptions to filter builds
@@ -707,7 +786,6 @@ def go(argv):
         sanity_checks(args, repo_dir)
 
     params = generate_source_params(args)
-    params['token'] = args.jenkins_token
     params['PACKAGE'] = args.package
     params['VERSION'] = args.version if not NIGHTLY else 'nightly'
     params['RELEASE_REPO_BRANCH'] = args.release_repo_branch
