@@ -1,7 +1,6 @@
 name: Conda env testing
 
 on:
-  pull_request:
   push:
     paths:
       - 'conda/envs/legacy/**'
