@@ -99,6 +99,9 @@ if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   # so add that folder to PYTHONPATH
   python_minor_version=$(python3 -c 'import sys; print(sys.version_info[1])')
   export PYTHONPATH=${HOMEBREW_PREFIX}/lib/python3.$python_minor_version/site-packages:$PYTHONPATH
+  # also add the venv site-packages to PYTHONPATH
+  # this seems to be needed by the gz-sim python system loader test
+  export PYTHONPATH=${WORKSPACE}/venv/lib/python3.$python_minor_version/site-packages:$PYTHONPATH
 fi
 
 if [[ -z "${DISABLE_CCACHE}" ]]; then

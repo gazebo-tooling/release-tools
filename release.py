@@ -641,7 +641,7 @@ def get_vendor_repo_url(package_name) -> str:
     return f"{protocol}/{get_vendor_github_repo(package_name)}"
 
 
-def prepare_vendor_pr_temp_workspace(package_name, ws_dir) -> Tuple[str, str, str]:
+def prepare_vendor_pr_temp_workspace(package_name, ros_distro, ws_dir) -> Tuple[str, str, str]:
     gz_vendor_tool = os.path.join(ws_dir, "gz_vendor")
     # Create virtualenv for vendor dependencies
     venv_dir = os.path.join(ws_dir, "venv")
@@ -654,7 +654,7 @@ def prepare_vendor_pr_temp_workspace(package_name, ws_dir) -> Tuple[str, str, st
            gz_vendor_tool]
     _, _err_tool = check_call(cmd, IGNORE_DRY_RUN)
     gz_vendor_repo = os.path.join(ws_dir, 'gz_vendor_repo')
-    cmd = ['git', 'clone', '-q',
+    cmd = ['git', 'clone', '-q', '-b', ros_distro,
            get_vendor_repo_url(package_name),
            gz_vendor_repo]
     _, _err_repo = check_call(cmd, IGNORE_DRY_RUN)
@@ -735,7 +735,7 @@ def create_pr_in_gz_vendor_repo(args, ros_distro) -> str:
         ws_dir = tempfile.mkdtemp()
         # Prepare the temporary workspace
         vendor_tool_path, vendor_repo_path, venv_dir = \
-            prepare_vendor_pr_temp_workspace(args.package, ws_dir)
+            prepare_vendor_pr_temp_workspace(args.package, ros_distro, ws_dir)
         # Run updating script on the temporary workspace
         execute_update_vendor_package_tool(
             vendor_tool_path, vendor_repo_path, venv_dir)
