@@ -380,6 +380,17 @@ gz_collections_yaml.collections.each { collection ->
           Globals.gazebodistro_branch = true
           gz_ci_job = job("${gz_job_name_prefix}-${branch_number}-win")
           generate_win_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+            // DUPLICATE for conda
+          if (collection.name == 'fortress') {
+            gz_ci_job_conda = job("${gz_job_name_prefix}-${branch_number}-cwin")
+            generate_win_ci_job(gz_ci_job_conda, lib_name, branch_name, ci_config)
+            gz_ci_job_conda.with {
+              parameters {
+                booleanParam('USE_PIXI', true, 'Use experimental pixi env')
+              }
+              label "win && test-instance"
+            }
+          }
           Globals.gazebodistro_branch = false
         } else {
           assert false : "Unexpected config.system.so type: ${ci_config.system.so}"
