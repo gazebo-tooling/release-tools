@@ -406,12 +406,13 @@ goto :EOF
 :: Create a pixi environment
 :pixi_create_gz_environment_legacy
 if exist %PIXI_PROJECT_PATH% ( rmdir /s /q %PIXI_PROJECT_PATH% )
+mkdir %PIXI_PROJECT_PATH%
 copy %CONDA_ENVS_DIR%\legacy\pixi.* %PIXI_PROJECT_PATH%
 if errorlevel 1 exit 1
 pushd %PIXI_PROJECT_PATH%
 if errorlevel 1 exit 1
 call %win_lib% :pixi_cmd install
-if errorlevel 1 exit 1
+if errorlevel 1 exit%1
 popd
 goto :EOF
 
