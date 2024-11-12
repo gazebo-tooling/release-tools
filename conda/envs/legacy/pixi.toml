@@ -1,0 +1,60 @@
+[project]
+name = "gazebo"
+version = "0.1.0"
+description = "Pixi configuration to replicate existing Windows build environment in Gazebo"
+authors = ["Jose Luis Rivero <jrivero@openrobotics.com>"]
+channels = ["conda-forge"]
+platforms = ["linux-64", "linux-aarch64", "win-64"]
+
+[dependencies]
+assimp = "*"
+bullet-cpp = "*"
+cppzmq = "*"
+curl = "*"
+dartsim = "6.13.2.*"
+eigen = "*"
+ffmpeg = "*"
+freeimage = "*"
+gdal = "*"
+gflags = "*"
+glib = "*"
+gts = "*"
+jsoncpp = "*"
+libprotobuf = "*"
+libsqlite = "*"
+libzip = "*"
+ogre = "1.10.12.1.*"
+ogre-next = "2.2.*"
+openssl = "*"
+protobuf = "*"
+pybind11 = "*"
+python = "3.9.*"
+qt-main = "*"
+qwt = "*"
+ruby = "3.2.*"
+tinyxml2 = "*"
+yaml = "*"
+zeromq = "*"
+
+[target.win-64.dependencies]
+dlfcn-win32 = "*"
+
+[target.linux-64.dependencies]
+libglu = "*"
+libglvnd-devel-cos7-x86_64 = "*"
+libwebsockets = "*"
+mesa-libegl-devel-cos7-x86_64 = "*"
+mesa-libgl-devel-cos7-x86_64 = "*"
+vulkan-headers = "*"
+
+[target.linux-aarch64.dependencies]
+libglu = "*"
+libglvnd-devel-cos7-aarch64 = "*"
+mesa-libegl-devel-cos7-aarch64 = "*"
+mesa-libgl-devel-cos7-aarch64 = "*"
+
+[build-dependencies]
+cmake = "3.28.3.*"
+colcon-common-extensions = "*"
+pkg-config = "*"
+vcstool = "*"
