@@ -71,9 +71,29 @@ goto :EOF
 ::
 :: arg1 URL to download
 :: arg2 filename (not including the path, just the filename)
-echo Downloading %~1
-powershell -command "Invoke-WebRequest -Uri %~1 -OutFile %cd%\%~2"
-if errorlevel 1 exit 1
+set URL=%~1
+set FILENAME=%~2
+
+:: Set the maximum number of retries
+set RETRIES=3
+set COUNT=0
+
+echo Downloading %URL%
+
+:retry
+:: Try to download the file using PowerShell
+powershell -command "Invoke-WebRequest -Uri %URL% -OutFile %cd%\%FILENAME%"
+:: Check if the download was successful
+if errorlevel 1 (
+    set /a COUNT+=1
+    echo Download failed. Retry attempt !COUNT! of %RETRIES%.
+    if !COUNT! geq %RETRIES% (
+        echo Maximum retry attempts reached. Exiting...
+        exit 1
+    )
+    timeout /t 5 >nul
+    goto retry
+)
 goto :EOF
 
 :: ##################################
