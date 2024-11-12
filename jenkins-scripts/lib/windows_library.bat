@@ -386,11 +386,7 @@ goto :EOF
 :: Create a pixi environment
 :pixi_create_gz_environment_legacy
 if exist %PIXI_PROJECT_PATH% ( rmdir /s /q %PIXI_PROJECT_PATH% )
-:: TODO: release-tools is available in the WORKSPACE, use that copy instead of git again
-git clone "https://github.com/gazebo-tooling/release-tools" %PIXI_PROJECT_PATH%/release-tools -b jrivero/conda_configs
-if errorlevel 1 exit 1
-move %PIXI_PROJECT_PATH%\release-tools\conda\envs\legacy\pixi.* %PIXI_PROJECT_PATH%
-del /s /f /q %PIXI_PROJECT_PATH%\release-tools
+cp %SCRIPT_DIR%\conda\envs\legacy\pixi.* %PIXI_PROJECT_PATH%
 if errorlevel 1 exit 1
 pushd %PIXI_PROJECT_PATH%
 if errorlevel 1 exit 1
