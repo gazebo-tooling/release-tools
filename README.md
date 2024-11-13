@@ -15,7 +15,7 @@ Gazebo software.
 
 For the developers officially maintaining Gazebo software that need to run a new release of the software:
 
- * The [Gazebo Release Process](https://gazebosim.org/docs/garden/release)
+ * The [Gazebo Release Process](https://gazebosim.org/docs/latest/release)
    document provides an overview of how releasing works.
- * The [Gazebo Release Instructions](https://gazebosim.org/docs/garden/releases-instructions)
+ * The [Gazebo Release Instructions](https://gazebosim.org/docs/latest/releases-instructions)
    document provides step by step instructions to run new releases.
