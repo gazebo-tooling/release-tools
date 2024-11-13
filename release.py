@@ -128,6 +128,9 @@ C) Nightly builds (linux)
     parser.add_argument('version', help='which version to release')
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
+    parser.add_argument('--auth', dest='auth_input_arg',
+                        default=None,
+                        help='Explicit jenkins user:token string overriding the jenkins.ini credentials file.')
     parser.add_argument('-a', '--package-alias', dest='package_alias',
                         default=None,
                         help='different name that we are releasing under')
@@ -386,7 +389,7 @@ def sanity_checks(args, repo_dir):
         if os.environ['_RELEASEPY_TEST_CREDENTIALS']:
            pass
     except KeyError:
-        check_credentials()
+        check_credentials(args.auth_input_arg)
         print_success("Jenkins credentials are good")
 
     shutil.rmtree(repo_dir)
@@ -539,23 +542,31 @@ def generate_source_params(args):
 
     return params
 
-def build_credentials_header():
-    username, api_token = get_credentials(JENKINS_URL)
-    if not username:
-        exit(1)
+def build_credentials_header(auth_input_arg = None):
+    if auth_input_arg:
+        username, api_token = auth_input_arg.split(':')
+    else:
+        username, api_token = get_credentials(JENKINS_URL)
+        if not username:
+            exit(1)
 
     return make_headers(basic_auth=f'{username}:{api_token}')
 
-def check_credentials():
+def check_credentials(auth_input_arg = None):
     http = urllib3.PoolManager()
-    response = http.request('GET', JENKINS_URL, headers=build_credentials_header())
+    response = http.request('GET',
+                            JENKINS_URL,
+                            headers=build_credentials_header(auth_input_arg))
     if response.status != 200:
         print(f"Crendentials error: {response.status}: {response.reason}")
         http.clear()
         exit(1)
 
-def call_jenkins_build(job_name, params, output_string,
-                       search_description_help):
+def call_jenkins_build(job_name,
+                       params,
+                       output_string,
+                       search_description_help,
+                       auth_input_arg = None):
     # Only to help user feedback this block
     help_url = f'{JENKINS_URL}/job/{job_name}'
     if search_description_help:
@@ -573,7 +584,9 @@ def call_jenkins_build(job_name, params, output_string,
     if not DRY_RUN:
         http = urllib3.PoolManager()
         try :
-            response = http.request('POST', url , headers=build_credentials_header())
+            response = http.request('POST',
+                                    url ,
+                                    headers=build_credentials_header(auth_input_arg))
             # 201 code is "created", it is the expected return of POST
             if response.status != 201:
                 print(f"Error {response.status}: {response.reason}")
