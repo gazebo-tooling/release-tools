@@ -185,12 +185,6 @@ C) Nightly builds (linux)
 # BEGIN: Credentials code copied from ros_buildfarm
 #
 def get_credentials(jenkins_url=None):
-    try:
-        if os.environ['_RELEASEPY_TEST_CREDENTIALS']:
-            return 'fake_user', 'fake_api_token'
-    except KeyError:
-        pass
-
     config = ConfigParser()
     config_file = get_credential_path()
     if not os.path.exists(config_file):
@@ -385,12 +379,8 @@ def sanity_checks(args, repo_dir):
         sanity_check_sdformat_versions(args.package, args.version)
         sanity_project_package_in_stable(args.version, args.upload_to_repository)
 
-    try:
-        if os.environ['_RELEASEPY_TEST_CREDENTIALS']:
-           pass
-    except KeyError:
-        check_credentials(args.auth_input_arg)
-        print_success("Jenkins credentials are good")
+    check_credentials(args.auth_input_arg)
+    print_success("Jenkins credentials are good")
 
     shutil.rmtree(repo_dir)
 
