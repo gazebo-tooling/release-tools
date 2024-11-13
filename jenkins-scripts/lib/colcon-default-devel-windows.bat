@@ -35,7 +35,6 @@ if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
    echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
 )
 
-set TEST_RESULT_PATH=%WORKSPACE%\ws\build\!COLCON_PACKAGE!\test_results
 
 setlocal ENABLEDELAYEDEXPANSION
 if not defined GAZEBODISTRO_FILE (
@@ -127,6 +126,7 @@ echo Using package name !COLCON_PACKAGE!
 echo # END SECTION
 )
 
+
 echo # BEGIN SECTION: setup workspace
 if not defined KEEP_WORKSPACE (
   IF exist %LOCAL_WS_BUILD% (
@@ -164,6 +164,8 @@ call %win_lib% :build_workspace !COLCON_PACKAGE! !COLCON_PACKAGE_EXTRA_CMAKE_ARG
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
+    set TEST_RESULT_PATH=%WORKSPACE%\ws\build\!COLCON_PACKAGE!\test_results
+
     echo # BEGIN SECTION: running tests for !COLCON_PACKAGE!
     call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
     echo # END SECTION
