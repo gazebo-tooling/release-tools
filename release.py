@@ -534,6 +534,8 @@ def generate_source_params(args):
 
 def build_credentials_header(auth_input_arg = None):
     if auth_input_arg:
+        if len(auth_input_arg.split(':')) != 2:
+            error("Auth string is not in the form of 'user:token' ")
         username, api_token = auth_input_arg.split(':')
     else:
         username, api_token = get_credentials(JENKINS_URL)
