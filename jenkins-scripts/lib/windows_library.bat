@@ -71,12 +71,29 @@ goto :EOF
 ::
 :: arg1 URL to download
 :: arg2 filename (not including the path, just the filename)
-echo Downloading %~1
-:: Note that http://gazebosim.org/distributions/win32/deps/ redirects to an https
-:: version of the website. However the jenkins machine fails to validate the secure
-:: https version, so we use the --no-check-certificate option to prevent wget from
-:: quitting prematurely.
-wget %~1 --no-check-certificate -O %cd%\%~2 || goto :error
+set URL=%~1
+set FILENAME=%~2
+
+:: Set the maximum number of retries
+set RETRIES=3
+set COUNT=0
+
+echo Downloading %URL%
+
+:retry
+:: Try to download the file using PowerShell
+powershell -command "Invoke-WebRequest -Uri %URL% -OutFile %cd%\%FILENAME%"
+:: Check if the download was successful
+if errorlevel 1 (
+    set /a COUNT+=1
+    echo Download failed. Retry attempt !COUNT! of %RETRIES%.
+    if !COUNT! geq %RETRIES% (
+        echo Maximum retry attempts reached. Exiting...
+        exit 1
+    )
+    timeout /t 5 >nul
+    goto retry
+)
 goto :EOF
 
 :: ##################################
