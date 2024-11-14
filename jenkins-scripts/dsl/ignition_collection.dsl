@@ -148,6 +148,7 @@ nightly_collection = gz_collections_yaml.collections
 
 def nightly_scheduler_job = job("ignition-${gz_nightly}-nightly-scheduler")
 OSRFUNIXBase.create(nightly_scheduler_job)
+GitHubCredentials.createOsrfbuildToken(nightly_scheduler_job)
 
 nightly_scheduler_job.with
 {
@@ -190,8 +191,6 @@ nightly_scheduler_job.with
   steps {
     shell("""\
           #!/bin/bash -xe
-          set +x # keep password secret
-          PASS=\$(cat \$HOME/build_pass)
 
           dry_run_str=""
           if \$DRY_RUN; then
@@ -239,9 +238,15 @@ nightly_scheduler_job.with
                 src_branch="main"
               fi
 
+              set +x # safeguard keep password secret
               echo "releasing \${n} (from branch \${src_branch})"
-              python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly "\${PASS}" --release-repo-branch main --nightly-src-branch \${src_branch} --upload-to-repo nightly > log || echo "MARK_AS_UNSTABLE"
-              echo " - done"
+              # TODO: migrate the crendential to use USERNAME and PASSWORD instead only the token
+              # to avoid the hardcode of osrfbuild user here.
+              python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly \
+                --auth 'osrfbuild:\${GITHUB_TOKEN}' \
+                --release-repo-branch main --nightly-src-branch \${src_branch} --upload-to-repo nightly > log || echo "MARK_AS_UNSTABLE"
+              set -e
+              echo " - done (log is available)"
           done
 
           """.stripIndent())
