@@ -35,29 +35,11 @@ if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
    echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
 )
 
-:: Check if package is in colcon workspace
-echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
-echo Packages in workspace:
-colcon list --names-only
-
-colcon list --names-only | find "!COLCON_PACKAGE!"
-if errorlevel 1 (
-  set COLCON_PACKAGE=!COLCON_PACKAGE:gz=ignition!
-  set COLCON_PACKAGE=!COLCON_PACKAGE:sim=gazebo!
-)
-colcon list --names-only | find "!COLCON_PACKAGE!"
-if errorlevel 1 (
-  echo Failed to find package !COLCON_PACKAGE! in workspace.
-  goto :error
-)
-echo Using package name !COLCON_PACKAGE!
-echo # END SECTION
-
-set TEST_RESULT_PATH=%WORKSPACE%\ws\build\!COLCON_PACKAGE!\test_results
 
 setlocal ENABLEDELAYEDEXPANSION
 if not defined GAZEBODISTRO_FILE (
   for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
+  if errorlevel 1 exit 1
   set GAZEBODISTRO_FILE=%VCS_DIRECTORY%!PKG_MAJOR_VERSION!.yaml
 ) else (
   echo Using user defined GAZEBODISTRO_FILE: %GAZEBODISTRO_FILE%
@@ -90,6 +72,24 @@ call %win_lib% :setup_vcpkg_all_dependencies || goto :error
 echo # END SECTION
 echo # BEGIN SECTION: vcpkg: list installed packages
 call %win_lib% :list_vcpkg_packages || goto :error
+
+:: Check if package is in colcon workspace
+echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
+echo Packages in workspace:
+colcon list --names-only
+
+colcon list --names-only | find "!COLCON_PACKAGE!"
+if errorlevel 1 (
+  :: REQUIRED for Gazebo Fortress
+  set COLCON_PACKAGE=!COLCON_PACKAGE:gz=ignition!
+  set COLCON_PACKAGE=!COLCON_PACKAGE:sim=gazebo!
+)
+colcon list --names-only | find "!COLCON_PACKAGE!"
+if errorlevel 1 (
+  echo Failed to find package !COLCON_PACKAGE! in workspace.
+  goto :error
+)
+echo Using package name !COLCON_PACKAGE!
 echo # END SECTION
 
 echo # BEGIN SECTION: setup workspace
@@ -129,6 +129,8 @@ call %win_lib% :build_workspace !COLCON_PACKAGE! !COLCON_PACKAGE_EXTRA_CMAKE_ARG
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
+    set TEST_RESULT_PATH=%WORKSPACE%\ws\build\!COLCON_PACKAGE!\test_results
+
     echo # BEGIN SECTION: running tests for !COLCON_PACKAGE!
     call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
     echo # END SECTION
