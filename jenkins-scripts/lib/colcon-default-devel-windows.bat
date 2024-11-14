@@ -138,7 +138,7 @@ if "%ENABLE_TESTS%" == "TRUE" (
     echo # BEGIN SECTION: export testing results
     if exist %EXPORT_TEST_RESULT_PATH% ( rmdir /q /s %EXPORT_TEST_RESULT_PATH% )
     mkdir %EXPORT_TEST_RESULT_PATH%
-    xcopy %TEST_RESULT_PATH% %EXPORT_TEST_RESULT_PATH% /s /i /e || goto :error
+    xcopy !TEST_RESULT_PATH! %EXPORT_TEST_RESULT_PATH% /s /i /e || goto :error^M
     echo # END SECTION
 )
 
