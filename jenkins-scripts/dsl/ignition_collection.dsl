@@ -240,10 +240,8 @@ nightly_scheduler_job.with
 
               set +x # safeguard keep password secret
               echo "releasing \${n} (from branch \${src_branch})"
-              # TODO: migrate the crendential to use USERNAME and PASSWORD instead only the token
-              # to avoid the hardcode of osrfbuild user here.
               python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly \
-                --auth 'osrfbuild:\${GITHUB_TOKEN}' \
+                --auth "{OSRFBUILD_USER}:\${OSRFBUILD_TOKEN}"' \
                 --release-repo-branch main --nightly-src-branch \${src_branch} --upload-to-repo nightly > log || echo "MARK_AS_UNSTABLE"
               set -e
               echo " - done (log is available)"
