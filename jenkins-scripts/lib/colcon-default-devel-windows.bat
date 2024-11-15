@@ -124,8 +124,6 @@ if errorlevel 1 (
 )
 echo Using package name !COLCON_PACKAGE!
 echo # END SECTION
-)
-
 
 echo # BEGIN SECTION: setup workspace
 if not defined KEEP_WORKSPACE (
@@ -163,7 +161,6 @@ cd %LOCAL_WS%
 call %win_lib% :build_workspace !COLCON_PACKAGE! !COLCON_PACKAGE_EXTRA_CMAKE_ARGS! || goto :error
 echo # END SECTION
 
-@echo on
 if "%ENABLE_TESTS%" == "TRUE" (
     set TEST_RESULT_PATH=%WORKSPACE%\ws\build\!COLCON_PACKAGE!\test_results
 
@@ -172,11 +169,9 @@ if "%ENABLE_TESTS%" == "TRUE" (
     echo # END SECTION
 
     echo # BEGIN SECTION: export testing results
-    echo "TEST_RESULT_PATH" %TEST_RESULT_PATH%
-    echo "TEST_RESULT_PATH!" !TEST_RESULT_PATH!
     if exist %EXPORT_TEST_RESULT_PATH% ( rmdir /q /s %EXPORT_TEST_RESULT_PATH% )
     mkdir %EXPORT_TEST_RESULT_PATH%
-    xcopy !TEST_RESULT_PATH! %EXPORT_TEST_RESULT_PATH% /s /i /e || goto :error
+    xcopy !TEST_RESULT_PATH! %EXPORT_TEST_RESULT_PATH% /s /i /e || goto :error^M
     echo # END SECTION
 )
 
