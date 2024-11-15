@@ -316,7 +316,7 @@ if [%VCPKG_INSTALLED_FILES_DIR%]==[] (
   echo VCPKG_INSTALLED_FILES_DIR variable seems empty, this is a bug
   goto :error
 )
-del /s /f /q %VCPKG_INSTALLED_FILES_DIR%
+rmdir /s /q %VCPKG_INSTALLED_FILES_DIR%
 goto :EOF
 
 :: ##################################
