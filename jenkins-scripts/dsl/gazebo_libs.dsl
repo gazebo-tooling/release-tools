@@ -387,6 +387,7 @@ gz_collections_yaml.collections.each { collection ->
             gz_ci_job_conda.with {
               parameters {
                 booleanParam('USE_PIXI', true, 'Use experimental pixi env')
+                stringParam('RTOOLS_BRANCH','jrivero/support_conda','release-tool branch to use')
               }
               label "win && test-instance"
             }
