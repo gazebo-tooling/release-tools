@@ -71,10 +71,6 @@ if defined USE_PIXI (
     call %win_lib% :pixi_installation || goto :error
     echo # END SECTION
 
-    echo # BEGIN SECTION: remove vcpkg if installed
-    rmdir /s /q C:\vcpkg
-    echo # END SECTION
-
     echo # BEGIN SECTION: pixi: create legacy environment
     call %win_lib% :pixi_create_gz_environment_legacy || goto :error
     echo # END SECTION
