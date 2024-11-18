@@ -30,7 +30,7 @@ echo '# END SECTION'
 VERSION_SANITIZED=$(echo "${VERSION}" | tr '~' '-')
 echo Sanitizing version string ${VERSION} to ${VERSION_SANITIZED}
 
-PULL_REQUEST_HEAD_REPO=git@github.com:osrfbuild/homebrew-simulation.git
+PULL_REQUEST_HEAD_REPO=https://github.com/osrfbuild/homebrew-simulation.git
 
 . ${SCRIPT_LIBDIR}/_homebrew_github_setup.bash
 . ${SCRIPT_LIBDIR}/_homebrew_github_get_formula_path.bash

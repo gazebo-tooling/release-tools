@@ -8,36 +8,9 @@ echo '# BEGIN SECTION: check variables'
 if [ -z "${PULL_REQUEST_HEAD_REPO}" ]; then
   echo PULL_REQUEST_HEAD_REPO not specified, setting to osrfbuild
   echo
-  PULL_REQUEST_HEAD_REPO=git@github.com:osrfbuild/homebrew-simulation.git
+  # personal tokens only support https
+  PULL_REQUEST_HEAD_REPO=https://github.com/osrfbuild/homebrew-simulation.git
 fi
-echo '# END SECTION'
-
-echo '# BEGIN SECTION: check github perms'
-# Github autentication. git access is provided by public key access
-# and hub cli needs a token
-if [[ -z $(ssh -T git@github.com 2>&1 | grep successfully) ]]; then
-    # ssh key in github may have changed, let's try to remove and get
-    # the latest one
-    ssh-keygen -R github.com
-    ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-    if [[ -z $(ssh -T git@github.com 2>&1 | grep successfully) ]]; then
-      echo "The github connection seems not to be valid:"
-      ssh -T git@github.com
-      echo "Please check that the ssh key authentication is working"
-      exit 1
-    fi
-fi
-
-GITHUB_TOKEN_FILE="/var/lib/jenkins/.github_token"
-if [[ ! -f ${GITHUB_TOKEN_FILE} ]]; then
-   echo "The hub cli tool needs a valid token at file ${GITHUB_TOKEN_FILE}"
-   echo "The file was not found"
-   exit 1
-fi
-
-set +x # keep password secret
-export GITHUB_TOKEN=`cat $GITHUB_TOKEN_FILE`
-set -x # back to debug
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: download linuxbrew'
@@ -56,6 +29,14 @@ ${BREW} tap osrf/simulation
 TAP_PREFIX=$(${BREW} --repo osrf/simulation)
 GIT="git -C ${TAP_PREFIX}"
 ${GIT} remote add pr_head ${PULL_REQUEST_HEAD_REPO}
+# manage credentials
+if [[ -z ${GITHUB_TOKEN} ]]; then
+  echo "No GITHUB_TOKEN defined. Check the DSL configuration"
+  exit 1
+fi
+set +x
+git config url."https://osrfbuild:\${GITHUB_TOKEN}@github.com/osrfbuild/homebrew-simulation.git".InsteadOf https://github.com/osrfbuild/homebrew-simulation.git
+set -x
 # unshallow to get a full clone able to push
 ${GIT} fetch --unshallow || true
 ${GIT} fetch pr_head

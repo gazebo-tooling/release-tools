@@ -113,3 +113,56 @@ outdated_job_runner.with
     systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/outdated-job-runner.groovy'))
   }
 }
+
+// --------------------------------------------------------------------
+def test_credentials_token_job = job("_test_job_osrfbuild-credentials-token_from_dsl")
+OSRFBase.create(test_credentials_token_job)
+GitHubCredentials.createOsrfbuildToken(test_credentials_token_job)
+test_credentials_token_job.with
+{
+  label "osx"
+
+  steps {
+    shell("""\
+          #!/bin/bash -xe
+
+          # Check push+commit permissions for osrfbuild by uploading/deleting a
+          # branch. Note that call to the API for permissions require of admin
+          # perms that osrfbuild user does not have. Personal tokens don't
+          # support ssh but https only.
+
+          git clone https://github.com/osrfbuild/homebrew-simulation.git
+          cd homebrew-simulation
+          git config user.name 'osrfbuild' --replace-all
+          git config user.email 'osrfbuild@openrobotics.org' --replace-all
+          # Use a credential helper https://git-scm.com/docs/gitfaq#http-credentials-environment
+          git config credential.helper '!f() { echo username=\${OSRFBUILD_USER}; echo "password=\${OSRFBUILD_TOKEN}"; };f'
+          git checkout -b _test_job_osrfbuild_
+          git commit --allow-empty -m "testing commit"
+          # protect token from errors
+          git push -u origin _test_job_osrfbuild_ > push_log
+          git push origin --delete _test_job_osrfbuild_ >> push_log
+          """.stripIndent())
+    }
+
+    publishers
+    {
+      postBuildScripts {
+        steps {
+          shell("""\
+                #!/bin/bash -xe
+
+                # remove token after the build ends unconditionally
+                rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
+                """.stripIndent())
+        }
+
+        onlyIfBuildSucceeds(false)
+        onlyIfBuildFails(false)
+      }
+    }
+
+    wrappers {
+      preBuildCleanup()
+    }
+}
