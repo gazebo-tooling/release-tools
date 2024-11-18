@@ -134,9 +134,8 @@ test_credentials_token_job.with
           cd homebrew-simulation
           git config user.name 'osrfbuild' --replace-all
           git config user.email 'osrfbuild@openrobotics.org' --replace-all
-          set +x
-          git config url."https://osrfbuild:\${GITHUB_TOKEN}@github.com/osrfbuild/homebrew-simulation.git".InsteadOf https://github.com/osrfbuild/homebrew-simulation.git
-          set -x
+          # Use a credential helper https://git-scm.com/docs/gitfaq#http-credentials-environment
+          git config credential.helper '!f() { echo username=\${OSRFBUILD_USER}; echo "password=\${OSRFBUILD_TOKEN}"; };f'
           git checkout -b _test_job_osrfbuild_
           git commit --allow-empty -m "testing commit"
           # protect token from errors
