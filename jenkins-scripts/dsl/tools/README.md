@@ -40,11 +40,11 @@ Be sure of not including the major version number in the `<lib_name>`
 #### Example
 
 ```
-$./get_collections_from_package_and_version.py gz-cmake 3 ../gz-collections.yaml
+$./get_collections_from_package_and_version.py gz-cmake 4 ../gz-collections.yaml
 ```
 
 That generates the result of:
 
 ```
-garden harmonic
+ionic jetty
 ```

@@ -43,7 +43,7 @@ fi
 
 # Search heuristics used and context:
 # We are assuming that all the gz- libraries have a package named libgz${LIB} or
-# libgz${LIB}-dev except for the collection packages starting with Garden.
+# libgz${LIB}-dev except for the collection packages starting with Harmonic
 # Note that relying on the fact of having a packages available in a given
 # arch does not imply that build is successful since arch=all debs are built
 # once for amd64 and appear in all the arches.
@@ -65,10 +65,10 @@ for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
         VERS=( "bionic" "focal" )
       elif [[ $COLLECTION == "fortress" ]]; then
         VERS=( "bionic" "focal" "jammy" )
-      elif [[ $COLLECTION == "garden" ]]; then
-        VERS=( "focal" "jammy" )
       elif [[ $COLLECTION == "harmonic" ]]; then
         VERS=( "jammy" )
+      elif [[ $COLLECTION == "ionic" ]]; then
+        VERS=( "noble" )
       fi
     fi
 
