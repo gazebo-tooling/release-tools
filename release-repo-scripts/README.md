@@ -88,11 +88,11 @@ Output will printed to stdout:
 
 ### Example
 
-To import all release repositories related to gz Garden collection:
+To import all release repositories related to gz Harmonic collection:
 
 ```bash
-./path/to/release-tools/release-repo-scripts/convert_gazebodistro_to_release.py ~/code/gazebodistro/collection-garden.yaml  > collection-garden-release.yaml
-vcs import < collection-garden-release.yaml
+./path/to/release-tools/release-repo-scripts/convert_gazebodistro_to_release.py ~/code/gazebodistro/collection-harmonic.yaml  > collection-harmonic-release.yaml
+vcs import < collection-harmonic-release.yaml
 ```
 
 ### new_ubuntu_distribution.bash

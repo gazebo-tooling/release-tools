@@ -31,10 +31,15 @@ newer version of Gazebo than the one selected in REP-2000.
 
 | Gazebo Release | ROS / ROS 2 Release | status     | ros_gz branch | -release repository | CI | release cmd |
 | ---------------|---------------------|------------|---------------|---------------------|----|-------------|
-| Garden         | Humble              | stable     | humble        | https://github.com/gazebo-release/ros_ign-release | [![Build Status](https://build.osrfoundation.org/buildStatus/icon?job=ros_gzgarden_bridge-install-pkg_humble-ci-jammy-amd64)](https://build.osrfoundation.org/job/ros_gzgarden_bridge-install-pkg_humble-ci-jammy-amd64/) | <details>```RELEASE_REPO_URL=https://github.com/gazebo-release/ros_ign-release ./bloom_from_special_env.bash humble garden https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list```</details> |
-| Garden         | Iron                | stable     | iron          | https://github.com/gazebo-release/ros_ign-release | [![Build Status](https://build.osrfoundation.org/buildStatus/icon?job=ros_gzgarden_bridge-install-pkg_iron-ci-jammy-amd64)](https://build.osrfoundation.org/job/ros_gzgarden_bridge-install-pkg_iron-ci-jammy-amd64/) | <details>```RELEASE_REPO_URL=https://github.com/gazebo-release/ros_ign-release ./bloom_from_special_env.bash iron garden https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list```</details> |
 | Harmonic       | Humble              | stable     | humble        | https://github.com/gazebo-release/ros_gz-gzharmonic-release | [![Build Status](https://build.osrfoundation.org/buildStatus/icon?job=ros_gzharmonic_bridge-install-pkg_humble-ci-jammy-amd64)](https://build.osrfoundation.org/job/ros_gzharmonic_bridge-install-pkg_humble-ci-jammy-amd64/) | <details>```RELEASE_REPO_URL=https://github.com/gazebo-release/ros_gz-gzharmonic-release ./bloom_from_special_env.bash hubmle harmonic https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_harmonic/00-replace-gz-fortress-with-harmonic.list```</details> |
 | Harmonic       | Iron                | stable     | ros2          | https://github.com/gazebo-release/ros_gz-gzharmonic-release | [![Build Status](https://build.osrfoundation.org/buildStatus/icon?job=ros_gzharmonic_bridge-install-pkg_iron-ci-jammy-amd64)](https://build.osrfoundation.org/job/ros_gzharmonic_bridge-install-pkg_iron-ci-jammy-amd64/) | <details>```RELEASE_REPO_URL=https://github.com/gazebo-release/ros_gz-gzharmonic-release ./bloom_from_special_env.bash iron harmonic https://raw.githubusercontent.com/osrf/osrf-rosdep```</details> |
+
+### List of EOL releases
+
+| Gazebo Release | ROS / ROS 2 Release | status     | ros_gz branch | -release repository | CI | release cmd |
+| ---------------|---------------------|------------|---------------|---------------------|----|-------------|
+| Garden         | Humble              | stable     | humble        | https://github.com/gazebo-release/ros_ign-release | [![Build Status](https://build.osrfoundation.org/buildStatus/icon?job=ros_gzgarden_bridge-install-pkg_humble-ci-jammy-amd64)](https://build.osrfoundation.org/job/ros_gzgarden_bridge-install-pkg_humble-ci-jammy-amd64/) | <details>```RELEASE_REPO_URL=https://github.com/gazebo-release/ros_ign-release ./bloom_from_special_env.bash humble garden https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list```</details> |
+| Garden         | Iron                | stable     | iron          | https://github.com/gazebo-release/ros_ign-release | [![Build Status](https://build.osrfoundation.org/buildStatus/icon?job=ros_gzgarden_bridge-install-pkg_iron-ci-jammy-amd64)](https://build.osrfoundation.org/job/ros_gzgarden_bridge-install-pkg_iron-ci-jammy-amd64/) | <details>```RELEASE_REPO_URL=https://github.com/gazebo-release/ros_ign-release ./bloom_from_special_env.bash iron garden https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list```</details> |
 
 ### Upstream versions released using this tutorial
 
@@ -64,9 +69,9 @@ On the fork, the `rename-ros_gz-pkgs.bash` script will change the bloom template
 
  1. Clone the new repo, go to the directory and run rename-gazebo-ros-pkgs.bash
     - Usage: `$ rename-ros_gz-pkgs.bash <desired_gz_version> <space separted list of rosdistros to release>`
-    - Example: `$ rename-ros_gz-pkgs.bash garden humble`
+    - Example: `$ rename-ros_gz-pkgs.bash harmonic humble`
 
-If several unofficial wrappers using different Gazebo releases are going to exist for the same ROS 2 distribution (i.e: Garden and Harmonic for ROS 2 Iron), the rename script supports to declare a conflict using the `GZ_RELEASE_TO_CONFLICT` variable:
+If several unofficial wrappers using different Gazebo releases are going to exist for the same ROS 2 distribution (i.e: Harmonic for ROS 2 Iron), the rename script supports to declare a conflict using the `GZ_RELEASE_TO_CONFLICT` variable:
 
 ```
 GZ_RELEASE_TO_CONFLICT=garden ./rename-ros_gz-pkgs.bash harmonic humble
@@ -75,7 +80,7 @@ GZ_RELEASE_TO_CONFLICT=garden ./rename-ros_gz-pkgs.bash harmonic humble
 ### 2.2 Create a custom track in tracks.yml
 
 Copy the existing ROS 2 yaml track information and rename it to `${ros2}_gz${version}`.
-For example, the `humble` track to be used as base for Garden would be `humble_gzgarden`.
+For example, the `humble` track to be used as base for Harmonic would be `humble_gzharmonic`.
 
 New versioning requires bumping to large numbers. Set:
 
@@ -108,11 +113,11 @@ that encapsulates the bloom arguments to be passed and the use of this enviromen
 ```
 ./bloom_from_special_env.bash <ROS_DISTRO> <TARGET_NEW_GAZEBO_COLLECTION> <URL_OSRF_ROSDEP>
 
-i.e: release ros_gz on ROS 2 Humble replacing Gazebo Fortress by Gazebo Garden
+i.e: release ros_gz on ROS 2 Humble replacing Gazebo Fortress by Gazebo Harmonic
 ./bloom_from_special_env.bash \
     humble \
-    garden \
-    https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list
+    harmonic \
+    https://raw.githubusercontent.com/osrf/osrf-rosdep/refs/heads/master/gz/replace_fortress_with_harmonic/00-replace-gz-fortress-with-harmonic.list
 ```
 
 The script will create the docker enviroment with the rosdep modifications needed
@@ -129,8 +134,8 @@ i.e use a https://github.com/gazebo-testing/ros_ign-gzharmonic-release as gbp te
 RELEASE_REPO_URL=https://github.com/gazebo-testing/ros_ign-gzharmonic-release \
   ./bloom_from_special_env.bash \
     humble \
-    garden \
-    https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list
+    harmonic \
+    https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_harmonic/00-replace-gz-fortress-with-harmonic.list
 ```
 
 ### 3.2 Launching jobs in the osrf buildfarm

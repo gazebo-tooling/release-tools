@@ -3,7 +3,7 @@
 if [[ $# -lt 3 ]]; then
   echo "Usage: $0 <ROS_DISTRO> <TARGET_NEW_GAZEBO_COLLECTION> <URL_OSRF_ROSDEP_REPLACE>"
   echo "Example:"
-  echo "  $0 humble garden https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_garden/00-replace-gz-fortress-with-garden.list"
+  echo "  $0 humble harmonic https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_harmonic/00-replace-gz-fortress-with-harmonic.list"
   exit 1
 fi
 
