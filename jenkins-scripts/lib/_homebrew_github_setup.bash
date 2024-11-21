@@ -28,18 +28,6 @@ if [[ -z $(ssh -T git@github.com 2>&1 | grep successfully) ]]; then
     fi
 fi
 
-GITHUB_TOKEN_FILE="/var/lib/jenkins/.github_token"
-if [[ ! -f ${GITHUB_TOKEN_FILE} ]]; then
-   echo "The hub cli tool needs a valid token at file ${GITHUB_TOKEN_FILE}"
-   echo "The file was not found"
-   exit 1
-fi
-
-set +x # keep password secret
-export GITHUB_TOKEN=`cat $GITHUB_TOKEN_FILE`
-set -x # back to debug
-echo '# END SECTION'
-
 echo '# BEGIN SECTION: download linuxbrew'
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 echo '# END SECTION'
