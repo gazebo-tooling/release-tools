@@ -381,7 +381,7 @@ gz_collections_yaml.collections.each { collection ->
           gz_ci_job = job("${gz_job_name_prefix}-${branch_number}-win")
           generate_win_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
             // DUPLICATE for conda
-          if (collection.name == 'fortress') {
+          if (collection.name == 'fortress' || collection.name == 'harmonic') {
             gz_ci_job_conda = job("${gz_job_name_prefix}-${branch_number}-cwin")
             generate_win_ci_job(gz_ci_job_conda, lib_name, branch_name, ci_config)
             gz_ci_job_conda.with {
