@@ -15,7 +15,7 @@ class OSRFCredentials
             if (credential_keyword == 'OSRFBUILD_GITHUB_TOKEN') {
                 usernamePassword('OSRFBUILD_USER',
                                  'OSRFBUILD_TOKEN',
-                                 'github-osrfbuild-credentials')
+                                 'github-osrfbuild-apitoken')
             } else if (credential_keyword == 'OSRFBUILD_JENKINS_TOKEN') {
                 usernamePassword('OSRFBUILD_JENKINS_USER',
                                  'OSRFBUILD_JENKINS_TOKEN',
