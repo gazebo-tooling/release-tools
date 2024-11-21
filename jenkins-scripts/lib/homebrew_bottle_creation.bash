@@ -83,6 +83,7 @@ brew tap osrf/simulation
 # replace with 'hub -C $(brew --repo osrf/simulation) pr checkout ${ghprbPullId}'
 # after the following hub issue is resolved:
 # https://github.com/github/hub/issues/2612
+# hub requires authentication to operate. GITHUB_TOKEN enviroment variable for example
 pushd $(brew --repo osrf/simulation) && \
   hub pr checkout ${ghprbPullId} && \
   popd
