@@ -135,8 +135,9 @@ test_credentials_token_job.with
           #!/bin/bash -xe
 
           URL_TO_BUILD="\${JENKINS_URL}/job/\${TEST_JOB_TO_BUILD}/build"
+          
           echo " + Testing OSRFBUILD_JENKINS_TOKEN ability for calling jobs:"
-          echo "   - "\${URL_TO_BUILD}"
+          echo "   - \${URL_TO_BUILD}"
 
           # Warning: using verbose -v will reveal the token
           # If the node permissions are blocking the trigger, be sure of enabling AGENT:BUILD permissions
@@ -163,11 +164,7 @@ test_credentials_token_job.with
           set +x
           git config url."https://osrfbuild:\${OSRFBUILD_TOKEN}@github.com/osrfbuild/homebrew-simulation.git".InsteadOf https://github.com/osrfbuild/homebrew-simulation.git
           set -x
-          git checkout -b _test_job_osrfbuild_
-          git commit --allow-empty -m "testing commit"
-          # protect token from errors
-          git push -u origin _test_job_osrfbuild_ > push_log
-          git push origin --delete _test_job_osrfbuild_ >> push_log
+          GIT_TERMINAL_PROMPT=0 git push -u origin master --dry-run
           """.stripIndent())
     }
 
