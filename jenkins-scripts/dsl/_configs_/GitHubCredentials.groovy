@@ -9,9 +9,9 @@ class GitHubCredentials
     job.with
     {
       wrappers {
-        // credential name needs to be in sync with provision code at infra/osrf-chef repo
+        // Credential name needs to be in sync with provision code at infra/osrf-chef repo
         credentialsBinding {
-          string('GITHUB_TOKEN', 'osrfbuild-token')
+          usernamePassword('OSRFBUILD_USER', 'OSRFBUILD_TOKEN', 'github-osrfbuild-credentials')
         }
       }
     }
