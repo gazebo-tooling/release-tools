@@ -9,7 +9,7 @@ class OSRFReleasepy
   {
     // Base class for the job
     OSRFUNIXBase.create(job)
-    GitHubCredentials.createOsrfbuildToken(job)
+    OSRFCredentials.setOSRFCrendentials(job, ['OSRFBUILD_JENKINS_TOKEN'])
 
     job.with
     {
