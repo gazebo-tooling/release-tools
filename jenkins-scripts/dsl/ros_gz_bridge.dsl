@@ -12,13 +12,7 @@ def bridge_packages = [
   'ros_gz_sim_demos'
 ]
 
-def gzgarden_ros_distros_ci = [
-  'humble',
-  'iron'
-]
-
 def unofficial_combinations = [
-  'garden' : ['humble', 'iron'],
   'harmonic' : ['humble', 'iron']
 ]
 

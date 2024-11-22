@@ -43,25 +43,6 @@ get_libraries_by_collection()
 	ignition-gazebo6
 	ignition-launch5
 	ignition-fortress"
-    elif [ "$COLLECTION" = "garden" ]; then
-      LIBS="
-	gz-cmake3
-	gz-math7
-	gz-utils2
-	gz-tools2
-	gz-common5
-	gz-msgs9
-	gz-transport12
-	gz-fuel-tools8
-	gz-plugin2
-	gz-rendering7
-	sdformat13
-	gz-physics6
-	gz-sensors7
-	gz-gui7
-	gz-sim7
-	gz-launch6
-	gz-garden"
    elif [ "$COLLECTION" = "harmonic" ]; then
       LIBS="
 	gz-cmake3
@@ -81,6 +62,25 @@ get_libraries_by_collection()
 	gz-sim8
 	gz-launch7
 	gz-harmonic"
+   elif [ "$COLLECTION" = "ionic" ]; then
+      LIBS="
+  gz-cmake4
+  gz-math8
+  gz-utils3
+  gz-tools2
+  gz-common6
+  gz-msgs11
+  gz-transport14
+  gz-fuel-tools10
+  gz-plugin3
+  gz-rendering9
+  sdformat15
+  gz-physics8
+  gz-sensors9
+  gz-gui9
+  gz-sim9
+  gz-launch8
+  gz-ionic"
     else
       return 1
     fi

@@ -63,7 +63,7 @@ repo_uploader.with
   steps
   {
     copyArtifacts('${PROJECT_NAME_TO_COPY_ARTIFACTS}')
-    {
+   {
       includePatterns("${pkg_sources_dir}/*")
       buildSelector {
         upstreamBuild()
@@ -112,4 +112,82 @@ outdated_job_runner.with
   {
     systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/outdated-job-runner.groovy'))
   }
+}
+
+// --------------------------------------------------------------------
+def test_credentials_token_job = job("_test_job_osrfbuild-credentials-token_from_dsl")
+OSRFBase.create(test_credentials_token_job)
+OSRFCredentials.setOSRFCrendentials(test_credentials_token_job,
+                                    ['OSRFBUILD_GITHUB_TOKEN', 'OSRFBUILD_JENKINS_TOKEN'])
+test_credentials_token_job.with
+{
+  label "docker"
+
+  parameters
+  {
+    stringParam('TEST_JOB_TO_BUILD',
+                '_test_dummy_callable',
+                'Name of the job to build for checking server crendentials')
+  }
+
+  steps {
+    shell("""\
+          #!/bin/bash -xe
+
+          URL_TO_BUILD="\${JENKINS_URL}/job/\${TEST_JOB_TO_BUILD}/build"
+          
+          echo " + Testing OSRFBUILD_JENKINS_TOKEN ability for calling jobs:"
+          echo "   - \${URL_TO_BUILD}"
+
+          # Warning: using verbose -v will reveal the token
+          # If the node permissions are blocking the trigger, be sure of enabling AGENT:BUILD permissions
+          # for OSRFBUILD_JENKINS_USER at Global security.
+          curl -X POST --silent --fail --write '\\nReturn code: %{http_code}\\n' --user "\${OSRFBUILD_JENKINS_USER}:\${OSRFBUILD_JENKINS_TOKEN}" \${URL_TO_BUILD} --output /dev/null
+          """.stripIndent())
+
+    shell("""\
+          #!/bin/bash -xe
+
+          # Checking push permissions
+          # See https://github.com/osrf/chef-osrf/issues/282 for restrictions on using new fine-grained tokens
+          echo " + Testing OSRFBUILD_GITHUB_TOKEN ability to push into the fork osrfbuild/homebrew-simulation"
+          echo "   (out of the test is the ability to create pull requests into osrf/homebrew-simulation)"
+          rm -fr homebrew-simulation
+          git clone https://github.com/\${OSRFBUILD_USER}/homebrew-simulation.git
+          cd homebrew-simulation
+          git config user.name \${OSRFBUILD_USER} --replace-all
+          git config user.email "\${OSRFBUILD_USER}@openrobotics.org" --replace-all
+          set +x
+          git config url."https://osrfbuild:\${OSRFBUILD_TOKEN}@github.com/osrfbuild/homebrew-simulation.git".InsteadOf https://github.com/osrfbuild/homebrew-simulation.git
+          set -x
+          GIT_TERMINAL_PROMPT=0 git push -u origin master --dry-run
+          """.stripIndent())
+    }
+
+    publishers
+    {
+      postBuildScripts {
+        steps {
+          shell("""\
+                #!/bin/bash -xe
+
+                # remove config after the build ends unconditionally to avoid token leaks
+                rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
+                """.stripIndent())
+        }
+
+        onlyIfBuildSucceeds(false)
+        onlyIfBuildFails(false)
+      }
+    }
+
+    wrappers {
+      preBuildCleanup()
+    }
+}
+
+def test_dummy_job = job("_test_dummy_callable")
+OSRFCredentials.allowOsrfbuildToRunTheBuild(test_dummy_job)
+test_dummy_job.with {
+  label Globals.nontest_label("docker")
 }

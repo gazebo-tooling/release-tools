@@ -40,12 +40,12 @@ fi
 
 export APT_PARAMS=
 
-GZDEV_DIR=${WORKSPACE}/gzdev
+GZDEV_DIR=/root/gzdev
 GZDEV_BRANCH=${GZDEV_BRANCH:-master}
 if python3 ${SCRIPT_DIR}/../tools/detect_ci_matching_branch.py "${ghprbSourceBranch}"; then
   GZDEV_TRY_BRANCH=$ghprbSourceBranch
 fi
- 
+
 KEYSERVER="keyserver.ubuntu.com"
 if [[ "${DISTRO}" == 'bionic' || "${DISTRO}" == 'focal' ]]; then
   KEYSERVER="hkps://pgp.surf.nl"
@@ -53,35 +53,37 @@ fi
 
 dockerfile_install_gzdev_repos()
 {
-cat >> Dockerfile << DELIM_OSRF_REPO_GIT
-RUN rm -fr ${GZDEV_DIR}
-RUN git clone https://github.com/gazebo-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
-RUN if [ -n $GZDEV_TRY_BRANCH ]; then \
-        git -C ${GZDEV_DIR} fetch origin $GZDEV_TRY_BRANCH || true; \
-        git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH || true; \
-    fi || true
+cat >> Dockerfile << DELIM_OSRF_REPO_GIT_1
+ADD https://api.github.com/repos/gazebo-tooling/gzdev/git/refs/heads/$GZDEV_BRANCH version.json
+RUN rm -fr ${GZDEV_DIR} \
+    && git clone https://github.com/gazebo-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
+DELIM_OSRF_REPO_GIT_1
+if [ -n $GZDEV_TRY_BRANCH ]; then
+cat >> Dockerfile << DELIM_OSRF_REPO_GIT_2
+ADD https://api.github.com/repos/gazebo-tooling/gzdev/git/refs/heads/$GZDEV_TRY_BRANCH version.json
+RUN git -C ${GZDEV_DIR} fetch origin $GZDEV_TRY_BRANCH || true;
+RUN git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH || true;
+DELIM_OSRF_REPO_GIT_2
+fi
+cat >> Dockerfile << DELIM_OSRF_REPO_GIT_3
 # print branch for informational purposes
 RUN git -C ${GZDEV_DIR} branch
 # clean all _gzdev_ repository installations from the system before handling the configuration
 # otherwise the docker cache could contain unexpected repositories
 RUN ${GZDEV_DIR}/gzdev.py repository purge
-DELIM_OSRF_REPO_GIT
+DELIM_OSRF_REPO_GIT_3
+
 if [[ -n ${GZDEV_PROJECT_NAME} ]]; then
-# debian sid docker images does not return correct name so we need to use
-# force-linux-distro
+# debian sid docker images does not return correct name so we need to use force-linux-distro
 cat >> Dockerfile << DELIM_OSRF_REPO_GZDEV
-RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
-    if [ -n $GZDEV_TRY_BRANCH ]; then git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH; fi || true && \
-    ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO} )
+RUN ${GZDEV_DIR}/gzdev.py repository enable --project=${GZDEV_PROJECT_NAME} --force-linux-distro=${DISTRO}
 DELIM_OSRF_REPO_GZDEV
 fi
 
 # This could duplicate repositories enabled in the step above. gzdev should warn about it without failing.
 for repo in ${OSRF_REPOS_TO_USE}; do
 cat >> Dockerfile << DELIM_OSRF_REPO
-RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} || ( git -C ${GZDEV_DIR} pull origin ${GZDEV_BRANCH} && \
-    if [ -n $GZDEV_TRY_BRANCH ]; then git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH; fi || true && \
-    ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO} )
+RUN ${GZDEV_DIR}/gzdev.py repository enable osrf ${repo} --force-linux-distro=${DISTRO}
 DELIM_OSRF_REPO
 done
 }
@@ -235,7 +237,7 @@ RUN apt-get ${APT_PARAMS} update \\
     && rm -rf /var/lib/apt/lists/*
 RUN echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://repo.ros2.org/ubuntu/main ${DISTRO} main" > \\
          /etc/apt/sources.list.d/ros2-latest.list
-RUN echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://repo.ros2.org/ubuntu/testing ${DISTRO} main" > \\ 
+RUN echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://repo.ros2.org/ubuntu/testing ${DISTRO} main" > \\
         /etc/apt/sources.list.d/ros2-testing.list
 RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 DELIM_ROS_REPO
@@ -302,11 +304,6 @@ cat >> Dockerfile << DELIM_DOCKER3
 RUN echo "${MONTH_YEAR_STR}"
 DELIM_DOCKER3
 
-# If the previous command invalidated the cache, a new install of gzdev is
-# needed to update to possible recent changes in configuration and/or code and
-# not being used since the docker cache did not get them.
-dockerfile_install_gzdev_repos
-
 cat >> Dockerfile << DELIM_DOCKER3_2
 RUN sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.list.d/* || true \
  && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get ${APT_PARAMS} update)) \
@@ -317,11 +314,6 @@ RUN sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.
 # update.
 RUN echo "Invalidating cache $(( ( RANDOM % 100000 )  + 1 ))"
 DELIM_DOCKER3_2
-
-# A new install of gzdev is needed to update to possible recent changes in
-# configuration and/or code and not being used since the docker cache did
-# not get them.
-dockerfile_install_gzdev_repos
 
 cat >> Dockerfile << DELIM_DOCKER31
 # Note that we don't remove the apt/lists file here since it will make

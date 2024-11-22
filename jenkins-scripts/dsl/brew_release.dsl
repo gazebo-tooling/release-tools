@@ -132,7 +132,7 @@ bottle_job_builder.with
         preBuildCleanup()
         credentialsBinding {
           // crendetial name needs to be in sync with provision code at infra/osrf-chef repo
-          string('GITHUB_TOKEN', 'osrf-migration-token')
+          string('GITHUB_TOKEN', 'osrfbuild-token')
         }
    }
 
