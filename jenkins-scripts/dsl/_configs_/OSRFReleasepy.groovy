@@ -72,6 +72,7 @@ class OSRFReleasepy
 
             echo "releasing \${n} (from branch \${src_branch})"
               python3 ./scripts/release.py \${dry_run_str} "\${PACKAGE}" "\${VERSION}" \${extra_osrf_repo} \
+                      --auth "\${OSRFBUILD_USER}:\${OSRFBUILD_TOKEN}"' \
                       --source-tarball-uri \${SOURCE_TARBALL_URI} \
                       --release-repo-branch \${RELEASE_REPO_BRANCH} \
                       --upload-to-repo \${UPLOAD_TO_REPO}

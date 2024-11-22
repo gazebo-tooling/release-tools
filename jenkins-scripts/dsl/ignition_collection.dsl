@@ -238,13 +238,13 @@ nightly_scheduler_job.with
                 src_branch="main"
               fi
 
-              set +x # safeguard keep password secret
               echo "releasing \${n} (from branch \${src_branch})"
               python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly \
-                --auth "{OSRFBUILD_USER}:\${OSRFBUILD_TOKEN}"' \
-                --release-repo-branch main --nightly-src-branch \${src_branch} --upload-to-repo nightly > log || echo "MARK_AS_UNSTABLE"
-              set -e
-              echo " - done (log is available)"
+                      --auth "\${OSRFBUILD_USER}:\${OSRFBUILD_TOKEN}"' \
+                      --release-repo-branch main \
+                      --nightly-src-branch \${src_branch} \
+                      --upload-to-repo nightly
+              echo " - done"
           done
 
           """.stripIndent())
