@@ -148,11 +148,8 @@ test_credentials_token_job.with
     shell("""\
           #!/bin/bash -xe
 
-          # Check push+commit permissions for osrfbuild by uploading/deleting a
-          # branch. Note that call to the API for permissions require of admin
-          # perms that osrfbuild user does not have. Personal tokens don't
-          # support ssh but https only.
-          
+          # Checking push permissions
+          # See https://github.com/osrf/chef-osrf/issues/282 for restrictions on using new fine-grained tokens
           echo " + Testing OSRFBUILD_GITHUB_TOKEN ability to push into the fork osrfbuild/homebrew-simulation"
           echo "   (out of the test is the ability to create pull requests into osrf/homebrew-simulation)"
           rm -fr homebrew-simulation
@@ -160,7 +157,6 @@ test_credentials_token_job.with
           cd homebrew-simulation
           git config user.name \${OSRFBUILD_USER} --replace-all
           git config user.email "\${OSRFBUILD_USER}@openrobotics.org" --replace-all
-          # Use a credential helper https://git-scm.com/docs/gitfaq#http-credentials-environment
           set +x
           git config url."https://osrfbuild:\${OSRFBUILD_TOKEN}@github.com/osrfbuild/homebrew-simulation.git".InsteadOf https://github.com/osrfbuild/homebrew-simulation.git
           set -x
