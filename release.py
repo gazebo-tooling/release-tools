@@ -381,7 +381,6 @@ def sanity_checks(args, repo_dir):
 
     check_credentials(args.auth_input_arg)
     print_success("Jenkins credentials are good")
-
     shutil.rmtree(repo_dir)
 
 
@@ -553,6 +552,7 @@ def check_credentials(auth_input_arg = None):
         print(f"Crendentials error: {response.status}: {response.reason}")
         http.clear()
         exit(1)
+
 
 def call_jenkins_build(job_name,
                        params,
