@@ -62,7 +62,11 @@ release_job.with
    label Globals.nontest_label("master")
 
    wrappers {
-        preBuildCleanup()
+     preBuildCleanup()
+     credentialsBinding {
+       // crendetial name needs to be in sync with provision code at infra/osrf-chef repo
+       string('GITHUB_TOKEN', 'osrfbuild-token')
+     }
    }
 
    parameters
@@ -250,6 +254,10 @@ bottle_job_hash_updater.with
   wrappers
   {
     preBuildCleanup()
+    credentialsBinding {
+      // crendetial name needs to be in sync with provision code at infra/osrf-chef repo
+      string('GITHUB_TOKEN', 'osrfbuild-token')
+    }
   }
 
   parameters

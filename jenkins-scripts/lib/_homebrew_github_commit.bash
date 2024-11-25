@@ -66,7 +66,7 @@ ${GIT} push -u pr_head ${PULL_REQUEST_BRANCH}
 
 # Create a pull request if one doesn't yet exist
 if [ -z "${PULL_REQUEST_URL}" ]; then
-  # Check for hub command
+  # Check for hub command. It requires a GITHUB_TOKEN to work
   HUB=hub
   if ! which ${HUB} ; then
     if [ ! -s hub-linux-amd64-2.2.3.tgz ]; then
