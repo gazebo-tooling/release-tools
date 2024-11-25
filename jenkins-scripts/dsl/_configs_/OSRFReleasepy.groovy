@@ -9,6 +9,7 @@ class OSRFReleasepy
   {
     // Base class for the job
     OSRFUNIXBase.create(job)
+    OSRFCredentials.setOSRFCrendentials(job, ['OSRFBUILD_JENKINS_TOKEN'])
 
     job.with
     {
@@ -58,8 +59,6 @@ class OSRFReleasepy
 
         shell("""\
             #!/bin/bash -xe
-            set +x # keep password secret
-            PASS=\$(cat \$HOME/build_pass)
 
             dry_run_str=""
             if \$DRY_RUN; then
@@ -72,10 +71,11 @@ class OSRFReleasepy
             fi
 
             echo "releasing \${n} (from branch \${src_branch})"
-              python3 ./scripts/release.py \${dry_run_str} "\${PACKAGE}" "\${VERSION}" "\${PASS}" \${extra_osrf_repo} \
+              python3 ./scripts/release.py \${dry_run_str} "\${PACKAGE}" "\${VERSION}" \${extra_osrf_repo} \
+                      --auth "\${OSRFBUILD_USER}:\${OSRFBUILD_TOKEN}"' \
                       --source-tarball-uri \${SOURCE_TARBALL_URI} \
                       --release-repo-branch \${RELEASE_REPO_BRANCH} \
-                      --upload-to-repo \${UPLOAD_TO_REPO} > log
+                      --upload-to-repo \${UPLOAD_TO_REPO}
             echo " - done"
             """.stripIndent())
       }
