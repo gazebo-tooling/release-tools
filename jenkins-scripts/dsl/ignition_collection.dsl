@@ -148,7 +148,7 @@ nightly_collection = gz_collections_yaml.collections
 
 def nightly_scheduler_job = job("ignition-${gz_nightly}-nightly-scheduler")
 OSRFUNIXBase.create(nightly_scheduler_job)
-OSRFCredentials.setOSRFCrendentials(job, ['OSRFBUILD_JENKINS_TOKEN'])
+OSRFCredentials.setOSRFCrendentials(nightly_scheduler_job, ['OSRFBUILD_JENKINS_TOKEN'])
 
 nightly_scheduler_job.with
 {
