@@ -2,6 +2,7 @@ package _configs_
 
 import javaposse.jobdsl.dsl.Job
 import _configs_.Globals
+import _configs_.OSRFCredentials
 
 /*
   -> OSRFLinuxBuildPkgBase
@@ -27,6 +28,7 @@ class OSRFLinuxBuildPkg
   static void create(Job job, Map default_params = [:])
   {
     OSRFLinuxBuildPkgBase.create(job)
+    OSRFCredentials.allowOsrfbuildToRunTheBuild(job)
 
     job.with
     {

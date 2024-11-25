@@ -51,6 +51,7 @@ void include_common_params(Job job)
 // 1. BREW pull request SHA updater
 def release_job = job("generic-release-homebrew_pull_request_updater")
 OSRFUNIXBase.create(release_job)
+OSRFCredentials.allowOsrfbuildToRunTheBuild(release_job)
 
 include_common_params(release_job)
 release_job.with
