@@ -240,7 +240,7 @@ nightly_scheduler_job.with
 
               echo "releasing \${n} (from branch \${src_branch})"
               python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly \
-                      --auth "\${OSRFBUILD_USER}:\${OSRFBUILD_TOKEN}"' \
+                      --auth "\${OSRFBUILD_JENKINS_USER}:\${OSRFBUILD_JENKINS_TOKEN}" \
                       --release-repo-branch main \
                       --nightly-src-branch \${src_branch} \
                       --upload-to-repo nightly

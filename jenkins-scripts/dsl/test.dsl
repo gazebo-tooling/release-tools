@@ -153,12 +153,12 @@ test_credentials_token_job.with
           echo " + Testing OSRFBUILD_GITHUB_TOKEN ability to push into the fork osrfbuild/homebrew-simulation"
           echo "   (out of the test is the ability to create pull requests into osrf/homebrew-simulation)"
           rm -fr homebrew-simulation
-          git clone https://github.com/\${OSRFBUILD_USER}/homebrew-simulation.git
+          git clone https://github.com/\${OSRFBUILD_GITHUB_USER}/homebrew-simulation.git
           cd homebrew-simulation
-          git config user.name \${OSRFBUILD_USER} --replace-all
-          git config user.email "\${OSRFBUILD_USER}@openrobotics.org" --replace-all
+          git config user.name \${OSRFBUILD_GITHUB_USER} --replace-all
+          git config user.email "\${OSRFBUILD_GITHUB_USER}@openrobotics.org" --replace-all
           set +x
-          git config url."https://osrfbuild:\${OSRFBUILD_TOKEN}@github.com/osrfbuild/homebrew-simulation.git".InsteadOf https://github.com/osrfbuild/homebrew-simulation.git
+          git config url."https://osrfbuild:\${OSRFBUILD_GITHUB_TOKEN}@github.com/osrfbuild/homebrew-simulation.git".InsteadOf https://github.com/osrfbuild/homebrew-simulation.git
           set -x
           GIT_TERMINAL_PROMPT=0 git push -u origin master --dry-run
           """.stripIndent())
