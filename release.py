@@ -126,6 +126,10 @@ C) Nightly builds (linux)
  """)
     parser.add_argument('package', help='which package to release')
     parser.add_argument('version', help='which version to release')
+    parser.add_argument('deprecated_jenkins_token',
+                        default=None,
+                        nargs="?",
+                        help=argparse.SUPPRESS)
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
     parser.add_argument('--auth', dest='auth_input_arg',
@@ -769,6 +773,10 @@ def process_ros_vendor_package(args):
 
 def go(argv):
     args = parse_args(argv)
+
+    if args.deprecated_jenkins_token:
+        error('Build token has been removed. Please generate a user token:\n'
+              '  - https://gazebosim.org/docs/latest/releases-instructions/#access-and-credentials')
 
     # If only the process of ROS vendor package is set, just do it
     if args.bump_ros_vendor_only:
