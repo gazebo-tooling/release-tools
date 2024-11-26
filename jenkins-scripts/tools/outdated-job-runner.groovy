@@ -27,7 +27,7 @@ def findAvailableNodes() {
     def availableNodes = [osx: [], win: [], docker: []]
 
     Jenkins.instance.nodes.each { node ->
-        if (node.computer.online && node.computer.countIdle() > 0) {
+        if (node.toComputer()?.isOnline() && node.computer.countIdle() > 0) {
             if (node.getLabelString().contains("win")) {
                 availableNodes.win << node.name
             } else if (node.getLabelString().contains("osx")) {
