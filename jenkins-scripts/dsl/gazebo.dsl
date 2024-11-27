@@ -454,7 +454,7 @@ def gazebo_brew_ci_any_job = job(ci_build_any_job_name_brew)
 OSRFBrewCompilationAnyGitHub.create(gazebo_brew_ci_any_job, "gazebosim/gazebo-classic")
 gazebo_brew_ci_any_job.with
 {
-    Globals.nontest_label("osx")
+    label Globals.nontest_label("osx")
     steps {
       shell("""\
             #!/bin/bash -xe
