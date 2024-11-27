@@ -436,6 +436,15 @@ all_debbuild_branches.each { branch ->
   }
 }
 
+// - SOURCE jobs ---------------------------------------------------
+def gz_source_job = job("gazebo11-source")
+OSRFSourceCreation.create(gz_source_job, [
+  PACKAGE: 'gazebo11',
+  SOURCE_REPO_URI: "https://github.com/gazebosim/gazebo-classic.git"])
+OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
+  'repository_uploader_packages',
+  '_releasepy')
+
 // --------------------------------------------------------------
 // BREW: CI jobs
 
@@ -445,8 +454,7 @@ def gazebo_brew_ci_any_job = job(ci_build_any_job_name_brew)
 OSRFBrewCompilationAnyGitHub.create(gazebo_brew_ci_any_job, "gazebosim/gazebo-classic")
 gazebo_brew_ci_any_job.with
 {
-    label Globals.nontest_label("osx")
-
+    Globals.nontest_label("osx")
     steps {
       shell("""\
             #!/bin/bash -xe
