@@ -49,7 +49,7 @@ for (tup in exactly_one_labels) {
     println("Appointing a node from the configured pool matching '${pool_label}'")
 
     def node_pool = Jenkins.instance.nodes.findAll { node ->
-      node.computer.online &&
+      node.toComputer()?.isOnline() &&
       node.getLabelString().contains(pool_label) &&
       !node.getLabelString().contains(nightly_label_prefix) &&
       !node.getLabelString().contains("test-instance")
@@ -58,7 +58,7 @@ for (tup in exactly_one_labels) {
     if (node_pool.size() <= 0) {
       println("The Pool of '${pool_label}' machines for ${nightly_label} is empty. Reusing a node:")
       node_pool = Jenkins.instance.nodes.findAll { node ->
-        node.computer.online &&
+        node.toComputer()?.isOnline() &&
         node.getLabelString().contains(pool_label) &&
         !node.getLabelString().contains("test-instance")
       }
