@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
 export _RELEASEPY_DEBUG=1
+
 test_dir=$(mktemp -d)
 export _RELEASEPY_TEST_RELEASE_REPO="${test_dir}/test-release"
 mkdir -p ${_RELEASEPY_TEST_RELEASE_REPO}/{focal,jammy,ubuntu}/debian
@@ -25,7 +26,8 @@ exec_releasepy_test()
     ./release.py \
       --dry-run \
       --no-sanity-checks \
-    gz-foo 1.2.3 token ${test_params}
+      --auth user:fake \
+    gz-foo 1.2.3 ${test_params}
 }
 
 exec_ignition_releasepy_test()
@@ -35,7 +37,8 @@ exec_ignition_releasepy_test()
     ./release.py \
       --dry-run \
       --no-sanity-checks \
-    ign-foo 1.2.3 token ${test_params}
+      --auth user:fake \
+    ign-foo 1.2.3 ${test_params}
 }
 
 exec_ignition_gazebo_releasepy_test()
@@ -45,7 +48,8 @@ exec_ignition_gazebo_releasepy_test()
     ./release.py \
       --dry-run \
       --no-sanity-checks \
-    ign-gazebo 1.2.3 token ${test_params}
+      --auth user:fake \
+    ign-gazebo 1.2.3 ${test_params}
 }
 
 exec_releasepy_with_real_gz()
@@ -54,9 +58,10 @@ exec_releasepy_with_real_gz()
     ./release.py \
       --dry-run \
       --no-sanity-checks \
+      --auth user:fake \
       --source-repo-uri http://github.com/gazebosim/gz-common \
       --source-repo-existing-ref http://github.com/gazebosim/gz-common/foo-tag \
-    "${gz_pkg}" "${major_version}.x.y" token
+    "${gz_pkg}" "${major_version}.x.y"
 }
 
 expect_job_run()

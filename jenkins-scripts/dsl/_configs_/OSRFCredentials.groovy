@@ -13,8 +13,8 @@ class OSRFCredentials
         credentialsBinding {
           crendentials_list.each { credential_keyword ->
             if (credential_keyword == 'OSRFBUILD_GITHUB_TOKEN') {
-                usernamePassword('OSRFBUILD_USER',
-                                 'OSRFBUILD_TOKEN',
+                usernamePassword('OSRFBUILD_GITHUB_USER',
+                                 'OSRFBUILD_GITHUB_TOKEN',
                                  'github-osrfbuild-apitoken')
             } else if (credential_keyword == 'OSRFBUILD_JENKINS_TOKEN') {
                 usernamePassword('OSRFBUILD_JENKINS_USER',

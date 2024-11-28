@@ -57,7 +57,6 @@ class OSRFSourceCreation
   static void create(Job job, Map default_params = [:], Map default_hidden_params = [:])
   {
     OSRFLinuxBuildPkgBase.create(job)
-    GenericRemoteToken.create(job)
     OSRFSourceCreation.addParameters(job, default_params)
 
     def pkg_sources_dir="pkgs"

@@ -148,6 +148,7 @@ nightly_collection = gz_collections_yaml.collections
 
 def nightly_scheduler_job = job("ignition-${gz_nightly}-nightly-scheduler")
 OSRFUNIXBase.create(nightly_scheduler_job)
+OSRFCredentials.setOSRFCrendentials(nightly_scheduler_job, ['OSRFBUILD_JENKINS_TOKEN'])
 
 nightly_scheduler_job.with
 {
@@ -190,8 +191,6 @@ nightly_scheduler_job.with
   steps {
     shell("""\
           #!/bin/bash -xe
-          set +x # keep password secret
-          PASS=\$(cat \$HOME/build_pass)
 
           dry_run_str=""
           if \$DRY_RUN; then
@@ -240,7 +239,11 @@ nightly_scheduler_job.with
               fi
 
               echo "releasing \${n} (from branch \${src_branch})"
-              python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly "\${PASS}" --release-repo-branch main --nightly-src-branch \${src_branch} --upload-to-repo nightly > log || echo "MARK_AS_UNSTABLE"
+              python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly \
+                      --auth "\${OSRFBUILD_JENKINS_USER}:\${OSRFBUILD_JENKINS_TOKEN}" \
+                      --release-repo-branch main \
+                      --nightly-src-branch \${src_branch} \
+                      --upload-to-repo nightly
               echo " - done"
           done
 

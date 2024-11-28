@@ -260,7 +260,6 @@ bloom_debbuild_jobs.each { bloom_pkg ->
 
   // Use the linux install as base
   OSRFLinuxBuildPkgBase.create(build_pkg_job)
-  GenericRemoteToken.create(build_pkg_job)
 
   build_pkg_job.with
   {
