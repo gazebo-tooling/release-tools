@@ -535,6 +535,7 @@ def generate_source_params(args):
 
     return params
 
+
 def build_credentials_header(auth_input_arg=None):
     if auth_input_arg:
         if len(auth_input_arg.split(':')) != 2:
@@ -543,7 +544,7 @@ def build_credentials_header(auth_input_arg=None):
     else:
         username, api_token = get_credentials(JENKINS_URL)
         if not username:
-            exit(1)
+            error("No username found in credentials file")
 
     return make_headers(basic_auth=f'{username}:{api_token}')
 
@@ -559,11 +560,11 @@ def check_credentials(auth_input_arg=None):
         exit(1)
 
 
-def call_jenkins_build(job_name,
-                       params,
-                       output_string,
-                       search_description_help,
-                       auth_input_arg=None):
+def call_jenkins_build(job_name: str,
+                       params: dict,
+                       output_string: str,
+                       search_description_help: str,
+                       auth_input_arg: str = ""):
     # Only to help user feedback this block
     help_url = f'{JENKINS_URL}/job/{job_name}'
     if search_description_help:
@@ -585,6 +586,7 @@ def call_jenkins_build(job_name,
                 http.request('POST',
                              url,
                              headers=build_credentials_header(auth_input_arg))
+            print(response)
             # 201 code is "created", it is the expected return of POST
             if response.status != 201:
                 error(f"Error {response.status}: {response.reason}")
