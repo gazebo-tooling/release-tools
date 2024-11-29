@@ -588,13 +588,14 @@ def call_jenkins_build(job_name: str,
                              headers=build_credentials_header(auth_input_arg))
             # 201 code is "created", it is the expected return of POST
             if response.status != 201:
-                error(f"Error {response.status}: {response.reason}")
+                http.clear()
+                error(f"{response.status}: {response.reason}")
         except RequestError as e:
+            http.clear()
             error(f"An error occurred in the http request: {e}")
         except Exception as e:
-            error(f"An unexpected error occurred: {e}")
-        finally:
             http.clear()
+            error(f"An unexpected error occurred: {e}")
 
 
 def display_help_job_chain_for_source_calls(args):
