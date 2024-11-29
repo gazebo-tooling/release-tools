@@ -535,7 +535,7 @@ def generate_source_params(args):
 
     return params
 
-def build_credentials_header(auth_input_arg = None):
+def build_credentials_header(auth_input_arg=None):
     if auth_input_arg:
         if len(auth_input_arg.split(':')) != 2:
             error("Auth string is not in the form of 'user:token' ")
@@ -547,7 +547,8 @@ def build_credentials_header(auth_input_arg = None):
 
     return make_headers(basic_auth=f'{username}:{api_token}')
 
-def check_credentials(auth_input_arg = None):
+
+def check_credentials(auth_input_arg=None):
     http = urllib3.PoolManager()
     response = http.request('GET',
                             JENKINS_URL,
@@ -562,7 +563,7 @@ def call_jenkins_build(job_name,
                        params,
                        output_string,
                        search_description_help,
-                       auth_input_arg = None):
+                       auth_input_arg=None):
     # Only to help user feedback this block
     help_url = f'{JENKINS_URL}/job/{job_name}'
     if search_description_help:
@@ -579,20 +580,21 @@ def call_jenkins_build(job_name,
 
     if not DRY_RUN:
         http = urllib3.PoolManager()
-        try :
-            response = http.request('POST',
-                                    url ,
-                                    headers=build_credentials_header(auth_input_arg))
+        try:
+            response = \
+                http.request('POST',
+                             url,
+                             headers=build_credentials_header(auth_input_arg))
             # 201 code is "created", it is the expected return of POST
             if response.status != 201:
-                print(f"Error {response.status}: {response.reason}")
-                exit(1)
+                error(f"Error {response.status}: {response.reason}")
         except RequestError as e:
-            print(f"An error occurred in the http request: {e}")
+            error(f"An error occurred in the http request: {e}")
         except Exception as e:
-            print(f"An unexpected error occurred: {e}")
+            error(f"An unexpected error occurred: {e}")
         finally:
             http.clear()
+
 
 def display_help_job_chain_for_source_calls(args):
     # Encode the different ways using in the job descriptions to filter builds
