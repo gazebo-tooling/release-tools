@@ -133,7 +133,7 @@ C) Nightly builds (linux)
     parser.add_argument('--dry-run', dest='dry_run', action='store_true', default=False,
                         help='dry-run; i.e., do actually run any of the commands')
     parser.add_argument('--auth', dest='auth_input_arg',
-                        default=None,
+                        default="",
                         help='Explicit jenkins user:token string overriding the jenkins.ini credentials file.')
     parser.add_argument('-a', '--package-alias', dest='package_alias',
                         default=None,
@@ -536,7 +536,7 @@ def generate_source_params(args):
     return params
 
 
-def build_credentials_header(auth_input_arg=None):
+def build_credentials_header(auth_input_arg: str = ""):
     if auth_input_arg:
         if len(auth_input_arg.split(':')) != 2:
             error("Auth string is not in the form of 'user:token' ")
@@ -549,7 +549,7 @@ def build_credentials_header(auth_input_arg=None):
     return make_headers(basic_auth=f'{username}:{api_token}')
 
 
-def check_credentials(auth_input_arg=None):
+def check_credentials(auth_input_arg: str = ""):
     http = urllib3.PoolManager()
     response = http.request('GET',
                             JENKINS_URL,
@@ -564,7 +564,7 @@ def call_jenkins_build(job_name: str,
                        params: dict,
                        output_string: str,
                        search_description_help: str,
-                       auth_input_arg: str = ""):
+                       auth_input_arg: str):
     # Only to help user feedback this block
     help_url = f'{JENKINS_URL}/job/{job_name}'
     if search_description_help:
@@ -586,7 +586,6 @@ def call_jenkins_build(job_name: str,
                 http.request('POST',
                              url,
                              headers=build_credentials_header(auth_input_arg))
-            print(response)
             # 201 code is "created", it is the expected return of POST
             if response.status != 201:
                 error(f"Error {response.status}: {response.reason}")
@@ -823,8 +822,10 @@ def go(argv):
         # RELEASING FOR BREW
         if not NIGHTLY and not args.bump_rev_linux_only:
             call_jenkins_build(GENERIC_BREW_PULLREQUEST_JOB,
-                               params, 'Brew',
-                               f'{args.package_alias}-{args.version}')
+                               params,
+                               'Brew',
+                               f'{args.package_alias}-{args.version}',
+                               args.auth_input_arg)
         # RELEASING FOR LINUX
         for l in LINUX_DISTROS:
             if (l == 'ubuntu'):
@@ -878,7 +879,8 @@ def go(argv):
                     call_jenkins_build(f'{package_alias_force_gz}-debbuilder',
                                        linux_platform_params,
                                        f"{l} {d}/{a}",
-                                       f"{args.version}-{args.release_version}")
+                                       f"{args.version}-{args.release_version}",
+                                       args.auth_input_arg)
     else:
         # b) Mode generate source
         # Choose platform to run gz-source on. It will need to install gz-cmake
@@ -906,10 +908,12 @@ def go(argv):
         call_jenkins_build(f'{package_alias_force_gz}-source',
                            params,
                            'Source',
-                           args.version)
+                           args.version,
+                           args.auth_input_arg)
         display_help_job_chain_for_source_calls(args)
         # Process the possible update of an associated ROS vendor package
         process_ros_vendor_package(args)
+
 
 if __name__ == '__main__':
     go(sys.argv)
