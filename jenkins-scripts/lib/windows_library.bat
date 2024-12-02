@@ -210,16 +210,13 @@ set MAKEFLAGS=-j%MAKE_JOBS%
 echo "COLCON_EXTRA_ARGS: %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%"
 
 if defined USE_PIXI (
-  if defined COLCON_EXTRA_CMAKE_ARGS (
-    set COLCON_EXTRA_CMAKE_ARGS_STR=--cmake-args %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%
-    echo "COLCON_EXTRA_CMAKE_ARGS_STR:" !COLCON_EXTRA_CMAKE_ARGS_STR!
-  )
   @echo on
   colcon build --build-base "build"^
     --install-base "install"^
     --parallel-workers %MAKE_JOBS%^
     %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
-    !COLCON_EXTRA_CMAKE_ARGS_STR!^
+    --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
+    %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
     --event-handler console_cohesion+ || goto :error
 ) else (
   echo "COLCON_EXTRA_CMAKE_ARGS: %COLCON_EXTRA_CMAKE_ARGS%"
