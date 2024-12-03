@@ -422,6 +422,7 @@ all_debbuild_branches = gazebo_supported_branches
 all_debbuild_branches.each { branch ->
   def build_pkg_job = job("${branch}-debbuilder")
   OSRFLinuxBuildPkg.create(build_pkg_job)
+  OSRFCredentials.allowOsrfbuildToRunTheBuild(build_pkg_job)
 
   build_pkg_job.with
   {
