@@ -36,6 +36,7 @@ class OSRFCredentials
       authorization {
         permission('hudson.model.Item.Read', 'osrfbuild')
         permission('hudson.model.Item.Build', 'osrfbuild')
+        permission('hudson.model.Run.Update', 'osrfbuild')
       }
     }
   }
