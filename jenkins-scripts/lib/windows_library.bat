@@ -424,9 +424,9 @@ call %win_lib% :pixi_cmd shell-hook --locked > hooks.bat
 type hooks.bat
 call hooks.bat
 :: ERRORS in hooks will make the build to fail. Be permissive
-:: if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
+:: if errorlevel 1 exit EXTRA_EXIT_PARAM 1
 popd
-
+echo "End popd"
 :: TODO: DBG_LAST_BUILD_FILE support for debugging only if local_build.bat
 :: was called. Support the reproducible in Jenkins too
 if defined DBG_LAST_BUILD_FILE (
