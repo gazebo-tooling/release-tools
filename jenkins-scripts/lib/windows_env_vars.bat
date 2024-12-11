@@ -20,6 +20,10 @@ if exist D:\vcpkg (
   )
 )
 
+if NOT DEFINED EXIT_ON_ERROR (
+  set EXIT_ON_ERROR=
+)
+
 if DEFINED MAKE_JOBS (
   set VCPKG_MAX_CONCURRENCY=%MAKE_JOBS%
 )
