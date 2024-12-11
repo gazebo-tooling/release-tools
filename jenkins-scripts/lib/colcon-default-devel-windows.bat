@@ -108,25 +108,6 @@ if defined USE_PIXI (
   echo # END SECTION
 )
 
-:: Check if package is in colcon workspace
-echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
-echo Packages in workspace:
-colcon list --names-only
-
-colcon list --names-only | find "!COLCON_PACKAGE!"
-if errorlevel 1 (
-  :: REQUIRED for Gazebo Fortress
-  set COLCON_PACKAGE=!COLCON_PACKAGE:gz=ignition!
-  set COLCON_PACKAGE=!COLCON_PACKAGE:sim=gazebo!
-)
-colcon list --names-only | find "!COLCON_PACKAGE!"
-if errorlevel 1 (
-  echo Failed to find package !COLCON_PACKAGE! in workspace.
-  goto :error
-)
-echo Using package name !COLCON_PACKAGE!
-echo # END SECTION
-
 echo # BEGIN SECTION: setup workspace
 if not defined KEEP_WORKSPACE (
   IF exist %LOCAL_WS_BUILD% (
@@ -152,6 +133,25 @@ echo # END SECTION
 
 echo # BEGIN SECTION: packages in workspace
 call %win_lib% :list_workspace_pkgs || goto :error
+echo # END SECTION
+
+:: Check if package is in colcon workspace
+echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
+echo Packages in workspace:
+colcon list --names-only
+
+colcon list --names-only | find "!COLCON_PACKAGE!"
+if errorlevel 1 (
+  :: REQUIRED for Gazebo Fortress
+  set COLCON_PACKAGE=!COLCON_PACKAGE:gz=ignition!
+  set COLCON_PACKAGE=!COLCON_PACKAGE:sim=gazebo!
+)
+colcon list --names-only | find "!COLCON_PACKAGE!"
+if errorlevel 1 (
+  echo Failed to find package !COLCON_PACKAGE! in workspace.
+  goto :error
+)
+echo Using package name !COLCON_PACKAGE!
 echo # END SECTION
 
 if exist %LOCAL_WS_SOFTWARE_DIR%\configure.bat (
