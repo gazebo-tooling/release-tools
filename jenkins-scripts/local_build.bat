@@ -27,6 +27,8 @@ set "VCS_DIRECTORY=%~2"
 set "USE_PIXI=1"
 :: KEEP_WORKSPACE should help with debugging and re-run the compilation only
 set "KEEP_WORKSPACE=1"
+:: Avoid closing the whole terminal
+set "EXTRA_EXIT_PARAM=/b"
 
 mkdir "%WORKSPACE%"
 xcopy "%VCS_DIRECTORY%" "%WORKSPACE%\%VCS_DIRECTORY%" /s /e /i  > log

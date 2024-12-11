@@ -89,7 +89,7 @@ if errorlevel 1 (
     echo Download failed. Retry attempt !COUNT! of %RETRIES%.
     if !COUNT! geq %RETRIES% (
         echo Maximum retry attempts reached. Exiting...
-        exit 1
+        exit %EXTRA_EXIT_PARAM% 1
     )
     timeout /t 5 >nul
     goto retry
@@ -394,7 +394,7 @@ echo Downloading pixi %PIXI_VERSION% in %PIXI_TMPDIR%
 if not exist "%PIXI_TMPDIR%" mkdir "%PIXI_TMPDIR%"
 pushd %PIXI_TMPDIR%
 call :wget "%PIXI_URL%" pixi.exe
-if errorlevel 1 exit 1
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 popd 
 goto :EOF
 
@@ -404,14 +404,14 @@ goto :EOF
 :pixi_create_gz_environment_legacy
 
 if exist %PIXI_PROJECT_PATH% ( del /s /q /f %PIXI_PROJECT_PATH%)
-if errorlevel 1 exit 1
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 mkdir %PIXI_PROJECT_PATH%
 copy %CONDA_ENVS_DIR%\legacy\pixi.* %PIXI_PROJECT_PATH%
-if errorlevel 1 exit 1
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 pushd %PIXI_PROJECT_PATH%
-if errorlevel 1 exit 1
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 call %win_lib% :pixi_cmd install
-if errorlevel 1 exit%1
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 popd
 goto :EOF
 
@@ -425,7 +425,7 @@ type hooks.bat
 call hooks.bat
 del hooks.bat
 :: ERRORS in hooks will make the build to fail. Be permissive
-:: if errorlevel 1 exit 1
+:: if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 popd
 goto :EOF
 
@@ -439,7 +439,7 @@ echo Running pixi %~1 %~2
 :: project directory.
 pushd %PIXI_PROJECT_PATH%
 call "%PIXI_TMP%" %1 %2
-if errorlevel 1 exit 1
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 popd
 goto :EOF
 
@@ -447,4 +447,4 @@ goto :EOF
 :error - error routine
 ::
 echo Failed in windows_library with error #%errorlevel%.
-exit %errorlevel%
+exit %EXTRA_EXIT_PARAM% %errorlevel%
