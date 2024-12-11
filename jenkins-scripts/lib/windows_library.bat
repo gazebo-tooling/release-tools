@@ -403,7 +403,7 @@ goto :EOF
 :: Create a pixi environment
 :pixi_create_gz_environment_legacy
 
-if exist %PIXI_PROJECT_PATH% ( del /s /q /f %PIXI_PROJECT_PATH%)
+if exist %PIXI_PROJECT_PATH% ( rmdir /s /q "%PIXI_PROJECT_PATH%")
 if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 mkdir %PIXI_PROJECT_PATH%
 copy %CONDA_ENVS_DIR%\legacy\pixi.* %PIXI_PROJECT_PATH%
