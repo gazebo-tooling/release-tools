@@ -30,6 +30,9 @@ set "KEEP_WORKSPACE=1"
 :: Avoid closing the whole terminal
 set "EXTRA_EXIT_PARAM=/b"
 
+set "DBG_LAST_BUILD_FILE=%SCRIPT_DIR%/.debug_last_build.bat"
+
+
 mkdir "%WORKSPACE%"
 xcopy "%VCS_DIRECTORY%" "%WORKSPACE%\%VCS_DIRECTORY%" /s /e /i  > log
 
@@ -45,6 +48,14 @@ if "%build_mode%"=="0" (
 
 call "%~1"
 
+@echo off
+if errorlevel 1 echo " BUILD FAILED with error: %errorlevel%"
+echo Local build finished
+
+echo call %LOCAL_WS%\install\setup.bash >> %DBG_LAST_BUILD_FILE%
+echo cd %LOCAL_WS% >> %DBG_LAST_BUILD_FILE%
+echo + Reproduce the conditions of the last build
+echo + by running call %DBG_LAST_BUILD_FILE%
 echo
 echo "Local build finished:"
 echo "Build root is %WORKSPACE%"

@@ -423,10 +423,10 @@ pushd %PIXI_PROJECT_PATH%
 call %win_lib% :pixi_cmd shell-hook --locked > hooks.bat
 type hooks.bat
 call hooks.bat
-del hooks.bat
 :: ERRORS in hooks will make the build to fail. Be permissive
 :: if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 popd
+echo call %PIXI_PROJECT_PATH%/hooks.bat > %DBG_LAST_BUILD_FILE%
 goto :EOF
 
 :: ##################################
