@@ -11,7 +11,7 @@ arch = 'amd64'
 file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
 gz_collections_yaml = new Yaml().load(file)
 
-gz_nightly = '__upcoming__'
+gz_nightly = 'jetty'
 
 String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
 {
