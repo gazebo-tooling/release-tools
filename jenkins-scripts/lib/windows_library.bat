@@ -426,7 +426,7 @@ call hooks.bat
 :: ERRORS in hooks will make the build to fail. Be permissive
 :: if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 popd
-echo call %PIXI_PROJECT_PATH%/hooks.bat > %DBG_LAST_BUILD_FILE%
+echo call %PIXI_PROJECT_PATH%\hooks.bat > %DBG_LAST_BUILD_FILE%
 goto :EOF
 
 :: ##################################
