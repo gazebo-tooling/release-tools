@@ -22,7 +22,7 @@ if not "%~3"=="" (
 )
 
 set "WORKSPACE=%TMP%\%RANDOM%"
-set "VCS_DIRECTORY=%~2"
+set "SRC_DIRECTORY=%~2"
 :: Only work with PIXI
 set "USE_PIXI=1"
 :: KEEP_WORKSPACE should help with debugging and re-run the compilation only
@@ -34,7 +34,7 @@ set "DBG_LAST_BUILD_FILE=%SCRIPT_DIR%/.debug_last_build.bat"
 
 
 mkdir "%WORKSPACE%"
-xcopy "%VCS_DIRECTORY%" "%WORKSPACE%\%VCS_DIRECTORY%" /s /e /i  > log
+xcopy "%SRC_DIRECTORY%\*" "%WORKSPACE%\%~nx2" /s /e /i /Y >> log
 
 echo "USING BUILD_MODE=%build_mode%"
 if "%build_mode%"=="0" (
