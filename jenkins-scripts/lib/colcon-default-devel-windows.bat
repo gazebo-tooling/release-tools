@@ -87,6 +87,12 @@ if defined USE_PIXI (
   echo # BEGIN SECTION: pixi: enable shell
   call %win_lib% :pixi_load_shell
   echo # END SECTION
+
+
+  echo # BEGIN SECTION: pixi: custom environment variable for gz
+  set OGRE_RESOURCE_PATH=%CONDA_PREFIX%\Library\bin
+  set OGRE2_RESOURCE_PATH=%CONDA_PREFIX%\Library\bin\OGRE-Next
+  echo # END SECTION
 ) else (
   :: Call vcvarsall and all the friends
   echo # BEGIN SECTION: configure the MSVC compiler
