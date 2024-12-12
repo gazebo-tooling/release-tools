@@ -427,11 +427,7 @@ call hooks.bat
 :: if errorlevel 1 exit EXTRA_EXIT_PARAM 1
 popd
 echo "End popd"
-:: TODO: DBG_LAST_BUILD_FILE support for debugging only if local_build.bat
-:: was called. Support the reproducible in Jenkins too
-if defined DBG_LAST_BUILD_FILE (
-  echo call %PIXI_PROJECT_PATH%\hooks.bat > %DBG_LAST_BUILD_FILE%
-)
+echo "end function"
 goto :EOF
 
 :: ##################################

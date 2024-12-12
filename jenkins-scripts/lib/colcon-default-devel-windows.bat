@@ -91,15 +91,17 @@ if defined USE_PIXI (
 
 
   echo # BEGIN SECTION: pixi: custom environment variable for gz
-  set "OGRE_RESOURCE_PATH=%CONDA_PREFIX%\Library\bin"
-  if "%%CONDA_PREFIX%%"=="" (
+  if "!CONDA_PREFIX!"=="" (
     echo # BEGIN SECTION: ERROR: CONDA_PREFIX is not set
     echo CONDA_PREFIX variable was not set. Please set it before calling this script
     echo # END SECTION
     goto :error
   )
-  set OGRE_RESOURCE_PATH=%%CONDA_PREFIX%%\Library\bin
-  set OGRE2_RESOURCE_PATH=%%CONDA_PREFIX%%\Library\bin\OGRE-Next
+  @echo on
+  set OGRE_RESOURCE_PATH=!CONDA_PREFIX!\Library\bin
+  set OGRE2_RESOURCE_PATH=!CONDA_PREFIX!\Library\bin\OGRE-Next
+  @echo off
+  echo "OGRE2_RESOURCE_PATH is %OGRE2_RESOURCE_PATH%"
   echo # END SECTION
 ) else (
   :: Call vcvarsall and all the friends
