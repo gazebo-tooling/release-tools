@@ -97,11 +97,8 @@ if defined USE_PIXI (
     echo # END SECTION
     goto :error
   )
-  @echo on
   set OGRE_RESOURCE_PATH=!CONDA_PREFIX!\Library\bin
   set OGRE2_RESOURCE_PATH=!CONDA_PREFIX!\Library\bin\OGRE-Next
-  @echo off
-  echo "OGRE2_RESOURCE_PATH is %OGRE2_RESOURCE_PATH%"
   echo # END SECTION
 ) else (
   :: Call vcvarsall and all the friends
