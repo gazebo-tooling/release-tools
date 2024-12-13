@@ -6,6 +6,7 @@ from configparser import ConfigParser
 from typing import Tuple
 from urllib3.exceptions import RequestError
 from urllib3.util import make_headers
+import re
 import subprocess
 import sys
 import tempfile
@@ -325,6 +326,23 @@ def sanity_check_sdformat_versions(package, version):
 
     print_success("sdformat version in proper sdformat package")
 
+def sanity_cmake_version(version):
+    regex = re.compile(r"^project.*VERSION\s*([0-9.]*).*", re.MULTILINE)
+    try:
+        with open("CMakeLists.txt") as f:
+            m = re.search(regex, f.read())
+            if m:
+                cmake_version = m.group(1)
+                if cmake_version != version:
+                    error(f"Error in package version. CMakeLists version: {cmake_version}, provided version: {version}")
+                else:
+                    print_success("Package version in CMakeLists")
+            else:
+                error("Error parsing version from CMakeLists.txt file")
+
+    except FileNotFoundError as e:
+        print("Could not find CMakeLists file. Are you sure you're in the source directory?")
+        print(e)
 
 def sanity_check_repo_name(repo_name):
     if repo_name in OSRF_REPOS_SUPPORTED:
@@ -381,6 +399,7 @@ def sanity_checks(args, repo_dir):
     if not NIGHTLY:
         sanity_package_version(repo_dir, args.version, str(args.release_version))
         sanity_check_sdformat_versions(args.package, args.version)
+        sanity_cmake_version(args.version)
         sanity_project_package_in_stable(args.version, args.upload_to_repository)
 
     check_credentials(args.auth_input_arg)
