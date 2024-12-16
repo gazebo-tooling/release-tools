@@ -198,11 +198,10 @@ if NOT DEFINED KEEP_WORKSPACE (
 goto :EOF
 
 :: export in the WORKSPACE the ogre.log file located at $HOME/.gz/rendering/ogre.log on Windows
-:export_ogre_log
-setlocal ENABLEDELAYEDEXPANSION
 set OGRE_LOG_FILE=%USERPROFILE%\.gz\rendering\ogre.log
 if exist %OGRE_LOG_FILE% (
-  echo # BEGIN SECTION: export ogre.log
+  echo # BEGIN SECTION: ogre.log
+  type %OGRE_LOG_FILE%
   xcopy %OGRE_LOG_FILE% %EXPORT_TEST_RESULT_PATH% /s /i /e || goto :error
   echo # END SECTION
 ) 
