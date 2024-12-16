@@ -399,7 +399,8 @@ def sanity_checks(args, repo_dir):
     if not NIGHTLY:
         sanity_package_version(repo_dir, args.version, str(args.release_version))
         sanity_check_sdformat_versions(args.package, args.version)
-        sanity_cmake_version(args.version)
+        if not (args.bump_rev_linux_only or args.source_repo_uri):
+            sanity_cmake_version(args.version)
         sanity_project_package_in_stable(args.version, args.upload_to_repository)
 
     check_credentials(args.auth_input_arg)
