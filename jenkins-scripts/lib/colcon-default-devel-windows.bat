@@ -36,6 +36,11 @@ if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
    echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
 )
 
+echo # BEGIN SECTION: dxdiag info
+set DXDIAG_FILE=%WORKSPACE%\dxdiag.txt
+dxdiag /t %DXDIAG_FILE%
+type %DXDIAG_FILE%
+echo # END SECTION
 
 setlocal ENABLEDELAYEDEXPANSION
 if not defined GAZEBODISTRO_FILE (
@@ -191,6 +196,16 @@ if NOT DEFINED KEEP_WORKSPACE (
    echo # END SECTION
 )
 goto :EOF
+
+:: export in the WORKSPACE the ogre.log file located at $HOME/.gz/rendering/ogre.log on Windows
+:export_ogre_log
+setlocal ENABLEDELAYEDEXPANSION
+set OGRE_LOG_FILE=%USERPROFILE%\.gz\rendering\ogre.log
+if exist %OGRE_LOG_FILE% (
+  echo # BEGIN SECTION: export ogre.log
+  xcopy %OGRE_LOG_FILE% %EXPORT_TEST_RESULT_PATH% /s /i /e || goto :error
+  echo # END SECTION
+) 
 
 :error - error routine
 echo Failed with error #%errorlevel%.
