@@ -627,4 +627,3 @@ install_ci jetty gz_utils3-install_bottle-homebrew-amd64
 install_ci jetty sdformat15-install-pkg-noble-amd64
 install_ci jetty sdformat15-install_bottle-homebrew-amd64
 unofficial_wrappers_install_pkg_ci harmonic ros_gzharmonic_bridge-install-pkg_humble-ci-jammy-amd64
-unofficial_wrappers_install_pkg_ci harmonic ros_gzharmonic_bridge-install-pkg_iron-ci-jammy-amd64
