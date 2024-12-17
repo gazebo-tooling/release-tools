@@ -35,6 +35,11 @@ if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
    echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
 )
 
+echo # BEGIN SECTION: dxdiag info
+set DXDIAG_FILE=%WORKSPACE%\dxdiag.txt
+dxdiag /t %DXDIAG_FILE%
+type %DXDIAG_FILE%
+echo # END SECTION
 
 setlocal ENABLEDELAYEDEXPANSION
 if not defined GAZEBODISTRO_FILE (
