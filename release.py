@@ -326,7 +326,7 @@ def sanity_check_sdformat_versions(package, version):
 
     print_success("sdformat version in proper sdformat package")
 
-def sanity_cmake_version(version):
+def sanity_check_cmake_version(version):
     regex = re.compile(r"^project.*VERSION\s*([0-9.]*).*", re.MULTILINE)
     try:
         with open("CMakeLists.txt") as f:
@@ -400,7 +400,7 @@ def sanity_checks(args, repo_dir):
         sanity_package_version(repo_dir, args.version, str(args.release_version))
         sanity_check_sdformat_versions(args.package, args.version)
         if not (args.bump_rev_linux_only or args.source_repo_uri):
-            sanity_cmake_version(args.version)
+            sanity_check_cmake_version(args.version)
         sanity_project_package_in_stable(args.version, args.upload_to_repository)
 
     check_credentials(args.auth_input_arg)
