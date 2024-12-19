@@ -13,7 +13,7 @@ def bridge_packages = [
 ]
 
 def unofficial_combinations = [
-  'harmonic' : ['humble', 'iron']
+  'harmonic' : ['humble']
 ]
 
 logging_list = [:]
