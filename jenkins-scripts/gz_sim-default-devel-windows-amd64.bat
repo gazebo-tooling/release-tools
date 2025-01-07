@@ -6,5 +6,6 @@ set PLATFORM_TO_BUILD=x86_amd64
 set IGN_CLEAN_WORKSPACE=true
 set COLCON_PACKAGE=gz-sim
 set COLCON_AUTO_MAJOR_VERSION=true
+set GPU_SUPPORT_NEEDED=true
 
 call "%SCRIPT_DIR%\lib\colcon-default-devel-windows.bat"

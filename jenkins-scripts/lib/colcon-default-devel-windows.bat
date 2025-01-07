@@ -35,6 +35,19 @@ if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
    echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
 )
 
+if "%GPU_SUPPORT_NEEDED%" == "true" (
+  echo # BEGIN SECTION: dxdiag info
+  set DXDIAG_FILE=%WORKSPACE%\dxdiag.txt
+  dxdiag /t !DXDIAG_FILE!
+  type !DXDIAG_FILE!
+  echo Checking for correct NVIDIA GPU support !DXDIAG_FILE!
+  findstr /C:"Manufacturer: NVIDIA" !DXDIAG_FILE!
+  if errorlevel 1 (
+    echo ERROR: NVIDIA GPU not found in dxdiag
+    goto :error
+  )
+  echo # END SECTION
+)
 
 setlocal ENABLEDELAYEDEXPANSION
 if not defined GAZEBODISTRO_FILE (
