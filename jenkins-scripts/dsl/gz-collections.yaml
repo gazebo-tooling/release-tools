@@ -434,7 +434,7 @@ collections:
         - brew
       linux:
         ignore_major_version:
-          - gz-ionic
+          - gz-jetty
   - name: '__upcoming__'
     libs:
       - name: gz-tools
