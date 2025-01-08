@@ -9,7 +9,7 @@ jobs:
   detection:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.matrix.outputs.value }}
+      toml_file: ${{ steps.changed-toml-files.outputs.toml_file }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -19,26 +19,34 @@ jobs:
       id: changed-files
       uses: tj-actions/changed-files@d6e91a2266cdb9d62096cebf1e8546899c6aa18f  # v45.0.6
     - name: List all changed files
+      id: changed-toml-files
       env:
         ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
       run: |
+        ALL_TOML_FILES=""
         for file in ${ALL_CHANGED_FILES}; do
-          echo "$file was changed"
-          echo "value=$file" >> $GITHUB_OUTPUT
+          if [[ $file == *.toml ]]; then
+            ALL_TOML_FILES="$ALL_TOML_FILES $file"
+          fi
         done
-    - run: |
-        echo "${{ steps.matrix.outputs.value }}"
-  run:
+        ALL_TOML_FILES=${ALL_TOML_FILES# }
+        echo "All TOML files: ${ALL_TOML_FILES}"
+        JSON_ALL_TOML="{ \"toml_file\": $(echo [\"$(sed 's/ /","/g' <<< ${ALL_TOML_FILES})\"])}"
+        echo "::set-output name=toml_file::$JSON_ALL_TOML"
+  pixi_builder:
     name: Pixi builder
     needs: detection
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        value: ${{fromJSON(needs.detection.outputs.matrix)}}
+      matrix: ${{ fromJSON(needs.detection.outputs.toml_file) }}
     steps:
-      - name: Install pixi on ${{ matrix.value }}
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install dependencies using pixi on ${{ matrix.toml_file }}
         uses: prefix-dev/setup-pixi@ba3bb36eb2066252b2363392b7739741bb777659  # v0.8.1
         with:
           locked: true
           cache: false  # 10Gb limit might be too low for caching
-          manifest-path: ${{ matrix.value }}
+          manifest-path: ${{ matrix.toml_file }}
