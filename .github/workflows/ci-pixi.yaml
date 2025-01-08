@@ -3,20 +3,42 @@ name: Conda env testing
 on:
   push:
     paths:
-      - 'conda/envs/legacy/**'
+      - 'conda/envs/**'
 
 jobs:
-  legacy_pixi_test:
+  detection:
     runs-on: ubuntu-latest
-    name: Legacy Pixi
+    outputs:
+      matrix: ${{ steps.matrix.outputs.value }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Install pixi
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@d6e91a2266cdb9d62096cebf1e8546899c6aa18f  # v45.0.6
+    - name: List all changed files
+      env:
+        ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+      run: |
+        for file in ${ALL_CHANGED_FILES}; do
+          echo "$file was changed"
+          echo "value=$file" >> $GITHUB_OUTPUT
+        done
+    - run: |
+        echo "${{ steps.matrix.outputs.value }}"
+  run:
+    name: Pixi builder
+    needs: detection
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        value: ${{fromJSON(needs.detection.outputs.matrix)}}
+    steps:
+      - name: Install pixi on ${{ matrix.value }}
         uses: prefix-dev/setup-pixi@ba3bb36eb2066252b2363392b7739741bb777659  # v0.8.1
         with:
           locked: true
           cache: false  # 10Gb limit might be too low for caching
-          manifest-path: conda/envs/legacy/pixi.toml
+          manifest-path: ${{ matrix.value }}
