@@ -6,7 +6,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 # Arguments
 #
-# 1. <collection>: Required: A supported collection, i.e. "citadel", "fortesss", etc.
+# 1. <collection>: Required: A supported collection, i.e. "fortress", "harmonic", etc.
 # 2. <package_repo>: Optional: stable / prerelease / nightly (defaults to stable)
 #
 # Usage
@@ -32,7 +32,7 @@ ARCHS=( "amd64")
 DISTROS=( "ubuntu" )
 # No nightlies or pre-releases for arm
 if [[ $PACKAGE_REPO == "stable" ]]; then
-  if [[ $COLLECTION == "citadel" || $COLLECTION == "fortress" ]]; then
+  if [[ $COLLECTION == "fortress" ]]; then
     ARCHS+=( "i386" )
   fi
 
@@ -61,9 +61,7 @@ for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
   for DISTRO in "${DISTROS[@]}"
   do
     if [[ $DISTRO == "ubuntu" ]]; then
-      if [[ $COLLECTION == "citadel" ]]; then
-        VERS=( "bionic" "focal" )
-      elif [[ $COLLECTION == "fortress" ]]; then
+      if [[ $COLLECTION == "fortress" ]]; then
         VERS=( "bionic" "focal" "jammy" )
       elif [[ $COLLECTION == "harmonic" ]]; then
         VERS=( "jammy" )
