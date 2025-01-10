@@ -26,12 +26,16 @@ pixi install --locked
 
 ## Environments available
 
-### The legacy environment
+### The legacy environments
 
-The legacy environment has the goal of replacing the previous vcpkg
-installation used by the Gazebo Buildfarm for testing Garden, Harmonic
+The legacy environments has the goal of replacing the previous vcpkg
+installation used by the Gazebo Buildfarm for testing Fortress, Harmonic
 and Ionic. The software versions chosen are mostly based on the Ubuntu
 Jammy versions.
 
-The legacy enviroment is locked to use always the same exact set of
+The legacy enviroments are locked to use always the same exact set of
 version dependencies.
+
+Harmonic and Ionic uses the legacy_ogre23 enviroments which is a variant
+of what vcpkg packages had providing an upgrade on ogre-next from 2.2 to
+2.3.
