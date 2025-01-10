@@ -35,6 +35,7 @@ ruby = "3.2.*"
 tinyxml2 = "*"
 yaml = "*"
 zeromq = "4.3.4"
+cli11 = "2.1.2.*"
 
 [target.win-64.dependencies]
 dlfcn-win32 = "*"
