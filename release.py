@@ -6,6 +6,7 @@ from configparser import ConfigParser
 from typing import Tuple
 from urllib3.exceptions import RequestError
 from urllib3.util import make_headers
+import re
 import subprocess
 import sys
 import tempfile
@@ -325,6 +326,44 @@ def sanity_check_sdformat_versions(package, version):
 
     print_success("sdformat version in proper sdformat package")
 
+def get_version_from_cmake(cmake_file="CMakeLists.txt"):
+    version_regex = re.compile(
+        r"project\s*\(\s*[a-z0-9-_]*\s*VERSION\s*([0-9.]*)", re.MULTILINE
+    )
+    # Note the re.DOTALL is used to match any newlines and arguments to 
+    # gz_configure_project before VERSION_SUFFIX
+    suffix_regex = re.compile(
+        r"(?:gz|ign)_configure_project\s*\(.*VERSION_SUFFIX\s*(pre\d+)",
+        re.MULTILINE | re.DOTALL,
+    )
+    try:
+        with open(cmake_file) as f:
+            content = f.read()
+            version_match = re.search(version_regex, content)
+            suffix_match = re.search(suffix_regex, content)
+            if version_match:
+                cmake_version = version_match.group(1)
+                if suffix_match:
+                    cmake_version = f"{cmake_version}~{suffix_match.group(1)}"
+                return cmake_version
+            else:
+                error("Error parsing version from CMakeLists.txt file")
+    except FileNotFoundError as e:
+        print(e)
+        error("Could not find CMakeLists file. Are you sure you're in the source directory?")
+
+def sanity_check_cmake_version(package, version):
+    # These two packages do not follow the same formatting in their CMakeLists files.
+    # Since they are old versions, we'll simply not support them.
+    if package in ["ign-tools", "sdformat9"]:
+        print(f" + NOTE Sanity checking is not supported for {package}")
+        return
+
+    cmake_version = get_version_from_cmake()
+    if cmake_version != version:
+        error(f"Error in package version. CMakeLists version: {cmake_version}, provided version: {version}")
+    else:
+        print_success("Package version in CMakeLists")
 
 def sanity_check_repo_name(repo_name):
     if repo_name in OSRF_REPOS_SUPPORTED:
@@ -381,6 +420,8 @@ def sanity_checks(args, repo_dir):
     if not NIGHTLY:
         sanity_package_version(repo_dir, args.version, str(args.release_version))
         sanity_check_sdformat_versions(args.package, args.version)
+        if not (args.bump_rev_linux_only or args.source_tarball_uri):
+            sanity_check_cmake_version(args.package, args.version)
         sanity_project_package_in_stable(args.version, args.upload_to_repository)
 
     check_credentials(args.auth_input_arg)
