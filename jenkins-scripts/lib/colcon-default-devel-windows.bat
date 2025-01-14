@@ -78,18 +78,57 @@ if not exist %WORKSPACE%\%VCS_DIRECTORY% (
   exit 1
 )
 
-:: Call vcvarsall and all the friends
-echo # BEGIN SECTION: configure the MSVC compiler
-call %win_lib% :configure_msvc2019_compiler
+:: Prepare a clean vcpkg environment with external dependencies
+echo # BEGIN SECTION: remove vcpkg install directory
+call %win_lib% :remove_vcpkg_installation || goto :error
 echo # END SECTION
 
-:: Prepare a clean vcpkg environment with external dependencies
-call %win_lib% :remove_vcpkg_installation || goto :error
-echo # BEGIN SECTION: vcpkg: install all dependencies
-call %win_lib% :setup_vcpkg_all_dependencies || goto :error
-echo # END SECTION
-echo # BEGIN SECTION: vcpkg: list installed packages
-call %win_lib% :list_vcpkg_packages || goto :error
+if defined USE_PIXI (
+  if not defined REUSE_PIXI_INSTALLATION (
+    echo # BEGIN SECTION: pixi: installation
+    call %win_lib% :pixi_installation || goto :error
+    echo # END SECTION
+
+    echo # BEGIN SECTION: pixi: create legacy environment
+    call %win_lib% :pixi_create_gz_environment_legacy || goto :error
+    echo # END SECTION
+  )
+  echo # BEGIN SECTION: pixi: info
+  call %win_lib% :pixi_cmd info || goto :error
+  echo # END SECTION
+
+  echo # BEGIN SECTION: pixi: list packages
+  call %win_lib% :pixi_cmd list || goto :error
+  echo # END SECTION
+
+  echo # BEGIN SECTION: pixi: enable shell
+  call %win_lib% :pixi_load_shell
+  echo # END SECTION
+
+  echo # BEGIN SECTION: pixi: custom environment variable for gz
+  if "!CONDA_PREFIX!"=="" (
+    echo # BEGIN SECTION: ERROR: CONDA_PREFIX is not set
+    echo CONDA_PREFIX variable was not set. Please set it before calling this script
+    echo # END SECTION
+    goto :error
+  )
+  set OGRE_RESOURCE_PATH=!CONDA_PREFIX!\Library\bin
+  set OGRE2_RESOURCE_PATH=!CONDA_PREFIX!\Library\bin\OGRE-Next
+  echo # END SECTION
+ ) else (
+  :: Call vcvarsall and all the friends
+  echo # BEGIN SECTION: configure the MSVC compiler
+  call %win_lib% :configure_msvc2019_compiler
+  echo # END SECTION
+
+  echo # BEGIN SECTION: vcpkg: install all dependencies
+  call %win_lib% :setup_vcpkg_all_dependencies || goto :error
+  echo # END SECTION
+
+  echo # BEGIN SECTION: vcpkg: list installed packages
+  call %win_lib% :list_vcpkg_packages || goto :error
+  echo # END SECTION
+)
 
 echo # BEGIN SECTION: setup workspace
 if not defined KEEP_WORKSPACE (
@@ -118,10 +157,6 @@ echo # BEGIN SECTION: packages in workspace
 call %win_lib% :list_workspace_pkgs || goto :error
 echo # END SECTION
 
-if exist %LOCAL_WS_SOFTWARE_DIR%\configure.bat (
-  echo "DEPRECATED configure.bat file detected. It should be removed from upstream sources"
-)
-
 :: Check if package is in colcon workspace
 echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
 echo Packages in workspace:
@@ -141,7 +176,6 @@ if errorlevel 1 (
 echo Using package name !COLCON_PACKAGE!
 echo # END SECTION
 
-
 echo # BEGIN SECTION: compiling %VCS_DIRECTORY%
 cd %LOCAL_WS%
 call %win_lib% :build_workspace !COLCON_PACKAGE! !COLCON_PACKAGE_EXTRA_CMAKE_ARGS! || goto :error
@@ -157,7 +191,7 @@ if "%ENABLE_TESTS%" == "TRUE" (
     echo # BEGIN SECTION: export testing results
     if exist %EXPORT_TEST_RESULT_PATH% ( rmdir /q /s %EXPORT_TEST_RESULT_PATH% )
     mkdir %EXPORT_TEST_RESULT_PATH%
-    xcopy !TEST_RESULT_PATH! %EXPORT_TEST_RESULT_PATH% /s /i /e || goto :error^M
+    xcopy !TEST_RESULT_PATH! %EXPORT_TEST_RESULT_PATH% /s /i /e || goto :error
     echo # END SECTION
 )
 
