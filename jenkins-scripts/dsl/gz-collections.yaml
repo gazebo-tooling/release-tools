@@ -100,7 +100,7 @@ collections:
       configs:
         - focal
         - brew
-        - win
+        - win_conda_L
     packaging:
       configs:
         - focal
@@ -184,7 +184,7 @@ collections:
         - jammy
         - noble_no_pr
         - brew
-        - win
+        - win_conda_LO23
     packaging:
       configs:
         - jammy
@@ -267,7 +267,7 @@ collections:
       configs:
         - noble
         - brew
-        - win
+        - win_conda_LO23
     packaging:
       configs:
         - noble
@@ -349,7 +349,7 @@ collections:
       configs:
         - noble
         - brew
-        - win
+        - win_conda_LO23
     packaging:
       configs:
         - noble
@@ -427,7 +427,7 @@ collections:
       configs:
         - noble
         - brew
-        - win
+        - win_conda_LO23
     packaging:
       configs:
         - noble
@@ -588,16 +588,44 @@ ci_configs:
     ci_categories_enabled:
       - pr
       - stable_branches
-  - name: win
+  - name: win_conda_L
     system:
       so: windows
-      distribution: windows
-      version: "10"
+      distribution: conda
+      version: legacy
       arch: amd64
     requirements:
     exclude:
       all:
         - gz-fortress
+    cmake_warnings_disabled:
+      - gz-cmake
+      - gz-common
+      - gz-fuel-tools
+      - gz-sim
+      - gz-gui
+      - gz-launch
+      - gz-math
+      - gz-msgs
+      - gz-physics
+      - gz-rendering
+      - gz-sensors
+      - gz-tools
+      - gz-transport
+      - gz-utils
+      - sdformat
+    ci_categories_enabled:
+      - pr
+      - stable_branches
+  - name: win_conda_LO23
+    system:
+      so: windows
+      distribution: conda
+      version: legacy_ogre23
+      arch: amd64
+    requirements:
+    exclude:
+      all:
         - gz-harmonic
         - gz-ionic
         - gz-jetty
