@@ -35,7 +35,7 @@
 # When you say yes, the changes will be committed and pushed. Click on the link printed
 # by GitHub to open the pull request.
 
-# TODO: Update collection list DSL on release-tools
+# TODO: Update gz-collection.yaml on release-tools
 
 DEFAULT="\e[39m"
 DEFAULT_BG="\e[49m"
@@ -348,6 +348,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   startFromCleanBranch ${BUMP_BRANCH} master
 
   # construct path with major version suffix
+  FORMULA_BASE=$LIB
   FORMULA="Formula/${FORMULA_BASE}${VER}.rb"
   if [ ! -f "$FORMULA" ]; then
     echo -e "${GREEN}${LIB}: Creating ${FORMULA}${DEFAULT}"
@@ -356,8 +357,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
     # Collection
     if ! [[ $VER == ?(-)+([0-9]) ]] ; then
-      # TODO(CH3): Change this to gz once we migrate the homebrew formulae
-      cp Formula/ignition-${PREV_COLLECTION}.rb $FORMULA
+      cp Formula/gz-${PREV_COLLECTION}.rb $FORMULA
     else
       cp Formula/${FORMULA_BASE}${PREV_VER}.rb $FORMULA
     fi
@@ -371,6 +371,9 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   # libN
   sed -i -E "s ((${LIB#"gz-"}))${PREV_VER} \1${VER} g" $FORMULA
   sed -i -E "s ((${LIB_#"gz_"}))${PREV_VER} \1${VER} g" $FORMULA
+  # lib-N
+  sed -i -E "s ((${LIB#"gz-"}-))${PREV_VER} \1${VER} g" $FORMULA
+  sed -i -E "s ((${LIB_#"gz_"}-))${PREV_VER} \1${VER} g" $FORMULA
   # gz-libN -> main
   sed -i "s ${LIB}${PREV_VER} main g" $FORMULA
   # class GzLibN
@@ -388,6 +391,13 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   PREV_VER_NONNEGATIVE=$([[ "${PREV_VER}" -lt 0 ]] && echo "0" || echo "${PREV_VER}")
   sed -i "/ version /d" $FORMULA
   sed -i "/^  url.*/a\  version \"${PREV_VER_NONNEGATIVE}.999.999-0-`date +"%Y%m%d"`\"" $FORMULA
+  # Collection
+  if [[ "${LIB}" == "gz-${COLLECTION}" ]]; then
+    PREV_COLLECTION_CAPITALIZED="${PREV_COLLECTION^}"
+    COLLECTION_CAPITALIZED="${COLLECTION^}"
+    sed -i -E "s/((Gz))${PREV_COLLECTION_CAPITALIZED}/\1${COLLECTION_CAPITALIZED}/g" $FORMULA
+    sed -i -E "s/((gz-))${PREV_COLLECTION}/\1${COLLECTION}/g" $FORMULA
+  fi
   # Remove extra blank lines
   cat -s $FORMULA | tee $FORMULA
 
@@ -440,7 +450,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   startFromCleanBranch ${BUMP_BRANCH} main
 
   # Check if main branch of that library is the correct version
-  PROJECT_NAME="${LIB_}${VER}"
+  PROJECT_NAME="${LIB}${VER}"
   PROJECT="project.*(${PROJECT_NAME}"
   if ! grep -q ${PROJECT} "CMakeLists.txt"; then
     echo -e "${RED}Wrong project name on [CMakeLists.txt], looking for [$PROJECT_NAME].${DEFAULT}"
@@ -473,11 +483,6 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     # Replace lines like: "find_package(gz-cmake2)"
     #               with: "find_package(gz-cmake3)"
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
-
-    # Replace collection yaml branch names with main
-    if [[ "${LIB}" == "gz-${COLLECTION}" ]]; then
-      find . -type f -name "collection-${COLLECTION}.yaml" -print0 | xargs -0 sed -i "s gz-${DEP_LIB}${DEP_VER} main g"
-    fi
 
     # Second run with _ instead of -, to support multiple variations of fuel-tools
     DEP_LIB=${DEP_LIB//-/_}
