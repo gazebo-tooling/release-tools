@@ -19,6 +19,14 @@ logging_list = [:].withDefault {[]}
 file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
 gz_collections_yaml = new Yaml().load(file)
 
+String get_windows_distro_sortname(ci_config)
+{
+  // return the components initials of the distribution and the version strings counting
+  // _ as separator for components.
+  return ci_config.system.distribution.split('_').collect { it[0] }.join('') \
+          + ci_config.system.version.split('_').collect { it[0] }.join('')
+}
+
 void generate_label_by_requirements(job, lib_name, requirements)
 {
 
@@ -175,7 +183,7 @@ void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
   add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
 }
 
-void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir)
+void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, config_version)
 {
   def script_name_prefix = cleanup_library_name(lib_name)
   gz_win_ci_job.with
@@ -183,6 +191,11 @@ void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir)
     steps {
       batchFile("""\
             set VCS_DIRECTORY=${ws_checkout_dir}
+            set CONDA_ENV_NAME=${config_version}
+            if not exist "/.scripts/conda/envs/%CONDA_ENV_NAME%" (
+              echo "Conda environment %CONDA_ENV_NAME% not found"
+              exit 1
+            )
             call "./scripts/jenkins-scripts/${script_name_prefix}-default-devel-windows-amd64.bat"
             """.stripIndent())
     }
@@ -199,7 +212,11 @@ void generate_win_ci_job(gz_win_ci_job, lib_name, branch, ci_config)
                     "gazebosim/${lib_name}",
                     branch,
                     ws_checkout_dir)
-  add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir)
+
+  add_win_devel_bat_call(gz_win_ci_job,
+                         lib_name,
+                         ws_checkout_dir,
+                         ci_config.system.version)
 }
 
 
@@ -336,7 +353,7 @@ gz_collections_yaml.collections.each { collection ->
       } else if (ci_config.system.so == 'darwin') {
         platform = 'homebrew'
       } else if (ci_config.system.so == 'windows') {
-        platform = 'windows'
+        platform = distro
       }
       branch_index[lib_name][platform] = branch_index[lib_name][platform]?: ['pr':[], 'pr_abichecker':[]]
       if (categories_enabled.contains('pr'))
@@ -378,6 +395,9 @@ gz_collections_yaml.collections.each { collection ->
         } else if (ci_config.system.so == 'windows') {
           branch_number = branch_name - lib_name
           Globals.gazebodistro_branch = true
+          distro_sort_name = get_windows_distro_sortname(ci_config)
+          // TODO(j-rivero): use when the new jobs needs to start
+          // gz_ci_job = job("${gz_job_name_prefix}-${branch_number}-${distro_sort_name}-win")
           gz_ci_job = job("${gz_job_name_prefix}-${branch_number}-win")
           generate_win_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
           Globals.gazebodistro_branch = false
@@ -454,6 +474,9 @@ branch_index.each { lib_name, distro_configs ->
                                             are_cmake_warnings_enabled(lib_name, ci_config))
         add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir)
       } else if (ci_config.system.so == 'windows') {
+        distro_sort_name = get_windows_distro_sortname(ci_config)
+        // TODO(j-rivero): use when the new jobs needs to start
+        // def gz_win_ci_any_job_name = "${gz_job_name_prefix}-pr-${distro_sort_name}-win"
         def gz_win_ci_any_job_name = "${gz_job_name_prefix}-pr-win"
         def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
         Globals.gazebodistro_branch = true
@@ -463,7 +486,10 @@ branch_index.each { lib_name, distro_configs ->
                                             branch_names,
                                             ENABLE_GITHUB_PR_INTEGRATION,
                                             are_cmake_warnings_enabled(lib_name, ci_config))
-        add_win_devel_bat_call(gz_win_ci_any_job, lib_name, ws_checkout_dir)
+        add_win_devel_bat_call(gz_win_ci_any_job,
+                               lib_name,
+                               ws_checkout_dir,
+                               ci_config.system.version)
         Globals.gazebodistro_branch = false
       }
     }
