@@ -353,7 +353,9 @@ gz_collections_yaml.collections.each { collection ->
       } else if (ci_config.system.so == 'darwin') {
         platform = 'homebrew'
       } else if (ci_config.system.so == 'windows') {
-        platform = distro
+        // TODO(j-rivero): use when the new Conda jobs needs to start
+        // platform = distro
+        platform = 'windows'
       }
       branch_index[lib_name][platform] = branch_index[lib_name][platform]?: ['pr':[], 'pr_abichecker':[]]
       if (categories_enabled.contains('pr'))
