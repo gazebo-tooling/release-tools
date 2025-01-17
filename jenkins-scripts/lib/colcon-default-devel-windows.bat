@@ -35,25 +35,6 @@ if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
    echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
 )
 
-:: vcpkg cache provisioned agents does not seems to support
-:: the GPU correctly so only apply the check if the agent
-:: is working with pixi
-if "%USE_PIXI%" == "true" (
-  if "%GPU_SUPPORT_NEEDED%" == "true" (
-    echo # BEGIN SECTION: dxdiag info
-    set DXDIAG_FILE=%WORKSPACE%\dxdiag.txt
-    dxdiag /t !DXDIAG_FILE!
-    type !DXDIAG_FILE!
-    echo Checking for correct NVIDIA GPU support !DXDIAG_FILE!
-    findstr /C:"Manufacturer: NVIDIA" !DXDIAG_FILE!
-    if errorlevel 1 (
-      echo ERROR: NVIDIA GPU not found in dxdiag
-      goto :error
-    )
-    echo # END SECTION
-  )
-)
-
 setlocal ENABLEDELAYEDEXPANSION
 if not defined GAZEBODISTRO_FILE (
   for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
@@ -78,12 +59,30 @@ if not exist %WORKSPACE%\%VCS_DIRECTORY% (
   exit 1
 )
 
-:: Prepare a clean vcpkg environment with external dependencies
-echo # BEGIN SECTION: remove vcpkg install directory
-call %win_lib% :remove_vcpkg_installation || goto :error
-echo # END SECTION
-
 if defined USE_PIXI (
+
+  :: vcpkg cache provisioned agents does not seems to support
+  :: the GPU correctly so only apply the check if the agent
+  :: is working with pixi
+  if "%GPU_SUPPORT_NEEDED%" == "true" (
+    echo # BEGIN SECTION: dxdiag info
+    set DXDIAG_FILE=%WORKSPACE%\dxdiag.txt
+    dxdiag /t !DXDIAG_FILE!
+    type !DXDIAG_FILE!
+    echo Checking for correct NVIDIA GPU support !DXDIAG_FILE!
+    findstr /C:"Manufacturer: NVIDIA" !DXDIAG_FILE!
+    if errorlevel 1 (
+      echo ERROR: NVIDIA GPU not found in dxdiag
+      goto :error
+    )
+    echo # END SECTION
+  )
+
+  :: Prepare a clean vcpkg environment with external dependencies
+  echo # BEGIN SECTION: remove vcpkg install directory
+  call %win_lib% :remove_vcpkg_installation || goto :error
+  echo # END SECTION
+
   if not defined REUSE_PIXI_INSTALLATION (
     echo # BEGIN SECTION: pixi: installation
     call %win_lib% :pixi_installation || goto :error
@@ -93,6 +92,7 @@ if defined USE_PIXI (
     call %win_lib% :pixi_create_gz_environment_legacy || goto :error
     echo # END SECTION
   )
+
   echo # BEGIN SECTION: pixi: info
   call %win_lib% :pixi_cmd info || goto :error
   echo # END SECTION
