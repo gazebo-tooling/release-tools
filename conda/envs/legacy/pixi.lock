@@ -20,6 +20,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cairo-1.18.0-h3faef2a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/catkin_pkg-1.0.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cfitsio-4.3.1-hbdc6101_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/cli11-2.1.2-h9c3ff4c_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cmake-3.28.3-hcfe8598_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/colcon-argcomplete-0.3.3-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/colcon-bash-0.5.0-pyhd8ed1ab_0.conda
@@ -337,6 +338,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cairo-1.18.0-ha13f110_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/catkin_pkg-1.0.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cfitsio-4.3.1-hf28c5f1_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cli11-2.1.2-h01db608_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/cmake-3.28.3-hef020d8_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/colcon-argcomplete-0.3.3-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/colcon-bash-0.5.0-pyhd8ed1ab_0.conda
@@ -637,6 +639,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/cairo-1.18.0-h1fef639_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/catkin_pkg-1.0.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cfitsio-4.3.1-h9b0cee5_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/cli11-2.1.2-h0e60522_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/win-64/cmake-3.28.3-hf0feee3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/colcon-cmake-0.2.28-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/colcon-common-extensions-0.3.0-py39hcbf5309_2.conda
@@ -1438,6 +1441,51 @@ packages:
   license: LicenseRef-fitsio
   size: 871175
   timestamp: 1700704108263
+- kind: conda
+  name: cli11
+  version: 2.1.2
+  build: h01db608_0
+  subdir: linux-aarch64
+  url: https://conda.anaconda.org/conda-forge/linux-aarch64/cli11-2.1.2-h01db608_0.tar.bz2
+  sha256: 626eaffbf9e16b6c7cf642e7ce6daeee90f162143927b4e3130160256a6ecbdb
+  md5: 2224ecf2189da3edb17a7979e112034f
+  depends:
+  - libgcc-ng >=9.4.0
+  - libstdcxx-ng >=9.4.0
+  license: BSD-3-Clause
+  license_family: BSD
+  size: 66413
+  timestamp: 1634833043462
+- kind: conda
+  name: cli11
+  version: 2.1.2
+  build: h0e60522_0
+  subdir: win-64
+  url: https://conda.anaconda.org/conda-forge/win-64/cli11-2.1.2-h0e60522_0.tar.bz2
+  sha256: 144aefd832fa3674e44d5e6bf8441a7474ec57148c92c8e1b1190ec2145e3d7e
+  md5: 25791cd54c1225d8b00ddf36a8727b56
+  depends:
+  - vc >=14.1,<15.0a0
+  - vs2015_runtime >=14.16.27012
+  license: BSD-3-Clause
+  license_family: BSD
+  size: 66683
+  timestamp: 1634832584996
+- kind: conda
+  name: cli11
+  version: 2.1.2
+  build: h9c3ff4c_0
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/cli11-2.1.2-h9c3ff4c_0.tar.bz2
+  sha256: 1b1b69b6b457b59d023d51bd90be6c6e614a825283f9fafa8d48e3c3b39de6f3
+  md5: 0d8c69320228e44b96a5371778e4cecd
+  depends:
+  - libgcc-ng >=9.4.0
+  - libstdcxx-ng >=9.4.0
+  license: BSD-3-Clause
+  license_family: BSD
+  size: 66410
+  timestamp: 1634832306967
 - kind: conda
   name: cmake
   version: 3.28.3
