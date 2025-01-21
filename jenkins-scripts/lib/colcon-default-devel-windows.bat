@@ -27,6 +27,7 @@ set LOCAL_WS_BUILD=%WORKSPACE%\build
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
 @if "%ENABLE_TESTS%" == "" set ENABLE_TESTS=TRUE
 @if "%COLCON_AUTO_MAJOR_VERSION%" == "" set COLCON_AUTO_MAJOR_VERSION=false
+@if "%CONDA_ENV_NAME%" == "" set CONDA_ENV_NAME=legacy
 
 setlocal ENABLEDELAYEDEXPANSION
 if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
@@ -88,8 +89,8 @@ if defined USE_PIXI (
     call %win_lib% :pixi_installation || goto :error
     echo # END SECTION
 
-    echo # BEGIN SECTION: pixi: create legacy environment
-    call %win_lib% :pixi_create_gz_environment_legacy || goto :error
+    echo # BEGIN SECTION: pixi: create %CONDA_ENV_NAME% environment
+    call %win_lib% :pixi_create_gz_environment %CONDA_ENV_NAME% || goto :error
     echo # END SECTION
   )
 
