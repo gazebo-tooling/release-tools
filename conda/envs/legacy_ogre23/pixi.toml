@@ -40,19 +40,15 @@ zeromq = "4.3.4"
 dlfcn-win32 = "*"
 vs2019_win-64 = "*"
 
-[target.linux-64.dependencies]
+[target.linux.dependencies]
+libegl-devel = "*"
+libgl-devel = "*"
 libglu = "*"
-libglvnd-devel-cos7-x86_64 = "*"
-libwebsockets = "*"
-mesa-libegl-devel-cos7-x86_64 = "*"
-mesa-libgl-devel-cos7-x86_64 = "*"
-vulkan-headers = "*"
+libglvnd-devel = "*"
 
-[target.linux-aarch64.dependencies]
-libglu = "*"
-libglvnd-devel-cos7-aarch64 = "*"
-mesa-libegl-devel-cos7-aarch64 = "*"
-mesa-libgl-devel-cos7-aarch64 = "*"
+[target.linux-64.dependencies]
+libwebsockets = "*"
+vulkan-headers = "*"
 
 [build-dependencies]
 cmake = "3.28.3.*"
