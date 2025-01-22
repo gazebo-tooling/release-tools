@@ -401,12 +401,18 @@ goto :EOF
 :: ##################################
 :: 
 :: Create a pixi environment
-:pixi_create_gz_environment_legacy
-
+:pixi_create_gz_environment
+:: arg1: environment name inside conda/envs in this repo
+set ENV_NAME=%1
+set CONDA_ENV_PATH=%CONDA_ENVS_DIR%\%ENV_NAME%
+if not exist %CONDA_ENV_PATH% (
+  echo Can not find %CONDA_ENV_PATH% directory in the system
+  exit 1
+)
 if exist %PIXI_PROJECT_PATH% ( rmdir /s /q "%PIXI_PROJECT_PATH%")
 if errorlevel 1 exit 1
 mkdir %PIXI_PROJECT_PATH%
-copy %CONDA_ENVS_DIR%\legacy\pixi.* %PIXI_PROJECT_PATH%
+copy %CONDA_ENV_PATH%\pixi.* %PIXI_PROJECT_PATH%
 if errorlevel 1 exit 1
 pushd %PIXI_PROJECT_PATH%
 if errorlevel 1 exit 1

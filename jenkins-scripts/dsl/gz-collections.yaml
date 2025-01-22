@@ -322,9 +322,9 @@ collections:
         repo:
           current_branch: gz-transport14
       - name: gz-gui
-        major_version: 9
+        major_version: 10
         repo:
-          current_branch: gz-gui9
+          current_branch: main
       - name: gz-sensors
         major_version: 9
         repo:
@@ -334,13 +334,13 @@ collections:
         repo:
           current_branch: gz-physics8
       - name: gz-sim
+        major_version: 10
+        repo:
+          current_branch: main
+      - name: gz-launch
         major_version: 9
         repo:
-          current_branch: gz-sim9
-      - name: gz-launch
-        major_version: 8
-        repo:
-          current_branch: gz-launch8
+          current_branch: main
       - name: gz-jetty
         major_version: 1
         repo:
