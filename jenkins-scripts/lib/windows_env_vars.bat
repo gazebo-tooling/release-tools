@@ -36,6 +36,6 @@ if NOT DEFINED VCPKG_SNAPSHOT (
   set VCPKG_SNAPSHOT=2022.02.23
 )
 :: Set of common gz dependencies expected up to Garden
-set VCPKG_DEPENDENCIES_LEGACY=assimp boost-core bullet3 ccd console-bridge cppzmq cuda curl dlfcn-win32 eigen3 fcl ffmpeg freeimage gdal gflags glib gts jsoncpp libyaml libzip ogre ogre2 ogre22 openssl protobuf pybind11 qt5 qt5-winextras qwt spdlog sqlite3 tinyxml2 zeromq
+set VCPKG_DEPENDENCIES_LEGACY=assimp boost-core bullet3 ccd cli11 console-bridge cppzmq cuda curl dlfcn-win32 eigen3 fcl ffmpeg freeimage gdal gflags glib gts jsoncpp libyaml libzip ogre ogre2 ogre22 openssl protobuf pybind11 qt5 qt5-winextras qwt spdlog sqlite3 tinyxml2 zeromq
 
 goto :EOF
