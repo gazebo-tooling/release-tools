@@ -30,6 +30,7 @@ set LOCAL_WS_BUILD=%WORKSPACE%\build
 @if "%CONDA_ENV_NAME%" == "" set CONDA_ENV_NAME=legacy
 
 setlocal ENABLEDELAYEDEXPANSION
+set COLCON_PACKAGE_ORIGINAL=%COLCON_PACKAGE%
 if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
    for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
    set COLCON_PACKAGE=%COLCON_PACKAGE%!PKG_MAJOR_VERSION!
@@ -159,13 +160,22 @@ call %win_lib% :list_workspace_pkgs || goto :error
 echo # END SECTION
 
 :: Check if package is in colcon workspace
-echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
+echo # BEGIN SECTION: Check if package !COLCON_PACKAGE! is in colcon workspace
 echo Packages in workspace:
 colcon list --names-only
 
 colcon list --names-only | find "!COLCON_PACKAGE!"
 if errorlevel 1 (
+  echo # END SECTION
+  echo # BEGIN SECTION: try package name !COLCON_PACKAGE_ORIGINAL! without major version
+  set COLCON_PACKAGE=!COLCON_PACKAGE_ORIGINAL!
+)
+colcon list --names-only | find "!COLCON_PACKAGE!"
+if errorlevel 1 (
+  echo # END SECTION
+  echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
   :: REQUIRED for Gazebo Fortress
+  set COLCON_PACKAGE=%COLCON_PACKAGE%!PKG_MAJOR_VERSION!
   set COLCON_PACKAGE=!COLCON_PACKAGE:gz=ignition!
   set COLCON_PACKAGE=!COLCON_PACKAGE:sim=gazebo!
 )
