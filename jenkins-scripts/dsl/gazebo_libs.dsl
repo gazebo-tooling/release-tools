@@ -397,9 +397,7 @@ gz_collections_yaml.collections.each { collection ->
           branch_number = branch_name - lib_name
           Globals.gazebodistro_branch = true
           distro_sort_name = get_windows_distro_sortname(ci_config)
-          // TODO(j-rivero): use when the new jobs needs to start
-          // gz_ci_job = job("${gz_job_name_prefix}-${branch_number}-${distro_sort_name}-win")
-          gz_ci_job = job("${gz_job_name_prefix}-${branch_number}-win")
+          gz_ci_job = job("${gz_job_name_prefix}-${branch_number}-${distro_sort_name}win")
           generate_win_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
           Globals.gazebodistro_branch = false
         } else {
