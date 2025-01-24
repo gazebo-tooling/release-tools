@@ -191,6 +191,7 @@ void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, config_ver
     steps {
       batchFile("""\
             set VCS_DIRECTORY=${ws_checkout_dir}
+            set USE_PIXI=true
             set CONDA_ENV_NAME=${config_version}
             if not exist "/.scripts/conda/envs/%CONDA_ENV_NAME%" (
               echo "Conda environment %CONDA_ENV_NAME% not found"
