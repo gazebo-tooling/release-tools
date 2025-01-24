@@ -474,9 +474,23 @@ branch_index.each { lib_name, distro_configs ->
         add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir)
       } else if (ci_config.system.so == 'windows') {
         distro_sort_name = get_windows_distro_sortname(ci_config)
-        // TODO(j-rivero): use when the new jobs needs to start
-        // def gz_win_ci_any_job_name = "${gz_job_name_prefix}-pr-${distro_sort_name}-win"
-        def gz_win_ci_any_job_name = "${gz_job_name_prefix}-pr-win"
+        // TODO(j-rivero): remove the stub jobs
+        // generating a job that always return true and do nothing
+        def gz_win_ci_any_old_job_name = "${gz_job_name_prefix}-pr-win"
+        def gz_win_ci_any_old_job = job(gz_win_ci_any_old_job_name)
+        Globals.gazebodistro_branch = true
+        OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_old_job,
+                                            "gazebosim/${lib_name}",
+                                            is_testing_enabled(lib_name, ci_config),
+                                            branch_names,
+                                            ENABLE_GITHUB_PR_INTEGRATION,
+                                            are_cmake_warnings_enabled(lib_name, ci_config))
+        gz_win_ci_any_old_job.with
+        {
+          description('Stub job: check new -pr-c*win jobs')
+        }
+        Globals.gazebodistro_branch = false
+        def gz_win_ci_any_job_name = "${gz_job_name_prefix}-pr-${distro_sort_name}win"
         def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
         Globals.gazebodistro_branch = true
         OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_job,
