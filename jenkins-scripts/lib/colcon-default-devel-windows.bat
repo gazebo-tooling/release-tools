@@ -66,6 +66,7 @@ if defined USE_PIXI (
   :: the GPU correctly so only apply the check if the agent
   :: is working with pixi
   if "%GPU_SUPPORT_NEEDED%" == "true" (
+    init_stopwatch DXDIAG_CHECK
     echo # BEGIN SECTION: dxdiag info
     set DXDIAG_FILE=%WORKSPACE%\dxdiag.txt
     dxdiag /t !DXDIAG_FILE!
@@ -76,21 +77,28 @@ if defined USE_PIXI (
       echo ERROR: NVIDIA GPU not found in dxdiag
       goto :error
     )
+    end_stopwatch DXDIAG_CHECK
     echo # END SECTION
   )
 
   :: Prepare a clean vcpkg environment with external dependencies
   echo # BEGIN SECTION: remove vcpkg install directory
+  init_stopwatch REMOVE_VCPKG
   call %win_lib% :remove_vcpkg_installation || goto :error
+  end_stopwatch REMOVE_VCPKG
   echo # END SECTION
 
   if not defined REUSE_PIXI_INSTALLATION (
     echo # BEGIN SECTION: pixi: installation
+    init_stopwatch PIXI_INSTALL
     call %win_lib% :pixi_installation || goto :error
+    stop_stowatch PIXI_INSTALL
     echo # END SECTION
 
     echo # BEGIN SECTION: pixi: create %CONDA_ENV_NAME% environment
+    init_stopwatch PIXI_ENV
     call %win_lib% :pixi_create_gz_environment %CONDA_ENV_NAME% || goto :error
+    stop_stowatch PIXI_ENV
     echo # END SECTION
   )
 
