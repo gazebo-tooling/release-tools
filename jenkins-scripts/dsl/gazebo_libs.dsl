@@ -194,7 +194,7 @@ void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, config_ver
             set USE_PIXI=true
             set CONDA_ENV_NAME=${config_version}
             if defined USE_PIXI (
-            if not exist "/.scripts/conda/envs/%CONDA_ENV_NAME%" (
+            if not exist "./scripts/conda/envs/%CONDA_ENV_NAME%" (
               echo "Conda environment %CONDA_ENV_NAME% not found"
               exit 1
             )
