@@ -10,6 +10,8 @@ GLOBAL_SHELL_CMD=''
 ENABLE_CPPCHECK = true
 GITHUB_SUPPORT_ALL_BRANCHES = []
 ENABLE_GITHUB_PR_INTEGRATION = true
+DISABLE_TESTING = false
+DISABLE_CMAKE_WARNS = false
 
 def WRITE_JOB_LOG = System.getenv('WRITE_JOB_LOG') ?: false
 logging_list = [:].withDefault {[]}
@@ -483,10 +485,10 @@ branch_index.each { lib_name, distro_configs ->
         Globals.gazebodistro_branch = true
         OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_old_job,
                                             "gazebosim/${lib_name}",
-                                            is_testing_enabled(lib_name, ci_config),
+                                            DISABLE_TESTING,
                                             branch_names,
                                             ENABLE_GITHUB_PR_INTEGRATION,
-                                            are_cmake_warnings_enabled(lib_name, ci_config))
+                                            DISABLE_CMAKE_WARNS)
         gz_win_ci_any_old_job.with
         {
           description('Stub job: check new -pr-c*win jobs')
