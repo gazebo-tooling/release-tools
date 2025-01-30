@@ -96,7 +96,7 @@ collections:
       configs:
         - focal
         - brew
-        - win_citadel
+        - win_conda_L
     packaging:
       configs:
         - focal
