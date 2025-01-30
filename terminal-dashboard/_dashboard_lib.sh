@@ -6,7 +6,25 @@ get_libraries_by_collection()
 {
     local COLLECTION=${1}
 
-    if [ "$COLLECTION" = "fortress" ]; then
+    if [ "$COLLECTION" = "citadel" ]; then
+      LIBS="
+	ignition-cmake2
+	ignition-math6
+	ignition-tools
+	ignition-common3
+	ignition-msgs5
+	ignition-transport8
+	ignition-fuel-tools4
+	ignition-plugin
+	ignition-rendering3
+	sdformat9
+	ignition-physics2
+	ignition-sensors3
+	ignition-gui3
+	ignition-gazebo3
+	ignition-launch2
+	ignition-citadel"
+    elif [ "$COLLECTION" = "fortress" ]; then
       LIBS="
 	ignition-cmake2
 	ignition-math6

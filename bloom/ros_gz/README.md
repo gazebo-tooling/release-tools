@@ -15,6 +15,7 @@ Each ROS release defines one version of Gazebo supported officially through
 all the ROS packages. The different combinations of ROS <-> Gazebo can be
 found in the [REP-3](http://www.ros.org/reps/rep-2000.html). Some examples:
 
+ * ROS 2 Foxy: Citadel
  * ROS 2 Humble: Fortress
  * ROS 2 Iron: Fortress
 
