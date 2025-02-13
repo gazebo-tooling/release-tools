@@ -81,3 +81,17 @@ if [[ -n ${avoid_infinite_build_archive} ]]; then
   echo "${avoid_infinite_build_archive}"
   exit 1
 fi
+
+check_tag_without_platforms()
+{
+  tag=${1}
+  echo $(awk -v tag="$tag" 'FNR==1{filename=FILENAME} /<assignedNode>/ && $0 ~ tag && !/win/ && !/docker/ {print filename ": " $0}' *.xml)
+}
+
+for tag in gpu-reliable large-memory; do
+  no_tag_without_platforms=$(check_tag_without_platforms ${tag})
+  if [[ -n ${no_tag_without_platforms} ]]; then
+    echo "Found jobs with the ${tag}"
+    echo "${no_tag_without_platforms}"
+  fi
+done
