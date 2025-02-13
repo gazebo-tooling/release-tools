@@ -40,7 +40,7 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
     def dev_package = "${prefix}-${gz_collection_name}"
     def job_name = 'gz_launch-install-test-job.bash'
 
-    label Globals.nontest_label("gpu-reliable")
+    label Globals.nontest_label("docker && gpu-reliable")
 
     steps {
      shell("""\
