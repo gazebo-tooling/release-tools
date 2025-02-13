@@ -954,7 +954,9 @@ def go(argv):
                            args.auth_input_arg)
         display_help_job_chain_for_source_calls(args)
         # Process the possible update of an associated ROS vendor package
-        process_ros_vendor_package(args)
+        # for stable releases only
+        if not (PRERELEASE or NIGHTLY):
+            process_ros_vendor_package(args)
 
 
 if __name__ == '__main__':
