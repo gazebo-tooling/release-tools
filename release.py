@@ -801,6 +801,7 @@ def create_pr_in_gz_vendor_repo(args, ros_distro) -> str:
 
 
 def process_ros_vendor_package(args):
+    # Only create ros vendor updates for stable releases
     if PRERELEASE or NIGHTLY:
         return
     print("ROS vendor packages that can be updated:")
