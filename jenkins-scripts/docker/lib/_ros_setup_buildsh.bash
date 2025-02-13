@@ -10,7 +10,6 @@ if [ -z ${ROS_DISTRO} ]; then
   exit -1
 fi
 
-[[ -z ${USE_GZ_VERSION_ROSDEP} ]] && USE_GZ_VERSION_ROSDEP=false
 [[ -z ${USE_CATKIN_MAKE} ]] && USE_CATKIN_MAKE=false # use colcon by default
 [[ -z ${KEEP_WS_FILES} ]] && KEEP_WS_FILES=false # clean up install/ build/
 
@@ -34,12 +33,6 @@ export CATKIN_WS="${WORKSPACE}/ws"
 
 cat >> build.sh << DELIM_CONFIG
 set -ex
-
-if ${USE_GZ_VERSION_ROSDEP}; then
-  sudo apt-get install -y wget
-  sudo mkdir -p /etc/ros/rosdep/sources.list.d/
-  sudo wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gazebo${GAZEBO_VERSION_FOR_ROS}/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list -O /etc/ros/rosdep/sources.list.d/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list
-fi
 
 if [ `expr length "${ROS_SETUP_PREINSTALL_HOOK} "` -gt 1 ]; then
 echo '# BEGIN SECTION: running pre install hook'
