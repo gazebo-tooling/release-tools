@@ -510,7 +510,7 @@ def tag_repo(args):
         # tilde is not a valid character in git
         tag = '%s_%s' % (args.package_alias, args.version.replace('~', '-'))
         check_call(['git', 'tag', '-f', tag])
-        check_call(['git', 'push', '--tags'])
+        check_call(['git', 'push', 'origin', 'tag', tag])
     except ErrorNoPermsRepo:
         print('The Git server reports problems with permissions')
         print('The branch could be blocked by configuration if you do not have')
