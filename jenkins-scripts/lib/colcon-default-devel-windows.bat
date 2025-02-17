@@ -20,7 +20,8 @@
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 set EXPORT_TEST_RESULT_PATH=%WORKSPACE%\build\test_results
 set LOCAL_WS=%WORKSPACE%\ws
-set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS%\%VCS_DIRECTORY%
+set LOCAL_WS_SRC=%WORKSPACE%\src
+set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS_SRC%\%VCS_DIRECTORY%
 set LOCAL_WS_BUILD=%WORKSPACE%\build
 
 :: default values
@@ -133,24 +134,22 @@ if defined USE_PIXI (
 
 echo # BEGIN SECTION: setup workspace
 if not defined KEEP_WORKSPACE (
-  IF exist %LOCAL_WS_BUILD% (
+  IF exist %LOCAL_WS% (
     echo # BEGIN SECTION: preclean workspace
-    rmdir /s /q %LOCAL_WS_BUILD% || goto :error
+    rmdir /s /q %LOCAL_WS% || goto :error
     echo # END SECTION
   )
 )
-mkdir %LOCAL_WS% || echo "Workspace already exists!"
-cd %LOCAL_WS%
+mkdir %LOCAL_WS%
+mkdir %LOCAL_WS_SRC%
 echo # END SECTION
 
 echo # BEGIN SECTION: get open robotics deps (%GAZEBODISTRO_FILE%) sources into the workspace
-if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
-call %win_lib% :get_source_from_gazebodistro %GAZEBODISTRO_FILE% %LOCAL_WS% || goto :error
+call %win_lib% :get_source_from_gazebodistro %GAZEBODISTRO_FILE% %LOCAL_WS_SRC% || goto :error
 echo # END SECTION
 
 :: this step is important since overwrite the gazebodistro file
 echo # BEGIN SECTION: move %VCS_DIRECTORY% source to workspace
-if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
 xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i > xcopy_vcs_directory.log || goto :error
 echo # END SECTION
 
