@@ -3,7 +3,9 @@ name: DSL logs and checks
 on:
   pull_request:
     paths:
-      - 'jenkins-scripts/dsl/**'
+      # Can not restrict it to jenkins-scripts/dsl/** since there are sanity
+      # checks on generated XML done on removal/addition of scripts in jenkins-scripts
+      - 'jenkins-scripts/**'
 
 jobs:
   xml_generation:
