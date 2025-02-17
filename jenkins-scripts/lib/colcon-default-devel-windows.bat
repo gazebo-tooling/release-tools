@@ -20,9 +20,9 @@
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 set EXPORT_TEST_RESULT_PATH=%WORKSPACE%\build\test_results
 set LOCAL_WS=%WORKSPACE%\ws
-set LOCAL_WS_SRC=%WORKSPACE%\src
+set LOCAL_WS_BUILD=%LOCAL_WS%\build
+set LOCAL_WS_SRC=%LOCAL_WS%\src
 set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS_SRC%\%VCS_DIRECTORY%
-set LOCAL_WS_BUILD=%WORKSPACE%\build
 
 :: default values
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
@@ -182,7 +182,7 @@ call %win_lib% :build_workspace !COLCON_PACKAGE! !COLCON_PACKAGE_EXTRA_CMAKE_ARG
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
-    set TEST_RESULT_PATH=%WORKSPACE%\ws\build\!COLCON_PACKAGE!\test_results
+    set TEST_RESULT_PATH=%LOCAL_WS_BUILD%\!COLCON_PACKAGE!\test_results
 
     echo # BEGIN SECTION: running tests for !COLCON_PACKAGE!
     call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
@@ -197,7 +197,6 @@ if "%ENABLE_TESTS%" == "TRUE" (
 
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
-   cd %WORKSPACE%
    rmdir /s /q %LOCAL_WS% || goto :error
    echo # END SECTION
 )
