@@ -150,6 +150,7 @@ echo # END SECTION
 
 :: this step is important since overwrite the gazebodistro file
 echo # BEGIN SECTION: move %VCS_DIRECTORY% source to workspace
+if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )                                                                                                                                                                   
 xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i > xcopy_vcs_directory.log || goto :error
 echo # END SECTION
 
