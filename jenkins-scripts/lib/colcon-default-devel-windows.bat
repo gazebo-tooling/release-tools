@@ -155,6 +155,7 @@ xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i > xcopy_vcs_d
 echo # END SECTION
 
 echo # BEGIN SECTION: packages in workspace
+cd %LOCAL_WS%
 call %win_lib% :list_workspace_pkgs || goto :error
 echo # END SECTION
 
