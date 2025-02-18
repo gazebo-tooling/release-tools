@@ -164,13 +164,13 @@ echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
 echo Packages in workspace:
 colcon list --names-only
 
-colcon list --names-only | find "!COLCON_PACKAGE!"
+colcon list --names-only | find "!COLCON_PACKAGE!" > nul 2>&1
 if errorlevel 1 (
   :: REQUIRED for Gazebo Fortress
   set COLCON_PACKAGE=!COLCON_PACKAGE:gz=ignition!
   set COLCON_PACKAGE=!COLCON_PACKAGE:sim=gazebo!
 )
-colcon list --names-only | find "!COLCON_PACKAGE!"
+colcon list --names-only | find "!COLCON_PACKAGE!" > nul 2>&1
 if errorlevel 1 (
   echo Failed to find package !COLCON_PACKAGE! in workspace.
   goto :error
