@@ -20,8 +20,9 @@
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 set EXPORT_TEST_RESULT_PATH=%WORKSPACE%\build\test_results
 set LOCAL_WS=%WORKSPACE%\ws
-set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS%\%VCS_DIRECTORY%
-set LOCAL_WS_BUILD=%WORKSPACE%\build
+set LOCAL_WS_BUILD=%LOCAL_WS%\build
+set LOCAL_WS_SRC=%LOCAL_WS%\src
+set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS_SRC%\%VCS_DIRECTORY%
 
 :: default values
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
@@ -133,28 +134,28 @@ if defined USE_PIXI (
 
 echo # BEGIN SECTION: setup workspace
 if not defined KEEP_WORKSPACE (
-  IF exist %LOCAL_WS_BUILD% (
+  IF exist %LOCAL_WS% (
     echo # BEGIN SECTION: preclean workspace
-    rmdir /s /q %LOCAL_WS_BUILD% || goto :error
+    rmdir /s /q %LOCAL_WS% || goto :error
     echo # END SECTION
   )
 )
-mkdir %LOCAL_WS% || echo "Workspace already exists!"
-cd %LOCAL_WS%
+mkdir %LOCAL_WS%
+mkdir %LOCAL_WS_SRC%
 echo # END SECTION
 
 echo # BEGIN SECTION: get open robotics deps (%GAZEBODISTRO_FILE%) sources into the workspace
-if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
-call %win_lib% :get_source_from_gazebodistro %GAZEBODISTRO_FILE% %LOCAL_WS% || goto :error
+call %win_lib% :get_source_from_gazebodistro %GAZEBODISTRO_FILE% %LOCAL_WS_SRC% || goto :error
 echo # END SECTION
 
 :: this step is important since overwrite the gazebodistro file
 echo # BEGIN SECTION: move %VCS_DIRECTORY% source to workspace
-if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
+if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )                                                                                                                                                                   
 xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i > xcopy_vcs_directory.log || goto :error
 echo # END SECTION
 
 echo # BEGIN SECTION: packages in workspace
+cd %LOCAL_WS%
 call %win_lib% :list_workspace_pkgs || goto :error
 echo # END SECTION
 
@@ -163,13 +164,13 @@ echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
 echo Packages in workspace:
 colcon list --names-only
 
-colcon list --names-only | find "!COLCON_PACKAGE!"
+colcon list --names-only | find "!COLCON_PACKAGE!" > nul 2>&1
 if errorlevel 1 (
   :: REQUIRED for Gazebo Fortress
   set COLCON_PACKAGE=!COLCON_PACKAGE:gz=ignition!
   set COLCON_PACKAGE=!COLCON_PACKAGE:sim=gazebo!
 )
-colcon list --names-only | find "!COLCON_PACKAGE!"
+colcon list --names-only | find "!COLCON_PACKAGE!" > nul 2>&1
 if errorlevel 1 (
   echo Failed to find package !COLCON_PACKAGE! in workspace.
   goto :error
@@ -183,7 +184,7 @@ call %win_lib% :build_workspace !COLCON_PACKAGE! !COLCON_PACKAGE_EXTRA_CMAKE_ARG
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
-    set TEST_RESULT_PATH=%WORKSPACE%\ws\build\!COLCON_PACKAGE!\test_results
+    set TEST_RESULT_PATH=%LOCAL_WS_BUILD%\!COLCON_PACKAGE!\test_results
 
     echo # BEGIN SECTION: running tests for !COLCON_PACKAGE!
     call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
