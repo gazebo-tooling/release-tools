@@ -19,17 +19,37 @@ fi
 # Check for existing scripts. Lines:
 # 1. lookg for ./scripts/. and exclude comment lnes
 # 2. replaces %WORKSPACE% by .
-# 3. grab only the path from ./scripts/
-# 4. remove spurious "
+# 3. exclude CONDA_ENV_NAME variable lines
+# 4. grab only the path from ./scripts/
+# 5. remove spurious "
 # 5. sor and uniq to get clean output
 for f in $(grep -Eh './scripts/.*' -- *.xml | grep -v '//' | \
            sed 's/%WORKSPACE%/./g' | \
+           grep -v '%CONDA_ENV_NAME%' | \
            grep -Eh -o './scripts/.*' | awk '{print $1}' | \
            sed 's/"//g' | \
            sort | uniq); do
   if ! test -f "${f}"; then
     echo "${f} script not found in the repository"
+    exit 1
   fi
+done
+
+# Check conda enviroments links
+for f in $(ls *-c*win.xml); do
+  CONDA_ENV_NAME=$(grep -oP 'CONDA_ENV_NAME=\K.*' $f)
+  for link in "$(grep -Eh './scripts/conda/envs.*' $f | grep -v '//' | \
+           sed 's/%WORKSPACE%/./g' | \
+           sed "s/%CONDA_ENV_NAME%/${CONDA_ENV_NAME}/g" |\
+           grep -Eh -o './scripts/.*' | awk '{print $1}' | \
+           sed 's/"//g' | \
+           uniq)"; do
+    echo $link
+    if ! test -d "${link}"; then
+      echo "${link} conda env not found in the repository in file ${f}"
+      exit 1
+    fi
+  done
 done
 
 abichecker_main=$(grep '<branch>main</branch>' -- *-abichecker-*.xml || true)
