@@ -801,6 +801,9 @@ def create_pr_in_gz_vendor_repo(args, ros_distro) -> str:
 
 
 def process_ros_vendor_package(args):
+    # Only create ros vendor updates for stable releases
+    if PRERELEASE or NIGHTLY:
+        return
     print("ROS vendor packages that can be updated:")
     if  args.package.replace('gz-','') in ROS_VENDOR:
         print(" - There are no gz metapackages in ROS")
@@ -954,6 +957,7 @@ def go(argv):
                            args.auth_input_arg)
         display_help_job_chain_for_source_calls(args)
         # Process the possible update of an associated ROS vendor package
+        # for stable releases only
         process_ros_vendor_package(args)
 
 
