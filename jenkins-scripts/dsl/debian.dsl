@@ -8,7 +8,7 @@ OSRFLinuxBase.create(ratt_pkg_job)
 ratt_pkg_job.with
 {
   // use only the most powerful nodes
-  label Globals.nontest_label("large-memory")
+  label Globals.nontest_label("docker && large-memory")
 
   parameters
   {
