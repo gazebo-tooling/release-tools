@@ -32,6 +32,23 @@ for f in $(grep -Eh './scripts/.*' -- *.xml | grep -v '//' | \
   fi
 done
 
+# Check conda enviroments links
+for f in $(ls *-c*win.xml); do
+  CONDA_ENV_NAME=$(grep -oP 'CONDA_ENV_NAME=\K.*' $f)
+  for link in "$(grep -Eh './scripts/conda/envs.*' $f | grep -v '//' | \
+           sed 's/%WORKSPACE%/./g' | \
+           sed "s/%CONDA_ENV_NAME%/${CONDA_ENV_NAME}/g" |\
+           grep -Eh -o './scripts/.*' | awk '{print $1}' | \
+           sed 's/"//g' | \
+           uniq)"; do
+    echo $link
+    if ! test -d "${link}"; then
+      echo "${link} conda env not found in the repository in file ${f}"
+      exit 1
+    fi
+  done
+done
+
 abichecker_main=$(grep '<branch>main</branch>' -- *-abichecker-*.xml || true)
 if [[ -n ${abichecker_main} ]]; then
   echo "Found a main branch in an abichecker job:"
