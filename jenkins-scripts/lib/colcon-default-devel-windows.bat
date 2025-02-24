@@ -206,4 +206,4 @@ goto :EOF
 
 :error - error routine
 echo Failed with error #%errorlevel%.
-exit %errorlevel%
+exit %EXTRA_EXIT_PARAM% %errorlevel%
