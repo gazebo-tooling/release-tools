@@ -54,14 +54,14 @@ exec_ignition_gazebo_releasepy_test()
 
 exec_releasepy_with_real_gz()
 {
-  gz_pkg=${1} major_version=${2}
+  gz_pkg=${1} major_version=${2} extra_params=${3}
     ./release.py \
       --dry-run \
       --no-sanity-checks \
       --auth user:fake \
       --source-repo-uri http://github.com/gazebosim/gz-common \
       --source-repo-existing-ref http://github.com/gazebosim/gz-common/foo-tag \
-    "${gz_pkg}" "${major_version}.x.y"
+    "${gz_pkg}" "${major_version}.x.y" ${extra_params}
 }
 
 expect_job_run()
@@ -183,6 +183,9 @@ expect_param "${ign_gazebo_source_tarball_uri_test}" "PACKAGE_ALIAS=ignition-gaz
 
 ros_vendor_test=$(exec_releasepy_with_real_gz gz-fuel-tools 9)
 expect_vendor_repo "${ros_vendor_test}" gazebo-release/gz_fuel_tools_vendor
+
+ros_vendor_test=$(exec_releasepy_with_real_gz gz-fuel-tools 9 "--upload-to-repo prerelease")
+expect_no_vendor "${ros_vendor_test}"
 
 ros_vendor_test=$(exec_releasepy_with_real_gz gz-cmake 2)
 expect_no_vendor "${ros_vendor_test}"
