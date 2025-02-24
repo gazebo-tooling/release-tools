@@ -155,12 +155,12 @@ void generate_install_test_job(Job install_test_job)
       stringParam("OSRF_REPOS_TO_USE", 'stable', "Repositories to add to the testing install")
       labelParam('JENKINS_NODE_TAG') {
         description('Jenkins node or group to run the build on')
-        defaultValue('gpu-reliable')
+        defaultValue('docker && gpu-reliable')
       }
     }
 
     // Designed to be run manually. No triggers.
-    label Globals.nontest_label("gpu-reliable")
+    label Globals.nontest_label("docker && gpu-reliable")
 
     steps {
       systemGroovyCommand("""\
