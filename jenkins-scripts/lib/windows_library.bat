@@ -60,7 +60,7 @@ IF exist "%MSVC22_ON_WIN32_C%" (
    call "%MSVC_ON_WIN32_C%" %MSVC_KEYWORD% || goto %win_lib% :error
 ) ELSE (
    echo "Could not find the vcvarsall.bat file"
-   exit -1
+   exit %EXTRA_EXIT_PARAM% -1
 )
 
 goto :EOF
@@ -88,8 +88,8 @@ if errorlevel 1 (
     set /a COUNT+=1
     echo Download failed. Retry attempt !COUNT! of %RETRIES%.
     if !COUNT! geq %RETRIES% (
-        echo Maximum retry attempts reached. Exiting...
-        exit 1
+        echo Maximum retry attempts reached. exit %EXTRA_EXIT_PARAM%ing...
+        exit %EXTRA_EXIT_PARAM% 1
     )
     timeout /t 5 >nul
     goto retry
@@ -394,7 +394,7 @@ echo Downloading pixi %PIXI_VERSION% in %PIXI_TMPDIR%
 if not exist "%PIXI_TMPDIR%" mkdir "%PIXI_TMPDIR%"
 pushd %PIXI_TMPDIR%
 call :wget "%PIXI_URL%" pixi.exe
-if errorlevel 1 exit 1
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 popd 
 goto :EOF
 
@@ -407,17 +407,17 @@ set ENV_NAME=%1
 set CONDA_ENV_PATH=%CONDA_ENVS_DIR%\%ENV_NAME%
 if not exist %CONDA_ENV_PATH% (
   echo Can not find %CONDA_ENV_PATH% directory in the system
-  exit 1
+  exit %EXTRA_EXIT_PARAM% 1
 )
 if exist %PIXI_PROJECT_PATH% ( rmdir /s /q "%PIXI_PROJECT_PATH%")
-if errorlevel 1 exit 1
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 mkdir %PIXI_PROJECT_PATH%
 copy %CONDA_ENV_PATH%\pixi.* %PIXI_PROJECT_PATH%
-if errorlevel 1 exit 1
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 pushd %PIXI_PROJECT_PATH%
-if errorlevel 1 exit 1
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 call %win_lib% :pixi_cmd install
-if errorlevel 1 exit 1
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 popd
 goto :EOF
 
@@ -430,7 +430,7 @@ call %win_lib% :pixi_cmd shell-hook --locked > hooks.bat
 type hooks.bat
 call hooks.bat
 :: ERRORS in hooks will make the build to fail. Be permissive
-:: if errorlevel 1 exit EXTRA_EXIT_PARAM 1
+:: if errorlevel 1 exit %EXTRA_EXIT_PARAM% EXTRA_exit %EXTRA_EXIT_PARAM%_PARAM 1
 popd
 goto :EOF
 
@@ -444,7 +444,7 @@ echo Running pixi %~1 %~2
 :: project directory.
 pushd %PIXI_PROJECT_PATH%
 call "%PIXI_TMP%" %1 %2
-if errorlevel 1 exit 1
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 popd
 goto :EOF
 
@@ -452,4 +452,4 @@ goto :EOF
 :error - error routine
 ::
 echo Failed in windows_library with error #%errorlevel%.
-exit %errorlevel%
+exit %EXTRA_EXIT_PARAM% %errorlevel%
