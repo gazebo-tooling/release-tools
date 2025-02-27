@@ -595,6 +595,13 @@ ci_configs:
       version: legacy
       arch: amd64
     requirements:
+      large_memory:
+        - gz-physics
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
     exclude:
       all:
         - gz-fortress
@@ -624,6 +631,13 @@ ci_configs:
       version: legacy_ogre23
       arch: amd64
     requirements:
+      large_memory:
+        - gz-physics
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
     exclude:
       all:
         - gz-harmonic
