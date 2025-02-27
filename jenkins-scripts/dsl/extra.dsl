@@ -23,7 +23,7 @@ release_repo_debbuilds.each { software ->
   build_pkg_job.with
   {
     // use only the most powerful nodes
-    label Globals.nontest_label("large-memory")
+    label Globals.nontest_label("docker && large-memory")
 
     steps {
       shell("""\
@@ -43,7 +43,7 @@ gbp_repo_debbuilds.each { software ->
   build_pkg_job.with
   {
     // use only the most powerful nodes
-    label Globals.nontest_label("large-memory")
+    label Globals.nontest_label("docker && large-memory")
 
     parameters
     {
