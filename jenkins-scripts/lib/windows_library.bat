@@ -23,7 +23,6 @@ set MSVC_KEYWORD=%PLATFORM_TO_BUILD%
 IF %PLATFORM_TO_BUILD% == x86 (
   echo "Using 32bits VS configuration"
   set BITNESS=32
-  set VCPKG_DEFAULT_TRIPLET=x86-windows
 ) ELSE (
   REM Visual studio is accepting many keywords to compile for 64bits
   REM We need to set x86_amd64 to make express version to be able to
@@ -32,7 +31,6 @@ IF %PLATFORM_TO_BUILD% == x86 (
   set BITNESS=64
   set MSVC_KEYWORD=x86_amd64
   set PLATFORM_TO_BUILD=amd64
-  set VCPKG_DEFAULT_TRIPLET=x64-windows
   set PreferredToolArchitecture=x64
 )
 
@@ -43,10 +41,9 @@ set MSVC_ON_WIN64_E=C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterpri
 set MSVC_ON_WIN32_E=C:\Program Files\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
 set MSVC_ON_WIN64_C=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat
 set MSVC_ON_WIN32_C=C:\Program Files\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat
-:: libraries from vcpkg
+
 set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
-set PATH=%PATH%;%VCPKG_DIR%\installed\%VCPKG_DEFAULT_TRIPLET%\bin
 
 IF exist "%MSVC22_ON_WIN32_C%" (
    call "%MSVC22_ON_WIN32_C%" %MSVC_KEYWORD% || goto %win_lib% :error
@@ -188,10 +185,6 @@ goto :EOF
 
 :: ##################################
 :_colcon_build_cmd
-::
-:: The CMAKE_BUILD_TYPE is needed to workaround on issue
-:: https://github.com/Microsoft/vcpkg/issues/1626
-::
 :: arg1 colcon command line extra arguments
 :: arg2 colcon cmake extra command line arguments
 set LIB_DIR="%~dp0"
@@ -209,29 +202,14 @@ set MAKEFLAGS=-j%MAKE_JOBS%
 
 echo "COLCON_EXTRA_ARGS: %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%"
 
-if defined USE_PIXI (
-  @echo on
-  colcon build --build-base "build"^
-    --install-base "install"^
-    --parallel-workers %MAKE_JOBS%^
-    %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
-    --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
-    %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
-    --event-handler console_cohesion+ || goto :error
-) else (
-  echo "COLCON_EXTRA_CMAKE_ARGS: %COLCON_EXTRA_CMAKE_ARGS%"
-  echo "COLCON_EXTRA_CMAKE_ARGS2: %COLCON_EXTRA_CMAKE_ARGS2%"
-  @echo on
-  colcon build --build-base "build"^
-    --install-base "install"^
-    --parallel-workers %MAKE_JOBS%^
-    %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
-    --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
-                 " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
-                 " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
-    %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
-    --event-handler console_cohesion+ || goto :error
-)
+@echo on
+colcon build --build-base "build"^
+  --install-base "install"^
+  --parallel-workers %MAKE_JOBS%^
+  %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
+  --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
+  %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
+  --event-handler console_cohesion+ || goto :error
 @echo off
 
 goto :EOF
@@ -282,108 +260,6 @@ echo # END SECTION
 echo # BEGIN SECTION: colcon test-result
 colcon test-result --all
 echo # END SECTION
-goto :EOF
-
-:: ##################################
-:check_vcpkg_snapshot
-setlocal EnableDelayedExpansion
-:: look for same sha in repository HEAD and in the tag
-for /f %%i in ('git -C %VCPKG_DIR% rev-parse HEAD') do set VCPKG_HEAD=%%i
-for /f %%i in ('git -C %VCPKG_DIR% rev-list -n 1 %VCPKG_SNAPSHOT%') do set VCPKG_TAG=%%i
-if NOT %VCPKG_HEAD% == %VCPKG_TAG% (
-  echo The vpckg directory is not using the expected snapshot %VCPKG_SNAPSHOT%
-  echo VCPKG_HEAD points to %VCPKG_HEAD% while VCPKG_TAG points to %VCPKG_TAG%
-  echo They should point to the same commit hash
-  goto :error
-)
-goto :EOF
-
-:: ##################################
-:list_vcpkg_packages
-%VCPKG_CMD% list || goto :error
-goto :EOF
-
-:: ##################################
-:remove_vcpkg_installation
-:: remove the installed directory to simulate all packages removal
-:: vcpkg cli does not support the operation
-set LIB_DIR="%~dp0"
-call %LIB_DIR%\windows_env_vars.bat || goto :error
-if [%VCPKG_INSTALLED_FILES_DIR%]==[] (
-  echo VCPKG_INSTALLED_FILES_DIR variable seems empty, this is a bug
-  goto :error
-)
-rmdir /s /q %VCPKG_INSTALLED_FILES_DIR%
-goto :EOF
-
-:: ##################################
-:_prepare_vcpkg_to_install
-set LIB_DIR=%~dp0
-call %LIB_DIR%\windows_env_vars.bat || goto :error
-call %win_lib% :check_vcpkg_snapshot || goto :error
-:: update osrf vcpkg overlay
-pushd .
-cd %VCPKG_OSRF_DIR%
-git pull origin master || goto :error
-popd
-goto :EOF
-
-:: ##################################
-:_install_and_upgrade_vcpkg_package
-:: arg1: package to install
-if [%1] == [] (
-  echo "_install_and_upgrade_vcpkg_package called with no argument"
-  goto :error
-)
-:: workaround on permissions problems for default VCPKG_DEFAULT_BINARY_CACHE
-set VCPKG_DEFAULT_BINARY_CACHE=C:\Users\Administrator\AppData\Local\vcpkg\archives
-if not exist %VCPKG_DEFAULT_BINARY_CACHE% mkdir %VCPKG_DEFAULT_BINARY_CACHE%
-%VCPKG_CMD% install --recurse "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
-:: vcpkg does not upgrade installed packages using the install command
-:: since most of the packages are coming from a frozen snapshot, it is
-:: not a problem. However upgrading is needed for the osrf port overlay
-%VCPKG_CMD% upgrade "%1" --no-dry-run --overlay-ports="%VCPKG_OSRF_DIR%"
-goto :EOF
-
-:: ##################################
-:install_vcpkg_package
-:: arg1: package to install
-if [%1] == [] (
-  echo "install_vcpkg_package called with no argument"
-  goto :error
-)
-call %win_lib% :_prepare_vcpkg_to_install|| goto :error
-call %win_lib% :_install_and_upgrade_vcpkg_package "%1" || goto :error
-goto :EOF
-
-:: ##################################
-:remove_vcpkg_package
-:: arg1: package to install
-set LIB_DIR=%~dp0
-call %LIB_DIR%\windows_env_vars.bat || goto :error
-
-%VCPKG_CMD% remove --recurse "%1"
-goto :EOF
-
-:: ##################################
-:enable_vcpkg_integration
-%VCPKG_CMD% integrate install || goto :error
-goto :EOF
-
-:: ##################################
-:disable_vcpkg_integration
-%VCPKG_CMD% integrate remove || goto :error
-goto :EOF
-
-:: ##################################
-:setup_vcpkg_all_dependencies
-set LIB_DIR=%~dp0
-call %LIB_DIR%\windows_env_vars.bat || goto :error
-call %win_lib% :enable_vcpkg_integration || goto :error
-call %win_lib% :_prepare_vcpkg_to_install|| goto :error
-for %%p in (%VCPKG_DEPENDENCIES_LEGACY%) do (
-  call %win_lib% :_install_and_upgrade_vcpkg_package %%p || goto :error
-)
 goto :EOF
 
 :: ##################################
