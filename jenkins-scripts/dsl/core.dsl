@@ -105,7 +105,7 @@ agent_usage_statistics.with
   label Globals.nontest_label("master")
 
   triggers {
-    cron('H/5 * * * *')
+    cron('H/5 * 3 * *')
   }
 
   steps
