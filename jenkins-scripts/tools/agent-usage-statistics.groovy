@@ -1,12 +1,13 @@
 import hudson.model.*
 import hudson.model.queue.*
 import hudson.model.labels.LabelAtom
+import jenkins.model.Jenkins
 import java.text.SimpleDateFormat
 
 def timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 def timestamp = timestampFormat.format(new Date())
-def agentFilePath = "agent_data.csv"
-def queueFilePath = "queue_data.csv"
+def agentFilePath = "${env.WORKSPACE}/agent_data.csv"
+def queueFilePath = "${env.WORKSPACE}/queue_data.csv"
 def queue = Jenkins.instance.queue
 def queueItems = queue.items
 
