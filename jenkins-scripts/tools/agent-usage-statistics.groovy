@@ -5,16 +5,14 @@ import java.text.SimpleDateFormat
 
 def timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 def timestamp = timestampFormat.format(new Date())
-
 def agentFilePath = "agent_data.csv"
 def queueFilePath = "queue_data.csv"
-
 def queue = Jenkins.instance.queue
 def queueItems = queue.items
 
 if (!new File(agentFilePath).exists()) {
     new File(agentFilePath).withWriter { writer ->
-        writer.writeLine("Timestamp,Node,Label,Job")
+        writer.writeLine("Timestamp,Node,Status,Label,Job")
     }
 }
 
@@ -28,10 +26,21 @@ Jenkins.instance.nodes.each { node ->
     def nodeName = node.getDisplayName()
     def nodeLabels = node.getAssignedLabels().collect { it.name }.join(", ") ?: "None"
     nodeLabels = "\"${nodeLabels}\""
-    def currentBuild = node.toComputer().getExecutors().find { it.isBusy() }?.currentExecutable
+    def computer = node.toComputer()
+
+    def status = "Not Working"
+    if (computer != null && computer.isOnline()) {
+        if (computer.countBusy() > 0) {
+            status = "Busy"
+        } else {
+            status = "Idle"
+        }
+    }
+
+    def currentBuild = computer?.getExecutors()?.find { it.isBusy() }?.currentExecutable
     def currentJob = currentBuild?.fullDisplayName ?: "None"
     new File(agentFilePath).append(
-        "${timestamp},${nodeName},${nodeLabels},${currentJob}\n")
+        "${timestamp},${nodeName},${status},${nodeLabels},${currentJob}\n")
 }
 
 queueItems.each { item ->
