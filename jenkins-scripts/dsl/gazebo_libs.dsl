@@ -193,14 +193,11 @@ void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config)
   {
     steps {
       batchFile("""\
-            set VCS_DIRECTORY=${ws_checkout_dir}
-            set USE_PIXI=true
+            set VCS_DIRECTORY=${ws_checkout_dir}            
             set CONDA_ENV_NAME=${conda_env}
-            if defined USE_PIXI (
             if not exist "./scripts/conda/envs/%CONDA_ENV_NAME%" (
               echo "Conda environment %CONDA_ENV_NAME% not found"
               exit 1
-            )
             )
             call "./scripts/jenkins-scripts/${script_name_prefix}-default-devel-windows-amd64.bat"
             """.stripIndent())
