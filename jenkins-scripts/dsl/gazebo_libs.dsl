@@ -185,15 +185,16 @@ void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
   add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
 }
 
-void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, config_version)
+void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config)
 {
   def script_name_prefix = cleanup_library_name(lib_name)
+  def conda_env = ci_config.system.version
   gz_win_ci_job.with
   {
     steps {
       batchFile("""\
-            set VCS_DIRECTORY=${ws_checkout_dir}
-            set CONDA_ENV_NAME=${config_version}
+            set VCS_DIRECTORY=${ws_checkout_dir}            
+            set CONDA_ENV_NAME=${conda_env}
             if not exist "./scripts/conda/envs/%CONDA_ENV_NAME%" (
               echo "Conda environment %CONDA_ENV_NAME% not found"
               exit 1
@@ -202,6 +203,8 @@ void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, config_ver
             """.stripIndent())
     }
   }
+  // Include the labels in the windows job
+  generate_label_by_requirements(gz_win_ci_job, lib_name, ci_config.requirements, 'win')
 }
 
 void generate_win_ci_job(gz_win_ci_job, lib_name, branch, ci_config)
@@ -214,11 +217,10 @@ void generate_win_ci_job(gz_win_ci_job, lib_name, branch, ci_config)
                     "gazebosim/${lib_name}",
                     branch,
                     ws_checkout_dir)
-  generate_label_by_requirements(gz_win_ci_job, lib_name, ci_config.requirements, 'win')
   add_win_devel_bat_call(gz_win_ci_job,
                          lib_name,
                          ws_checkout_dir,
-                         ci_config.system.version)
+                         ci_config)
 }
 
 
@@ -503,7 +505,7 @@ branch_index.each { lib_name, distro_configs ->
         add_win_devel_bat_call(gz_win_ci_any_job,
                                lib_name,
                                ws_checkout_dir,
-                               ci_config.system.version)
+                               ci_config)
         Globals.gazebodistro_branch = false
       }
     }
