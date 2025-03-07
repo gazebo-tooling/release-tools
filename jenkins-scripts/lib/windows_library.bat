@@ -2,7 +2,6 @@
 call :%*
 exit /b
 
-
 :: ##################################
 :: Configure the build environment for MSVC 2017
 :configure_msvc2019_compiler
@@ -65,22 +64,15 @@ goto :EOF
 :: ##################################
 :: Download an URL to the current directory
 :wget
-::
 :: arg1 URL to download
 :: arg2 filename (not including the path, just the filename)
 set URL=%~1
 set FILENAME=%~2
-
-:: Set the maximum number of retries
 set RETRIES=3
 set COUNT=0
-
 echo Downloading %URL%
-
 :retry
-:: Try to download the file using PowerShell
 powershell -command "Invoke-WebRequest -Uri %URL% -OutFile %cd%\%FILENAME%"
-:: Check if the download was successful
 if errorlevel 1 (
     set /a COUNT+=1
     echo Download failed. Retry attempt !COUNT! of %RETRIES%.
@@ -91,65 +83,6 @@ if errorlevel 1 (
     timeout /t 5 >nul
     goto retry
 )
-goto :EOF
-
-:: ##################################
-:: Download the unzip utility from osrfoundation.org
-:download_7za
-::
-if not exist 7z.dll (call :wget http://osrf-distributions.s3.us-east-1.amazonaws.com/win32/deps/7z.dll 7z.dll || goto :error)
-if not exist 7z.exe (call :wget http://osrf-distributions.s3.us-east-1.amazonaws.com/win32/deps/7z.exe 7z.exe || goto :error)
-goto :EOF
-
-:: ##################################
-:: Unzip using 7za
-:unzip_7za
-::
-:: arg1 - File to unzip
-echo Uncompressing %~1
-IF NOT exist %~1 ( echo "Zip file does not exist: %~1" && goto :error )
-7z.exe x %~1 -aoa || goto :error
-goto :EOF
-
-:: ##################################
-:: Unzip using 7za and then install
-:unzip_install
-::
-echo Uncompressing %~1 to %~d0\install
-IF NOT exist %~1 ( echo "Zip file does not exist: %~1" && goto :error )
-call :download_7za || goto :error
-7z.exe x %~1 -aoa -o%WORKSPACE_INSTALL_DIR% || goto :error
-goto :EOF
-
-:: ##################################
-:: Download some prebuilt package from our repository, unzip it using 7za, and then install it
-:download_unzip_install
-::
-echo # BEGIN SECTION: downloading, unzipping, and installing dependency %1
-call :wget https://s3.amazonaws.com/osrf-distributions/win32/deps/%1 %1 || goto :error
-call :unzip_install %1 || goto :error
-goto :EOF
-
-:: ##################################
-:: Install an ignition project from source
-:install_ign_project
-::
-:: arg1: Name of the ignition project (e.g. ign-cmake, ign-math)
-:: arg2: [Optional] desired branch
-::
-set IGN_PROJECT_DEPENDENCY_DIR=%LOCAL_WS%\%1
-if exist %IGN_PROJECT_DEPENDENCY_DIR% ( rmdir /s /q %IGN_PROJECT_DEPENDENCY_DIR% )
-if "%2"=="" (
-  echo Installing master branch of %1
-  git clone https://github.com/gazebosim/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b master
-) else (
-  echo Installing branch %2 of %1
-  git clone https://github.com/gazebosim/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b %2
-)
-cd /d %IGN_PROJECT_DEPENDENCY_DIR%
-call .\configure.bat
-nmake || goto :error
-nmake install || goto :error
 goto :EOF
 
 :: ##################################
@@ -266,6 +199,9 @@ goto :EOF
 :: 
 :: Download the pixi binary to the system
 :pixi_installation
+set LIB_DIR=%~dp0
+call %LIB_DIR%\windows_env_vars.bat
+
 echo Downloading pixi %PIXI_VERSION% in %PIXI_TMPDIR%
 if not exist "%PIXI_TMPDIR%" mkdir "%PIXI_TMPDIR%"
 pushd %PIXI_TMPDIR%
@@ -279,6 +215,9 @@ goto :EOF
 :: Create a pixi environment
 :pixi_create_gz_environment
 :: arg1: environment name inside conda/envs in this repo
+set LIB_DIR="%~dp0"
+call %LIB_DIR%\windows_env_vars.bat
+
 set ENV_NAME=%1
 set CONDA_ENV_PATH=%CONDA_ENVS_DIR%\%ENV_NAME%
 if not exist %CONDA_ENV_PATH% (
@@ -301,6 +240,9 @@ goto :EOF
 :pixi_load_shell
 :: pixi shell won't work since it spawns a blocking cmd inside Jenkins
 :: instead use the hook and execute them in the current shell
+set LIB_DIR="%~dp0"
+call %LIB_DIR%\windows_env_vars.bat
+
 pushd %PIXI_PROJECT_PATH%
 call %win_lib% :pixi_cmd shell-hook --locked > hooks.bat
 type hooks.bat
@@ -314,6 +256,8 @@ goto :EOF
 :pixi_cmd
 :: arg1 pixi command to run on PIXI_PROJECT_PATH
 :: arg2 pixi second argument
+set LIB_DIR="%~dp0"
+call %LIB_DIR%\windows_env_vars.bat
 echo Running pixi %~1 %~2
 :: If using --manifest-file Windows will complain about permissions
 :: using error number 5 :?. Use pushd and popd to go into the 
