@@ -4,7 +4,51 @@ The release-tools repository uses the [DSL Jenkins plugin](https://plugins.jenki
 
 ## Conda local builder for Windows
 
-TODO
+### Usage of `local_build.bat`
+
+The `local_build.bat` script is used to reproduce Jenkins builds for Windows, specifically supporting Pixi builds.
+
+#### Running the script
+
+To run the script, use the following command:
+
+```bat
+local_build.bat <jenkins-bat-script> <gz-sources> [build_mode]
+```
+
+#### Arguments
+
+- `jenkins-bat-script`: The script to run from the files in release-tools/jenkins-scripts/gz_*.bat
+- `sources`: Local checkout of the gazebo library sources
+- `build_mode` (optional): Specifies the build mode.
+  - `0`: Build all the steps (default, first execution).
+  - `1`: Only run the compilation, reuse the Pixi build environment created in mode 0
+         (be sure of run it first).
+
+#### Example 
+
+Use case: reproducing a gz-math pull request for the branch my-testing-branch.
+
+```bat
+git clone -b my-testing-branch C:\Users\foo\code\gz-math
+local_build.bat gz_math-default-devel-windows-amd64.bat C:\Users\foo\code\gz-math
+```
+
+This command will run `gz_math-default-devel-windows-amd64.bat ` using the sources from `C:\User\foo\code\gz-math`. It will handle the installation of all the system dependencies
+using Pixi (it can take up to 10 minutes) and build all the Gazebo dependencies from source
+using colcon. In a second build it builds gz-math with tests using colcon.
+
+When finishes, you can do modifications in C:\Users\foo\code\gz-math and re-run the script
+with the `build_mode` 1 enabled to re-use the environment prepared with external dependencies.
+
+```bat
+local_build.bat gz_math-default-devel-windows-amd64.bat C:\Users\foo\code\gz-math 1
+```
+
+#### Aditional notes
+
+- The number of building threads can be customized by setting the `MAKE_JOBS` variable inside the
+  `local_setup.bat` script. It defaults to 8.
 
 ## DSL related
 
