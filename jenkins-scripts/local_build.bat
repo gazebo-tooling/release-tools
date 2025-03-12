@@ -1,3 +1,4 @@
+@echo off
 :: Trigger local builds for windows builds. Only support Pixi builds
 set SCRIPT_DIR=%~dp0
 
@@ -16,6 +17,17 @@ if "%~2"=="" (
     exit /b 1
 )
 
+if not exist "%1" (
+    echo "Script %1 does not exist"
+    exit /b 1
+)
+
+:: check that visual studio vcvarsall.bat has been called
+if not defined VSCMD_ARG_TGT_ARCH (
+    echo "Visual Studio environment not set. Please run vcvarsall.bat"
+    exit /b 1
+)
+
 set "build_mode=0"
 if not "%~3"=="" (
     set "build_mode=%~3"
@@ -24,16 +36,16 @@ if not "%~3"=="" (
 set "WORKSPACE=%TMP%\%RANDOM%"
 set "SRC_DIRECTORY=%~2"
 :: Only work with PIXI
-set "USE_PIXI=1"
 :: KEEP_WORKSPACE should help with debugging and re-run the compilation only
 set "KEEP_WORKSPACE=1"
 :: Avoid closing the whole terminal
 set "EXTRA_EXIT_PARAM=/b"
 
 set "DBG_LAST_BUILD_FILE=%SCRIPT_DIR%\.debug_last_build.bat"
+if exist %DBG_LAST_BUILD_FILE% ( del %DBG_LAST_BUILD_FILE% )
 
 mkdir "%WORKSPACE%"
-xcopy "%SRC_DIRECTORY%\*" "%WORKSPACE%\%~nx2" /s /e /i /Y >> log
+xcopy "%SRC_DIRECTORY%\*" "%WORKSPACE%\%~nx2" /s /e /i /Y > nul
 
 echo "USING BUILD_MODE=%build_mode%"
 if "%build_mode%"=="0" (
@@ -46,6 +58,7 @@ if "%build_mode%"=="0" (
 )
 
 call "%~1"
+
 @echo off
 if errorlevel 1 (
     echo "Local build failed"
