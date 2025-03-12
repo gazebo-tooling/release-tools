@@ -45,11 +45,11 @@ Jenkins.instance.nodes.each { node ->
 }
 
 queueItems.each { item ->
-    def blockedReason = item.getCauseOfBlockage()?.getShortDescription() ?: "Not blocked"
+    def queueId = item.id
     def waitingForNodes = item.assignedLabel?.getExpression() ?: "Any available node"
     def jobName = item.task.fullDisplayName
     new File(queueFilePath).append(
-        "${timestamp},${jobName},${blockedReason},${waitingForNodes}\n")
+        "${timestamp},${queueId},${jobName},${waitingForNodes}\n")
 }
 
 println "Agent and queue data have been written to CSV files."
