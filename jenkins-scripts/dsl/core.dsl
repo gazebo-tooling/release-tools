@@ -51,6 +51,23 @@ reprepro.with
   }
 }
 
+def agent_usage_statistics = job("_agent_usage_statistics")
+OSRFBase.create(agent_usage_statistics)
+agent_usage_statistics.with
+{
+  label Globals.nontest_label("master")
+
+  triggers {
+    // TODO: running only in March to see how much disk space it needs
+    cron('H/5 * * 3 *')
+  }
+
+  steps
+  {
+    systemGroovyCommand(readFileFromWorkspace('scripts/jenkins-scripts/tools/agent-usage-statistics.groovy'))
+  }
+}
+
 // -------------------------------------------------------------------
 def nightly_labeler = job("_nightly_node_labeler")
 OSRFBase.create(nightly_labeler)
