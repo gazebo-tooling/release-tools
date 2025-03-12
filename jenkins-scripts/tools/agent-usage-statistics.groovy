@@ -6,8 +6,9 @@ import java.text.SimpleDateFormat
 
 def timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 def timestamp = timestampFormat.format(new Date())
-def agentFilePath = "${env.WORKSPACE}/agent_data.csv"
-def queueFilePath = "${env.WORKSPACE}/queue_data.csv"
+def WORKSPACE = build.workspace.toString()
+def agentFilePath = "${WORKSPACE}/agent_data.csv"
+def queueFilePath = "${WORKSPACE}/queue_data.csv"
 def queue = Jenkins.instance.queue
 def queueItems = queue.items
 
