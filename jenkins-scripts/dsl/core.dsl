@@ -58,7 +58,8 @@ agent_usage_statistics.with
   label Globals.nontest_label("master")
 
   triggers {
-    cron('H/5 * 3 * *')
+    // TODO: running only in March to see how much disk space it needs
+    cron('H/5 * * 3 *')
   }
 
   steps
