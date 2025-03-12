@@ -8,7 +8,7 @@ The release-tools repository uses the [DSL Jenkins plugin](https://plugins.jenki
 
 The `local_build.bat` script is used to reproduce Jenkins builds for Windows, specifically supporting Pixi builds.
 
-#### Running the script
+### Running the script
 
 To run the script, use the following command:
 
@@ -16,7 +16,7 @@ To run the script, use the following command:
 local_build.bat <jenkins-bat-script> <gz-sources> [build_mode]
 ```
 
-#### Arguments
+### Arguments
 
 - `jenkins-bat-script`: The script to run from the files in release-tools/jenkins-scripts/gz_*.bat
 - `sources`: Local checkout of the gazebo library sources
@@ -25,7 +25,7 @@ local_build.bat <jenkins-bat-script> <gz-sources> [build_mode]
   - `1`: Only run the compilation, reuse the Pixi build environment created in mode 0
          (be sure of run it first).
 
-#### Example 
+### Example
 
 Use case: reproducing a gz-math pull request for the branch my-testing-branch.
 
@@ -45,7 +45,27 @@ with the `build_mode` 1 enabled to re-use the environment prepared with external
 local_build.bat gz_math-default-devel-windows-amd64.bat C:\Users\foo\code\gz-math 1
 ```
 
-#### Aditional notes
+The script will also generate a `.debug_last_build.bat` file that will source the generated Pixi
+enviroment and the colcon `install.bat` and leave the user in the colcon workspace root inside
+%TMP%. This allows direct debugging without the need to run anything more than colcon and edit
+the code in the colcon workspace.
+
+```bat
+local_build.bat gz_math-default-devel-windows-amd64.bat C:\Users\foo\code\gz-math 1
+call .debug_last_build.bat
+:: ignore errors related to vs2019 if using other version of MSVC
+C:\Users\josel\AppData\Local\Temp\12853\ws> colcon list
+ gz-cmake4       ws\src\gz-cmake (ros.cmake)
+ gz-plugin3      gz-plugin       (ros.cmake)
+ gz-plugin3      ws\src\gz-plugin        (ros.cmake)
+ gz-tools2       ws\src\gz-tools (ros.cmake)
+ gz-utils3       ws\src\gz-utils (ros.cmake)
+ ...
+:: edit code in C:\Users\josel\AppData\Local\Temp\12853\ws\src\gz-sim
+C:\Users\josel\AppData\Local\Temp\12853\ws> colcon build --packages-select gz-sim9
+```
+
+### Aditional notes
 
 - The number of building threads can be customized by setting the `MAKE_JOBS` variable inside the
   `local_setup.bat` script. It defaults to 8.
