@@ -105,7 +105,6 @@ mkdir %LOCAL_WS%
 mkdir %LOCAL_WS_SRC%
 echo # END SECTION
 
-:: Check if package is in colcon workspace
 setlocal ENABLEDELAYEDEXPANSION
 if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
    for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
