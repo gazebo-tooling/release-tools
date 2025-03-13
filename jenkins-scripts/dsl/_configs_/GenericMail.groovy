@@ -105,7 +105,7 @@ class GenericMail
             String logContent = new File(logFilePath).text;
 
             // 1. Check if NO_MAILS is enabled
-            boolean no_mail = build.getEnvVars()['NO_MAILS'].toBoolean()
+            boolean no_mail = build.getEnvironment(listener).get('NO_MAILS').toBoolean()
             if (no_mail)
             {
               logger.println("NO_MAILS parameter enable. Not sending mails! ")
