@@ -64,10 +64,11 @@ if not exist %WORKSPACE%\%VCS_DIRECTORY% (
 if "%GPU_SUPPORT_NEEDED%" == "true" (
   echo # BEGIN SECTION: dxdiag info
   set DXDIAG_FILE=%WORKSPACE%\dxdiag.txt
-  dxdiag /t !DXDIAG_FILE!
-  type !DXDIAG_FILE!
-  echo Checking for correct NVIDIA GPU support !DXDIAG_FILE!
-  findstr /C:"Manufacturer: NVIDIA" !DXDIAG_FILE!
+  dxdiag /t %DXDIAG_FILE%
+  if errorlevel 1 ( dxdiag \t %DXDIAG_FILE%)  :: found that locally this works in Win11
+  type %DXDIAG_FILE%
+  echo Checking for correct NVIDIA GPU support %DXDIAG_FILE%
+  findstr /C:"Manufacturer: NVIDIA" %DXDIAG_FILE%
   if errorlevel 1 (
     echo ERROR: NVIDIA GPU not found in dxdiag
     goto :error
