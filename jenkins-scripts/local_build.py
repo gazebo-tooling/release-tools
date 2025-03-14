@@ -89,32 +89,29 @@ def main():
     # Run the script
     result = subprocess.run([script_path], shell=True, check=False)
     
+    print("\n\033[1;34m Local build finished \033[0m\n")
+
     # Check for errors
     if result.returncode != 0:
-        print("Local build failed")
-        print(f" ERROR: {result.returncode}")
+        print("\033[1;31m FAILED \n\033[0m")
+        sys.exit(1)
         
-        if "LOCAL_WS" not in os.environ:
-            print("LOCAL_WS is not set. Internal script error.")
-            sys.exit(1)
-    else:
-        print("Local build finished successfully")
-    
     # Create debug last build file for reproduction
-    local_ws = os.environ.get("LOCAL_WS", "")
+    local_ws = workspace / "ws"
     with open(dbg_last_build_file, "w") as f:
         f.write(f"call {Path(local_ws) / 'install' / 'setup.bat'}\n")
         f.write(f"call {Path(pixi_project_path) / 'hooks.bat'}\n")
         f.write(f"cd {local_ws}\n")
 
-    print(f"""- Build root is {workspace}
-- Build workspace is {local_ws}
-Reproduce the call to the last build:
-  - Only reusing pixi environment:
-    - run '{script_path} {src_directory} --reuse-dependencies-environment'
-  - Preparing pixi and colcon and go to the colcon workspace:
-    - run 'call {dbg_last_build_file}'""")
-
+    # Print fancy and colorful message
+    print("\033[1;32m SUCCESS \n\033[0m")
+    print("  - Build root is", workspace)
+    print("  - Build workspace is", local_ws)
+    print("\033\n [1;34mReproduce the call to the last build:\033[0m")
+    print("  - Only reusing pixi environment:")
+    print(f"    \033[1;36m- run '{script_path} {src_directory} --reuse-dependencies-environment'\033[0m")
+    print("  - Preparing pixi and colcon and go to the colcon workspace:")
+    print(f"    \033[1;36m- run 'call {dbg_last_build_file}'\033[0m")
 
 if __name__ == "__main__":
     main()
