@@ -48,8 +48,7 @@ if not exist %WORKSPACE%\%VCS_DIRECTORY% (
 set DXDIAG_FILE=%WORKSPACE%\dxdiag.txt
 if "%GPU_SUPPORT_NEEDED%" == "true" (
   echo # BEGIN SECTION: dxdiag info
-  set DXDIAG_FILE=%WORKSPACE%\dxdiag.txt
-  dxdiag /t %DXDIAG_FILE%%
+  dxdiag /t %DXDIAG_FILE%
   :: if errorlevel 1 ( dxdiag \t !DXDIAG_FILE!)
   type %DXDIAG_FILE%
   echo Checking for correct NVIDIA GPU support %DXDIAG_FILE%
