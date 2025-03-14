@@ -30,22 +30,6 @@ set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS_SRC%\%VCS_DIRECTORY%
 @if "%COLCON_AUTO_MAJOR_VERSION%" == "" set COLCON_AUTO_MAJOR_VERSION=false
 @if "%CONDA_ENV_NAME%" == "" set CONDA_ENV_NAME=legacy
 
-setlocal ENABLEDELAYEDEXPANSION
-if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
-   for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
-   set COLCON_PACKAGE=%COLCON_PACKAGE%!PKG_MAJOR_VERSION!
-   echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
-)
-
-setlocal ENABLEDELAYEDEXPANSION
-if not defined GAZEBODISTRO_FILE (
-  for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
-  if errorlevel 1 exit 1
-  set GAZEBODISTRO_FILE=%VCS_DIRECTORY%!PKG_MAJOR_VERSION!.yaml
-) else (
-  echo Using user defined GAZEBODISTRO_FILE: %GAZEBODISTRO_FILE%
-)
-
 :: safety checks
 if not defined VCS_DIRECTORY (
   echo # BEGIN SECTION: ERROR: VCS_DIRECTORY is not set
@@ -121,6 +105,22 @@ if not defined KEEP_WORKSPACE (
 mkdir %LOCAL_WS%
 mkdir %LOCAL_WS_SRC%
 echo # END SECTION
+
+setlocal ENABLEDELAYEDEXPANSION
+if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
+   for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
+   set COLCON_PACKAGE=%COLCON_PACKAGE%!PKG_MAJOR_VERSION!
+   echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
+)
+
+setlocal ENABLEDELAYEDEXPANSION
+if not defined GAZEBODISTRO_FILE (
+  for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
+  if errorlevel 1 exit 1
+  set GAZEBODISTRO_FILE=%VCS_DIRECTORY%!PKG_MAJOR_VERSION!.yaml
+) else (
+  echo Using user defined GAZEBODISTRO_FILE: %GAZEBODISTRO_FILE%
+)
 
 echo # BEGIN SECTION: get open robotics deps (%GAZEBODISTRO_FILE%) sources into the workspace
 call %win_lib% :get_source_from_gazebodistro %GAZEBODISTRO_FILE% %LOCAL_WS_SRC% || goto :error
