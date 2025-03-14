@@ -60,12 +60,7 @@ def main():
     if not Path(src_directory).exists():
         print(f"Sources {src_directory} does not exist", file=sys.stderr)
         sys.exit(1)
-    
-    # Check that Visual Studio environment is set
-    # if "VSCMD_ARG_TGT_ARCH" not in os.environ:
-    #    print("Visual Studio environment not set. Please run vcvarsall.bat", file=sys.stderr)
-    #    sys.exit(1)
-    
+      
     # Set additional environment variables
     os.environ["KEEP_WORKSPACE"] = "1"  # Help with debugging and re-run compilation only
     
