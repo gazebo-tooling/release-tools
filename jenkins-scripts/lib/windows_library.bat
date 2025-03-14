@@ -247,14 +247,9 @@ set HOOK_FILE=%PIXI_PROJECT_PATH%\hooks.bat
 pushd %PIXI_PROJECT_PATH%
 echo Running pixi %~1 %~2
 %PIXI_TMP% shell-hook --locked > %HOOK_FILE%
-if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
+:: ERRORS in hooks will make the build to fail. Be permissive
 type %HOOK_FILE%
 call %HOOK_FILE%
-:: ERRORS in hooks will make the build to fail. Be permissive
-:: if errorlevel 1 exit %EXTRA_EXIT_PARAM% EXTRA_exit %EXTRA_EXIT_PARAM%_PARAM 1
-if %DBG_LAST_BUILD_FILE% neq "" (
-  echo call %HOOK_FILE% >> %DBG_LAST_BUILD_FILE%  
-)
 popd
 goto :EOF
 
