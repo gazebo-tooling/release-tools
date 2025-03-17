@@ -12,8 +12,9 @@ The `local_build.py` script is used to reproduce Jenkins builds for Windows, spe
 
 To run the script, use the following command:
 
-``bat
+```bat
 python3 local_build.py <jenkins-bat-script> <gz-sources> [--reuse-dependencies-environment] [-j <make_jobs>]
+```
 
 ### Arguments
 
