@@ -747,7 +747,7 @@ def create_pr_for_vendor_package(args, repo_path, base_branch) -> str:
     if not _out.decode():
         return 'vendor tool did not produce any change, avoid the PR'
 
-    branch_name = f'releasepy/{args.version}'
+    branch_name = f'releasepy/{base_branch}/{args.version}'
     vendor_repo = get_vendor_repo_url(args.package)
     branch_cmd = ['git', "-C", repo_path,
                   'checkout', '-b',  branch_name]
@@ -801,6 +801,9 @@ def create_pr_in_gz_vendor_repo(args, ros_distro) -> str:
 
 
 def process_ros_vendor_package(args):
+    # Only create ros vendor updates for stable releases
+    if PRERELEASE or NIGHTLY:
+        return
     print("ROS vendor packages that can be updated:")
     if  args.package.replace('gz-','') in ROS_VENDOR:
         print(" - There are no gz metapackages in ROS")
@@ -954,6 +957,7 @@ def go(argv):
                            args.auth_input_arg)
         display_help_job_chain_for_source_calls(args)
         # Process the possible update of an associated ROS vendor package
+        # for stable releases only
         process_ros_vendor_package(args)
 
 

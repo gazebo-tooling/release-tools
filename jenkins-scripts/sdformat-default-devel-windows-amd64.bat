@@ -17,5 +17,6 @@ if %SDFORMAT_MAJOR_VERSION% GEQ 10 (
 ) else if %SDFORMAT_MAJOR_VERSION% GEQ 6 (
   call "%SCRIPT_DIR%/lib/generic-default-devel-windows.bat"
 ) else (
-  call "%SCRIPT_DIR%/lib/sdformat-base-windows.bat"
+  echo "Ancient version of sdformat is not supported %SDFORMAT_MAJOR_VERSION%"
+  exit 1
 )
