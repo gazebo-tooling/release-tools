@@ -32,8 +32,7 @@ jobs:
          done
          ALL_TOML_FILES=${ALL_TOML_FILES# }
          echo "All TOML files: ${ALL_TOML_FILES}"
-         JSON_ALL_TOML="{ \"toml_file\": $(echo [\"$(sed 's/ /","/g' <<< ${ALL_TOML_FILES})\"])}"
-         echo "${JSON_ALL_TOML}" >> $GITHUB_OUTPUT
+         echo "${ALL_TOML_FILES}" >> $GITHUB_OUTPUT
   pixi_builder:
     name: Pixi builder
     needs: detection
