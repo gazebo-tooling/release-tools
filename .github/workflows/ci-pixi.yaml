@@ -24,8 +24,9 @@ jobs:
           ALL_CHANGED_FILES=$(git diff --name-only $FORK_POINT $LATEST_COMMIT_IN_PR)
         else
           ALL_CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
-        fi
-        echo "files=$CHANGED_FILES" >> $GITHUB_OUTPUT        
+        fi        
+        echo $ALL_CHANGED_FILES
+        echo "files=$ALL_CHANGED_FILES" >> $GITHUB_OUTPUT
     - name: List all changed files
       id: changed-toml-files
       env:
