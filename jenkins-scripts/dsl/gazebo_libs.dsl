@@ -485,7 +485,7 @@ branch_index.each { lib_name, distro_configs ->
         OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_old_job,
                                             "gazebosim/${lib_name}",
                                             DISABLE_TESTING,
-                                            branch_names,
+                                            GITHUB_SUPPORT_ALL_BRANCHES,
                                             ENABLE_GITHUB_PR_INTEGRATION,
                                             DISABLE_CMAKE_WARNS)
         gz_win_ci_any_old_job.with
