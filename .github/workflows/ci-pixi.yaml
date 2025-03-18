@@ -15,10 +15,19 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Get changed files
+    - name: Detect changed files
+      shell: bash
       id: changed-files
-      run: |      
-        echo "ALL_CHANGED_FILES=$(git diff --name-only ${{ github.sha }}... | tr '\n' ' ')" >> $GITHUB_ENV
+      run: |
+        if [ "${{ github.base_ref }}" != "" ]; then
+          git fetch origin ${{ github.base_ref }} ${{ github.event.pull_request.head.ref }}
+          FORK_POINT=$(git show-branch --merge-base "origin/${{ github.base_ref }}" "origin/${{ github.event.pull_request.head.ref }}")
+          LATEST_COMMIT_IN_PR=${{ github.event.pull_request.head.sha }}
+          ALL_CHANGED_FILES=$(git diff --name-only $FORK_POINT $LATEST_COMMIT_IN_PR)
+        else
+          ALL_CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
+        fi
+        echo "files=$CHANGED_FILES" >> $GITHUB_OUTPUT        
     - name: List all changed files
       id: changed-toml-files
       env:
