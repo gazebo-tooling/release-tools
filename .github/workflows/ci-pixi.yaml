@@ -2,8 +2,6 @@ name: Conda env testing
 
 on:
   push:
-    paths:
-      - 'conda/envs/**'
 
 jobs:
   detection:
