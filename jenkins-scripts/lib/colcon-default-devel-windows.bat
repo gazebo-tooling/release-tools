@@ -147,7 +147,7 @@ colcon list --names-only | find "!COLCON_PACKAGE!" > nul 2>&1
 if errorlevel 1 (
   echo # END SECTION
   echo # BEGIN SECTION: try package name !COLCON_PACKAGE_ORIGINAL! without major version
-  set COLCON_PACKAGE=!COLCON_PACKAGE_ORIGINAL! > nul 2>&1
+  set COLCON_PACKAGE=!COLCON_PACKAGE_ORIGINAL!
 )
 colcon list --names-only | find "!COLCON_PACKAGE!"
 if errorlevel 1 (
