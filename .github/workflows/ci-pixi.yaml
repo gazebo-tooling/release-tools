@@ -17,14 +17,13 @@ jobs:
       shell: bash
       id: changed-files
       run: |
-        if [ "${{ github.base_ref }}" != "" ]; then
-          git fetch origin ${{ github.base_ref }} ${{ github.event.pull_request.head.ref }}
-          FORK_POINT=$(git show-branch --merge-base "origin/${{ github.base_ref }}" "origin/${{ github.event.pull_request.head.ref }}")
-          LATEST_COMMIT_IN_PR=${{ github.event.pull_request.head.sha }}
-          ALL_CHANGED_FILES=$(git diff --name-only $FORK_POINT $LATEST_COMMIT_IN_PR)
+        if [ "${{ github.event.pull_request.base.sha }}" != "" ]; then
+          # Pull request
+          ALL_CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
         else
-          ALL_CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
-        fi        
+          # Not a pull request
+          ALL_CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+        fi
         echo $ALL_CHANGED_FILES
         echo "files=$ALL_CHANGED_FILES" >> $GITHUB_OUTPUT
     - name: List all changed files
