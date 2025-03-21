@@ -1,6 +1,7 @@
 name: Conda env testing
 
 on:
+  pull_request:
   push:
 
 jobs:
@@ -17,9 +18,9 @@ jobs:
       shell: bash
       id: changed-files
       run: |
-        if [ "${{ github.base_ref}}" != "" ]; then
+        if [ "${{ github.event.pull_request.head.sha }}" != "" ]; then
           # Pull request
-          ALL_CHANGED_FILES=$(git diff --name-only ${{ github.base_ref }} ${{ github.sha }})
+          ALL_CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.head.sha }} ${{ github.sha }})
         else
           # Not a pull request
           ALL_CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
