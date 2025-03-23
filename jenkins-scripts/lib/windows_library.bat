@@ -242,13 +242,14 @@ goto :EOF
 :: instead use the hook and execute them in the current shell
 set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
+set HOOK_FILE=%PIXI_PROJECT_PATH%\hooks.bat
 
 pushd %PIXI_PROJECT_PATH%
-call %win_lib% :pixi_cmd shell-hook --locked > hooks.bat
-type hooks.bat
-call hooks.bat
+echo Running pixi %~1 %~2
+%PIXI_TMP% shell-hook --locked > %HOOK_FILE%
 :: ERRORS in hooks will make the build to fail. Be permissive
-:: if errorlevel 1 exit %EXTRA_EXIT_PARAM% EXTRA_exit %EXTRA_EXIT_PARAM%_PARAM 1
+type %HOOK_FILE%
+call %HOOK_FILE%
 popd
 goto :EOF
 
