@@ -1,8 +1,9 @@
 name: Conda env testing
 
 on:
+  # Code only works on pull_request events
+  # support push to work on pull_request is not trivial
   pull_request:
-  push:
 
 jobs:
   detection:
@@ -18,13 +19,8 @@ jobs:
       shell: bash
       id: changed-files
       run: |
-        if [ "${{ github.event.pull_request }}" != "" ]; then
-          # Pull request
-          ALL_CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | tr '\n' ' ')
-        else
-          # Not a pull request
-              ALL_CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | tr '\n' ' ')
-        fi
+        # Only works on pull_request events
+        ALL_CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | tr '\n' ' ')
         echo "Detected changed files: $ALL_CHANGED_FILES"
         echo "all_changed_files=$ALL_CHANGED_FILES" >> $GITHUB_OUTPUT
     - name: List all changed files
