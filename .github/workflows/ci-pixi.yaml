@@ -34,6 +34,11 @@ jobs:
             ALL_TOML_FILES="$ALL_TOML_FILES $file"
           fi
         done
+        if [[ -z $ALL_TOML_FILES ]]; then
+          echo "No TOML files changed"
+          echo "toml_file=[]" >> $GITHUB_OUTPUT
+          exit 0
+        fi
         ALL_TOML_FILES=${ALL_TOML_FILES# }
         echo "All TOML files: ${ALL_TOML_FILES}"
         JSON_ALL_TOML="{ \"toml_file\": $(echo [\"$(sed 's/ /","/g' <<< ${ALL_TOML_FILES})\"])}"
@@ -42,6 +47,7 @@ jobs:
     name: Pixi builder
     needs: detection
     runs-on: ubuntu-latest
+    if: ${{ needs.detection.outputs.toml_file != '[]' }}
     strategy:
       matrix: ${{ fromJSON(needs.detection.outputs.toml_file) }}
     steps:
