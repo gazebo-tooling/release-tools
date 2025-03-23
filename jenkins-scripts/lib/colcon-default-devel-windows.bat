@@ -47,18 +47,20 @@ if not exist %WORKSPACE%\%VCS_DIRECTORY% (
 
 set DXDIAG_FILE=%WORKSPACE%\dxdiag.txt
 if "%GPU_SUPPORT_NEEDED%" == "true" (
-  echo # BEGIN SECTION: dxdiag info
-  dxdiag /t %DXDIAG_FILE%
-  :: found that locally this works in Win11
-  if errorlevel 1 ( dxdiag \t %DXDIAG_FILE%)
-  type %DXDIAG_FILE%
-  echo Checking for correct NVIDIA GPU support %DXDIAG_FILE%
-  findstr /C:"Manufacturer: NVIDIA" %DXDIAG_FILE%
-  if errorlevel 1 (
-    echo ERROR: NVIDIA GPU not found in dxdiag
-    goto :error
+  if not defined SKIP_DXDIAG_TEST (
+    echo # BEGIN SECTION: dxdiag info
+    dxdiag /t %DXDIAG_FILE%
+    :: found that locally this works in Win11
+    if errorlevel 1 ( dxdiag \t %DXDIAG_FILE%)
+    type %DXDIAG_FILE%
+    echo Checking for correct NVIDIA GPU support %DXDIAG_FILE%
+    findstr /C:"Manufacturer: NVIDIA" %DXDIAG_FILE%
+    if errorlevel 1 (
+      echo ERROR: NVIDIA GPU not found in dxdiag
+      goto :error
+    )
+    echo # END SECTION
   )
-  echo # END SECTION
 )
 
 if not defined REUSE_PIXI_INSTALLATION (
