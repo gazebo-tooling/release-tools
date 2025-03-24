@@ -38,9 +38,15 @@ class OSRFBase
           }
         }
 
-        // Create the naginator retry tag
+        // Create the naginator retry tags
         HelperRetryFailures.create(job, [
           regexpForRerun: "java.nio.channels.ClosedChannelException",
+          checkRegexp: true,
+          maxSchedule: 1
+        ])
+
+        HelperRetryFailures.create(job, [
+          regexpForRerun: "Error: Another `brew update` process is already running.",
           checkRegexp: true,
           maxSchedule: 1
         ])
