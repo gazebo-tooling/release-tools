@@ -102,6 +102,14 @@ if [[ -n ${avoid_infinite_build_archive} ]]; then
   exit 1
 fi
 
+avoid_infinite_build_archive_no_setup=$(grep -L '<numToKeep>' -- *.xml || true)
+if [[ -n ${avoid_infinite_build_archive_no_setup} ]]; then
+  echo "Found a job setup to keep infinite number of builds. This is BAD"
+  echo "${avoid_infinite_build_archive_no_setup}"
+  exit 1
+fi
+
+
 check_tag_without_platforms()
 {
   tag=${1}

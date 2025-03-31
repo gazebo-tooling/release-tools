@@ -7,6 +7,7 @@ import javaposse.jobdsl.dsl.Job
 
   Implements:
      - description
+     - keep only 75 builds
      - RTOOLS parame + groovy to set jobDescription
      - base mail for Failures and Unstables
 */
@@ -20,6 +21,10 @@ class OSRFBase
      job.with
      {
      	description 'Automatic generated job by DSL jenkins. Please do not edit manually'
+
+        logRotator {
+          numToKeep(75)
+        }
 
         parameters {
           stringParam('RTOOLS_BRANCH','master','release-tool branch to use')
