@@ -1,0 +1,58 @@
+[project]
+name = "gazebo"
+version = "0.1.0"
+description = "Pixi configuration to replicate existing Windows build environment in Gazebo"
+authors = ["Jose Luis Rivero <jrivero@openrobotics.com>"]
+channels = ["conda-forge"]
+platforms = ["linux-64", "linux-aarch64", "win-64"]
+
+[dependencies]
+assimp = "*"
+bullet-cpp = "3.25"  # compatible with dart
+cppzmq = "*"
+curl = "*"
+dartsim = "6.13.2.*"
+eigen = "3.4.0"
+ffmpeg = "*"
+freeimage = "*"
+gdal = "3.8.0"  # compatible with dartsim on icu versions
+gflags = "*"
+glib = "*"
+gts = "*"
+jsoncpp = "*"
+libprotobuf = "*"
+libsqlite = "*"
+libzip = "*"
+ogre = "1.10.12.1.*"
+ogre-next = "2.3.*"
+openssl = "*"
+protobuf = "3.14.0.*"  # closest with py3.9 ABI to jammy 3.12
+pybind11 = "*"
+python = "3.9.*"
+qt-main = "5.15.8"  # closets compatible with cmake using krb versions
+qwt = "*"
+ruby = "3.2.*"
+tinyxml2 = "*"
+yaml = "*"
+zeromq = "4.3.4"
+libwebsockets = ">=4.3.3,<5"
+
+[target.win-64.dependencies]
+dlfcn-win32 = "*"
+vs2019_win-64 = "*"
+
+[target.linux.dependencies]
+libegl-devel = "*"
+libgl-devel = "*"
+libglu = "*"
+libglvnd-devel = "*"
+
+[target.linux-64.dependencies]
+libwebsockets = "*"
+vulkan-headers = "*"
+
+[build-dependencies]
+cmake = "3.28.3.*"
+colcon-common-extensions = "*"
+pkg-config = "*"
+vcstool = "*"
