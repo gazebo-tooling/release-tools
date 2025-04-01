@@ -8,11 +8,11 @@ platforms = ["linux-64", "linux-aarch64", "win-64"]
 
 [dependencies]
 assimp = "*"
-bullet-cpp = "3.25"  # compatible with dart
+bullet-cpp = "3.25.*"  # compatible with dart, good for noble
 cppzmq = "*"
 curl = "*"
-dartsim = "6.13.2.*"
-eigen = "3.4.0"
+dartsim = "6.13.2.*" # good for noble
+eigen = "3.4.0.*"  # good for noble
 ffmpeg = "*"
 freeimage = "*"
 gdal = "3.8.0"  # compatible with dartsim on icu versions
@@ -26,20 +26,19 @@ libzip = "*"
 ogre = "1.10.12.1.*"
 ogre-next = "2.3.*"
 openssl = "*"
-protobuf = "3.14.0.*"  # closest with py3.9 ABI to jammy 3.12
+protobuf = "*"
 pybind11 = "*"
-python = "3.9.*"
-qt-main = "5.15.8"  # closets compatible with cmake using krb versions
+python = ">=3.12"
+qt6-main = "*"
 qwt = "*"
-ruby = "3.2.*"
+ruby = "*"
 tinyxml2 = "*"
 yaml = "*"
-zeromq = "4.3.4"
-libwebsockets = ">=4.3.3,<5"
+zeromq = "4.3.4.*"  # good for noble
+libwebsockets = ">=4.3.3,<5"  # good for noble
 
 [target.win-64.dependencies]
 dlfcn-win32 = "*"
-vs2019_win-64 = "*"
 
 [target.linux.dependencies]
 libegl-devel = "*"
@@ -52,7 +51,7 @@ libwebsockets = "*"
 vulkan-headers = "*"
 
 [build-dependencies]
-cmake = "3.28.3.*"
+cmake = "3.28.3.*"  # good on noble
 colcon-common-extensions = "*"
 pkg-config = "*"
 vcstool = "*"
