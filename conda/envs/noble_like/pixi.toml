@@ -1,7 +1,7 @@
 [project]
 name = "gazebo"
 version = "0.1.0"
-description = "Pixi configuration to replicate existing Windows build environment in Gazebo"
+description = "Pixi configuration to run Gazebo Jetty. Similar versions than Ubuntu Noble."
 authors = ["Jose Luis Rivero <jrivero@openrobotics.com>"]
 channels = ["conda-forge"]
 platforms = ["linux-64", "linux-aarch64", "win-64"]
@@ -15,7 +15,7 @@ dartsim = "6.13.2.*" # good for noble
 eigen = "3.4.0.*"  # good for noble
 ffmpeg = "*"
 freeimage = "*"
-gdal = "3.8.0"  # compatible with dartsim on icu versions
+gdal = "3.8.0"
 gflags = "*"
 glib = "*"
 gts = "*"
@@ -28,7 +28,7 @@ ogre-next = "2.3.*"
 openssl = "*"
 protobuf = "*"
 pybind11 = "*"
-python = ">=3.12"
+python = "3.12.*"
 qt6-main = "*"
 qwt = "*"
 ruby = "*"
