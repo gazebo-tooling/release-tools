@@ -36,6 +36,7 @@ tinyxml2 = "*"
 yaml = "*"
 zeromq = "4.3.4"
 libwebsockets = ">=4.3.3,<5"
+qt6-main = ">=6.6.2,<7"
 
 [target.win-64.dependencies]
 dlfcn-win32 = "*"

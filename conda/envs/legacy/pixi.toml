@@ -37,6 +37,7 @@ yaml = "*"
 zeromq = "4.3.4"
 cli11 = "2.1.2.*"
 libwebsockets = ">=4.3.3,<5"
+qt6-main = ">=6.6.2,<7"
 
 [target.win-64.dependencies]
 dlfcn-win32 = "*"
