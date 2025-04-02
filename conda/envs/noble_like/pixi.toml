@@ -2,7 +2,7 @@
 name = "gazebo"
 version = "0.1.0"
 description = "Pixi configuration to run Gazebo Jetty. Similar versions than Ubuntu Noble."
-authors = ["Jose Luis Rivero <jrivero@openrobotics.com>"]
+authors = ["Jose Luis Rivero <jrivero@openrobotics.org>"]
 channels = ["conda-forge"]
 platforms = ["linux-64", "linux-aarch64", "win-64"]
 
