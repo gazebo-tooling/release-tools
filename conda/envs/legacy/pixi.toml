@@ -36,7 +36,6 @@ tinyxml2 = "*"
 yaml = "*"
 zeromq = "4.3.4"
 cli11 = "2.1.2.*"
-libwebsockets = ">=4.3.3,<5"
 
 [target.win-64.dependencies]
 dlfcn-win32 = "*"
@@ -49,7 +48,6 @@ libglu = "*"
 libglvnd-devel = "*"
 
 [target.linux-64.dependencies]
-libwebsockets = "*"
 vulkan-headers = "*"
 
 [build-dependencies]
