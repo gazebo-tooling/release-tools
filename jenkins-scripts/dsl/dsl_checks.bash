@@ -1,4 +1,3 @@
-#!/bin/bash -e
 #
 if [[ -z $(ls -- *.xml) ]]; then
   echo "No .xml file founds. Generate them using:"
@@ -37,8 +36,8 @@ done
 
 # Check conda enviroments links
 for f in $(ls *-c*win.xml); do
-  CONDA_ENV_NAME=$(grep -oP 'CONDA_ENV_NAME=\K.*' $f)
-  if [[ -z ${CONDA_ENV_NAME} ]]; then
+  CONDA_ENV_NAME=$(grep -oP 'CONDA_ENV_NAME=\K.*' $f || true)
+  if [ -z ${CONDA_ENV_NAME} ]; then
     # Could be a valid stub file pass the file
     # to the next check
     continue
