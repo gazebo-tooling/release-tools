@@ -40,6 +40,7 @@ libwebsockets = ">=4.3.3,<5"  # good for noble
 
 [target.win-64.dependencies]
 dlfcn-win32 = "*"
+vs2019_win-64 = ">=19.29.30139,<20"
 
 [target.linux.dependencies]
 libegl-devel = "*"
