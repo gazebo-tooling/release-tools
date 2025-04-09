@@ -492,6 +492,22 @@ branch_index.each { lib_name, distro_configs ->
         {
           description('Stub job: check new -pr-c*win jobs')
         }
+        // TODO(j-rivero): remove the stub clowin jobs for Jetty
+        // generating a job that always return true and do nothing to transition Jetty
+        def gz_win_ci_any_old_jetty_job_name = "${gz_job_name_prefix}-pr-clowin"
+        def gz_win_ci_any_old_jetty_job = job(gz_win_ci_any_old_jetty_job_name)
+        Globals.gazebodistro_branch = true
+        OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_old_jetty_job,
+                                            "gazebosim/${lib_name}",
+                                            DISABLE_TESTING,
+                                            GITHUB_SUPPORT_ALL_BRANCHES,
+                                            ENABLE_GITHUB_PR_INTEGRATION,
+                                            DISABLE_CMAKE_WARNS)
+        gz_win_ci_any_old_jetty_job.with
+        {
+          description('Stub job: check new -pr-c*win jobs')
+        }
+
         Globals.gazebodistro_branch = false
         def gz_win_ci_any_job_name = "${gz_job_name_prefix}-pr-${distro_sort_name}win"
         def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
