@@ -58,6 +58,7 @@ jobs:
       - name: Install dependencies using pixi on ${{ matrix.toml_file }}
         uses: prefix-dev/setup-pixi@ba3bb36eb2066252b2363392b7739741bb777659  # v0.8.1
         with:
+          pixi-version: v0.44.0
           locked: true
           cache: false  # 10Gb limit might be too low for caching
           manifest-path: ${{ matrix.toml_file }}
