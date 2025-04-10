@@ -231,6 +231,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libxcrypt-4.4.36-hd590300_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libxkbcommon-1.7.0-h2c5496b_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.12.7-h4c95cb1_3.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libzenohc-1.3.0-h54076a4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/libzenohcxx-1.3.0-h5888daf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libzip-1.11.2-h6991a6a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libzlib-1.3.1-hb9d3cd8_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/lz4-c-1.9.4-hcb278e6_0.conda
@@ -340,6 +342,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/xz-gpl-tools-5.6.4-hbcc6ac9_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/xz-tools-5.6.4-hb9d3cd8_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/yaml-0.2.5-h7f98852_2.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/zenoh-rust-abi-1.3.0.1.85.0-h8619998_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zeromq-4.3.4-h9c3ff4c_1.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zlib-1.3.1-hb9d3cd8_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb8e6e7a_2.conda
@@ -566,6 +569,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libxcrypt-4.4.36-h31becfc_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libxkbcommon-1.7.0-h46f2afe_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libxml2-2.12.7-hfed6450_3.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libzenohc-1.3.0-h44d816d_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libzenohcxx-1.3.0-h5ad3122_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libzip-1.11.2-h3e8f909_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libzlib-1.3.1-h86ecc28_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/lz4-c-1.9.4-hd600fc2_0.conda
@@ -670,6 +675,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/xz-gpl-tools-5.6.4-h2dbfc1b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/xz-tools-5.6.4-h86ecc28_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/yaml-0.2.5-hf897c2e_2.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/zenoh-rust-abi-1.3.0.1.85.0-h4d6d557_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/zeromq-4.3.4-h01db608_1.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/zlib-1.3.1-h86ecc28_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/zstd-1.5.7-hbcf94c1_2.conda
@@ -823,6 +829,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/libwebsockets-4.3.5-hdf4eb48_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libwinpthread-12.0.0.r4.gg4f2fc60ca-h57928b3_9.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libxml2-2.13.7-he286e8c_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/libzenohc-1.3.0-h1a58a1c_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/libzenohcxx-1.3.0-he0c23c2_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libzip-1.11.2-h3135430_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libzlib-1.3.1-h2466b09_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/lz4-c-1.9.4-hcfcfb64_0.conda
@@ -897,6 +905,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/xz-5.6.4-h208afaa_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/xz-tools-5.6.4-h2466b09_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/yaml-0.2.5-h8ffe710_2.tar.bz2
+      - conda: https://conda.anaconda.org/conda-forge/win-64/zenoh-rust-abi-1.3.0.1.85.0-h1107ac9_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zeromq-4.3.4-h0e60522_1.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/win-64/zlib-1.3.1-h2466b09_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-hbeecb71_2.conda
@@ -7531,6 +7540,74 @@ packages:
   license_family: MIT
   size: 1513490
   timestamp: 1743091551681
+- conda: https://conda.anaconda.org/conda-forge/linux-64/libzenohc-1.3.0-h54076a4_0.conda
+  sha256: 834bb7c43a46f3e6a4a66a1a6f0719da18f7eb81584915969b85f092930d821b
+  md5: 86bd21718fcbca9da5277d9a80c1b9ef
+  depends:
+  - __glibc >=2.17,<3.0.a0
+  - libgcc >=13
+  - libstdcxx >=13
+  - zenoh-rust-abi >=1.3.0.1.85.0,<1.3.0.1.85.1.0a0
+  constrains:
+  - __glibc >=2.17
+  license: Apache-2.0 OR EPL-2.0
+  size: 10242458
+  timestamp: 1742664313266
+- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libzenohc-1.3.0-h44d816d_0.conda
+  sha256: b43b78d64be1f5ca6943d16c4f727bccdc0226d3951fe5b2bdc6aee53ad81cc6
+  md5: 650c00e0c99ed0f3ed2f3e5563317596
+  depends:
+  - libgcc >=13
+  - libstdcxx >=13
+  - zenoh-rust-abi >=1.3.0.1.85.0,<1.3.0.1.85.1.0a0
+  constrains:
+  - __glibc >=2.17
+  license: Apache-2.0 OR EPL-2.0
+  size: 9795712
+  timestamp: 1742664351746
+- conda: https://conda.anaconda.org/conda-forge/win-64/libzenohc-1.3.0-h1a58a1c_0.conda
+  sha256: 4c9258a6802d5141e7fd38d2fc6f84a33d00ab9470f11edcf377de1ef11bc7e0
+  md5: 2cf782eb64900d8cb59c64d947507b55
+  depends:
+  - ucrt >=10.0.20348.0
+  - vc >=14.2,<15
+  - vc14_runtime >=14.29.30139
+  - zenoh-rust-abi >=1.3.0.1.85.0,<1.3.0.1.85.1.0a0
+  license: Apache-2.0 OR EPL-2.0
+  size: 8980986
+  timestamp: 1742665000647
+- conda: https://conda.anaconda.org/conda-forge/linux-64/libzenohcxx-1.3.0-h5888daf_0.conda
+  sha256: 5d0300e93b17bd0318fe6d591abe5c5e23269fcd24e158b5310709b10a921c40
+  md5: 05c273dc6b701ba0b2a8ab44c68e31d1
+  depends:
+  - __glibc >=2.17,<3.0.a0
+  - libgcc >=13
+  - libstdcxx >=13
+  - libzenohc >=1.3.0,<1.3.1.0a0
+  license: Apache-2.0 OR EPL-2.0
+  size: 59783
+  timestamp: 1742685036890
+- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/libzenohcxx-1.3.0-h5ad3122_0.conda
+  sha256: 627e4bbd3146a806d50a2f1a874acdc8ebf05a2802eeae2faa833de812737e73
+  md5: b2226fdb30913205b37ad8d9167cbb0b
+  depends:
+  - libgcc >=13
+  - libstdcxx >=13
+  - libzenohc >=1.3.0,<1.3.1.0a0
+  license: Apache-2.0 OR EPL-2.0
+  size: 60195
+  timestamp: 1742685077209
+- conda: https://conda.anaconda.org/conda-forge/win-64/libzenohcxx-1.3.0-he0c23c2_0.conda
+  sha256: 36d25630c627a0a3fb34c3b15e3bde5f68d8af1e580e6b61408edd65367d1293
+  md5: c8cb752b8f0afa9db1bc2b845616d5a8
+  depends:
+  - libzenohc >=1.3.0,<1.3.1.0a0
+  - ucrt >=10.0.20348.0
+  - vc >=14.2,<15
+  - vc14_runtime >=14.29.30139
+  license: Apache-2.0 OR EPL-2.0
+  size: 60317
+  timestamp: 1742685167475
 - conda: https://conda.anaconda.org/conda-forge/linux-64/libzip-1.11.2-h6991a6a_0.conda
   sha256: 991e7348b0f650d495fb6d8aa9f8c727bdf52dabf5853c0cc671439b160dce48
   md5: a7b27c075c9b7f459f1c022090697cba
@@ -10817,6 +10894,34 @@ packages:
   license_family: MIT
   size: 63274
   timestamp: 1641347623319
+- conda: https://conda.anaconda.org/conda-forge/linux-64/zenoh-rust-abi-1.3.0.1.85.0-h8619998_0.conda
+  sha256: 173b4bdfc4bc1f516f784bf8a7818510a9152239d53daff6c66ee9083a5dc420
+  md5: f332957f0dbaa51f26333a99cb21b29d
+  depends:
+  - __glibc >=2.17,<3.0.a0
+  constrains:
+  - __glibc >=2.17
+  license: Apache-2.0 OR EPL-2.0
+  size: 46156
+  timestamp: 1742654835171
+- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/zenoh-rust-abi-1.3.0.1.85.0-h4d6d557_0.conda
+  sha256: de0801e6eb971d969a457cebd6242149a0851da3bbd9bcd52382d5a0d31ded8d
+  md5: f209d5f7a59c01afe48941bd458bffae
+  constrains:
+  - __glibc >=2.17
+  license: Apache-2.0 OR EPL-2.0
+  size: 46234
+  timestamp: 1742654834476
+- conda: https://conda.anaconda.org/conda-forge/win-64/zenoh-rust-abi-1.3.0.1.85.0-h1107ac9_0.conda
+  sha256: 4b74efdc3f6279a65e6b81dcac76989a0afb1ddd415a205cbbe33d53257f04f8
+  md5: 4b8070499b00147e9797612d32ddfd1e
+  depends:
+  - ucrt >=10.0.20348.0
+  - vc >=14.3,<15
+  - vc14_runtime >=14.42.34438
+  license: Apache-2.0 OR EPL-2.0
+  size: 49502
+  timestamp: 1742654937180
 - conda: https://conda.anaconda.org/conda-forge/linux-64/zeromq-4.3.4-h9c3ff4c_1.tar.bz2
   sha256: 525315b0df21866d4c3d68bc2ff987d26c2fdf0e3e8fd242c49b7255adef04c6
   md5: 21743a8d2ea0c8cfbbf8fe489b0347df
