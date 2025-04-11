@@ -223,18 +223,25 @@ cloneIfNeeded ${TOOLING_ORG} release-tools
 startFromCleanBranch bump_${COLLECTION} master
 
 # This first loop finds out what downstream dependencies also need to be updated
+# Store library name with major version in UNSORTED_PACKAGES
+# Start with empty array
+read -a UNSORTED_PACKAGES <<< ""
 for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   LIB=${LIBRARIES[$i]}
   VER=${VERSIONS[$i]}
   PREV_VER="$((${VER}-1))"
+  LIBVER=${LIB}${VER}
+
+  # Append this library to be bumped to UNSORTED_PACKAGES
+  UNSORTED_PACKAGES+=(${LIBVER})
 
   ##################
   # gazebodistro
   ##################
   cd ${TEMP_DIR}/gazebodistro
 
-  YAML_FILE=${LIB}${VER}.yaml
+  YAML_FILE=${LIBVER}.yaml
   echo -e "${BLUE_BG}Processing [${YAML_FILE}]${DEFAULT_BG}"
 
   if [ ! -f "${YAML_FILE}" ]; then
@@ -279,6 +286,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
         echo -e "${GREEN}Also updating ${UPDATED_LIB}${UPDATED_VER}${DEFAULT}"
         LIBRARIES+=($UPDATED_LIB)
         VERSIONS+=($UPDATED_VER)
+        UNSORTED_PACKAGES+=(${TO_UPDATE})
       fi
     fi
 
@@ -294,12 +302,37 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
 done
 
+# Sort gazebodistro yaml files in topological order
+cd ${TEMP_DIR}/gazebodistro
+SORTED_YAML=$(
+  for p in ${UNSORTED_PACKAGES[@]}; do
+    # Reorder UNSORTED_PACKAGES array in order of gazebodistro yaml file size
+    # This is a heuristic for topological order
+    wc -l $p.yaml
+  done \
+  | sort -n \
+  | uniq \
+  | awk '{ print $2 }'
+)
+
+# Converted file names in SORTED_YAML to matched arrays of library names and version numbers
+echo -e "${GREEN}Sorting in topological order the packages to update:${DEFAULT}"
+read -a SORTED_LIBRARIES <<< ""
+read -a SORTED_VERSIONS <<< ""
+while IFS= read -r package; do
+  LIB=$(basename -s .yaml ${package} | sed -e 's@[0-9]*$@@')
+  VER=$(basename -s .yaml ${package} | sed -e 's@^[^0-9]*@@')
+  SORTED_LIBRARIES+=($LIB)
+  SORTED_VERSIONS+=($VER)
+  echo -e "${GREEN}$LIB version $VER${DEFAULT}"
+done <<< ${SORTED_YAML}
+
 # Clean up changes in gazebodistro, we'll be redoing them below one file at a time
 cd ${TEMP_DIR}/gazebodistro
 git reset --hard
 
 # Add collection to libraries, without version
-LIBRARIES+=(gz-$COLLECTION)
+SORTED_LIBRARIES+=(gz-$COLLECTION)
 
 ##################
 # docs
@@ -307,12 +340,12 @@ LIBRARIES+=(gz-$COLLECTION)
 cd ${TEMP_DIR}/docs
 commitAndPR ${GZ_ORG} ${DOCS_BRANCH}
 
-for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
+for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
 
-  LIB=${LIBRARIES[$i]}
+  LIB=${SORTED_LIBRARIES[$i]}
 
   LIB_=${LIB//-/_} # For fuel_tools
-  VER=${VERSIONS[$i]}
+  VER=${SORTED_VERSIONS[$i]}
   PREV_VER="$((${VER}-1))"
   LIB_UPPER=$(echo ${LIB#"gz-"} | tr a-z A-Z)
   ORG=${GZ_ORG}
@@ -330,10 +363,10 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   cloneIfNeeded ${RELEASE_ORG} ${RELEASE_REPO}
   startFromCleanBranch ${BUMP_BRANCH} main
 
-  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+  for ((j = 0; j < "${#SORTED_LIBRARIES[@]}"; j++)); do
 
-    DEP_LIB=${LIBRARIES[$j]#"gz-"}
-    DEP_VER=${VERSIONS[$j]}
+    DEP_LIB=${SORTED_LIBRARIES[$j]#"gz-"}
+    DEP_VER=${SORTED_VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
     find . -type f -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
@@ -404,11 +437,11 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   # Remove extra blank lines
   cat -s $FORMULA | tee $FORMULA
 
-  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+  for ((j = 0; j < "${#SORTED_LIBRARIES[@]}"; j++)); do
 
-    DEP_LIB=${LIBRARIES[$j]#"gz-"}
+    DEP_LIB=${SORTED_LIBRARIES[$j]#"gz-"}
 
-    DEP_VER=${VERSIONS[$j]}
+    DEP_VER=${SORTED_VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
     sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g" $FORMULA
@@ -430,10 +463,10 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   else
     YAML_FILE=${LIB}${VER}.yaml
   fi
-  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+  for ((j = 0; j < "${#SORTED_LIBRARIES[@]}"; j++)); do
 
-    DEP_LIB=${LIBRARIES[$j]/sdformat/sdf}
-    DEP_VER=${VERSIONS[$j]}
+    DEP_LIB=${SORTED_LIBRARIES[$j]/sdformat/sdf}
+    DEP_VER=${SORTED_VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
     sed -i "s ${DEP_LIB}${DEP_PREV_VER} main g" $YAML_FILE
@@ -467,11 +500,11 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   fi
 
   echo -e "${GREEN}${LIB}: Updating source code${DEFAULT}"
-  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+  for ((j = 0; j < "${#SORTED_LIBRARIES[@]}"; j++)); do
 
-    DEP_LIB=${LIBRARIES[$j]#"gz-"}
+    DEP_LIB=${SORTED_LIBRARIES[$j]#"gz-"}
 
-    DEP_VER=${VERSIONS[$j]}
+    DEP_VER=${SORTED_VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
     # Replace lines like "find_package(gz-cmake2 2.0.0)"
