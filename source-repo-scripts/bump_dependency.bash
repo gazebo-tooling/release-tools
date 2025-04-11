@@ -222,7 +222,7 @@ startFromCleanBranch bump_${COLLECTION} master
 cloneIfNeeded ${TOOLING_ORG} release-tools
 startFromCleanBranch bump_${COLLECTION} master
 
-# This first loop finds out what downstream dependencies also need to be bumped
+# This first loop finds out what downstream dependencies also need to be updated
 for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   LIB=${LIBRARIES[$i]}
@@ -252,36 +252,39 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     fi
   fi
 
-  # Assume all files that have some `main` or `master` branch may be bumped
   PREV_RELEASE_BRANCH=${LIB}${PREV_VER}
   PREV_RELEASE_BRANCH="${PREV_RELEASE_BRANCH/sdformat/sdf}"
-  grep -rl "main\|master" *.yaml | xargs sed -i "s ${PREV_RELEASE_BRANCH} ${MAIN_BRANCH} g"
+  # For any files containing `main` or `master`,
+  # Replace every instance of `PREV_RELEASE_BRANCH` with `main`
+  grep -rl "main\|master" *.yaml | \
+    xargs sed -i "s ${PREV_RELEASE_BRANCH} ${MAIN_BRANCH} g"
 
-  # Add all bumped dependencies to the list to be bumped
-  DIFF=$(git diff --name-only)
+  # Add the names of any modified files to the LIBRARIES and VERSIONS arrays
+  # to ensure those packages receive further processing
+  MODIFIED_FILES=$(git diff --name-only)
 
-  while IFS= read -r TO_BUMP; do
+  while IFS= read -r TO_UPDATE; do
 
-    TO_BUMP=${TO_BUMP%.yaml}
-    if [[ "$TO_BUMP" =~ ^([a-z-]+)([0-9]+) ]]; then
+    TO_UPDATE=${TO_UPDATE%.yaml}
+    if [[ "$TO_UPDATE" =~ ^([a-z-]+)([0-9]+) ]]; then
 
       if [[ ${#BASH_REMATCH[*]} -lt 3 ]]; then
         continue
       fi
 
-      BUMP_LIB=${BASH_REMATCH[1]}
-      BUMP_VER=${BASH_REMATCH[2]}
+      UPDATED_LIB=${BASH_REMATCH[1]}
+      UPDATED_VER=${BASH_REMATCH[2]}
 
-      if [[ ! " ${LIBRARIES[@]} " =~ " ${BUMP_LIB} " ]]; then
-        echo -e "${GREEN}Also bumping ${BUMP_LIB}${BUMP_VER}${DEFAULT}"
-        LIBRARIES+=($BUMP_LIB)
-        VERSIONS+=($BUMP_VER)
+      if [[ ! " ${LIBRARIES[@]} " =~ " ${UPDATED_LIB} " ]]; then
+        echo -e "${GREEN}Also updating ${UPDATED_LIB}${UPDATED_VER}${DEFAULT}"
+        LIBRARIES+=($UPDATED_LIB)
+        VERSIONS+=($UPDATED_VER)
       fi
     fi
 
-  done <<< "$DIFF"
+  done <<< "$MODIFIED_FILES"
 
-  sed -i "s ${LIB}${PREV_VER} main g" collection-${COLLECTION}.yaml
+  sed -i "s ${PREV_RELEASE_BRANCH} main g" collection-${COLLECTION}.yaml
 
   ##################
   # docs
@@ -311,7 +314,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   LIB_=${LIB//-/_} # For fuel_tools
   VER=${VERSIONS[$i]}
   PREV_VER="$((${VER}-1))"
-  LIB_UPPER=`echo ${LIB#"gz-"} | tr a-z A-Z`
+  LIB_UPPER=$(echo ${LIB#"gz-"} | tr a-z A-Z)
   ORG=${GZ_ORG}
   BUMP_BRANCH="ci_matching_branch/bump_${COLLECTION}_${LIB}${VER}"
 
@@ -390,7 +393,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   # version
   PREV_VER_NONNEGATIVE=$([[ "${PREV_VER}" -lt 0 ]] && echo "0" || echo "${PREV_VER}")
   sed -i "/ version /d" $FORMULA
-  sed -i "/^  url.*/a\  version \"${PREV_VER_NONNEGATIVE}.999.999-0-`date +"%Y%m%d"`\"" $FORMULA
+  sed -i "/^  url.*/a\  version \"${PREV_VER_NONNEGATIVE}.999.999-0-$(date +"%Y%m%d")\"" $FORMULA
   # Collection
   if [[ "${LIB}" == "gz-${COLLECTION}" ]]; then
     PREV_COLLECTION_CAPITALIZED="${PREV_COLLECTION^}"
