@@ -110,6 +110,13 @@ if [[ -z "${DISABLE_CCACHE}" ]]; then
 fi
 echo '# END SECTION'
 
+echo "# BEGIN SECTION: Run brew bundle with source defined brewfile"
+SOURCE_DEFINED_BREWFILE="$(find ${WORKSPACE}/${PROJECT_PATH} -iname  'brewfile' | head -n 1)"
+if [[ -n "${SOURCE_DEFINED_BREWFILE}" ]]; then
+  brew bundle --file ${SOURCE_DEFINED_BREWFILE}
+fi
+echo '# END SECTION'
+
 # Step 3. Manually compile and install ${PROJECT}
 echo "# BEGIN SECTION: configure ${PROJECT}"
 cd ${WORKSPACE}/${PROJECT_PATH}
