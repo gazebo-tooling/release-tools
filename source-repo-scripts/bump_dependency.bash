@@ -455,9 +455,15 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   # Check if main branch of that library is the correct version
   PROJECT_NAME="${LIB}${VER}"
   PROJECT="project.*(${PROJECT_NAME}"
+  echo -e "${GREEN}  checking versioned project name ${PROJECT_NAME}${DEFAULT}"
   if ! grep -q ${PROJECT} "CMakeLists.txt"; then
-    echo -e "${RED}Wrong project name on [CMakeLists.txt], looking for [$PROJECT_NAME].${DEFAULT}"
-    exit
+    PROJECT_NAME="${LIB}"
+    PROJECT="project.*(${PROJECT_NAME}[^0-9]"
+    echo -e "${GREEN}  checking unversioned project name ${PROJECT_NAME}${DEFAULT}"
+    if ! grep -q ${PROJECT} "CMakeLists.txt"; then
+      echo -e "${RED}Wrong project name on [CMakeLists.txt], looking for [$PROJECT_NAME].${DEFAULT}"
+      exit
+    fi
   fi
 
   echo -e "${GREEN}${LIB}: Updating source code${DEFAULT}"
