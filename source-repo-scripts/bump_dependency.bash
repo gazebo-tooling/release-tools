@@ -63,7 +63,7 @@ if [[ -z "${DOCS_BRANCH}" ]]; then
   DOCS_BRANCH=master
 fi
 
-PR_TEXT="See https://github.com/${TOOLING_ORG}/release-tools/issues/${ISSUE_NUMBER}"
+PR_TEXT="Part of https://github.com/${TOOLING_ORG}/release-tools/issues/${ISSUE_NUMBER}."
 
 set -e
 
@@ -195,16 +195,14 @@ commitAndPR() {
     return
   fi
 
-  local LIB=${CURRENT_BRANCH#bump_${COLLECTION}}
-  local LIB=${LIB#_}
-  local LIB=": ${LIB}"
-
   echo -e "${GREEN_BG}${REPO}: Commit ${REPO} and open PR? (y/n)${DEFAULT_BG}"
   read CONTINUE
   if [ "$CONTINUE" = "y" ]; then
-    git commit -sam"${COMMIT_MSG} ${LIB}"
+    git commit -sam"${COMMIT_MSG}
+
+Bumping ${LIBRARY_INPUT} to ${VERSION_INPUT}"
     git push origin ${CURRENT_BRANCH}
-    gh pr create --title "${COMMIT_MSG} ${LIB}" --body "${PR_TEXT}" --repo ${ORG}/${REPO} --base ${BASE_BRANCH}
+    gh pr create --title "${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${ORG}/${REPO} --base ${BASE_BRANCH}
   fi
 }
 
