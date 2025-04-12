@@ -110,10 +110,12 @@ if [[ -z "${DISABLE_CCACHE}" ]]; then
 fi
 echo '# END SECTION'
 
-echo "# BEGIN SECTION: Run brew bundle with source defined brewfile"
-SOURCE_DEFINED_BREWFILE="$(find ${WORKSPACE}/${PROJECT_PATH} -iname  'brewfile' | head -n 1)"
-if [[ -n "${SOURCE_DEFINED_BREWFILE}" ]]; then
-  brew bundle --file ${SOURCE_DEFINED_BREWFILE}
+echo "# BEGIN SECTION: Run brew bundle with source defined brewfiles"
+SOURCE_DEFINED_BREWFILES="$(find ${WORKSPACE}/${PROJECT_PATH} -type f |  grep -i brewfile | sort)"
+if [[ -n "${SOURCE_DEFINED_BREWFILES}" ]]; then
+  echo ${SOURCE_DEFINED_BREWFILES} | xargs -n1 -I {} brew bundle --file {} --verbose
+else
+  echo "No brewfiles found. Skipping brew bundle install"
 fi
 echo '# END SECTION'
 
