@@ -63,7 +63,6 @@ if [[ -z "${DOCS_BRANCH}" ]]; then
   DOCS_BRANCH=master
 fi
 
-COMMIT_MSG="Bumps in ${COLLECTION}"
 PR_TEXT="See https://github.com/${TOOLING_ORG}/release-tools/issues/${ISSUE_NUMBER}"
 
 set -e
@@ -72,6 +71,15 @@ if [[ $# -lt 5 ]]; then
   echo "./bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number>"
   exit 1
 fi
+
+IFS=';'
+read -a LIBRARIES <<< "${LIBRARY_INPUT}"
+read -a VERSIONS <<< "${VERSION_INPUT}"
+
+SANITIZED_LIB0=$(echo ${LIBRARIES[0]} | tr -cd '[:alnum:]_-')
+
+COMMIT_MSG="Bump ${SANITIZED_LIB0} and others in ${COLLECTION}"
+echo -e "${GREY}${WHITE_BG}${COMMIT_MSG}${DEFAULT_BG}${DEFAULT}"
 
 TEMP_DIR="/tmp/bump_dependency"
 echo -e "${GREEN}Creating directory [${TEMP_DIR}]${DEFAULT}"
@@ -200,27 +208,21 @@ commitAndPR() {
   fi
 }
 
-echo -e "${GREY}${WHITE_BG}Bumps in ${COLLECTION}${DEFAULT_BG}${DEFAULT}"
-
-IFS=';'
-read -a LIBRARIES <<< "${LIBRARY_INPUT}"
-read -a VERSIONS <<< "${VERSION_INPUT}"
-
 # gazebodistro
 cloneIfNeeded ${TOOLING_ORG} gazebodistro
-startFromCleanBranch bump_${COLLECTION} master
+startFromCleanBranch bump_${SANITIZED_LIB0}_in_${COLLECTION} master
 
 # docs
 cloneIfNeeded ${GZ_ORG} docs
-startFromCleanBranch bump_${COLLECTION} ${DOCS_BRANCH}
+startFromCleanBranch bump_${SANITIZED_LIB0}_in_${COLLECTION} ${DOCS_BRANCH}
 
 # homebrew
 cloneIfNeeded ${OSRF_ORG} homebrew-simulation
-startFromCleanBranch bump_${COLLECTION} master
+startFromCleanBranch bump_${SANITIZED_LIB0}_in_${COLLECTION} master
 
 # release-tools
 cloneIfNeeded ${TOOLING_ORG} release-tools
-startFromCleanBranch bump_${COLLECTION} master
+startFromCleanBranch bump_${SANITIZED_LIB0}_in_${COLLECTION} master
 
 # This first loop finds out what downstream dependencies also need to be updated
 # Store library name with major version in UNSORTED_PACKAGES
