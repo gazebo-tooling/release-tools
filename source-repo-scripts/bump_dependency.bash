@@ -406,6 +406,24 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
   echo -e "${GREEN}${LIB}: Updating ${FORMULA}${DEFAULT}"
   URL="https://github.com/${ORG}/${LIB}.git"
 
+  # First remove numbers from package name in specific parts of test block
+  # Replace lines like "find_package(gz-cmake2)"
+  #               with "find_package(gz-cmake)"
+  sed -i "s@\(find_package.*${LIB}\)${PREV_VER}\([^0-9]\)@\1\2@g" $FORMULA
+
+  # Replace lines like "target_link_libraries(test_cmake gz-math8::gz-math8)"
+  #               with "target_link_libraries(test_cmake gz-math::gz-math)"
+  sed -i "s@\(target_link_libraries.*${LIB}\)${PREV_VER}@\1@g" $FORMULA
+  sed -i "s@\(target_link_libraries.*${LIB}\)${PREV_VER}@\1@g" $FORMULA
+
+  # Replace lines like 'system python.opt_libexec/"bin/python", "-c", "import gz.sim10"'
+  #               with 'system python.opt_libexec/"bin/python", "-c", "import gz.sim"'
+  sed -i "s@\(python.*import .*${LIB}\)${PREV_VER}@\1@g" $FORMULA
+
+  # Replace lines like 'system "pkg-config", "gz-gui10", "--cflags"'
+  #               with 'system "pkg-config", "gz-gui", "--cflags"'
+  sed -i "s@\(pkg-config.*${LIB}\)${PREV_VER}@\1@g" $FORMULA
+
   # libN
   sed -i -E "s ((${LIB#"gz-"}))${PREV_VER} \1${VER} g" $FORMULA
   sed -i -E "s ((${LIB_#"gz_"}))${PREV_VER} \1${VER} g" $FORMULA
@@ -445,6 +463,23 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
 
     DEP_VER=${SORTED_VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
+
+    # Replace lines like "find_package(gz-cmake2)"
+    #               with "find_package(gz-cmake)"
+    sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\([^0-9]\)@\1\2@g" $FORMULA
+
+    # Replace lines like "target_link_libraries(test_cmake gz-math8::gz-math8)"
+    #               with "target_link_libraries(test_cmake gz-math::gz-math)"
+    sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g" $FORMULA
+    sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g" $FORMULA
+
+    # Replace lines like 'system python.opt_libexec/"bin/python", "-c", "import gz.sim10"'
+    #               with 'system python.opt_libexec/"bin/python", "-c", "import gz.sim"'
+    sed -i "s@\(python.*import .*${DEP_LIB}\)${DEP_PREV_VER}@\1@g" $FORMULA
+
+    # Replace lines like 'system "pkg-config", "gz-gui10", "--cflags"'
+    #               with 'system "pkg-config", "gz-gui", "--cflags"'
+    sed -i "s@\(pkg-config.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g" $FORMULA
 
     sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g" $FORMULA
   done
@@ -509,9 +544,17 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     DEP_VER=${SORTED_VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
+    # Replace lines like "find_package(gz-cmake2)"
+    #               with "find_package(gz-cmake)"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\([^0-9]\)@\1\2@g"
+
     # Replace lines like "find_package(gz-cmake2 2.0.0)"
-    #               with "find_package(gz-cmake3)"
-    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1${DEP_VER}@g"
+    #               with "find_package(gz-cmake)"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1@g"
+
+    # Replace lines like "find_package(gz-cmake2 2.0.0)"
+    #               with "find_package(gz-cmake)"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1@g"
 
     # Replace lines like "gz_find_package(gz-math6 VERSION 6.5.0)"
     #               with "gz_find_package(gz-math7)"
@@ -520,8 +563,31 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     #               with "gz_find_package(gz-math6 REQUIRED)"
     #               like "gz_find_package(gz-math6 REQUIRED COMPONENTS VERSION 6.10 eigen3)"
     #               with "gz_find_package(gz-math7 REQUIRED COMPONENTS eigen3)"
-    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\(.*\) \+VERSION \+${DEP_PREV_VER}[^ )]*@\1${DEP_VER}\2@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\(.*\) \+VERSION \+${DEP_PREV_VER}[^ )]*@\1\2@g"
 
+    # Replace lines like "target_link_libraries(test_cmake gz-math8::gz-math8)"
+    #               with "target_link_libraries(test_cmake gz-math::gz-math)"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"
+
+    # Remove version number from cmake target names
+    # Replace lines like "gz-transport14::core"
+    #               with "gz-transport::core"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(${DEP_LIB}\)${DEP_PREV_VER}::@\1::@g"
+    # Replace lines like "gz-transport14::gz-transport14"
+    #               with "gz-transport::gz-transport"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(${DEP_LIB}\)${DEP_PREV_VER}\(::${DEP_LIB}\)${DEP_PREV_VER}@\1\2@g"
+
+    # Replace lines like 'from gz.sim10 import *'
+    #               with 'from gz.sim import *'
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(from.*${DEP_LIB}\)${DEP_PREV_VER}\( import\)@\1\2@g"
+    # Replace lines like 'import gz.sim10"
+    #               with 'import gz.sim"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(import.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"
+
+    # Replace lines like "<depend>gz-transport14</depend>"
+    #               with "<depend>gz-transport</depend>"
+    find . -type f -name 'package.xml' -print0 | xargs -0 sed -i "s@\(<depend>.*${DEP_LIB}\)${DEP_PREV_VER}<@\1<@g"
 
     # Rule: *plugin2 -> *plugin3
     # Replace lines like: "find_package(gz-cmake2)"
