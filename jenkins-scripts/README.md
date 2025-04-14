@@ -1,14 +1,24 @@
 # Jenkins scripts
 
-The release-tools repository uses the [DSL Jenkins plugin](https://plugins.jenkins.io/job-dsl/) to allow us to programmatically generate the job configuration (configuration as code).  You can find the different job configs under the [`dsl`](./dsl/) folder. 
+The release-tools repository uses the [DSL Jenkins plugin](https://plugins.jenkins.io/job-dsl/) to allow us to programmatically generate the job configuration (configuration as code).  You can find the different job configs under the [`dsl`](./dsl/) folder.
 
 ## Conda local builder for Windows
+
+### Prerequisites
+
+The installation of Visual Studio 2019 needs to be peformed before using the local builder.
+Same [ROS 2 instructons](https://docs.ros.org/en/jazzy/Installation/Windows-Install-Binary.html#install-visual-studio) are valid here.
+
 
 ### Usage of `local_build.py`
 
 The `local_build.py` script is used to reproduce Jenkins builds for Windows, specifically supporting Pixi builds.
 
 ### Running the script
+
+> [!IMPORTANT]
+> The script needs to be run from a Windows command pront (Batch/DOS). Can not work under powershell or
+> git bash or other shells.
 
 To run the script, use the following command:
 

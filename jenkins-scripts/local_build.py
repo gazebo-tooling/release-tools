@@ -31,15 +31,20 @@ def main():
         help="Number of building threads (default: 8)"
     )
     args = parser.parse_args()
-    
+
     script_path =  Path(script_dir) / Path(args.script)
     src_directory = args.sources
     reuse_dependencies_environment = args.reuse_dependencies_environment
     make_jobs = args.jobs
-    
+
+    # Check if the shell is a DOS Windows shell and not powershell or bash
+    if not os.environ.get('COMSPEC', '').lower().endswith('cmd.exe'):
+        print("This script is designed to be run in a DOS Windows shell (cmd.exe).")
+        sys.exit(1)
+
     # Create temp workspace with random name
     workspace = Path(os.environ["TMP"]) / str(random.randint(0, 1000000))
-    
+
     # Unset variables LOCAL_WS LOCAL_WS_BUILD LOCAL_WS_SOFTWARE_DIR
     for var in ["LOCAL_WS", "LOCAL_WS_BUILD", "LOCAL_WS_SOFTWARE_DIR", "VCS_DIRECTORY", "WORKSPACE"]:
         if var in os.environ:
@@ -55,20 +60,20 @@ def main():
     if not Path(script_path).exists():
         print(f"Script {script_path} does not exist", file=sys.stderr)
         sys.exit(1)
-    
+
     # Check if sources exist
     if not Path(src_directory).exists():
         print(f"Sources {src_directory} does not exist", file=sys.stderr)
         sys.exit(1)
-      
+
     # Set additional environment variables
     os.environ["KEEP_WORKSPACE"] = "1"  # Help with debugging and re-run compilation only
-    
+
     # Create debug last build file path
     dbg_last_build_file = Path(".debug_last_build.bat")
     if dbg_last_build_file.exists():
         dbg_last_build_file.unlink()
-    
+
     # Create workspace and copy files
     workspace.mkdir(exist_ok=True)
     dest_dir = workspace / Path(src_directory).name
@@ -80,17 +85,17 @@ def main():
     else:
         if "REUSE_PIXI_INSTALLATION" in os.environ:
             del os.environ["REUSE_PIXI_INSTALLATION"]
-    
+
     # Run the script
     result = subprocess.run([script_path], shell=True, check=False)
-    
+
     print("\n\033[1;34m Local build finished \033[0m\n")
 
     # Check for errors
     if result.returncode != 0:
         print("\033[1;31m FAILED \n\033[0m")
         sys.exit(1)
-        
+
     # Create debug last build file for reproduction
     local_ws = workspace / "ws"
     with open(dbg_last_build_file, "w") as f:
