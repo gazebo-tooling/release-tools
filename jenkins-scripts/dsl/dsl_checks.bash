@@ -1,4 +1,3 @@
-#!/bin/bash -e
 #
 if [[ -z $(ls -- *.xml) ]]; then
   echo "No .xml file founds. Generate them using:"
@@ -37,14 +36,18 @@ done
 
 # Check conda enviroments links
 for f in $(ls *-c*win.xml); do
-  CONDA_ENV_NAME=$(grep -oP 'CONDA_ENV_NAME=\K.*' $f)
+  CONDA_ENV_NAME=$(grep -oP 'CONDA_ENV_NAME=\K.*' $f || true)
+  if [ -z ${CONDA_ENV_NAME} ]; then
+    # Could be a valid stub file pass the file
+    # to the next check
+    continue
+  fi
   for link in "$(grep -Eh './scripts/conda/envs.*' $f | grep -v '//' | \
            sed 's/%WORKSPACE%/./g' | \
            sed "s/%CONDA_ENV_NAME%/${CONDA_ENV_NAME}/g" |\
            grep -Eh -o './scripts/.*' | awk '{print $1}' | \
            sed 's/"//g' | \
            uniq)"; do
-    echo $link
     if ! test -d "${link}"; then
       echo "${link} conda env not found in the repository in file ${f}"
       exit 1
@@ -99,6 +102,14 @@ avoid_infinite_build_archive=$(grep '<numToKeep>-1</numToKeep>' -- *.xml || true
 if [[ -n ${avoid_infinite_build_archive} ]]; then
   echo "Found a job setup to keep infinite number of builds. This is BAD"
   echo "${avoid_infinite_build_archive}"
+  exit 1
+fi
+
+# <project> is the XML tags for jobs. Views are fine without having a numToKeep
+avoid_infinite_build_archive_no_setup=$(grep -l '<project>' -- *.xml | xargs grep -L '<numToKeep>')
+if [[ -n ${avoid_infinite_build_archive_no_setup} ]]; then
+  echo "Found a job setup to keep infinite number of builds. This is BAD"
+  echo "${avoid_infinite_build_archive_no_setup}"
   exit 1
 fi
 

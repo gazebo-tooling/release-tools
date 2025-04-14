@@ -5,6 +5,7 @@
 #  - GENERIC_ENABLE_TIMING (optional) [default true]
 #  - GENERIC_ENABLE_CPPCHECK (optional) [default true] run cppcheck
 #  - GENERIC_ENABLE_TESTS (optional) [default true] run tests
+#  - ASAN_OPTIONS (optional) extra asan options
 #  - BUILDING_EXTRA_CMAKE_PARAMS (optional) extra cmake params
 #  - BUILDING_EXTRA_MAKETEST_PARAMS (optional) extra "make test ARGS=" params
 #  - BUILD_<lib name> (optional) build dependency from source, for example, BUILD_GZ_MATH
@@ -92,6 +93,7 @@ echo '# END SECTION'
 if $GENERIC_ENABLE_TESTS; then
   echo '# BEGIN SECTION: running tests'
   init_stopwatch TEST
+  export ASAN_OPTIONS=\${ASAN_OPTIONS:+\$ASAN_OPTIONS:}${ASAN_OPTIONS}
   mkdir -p \$HOME
   make test ARGS="-VV ${BUILDING_EXTRA_MAKETEST_PARAMS} --output-junit cmake_junit_output.xml" || true
   if [ -f cmake_junit_output.xml ]; then

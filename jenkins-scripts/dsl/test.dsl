@@ -190,4 +190,8 @@ def test_dummy_job = job("_test_dummy_callable")
 OSRFCredentials.allowOsrfbuildToRunTheBuild(test_dummy_job)
 test_dummy_job.with {
   label Globals.nontest_label("docker")
+
+  logRotator {
+    numToKeep(25)
+  }
 }
