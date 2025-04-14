@@ -181,6 +181,7 @@ commitAndPR() {
   local REPO=${PWD##*/}
   local ORG=$1
   local BASE_BRANCH=$2
+  local COMMIT_MSG_PREFIX=$3
 
   if git diff --exit-code; then
     echo -e "${GREEN}${REPO}: Nothing to commit for ${REPO}.${DEFAULT}"
@@ -198,7 +199,7 @@ commitAndPR() {
   echo -e "${GREEN_BG}${REPO}: Commit ${REPO} and open PR? (y/n)${DEFAULT_BG}"
   read CONTINUE
   if [ "$CONTINUE" = "y" ]; then
-    git commit -sam"${COMMIT_MSG}
+    git commit -sam"${COMMIT_MSG_PREFIX}${COMMIT_MSG}
 
 Bumping ${LIBRARY_INPUT} to ${VERSION_INPUT}"
     git push origin ${CURRENT_BRANCH}
@@ -338,7 +339,7 @@ SORTED_LIBRARIES+=(gz-$COLLECTION)
 # docs
 ##################
 cd ${TEMP_DIR}/docs
-commitAndPR ${GZ_ORG} ${DOCS_BRANCH}
+commitAndPR ${GZ_ORG} ${DOCS_BRANCH} ""
 
 for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
 
@@ -372,7 +373,7 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     find . -type f -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
   done
 
-  commitAndPR ${RELEASE_ORG} main
+  commitAndPR ${RELEASE_ORG} main ""
 
   ##################
   # homebrew
@@ -482,7 +483,7 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g" $FORMULA
   done
 
-  commitAndPR ${OSRF_ORG} master
+  commitAndPR ${OSRF_ORG} master "${LIB}${VER}: "
 
   ##################
   # gazebodistro
@@ -509,7 +510,7 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     sed -i "s ${DEP_LIB}${DEP_PREV_VER} main g" $YAML_FILE
   done
 
-  commitAndPR ${TOOLING_ORG} master
+  commitAndPR ${TOOLING_ORG} master "${LIB}${VER}: "
 
   ##################
   # source code
