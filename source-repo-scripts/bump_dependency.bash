@@ -203,7 +203,7 @@ commitAndPR() {
 
 Bumping ${LIBRARY_INPUT} to ${VERSION_INPUT}"
     git push origin ${CURRENT_BRANCH}
-    gh pr create --title "${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${ORG}/${REPO} --base ${BASE_BRANCH}
+    gh pr create --title "${COMMIT_MSG_PREFIX}${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${ORG}/${REPO} --base ${BASE_BRANCH}
   fi
 }
 
