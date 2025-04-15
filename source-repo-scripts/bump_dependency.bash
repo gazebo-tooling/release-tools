@@ -37,6 +37,9 @@
 
 # TODO: Update gz-collection.yaml on release-tools
 
+# default to false
+DRY_RUN=${DRY_RUN:-false}
+
 DEFAULT="\e[39m"
 DEFAULT_BG="\e[49m"
 
@@ -196,14 +199,19 @@ commitAndPR() {
     return
   fi
 
-  echo -e "${GREEN_BG}${REPO}: Commit ${REPO} and open PR? (y/n)${DEFAULT_BG}"
-  read CONTINUE
-  if [ "$CONTINUE" = "y" ]; then
-    git commit -sam"${COMMIT_MSG_PREFIX}${COMMIT_MSG}
+  if ${DRY_RUN}; then
+    echo -e "${GREEN_BG}${REPO}: dry-run enabled (avoid commit and PR). Press to continue${DEFAULT_BG}"
+    read CONTINUE
+  else
+    echo -e "${GREEN_BG}${REPO}: Commit ${REPO} and open PR? (y/n)${DEFAULT_BG}"
+    read CONTINUE
+    if [ "$CONTINUE" = "y" ]; then
+      git commit -sam"${COMMIT_MSG_PREFIX}${COMMIT_MSG}
 
 Bumping ${LIBRARY_INPUT} to ${VERSION_INPUT}"
-    git push origin ${CURRENT_BRANCH}
-    gh pr create --title "${COMMIT_MSG_PREFIX}${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${ORG}/${REPO} --base ${BASE_BRANCH}
+      git push origin ${CURRENT_BRANCH}
+      gh pr create --title "${COMMIT_MSG_PREFIX}${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${ORG}/${REPO} --base ${BASE_BRANCH}
+    fi
   fi
 }
 
