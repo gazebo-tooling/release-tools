@@ -102,9 +102,9 @@ void generate_ciconfigs_by_lib(config, pkgconf_per_src_index)
       def libName = lib.name
       def branch = lib.repo.current_branch
       def pkg_name = lib.name + lib.major_version
-      if (collection.packaging.linux?.ignore_major_version?.contains(libName))
+      if (collection.packaging?.linux?.ignore_major_version?.contains(libName))
         pkg_name = lib.name
-      collection.packaging.configs?.each { config_name ->
+      collection.packaging?.configs?.each { config_name ->
         pkgconf_per_src_index[pkg_name][config_name] = pkgconf_per_src_index[pkg_name][config_name]?: []
         pkgconf_per_src_index[pkg_name][config_name] << [ lib_name: libName, collection: collection.name ]
       }
