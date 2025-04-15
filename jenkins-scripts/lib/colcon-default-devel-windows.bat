@@ -153,10 +153,17 @@ colcon list --names-only | find "!COLCON_PACKAGE!"
 if errorlevel 1 (
   echo # END SECTION
   echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
-  :: REQUIRED for Gazebo Fortress
+  :: REQUIRED for Gazebo Fortress  
+  :: Special case for gz-tools version 1 to endup being ignition-tools
+  if "!COLCON_PACKAGE!" == "gz-tools" (
+    if "!PKG_MAJOR_VERSION!" == "1" (
+      set COLCON_PACKAGE=ignition-tools
+    )
+  ) else (
   set COLCON_PACKAGE=%COLCON_PACKAGE%!PKG_MAJOR_VERSION!
   set COLCON_PACKAGE=!COLCON_PACKAGE:gz=ignition!
   set COLCON_PACKAGE=!COLCON_PACKAGE:sim=gazebo!
+  )
 )
 colcon list --names-only | find "!COLCON_PACKAGE!" > nul 2>&1
 if errorlevel 1 (
