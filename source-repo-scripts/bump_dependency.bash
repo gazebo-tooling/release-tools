@@ -71,7 +71,7 @@ PR_TEXT="Part of https://github.com/${TOOLING_ORG}/release-tools/issues/${ISSUE_
 set -e
 
 if [[ $# -lt 5 ]]; then
-  echo "./bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number>"
+  echo "./bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number> <prev-collection>"
   exit 1
 fi
 
@@ -264,6 +264,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     MAIN_BRANCH=master
     if ! grep -q $MAIN_BRANCH "${YAML_FILE}"; then
       echo -e "${RED}No main or master branch found on ${YAML_FILE}.${DEFAULT}"
+      echo -e "${RED}This means that ${LIB} was probably already bumped from ${LIBVER}"
       exit
     fi
   fi
