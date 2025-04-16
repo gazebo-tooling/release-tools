@@ -623,11 +623,13 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
   startFromCleanBranch ${BUMP_BRANCH} master
 
   # Build nightlies from main
-  # TODO: update jenkins/dsl/gz-collections.yaml
   LIB_SHORT=${LIB/sdformat/sdf}
   DSL_FILE="jenkins-scripts/dsl/ignition_collection.dsl"
   sed -i "s/\(debbuild.*\)${LIB}${PREV_VER}\(.*\)${LIB_SHORT}${PREV_VER}/\1${LIB}${VER}\2main/g" $DSL_FILE
 
   commitAndPR ${TOOLING_ORG} master
+
+  # TODO: update jenkins/dsl/gz-collections.yaml
+  echo -e "${BLUE_BG}Remember to update jenkins/dsl/gz-collections.yaml in release-tools${DEFAULT_BG}"
 
 done

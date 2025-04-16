@@ -11,7 +11,8 @@ this repositories (like updated -release repositories info).
 
 ### bump_dependency.bash
 
-> [!IMPORTANT] the script has been migrated to work with non-versioned packages as
+> [!NOTE]
+> The script has been migrated to work with non-versioned packages as
 > described in https://github.com/gazebo-tooling/release-tools/issues/1244
 
 The script will bump the major version of a library for a given collection taking
@@ -19,17 +20,20 @@ care of most of the operations needed through different repositories ***includin
 reverse dependencies of the libraries to update***. Changes will be done in the following
 repositories:
 
- * gazebosim/gz-* repositories: modifying build system code, docs, etc.
- * gazebo-release/gz-*-release repositories: modifying versions to match new version bumps
- * release-tools: update nightlies in ignition_gazebo.dsl
- * docs: bumping lib versions under `$distro/install.md` files from X to X+1
- * homebrew-simulation: creating a new Formula X+1 from the latest version X
- * gazebodistro: update reverse dependencies yaml files to new branches
+* gazebosim/gz-* repositories: modifying build system code, docs, etc.
+* gazebo-release/gz-*-release repositories: modifying versions to match new version bumps
+* release-tools: update nightlies in ignition_gazebo.dsl
+* docs: bumping lib versions under `$distro/install.md` files from X to X+1
+* homebrew-simulation: creating a new Formula X+1 from the latest version X
+* gazebodistro: update reverse dependencies yaml files to new branches
+
+> [!IMPORTANT]
+> The script does not yet implement the necessary changes to jenkins/dsl/gz-collections.yaml in
+> release-tools, please do them manually.
 
 ### Requisites
 
 Requires the 'gh' CLI to be installed.
-
 
 ```bash
 # A dry-run execution can be done to see how many different commits and pushes will be done
