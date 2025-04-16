@@ -318,17 +318,17 @@ collections:
         repo:
           current_branch: gz-fuel-tools10
       - name: gz-transport
-        major_version: 14
+        major_version: 15
         repo:
-          current_branch: gz-transport14
+          current_branch: main
       - name: gz-gui
         major_version: 10
         repo:
           current_branch: main
       - name: gz-sensors
-        major_version: 9
+        major_version: 10
         repo:
-          current_branch: gz-sensors9
+          current_branch: main
       - name: gz-physics
         major_version: 8
         repo:
