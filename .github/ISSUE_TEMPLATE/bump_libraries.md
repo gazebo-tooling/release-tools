@@ -15,7 +15,7 @@ instead.
 
 This script can be used to do most of the work:
 
-https://github.com/gazebo-tooling/release-tools/blob/master/release-repo-scripts/bump_dependency.bash
+https://github.com/gazebo-tooling/release-tools/blob/master/source-repo-scripts/bump_dependency.bash
 
 For example, the following command was used to open pull requests for 
 https://github.com/gazebo-tooling/release-tools/issues/1292:
