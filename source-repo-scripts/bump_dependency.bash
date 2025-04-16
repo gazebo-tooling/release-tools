@@ -555,14 +555,12 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     # Replace lines like "find_package(gz-cmake2)"
     #               with "find_package(gz-cmake)"
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\([^0-9]\)@\1\2@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_VER}\([^0-9]\)@\1\2@g"
 
     # Replace lines like "find_package(gz-cmake2 2.0.0)"
     #               with "find_package(gz-cmake)"
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1@g"
-
-    # Replace lines like "find_package(gz-cmake2 2.0.0)"
-    #               with "find_package(gz-cmake)"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_VER} \+${DEP_VER}[^ )]*@\1@g"
 
     # Replace lines like "gz_find_package(gz-math6 VERSION 6.5.0)"
     #               with "gz_find_package(gz-math7)"
@@ -577,25 +575,41 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     #               with "target_link_libraries(test_cmake gz-math::gz-math)"
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_VER}@\1@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_VER}@\1@g"
 
     # Remove version number from cmake target names
     # Replace lines like "gz-transport14::core"
     #               with "gz-transport::core"
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(${DEP_LIB}\)${DEP_PREV_VER}::@\1::@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(${DEP_LIB}\)${DEP_VER}::@\1::@g"
     # Replace lines like "gz-transport14::gz-transport14"
     #               with "gz-transport::gz-transport"
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(${DEP_LIB}\)${DEP_PREV_VER}\(::${DEP_LIB}\)${DEP_PREV_VER}@\1\2@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(${DEP_LIB}\)${DEP_VER}\(::${DEP_LIB}\)${DEP_VER}@\1\2@g"
 
     # Replace lines like 'from gz.sim10 import *'
     #               with 'from gz.sim import *'
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(from.*${DEP_LIB}\)${DEP_PREV_VER}\( import\)@\1\2@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(from.*${DEP_LIB}\)${DEP_VER}\( import\)@\1\2@g"
     # Replace lines like 'import gz.sim10"
     #               with 'import gz.sim"
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(import.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(import.*${DEP_LIB}\)${DEP_VER}@\1@g"
+
+    # Replace lines like "project(gz-transport15 VERSION 15.0)
+    #               with "project(gz-transport VERSION 15.0)
+    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(project.*${DEP_LIB}\)${DEP_PREV_VER}\( VERSION\)@\1\2@g"
+    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(project.*${DEP_LIB}\)${DEP_VER}\( VERSION\)@\1\2@g"
 
     # Replace lines like "<depend>gz-transport14</depend>"
     #               with "<depend>gz-transport</depend>"
     find . -type f -name 'package.xml' -print0 | xargs -0 sed -i "s@\(<depend>.*${DEP_LIB}\)${DEP_PREV_VER}<@\1<@g"
+
+    # Replace lines like "<name>gz-transport14</name>"
+    #               with "<name>gz-transport</name>"
+    find . -type f -name 'package.xml' -print0 | xargs -0 sed -i "s@\(<name>.*${DEP_LIB}\)${DEP_PREV_VER}<@\1<@g"
+    find . -type f -name 'package.xml' -print0 | xargs -0 sed -i "s@\(<name>.*${DEP_LIB}\)${DEP_VER}<@\1<@g"
 
     # Rule: *plugin2 -> *plugin3
     # Replace lines like: "find_package(gz-cmake2)"
