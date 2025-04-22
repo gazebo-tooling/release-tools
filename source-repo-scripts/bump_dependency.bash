@@ -424,6 +424,17 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
   sed -i "s@\(target_link_libraries.*${LIB}\)${PREV_VER}@\1@g" $FORMULA
   sed -i "s@\(target_link_libraries.*${LIB}\)${PREV_VER}@\1@g" $FORMULA
 
+  # Remove version number from cmake target names
+  # Replace lines like "gz-transport14::gz-transport14"
+  #               with "gz-transport::gz-transport"
+  sed -i "s@\(${LIB}\)${PREV_VER}\(::${LIB}\)${PREV_VER}@\1\2@g" $FORMULA
+  sed -i "s@\(${LIB}\)${VER}\(::${LIB}\)${VER}@\1\2@g" $FORMULA
+  # Replace lines like "gz-transport14::core"
+  #               with "gz-transport::core"
+  sed -i "s@\(${LIB}\)${PREV_VER}::@\1::@g" $FORMULA
+  sed -i "s@\(${LIB}\)${VER}::@\1::@g" $FORMULA
+
+
   # Replace lines like 'system python.opt_libexec/"bin/python", "-c", "import gz.sim10"'
   #               with 'system python.opt_libexec/"bin/python", "-c", "import gz.sim"'
   sed -i "s@\(python.*import .*${LIB}\)${PREV_VER}@\1@g" $FORMULA
@@ -431,6 +442,10 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
   # Replace lines like 'system "pkg-config", "gz-gui10", "--cflags"'
   #               with 'system "pkg-config", "gz-gui", "--cflags"'
   sed -i "s@\(pkg-config.*${LIB}\)${PREV_VER}@\1@g" $FORMULA
+
+  # Replace lines like '"-lgz-plugin3-loader",
+  #               with '"-lgz-plugin-loader",
+  sed -i "s@\(-l.*${LIB}\)${PREV_VER}@\1@g" $FORMULA
 
   # libN
   sed -i -E "s ((${LIB#"gz-"}))${PREV_VER} \1${VER} g" $FORMULA
@@ -480,6 +495,16 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     #               with "target_link_libraries(test_cmake gz-math::gz-math)"
     sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g" $FORMULA
     sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g" $FORMULA
+
+    # Remove version number from cmake target names
+    # Replace lines like "gz-transport14::gz-transport14"
+    #               with "gz-transport::gz-transport"
+    sed -i "s@\(${DEP_LIB}\)${DEP_PREV_VER}\(::${DEP_LIB}\)${DEP_PREV_VER}@\1\2@g" $FORMULA
+    sed -i "s@\(${DEP_LIB}\)${DEP_VER}\(::${DEP_LIB}\)${DEP_VER}@\1\2@g" $FORMULA
+    # Replace lines like "gz-transport14::core"
+    #               with "gz-transport::core"
+    sed -i "s@\(${DEP_LIB}\)${DEP_PREV_VER}::@\1::@g" $FORMULA
+    sed -i "s@\(${DEP_LIB}\)${DEP_VER}::@\1::@g" $FORMULA
 
     # Replace lines like 'system python.opt_libexec/"bin/python", "-c", "import gz.sim10"'
     #               with 'system python.opt_libexec/"bin/python", "-c", "import gz.sim"'
