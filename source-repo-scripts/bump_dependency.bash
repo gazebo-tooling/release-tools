@@ -437,7 +437,7 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
 
   # Replace lines like 'system python.opt_libexec/"bin/python", "-c", "import gz.sim10"'
   #               with 'system python.opt_libexec/"bin/python", "-c", "import gz.sim"'
-  sed -i "s@\(python.*import .*${LIB}\)${PREV_VER}@\1@g" $FORMULA
+  sed -i "s@\(python.*import .*${LIB#"gz-"}\)${PREV_VER}@\1@g" $FORMULA
 
   # Replace lines like 'system "pkg-config", "gz-gui10", "--cflags"'
   #               with 'system "pkg-config", "gz-gui", "--cflags"'
@@ -577,15 +577,20 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     DEP_VER=${SORTED_VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
+    # Remove version number from cmake find_package calls
+    # Replace lines like "find_package(gz-cmake2"
+    #               with "find_package(gz-cmake"
     # Replace lines like "find_package(gz-cmake2)"
     #               with "find_package(gz-cmake)"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\([^0-9]\)@\1\2@g"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_VER}\([^0-9]\)@\1\2@g"
-
     # Replace lines like "find_package(gz-cmake2 2.0.0)"
     #               with "find_package(gz-cmake)"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1@g"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_VER} \+${DEP_VER}[^ )]*@\1@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' ! -path './.git/*' -print0 | xargs -0 sed -i \
+      -e "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\$@\1@g"                       \
+      -e "s@\(find_package.*${DEP_LIB}\)${DEP_VER}\$@\1@g"                            \
+      -e "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\([^0-9]\)@\1\2@g"             \
+      -e "s@\(find_package.*${DEP_LIB}\)${DEP_VER}\([^0-9]\)@\1\2@g"                  \
+      -e "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1@g" \
+      -e "s@\(find_package.*${DEP_LIB}\)${DEP_VER} \+${DEP_VER}[^ )]*@\1@g"
 
     # Replace lines like "gz_find_package(gz-math6 VERSION 6.5.0)"
     #               with "gz_find_package(gz-math7)"
@@ -594,56 +599,69 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     #               with "gz_find_package(gz-math6 REQUIRED)"
     #               like "gz_find_package(gz-math6 REQUIRED COMPONENTS VERSION 6.10 eigen3)"
     #               with "gz_find_package(gz-math7 REQUIRED COMPONENTS eigen3)"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\(.*\) \+VERSION \+${DEP_PREV_VER}[^ )]*@\1\2@g"
-
-    # Replace lines like "target_link_libraries(test_cmake gz-math8::gz-math8)"
-    #               with "target_link_libraries(test_cmake gz-math::gz-math)"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_VER}@\1@g"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_VER}@\1@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' ! -path './.git/*' -print0 | xargs -0 sed -i \
+      -e "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\(.*\) \+VERSION \+${DEP_PREV_VER}[^ )]*@\1\2@g"
 
     # Remove version number from cmake target names
+    # Replace lines like "target_link_libraries(test_cmake gz-math8::gz-math8)"
+    #               with "target_link_libraries(test_cmake gz-math::gz-math)"
     # Replace lines like "gz-transport14::core"
     #               with "gz-transport::core"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(${DEP_LIB}\)${DEP_PREV_VER}::@\1::@g"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(${DEP_LIB}\)${DEP_VER}::@\1::@g"
     # Replace lines like "gz-transport14::gz-transport14"
     #               with "gz-transport::gz-transport"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(${DEP_LIB}\)${DEP_PREV_VER}\(::${DEP_LIB}\)${DEP_PREV_VER}@\1\2@g"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(${DEP_LIB}\)${DEP_VER}\(::${DEP_LIB}\)${DEP_VER}@\1\2@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' ! -path './.git/*' -print0 | xargs -0 sed -i \
+      -e "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"            \
+      -e "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"            \
+      -e "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_VER}@\1@g"                 \
+      -e "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_VER}@\1@g"                 \
+      -e "s@\(${DEP_LIB}\)${DEP_PREV_VER}::@\1::@g"                               \
+      -e "s@\(${DEP_LIB}\)${DEP_VER}::@\1::@g"                                    \
+      -e "s@\(${DEP_LIB}\)${DEP_PREV_VER}\(::${DEP_LIB}\)${DEP_PREV_VER}@\1\2@g"  \
+      -e "s@\(${DEP_LIB}\)${DEP_VER}\(::${DEP_LIB}\)${DEP_VER}@\1\2@g"
 
+    # Remove version number from python imports
     # Replace lines like 'from gz.sim10 import *'
     #               with 'from gz.sim import *'
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(from.*${DEP_LIB}\)${DEP_PREV_VER}\( import\)@\1\2@g"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(from.*${DEP_LIB}\)${DEP_VER}\( import\)@\1\2@g"
     # Replace lines like 'import gz.sim10"
     #               with 'import gz.sim"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(import.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(import.*${DEP_LIB}\)${DEP_VER}@\1@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' ! -path './.git/*' -print0 | xargs -0 sed -i \
+      -e "s@\(from.*${DEP_LIB}\)${DEP_PREV_VER}\( import\)@\1\2@g"  \
+      -e "s@\(from.*${DEP_LIB}\)${DEP_VER}\( import\)@\1\2@g"       \
+      -e "s@\(import.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"             \
+      -e "s@\(import.*${DEP_LIB}\)${DEP_VER}@\1@g"
 
     # Replace lines like "project(gz-transport15 VERSION 15.0)
     #               with "project(gz-transport VERSION 15.0)
-    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(project.*${DEP_LIB}\)${DEP_PREV_VER}\( VERSION\)@\1\2@g"
-    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(project.*${DEP_LIB}\)${DEP_VER}\( VERSION\)@\1\2@g"
+    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i \
+      -e "s@\(project.*${DEP_LIB}\)${DEP_PREV_VER}\( VERSION\)@\1\2@g" \
+      -e "s@\(project.*${DEP_LIB}\)${DEP_VER}\( VERSION\)@\1\2@g"
+
+    # Delete lines like "set(GZ_MATH_VER ${gz-math8_VERSION_MAJOR})"
+    # Remove references to variables like "${GZ_MATH_VER}"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' ! -path './.git/*' -print0 | xargs -0 sed -i \
+      -e "/set([A-Z_]*_VER \${[a-z_-]*${DEP_LIB}${DEP_PREV_VER}_VERSION_MAJOR})/d"  \
+      -e "/set([A-Z_]*_VER \${[a-z_-]*${DEP_LIB}${DEP_VER}_VERSION_MAJOR})/d"       \
+      -e "s@\${GZ_${DEP_LIB^^}_VER}@@g"
 
     # Replace lines like "<depend>gz-transport14</depend>"
     #               with "<depend>gz-transport</depend>"
-    find . -type f -name 'package.xml' -print0 | xargs -0 sed -i "s@\(<depend>.*${DEP_LIB}\)${DEP_PREV_VER}<@\1<@g"
-
     # Replace lines like "<name>gz-transport14</name>"
     #               with "<name>gz-transport</name>"
-    find . -type f -name 'package.xml' -print0 | xargs -0 sed -i "s@\(<name>.*${DEP_LIB}\)${DEP_PREV_VER}<@\1<@g"
-    find . -type f -name 'package.xml' -print0 | xargs -0 sed -i "s@\(<name>.*${DEP_LIB}\)${DEP_VER}<@\1<@g"
+    find . -type f -name 'package.xml' -print0 | xargs -0 sed -i \
+      -e "s@\(<depend>.*${DEP_LIB}\)${DEP_PREV_VER}<@\1<@g" \
+      -e "s@\(<name>.*${DEP_LIB}\)${DEP_PREV_VER}<@\1<@g"   \
+      -e "s@\(<name>.*${DEP_LIB}\)${DEP_VER}<@\1<@g"
 
     # Rule: *plugin2 -> *plugin3
     # Replace lines like: "find_package(gz-cmake2)"
     #               with: "find_package(gz-cmake3)"
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' ! -path './.git/*' -print0 | xargs -0 sed -i \
+      -e "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
 
     # Second run with _ instead of -, to support multiple variations of fuel-tools
     DEP_LIB=${DEP_LIB//-/_}
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' ! -path './.git/*' -print0 | xargs -0 sed -i \
+      -e "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
   done
 
   commitAndPR ${ORG} main
