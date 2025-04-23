@@ -414,38 +414,40 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
   echo -e "${GREEN}${LIB}: Updating ${FORMULA}${DEFAULT}"
   URL="https://github.com/${ORG}/${LIB}.git"
 
+  # regex for fuel-tools
+  LIBDOT="${LIB//l-/l.}"
   # First remove numbers from package name in specific parts of test block
   # Replace lines like "find_package(gz-cmake2)"
   #               with "find_package(gz-cmake)"
-  sed -i "s@\(find_package.*${LIB}\)${PREV_VER}\([^0-9]\)@\1\2@g" $FORMULA
+  sed -i "s@\(find_package.*${LIBDOT}\)${PREV_VER}\([^0-9]\)@\1\2@g" $FORMULA
 
   # Replace lines like "target_link_libraries(test_cmake gz-math8::gz-math8)"
   #               with "target_link_libraries(test_cmake gz-math::gz-math)"
-  sed -i "s@\(target_link_libraries.*${LIB}\)${PREV_VER}@\1@g" $FORMULA
-  sed -i "s@\(target_link_libraries.*${LIB}\)${PREV_VER}@\1@g" $FORMULA
+  sed -i "s@\(target_link_libraries.*${LIBDOT}\)${PREV_VER}@\1@g" $FORMULA
+  sed -i "s@\(target_link_libraries.*${LIBDOT}\)${PREV_VER}@\1@g" $FORMULA
 
   # Remove version number from cmake target names
   # Replace lines like "gz-transport14::gz-transport14"
   #               with "gz-transport::gz-transport"
-  sed -i "s@\(${LIB}\)${PREV_VER}\(::${LIB}\)${PREV_VER}@\1\2@g" $FORMULA
-  sed -i "s@\(${LIB}\)${VER}\(::${LIB}\)${VER}@\1\2@g" $FORMULA
+  sed -i "s@\(${LIBDOT}\)${PREV_VER}\(::${LIBDOT}\)${PREV_VER}@\1\2@g" $FORMULA
+  sed -i "s@\(${LIBDOT}\)${VER}\(::${LIBDOT}\)${VER}@\1\2@g" $FORMULA
   # Replace lines like "gz-transport14::core"
   #               with "gz-transport::core"
-  sed -i "s@\(${LIB}\)${PREV_VER}::@\1::@g" $FORMULA
-  sed -i "s@\(${LIB}\)${VER}::@\1::@g" $FORMULA
+  sed -i "s@\(${LIBDOT}\)${PREV_VER}::@\1::@g" $FORMULA
+  sed -i "s@\(${LIBDOT}\)${VER}::@\1::@g" $FORMULA
 
 
   # Replace lines like 'system python.opt_libexec/"bin/python", "-c", "import gz.sim10"'
   #               with 'system python.opt_libexec/"bin/python", "-c", "import gz.sim"'
-  sed -i "s@\(python.*import .*${LIB#"gz-"}\)${PREV_VER}@\1@g" $FORMULA
+  sed -i "s@\(python.*import .*${LIBDOT#"gz-"}\)${PREV_VER}@\1@g" $FORMULA
 
   # Replace lines like 'system "pkg-config", "gz-gui10", "--cflags"'
   #               with 'system "pkg-config", "gz-gui", "--cflags"'
-  sed -i "s@\(pkg-config.*${LIB}\)${PREV_VER}@\1@g" $FORMULA
+  sed -i "s@\(pkg-config.*${LIBDOT}\)${PREV_VER}@\1@g" $FORMULA
 
   # Replace lines like '"-lgz-plugin3-loader",
   #               with '"-lgz-plugin-loader",
-  sed -i "s@\(-l.*${LIB}\)${PREV_VER}@\1@g" $FORMULA
+  sed -i "s@\(-l.*${LIBDOT}\)${PREV_VER}@\1@g" $FORMULA
 
   # libN
   sed -i -E "s ((${LIB#"gz-"}))${PREV_VER} \1${VER} g" $FORMULA
@@ -556,7 +558,7 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
   startFromCleanBranch ${BUMP_BRANCH} main
 
   # Check if main branch of that library is the correct version
-  PROJECT_NAME="${LIB}${VER}"
+  PROJECT_NAME="${LIB//-/.}${VER}"
   PROJECT="project.*(${PROJECT_NAME}"
   echo -e "${GREEN}  checking versioned project name ${PROJECT_NAME}${DEFAULT}"
   if ! grep -q ${PROJECT} "CMakeLists.txt"; then
@@ -573,6 +575,8 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
   for ((j = 0; j < "${#SORTED_LIBRARIES[@]}"; j++)); do
 
     DEP_LIB=${SORTED_LIBRARIES[$j]#"gz-"}
+    # Run with . instead of -, to support multiple variations of fuel-tools
+    DEP_LIB=${DEP_LIB//-/.}
 
     DEP_VER=${SORTED_VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
@@ -656,12 +660,7 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     # Replace lines like: "find_package(gz-cmake2)"
     #               with: "find_package(gz-cmake3)"
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' ! -path './.git/*' -print0 | xargs -0 sed -i \
-      -e "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
-
-    # Second run with _ instead of -, to support multiple variations of fuel-tools
-    DEP_LIB=${DEP_LIB//-/_}
-    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' ! -path './.git/*' -print0 | xargs -0 sed -i \
-      -e "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
+      -e "s \(${DEP_LIB}\)${DEP_PREV_VER} \1${DEP_VER} g"
   done
 
   commitAndPR ${ORG} main
