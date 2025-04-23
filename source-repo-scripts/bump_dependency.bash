@@ -441,6 +441,10 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
   #               with 'system python.opt_libexec/"bin/python", "-c", "import gz.sim"'
   sed -i "s@\(python.*import .*${LIBDOT#"gz-"}\)${PREV_VER}@\1@g" $FORMULA
 
+  # Replace lines like '(lib/"#{python_name}/site-packages/gz/msgs11").install_symlink Dir[lib/"python/gz/msgs11/*"]'
+  #               with '(lib/"#{python_name}/site-packages/gz/msgs").install_symlink Dir[lib/"python/gz/msgs/*"]'
+  sed -i "s@\(site-packages/.*${LIBDOT#"gz-"}\)${PREV_VER}\(.*install_symlink.*${LIBDOT#"gz-"}\)${PREV_VER}@\1\2@g" $FORMULA
+
   # Replace lines like 'system "pkg-config", "gz-gui10", "--cflags"'
   #               with 'system "pkg-config", "gz-gui", "--cflags"'
   sed -i "s@\(pkg-config.*${LIBDOT}\)${PREV_VER}@\1@g" $FORMULA
@@ -618,10 +622,10 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
       -e "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"            \
       -e "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_VER}@\1@g"                 \
       -e "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_VER}@\1@g"                 \
+      -e "s@\(${DEP_LIB}\)${DEP_PREV_VER}\(::.*${DEP_LIB}\)${DEP_PREV_VER}@\1\2@g"  \
+      -e "s@\(${DEP_LIB}\)${DEP_VER}\(::.*${DEP_LIB}\)${DEP_VER}@\1\2@g"            \
       -e "s@\(${DEP_LIB}\)${DEP_PREV_VER}::@\1::@g"                               \
-      -e "s@\(${DEP_LIB}\)${DEP_VER}::@\1::@g"                                    \
-      -e "s@\(${DEP_LIB}\)${DEP_PREV_VER}\(::${DEP_LIB}\)${DEP_PREV_VER}@\1\2@g"  \
-      -e "s@\(${DEP_LIB}\)${DEP_VER}\(::${DEP_LIB}\)${DEP_VER}@\1\2@g"
+      -e "s@\(${DEP_LIB}\)${DEP_VER}::@\1::@g"
 
     # Remove version number from python imports
     # Replace lines like 'from gz.sim10 import *'
@@ -629,8 +633,9 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     # Replace lines like 'import gz.sim10"
     #               with 'import gz.sim"
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' ! -path './.git/*' -print0 | xargs -0 sed -i \
-      -e "s@\(from.*${DEP_LIB}\)${DEP_PREV_VER}\( import\)@\1\2@g"  \
-      -e "s@\(from.*${DEP_LIB}\)${DEP_VER}\( import\)@\1\2@g"       \
+      -e "s@\(from.*${DEP_LIB}\)${DEP_PREV_VER}\(.* import\)@\1\2@g"  \
+      -e "s@\(from.*${DEP_LIB}\)${DEP_PREV_VER}\(.* import\)@\1\2@g"  \
+      -e "s@\(from.*${DEP_LIB}\)${DEP_VER}\(.* import\)@\1\2@g"       \
       -e "s@\(import.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"             \
       -e "s@\(import.*${DEP_LIB}\)${DEP_VER}@\1@g"
 
@@ -643,9 +648,16 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     # Delete lines like "set(GZ_MATH_VER ${gz-math8_VERSION_MAJOR})"
     # Remove references to variables like "${GZ_MATH_VER}"
     find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' ! -path './.git/*' -print0 | xargs -0 sed -i \
-      -e "/set([A-Z_]*_VER \${[a-z_-]*${DEP_LIB}${DEP_PREV_VER}_VERSION_MAJOR})/d"  \
-      -e "/set([A-Z_]*_VER \${[a-z_-]*${DEP_LIB}${DEP_VER}_VERSION_MAJOR})/d"       \
+      -e "/set([A-Z_]*_VER \${[a-z_-]*${DEP_LIB}${DEP_PREV_VER}_VERSION_MAJOR}/d"  \
+      -e "/set([A-Z_]*_VER \${[a-z_-]*${DEP_LIB}${DEP_VER}_VERSION_MAJOR}/d"       \
       -e "s@\${GZ_${DEP_LIB^^}_VER}@@g"
+    if [ "${DEP_LIB}" = "sdformat" ]; then
+      # Delete lines like "set(SDF_VER ${sdformat15_VERSION_MAJOR})"
+      # Remove references to variables like "${SDF_VER}"
+      find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' ! -path './.git/*' -print0 | xargs -0 sed -i \
+        -e "/set(SDF_VER \${sdformat[0-9]*_VERSION_MAJOR}/d"  \
+        -e "s@\${SDF_VER}@@g"
+    fi
 
     # Replace lines like "<depend>gz-transport14</depend>"
     #               with "<depend>gz-transport</depend>"
