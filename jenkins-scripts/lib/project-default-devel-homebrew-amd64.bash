@@ -110,8 +110,8 @@ if [[ -z "${DISABLE_CCACHE}" ]]; then
 fi
 echo '# END SECTION'
 
-echo "# BEGIN SECTION: Run brew bundle with source defined brewfiles"
-SOURCE_DEFINED_BREWFILES="$(find ${WORKSPACE}/${PROJECT_PATH} -type f |  grep -i brewfile | sort)"
+echo "# BEGIN SECTION: Run brew bundle with source defined Brewfiles"
+SOURCE_DEFINED_BREWFILES="$(find ${WORKSPACE}/${PROJECT_PATH} -type f |  grep Brewfile | sort)"
 if [[ -n "${SOURCE_DEFINED_BREWFILES}" ]]; then
   echo ${SOURCE_DEFINED_BREWFILES} | xargs -n1 -I {} brew bundle --file {} --verbose
 else
