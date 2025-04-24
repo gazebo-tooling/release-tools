@@ -70,12 +70,26 @@ DELIM_BUILD_DEPS
   fi
 done
 
+if [[ -n ${ROS_DISTRO} ]]; then
+cat >> build.sh << DELIM_ROS_DISTRO_SETUP
+echo '# BEGIN SECTION: sourcing ros setup script'
+if [ -f /opt/ros/${ROS_DISTRO}/setup.sh ]; then
+  echo "sourcing ros ${ROS_DISTRO} setup script"
+  source /opt/ros/${ROS_DISTRO}/setup.bash
+else
+  echo "ros ${ROS_DISTRO} setup script not found"
+fi
+echo '# END SECTION'
+DELIM_ROS_DISTRO_SETUP
+fi
+
 cat >> build.sh << DELIM
 echo '# BEGIN SECTION: configure'
 # Step 2: configure and build
 cd $WORKSPACE
 [[ ! -d $WORKSPACE/build ]] && mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
+
 cmake $WORKSPACE/${SOFTWARE_DIR} ${BUILDING_EXTRA_CMAKE_PARAMS} \
     -DCMAKE_INSTALL_PREFIX=/usr
 echo '# END SECTION'
