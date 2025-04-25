@@ -703,10 +703,13 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
 
     # Replace lines like "<depend>gz-transport14</depend>"
     #               with "<depend>gz-transport</depend>"
+    # Replace lines like "<build_depend>gz-cmake4</depend>"
+    #               with "<build_depend>gz-cmake</depend>"
     # Replace lines like "<name>gz-transport14</name>"
     #               with "<name>gz-transport</name>"
     find . -type f -name 'package.xml' -print0 | xargs -0 sed -i \
-      -e "s@\(<depend>.*${DEP_LIB}\)${DEP_PREV_VER}<@\1<@g" \
+      -e "s@\(<[a-z_]*depend>.*${DEP_LIB}\)${DEP_PREV_VER}<@\1<@g" \
+      -e "s@\(<[a-z_]*depend>.*${DEP_LIB}\)${DEP_VER}<@\1<@g" \
       -e "s@\(<name>.*${DEP_LIB}\)${DEP_PREV_VER}<@\1<@g"   \
       -e "s@\(<name>.*${DEP_LIB}\)${DEP_VER}<@\1<@g"
 
