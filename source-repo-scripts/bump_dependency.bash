@@ -379,7 +379,49 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     DEP_VER=${SORTED_VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
-    find . -type f -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
+    # Remove version number from cmake find_package calls
+    # Replace lines like "find_package(gz-cmake2"
+    #               with "find_package(gz-cmake"
+    # Replace lines like "find_package(gz-cmake2)"
+    #               with "find_package(gz-cmake)"
+    # Replace lines like "find_package(gz-cmake2 2.0.0)"
+    #               with "find_package(gz-cmake)"
+    find . -type f ! -path './.git/*' -print0 | xargs -0 sed -i \
+      -e "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\$@\1@g"                       \
+      -e "s@\(find_package.*${DEP_LIB}\)${DEP_VER}\$@\1@g"                            \
+      -e "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\([^0-9]\)@\1\2@g"             \
+      -e "s@\(find_package.*${DEP_LIB}\)${DEP_VER}\([^0-9]\)@\1\2@g"                  \
+      -e "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1@g" \
+      -e "s@\(find_package.*${DEP_LIB}\)${DEP_VER} \+${DEP_VER}[^ )]*@\1@g"
+
+    # Replace lines like "gz_find_package(gz-math6 VERSION 6.5.0)"
+    #               with "gz_find_package(gz-math7)"
+    # Preserves other args and handles edge cases:
+    #               like "gz_find_package(gz-math6 VERSION 6.5.0 REQUIRED)"
+    #               with "gz_find_package(gz-math6 REQUIRED)"
+    #               like "gz_find_package(gz-math6 REQUIRED COMPONENTS VERSION 6.10 eigen3)"
+    #               with "gz_find_package(gz-math7 REQUIRED COMPONENTS eigen3)"
+    find . -type f ! -path './.git/*' -print0 | xargs -0 sed -i \
+      -e "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\(.*\) \+VERSION \+${DEP_PREV_VER}[^ )]*@\1\2@g"
+
+    # Remove version number from cmake target names
+    # Replace lines like "target_link_libraries(test_cmake gz-math8::gz-math8)"
+    #               with "target_link_libraries(test_cmake gz-math::gz-math)"
+    # Replace lines like "gz-transport14::core"
+    #               with "gz-transport::core"
+    # Replace lines like "gz-transport14::gz-transport14"
+    #               with "gz-transport::gz-transport"
+    find . -type f ! -path './.git/*' -print0 | xargs -0 sed -i \
+      -e "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"            \
+      -e "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"            \
+      -e "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_VER}@\1@g"                 \
+      -e "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_VER}@\1@g"                 \
+      -e "s@\(${DEP_LIB}\)${DEP_PREV_VER}\(::.*${DEP_LIB}\)${DEP_PREV_VER}@\1\2@g"  \
+      -e "s@\(${DEP_LIB}\)${DEP_VER}\(::.*${DEP_LIB}\)${DEP_VER}@\1\2@g"            \
+      -e "s@\(${DEP_LIB}\)${DEP_PREV_VER}::@\1::@g"                               \
+      -e "s@\(${DEP_LIB}\)${DEP_VER}::@\1::@g"
+
+    find . -type f ! -path './.git/*' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
   done
 
   commitAndPR ${RELEASE_ORG} main ""
