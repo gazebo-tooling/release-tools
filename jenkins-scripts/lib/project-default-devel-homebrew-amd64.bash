@@ -111,12 +111,96 @@ fi
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: Run brew bundle with source defined Brewfiles"
-SOURCE_DEFINED_BREWFILES="$(find ${WORKSPACE}/${PROJECT_PATH} -type f |  grep Brewfile | sort)"
+
+# Verify that the input brew bundle command is one of the allowed commands
+# $1 is the brew bundle command string
+# returns the command string if valid, otherwise returns a empty string
+validate_brew_bundle_cmd () {
+  brew_cmd=$1
+  IFS=$' ' valid_brew_commands=("brew tap")
+  if [[ " ${valid_brew_commands[@]} " =~ " ${brew_cmd} " ]]; then
+    echo ${brew_cmd}
+  else
+    echo ""
+  fi
+}
+
+# Verify that the input homebrew repo is in the whitelist
+# $1 is the homebrew repo to check
+# returns the repo string  if valid, otherwise returns a empty string
+validate_brew_bundle_repo() {
+  repo=$1
+  IFS=$'\n' repos=($(cat ${SCRIPT_DIR}/lib/homebrew_repo_whitelist))
+  if [[ " ${repos[@]} " =~ " ${repo} " ]]; then
+    echo ${repo}
+  else
+    echo ""
+  fi
+}
+
+# Verify that the input Brewfile contains only allowed commands and repos in
+# our whitelist
+# $1 is the Brewfile to check
+# returns error message if not valid
+validate_brewfile() {
+  brewfile=$1
+  IFS=$'\n' lines=($(cat $brewfile))
+  for i in $(seq ${#lines[*]}); do
+    line=${lines[$i-1]}
+    IFS=$' ' tokens=($line)
+    checked_cmd=false
+    for j in "${tokens[@]}"; do
+       token=${j}
+       # A token that starts with # is a comment. Ignore the rest of the line.
+       if [[ "${token}" == \#* ]]; then
+         break
+       fi
+       # The first token in a line should be a brew command
+       # Check to make sure the brew command is allowed
+       if [[ $checked_cmd == false ]]; then
+         local brew_cmd=$(validate_brew_bundle_cmd ${token})
+         if [[ ${brew_cmd} == "" ]]; then
+           echo "brew bundle command not allowed: ${brew_cmd}"
+           return
+         fi
+         checked_cmd=true
+       else
+         # The token that follows the brew command should contain the repo name
+         # e.g.
+         #   tap org/repo
+         #   brew org/repo/package
+         # Check to make sure the homebrew repo is allowed
+         repo=${token}
+         if [[ ${brew_cmd} != "tap" ]]; then
+           repo="${token%/*}"
+         fi
+         local validated_repo=$(validate_brew_bundle_repo ${repo})
+         if [[ ${validated_repo} == "" ]]; then
+           echo "homebrew repo not allowed: ${repo}"
+           return
+         fi
+       fi
+    done
+  done
+}
+
+# Validate all Brewfiles in the source repo before running the brew bundle cmd
+SOURCE_DEFINED_BREWFILES=($(find `pwd` -type f |  grep Brewfile | sort))
 if [[ -n "${SOURCE_DEFINED_BREWFILES}" ]]; then
-  echo ${SOURCE_DEFINED_BREWFILES} | xargs -n1 -I {} brew bundle --file {} --verbose
+  for i in $(seq ${#SOURCE_DEFINED_BREWFILES[*]}); do
+    brewfile=${SOURCE_DEFINED_BREWFILES[$i-1]}
+    res=$(validate_brewfile ${brewfile})
+    if [[ ${res} == "" ]]; then
+      echo "Running 'brew bundle --file ${brewfile} --verbose'"
+      brew bundle --file ${brewfile} --verbose
+    else
+      echo "Error validating ${brewfile}. '${res}'"
+    fi
+  done
 else
   echo "No brewfiles found. Skipping brew bundle install"
 fi
+
 echo '# END SECTION'
 
 # Step 3. Manually compile and install ${PROJECT}
