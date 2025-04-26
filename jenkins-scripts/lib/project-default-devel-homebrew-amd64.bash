@@ -172,8 +172,9 @@ validate_brewfile() {
          # homebrew-core packages do not have repo name in them
          # e.g.
          #   brew package
-         # Check to make sure the homebrew repo is allowed if specified
-         repo=${token}
+         # Remove quotes and check to make sure the homebrew repo is allowed
+         # if specified
+         repo=`echo "${token}" | cut -d'"' -f 2`
          validated_repo=""
          if [[ ${brew_cmd} == "tap" ]]; then
            validated_repo=$(validate_brew_bundle_repo ${repo})
