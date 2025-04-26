@@ -165,16 +165,26 @@ validate_brewfile() {
          fi
          checked_cmd=true
        else
-         # The token that follows the brew command should contain the repo name
+         # The token that follows the brew command may contain the repo name
          # e.g.
          #   tap org/repo
          #   brew org/repo/package
-         # Check to make sure the homebrew repo is allowed
+         # homebrew-core packages do not have repo name in them
+         # e.g.
+         #   brew package
+         # Check to make sure the homebrew repo is allowed if specified
          repo=${token}
-         if [[ ${brew_cmd} != "tap" ]]; then
-           repo="${token%/*}"
+         validated_repo=""
+         if [[ ${brew_cmd} == "tap" ]]; then
+           validated_repo=$(validate_brew_bundle_repo ${repo})
+         else
+           if [[ ${repo} == "*/*" ]]; then
+             repo="${token%/*}"
+             validated_repo=$(validate_brew_bundle_repo ${repo})
+           else
+             validated_repo=${repo}
+           fi
          fi
-         local validated_repo=$(validate_brew_bundle_repo ${repo})
          if [[ ${validated_repo} == "" ]]; then
            echo "homebrew repo not allowed: ${repo}"
            return
