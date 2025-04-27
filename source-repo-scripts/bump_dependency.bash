@@ -376,6 +376,7 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
   for ((j = 0; j < "${#SORTED_LIBRARIES[@]}"; j++)); do
 
     DEP_LIB=${SORTED_LIBRARIES[$j]#"gz-"}
+    DEP_LIBDOT="${DEP_LIB//l-/l.}"
     DEP_VER=${SORTED_VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
@@ -387,12 +388,12 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     # Replace lines like "find_package(gz-cmake2 2.0.0)"
     #               with "find_package(gz-cmake)"
     find . -type f ! -path './.git/*' -print0 | xargs -0 sed -i \
-      -e "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\$@\1@g"                       \
-      -e "s@\(find_package.*${DEP_LIB}\)${DEP_VER}\$@\1@g"                            \
-      -e "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\([^0-9]\)@\1\2@g"             \
-      -e "s@\(find_package.*${DEP_LIB}\)${DEP_VER}\([^0-9]\)@\1\2@g"                  \
-      -e "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1@g" \
-      -e "s@\(find_package.*${DEP_LIB}\)${DEP_VER} \+${DEP_VER}[^ )]*@\1@g"
+      -e "s@\(find_package.*${DEP_LIBDOT}\)${DEP_PREV_VER}\$@\1@g"                       \
+      -e "s@\(find_package.*${DEP_LIBDOT}\)${DEP_VER}\$@\1@g"                            \
+      -e "s@\(find_package.*${DEP_LIBDOT}\)${DEP_PREV_VER}\([^0-9]\)@\1\2@g"             \
+      -e "s@\(find_package.*${DEP_LIBDOT}\)${DEP_VER}\([^0-9]\)@\1\2@g"                  \
+      -e "s@\(find_package.*${DEP_LIBDOT}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1@g" \
+      -e "s@\(find_package.*${DEP_LIBDOT}\)${DEP_VER} \+${DEP_VER}[^ )]*@\1@g"
 
     # Replace lines like "gz_find_package(gz-math6 VERSION 6.5.0)"
     #               with "gz_find_package(gz-math7)"
@@ -402,7 +403,7 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     #               like "gz_find_package(gz-math6 REQUIRED COMPONENTS VERSION 6.10 eigen3)"
     #               with "gz_find_package(gz-math7 REQUIRED COMPONENTS eigen3)"
     find . -type f ! -path './.git/*' -print0 | xargs -0 sed -i \
-      -e "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\(.*\) \+VERSION \+${DEP_PREV_VER}[^ )]*@\1\2@g"
+      -e "s@\(find_package.*${DEP_LIBDOT}\)${DEP_PREV_VER}\(.*\) \+VERSION \+${DEP_PREV_VER}[^ )]*@\1\2@g"
 
     # Remove version number from cmake target names
     # Replace lines like "target_link_libraries(test_cmake gz-math8::gz-math8)"
@@ -412,16 +413,24 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
     # Replace lines like "gz-transport14::gz-transport14"
     #               with "gz-transport::gz-transport"
     find . -type f ! -path './.git/*' -print0 | xargs -0 sed -i \
-      -e "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"            \
-      -e "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"            \
-      -e "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_VER}@\1@g"                 \
-      -e "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_VER}@\1@g"                 \
-      -e "s@\(${DEP_LIB}\)${DEP_PREV_VER}\(::.*${DEP_LIB}\)${DEP_PREV_VER}@\1\2@g"  \
-      -e "s@\(${DEP_LIB}\)${DEP_VER}\(::.*${DEP_LIB}\)${DEP_VER}@\1\2@g"            \
-      -e "s@\(${DEP_LIB}\)${DEP_PREV_VER}::@\1::@g"                               \
-      -e "s@\(${DEP_LIB}\)${DEP_VER}::@\1::@g"
+      -e "s@\(target_link_libraries.*${DEP_LIBDOT}\)${DEP_PREV_VER}@\1@g"            \
+      -e "s@\(target_link_libraries.*${DEP_LIBDOT}\)${DEP_PREV_VER}@\1@g"            \
+      -e "s@\(target_link_libraries.*${DEP_LIBDOT}\)${DEP_VER}@\1@g"                 \
+      -e "s@\(target_link_libraries.*${DEP_LIBDOT}\)${DEP_VER}@\1@g"                 \
+      -e "s@\(${DEP_LIBDOT}\)${DEP_PREV_VER}\(::.*${DEP_LIBDOT}\)${DEP_PREV_VER}@\1\2@g"  \
+      -e "s@\(${DEP_LIBDOT}\)${DEP_VER}\(::.*${DEP_LIBDOT}\)${DEP_VER}@\1\2@g"            \
+      -e "s@\(${DEP_LIBDOT}\)${DEP_PREV_VER}::@\1::@g"                               \
+      -e "s@\(${DEP_LIBDOT}\)${DEP_VER}::@\1::@g"
 
-    find . -type f ! -path './.git/*' -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
+    # Replace lines like 'pkg-config --cflags --libs gz-math8'
+    #               with 'pkg-config --cflags --libs gz-gui'
+    # Replace lines like 'pkg-config --cflags --libs gz-math9'
+    #               with 'pkg-config --cflags --libs gz-gui'
+    find . -type f ! -path './.git/*' -print0 | xargs -0 sed -i \
+      -e "s@\(pkg-config.*${DEP_LIBDOT}\)${PREV_VER}\([^0-9]\)@\1\2@g" \
+      -e "s@\(pkg-config.*${DEP_LIBDOT}\)${VER}\([^0-9]\)@\1\2@g"
+
+    find . -type f ! -path './.git/*' -print0 | xargs -0 sed -i "s \(${DEP_LIBDOT}\)${DEP_PREV_VER} \1${DEP_VER} g"
   done
 
   commitAndPR ${RELEASE_ORG} main ""
