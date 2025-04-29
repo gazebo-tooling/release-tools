@@ -75,7 +75,9 @@ cat >> build.sh << DELIM_ROS_DISTRO_SETUP
 echo '# BEGIN SECTION: sourcing ros setup script'
 if [ -f /opt/ros/${ROS_DISTRO}/setup.sh ]; then
   echo "sourcing ros ${ROS_DISTRO} setup script"
-  source /opt/ros/${ROS_DISTRO}/setup.bash
+  set -a
+  . /opt/ros/${ROS_DISTRO}/setup.bash
+  set +a
 else
   echo "ros ${ROS_DISTRO} setup script not found"
 fi
