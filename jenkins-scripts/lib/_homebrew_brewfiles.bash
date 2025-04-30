@@ -15,8 +15,14 @@ validate_brew_bundle_cmd () {
 # $1 is the homebrew repo to check
 # returns the repo string  if valid, otherwise returns a empty string
 validate_brew_bundle_repo() {
-  repo=$1
-  IFS=$'\n' repos=($(cat ${SCRIPT_DIR}/lib/homebrew_repo_whitelist))
+  local repo=${1} whitelist_file="${SCRIPT_DIR}/tools/homebrew_repo_whitelist"
+
+  if [[ ! -f ${whitelist_file} ]]; then
+    # Not found whitelist file
+    echo ""
+  fi
+
+  IFS=$'\n' repos=($(cat ${whitelist_file}))
   if [[ " ${repos[@]} " =~ " ${repo} " ]]; then
     echo ${repo}
   else
