@@ -70,12 +70,16 @@ DELIM_BUILD_DEPS
   fi
 done
 
-if [[ -n ${ROS_DISTRO} ]]; then
+# Set up ROS env. This is needed by gz-transport versions >= 15 so that
+# it can find ROS 2's zenoh_cpp_vendor package that is installed in
+# /opt/ros/<ROS_DISTRO>.
+# See jenkins-scripts/docker/gz_transport-compilation.bash
+if [[ -n ${ROS_DISTRO_SETUP_NEEDED} ]]; then
 cat >> build.sh << DELIM_ROS_DISTRO_SETUP
 echo '# BEGIN SECTION: sourcing ros setup script'
 if [ -f /opt/ros/${ROS_DISTRO}/setup.bash ]; then
   export ROS_DISTRO=${ROS_DISTRO}
-  echo "sourcing ros ${ROS_DISTRO} setup script"
+  echo "Sourcing ros ${ROS_DISTRO} setup script"
   source /opt/ros/${ROS_DISTRO}/setup.bash
 else
   echo "ros ${ROS_DISTRO} setup script not found"
