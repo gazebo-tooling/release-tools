@@ -73,11 +73,12 @@ done
 if [[ -n ${ROS_DISTRO} ]]; then
 cat >> build.sh << DELIM_ROS_DISTRO_SETUP
 echo '# BEGIN SECTION: sourcing ros setup script'
-if [ -f /opt/ros/${ROS_DISTRO}/setup.sh ]; then
+export ROS_DISTRO=${ROS_DISTRO}
+if [ -f /opt/ros/${ROS_DISTRO}/setup.bash ]; then
   echo "sourcing ros ${ROS_DISTRO} setup script"
-  set -a
+  # set -a
   . /opt/ros/${ROS_DISTRO}/setup.bash
-  set +a
+  # set +a
   # ROS_DISTRO="jazzy"
   # export LD_LIBRARY_PATH="/opt/ros/${ROS_DISTRO}/opt/zenoh_cpp_vendor/lib:$LD_LIBRARY_PATH"
   # export CMAKE_PREFIX_PATH="/opt/ros/${ROS_DISTRO}/opt/zenoh_cpp_vendor/lib/cmake:$CMAKE_PREFIX_PATH"
