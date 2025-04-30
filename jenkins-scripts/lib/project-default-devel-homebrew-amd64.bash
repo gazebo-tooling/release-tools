@@ -192,6 +192,7 @@ if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name
 fi
 
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
       -DCMAKE_INSTALL_PREFIX=${HOMEBREW_PREFIX}/Cellar/${PROJECT_FORMULA}/HEAD \
      ${CMAKE_ARGS} \
      ${WORKSPACE}/${PROJECT_PATH}

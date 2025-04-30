@@ -318,17 +318,17 @@ collections:
         repo:
           current_branch: gz-fuel-tools10
       - name: gz-transport
-        major_version: 14
+        major_version: 15
         repo:
-          current_branch: gz-transport14
+          current_branch: main
       - name: gz-gui
         major_version: 10
         repo:
           current_branch: main
       - name: gz-sensors
-        major_version: 9
+        major_version: 10
         repo:
-          current_branch: gz-sensors9
+          current_branch: main
       - name: gz-physics
         major_version: 8
         repo:
@@ -349,7 +349,7 @@ collections:
       configs:
         - noble
         - brew
-        - win_conda_LO23
+        - win_conda_noble
     packaging:
       configs:
         - noble
@@ -427,7 +427,7 @@ collections:
       configs:
         - noble
         - brew
-        - win_conda_LO23
+        - win_conda_noble
     packaging:
       configs:
         - noble
@@ -624,6 +624,43 @@ ci_configs:
     ci_categories_enabled:
       - pr
       - stable_branches
+  - name: win_conda_noble
+    system:
+      so: windows
+      distribution: conda
+      version: noble_like
+      arch: amd64
+    requirements:
+      large_memory:
+        - gz-physics
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
+    exclude:
+      all:
+        - gz-jetty
+        - __upcoming__
+    cmake_warnings_disabled:
+      - gz-cmake
+      - gz-common
+      - gz-fuel-tools
+      - gz-sim
+      - gz-gui
+      - gz-launch
+      - gz-math
+      - gz-msgs
+      - gz-physics
+      - gz-rendering
+      - gz-sensors
+      - gz-tools
+      - gz-transport
+      - gz-utils
+      - sdformat
+    ci_categories_enabled:
+      - pr
+      - stable_branches
   - name: win_conda_LO23
     system:
       so: windows
@@ -642,8 +679,6 @@ ci_configs:
       all:
         - gz-harmonic
         - gz-ionic
-        - gz-jetty
-        - __upcoming__
     cmake_warnings_disabled:
       - gz-cmake
       - gz-common

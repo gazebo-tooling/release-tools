@@ -27,5 +27,12 @@ class OSRFWinCompilationAnyGitHub
                                github_repo.replace('gz-gazebo','gz-sim'),
                                supported_branches,
                                enable_github_pr_integration)
+    job.with
+    {
+      parameters
+      {
+        stringParam('CONDA_ENV_NAME', '','Force build to use a given conda environment if not empty')
+      }
+    }
   }
 }

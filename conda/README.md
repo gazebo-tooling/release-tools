@@ -39,3 +39,11 @@ version dependencies.
 Harmonic and Ionic uses the legacy_ogre23 enviroments which is a variant
 of what vcpkg packages had providing an upgrade on ogre-next from 2.2 to
 2.3.
+
+## Testing new Conda environments in Gazebo
+
+When developing a new Conda environment can be useful to run a -pr- job
+with an environment that is available in a branch of release-tools. To
+do so the -pr- jobs have the `CONDA_ENV_NAME` parameter that can be set
+to the name of the new Conda environment. Remember to pass the
+corresponding release-tools branch in `RTOOLS_BRANCH`.
