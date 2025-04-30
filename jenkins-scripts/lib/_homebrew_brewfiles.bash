@@ -53,7 +53,7 @@ validate_brewfile() {
          local brew_cmd=$(validate_brew_bundle_cmd ${token})
          if [[ ${brew_cmd} == "" ]]; then
            echo "brew bundle command not allowed: ${brew_cmd}"
-           return
+           return false
          fi
          checked_cmd=true
        else
@@ -80,9 +80,11 @@ validate_brewfile() {
          fi
          if [[ ${validated_repo} == "" ]]; then
            echo "homebrew repo not allowed: ${repo}"
-           return
+           return false
          fi
        fi
     done
   done
+
+  return true
 }

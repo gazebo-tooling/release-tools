@@ -117,18 +117,17 @@ if [[ -n "${SOURCE_DEFINED_BREWFILES}" ]]; then
   . ${SCRIPT_DIR}/lib/_homebrew_brewfiles.bash
   for i in $(seq ${#SOURCE_DEFINED_BREWFILES[*]}); do
     brewfile=${SOURCE_DEFINED_BREWFILES[$i-1]}
-    res=$(validate_brewfile ${brewfile})
-    if [[ ${res} == "" ]]; then
-      echo "Running 'brew bundle --file ${brewfile} --verbose'"
-      brew bundle --file ${brewfile} --verbose
-    else
-      echo "Error validating ${brewfile}. '${res}'"
+    if ! validate_brewfile ${brewfile}; then
+      echo "Error validating ${brewfile}"
+      exit 1
     fi
+    # Validation passed, run brew bundle
+    echo "Running 'brew bundle --file ${brewfile} --verbose'"
+    brew bundle --file ${brewfile} --verbose
   done
 else
   echo "No brewfiles found. Skipping brew bundle install"
 fi
-
 echo '# END SECTION'
 
 # Step 3. Manually compile and install ${PROJECT}
