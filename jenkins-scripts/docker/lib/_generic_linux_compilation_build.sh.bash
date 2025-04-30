@@ -70,8 +70,10 @@ DELIM_BUILD_DEPS
   fi
 done
 
-# Set up ROS env. This is needed by gz-transport versions >= 15 so that
-# it can find ROS 2's zenoh_cpp_vendor package that is installed in
+# Minimal ROS env setup for finding ROS packages.
+# We don't need a full ROS env setup for building ROS packages or running
+# ROS tests. The ROS setup here is needed by gz-transport versions >= 15
+# so that  it can find ROS 2's zenoh_cpp_vendor package that is installed in
 # /opt/ros/<ROS_DISTRO>.
 # See jenkins-scripts/docker/gz_transport-compilation.bash
 if [[ -n ${ROS_DISTRO_SETUP_NEEDED} ]]; then
