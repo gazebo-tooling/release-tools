@@ -73,7 +73,8 @@ done
 if [[ -n ${ROS_DISTRO} ]]; then
 cat >> build.sh << DELIM_ROS_DISTRO_SETUP
 echo '# BEGIN SECTION: sourcing ros setup script'
-if [ -f /opt/ros/${ROS_DISTRO}/setup.sh ]; then
+if [ -f /opt/ros/${ROS_DISTRO}/setup.bash]; then
+  export ROS_DISTRO=${ROS_DISTRO}
   echo "sourcing ros ${ROS_DISTRO} setup script"
   source /opt/ros/${ROS_DISTRO}/setup.bash
 else
