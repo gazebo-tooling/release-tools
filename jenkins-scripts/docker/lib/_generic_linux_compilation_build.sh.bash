@@ -75,12 +75,12 @@ cat >> build.sh << DELIM_ROS_DISTRO_SETUP
 echo '# BEGIN SECTION: sourcing ros setup script'
 if [ -f /opt/ros/${ROS_DISTRO}/setup.sh ]; then
   echo "sourcing ros ${ROS_DISTRO} setup script"
-  # set -a
-  # . /opt/ros/${ROS_DISTRO}/setup.bash
-  # set +a
-  ROS_DISTRO="jazzy"
-  export LD_LIBRARY_PATH="/opt/ros/${ROS_DISTRO}/opt/zenoh_cpp_vendor/lib:$LD_LIBRARY_PATH"
-  export CMAKE_PREFIX_PATH="/opt/ros/${ROS_DISTRO}/opt/zenoh_cpp_vendor/lib/cmake:$CMAKE_PREFIX_PATH"
+  #set -a
+  . /opt/ros/${ROS_DISTRO}/setup.bash
+  #set +a
+  # ROS_DISTRO="jazzy"
+  # export LD_LIBRARY_PATH="/opt/ros/${ROS_DISTRO}/opt/zenoh_cpp_vendor/lib:$LD_LIBRARY_PATH"
+  # export CMAKE_PREFIX_PATH="/opt/ros/${ROS_DISTRO}/opt/zenoh_cpp_vendor/lib/cmake:$CMAKE_PREFIX_PATH"
 else
   echo "ros ${ROS_DISTRO} setup script not found"
 fi
