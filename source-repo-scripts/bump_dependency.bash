@@ -617,7 +617,7 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
   PROJECT="project.*(${PROJECT_NAME}"
   echo -e "${GREEN}  checking versioned project name ${PROJECT_NAME}${DEFAULT}"
   if ! grep -q ${PROJECT} "CMakeLists.txt"; then
-    PROJECT_NAME="${LIB}"
+    PROJECT_NAME="${LIB//-/.}"
     PROJECT="project.*(${PROJECT_NAME}[^0-9]"
     echo -e "${GREEN}  checking unversioned project name ${PROJECT_NAME}${DEFAULT}"
     if ! grep -q ${PROJECT} "CMakeLists.txt"; then
