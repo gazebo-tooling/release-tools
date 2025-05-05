@@ -110,6 +110,26 @@ if [[ -z "${DISABLE_CCACHE}" ]]; then
 fi
 echo '# END SECTION'
 
+echo "# BEGIN SECTION: Run brew bundle with source defined Brewfiles"
+# Validate all Brewfiles in the source repo before running the brew bundle cmd
+SOURCE_DEFINED_BREWFILES=($(find `pwd` -type f |  grep Brewfile | sort))
+if [[ -n "${SOURCE_DEFINED_BREWFILES}" ]]; then
+  . ${SCRIPT_DIR}/lib/_homebrew_brewfiles.bash
+  for i in $(seq ${#SOURCE_DEFINED_BREWFILES[*]}); do
+    brewfile=${SOURCE_DEFINED_BREWFILES[$i-1]}
+    if ! validate_brewfile ${brewfile}; then
+      echo "Error validating ${brewfile}"
+      exit 1
+    fi
+    # Validation passed, run brew bundle
+    echo "Running 'brew bundle --file ${brewfile} --verbose'"
+    brew bundle --file ${brewfile} --verbose
+  done
+else
+  echo "No brewfiles found. Skipping brew bundle install"
+fi
+echo '# END SECTION'
+
 # Step 3. Manually compile and install ${PROJECT}
 echo "# BEGIN SECTION: configure ${PROJECT}"
 cd ${WORKSPACE}/${PROJECT_PATH}
