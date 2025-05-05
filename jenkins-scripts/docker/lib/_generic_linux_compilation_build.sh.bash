@@ -79,12 +79,11 @@ done
 if [[ -n ${ROS_DISTRO_SETUP_NEEDED} ]]; then
 cat >> build.sh << DELIM_ROS_DISTRO_SETUP
 echo '# BEGIN SECTION: sourcing ros setup script'
-if [ -f /opt/ros/${ROS_DISTRO}/setup.bash ]; then
-  export ROS_DISTRO=${ROS_DISTRO}
-  echo "Sourcing ros ${ROS_DISTRO} setup script"
-  source /opt/ros/${ROS_DISTRO}/setup.bash
+if [ -f /opt/ros/${ROS_DISTRO_SETUP_NEEDED}/setup.bash ]; then
+  source /opt/ros/${ROS_DISTRO_SETUP_NEEDED}/setup.bash
 else
-  echo "ros ${ROS_DISTRO} setup script not found"
+  echo "ROS_DISTRO_SETUP_NEEDED set to ${ROS_DISTRO_SETUP_NEEDED} but no ROS 2 installation found"
+  exit 1
 fi
 echo '# END SECTION'
 DELIM_ROS_DISTRO_SETUP
