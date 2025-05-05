@@ -103,11 +103,6 @@ if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   # this seems to be needed by the gz-sim python system loader test
   export PYTHONPATH=${WORKSPACE}/venv/lib/python3.$python_minor_version/site-packages:$PYTHONPATH
 fi
-
-if [[ -z "${DISABLE_CCACHE}" ]]; then
-  brew install ccache
-  export PATH=${HOMEBREW_PREFIX}/opt/ccache/libexec:$PATH
-fi
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: Run brew bundle with source defined Brewfiles"
