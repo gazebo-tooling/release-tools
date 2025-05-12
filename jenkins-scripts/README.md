@@ -73,11 +73,6 @@ C:\Users\josel\AppData\Local\Temp\12853\ws> colcon list
 C:\Users\josel\AppData\Local\Temp\12853\ws> colcon build --packages-select gz-sim9
 ```
 
-### Aditional notes
-
-- The number of building threads can be customized by setting the `MAKE_JOBS` variable inside the
-  `local_setup.bat` script. It defaults to 8.
-
 ## DSL related
 
 ### Useful links
