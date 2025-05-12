@@ -570,7 +570,6 @@ ci_configs:
         - gz-jetty
         - __upcoming__
     cmake_warnings_disabled:
-      - gz-cmake
       - gz-common
       - gz-fuel-tools
       - gz-sim
@@ -583,7 +582,6 @@ ci_configs:
       - gz-sensors
       - gz-tools
       - gz-transport
-      - gz-utils
       - sdformat
     ci_categories_enabled:
       - pr
