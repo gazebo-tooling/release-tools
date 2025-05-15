@@ -73,12 +73,13 @@ git clone https://github.com/gz-release/gz-rendering7-release
 cd gz-rendering7-release
 ./path/to/release-tools/release-repo-scripts/changelog_spawn.sh 7.1.0-1
 ```
+
 ### convert_gazebodistro_to_release.py
 
 Convert a gazebodistro file into a vcs compatible file with the -release repositories
 associated to the repositories in the input file.
 
-### Usage
+#### Usage
 
 Output will printed to stdout:
 
@@ -86,7 +87,7 @@ Output will printed to stdout:
 ./path/to/release-tools/release-repo-scripts/convert_gazebodistro_to_release.py <gazbodistro_file>
 ```
 
-### Example
+#### Example
 
 To import all release repositories related to gz Harmonic collection:
 
@@ -94,6 +95,31 @@ To import all release repositories related to gz Harmonic collection:
 ./path/to/release-tools/release-repo-scripts/convert_gazebodistro_to_release.py ~/code/gazebodistro/collection-harmonic.yaml  > collection-harmonic-release.yaml
 vcs import < collection-harmonic-release.yaml
 ```
+
+### convert_gazebodistro_to_release_ros_vendor.py
+
+Convert a gazebodistro file into a vcs compatible file with the Gazebo ROS vendor
+repositories related to the repositories in the input file. These vendor
+repositories follow the naming convention of `package_name_vendor`. The default
+branch to set in the vcs new file is `rolling`.
+
+#### Usage
+
+Output will be printed to stdout:
+
+```bash
+./path/to/release-tools/release-repo-scripts/convert_gazebodistro_to_release_ros_vendor.py <gazebodistro_file>
+```
+
+#### Example
+
+To import all ROS vendor repositories related to gz Ionic collection:
+
+```bash
+./path/to/release-tools/release-repo-scripts/convert_gazebodistro_to_release_ros_vendor.py ~/code/gazebodistro/collection-ionic.yaml > collection-ionic-vendor.yaml
+vcs import < collection-ionic-vendor.yaml
+
+
 
 ### new_ubuntu_distribution.bash
 
