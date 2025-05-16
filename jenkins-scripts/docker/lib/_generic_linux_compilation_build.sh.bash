@@ -83,7 +83,6 @@ if [ -f /opt/ros/${ROS_DISTRO_SETUP_NEEDED}/setup.bash ]; then
   source /opt/ros/${ROS_DISTRO_SETUP_NEEDED}/setup.bash
 else
   echo "ROS_DISTRO_SETUP_NEEDED set to ${ROS_DISTRO_SETUP_NEEDED} but no ROS 2 installation found"
-  exit 1
 fi
 echo '# END SECTION'
 DELIM_ROS_DISTRO_SETUP
