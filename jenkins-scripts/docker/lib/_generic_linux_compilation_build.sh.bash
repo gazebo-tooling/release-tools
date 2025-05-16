@@ -70,12 +70,32 @@ DELIM_BUILD_DEPS
   fi
 done
 
+# Minimal ROS env setup for finding ROS packages.
+# We don't need a full ROS env setup for building ROS packages or running
+# ROS tests. The ROS setup here is needed by gz-transport versions >= 15
+# so that  it can find ROS 2's zenoh_cpp_vendor package that is installed in
+# /opt/ros/<ROS_DISTRO>.
+# See jenkins-scripts/docker/gz_transport-compilation.bash
+if [[ -n ${ROS_DISTRO_SETUP_NEEDED} ]]; then
+cat >> build.sh << DELIM_ROS_DISTRO_SETUP
+echo '# BEGIN SECTION: sourcing ros setup script'
+if [ -f /opt/ros/${ROS_DISTRO_SETUP_NEEDED}/setup.bash ]; then
+  source /opt/ros/${ROS_DISTRO_SETUP_NEEDED}/setup.bash
+else
+  echo "ROS_DISTRO_SETUP_NEEDED set to ${ROS_DISTRO_SETUP_NEEDED} but no ROS 2 installation found"
+  exit 1
+fi
+echo '# END SECTION'
+DELIM_ROS_DISTRO_SETUP
+fi
+
 cat >> build.sh << DELIM
 echo '# BEGIN SECTION: configure'
 # Step 2: configure and build
 cd $WORKSPACE
 [[ ! -d $WORKSPACE/build ]] && mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
+
 cmake $WORKSPACE/${SOFTWARE_DIR} ${BUILDING_EXTRA_CMAKE_PARAMS} \
     -DCMAKE_INSTALL_PREFIX=/usr
 echo '# END SECTION'

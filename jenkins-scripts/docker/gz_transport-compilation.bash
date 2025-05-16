@@ -32,6 +32,13 @@ if [[ ${GZ_TRANSPORT_MAJOR_VERSION} -ge 6 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
+if [[ ${GZ_TRANSPORT_MAJOR_VERSION} -ge 15 ]]; then
+  # gz-transport version >= 15 will use zenoh_cpp_vendor package from ROS 2
+  # repo for zenoh support. Setting this env var will set up ROS env with the
+  # specified ROS distro in the generated build.sh script.
+  export ROS_DISTRO_SETUP_NEEDED="jazzy"
+fi
+
 export GZDEV_PROJECT_NAME="gz-transport${GZ_TRANSPORT_MAJOR_VERSION}"
 
 . "${SCRIPT_DIR}/lib/generic-building-base.bash"
