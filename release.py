@@ -28,7 +28,8 @@ GENERIC_BREW_PULLREQUEST_JOB = 'generic-release-homebrew_pull_request_updater'
 LINUX_DISTROS = ['ubuntu', 'debian']
 SUPPORTED_ARCHS = ['amd64', 'armhf', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
-ROS_VENDOR = {'harmonic': 'jazzy', 'ionic': 'rolling'}
+ROS_VENDOR = {'harmonic': ['jazzy'],
+              'ionic': ['kilted', 'rolling']}
 
 OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing none"
 
@@ -811,12 +812,12 @@ def process_ros_vendor_package(args):
     for collection in get_collections_for_package(args.package,
                                                   args.version):
         if collection in ROS_VENDOR:
-            ros_distro = ROS_VENDOR[collection]
-            print(f" * Github {get_vendor_github_repo(args.package)} "
-                  f"part of {collection} in ROS 2 {ros_distro}")
-            print("   + Preparing a PR: ", end='', flush=True)
-            pr_url = create_pr_in_gz_vendor_repo(args, ros_distro)
-            print(pr_url)
+            for ros_distro in ROS_VENDOR[collection]:
+                print(f" * Github {get_vendor_github_repo(args.package)} "
+                      f"part of {collection} in ROS 2 {ros_distro}")
+                print("   + Preparing a PR: ", end='', flush=True)
+                pr_url = create_pr_in_gz_vendor_repo(args, ros_distro)
+                print(pr_url)
 
 
 def go(argv):
