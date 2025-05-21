@@ -39,8 +39,8 @@ class OSRFUNIXBase extends OSRFBase
              """.stripIndent())
       }
       publishers {
-        postBuildScripts {
-          steps{
+        postBuildScript {
+          buildSteps {
             conditionalSteps {
               condition {
                 expression("(.)* gpu-nvidia (.)*",'${NODE_LABELS}')
