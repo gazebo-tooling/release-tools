@@ -39,30 +39,25 @@ class OSRFUNIXBase extends OSRFBase
              """.stripIndent())
       }
       publishers {
-        flexiblePublish {
-          conditionalAction {
-            condition {
-              status('FAILURE', 'FAILURE')
-            }
-            steps {
-              conditionalBuilder {
-                runner {
-                  dontRun()
-                }
-                condition {
-                  expressionCondition {
-                    expression("(.)* gpu-nvidia (.)*")
-                    label('${NODE_LABELS}')
+        postBuildScript {
+          buildSteps {
+            postBuildStep {
+              buildSteps {
+                conditionalBuilder {
+                  runner {
+                    fail()
                   }
-                }
-                conditionalbuilders {
-                  systemGroovy {
-                    source {
-                      stringSystemScriptSource {
+                  runCondition {
+                    expression("(.)* gpu-nvidia (.)*")
+                    label("${NODE_LABELS}")
+                  }
+                  conditionalbuilders {
+                    systemGroovy {
+                      source {
                         script {
                           script('''\
+                            import hudson.model.Cause.UpstreamCause;
                             import hudson.model.*;
-                            import jenkins.model.Jenkins;
 
                             def node = build.getBuiltOn()
                             def old_labels = node.getLabelString()
@@ -77,12 +72,10 @@ class OSRFUNIXBase extends OSRFBase
                                 println(" PROBLEM: NVIDIA driver/library version mismatch was detected in the log. Try to automatically resolve it:")
                                 println("Removing labels and adding 'recovery-process' label to node")
                                 node.setLabelString("recovery-process")
-                                Jenkins.getInstance().save()
                               } catch (Exception ex) {
                                 println("ERROR - CANNOT PERFORM RECOVERY ACTIONS FOR NVIDIA ERROR")
                                 println("Restoring to previous state")
                                 node.setLabelString(old_labels)
-                                Jenkins.getInstance().save()
                                 throw ex
                               }
                               println("# END SECTION: NVIDIA MISMATCH RECOVERY")
@@ -92,25 +85,16 @@ class OSRFUNIXBase extends OSRFBase
                         }
                       }
                     }
+                    shell {
+                      command("echo 'sudo shutdown -r +1")
+                    }
                   }
                 }
               }
-              conditionalBuilder {
-                runner {
-                  dontRun()
-                }
-                condition {
-                  expressionCondition {
-                    expression("(.)* gpu-nvidia (.)*")
-                    label('${NODE_LABELS}')
-                  }
-                }
-                buildStep {
-                  shell("""echo 'THIS IS A REAL SHUTDOWN'""")
-                }
-              }
+              stopOnFailure(false)
             }
           }
+          markBuildUnstable(false)
         }
       }
     // Add the new regex to naginator tag
