@@ -46,9 +46,7 @@ class OSRFUNIXBase extends OSRFBase
             }
             steps {
               conditionalBuilder {
-                runner {
-                  runnerClass('org.jenkins_ci.plugins.run_condition.BuildStepRunner$Run')
-                }
+                runner('DontRun')
                 condition {
                   expressionCondition {
                     expression("(.)* gpu-nvidia (.)*")
