@@ -90,7 +90,7 @@ class OSRFUNIXBase extends OSRFBase
                       }
                     }
                     shell {
-                      command("echo 'sudo shutdown -r +1")
+                      command("sudo shutdown -r +1)
                     }
                   }
                 }
