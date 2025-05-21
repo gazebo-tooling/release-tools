@@ -48,7 +48,10 @@ class OSRFUNIXBase extends OSRFBase
             steps {
               singleConditionalBuilder {
                 condition {
-                  expression("(.)* gpu-nvidia (.)*",'${NODE_LABELS}')
+                  expressionCondition {
+                    expression("(.)* gpu-nvidia (.)*")
+                    label('${NODE_LABELS}')
+                  }
                 }
                 runner('dontRun')
                 buildStep {
