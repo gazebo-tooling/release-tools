@@ -53,7 +53,7 @@ class OSRFUNIXBase extends OSRFBase
                     label('${NODE_LABELS}')
                   }
                 }
-                runner('dontRun')
+                runner('DontRun')
                 buildStep {
                       systemGroovyCommand('''\
                         import hudson.model.Cause.UpstreamCause;
