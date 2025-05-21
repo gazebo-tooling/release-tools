@@ -50,7 +50,7 @@ class OSRFUNIXBase extends OSRFBase
                   runCondition {
                     expressionCondition {
                       expression("(.)* gpu-nvidia (.)*")
-                      label("${NODE_LABELS}")
+                      label('${NODE_LABELS}')
                     }
                   }
                   conditionalbuilders {
