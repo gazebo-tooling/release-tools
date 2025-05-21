@@ -88,7 +88,7 @@ class OSRFUNIXBase extends OSRFBase
                               println("# END SECTION: NVIDIA MISMATCH RECOVERY")
                             }
                             '''.stripIndent())
-                          sandox(false)
+                          sandbox(false)
                         }
                       }
                     }
