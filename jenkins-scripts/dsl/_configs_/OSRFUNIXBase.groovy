@@ -55,7 +55,7 @@ class OSRFUNIXBase extends OSRFBase
                     label('${NODE_LABELS}')
                   }
                 }
-                conditionalBuilders {
+                conditionalbuilders {
                   systemGroovy {
                     source {
                       stringSystemScriptSource {
