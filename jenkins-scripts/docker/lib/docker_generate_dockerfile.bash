@@ -318,8 +318,12 @@ DELIM_DOCKER3_2
 
 cat >> Dockerfile << DELIM_DOCKER31
 # Note that we don't remove the apt/lists file here since it will make
-# to run apt-get update again
+# to run apt-get update again.
+# Include autoremove to remove packages that could be in the cache that
+# are no longer required. They could cause problems if a clean install
+# does not expect them to be in the system.
 RUN (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
+ && apt-get autoremove -y \
  && apt-get dist-upgrade -y \
  && apt-get clean
 
