@@ -46,52 +46,55 @@ class OSRFUNIXBase extends OSRFBase
             }
             steps {
               conditionalBuilder {
-                runner('DontRun')
+                runner {
+                  dontRun()
+                }
                 condition {
                   expressionCondition {
                     expression("(.)* gpu-nvidia (.)*")
                     label('${NODE_LABELS}')
                   }
                 }
-                buildStep {
-                  systemGroovyScriptBuildStep {
-                    groovyScript {
-                      script('''\
-                        import hudson.model.*;
-                        import jenkins.model.Jenkins;
+                conditionalBuilders {
+                  systemGroovy {
+                    source {
+                      stringSystemScriptSource {
+                        script('''\
+                          import hudson.model.*;
+                          import jenkins.model.Jenkins;
 
-                        def node = build.getBuiltOn()
-                        def old_labels = node.getLabelString()
+                          def node = build.getBuiltOn()
+                          def old_labels = node.getLabelString()
 
-                        println("Checking if nvidia mismatch error is present in log")
-                        if (!(build.getLog(1000) =~ "nvml error: driver/library version mismatch")) {
-                          println(" NVIDIA driver/library version mismatch not detected in the log - Not performing any automatic recovery steps")
-                          return 1;
-                        } else {
-                          println("# BEGIN SECTION: NVIDIA MISMATCH RECOVERY")
-                          try {
-                            println(" PROBLEM: NVIDIA driver/library version mismatch was detected in the log. Try to automatically resolve it:")
-                            println("Removing labels and adding 'recovery-process' label to node")
-                            node.setLabelString("recovery-process")
-                            Jenkins.getInstance().save()
-                          } catch (Exception ex) {
-                            println("ERROR - CANNOT PERFORM RECOVERY ACTIONS FOR NVIDIA ERROR")
-                            println("Restoring to previous state")
-                            node.setLabelString(old_labels)
-                            Jenkins.getInstance().save()
-                            throw ex
+                          println("Checking if nvidia mismatch error is present in log")
+                          if (!(build.getLog(1000) =~ "nvml error: driver/library version mismatch")) {
+                            println(" NVIDIA driver/library version mismatch not detected in the log - Not performing any automatic recovery steps")
+                            return 1;
+                          } else {
+                            println("# BEGIN SECTION: NVIDIA MISMATCH RECOVERY")
+                            try {
+                              println(" PROBLEM: NVIDIA driver/library version mismatch was detected in the log. Try to automatically resolve it:")
+                              println("Removing labels and adding 'recovery-process' label to node")
+                              node.setLabelString("recovery-process")
+                              Jenkins.getInstance().save()
+                            } catch (Exception ex) {
+                              println("ERROR - CANNOT PERFORM RECOVERY ACTIONS FOR NVIDIA ERROR")
+                              println("Restoring to previous state")
+                              node.setLabelString(old_labels)
+                              Jenkins.getInstance().save()
+                              throw ex
+                            }
+                            println("# END SECTION: NVIDIA MISMATCH RECOVERY")
                           }
-                          println("# END SECTION: NVIDIA MISMATCH RECOVERY")
-                        }
-                        '''.stripIndent())
-                      sandbox(false)
+                          '''.stripIndent())
+                      }
                     }
                   }
                 }
               }
               conditionalBuilder {
                 runner {
-                  runnerClass('org.jenkins_ci.plugins.run_condition.BuildStepRunner$Run')
+                  dontRun()
                 }
                 condition {
                   expressionCondition {
@@ -100,7 +103,7 @@ class OSRFUNIXBase extends OSRFBase
                   }
                 }
                 buildStep {
-                  shell("""sudo shutdown -r +1""")
+                  shell("""echo 'THIS IS A REAL SHUTDOWN'""")
                 }
               }
             }
