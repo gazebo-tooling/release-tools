@@ -48,8 +48,10 @@ class OSRFUNIXBase extends OSRFBase
                     fail()
                   }
                   runCondition {
-                    expression("(.)* gpu-nvidia (.)*")
-                    label("${NODE_LABELS}")
+                    expressionCondition {
+                      expression("(.)* gpu-nvidia (.)*")
+                      label("${NODE_LABELS}")
+                    }
                   }
                   conditionalbuilders {
                     systemGroovy {
