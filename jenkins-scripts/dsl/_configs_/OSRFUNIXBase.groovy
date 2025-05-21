@@ -47,13 +47,13 @@ class OSRFUNIXBase extends OSRFBase
             runner('Run')
             steps {
               singleConditionalBuilder {
+                runner('DontRun')
                 condition {
                   expressionCondition {
                     expression("(.)* gpu-nvidia (.)*")
                     label('${NODE_LABELS}')
                   }
                 }
-                runner('DontRun')
                 buildStep {
                       systemGroovyCommand('''\
                         import hudson.model.Cause.UpstreamCause;
