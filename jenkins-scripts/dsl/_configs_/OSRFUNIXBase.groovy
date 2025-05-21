@@ -77,8 +77,8 @@ class OSRFUNIXBase extends OSRFBase
               }
             }
           }
-          onlyIfBuildSucceeds(false)
-          onlyIfBuildFails(true)
+          // onlyIfBuildSucceeds(false)
+          // onlyIfBuildFails(true)
         }
       }
     }
