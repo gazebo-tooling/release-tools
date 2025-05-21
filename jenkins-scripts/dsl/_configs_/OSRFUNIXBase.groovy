@@ -44,10 +44,11 @@ class OSRFUNIXBase extends OSRFBase
             condition {
               status('FAILURE', 'FAILURE')
             }
-            runner('Run')
             steps {
-              singleConditionalBuilder {
-                runner('DontRun')
+              conditionalBuilder {
+                runner {
+                  runnerClass('org.jenkins_ci.plugins.run_condition.BuildStepRunner$Run')
+                }
                 condition {
                   expressionCondition {
                     expression("(.)* gpu-nvidia (.)*")
@@ -55,9 +56,11 @@ class OSRFUNIXBase extends OSRFBase
                   }
                 }
                 buildStep {
-                      systemGroovyCommand('''\
-                        import hudson.model.Cause.UpstreamCause;
+                  systemGroovyScriptBuildStep {
+                    groovyScript {
+                      script('''\
                         import hudson.model.*;
+                        import jenkins.model.Jenkins;
 
                         def node = build.getBuiltOn()
                         def old_labels = node.getLabelString()
@@ -72,16 +75,34 @@ class OSRFUNIXBase extends OSRFBase
                             println(" PROBLEM: NVIDIA driver/library version mismatch was detected in the log. Try to automatically resolve it:")
                             println("Removing labels and adding 'recovery-process' label to node")
                             node.setLabelString("recovery-process")
+                            Jenkins.getInstance().save()
                           } catch (Exception ex) {
                             println("ERROR - CANNOT PERFORM RECOVERY ACTIONS FOR NVIDIA ERROR")
                             println("Restoring to previous state")
                             node.setLabelString(old_labels)
+                            Jenkins.getInstance().save()
                             throw ex
                           }
                           println("# END SECTION: NVIDIA MISMATCH RECOVERY")
                         }
-                        '''.stripIndent()
-                      )
+                        '''.stripIndent())
+                      sandbox(false)
+                    }
+                  }
+                }
+              }
+              conditionalBuilder {
+                runner {
+                  runnerClass('org.jenkins_ci.plugins.run_condition.BuildStepRunner$Run')
+                }
+                condition {
+                  expressionCondition {
+                    expression("(.)* gpu-nvidia (.)*")
+                    label('${NODE_LABELS}')
+                  }
+                }
+                buildStep {
+                  shell("""sudo shutdown -r +1""")
                 }
               }
             }
