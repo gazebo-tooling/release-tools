@@ -41,10 +41,10 @@ class OSRFUNIXBase extends OSRFBase
       publishers {
         flexiblePublish {
           conditionalAction {
-          condition {
-            status('FAILURE', 'FAILURE')
-          }
-          runner('Run')
+            condition {
+              status('FAILURE', 'FAILURE')
+            }
+            runner('Run')
             steps {
               singleConditionalBuilder {
                 condition {
