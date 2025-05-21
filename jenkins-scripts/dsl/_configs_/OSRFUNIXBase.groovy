@@ -41,54 +41,56 @@ class OSRFUNIXBase extends OSRFBase
       publishers {
         flexiblePublish {
           conditionalAction {
+          condition {
             status('FAILURE', 'FAILURE')
           }
           runner('Run')
-          steps {
-            singleConditionalBuilder {
-              condition {
-                stringMatchCondition("(.)* gpu-nvidia (.)*",'${NODE_LABELS}')
-              }
-              runner('dontRun')
-              buildStep {
-                    systemGroovyCommand('''\
-                      import hudson.model.Cause.UpstreamCause;
-                      import hudson.model.*;
+            steps {
+              singleConditionalBuilder {
+                condition {
+                  expression("(.)* gpu-nvidia (.)*",'${NODE_LABELS}')
+                }
+                runner('dontRun')
+                buildStep {
+                      systemGroovyCommand('''\
+                        import hudson.model.Cause.UpstreamCause;
+                        import hudson.model.*;
 
-                      def node = build.getBuiltOn()
-                      def old_labels = node.getLabelString()
+                        def node = build.getBuiltOn()
+                        def old_labels = node.getLabelString()
 
-                      println("Checking if nvidia mismatch error is present in log")
-                      if (!(build.getLog(1000) =~ "nvml error: driver/library version mismatch")) {
-                        println(" NVIDIA driver/library version mismatch not detected in the log - Not performing any automatic recovery steps")
-                        return 1;
-                      } else {
-                        println("# BEGIN SECTION: NVIDIA MISMATCH RECOVERY")
-                        try {
-                          println(" PROBLEM: NVIDIA driver/library version mismatch was detected in the log. Try to automatically resolve it:")
-                          println("Removing labels and adding 'recovery-process' label to node")
-                          node.setLabelString("recovery-process")
-                        } catch (Exception ex) {
-                          println("ERROR - CANNOT PERFORM RECOVERY ACTIONS FOR NVIDIA ERROR")
-                          println("Restoring to previous state")
-                          node.setLabelString(old_labels)
-                          throw ex
+                        println("Checking if nvidia mismatch error is present in log")
+                        if (!(build.getLog(1000) =~ "nvml error: driver/library version mismatch")) {
+                          println(" NVIDIA driver/library version mismatch not detected in the log - Not performing any automatic recovery steps")
+                          return 1;
+                        } else {
+                          println("# BEGIN SECTION: NVIDIA MISMATCH RECOVERY")
+                          try {
+                            println(" PROBLEM: NVIDIA driver/library version mismatch was detected in the log. Try to automatically resolve it:")
+                            println("Removing labels and adding 'recovery-process' label to node")
+                            node.setLabelString("recovery-process")
+                          } catch (Exception ex) {
+                            println("ERROR - CANNOT PERFORM RECOVERY ACTIONS FOR NVIDIA ERROR")
+                            println("Restoring to previous state")
+                            node.setLabelString(old_labels)
+                            throw ex
+                          }
+                          println("# END SECTION: NVIDIA MISMATCH RECOVERY")
                         }
-                        println("# END SECTION: NVIDIA MISMATCH RECOVERY")
-                      }
-                      '''.stripIndent()
-                    )
+                        '''.stripIndent()
+                      )
+                }
               }
             }
           }
         }
       }
-    }
     // Add the new regex to naginator tag
     // There is no need to specify checkRegexp and maxSchedule because they are the default values
-    // HelperRetryFailures.create(job, [
-    //   regexpForRerun: "nvml error: driver/library version mismatch",
-    //   delay: 70
-    // ])
+    HelperRetryFailures.create(job, [
+      regexpForRerun: "nvml error: driver/library version mismatch",
+      delay: 70
+    ])
+    }
   }
 }
