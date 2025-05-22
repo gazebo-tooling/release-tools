@@ -172,7 +172,7 @@ class OSRFSourceCreation
                               propertiesFile(properties_file) // S3_FILES_TO_UPLOAD
                               encoding('UTF-8')
                               failTriggerOnMissing(false)
-                              useMatrixChind(false)
+                              useMatrixChild(false)
                               combinationFilter('')
                               onlyExactRuns(false)
                               textParamValueOnNewLine(false)
@@ -199,7 +199,7 @@ class OSRFSourceCreation
                               propertiesFile(properties_file) // SOURCE_TARBALL_URI
                               encoding('UTF-8')
                               failTriggerOnMissing(false)
-                              useMatrixChind(false)
+                              useMatrixChild(false)
                               combinationFilter('')
                               onlyExactRuns(false)
                               textParamValueOnNewLine(false)
