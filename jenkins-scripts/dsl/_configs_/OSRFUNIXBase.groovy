@@ -40,8 +40,10 @@ class OSRFUNIXBase extends OSRFBase
       }
       publishers {
         postBuildScript {
+          markBuildUnstable(false)
           buildSteps {
             postBuildStep {
+              stopOnFailure(false)
               buildSteps {
                 conditionalBuilder {
                   runner {
@@ -95,10 +97,8 @@ class OSRFUNIXBase extends OSRFBase
                   }
                 }
               }
-              stopOnFailure(false)
             }
           }
-          markBuildUnstable(false)
         }
       }
     // Add the new regex to naginator tag
