@@ -323,8 +323,8 @@ cat >> Dockerfile << DELIM_DOCKER31
 # are no longer required. They could cause problems if a clean install
 # does not expect them to be in the system.
 RUN (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
- && apt-get autoremove -y \
  && apt-get dist-upgrade -y \
+ && apt-get autoremove -y \
  && apt-get clean
 
 # Map the workspace into the container
