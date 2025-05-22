@@ -140,33 +140,62 @@ class OSRFSourceCreation
     job.with
     {
       publishers {
-        postBuildScripts {
-          steps {
-            conditionalSteps {
-             condition {
-              not {
-                expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
+        postBuildScript {
+          buildSteps {
+            postBuildStep {
+              result(['SUCCESS'])
+              role('BOTH')
+              conditionalBuilder {
+                runner {
+                  fail()
                 }
-              }
-              steps {
-                // Invoke repository_uploader
-                downstreamParameterized {
-                  trigger(repository_uploader_jobname) {
-                    parameters {
-                      currentBuild()
-                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: '${JOB_NAME}',
-                                       PACKAGE_ALIAS: '${PACKAGE_ALIAS}',
-                                       S3_UPLOAD_PATH: "${Globals.s3_releases_dir(package_name)}/"])  // relative path with a final /
-                      propertiesFile(properties_file)  // S3_FILES_TO_UPLOAD
+                runCondition {
+                  not {
+                    condition {
+                      expressionCondition {
+                        expression('none|None|^$')
+                        label('${ENV,var="UPLOAD_TO_REPO"}')
+                      }
                     }
                   }
                 }
-                downstreamParameterized {
-                  trigger(releasepy_jobname) {
-                    parameters {
-                      currentBuild()
-                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}"])
-                      propertiesFile(properties_file) // SOURCE_TARBALL_URI
+                conditionalbuilders {
+                  // Invoke repository_uploader
+                  triggerBuilder {
+                    configs {
+                      blockableBuildTriggerConfig {
+                        projects(repository_uploader_jobname)
+                        configs {
+                          currentBuildParameters()
+                          fileBuildParameters {
+                            propertiesFile(properties_file) // S3_FILES_TO_UPLOAD
+                          }
+                          predefinedBuildParameters {
+                            properties('''\
+                            PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}
+                            PACKAGE_ALIAS=${PACKAGE_ALIAS}
+                            S3_UPLOAD_PATH=gz-plugin/releases/
+                            '''.stripIndent())
+                          }
+                        }
+                      }
+                    }
+                  }
+                  // Invoke releasepy
+                  triggerBuilder {
+                    configs {
+                      blockableBuildTriggerConfig {
+                        projects(releasepy_jobname)
+                        configs {
+                          currentBuildParameters()
+                          fileBuildParameters {
+                            propertiesFile(properties_file) // SOURCE_TARBALL_URI
+                          }
+                          predefinedBuildParameters {
+                            properties('PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}')
+                          }
+                        }
+                      }
                     }
                   }
                 }
