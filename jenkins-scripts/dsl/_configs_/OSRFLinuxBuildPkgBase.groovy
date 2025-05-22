@@ -28,21 +28,26 @@ class OSRFLinuxBuildPkgBase
          }
       }
 
-      publishers
-      {
-        postBuildScripts {
-          steps {
-            shell("""\
-              #!/bin/bash -xe
+      publishers {
+        postBuildScript {
+          markBuildUnstable(false)
+          buildSteps {
+            postBuildStep {
+              results(['SUCCESS', 'NOT_BUILT', 'ABORTED', 'FAILURE', 'UNSTABLE'])
+              role('BOTH')
+              stopOnFailure(false)
+              buildSteps {
+                shell {
+                  command("""\
+                    #!/bin/bash -xe
 
-              [[ -d \${WORKSPACE}/pkgs ]] && sudo chown -R jenkins \${WORKSPACE}/pkgs
-              """.stripIndent())
+                    [[ -d \${WORKSPACE}/pkgs ]] && sudo chown -R jenkins \${WORKSPACE}/pkgs
+                    """.stripIndent())
+                }
+              }
+            }
           }
-
-          onlyIfBuildSucceeds(false)
-          onlyIfBuildFails(false)
         }
-
         archiveArtifacts('pkgs/*')
       }
     }

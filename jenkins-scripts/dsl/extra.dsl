@@ -133,17 +133,24 @@ gbp_repo_debbuilds.each { software ->
         }
       }
 
-      postBuildScripts {
-        steps {
-          shell("""\
-                #!/bin/bash -xe
+      postBuildScript {
+        buildSteps {
+          markBuildUnstable(false)
+          postBuildStep {
+            results(['SUCCESS', 'NOT_BUILT', 'ABORTED', 'FAILURE', 'UNSTABLE'])
+            role('BOTH')
+            stopOnFailure(false)
+            buildSteps {
+              shell {
+                command("""\
+                      #!/bin/bash -xe
 
-                sudo chown -R jenkins \${WORKSPACE}/pkgs
-                """.stripIndent())
+                      sudo chown -R jenkins \${WORKSPACE}/pkgs
+                      """.stripIndent())
+              }
+            }
+          }
         }
-
-        onlyIfBuildSucceeds(false)
-        onlyIfBuildFails(false)
       }
     }
   }
