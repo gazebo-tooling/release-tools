@@ -166,6 +166,11 @@ class OSRFSourceCreation
                       configs {
                         blockableBuildTriggerConfig {
                           projects(repository_uploader_jobname)
+                          block {
+                            buildStepFailureThreshold('never')
+                            unstableThreshold('never')
+                            failureThreshold('never')
+                          }
                           configs {
                             currentBuildParameters()
                             fileBuildParameters {
@@ -188,17 +193,17 @@ class OSRFSourceCreation
                           }
                         }
                       }
-                      block {
-                        buildStepFailureThreshold('never')
-                        unstableThreshold('never')
-                        failureThreshold('never')
-                      }
                     }
                     // Invoke releasepy
                     triggerBuilder {
                       configs {
                         blockableBuildTriggerConfig {
                           projects(releasepy_jobname)
+                          block {
+                            buildStepFailureThreshold('never')
+                            unstableThreshold('never')
+                            failureThreshold('never')
+                          }
                           configs {
                             currentBuildParameters()
                             fileBuildParameters {
@@ -216,11 +221,6 @@ class OSRFSourceCreation
                             }
                           }
                         }
-                      }
-                      block {
-                        buildStepFailureThreshold('never')
-                        unstableThreshold('never')
-                        failureThreshold('never')
                       }
                     }
                   }
