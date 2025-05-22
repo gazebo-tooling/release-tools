@@ -141,8 +141,10 @@ class OSRFSourceCreation
     {
       publishers {
         postBuildScript {
+          markBuildUnstable(false)
           buildSteps {
             postBuildStep {
+              stopOnFailure(false)
               results(['SUCCESS'])
               role('BOTH')
               buildSteps {
