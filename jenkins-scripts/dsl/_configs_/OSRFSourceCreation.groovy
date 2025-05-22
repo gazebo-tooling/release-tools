@@ -188,6 +188,11 @@ class OSRFSourceCreation
                           }
                         }
                       }
+                      block {
+                        buildStepFailureThreshold('never')
+                        unstableThreshold('never')
+                        failureThreshold('never')
+                      }
                     }
                     // Invoke releasepy
                     triggerBuilder {
@@ -211,6 +216,11 @@ class OSRFSourceCreation
                             }
                           }
                         }
+                      }
+                      block {
+                        buildStepFailureThreshold('never')
+                        unstableThreshold('never')
+                        failureThreshold('never')
                       }
                     }
                   }
