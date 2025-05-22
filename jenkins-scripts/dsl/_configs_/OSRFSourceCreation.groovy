@@ -170,6 +170,12 @@ class OSRFSourceCreation
                             currentBuildParameters()
                             fileBuildParameters {
                               propertiesFile(properties_file) // S3_FILES_TO_UPLOAD
+                              encoding('UTF-8')
+                              failTriggerOnMissing(false)
+                              useMatrixChind(false)
+                              combinationFilter('')
+                              onlyExactRuns(false)
+                              textParamValueOnNewLine(false)
                             }
                             predefinedBuildParameters {
                               properties('''\
@@ -191,6 +197,12 @@ class OSRFSourceCreation
                             currentBuildParameters()
                             fileBuildParameters {
                               propertiesFile(properties_file) // SOURCE_TARBALL_URI
+                              encoding('UTF-8')
+                              failTriggerOnMissing(false)
+                              useMatrixChind(false)
+                              combinationFilter('')
+                              onlyExactRuns(false)
+                              textParamValueOnNewLine(false)
                             }
                             predefinedBuildParameters {
                               properties('PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}')
