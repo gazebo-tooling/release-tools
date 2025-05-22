@@ -143,7 +143,7 @@ class OSRFSourceCreation
         postBuildScript {
           buildSteps {
             postBuildStep {
-              result(['SUCCESS'])
+              results(['SUCCESS'])
               role('BOTH')
               conditionalBuilder {
                 runner {
