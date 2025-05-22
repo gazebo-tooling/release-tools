@@ -173,6 +173,7 @@ class OSRFSourceCreation
                               encoding('UTF-8')
                               failTriggerOnMissing(false)
                               useMatrixChild(false)
+                              combinationFilter('')
                               onlyExactRuns(false)
                               textParamValueOnNewLine(false)
                             }
@@ -200,6 +201,7 @@ class OSRFSourceCreation
                               encoding('UTF-8')
                               failTriggerOnMissing(false)
                               useMatrixChild(false)
+                              combinationFilter('')
                               onlyExactRuns(false)
                               textParamValueOnNewLine(false)
                             }
