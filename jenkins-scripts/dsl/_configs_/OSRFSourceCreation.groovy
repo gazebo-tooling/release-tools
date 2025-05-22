@@ -141,58 +141,86 @@ class OSRFSourceCreation
     {
       publishers {
         postBuildScript {
+          markBuildUnstable(false)
           buildSteps {
             postBuildStep {
-              result(['SUCCESS'])
+              stopOnFailure(false)
+              results(['SUCCESS'])
               role('BOTH')
-              conditionalBuilder {
-                runner {
-                  fail()
-                }
-                runCondition {
-                  not {
-                    condition {
-                      expressionCondition {
-                        expression('none|None|^$')
-                        label('${ENV,var="UPLOAD_TO_REPO"}')
-                      }
-                    }
+              buildSteps {
+                conditionalBuilder {
+                  runner {
+                    fail()
                   }
-                }
-                conditionalbuilders {
-                  // Invoke repository_uploader
-                  triggerBuilder {
-                    configs {
-                      blockableBuildTriggerConfig {
-                        projects(repository_uploader_jobname)
-                        configs {
-                          currentBuildParameters()
-                          fileBuildParameters {
-                            propertiesFile(properties_file) // S3_FILES_TO_UPLOAD
-                          }
-                          predefinedBuildParameters {
-                            properties('''\
-                            PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}
-                            PACKAGE_ALIAS=${PACKAGE_ALIAS}
-                            S3_UPLOAD_PATH=gz-plugin/releases/
-                            '''.stripIndent())
-                          }
+                  runCondition {
+                    not {
+                      condition {
+                        expressionCondition {
+                          expression('none|None|^$')
+                          label('${ENV,var="UPLOAD_TO_REPO"}')
                         }
                       }
                     }
                   }
-                  // Invoke releasepy
-                  triggerBuilder {
-                    configs {
-                      blockableBuildTriggerConfig {
-                        projects(releasepy_jobname)
-                        configs {
-                          currentBuildParameters()
-                          fileBuildParameters {
-                            propertiesFile(properties_file) // SOURCE_TARBALL_URI
+                  conditionalbuilders {
+                    // Invoke repository_uploader
+                    triggerBuilder {
+                      configs {
+                        blockableBuildTriggerConfig {
+                          projects(repository_uploader_jobname)
+                          block {
+                            buildStepFailureThreshold('never')
+                            unstableThreshold('never')
+                            failureThreshold('never')
                           }
-                          predefinedBuildParameters {
-                            properties('PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}')
+                          configs {
+                            currentBuildParameters()
+                            fileBuildParameters {
+                              propertiesFile(properties_file) // S3_FILES_TO_UPLOAD
+                              encoding('UTF-8')
+                              failTriggerOnMissing(false)
+                              useMatrixChild(false)
+                              combinationFilter('')
+                              onlyExactRuns(false)
+                              textParamValueOnNewLine(false)
+                            }
+                            predefinedBuildParameters {
+                              textParamValueOnNewLine(false)
+                              properties('''\
+                              PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}
+                              PACKAGE_ALIAS=${PACKAGE_ALIAS}
+                              S3_UPLOAD_PATH=gz-plugin/releases/
+                              '''.stripIndent())
+                            }
+                          }
+                        }
+                      }
+                    }
+                    // Invoke releasepy
+                    triggerBuilder {
+                      configs {
+                        blockableBuildTriggerConfig {
+                          projects(releasepy_jobname)
+                          block {
+                            buildStepFailureThreshold('never')
+                            unstableThreshold('never')
+                            failureThreshold('never')
+                          }
+                          configs {
+                            currentBuildParameters()
+                            fileBuildParameters {
+                              propertiesFile(properties_file) // SOURCE_TARBALL_URI
+                              encoding('UTF-8')
+                              failTriggerOnMissing(false)
+                              useMatrixChild(false)
+                              combinationFilter('')
+                              onlyExactRuns(false)
+                              textParamValueOnNewLine(false)
+                            }
+                            predefinedBuildParameters {
+                              textParamValueOnNewLine(false)
+                              properties('PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}')
+                            }
                           }
                         }
                       }
