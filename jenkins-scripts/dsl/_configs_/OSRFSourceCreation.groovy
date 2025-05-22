@@ -173,11 +173,11 @@ class OSRFSourceCreation
                               encoding('UTF-8')
                               failTriggerOnMissing(false)
                               useMatrixChild(false)
-                              combinationFilter('')
                               onlyExactRuns(false)
                               textParamValueOnNewLine(false)
                             }
                             predefinedBuildParameters {
+                              textParamValueOnNewLine(false)
                               properties('''\
                               PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}
                               PACKAGE_ALIAS=${PACKAGE_ALIAS}
@@ -200,11 +200,11 @@ class OSRFSourceCreation
                               encoding('UTF-8')
                               failTriggerOnMissing(false)
                               useMatrixChild(false)
-                              combinationFilter('')
                               onlyExactRuns(false)
                               textParamValueOnNewLine(false)
                             }
                             predefinedBuildParameters {
+                              textParamValueOnNewLine(false)
                               properties('PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}')
                             }
                           }
