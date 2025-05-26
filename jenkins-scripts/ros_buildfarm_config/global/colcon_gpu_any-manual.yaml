@@ -4,7 +4,7 @@
 build_tool: colcon
 build_tool_args: '--cmake-args -DCMAKE_BUILD_TYPE=Release --no-warn-unused-cli'
 build_tool_test_args: '--retest-until-pass 2 --ctest-args -LE xfail --pytest-args -m "not xfail"'
-jenkins_job_label: (docker && gpu-reliable) && !test-instance
+jenkins_job_label: '(docker &amp;&amp; gpu-reliable) &amp;&amp; !test-instance'
 jenkins_job_priority: 200  # same than pr-any
 jenkins_job_timeout: 300
 repos_files:
