@@ -4,7 +4,7 @@
 build_tool: colcon
 build_tool_args: '--cmake-args -DCMAKE_BUILD_TYPE=Release --no-warn-unused-cli'
 build_tool_test_args: '--retest-until-pass 2 --ctest-args -LE xfail --pytest-args -m "not xfail"'
-jenkins_job_label: gpu-reliable
+jenkins_job_label: (docker && gpu-reliable) && !test-instance
 jenkins_job_priority: 200  # same than pr-any
 jenkins_job_timeout: 300
 repos_files:
@@ -77,7 +77,7 @@ repositories:
   urls:
   - https://packages.osrfoundation.org/gazebo/ubuntu-stable
   - http://repos.ros.org/repos/ros_bootstrap  # Needed for getting the ROS building tools packages like python3-rosdep
-skip_rosdep_keys: 
+skip_rosdep_keys:
 - python3-distutils
 targets:
   ubuntu:
