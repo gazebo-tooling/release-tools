@@ -268,7 +268,7 @@ fi
 
 cat >> Dockerfile << DELIM_HTTPS
 # Replace HTTP with HTTPS in all apt sources
-RUN find /etc/apt -name "*.list" -type f -exec sed -i 's|http://|https://|g' {} \;
+RUN sed -i 's|http://|https://|g' /etc/apt/sources.list /etc/apt/sources.list.d/*
 DELIM_HTTPS
 
 if [[ $ARCH == 'arm64' ]]; then
