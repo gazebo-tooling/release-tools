@@ -222,7 +222,7 @@ fi
 
 cat >> Dockerfile << DELIM_DOCKER_DIRMNGR
 RUN apt-get ${APT_PARAMS} update && \\
-    apt-get install -y dirmngr git python3 python3-docopt python3-yaml python3-distro
+    apt-get install -y dirmngr git python3 python3-docopt python3-yaml python3-distro ca-certificates
 DELIM_DOCKER_DIRMNGR
 
 # Install necessary repositories using gzdev
@@ -265,6 +265,11 @@ DELIM_ROS_REPO_STABLE
 fi
   fi
 fi
+
+cat >> Dockerfile << DELIM_HTTPS
+# Replace HTTP with HTTPS in all apt sources
+RUN find /etc/apt -name "*.list" -type f -exec sed -i 's|http://|https://|g' {} \;
+DELIM_HTTPS
 
 if [[ $ARCH == 'arm64' ]]; then
 cat >> Dockerfile << DELIM_SYSCAL_ARM64
