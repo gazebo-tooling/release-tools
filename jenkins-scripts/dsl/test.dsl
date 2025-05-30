@@ -164,20 +164,26 @@ test_credentials_token_job.with
           """.stripIndent())
     }
 
-    publishers
-    {
-      postBuildScripts {
-        steps {
-          shell("""\
-                #!/bin/bash -xe
+    publishers {
+      postBuildScript {
+        markBuildUnstable(false)
+        buildSteps {
+          postBuildStep {
+            results(['SUCCESS', 'NOT_BUILT', 'ABORTED', 'FAILURE', 'UNSTABLE'])
+            role('BOTH')
+            stopOnFailure(false)
+            buildSteps {
+              shell {
+                command("""\
+                      #!/bin/bash -xe
 
-                # remove config after the build ends unconditionally to avoid token leaks
-                rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
-                """.stripIndent())
+                      # remove config after the build ends unconditionally to avoid token leaks
+                      rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
+                      """.stripIndent())
+              }
+            }
+          }
         }
-
-        onlyIfBuildSucceeds(false)
-        onlyIfBuildFails(false)
       }
     }
 

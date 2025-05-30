@@ -140,33 +140,90 @@ class OSRFSourceCreation
     job.with
     {
       publishers {
-        postBuildScripts {
-          steps {
-            conditionalSteps {
-             condition {
-              not {
-                expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
-                }
-              }
-              steps {
-                // Invoke repository_uploader
-                downstreamParameterized {
-                  trigger(repository_uploader_jobname) {
-                    parameters {
-                      currentBuild()
-                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: '${JOB_NAME}',
-                                       PACKAGE_ALIAS: '${PACKAGE_ALIAS}',
-                                       S3_UPLOAD_PATH: "${Globals.s3_releases_dir(package_name)}/"])  // relative path with a final /
-                      propertiesFile(properties_file)  // S3_FILES_TO_UPLOAD
+        postBuildScript {
+          markBuildUnstable(false)
+          buildSteps {
+            postBuildStep {
+              stopOnFailure(false)
+              results(['SUCCESS'])
+              role('BOTH')
+              buildSteps {
+                conditionalBuilder {
+                  runner {
+                    fail()
+                  }
+                  runCondition {
+                    not {
+                      condition {
+                        expressionCondition {
+                          expression('none|None|^$')
+                          label('${ENV,var="UPLOAD_TO_REPO"}')
+                        }
+                      }
                     }
                   }
-                }
-                downstreamParameterized {
-                  trigger(releasepy_jobname) {
-                    parameters {
-                      currentBuild()
-                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}"])
-                      propertiesFile(properties_file) // SOURCE_TARBALL_URI
+                  conditionalbuilders {
+                    // Invoke repository_uploader
+                    triggerBuilder {
+                      configs {
+                        blockableBuildTriggerConfig {
+                          projects(repository_uploader_jobname)
+                          block {
+                            buildStepFailureThreshold('never')
+                            unstableThreshold('never')
+                            failureThreshold('never')
+                          }
+                          configs {
+                            currentBuildParameters()
+                            fileBuildParameters {
+                              propertiesFile(properties_file) // S3_FILES_TO_UPLOAD
+                              encoding('UTF-8')
+                              failTriggerOnMissing(false)
+                              useMatrixChild(false)
+                              combinationFilter('')
+                              onlyExactRuns(false)
+                              textParamValueOnNewLine(false)
+                            }
+                            predefinedBuildParameters {
+                              textParamValueOnNewLine(false)
+                              properties('''\
+                              PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}
+                              PACKAGE_ALIAS=${PACKAGE_ALIAS}
+                              S3_UPLOAD_PATH=gz-plugin/releases/
+                              '''.stripIndent())
+                            }
+                          }
+                        }
+                      }
+                    }
+                    // Invoke releasepy
+                    triggerBuilder {
+                      configs {
+                        blockableBuildTriggerConfig {
+                          projects(releasepy_jobname)
+                          block {
+                            buildStepFailureThreshold('never')
+                            unstableThreshold('never')
+                            failureThreshold('never')
+                          }
+                          configs {
+                            currentBuildParameters()
+                            fileBuildParameters {
+                              propertiesFile(properties_file) // SOURCE_TARBALL_URI
+                              encoding('UTF-8')
+                              failTriggerOnMissing(false)
+                              useMatrixChild(false)
+                              combinationFilter('')
+                              onlyExactRuns(false)
+                              textParamValueOnNewLine(false)
+                            }
+                            predefinedBuildParameters {
+                              textParamValueOnNewLine(false)
+                              properties('PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}')
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
