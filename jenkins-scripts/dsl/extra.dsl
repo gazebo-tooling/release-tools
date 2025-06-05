@@ -133,18 +133,20 @@ gbp_repo_debbuilds.each { software ->
         }
       }
 
-      postBuildScripts {
-        steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                sudo chown -R jenkins \${WORKSPACE}/pkgs
-                """.stripIndent())
+      configure { project ->
+          project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
+            buildSteps {
+              'hudson.tasks.Shell' {
+                command("""
+                  #!/bin/bash -xe
+                  [[ -d \${WORKSPACE}/pkgs ]] && sudo chown -R jenkins \${WORKSPACE}/pkgs""")
+              }
+            }
+            scriptOnlyIfSuccess('false')
+            scriptOnlyIfFailure('false')
+            markBuildUnstable('false')
+          }
         }
-
-        onlyIfBuildSucceeds(false)
-        onlyIfBuildFails(false)
-      }
     }
   }
 }
