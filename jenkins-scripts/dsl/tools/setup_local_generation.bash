@@ -4,11 +4,12 @@ set -e
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 SNAKEYAML_PATH="lib/snakeyaml.jar"
-JOB_DSL_VER="1.77"
+# JOB_DSL_VER="1.77"
 
 pushd "${SCRIPT_DIR}" >/dev/null
 echo " * Download job-dsl-core jar"
-curl -sSL https://repo.jenkins-ci.org/public/org/jenkins-ci/plugins/job-dsl-core/${JOB_DSL_VER}/job-dsl-core-${JOB_DSL_VER}-standalone.jar -o jobdsl.jar
+# curl -sSL https://repo.jenkins-ci.org/public/org/jenkins-ci/plugins/job-dsl-core/${JOB_DSL_VER}/job-dsl-core-${JOB_DSL_VER}-standalone.jar -o jobdsl.jar
+curl -sSL https://github.com/j-rivero/job-dsl-plugin/releases/download/job-dsl-1.85-pr-1577/job-dsl-core-1.85-pr-1577-jar-with-dependencies.jar -o jobdsl.jar
 echo " * Download snakeyaml jar"
 # need to inject the yaml module into the jar file. lib subdir is needed to ineject into
 # tar in the right place.
