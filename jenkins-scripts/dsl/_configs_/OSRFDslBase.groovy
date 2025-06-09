@@ -2,21 +2,22 @@ package _configs_
 
 import javaposse.jobdsl.dsl.Job
 
-class OSRFDslBase extends OSRFUnixBase {
+class OSRFDslBase extends OSRFUNIXBase
+{
   static void create(Job job, String target_dsl_scripts)
   {
-    OSRFUNixBase.create(job)
+    OSRFUNIXBase.create(job)
 
     job.with
     {
-      label(Globals.nontest_label("built-in"))
+      label("built-in")
 
-      steps {
-        jobDsl {
-          targets(target_dsl_scripts)
-          removedJobAction('DISABLE')
-          removedViewAction('DELETE')
-          removedConfigFilesAction('IGNORE')
+      steps
+      {
+        dsl {
+          external(target_dsl_scripts)
+          removeAction('DISABLE')
+          removeViewAction('DELETE')
         }
       }
     }

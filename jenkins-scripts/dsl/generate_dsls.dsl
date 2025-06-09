@@ -35,10 +35,7 @@ dsl_triggerer.with {
   }
 
   triggers {
-    pollSCM {
-      scmpoll_spec('@daily')
-      ignorePostCommitHooks(false)
-    }
+    cron('@daily')
   }
 
   steps {
