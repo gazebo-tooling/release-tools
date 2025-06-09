@@ -149,11 +149,7 @@ work_dir=$WORKSPACE/work
 
 # python-argparse is integrated in libpython2.7-stdlib since raring
 # Check for precise in the HOST system (not valid DISTRO variable)
-if [[ $(lsb_release -sr | cut -c 1-5) == '12.04' ]]; then
-    NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} python2.7"
-else
-    NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} libpython2.7-stdlib"
-fi
+# NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} libpython3-stdlib"
 
 # Check if they are already installed in the host.
 # dpkg-query will return an error in stderr if a package has never been in the

@@ -27,7 +27,7 @@ class OSRFBase
         }
 
         parameters {
-          stringParam('RTOOLS_BRANCH','master','release-tools branch to use')
+          stringParam('RTOOLS_BRANCH','Crola1702/dev_24.04-migration','release-tools branch to use')
           if (Globals.gazebodistro_branch)
           {
             stringParam('GAZEBODISTRO_BRANCH','master','gazebodistro branch to use')
