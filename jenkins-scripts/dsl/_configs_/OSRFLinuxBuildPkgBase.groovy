@@ -37,8 +37,7 @@ class OSRFLinuxBuildPkgBase
             buildSteps {
               'hudson.tasks.Shell' {
                 command("""
-                  #!/bin/bash -xe
-                  [[ -d \${WORKSPACE}/pkgs ]] && sudo chown -R jenkins \${WORKSPACE}/pkgs""")
+                  [ -d \${WORKSPACE}/pkgs ] && sudo chown -R jenkins \${WORKSPACE}/pkgs""")
               }
             }
             scriptOnlyIfSuccess('false')
