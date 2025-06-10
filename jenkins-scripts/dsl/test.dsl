@@ -135,7 +135,7 @@ test_credentials_token_job.with
           #!/bin/bash -xe
 
           URL_TO_BUILD="\${JENKINS_URL}/job/\${TEST_JOB_TO_BUILD}/build"
-          
+
           echo " + Testing OSRFBUILD_JENKINS_TOKEN ability for calling jobs:"
           echo "   - \${URL_TO_BUILD}"
 
@@ -166,18 +166,22 @@ test_credentials_token_job.with
 
     publishers
     {
-      postBuildScripts {
-        steps {
-          shell("""\
+      configure { project ->
+        project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
+          buildSteps {
+            'hudson.tasks.Shell' {
+              command("""\
                 #!/bin/bash -xe
 
                 # remove config after the build ends unconditionally to avoid token leaks
                 rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
                 """.stripIndent())
-        }
+            }
+          }
 
-        onlyIfBuildSucceeds(false)
-        onlyIfBuildFails(false)
+          scriptonlyifsuccess('false')
+          scriptonlyiffailure('false')
+        }
       }
     }
 
