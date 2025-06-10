@@ -59,7 +59,7 @@ release_job.with
    String PR_URL_export_file_name = 'pull_request_created.properties'
    String PR_URL_export_file = '${WORKSPACE}/' + PR_URL_export_file_name
 
-   label Globals.nontest_label("master")
+   label Globals.nontest_label("built-in")
 
    wrappers {
      preBuildCleanup()
@@ -249,7 +249,7 @@ OSRFUNIXBase.create(bottle_job_hash_updater)
 include_common_params(bottle_job_hash_updater)
 bottle_job_hash_updater.with
 {
-  label Globals.nontest_label("master")
+  label Globals.nontest_label("built-in")
 
   wrappers
   {

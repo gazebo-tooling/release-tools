@@ -152,7 +152,7 @@ OSRFCredentials.setOSRFCrendentials(nightly_scheduler_job, ['OSRFBUILD_JENKINS_T
 
 nightly_scheduler_job.with
 {
-  label Globals.nontest_label("master")
+  label Globals.nontest_label("built-in")
 
   parameters
   {
