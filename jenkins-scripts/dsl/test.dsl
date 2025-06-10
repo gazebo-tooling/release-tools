@@ -179,8 +179,9 @@ test_credentials_token_job.with
             }
           }
 
-          scriptonlyifsuccess('false')
-          scriptonlyiffailure('false')
+          scriptOnlyIfSuccess('false')
+          scriptOnlyIfFailure('false')
+          markBuildUnstable('false')
         }
       }
     }
