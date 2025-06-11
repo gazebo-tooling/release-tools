@@ -24,7 +24,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 . "${SCRIPT_DIR}"/_dashboard_lib.sh
 
 COLLECTION=$1
-PACKAGES_URL=${PACKAGES_URL-packages.osrfoundation.org}
+PACKAGES_URL=${PACKAGES_URL:-packages.osrfoundation.org}
 PACKAGE_REPO=${2:-stable}
 
 for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do

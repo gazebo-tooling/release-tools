@@ -7,7 +7,7 @@ set -e
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 PYTHON_VENV="${WORKSPACE}/venv"
-PACKAGES_URL=${PACKAGES_URL-packages.osrfoundation.org}
+PACKAGES_URL=${PACKAGES_URL:-packages.osrfoundation.org}
 REPREPRO_GIT_REPO="https://github.com/ros-infrastructure/reprepro-updater"
 REPREPRO_GIT_BRANCH="${REPREPRO_GIT_BRANCH:-refactor_osrfbuild}"
 REPREPRO_REPO_PATH="$WORKSPACE/repo"

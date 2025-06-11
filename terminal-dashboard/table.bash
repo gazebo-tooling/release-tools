@@ -21,7 +21,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 . ${SCRIPT_DIR}/_dashboard_lib.sh
 
 COLLECTION=$1
-PACKAGES_URL=${PACKAGES_URL-packages.osrfoundation.org}
+PACKAGES_URL=${PACKAGES_URL:-packages.osrfoundation.org}
 echo "Using $PACKAGES_URL"
 PACKAGE_REPO=${2:-stable}
 

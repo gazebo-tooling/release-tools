@@ -27,7 +27,7 @@ if [[ -z ${LINUX_DISTRO} ]]; then
   export LINUX_DISTRO="ubuntu"
 fi
 
-PACKAGES_URL="${PACKAGES_URL-packages.osrfoundation.org}"
+PACKAGES_URL="${PACKAGES_URL:-packages.osrfoundation.org}"
 
 [[ -z ${INSTALL_C17_COMPILER} ]] && INSTALL_C17_COMPILER=false
 
