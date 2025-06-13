@@ -106,7 +106,7 @@ def outdated_job_runner = job("_test_outdated_job_runner")
 OSRFBase.create(outdated_job_runner)
 outdated_job_runner.with
 {
-  label Globals.nontest_label("master")
+  label Globals.nontest_label("built-in")
 
   steps
   {

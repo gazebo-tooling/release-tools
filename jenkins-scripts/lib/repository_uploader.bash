@@ -77,7 +77,7 @@ upload_dsc_package()
 }
 
 # By default, enable s3 upload of packages
-ENABLE_S3_UPLOAD=true
+ENABLE_S3_UPLOAD=false
 
 # PATH to packages
 pkgs_path="$WORKSPACE/pkgs"

@@ -45,7 +45,6 @@ class OSRFLinuxBuildPkgBase
             markBuildUnstable('false')
           }
         }
-
         archiveArtifacts('pkgs/*')
       }
     }
