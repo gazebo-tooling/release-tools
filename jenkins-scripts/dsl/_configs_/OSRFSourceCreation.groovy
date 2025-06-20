@@ -144,47 +144,57 @@ class OSRFSourceCreation
         // (repository uploader and release.py) only when UPLOAD_TO_REPO is not 'none', 'None', or empty
         configure { project ->
           project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
-            buildSteps {
-              'org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder' {
-                runner(class: 'org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail')
-                conditionalbuilders {
-                  'hudson.plugins.parameterizedtrigger.TriggerBuilder' {
-                    configs {
-                      'hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig' {
-                        projects(repository_uploader_jobname)
-                        condition('ALWAYS')
-                        triggerWithNoParameters('false')
-                        configs {
-                          'hudson.plugins.parameterizedtrigger.CurrentBuildParameters'()
-                          'hudson.plugins.parameterizedtrigger.FileBuildParameters' {
-                            propertiesFile(properties_file)
-                            failTriggerOnMissing('false')
-                          }
-                          'hudson.plugins.parameterizedtrigger.PredefinedBuildParameters' {
-                            properties("""
-                              PROJECT_NAME_TO_COPY_ARTIFACTS=\${JOB_NAME}
-                              PACKAGE_ALIAS=\${PACKAGE_ALIAS}
-                              S3_UPLOAD_PATH=${Globals.s3_releases_dir(package_name)}
-                              """)
+            config {            
+              buildSteps {
+                'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
+                  results {
+                    string('SUCCESS')
+                  }
+                  role('BOTH')                
+                  buildSteps {
+                    'org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder' {
+                      runner(class: 'org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail')
+                      conditionalbuilders {
+                        'hudson.plugins.parameterizedtrigger.TriggerBuilder' {
+                          configs {
+                            'hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig' {
+                              projects(repository_uploader_jobname)
+                              condition('ALWAYS')
+                              triggerWithNoParameters('false')
+                              configs {
+                                'hudson.plugins.parameterizedtrigger.CurrentBuildParameters'()
+                                'hudson.plugins.parameterizedtrigger.FileBuildParameters' {
+                                  propertiesFile(properties_file)
+                                  failTriggerOnMissing('false')
+                                }
+                                'hudson.plugins.parameterizedtrigger.PredefinedBuildParameters' {
+                                  properties("""
+                                    PROJECT_NAME_TO_COPY_ARTIFACTS=\${JOB_NAME}
+                                    PACKAGE_ALIAS=\${PACKAGE_ALIAS}
+                                    S3_UPLOAD_PATH=${Globals.s3_releases_dir(package_name)}
+                                    """)
+                                }
+                              }
+                            }
                           }
                         }
-                      }
-                    }
-                  }
-                  'hudson.plugins.parameterizedtrigger.TriggerBuilder' {
-                    configs {
-                      'hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig' {
-                        projects(releasepy_jobname)
-                        condition('ALWAYS')
-                        triggerWithNoParameters('false')
-                        configs {
-                          'hudson.plugins.parameterizedtrigger.CurrentBuildParameters'()
-                          'hudson.plugins.parameterizedtrigger.FileBuildParameters' {
-                            propertiesFile(properties_file)
-                            failTriggerOnMissing('false')
-                          }
-                          'hudson.plugins.parameterizedtrigger.PredefinedBuildParameters' {
-                            properties('PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}')
+                        'hudson.plugins.parameterizedtrigger.TriggerBuilder' {
+                          configs {
+                            'hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig' {
+                              projects(releasepy_jobname)
+                              condition('ALWAYS')
+                              triggerWithNoParameters('false')
+                              configs {
+                                'hudson.plugins.parameterizedtrigger.CurrentBuildParameters'()
+                                'hudson.plugins.parameterizedtrigger.FileBuildParameters' {
+                                  propertiesFile(properties_file)
+                                  failTriggerOnMissing('false')
+                                }
+                                'hudson.plugins.parameterizedtrigger.PredefinedBuildParameters' {
+                                  properties('PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}')
+                                }
+                              }
+                            }
                           }
                         }
                       }

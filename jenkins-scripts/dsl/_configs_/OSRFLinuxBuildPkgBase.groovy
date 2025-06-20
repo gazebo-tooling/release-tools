@@ -34,20 +34,35 @@ class OSRFLinuxBuildPkgBase
         // Runs regardless of build success or failure
         configure { project ->
           project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
-            buildSteps {
-              'hudson.tasks.Shell' {
-                command("""
-                  [ -d \${WORKSPACE}/pkgs ] && sudo chown -R jenkins \${WORKSPACE}/pkgs""")
-              }
-            }
-            scriptOnlyIfSuccess('false')
-            scriptOnlyIfFailure('false')
-            markBuildUnstable('false')
-          }
-        }
+            config {
+              buildSteps {
+                'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
+                  results {
+                    string('SUCCESS')
+                    string('NOT_BUILT')
+                    string('ABORTED')
+                    string('FAILURE')
+                    string('UNSTABLE')
+                  }
+                  role('BOTH')
+                  executeOn('BOTH')
+                  buildSteps {
+                    'hudson.tasks.Shell' {
+                      command('''#!/bin/bash -xe
 
+  [[ -d ${WORKSPACE}/pkgs ]] && sudo chown -R jenkins ${WORKSPACE}/pkgs
+  ''')
+                    }
+                  } // buildSteps
+                  stopOnFailure('false')
+                } // buildSteps
+              } // config
+              markBuildUnstable('false')
+            } // project
+          } // project
+        } // configure        
         archiveArtifacts('pkgs/*')
-      }
-    }
-  }
-}
+      } // publishers
+    } //  with
+  } //create 
+} // class

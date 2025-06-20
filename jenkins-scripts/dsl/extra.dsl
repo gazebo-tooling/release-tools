@@ -135,17 +135,28 @@ gbp_repo_debbuilds.each { software ->
 
       configure { project ->
           project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
-            buildSteps {
-              'hudson.tasks.Shell' {
-                command("""
-                  [ -d \${WORKSPACE}/pkgs ] && sudo chown -R jenkins \${WORKSPACE}/pkgs""")
+            config {
+              buildSteps {
+                'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
+                  results {
+                    string('SUCCESS')
+                    string('NOT_BUILT')
+                    string('ABORTED')
+                    string('FAILURE')
+                    string('UNSTABLE')
+                  }           
+                  buildSteps {
+                    'hudson.tasks.Shell' {
+                      command("""
+                        [ -d \${WORKSPACE}/pkgs ] && sudo chown -R jenkins \${WORKSPACE}/pkgs""")
+                    }
+                  }
+                }
               }
             }
-            scriptOnlyIfSuccess('false')
-            scriptOnlyIfFailure('false')
-            markBuildUnstable('false')
           }
         }
+      }
     }
   }
 }
