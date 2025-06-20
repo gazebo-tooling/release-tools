@@ -38,61 +38,62 @@ class OSRFUNIXBase extends OSRFBase
              git clone https://github.com/gazebo-tooling/release-tools scripts -b \$RTOOLS_BRANCH
              """.stripIndent())
       }
+
       publishers {
-        postBuildScript {
-          markBuildUnstable(false)
-          buildSteps {
-            postBuildStep {
-              stopOnFailure(false)
-              buildSteps {
-                conditionalBuilder {
-                  runner {
-                    fail()
-                  }
-                  runCondition {
-                    expressionCondition {
-                      expression("(.)* gpu-nvidia (.)*")
-                      label('${NODE_LABELS}')
-                    }
-                  }
-                  conditionalbuilders {
-                    systemGroovy {
-                      source {
-                        stringSystemScriptSource {
+        configure { project ->
+          project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
+          config {     
+            buildSteps {
+              'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {                
+                results {
+                  string('FAILURE')
+                }
+                buildSteps {          
+                  'org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder' {
+                    runner(class: 'org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail')
+                    conditionalbuilders {
+                      'hudson.plugins.groovy.SystemGroovy' {
+                        bindings()
+                        source(class: 'hudson.plugins.groovy.StringSystemScriptSource') {
                           script {
                             script('''\
-                              import hudson.model.Cause.UpstreamCause;
-                              import hudson.model.*;
+import hudson.model.Cause.UpstreamCause;
+import hudson.model.*;
 
-                              def node = build.getBuiltOn()
-                              def old_labels = node.getLabelString()
+def node = build.getBuiltOn()
+def old_labels = node.getLabelString()
 
-                              println("Checking if nvidia mismatch error is present in log")
-                              if (!(build.getLog(1000) =~ "nvml error: driver/library version mismatch")) {
-                                println(" NVIDIA driver/library version mismatch not detected in the log - Not performing any automatic recovery steps")
-                                return 1;
-                              } else {
-                                println("# BEGIN SECTION: NVIDIA MISMATCH RECOVERY")
-                                try {
-                                  println(" PROBLEM: NVIDIA driver/library version mismatch was detected in the log. Try to automatically resolve it:")
-                                  println("Removing labels and adding 'recovery-process' label to node")
-                                  node.setLabelString("recovery-process")
-                                } catch (Exception ex) {
-                                  println("ERROR - CANNOT PERFORM RECOVERY ACTIONS FOR NVIDIA ERROR")
-                                  println("Restoring to previous state")
-                                  node.setLabelString(old_labels)
-                                  throw ex
-                                }
-                                println("# END SECTION: NVIDIA MISMATCH RECOVERY")
-                              }
-                              '''.stripIndent())
-                            sandbox(false)
+println("Checking if nvidia mismatch error is present in log")
+if (!(build.getLog(1000) =~ "nvml error: driver/library version mismatch")) {
+  println(" NVIDIA driver/library version mismatch not detected in the log - Not performing any automatic recovery steps")
+  return 1;
+} else {
+  println("# BEGIN SECTION: NVIDIA MISMATCH RECOVERY")
+  try {
+    println(" PROBLEM: NVIDIA driver/library version mismatch was detected in the log. Try to automatically resolve it:")
+    println("Removing labels and adding 'recovery-process' label to node")
+    node.setLabelString("recovery-process")
+  } catch (Exception ex) {
+    println("ERROR - CANNOT PERFORM RECOVERY ACTIONS FOR NVIDIA ERROR")
+    println("Restoring to previous state")
+    node.setLabelString(old_labels)
+    throw ex
+  }
+  println("# END SECTION: NVIDIA MISMATCH RECOVERY")
+}
+''')
+                            sandbox('false')
+                            classpath()
                           }
                         }
                       }
+                      'hudson.tasks.Shell' {
+                        command('sudo shutdown -r +1')
+                      }
                     }
-                    shell {
-                      command("sudo shutdown -r +1")
+                    runCondition(class: 'org.jenkins_ci.plugins.run_condition.core.ExpressionCondition') {
+                      expression('(.)* gpu-nvidia (.)*')
+                      delegate.label('${NODE_LABELS}')
                     }
                   }
                 }

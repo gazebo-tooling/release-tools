@@ -28,28 +28,41 @@ class OSRFLinuxBuildPkgBase
          }
       }
 
-      publishers {
-        postBuildScript {
-          markBuildUnstable(false)
-          buildSteps {
-            postBuildStep {
-              results(['SUCCESS', 'NOT_BUILT', 'ABORTED', 'FAILURE', 'UNSTABLE'])
-              role('BOTH')
-              stopOnFailure(false)
+      publishers
+      {
+        // This creates a post-build script that changes ownership of pkgs directory to jenkins user
+        // Runs regardless of build success or failure
+        configure { project ->
+          project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
+            config {
               buildSteps {
-                shell {
-                  command("""\
-                    #!/bin/bash -xe
+                'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
+                  results {
+                    string('SUCCESS')
+                    string('NOT_BUILT')
+                    string('ABORTED')
+                    string('FAILURE')
+                    string('UNSTABLE')
+                  }
+                  role('BOTH')
+                  executeOn('BOTH')
+                  buildSteps {
+                    'hudson.tasks.Shell' {
+                      command('''#!/bin/bash -xe
 
-                    [[ -d \${WORKSPACE}/pkgs ]] && sudo chown -R jenkins \${WORKSPACE}/pkgs
-                    """.stripIndent())
-                }
-              }
-            }
-          }
-        }
+  [[ -d ${WORKSPACE}/pkgs ]] && sudo chown -R jenkins ${WORKSPACE}/pkgs
+  ''')
+                    }
+                  } // buildSteps
+                  stopOnFailure('false')
+                } // buildSteps
+              } // config
+              markBuildUnstable('false')
+            } // project
+          } // project
+        } // configure        
         archiveArtifacts('pkgs/*')
-      }
-    }
-  }
-}
+      } // publishers
+    } //  with
+  } //create 
+} // class

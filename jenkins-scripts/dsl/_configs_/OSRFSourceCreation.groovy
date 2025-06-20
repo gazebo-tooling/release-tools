@@ -140,86 +140,60 @@ class OSRFSourceCreation
     job.with
     {
       publishers {
-        postBuildScript {
-          markBuildUnstable(false)
-          buildSteps {
-            postBuildStep {
-              stopOnFailure(false)
-              results(['SUCCESS'])
-              role('BOTH')
+        // This creates a post-build script that conditionally triggers downstream jobs
+        // (repository uploader and release.py) only when UPLOAD_TO_REPO is not 'none', 'None', or empty
+        configure { project ->
+          project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
+            config {            
               buildSteps {
-                conditionalBuilder {
-                  runner {
-                    fail()
+                'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
+                  results {
+                    string('SUCCESS')
                   }
-                  runCondition {
-                    not {
-                      condition {
-                        expressionCondition {
-                          expression('none|None|^$')
-                          label('${ENV,var="UPLOAD_TO_REPO"}')
-                        }
-                      }
-                    }
-                  }
-                  conditionalbuilders {
-                    // Invoke repository_uploader
-                    triggerBuilder {
-                      configs {
-                        blockableBuildTriggerConfig {
-                          projects(repository_uploader_jobname)
-                          block {
-                            buildStepFailureThreshold('never')
-                            unstableThreshold('never')
-                            failureThreshold('never')
-                          }
+                  role('BOTH')                
+                  buildSteps {
+                    'org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder' {
+                      runner(class: 'org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail')
+                      conditionalbuilders {
+                        'hudson.plugins.parameterizedtrigger.TriggerBuilder' {
                           configs {
-                            currentBuildParameters()
-                            fileBuildParameters {
-                              propertiesFile(properties_file) // S3_FILES_TO_UPLOAD
-                              encoding('UTF-8')
-                              failTriggerOnMissing(false)
-                              useMatrixChild(false)
-                              combinationFilter('')
-                              onlyExactRuns(false)
-                              textParamValueOnNewLine(false)
-                            }
-                            predefinedBuildParameters {
-                              textParamValueOnNewLine(false)
-                              properties('''\
-                              PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}
-                              PACKAGE_ALIAS=${PACKAGE_ALIAS}
-                              S3_UPLOAD_PATH=gz-plugin/releases/
-                              '''.stripIndent())
+                            'hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig' {
+                              projects(repository_uploader_jobname)
+                              condition('ALWAYS')
+                              triggerWithNoParameters('false')
+                              configs {
+                                'hudson.plugins.parameterizedtrigger.CurrentBuildParameters'()
+                                'hudson.plugins.parameterizedtrigger.FileBuildParameters' {
+                                  propertiesFile(properties_file)
+                                  failTriggerOnMissing('false')
+                                }
+                                'hudson.plugins.parameterizedtrigger.PredefinedBuildParameters' {
+                                  properties("""
+                                    PROJECT_NAME_TO_COPY_ARTIFACTS=\${JOB_NAME}
+                                    PACKAGE_ALIAS=\${PACKAGE_ALIAS}
+                                    S3_UPLOAD_PATH=${Globals.s3_releases_dir(package_name)}
+                                    """)
+                                }
+                              }
                             }
                           }
                         }
-                      }
-                    }
-                    // Invoke releasepy
-                    triggerBuilder {
-                      configs {
-                        blockableBuildTriggerConfig {
-                          projects(releasepy_jobname)
-                          block {
-                            buildStepFailureThreshold('never')
-                            unstableThreshold('never')
-                            failureThreshold('never')
-                          }
+                        'hudson.plugins.parameterizedtrigger.TriggerBuilder' {
                           configs {
-                            currentBuildParameters()
-                            fileBuildParameters {
-                              propertiesFile(properties_file) // SOURCE_TARBALL_URI
-                              encoding('UTF-8')
-                              failTriggerOnMissing(false)
-                              useMatrixChild(false)
-                              combinationFilter('')
-                              onlyExactRuns(false)
-                              textParamValueOnNewLine(false)
-                            }
-                            predefinedBuildParameters {
-                              textParamValueOnNewLine(false)
-                              properties('PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}')
+                            'hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig' {
+                              projects(releasepy_jobname)
+                              condition('ALWAYS')
+                              triggerWithNoParameters('false')
+                              configs {
+                                'hudson.plugins.parameterizedtrigger.CurrentBuildParameters'()
+                                'hudson.plugins.parameterizedtrigger.FileBuildParameters' {
+                                  propertiesFile(properties_file)
+                                  failTriggerOnMissing('false')
+                                }
+                                'hudson.plugins.parameterizedtrigger.PredefinedBuildParameters' {
+                                  properties('PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}')
+                                }
+                              }
                             }
                           }
                         }
@@ -227,8 +201,17 @@ class OSRFSourceCreation
                     }
                   }
                 }
+                runCondition(class: 'org.jenkins_ci.plugins.run_condition.logic.Not') {
+                  condition(class: 'org.jenkins_ci.plugins.run_condition.core.ExpressionCondition') {
+                    expression('none|None|^$')
+                    delegate.label('${ENV,var="UPLOAD_TO_REPO"}')
+                  }
+                }
               }
             }
+            scriptOnlyIfSuccess('true')
+            scriptOnlyIfFailure('false')
+            markBuildUnstable('false')
           }
         }
       }
