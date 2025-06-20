@@ -11,7 +11,7 @@ arch = 'amd64'
 file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
 gz_collections_yaml = new Yaml().load(file)
 
-gz_nightly = 'jetty'
+gz_nightly = 'fortress'
 
 String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
 {
@@ -152,7 +152,7 @@ OSRFCredentials.setOSRFCrendentials(nightly_scheduler_job, ['OSRFBUILD_JENKINS_T
 
 nightly_scheduler_job.with
 {
-  label Globals.nontest_label("master")
+  label Globals.nontest_label("built-in")
 
   parameters
   {
