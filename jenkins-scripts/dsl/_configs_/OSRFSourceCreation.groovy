@@ -161,7 +161,8 @@ class OSRFSourceCreation
                           'hudson.plugins.parameterizedtrigger.PredefinedBuildParameters' {
                             properties("""
                               PROJECT_NAME_TO_COPY_ARTIFACTS=\${JOB_NAME}
-                              PACKAGE_ALIAS=\${PACKAGE_ALIAS}
+                              PACKAGE_ALIAS=\${PACKAGE}
+                              PACKAGE=\${PACKAGE}
                               S3_UPLOAD_PATH=${Globals.s3_releases_dir(package_name)}
                               """)
                           }
