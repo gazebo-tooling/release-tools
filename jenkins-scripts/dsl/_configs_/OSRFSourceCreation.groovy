@@ -6,12 +6,9 @@ import _configs_.Globals
 class OSRFSourceCreation
 {
   static String properties_file = "package_name.prop"
-  static String package_name = ""
 
   static void addParameters(Job job, Map default_params = [:])
   {
-    package_name = default_params.find{ it.key == "PACKAGE"}?.value
-
     job.with
     {
       parameters {
@@ -134,6 +131,7 @@ class OSRFSourceCreation
 
   // Useful to inject testing jobs
   static void call_uploader_and_releasepy(Job job,
+                                          String package_name,
                                           String repository_uploader_jobname,
                                           String releasepy_jobname)
   {

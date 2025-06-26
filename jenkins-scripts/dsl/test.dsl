@@ -34,6 +34,7 @@ OSRFSourceCreation.create(gz_source_job, [
   SOURCE_REPO_URI: "https://github.com/gazebosim/gz-plugin.git",
   SOURCE_REPO_REF: "gz-plugin2"])
 OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
+  'gz-plugin',
   '_test_repository_uploader',
   '_test_releasepy')
 // repository_uploader fake test job
