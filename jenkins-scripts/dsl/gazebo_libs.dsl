@@ -574,6 +574,7 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
       PACKAGE: pkg_src,
       SOURCE_REPO_URI: "https://github.com/gazebosim/${canonical_lib_name}.git"])
     OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
+      canonical_lib_name,
       'repository_uploader_packages',
       '_releasepy')
   }
