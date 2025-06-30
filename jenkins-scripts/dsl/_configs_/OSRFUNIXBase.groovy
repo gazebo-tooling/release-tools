@@ -102,12 +102,13 @@ if (!(build.getLog(1000) =~ "nvml error: driver/library version mismatch")) {
           }
         }
       }
-    // Add the new regex to naginator tag
-    // There is no need to specify checkRegexp and maxSchedule because they are the default values
-    HelperRetryFailures.create(job, [
-      regexpForRerun: "nvml error: driver/library version mismatch",
-      delay: 70
-    ])
     }
+  }
+  // Add the new regex to naginator tag
+  // There is no need to specify checkRegexp and maxSchedule because they are the default values
+  HelperRetryFailures.create(job, [
+    regexpForRerun: "nvml error: driver/library version mismatch",
+    delay: 70
+  ])
   }
 }
