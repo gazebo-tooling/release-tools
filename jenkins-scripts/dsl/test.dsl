@@ -195,7 +195,6 @@ test_credentials_token_job.with
           }
         }
       }
-    }
 
     wrappers {
       preBuildCleanup()

@@ -34,9 +34,9 @@ dsl_triggerer.with {
                 'Description about why the run started')
   }
 
-  triggers {
-    pollSCM {
-      scmpoll_spec('@daily')
+  configure { project ->
+    project / 'triggers' / 'hudson.triggers.SCMTrigger' << {
+      spec('@daily')
       ignorePostCommitHooks(false)
     }
   }
