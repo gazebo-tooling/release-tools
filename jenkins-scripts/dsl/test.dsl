@@ -169,23 +169,32 @@ test_credentials_token_job.with
     {
       configure { project ->
         project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
-          buildSteps {
-            'hudson.tasks.Shell' {
-              command("""\
-                #!/bin/bash -xe
+           config {
+              buildSteps {
+                'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
+                  results {
+                    string('SUCCESS')
+                    string('NOT_BUILT')
+                    string('ABORTED')
+                    string('FAILURE')
+                    string('UNSTABLE')
+                  }      
+                  buildSteps {
+                    'hudson.tasks.Shell' {
+                      command("""\
+                        #!/bin/bash -xe
 
-                # remove config after the build ends unconditionally to avoid token leaks
-                rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
-                """.stripIndent())
+                        # remove config after the build ends unconditionally to avoid token leaks
+                        rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
+                        """.stripIndent())
+                    }
+                  }
+                }
+              }
             }
           }
-
-          scriptOnlyIfSuccess('false')
-          scriptOnlyIfFailure('false')
-          markBuildUnstable('false')
         }
       }
-    }
 
     wrappers {
       preBuildCleanup()
