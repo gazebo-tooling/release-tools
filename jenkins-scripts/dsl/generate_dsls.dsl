@@ -34,9 +34,8 @@ dsl_triggerer.with {
                 'Description about why the run started')
   }
 
-  configure { project ->
-    project / 'triggers' / 'hudson.triggers.SCMTrigger' << {
-      spec('@daily')
+  triggers {
+    scm('@daily') {
       ignorePostCommitHooks(false)
     }
   }
