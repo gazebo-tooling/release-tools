@@ -22,14 +22,12 @@ test_basic.with
                 }      
                 buildSteps {
                   'hudson.tasks.Shell' {
-                    command("""\
-                      #!/bin/bash -xe
-
-                      # remove config after the build ends unconditionally to avoid token leaks
-                      rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
+                    command("""echo fee"
                       """.stripIndent())
+                    configuredLocalRules()
                   }
                 }
+                stopOnFailure(false)
               }
             }
           }
@@ -62,7 +60,6 @@ test_son.with
                                 configuredLocalRules()
                             }
                         }
-                        stopOnFailure(false)
                     }
                 }
                 markBuildUnstable(false)
