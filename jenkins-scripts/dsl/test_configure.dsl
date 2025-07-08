@@ -9,6 +9,8 @@ test_basic.with
     configure { project ->
       project / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
          config {
+           scriptFiles()
+           groovyScripts()
             buildSteps {
               'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
                 results {
@@ -40,7 +42,7 @@ def test_son = job("_configure_block_son")
 test_son.with 
 {
     configure { project ->
-        project / 'publishers' << 'org.jenkinsci.plugins.postbuildscript.PostBuildScript'(plugin: 'postbuildscript@3.4.1-695.vf6b_0b_8053979') {
+        project / 'publishers' << 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' {
             config {
                 scriptFiles()
                 groovyScripts()
