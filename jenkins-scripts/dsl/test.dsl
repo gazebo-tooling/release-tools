@@ -186,12 +186,14 @@ test_credentials_token_job.with
                       rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
                       """.stripIndent())
                   }
-                }
-              }
-            }
-        }
-      }
-    }
+                } // buildSteps
+                stopOnFailure('false')
+              } // org.
+            } // buildSteps
+            markBuildUnstable('false')
+        } // config
+      } // project
+    } // configure
 
     wrappers {
       preBuildCleanup()
