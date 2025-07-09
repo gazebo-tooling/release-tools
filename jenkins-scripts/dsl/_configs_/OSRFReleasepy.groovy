@@ -13,7 +13,7 @@ class OSRFReleasepy
 
     job.with
     {
-      label Globals.nontest_label("master")
+      label Globals.nontest_label("built-in")
 
       parameters
       {
