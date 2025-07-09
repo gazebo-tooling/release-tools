@@ -57,12 +57,14 @@ class OSRFLinuxBuildPkgBase
                   }
                 } // buildSteps
                 stopOnFailure('false')
-              } // buildSteps
-            } // config
+              } // org.
+            } // buildSteps
             markBuildUnstable('false')
-          } // project
+          } // config
         } // project
       } // configure        
     } //  with
   } //create 
 } // class
+
+

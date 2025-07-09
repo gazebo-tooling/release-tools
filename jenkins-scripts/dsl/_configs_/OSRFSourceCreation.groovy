@@ -196,21 +196,14 @@ class OSRFSourceCreation
                       }
                     }
                   }
-                }
-              }
-              runCondition(class: 'org.jenkins_ci.plugins.run_condition.logic.Not') {
-                condition(class: 'org.jenkins_ci.plugins.run_condition.core.ExpressionCondition') {
-                  expression('none|None|^$')
-                  delegate.label('${ENV,var="UPLOAD_TO_REPO"}')
-                }
-              }
-            }
-          }
-          scriptOnlyIfSuccess('true')
-          scriptOnlyIfFailure('false')
-          markBuildUnstable('false')
-        }
-      }
+                } // buildSteps
+                stopOnFailure('false')
+              } // org.
+            } // buildSteps
+            markBuildUnstable('false')
+          } // config
+        } // project
+      } // configure
     }
   }
 }

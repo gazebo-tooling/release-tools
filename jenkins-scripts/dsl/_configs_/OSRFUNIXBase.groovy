@@ -104,12 +104,14 @@ class OSRFUNIXBase extends OSRFBase
                       delegate.label('${NODE_LABELS}')
                     }
                   }
-                }
-              }
-            }
-          }
-        }
-      }
+                } // buildSteps
+                stopOnFailure('false')
+              } // org.
+            } // buildSteps
+            markBuildUnstable('false')
+          } // config
+        } // project
+      } // configure
     }
   }
 }
