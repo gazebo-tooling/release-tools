@@ -16,7 +16,7 @@ class OSRFDslBase extends OSRFBase {
 
       steps {
         dsl {
-          text(target_dsl_scripts)
+          text(readFileFromWorkspace(target_dsl_scripts))
           removeAction('DISABLE')
           removeViewAction('DELETE')
         }
