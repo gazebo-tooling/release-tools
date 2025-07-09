@@ -167,32 +167,37 @@ test_credentials_token_job.with
 
     configure { project ->
       project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
-       config {
-            buildSteps {
-              'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
-                results {
-                  string('SUCCESS')
-                  string('NOT_BUILT')
-                  string('ABORTED')
-                  string('FAILURE')
-                  string('UNSTABLE')
-                }
-                buildSteps {
-                  'hudson.tasks.Shell' {
-                    command("""\
-                      #!/bin/bash -xe
+      config {
+        scriptFiles()
+        groovyScripts()
+        buildSteps {
+        'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
+          results {
+            string('SUCCESS')
+            string('NOT_BUILT')
+            string('ABORTED')
+            string('FAILURE')
+            string('UNSTABLE')
+          }
+          role('BOTH')
+          executeOn('BOTH')
+          buildSteps {
+            'hudson.tasks.Shell' {
+            command("""\
+            #!/bin/bash -xe
 
-                      # remove config after the build ends unconditionally to avoid token leaks
-                      rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
-                      """.stripIndent())
-                  }
-                } // buildSteps
-                stopOnFailure('false')
-              } // org.
-            } // buildSteps
-            markBuildUnstable('false')
-        } // config
-      } // project
+            # remove config after the build ends unconditionally to avoid token leaks
+            rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
+            """.stripIndent())
+            configuredLocalRules()
+            }
+          } // buildSteps
+          stopOnFailure('false')
+        } // org.jenkinsci.plugins.postbuildscript.model.PostBuildStep
+        } // buildSteps
+        markBuildUnstable('false')
+      } // config
+      } // PostBuildScript
     } // configure
 
     wrappers {
