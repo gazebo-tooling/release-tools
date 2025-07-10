@@ -250,14 +250,11 @@ nightly_scheduler_job.with
           """.stripIndent())
   }
 
-  publishers
-  {
-     configure { project ->
-       project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
-          unstableOnWarning true
-          failBuildOnError false
-          parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
-        }
-     }
+  configure { project ->
+    project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+      unstableOnWarning true
+      failBuildOnError false
+      parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+    }
   }
 }
