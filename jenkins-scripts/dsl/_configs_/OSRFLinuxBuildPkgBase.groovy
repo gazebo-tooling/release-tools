@@ -36,35 +36,33 @@ class OSRFLinuxBuildPkgBase
       // Runs regardless of build success or failure
       configure { project ->
         project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
-          config {
+        config {
+          scriptFiles()
+          groovyScripts()
+          buildSteps {
+          'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
+            results {
+              string('SUCCESS')
+              string('NOT_BUILT')
+              string('ABORTED')
+              string('FAILURE')
+              string('UNSTABLE')
+            }
+            role('BOTH')
+            executeOn('BOTH')
             buildSteps {
-              'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
-                results {
-                  string('SUCCESS')
-                  string('NOT_BUILT')
-                  string('ABORTED')
-                  string('FAILURE')
-                  string('UNSTABLE')
-                }
-                role('BOTH')
-                executeOn('BOTH')
-                buildSteps {
-                  'hudson.tasks.Shell' {
-                    command('''#!/bin/bash -xe
-
-[[ -d ${WORKSPACE}/pkgs ]] && sudo chown -R jenkins ${WORKSPACE}/pkgs
-''')
-                  }
-                } // buildSteps
-                stopOnFailure('false')
-              } // org.
+              'hudson.tasks.Shell' {
+                command("[ -d \${WORKSPACE}/pkgs ] && sudo chown -R jenkins \${WORKSPACE}/pkgs")
+                configuredLocalRules()
+              }
             } // buildSteps
-            markBuildUnstable('false')
-          } // config
-        } // project
-      } // configure        
-    } //  with
-  } //create 
-} // class
-
-
+            stopOnFailure('false')
+          } // org.jenkinsci.plugins.postbuildscript.model.PostBuildStep
+          } // buildSteps
+          markBuildUnstable('false')
+        } // config
+        } // PostBuildScript
+      } // configure
+    }
+  }
+}
