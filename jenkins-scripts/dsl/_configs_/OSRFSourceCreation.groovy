@@ -124,8 +124,12 @@ class OSRFSourceCreation
             fi
           fi
 
+          SOURCE_TARBALL_SHA256=\$(shasum --algorithm 256 \${tarball})
+          echo tarball sha256 is \${SOURCE_TARBALL_SHA256}
+
           echo "S3_FILES_TO_UPLOAD=\${tarball}" >> ${properties_file}
           echo "SOURCE_TARBALL_URI=$s3_download_url_basedir/\${tarball}" >> ${properties_file}
+          echo "SOURCE_TARBALL_SHA256=${SOURCE_TARBALL_SHA256}" >> ${properties_file}
           """.stripIndent()
         )
       }
