@@ -384,6 +384,8 @@ gz_collections_yaml.collections.each { collection ->
             generate_asan_ci_job(gz_ci_asan_job, lib_name, branch_name, ci_config)
             gz_ci_asan_job.with
             {
+              // need to figure out what problem we have with logs after migration to 24.04
+              disabled()
               triggers {
                 scm(Globals.CRON_ON_WEEKEND)
               }
