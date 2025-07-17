@@ -7,6 +7,7 @@ set -e
 SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 PYTHON_VENV="${WORKSPACE}/venv"
+PACKAGES_URL=${PACKAGES_URL:-packages.osrfoundation.org}
 REPREPRO_GIT_REPO="https://github.com/ros-infrastructure/reprepro-updater"
 REPREPRO_GIT_BRANCH="${REPREPRO_GIT_BRANCH:-refactor_osrfbuild}"
 REPREPRO_REPO_PATH="$WORKSPACE/repo"
@@ -45,7 +46,7 @@ echo '# BEGIN SECTION: run reprepro'
 cd "${REPREPRO_REPO_PATH}/scripts"
 PYTHONPATH=${REPREPRO_REPO_PATH}/src python3 import_upstream.py ${REPREPRO_PARAMS} \
   "${UPLOAD_TO_REPO:-:_}" \
-  "${REPREPRO_REPO_PATH}/config/packages.osrfoundation.org/${REPREPRO_IMPORT_YAML_FILE}"
+  "${REPREPRO_REPO_PATH}/config/${PACKAGES_URL}/${REPREPRO_IMPORT_YAML_FILE}"
 echo '# END SECTION'
 
 echo '#BEGIN: exit the venv'

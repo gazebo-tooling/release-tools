@@ -112,9 +112,7 @@ gbp_repo_debbuilds.each { software ->
 
     publishers
     {
-      publishers {
-        archiveArtifacts('pkgs/*')
-      }
+      archiveArtifacts('pkgs/*')
 
       downstreamParameterized {
         trigger('repository_uploader_packages') {
@@ -126,31 +124,45 @@ gbp_repo_debbuilds.each { software ->
           }
         }
       }
-
-      configure { project ->
-        project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
-          'string' 'repository_uploader_*'
-        }
-      }
-
-      configure { project ->
-          project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
-            buildSteps {
-              'hudson.tasks.Shell' {
-                command("""
-                  #!/bin/bash -xe
-                  [[ -d \${WORKSPACE}/pkgs ]] && sudo chown -R jenkins \${WORKSPACE}/pkgs""")
-              }
-            }
-            scriptOnlyIfSuccess('false')
-            scriptOnlyIfFailure('false')
-            markBuildUnstable('false')
-          }
-        }
     }
+
+    configure { project ->
+      project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
+        'string' 'repository_uploader_*'
+      }
+    }
+
+    configure { project ->
+      project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
+      config {
+        scriptFiles()
+        groovyScripts()
+        buildSteps {
+        'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
+          results {
+            string('SUCCESS')
+            string('NOT_BUILT')
+            string('ABORTED')
+            string('FAILURE')
+            string('UNSTABLE')
+          }
+          role('BOTH')
+          executeOn('BOTH')
+          buildSteps {
+            'hudson.tasks.Shell' {
+              command(" [ -d \${WORKSPACE}/pkgs ] && sudo chown -R jenkins \${WORKSPACE}/pkgs ")
+              configuredLocalRules()
+            }
+          } // buildSteps
+          stopOnFailure('false')
+        } // org.jenkinsci.plugins.postbuildscript.model.PostBuildStep
+        } // buildSteps
+        markBuildUnstable('false')
+      } // config
+      } // PostBuildScript
+    } // configure
   }
 }
-
 
 def bridge_job = job("ros1_ign_bridge-debbuilder")
 default_params = [ PACKAGE             : "ros1_ign_bridge",

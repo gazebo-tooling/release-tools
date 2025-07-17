@@ -384,6 +384,8 @@ gz_collections_yaml.collections.each { collection ->
             generate_asan_ci_job(gz_ci_asan_job, lib_name, branch_name, ci_config)
             gz_ci_asan_job.with
             {
+              // need to figure out what problem we have with logs after migration to 24.04
+              disabled()
               triggers {
                 scm(Globals.CRON_ON_WEEKEND)
               }
@@ -574,6 +576,7 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
       PACKAGE: pkg_src,
       SOURCE_REPO_URI: "https://github.com/gazebosim/${canonical_lib_name}.git"])
     OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
+      canonical_lib_name,
       'repository_uploader_packages',
       '_releasepy')
   }
