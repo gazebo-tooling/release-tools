@@ -35,6 +35,12 @@ for t in $(HOMEBREW_NO_AUTO_UPDATE=1 \
 done
 ${BREW_BINARY} cleanup --prune-prefix
 
+BREW_CACHE=$(${BREW_BINARY} --cache)
+echo BREW_CACHE=${BREW_CACHE}
+if ${CLEAR_BREW_CACHE}; then
+  rm -rf ${BREW_CACHE}
+fi
+
 pushd $(${BREW_BINARY} --prefix)/Homebrew/Library 2> /dev/null
 git stash && git clean -d -f
 # Need to test if brew installation is still working (use audit cmake to quick check)
