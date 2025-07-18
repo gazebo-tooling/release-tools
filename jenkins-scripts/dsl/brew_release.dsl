@@ -48,7 +48,7 @@ void include_common_params(Job job)
 }
 
 // -------------------------------------------------------------------
-// 1. BREW pull request SHA updater
+// 1. BREW pull request SHA256 updater
 def release_job = job("generic-release-homebrew_pull_request_updater")
 OSRFUNIXBase.create(release_job)
 OSRFCredentials.allowOsrfbuildToRunTheBuild(release_job)
@@ -77,8 +77,8 @@ release_job.with
                  'URI with the tarball of the latest release')
      stringParam("VERSION", '',
                  'Version of the package just released')
-     stringParam('SOURCE_TARBALL_SHA','',
-                 'SHA Hash of the tarball file')
+     stringParam('SOURCE_TARBALL_SHA256','',
+                 'SHA256 Hash of the tarball file')
    }
 
    steps
