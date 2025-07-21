@@ -121,8 +121,12 @@ class OSRFSourceCreation
             fi
           fi
 
+          SOURCE_TARBALL_SHA256=\$(sha256sum \${WORKSPACE}/${pkg_sources_dir}/\${tarball} | awk '{print \$1}')
+          echo tarball sha256 is \${SOURCE_TARBALL_SHA256}
+
           echo "S3_FILES_TO_UPLOAD=\${tarball}" >> ${properties_file}
           echo "SOURCE_TARBALL_URI=$s3_download_url_basedir/\${tarball}" >> ${properties_file}
+          echo "SOURCE_TARBALL_SHA256=\${SOURCE_TARBALL_SHA256}" >> ${properties_file}
           """.stripIndent()
         )
       }
