@@ -122,6 +122,8 @@ A) Generate source: local repository tag + call source job:
 B) Call builders: reuse existing tarball version + call build jobs:
    $ release.py --source-tarball-uri <URL> <package> <version>
    (no call to source job, directly build jobs with tarball URL)
+   # Optionally include SHA256 checksum for verification
+   $ release.py --source-tarball-uri <URL> --source-tarball-sha256 <SHA256> <package> <version>
 
 C) Nightly builds (linux)
    $ release.py --source-repo-existing-ref <git_branch> --upload-to-repo nightly <URL> <package> <version>
@@ -160,6 +162,9 @@ C) Nightly builds (linux)
     parser.add_argument('--source-tarball-uri',
                         dest='source_tarball_uri', default=None,
                         help='Indicate the URL of the sources to grab the release sources from.')  # NOQA
+    parser.add_argument('--source-tarball-sha256',
+                        dest='source_tarball_sha256', default=None,
+                        help='SHA256 checksum of the tarball specified in --source-tarball-uri.')  # NOQA
     parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
                         help='OSRF repo to upload: stable | prerelease | nightly')
     parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
@@ -570,6 +575,8 @@ def generate_source_params(args):
         params['SOURCE_TARBALL_URI'] = args.nightly_branch
     elif args.source_tarball_uri:
         params['SOURCE_TARBALL_URI'] = args.source_tarball_uri
+        if args.source_tarball_sha256:
+            params['SOURCE_TARBALL_SHA256'] = args.source_tarball_sha256
     else:
         params['SOURCE_REPO_URI'] = \
             args.source_repo_uri if args.source_repo_uri else \
