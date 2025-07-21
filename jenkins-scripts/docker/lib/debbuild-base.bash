@@ -67,6 +67,10 @@ else
   wget \$no_check_cert_str --quiet -O orig_tarball $SOURCE_TARBALL_URI || \
     echo rerunning wget without --quiet since it failed && \
     wget \$no_check_cert_str -O orig_tarball $SOURCE_TARBALL_URI
+  # check sha256 if it exists
+  if [ -n "${SOURCE_TARBALL_SHA256}" ]; then
+    echo "${SOURCE_TARBALL_SHA256} orig_tarball" | sha256sum -c
+  fi
   TARBALL_EXT=${SOURCE_TARBALL_URI/*tar./}
   mv orig_tarball $PACKAGE_ALIAS\_$VERSION.orig.tar.\${TARBALL_EXT}
   rm -rf \$REAL_PACKAGE_NAME\-$VERSION
