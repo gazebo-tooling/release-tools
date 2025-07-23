@@ -156,6 +156,12 @@ if ${NEED_SQUID_WORKAROUND}; then
   sudo service squid-deb-proxy restart
 fi
 
+# Required for asan to work on Noble
+# https://github.com/gazebo-tooling/release-tools/issues/1354
+if [[ ${DISTRO} == 'noble' ]]; then
+  sudo sysctl vm.mmap_rnd_bits=28
+fi
+
 # Docker checking
 # Code imported from https://github.com/CognitiveRobotics/omnimapper/tree/master/docker
 # under the license detailed in https://github.com/CognitiveRobotics/omnimapper/blob/master/LICENSE
