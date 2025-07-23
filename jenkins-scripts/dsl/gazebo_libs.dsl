@@ -153,11 +153,6 @@ void generate_asan_ci_job(gz_ci_job, lib_name, branch, ci_config)
                   '-DGZ_SANITIZER=Address',
                   Globals.MAKETEST_SKIP_GZ,
                   'export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true')
-  // need to figure out what problem we have with logs after migration to 24.04
-  gz_ci_job.with
-  {
-    disabled()
-  }
 }
 
 void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
@@ -389,6 +384,8 @@ gz_collections_yaml.collections.each { collection ->
             generate_asan_ci_job(gz_ci_asan_job, lib_name, branch_name, ci_config)
             gz_ci_asan_job.with
             {
+              // need to figure out what problem we have with logs after migration to 24.04
+              disabled()
               triggers {
                 scm(Globals.CRON_ON_WEEKEND)
               }
