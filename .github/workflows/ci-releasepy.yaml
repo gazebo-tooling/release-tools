@@ -5,6 +5,8 @@ on:
     paths:
       - release.py
 
+permissions: {}
+
 jobs:
   dsl_ci:
     runs-on: ubuntu-latest
@@ -14,5 +16,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Run release.py script tests
         run: ./check_releasepy.bash
