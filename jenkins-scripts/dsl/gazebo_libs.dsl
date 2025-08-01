@@ -153,6 +153,12 @@ void generate_asan_ci_job(gz_ci_job, lib_name, branch, ci_config)
                   '-DGZ_SANITIZER=Address',
                   Globals.MAKETEST_SKIP_GZ,
                   'export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true')
+  gz_ci_job.with {
+    // -asan- builds can produce really long logs. Reduce the number of builds in the server
+    logRotator {
+      numToKeep(10)
+    }
+  }
 }
 
 void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
