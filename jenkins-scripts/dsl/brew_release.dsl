@@ -249,7 +249,7 @@ OSRFUNIXBase.create(bottle_job_hash_updater)
 include_common_params(bottle_job_hash_updater)
 bottle_job_hash_updater.with
 {
-  label Globals.nontest_label("built-in")
+  label Globals.nontest_label("osx")
 
   wrappers
   {

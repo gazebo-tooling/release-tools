@@ -28,12 +28,12 @@ if [[ -z $(ssh -T git@github.com 2>&1 | grep successfully) ]]; then
     fi
 fi
 
-echo '# BEGIN SECTION: download linuxbrew'
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-echo '# END SECTION'
+# echo '# BEGIN SECTION: download linuxbrew'
+# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+# echo '# END SECTION'
 
-BREW_PREFIX="/home/linuxbrew/.linuxbrew"
-BREW=${BREW_PREFIX}/bin/brew
+# BREW_PREFIX="/home/linuxbrew/.linuxbrew"
+# BREW=${BREW_PREFIX}/bin/brew
 ${BREW} up
 
 ${BREW} ruby -e "puts 'brew ruby success'"
