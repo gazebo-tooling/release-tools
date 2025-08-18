@@ -39,6 +39,8 @@ BREW_CACHE=$(${BREW_BINARY} --cache)
 echo BREW_CACHE=${BREW_CACHE}
 if ${CLEAR_BREW_CACHE}; then
   rm -rf ${BREW_CACHE}
+  # also clear ~/.gz and ~/.ignition
+  rm -rf $HOME/.gz $HOME/.ignition
 fi
 
 pushd $(${BREW_BINARY} --prefix)/Homebrew/Library 2> /dev/null
