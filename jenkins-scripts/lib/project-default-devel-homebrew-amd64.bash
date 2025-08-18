@@ -20,9 +20,7 @@ PROJECT_FORMULA=${PROJECT//[0-9]}$(\
   python3 ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
   ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt || true)
 
-export HOMEBREW_PREFIX=/usr/local
-export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
-export PATH=${HOMEBREW_PREFIX}/bin:${HOMEBREW_PREFIX}/sbin:$PATH
+. ${SCRIPT_DIR}/lib/_homebrew_path_setup.sh
 
 export PYTHONPATH=$PYTHONPATH:${HOMEBREW_PREFIX}/lib/python
 
