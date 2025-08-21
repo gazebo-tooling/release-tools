@@ -10,9 +10,7 @@ fi
 # Get bottle name as first argument to this script
 BOTTLE_NAME=$1 # project will have the major version included (ex gazebo2)
 
-export HOMEBREW_PREFIX=/usr/local
-export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
-export PATH=${HOMEBREW_PREFIX}/bin:${HOMEBREW_PREFIX}/sbin:$PATH
+. ${SCRIPT_DIR}/lib/_homebrew_path_setup.sh
 
 # make verbose mode?
 MAKE_VERBOSE_STR=""
