@@ -280,7 +280,7 @@ collections:
       - name: gz-cmake
         major_version: 5
         repo:
-          current_branch: main
+          current_branch: gz-cmake5
       - name: gz-tools
         major_version: 2
         repo:
