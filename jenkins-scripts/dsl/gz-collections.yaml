@@ -288,7 +288,7 @@ collections:
       - name: gz-utils
         major_version: 4
         repo:
-          current_branch: main
+          current_branch: gz-utils4
       - name: gz-math
         major_version: 9
         repo:
