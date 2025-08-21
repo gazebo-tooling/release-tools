@@ -300,7 +300,7 @@ collections:
       - name: gz-common
         major_version: 7
         repo:
-          current_branch: main
+          current_branch: gz-common7
       - name: gz-msgs
         major_version: 12
         repo:
