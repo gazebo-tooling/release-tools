@@ -37,16 +37,16 @@ export GITHUB_BASE_REF=${ghprbTargetBranch}
 export GITHUB_REPOSITORY=${ghprbGhRepository}
 export GITHUB_REF=${sha1}
 export GITHUB_SHA=${ghprbActualCommit}
-MACOS_VERSION_TO_SYM=$(brew ruby -e 'puts "#{Utils::Bottles.tag}"')
+BOTTLE_TAG=$(brew ruby -e 'puts "#{Utils::Bottles.tag}"')
 if [[ "${ghprbCommentBody}" =~ 'brew-bot-tag:' ]]; then
   if [[ "${ghprbCommentBody}" =~ 'build-for-new-distro-' ]]; then
-    echo Found a build-for-new-distro- option in the comment. Limiting to matching macOS versions.
+    echo Found a build-for-new-distro- option in the comment. Limiting to matching bottle tag.
     export KEEP_OLD=--keep-old
-    if [[ "${ghprbCommentBody}" =~ build-for-new-distro-${MACOS_VERSION_TO_SYM} ]]; then
-      echo Found a match for build-for-new-distro-${MACOS_VERSION_TO_SYM} in comment.
+    if [[ "${ghprbCommentBody}" =~ build-for-new-distro-${BOTTLE_TAG} ]]; then
+      echo Found a match for build-for-new-distro-${BOTTLE_TAG} in comment.
       echo Proceeding with bottle build.
     else
-      echo Did not find --only-${MACOS_VERSION_TO_SYM} in comment string \"${ghprbCommentBody}\"
+      echo Did not find build-for-new-distro-${BOTTLE_TAG} in comment string \"${ghprbCommentBody}\"
       exit 0
     fi
   fi
