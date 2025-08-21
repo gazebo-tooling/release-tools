@@ -2,7 +2,7 @@
 set -e
 
 # skip logic if brew command is already in the PATH
-if ! brew --prefix; then
+if ! which -s brew; then
 
   echo brew not in PATH, checking standard locations
 
