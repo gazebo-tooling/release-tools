@@ -304,7 +304,7 @@ collections:
       - name: gz-msgs
         major_version: 12
         repo:
-          current_branch: main
+          current_branch: gz-msgs12
       - name: gz-rendering
         major_version: 10
         repo:

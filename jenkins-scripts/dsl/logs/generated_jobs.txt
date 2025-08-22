@@ -68,7 +68,7 @@ asan_ci jetty gz_fuel_tools-ci_asan-main-noble-amd64
 asan_ci jetty gz_gui-ci_asan-main-noble-amd64
 asan_ci jetty gz_launch-ci_asan-main-noble-amd64
 asan_ci jetty gz_math-ci_asan-main-noble-amd64
-asan_ci jetty gz_msgs-ci_asan-main-noble-amd64
+asan_ci jetty gz_msgs-ci_asan-gz-msgs12-noble-amd64
 asan_ci jetty gz_physics-ci_asan-main-noble-amd64
 asan_ci jetty gz_plugin-ci_asan-main-noble-amd64
 asan_ci jetty gz_rendering-ci_asan-gz-rendering10-noble-amd64
@@ -304,9 +304,9 @@ branch_ci jetty gz_launch-main-cnlwin
 branch_ci jetty gz_math-ci-main-homebrew-amd64
 branch_ci jetty gz_math-ci-main-noble-amd64
 branch_ci jetty gz_math-main-cnlwin
-branch_ci jetty gz_msgs-ci-main-homebrew-amd64
-branch_ci jetty gz_msgs-ci-main-noble-amd64
-branch_ci jetty gz_msgs-main-cnlwin
+branch_ci jetty gz_msgs-12-cnlwin
+branch_ci jetty gz_msgs-ci-gz-msgs12-homebrew-amd64
+branch_ci jetty gz_msgs-ci-gz-msgs12-noble-amd64
 branch_ci jetty gz_physics-ci-main-homebrew-amd64
 branch_ci jetty gz_physics-ci-main-noble-amd64
 branch_ci jetty gz_physics-main-cnlwin
