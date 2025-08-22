@@ -324,7 +324,7 @@ collections:
       - name: gz-gui
         major_version: 10
         repo:
-          current_branch: main
+          current_branch: gz-gui10
       - name: gz-sensors
         major_version: 10
         repo:
