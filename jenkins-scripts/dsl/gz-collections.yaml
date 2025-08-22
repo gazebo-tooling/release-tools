@@ -292,7 +292,7 @@ collections:
       - name: gz-math
         major_version: 9
         repo:
-          current_branch: main
+          current_branch: gz-math9
       - name: gz-plugin
         major_version: 4
         repo:
