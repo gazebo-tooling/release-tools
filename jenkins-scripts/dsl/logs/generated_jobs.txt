@@ -77,7 +77,7 @@ asan_ci jetty gz_sim-ci_asan-main-noble-amd64
 asan_ci jetty gz_tools-ci_asan-gz-tools2-noble-amd64
 asan_ci jetty gz_transport-ci_asan-main-noble-amd64
 asan_ci jetty gz_utils-ci_asan-gz-utils4-noble-amd64
-asan_ci jetty sdformat-ci_asan-main-noble-amd64
+asan_ci jetty sdformat-ci_asan-sdf16-noble-amd64
 branch_ci __upcoming__ gz_cmake-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_cmake-ci-main-noble-amd64
 branch_ci __upcoming__ gz_cmake-main-cnlwin
@@ -331,9 +331,9 @@ branch_ci jetty gz_transport-main-cnlwin
 branch_ci jetty gz_utils-4-cnlwin
 branch_ci jetty gz_utils-ci-gz-utils4-homebrew-amd64
 branch_ci jetty gz_utils-ci-gz-utils4-noble-amd64
-branch_ci jetty sdformat-ci-main-homebrew-amd64
-branch_ci jetty sdformat-ci-main-noble-amd64
-branch_ci jetty sdformat-main-cnlwin
+branch_ci jetty sdformat-ci-sdf16-homebrew-amd64
+branch_ci jetty sdformat-ci-sdf16-noble-amd64
+branch_ci jetty sdformat-sdf16-cnlwin
 install_ci __upcoming__ gz_cmake5-install-pkg-noble-amd64
 install_ci __upcoming__ gz_cmake5-install_bottle-homebrew-amd64
 install_ci __upcoming__ gz_common7-install-pkg-noble-amd64
