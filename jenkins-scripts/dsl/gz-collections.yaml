@@ -312,7 +312,7 @@ collections:
       - name: sdformat
         major_version: 16
         repo:
-          current_branch: main
+          current_branch: sdf16
       - name: gz-fuel-tools
         major_version: 11
         repo:
