@@ -14,6 +14,9 @@ git -C $(brew --repo) fsck || true
 export HOMEBREW_UPDATE_TO_TAG=1
 # Assume that brew is already in the PATH
 brew up || { restore_brew && brew up ; }
+if ${CLEAR_BREW_CACHE}; then
+  restore_brew && brew up
+fi
 
 # Clear all installed homebrew packages, links, taps, and kegs
 brew list --formula > /dev/null || { restore_brew && brew list --formula > /dev/null; }
