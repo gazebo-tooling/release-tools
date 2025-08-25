@@ -12,10 +12,12 @@ restore_brew()
 # but don't fail
 git -C $(brew --repo) fsck || true
 export HOMEBREW_UPDATE_TO_TAG=1
-# Assume that brew is already in the PATH
+# call restore_brew if CLEAR_BREW_CACHE is set
 if ${CLEAR_BREW_CACHE}; then
+  # Assume that brew is already in the PATH
   restore_brew && brew up
 fi
+# call restore_brew if `brew up` fails
 brew up || { restore_brew && brew up ; }
 
 # Clear all installed homebrew packages, links, taps, and kegs
