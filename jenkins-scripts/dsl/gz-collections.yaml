@@ -332,7 +332,7 @@ collections:
       - name: gz-physics
         major_version: 9
         repo:
-          current_branch: main
+          current_branch: gz-physics9
       - name: gz-sim
         major_version: 10
         repo:
