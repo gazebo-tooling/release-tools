@@ -320,7 +320,7 @@ collections:
       - name: gz-transport
         major_version: 15
         repo:
-          current_branch: main
+          current_branch: gz-transport15
       - name: gz-gui
         major_version: 10
         repo:
