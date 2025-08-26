@@ -316,7 +316,7 @@ collections:
       - name: gz-fuel-tools
         major_version: 11
         repo:
-          current_branch: main
+          current_branch: gz-fuel-tools11
       - name: gz-transport
         major_version: 15
         repo:

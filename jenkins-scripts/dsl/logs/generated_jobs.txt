@@ -64,7 +64,7 @@ asan_ci ionic gz_utils-ci_asan-gz-utils3-noble-amd64
 asan_ci ionic sdformat-ci_asan-sdf15-noble-amd64
 asan_ci jetty gz_cmake-ci_asan-gz-cmake5-noble-amd64
 asan_ci jetty gz_common-ci_asan-gz-common7-noble-amd64
-asan_ci jetty gz_fuel_tools-ci_asan-main-noble-amd64
+asan_ci jetty gz_fuel_tools-ci_asan-gz-fuel-tools11-noble-amd64
 asan_ci jetty gz_gui-ci_asan-gz-gui10-noble-amd64
 asan_ci jetty gz_launch-ci_asan-gz-launch9-noble-amd64
 asan_ci jetty gz_math-ci_asan-gz-math9-noble-amd64
@@ -292,9 +292,9 @@ branch_ci jetty gz_cmake-ci-gz-cmake5-noble-amd64
 branch_ci jetty gz_common-7-cnlwin
 branch_ci jetty gz_common-ci-gz-common7-homebrew-amd64
 branch_ci jetty gz_common-ci-gz-common7-noble-amd64
-branch_ci jetty gz_fuel_tools-ci-main-homebrew-amd64
-branch_ci jetty gz_fuel_tools-ci-main-noble-amd64
-branch_ci jetty gz_fuel_tools-main-cnlwin
+branch_ci jetty gz_fuel_tools-ci-gz-fuel-tools11-homebrew-amd64
+branch_ci jetty gz_fuel_tools-ci-gz-fuel-tools11-noble-amd64
+branch_ci jetty gz_fuel_tools-11-cnlwin
 branch_ci jetty gz_gui-10-cnlwin
 branch_ci jetty gz_gui-ci-gz-gui10-homebrew-amd64
 branch_ci jetty gz_gui-ci-gz-gui10-noble-amd64
