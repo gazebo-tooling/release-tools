@@ -340,7 +340,7 @@ collections:
       - name: gz-launch
         major_version: 9
         repo:
-          current_branch: main
+          current_branch: gz-launch9
       - name: gz-jetty
         major_version: 1
         repo:

@@ -66,7 +66,7 @@ asan_ci jetty gz_cmake-ci_asan-gz-cmake5-noble-amd64
 asan_ci jetty gz_common-ci_asan-gz-common7-noble-amd64
 asan_ci jetty gz_fuel_tools-ci_asan-main-noble-amd64
 asan_ci jetty gz_gui-ci_asan-gz-gui10-noble-amd64
-asan_ci jetty gz_launch-ci_asan-main-noble-amd64
+asan_ci jetty gz_launch-ci_asan-gz-launch9-noble-amd64
 asan_ci jetty gz_math-ci_asan-gz-math9-noble-amd64
 asan_ci jetty gz_msgs-ci_asan-gz-msgs12-noble-amd64
 asan_ci jetty gz_physics-ci_asan-gz-physics9-noble-amd64
@@ -298,9 +298,9 @@ branch_ci jetty gz_fuel_tools-main-cnlwin
 branch_ci jetty gz_gui-10-cnlwin
 branch_ci jetty gz_gui-ci-gz-gui10-homebrew-amd64
 branch_ci jetty gz_gui-ci-gz-gui10-noble-amd64
-branch_ci jetty gz_launch-ci-main-homebrew-amd64
-branch_ci jetty gz_launch-ci-main-noble-amd64
-branch_ci jetty gz_launch-main-cnlwin
+branch_ci jetty gz_launch-ci-gz-launch9-homebrew-amd64
+branch_ci jetty gz_launch-ci-gz-launch9-noble-amd64
+branch_ci jetty gz_launch-9-cnlwin
 branch_ci jetty gz_math-9-cnlwin
 branch_ci jetty gz_math-ci-gz-math9-homebrew-amd64
 branch_ci jetty gz_math-ci-gz-math9-noble-amd64
