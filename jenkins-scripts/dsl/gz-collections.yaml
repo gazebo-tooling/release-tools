@@ -296,7 +296,7 @@ collections:
       - name: gz-plugin
         major_version: 4
         repo:
-          current_branch: main
+          current_branch: gz-plugin4
       - name: gz-common
         major_version: 7
         repo:
