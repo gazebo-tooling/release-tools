@@ -70,7 +70,7 @@ asan_ci jetty gz_launch-ci_asan-main-noble-amd64
 asan_ci jetty gz_math-ci_asan-gz-math9-noble-amd64
 asan_ci jetty gz_msgs-ci_asan-gz-msgs12-noble-amd64
 asan_ci jetty gz_physics-ci_asan-gz-physics9-noble-amd64
-asan_ci jetty gz_plugin-ci_asan-main-noble-amd64
+asan_ci jetty gz_plugin-ci_asan-gz-plugin4-noble-amd64
 asan_ci jetty gz_rendering-ci_asan-gz-rendering10-noble-amd64
 asan_ci jetty gz_sensors-ci_asan-gz-sensors10-noble-amd64
 asan_ci jetty gz_sim-ci_asan-main-noble-amd64
@@ -102,9 +102,9 @@ branch_ci __upcoming__ gz_msgs-main-cnlwin
 branch_ci __upcoming__ gz_physics-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_physics-ci-main-noble-amd64
 branch_ci __upcoming__ gz_physics-main-cnlwin
-branch_ci __upcoming__ gz_plugin-ci-main-homebrew-amd64
-branch_ci __upcoming__ gz_plugin-ci-main-noble-amd64
-branch_ci __upcoming__ gz_plugin-main-cnlwin
+branch_ci __upcoming__ gz_plugin-ci-gz-plugin4-homebrew-amd64
+branch_ci __upcoming__ gz_plugin-ci-gz-plugin4-noble-amd64
+branch_ci __upcoming__ gz_plugin-gz-plugin4-cnlwin
 branch_ci __upcoming__ gz_rendering-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_rendering-ci-main-noble-amd64
 branch_ci __upcoming__ gz_rendering-main-cnlwin
