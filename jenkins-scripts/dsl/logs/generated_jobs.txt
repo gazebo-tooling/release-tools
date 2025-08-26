@@ -298,9 +298,9 @@ branch_ci jetty gz_fuel_tools-main-cnlwin
 branch_ci jetty gz_gui-10-cnlwin
 branch_ci jetty gz_gui-ci-gz-gui10-homebrew-amd64
 branch_ci jetty gz_gui-ci-gz-gui10-noble-amd64
+branch_ci jetty gz_launch-9-cnlwin
 branch_ci jetty gz_launch-ci-gz-launch9-homebrew-amd64
 branch_ci jetty gz_launch-ci-gz-launch9-noble-amd64
-branch_ci jetty gz_launch-9-cnlwin
 branch_ci jetty gz_math-9-cnlwin
 branch_ci jetty gz_math-ci-gz-math9-homebrew-amd64
 branch_ci jetty gz_math-ci-gz-math9-noble-amd64
