@@ -75,7 +75,7 @@ asan_ci jetty gz_rendering-ci_asan-gz-rendering10-noble-amd64
 asan_ci jetty gz_sensors-ci_asan-gz-sensors10-noble-amd64
 asan_ci jetty gz_sim-ci_asan-main-noble-amd64
 asan_ci jetty gz_tools-ci_asan-gz-tools2-noble-amd64
-asan_ci jetty gz_transport-ci_asan-main-noble-amd64
+asan_ci jetty gz_transport-ci_asan-gz-transport15-noble-amd64
 asan_ci jetty gz_utils-ci_asan-gz-utils4-noble-amd64
 asan_ci jetty sdformat-ci_asan-sdf16-noble-amd64
 branch_ci __upcoming__ gz_cmake-ci-main-homebrew-amd64
@@ -325,9 +325,9 @@ branch_ci jetty gz_sim-main-cnlwin
 branch_ci jetty gz_tools-2-cnlwin
 branch_ci jetty gz_tools-ci-gz-tools2-homebrew-amd64
 branch_ci jetty gz_tools-ci-gz-tools2-noble-amd64
-branch_ci jetty gz_transport-ci-main-homebrew-amd64
-branch_ci jetty gz_transport-ci-main-noble-amd64
-branch_ci jetty gz_transport-main-cnlwin
+branch_ci jetty gz_transport-ci-transport15-homebrew-amd64
+branch_ci jetty gz_transport-ci-transport15-noble-amd64
+branch_ci jetty gz_transport-15-cnlwin
 branch_ci jetty gz_utils-4-cnlwin
 branch_ci jetty gz_utils-ci-gz-utils4-homebrew-amd64
 branch_ci jetty gz_utils-ci-gz-utils4-noble-amd64
