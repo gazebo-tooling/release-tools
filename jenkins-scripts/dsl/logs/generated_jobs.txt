@@ -102,9 +102,9 @@ branch_ci __upcoming__ gz_msgs-main-cnlwin
 branch_ci __upcoming__ gz_physics-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_physics-ci-main-noble-amd64
 branch_ci __upcoming__ gz_physics-main-cnlwin
-branch_ci __upcoming__ gz_plugin-ci-gz-plugin4-homebrew-amd64
-branch_ci __upcoming__ gz_plugin-ci-gz-plugin4-noble-amd64
-branch_ci __upcoming__ gz_plugin-gz-plugin4-cnlwin
+branch_ci __upcoming__ gz_plugin-ci-main-homebrew-amd64
+branch_ci __upcoming__ gz_plugin-ci-main-noble-amd64
+branch_ci __upcoming__ gz_plugin-main-cnlwin
 branch_ci __upcoming__ gz_rendering-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_rendering-ci-main-noble-amd64
 branch_ci __upcoming__ gz_rendering-main-cnlwin
@@ -310,9 +310,9 @@ branch_ci jetty gz_msgs-ci-gz-msgs12-noble-amd64
 branch_ci jetty gz_physics-9-cnlwin
 branch_ci jetty gz_physics-ci-gz-physics9-homebrew-amd64
 branch_ci jetty gz_physics-ci-gz-physics9-noble-amd64
-branch_ci jetty gz_plugin-ci-main-homebrew-amd64
-branch_ci jetty gz_plugin-ci-main-noble-amd64
-branch_ci jetty gz_plugin-main-cnlwin
+branch_ci jetty gz_plugin-4-cnlwin
+branch_ci jetty gz_plugin-ci-gz-plugin4-homebrew-amd64
+branch_ci jetty gz_plugin-ci-gz-plugin4-noble-amd64
 branch_ci jetty gz_rendering-10-cnlwin
 branch_ci jetty gz_rendering-ci-gz-rendering10-homebrew-amd64
 branch_ci jetty gz_rendering-ci-gz-rendering10-noble-amd64
