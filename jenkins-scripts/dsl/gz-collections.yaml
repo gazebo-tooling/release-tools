@@ -336,7 +336,7 @@ collections:
       - name: gz-sim
         major_version: 10
         repo:
-          current_branch: main
+          current_branch: gz-sim10
       - name: gz-launch
         major_version: 9
         repo:
