@@ -296,7 +296,7 @@ collections:
       - name: gz-plugin
         major_version: 4
         repo:
-          current_branch: main
+          current_branch: gz-plugin4
       - name: gz-common
         major_version: 7
         repo:
@@ -316,11 +316,11 @@ collections:
       - name: gz-fuel-tools
         major_version: 11
         repo:
-          current_branch: main
+          current_branch: gz-fuel-tools11
       - name: gz-transport
         major_version: 15
         repo:
-          current_branch: main
+          current_branch: gz-transport15
       - name: gz-gui
         major_version: 10
         repo:
@@ -336,11 +336,11 @@ collections:
       - name: gz-sim
         major_version: 10
         repo:
-          current_branch: main
+          current_branch: gz-sim10
       - name: gz-launch
         major_version: 9
         repo:
-          current_branch: main
+          current_branch: gz-launch9
       - name: gz-jetty
         major_version: 1
         repo:
