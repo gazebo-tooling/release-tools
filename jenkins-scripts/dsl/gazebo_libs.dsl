@@ -178,12 +178,13 @@ void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
   }
 }
 
-void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
+void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config, arch)
 {
   def ws_checkout_dir = lib_name
   OSRFBrewCompilation.create(gz_brew_ci_job,
                              is_testing_enabled(lib_name, ci_config),
-                             are_cmake_warnings_enabled(lib_name, ci_config))
+                             are_cmake_warnings_enabled(lib_name, ci_config),
+                             arch)
   OSRFGitHub.create(gz_brew_ci_job,
                     "gazebosim/${lib_name}",
                     branch,
@@ -273,10 +274,11 @@ String generate_linux_install(src_name, lib_name, platform, arch)
 
 String generate_brew_install(src_name, lib_name, arch)
 {
+  def arch_label = arch == 'amd64' ? 'x86_64' : arch
   def script_name_prefix = cleanup_library_name(src_name)
   def job_name = "${script_name_prefix}-install_bottle-homebrew-${arch}"
   def install_default_job = job(job_name)
-  OSRFBrewInstall.create(install_default_job)
+  OSRFBrewInstall.create(install_default_job, arch_label)
 
   install_default_job.with
   {
@@ -400,8 +402,12 @@ gz_collections_yaml.collections.each { collection ->
                job_name: gz_ci_asan_job.name])
           }
         } else if (ci_config.system.so == 'darwin') {
+          def arch_label = arch == 'amd64' ? 'x86_64' : arch
           gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-homebrew-${arch}")
-          generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+          if (arch != 'amd64' && arch != 'arm64') {
+            assert false : "Unsupported arch ${arch} for brew job ${gz_ci_job.name}"
+          } 
+          generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config, arch_label)
         } else if (ci_config.system.so == 'windows') {
           branch_number = branch_name - lib_name
           Globals.gazebodistro_branch = true
@@ -472,14 +478,16 @@ branch_index.each { lib_name, distro_configs ->
         } // end of ci_any_job
       } else if (ci_config.system.so == 'darwin') {
         // --------------------------------------------------------------
-        def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-amd64"
+        def arch_label = ci_config.system.arch == 'amd64' ? 'x86_64' : ci_config.system.arch
+        def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-${ci_config.system.arch}"
         def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
         OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
                                             "gazebosim/${lib_name}",
                                             is_testing_enabled(lib_name, ci_config),
                                             branch_names,
                                             ENABLE_GITHUB_PR_INTEGRATION,
-                                            are_cmake_warnings_enabled(lib_name, ci_config))
+                                            are_cmake_warnings_enabled(lib_name, ci_config),
+                                            arch_label)
         add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir)
       } else if (ci_config.system.so == 'windows') {
         distro_sort_name = get_windows_distro_sortname(ci_config)

@@ -130,7 +130,8 @@ OSRFBrewCompilationAnyGitHub.create(bottle_job_builder,
                                     "osrf/homebrew-simulation",
                                     DISABLE_TESTS,
                                     NO_SUPPORTED_BRANCHES,
-                                    DISABLE_GITHUB_INTEGRATION)
+                                    DISABLE_GITHUB_INTEGRATION,
+                                    'x86_64')
 bottle_job_builder.with
 {
    wrappers {
