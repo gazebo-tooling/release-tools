@@ -11,7 +11,7 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFBrewCompilation extends OSRFOsXBase
 {
-  static void create(Job job, enable_testing = true, enable_cmake_warnings = false, arch)
+  static void create(Job job, String arch, enable_testing = true, enable_cmake_warnings = false)
   {
     OSRFOsXBase.create(job, arch)
 

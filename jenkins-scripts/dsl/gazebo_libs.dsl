@@ -182,9 +182,9 @@ void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config, arch)
 {
   def ws_checkout_dir = lib_name
   OSRFBrewCompilation.create(gz_brew_ci_job,
+                             arch,
                              is_testing_enabled(lib_name, ci_config),
-                             are_cmake_warnings_enabled(lib_name, ci_config),
-                             arch)
+                             are_cmake_warnings_enabled(lib_name, ci_config))
   OSRFGitHub.create(gz_brew_ci_job,
                     "gazebosim/${lib_name}",
                     branch,
@@ -482,12 +482,12 @@ branch_index.each { lib_name, distro_configs ->
         def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-${ci_config.system.arch}"
         def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
         OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
+                                            arch_label,
                                             "gazebosim/${lib_name}",
                                             is_testing_enabled(lib_name, ci_config),
                                             branch_names,
                                             ENABLE_GITHUB_PR_INTEGRATION,
-                                            are_cmake_warnings_enabled(lib_name, ci_config),
-                                            arch_label)
+                                            are_cmake_warnings_enabled(lib_name, ci_config))
         add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir)
       } else if (ci_config.system.so == 'windows') {
         distro_sort_name = get_windows_distro_sortname(ci_config)
