@@ -1,4 +1,3 @@
-#!/bin/bash -e
 #
 if [[ -z $(ls -- *.xml) ]]; then
   echo "No .xml file founds. Generate them using:"
@@ -19,17 +18,41 @@ fi
 # Check for existing scripts. Lines:
 # 1. lookg for ./scripts/. and exclude comment lnes
 # 2. replaces %WORKSPACE% by .
-# 3. grab only the path from ./scripts/
-# 4. remove spurious "
+# 3. exclude CONDA_ENV_NAME variable lines
+# 4. grab only the path from ./scripts/
+# 5. remove spurious "
 # 5. sor and uniq to get clean output
 for f in $(grep -Eh './scripts/.*' -- *.xml | grep -v '//' | \
            sed 's/%WORKSPACE%/./g' | \
+           grep -v '%CONDA_ENV_NAME%' | \
            grep -Eh -o './scripts/.*' | awk '{print $1}' | \
            sed 's/"//g' | \
            sort | uniq); do
   if ! test -f "${f}"; then
     echo "${f} script not found in the repository"
+    exit 1
   fi
+done
+
+# Check conda enviroments links
+for f in $(ls *-c*win.xml); do
+  CONDA_ENV_NAME=$(grep -oP 'CONDA_ENV_NAME=\K.*' $f || true)
+  if [ -z ${CONDA_ENV_NAME} ]; then
+    # Could be a valid stub file pass the file
+    # to the next check
+    continue
+  fi
+  for link in "$(grep -Eh './scripts/conda/envs.*' $f | grep -v '//' | \
+           sed 's/%WORKSPACE%/./g' | \
+           sed "s/%CONDA_ENV_NAME%/${CONDA_ENV_NAME}/g" |\
+           grep -Eh -o './scripts/.*' | awk '{print $1}' | \
+           sed 's/"//g' | \
+           uniq)"; do
+    if ! test -d "${link}"; then
+      echo "${link} conda env not found in the repository in file ${f}"
+      exit 1
+    fi
+  done
 done
 
 abichecker_main=$(grep '<branch>main</branch>' -- *-abichecker-*.xml || true)
@@ -81,3 +104,26 @@ if [[ -n ${avoid_infinite_build_archive} ]]; then
   echo "${avoid_infinite_build_archive}"
   exit 1
 fi
+
+# <project> is the XML tags for jobs. Views are fine without having a numToKeep
+avoid_infinite_build_archive_no_setup=$(grep -l '<project>' -- *.xml | xargs grep -L '<numToKeep>')
+if [[ -n ${avoid_infinite_build_archive_no_setup} ]]; then
+  echo "Found a job setup to keep infinite number of builds. This is BAD"
+  echo "${avoid_infinite_build_archive_no_setup}"
+  exit 1
+fi
+
+check_tag_without_platforms()
+{
+  tag=${1}
+  echo $(awk -v tag="$tag" 'FNR==1{filename=FILENAME} /<assignedNode>/ && $0 ~ tag && !/win/ && !/docker/ {print filename ": " $0}' *.xml)
+}
+
+for tag in gpu-reliable large-memory; do
+  no_tag_without_platforms=$(check_tag_without_platforms ${tag})
+  if [[ -n ${no_tag_without_platforms} ]]; then
+    echo "Found jobs with the ${tag}"
+    echo "${no_tag_without_platforms}"
+    exit 1
+  fi
+done

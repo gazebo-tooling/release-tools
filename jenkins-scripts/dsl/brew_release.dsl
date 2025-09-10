@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 
 // first distro in list is used as touchstone
-brew_supported_distros         = [ "ventura", "sonoma" ]
+brew_supported_distros         = [ "ventura", "arm64_sonoma", "sonoma" ]
 bottle_hash_updater_job_name   = 'generic-release-homebrew_pr_bottle_hash_updater'
 bottle_builder_job_name        = 'generic-release-homebrew_triggered_bottle_builder'
 directory_for_bottles          = 'pkgs'
@@ -48,7 +48,7 @@ void include_common_params(Job job)
 }
 
 // -------------------------------------------------------------------
-// 1. BREW pull request SHA updater
+// 1. BREW pull request SHA256 updater
 def release_job = job("generic-release-homebrew_pull_request_updater")
 OSRFUNIXBase.create(release_job)
 OSRFCredentials.allowOsrfbuildToRunTheBuild(release_job)
@@ -59,7 +59,7 @@ release_job.with
    String PR_URL_export_file_name = 'pull_request_created.properties'
    String PR_URL_export_file = '${WORKSPACE}/' + PR_URL_export_file_name
 
-   label Globals.nontest_label("master")
+   label Globals.nontest_label("built-in")
 
    wrappers {
      preBuildCleanup()
@@ -77,8 +77,8 @@ release_job.with
                  'URI with the tarball of the latest release')
      stringParam("VERSION", '',
                  'Version of the package just released')
-     stringParam('SOURCE_TARBALL_SHA','',
-                 'SHA Hash of the tarball file')
+     stringParam('SOURCE_TARBALL_SHA256','',
+                 'SHA256 Hash of the tarball file')
    }
 
    steps
@@ -249,7 +249,7 @@ OSRFUNIXBase.create(bottle_job_hash_updater)
 include_common_params(bottle_job_hash_updater)
 bottle_job_hash_updater.with
 {
-  label Globals.nontest_label("master")
+  label Globals.nontest_label("built-in")
 
   wrappers
   {

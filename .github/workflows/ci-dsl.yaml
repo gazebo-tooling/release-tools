@@ -3,7 +3,9 @@ name: DSL logs and checks
 on:
   pull_request:
     paths:
-      - 'jenkins-scripts/dsl/**'
+      # Can not restrict it to jenkins-scripts/dsl/** since there are sanity
+      # checks on generated XML done on removal/addition of scripts in jenkins-scripts
+      - 'jenkins-scripts/**'
 
 jobs:
   xml_generation:
@@ -19,7 +21,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '17'
       - name: Download and setup job dsl jar
         run: ./jenkins-scripts/dsl/tools/setup_local_generation.bash
       - name: Generate XML files
@@ -33,6 +35,10 @@ jobs:
           WRITE_JOB_LOG=1 java -jar tools/jobdsl.jar *.dsl
           find logs/* -exec sort {} -o {} \;
           popd
+      - name: Checks for existing scripts in docker/
+        run: |
+          cd jenkins-scripts/docker
+          ./sanity_checks.bash
       - name: Checks for DSL Code
         run: |
           cd jenkins-scripts/dsl

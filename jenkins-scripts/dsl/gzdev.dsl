@@ -18,7 +18,7 @@ supported_distros.each { distro ->
     gzdev_ci_job.with
     {
     
-      label Globals.nontest_label("large-memory")
+      label Globals.nontest_label("docker && large-memory")
 
       scm {
         git {
@@ -56,7 +56,7 @@ supported_distros.each { distro ->
 
     gzdev_any_job.with
     {
-      label Globals.nontest_label("large-memory")
+      label Globals.nontest_label("docker && large-memory")
 
       steps {
         shell("""\

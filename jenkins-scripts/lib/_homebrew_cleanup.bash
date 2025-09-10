@@ -3,42 +3,52 @@ set -e
 
 restore_brew()
 {
-    rm -fr /usr/local/Homebrew/Library/Homebrew/vendor/bundle/ruby
-    ${BREW_BINARY} update-reset
-    ${BREW_BINARY} vendor-install ruby
+    rm -fr ${HOMEBREW_REPOSITORY}/Library/Homebrew/vendor/bundle/ruby
+    brew update-reset
+    brew vendor-install ruby
 }
 
-BREW_BINARY_DIR=/usr/local/bin
-BREW_BINARY=${BREW_BINARY_DIR}/brew
 # Try running `git fsck` before `brew update` in case `git gc` broke something
 # but don't fail
-git -C $(${BREW_BINARY} --repo) fsck || true
+git -C $(brew --repo) fsck || true
 export HOMEBREW_UPDATE_TO_TAG=1
-${BREW_BINARY} up || { restore_brew && ${BREW_BINARY} up ; }
+# call restore_brew if CLEAR_BREW_CACHE is set
+if ${CLEAR_BREW_CACHE}; then
+  # Assume that brew is already in the PATH
+  restore_brew && brew up
+fi
+# call restore_brew if `brew up` fails
+brew up || { restore_brew && brew up ; }
 
 # Clear all installed homebrew packages, links, taps, and kegs
-${BREW_BINARY} list --formula > /dev/null || { restore_brew && ${BREW_BINARY} list --formula > /dev/null; }
-BREW_LIST=$(${BREW_BINARY} list --formula)
+brew list --formula > /dev/null || { restore_brew && brew list --formula > /dev/null; }
+BREW_LIST=$(brew list --formula)
 if [[ -n "${BREW_LIST}" ]]; then
-  ${BREW_BINARY} remove --force --ignore-dependencies ${BREW_LIST}
+  brew remove --force --ignore-dependencies ${BREW_LIST}
 fi
-rm -rf /usr/local/lib/python*/site-packages
+rm -rf ${HOMEBREW_PREFIX}/lib/python*/site-packages
 hash -r
 # redirect error to /dev/null to avoid temporal problems detected by
 # brew tap
 for t in $(HOMEBREW_NO_AUTO_UPDATE=1 \
-          ${BREW_BINARY} tap 2>/dev/null \
+          brew tap 2>/dev/null \
           | grep '^[^/]\+/[^/]\+$' \
           | grep -v '^homebrew/cask$' \
           | grep -v '^homebrew/core$'); do
-  ${BREW_BINARY} untap $t
+  brew untap $t
 done
-${BREW_BINARY} cleanup --prune-prefix
+brew cleanup --prune-prefix
 
-pushd $(${BREW_BINARY} --prefix)/Homebrew/Library 2> /dev/null
+BREW_CACHE=$(brew --cache)
+echo BREW_CACHE=${BREW_CACHE}
+if ${CLEAR_BREW_CACHE}; then
+  rm -rf ${BREW_CACHE}
+fi
+
+pushd ${HOMEBREW_REPOSITORY}/Library 2> /dev/null
 git stash && git clean -d -f
 # Need to test if brew installation is still working (use audit cmake to quick check)
-${BREW_BINARY} audit cmake || restore_brew
+brew audit cmake || restore_brew
 popd 2> /dev/null
 
 # test-bot needs variables and does not work just with config not sure why

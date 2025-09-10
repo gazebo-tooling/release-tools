@@ -37,6 +37,9 @@
 
 # TODO: Update gz-collection.yaml on release-tools
 
+# default to false
+DRY_RUN=${DRY_RUN:-false}
+
 DEFAULT="\e[39m"
 DEFAULT_BG="\e[49m"
 
@@ -63,15 +66,23 @@ if [[ -z "${DOCS_BRANCH}" ]]; then
   DOCS_BRANCH=master
 fi
 
-COMMIT_MSG="Bumps in ${COLLECTION}"
-PR_TEXT="See https://github.com/${TOOLING_ORG}/release-tools/issues/${ISSUE_NUMBER}"
+PR_TEXT="Part of https://github.com/${TOOLING_ORG}/release-tools/issues/${ISSUE_NUMBER}."
 
 set -e
 
 if [[ $# -lt 5 ]]; then
-  echo "./bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number>"
+  echo "./bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number> <prev-collection>"
   exit 1
 fi
+
+IFS=';'
+read -a LIBRARIES <<< "${LIBRARY_INPUT}"
+read -a VERSIONS <<< "${VERSION_INPUT}"
+
+SANITIZED_LIB0=$(echo ${LIBRARIES[0]} | tr -cd '[:alnum:]_-')
+
+COMMIT_MSG="Bump ${SANITIZED_LIB0} and others in ${COLLECTION}"
+echo -e "${GREY}${WHITE_BG}${COMMIT_MSG}${DEFAULT_BG}${DEFAULT}"
 
 TEMP_DIR="/tmp/bump_dependency"
 echo -e "${GREEN}Creating directory [${TEMP_DIR}]${DEFAULT}"
@@ -173,6 +184,7 @@ commitAndPR() {
   local REPO=${PWD##*/}
   local ORG=$1
   local BASE_BRANCH=$2
+  local COMMIT_MSG_PREFIX=$3
 
   if git diff --exit-code; then
     echo -e "${GREEN}${REPO}: Nothing to commit for ${REPO}.${DEFAULT}"
@@ -187,54 +199,58 @@ commitAndPR() {
     return
   fi
 
-  local LIB=${CURRENT_BRANCH#bump_${COLLECTION}}
-  local LIB=${LIB#_}
-  local LIB=": ${LIB}"
+  if ${DRY_RUN}; then
+    echo -e "${GREEN_BG}${REPO}: dry-run enabled (avoid commit and PR). Press to continue${DEFAULT_BG}"
+    read CONTINUE
+  else
+    echo -e "${GREEN_BG}${REPO}: Commit ${REPO} and open PR? (y/n)${DEFAULT_BG}"
+    read CONTINUE
+    if [ "$CONTINUE" = "y" ]; then
+      git commit -sam"${COMMIT_MSG_PREFIX}${COMMIT_MSG}
 
-  echo -e "${GREEN_BG}${REPO}: Commit ${REPO} and open PR? (y/n)${DEFAULT_BG}"
-  read CONTINUE
-  if [ "$CONTINUE" = "y" ]; then
-    git commit -sam"${COMMIT_MSG} ${LIB}"
-    git push origin ${CURRENT_BRANCH}
-    gh pr create --title "${COMMIT_MSG} ${LIB}" --body "${PR_TEXT}" --repo ${ORG}/${REPO} --base ${BASE_BRANCH}
+Bumping ${LIBRARY_INPUT} to ${VERSION_INPUT}"
+      git push origin ${CURRENT_BRANCH}
+      gh pr create --title "${COMMIT_MSG_PREFIX}${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${ORG}/${REPO} --base ${BASE_BRANCH}
+    fi
   fi
 }
 
-echo -e "${GREY}${WHITE_BG}Bumps in ${COLLECTION}${DEFAULT_BG}${DEFAULT}"
-
-IFS=';'
-read -a LIBRARIES <<< "${LIBRARY_INPUT}"
-read -a VERSIONS <<< "${VERSION_INPUT}"
-
 # gazebodistro
 cloneIfNeeded ${TOOLING_ORG} gazebodistro
-startFromCleanBranch bump_${COLLECTION} master
+startFromCleanBranch bump_${SANITIZED_LIB0}_in_${COLLECTION} master
 
 # docs
 cloneIfNeeded ${GZ_ORG} docs
-startFromCleanBranch bump_${COLLECTION} ${DOCS_BRANCH}
+startFromCleanBranch bump_${SANITIZED_LIB0}_in_${COLLECTION} ${DOCS_BRANCH}
 
 # homebrew
 cloneIfNeeded ${OSRF_ORG} homebrew-simulation
-startFromCleanBranch bump_${COLLECTION} master
+startFromCleanBranch bump_${SANITIZED_LIB0}_in_${COLLECTION} master
 
 # release-tools
 cloneIfNeeded ${TOOLING_ORG} release-tools
-startFromCleanBranch bump_${COLLECTION} master
+startFromCleanBranch bump_${SANITIZED_LIB0}_in_${COLLECTION} master
 
-# This first loop finds out what downstream dependencies also need to be bumped
+# This first loop finds out what downstream dependencies also need to be updated
+# Store library name with major version in UNSORTED_PACKAGES
+# Start with empty array
+read -a UNSORTED_PACKAGES <<< ""
 for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
   LIB=${LIBRARIES[$i]}
   VER=${VERSIONS[$i]}
   PREV_VER="$((${VER}-1))"
+  LIBVER=${LIB}${VER}
+
+  # Append this library to be bumped to UNSORTED_PACKAGES
+  UNSORTED_PACKAGES+=(${LIBVER})
 
   ##################
   # gazebodistro
   ##################
   cd ${TEMP_DIR}/gazebodistro
 
-  YAML_FILE=${LIB}${VER}.yaml
+  YAML_FILE=${LIBVER}.yaml
   echo -e "${BLUE_BG}Processing [${YAML_FILE}]${DEFAULT_BG}"
 
   if [ ! -f "${YAML_FILE}" ]; then
@@ -248,40 +264,45 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     MAIN_BRANCH=master
     if ! grep -q $MAIN_BRANCH "${YAML_FILE}"; then
       echo -e "${RED}No main or master branch found on ${YAML_FILE}.${DEFAULT}"
+      echo -e "${RED}This means that ${LIB} was probably already bumped from ${LIBVER}"
       exit
     fi
   fi
 
-  # Assume all files that have some `main` or `master` branch may be bumped
   PREV_RELEASE_BRANCH=${LIB}${PREV_VER}
   PREV_RELEASE_BRANCH="${PREV_RELEASE_BRANCH/sdformat/sdf}"
-  grep -rl "main\|master" *.yaml | xargs sed -i "s ${PREV_RELEASE_BRANCH} ${MAIN_BRANCH} g"
+  # For any files containing `main` or `master`,
+  # Replace every instance of `PREV_RELEASE_BRANCH` with `main`
+  grep -rl "main\|master" *.yaml | \
+    xargs sed -i "s ${PREV_RELEASE_BRANCH} ${MAIN_BRANCH} g"
 
-  # Add all bumped dependencies to the list to be bumped
-  DIFF=$(git diff --name-only)
+  # Add the names of any modified files to the LIBRARIES and VERSIONS arrays
+  # to ensure those packages receive further processing
+  MODIFIED_FILES=$(git diff --name-only)
 
-  while IFS= read -r TO_BUMP; do
+  while IFS= read -r TO_UPDATE; do
 
-    TO_BUMP=${TO_BUMP%.yaml}
-    if [[ "$TO_BUMP" =~ ^([a-z-]+)([0-9]+) ]]; then
+    TO_UPDATE=${TO_UPDATE%.yaml}
+    if [[ "$TO_UPDATE" =~ ^([a-z-]+)([0-9]+) ]]; then
 
       if [[ ${#BASH_REMATCH[*]} -lt 3 ]]; then
         continue
       fi
 
-      BUMP_LIB=${BASH_REMATCH[1]}
-      BUMP_VER=${BASH_REMATCH[2]}
+      UPDATED_LIB=${BASH_REMATCH[1]}
+      UPDATED_VER=${BASH_REMATCH[2]}
 
-      if [[ ! " ${LIBRARIES[@]} " =~ " ${BUMP_LIB} " ]]; then
-        echo -e "${GREEN}Also bumping ${BUMP_LIB}${BUMP_VER}${DEFAULT}"
-        LIBRARIES+=($BUMP_LIB)
-        VERSIONS+=($BUMP_VER)
+      if [[ ! " ${LIBRARIES[@]} " =~ " ${UPDATED_LIB} " ]]; then
+        echo -e "${GREEN}Also updating ${UPDATED_LIB}${UPDATED_VER}${DEFAULT}"
+        LIBRARIES+=($UPDATED_LIB)
+        VERSIONS+=($UPDATED_VER)
+        UNSORTED_PACKAGES+=(${TO_UPDATE})
       fi
     fi
 
-  done <<< "$DIFF"
+  done <<< "$MODIFIED_FILES"
 
-  sed -i "s ${LIB}${PREV_VER} main g" collection-${COLLECTION}.yaml
+  sed -i "s ${PREV_RELEASE_BRANCH} main g" collection-${COLLECTION}.yaml
 
   ##################
   # docs
@@ -291,27 +312,52 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
 
 done
 
+# Sort gazebodistro yaml files in topological order
+cd ${TEMP_DIR}/gazebodistro
+SORTED_YAML=$(
+  for p in ${UNSORTED_PACKAGES[@]}; do
+    # Reorder UNSORTED_PACKAGES array in order of gazebodistro yaml file size
+    # This is a heuristic for topological order
+    wc -l $p.yaml
+  done \
+  | sort -n \
+  | uniq \
+  | awk '{ print $2 }'
+)
+
+# Converted file names in SORTED_YAML to matched arrays of library names and version numbers
+echo -e "${GREEN}Sorting in topological order the packages to update:${DEFAULT}"
+read -a SORTED_LIBRARIES <<< ""
+read -a SORTED_VERSIONS <<< ""
+while IFS= read -r package; do
+  LIB=$(basename -s .yaml ${package} | sed -e 's@[0-9]*$@@')
+  VER=$(basename -s .yaml ${package} | sed -e 's@^[^0-9]*@@')
+  SORTED_LIBRARIES+=($LIB)
+  SORTED_VERSIONS+=($VER)
+  echo -e "${GREEN}$LIB version $VER${DEFAULT}"
+done <<< ${SORTED_YAML}
+
 # Clean up changes in gazebodistro, we'll be redoing them below one file at a time
 cd ${TEMP_DIR}/gazebodistro
 git reset --hard
 
 # Add collection to libraries, without version
-LIBRARIES+=(gz-$COLLECTION)
+SORTED_LIBRARIES+=(gz-$COLLECTION)
 
 ##################
 # docs
 ##################
 cd ${TEMP_DIR}/docs
-commitAndPR ${GZ_ORG} ${DOCS_BRANCH}
+commitAndPR ${GZ_ORG} ${DOCS_BRANCH} ""
 
-for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
+for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
 
-  LIB=${LIBRARIES[$i]}
+  LIB=${SORTED_LIBRARIES[$i]}
 
   LIB_=${LIB//-/_} # For fuel_tools
-  VER=${VERSIONS[$i]}
+  VER=${SORTED_VERSIONS[$i]}
   PREV_VER="$((${VER}-1))"
-  LIB_UPPER=`echo ${LIB#"gz-"} | tr a-z A-Z`
+  LIB_UPPER=$(echo ${LIB#"gz-"} | tr a-z A-Z)
   ORG=${GZ_ORG}
   BUMP_BRANCH="ci_matching_branch/bump_${COLLECTION}_${LIB}${VER}"
 
@@ -327,16 +373,16 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   cloneIfNeeded ${RELEASE_ORG} ${RELEASE_REPO}
   startFromCleanBranch ${BUMP_BRANCH} main
 
-  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+  for ((j = 0; j < "${#SORTED_LIBRARIES[@]}"; j++)); do
 
-    DEP_LIB=${LIBRARIES[$j]#"gz-"}
-    DEP_VER=${VERSIONS[$j]}
+    DEP_LIB=${SORTED_LIBRARIES[$j]#"gz-"}
+    DEP_VER=${SORTED_VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
     find . -type f -print0 | xargs -0 sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g"
   done
 
-  commitAndPR ${RELEASE_ORG} main
+  commitAndPR ${RELEASE_ORG} main ""
 
   ##################
   # homebrew
@@ -368,6 +414,24 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   echo -e "${GREEN}${LIB}: Updating ${FORMULA}${DEFAULT}"
   URL="https://github.com/${ORG}/${LIB}.git"
 
+  # First remove numbers from package name in specific parts of test block
+  # Replace lines like "find_package(gz-cmake2)"
+  #               with "find_package(gz-cmake)"
+  sed -i "s@\(find_package.*${LIB}\)${PREV_VER}\([^0-9]\)@\1\2@g" $FORMULA
+
+  # Replace lines like "target_link_libraries(test_cmake gz-math8::gz-math8)"
+  #               with "target_link_libraries(test_cmake gz-math::gz-math)"
+  sed -i "s@\(target_link_libraries.*${LIB}\)${PREV_VER}@\1@g" $FORMULA
+  sed -i "s@\(target_link_libraries.*${LIB}\)${PREV_VER}@\1@g" $FORMULA
+
+  # Replace lines like 'system python.opt_libexec/"bin/python", "-c", "import gz.sim10"'
+  #               with 'system python.opt_libexec/"bin/python", "-c", "import gz.sim"'
+  sed -i "s@\(python.*import .*${LIB}\)${PREV_VER}@\1@g" $FORMULA
+
+  # Replace lines like 'system "pkg-config", "gz-gui10", "--cflags"'
+  #               with 'system "pkg-config", "gz-gui", "--cflags"'
+  sed -i "s@\(pkg-config.*${LIB}\)${PREV_VER}@\1@g" $FORMULA
+
   # libN
   sed -i -E "s ((${LIB#"gz-"}))${PREV_VER} \1${VER} g" $FORMULA
   sed -i -E "s ((${LIB_#"gz_"}))${PREV_VER} \1${VER} g" $FORMULA
@@ -390,7 +454,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   # version
   PREV_VER_NONNEGATIVE=$([[ "${PREV_VER}" -lt 0 ]] && echo "0" || echo "${PREV_VER}")
   sed -i "/ version /d" $FORMULA
-  sed -i "/^  url.*/a\  version \"${PREV_VER_NONNEGATIVE}.999.999-0-`date +"%Y%m%d"`\"" $FORMULA
+  sed -i "/^  url.*/a\  version \"${PREV_VER_NONNEGATIVE}.999.999-0-$(date +"%Y%m%d")\"" $FORMULA
   # Collection
   if [[ "${LIB}" == "gz-${COLLECTION}" ]]; then
     PREV_COLLECTION_CAPITALIZED="${PREV_COLLECTION^}"
@@ -401,17 +465,34 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   # Remove extra blank lines
   cat -s $FORMULA | tee $FORMULA
 
-  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+  for ((j = 0; j < "${#SORTED_LIBRARIES[@]}"; j++)); do
 
-    DEP_LIB=${LIBRARIES[$j]#"gz-"}
+    DEP_LIB=${SORTED_LIBRARIES[$j]#"gz-"}
 
-    DEP_VER=${VERSIONS[$j]}
+    DEP_VER=${SORTED_VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
+
+    # Replace lines like "find_package(gz-cmake2)"
+    #               with "find_package(gz-cmake)"
+    sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\([^0-9]\)@\1\2@g" $FORMULA
+
+    # Replace lines like "target_link_libraries(test_cmake gz-math8::gz-math8)"
+    #               with "target_link_libraries(test_cmake gz-math::gz-math)"
+    sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g" $FORMULA
+    sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g" $FORMULA
+
+    # Replace lines like 'system python.opt_libexec/"bin/python", "-c", "import gz.sim10"'
+    #               with 'system python.opt_libexec/"bin/python", "-c", "import gz.sim"'
+    sed -i "s@\(python.*import .*${DEP_LIB}\)${DEP_PREV_VER}@\1@g" $FORMULA
+
+    # Replace lines like 'system "pkg-config", "gz-gui10", "--cflags"'
+    #               with 'system "pkg-config", "gz-gui", "--cflags"'
+    sed -i "s@\(pkg-config.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g" $FORMULA
 
     sed -i "s ${DEP_LIB}${DEP_PREV_VER} ${DEP_LIB}${DEP_VER} g" $FORMULA
   done
 
-  commitAndPR ${OSRF_ORG} master
+  commitAndPR ${OSRF_ORG} master "${LIB}${VER}: "
 
   ##################
   # gazebodistro
@@ -427,10 +508,10 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   else
     YAML_FILE=${LIB}${VER}.yaml
   fi
-  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+  for ((j = 0; j < "${#SORTED_LIBRARIES[@]}"; j++)); do
 
-    DEP_LIB=${LIBRARIES[$j]/sdformat/sdf}
-    DEP_VER=${VERSIONS[$j]}
+    DEP_LIB=${SORTED_LIBRARIES[$j]/sdformat/sdf}
+    DEP_VER=${SORTED_VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
     sed -i "s ${DEP_LIB}${DEP_PREV_VER} main g" $YAML_FILE
@@ -438,7 +519,7 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     sed -i "s ${DEP_LIB}${DEP_PREV_VER} main g" $YAML_FILE
   done
 
-  commitAndPR ${TOOLING_ORG} master
+  commitAndPR ${TOOLING_ORG} master "${LIB}${VER}: "
 
   ##################
   # source code
@@ -452,22 +533,36 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   # Check if main branch of that library is the correct version
   PROJECT_NAME="${LIB}${VER}"
   PROJECT="project.*(${PROJECT_NAME}"
+  echo -e "${GREEN}  checking versioned project name ${PROJECT_NAME}${DEFAULT}"
   if ! grep -q ${PROJECT} "CMakeLists.txt"; then
-    echo -e "${RED}Wrong project name on [CMakeLists.txt], looking for [$PROJECT_NAME].${DEFAULT}"
-    exit
+    PROJECT_NAME="${LIB}"
+    PROJECT="project.*(${PROJECT_NAME}[^0-9]"
+    echo -e "${GREEN}  checking unversioned project name ${PROJECT_NAME}${DEFAULT}"
+    if ! grep -q ${PROJECT} "CMakeLists.txt"; then
+      echo -e "${RED}Wrong project name on [CMakeLists.txt], looking for [$PROJECT_NAME].${DEFAULT}"
+      exit
+    fi
   fi
 
   echo -e "${GREEN}${LIB}: Updating source code${DEFAULT}"
-  for ((j = 0; j < "${#LIBRARIES[@]}"; j++)); do
+  for ((j = 0; j < "${#SORTED_LIBRARIES[@]}"; j++)); do
 
-    DEP_LIB=${LIBRARIES[$j]#"gz-"}
+    DEP_LIB=${SORTED_LIBRARIES[$j]#"gz-"}
 
-    DEP_VER=${VERSIONS[$j]}
+    DEP_VER=${SORTED_VERSIONS[$j]}
     DEP_PREV_VER="$((${DEP_VER}-1))"
 
+    # Replace lines like "find_package(gz-cmake2)"
+    #               with "find_package(gz-cmake)"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\([^0-9]\)@\1\2@g"
+
     # Replace lines like "find_package(gz-cmake2 2.0.0)"
-    #               with "find_package(gz-cmake3)"
-    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1${DEP_VER}@g"
+    #               with "find_package(gz-cmake)"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1@g"
+
+    # Replace lines like "find_package(gz-cmake2 2.0.0)"
+    #               with "find_package(gz-cmake)"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER} \+${DEP_PREV_VER}[^ )]*@\1@g"
 
     # Replace lines like "gz_find_package(gz-math6 VERSION 6.5.0)"
     #               with "gz_find_package(gz-math7)"
@@ -476,8 +571,31 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
     #               with "gz_find_package(gz-math6 REQUIRED)"
     #               like "gz_find_package(gz-math6 REQUIRED COMPONENTS VERSION 6.10 eigen3)"
     #               with "gz_find_package(gz-math7 REQUIRED COMPONENTS eigen3)"
-    find . -type f -name 'CMakeLists.txt' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\(.*\) \+VERSION \+${DEP_PREV_VER}[^ )]*@\1${DEP_VER}\2@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(find_package.*${DEP_LIB}\)${DEP_PREV_VER}\(.*\) \+VERSION \+${DEP_PREV_VER}[^ )]*@\1\2@g"
 
+    # Replace lines like "target_link_libraries(test_cmake gz-math8::gz-math8)"
+    #               with "target_link_libraries(test_cmake gz-math::gz-math)"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(target_link_libraries.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"
+
+    # Remove version number from cmake target names
+    # Replace lines like "gz-transport14::core"
+    #               with "gz-transport::core"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(${DEP_LIB}\)${DEP_PREV_VER}::@\1::@g"
+    # Replace lines like "gz-transport14::gz-transport14"
+    #               with "gz-transport::gz-transport"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(${DEP_LIB}\)${DEP_PREV_VER}\(::${DEP_LIB}\)${DEP_PREV_VER}@\1\2@g"
+
+    # Replace lines like 'from gz.sim10 import *'
+    #               with 'from gz.sim import *'
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(from.*${DEP_LIB}\)${DEP_PREV_VER}\( import\)@\1\2@g"
+    # Replace lines like 'import gz.sim10"
+    #               with 'import gz.sim"
+    find . -type f ! -name 'Changelog.md' ! -name 'Migration.md' -print0 | xargs -0 sed -i "s@\(import.*${DEP_LIB}\)${DEP_PREV_VER}@\1@g"
+
+    # Replace lines like "<depend>gz-transport14</depend>"
+    #               with "<depend>gz-transport</depend>"
+    find . -type f -name 'package.xml' -print0 | xargs -0 sed -i "s@\(<depend>.*${DEP_LIB}\)${DEP_PREV_VER}<@\1<@g"
 
     # Rule: *plugin2 -> *plugin3
     # Replace lines like: "find_package(gz-cmake2)"
@@ -510,5 +628,8 @@ for ((i = 0; i < "${#LIBRARIES[@]}"; i++)); do
   sed -i "s/\(debbuild.*\)${LIB}${PREV_VER}\(.*\)${LIB_SHORT}${PREV_VER}/\1${LIB}${VER}\2main/g" $DSL_FILE
 
   commitAndPR ${TOOLING_ORG} master
+
+  # TODO: update jenkins/dsl/gz-collections.yaml
+  echo -e "${BLUE_BG}Remember to update jenkins/dsl/gz-collections.yaml in release-tools${DEFAULT_BG}"
 
 done

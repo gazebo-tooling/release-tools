@@ -34,6 +34,7 @@ OSRFSourceCreation.create(gz_source_job, [
   SOURCE_REPO_URI: "https://github.com/gazebosim/gz-plugin.git",
   SOURCE_REPO_REF: "gz-plugin2"])
 OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
+  'gz-plugin',
   '_test_repository_uploader',
   '_test_releasepy')
 // repository_uploader fake test job
@@ -106,7 +107,7 @@ def outdated_job_runner = job("_test_outdated_job_runner")
 OSRFBase.create(outdated_job_runner)
 outdated_job_runner.with
 {
-  label Globals.nontest_label("master")
+  label Globals.nontest_label("built-in")
 
   steps
   {
@@ -135,7 +136,7 @@ test_credentials_token_job.with
           #!/bin/bash -xe
 
           URL_TO_BUILD="\${JENKINS_URL}/job/\${TEST_JOB_TO_BUILD}/build"
-          
+
           echo " + Testing OSRFBUILD_JENKINS_TOKEN ability for calling jobs:"
           echo "   - \${URL_TO_BUILD}"
 
@@ -164,22 +165,40 @@ test_credentials_token_job.with
           """.stripIndent())
     }
 
-    publishers
-    {
-      postBuildScripts {
-        steps {
-          shell("""\
-                #!/bin/bash -xe
+    configure { project ->
+      project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
+      config {
+        scriptFiles()
+        groovyScripts()
+        buildSteps {
+        'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
+          results {
+            string('SUCCESS')
+            string('NOT_BUILT')
+            string('ABORTED')
+            string('FAILURE')
+            string('UNSTABLE')
+          }
+          role('BOTH')
+          executeOn('BOTH')
+          buildSteps {
+            'hudson.tasks.Shell' {
+            command("""\
+            #!/bin/bash -xe
 
-                # remove config after the build ends unconditionally to avoid token leaks
-                rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
-                """.stripIndent())
-        }
-
-        onlyIfBuildSucceeds(false)
-        onlyIfBuildFails(false)
-      }
-    }
+            # remove config after the build ends unconditionally to avoid token leaks
+            rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
+            """.stripIndent())
+            configuredLocalRules()
+            }
+          } // buildSteps
+          stopOnFailure('false')
+        } // org.jenkinsci.plugins.postbuildscript.model.PostBuildStep
+        } // buildSteps
+        markBuildUnstable('false')
+      } // config
+      } // PostBuildScript
+    } // configure
 
     wrappers {
       preBuildCleanup()
@@ -190,4 +209,8 @@ def test_dummy_job = job("_test_dummy_callable")
 OSRFCredentials.allowOsrfbuildToRunTheBuild(test_dummy_job)
 test_dummy_job.with {
   label Globals.nontest_label("docker")
+
+  logRotator {
+    numToKeep(25)
+  }
 }

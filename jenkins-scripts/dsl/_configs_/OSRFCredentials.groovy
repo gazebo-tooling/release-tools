@@ -33,10 +33,15 @@ class OSRFCredentials
   static void allowOsrfbuildToRunTheBuild(Job job)
   {
     job.with {
-      authorization {
-        permission('hudson.model.Item.Read', 'osrfbuild')
-        permission('hudson.model.Item.Build', 'osrfbuild')
-        permission('hudson.model.Run.Update', 'osrfbuild')
+      // Use configure block since DSL changed from 3.2 and the DSL downloaded does not have the
+      // support for it
+      configure { project ->
+        project / 'properties' / 'hudson.security.AuthorizationMatrixProperty' {
+          'inheritanceStrategy'(class: 'org.jenkinsci.plugins.matrixauth.inheritance.InheritGlobalStrategy')
+          'permission'('USER:hudson.model.Item.Build:osrfbuild')
+          'permission'('USER:hudson.model.Item.Read:osrfbuild')
+          'permission'('USER:hudson.model.Run.Update:osrfbuild')
+        }
       }
     }
   }

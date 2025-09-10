@@ -1,9 +1,9 @@
 name: Conda env testing
 
 on:
-  push:
-    paths:
-      - 'conda/envs/**'
+  # Code only works on pull_request events
+  # support push to work on pull_request is not trivial
+  pull_request:
 
 jobs:
   detection:
@@ -15,9 +15,14 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Get changed files
+    - name: Detect changed files
+      shell: bash
       id: changed-files
-      uses: tj-actions/changed-files@d6e91a2266cdb9d62096cebf1e8546899c6aa18f  # v45.0.6
+      run: |
+        # Only works on pull_request events
+        ALL_CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | tr '\n' ' ')
+        echo "Detected changed files: $ALL_CHANGED_FILES"
+        echo "all_changed_files=$ALL_CHANGED_FILES" >> $GITHUB_OUTPUT
     - name: List all changed files
       id: changed-toml-files
       env:
@@ -29,14 +34,20 @@ jobs:
             ALL_TOML_FILES="$ALL_TOML_FILES $file"
           fi
         done
+        if [[ -z $ALL_TOML_FILES ]]; then
+          echo "No TOML files changed"
+          echo "toml_file=[]" >> $GITHUB_OUTPUT
+          exit 0
+        fi
         ALL_TOML_FILES=${ALL_TOML_FILES# }
         echo "All TOML files: ${ALL_TOML_FILES}"
         JSON_ALL_TOML="{ \"toml_file\": $(echo [\"$(sed 's/ /","/g' <<< ${ALL_TOML_FILES})\"])}"
-        echo "::set-output name=toml_file::$JSON_ALL_TOML"
+        echo "toml_file=${JSON_ALL_TOML}" >> $GITHUB_OUTPUT
   pixi_builder:
     name: Pixi builder
     needs: detection
     runs-on: ubuntu-latest
+    if: ${{ needs.detection.outputs.toml_file != '[]' }}
     strategy:
       matrix: ${{ fromJSON(needs.detection.outputs.toml_file) }}
     steps:
@@ -47,6 +58,7 @@ jobs:
       - name: Install dependencies using pixi on ${{ matrix.toml_file }}
         uses: prefix-dev/setup-pixi@ba3bb36eb2066252b2363392b7739741bb777659  # v0.8.1
         with:
+          pixi-version: v0.44.0
           locked: true
           cache: false  # 10Gb limit might be too low for caching
           manifest-path: ${{ matrix.toml_file }}

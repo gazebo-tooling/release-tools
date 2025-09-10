@@ -19,7 +19,7 @@ used (can check this in the Jenkins UI)
 | osx\_$distro | Node has capabilities to build code for the distribution $distro | Apple system running $distro |
 | swarm | Node was created using swarm plugin in Jenkins | Chef provisioned node |
 | win | Node is able to run Windows CI | Windows10 system |
-| win_testing | Node is ready to test a new vcpkg snapshot | Windows10 system |
+| win_testing | Testing node attached to the production buildfarm | Windows10 system |
 
 ## Provision of Node labels
 

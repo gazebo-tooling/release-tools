@@ -47,7 +47,6 @@ libglu = "*"
 libglvnd-devel = "*"
 
 [target.linux-64.dependencies]
-libwebsockets = "*"
 vulkan-headers = "*"
 
 [build-dependencies]

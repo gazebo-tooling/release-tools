@@ -58,6 +58,9 @@ class OSRFLinuxBuildPkg
         stringParam("SOURCE_TARBALL_URI",
                     default_params.find{ it.key == "SOURCE_TARBALL_URI"}?.value,
                     "URL to the tarball containing the package sources")
+        stringParam("SOURCE_TARBALL_SHA256",
+                    default_params.find{ it.key == "SOURCE_TARBALL_SHA256"}?.value,
+                    "(optional) sha256 for SOURCE_TARBALL_URI")
         stringParam("RELEASE_REPO_BRANCH",
                     default_params.find{ it.key == "RELEASE_REPO_BRANCH"}?.value,
                     "Branch from the -release repo to be used")

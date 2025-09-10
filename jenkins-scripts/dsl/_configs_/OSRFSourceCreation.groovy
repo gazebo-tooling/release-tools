@@ -6,12 +6,9 @@ import _configs_.Globals
 class OSRFSourceCreation
 {
   static String properties_file = "package_name.prop"
-  static String package_name = ""
 
   static void addParameters(Job job, Map default_params = [:])
   {
-    package_name = default_params.find{ it.key == "PACKAGE"}?.value
-
     job.with
     {
       parameters {
@@ -124,8 +121,12 @@ class OSRFSourceCreation
             fi
           fi
 
+          SOURCE_TARBALL_SHA256=\$(sha256sum \${WORKSPACE}/${pkg_sources_dir}/\${tarball} | awk '{print \$1}')
+          echo tarball sha256 is \${SOURCE_TARBALL_SHA256}
+
           echo "S3_FILES_TO_UPLOAD=\${tarball}" >> ${properties_file}
           echo "SOURCE_TARBALL_URI=$s3_download_url_basedir/\${tarball}" >> ${properties_file}
+          echo "SOURCE_TARBALL_SHA256=\${SOURCE_TARBALL_SHA256}" >> ${properties_file}
           """.stripIndent()
         )
       }
@@ -134,44 +135,92 @@ class OSRFSourceCreation
 
   // Useful to inject testing jobs
   static void call_uploader_and_releasepy(Job job,
+                                          String package_name,
                                           String repository_uploader_jobname,
                                           String releasepy_jobname)
   {
     job.with
     {
-      publishers {
-        postBuildScripts {
-          steps {
-            conditionalSteps {
-             condition {
-              not {
-                expression('none|None|^$','${ENV,var="UPLOAD_TO_REPO"}')
+      // This creates a post-build script that conditionally triggers downstream jobs
+      // (repository uploader and release.py) only when UPLOAD_TO_REPO is not 'none', 'None', or empty
+      configure { project ->
+        project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' {
+          config {
+            scriptFiles()
+            groovyScripts()
+            buildSteps {
+              'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
+                results {
+                  string('SUCCESS')
                 }
-              }
-              steps {
-                // Invoke repository_uploader
-                downstreamParameterized {
-                  trigger(repository_uploader_jobname) {
-                    parameters {
-                      currentBuild()
-                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: '${JOB_NAME}',
-                                       PACKAGE_ALIAS: '${PACKAGE_ALIAS}',
-                                       S3_UPLOAD_PATH: "${Globals.s3_releases_dir(package_name)}/"])  // relative path with a final /
-                      propertiesFile(properties_file)  // S3_FILES_TO_UPLOAD
+                role('BOTH')
+                executeOn('BOTH')
+                buildSteps {
+                  'org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder' {
+                    runner(class: 'org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail')
+                    runCondition(class: 'org.jenkins_ci.plugins.run_condition.core.AlwaysRun')
+                    conditionalbuilders {
+                      'hudson.plugins.parameterizedtrigger.TriggerBuilder' {
+                        configs {
+                          'hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig' {
+                            configs {
+                              'hudson.plugins.parameterizedtrigger.CurrentBuildParameters'()
+                              'hudson.plugins.parameterizedtrigger.FileBuildParameters' {
+                                propertiesFile(properties_file)
+                                failTriggerOnMissing('false')
+                                textParamValueOnNewLine('false')
+                                useMatrixChild('false')
+                                onlyExactRuns('false')
+                              }
+                              'hudson.plugins.parameterizedtrigger.PredefinedBuildParameters' {
+                                properties("""
+                                  PROJECT_NAME_TO_COPY_ARTIFACTS=\${JOB_NAME}
+                                  PACKAGE_ALIAS=\${PACKAGE_ALIAS}
+                                  S3_UPLOAD_PATH=${Globals.s3_releases_dir(package_name)}
+                                  """.stripIndent())
+                                textParamValueOnNewLine('false')
+                              }
+                            }
+                            projects(repository_uploader_jobname)
+                            condition('ALWAYS')
+                            triggerWithNoParameters('false')
+                            triggerFromChildProjects('false')
+                            buildAllNodesWithLabel('false')
+                          }
+                        }
+                      }
+                      'hudson.plugins.parameterizedtrigger.TriggerBuilder' {
+                        configs {
+                          'hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig' {
+                            configs {
+                              'hudson.plugins.parameterizedtrigger.CurrentBuildParameters'()
+                              'hudson.plugins.parameterizedtrigger.FileBuildParameters' {
+                                propertiesFile(properties_file)
+                                failTriggerOnMissing('false')
+                                textParamValueOnNewLine('false')
+                                useMatrixChild('false')
+                                onlyExactRuns('false')
+                              }
+                              'hudson.plugins.parameterizedtrigger.PredefinedBuildParameters' {
+                                properties('PROJECT_NAME_TO_COPY_ARTIFACTS=${JOB_NAME}')
+                                textParamValueOnNewLine('false')
+                              }
+                            }
+                            projects(releasepy_jobname)
+                            condition('ALWAYS')
+                            triggerWithNoParameters('false')
+                            triggerFromChildProjects('false')
+                            buildAllNodesWithLabel('false')
+                          }
+                        }
+                      }
                     }
                   }
                 }
-                downstreamParameterized {
-                  trigger(releasepy_jobname) {
-                    parameters {
-                      currentBuild()
-                      predefinedProps([PROJECT_NAME_TO_COPY_ARTIFACTS: "\${JOB_NAME}"])
-                      propertiesFile(properties_file) // SOURCE_TARBALL_URI
-                    }
-                  }
-                }
+                stopOnFailure('false')
               }
             }
+            markBuildUnstable('false')
           }
         }
       }
