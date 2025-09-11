@@ -99,13 +99,15 @@ collections:
     ci:
       configs:
         - focal
-        - brew
+        - brew_amd64
+        - brew_arm64
         - win_conda_L
     packaging:
       configs:
         - focal
         - jammy
-        - brew
+        - brew_amd64
+        - brew_arm64
       linux:
         ignore_major_version:
           - gz-fortress
@@ -183,13 +185,15 @@ collections:
       configs:
         - jammy
         - noble_no_pr
-        - brew
+        - brew_amd64
+        - brew_arm64
         - win_conda_LO23
     packaging:
       configs:
         - jammy
         - noble
-        - brew
+        - brew_amd64
+        - brew_arm64
       linux:
         ignore_major_version:
           - gz-harmonic
@@ -266,12 +270,14 @@ collections:
     ci:
       configs:
         - noble
-        - brew
+        - brew_amd64
+        - brew_arm64
         - win_conda_LO23
     packaging:
       configs:
         - noble
-        - brew
+        - brew_amd64
+        - brew_arm64
       linux:
         ignore_major_version:
           - gz-ionic
@@ -348,12 +354,14 @@ collections:
     ci:
       configs:
         - noble
-        - brew
+        - brew_amd64
+        - brew_arm64
         - win_conda_noble
     packaging:
       configs:
         - noble
-        - brew
+        - brew_amd64
+        - brew_arm64
       linux:
         ignore_major_version:
           - gz-jetty
@@ -426,12 +434,14 @@ collections:
     ci:
       configs:
         - noble
-        - brew
+        - brew_amd64
+        - brew_arm64
         - win_conda_noble
     packaging:
       configs:
         - noble
-        - brew
+        - brew_amd64
+        - brew_arm64
       linux:
         nightly:
           distros:
@@ -555,7 +565,7 @@ ci_configs:
     tests_disabled:
     ci_categories_enabled:
       - stable_branches
-  - name: brew
+  - name: brew_amd64
     system:
       so: darwin
       distribution: macOSX
@@ -585,6 +595,38 @@ ci_configs:
       - sdformat
     ci_categories_enabled:
       - pr
+      - stable_branches
+  - name: brew_arm64
+    system:
+      so: darwin
+      distribution: macOSX
+      version: all
+      arch: arm64
+    requirements:
+    exclude:
+      all:
+        - gz-fortress
+        - gz-harmonic
+        - gz-ionic
+        - gz-jetty
+        - __upcoming__
+    cmake_warnings_disabled:
+      - gz-common
+      - gz-fuel-tools
+      - gz-sim
+      - gz-gui
+      - gz-launch
+      - gz-math
+      - gz-msgs
+      - gz-physics
+      - gz-rendering
+      - gz-sensors
+      - gz-tools
+      - gz-transport
+      - sdformat
+    ci_categories_enabled:
+      # Don't enable prs yet
+      # - pr
       - stable_branches
   - name: win_conda_L
     system:
@@ -731,10 +773,17 @@ packaging_configs:
         - "export MAKE_JOBS=1"
     exclude:
         - __upcoming__
-  - name: brew
+  - name: brew_amd64
     system:
       so: darwin
       distribution: macOSX
       version: all
       arch:
         - amd64
+  - name: brew_arm64
+    system:
+      so: darwin
+      distribution: macOSX
+      version: all
+      arch:
+        - arm64
