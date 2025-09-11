@@ -25,6 +25,11 @@ class Globals
    // _ign_TEST and _gz_TEST
    static MAKETEST_SKIP_GZ = "-E _i?g[nz]_TEST"
 
+   // We use this label to allow jobs to run in any macOS node
+   // The final job label will be (osx && <arch>). So using this
+   // constant will result in (osx && osx)
+   static OSX_ANY_ARCHITECTURE = 'osx'
+
    static gpu_by_distro  = [ bionic  : [ 'nvidia' ]]
 
    static ros_ci = [ 'noetic'   : ['focal'] ,

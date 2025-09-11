@@ -127,6 +127,7 @@ release_job.with
 def bottle_job_builder = matrixJob(bottle_builder_job_name)
 // set enable_github_pr_integration flag to false so we can customize trigger behavior
 OSRFBrewCompilationAnyGitHub.create(bottle_job_builder,
+                                    Globals.OSX_ANY_ARCHITECTURE,
                                     "osrf/homebrew-simulation",
                                     DISABLE_TESTS,
                                     NO_SUPPORTED_BRANCHES,
