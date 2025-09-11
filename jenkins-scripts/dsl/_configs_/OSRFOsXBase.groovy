@@ -11,14 +11,14 @@ import _configs_.Globals
 */
 class OSRFOsXBase
 {
-  static void create(Job job)
+  static void create(Job job, String arch)
   {
     // UNIX Base
     OSRFUNIXBase.create(job)
 
     job.with
     {
-      label Globals.nontest_label("osx")
+      label Globals.nontest_label("osx && ${arch}")
 
       parameters {
         booleanParam('CLEAR_BREW_CACHE',false,'remove cached brew downloads')

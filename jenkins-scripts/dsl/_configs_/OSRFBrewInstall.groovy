@@ -9,9 +9,9 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFBrewInstall extends OSRFOsXBase
 {
-  static void create(Job job)
+  static void create(Job job, String arch)
   {
-    OSRFOsXBase.create(job)
+    OSRFOsXBase.create(job, arch)
 
     job.with
     {
