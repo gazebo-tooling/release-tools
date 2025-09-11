@@ -274,6 +274,9 @@ String generate_linux_install(src_name, lib_name, platform, arch)
 
 String generate_brew_install(src_name, lib_name, arch)
 {
+  // We use the label x86_64 for node labeling, but amd64 for job naming consistency
+  // This is due to ohai chef plugin that labels the nodes as x86_64
+  // See: https://github.com/osrf/osrf_jenkins_agent/blob/latest/recipes/macos.rb#L68
   def arch_label = arch == 'amd64' ? 'x86_64' : arch
   def script_name_prefix = cleanup_library_name(src_name)
   def job_name = "${script_name_prefix}-install_bottle-homebrew-${arch}"
