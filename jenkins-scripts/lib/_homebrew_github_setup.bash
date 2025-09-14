@@ -32,7 +32,14 @@ echo '# BEGIN SECTION: download linuxbrew'
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 echo '# END SECTION'
 
-export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+# either SCRIPT_LIBDIR or SCRIPT_DIR may be set by calling scripts
+if [[ -f ${SCRIPT_LIBDIR}/_homebrew_path_setup.sh ]]; then
+    . ${SCRIPT_LIBDIR}/_homebrew_path_setup.sh
+elif [[ -f ${SCRIPT_DIR}/lib/_homebrew_path_setup.sh ]]; then
+    . ${SCRIPT_DIR}/lib/_homebrew_path_setup.sh
+else
+    export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+fi
 brew up
 
 brew ruby -e "puts 'brew ruby success'"
