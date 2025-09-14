@@ -32,16 +32,15 @@ echo '# BEGIN SECTION: download linuxbrew'
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 echo '# END SECTION'
 
-BREW_PREFIX="/home/linuxbrew/.linuxbrew"
-BREW=${BREW_PREFIX}/bin/brew
-${BREW} up
+export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+brew up
 
-${BREW} ruby -e "puts 'brew ruby success'"
+brew ruby -e "puts 'brew ruby success'"
 
 # tap osrf/simulation
-${BREW} untap osrf/simulation || true
-${BREW} tap osrf/simulation
-TAP_PREFIX=$(${BREW} --repo osrf/simulation)
+brew untap osrf/simulation || true
+brew tap osrf/simulation
+TAP_PREFIX=$(brew --repo osrf/simulation)
 GIT="git -C ${TAP_PREFIX}"
 ${GIT} remote add pr_head ${PULL_REQUEST_HEAD_REPO}
 # unshallow to get a full clone able to push
