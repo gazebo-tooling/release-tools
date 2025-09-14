@@ -43,8 +43,6 @@ echo '# END SECTION'
 
 echo
 echo '# BEGIN SECTION: commit and pull request creation'
-${GIT} config user.name "OSRF Build Bot"
-${GIT} config user.email "osrfbuild@osrfoundation.org"
 ${GIT} remote -v
 # check if branch already exists
 if ${GIT} rev-parse --verify ${PULL_REQUEST_BRANCH} ; then
