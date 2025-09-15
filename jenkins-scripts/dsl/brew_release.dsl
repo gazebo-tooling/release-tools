@@ -243,7 +243,7 @@ bottle_job_builder.with
 }
 
 // -------------------------------------------------------------------
-// 3. BREW bottle hash update
+// 4. BREW bottle hash update
 def bottle_job_hash_updater = job(bottle_hash_updater_job_name)
 OSRFUNIXBase.create(bottle_job_hash_updater)
 
@@ -316,12 +316,12 @@ bottle_job_hash_updater.with
 }
 
 // -------------------------------------------------------------------
-// 4. BREW remove broken bottles
-def remove_broken_bottles_job = job("generic-release-homebrew_remove_broken_bottles")
-OSRFUNIXBase.create(remove_broken_bottles_job)
-OSRFCredentials.allowOsrfbuildToRunTheBuild(remove_broken_bottles_job)
+// BREW remove bottles for specified formulae and their dependencies
+def remove_dependent_bottles_job = job("generic-release-homebrew_remove_dependent_bottles")
+OSRFUNIXBase.create(remove_dependent_bottles_job)
+OSRFCredentials.allowOsrfbuildToRunTheBuild(remove_dependent_bottles_job)
 
-remove_broken_bottles_job.with
+remove_dependent_bottles_job.with
 {
   properties {
     priority 100
@@ -363,7 +363,7 @@ remove_broken_bottles_job.with
          #!/bin/bash -xe
 
          export PR_URL_export_file=${PR_URL_export_file}
-         /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_remove_broken_bottles.bash
+         /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_remove_dependent_bottles.bash
          """.stripIndent())
   }
 
