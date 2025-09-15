@@ -30,18 +30,8 @@ echo '# END SECTION'
 
 GIT="git -C ${TAP_PREFIX}"
 
-DIFF_LENGTH=`${GIT} diff | wc -l`
-if [ ${DIFF_LENGTH} -eq 0 ]; then
-  echo No formula modifications found, aborting
-  exit -1
-fi
-echo ==========================================================
-${GIT} diff
-echo ==========================================================
-echo '# END SECTION'
-
-echo
 echo '# BEGIN SECTION: commit and pull request creation'
+echo
 ${GIT} remote -v
 # check if branch already exists
 if ${GIT} rev-parse --verify ${PULL_REQUEST_BRANCH} ; then
@@ -49,7 +39,18 @@ if ${GIT} rev-parse --verify ${PULL_REQUEST_BRANCH} ; then
 else
   ${GIT} checkout -b ${PULL_REQUEST_BRANCH}
 fi
-${GIT} commit ${FORMULA_PATH} -m "${COMMIT_MESSAGE}"
+if [ -z "${SKIP_COMMIT}" ]; then
+  DIFF_LENGTH=`${GIT} diff | wc -l`
+  if [ ${DIFF_LENGTH} -eq 0 ]; then
+    echo No formula modifications found, aborting
+    exit -1
+  fi
+  echo ==========================================================
+  ${GIT} diff
+  echo ==========================================================
+
+  ${GIT} commit ${FORMULA_PATH} -m "${COMMIT_MESSAGE}"
+fi
 echo
 ${GIT} status
 echo

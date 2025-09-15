@@ -34,5 +34,6 @@ echo '# END SECTION'
 PULL_REQUEST_BRANCH="remove_broken_bottles_$(date +%s)"
 PULL_REQUEST_TITLE="Remove bottles for ${BROKEN_FORMULA} and dependents"
 COMMIT_MESSAGE="Remove bottles for ${BROKEN_FORMULA} and dependents"
+SKIP_COMMIT=1
 
 . ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
