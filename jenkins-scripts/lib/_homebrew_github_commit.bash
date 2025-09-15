@@ -8,24 +8,23 @@
 PR_URL_export_file=${PR_URL_export_file:-${WORKSPACE}/pull_request_created.properties}
 
 echo '# BEGIN SECTION: check variables'
+if [ -z "${COMMIT_MESSAGE}" ]; then
+  echo COMMIT_MESSAGE not specified
+  exit -1
+fi
 if [ -z "${PULL_REQUEST_BRANCH}" ]; then
   echo PULL_REQUEST_BRANCH not specified
   exit -1
 fi
+if [ -z "${PULL_REQUEST_TITLE}" ]; then
+  if [ -z "${PULL_REQUEST_URL}" ]; then
+    echo One of PULL_REQUEST_TITLE or PULL_REQUEST_URL must be specified
+    exit -1
+  fi
+fi
 if [ -z "${TAP_PREFIX}" ]; then
   echo TAP_PREFIX not specified
   exit -1
-fi
-# PACKAGE_ALIAS and VERSION are required if a pull request doesn't yet exist
-if [ -z "${PULL_REQUEST_URL}" ]; then
-  if [ -z "${PACKAGE_ALIAS}" ]; then
-    echo PACKAGE_ALIAS not specified
-    exit -1
-  fi
-  if [ -z "${VERSION}" ]; then
-    echo VERSION not specified
-    exit -1
-  fi
 fi
 echo '# END SECTION'
 
@@ -50,10 +49,7 @@ if ${GIT} rev-parse --verify ${PULL_REQUEST_BRANCH} ; then
 else
   ${GIT} checkout -b ${PULL_REQUEST_BRANCH}
 fi
-if [ -n "${PACKAGE_ALIAS}" ]; then
-  COMMIT_MESSAGE_PREFIX="${PACKAGE_ALIAS}: "
-fi
-${GIT} commit ${FORMULA_PATH} -m "${COMMIT_MESSAGE_PREFIX}update ${VERSION}${COMMIT_MESSAGE_SUFFIX}"
+${GIT} commit ${FORMULA_PATH} -m "${COMMIT_MESSAGE}"
 echo
 ${GIT} status
 echo
@@ -81,7 +77,7 @@ if [ -z "${PULL_REQUEST_URL}" ]; then
   PR_URL=$(${HUB} -C ${TAP_PREFIX} pull-request \
     -b osrf:master \
     -h osrfbuild:${PULL_REQUEST_BRANCH} \
-    -m "${PACKAGE_ALIAS} ${VERSION}")
+    -m "${PULL_REQUEST_TITLE}")
 
   echo "Pull request created: ${PR_URL}"
 
