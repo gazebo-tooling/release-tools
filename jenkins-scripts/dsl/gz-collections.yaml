@@ -356,7 +356,7 @@ collections:
         - noble
         - brew_amd64
         - brew_arm64
-        - win_conda_noble
+        - win_conda_jetty
     packaging:
       configs:
         - noble
@@ -436,7 +436,7 @@ collections:
         - noble
         - brew_amd64
         - brew_arm64
-        - win_conda_noble
+        - win_conda_jetty
     packaging:
       configs:
         - noble
@@ -664,11 +664,48 @@ ci_configs:
     ci_categories_enabled:
       - pr
       - stable_branches
-  - name: win_conda_noble
+  - name: win_conda_jetty
     system:
       so: windows
       distribution: conda
-      version: noble_like
+      version: jetty
+      arch: amd64
+    requirements:
+      large_memory:
+        - gz-physics
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
+    exclude:
+      all:
+        - gz-jetty
+        - __upcoming__
+    cmake_warnings_disabled:
+      - gz-cmake
+      - gz-common
+      - gz-fuel-tools
+      - gz-sim
+      - gz-gui
+      - gz-launch
+      - gz-math
+      - gz-msgs
+      - gz-physics
+      - gz-rendering
+      - gz-sensors
+      - gz-tools
+      - gz-transport
+      - gz-utils
+      - sdformat
+    ci_categories_enabled:
+      - pr
+      - stable_branches
+  - name: win_conda_jetty
+    system:
+      so: windows
+      distribution: conda
+      version: jetty
       arch: amd64
     requirements:
       large_memory:
