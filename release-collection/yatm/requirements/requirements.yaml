@@ -1,0 +1,491 @@
+requirements:
+  # Tasks before feature freeze
+- name: Work with artist on Logo
+  labels: ["feature-freeze-starts"]
+  steps: []
+  description:
+
+- name: Announce two weeks in advance that feature freeze is approaching
+  labels: ["feature-freeze-starts"]
+  steps: []
+  description:
+
+- name: Announce a day before about the feature freeze
+  labels: ["feature-freeze-starts"]
+  steps: []
+  description:
+
+- name: Start work on demo world
+  labels: ["feature-freeze-starts"]
+  steps: []
+  description: |
+    - [ ] Create a list of new features from which we can select what features to showcase in our demo world
+    - [ ] Organize initial brainstorming meeting
+    - [ ] Come up with the general theme of the demo world
+    - [ ] Share results of brainstorming meeting to the PMC recruit folks who want to show off their features
+    - [ ] Create a git repository for the demo world
+
+- name: Create a new milestone with the release name in all library repos
+  labels: ["feature-freeze-starts"]
+  steps: []
+  description: >
+    See https://github.com/cli/cli/issues/1200 for a way to automate this
+
+  # Tasks when feature freeze starts and it ends
+- name: Assign the release milestone to open pull requests that are meant to be merged before the code freeze
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description: |
+      Note that PRs targeting older versions are considered part of the freeze, so they should be labelled as well.
+
+      For external contributors with PRs that have been open for a while, reach out and ask if they are still planning to work on the PR before the code freeze.
+
+- name: On the day feature freeze, announce that feature freeze has started
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: Create release notes
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description: |
+    - [ ] Create a release_notes.md document that's essentially a compilation of changelogs and add it to the meta package (e.g. gz-jetty)
+          Note: Simply compiling changelogs from the latest branches might miss some changes that were added to older branches and forward ported, so make sure to look at changelogs from older branches.
+    - [ ] Select features that are going to be highlighted
+    - [ ] Ask feature contributors to write short summaries that optionally include demo videos/graphics.
+    - [ ] Compile release highlights and add it to the meta package
+
+- name: Sync any changes from older versions to the new version in 'https://github.com/gazebosim/docs' 
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+  # Toward the end of feature freeze:
+- name: Merge each library forward form previous versions
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: Ask maintainers of each library to create stable branches off of main
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description: |
+    We want to keep developing on main for as long as possible since we use nightlies for those, but we need to create stable branches for the tutorial party. These are competing objectives, so the compromise is to wait till the end of feature freeze to branch off
+
+    For each library:
+      - [ ] `<library name>`:
+        - [ ] Create a changelog PR ([example](https://github.com/gazebosim/gz-cmake/pull/444))
+        - [ ] `New branch` button on branches page ([example](https://github.com/gazebosim/sdformat/branches)). Make sure to set the `Source` to `main`
+        - [ ] Enable CI for stable branches ([example](https://github.com/gazebo-tooling/release-tools/pull/1164))
+        - [ ] Update gazebodistro [(example)[https://github.com/gazebo-tooling/gazebodistro/pull/165])). Use [script](https://github.com/gazebo-tooling/gazebodistro/blob/master/update_dependency_version.py) to update all dependencies
+        - [ ] Update homebrew [(example)](https://github.com/osrf/homebrew-simulation/pull/2730)) 
+        - [ ] Run the Jenkins [DSL generation job](https://build.osrfoundation.org/job/_dsl_generate_all_dsls/)
+        - [ ] Create a small PR targeting the stable branch. This could be used to update build status badges ([example](https://github.com/gazebosim/gz-cmake/pull/445)). Don't skip this; it is important for the next step
+        - [ ] Update branch protections. Remember to include the abi-checker
+        - [ ] Make a pre-release. Skip merging the homebrew PR. We want to keep formulas building from source until code freeze to match Ubuntu nightlies and windows
+
+    At this point, ideally, we would have merged all the PRs meant to be included in the release. If there are any other PRs left, we'd follow the following process:
+    - Bug fixes:
+      - Retarget to the new stable branch.
+      - They can be merged until code freeze.
+    - Backwards-compatible features, either:
+      - Retarget them to the new stable branch (but they can only be merged after the stable release), or
+      - Keep targeting `main` and backport after the stable release.
+    - Breaking features:
+      - Keep targeting `main` (i.e. they will be delayed until the next major release)
+
+- name: "Create a stable branch off of main: gz-cmake"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: "Create a stable branch off of main: gz-tools"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: "Create a stable branch off of main: gz-utils"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: "Create a stable branch off of main: gz-math"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: "Create a stable branch off of main: gz-plugin"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: "Create a stable branch off of main: gz-common"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: "Create a stable branch off of main: gz-msgs"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: "Create a stable branch off of main: sdformat"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: "Create a stable branch off of main: gz-fuel-tools"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: "Create a stable branch off of main: gz-transport"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: "Create a stable branch off of main: gz-physics"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: "Create a stable branch off of main: gz-rendering"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: "Create a stable branch off of main: gz-sensors"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: "Create a stable branch off of main: gz-gui"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: "Create a stable branch off of main: gz-sim"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: "Create a stable branch off of main: gz-launch"
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: Update Changelog and pre-release libraries as all PRs in the release milestone are merged
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: Make collection pre-release after all libraries are pre-released
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+- name: Update public documentation to install from pre-releases instead of nightlies
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description: |
+    [example](https://github.com/gazebosim/docs/pull/196/files#diff-ebeee4adce7cb444f663b59020fb9f43f6f9adf36f63657b8afdeeea7a8530d1)
+
+- name: Update Gazebo ROS vendor packages to point to the new stable branches
+  labels: ["feature-freeze-ends"]
+  steps: []
+  description:
+
+# Organize demo
+- name: Prepare a docker image that builds the demo world nightly
+  labels: ["demo-world"]
+  steps: []
+  description:
+
+- name: Announce upcoming community meeting for the demo
+  labels: ["demo-world"]
+  steps: []
+  description:
+
+- name: Run practice runs of the demo a few days before the community meeting
+  labels: ["demo-world"]
+  steps: []
+  description:
+
+- name: Hold the community meeting and show the demo
+  labels: ["demo-world"]
+  steps: []
+  description:
+
+# Code freeze
+- name: Choose name for next release
+  labels: ["code-freeze-ends"]
+  steps: []
+    #TODO(azeey) Figure out how many weeks in advance we need to do this.
+  description: |
+    This needs to be done 3 weeks before the code freeze so that we have enough time to filter through the names and run a vote
+    - [ ] Ask the PMC to suggest names for the next release and add it to our [Gazebo release names](https://docs.google.com/spreadsheets/d/1dveyz4Oc3akVfmwRcgmYxy9KUuy7b5aRJx6kUgb9gq0/edit?gid=0#gid=0) spreadsheet.
+    - [ ] Filter out problematic names with the PMC
+    - [ ] Create a vote on Discourse with the finalized list of names
+
+- name: Start T-Shirt campaign
+  labels: ["code-freeze-ends"]
+  steps: []
+  description:
+
+- name: Update all repositories to default to the new stable branches
+  labels: ["code-freeze-ends"]
+  steps: []
+  description:
+
+- name: Update references to the release install instructions
+  labels: ["code-freeze-ends"]
+  steps: []
+  description: |
+    - [ ] Versions doc https://github.com/gazebosim/docs/blob/master/tools/versions.md
+    - [ ] ROS2 Installation https://github.com/gazebosim/docs/blob/master/ros_installation.md [example](https://github.com/gazebosim/docs/pull/502)
+    - [ ] ros_gz README https://github.com/gazebosim/ros_gz/blob/ros2/README.md
+
+# Tutorial party
+  # Before the tutorial party
+- name: Communicate with OSRF about t-shirt/swag prizes for tutorial party
+  labels: ["tutorial-party"]
+  steps: []
+  description:
+
+- name: Announce a save the date a month in advance mentioning the kick off meeting.
+  labels: ["tutorial-party"]
+  steps: []
+  description:
+
+- name: Announce two weeks in advance. This should ideally include the t-shirt design.
+  labels: ["tutorial-party"]
+  steps: []
+  description:
+
+- name: Announce the day before
+  labels: ["tutorial-party"]
+  steps: []
+  description: |
+    [example](https://community.gazebosim.org/t/ignition-edifice-tutorial-party-support-open-source-and-get-t-shirts/866)
+
+- name: Create new issues in gazebo_test_cases using YATM
+  labels: ["tutorial-party"]
+  steps: []
+  description: |
+    - Ensure that READMEs are not included
+    - For `sdf worlds` tags, can curate a few `.sdf` files to have platform permutations and keep the rest on `Any`.
+
+  # TODO(azeey) Remove this once the task is complete since it's not recurring
+- name: Create a github action that assigns users to tickets based on a comment they have left. 
+  labels: ["tutorial-party"]
+  steps: []
+  description: |
+    - This needs to ensure that users can only have a handful of issues assigned
+    - If an issue has been claimed, but no activity for a week, assign someone else
+
+- name: Come up with a point assignment strategy
+  labels: ["tutorial-party"]
+  steps: []
+  description:
+
+- name: Create a meta issue that includes instructions
+  labels: ["tutorial-party"]
+  steps: []
+  description:
+
+- name: Provide docker images, especially if we are targeting a new Ubuntu version
+  labels: ["tutorial-party"]
+  steps: []
+  description: |
+    Instructions should mention how to use these images.
+
+- name: Provide prebuilt archives for windows.
+  labels: ["tutorial-party"]
+  steps: []
+  description:
+
+- name: Host a kick off community meeting
+  labels: ["tutorial-party"]
+  steps: []
+  description:
+
+- name: Run tutorial party
+  labels: ["tutorial-party"]
+  steps: []
+  description: |
+    - [ ] Review issues and assign users (if we can't automate all of it)
+    - [ ] Close issues when they are fixed
+    - [ ] Review PRs
+    - [ ] Answer questions on discord
+    - [ ] Check for spam or abuse
+
+  # After the party
+- name: Create stats to determine winners of the tutorial party
+  labels: ["tutorial-party"]
+  steps: []
+  description:
+
+- name: Analyze participation, platform coverage, community vs core developer engagement, comparison against last year
+  labels: ["tutorial-party"]
+  steps: []
+  description:
+
+- name: Send winner list to OSRF so they can start distributing prizes
+  labels: ["tutorial-party"]
+  steps: []
+  description:
+
+- name: Create a post announcing winners and thanking everyone.
+  labels: ["tutorial-party"]
+  steps: []
+  description:
+
+# Release week
+- name: Making stable releases
+  labels: ["release"]
+  steps: []
+  description: Since releases take some time, we need to make releases over several days.
+
+- name: Make collection stable release after all libraries are released
+  labels: ["release"]
+  steps: []
+  description:
+
+- name: Make GitHub releases for all the X.0.0 versions
+  labels: ["release"]
+  steps: []
+  description: |
+    [example](https://github.com/gazebosim/gz-transport/releases/tag/ignition-transport9_9.0.0)
+
+- name: Update docs to say release is stable
+  labels: ["release"]
+  steps: []
+  description: |
+    [example](https://github.com/gazebosim/docs/pull/171)
+
+- name: Update sdformat.org to include new version
+  labels: ["release"]
+  steps: []
+  description: |
+    [example](https://github.com/osrf/sdf_web_app/pull/90)
+
+- name: Create announcement post and ask the PMC to review it
+  labels: ["release"]
+  steps: []
+  description:
+
+- name: Make announcement
+  labels: ["release"]
+  steps: []
+  description: |
+    [example](https://community.gazebosim.org/t/gazebo-ionic-release/3088/)
+
+# Post-release
+- name: Bump all `main` branches to the next major version (`X.0.0~pre1`)
+  labels: ["post-release"]
+  steps: []
+  description: |
+    - [ ] Source code ([example](https://github.com/gazebosim/gz-sim/pull/2644))
+    - [ ] Add files to `gazebodistro` ([example](https://github.com/gazebo-tooling/gazebodistro/pull/182))
+    - [ ] Add aliases to `homebrew-simulation` ([example](https://github.com/osrf/homebrew-simulation/pull/2833))
+    - [ ] Create new `-release` repositories (use [this script](https://github.com/gazebo-tooling/release-tools/blob/master/release-repo-scripts/new_ignition_release_repos.bash))
+    - [ ] Enable nightlies for all `main` branches on `gzdev` ([example](https://github.com/gazebo-tooling/gzdev/pull/91))
+    - [ ] Execute the tick-tock's "tock" for deprecations ([example](https://github.com/gazebosim/gz-sim/pull/875))
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): gz-cmake"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): gz-tools"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): gz-utils"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): gz-math"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): gz-plugin"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): gz-common"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): gz-msgs"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): sdformat"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): gz-fuel-tools"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): gz-transport"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): gz-physics"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): gz-rendering"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): gz-sensors"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): gz-gui"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): gz-sim"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: "Bump all `main` branches to the next major version (`X.0.0~pre1`): gz-launch"
+  labels: ["post-release"]
+  steps: []
+  description:
+
+- name: Enable Jenkins CI for new stable branches
+  labels: ["post-release"]
+  steps: []
+  description: |
+    [example](https://github.com/gazebo-tooling/release-tools/pull/1188)
+
+- name: Remove pre-release for release branches on  `gzdev`
+  labels: ["post-release"]
+  steps: []
+  description: |
+    [example](https://github.com/gazebo-tooling/gzdev/pull/36)
+
+- name: Update REP-2000 when ROS 2 distro is added
+  labels: ["post-release"]
+  steps: []
+  description: |
+    [example](https://github.com/ros-infrastructure/rep/pull/291)
