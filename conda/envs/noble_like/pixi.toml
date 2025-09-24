@@ -6,6 +6,10 @@ authors = ["Jose Luis Rivero <jrivero@openrobotics.org>"]
 channels = ["conda-forge"]
 platforms = ["linux-64", "linux-aarch64", "win-64"]
 
+[target.win-64.activation.env]
+QT_QPA_PLATFORM_PLUGIN_PATH="%cd%\\.pixi\\envs\\default\\Library\\lib\\qt6\\plugins\\platforms"
+QML2_IMPORT_PATH="%cd%\\.pixi\\envs\\default\\Library\\lib\\qt6\\qml"
+
 [dependencies]
 assimp = "*"
 bullet-cpp = "3.25.*"        # compatible with dart, good for noble
