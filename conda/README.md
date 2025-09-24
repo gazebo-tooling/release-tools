@@ -26,6 +26,13 @@ pixi install --locked
 
 ## Environments available
 
+### One environment per Gazebo distribution
+
+Starting with Jetty, there will be one Conda environment in `envs/` with
+the same name that existing releases. Most of the times the environments
+are heavily based on the software versions that are in the Linux Ubuntu
+platforms of reference.
+
 ### The legacy environments
 
 The legacy environments has the goal of replacing the previous vcpkg
