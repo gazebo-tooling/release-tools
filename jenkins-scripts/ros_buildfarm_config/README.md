@@ -29,7 +29,13 @@ jobs are expected to resolved and install dependencies from the
 
 In the case of testing a **ROS package** (like the `gz_*_vendor` repositories)
 it is necessary to input a .repos file that contains all the dependencies
-to be built from source.
+from the ROS ecosystem to be built from source. To auomate that process the
+`rosdistro` tool can be used:
+
+```
+# Example using ROS 2 ROlling and gz_launch_vendor
+rosinstall_generator --format repos --upstream-development --rosdistro rolling  --deps  gz_launch_vendor
+```
 
 ## Generating jobs
 
