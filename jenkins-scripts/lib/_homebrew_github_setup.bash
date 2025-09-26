@@ -37,8 +37,11 @@ if [[ -f ${SCRIPT_LIBDIR}/_homebrew_path_setup.sh ]]; then
     . ${SCRIPT_LIBDIR}/_homebrew_path_setup.sh
 elif [[ -f ${SCRIPT_DIR}/lib/_homebrew_path_setup.sh ]]; then
     . ${SCRIPT_DIR}/lib/_homebrew_path_setup.sh
-else
+elif [[ -d "/home/linuxbrew/.linuxbrew/bin" ]]; then
     export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+else
+    echo "Can not find brew setup configuration"
+    exit 1
 fi
 brew up
 
