@@ -78,7 +78,6 @@ echo '# BEGIN SECTION: run test-bot'
 # The test-bot makes a full cleanup of all installed pkgs. Be sure of install back
 # git to keep the slave working
 export HOMEBREW_DEVELOPER=1
-brew tap homebrew/test-bot
 brew tap osrf/simulation
 # replace with 'hub -C $(brew --repo osrf/simulation) pr checkout ${ghprbPullId}'
 # after the following hub issue is resolved:
