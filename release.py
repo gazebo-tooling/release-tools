@@ -29,7 +29,8 @@ LINUX_DISTROS = ['ubuntu', 'debian']
 SUPPORTED_ARCHS = ['amd64', 'armhf', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 ROS_VENDOR = {'harmonic': ['jazzy'],
-              'ionic': ['kilted', 'rolling']}
+              'ionic': ['kilted'],
+              'jetty': ['rolling']}
 
 OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing none"
 

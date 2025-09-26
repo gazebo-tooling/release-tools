@@ -43,6 +43,10 @@ class OSRFBase
           }
         }
 
+        wrappers {
+          timestamps()
+        }
+
         // Create the naginator retry tags
         HelperRetryFailures.create(job, [
           regexpForRerun: "java.nio.channels.ClosedChannelException",
