@@ -58,6 +58,7 @@ then
   if [ -n "${VERSION_LINE}" ]; then
     echo remove explicit version on line number ${VERSION_LINE}
     sed -i -e "${VERSION_LINE}d" ${FORMULA_PATH}
+    unset VERSION_LINE
   fi
 else
   if [ -z "${VERSION_LINE}" ]; then
