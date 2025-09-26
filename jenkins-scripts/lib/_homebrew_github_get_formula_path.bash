@@ -26,6 +26,6 @@ fi
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export formula path'
-export FORMULA_PATH=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.path"`
+export FORMULA_PATH=`brew ruby -e "puts \"${PACKAGE_ALIAS}\".f.path"`
 echo Modifying ${FORMULA_PATH}
 echo '# END SECTION'

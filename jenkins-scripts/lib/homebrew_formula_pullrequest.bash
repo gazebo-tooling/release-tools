@@ -37,7 +37,7 @@ PULL_REQUEST_HEAD_REPO=git@github.com:osrfbuild/homebrew-simulation.git
 
 echo '# BEGIN SECTION: calculating the SHA hash and changing the formula'
 # get stable uri and its line number
-URI=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.url"`
+URI=`brew ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.url"`
 echo Changing url from
 echo ${URI} to
 echo ${SOURCE_TARBALL_URI}
@@ -52,7 +52,7 @@ echo
 VERSION_LINE=$(awk \
   "/^  version ['\"]/ {print FNR}" ${FORMULA_PATH} | head -1)
 # check if version can be correctly auto-detected from url
-if ${BREW} ruby -e "exit Version.parse(\"${SOURCE_TARBALL_URI}\").to_s == \"${VERSION_SANITIZED}\""
+if brew ruby -e "exit Version.parse(\"${SOURCE_TARBALL_URI}\").to_s == \"${VERSION_SANITIZED}\""
 then
   echo Version can be correctly auto-detected from URL
   if [ -n "${VERSION_LINE}" ]; then
@@ -74,7 +74,7 @@ fi
 
 echo
 # check if stable sha256 is specified
-SHA=`${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.checksum"`
+SHA=`brew ruby -e "puts \"${PACKAGE_ALIAS}\".f.stable.checksum"`
 if [ -n "$SHA" ]
 then
   echo Changing sha256 from
@@ -99,7 +99,7 @@ fi
 
 echo
 # revision line if it's nonzero
-FORMULA_REVISION=$(${BREW} ruby -e "puts \"${PACKAGE_ALIAS}\".f.pkg_version.revision")
+FORMULA_REVISION=$(brew ruby -e "puts \"${PACKAGE_ALIAS}\".f.pkg_version.revision")
 if [ "$FORMULA_REVISION" -gt 0 ]; then
   echo Deleting formula revision $FORMULA_REVISION
   FORMULA_REVISION_LINE=$(awk "/  revision ${FORMULA_REVISION}/ {print FNR}" ${FORMULA_PATH} | head -1)
