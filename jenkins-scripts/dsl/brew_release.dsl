@@ -323,10 +323,6 @@ OSRFCredentials.allowOsrfbuildToRunTheBuild(remove_dependent_bottles_job)
 
 remove_dependent_bottles_job.with
 {
-  properties {
-    priority 100
-  }
-
   String PR_URL_export_file_name = 'pull_request_created.properties'
   String PR_URL_export_file = '${WORKSPACE}/' + PR_URL_export_file_name
 
@@ -344,8 +340,8 @@ remove_dependent_bottles_job.with
   {
     stringParam("BROKEN_FORMULA", '',
                 'Names of broken formulae whose bottles and dependent bottles should be removed')
-    stringParam("BOTTLE_TAG", 'arm64_sonoma',
-                'Bottle tag to check')
+    stringParam("BOTTLE_TAG", 'arm64_sequoia',
+                'Unique string representing the arch and OS of a homebrew bottle, such as "sonoma" or "arch64_sequoia"')
   }
 
   steps
