@@ -7,11 +7,11 @@ SCRIPT_LIBDIR="${SCRIPT_LIBDIR%/*}"
 echo '# BEGIN SECTION: check variables'
 if [ -z "${BROKEN_FORMULA}" ]; then
   echo BROKEN_FORMULA not specified
-  exit -1
+  exit 1
 fi
 if [ -z "${BOTTLE_TAG}" ]; then
   echo BOTTLE_TAG not specified
-  exit -1
+  exit 1
 fi
 echo '# END SECTION'
 
@@ -22,10 +22,10 @@ PULL_REQUEST_HEAD_REPO=git@github.com:osrfbuild/homebrew-simulation.git
 echo '# BEGIN SECTION: remove bottles of broken formula and dependents'
 for f in ${BROKEN_FORMULA}
 do
-    brew bump-revision --remove-bottle-block --message="broken bottle" $f
+    brew bump-revision --remove-bottle-block --message="broken bottle" "$f"
     for d in $($(brew --repo osrf/simulation)/.github/ci/bottled_dependents.sh $f ${BOTTLE_TAG})
     do
-        brew bump-revision --remove-bottle-block --message="broken bottle" $d
+        brew bump-revision --remove-bottle-block --message="broken bottle" "$d"
     done
 done
 echo '# END SECTION'
