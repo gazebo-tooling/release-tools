@@ -34,6 +34,6 @@ echo '# END SECTION'
 # create branch with name and sanitized version string
 PULL_REQUEST_BRANCH="remove_dependent_bottles_$(date +%s)"
 PULL_REQUEST_TITLE="Remove bottles for ${BROKEN_FORMULA} and dependents"
-SKIP_COMMIT=1
+SKIP_COMMIT=true
 
 . ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash

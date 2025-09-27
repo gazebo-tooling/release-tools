@@ -41,7 +41,7 @@ if ${GIT} rev-parse --verify ${PULL_REQUEST_BRANCH} ; then
 else
   ${GIT} checkout -b ${PULL_REQUEST_BRANCH}
 fi
-if [ -z "${SKIP_COMMIT}" ]; then
+if ! ${SKIP_COMMIT}; then
   echo ==========================================================
   if ${GIT} diff --exit-code; then
     echo No formula modifications found, aborting
