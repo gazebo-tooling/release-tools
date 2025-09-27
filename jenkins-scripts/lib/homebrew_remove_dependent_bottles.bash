@@ -25,6 +25,7 @@ do
     brew bump-revision --remove-bottle-block --message="broken bottle" "$f"
     for d in $($(brew --repo osrf/simulation)/.github/ci/bottled_dependents.sh $f ${BOTTLE_TAG})
     do
+        echo Removing bottle for "$d" as it depends on "$f"
         brew bump-revision --remove-bottle-block --message="broken bottle" "$d"
     done
 done
