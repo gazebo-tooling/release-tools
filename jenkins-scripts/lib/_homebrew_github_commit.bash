@@ -11,22 +11,22 @@ echo '# BEGIN SECTION: check variables'
 if [ -z "${COMMIT_MESSAGE}" ]; then
   if [ -z "${SKIP_COMMIT}" ]; then
     echo One of COMMIT_MESSAGE or SKIP_COMMIT must be specified
-    exit -1
+    exit 1
   fi
 fi
 if [ -z "${PULL_REQUEST_BRANCH}" ]; then
   echo PULL_REQUEST_BRANCH not specified
-  exit -1
+  exit 1
 fi
 if [ -z "${PULL_REQUEST_TITLE}" ]; then
   if [ -z "${PULL_REQUEST_URL}" ]; then
     echo One of PULL_REQUEST_TITLE or PULL_REQUEST_URL must be specified
-    exit -1
+    exit 1
   fi
 fi
 if [ -z "${TAP_PREFIX}" ]; then
   echo TAP_PREFIX not specified
-  exit -1
+  exit 1
 fi
 echo '# END SECTION'
 
@@ -42,13 +42,11 @@ else
   ${GIT} checkout -b ${PULL_REQUEST_BRANCH}
 fi
 if [ -z "${SKIP_COMMIT}" ]; then
-  DIFF_LENGTH=`${GIT} diff | wc -l`
-  if [ ${DIFF_LENGTH} -eq 0 ]; then
-    echo No formula modifications found, aborting
-    exit -1
-  fi
   echo ==========================================================
-  ${GIT} diff
+  if ${GIT} diff --exit-code; then
+    echo No formula modifications found, aborting
+    exit 1
+  fi
   echo ==========================================================
 
   ${GIT} commit ${FORMULA_PATH} -m "${COMMIT_MESSAGE}"
