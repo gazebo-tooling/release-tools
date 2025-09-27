@@ -30,13 +30,11 @@ echo '# END SECTION'
 
 GIT="git -C ${TAP_PREFIX}"
 
-DIFF_LENGTH=`${GIT} diff | wc -l`
-if [ ${DIFF_LENGTH} -eq 0 ]; then
+echo ==========================================================
+if ${GIT} diff --exit-code; then
   echo No formula modifications found, aborting
   exit 1
 fi
-echo ==========================================================
-${GIT} diff
 echo ==========================================================
 
 echo
