@@ -60,3 +60,7 @@ ${GIT} fetch pr_head
 if [ -n "${PULL_REQUEST_BRANCH}" ]; then
   ${GIT} checkout --track pr_head/${PULL_REQUEST_BRANCH}
 fi
+
+# configure git for committing
+${GIT} config user.name "OSRF Build Bot"
+${GIT} config user.email "osrfbuild@osrfoundation.org"
