@@ -1,8 +1,8 @@
 # parameters:
+# - COMMIT_MESSAGE or SKIP_COMMIT
 # - TAP_PREFIX
 # - PULL_REQUEST_BRANCH
-# - PACKAGE_ALIAS
-# - VERSION
+# - PULL_REQUEST_TITLE or PULL_REQUEST_URL
 
 # Can be defined outside the script. if not, default value is set
 PR_URL_export_file=${PR_URL_export_file:-${WORKSPACE}/pull_request_created.properties}
