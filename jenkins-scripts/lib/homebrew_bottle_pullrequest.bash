@@ -46,7 +46,7 @@ fi
 
 echo "# BEGIN SECTION: update bottle hashes"
 
-${BREW} bottle --merge --write --no-commit ${KEEP_OLD} ${FILES_WITH_NEW_HASH}
+brew bottle --merge --write --no-commit ${KEEP_OLD} ${FILES_WITH_NEW_HASH}
 
 # ensure that all modified files are committed
 export FORMULA_PATH='-a'

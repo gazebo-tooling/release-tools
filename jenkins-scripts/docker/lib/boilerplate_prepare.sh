@@ -147,31 +147,6 @@ fi
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
-# python-argparse is integrated in libpython2.7-stdlib since raring
-# Check for precise in the HOST system (not valid DISTRO variable)
-if [[ $(lsb_release -sr | cut -c 1-5) == '12.04' ]]; then
-    NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} python2.7"
-else
-    NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} libpython2.7-stdlib"
-fi
-
-# Check if they are already installed in the host.
-# dpkg-query will return an error in stderr if a package has never been in the
-# system. It will return a header composed by several lines started with |, +++
-# and 'Desired' the rest of lines is composed by: ^rc or ^un if the package is
-# not in the system. ^in if it is installed
-QUERY_RESULT=$(dpkg-query --list ${NEEDED_HOST_PACKAGES} 2>&1 | grep -v ^ii | grep -v '|' | grep -v '^\+++' | grep -v '^Desired') || true
-if [[ -n ${QUERY_RESULT} ]]; then
-  sudo apt-get update
-  sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
-fi
-
-# Check that all of them are present in the system, not returning false
-if [[ ! $(dpkg-query --list ${NEEDED_HOST_PACKAGES}) ]]; then
-  echo "Some needed packages are failing in the host"
-  exit 1
-fi
-
 # Check if squid-deb-proxy is running or start it otherwise
 if [[ -z $(ps aux | grep squid-deb-proxy.conf | grep -v grep | awk '{ print $2}') ]]; then
   sudo service squid-deb-proxy start
@@ -179,6 +154,12 @@ fi
 
 if ${NEED_SQUID_WORKAROUND}; then
   sudo service squid-deb-proxy restart
+fi
+
+# Required for asan to work on Noble
+# https://github.com/gazebo-tooling/release-tools/issues/1354
+if [[ ${DISTRO} == 'noble' ]]; then
+  sudo sysctl vm.mmap_rnd_bits=28
 fi
 
 # Docker checking

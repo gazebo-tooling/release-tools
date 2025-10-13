@@ -27,7 +27,7 @@ class OSRFBase
         }
 
         parameters {
-          stringParam('RTOOLS_BRANCH','master','release-tool branch to use')
+          stringParam('RTOOLS_BRANCH','master','release-tools branch to use')
           if (Globals.gazebodistro_branch)
           {
             stringParam('GAZEBODISTRO_BRANCH','master','gazebodistro branch to use')
@@ -41,6 +41,10 @@ class OSRFBase
           {
              systemGroovyCommand("build.setDescription('RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));")
           }
+        }
+
+        wrappers {
+          timestamps()
         }
 
         // Create the naginator retry tags

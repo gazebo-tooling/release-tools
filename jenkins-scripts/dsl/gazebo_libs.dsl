@@ -153,6 +153,12 @@ void generate_asan_ci_job(gz_ci_job, lib_name, branch, ci_config)
                   '-DGZ_SANITIZER=Address',
                   Globals.MAKETEST_SKIP_GZ,
                   'export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true')
+  gz_ci_job.with {
+    // -asan- builds can produce really long logs. Reduce the number of builds in the server
+    logRotator {
+      numToKeep(10)
+    }
+  }
 }
 
 void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
@@ -172,10 +178,11 @@ void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
   }
 }
 
-void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
+void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config, arch)
 {
   def ws_checkout_dir = lib_name
   OSRFBrewCompilation.create(gz_brew_ci_job,
+                             arch,
                              is_testing_enabled(lib_name, ci_config),
                              are_cmake_warnings_enabled(lib_name, ci_config))
   OSRFGitHub.create(gz_brew_ci_job,
@@ -267,10 +274,14 @@ String generate_linux_install(src_name, lib_name, platform, arch)
 
 String generate_brew_install(src_name, lib_name, arch)
 {
+  // We use the label x86_64 for node labeling, but amd64 for job naming consistency
+  // This is due to ohai chef plugin that labels the nodes as x86_64
+  // See: https://github.com/osrf/osrf_jenkins_agent/blob/latest/recipes/macos.rb#L68
+  def arch_label = arch == 'amd64' ? 'x86_64' : arch
   def script_name_prefix = cleanup_library_name(src_name)
   def job_name = "${script_name_prefix}-install_bottle-homebrew-${arch}"
   def install_default_job = job(job_name)
-  OSRFBrewInstall.create(install_default_job)
+  OSRFBrewInstall.create(install_default_job, arch_label)
 
   install_default_job.with
   {
@@ -394,8 +405,12 @@ gz_collections_yaml.collections.each { collection ->
                job_name: gz_ci_asan_job.name])
           }
         } else if (ci_config.system.so == 'darwin') {
+          def arch_label = arch == 'amd64' ? 'x86_64' : arch
           gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-homebrew-${arch}")
-          generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+          if (arch != 'amd64' && arch != 'arm64') {
+            assert false : "Unsupported arch ${arch} for brew job ${gz_ci_job.name}"
+          } 
+          generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config, arch_label)
         } else if (ci_config.system.so == 'windows') {
           branch_number = branch_name - lib_name
           Globals.gazebodistro_branch = true
@@ -466,9 +481,11 @@ branch_index.each { lib_name, distro_configs ->
         } // end of ci_any_job
       } else if (ci_config.system.so == 'darwin') {
         // --------------------------------------------------------------
-        def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-amd64"
+        def arch_label = ci_config.system.arch == 'amd64' ? 'x86_64' : ci_config.system.arch
+        def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-${ci_config.system.arch}"
         def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
         OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
+                                            arch_label,
                                             "gazebosim/${lib_name}",
                                             is_testing_enabled(lib_name, ci_config),
                                             branch_names,
@@ -574,6 +591,7 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
       PACKAGE: pkg_src,
       SOURCE_REPO_URI: "https://github.com/gazebosim/${canonical_lib_name}.git"])
     OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
+      canonical_lib_name,
       'repository_uploader_packages',
       '_releasepy')
   }

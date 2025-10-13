@@ -27,6 +27,8 @@ if [[ -z ${LINUX_DISTRO} ]]; then
   export LINUX_DISTRO="ubuntu"
 fi
 
+PACKAGES_URL="${PACKAGES_URL:-packages.osrfoundation.org}"
+
 [[ -z ${INSTALL_C17_COMPILER} ]] && INSTALL_C17_COMPILER=false
 
 # Bionic|Focal builds were affected by a "gpg: keyserver receive failed" in apt-key execution
@@ -306,7 +308,7 @@ RUN echo "${MONTH_YEAR_STR}"
 DELIM_DOCKER3
 
 cat >> Dockerfile << DELIM_DOCKER3_2
-RUN sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.list.d/* || true \
+RUN sed -i -e 's:13\.56\.139\.45:${PACKAGES_URL}:g' /etc/apt/sources.list.d/* || true \
  && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get ${APT_PARAMS} update)) \
  && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
  && apt-get clean \
@@ -318,9 +320,13 @@ DELIM_DOCKER3_2
 
 cat >> Dockerfile << DELIM_DOCKER31
 # Note that we don't remove the apt/lists file here since it will make
-# to run apt-get update again
+# to run apt-get update again.
+# Include autoremove to remove packages that could be in the cache that
+# are no longer required. They could cause problems if a clean install
+# does not expect them to be in the system.
 RUN (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
  && apt-get dist-upgrade -y \
+ && apt-get autoremove -y \
  && apt-get clean
 
 # Map the workspace into the container

@@ -4,7 +4,7 @@ set -e
 [[ -L ${0} ]] && SCRIPT_LIBDIR=$(readlink ${0}) || SCRIPT_LIBDIR=${0}
 SCRIPT_LIBDIR="${SCRIPT_LIBDIR%/*}"
 
-export PATH="/usr/local/bin:$PATH"
+. ${SCRIPT_LIBDIR}/_homebrew_path_setup.sh
 
 PKG_DIR=${WORKSPACE}/pkgs
 
@@ -37,16 +37,16 @@ export GITHUB_BASE_REF=${ghprbTargetBranch}
 export GITHUB_REPOSITORY=${ghprbGhRepository}
 export GITHUB_REF=${sha1}
 export GITHUB_SHA=${ghprbActualCommit}
-MACOS_VERSION_TO_SYM=$(brew ruby -e 'puts "#{MacOS.version.to_sym}"')
+BOTTLE_TAG=$(brew ruby -e 'puts "#{Utils::Bottles.tag}"')
 if [[ "${ghprbCommentBody}" =~ 'brew-bot-tag:' ]]; then
   if [[ "${ghprbCommentBody}" =~ 'build-for-new-distro-' ]]; then
-    echo Found a build-for-new-distro- option in the comment. Limiting to matching macOS versions.
+    echo Found a build-for-new-distro- option in the comment. Limiting to matching bottle tag.
     export KEEP_OLD=--keep-old
-    if [[ "${ghprbCommentBody}" =~ build-for-new-distro-${MACOS_VERSION_TO_SYM} ]]; then
-      echo Found a match for build-for-new-distro-${MACOS_VERSION_TO_SYM} in comment.
+    if [[ "${ghprbCommentBody}" =~ build-for-new-distro-${BOTTLE_TAG} ]]; then
+      echo Found a match for build-for-new-distro-${BOTTLE_TAG} in comment.
       echo Proceeding with bottle build.
     else
-      echo Did not find --only-${MACOS_VERSION_TO_SYM} in comment string \"${ghprbCommentBody}\"
+      echo Did not find build-for-new-distro-${BOTTLE_TAG} in comment string \"${ghprbCommentBody}\"
       exit 0
     fi
   fi
@@ -78,7 +78,6 @@ echo '# BEGIN SECTION: run test-bot'
 # The test-bot makes a full cleanup of all installed pkgs. Be sure of install back
 # git to keep the slave working
 export HOMEBREW_DEVELOPER=1
-brew tap homebrew/test-bot
 brew tap osrf/simulation
 # replace with 'hub -C $(brew --repo osrf/simulation) pr checkout ${ghprbPullId}'
 # after the following hub issue is resolved:

@@ -6,8 +6,10 @@ Globals.default_emails = "jrivero@osrfoundation.org"
 // Usual CI jobs
 def ignition_ci_job = job("_test_job_from_dsl")
 OSRFLinuxBase.create(ignition_ci_job)
-def ignition_ci_job_mac = job("_test_job_from_dsl_mac")
-OSRFOsXBase.create(ignition_ci_job_mac)
+def ignition_ci_job_mac_amd64 = job("_test_job_from_dsl_mac_amd64")
+OSRFOsXBase.create(ignition_ci_job_mac_amd64, 'x86_64')
+def ignition_ci_job_mac_arm64 = job("_test_job_from_dsl_mac_arm64")
+OSRFOsXBase.create(ignition_ci_job_mac_arm64, 'arm64')
 def ignition_ci_job_win = job("_test_job_from_dsl_win")
 OSRFWinBase.create(ignition_ci_job_win)
 def ignition_ci_pr_job = job("_test_pr_job_from_dsl")
@@ -34,6 +36,7 @@ OSRFSourceCreation.create(gz_source_job, [
   SOURCE_REPO_URI: "https://github.com/gazebosim/gz-plugin.git",
   SOURCE_REPO_REF: "gz-plugin2"])
 OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
+  'gz-plugin',
   '_test_repository_uploader',
   '_test_releasepy')
 // repository_uploader fake test job
@@ -106,7 +109,7 @@ def outdated_job_runner = job("_test_outdated_job_runner")
 OSRFBase.create(outdated_job_runner)
 outdated_job_runner.with
 {
-  label Globals.nontest_label("master")
+  label Globals.nontest_label("built-in")
 
   steps
   {
@@ -135,7 +138,7 @@ test_credentials_token_job.with
           #!/bin/bash -xe
 
           URL_TO_BUILD="\${JENKINS_URL}/job/\${TEST_JOB_TO_BUILD}/build"
-          
+
           echo " + Testing OSRFBUILD_JENKINS_TOKEN ability for calling jobs:"
           echo "   - \${URL_TO_BUILD}"
 
@@ -164,22 +167,40 @@ test_credentials_token_job.with
           """.stripIndent())
     }
 
-    publishers
-    {
-      postBuildScripts {
-        steps {
-          shell("""\
-                #!/bin/bash -xe
+    configure { project ->
+      project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
+      config {
+        scriptFiles()
+        groovyScripts()
+        buildSteps {
+        'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
+          results {
+            string('SUCCESS')
+            string('NOT_BUILT')
+            string('ABORTED')
+            string('FAILURE')
+            string('UNSTABLE')
+          }
+          role('BOTH')
+          executeOn('BOTH')
+          buildSteps {
+            'hudson.tasks.Shell' {
+            command("""\
+            #!/bin/bash -xe
 
-                # remove config after the build ends unconditionally to avoid token leaks
-                rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
-                """.stripIndent())
-        }
-
-        onlyIfBuildSucceeds(false)
-        onlyIfBuildFails(false)
-      }
-    }
+            # remove config after the build ends unconditionally to avoid token leaks
+            rm -fr \${WORKSPACE}/homebrew-simulation/.git/config
+            """.stripIndent())
+            configuredLocalRules()
+            }
+          } // buildSteps
+          stopOnFailure('false')
+        } // org.jenkinsci.plugins.postbuildscript.model.PostBuildStep
+        } // buildSteps
+        markBuildUnstable('false')
+      } // config
+      } // PostBuildScript
+    } // configure
 
     wrappers {
       preBuildCleanup()

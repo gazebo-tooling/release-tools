@@ -55,7 +55,7 @@ def agent_usage_statistics = job("_agent_usage_statistics")
 OSRFBase.create(agent_usage_statistics)
 agent_usage_statistics.with
 {
-  label Globals.nontest_label("master")
+  label Globals.nontest_label("built-in")
 
   triggers {
     // TODO: running only in March to see how much disk space it needs
@@ -73,7 +73,7 @@ def nightly_labeler = job("_nightly_node_labeler")
 OSRFBase.create(nightly_labeler)
 nightly_labeler.with
 {
-  label Globals.nontest_label("master")
+  label Globals.nontest_label("built-in")
 
   triggers {
     cron(Globals.CRON_NIGHTLY_NODES)
@@ -103,7 +103,7 @@ def outdated_job_runner = job("_outdated_job_runner")
 OSRFBase.create(outdated_job_runner)
 outdated_job_runner.with
 {
-  label Globals.nontest_label("master")
+  label Globals.nontest_label("built-in")
 
   triggers {
     cron(Globals.CRON_HOURLY)
