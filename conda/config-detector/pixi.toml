@@ -1,0 +1,25 @@
+[project]
+name = "gazebo-config-detector"
+version = "0.1.0"
+description = "Minimal Pixi environment to detect conda configuration for Gazebo packages"
+authors = ["Jose Luis Rivero <jrivero@openrobotics.org>"]
+channels = ["conda-forge"]
+platforms = ["linux-64", "linux-aarch64", "win-64"]
+
+[dependencies]
+python = ">=3.8"
+pyyaml = "*"
+
+[tasks]
+detect-config = "python3 ../../../jenkins-scripts/tools/find_conda_config.py"
+
+[tasks.help]
+cmd = """
+echo "Gazebo Configuration Detector"
+echo ""
+echo "Available task:"
+echo "  detect-config <package> <version>  - Detect conda config for a specific package and version"
+echo ""
+echo "Examples:"
+echo "  pixi run detect-config gz-rendering 6"
+"""

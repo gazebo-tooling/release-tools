@@ -9,6 +9,7 @@
 ::   - BUILD_TYPE     : (default Release) [ Release | Debug ] Build type to use
 ::   - KEEP_WORKSPACE : (optional) true | false. Clean workspace at the end
 ::   - ENABLE_TESTS   : (optional) true | false. Do not compile and run tests
+::   - CONDA_ENV_NAME : (optional) conda environment name to use. If not set, it will be auto-detected based on COLCON_PACKAGE and major version
 ::
 :: Actions
 ::   - Configure the compiler
@@ -28,7 +29,7 @@ set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS_SRC%\%VCS_DIRECTORY%
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
 @if "%ENABLE_TESTS%" == "" set ENABLE_TESTS=TRUE
 @if "%COLCON_AUTO_MAJOR_VERSION%" == "" set COLCON_AUTO_MAJOR_VERSION=false
-@if "%CONDA_ENV_NAME%" == "" set CONDA_ENV_NAME=legacy
+:: Note: CONDA_ENV_NAME will be auto-detected later if not set
 
 :: safety checks
 if not defined VCS_DIRECTORY (
@@ -59,6 +60,21 @@ if "%GPU_SUPPORT_NEEDED%" == "true" (
     goto :error
   )
   echo # END SECTION
+)
+
+::Auto-detect conda environment if not set
+if not defined CONDA_ENV_NAME (
+  echo # BEGIN SECTION: auto-detect conda environment
+  for /f %%j in ('call "%SCRIPT_DIR%\tools\detect_conda_env.bat" "%COLCON_PACKAGE%" "%DETECT_MAJOR_VERSION%"') do set CONDA_ENV_NAME=%%j
+  if not defined CONDA_ENV_NAME (
+    echo ERROR: Could not detect conda environment.
+    exit 1
+  ) else (
+    echo Auto-detected conda environment: %CONDA_ENV_NAME%
+  )
+  echo # END SECTION
+) else (
+  echo Using user-specified conda environment: %CONDA_ENV_NAME%
 )
 
 if not defined REUSE_PIXI_INSTALLATION (
