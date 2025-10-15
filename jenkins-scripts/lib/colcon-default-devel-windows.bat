@@ -9,6 +9,7 @@
 ::   - BUILD_TYPE     : (default Release) [ Release | Debug ] Build type to use
 ::   - KEEP_WORKSPACE : (optional) true | false. Clean workspace at the end
 ::   - ENABLE_TESTS   : (optional) true | false. Do not compile and run tests
+::   - CONDA_ENV_NAME : (optional) conda environment name to use. If not set, it will be auto-detected based on COLCON_PACKAGE and major version
 ::
 :: Actions
 ::   - Configure the compiler
@@ -28,7 +29,6 @@ set LOCAL_WS_SOFTWARE_DIR=%LOCAL_WS_SRC%\%VCS_DIRECTORY%
 @if "%BUILD_TYPE%" == "" set BUILD_TYPE=Release
 @if "%ENABLE_TESTS%" == "" set ENABLE_TESTS=TRUE
 @if "%COLCON_AUTO_MAJOR_VERSION%" == "" set COLCON_AUTO_MAJOR_VERSION=false
-@if "%CONDA_ENV_NAME%" == "" set CONDA_ENV_NAME=legacy
 
 :: safety checks
 if not defined VCS_DIRECTORY (
@@ -63,7 +63,41 @@ if not defined REUSE_PIXI_INSTALLATION (
   echo # BEGIN SECTION: pixi: installation
   call %win_lib% :pixi_installation || goto :error
   echo # END SECTION
+  echo # BEGIN SECTION: pixi: create bootstrap environment
+  call %win_lib% :pixi_create_bootstrap_environment || goto :error
+  echo # END SECTION
+)
 
+echo # BEGIN SECTION: pixi: load bootstrap shell
+call %win_lib% :pixi_load_bootstrap_shell || goto :error
+echo # END SECTION
+
+setlocal ENABLEDELAYEDEXPANSION
+set COLCON_PACKAGE_ORIGINAL=%COLCON_PACKAGE%
+if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
+  :: detect major version from CMakeLists.txt
+  for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
+  set COLCON_PACKAGE=%COLCON_PACKAGE%!PKG_MAJOR_VERSION!
+  echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
+)
+
+::Auto-detect conda environment if not set
+if not defined CONDA_ENV_NAME (
+  echo # BEGIN SECTION: auto-detect conda environment
+  call %win_lib% :detect_conda_env %COLCON_PACKAGE_ORIGINAL% !PKG_MAJOR_VERSION!
+  if not defined CONDA_ENV_NAME (
+    echo ERROR: Could not detect conda environment.
+    exit 1
+  ) else (
+    echo Auto-detected conda environment: %CONDA_ENV_NAME%
+  )
+  echo # END SECTION
+) else (
+  echo Using user-specified conda environment: %CONDA_ENV_NAME%
+)
+
+:: TODO review the above commands to avoid them in REUSE_PIXI_INSTALLATION
+if not defined REUSE_PIXI_INSTALLATION (
   echo # BEGIN SECTION: pixi: create %CONDA_ENV_NAME% environment
   call %win_lib% :pixi_create_gz_environment %CONDA_ENV_NAME% || goto :error
   echo # END SECTION
@@ -105,17 +139,7 @@ mkdir %LOCAL_WS_SRC%
 echo # END SECTION
 
 setlocal ENABLEDELAYEDEXPANSION
-set COLCON_PACKAGE_ORIGINAL=%COLCON_PACKAGE%
-if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
-   for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
-   set COLCON_PACKAGE=%COLCON_PACKAGE%!PKG_MAJOR_VERSION!
-   echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
-)
-
-setlocal ENABLEDELAYEDEXPANSION
 if not defined GAZEBODISTRO_FILE (
-  for /f %%i in ('python "%SCRIPT_DIR%\tools\detect_cmake_major_version.py" "%WORKSPACE%\%VCS_DIRECTORY%\CMakeLists.txt"') do set PKG_MAJOR_VERSION=%%i
-  if errorlevel 1 exit 1
   set GAZEBODISTRO_FILE=%VCS_DIRECTORY%!PKG_MAJOR_VERSION!.yaml
 ) else (
   echo Using user defined GAZEBODISTRO_FILE: %GAZEBODISTRO_FILE%
