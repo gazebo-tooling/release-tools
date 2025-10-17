@@ -81,12 +81,9 @@ if "%COLCON_AUTO_MAJOR_VERSION%" == "true" (
   echo "MAJOR_VERSION detected: !PKG_MAJOR_VERSION!"
 )
 
-echo # BEGIN SECTION: detect conda environment
 ::Auto-detect conda environment if not set
-if defined CONDA_ENV_NAME (
-  echo Using user-specified conda environment: %CONDA_ENV_NAME%
-else(
-  echo Not user-specified conda environment. Trying to auto-detect
+if not defined CONDA_ENV_NAME (
+  echo # BEGIN SECTION: auto-detect conda environment
   call %win_lib% :detect_conda_env %COLCON_PACKAGE_ORIGINAL% !PKG_MAJOR_VERSION!
   if not defined CONDA_ENV_NAME (
     echo ERROR: Could not detect conda environment.
@@ -94,8 +91,10 @@ else(
   ) else (
     echo Auto-detected conda environment: %CONDA_ENV_NAME%
   )
+  echo # END SECTION
+) else (
+  echo Using user-specified conda environment: %CONDA_ENV_NAME%
 )
-echo # END SECTION
 
 :: TODO review the above commands to avoid them in REUSE_PIXI_INSTALLATION
 if not defined REUSE_PIXI_INSTALLATION (
