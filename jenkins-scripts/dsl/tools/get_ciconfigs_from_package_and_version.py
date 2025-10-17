@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Script to find conda configurations for a given Gazebo package and major version
-Usage: python find_ciconfigs.py gz-rendering 3
+Usage: python get_ciconfigs_from_package_and_version.py gz-rendering 3
 """
 
 import yaml
