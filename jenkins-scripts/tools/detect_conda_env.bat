@@ -2,10 +2,10 @@
 setlocal enabledelayedexpansion
 
 set "SCRIPT_DIR=%~dp0"
-set "PYTHON_SCRIPT=%SCRIPT_DIR%find_conda_config.py"
+set "PYTHON_SCRIPT=%SCRIPT_DIR%..\dsl\tools\find_ciconfigs.py"
 
 if not exist "%PYTHON_SCRIPT%" (
-    echo WARNING: find_conda_config.py not found at %PYTHON_SCRIPT%. Falling back to legacy environment.
+    echo WARNING: find_ciconfigs.py not found at %PYTHON_SCRIPT%. Falling back to legacy environment.
     set "DETECTED_CONDA_ENV_NAME=legacy"
     echo legacy
     goto :end

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Script to find conda configurations for a given Gazebo package and major version
-Usage: python find_conda_config.py gz-rendering 3
+Usage: python find_ciconfigs.py gz-rendering 3
 """
 
 import yaml
@@ -86,7 +86,7 @@ def main():
     parser.add_argument('major_version', type=int,
                        help='Major version number')
     parser.add_argument('--yaml-file', '-f',
-                       default='../dsl/gz-collections.yaml',
+                       default='../gz-collections.yaml',
                        help='Path to gz-collections.yaml file')
 
     args = parser.parse_args()
