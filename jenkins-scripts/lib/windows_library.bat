@@ -329,7 +329,7 @@ set "SCRIPT_DIR=%~dp0"
 set "PACKAGE_NAME=%~1"
 set "MAJOR_VERSION=%~2"
 
-for /f %%i in ('python "%SCRIPT_DIR%\..\tools\find_conda_config.py" "--yaml-file" "%SCRIPT_DIR%\..\dsl\gz-collections.yaml" "%PACKAGE_NAME%" "%MAJOR_VERSION%"') do (
+for /f %%i in ('python "%SCRIPT_DIR%\..\dsl\tools\find_ciconfigs.py" "--yaml-file" "%SCRIPT_DIR%\..\dsl\gz-collections.yaml" "%PACKAGE_NAME%" "%MAJOR_VERSION%"') do (
   set "CONDA_ENV_NAME=%%i"
 )
 
