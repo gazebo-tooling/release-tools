@@ -88,8 +88,6 @@ if not defined CONDA_ENV_NAME (
   if not defined CONDA_ENV_NAME (
     echo ERROR: Could not detect conda environment.
     exit 1
-  ) else (
-    echo Auto-detected conda environment: %CONDA_ENV_NAME%
   )
   echo # END SECTION
 ) else (
@@ -151,7 +149,7 @@ echo # END SECTION
 
 :: this step is important since overwrite the gazebodistro file
 echo # BEGIN SECTION: move %VCS_DIRECTORY% source to workspace
-if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )                                                                                                                                                                   
+if exist %LOCAL_WS_SOFTWARE_DIR% ( rmdir /q /s %LOCAL_WS_SOFTWARE_DIR% )
 xcopy %WORKSPACE%\%VCS_DIRECTORY% %LOCAL_WS_SOFTWARE_DIR% /s /e /i > xcopy_vcs_directory.log || goto :error
 echo # END SECTION
 
@@ -175,7 +173,7 @@ colcon list --names-only | find "!COLCON_PACKAGE!"
 if errorlevel 1 (
   echo # END SECTION
   echo # BEGIN SECTION: Update package !COLCON_PACKAGE! from gz to ignition
-  :: REQUIRED for Gazebo Fortress  
+  :: REQUIRED for Gazebo Fortress
   :: Special case for gz-tools version 1 to endup being ignition-tools
   if "!COLCON_PACKAGE!" == "gz-tools" (
     if "!PKG_MAJOR_VERSION!" == "1" (
