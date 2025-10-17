@@ -85,7 +85,7 @@ echo # BEGIN SECTION: detect conda environment
 ::Auto-detect conda environment if not set
 if defined CONDA_ENV_NAME (
   echo Using user-specified conda environment: %CONDA_ENV_NAME%
-)else(
+else(
   echo Not user-specified conda environment. Trying to auto-detect
   call %win_lib% :detect_conda_env %COLCON_PACKAGE_ORIGINAL% !PKG_MAJOR_VERSION!
   if not defined CONDA_ENV_NAME (
