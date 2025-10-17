@@ -109,30 +109,25 @@ def main():
         result = find_conda_configs(package_name, major_version, yaml_file)
 
         if not result['found']:
-            print(result['message'])
+            print(result['message'], file=sys.stderr)
             sys.exit(1)
 
         # Print results
-        # print("===== RESULTS =====")
-        # print(f"Package: {result['package_name']}")
-        # print(f"Major Version: {result['major_version']}")
-        # print(f"Collection: {result['collection']}")
-        # print(f"All CI Configs: {', '.join(result['ci_configs'])}")
-
-        # if result['conda_configs']:
-        #    print("\nConda Configurations:")
-        #    for conda_config in result['conda_configs']:
-        #        print(f"  - Name: {conda_config['name']}")
-        #        print(f"    Version: {conda_config['version']}")
-        #        print(f"    Architecture: {conda_config['arch']}")
-        #        print(f"    OS: {conda_config['so']}")
-        #        print()
-        # else:
-        #    print("\nNo conda configurations found for this package.")
-
-        print(result['conda_configs'][0]['version'])
+        print(f"Collection: {result['collection']}")
+        print(f"CI Configs: {', '.join(result['ci_configs'])}")
+        
+        if result['conda_configs']:
+            print("Conda Configurations:")
+            for conda_config in result['conda_configs']:
+                print(f"  - Name: {conda_config['name']}")
+                print(f"    Version: {conda_config['version']}")
+                print(f"    Architecture: {conda_config['arch']}")
+                print(f"    OS: {conda_config['so']}")
+        else:
+            print("No conda configurations found for this package.")
+            
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == '__main__':
