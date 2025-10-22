@@ -15,6 +15,10 @@ fi
 
 git -C $(brew --repo) fsck
 export HOMEBREW_UPDATE_TO_TAG=1
+if [[ $(date +%Y%m%d) -le 20251031 ]]; then
+  # until https://github.com/Homebrew/brew/pull/20909 is released
+  unset HOMEBREW_UPDATE_TO_TAG
+fi
 
 # There might be a background process that blocks `brew update`, so we try to
 # run it several times until it succeeds.
