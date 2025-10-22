@@ -12,6 +12,10 @@ restore_brew()
 # but don't fail
 git -C $(brew --repo) fsck || true
 export HOMEBREW_UPDATE_TO_TAG=1
+if [[ $(date +%Y%m%d) -le 20251031 ]]; then
+  # until https://github.com/Homebrew/brew/pull/20909 is released
+  unset HOMEBREW_UPDATE_TO_TAG
+fi
 # call restore_brew if CLEAR_BREW_CACHE is set
 if ${CLEAR_BREW_CACHE}; then
   # Assume that brew is already in the PATH
