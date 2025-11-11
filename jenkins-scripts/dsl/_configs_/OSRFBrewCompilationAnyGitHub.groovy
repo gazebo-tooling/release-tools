@@ -17,6 +17,7 @@ class OSRFBrewCompilationAnyGitHub
                      boolean enable_testing  = true,
                      ArrayList supported_branches = [],
                      boolean enable_github_pr_integration = true,
+                     boolean enable_warnings = true,
                      boolean enable_cmake_warnings = false)
   {
     OSRFBrewCompilation.create(job, arch, enable_testing, enable_cmake_warnings)
