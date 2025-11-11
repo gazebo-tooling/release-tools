@@ -6,7 +6,7 @@ import javaposse.jobdsl.dsl.Job
   -> OSRFLinuxBase
 
   Implements:
-    - priority 300
+    - priority 200
     - logrotator
     - concurrent builds
     - parameter: DEST_BRANCH, SRC_BRANCH
@@ -35,12 +35,12 @@ class OSRFLinuxABIGitHub
     job.with
     {
       properties {
-        priority 300
+        priority 200
       }
 
       logRotator {
         artifactNumToKeep(10)
-        numToKeep(200)
+        numToKeep(125)
       }
 
       concurrentBuild(true)

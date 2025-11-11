@@ -5,15 +5,11 @@ echo '# BEGIN SECTION: setup the testing enviroment'
 # Define the name to be used in docker
 DOCKER_JOB_NAME="install_job"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_common_scripts.bash
 echo '# END SECTION'
 
 cat > build.sh << DELIM
-#!/bin/bash
-
-###################################################
-# Make project-specific changes here
-#
-set -ex
+$(generate_buildsh_header)
 
 if [ `expr length "${INSTALL_JOB_PREINSTALL_HOOK} "` -gt 1 ]; then
 echo '# BEGIN SECTION: running pre install hook'
@@ -23,8 +19,8 @@ fi
 
 if [ `expr length "${INSTALL_JOB_PKG} "` -gt 1 ]; then
 echo "# BEGIN SECTION: try to install package: ${INSTALL_JOB_PKG}"
-apt-get update
-apt-get install -y ${INSTALL_JOB_PKG}
+sudo apt-get update
+${APT_INSTALL} ${INSTALL_JOB_PKG}
 echo '# END SECTION'
 fi
 

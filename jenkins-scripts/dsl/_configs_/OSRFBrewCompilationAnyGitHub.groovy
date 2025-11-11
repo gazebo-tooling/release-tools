@@ -12,13 +12,15 @@ import javaposse.jobdsl.dsl.Job
 class OSRFBrewCompilationAnyGitHub
 {
   static void create(Job job,
+                     String arch,
                      String github_repo,
                      boolean enable_testing  = true,
                      ArrayList supported_branches = [],
                      boolean enable_github_pr_integration = true,
-                     boolean enable_warnings = true)
+                     boolean enable_warnings = true,
+                     boolean enable_cmake_warnings = false)
   {
-    OSRFBrewCompilation.create(job, enable_testing, enable_warnings)
+    OSRFBrewCompilation.create(job, arch, enable_testing, enable_cmake_warnings)
 
     GenericAnyJobGitHub.create(job, github_repo,
                                supported_branches,

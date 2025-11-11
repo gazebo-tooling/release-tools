@@ -1,4 +1,4 @@
-#
+#!/usr/bin/env bash
 # Copyright (C) 2012 Open Source Robotics Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,8 @@
 # $ cd $software-release
 # $ ./changelog_spawn <version> [msg]
 
+set -e
+
 version=${1}
 msg=${2}
 
@@ -36,6 +38,12 @@ fi
 
 if [[ ${version%-*} == ${version} ]]; then
   echo "Version should contain a revision number"
+  exit 1
+fi
+
+if ! debchange --version > /dev/null 2>/dev/null; then
+  echo "debchange is not installed in the system."
+  echo "On Ubuntu/Debian systems please run: sudo apt-get install -y devscripts"
   exit 1
 fi
 

@@ -1,0 +1,11 @@
+test_cases_builders:
+- name: All test cases
+  description: Create all issues
+  set:
+  - !Include
+    all_labels: null
+    any_names: null
+    negate: false
+  permutations:
+    release:
+      - jetty

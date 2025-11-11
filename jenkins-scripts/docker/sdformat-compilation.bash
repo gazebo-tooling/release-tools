@@ -16,11 +16,7 @@ fi
 
 . "${SCRIPT_DIR}/lib/_sdformat_version_hook.bash"
 
-export BUILDING_SOFTWARE_DIRECTORY="sdformat"
-
-if [[ ${SDFORMAT_MAJOR_VERSION} -ge 6 ]]; then
-  export BUILDING_EXTRA_CMAKE_PARAMS="-DUSE_INTERNAL_URDF:BOOL=True"
-fi
+export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-sdformat}"
 
 if [[ ${SDFORMAT_MAJOR_VERSION} -ge 8 ]]; then
   export NEED_C17_COMPILER=true

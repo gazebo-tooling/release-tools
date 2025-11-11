@@ -1,7 +1,7 @@
 import _configs_.*
 import javaposse.jobdsl.dsl.Job
 
-def supported_distros = [ 'xenial' ]
+def supported_distros = [ 'jammy' ]
 def supported_arches = [ 'amd64' ]
 
 
@@ -17,11 +17,13 @@ supported_distros.each { distro ->
 
     gzdev_ci_job.with
     {
+    
+      label Globals.nontest_label("docker && large-memory")
 
       scm {
         git {
           remote {
-            github('ignition-tooling/gzdev', 'https')
+            github('gazebo-tooling/gzdev', 'https')
             branch('refs/heads/master')
 
             extensions {
@@ -50,12 +52,11 @@ supported_distros.each { distro ->
     // --------------------------------------------------------------
     // 3. Create the testing any job
     def gzdev_any_job = job("gzdev-ci-pr_any-${distro}-${arch}")
-    OSRFLinuxCompilationAnyGitHub.create(gzdev_any_job, "ignition-tooling/gzdev", false, false)
+    OSRFLinuxCompilationAnyGitHub.create(gzdev_any_job, "gazebo-tooling/gzdev", false, false)
 
     gzdev_any_job.with
     {
-      // use only the most powerful nodes
-      label "large-memory"
+      label Globals.nontest_label("docker && large-memory")
 
       steps {
         shell("""\

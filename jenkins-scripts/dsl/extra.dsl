@@ -9,7 +9,10 @@ release_repo_debbuilds = [ 'opensplice' ]
 
 // List of repositories that host branches compatible with gbp (git build
 // package) method used by debian
-gbp_repo_debbuilds = [ 'ogre-2.1', 'lark-parser' ]
+gbp_repo_debbuilds = [ 'lark-parser',
+                       'ogre-2.1',
+                       'ogre-2.2',
+                       'ogre-2.3']
 
 release_repo_debbuilds.each { software ->
   // --------------------------------------------------------------
@@ -20,7 +23,7 @@ release_repo_debbuilds.each { software ->
   build_pkg_job.with
   {
     // use only the most powerful nodes
-    label "large-memory"
+    label Globals.nontest_label("docker && large-memory")
 
     steps {
       shell("""\
@@ -40,7 +43,7 @@ gbp_repo_debbuilds.each { software ->
   build_pkg_job.with
   {
     // use only the most powerful nodes
-    label "large-memory"
+    label Globals.nontest_label("docker && large-memory")
 
     parameters
     {
@@ -56,10 +59,14 @@ gbp_repo_debbuilds.each { software ->
                    'OSRF repo name to upload the package to')
     }
 
+    properties {
+      priority 100
+    }
+
     scm {
       git {
         remote {
-          github("osrf/${software}-release", 'https')
+          github("gazebo-forks/${software}-release", 'https')
           branch('${BRANCH}')
         }
 
@@ -72,6 +79,7 @@ gbp_repo_debbuilds.each { software ->
 
     logRotator {
       artifactNumToKeep(10)
+      numToKeep(75)
     }
 
     concurrentBuild(true)
@@ -104,9 +112,7 @@ gbp_repo_debbuilds.each { software ->
 
     publishers
     {
-      publishers {
-        archiveArtifacts('pkgs/*')
-      }
+      archiveArtifacts('pkgs/*')
 
       downstreamParameterized {
         trigger('repository_uploader_packages') {
@@ -118,30 +124,45 @@ gbp_repo_debbuilds.each { software ->
           }
         }
       }
+    }
 
-      configure { project ->
-        project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
-          'string' 'repository_uploader_*'
-        }
-      }
-
-      postBuildScripts {
-        steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                sudo chown -R jenkins \${WORKSPACE}/repo
-                sudo chown -R jenkins \${WORKSPACE}/pkgs
-                """.stripIndent())
-        }
-
-        onlyIfBuildSucceeds(false)
-        onlyIfBuildFails(false)
+    configure { project ->
+      project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
+        'string' 'repository_uploader_*'
       }
     }
+
+    configure { project ->
+      project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
+      config {
+        scriptFiles()
+        groovyScripts()
+        buildSteps {
+        'org.jenkinsci.plugins.postbuildscript.model.PostBuildStep' {
+          results {
+            string('SUCCESS')
+            string('NOT_BUILT')
+            string('ABORTED')
+            string('FAILURE')
+            string('UNSTABLE')
+          }
+          role('BOTH')
+          executeOn('BOTH')
+          buildSteps {
+            'hudson.tasks.Shell' {
+              command(" [ -d \${WORKSPACE}/pkgs ] && sudo chown -R jenkins \${WORKSPACE}/pkgs ")
+              configuredLocalRules()
+            }
+          } // buildSteps
+          stopOnFailure('false')
+        } // org.jenkinsci.plugins.postbuildscript.model.PostBuildStep
+        } // buildSteps
+        markBuildUnstable('false')
+      } // config
+      } // PostBuildScript
+    } // configure
   }
 }
-
 
 def bridge_job = job("ros1_ign_bridge-debbuilder")
 default_params = [ PACKAGE             : "ros1_ign_bridge",

@@ -1,0 +1,64 @@
+name: Conda env testing
+
+on:
+  # Code only works on pull_request events
+  # support push to work on pull_request is not trivial
+  pull_request:
+
+jobs:
+  detection:
+    runs-on: ubuntu-latest
+    outputs:
+      toml_file: ${{ steps.changed-toml-files.outputs.toml_file }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Detect changed files
+      shell: bash
+      id: changed-files
+      run: |
+        # Only works on pull_request events
+        ALL_CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | tr '\n' ' ')
+        echo "Detected changed files: $ALL_CHANGED_FILES"
+        echo "all_changed_files=$ALL_CHANGED_FILES" >> $GITHUB_OUTPUT
+    - name: List all changed files
+      id: changed-toml-files
+      env:
+        ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+      run: |
+        ALL_TOML_FILES=""
+        for file in ${ALL_CHANGED_FILES}; do
+          if [[ $file == *.toml ]]; then
+            ALL_TOML_FILES="$ALL_TOML_FILES $file"
+          fi
+        done
+        if [[ -z $ALL_TOML_FILES ]]; then
+          echo "No TOML files changed"
+          echo "toml_file=[]" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+        ALL_TOML_FILES=${ALL_TOML_FILES# }
+        echo "All TOML files: ${ALL_TOML_FILES}"
+        JSON_ALL_TOML="{ \"toml_file\": $(echo [\"$(sed 's/ /","/g' <<< ${ALL_TOML_FILES})\"])}"
+        echo "toml_file=${JSON_ALL_TOML}" >> $GITHUB_OUTPUT
+  pixi_builder:
+    name: Pixi builder
+    needs: detection
+    runs-on: ubuntu-latest
+    if: ${{ needs.detection.outputs.toml_file != '[]' }}
+    strategy:
+      matrix: ${{ fromJSON(needs.detection.outputs.toml_file) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install dependencies using pixi on ${{ matrix.toml_file }}
+        uses: prefix-dev/setup-pixi@ba3bb36eb2066252b2363392b7739741bb777659  # v0.8.1
+        with:
+          pixi-version: v0.44.0
+          locked: true
+          cache: false  # 10Gb limit might be too low for caching
+          manifest-path: ${{ matrix.toml_file }}

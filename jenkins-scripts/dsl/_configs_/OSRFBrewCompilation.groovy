@@ -11,9 +11,13 @@ import javaposse.jobdsl.dsl.Job
 */
 class OSRFBrewCompilation extends OSRFOsXBase
 {
-  static void create(Job job, enable_testing = true, enable_warnings = true)
+  static void create(Job job, 
+                     String arch,
+                     enable_testing = true,
+                     enable_cmake_warnings = false,
+                     enable_warnings = true)
   {
-    OSRFOsXBase.create(job)
+    OSRFOsXBase.create(job, arch)
 
     /* Properties from generic compilations */
     GenericCompilation.create(job, enable_testing)
@@ -40,6 +44,16 @@ class OSRFBrewCompilation extends OSRFOsXBase
                   skipSymbolicLinks(false)
                 }
               }
+              if (enable_cmake_warnings) {
+                'io.jenkins.plugins.analysis.warnings.Cmake' {
+                    id()
+                    name()
+                    pattern()
+                    reportEncoding()
+                    skipSymbolicLinks(false)
+                }
+              }
+            }
 
               sourceCodeEncoding()
               ignoreQualityGate(false)

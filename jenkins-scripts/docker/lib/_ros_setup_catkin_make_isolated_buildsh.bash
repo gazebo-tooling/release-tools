@@ -10,18 +10,10 @@ if [ -z ${ROS_DISTRO} ]; then
   exit -1
 fi
 
-[[ -z ${USE_GZ_VERSION_ROSDEP} ]] && USE_GZ_VERSION_ROSDEP=false
-
 export CATKIN_WS="${WORKSPACE}/ws"
 
 cat >> build.sh << DELIM_CONFIG
 set -ex
-
-if ${USE_GZ_VERSION_ROSDEP}; then
-  apt-get install -y wget
-  mkdir -p /etc/ros/rosdep/sources.list.d/
-  wget https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gazebo${GAZEBO_VERSION_FOR_ROS}/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list -O /etc/ros/rosdep/sources.list.d/00-gazebo${GAZEBO_VERSION_FOR_ROS}.list
-fi
 
 if [ `expr length "${ROS_SETUP_PREINSTALL_HOOK} "` -gt 1 ]; then
 echo '# BEGIN SECTION: running pre install hook'
@@ -31,7 +23,7 @@ fi
 
 echo '# BEGIN SECTION: run rosdep'
 # Step 2: configure and build
-[[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]] && rosdep init
+[[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]] && sudo rosdep init
 # Hack for not failing when github is down
 update_done=false
 seconds_waiting=0
@@ -68,8 +60,7 @@ echo '# BEGIN SECTION install the system dependencies'
 rosdep install --from-paths . \
                --ignore-src   \
                --rosdistro=${ROS_DISTRO} \
-               --default-yes \
-               --as-root apt:false
+               --default-yes
 echo '# END SECTION'
 
 echo '# BEGIN SECTION compile the catkin workspace'

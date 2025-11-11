@@ -9,8 +9,11 @@
 # ABI_JOB_PKG_DEPENDENCIES: (optional) list (space separated) of pkg dependencies
 # ABI_JOB_PKG_DEPENDENCIES_VAR_NAME: (option) variable in archive to get dependencies from
 # ABI_JOB_CMAKE_PARAMS: (option) cmake parameters to be pased to cmake configuration
+# ABI_JOB_HEADER_PREFIX: (optional) hint for identifying header install prefix
 # ABI_JOB_IGNORE_HEADERS: (optional) relative (to root project path) list (space separated)
 #                         of path headers to ignore
+# ABI_JOB_EXTRA_GCC_OPTIONS: (optional) inject gcc_options in the descriptor file
+#                            one per line
 
 # Jenkins variables:
 # DEST_BRANCH
@@ -22,14 +25,15 @@ echo '# BEGIN SECTION: setup the testing enviroment'
 # Define the name to be used in docker
 DOCKER_JOB_NAME="abi_job"
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_common_scripts.bash
 echo '# END SECTION'
 
 # Could be empty, just fine
 if [[ "${ABI_JOB_PKG_DEPENDENCIES_VAR_NAME}" != "" ]]; then
   eval ABI_JOB_PKG_DEPENDENCIES="\$${ABI_JOB_PKG_DEPENDENCIES_VAR_NAME} ${ABI_JOB_PKG_DEPENDENCIES}"
 fi
-if [[ -n "${DART_FROM_PKGS_VAR_NAME}" ]]; then
-  eval DART_FROM_PKGS="\$${DART_FROM_PKGS_VAR_NAME}"
+if [[ -z "${ABI_JOB_HEADER_PREFIX}" ]]; then
+  eval ABI_JOB_HEADER_PREFIX="\$${ABI_JOB_SOFTWARE_NAME}-*"
 fi
 
 ABI_CXX_STANDARD=c++11
@@ -38,25 +42,7 @@ if [[ "${NEED_C17_COMPILER}" == "true" ]]; then
 fi
 
 cat > build.sh << DELIM
-#!/bin/bash
-
-###################################################
-# Make project-specific changes here
-#
-set -ex
-
-# Bug in gcc5 with eigen see: https://github.com/ignition-tooling/release-tools/issues/147
-if [[ "${USE_GCC6}" -gt 0 || -z "${USE_GCC6}" && "${DISTRO}" == xenial ]]; then
-  apt-get update
-  apt-get install -y software-properties-common
-  add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  apt-get update
-  apt-get install -y gcc-6 g++-6
-  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 10
-  update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 10
-  update-alternatives --config gcc
-  update-alternatives --config g++
-fi
+$(generate_buildsh_header)
 
 if [ `expr length "${ABI_JOB_PRECHECKER_HOOK} "` -gt 1 ]; then
 echo '# BEGIN SECTION: running pre ABI hook'
@@ -66,9 +52,8 @@ fi
 
 echo '# BEGIN SECTION: compile and install branch: ${DEST_BRANCH}'
 cp -a $WORKSPACE/${ABI_JOB_SOFTWARE_NAME} /tmp/${ABI_JOB_SOFTWARE_NAME}
-chown -R root:root /tmp/${ABI_JOB_SOFTWARE_NAME}
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
-git fetch origin 
+git fetch origin
 git checkout origin/${DEST_BRANCH}
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
 rm -rf $WORKSPACE/build
@@ -79,8 +64,8 @@ cmake ${ABI_JOB_CMAKE_PARAMS} \\
   -DCMAKE_INSTALL_PREFIX=/usr/local/destination_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
-make install
-DEST_DIR=\$(find /usr/local/destination_branch/include -name ${ABI_JOB_SOFTWARE_NAME}-* -type d | sed -e 's:.*/::')
+sudo make install
+DEST_DIR=\$(find /usr/local/destination_branch/include -name ${ABI_JOB_HEADER_PREFIX} -type d | sed -e 's:.*/include/::')
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: compile and install branch: ${SRC_BRANCH}'
@@ -92,26 +77,29 @@ git remote add source_repo ${SRC_REPO}
 git fetch source_repo
 git checkout source_repo/${SRC_BRANCH}
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
+rm -rf $WORKSPACE/build
+mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 cmake ${ABI_JOB_CMAKE_PARAMS} \\
   -DBUILD_TESTING=OFF \\
   -DCMAKE_INSTALL_PREFIX=/usr/local/source_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
 make -j${MAKE_JOBS}
-make install
-SRC_DIR=\$(find /usr/local/source_branch/include -name ${ABI_JOB_SOFTWARE_NAME}-* -type d | sed -e 's:.*/::')
+sudo make install
+SRC_DIR=\$(find /usr/local/source_branch/include -name ${ABI_JOB_HEADER_PREFIX} -type d | sed -e 's:.*/include/::')
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: install the ABI checker'
 # Install abi-compliance-checker.git
 cd $WORKSPACE
 rm -fr $WORKSPACE/abi-compliance-checker
-git clone git://github.com/lvc/abi-compliance-checker.git
+git clone https://github.com/lvc/abi-compliance-checker
 cd abi-compliance-checker
-perl Makefile.pl -install --prefix=/usr
+sudo perl Makefile.pl -install --prefix=/usr
 
 mkdir -p $WORKSPACE/abi_checker
 cd $WORKSPACE/abi_checker
+
 cat > pkg.xml << CURRENT_DELIM
  <version>
      branch: $DEST_BRANCH
@@ -120,6 +108,8 @@ cat > pkg.xml << CURRENT_DELIM
  <headers>
    /usr/local/destination_branch/include/\$DEST_DIR
  </headers>
+
+ ${EXTRA_INCLUDES}
 
  <skip_headers>
 CURRENT_DELIM
@@ -136,6 +126,7 @@ cat >> pkg.xml << CURRENT_DELIM_LIBS
 
  <gcc_options>
      -std=${ABI_CXX_STANDARD}
+     ${ABI_JOB_EXTRA_GCC_OPTIONS}
  </gcc_options>
 CURRENT_DELIM_LIBS
 
@@ -147,6 +138,8 @@ cat > devel.xml << DEVEL_DELIM
  <headers>
    /usr/local/source_branch/include/\$SRC_DIR
  </headers>
+
+ ${EXTRA_INCLUDES}
 
  <skip_headers>
 DEVEL_DELIM
@@ -164,6 +157,7 @@ cat >> devel.xml << DEVEL_DELIM_LIBS
 
  <gcc_options>
      -std=${ABI_CXX_STANDARD}
+     ${ABI_JOB_EXTRA_GCC_OPTIONS}
  </gcc_options>
 DEVEL_DELIM_LIBS
 echo '# END SECTION'

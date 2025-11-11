@@ -5,6 +5,8 @@
 export ENABLE_REAPER=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_common_scripts.bash
+. ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
 # The git plugin leaves a repository copy with a detached HEAD
 # state. gbp does not like it thus the need of using --git-ignore-branch
@@ -24,14 +26,8 @@ if [[ -z ${BRANCH} ]]; then
   export CLONE_NEEDED=false
 fi
 
-RUN_AUTOPKGTEST=${RUN_AUTOPKGTEST:-true}
-
 cat > build.sh << DELIM
-###################################################
-# Make project-specific changes here
-#
-#!/usr/bin/env bash
-set -ex
+$(generate_buildsh_header)
 
 if ${CLONE_NEEDED}; then
 echo '# BEGIN SECTION: clone the git repo'
@@ -54,13 +50,20 @@ fi
 
 if [[ ${DISTRO} == 'focal' && ${ARCH} == 'arm64' ]]; then
     # Did not find the way of avoid lintian in gbp call
-    ln -sf /bin/true /usr/bin/lintian
+    sudo ln -sf /bin/true /usr/bin/lintian
 fi
 
-echo '# BEGIN SECTION: install build dependencies'
-cat debian/changelog
-mk-build-deps -r -i debian/control --tool 'apt-get --yes -o Debug::pkgProblemResolver=yes -o  Debug::BuildDeps=yes'
-echo '# END SECTION'
+# our packages.o.o running xenial does not support default zstd compression of
+# .deb files in jammy. Keep using xz. Not a trivial change, requires wrapper over dpkg-deb
+if [[ ${DISTRO} == 'jammy' ]]; then
+  sudo bash -c 'echo \#\!/bin/bash > /usr/local/bin/dpkg-deb'
+  sudo bash -c 'echo "/usr/bin/dpkg-deb -Zxz \\\$@" >> /usr/local/bin/dpkg-deb'
+  sudo cat /usr/local/bin/dpkg-deb
+  sudo chmod +x /usr/local/bin/dpkg-deb
+  export PATH=/usr/local/bin:\$PATH
+fi
+
+${MKBUILD_INSTALL_DEPS}
 
 VERSION=\$(dpkg-parsechangelog  | grep Version | awk '{print \$2}')
 VERSION_NO_REVISION=\$(echo \$VERSION | sed 's:-.*::')
@@ -128,23 +131,7 @@ done
 test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 
-if $RUN_AUTOPKGTEST; then
-# Ubuntu has no autopkgtest command in the autopkgtest package
-if [ "$LINUX_DISTRO" != "ubuntu" ]; then
-echo '# BEGIN SECTION: run tests'
-cd $WORKSPACE/pkgs
-set +e
-autopkgtest -B *.deb *.dsc -- null
-# autopkgtest will return 0 if there are successful tests and 8 if there are no tests
-testret=\$?
-if [[ \$testret != 0 ]] && [[ \$testret != 8 ]]; then
-  echo "Problem in running autopkgtest: \$testret"
-  exit 1
-fi
-set -e
-echo '# END SECTION'
-fi
-fi
+${DEBBUILD_AUTOPKGTEST}
 
 echo '# BEGIN SECTION: clean up git build'
 cd $REPO_PATH

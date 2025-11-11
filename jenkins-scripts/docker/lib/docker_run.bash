@@ -6,11 +6,11 @@ export docker_cmd="docker"
 # Do not delete packages from the scripts since some of them can be
 # run twice from the same jenkins job and generate different pkgs
 # If you want to do it, better do it from the DSL jenkins configuration
-sudo mkdir -p ${PACKAGE_DIR}
+mkdir -p ${PACKAGE_DIR}
 
 # This are usually for continous integration jobs
 sudo rm -fr ${WORKSPACE}/build
-sudo mkdir -p ${WORKSPACE}/build
+mkdir -p ${WORKSPACE}/build
 
 [[ -z ${DOCKER_DO_NOT_CACHE} ]] && DOCKER_DO_NOT_CACHE=false
 [[ -z ${USE_DOCKER_IN_DOCKER} ]] && export USE_DOCKER_IN_DOCKER=false
@@ -20,7 +20,21 @@ if $DOCKER_DO_NOT_CACHE; then
   _DOCKER_BUILD_EXTRA_ARGS="--force-rm=true"
 fi
 
-sudo docker build ${_DOCKER_BUILD_EXTRA_ARGS} \
+USERID=$(id -u)
+USER=$(whoami)
+
+# platform support starts on versions greater than 17.07
+PLAFTORM_PARAM=
+if [[ ${LINUX_DISTRO} == 'ubuntu' && \
+      ${DISTRO} != 'focal' && \
+      ${ARCH} == 'armhf' ]]; then
+  PLAFTORM_PARAM="--platform=linux/armhf"
+fi
+
+sudo docker build ${PLAFTORM_PARAM} ${_DOCKER_BUILD_EXTRA_ARGS} \
+                  --build-arg GID=$(id -g $USER) \
+                  --build-arg USERID=$USERID \
+                  --build-arg USER=$USER \
                   --tag ${DOCKER_TAG} .
 
 stop_stopwatch CREATE_TESTING_ENVIROMENT
@@ -68,7 +82,7 @@ if [[ -d /dev/snd ]]; then
 fi
 
 # DOCKER_FIX is for workaround https://github.com/docker/docker/issues/14203
-sudo ${docker_cmd} run $EXTRA_PARAMS_STR  \
+sudo ${docker_cmd} run ${PLAFTORM_PARAM} $EXTRA_PARAMS_STR  \
             -e DOCKER_FIX=''  \
             -e WORKSPACE=${WORKSPACE} \
             -e TERM=xterm-256color \
@@ -85,7 +99,6 @@ sudo ${docker_cmd} run $EXTRA_PARAMS_STR  \
 # Export results out of build directory, to WORKSPACE
 for d in $(find ${WORKSPACE}/build -maxdepth 1 -name '*_results' -type d); do
     sudo mv ${d} ${WORKSPACE}/
-    sudo chown -R jenkins ${WORKSPACE}/*_results
 done
 
 if [[ -z ${KEEP_WORKSPACE} ]]; then
@@ -98,13 +111,4 @@ if [[ -z ${KEEP_WORKSPACE} ]]; then
     for d in $(find ${WORKSPACE} -maxdepth 1 -name '*_results' -type d); do
        sudo mv ${d} ${WORKSPACE}/build/
     done
-
-    [[ -d ${PACKAGE_DIR} ]] && sudo chown -R jenkins ${PACKAGE_DIR}
-    sudo chown jenkins -R ${WORKSPACE}/build/
-fi
-
-# workaround for subt.
-# TODO: investigate what is subt doing with permissions on checkout directory
-if [[ -d "${WORKSPACE}/subt" ]]; then
-   sudo chown -R jenkins "${WORKSPACE}/subt"
 fi

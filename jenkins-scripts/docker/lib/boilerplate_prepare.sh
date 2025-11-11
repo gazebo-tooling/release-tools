@@ -18,13 +18,13 @@ fi
 if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
     # get the mount point of the docker directory, not always /
     docker_device=$(df '/var/lib/docker' | awk '{ print $1 }' | tail -n 1)
+
     # in seconds: 5 days = 432000s
     PERCENT_DISK_USED=$(df -h ${docker_device} | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
     if [[ $PERCENT_DISK_USED -gt 70 ]]; then
         echo "Space left is low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
-        wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
-        sudo bash -c "GRACE_PERIOD_SECONDS=432000 bash docker-gc"
+        source ${SCRIPT_DIR}/lib/docker_cleanup.sh low
     fi
 
     # if not enough, run again with 1 day = 86400s
@@ -32,8 +32,7 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
     if [[ $PERCENT_DISK_USED -gt 80 ]]; then
         echo "Space left is still low: ${PERCENT_DISK_USED}% used"
         echo "Run docker cleaner !!"
-        wget https://raw.githubusercontent.com/spotify/docker-gc/master/docker-gc
-        sudo bash -c "GRACE_PERIOD_SECONDS=86400 bash docker-gc"
+        source ${SCRIPT_DIR}/lib/docker_cleanup.sh medium
     fi
 
     # if not enough, kill the whole cache
@@ -41,35 +40,7 @@ if [[ -z ${DO_NOT_CHECK_DOCKER_DISK_USAGE} ]]; then
     if [[ $PERCENT_DISK_USED -gt 85 ]]; then
         echo "Space left is low again: ${PERCENT_DISK_USED}% used"
         echo "Kill the whole docker cache !!"
-        # use system prune if available
-        docker_version="$(sudo docker version --format '{{.Server.APIVersion}}') > 1.25"
-        if [[ $(echo $docker_version | bc -l) ]]; then
-          sudo docker system prune --all -f
-        else
-          [[ -n $(sudo docker ps -q) ]] && sudo docker kill $(sudo docker ps -q) || true
-          [[ -n $(sudo docker images -a -q) ]] && sudo docker rmi $(sudo docker images -a -q) || true
-        fi
-    fi
-
-    # if not enough, try to clean up build/ directories
-    PERCENT_DISK_USED=$(df -h ${docker_device} | grep ${docker_device} | sed 's:.* \([0-9]*\)%.*:\1:')
-    if [[ $PERCENT_DISK_USED -gt 85 ]]; then
-        MAX_SIZE_FOR_BUILD_DIRS="5G"
-        CMD_FIND_BIG_DIRS=(find ${HOME}/workspace -name build -exec du -h -d 0 -t ${MAX_SIZE_FOR_BUILD_DIRS} {} \;)
-        echo "Space left is low again: ${PERCENT_DISK_USED}% used"
-        echo "Clean up the whole cache was not enough. Look for build/ directories bigger than ${MAX_SIZE_FOR_BUILD_DIRS}:"
-        # run command twice to avoid parsing. First for information proposes
-        ${CMD_FIND_BIG_DIRS[@]}
-        for d in $("${CMD_FIND_BIG_DIRS[@]}" | awk '{ print $2 }'); do
-          # safe checks on paths
-          if [[ $d == ${d/$HOME} ]] || [[ $d == ${d/build} ]]; then
-            echo "System is trying to delete a path $d outside Jenkins home: $HOME with subdir build/"
-            exit -1
-          fi
-          # avoid to rm -fr without a path. The ugly trick should leave d as it
-          # is, in case of a bug in code it will not remove anything at random
-          sudo rm -fr ${d/build}build
-        done
+       source ${SCRIPT_DIR}/lib/docker_cleanup.sh high
     fi
 fi
 
@@ -78,17 +49,25 @@ source ${SCRIPT_DIR}/../lib/boilerplate_timing_prepare.sh
 init_stopwatch TOTAL_TIME
 init_stopwatch CREATE_TESTING_ENVIROMENT
 
+# Enable shell on errors is designed to help debuging but never
+# to be run on Jenkins.
+SHELL_ON_ERRORS=${SHELL_ON_ERRORS:-false}
+
 # Default values - Provide them is prefered
 if [ -z ${DISTRO} ]; then
-    DISTRO=xenial
+    DISTRO=bionic
 fi
 
 if [ -z ${ROS_DISTRO} ]; then
-  ROS_DISTRO=kinetic
+  ROS_DISTRO=melodic
 fi
 
 if [ -z "${ROS2}" ]; then
   export ROS2=false
+fi
+
+if [ -z "${ROS_BOOTSTRAP}" ]; then
+  export ROS_BOOTSTRAP=false
 fi
 
 # Define making jobs by default if not present
@@ -101,18 +80,20 @@ if [ -z ${ENABLE_REAPER} ]; then
     ENABLE_REAPER=true
 fi
 
-# We use ignitionsrobotics or osrf. osrf by default
-if [ -Z ${GITHUB_ORG} ]; then
+# We use gazebosim or osrf. osrf by default
+if [ -z ${GITHUB_ORG} ]; then
     GITHUB_ORG="osrf"
 fi
 
-# By default, do not need to use C++11 compiler
-if [ -z ${NEED_C11_COMPILER} ]; then
-  NEED_C11_COMPILER=false
+if [ -z "${NEED_C17_COMPILER}" ]; then
+  export INSTALL_C17_COMPILER=false
 fi
-
-if [ -z ${NEED_C17_COMPILER} ]; then
-  NEED_C17_COMPILER=false
+# Check if we need to install a custom compiler in old distributions
+export INSTALL_C17_COMPILER=false
+if ${NEED_C17_COMPILER}; then
+  if [ ${DISTRO} = 'bionic' ] || [ ${DISTRO} = 'buster' ]; then
+    export INSTALL_C17_COMPILER=true
+  fi
 fi
 
 # By default, do not use ROS
@@ -124,14 +105,6 @@ fi
 # which can break some software. Use it as a workaround in this case
 if [ -z ${NEED_GCC48_COMPILER} ]; then
   NEED_GCC48_COMPILER=false
-fi
-
-# Only precise needs to install a C++11 compiler. Trusty on
-# already have a supported version
-if $NEED_C11_COMPILER; then
-  if [[ $DISTRO != 'precise' ]]; then
-      NEED_C11_COMPILER=false
-  fi
 fi
 
 # in some machines squid is returning
@@ -149,7 +122,7 @@ if ${ENABLE_ROS}; then
   export ROS_IP=127.0.0.1
 fi
 
-if [[ -n `ps aux | grep gzserver | grep -v grep` ]]; then
+if [[ -n `ps aux | grep '[ /]gzserver' | grep -v grep | grep -v 'gzserver[^ ]'` ]]; then
     echo "There is a gzserver already running on the machine. Stopping"
     exit -1
 fi
@@ -174,33 +147,6 @@ fi
 output_dir=$WORKSPACE/output
 work_dir=$WORKSPACE/work
 
-# TODO: Check for docker package
-NEEDED_HOST_PACKAGES="git python-setuptools python-psutil qemu-user-static gpgv squid-deb-proxy bc"
-# python-argparse is integrated in libpython2.7-stdlib since raring
-# Check for precise in the HOST system (not valid DISTRO variable)
-if [[ $(lsb_release -sr | cut -c 1-5) == '12.04' ]]; then
-    NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} python2.7"
-else
-    NEEDED_HOST_PACKAGES="${NEEDED_HOST_PACKAGES} libpython2.7-stdlib"
-fi
-
-# Check if they are already installed in the host.
-# dpkg-query will return an error in stderr if a package has never been in the
-# system. It will return a header composed by several lines started with |, +++
-# and 'Desired' the rest of lines is composed by: ^rc or ^un if the package is
-# not in the system. ^in if it is installed
-QUERY_RESULT=$(dpkg-query --list ${NEEDED_HOST_PACKAGES} 2>&1 | grep -v ^ii | grep -v '|' | grep -v '^\+++' | grep -v '^Desired') || true
-if [[ -n ${QUERY_RESULT} ]]; then
-  sudo apt-get update
-  sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
-fi
-
-# Check that all of them are present in the system, not returning false
-if [[ ! $(dpkg-query --list ${NEEDED_HOST_PACKAGES}) ]]; then
-  echo "Some needed packages are failing in the host"
-  exit 1
-fi
-
 # Check if squid-deb-proxy is running or start it otherwise
 if [[ -z $(ps aux | grep squid-deb-proxy.conf | grep -v grep | awk '{ print $2}') ]]; then
   sudo service squid-deb-proxy start
@@ -208,6 +154,12 @@ fi
 
 if ${NEED_SQUID_WORKAROUND}; then
   sudo service squid-deb-proxy restart
+fi
+
+# Required for asan to work on Noble
+# https://github.com/gazebo-tooling/release-tools/issues/1354
+if [[ ${DISTRO} == 'noble' ]]; then
+  sudo sysctl vm.mmap_rnd_bits=28
 fi
 
 # Docker checking

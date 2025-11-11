@@ -19,7 +19,7 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
     job.with
     {
       // preclean of build/*_results. Please see
-      // https://github.com/ignition-tooling/release-tools/issues/75"
+      // https://github.com/gazebo-tooling/release-tools/issues/75"
       // to know why preBuildCleanup is not working and the use
       // of shell as workaround
       // wrappers {
@@ -34,7 +34,7 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
              #!/bin/bash -xe
 
              echo "Workaround for cleaning up workspace"
-             echo "check: https://github.com/ignition-tooling/release-tools/issues/75"
+             echo "check: https://github.com/gazebo-tooling/release-tools/issues/75"
 
              sudo rm -fr "\${WORKSPACE}/build/*_results"
              sudo rm -fr "\${WORKSPACE}/*_results"
@@ -77,7 +77,12 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
               minimumSeverity {
                 name('LOW')
               }
-              filters { }
+              filters {
+                'io.jenkins.plugins.analysis.core.filter.ExcludeFile' {
+                  pattern('.*ALSA lib.*')
+                  pattern('\\d+: \\(')
+                }
+              }
               isEnabledForFailure(false)
               isAggregatingResults(false)
               isBlameDisabled(false)
