@@ -25,7 +25,7 @@ do
     for d in $($(brew --repo osrf/simulation)/.github/ci/unbottled_dependencies.sh $f ${BOTTLE_TAG})
     do
         echo Bumping revision for "$d" as it is an unbottled dependency of "$f"
-        brew bump-revision --message="rebuild" "$d"
+        brew bump-revision --message="rebuild" "$d" --verbose --debug
     done
 done
 echo '# END SECTION'
