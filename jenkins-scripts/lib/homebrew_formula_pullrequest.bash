@@ -110,5 +110,7 @@ fi
 
 # create branch with name and sanitized version string
 PULL_REQUEST_BRANCH="${PACKAGE_ALIAS}_$(echo ${VERSION_SANITIZED} | tr ' ~:^?*[' '_')_$(date +%s)"
+PULL_REQUEST_TITLE="${PACKAGE_ALIAS} ${VERSION}"
+COMMIT_MESSAGE="${PACKAGE_ALIAS} ${VERSION}"
 
 . ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
