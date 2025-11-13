@@ -374,14 +374,14 @@ gz_collections_yaml.collections.each { collection ->
       if (categories_enabled.contains('pr'))
       {
         branch_index[lib_name][platform]['pr'].contains(branch_name) ?:
-          branch_index[lib_name][platform]['pr'] << [branch: branch_name, ci_name: config_name]
+          branch_index[lib_name][platform]['pr'] << [branch: branch_name, ci_name: config_name, collection_name: collection.name]
       }
       if (categories_enabled.contains('pr_abichecker') &&
          (branch_name != 'main') &&
          (! ci_config.exclude.abichecker?.contains(lib_name)))
       {
         branch_index[lib_name][platform]['pr_abichecker'].contains(branch_name) ?:
-          branch_index[lib_name][platform]['pr_abichecker'] << [branch: branch_name, ci_name: config_name]
+          branch_index[lib_name][platform]['pr_abichecker'] << [branch: branch_name, ci_name: config_name, collection_name: collection.name]
       }
 
       // Generate jobs for the library entry being parsed
@@ -447,13 +447,14 @@ branch_index.each { lib_name, distro_configs ->
       def ci_config = gz_collections_yaml.ci_configs.find{ it.name == config_name }
       def script_name_prefix = cleanup_library_name(lib_name)
       def gz_job_name_prefix = lib_name.replaceAll('-','_')
+      def gz_ci_job_name = ''
       def arch = ci_config.system.arch
       def ws_checkout_dir = lib_name
       if (ci_config.system.so == 'linux')
       {
         def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
         def extra_cmd = pre_setup_script ?: ""
-        def gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
+        gz_ci_job_name = "${gz_job_name_prefix}-ci-pr_any-${distro}-${arch}"
         def gz_ci_any_job = job(gz_ci_job_name)
         OSRFLinuxCompilationAnyGitHub.create(gz_ci_any_job,
                                              "gazebosim/${lib_name}",
@@ -483,6 +484,7 @@ branch_index.each { lib_name, distro_configs ->
         // --------------------------------------------------------------
         def arch_label = ci_config.system.arch == 'amd64' ? 'x86_64' : ci_config.system.arch
         def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-${ci_config.system.arch}"
+        gz_ci_job_name = gz_brew_ci_any_job_name
         def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
         OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
                                             arch_label,
@@ -496,6 +498,7 @@ branch_index.each { lib_name, distro_configs ->
         distro_sort_name = get_windows_distro_sortname(ci_config)
         Globals.gazebodistro_branch = false
         def gz_win_ci_any_job_name = "${gz_job_name_prefix}-pr-${distro_sort_name}win"
+        gz_ci_job_name = gz_win_ci_any_job_name
         def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
         Globals.gazebodistro_branch = true
         OSRFWinCompilationAnyGitHub.create(gz_win_ci_any_job,
@@ -510,6 +513,9 @@ branch_index.each { lib_name, distro_configs ->
                                ci_config)
         Globals.gazebodistro_branch = false
       }
+      logging_list['pr_ci'].add(
+         [collection: branches_with_ciconfig['pr']['collection_name'],
+         job_name: gz_ci_job_name])
     }
 
     if (branches_with_ciconfig['pr_abichecker']) {
