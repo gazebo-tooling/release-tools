@@ -625,8 +625,7 @@ ci_configs:
       - gz-transport
       - sdformat
     ci_categories_enabled:
-      # Don't enable prs yet
-      # - pr
+      - pr
       - stable_branches
   - name: win_conda_L
     system:
