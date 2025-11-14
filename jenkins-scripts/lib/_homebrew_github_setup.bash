@@ -43,6 +43,8 @@ else
     echo "Can not find brew setup configuration"
     exit 1
 fi
+# Use stable version of brew
+export HOMEBREW_UPDATE_TO_TAG=1
 brew up
 
 brew ruby -e "puts 'brew ruby success'"
