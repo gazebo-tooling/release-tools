@@ -45,7 +45,7 @@ else
 fi
 # Use stable version of brew
 export HOMEBREW_UPDATE_TO_TAG=1
-brew up
+brew update-reset
 
 brew ruby -e "puts 'brew ruby success'"
 brew config
