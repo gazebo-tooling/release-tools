@@ -46,6 +46,7 @@ fi
 brew up
 
 brew ruby -e "puts 'brew ruby success'"
+brew config
 
 # tap osrf/simulation
 brew untap osrf/simulation || true
