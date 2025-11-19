@@ -411,7 +411,7 @@ bump_unbottled_dependencies_job.with
     stringParam("FORMULA_WITH_UNBOTTLED_DEPENDENCIES", '',
                 'Names of formulae whose unbottled dependencies should be revision-bumped')
     stringParam("BOTTLE_TAG", 'arm64_sequoia',
-                'Unique string representing the arch and OS of a homebrew bottle, such as "sonoma" or "arch64_sequoia"')
+                'Unique string representing the arch and OS of a homebrew bottle, such as "sonoma" or "arm64_sequoia"')
   }
 
   steps
