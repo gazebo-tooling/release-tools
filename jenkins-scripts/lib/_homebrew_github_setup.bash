@@ -43,9 +43,12 @@ else
     echo "Can not find brew setup configuration"
     exit 1
 fi
-brew up
+# Use stable version of brew
+export HOMEBREW_UPDATE_TO_TAG=1
+brew update-reset
 
 brew ruby -e "puts 'brew ruby success'"
+brew config
 
 # tap osrf/simulation
 brew untap osrf/simulation || true

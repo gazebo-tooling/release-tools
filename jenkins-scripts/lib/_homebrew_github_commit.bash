@@ -32,8 +32,8 @@ echo '# END SECTION'
 
 GIT="git -C ${TAP_PREFIX}"
 
-echo
 echo '# BEGIN SECTION: commit and pull request creation'
+echo
 ${GIT} remote -v
 # check if branch already exists
 if ${GIT} rev-parse --verify ${PULL_REQUEST_BRANCH} ; then
