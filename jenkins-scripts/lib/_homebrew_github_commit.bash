@@ -1,5 +1,5 @@
 # parameters:
-# - COMMIT_MESSAGE
+# - COMMIT_MESSAGE or SKIP_COMMIT
 # - TAP_PREFIX
 # - PULL_REQUEST_BRANCH
 # - PULL_REQUEST_TITLE or PULL_REQUEST_URL
@@ -9,8 +9,10 @@ PR_URL_export_file=${PR_URL_export_file:-${WORKSPACE}/pull_request_created.prope
 
 echo '# BEGIN SECTION: check variables'
 if [ -z "${COMMIT_MESSAGE}" ]; then
-  echo COMMIT_MESSAGE not specified
-  exit 1
+  if [ -z "${SKIP_COMMIT}" ]; then
+    echo One of COMMIT_MESSAGE or SKIP_COMMIT must be specified
+    exit 1
+  fi
 fi
 if [ -z "${PULL_REQUEST_BRANCH}" ]; then
   echo PULL_REQUEST_BRANCH not specified
@@ -30,13 +32,6 @@ echo '# END SECTION'
 
 GIT="git -C ${TAP_PREFIX}"
 
-echo ==========================================================
-if ${GIT} diff --exit-code; then
-  echo No formula modifications found, aborting
-  exit 1
-fi
-echo ==========================================================
-
 echo
 echo '# BEGIN SECTION: commit and pull request creation'
 ${GIT} remote -v
@@ -46,7 +41,16 @@ if ${GIT} rev-parse --verify ${PULL_REQUEST_BRANCH} ; then
 else
   ${GIT} checkout -b ${PULL_REQUEST_BRANCH}
 fi
-${GIT} commit ${FORMULA_PATH} -m "${COMMIT_MESSAGE}"
+if ! ${SKIP_COMMIT}; then
+  echo ==========================================================
+  if ${GIT} diff --exit-code; then
+    echo No formula modifications found, aborting
+    exit 1
+  fi
+  echo ==========================================================
+
+  ${GIT} commit ${FORMULA_PATH} -m "${COMMIT_MESSAGE}"
+fi
 echo
 ${GIT} status
 echo
