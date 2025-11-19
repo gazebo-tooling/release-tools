@@ -366,7 +366,7 @@ gz_collections_yaml.collections.each { collection ->
       if (ci_config.system.so == 'linux') {
         platform = distro
       } else if (ci_config.system.so == 'darwin') {
-        platform = 'homebrew'
+        platform = 'homebrew_' + arch
       } else if (ci_config.system.so == 'windows') {
         platform = distro
       }
