@@ -1,5 +1,42 @@
 # Scripts for working with Jenkins DSL and gz-collections.yaml
 
+## get_ciconfigs_from_package_and_version.py
+
+Python script to find conda CI configurations for Gazebo packages based on their
+name and major version. Parses `gz-collections.yaml` to determine which conda
+environments should be used for building specific packages.
+
+**Usage:**
+```bash
+python get_ciconfigs_from_package_and_version.py gz-rendering 6
+python get_ciconfigs_from_package_and_version.py gz-sim 8 --yaml-file custom-collections.yaml
+```
+
+**Output:** Full details including collection name, CI configs, and conda configuration details.
+
+## get_conda_ciconfig_from_package_and_version.py
+
+Wrapper script that returns only the conda environment version string for a given
+Gazebo package and major version. This is the script used by the build system to
+determine which conda environment to use.
+
+**Usage:**
+```bash
+python get_conda_ciconfig_from_package_and_version.py gz-rendering 6
+# Output: legacy
+
+python get_conda_ciconfig_from_package_and_version.py gz-sim 10
+# Output: noble_like
+```
+
+**Output:** Single line containing the conda environment version (e.g., `legacy`, `legacy_ogre23`, `noble_like`).
+
+## DSL 6
+python get_ciconfigs_from_package_and_version.py gz-sim 8 --yaml-file custom-collections.yaml
+```
+
+**Output:** Collection name and conda configuration details for Windows builds.
+
 ## DSL 
 
 DSL is the Jenkins plugins that allows to use code for creating

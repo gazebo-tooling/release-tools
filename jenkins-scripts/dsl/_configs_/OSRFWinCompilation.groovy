@@ -64,8 +64,8 @@ class OSRFWinCompilation extends OSRFWinBase
             qualityGates {
               'io.jenkins.plugins.analysis.core.util.QualityGate' {
                 threshold(1)
+                criticality('UNSTABLE')
                 type('TOTAL')
-                status('WARNING')
               }
             }
           }
