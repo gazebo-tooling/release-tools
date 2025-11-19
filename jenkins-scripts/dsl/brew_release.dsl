@@ -315,3 +315,73 @@ bottle_job_hash_updater.with
   }
 }
 
+// -------------------------------------------------------------------
+// BREW remove bottles for specified formulae and their dependencies
+def remove_dependent_bottles_job = job("generic-release-homebrew_remove_dependent_bottles")
+OSRFUNIXBase.create(remove_dependent_bottles_job)
+OSRFCredentials.allowOsrfbuildToRunTheBuild(remove_dependent_bottles_job)
+
+remove_dependent_bottles_job.with
+{
+  String PR_URL_export_file_name = 'pull_request_created.properties'
+  String PR_URL_export_file = '${WORKSPACE}/' + PR_URL_export_file_name
+
+  label Globals.nontest_label("built-in")
+
+  wrappers {
+    preBuildCleanup()
+    credentialsBinding {
+      // crendetial name needs to be in sync with provision code at infra/osrf-chef repo
+      string('GITHUB_TOKEN', 'osrfbuild-token')
+    }
+  }
+
+  parameters
+  {
+    stringParam("BROKEN_FORMULA", '',
+                'Names of broken formulae whose bottles and dependent bottles should be removed')
+    stringParam("BOTTLE_TAG", 'arm64_sequoia',
+                'Unique string representing the arch and OS of a homebrew bottle, such as "sonoma" or "arch64_sequoia"')
+  }
+
+  steps
+  {
+   systemGroovyCommand("""\
+     build.setDescription(
+     '<b>' + build.buildVariableResolver.resolve('BROKEN_FORMULA') + '-' +
+     build.buildVariableResolver.resolve('BOTTLE_TAG') + '</b>' +
+     '<br />' +
+     'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+     """.stripIndent()
+   )
+
+   shell("""\
+         #!/bin/bash -xe
+
+         export PR_URL_export_file=${PR_URL_export_file}
+         /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_remove_dependent_bottles.bash
+         """.stripIndent())
+  }
+
+  // call to the bottle
+  publishers
+  {
+    // Added the checker result parser (UNSTABLE if not compatible)
+    // IMPORTANT: the order of the steps here is important. Leave the configure
+    // block first.
+    configure { project ->
+      project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+         unstableOnWarning true
+         failBuildOnError false
+         parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+      }
+    } // end of configure
+
+    archiveArtifacts
+    {
+      pattern("${PR_URL_export_file_name}")
+      allowEmpty()
+    }
+  }
+}
+
