@@ -64,10 +64,10 @@ class OSRFBrewCompilation extends OSRFOsXBase
             isBlameDisabled(false)
 
             qualityGates {
-              'io.jenkins.plugins.analysis.core.util.QualityGate' {
-                threshold(1)
+              'io.jenkins.plugins.analysis.core.util.WarningsQualityGate' {
+                threshold(1.0)
+                criticality(UNSTABLE)
                 type('TOTAL')
-                status('WARNING')
               }
             }
           }
