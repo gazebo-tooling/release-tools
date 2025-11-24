@@ -1,50 +1,39 @@
 # parameters:
+# - COMMIT_MESSAGE or SKIP_COMMIT
 # - TAP_PREFIX
 # - PULL_REQUEST_BRANCH
-# - PACKAGE_ALIAS
-# - VERSION
+# - PULL_REQUEST_TITLE or PULL_REQUEST_URL
 
 # Can be defined outside the script. if not, default value is set
 PR_URL_export_file=${PR_URL_export_file:-${WORKSPACE}/pull_request_created.properties}
 
 echo '# BEGIN SECTION: check variables'
+if [ -z "${COMMIT_MESSAGE}" ]; then
+  if [ -z "${SKIP_COMMIT}" ]; then
+    echo One of COMMIT_MESSAGE or SKIP_COMMIT must be specified
+    exit 1
+  fi
+fi
 if [ -z "${PULL_REQUEST_BRANCH}" ]; then
   echo PULL_REQUEST_BRANCH not specified
-  exit -1
+  exit 1
+fi
+if [ -z "${PULL_REQUEST_TITLE}" ]; then
+  if [ -z "${PULL_REQUEST_URL}" ]; then
+    echo One of PULL_REQUEST_TITLE or PULL_REQUEST_URL must be specified
+    exit 1
+  fi
 fi
 if [ -z "${TAP_PREFIX}" ]; then
   echo TAP_PREFIX not specified
-  exit -1
-fi
-# PACKAGE_ALIAS and VERSION are required if a pull request doesn't yet exist
-if [ -z "${PULL_REQUEST_URL}" ]; then
-  if [ -z "${PACKAGE_ALIAS}" ]; then
-    echo PACKAGE_ALIAS not specified
-    exit -1
-  fi
-  if [ -z "${VERSION}" ]; then
-    echo VERSION not specified
-    exit -1
-  fi
+  exit 1
 fi
 echo '# END SECTION'
 
 GIT="git -C ${TAP_PREFIX}"
 
-DIFF_LENGTH=`${GIT} diff | wc -l`
-if [ ${DIFF_LENGTH} -eq 0 ]; then
-  echo No formula modifications found, aborting
-  exit -1
-fi
-echo ==========================================================
-${GIT} diff
-echo ==========================================================
-echo '# END SECTION'
-
-echo
 echo '# BEGIN SECTION: commit and pull request creation'
-${GIT} config user.name "OSRF Build Bot"
-${GIT} config user.email "osrfbuild@osrfoundation.org"
+echo
 ${GIT} remote -v
 # check if branch already exists
 if ${GIT} rev-parse --verify ${PULL_REQUEST_BRANCH} ; then
@@ -52,10 +41,16 @@ if ${GIT} rev-parse --verify ${PULL_REQUEST_BRANCH} ; then
 else
   ${GIT} checkout -b ${PULL_REQUEST_BRANCH}
 fi
-if [ -n "${PACKAGE_ALIAS}" ]; then
-  COMMIT_MESSAGE_PREFIX="${PACKAGE_ALIAS}: "
+if ! ${SKIP_COMMIT}; then
+  echo ==========================================================
+  if ${GIT} diff --exit-code; then
+    echo No formula modifications found, aborting
+    exit 1
+  fi
+  echo ==========================================================
+
+  ${GIT} commit ${FORMULA_PATH} -m "${COMMIT_MESSAGE}"
 fi
-${GIT} commit ${FORMULA_PATH} -m "${COMMIT_MESSAGE_PREFIX}update ${VERSION}${COMMIT_MESSAGE_SUFFIX}"
 echo
 ${GIT} status
 echo
@@ -83,7 +78,7 @@ if [ -z "${PULL_REQUEST_URL}" ]; then
   PR_URL=$(${HUB} -C ${TAP_PREFIX} pull-request \
     -b osrf:master \
     -h osrfbuild:${PULL_REQUEST_BRANCH} \
-    -m "${PACKAGE_ALIAS} ${VERSION}")
+    -m "${PULL_REQUEST_TITLE}")
 
   echo "Pull request created: ${PR_URL}"
 
