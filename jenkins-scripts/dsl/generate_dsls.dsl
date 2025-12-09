@@ -35,10 +35,7 @@ dsl_triggerer.with {
   }
 
   triggers {
-    // Run it at a fixed time in the night when the nightlies are build
-    scm(Globals.CRON_START_NIGHTLY) {
-      ignorePostCommitHooks(false)
-    }
+    cron(Globals.CRON_START_NIGHTLY)
   }
 
   steps {
