@@ -32,7 +32,11 @@ echo '# END SECTION'
 
 # create branch with name and sanitized version string
 PULL_REQUEST_BRANCH="bump_unbottled_dependencies_$(date +%s)"
-PULL_REQUEST_TITLE="${FORMULA_WITH_UNBOTTLED_DEPENDENCIES}: bump revision of unbottled dependencies"
+if [ -z "${PULL_REQUEST_TITLE_OVERRIDE}" ]; then
+  PULL_REQUEST_TITLE="${FORMULA_WITH_UNBOTTLED_DEPENDENCIES}: bump revision of unbottled dependencies"
+else
+  PULL_REQUEST_TITLE=${PULL_REQUEST_TITLE_OVERRIDE}
+fi
 SKIP_COMMIT=true
 
 . ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
