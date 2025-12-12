@@ -80,7 +80,7 @@ if [ -z "${PULL_REQUEST_URL}" ]; then
   fi
 
   if [ -n "${PART_OF_GITHUB_ISSUE}" ]; then
-    PART_OF_GITHUB_ISSUE_PR_DESCRIPTION="Part of ${PART_OF_GITHUB_ISSUE}.\n"
+    PART_OF_GITHUB_ISSUE_PR_DESCRIPTION="Part of ${PART_OF_GITHUB_ISSUE}."
   fi
 
   PR_URL=$(${HUB} -C ${TAP_PREFIX} pull-request \
