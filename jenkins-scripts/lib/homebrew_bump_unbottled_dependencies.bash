@@ -39,4 +39,4 @@ else
 fi
 SKIP_COMMIT=true
 
-. ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
+. ${SCRIPT_LIBDIR}/_homebrew_github_push.bash

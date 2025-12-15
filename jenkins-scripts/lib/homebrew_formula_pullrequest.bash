@@ -114,4 +114,4 @@ PULL_REQUEST_TITLE="${PACKAGE_ALIAS} ${VERSION}"
 COMMIT_MESSAGE="${PACKAGE_ALIAS} ${VERSION}"
 SKIP_COMMIT=false
 
-. ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
+. ${SCRIPT_LIBDIR}/_homebrew_github_push.bash
