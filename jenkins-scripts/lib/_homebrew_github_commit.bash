@@ -8,9 +8,13 @@
 PR_URL_export_file=${PR_URL_export_file:-${WORKSPACE}/pull_request_created.properties}
 
 echo '# BEGIN SECTION: check variables'
-if [ -z "${COMMIT_MESSAGE}" ]; then
-  if [ -z "${SKIP_COMMIT}" ]; then
-    echo One of COMMIT_MESSAGE or SKIP_COMMIT must be specified
+if [ -z "${SKIP_COMMIT}" ]; then
+  echo SKIP_COMMIT not specified
+  exit 1
+fi
+if ! ${SKIP_COMMIT}; then
+  if [ -z "${COMMIT_MESSAGE}" ]; then
+    echo COMMIT_MESSAGE must be specified if SKIP_COMMIT is false
     exit 1
   fi
 fi

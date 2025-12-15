@@ -54,4 +54,5 @@ export FORMULA_PATH='-a'
 echo '# END SECTION'
 
 COMMIT_MESSAGE="update bottle"
+SKIP_COMMIT=false
 . ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash
