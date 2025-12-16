@@ -1,8 +1,18 @@
-# parameters:
-# - COMMIT_MESSAGE or SKIP_COMMIT
-# - TAP_PREFIX
-# - PULL_REQUEST_BRANCH
-# - PULL_REQUEST_TITLE or PULL_REQUEST_URL
+# This script pushes a homebrew tap repository (see `TAP_PREFIX`)
+# to a remote branch (see `PULL_REQUEST_BRANCH`).
+# It may optionally create a git commit (see `SKIP_COMMIT` and `COMMIT_MESSAGE`).
+# It may optionally create a github pull request (see `PULL_REQUEST_TITLE` and `PULL_REQUEST_URL`).
+#
+# Required Parameters:
+# - TAP_PREFIX:          path to homebrew tap git repository
+# - PULL_REQUEST_BRANCH: name of head branch for github pull request
+# - SKIP_COMMIT:         true to push without committing, false to create a commit and push
+#
+# Other Parameters:
+# - COMMIT_MESSAGE:     contents of git commit message, required if `SKIP_COMMIT` is false
+# - PULL_REQUEST_URL:   if this is specified, a github pull request will not be created
+# - PULL_REQUEST_TITLE: if `PULL_REQUEST_URL` is not specified,
+#                       a github pull request will be created with this title
 
 # Can be defined outside the script. if not, default value is set
 PR_URL_export_file=${PR_URL_export_file:-${WORKSPACE}/pull_request_created.properties}
