@@ -26,21 +26,3 @@ BASE_DEPENDENCIES="build-essential \\
                    sudo"
 
 BREW_BASE_DEPENDCIES="git cmake"
-
-if [[ -z $ROS_DISTRO ]]; then
-  echo "------------------------------------------------------------"
-  echo "ROS_DISTRO was not set before using dependencies_archive.sh!"
-  echo "skipping ROS related variables"
-  echo "------------------------------------------------------------"
-else
-  # colcon has no python2 candidate
-  if ${ROS2}; then
-    ROS_CATKIN_BASE="python3-dev                      \\
-                    python3-colcon-common-extensions     \\
-                    python3-rosdep                    \\
-                    python3-wstool                    \\
-                    python3-rosinstall                \\
-                    python3-rospkg                    \\
-                    python3-vcstools"
-  fi
-fi
