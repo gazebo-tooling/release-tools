@@ -60,7 +60,7 @@ if $USE_UNSTABLE; then
 fi
 rm -fr ${WORKSPACE}/logs && mkdir ${WORKSPACE}/logs
 
-sudo apt-get install -y golang-go
+sudo apt-get install -y golang-go login
 pushd /tmp 2> /dev/null
 git clone https://github.com/j-rivero/ratt
 cd ratt
