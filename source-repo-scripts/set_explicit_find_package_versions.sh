@@ -18,7 +18,7 @@
 # Only the root CMakeLists.txt, python/CMakeLists.txt, and src/python_pybind11/CMakeLists.txt
 # files will be modified.
 #
-# Requires the 'gh' CLI and 'python-vcstool' to be installed.
+# Requires the 'gh' CLI, `xmllint`, and 'python-vcstool' to be installed.
 #
 # Usage:
 # $ ./set_explicit_find_package_versions.sh <collection> <issue_reference>
