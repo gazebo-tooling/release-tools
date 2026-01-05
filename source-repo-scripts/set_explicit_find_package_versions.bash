@@ -217,9 +217,13 @@ for pkg_xml in ${TEMP_DIR}/src/*/package.xml; do
   MAJOR_VERSION=$(echo $VERSION | sed -e 's@\..*@@')
   echo "Find ${PACKAGE} with explicit version ${MAJOR_VERSION}"
   pushd $(dirname $pkg_xml) > /dev/null
-  find ${TEMP_DIR}/src/*/CMakeLists.txt -type f -print0 | xargs -0 sed -i "s@\(find_package.*${PACKAGE}\) .*REQUIRED@\1 ${MAJOR_VERSION} REQUIRED@"
-  find ${TEMP_DIR}/src/*/python/CMakeLists.txt -type f -print0 | xargs -0 sed -i "s@\(find_package.*${PACKAGE}\) .*REQUIRED@\1 ${MAJOR_VERSION} REQUIRED@"
-  find ${TEMP_DIR}/src/*/src/python_pybind11/CMakeLists.txt -type f -print0 | xargs -0 sed -i "s@\(find_package.*${PACKAGE}\) .*REQUIRED@\1 ${MAJOR_VERSION} REQUIRED@"
+  for cmake_txt_path in CMakeLists.txt \
+                        python/CMakeLists.txt \
+                        src/python_pybind11/CMakeLists.txt
+  do
+    find ${TEMP_DIR}/src/*/${cmake_txt_path} -type f -print0 | xargs -0 \
+        sed -i "s@\(find_package.*${PACKAGE}\) .*REQUIRED@\1 ${MAJOR_VERSION} REQUIRED@"
+  done
   popd > /dev/null
 done
 
