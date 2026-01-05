@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-gui}"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_GUI_DEPENDENCIES"
 
 # Identify GZ_GUI_MAJOR_VERSION to help with dependency resolution
 GZ_GUI_MAJOR_VERSION=$(\
