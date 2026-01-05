@@ -221,8 +221,35 @@ for pkg_xml in ${TEMP_DIR}/src/*/package.xml; do
                         python/CMakeLists.txt \
                         src/python_pybind11/CMakeLists.txt
   do
+    # For find_package calls:
+    # * If it has a string containing digits and '.' right after the package name
+    #   to be found, then remove that string.
+    #   For example, the following lines:
+    #       find_package(gz-math 0.0.0)
+    #       find_package(gz-math 0.0.0 REQUIRED)
+    #   are replaced with
+    #       find_package(gz-math)
+    #       find_package(gz-math REQUIRED)
     find ${TEMP_DIR}/src/*/${cmake_txt_path} -type f -print0 | xargs -0 \
-        sed -i "s@\(find_package.*${PACKAGE}\) .*REQUIRED@\1 ${MAJOR_VERSION} REQUIRED@"
+        sed -i "s@^\(\s*find_package\s*(\s*${PACKAGE}\)\s\+[0-9\.]\+@\1@"
+    # * Add the major version after the package name to be found when the package
+    #   name is at the end of line.
+    #   For example, the following lines:
+    #       find_package(gz-math
+    #   is replaced with
+    #       find_package(gz-math 9
+    find ${TEMP_DIR}/src/*/${cmake_txt_path} -type f -print0 | xargs -0 \
+        sed -i "s@^\(\s*find_package\s*(\s*${PACKAGE}\)\$@\1 ${MAJOR_VERSION}@"
+    # * Add the major version after the package name to be found when there
+    #   is whitespace or ')' after the package name.
+    #   For example, the following lines:
+    #       find_package(gz-math)
+    #       find_package(gz-math REQUIRED)
+    #   is replaced with
+    #       find_package(gz-math 9)
+    #       find_package(gz-math 9 REQUIRED)
+    find ${TEMP_DIR}/src/*/${cmake_txt_path} -type f -print0 | xargs -0 \
+        sed -i "s@^\(\s*find_package\s*(\s*${PACKAGE}\)\([ )]\)@\1 ${MAJOR_VERSION}\2@"
   done
   popd > /dev/null
 done
