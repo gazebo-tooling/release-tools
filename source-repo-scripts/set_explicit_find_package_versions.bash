@@ -221,6 +221,43 @@ for pkg_xml in ${TEMP_DIR}/src/*/package.xml; do
                         python/CMakeLists.txt \
                         src/python_pybind11/CMakeLists.txt
   do
+    # For gz_find_package calls:
+    # * If it has a VERSION argument on the first line that is followed by
+    #   an argument containing digits and '.', then delete the following
+    #   argument.
+    #   For example, the following line:
+    #       gz_find_package(gz-math REQUIRED VERSION 0.0.0)
+    #   is replaced with
+    #       gz_find_package(gz-math REQUIRED VERSION)
+    find ${TEMP_DIR}/src/*/${cmake_txt_path} -type f -print0 | xargs -0 \
+        sed -i "s@\(gz_find_package\s*(\s*${PACKAGE}.*\sVERSION\)\s\+[0-9\.]\+@\1@"
+    # * If it has a VERSION argument on the first line, delete it
+    #   For example, the following lines:
+    #       gz_find_package(gz-math REQUIRED VERSION)
+    #       gz_find_package(gz-math VERSION REQUIRED)
+    #   are replaced with
+    #       gz_find_package(gz-math REQUIRED)
+    find ${TEMP_DIR}/src/*/${cmake_txt_path} -type f -print0 | xargs -0 \
+        sed -i "s@\(gz_find_package\s*(\s*${PACKAGE}.*\)\sVERSION@\1@"
+    # * Add "VERSION ${MAJOR_VERSION}" just after the ${PACKAGE} name to be found
+    #   when the package name is at the end of line.
+    #   For example, the following line:
+    #       gz_find_package(gz-math
+    #   is replaced with
+    #       gz_find_package(gz-math VERSION 9
+    find ${TEMP_DIR}/src/*/${cmake_txt_path} -type f -print0 | xargs -0 \
+        sed -i "s@\(gz_find_package\s*(\s*${PACKAGE}\)\$@\1 VERSION ${MAJOR_VERSION}@"
+    # * Add "VERSION ${MAJOR_VERSION}" just after the ${PACKAGE} name to be found
+    #   when there is whitespace or ')' after the package name.
+    #   For example, the following lines:
+    #       gz_find_package(gz-math)
+    #       gz_find_package(gz-math REQUIRED)
+    #   are replaced with
+    #       gz_find_package(gz-math VERSION 9)
+    #       gz_find_package(gz-math VERSION 9 REQUIRED)
+    find ${TEMP_DIR}/src/*/${cmake_txt_path} -type f -print0 | xargs -0 \
+        sed -i "s@\(gz_find_package\s*(\s*${PACKAGE}\)\([ )]\)@\1 VERSION ${MAJOR_VERSION}\2@"
+
     # For find_package calls:
     # * If it has a string containing digits and '.' right after the package name
     #   to be found, then remove that string.
