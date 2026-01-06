@@ -17,8 +17,8 @@ The trigger mechanism itself is **not** defined within the `release-tools` repos
 
 The multitude of Jenkins jobs for every library, collection, and platform are not configured manually. They are generated programmatically using Jenkins Job DSL, which is a feature that allows you to define jobs in code.
 
-- **`gazebo_libs.dsl`**: The heart of the job generation is the Groovy script `jenkins-scripts/dsl/gazebo_libs.dsl`. This script runs as part of a "seed" job in Jenkins and is responsible for creating all the other CI jobs.
-- **`gz-collections.yaml`**: The DSL script is powered by a single source of truth: `jenkins-scripts/dsl/gz-collections.yaml`. This YAML file defines the entire Gazebo ecosystem for the CI system, including all collections, the libraries within them, their major versions, and their corresponding branches.
+- **`gazebo_libs.dsl`**: The heart of the job generation is the Groovy script [jenkins-scripts/dsl/gazebo_libs.dsl](dsl/gazebo_libs.dsl). This script runs as part of a "seed" job in Jenkins and is responsible for creating all the other CI jobs.
+- **`gz-collections.yaml`**: The DSL script is powered by a single source of truth: [jenkins-scripts/dsl/gz-collections.yaml](dsl/gz-collections.yaml). This YAML file defines the entire Gazebo ecosystem for the CI system, including all collections, the libraries within them, their major versions, and their corresponding branches.
 
 For our `gz-math` example in the `jetty` collection, the YAML looks like this:
 ```yaml
@@ -88,7 +88,7 @@ The Linux strategy prioritizes speed by pre-installing all required `.deb` packa
 
 ### Windows: Building Dependencies from Source
 
-The Windows strategy is a hybrid: it uses the `conda` package manager for a baseline of third-party tools and then builds all Gazebo dependencies from source using `gazebodistro`. The process is orchestrated by `jenkins-scripts/lib/colcon-default-devel-windows.bat`.
+The Windows strategy is a hybrid: it uses the `pixi` package manager and `conda-forge` packages for a baseline of third-party tools and then builds all Gazebo dependencies from source using `gazebodistro`. The process is orchestrated by `jenkins-scripts/lib/colcon-default-devel-windows.bat`.
 
 1.  **Baseline via `pixi`/`conda`:** A `pixi` environment is created to install large, pre-built binary packages like Boost, OGRE, Qt, etc.
 2.  **Determine Target Version:** The script runs `tools/detect_cmake_major_version.py` on the PR's `CMakeLists.txt` to find the library's major version (e.g., `9`).
@@ -97,7 +97,7 @@ The Windows strategy is a hybrid: it uses the `conda` package manager for a base
 
 ### macOS: Pre-built Homebrew Packages ("Bottles")
 
-The macOS strategy relies on the Homebrew package manager, preferring its pre-compiled binaries ("bottles"). This is orchestrated by `jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash`.
+The macOS strategy relies on the Homebrew package manager, preferring its pre-compiled binaries ("bottles"). This is orchestrated by [jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash](lib/project-default-devel-homebrew-amd64.bash).
 
 1.  **Determine Formula Name:** The script uses `detect_cmake_major_version.py` to determine the correct Homebrew formula name (e.g., `gz-math9`).
 2.  **Install Dependencies via Homebrew:** The script ensures the `osrf/simulation` Homebrew tap is active and then runs the central command:
