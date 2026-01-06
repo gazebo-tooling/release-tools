@@ -8,8 +8,6 @@ We will use a pull request for `gz-math` within the **Jetty** collection as our 
 
 The process begins when a developer opens a pull request on a Gazebo repository, such as `gazebosim/gz-math`.
 
-The trigger mechanism itself is **not** defined within the `release-tools` repository. It is a standard integration configured between the `gazebosim` GitHub organization and the Jenkins server.
-
 - **GitHub App/Webhook:** A GitHub Application or a webhook is installed on the `gazebosim` organization. When a PR is opened or updated, GitHub sends a notification payload to the Jenkins server.
 - **Jenkins PR Scanner:** The Jenkins server listens for these notifications via the "GitHub Pull Request Builder" (ghprb) plugin, which scans for incoming PRs and matches them to the appropriate pre-generated jobs.
 
@@ -40,6 +38,7 @@ The DSL script parses this file and generates a job for each library and CI conf
 
 - `gz_math-ci-pr_any-noble-amd64` (for Linux)
 - `gz_math-ci-pr_any-homebrew-amd64` (for macOS)
+- `gz_math-ci-pr_any-homebrew-arm64` (for macOS)
 - `gz_math-pr-cnlwin` (for Windows)
 
 ## 3. Job Matching: Linking a PR to a Job
@@ -80,11 +79,13 @@ The Linux strategy prioritizes speed by pre-installing all required `.deb` packa
 
 1.  **Script Chain:** The process follows a chain of scripts: `gz_math-compilation.bash` -> `generic-building-base.bash` -> `docker_generate_dockerfile.bash`.
 2.  **Dependency Aggregation:** The scripts collect dependency names from multiple sources into a master list (`$PACKAGES_CACHE_AND_CHECK_UPDATES`):
-    - **`dependencies_archive.sh`**: Contains hardcoded lists of packages for each library (e.g., `GZ_MATH_DEPENDENCIES="libeigen3-dev"`).
     - **`packages.apt` files**: The build can also find `packages.apt` or `packages-<distro>.apt` files in the library's source code to include other required packages.
     - **`BASE_DEPENDENCIES`**: A common list of packages needed for all builds.
 3.  **Dockerfile Generation:** The `docker_generate_dockerfile.bash` script writes a new `Dockerfile`, injecting the master package list into an `apt-get install` command.
-4.  **Build Execution:** The job builds this Docker image and runs the compilation inside the container, where all dependencies are already present.
+4.  **`build.sh` Generation:** The `_generic_linux_compilation_build.sh.bash` script writes a new `build.sh`, which is executed inside the docker container.
+5.  **Build Execution:** The job builds this Docker image and runs the compilation inside the container, where all dependencies are already present.
+
+Note that both the generated files `Dockerfile` and `build.sh` are stored as Jenkins artifacts and can be viewed on the jobs page (e.g. [gz_math-ci-pr_any-noble-amd64](https://build.osrfoundation.org/job/gz_math-ci-pr_any-noble-amd64/lastBuild/)).
 
 ### Windows: Building Dependencies from Source
 

@@ -47,21 +47,4 @@ This configuration enables two trigger conditions simultaneously:
 
 ## 2. Dependency Resolution (Identical to PR Workflow)
 
-Once a stable branch job is triggered, the process for building the code and resolving dependencies is **exactly the same** as the process for a pull request job. The generated job calls the same platform-specific build scripts, which handle dependency resolution as follows.
-
-### Linux: Dependencies Pre-installed in a Dynamic Dockerfile
-1.  **Script Chain:** A chain of scripts (`...-compilation.bash` -> `generic-building-base.bash` -> `docker_generate_dockerfile.bash`) assembles a master list of required `.deb` packages.
-2.  **Dependency Sources:** This list is aggregated from multiple sources:
-    - Library-specific lists defined in `jenkins-scripts/lib/dependencies_archive.sh` (e.g., `GZ_MATH_DEPENDENCIES`).
-    - Common packages defined in `BASE_DEPENDENCIES`.
-    - Packages listed in `packages.apt` files within the library's own source code.
-3.  **Dockerfile Generation:** The `docker_generate_dockerfile.bash` script writes a new `Dockerfile`, injecting the master package list into an `apt-get install` command. The job then builds this image and runs the compilation inside the container, where all dependencies are already present.
-
-### Windows: Building Dependencies from Source
-1.  **Baseline via `pixi`/`conda`:** The `colcon-default-devel-windows.bat` script first installs large, third-party libraries (Boost, OGRE, etc.) as pre-built binaries from `conda`.
-2.  **Checkout from `gazebodistro`:** It then uses `vcs import` to read the appropriate `.yaml` file from the `gazebodistro` repository (e.g., `gz-math9.yaml`). This clones the source code for **all Gazebo dependencies** into the workspace.
-3.  **Build Workspace:** `colcon build` is used to compile the entire workspace from source.
-
-### macOS: Pre-built Homebrew Packages ("Bottles")
-1.  **Formula-based:** The `project-default-devel-homebrew-amd64.bash` script relies on Homebrew formulas from the `osrf/simulation` tap.
-2.  **`brew install`:** It runs `brew install gz-math9 --only-dependencies`. Homebrew then reads the formula for `gz-math9` and installs all its listed dependencies, downloading pre-compiled "bottles" when available. `gazebodistro` is not used.
+Once a stable branch job is triggered, the process for building the code and resolving dependencies is **exactly the same** as the process for a pull request job. See the Dependency Resolution in the [pr_job_workflow.md](pr_job_workflow.md) document.
