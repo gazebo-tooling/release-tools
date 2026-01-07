@@ -20,10 +20,9 @@ if [[ -z ${ABI_JOB_SOFTWARE_NAME} ]]; then
   exit 1
 fi
 
-# convert from gz-package to GZ_PACKAGE_DEPENDENCIES
+# convert from gz-package to GZ_PACKAGE for version detection
 GZ_NAME_PREFIX=$(\
   echo ${ABI_JOB_SOFTWARE_NAME} | tr '[:lower:]-' '[:upper:]_')
-ABI_JOB_PKG_DEPENDENCIES_VAR_NAME=${GZ_NAME_PREFIX}_DEPENDENCIES
 
 # Identify GZ_MSGS_MAJOR_VERSION to help with dependency resolution
 export GZ_NAME_PREFIX_MAJOR_VERSION=$(\
