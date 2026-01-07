@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-gazebo}"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_SIM_DEPENDENCIES"
 
 # Identify GZ_SIM_MAJOR_VERSION to help with dependency resolution
 GZ_SIM_MAJOR_VERSION=$(\

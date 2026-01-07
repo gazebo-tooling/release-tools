@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-fuel-tools}"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_FUEL_TOOLS_DEPENDENCIES"
 export BUILDING_JOB_REPOSITORIES="stable"
 
 # Identify GZ_FUEL_TOOLS_MAJOR_VERSION to help with dependency resolution
