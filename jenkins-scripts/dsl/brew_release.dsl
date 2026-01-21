@@ -343,9 +343,9 @@ remove_dependent_bottles_job.with
     stringParam("BOTTLE_TAG", 'arm64_sequoia',
                 'Unique string representing the arch and OS of a homebrew bottle, such as "sonoma" or "arch64_sequoia"')
     stringParam("PART_OF_GITHUB_ISSUE", '',
-                'GitHub issue to reference in pull request description')
+                '(Optional) GitHub issue to reference in pull request description')
     stringParam("PULL_REQUEST_TITLE_OVERRIDE", '',
-                'Set a custom pull request title in this field if desired')
+                '(Optional) Set a custom pull request title in this field if desired')
   }
 
   steps
@@ -417,9 +417,9 @@ bump_unbottled_dependencies_job.with
     stringParam("BOTTLE_TAG", 'arm64_sequoia',
                 'Unique string representing the arch and OS of a homebrew bottle, such as "sonoma" or "arm64_sequoia"')
     stringParam("PART_OF_GITHUB_ISSUE", '',
-                'GitHub issue to reference in pull request description')
+                '(Optional) GitHub issue to reference in pull request description')
     stringParam("PULL_REQUEST_TITLE_OVERRIDE", '',
-                'Set a custom pull request title in this field if desired')
+                '(Optional) Set a custom pull request title in this field if desired')
   }
 
   steps
