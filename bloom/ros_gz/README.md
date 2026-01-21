@@ -64,16 +64,16 @@ Note: the same -release repository can obviously hosts multiple ROS 2 releases b
 can not have multipe Gazebo releases since the bloom templates are set to just one
 package name.
 
-On the fork, the `rename-ros_gz-pkgs.bash` script will change the bloom templates to modify package names and inject the `GZ_VERSION` needed:
+On the fork, the [rename-ros_gz-pkgs.bash](rename-ros_gz-pkgs.bash) script will change the bloom templates to modify package names and inject the `GZ_VERSION` needed:
 
  1. Clone the new repo, go to the directory and run rename-gazebo-ros-pkgs.bash
-    - Usage: `$ rename-ros_gz-pkgs.bash <desired_gz_version> <space separted list of rosdistros to release>`
-    - Example: `$ rename-ros_gz-pkgs.bash harmonic humble`
+    - Usage: `$ [rename-ros_gz-pkgs.bash](rename-ros_gz-pkgs.bash) <desired_gz_version> <space separted list of rosdistros to release>`
+    - Example: `$ [rename-ros_gz-pkgs.bash](rename-ros_gz-pkgs.bash) harmonic humble`
 
 If several unofficial wrappers using different Gazebo releases are going to exist for the same ROS 2 distribution (i.e: Harmonic for ROS 2 Iron), the rename script supports to declare a conflict using the `GZ_RELEASE_TO_CONFLICT` variable:
 
 ```
-GZ_RELEASE_TO_CONFLICT=garden ./rename-ros_gz-pkgs.bash harmonic humble
+GZ_RELEASE_TO_CONFLICT=garden ./[rename-ros_gz-pkgs.bash](rename-ros_gz-pkgs.bash) harmonic humble
 ```
 
 ### 2.2 Create a custom track in tracks.yml
@@ -106,14 +106,14 @@ The host system to release should have `docker` and `rocker` installed.
 
 Blooming a new release of the ros_gz unofficial wrappers requires some changes
 to be done in the releasing enviroment affecting the rosdep rules. To facilitate
-this, there is a `Dockerfile` that provides the needed modifications and a script
+this, there is a [Dockerfile](Dockerfile) that provides the needed modifications and a script
 that encapsulates the bloom arguments to be passed and the use of this enviroment.
 
 ```
-./bloom_from_special_env.bash <ROS_DISTRO> <TARGET_NEW_GAZEBO_COLLECTION> <URL_OSRF_ROSDEP>
+./[bloom_from_special_env.bash](bloom_from_special_env.bash) <ROS_DISTRO> <TARGET_NEW_GAZEBO_COLLECTION> <URL_OSRF_ROSDEP>
 
 i.e: release ros_gz on ROS 2 Humble replacing Gazebo Fortress by Gazebo Harmonic
-./bloom_from_special_env.bash \
+./[bloom_from_special_env.bash](bloom_from_special_env.bash) \
     humble \
     harmonic \
     https://raw.githubusercontent.com/osrf/osrf-rosdep/refs/heads/master/gz/replace_fortress_with_harmonic/00-replace-gz-fortress-with-harmonic.list
@@ -131,7 +131,7 @@ repository different than https://github.com/gazebo-release/ros_ign-release.
 i.e use a https://github.com/gazebo-testing/ros_ign-gzharmonic-release as gbp testing repository
 
 RELEASE_REPO_URL=https://github.com/gazebo-testing/ros_ign-gzharmonic-release \
-  ./bloom_from_special_env.bash \
+  ./[bloom_from_special_env.bash](bloom_from_special_env.bash) \
     humble \
     harmonic \
     https://raw.githubusercontent.com/osrf/osrf-rosdep/master/gz/replace_fortress_with_harmonic/00-replace-gz-fortress-with-harmonic.list
@@ -145,9 +145,9 @@ a final step to call the jobs inside the buildfarm that will create the debians.
 To do so, for simulating the calls to be done to the buildfarm:
 
 ```
-./ros_gz-release.py.bash <version-without-revision> <release-repo> <ros_distro> <token> --dry-run -r <revision>
+./[ros_gz-release.py.bash](ros_gz-release.py.bash) <version-without-revision> <release-repo> <ros_distro> <token> --dry-run -r <revision>
 # Example for 0.244.11-1001 version for ROS Humble in ros_ign-release
-./ros_gz-release.py.bash 0.244.11 https://github.com/gazebo-release/ros_ign-release humble foo --dry-run -r 1001
+./[ros_gz-release.py.bash](ros_gz-release.py.bash) 0.244.11 https://github.com/gazebo-release/ros_ign-release humble foo --dry-run -r 1001
 ```
 
 For releasing directly, just remove the `--dry-run` argument.
