@@ -19,7 +19,7 @@ Same [ROS 2 instructons](https://docs.ros.org/en/jazzy/Installation/Windows-Inst
 
 ### Usage of `local_build.py`
 
-The [local_build.py](local_build.py) script is used to reproduce Jenkins builds for Windows, specifically supporting Pixi builds.
+The `local_build.py` script is used to reproduce Jenkins builds for Windows, specifically supporting Pixi builds.
 
 ### Running the script
 
@@ -30,7 +30,7 @@ The [local_build.py](local_build.py) script is used to reproduce Jenkins builds 
 To run the script, use the following command:
 
 ```bat
-python3 [local_build.py](local_build.py) <jenkins-bat-script> <gz-sources> [--reuse-dependencies-environment] [-j <make_jobs>]
+python3 local_build.py <jenkins-bat-script> <gz-sources> [--reuse-dependencies-environment] [-j <make_jobs>]
 ```
 
 ### Arguments
@@ -46,10 +46,10 @@ Use case: reproducing a gz-math pull request for the branch my-testing-branch.
 
 ```bat
 git clone -b my-testing-branch C:\Users\foo\code\gz-math
-python3 [local_build.py](local_build.py) [gz_math-default-devel-windows-amd64.bat](gz_math-default-devel-windows-amd64.bat) C:\Users\foo\code\gz-math
+python3 local_build.py gz_math-default-devel-windows-amd64.bat C:\Users\foo\code\gz-math
 ```
 
-This command will run [gz_math-default-devel-windows-amd64.bat](gz_math-default-devel-windows-amd64.bat) using the sources from `C:\User\foo\code\gz-math`. It will handle the installation of all the system dependencies
+This command will run `gz_math-default-devel-windows-amd64.bat` using the sources from `C:\User\foo\code\gz-math`. It will handle the installation of all the system dependencies
 using Pixi (it can take up to 10 minutes) and build all the Gazebo dependencies from source
 using colcon. In a second build it builds gz-math with tests using colcon.
 
@@ -58,7 +58,7 @@ with the `--reuse-dependencies-enviroment` flag enabled to re-use the environmen
 prepared with external dependencies.
 
 ```bat
-python3 [local_build.py](local_build.py) [gz_math-default-devel-windows-amd64.bat](gz_math-default-devel-windows-amd64.bat) C:\Users\foo\code\gz-math --reuse-dependencies-enviroment
+python3 local_build.py gz_math-default-devel-windows-amd64.bat C:\Users\foo\code\gz-math --reuse-dependencies-enviroment
 ```
 
 The script will also generate a `.debug_last_build.bat` file that will source the generated Pixi
@@ -91,7 +91,7 @@ C:\Users\josel\AppData\Local\Temp\12853\ws> colcon build --packages-select gz-si
 
 To test locally the build of the different `dsl` jobs you need the following:
 
-1. Run the [dsl/tools/setup_local_generation.bash](dsl/tools/setup_local_generation.bash) script to produce the necessary jar files
+1. Run the `dsl/tools/setup_local_generation.bash` script to produce the necessary jar files
 2. In the terminal execute:
 ```bash
 java -jar <path-to-dsl-tools>/jobdsl.jar <file.dsl>

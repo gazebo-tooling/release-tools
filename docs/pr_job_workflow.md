@@ -64,9 +64,9 @@ A critical part of the process is ensuring a pull request for a specific library
 
 ### The End-to-End Matching Flow
 
-1.  **Blueprint:** `gazebo_libs.dsl` reads `gz-collections.yaml` and sees that `gz-math` in the `jetty` collection uses the branch `gz-math9`.
+1.  **Blueprint:** [`gazebo_libs.dsl`](../jenkins-scripts/dsl/gazebo_libs.dsl) reads [`gz-collections.yaml`](../jenkins-scripts/dsl/gz-collections.yaml) and sees that `gz-math` in the `jetty` collection uses the branch `gz-math9`.
 2.  **Job Generation:** The DSL script generates the CI jobs (e.g., `gz_math-ci-pr_any-noble-amd64`). When doing so, it calls the helper scripts and passes `gz-math9` as a `supported_branch`.
-3.  **Job Configuration:** The `GenericAnyJobGitHub.groovy` script configures the Jenkins job, adding `gz-math9` to its "White-listed target branches".
+3.  **Job Configuration:** The [`GenericAnyJobGitHub.groovy`](../jenkins-scripts/dsl/_configs_/GenericAnyJobGitHub.groovy) script configures the Jenkins job, adding `gz-math9` to its "White-listed target branches".
 4.  **The Match:** When a developer opens a PR targeting the `gz-math9` branch, the ghprb plugin sees that the PR's target branch is in the job's whitelist, and **a match is made**, triggering the build. A PR targeting any other branch would be ignored by this job.
 
 ## 4. Dependency Resolution: A Platform-Specific Deep Dive
@@ -100,7 +100,7 @@ The Windows strategy is a hybrid: it uses the `pixi` package manager and `conda-
 
 The macOS strategy relies on the Homebrew package manager, preferring its pre-compiled binaries ("bottles"). This is orchestrated by [jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash](../jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash).
 
-1.  **Determine Formula Name:** The script uses `detect_cmake_major_version.py` to determine the correct Homebrew formula name (e.g., `gz-math9`).
+1.  **Determine Formula Name:** The script uses [`detect_cmake_major_version.py`](../jenkins-scripts/tools/detect_cmake_major_version.py) to determine the correct Homebrew formula name (e.g., `gz-math9`).
 2.  **Install Dependencies via Homebrew:** The script ensures the `osrf/simulation` Homebrew tap is active and then runs the central command:
     ```bash
     brew install gz-math9 --only-dependencies

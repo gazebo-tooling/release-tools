@@ -7,13 +7,13 @@ https://github.com/gazebo-release/.
 
 ## Scripts available
 
-### [bump_major_version.bash](bump_major_version.bash)
+### bump_major_version.bash
 
 The script will bump the major version of a library for the packaging files
 inside a -release repository. Mostly designed to be run when a new -release
 repository is forked for a new major release.
 
-*Note: this script is being used from [new_gazebo_release_repos](new_gazebo_release_repos.bash) script in
+*Note: this script is being used from new_gazebo_release_repos script in
 this repository which also creates new repositories. You'll probably want
 to use that instead since it automates the forking and cloning process.*
 
@@ -27,7 +27,7 @@ Require `debchange` command from the package `devscripts`. `debchange` requires
 
 ```bash
 cd <path-to-releae-repo>
-[bump_major_version.bash](bump_major_version.bash) <old_version> <new_version>
+bump_major_version.bash <old_version> <new_version>
 ```
 Changes required involve file names and code inside the configuration files.
 The script will create an initial changelog entry with a nightly version lower
@@ -41,10 +41,10 @@ first fork the `gz-rendering6-release` in GitHub and call the fork `gz-rendering
 ```bash
 git clone https://github.com/gz-release/gz-rendering7-release
 cd gz-rendering7-release
-./path/to/release-tools/release-repo-scripts/[bump_major_version.bash](bump_major_version.bash) 6 7
+./path/to/release-tools/release-repo-scripts/bump_major_version.bash 6 7
 ```
 
-### [changelog_spawn.sh](changelog_spawn.sh)
+### changelog_spawn.sh
 
 Update all changelogs inside a -release repository to an specific new version.
 Used while releasing a new version of any of the libraries or software.
@@ -60,7 +60,7 @@ metadata.
 
 ```bash
 cd <path-to-releae-repo>
-[changelog_spawn.sh](changelog_spawn.sh) <new_version>
+changelog_spawn.sh <new_version>
 ```
 
 #### Example
@@ -71,10 +71,10 @@ To bump `ign-rendering7` from the version `7.0.0-1` to prepare the new release o
 ```bash
 git clone https://github.com/gz-release/gz-rendering7-release
 cd gz-rendering7-release
-./path/to/release-tools/release-repo-scripts/[changelog_spawn.sh](changelog_spawn.sh) 7.1.0-1
+./path/to/release-tools/release-repo-scripts/changelog_spawn.sh 7.1.0-1
 ```
 
-### [convert_gazebodistro_to_release.py](convert_gazebodistro_to_release.py)
+### convert_gazebodistro_to_release.py
 
 Convert a gazebodistro file into a vcs compatible file with the -release repositories
 associated to the repositories in the input file.
@@ -84,7 +84,7 @@ associated to the repositories in the input file.
 Output will printed to stdout:
 
 ```bash
-./path/to/release-tools/release-repo-scripts/[convert_gazebodistro_to_release.py](convert_gazebodistro_to_release.py) <gazbodistro_file>
+./path/to/release-tools/release-repo-scripts/convert_gazebodistro_to_release.py <gazbodistro_file>
 ```
 
 #### Example
@@ -92,11 +92,11 @@ Output will printed to stdout:
 To import all release repositories related to gz Harmonic collection:
 
 ```bash
-./path/to/release-tools/release-repo-scripts/[convert_gazebodistro_to_release.py](convert_gazebodistro_to_release.py) ~/code/gazebodistro/collection-harmonic.yaml  > collection-harmonic-release.yaml
+./path/to/release-tools/release-repo-scripts/convert_gazebodistro_to_release.py ~/code/gazebodistro/collection-harmonic.yaml  > collection-harmonic-release.yaml
 vcs import < collection-harmonic-release.yaml
 ```
 
-### [convert_gazebodistro_to_release_ros_vendor.py](convert_gazebodistro_to_release_ros_vendor.py)
+### convert_gazebodistro_to_release_ros_vendor.py
 
 Convert a gazebodistro file into a vcs compatible file with the Gazebo ROS vendor
 repositories related to the repositories in the input file. These vendor
@@ -108,7 +108,7 @@ branch to set in the vcs new file is `rolling`.
 Output will be printed to stdout:
 
 ```bash
-./path/to/release-tools/release-repo-scripts/[convert_gazebodistro_to_release_ros_vendor.py](convert_gazebodistro_to_release_ros_vendor.py) <gazebodistro_file>
+./path/to/release-tools/release-repo-scripts/convert_gazebodistro_to_release_ros_vendor.py <gazebodistro_file>
 ```
 
 #### Example
@@ -116,12 +116,12 @@ Output will be printed to stdout:
 To import all ROS vendor repositories related to gz Ionic collection:
 
 ```bash
-./path/to/release-tools/release-repo-scripts/[convert_gazebodistro_to_release_ros_vendor.py](convert_gazebodistro_to_release_ros_vendor.py) ~/code/gazebodistro/collection-ionic.yaml > collection-ionic-vendor.yaml
+./path/to/release-tools/release-repo-scripts/convert_gazebodistro_to_release_ros_vendor.py ~/code/gazebodistro/collection-ionic.yaml > collection-ionic-vendor.yaml
 vcs import < collection-ionic-vendor.yaml
 
 
 
-### [new_ubuntu_distribution.bash](new_ubuntu_distribution.bash)
+### new_ubuntu_distribution.bash
 
 The script will create a new directory to host a new Ubuntu distribution inside
 the -release repository where it is being run. The new directory will be mostly
@@ -141,7 +141,7 @@ change.
 
 ```bash
 cd <path-to-release-repo>
-./[new_ubuntu_distribution.bash](new_ubuntu_distribution.bash) <new_distro_name>
+./new_ubuntu_distribution.bash <new_distro_name>
 ```
 
 #### Example
@@ -151,23 +151,23 @@ To create the kinetic Ubuntu distribution inside `gz-cmake3-release`:
 ```bash
 git clone https://github.com/gz-release/gz-cmake3-release
 cd gz-cmake3-release
-./path/to/release-tools/release-repo-scripts/[new_ubuntu_distribution.bash](new_ubuntu_distribution.bash) kinetic
+./path/to/release-tools/release-repo-scripts/new_ubuntu_distribution.bash kinetic
 ```
 
-### [new_gazebo_release_repos.bash](new_gazebo_release_repos.bash)
+### new_gazebo_release_repos.bash
 
 The script will create new -release repositories as forks from the previous version
-and run the [bump_major_version](bump_major_version.bash) script in the repository to update all files and
+and run the `bump_major_version` script in the repository to update all files and
 packaging metadata to the new version.
 
 #### Usage
 
-Requires the 'gh' CLI to be installed and the requirements of the [bump_major_version](bump_major_version.bash)
+Requires the 'gh' CLI to be installed and the requirements of the `bump_major_version`
 script in this repository.
 
 ```bash
 cd /tmp/
-./path/to/release-tools/release-repo-scripts/[new_gazebo_release_repos.bash](new_gazebo_release_repos.bash) <list_of_new_gazebo_names_space_separated>
+./path/to/release-tools/release-repo-scripts/new_gazebo_release_repos.bash <list_of_new_gazebo_names_space_separated>
 ```
 
 `list_of_new_gazebo_names_space_separated` is composed from one or more
