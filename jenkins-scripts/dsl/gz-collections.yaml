@@ -98,7 +98,7 @@ collections:
           current_branch: main
     ci:
       configs:
-        - focal
+        - jammy
         - brew_amd64
         - brew_arm64
         - win_conda_L
@@ -576,6 +576,7 @@ ci_configs:
         - gz-sensors
     exclude:
       all:
+        - gz-fortress
         - gz-harmonic
         - __upcoming__
       abichecker:

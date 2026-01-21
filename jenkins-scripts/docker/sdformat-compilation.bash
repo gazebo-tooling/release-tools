@@ -24,7 +24,4 @@ fi
 
 export GZDEV_PROJECT_NAME="sdformat${SDFORMAT_MAJOR_VERSION}"
 
-# master and major branches compilations
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="SDFORMAT_BASE_DEPENDENCIES"
-
 . "${SCRIPT_DIR}/lib/generic-building-base.bash"

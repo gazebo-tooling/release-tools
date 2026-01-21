@@ -9,7 +9,53 @@ this repositories (like updated -release repositories info).
 
 ## Scripts available
 
-### [bump_dependency.bash](bump_dependency.bash)
+### set_explicit_find_package_versions.bash
+
+The script sets explicit `find_package` versions in each library of a given Gazebo
+collection. It automates the process of ensuring all `find_package` and `gz_find_package`
+calls specify the correct major version number for packages in the collection.
+
+The script modifies the following `CMakeLists.txt` files in each repository:
+
+- Root `CMakeLists.txt`
+- `python/CMakeLists.txt`
+- `src/python_pybind11/CMakeLists.txt`
+
+For each repository with changes, the script will create a branch, commit, and
+open a pull request.
+
+#### Requisites
+
+Requires the following tools to be installed:
+
+- `gh` CLI (GitHub CLI)
+- `xmllint` (for parsing `package.xml` files)
+- `python-vcstool` (for importing repositories from collection yaml)
+
+#### Usage
+
+```bash
+# A dry-run execution can be done to preview changes without creating PRs
+DRY_RUN=true ./set_explicit_find_package_versions.bash <collection> <issue_reference>
+
+# Real execution
+./set_explicit_find_package_versions.bash <collection> <issue_reference>
+```
+
+The script clones all necessary repositories under `/tmp/set_explicit_find_package_versions`.
+
+Before committing to each repository, the script asks for confirmation. Navigate to
+the repository and verify the diff looks reasonable before saying yes.
+
+#### Example
+
+To set explicit versions in all `find_package` calls for the Jetty collection:
+
+```bash
+./set_explicit_find_package_versions.bash jetty gazebosim/gz-jetty#138
+```
+
+### bump_dependency.bash
 
 > [!NOTE]
 > The script has been migrated to work with non-versioned packages as

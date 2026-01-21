@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-msgs}"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_MSGS_DEPENDENCIES"
 
 # Identify GZ_MSGS_MAJOR_VERSION to help with dependency resolution
 GZ_MSGS_MAJOR_VERSION=$(\
