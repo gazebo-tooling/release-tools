@@ -4,11 +4,11 @@ This document explains the continuous integration (CI) process for stable branch
 
 ## 1. Job Definition and Triggering
 
-The jobs for stable branches are defined and generated using the same core infrastructure as the pull request (PR) jobs, but with important differences in naming and triggering. The entire process is orchestrated by [jenkins-scripts/dsl/gazebo_libs.dsl](dsl/gazebo_libs.dsl), which reads its configuration from [jenkins-scripts/dsl/gz-collections.yaml](dsl/gz-collections.yaml).
+The jobs for stable branches are defined and generated using the same core infrastructure as the pull request (PR) jobs, but with important differences in naming and triggering. The entire process is orchestrated by [jenkins-scripts/dsl/gazebo_libs.dsl](../jenkins-scripts/dsl/gazebo_libs.dsl), which reads its configuration from [jenkins-scripts/dsl/gz-collections.yaml](../jenkins-scripts/dsl/gz-collections.yaml).
 
 ### Job Generation
 
-Within the [gazebo_libs.dsl](dsl/gazebo_libs.dsl) script, a specific block of code is responsible for creating stable branch jobs. It checks if the `stable_branches` category is enabled for a given CI configuration:
+Within the [gazebo_libs.dsl](../jenkins-scripts/dsl/gazebo_libs.dsl) script, a specific block of code is responsible for creating stable branch jobs. It checks if the `stable_branches` category is enabled for a given CI configuration:
 
 ```groovy
 // In jenkins-scripts/dsl/gazebo_libs.dsl

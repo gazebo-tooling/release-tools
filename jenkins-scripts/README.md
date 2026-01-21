@@ -2,6 +2,13 @@
 
 The release-tools repository uses the [DSL Jenkins plugin](https://plugins.jenkins.io/job-dsl/) to allow us to programmatically generate the job configuration (configuration as code).  You can find the different job configs under the [`dsl`](./dsl/) folder.
 
+## Workflow Documentation
+
+For detailed explanations of how the CI/CD workflows operate, see:
+
+- [Pull Request Build Workflow](../docs/pr_job_workflow.md) - End-to-end explanation of the PR CI process from trigger to build
+- [Stable Branch CI Workflow](../docs/stable_branch_workflow.md) - Explanation of stable branch CI jobs and their triggers
+
 ## Conda local builder for Windows
 
 ### Prerequisites
