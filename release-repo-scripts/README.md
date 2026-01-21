@@ -41,7 +41,7 @@ first fork the `gz-rendering6-release` in GitHub and call the fork `gz-rendering
 ```bash
 git clone https://github.com/gz-release/gz-rendering7-release
 cd gz-rendering7-release
-./path/to/release-tools/release-repo-scripts/bump_major_version 6 7
+./path/to/release-tools/release-repo-scripts/bump_major_version.bash 6 7
 ```
 
 ### changelog_spawn.sh
@@ -141,7 +141,7 @@ change.
 
 ```bash
 cd <path-to-release-repo>
-./new_ubuntu_distribution <new_distro_name>
+./new_ubuntu_distribution.bash <new_distro_name>
 ```
 
 #### Example
