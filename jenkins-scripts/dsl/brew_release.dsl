@@ -342,6 +342,10 @@ remove_dependent_bottles_job.with
                 'Names of broken formulae whose bottles and dependent bottles should be removed')
     stringParam("BOTTLE_TAG", 'arm64_sequoia',
                 'Unique string representing the arch and OS of a homebrew bottle, such as "sonoma" or "arch64_sequoia"')
+    stringParam("PART_OF_GITHUB_ISSUE", '',
+                '(Optional) GitHub issue to reference in pull request description')
+    stringParam("PULL_REQUEST_TITLE_OVERRIDE", '',
+                '(Optional) Set a custom pull request title in this field if desired')
   }
 
   steps
@@ -412,6 +416,10 @@ bump_unbottled_dependencies_job.with
                 'Names of formulae whose unbottled dependencies should be revision-bumped')
     stringParam("BOTTLE_TAG", 'arm64_sequoia',
                 'Unique string representing the arch and OS of a homebrew bottle, such as "sonoma" or "arm64_sequoia"')
+    stringParam("PART_OF_GITHUB_ISSUE", '',
+                '(Optional) GitHub issue to reference in pull request description')
+    stringParam("PULL_REQUEST_TITLE_OVERRIDE", '',
+                '(Optional) Set a custom pull request title in this field if desired')
   }
 
   steps
