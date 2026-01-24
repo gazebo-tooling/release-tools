@@ -412,6 +412,13 @@ def sanity_check_bump_linux(source_tarball_uri):
               'to call builders and not source generation')
 
 
+def sanity_check_gh_tool():
+    if shutil.which('gh') is None:
+        error("The 'gh' (GitHub CLI) tool is required but was not found in PATH.\n"
+              "Please install it from: https://cli.github.com/")
+    print_success("GitHub CLI (gh) tool is available")
+
+
 def sanity_checks(args, repo_dir):
     print("Safety checks:")
     sanity_package_name_underscore(args.package, args.package_alias)
@@ -431,6 +438,7 @@ def sanity_checks(args, repo_dir):
             sanity_check_cmake_version(args.package, args.version)
         sanity_project_package_in_stable(args.version, args.upload_to_repository)
 
+    sanity_check_gh_tool()
     check_credentials(args.auth_input_arg)
     print_success("Jenkins credentials are good")
     shutil.rmtree(repo_dir)
