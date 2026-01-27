@@ -175,7 +175,12 @@ REPORTS_DIR=$WORKSPACE/reports/
 rm -fr \${REPORTS_DIR} && mkdir -p \${REPORTS_DIR}
 rm -fr compat_reports/
 # run report tool
-abi-compliance-checker -lang C++ -lib ${ABI_JOB_SOFTWARE_NAME} -old pkg.xml -new devel.xml || true
+# Use -quick for gz-physics to avoid OOM due to template-heavy headers
+ABI_CHECKER_EXTRA_ARGS=""
+if [[ "${ABI_JOB_SOFTWARE_NAME}" = "gz-physics" ]]; then
+  ABI_CHECKER_EXTRA_ARGS="-quick"
+fi
+abi-compliance-checker -lang C++ -lib ${ABI_JOB_SOFTWARE_NAME} \${ABI_CHECKER_EXTRA_ARGS} -old pkg.xml -new devel.xml || true
 
 # if report was not generated, run again with -quick
 if ! ls "compat_reports/${ABI_JOB_SOFTWARE_NAME}"
