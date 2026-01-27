@@ -51,13 +51,13 @@ class OSRFBase
         HelperRetryFailures.create(job, [
           regexpForRerun: "java.nio.channels.ClosedChannelException",
           checkRegexp: true,
-          maxSchedule: 1
+          maxSchedule: 2
         ])
 
         HelperRetryFailures.create(job, [
           regexpForRerun: "Error: Another `brew update` process is already running.",
           checkRegexp: true,
-          maxSchedule: 1
+          maxSchedule: 2
         ])
       }
     }
