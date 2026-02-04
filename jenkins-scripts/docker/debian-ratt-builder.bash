@@ -62,7 +62,7 @@ rm -fr ${WORKSPACE}/logs && mkdir ${WORKSPACE}/logs
 
 sudo apt-get install -y golang-go login
 pushd /tmp 2> /dev/null
-git clone https://github.com/j-rivero/ratt
+git clone https://github.com/Debian/ratt
 cd ratt
 go mod init local/build
 go mod tidy
