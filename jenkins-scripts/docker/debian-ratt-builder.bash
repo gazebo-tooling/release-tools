@@ -60,7 +60,7 @@ if $USE_UNSTABLE; then
 fi
 rm -fr ${WORKSPACE}/logs && mkdir ${WORKSPACE}/logs
 
-sudo apt-get install -y golang-go login
+sudo apt-get install -y golang-go
 pushd /tmp 2> /dev/null
 git clone https://github.com/Debian/ratt
 cd ratt
@@ -93,7 +93,7 @@ if $USE_UNSTABLE; then
 else
   export DISTRO=experimental
 fi
-export DEPENDENCY_PKGS="sbuild quilt devscripts dose-extra git"
+export DEPENDENCY_PKGS="sbuild quilt devscripts dose-extra git login"
 export USE_DOCKER_IN_DOCKER=true
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
