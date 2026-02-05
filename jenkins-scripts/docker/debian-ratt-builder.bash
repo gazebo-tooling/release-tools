@@ -11,7 +11,7 @@ export DOCKER_JOB_NAME="debian_ratt_builder"
 . "${SCRIPT_DIR}/lib/_common_scripts.bash"
 echo '# END SECTION'
 
-cat > build.sh << DELIM
+cat >build.sh <<DELIM
 $(generate_buildsh_header)
 
 if ${USE_UNSTABLE}; then
@@ -93,7 +93,7 @@ if $USE_UNSTABLE; then
 else
   export DISTRO=experimental
 fi
-export DEPENDENCY_PKGS="sbuild quilt devscripts dose-extra git login"
+export DEPENDENCY_PKGS="sbuild quilt devscripts dose-extra git util-linux-extra"
 export USE_DOCKER_IN_DOCKER=true
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
