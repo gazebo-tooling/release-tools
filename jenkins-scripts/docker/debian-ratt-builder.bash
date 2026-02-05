@@ -16,10 +16,15 @@ $(generate_buildsh_header)
 
 if ${USE_UNSTABLE}; then
    TARGET_DISTRO='unstable'
+   tee ~/.sbuildrc << EOF
+\\\$verbose = 1;
+\\\$unshare_mode = 0;
+EOF
 else
   TARGET_DISTRO='experimental'
   tee ~/.sbuildrc << EOF
 \\\$verbose = 1;
+\\\$unshare_mode = 0;
 \\\$extra_repositories = [ 'deb http://ftp.us.debian.org/debian experimental main' ];
 EOF
 fi
