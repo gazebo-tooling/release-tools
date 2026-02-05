@@ -64,8 +64,6 @@ sudo apt-get install -y golang-go
 pushd /tmp 2> /dev/null
 git clone https://github.com/Debian/ratt
 cd ratt
-go mod init local/build
-go mod tidy
 go build
 popd 2> /dev/null
 
@@ -81,7 +79,7 @@ fi
 # use new group to run sbuild
 newgrp sbuild << END
 echo running ratt under sbuild group
-/tmp/ratt/build \${str_params} ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
+/tmp/ratt/ratt \${str_params} ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
 END
 cp -a buildlogs ${WORKSPACE}/logs
 echo '# END SECTION'
