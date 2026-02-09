@@ -195,13 +195,34 @@ void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config, arch)
 void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config)
 {
   def conda_env = ci_config.system.version
+  def pixi_version = "0.44.0"
+  def pixi_url = "https://github.com/prefix-dev/pixi/releases/download/v${pixi_version}/pixi-x86_64-pc-windows-msvc.exe"
   gz_win_ci_job.with
   {
     steps {
       batchFile("""\
             set VCS_DIRECTORY=${ws_checkout_dir}
             if "%CONDA_ENV_NAME%" == "" set CONDA_ENV_NAME=${conda_env}
-            python3 "./scripts/jenkins-scripts/lib/colcon_default_devel.py" ^
+            set PIXI_TMPDIR=%TMP%\\pixi
+            set PIXI_BIN=%PIXI_TMPDIR%\\pixi.exe
+            set BOOTSTRAP_DIR=%PIXI_TMPDIR%\\bootstrap_project
+            if not exist "%PIXI_TMPDIR%" mkdir "%PIXI_TMPDIR%"
+            echo Downloading pixi ${pixi_version}
+            powershell -command "Invoke-WebRequest -Uri '${pixi_url}' -OutFile '%PIXI_BIN%'"
+            if errorlevel 1 exit 1
+            if exist "%BOOTSTRAP_DIR%" rmdir /s /q "%BOOTSTRAP_DIR%"
+            mkdir "%BOOTSTRAP_DIR%"
+            copy ".\\scripts\\conda\\config-detector\\pixi.*" "%BOOTSTRAP_DIR%"
+            pushd "%BOOTSTRAP_DIR%"
+            "%PIXI_BIN%" install --locked
+            if errorlevel 1 exit 1
+            popd
+            set HOOK_FILE=%BOOTSTRAP_DIR%\\hooks.bat
+            pushd "%BOOTSTRAP_DIR%"
+            "%PIXI_BIN%" shell-hook --locked > "%HOOK_FILE%"
+            call "%HOOK_FILE%"
+            popd
+            python "./scripts/jenkins-scripts/lib/colcon_default_devel.py" ^
               --package ${lib_name} ^
               --vcs-directory ${ws_checkout_dir} ^
               --auto-major-version ^
