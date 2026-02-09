@@ -201,7 +201,7 @@ void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config)
       batchFile("""\
             set VCS_DIRECTORY=${ws_checkout_dir}
             if "%CONDA_ENV_NAME%" == "" set CONDA_ENV_NAME=${conda_env}
-            python "./scripts/jenkins-scripts/lib/colcon_default_devel.py" ^
+            python3 "./scripts/jenkins-scripts/lib/colcon_default_devel.py" ^
               --package ${lib_name} ^
               --vcs-directory ${ws_checkout_dir} ^
               --auto-major-version ^
