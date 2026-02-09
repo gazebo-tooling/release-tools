@@ -17,6 +17,8 @@ echo '# END SECTION'
 
 PULL_REQUEST_HEAD_REPO=git@github.com:osrfbuild/homebrew-simulation.git
 
+# TODO(anyone) remove the following line once https://github.com/Homebrew/brew/issues/21543 is resolved
+export HOMEBREW_NO_INSTALL_FROM_API=1
 . ${SCRIPT_LIBDIR}/_homebrew_github_setup.bash
 
 echo '# BEGIN SECTION: bump revisions of unbottled dependencies of specified formula'
