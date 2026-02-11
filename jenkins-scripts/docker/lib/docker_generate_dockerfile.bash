@@ -27,6 +27,8 @@ if [[ -z ${LINUX_DISTRO} ]]; then
   export LINUX_DISTRO="ubuntu"
 fi
 
+PACKAGES_URL="${PACKAGES_URL:-packages.osrfoundation.org}"
+
 [[ -z ${INSTALL_C17_COMPILER} ]] && INSTALL_C17_COMPILER=false
 
 # Bionic|Focal builds were affected by a "gpg: keyserver receive failed" in apt-key execution
@@ -225,6 +227,15 @@ RUN apt-get ${APT_PARAMS} update && \\
     apt-get install -y dirmngr git python3 python3-docopt python3-yaml python3-distro
 DELIM_DOCKER_DIRMNGR
 
+# Invalidate cache if OSRF_REPOS_TO_USE changes to ensure repository
+# configuration changes are picked up and not served from stale cache
+if [[ -n ${OSRF_REPOS_TO_USE} ]]; then
+cat >> Dockerfile << DELIM_OSRF_REPOS_CACHE
+# Invalidate docker cache based on OSRF_REPOS_TO_USE configuration
+RUN echo "OSRF repositories configured: ${OSRF_REPOS_TO_USE}"
+DELIM_OSRF_REPOS_CACHE
+fi
+
 # Install necessary repositories using gzdev
 dockerfile_install_gzdev_repos
 
@@ -306,7 +317,7 @@ RUN echo "${MONTH_YEAR_STR}"
 DELIM_DOCKER3
 
 cat >> Dockerfile << DELIM_DOCKER3_2
-RUN sed -i -e 's:13\.56\.139\.45:packages.osrfoundation.org:g' /etc/apt/sources.list.d/* || true \
+RUN sed -i -e 's:13\.56\.139\.45:${PACKAGES_URL}:g' /etc/apt/sources.list.d/* || true \
  && (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get ${APT_PARAMS} update)) \
  && apt-get install -y ${PACKAGES_CACHE_AND_CHECK_UPDATES} \
  && apt-get clean \
@@ -318,9 +329,13 @@ DELIM_DOCKER3_2
 
 cat >> Dockerfile << DELIM_DOCKER31
 # Note that we don't remove the apt/lists file here since it will make
-# to run apt-get update again
+# to run apt-get update again.
+# Include autoremove to remove packages that could be in the cache that
+# are no longer required. They could cause problems if a clean install
+# does not expect them to be in the system.
 RUN (apt-get update || (rm -rf /var/lib/apt/lists/* && apt-get update)) \
  && apt-get dist-upgrade -y \
+ && apt-get autoremove -y \
  && apt-get clean
 
 # Map the workspace into the container

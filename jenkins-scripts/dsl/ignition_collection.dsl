@@ -11,7 +11,7 @@ arch = 'amd64'
 file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
 gz_collections_yaml = new Yaml().load(file)
 
-gz_nightly = 'jetty'
+gz_nightly = 'kura'
 
 String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
 {
@@ -152,7 +152,7 @@ OSRFCredentials.setOSRFCrendentials(nightly_scheduler_job, ['OSRFBUILD_JENKINS_T
 
 nightly_scheduler_job.with
 {
-  label Globals.nontest_label("master")
+  label Globals.nontest_label("built-in")
 
   parameters
   {
@@ -250,14 +250,11 @@ nightly_scheduler_job.with
           """.stripIndent())
   }
 
-  publishers
-  {
-     configure { project ->
-       project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
-          unstableOnWarning true
-          failBuildOnError false
-          parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
-        }
-     }
+  configure { project ->
+    project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+      unstableOnWarning true
+      failBuildOnError false
+      parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+    }
   }
 }

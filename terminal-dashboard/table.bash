@@ -21,6 +21,8 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 . ${SCRIPT_DIR}/_dashboard_lib.sh
 
 COLLECTION=$1
+PACKAGES_URL=${PACKAGES_URL:-packages.osrfoundation.org}
+echo "Using $PACKAGES_URL"
 PACKAGE_REPO=${2:-stable}
 
 COLUMN="        "
@@ -86,7 +88,7 @@ for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
         if [[ $ARCH == "i386" && $VER != "bionic" && $VER != "buster" ]]; then
           PKG_VERSION="disabled"
         else
-          PKG_VERSION=$(wget -qO- http://packages.osrfoundation.org/gazebo/${DISTRO}-${PACKAGE_REPO}/dists/${VER}/main/binary-${ARCH}/Packages | \
+          PKG_VERSION=$(wget -qO- http://${PACKAGES_URL}/gazebo/${DISTRO}-${PACKAGE_REPO}/dists/${VER}/main/binary-${ARCH}/Packages | \
             grep -2 -m 1 -e "Package: ${LIB}$" -e "Package: ${LIB}-dev$"| \
             sed -n 's/^Version: \(.*\)/\1/p' | uniq)
         fi

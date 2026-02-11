@@ -32,16 +32,28 @@ echo '# BEGIN SECTION: download linuxbrew'
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 echo '# END SECTION'
 
-BREW_PREFIX="/home/linuxbrew/.linuxbrew"
-BREW=${BREW_PREFIX}/bin/brew
-${BREW} up
+# either SCRIPT_LIBDIR or SCRIPT_DIR may be set by calling scripts
+if [[ -f ${SCRIPT_LIBDIR}/_homebrew_path_setup.sh ]]; then
+    . ${SCRIPT_LIBDIR}/_homebrew_path_setup.sh
+elif [[ -f ${SCRIPT_DIR}/lib/_homebrew_path_setup.sh ]]; then
+    . ${SCRIPT_DIR}/lib/_homebrew_path_setup.sh
+elif [[ -d "/home/linuxbrew/.linuxbrew/bin" ]]; then
+    export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+else
+    echo "Can not find brew setup configuration"
+    exit 1
+fi
+# Use stable version of brew
+export HOMEBREW_UPDATE_TO_TAG=1
+brew update-reset
 
-${BREW} ruby -e "puts 'brew ruby success'"
+brew ruby -e "puts 'brew ruby success'"
+brew config
 
 # tap osrf/simulation
-${BREW} untap osrf/simulation || true
-${BREW} tap osrf/simulation
-TAP_PREFIX=$(${BREW} --repo osrf/simulation)
+brew untap osrf/simulation || true
+brew tap osrf/simulation
+TAP_PREFIX=$(brew --repo osrf/simulation)
 GIT="git -C ${TAP_PREFIX}"
 ${GIT} remote add pr_head ${PULL_REQUEST_HEAD_REPO}
 # unshallow to get a full clone able to push
@@ -51,3 +63,7 @@ ${GIT} fetch pr_head
 if [ -n "${PULL_REQUEST_BRANCH}" ]; then
   ${GIT} checkout --track pr_head/${PULL_REQUEST_BRANCH}
 fi
+
+# configure git for committing
+${GIT} config user.name "OSRF Build Bot"
+${GIT} config user.email "osrfbuild@osrfoundation.org"

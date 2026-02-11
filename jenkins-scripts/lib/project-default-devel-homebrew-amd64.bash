@@ -20,9 +20,7 @@ PROJECT_FORMULA=${PROJECT//[0-9]}$(\
   python3 ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
   ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt || true)
 
-export HOMEBREW_PREFIX=/usr/local
-export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
-export PATH=${HOMEBREW_PREFIX}/bin:${HOMEBREW_PREFIX}/sbin:$PATH
+. ${SCRIPT_DIR}/lib/_homebrew_path_setup.sh
 
 export PYTHONPATH=$PYTHONPATH:${HOMEBREW_PREFIX}/lib/python
 
@@ -107,6 +105,26 @@ fi
 if [[ -z "${DISABLE_CCACHE}" ]]; then
   brew install ccache
   export PATH=${HOMEBREW_PREFIX}/opt/ccache/libexec:$PATH
+fi
+echo '# END SECTION'
+
+echo "# BEGIN SECTION: Run brew bundle with source defined Brewfiles"
+# Validate all Brewfiles in the source repo before running the brew bundle cmd
+SOURCE_DEFINED_BREWFILES=($(find `pwd` -type f |  grep Brewfile | sort))
+if [[ -n "${SOURCE_DEFINED_BREWFILES}" ]]; then
+  . ${SCRIPT_DIR}/lib/_homebrew_brewfiles.bash
+  for i in $(seq ${#SOURCE_DEFINED_BREWFILES[*]}); do
+    brewfile=${SOURCE_DEFINED_BREWFILES[$i-1]}
+    if ! validate_brewfile ${brewfile}; then
+      echo "Error validating ${brewfile}"
+      exit 1
+    fi
+    # Validation passed, run brew bundle
+    echo "Running 'brew bundle --file ${brewfile} --verbose'"
+    brew bundle --file ${brewfile} --verbose
+  done
+else
+  echo "No brewfiles found. Skipping brew bundle install"
 fi
 echo '# END SECTION'
 

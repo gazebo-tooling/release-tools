@@ -46,12 +46,13 @@ fi
 
 echo "# BEGIN SECTION: update bottle hashes"
 
-${BREW} bottle --merge --write --no-commit ${KEEP_OLD} ${FILES_WITH_NEW_HASH}
+brew bottle --merge --write --no-commit ${KEEP_OLD} ${FILES_WITH_NEW_HASH}
 
 # ensure that all modified files are committed
 export FORMULA_PATH='-a'
 
 echo '# END SECTION'
 
-COMMIT_MESSAGE_SUFFIX=" bottle."
+COMMIT_MESSAGE="update bottle"
+SKIP_COMMIT=false
 . ${SCRIPT_LIBDIR}/_homebrew_github_commit.bash

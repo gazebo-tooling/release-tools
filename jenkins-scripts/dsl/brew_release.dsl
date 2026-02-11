@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 
 // first distro in list is used as touchstone
-brew_supported_distros         = [ "ventura", "sonoma" ]
+brew_supported_distros         = [ "arm64_sonoma", "sonoma", "arm64_sequoia" ]
 bottle_hash_updater_job_name   = 'generic-release-homebrew_pr_bottle_hash_updater'
 bottle_builder_job_name        = 'generic-release-homebrew_triggered_bottle_builder'
 directory_for_bottles          = 'pkgs'
@@ -48,7 +48,7 @@ void include_common_params(Job job)
 }
 
 // -------------------------------------------------------------------
-// 1. BREW pull request SHA updater
+// 1. BREW pull request SHA256 updater
 def release_job = job("generic-release-homebrew_pull_request_updater")
 OSRFUNIXBase.create(release_job)
 OSRFCredentials.allowOsrfbuildToRunTheBuild(release_job)
@@ -59,7 +59,7 @@ release_job.with
    String PR_URL_export_file_name = 'pull_request_created.properties'
    String PR_URL_export_file = '${WORKSPACE}/' + PR_URL_export_file_name
 
-   label Globals.nontest_label("master")
+   label Globals.nontest_label("built-in")
 
    wrappers {
      preBuildCleanup()
@@ -77,8 +77,8 @@ release_job.with
                  'URI with the tarball of the latest release')
      stringParam("VERSION", '',
                  'Version of the package just released')
-     stringParam('SOURCE_TARBALL_SHA','',
-                 'SHA Hash of the tarball file')
+     stringParam('SOURCE_TARBALL_SHA256','',
+                 'SHA256 Hash of the tarball file')
    }
 
    steps
@@ -127,6 +127,7 @@ release_job.with
 def bottle_job_builder = matrixJob(bottle_builder_job_name)
 // set enable_github_pr_integration flag to false so we can customize trigger behavior
 OSRFBrewCompilationAnyGitHub.create(bottle_job_builder,
+                                    Globals.OSX_ANY_ARCHITECTURE,
                                     "osrf/homebrew-simulation",
                                     DISABLE_TESTS,
                                     NO_SUPPORTED_BRANCHES,
@@ -249,7 +250,7 @@ OSRFUNIXBase.create(bottle_job_hash_updater)
 include_common_params(bottle_job_hash_updater)
 bottle_job_hash_updater.with
 {
-  label Globals.nontest_label("master")
+  label Globals.nontest_label("built-in")
 
   wrappers
   {
@@ -314,3 +315,150 @@ bottle_job_hash_updater.with
   }
 }
 
+// -------------------------------------------------------------------
+// BREW remove bottles for specified formulae and their dependencies
+def remove_dependent_bottles_job = job("generic-release-homebrew_remove_dependent_bottles")
+OSRFUNIXBase.create(remove_dependent_bottles_job)
+OSRFCredentials.allowOsrfbuildToRunTheBuild(remove_dependent_bottles_job)
+
+remove_dependent_bottles_job.with
+{
+  String PR_URL_export_file_name = 'pull_request_created.properties'
+  String PR_URL_export_file = '${WORKSPACE}/' + PR_URL_export_file_name
+
+  label Globals.nontest_label("built-in")
+
+  wrappers {
+    preBuildCleanup()
+    credentialsBinding {
+      // crendetial name needs to be in sync with provision code at infra/osrf-chef repo
+      string('GITHUB_TOKEN', 'osrfbuild-token')
+    }
+  }
+
+  parameters
+  {
+    stringParam("BROKEN_FORMULA", '',
+                'Names of broken formulae whose bottles and dependent bottles should be removed')
+    stringParam("BOTTLE_TAG", 'arm64_sequoia',
+                'Unique string representing the arch and OS of a homebrew bottle, such as "sonoma" or "arch64_sequoia"')
+    stringParam("PART_OF_GITHUB_ISSUE", '',
+                '(Optional) GitHub issue to reference in pull request description')
+    stringParam("PULL_REQUEST_TITLE_OVERRIDE", '',
+                '(Optional) Set a custom pull request title in this field if desired')
+  }
+
+  steps
+  {
+   systemGroovyCommand("""\
+     build.setDescription(
+     '<b>' + build.buildVariableResolver.resolve('BROKEN_FORMULA') + '-' +
+     build.buildVariableResolver.resolve('BOTTLE_TAG') + '</b>' +
+     '<br />' +
+     'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+     """.stripIndent()
+   )
+
+   shell("""\
+         #!/bin/bash -xe
+
+         export PR_URL_export_file=${PR_URL_export_file}
+         /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_remove_dependent_bottles.bash
+         """.stripIndent())
+  }
+
+  // call to the bottle
+  publishers
+  {
+    // Added the checker result parser (UNSTABLE if not compatible)
+    // IMPORTANT: the order of the steps here is important. Leave the configure
+    // block first.
+    configure { project ->
+      project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+         unstableOnWarning true
+         failBuildOnError false
+         parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+      }
+    } // end of configure
+
+    archiveArtifacts
+    {
+      pattern("${PR_URL_export_file_name}")
+      allowEmpty()
+    }
+  }
+}
+
+// -------------------------------------------------------------------
+// BREW bump revisions for unbottled dependencies of specified formulae
+def bump_unbottled_dependencies_job = job("generic-release-homebrew_bump_unbottled_dependencies")
+OSRFUNIXBase.create(bump_unbottled_dependencies_job)
+OSRFCredentials.allowOsrfbuildToRunTheBuild(bump_unbottled_dependencies_job)
+
+bump_unbottled_dependencies_job.with
+{
+  String PR_URL_export_file_name = 'pull_request_created.properties'
+  String PR_URL_export_file = '${WORKSPACE}/' + PR_URL_export_file_name
+
+  label Globals.nontest_label("built-in")
+
+  wrappers {
+    preBuildCleanup()
+    credentialsBinding {
+      // crendetial name needs to be in sync with provision code at infra/osrf-chef repo
+      string('GITHUB_TOKEN', 'osrfbuild-token')
+    }
+  }
+
+  parameters
+  {
+    stringParam("FORMULA_WITH_UNBOTTLED_DEPENDENCIES", '',
+                'Names of formulae whose unbottled dependencies should be revision-bumped')
+    stringParam("BOTTLE_TAG", 'arm64_sequoia',
+                'Unique string representing the arch and OS of a homebrew bottle, such as "sonoma" or "arm64_sequoia"')
+    stringParam("PART_OF_GITHUB_ISSUE", '',
+                '(Optional) GitHub issue to reference in pull request description')
+    stringParam("PULL_REQUEST_TITLE_OVERRIDE", '',
+                '(Optional) Set a custom pull request title in this field if desired')
+  }
+
+  steps
+  {
+   systemGroovyCommand("""\
+     build.setDescription(
+     '<b>' + build.buildVariableResolver.resolve('FORMULA_WITH_UNBOTTLED_DEPENDENCIES') + '-' +
+     build.buildVariableResolver.resolve('BOTTLE_TAG') + '</b>' +
+     '<br />' +
+     'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
+     """.stripIndent()
+   )
+
+   shell("""\
+         #!/bin/bash -xe
+
+         export PR_URL_export_file=${PR_URL_export_file}
+         /bin/bash -xe ./scripts/jenkins-scripts/lib/homebrew_bump_unbottled_dependencies.bash
+         """.stripIndent())
+  }
+
+  // call to the bottle
+  publishers
+  {
+    // Added the checker result parser (UNSTABLE if not compatible)
+    // IMPORTANT: the order of the steps here is important. Leave the configure
+    // block first.
+    configure { project ->
+      project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+         unstableOnWarning true
+         failBuildOnError false
+         parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+      }
+    } // end of configure
+
+    archiveArtifacts
+    {
+      pattern("${PR_URL_export_file_name}")
+      allowEmpty()
+    }
+  }
+}

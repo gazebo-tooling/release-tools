@@ -27,7 +27,7 @@ class OSRFBase
         }
 
         parameters {
-          stringParam('RTOOLS_BRANCH','master','release-tool branch to use')
+          stringParam('RTOOLS_BRANCH','master','release-tools branch to use')
           if (Globals.gazebodistro_branch)
           {
             stringParam('GAZEBODISTRO_BRANCH','master','gazebodistro branch to use')
@@ -43,17 +43,21 @@ class OSRFBase
           }
         }
 
+        wrappers {
+          timestamps()
+        }
+
         // Create the naginator retry tags
         HelperRetryFailures.create(job, [
           regexpForRerun: "java.nio.channels.ClosedChannelException",
           checkRegexp: true,
-          maxSchedule: 1
+          maxSchedule: 2
         ])
 
         HelperRetryFailures.create(job, [
           regexpForRerun: "Error: Another `brew update` process is already running.",
           checkRegexp: true,
-          maxSchedule: 1
+          maxSchedule: 2
         ])
       }
     }
