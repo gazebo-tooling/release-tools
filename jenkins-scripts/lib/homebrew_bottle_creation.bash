@@ -60,10 +60,7 @@ rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 # don't use HOMEBREW_UPDATE_TO_TAG for bottle builds
 unset HOMEBREW_UPDATE_TO_TAG
 brew up
-# manually exclude a ruby warning that jenkins thinks is from clang
-# https://github.com/osrf/homebrew-simulation/issues/1343
-brew install hub \
-   2>&1 | grep -v 'warning: conflicting chdir during another chdir block'
+brew install hub
 echo '# END SECTION'
 
 # set display before building bottle
