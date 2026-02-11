@@ -167,6 +167,12 @@ void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
   lib_name = lib_name.replaceAll(/^ign-/, 'ignition-')
   gz_brew_ci_job.with
   {
+    wrappers {
+      timeout {
+        absolute(120)
+      }
+    }
+
     steps {
       shell("""\
             #!/bin/bash -xe
@@ -285,6 +291,12 @@ String generate_brew_install(src_name, lib_name, arch)
 
   install_default_job.with
   {
+    wrappers {
+      timeout {
+        absolute(120)
+      }
+    }
+
     triggers {
       cron('@daily')
     }
