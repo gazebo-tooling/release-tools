@@ -423,12 +423,10 @@ for ((i = 0; i < "${#SORTED_LIBRARIES[@]}"; i++)); do
       -e "s@\(${DEP_LIBDOT}\)${DEP_VER}::@\1::@g"
 
     # Replace lines like 'pkg-config --cflags --libs gz-math8'
-    #               with 'pkg-config --cflags --libs gz-gui'
-    # Replace lines like 'pkg-config --cflags --libs gz-math9'
-    #               with 'pkg-config --cflags --libs gz-gui'
+    #               with 'pkg-config --cflags --libs gz-math'
     find . -type f ! -path './.git/*' -print0 | xargs -0 sed -i \
-      -e "s@\(pkg-config.*${DEP_LIBDOT}\)${PREV_VER}\([^0-9]\)@\1\2@g" \
-      -e "s@\(pkg-config.*${DEP_LIBDOT}\)${VER}\([^0-9]\)@\1\2@g"
+      -e "s@\(pkg-config.*${DEP_LIBDOT}\)${DEP_PREV_VER}\([^0-9]\)@\1\2@g" \
+      -e "s@\(pkg-config.*${DEP_LIBDOT}\)${DEP_VER}\([^0-9]\)@\1\2@g"
 
     find . -type f ! -path './.git/*' -print0 | xargs -0 sed -i "s \(${DEP_LIBDOT}\)${DEP_PREV_VER} \1${DEP_VER} g"
   done
