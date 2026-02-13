@@ -417,6 +417,7 @@ def sanity_checks(args, repo_dir):
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
+    sanity_check_gh_tool(args)
 
     if (args.bump_rev_linux_only):
         sanity_check_bump_linux(args.source_tarball_uri)
@@ -809,14 +810,29 @@ def create_pr_in_gz_vendor_repo(args, ros_distro) -> str:
     return pr_msg
 
 
-def process_ros_vendor_package(args):
-    # Only create ros vendor updates for stable releases
+def _needs_ros_vendor_processing(args) -> bool:
+    """Check if the release needs ROS vendor package processing."""
     if PRERELEASE or NIGHTLY:
+        return False
+    # skip collection packages
+    if args.package.replace('gz-', '') in ROS_VENDOR:
+        return False
+    return True
+
+
+def sanity_check_gh_tool(args):
+    if not _needs_ros_vendor_processing(args):
+        return
+    if shutil.which('gh') is None:
+        error("The 'gh' (GitHub CLI) tool is required but was not found in PATH.\n"
+              "Please install it from: https://cli.github.com/")
+    print_success("GitHub CLI (gh) tool is available")
+
+
+def process_ros_vendor_package(args):
+    if not _needs_ros_vendor_processing(args):
         return
     print("ROS vendor packages that can be updated:")
-    if  args.package.replace('gz-','') in ROS_VENDOR:
-        print(" - There are no gz metapackages in ROS")
-        return
     for collection in get_collections_for_package(args.package,
                                                   args.version):
         if collection in ROS_VENDOR:
