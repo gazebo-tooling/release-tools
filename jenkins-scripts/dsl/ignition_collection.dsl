@@ -138,11 +138,6 @@ gz_collections_yaml.collections.each { collection ->
 }
 
 // NIGHTLY GENERATION
-def get_nightly_branch(nightly_collection, lib)
-{
-  return nightly_collection.libs.find { it.name == lib }.repo.current_branch
-}
-
 nightly_collection = gz_collections_yaml.collections
   .find { it.name == gz_nightly }
 
@@ -154,13 +149,14 @@ nightly_scheduler_job.with
 {
   label Globals.nontest_label("built-in")
 
+  def nightly_packages = nightly_collection.libs.collect{
+    get_debbuilder_name(it,nightly_collection.packaging)
+    .replace("-debbuilder","") }.join(" ")
+
   parameters
   {
      stringParam('NIGHTLY_PACKAGES',
-                nightly_collection.libs.collect{
-                  get_debbuilder_name(it,nightly_collection.packaging)
-                    .replace("-debbuilder","")
-                }.join(" "),
+                nightly_packages,
                 'space separated list of packages to build')
 
      booleanParam('DRY_RUN',false,
@@ -171,22 +167,9 @@ nightly_scheduler_job.with
      cron(Globals.CRON_START_NIGHTLY)
   }
 
-  cmake_branch = get_nightly_branch(nightly_collection, 'gz-cmake')
-  common_branch = get_nightly_branch(nightly_collection, 'gz-common')
-  fuel_tools_branch = get_nightly_branch(nightly_collection, 'gz-fuel-tools')
-  sim_branch = get_nightly_branch(nightly_collection, 'gz-sim')
-  gui_branch = get_nightly_branch(nightly_collection, 'gz-gui')
-  launch_branch = get_nightly_branch(nightly_collection, 'gz-launch')
-  math_branch = get_nightly_branch(nightly_collection, 'gz-math')
-  msgs_branch =  get_nightly_branch(nightly_collection, 'gz-msgs')
-  physics_branch = get_nightly_branch(nightly_collection, 'gz-physics')
-  plugin_branch = get_nightly_branch(nightly_collection, 'gz-plugin')
-  rendering_branch = get_nightly_branch(nightly_collection, 'gz-rendering')
-  sensors_branch = get_nightly_branch(nightly_collection, 'gz-sensors')
-  sdformat_branch = get_nightly_branch(nightly_collection, 'sdformat')
-  tools_branch = get_nightly_branch(nightly_collection, 'gz-tools')
-  transport_branch = get_nightly_branch(nightly_collection, 'gz-transport')
-  utils_branch = get_nightly_branch(nightly_collection, 'gz-utils')
+  def src_branches = nightly_collection.libs.collect {
+    it.repo.current_branch
+  }.join(" ")
 
   steps {
     shell("""\
@@ -197,49 +180,18 @@ nightly_scheduler_job.with
             dry_run_str="--dry-run"
           fi
 
+          # Convert string parameters to Bash arrays
+          packages=(\$NIGHTLY_PACKAGES)
+          # Inject Groovy variable 'src_branches' and convert to Bash array
+          branches=(${src_branches})
+
           # redirect to not display the password
-          for n in \${NIGHTLY_PACKAGES}; do
+          for i in "\${!packages[@]}"; do
+              pkg="\${packages[\$i]}"
+              src_branch="\${branches[\$i]}"
 
-              if [[ "\${n}" != "\${n/cmake/}" ]]; then
-                src_branch="${cmake_branch}"
-              elif [[ "\${n}" != "\${n/common/}" ]]; then
-                src_branch="${common_branch}"
-              elif [[ "\${n}" != "\${n/fuel-tools/}" ]]; then
-                src_branch="${fuel_tools_branch}"
-              elif  [[ "\${n}" != "\${n/sim/}" ]]; then
-                src_branch="${sim_branch}"
-              elif  [[ "\${n}" != "\${n/gui/}" ]]; then
-                src_branch="${gui_branch}"
-              elif [[ "\${n}" != "\${n/launch/}" ]]; then
-                src_branch="${launch_branch}"
-              elif [[ "\${n}" != "\${n/math/}" ]]; then
-                src_branch="${math_branch}"
-              elif [[ "\${n}" != "\${n/msgs/}" ]]; then
-                src_branch="${msgs_branch}"
-              elif [[ "\${n}" != "\${n/physics/}" ]]; then
-                src_branch="${physics_branch}"
-              elif [[ "\${n}" != "\${n/plugin/}" ]]; then
-                src_branch="${plugin_branch}"
-              elif [[ "\${n}" != "\${n/rendering/}" ]]; then
-                src_branch="${rendering_branch}"
-              elif [[ "\${n}" != "\${n/sensors/}" ]]; then
-                src_branch="${sensors_branch}"
-              elif [[ "\${n}" != "\${n/sdformat/}" ]]; then
-                src_branch="${sdformat_branch}"
-              elif  [[ "\${n}" != "\${n/sim/}" ]]; then
-                src_branch="${sim_branch}"
-              elif [[ "\${n}" != "\${n/transport/}" ]]; then
-                src_branch="${transport_branch}"
-              elif [[ "\${n}" != "\${n/tools/}" ]]; then
-                src_branch="${tools_branch}"
-              elif [[ "\${n}" != "\${n/utils/}" ]]; then
-                src_branch="${utils_branch}"
-              else
-                src_branch="main"
-              fi
-
-              echo "releasing \${n} (from branch \${src_branch})"
-              python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly \
+              echo "releasing \${pkg} (from branch \${src_branch})"
+              python3 ./scripts/release.py \${dry_run_str} "\${pkg}" nightly \
                       --auth "\${OSRFBUILD_JENKINS_USER}:\${OSRFBUILD_JENKINS_TOKEN}" \
                       --release-repo-branch main \
                       --nightly-src-branch \${src_branch} \
