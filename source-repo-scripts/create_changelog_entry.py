@@ -7,7 +7,39 @@ import os
 import glob
 import subprocess
 import json
+import re
 from datetime import datetime
+
+CONVENTIONAL_COMMIT_HEADER_RE = re.compile(
+    r"^(?P<type>[a-z]+)(\([^\r\n()]+\))?(?P<breaking>!)?: (?P<description>\S.*)$")
+
+
+def validate_changelog_entry(entry_content, filename):
+    """
+    Validate that the changelog entry follows Conventional Commits format.
+
+    Args:
+        entry_content (str): Changelog entry content without template comments
+        filename (str): File name used for reporting validation errors
+
+    Returns:
+        str: Empty string when valid, otherwise a validation error message
+    """
+    first_line = ""
+    for line in entry_content.split('\n'):
+        if line.strip():
+            first_line = line.strip()
+            break
+
+    if not first_line:
+        return f"{filename}: entry is empty after removing template comments"
+
+    if not CONVENTIONAL_COMMIT_HEADER_RE.match(first_line):
+        return (
+            f"{filename}: first non-comment line must follow Conventional Commits "
+            f"format '<type>(<scope>)!: <description>', got '{first_line}'")
+
+    return ""
 
 
 def read_changelog_entries(changelog_dir):
@@ -18,13 +50,14 @@ def read_changelog_entries(changelog_dir):
         changelog_dir (str): Path to the changelog directory
 
     Returns:
-        list: List of all entries with PR information
+        tuple: (list of entries with PR information, list of validation errors)
     """
     entries = []
+    errors = []
 
     # Find all .md files in the changelog directory
     pattern = os.path.join(changelog_dir, '*.md')
-    files = glob.glob(pattern)
+    files = sorted(glob.glob(pattern))
 
     for file_path in files:
         filename = os.path.basename(file_path)
@@ -39,6 +72,11 @@ def read_changelog_entries(changelog_dir):
                 entry_content = '\n'.join(entry_lines).strip()
 
                 if entry_content:
+                    validation_error = validate_changelog_entry(entry_content, filename)
+                    if validation_error:
+                        errors.append(validation_error)
+                        continue
+
                     pr_info = get_pr_info(filename)
 
                     if pr_info:
@@ -47,11 +85,14 @@ def read_changelog_entries(changelog_dir):
                         formatted_entry = entry_content
 
                     entries.append(formatted_entry)
+                else:
+                    errors.append(
+                        f"{filename}: entry is empty after removing template comments")
 
         except Exception as e:
-            print(f"Warning: Could not read {file_path}: {e}")
+            errors.append(f"{filename}: could not be read ({e})")
 
-    return entries
+    return entries, errors
 
 
 def generate_changelog_entry(entries, changelog_path, version="0.x.x"):
@@ -190,9 +231,8 @@ def get_pr_info(filename):
 
 def main():
     """Main function to create changelog entry."""
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    changelog_dir = os.path.join(script_dir, '.changelog')
-    changelog_path = os.path.join(script_dir, 'Changelog.md')
+    changelog_dir = os.path.abspath('.changelog')
+    changelog_path = os.path.abspath('Changelog.md')
 
     if not os.path.exists(changelog_dir):
         print(f"Error: Changelog directory {changelog_dir} not found")
@@ -204,7 +244,13 @@ def main():
 
     # Read changelog entries
     print(f"Reading changelog entries from {changelog_dir}...")
-    entries = read_changelog_entries(changelog_dir)
+    entries, entry_errors = read_changelog_entries(changelog_dir)
+
+    if entry_errors:
+        print("Error: invalid changelog entries detected:")
+        for entry_error in entry_errors:
+            print(f"  - {entry_error}")
+        return 1
 
     if not entries:
         print("No changelog entries found!")

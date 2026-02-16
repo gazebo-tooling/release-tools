@@ -112,6 +112,27 @@ cd gz-math
 ~/release-tools/source-repo-scripts/source_changelog.bash 6.10.0
 ```
 
+### create_changelog_entry.py
+
+Generate a new `Changelog.md` entry from files in `.changelog/`.
+
+The first non-comment line of each `.changelog/*.md` file must follow the
+Conventional Commits format:
+
+```text
+<type>(<optional-scope>)!: <description>
+```
+
+Examples of valid first lines:
+
+```text
+feat(rendering): add support for foo
+fix: avoid crash when bar is empty
+```
+
+Lines starting with `#` are treated as template comments and ignored.
+Invalid or empty entries fail validation and stop changelog generation.
+
 ### Release summary
 
 Print a markdown summary of a release (not `Changelog.md` entries), with its
