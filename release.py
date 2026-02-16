@@ -812,6 +812,10 @@ def create_pr_in_gz_vendor_repo(args, ros_distro) -> str:
 
 def _needs_ros_vendor_processing(args) -> bool:
     """Check if the release needs ROS vendor package processing."""
+    # When calling deb builders there is no ros vendor operation
+    if args.source_tarball_uri:
+        return False
+    # Release or nightly do not genreate ros vendor packages
     if PRERELEASE or NIGHTLY:
         return False
     # skip collection packages
