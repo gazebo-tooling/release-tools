@@ -132,6 +132,9 @@ fix: avoid crash when bar is empty
 
 Lines starting with `#` are treated as template comments and ignored.
 Invalid or empty entries fail validation and stop changelog generation.
+The script auto-calculates the next version from the latest `Changelog.md`
+entry: it bumps the minor version when any entry is `feat`, otherwise it bumps
+the patch version.
 
 ### Release summary
 

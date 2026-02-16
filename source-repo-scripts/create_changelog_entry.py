@@ -12,6 +12,8 @@ from datetime import datetime
 
 CONVENTIONAL_COMMIT_HEADER_RE = re.compile(
     r"^(?P<type>[a-z]+)(\([^\r\n()]+\))?(?P<breaking>!)?: (?P<description>\S.*)$")
+CHANGELOG_RELEASE_HEADER_RE = re.compile(
+    r"^## .+ (?P<version>\d+\.\d+\.\d+) \(\d{4}-\d{2}-\d{2}\)$")
 
 
 def validate_changelog_entry(entry_content, filename):
@@ -93,6 +95,47 @@ def read_changelog_entries(changelog_dir):
             errors.append(f"{filename}: could not be read ({e})")
 
     return entries, errors
+
+
+def calculate_next_version(entries, changelog_path):
+    """
+    Calculate the next version using changelog entries and current changelog content.
+
+    Rules:
+      - If any changelog entry is a feature (feat), bump minor and reset patch.
+      - Otherwise, bump patch.
+    """
+    current_version = ""
+    try:
+        with open(changelog_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                match = CHANGELOG_RELEASE_HEADER_RE.match(line.strip())
+                if match:
+                    current_version = match.group("version")
+                    break
+    except Exception as e:
+        print(f"Warning: Could not read current version from {changelog_path}: {e}")
+
+    if not current_version:
+        print("Warning: Could not determine current version. Falling back to 0.x.x")
+        return "0.x.x"
+
+    has_feature = False
+    for entry in entries:
+        first_line = entry.split('\n', 1)[0].strip()
+        match = CONVENTIONAL_COMMIT_HEADER_RE.match(first_line)
+        if match and match.group("type") == "feat":
+            has_feature = True
+            break
+
+    major, minor, patch = map(int, current_version.split('.'))
+    if has_feature:
+        minor += 1
+        patch = 0
+    else:
+        patch += 1
+
+    return f"{major}.{minor}.{patch}"
 
 
 def generate_changelog_entry(entries, changelog_path, version="0.x.x"):
@@ -258,7 +301,9 @@ def main():
 
     # Generate new changelog entry
     print("Generating changelog entry...")
-    new_entry = generate_changelog_entry(entries, changelog_path)
+    new_version = calculate_next_version(entries, changelog_path)
+    print(f"Calculated next version: {new_version}")
+    new_entry = generate_changelog_entry(entries, changelog_path, new_version)
 
     print("Generated changelog entry:")
     print("-" * 50)
