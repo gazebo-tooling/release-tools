@@ -227,6 +227,15 @@ RUN apt-get ${APT_PARAMS} update && \\
     apt-get install -y dirmngr git python3 python3-docopt python3-yaml python3-distro
 DELIM_DOCKER_DIRMNGR
 
+# Invalidate cache if OSRF_REPOS_TO_USE changes to ensure repository
+# configuration changes are picked up and not served from stale cache
+if [[ -n ${OSRF_REPOS_TO_USE} ]]; then
+cat >> Dockerfile << DELIM_OSRF_REPOS_CACHE
+# Invalidate docker cache based on OSRF_REPOS_TO_USE configuration
+RUN echo "OSRF repositories configured: ${OSRF_REPOS_TO_USE}"
+DELIM_OSRF_REPOS_CACHE
+fi
+
 # Install necessary repositories using gzdev
 dockerfile_install_gzdev_repos
 

@@ -681,7 +681,8 @@ ci_configs:
       - gz-transport
       - sdformat
     ci_categories_enabled:
-      - pr
+      # pr jobs disabled for amd64 in favor of arm64
+      # https://github.com/gazebo-tooling/release-tools/issues/1416
       - stable_branches
   - name: brew_arm64
     system:
