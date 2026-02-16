@@ -49,7 +49,7 @@ git clone -b my-testing-branch C:\Users\foo\code\gz-math
 python3 local_build.py gz_math-default-devel-windows-amd64.bat C:\Users\foo\code\gz-math
 ```
 
-This command will run `gz_math-default-devel-windows-amd64.bat` using the sources from `C:\User\foo\code\gz-math`. It will handle the installation of all the system dependencies
+This command will run [`gz_math-default-devel-windows-amd64.bat`](gz_math-default-devel-windows-amd64.bat) using the sources from `C:\User\foo\code\gz-math`. It will handle the installation of all the system dependencies
 using Pixi (it can take up to 10 minutes) and build all the Gazebo dependencies from source
 using colcon. In a second build it builds gz-math with tests using colcon.
 
