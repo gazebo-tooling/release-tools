@@ -77,7 +77,7 @@ Once the correct job is triggered, it begins executing. This is where dependenci
 
 The Linux strategy prioritizes speed by pre-installing all required `.deb` packages into a Docker image that is generated on-the-fly at the beginning of the build job.
 
-1.  **Script Chain:** The process follows a chain of scripts: [gz_math-compilation.bash](../jenkins-scripts/docker/lib/gz_math-compilation.bash) -> [generic-building-base.bash](../jenkins-scripts/docker/lib/generic-building-base.bash) -> [docker_generate_dockerfile.bash](../jenkins-scripts/docker/lib/docker_generate_dockerfile.bash).
+1.  **Script Chain:** The process follows a chain of scripts: [gz_math-compilation.bash](../jenkins-scripts/docker/gz_math-compilation.bash) -> [generic-building-base.bash](../jenkins-scripts/docker/lib/generic-building-base.bash) -> [docker_generate_dockerfile.bash](../jenkins-scripts/docker/lib/docker_generate_dockerfile.bash).
 2.  **Dependency Aggregation:** The scripts collect dependency names from multiple sources into a master list (`$PACKAGES_CACHE_AND_CHECK_UPDATES`):
     - **`packages.apt` files**: The build can also find `packages.apt` or `packages-<distro>.apt` files in the library's source code to include other required packages.
     - **`BASE_DEPENDENCIES`**: A common list of packages needed for all builds.
