@@ -181,6 +181,8 @@ Invalid or empty entries fail validation and stop changelog generation.
 The script auto-calculates the next version from the latest `Changelog.md`
 entry: it bumps the minor version when any entry is `feat`, otherwise it bumps
 the patch version.
+Entries using the breaking marker (`!`) are currently rejected with an explicit
+error because automatic major-version bumping is not implemented.
 
 ### Release summary
 
