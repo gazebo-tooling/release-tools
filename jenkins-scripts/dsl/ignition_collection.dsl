@@ -13,7 +13,7 @@ gz_collections_yaml = new Yaml().load(file)
 
 gz_nightly = 'kura'
 
-String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
+String get_package_name(parsed_yaml_lib, parsed_yaml_packaging)
 {
   major_version = parsed_yaml_lib.major_version
 
@@ -21,7 +21,7 @@ String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
   if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
     major_version = ""
 
-  return parsed_yaml_lib.name + major_version + "-debbuilder"
+  return parsed_yaml_lib.name + major_version
 }
 
 def DISABLE_TESTS           = false
@@ -150,8 +150,7 @@ nightly_scheduler_job.with
   label Globals.nontest_label("built-in")
 
   def nightly_packages = nightly_collection.libs.collect{
-    get_debbuilder_name(it,nightly_collection.packaging)
-    .replace("-debbuilder","") }.join(" ")
+    get_package_name(it, nightly_collection.packaging) }.join(" ")
 
   parameters
   {
@@ -167,8 +166,9 @@ nightly_scheduler_job.with
      cron(Globals.CRON_START_NIGHTLY)
   }
 
-  def src_branches = nightly_collection.libs.collect {
-    it.repo.current_branch
+  def branch_map_entries = nightly_collection.libs.collect { lib ->
+    def pkg_name = get_package_name(lib, nightly_collection.packaging)
+    "[${pkg_name}]=${lib.repo.current_branch}"
   }.join(" ")
 
   steps {
@@ -180,15 +180,12 @@ nightly_scheduler_job.with
             dry_run_str="--dry-run"
           fi
 
-          # Convert string parameters to Bash arrays
-          packages=(\$NIGHTLY_PACKAGES)
-          # Inject Groovy variable 'src_branches' and convert to Bash array
-          branches=(${src_branches})
+          # Associative array mapping package name -> source branch
+          declare -A branch_map=( ${branch_map_entries} )
 
           # redirect to not display the password
-          for i in "\${!packages[@]}"; do
-              pkg="\${packages[\$i]}"
-              src_branch="\${branches[\$i]}"
+          for pkg in \$NIGHTLY_PACKAGES; do
+              src_branch="\${branch_map[\$pkg]:-main}"
 
               echo "releasing \${pkg} (from branch \${src_branch})"
               python3 ./scripts/release.py \${dry_run_str} "\${pkg}" nightly \
