@@ -185,7 +185,11 @@ nightly_scheduler_job.with
 
           # redirect to not display the password
           for pkg in \$NIGHTLY_PACKAGES; do
-              src_branch="\${branch_map[\$pkg]:-main}"
+              src_branch="\${branch_map[\$pkg]}"
+              if [ -z "\${src_branch}" ]; then
+                echo "Error: no source branch found for package \${pkg}"
+                exit 1
+              fi
 
               echo "releasing \${pkg} (from branch \${src_branch})"
               python3 ./scripts/release.py \${dry_run_str} "\${pkg}" nightly \
