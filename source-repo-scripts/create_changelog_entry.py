@@ -413,8 +413,14 @@ def main():
                     print(f"Removed {file_path}")
                 except Exception as e:
                     print(f"Warning: Could not remove {file_path}: {e}")
-    else:
-        print("Changelog not updated.")
+
+    try:
+        subprocess.run(
+            ["git", "commit", "-m", f"Generate changelog entry for version {new_version}", changelog_dir, changelog_path],
+            check=True)
+        print("Committed removal of changelog entry files")
+    except Exception as e:
+        print(f"Warning: Could not commit changelog updates: {e}")
 
     return 0
 
