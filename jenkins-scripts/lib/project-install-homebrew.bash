@@ -82,10 +82,7 @@ echo '# END SECTION'
 
 echo "#BEGIN SECTION: brew doctor analysis"
 brew missing || brew install $(brew missing | awk '{print $2}') && brew missing
-# if szip is installed, skip brew doctor
-# remove this line when hdf5 stops depending on the deprecated szip formula
-# https://github.com/Homebrew/homebrew-core/issues/96930
-brew list | grep '^szip$' || brew doctor || echo MARK_AS_UNSTABLE
+brew doctor || echo MARK_AS_UNSTABLE
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: re-add group write permissions"
