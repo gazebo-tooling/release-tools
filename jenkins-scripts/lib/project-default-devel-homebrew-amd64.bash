@@ -79,7 +79,7 @@ echo "# BEGIN SECTION: install ${PROJECT_FORMULA} dependencies"
 # Process the package dependencies
 brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies ${HEAD_FLAG}
 # the following is needed to install :build dependencies of a formula
-brew install $(brew deps --1 --include-build ${PROJECT_FORMULA}) ${HEAD_FLAG}
+brew install $(brew deps --1 --include-build ${PROJECT_FORMULA})
 
 # pytest is needed to run python tests with junit xml output
 PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} pytest"
