@@ -67,11 +67,19 @@ then
   echo '# END SECTION'
 fi
 
+echo "# BEGIN SECTION: check if ${PROJECT_FORMULA} is HEAD formula"
+# Install with --HEAD if formula lacks a stable URL
+HEAD_FLAG=""
+if brew ruby -e "exit '${PROJECT_FORMULA}'.f.stable.nil?"; then
+  HEAD_FLAG="--HEAD"
+fi
+echo '# END SECTION'
+
 echo "# BEGIN SECTION: install ${PROJECT_FORMULA} dependencies"
 # Process the package dependencies
-brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies
+brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies ${HEAD_FLAG}
 # the following is needed to install :build dependencies of a formula
-brew install $(brew deps --1 --include-build ${PROJECT_FORMULA})
+brew install $(brew deps --1 --include-build ${PROJECT_FORMULA}) ${HEAD_FLAG}
 
 # pytest is needed to run python tests with junit xml output
 PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} pytest"
