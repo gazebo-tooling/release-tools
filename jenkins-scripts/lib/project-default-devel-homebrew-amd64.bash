@@ -79,7 +79,9 @@ echo "# BEGIN SECTION: install ${PROJECT_FORMULA} dependencies"
 # Process the package dependencies
 brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies ${HEAD_FLAG}
 # the following is needed to install :build dependencies of a formula
-brew install $(brew deps --1 --include-build ${PROJECT_FORMULA})
+# filter out the rotary dependencies since they require --HEAD
+NON_ROTARY_BUILD_DEPS=$(brew deps --1 --include-build ${PROJECT_FORMULA} | grep -v gz-rotary-)
+brew install ${NON_ROTARY_BUILD_DEPS}
 
 # pytest is needed to run python tests with junit xml output
 PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} pytest"
