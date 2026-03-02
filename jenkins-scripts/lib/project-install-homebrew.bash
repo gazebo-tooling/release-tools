@@ -54,8 +54,16 @@ then
   echo '# END SECTION'
 fi
 
+echo "# BEGIN SECTION: check if ${BOTTLE_NAME} is HEAD formula"
+# Install with --HEAD if formula lacks a stable URL
+HEAD_FLAG=""
+if brew ruby -e "exit '${BOTTLE_NAME}'.f.stable.nil?"; then
+  HEAD_FLAG="--HEAD"
+fi
+echo '# END SECTION'
+
 echo "# BEGIN SECTION: install ${BOTTLE_NAME}"
-brew install --include-test ${BOTTLE_NAME}
+brew install --include-test ${BOTTLE_NAME} ${HEAD_FLAG}
 
 # add X11 path so glxinfo can be found
 export PATH="${PATH}:/opt/X11/bin"
