@@ -36,15 +36,18 @@ echo '# BEGIN SECTION: import the debian metadata'
 # Remove number for packages like (sdformat2 or gazebo3)
 REAL_PACKAGE_NAME=$(echo $PACKAGE | sed 's:[0-9]*$::g')
 
+# For rotary packages (gz-rotary-*), the source repo name doesn't include "rotary-"
+SOURCE_REPO_NAME=\$(echo \$REAL_PACKAGE_NAME | sed 's:-rotary::')
+
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
   if ${USE_REPO_DIRECTORY_FOR_NIGHTLY}; then
     mv ${WORKSPACE}/repo \$REAL_PACKAGE_NAME
   else
-    git clone https://github.com/gazebosim/\$REAL_PACKAGE_NAME -b ${NIGHTLY_SRC_BRANCH}
+    git clone https://github.com/gazebosim/\${SOURCE_REPO_NAME} -b ${NIGHTLY_SRC_BRANCH}
   fi
-  PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME
-  cd \$REAL_PACKAGE_NAME
+  PACKAGE_SRC_BUILD_DIR=\${SOURCE_REPO_NAME}
+  cd \${SOURCE_REPO_NAME}
   TIMESTAMP=\$(date '+%Y%m%d')
   # Store revision for use in version
   if [[ -d .hg ]]; then
@@ -84,9 +87,20 @@ git clone https://github.com/gazebo-release/$PACKAGE-release -b $RELEASE_REPO_BR
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
-    # TODO: migrate to dpkg-parsechangelog
-    # dpkg-parsechangelog| grep Version | cut -f2 -d' '
-    UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${DISTRO}/debian/changelog | head -n 1 | tr -d ' ' | sed 's:-[0-9]*~.*::' )
+    if grep -q '@VERSION_TEMPLATE@' ${DISTRO}/debian/changelog; then
+        # Rotary repos: extract version from package.xml in source tree
+        UPSTREAM_VERSION=\$(python3 -c "
+import xml.etree.ElementTree as ET
+tree = ET.parse('$WORKSPACE/build/\${SOURCE_REPO_NAME}/package.xml')
+print(tree.getroot().find('version').text)
+")
+        # Replace @VERSION_TEMPLATE@ in changelog
+        sed -i "s/@VERSION_TEMPLATE@/\${UPSTREAM_VERSION}-1~${DISTRO}/" ${DISTRO}/debian/changelog
+    else
+        # TODO: migrate to dpkg-parsechangelog
+        # dpkg-parsechangelog| grep Version | cut -f2 -d' '
+        UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${DISTRO}/debian/changelog | head -n 1 | tr -d ' ' | sed 's:-[0-9]*~.*::' )
+    fi
 fi
 
 # Should the case of new distros supported like debian
