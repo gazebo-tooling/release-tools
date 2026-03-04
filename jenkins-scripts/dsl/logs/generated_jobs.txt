@@ -494,6 +494,7 @@ branch_ci kura sdformat-ci-sdf16-homebrew-amd64
 branch_ci kura sdformat-ci-sdf16-homebrew-arm64
 branch_ci kura sdformat-ci-sdf16-noble-amd64
 branch_ci kura sdformat-sdf16-cnlwin
+branch_ci rotary gz_cmake-ci-main-noble-amd64
 install_ci __upcoming__ gz_cmake5-install-pkg-noble-amd64
 install_ci __upcoming__ gz_cmake5-install_bottle-homebrew-amd64
 install_ci __upcoming__ gz_cmake5-install_bottle-homebrew-arm64
@@ -831,4 +832,7 @@ install_ci kura gz_utils4-install_bottle-homebrew-arm64
 install_ci kura sdformat16-install-pkg-noble-amd64
 install_ci kura sdformat16-install_bottle-homebrew-amd64
 install_ci kura sdformat16-install_bottle-homebrew-arm64
+install_ci rotary gz_cmake-install-pkg-noble-amd64
+install_ci rotary gz_cmake-install_bottle-homebrew-amd64
+install_ci rotary gz_cmake-install_bottle-homebrew-arm64
 unofficial_wrappers_install_pkg_ci harmonic ros_gzharmonic_bridge-install-pkg_humble-ci-jammy-amd64
