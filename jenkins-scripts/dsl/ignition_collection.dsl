@@ -12,6 +12,8 @@ file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
 gz_collections_yaml = new Yaml().load(file)
 
 gz_nightly = 'kura'
+// TODO: ENABLE when all rotary packages are set up in gz-collection.yaml
+// gz_nightly = 'rotary'
 
 String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
 {
@@ -20,6 +22,14 @@ String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
   ignore_major_version = parsed_yaml_packaging.linux?.ignore_major_version
   if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
     major_version = ""
+
+  debbuilder_prefix = parsed_yaml_packaging.linux?.debbuilder_prefix
+  if (debbuilder_prefix) {
+    // gz-cmake → gz-rotary-cmake, sdformat → gz-rotary-sdformat
+    base_name = parsed_yaml_lib.name.startsWith('gz-') ?
+      parsed_yaml_lib.name.substring(3) : parsed_yaml_lib.name
+    return "gz-${debbuilder_prefix}-${base_name}-debbuilder"
+  }
 
   return parsed_yaml_lib.name + major_version + "-debbuilder"
 }
@@ -176,7 +186,6 @@ nightly_scheduler_job.with
   fuel_tools_branch = get_nightly_branch(nightly_collection, 'gz-fuel-tools')
   sim_branch = get_nightly_branch(nightly_collection, 'gz-sim')
   gui_branch = get_nightly_branch(nightly_collection, 'gz-gui')
-  launch_branch = get_nightly_branch(nightly_collection, 'gz-launch')
   math_branch = get_nightly_branch(nightly_collection, 'gz-math')
   msgs_branch =  get_nightly_branch(nightly_collection, 'gz-msgs')
   physics_branch = get_nightly_branch(nightly_collection, 'gz-physics')
@@ -210,8 +219,6 @@ nightly_scheduler_job.with
                 src_branch="${sim_branch}"
               elif  [[ "\${n}" != "\${n/gui/}" ]]; then
                 src_branch="${gui_branch}"
-              elif [[ "\${n}" != "\${n/launch/}" ]]; then
-                src_branch="${launch_branch}"
               elif [[ "\${n}" != "\${n/math/}" ]]; then
                 src_branch="${math_branch}"
               elif [[ "\${n}" != "\${n/msgs/}" ]]; then

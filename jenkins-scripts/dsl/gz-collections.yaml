@@ -530,6 +530,95 @@ collections:
         nightly:
           distros:
             - noble
+  - name: 'rotary'
+    libs:
+      - name: gz-cmake
+        major_version: 5
+        repo:
+          current_branch: main
+      # TODO: remove __upcoming__ when rotary is ready
+      # - name: gz-tools
+      #   major_version: 3
+      #   repo:
+      #     current_branch: main
+      # - name: gz-utils
+      #   major_version: 4
+      #   repo:
+      #     current_branch: main
+      # - name: gz-math
+      #   major_version: 9
+      #   repo:
+      #     current_branch: main
+      # - name: gz-plugin
+      #   major_version: 4
+      #   repo:
+      #     current_branch: main
+      # - name: gz-common
+      #   major_version: 7
+      #   repo:
+      #     current_branch: main
+      # - name: gz-msgs
+      #   major_version: 12
+      #   repo:
+      #     current_branch: main
+      # - name: gz-rendering
+      #   major_version: 10
+      #   repo:
+      #     current_branch: main
+      # - name: sdformat
+      #   major_version: 16
+      #   repo:
+      #     current_branch: main
+      # - name: gz-fuel-tools
+      #   major_version: 11
+      #   repo:
+      #     current_branch: main
+      # - name: gz-transport
+      #   major_version: 15
+      #   repo:
+      #     current_branch: main
+      # - name: gz-gui
+      #   major_version: 10
+      #   repo:
+      #     current_branch: main
+      # - name: gz-sensors
+      #   major_version: 10
+      #   repo:
+      #     current_branch: main
+      # - name: gz-physics
+      #   major_version: 9
+      #   repo:
+      #     current_branch: main
+      # - name: gz-sim
+      #   major_version: 10
+      #   repo:
+      #     current_branch: main
+    ci:
+      configs:
+        - noble_no_pr
+    packaging:
+      configs:
+        - noble
+        - brew_amd64
+        - brew_arm64
+      linux:
+        ignore_major_version:
+          - gz-cmake
+          - gz-tools
+          - gz-utils
+          - gz-math
+          - gz-plugin
+          - gz-common
+          - gz-msgs
+          - gz-rendering
+          - sdformat
+          - gz-fuel-tools
+          - gz-transport
+          - gz-gui
+          - gz-sensors
+          - gz-physics
+          - gz-sim
+        debbuilder_prefix: 'rotary'
 ci_configs:
   - name: focal
     system:
@@ -850,6 +939,7 @@ packaging_configs:
         - "export MAKE_JOBS=1"
     exclude:
         - __upcoming__
+        - rotary
   - name: noble
     system:
       so: linux
@@ -862,6 +952,7 @@ packaging_configs:
         - "export MAKE_JOBS=1"
     exclude:
         - __upcoming__
+        - rotary
   - name: brew_amd64
     system:
       so: darwin
