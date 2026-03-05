@@ -94,8 +94,11 @@ import xml.etree.ElementTree as ET
 tree = ET.parse('$WORKSPACE/build/\${SOURCE_REPO_NAME}/package.xml')
 print(tree.getroot().find('version').text)
 ")
-        # Replace @VERSION_TEMPLATE@ in changelog
-        sed -i "s/@VERSION_TEMPLATE@/\${UPSTREAM_VERSION}-1~${DISTRO}/" ${DISTRO}/debian/changelog
+        # Replace @VERSION_TEMPLATE@ with (MAJOR_VERSION - 1).999.999
+        # This places the rotary nightly below the upcoming major release
+        MAJOR_VERSION=\$(echo \${UPSTREAM_VERSION} | cut -d. -f1)
+        PREV_MAJOR=\$((MAJOR_VERSION - 1))
+        sed -i "s/@VERSION_TEMPLATE@/\${PREV_MAJOR}.999.999-1~${DISTRO}/" ${DISTRO}/debian/changelog
     else
         # TODO: migrate to dpkg-parsechangelog
         # dpkg-parsechangelog| grep Version | cut -f2 -d' '
