@@ -826,6 +826,4 @@ install_ci kura sdformat16-install-pkg-noble-amd64
 install_ci kura sdformat16-install_bottle-homebrew-amd64
 install_ci kura sdformat16-install_bottle-homebrew-arm64
 install_ci rotary gz_cmake-install-pkg-noble-amd64
-install_ci rotary gz_cmake-install_bottle-homebrew-amd64
-install_ci rotary gz_cmake-install_bottle-homebrew-arm64
 unofficial_wrappers_install_pkg_ci harmonic ros_gzharmonic_bridge-install-pkg_humble-ci-jammy-amd64
