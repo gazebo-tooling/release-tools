@@ -455,10 +455,10 @@ collections:
         major_version: 3
         repo:
           current_branch: main
-      - name: gz-cmake
-        major_version: 5
-        repo:
-          current_branch: main
+#      - name: gz-cmake
+#        major_version: 5
+#        repo:
+#          current_branch: main
       - name: gz-common
         major_version: 7
         repo:
@@ -595,7 +595,7 @@ collections:
       #     current_branch: main
     ci:
       configs:
-        - noble_no_pr
+        - noble
     packaging:
       configs:
         - noble
