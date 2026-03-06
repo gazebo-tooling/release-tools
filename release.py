@@ -127,7 +127,7 @@ B) Call builders: reuse existing tarball version + call build jobs:
    $ release.py --source-tarball-uri <URL> --source-tarball-sha256 <SHA256> <package> <version>
 
 C) Nightly builds (linux)
-   $ release.py --source-repo-existing-ref <git_branch> --upload-to-repo nightly <URL> <package> <version>
+   $ release.py --source-repo-existing-ref <git_branch> --upload-to-repo nightly <package> nightly
  """)
     parser.add_argument('package', help='which package to release')
     parser.add_argument('version', help='which version to release')
@@ -280,6 +280,9 @@ def sanity_package_name(repo_dir, package, package_alias):
     # Use igntiion for Citadel and Fortress, gz for Garden and beyond
     gz_name = expected_name.replace("ignition", "gz")
     gz_name = gz_name.replace("gazebo", "sim")
+    # For rotary packages (e.g. gz-rotary-cmake), the release repo uses the
+    # base name without the '-rotary-' infix (e.g. gz-cmake)
+    gz_name = expected_name.replace('-rotary-', '-')
 
     cmd = ["find", repo_dir, "-name", "changelog", "-exec", "head", "-n", "1", "{}", ";"]
     out, _ = check_call(cmd, IGNORE_DRY_RUN)
