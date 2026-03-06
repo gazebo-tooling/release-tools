@@ -581,6 +581,9 @@ collections:
     ci:
       configs:
         - noble
+        - brew_amd64
+        - brew_arm64
+        - win_conda_noble
     packaging:
       configs:
         - noble
