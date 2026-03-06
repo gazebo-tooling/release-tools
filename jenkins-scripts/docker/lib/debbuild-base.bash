@@ -112,11 +112,12 @@ print(tree.getroot().find('version').text)
         # This places the rotary nightly below the upcoming major release
         MAJOR_VERSION=\$(echo \${UPSTREAM_VERSION} | cut -d. -f1)
         PREV_MAJOR=\$((MAJOR_VERSION - 1))
-        sed -i "s/@VERSION_TEMPLATE@/\${PREV_MAJOR}.999.999-1~${DISTRO}/" ${DISTRO}/debian/changelog
+        NIGHTLY_VERSION=\${PREV_MAJOR}.999.999
+        sed -i "s/@VERSION_TEMPLATE@/\${NIGHTLY_VERSION}-1~${DISTRO}/" ${DISTRO}/debian/changelog
     else
         # TODO: migrate to dpkg-parsechangelog
         # dpkg-parsechangelog| grep Version | cut -f2 -d' '
-        UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${DISTRO}/debian/changelog | head -n 1 | tr -d ' ' | sed 's:-[0-9]*~.*::' )
+        NIGHTLY_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${DISTRO}/debian/changelog | head -n 1 | tr -d ' ' | sed 's:-[0-9]*~.*::' )
     fi
 fi
 
@@ -177,7 +178,7 @@ fi
 
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
-  NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV}-${RELEASE_VERSION}~${DISTRO}
+  NIGHTLY_VERSION_SUFFIX=\${NIGHTLY_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV}-${RELEASE_VERSION}~${DISTRO}
   debchange --package \${PACKAGE_ALIAS} \\
               --newversion \${NIGHTLY_VERSION_SUFFIX} \\
               --distribution ${DISTRO} \\
@@ -197,7 +198,7 @@ if $NIGHTLY_MODE; then
   if dpkg --compare-versions \$(apt-cache show dh-make | sed -n "s/Version: \\(.*\\)/\\1/p") lt 2.202003; then
     extra_dh_make_str=''
   fi
-  echo | dh_make -y -s --createorig \${extra_dh_make_str} -p\${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
+  echo | dh_make -y -s --createorig \${extra_dh_make_str} -p\${PACKAGE_ALIAS}_\${NIGHTLY_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
   rm -fr debian/
 fi
 
