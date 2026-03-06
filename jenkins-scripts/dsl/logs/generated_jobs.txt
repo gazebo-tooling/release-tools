@@ -1,4 +1,3 @@
-asan_ci __upcoming__ gz_cmake-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_common-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_fuel_tools-ci_asan-main-noble-amd64
 asan_ci __upcoming__ gz_gui-ci_asan-main-noble-amd64
@@ -94,10 +93,7 @@ asan_ci kura gz_tools-ci_asan-gz-tools2-noble-amd64
 asan_ci kura gz_transport-ci_asan-gz-transport15-noble-amd64
 asan_ci kura gz_utils-ci_asan-gz-utils4-noble-amd64
 asan_ci kura sdformat-ci_asan-sdf16-noble-amd64
-branch_ci __upcoming__ gz_cmake-ci-main-homebrew-amd64
-branch_ci __upcoming__ gz_cmake-ci-main-homebrew-arm64
-branch_ci __upcoming__ gz_cmake-ci-main-noble-amd64
-branch_ci __upcoming__ gz_cmake-main-cnlwin
+asan_ci rotary gz_cmake-ci_asan-main-noble-amd64
 branch_ci __upcoming__ gz_common-ci-main-homebrew-amd64
 branch_ci __upcoming__ gz_common-ci-main-homebrew-arm64
 branch_ci __upcoming__ gz_common-ci-main-noble-amd64
@@ -495,9 +491,6 @@ branch_ci kura sdformat-ci-sdf16-homebrew-arm64
 branch_ci kura sdformat-ci-sdf16-noble-amd64
 branch_ci kura sdformat-sdf16-cnlwin
 branch_ci rotary gz_cmake-ci-main-noble-amd64
-install_ci __upcoming__ gz_cmake5-install-pkg-noble-amd64
-install_ci __upcoming__ gz_cmake5-install_bottle-homebrew-amd64
-install_ci __upcoming__ gz_cmake5-install_bottle-homebrew-arm64
 install_ci __upcoming__ gz_common7-install-pkg-noble-amd64
 install_ci __upcoming__ gz_common7-install_bottle-homebrew-amd64
 install_ci __upcoming__ gz_common7-install_bottle-homebrew-arm64
