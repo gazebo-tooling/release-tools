@@ -618,7 +618,6 @@ collections:
           - gz-sensors
           - gz-physics
           - gz-sim
-        debbuilder_prefix: 'rotary'
 ci_configs:
   - name: focal
     system:

@@ -237,7 +237,7 @@ void generate_win_ci_job(gz_win_ci_job, lib_name, branch, ci_config)
 }
 
 
-String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
+String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging, collection_name)
 {
   major_version = parsed_yaml_lib.major_version
 
@@ -245,12 +245,10 @@ String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
   if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
     major_version = ""
 
-  debbuilder_prefix = parsed_yaml_packaging.linux?.debbuilder_prefix
-  if (debbuilder_prefix) {
-    // gz-cmake → gz-rotary-cmake, sdformat → gz-rotary-sdformat
+  if (collection_name == 'rotary') {
     base_name = parsed_yaml_lib.name.startsWith('gz-') ?
       parsed_yaml_lib.name.substring(3) : parsed_yaml_lib.name
-    return "gz-${debbuilder_prefix}-${base_name}-debbuilder"
+    return "gz-rotary-${base_name}-debbuilder"
   }
 
   return parsed_yaml_lib.name + major_version + "-debbuilder"
@@ -606,7 +604,7 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
     def collection_name = pkg_src_configs.values()[0][0].collection
     def collection = gz_collections_yaml.collections.find { it.name == collection_name }
     def lib = collection.libs.find { it.name == canonical_lib_name }
-    def debbuilder_pkg_name = get_debbuilder_name(lib, collection.packaging)
+    def debbuilder_pkg_name = get_debbuilder_name(lib, collection.packaging, collection_name)
                                 .replace("-debbuilder", "")
 
     // - DEBBUILD jobs -------------------------------------------------
@@ -691,7 +689,7 @@ collection_job_names.each { collection_name, job_names ->
       def collection = gz_collections_yaml.collections.find { it.name == collection_name }
       if (collection.packaging?.linux?.nightly) {
         collection.libs.each { lib ->
-          name(get_debbuilder_name(lib, collection.packaging))
+          name(get_debbuilder_name(lib, collection.packaging, collection_name))
         }
       }
     }
