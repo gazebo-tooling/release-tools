@@ -23,6 +23,23 @@ export ENABLE_REAPER=false
 . ${SCRIPT_DIR}/lib/_common_scripts.bash
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
+# Remove number for packages like (sdformat2 or gazebo3)
+# For rotary packages (gz-rotary-*), reverse the DSL naming:
+#   gz-rotary-cmake → gz-cmake (re-add gz- prefix)
+#   gz-rotary-sdformat → sdformat (no gz- prefix in original)
+REAL_PACKAGE_NAME=$(echo $PACKAGE | sed 's:[0-9]*$::g')
+if [[ "$REAL_PACKAGE_NAME" == gz-rotary-* ]]; then
+    _rotary_base=${REAL_PACKAGE_NAME#gz-rotary-}
+    case $_rotary_base in
+      sdformat)
+        REAL_PACKAGE_NAME=$_rotary_base
+      ;;
+      *)
+        REAL_PACKAGE_NAME=gz-$_rotary_base
+      ;;
+    esac
+fi
+
 cat > build.sh << DELIM
 $(generate_buildsh_header)
 
@@ -33,11 +50,8 @@ export DEBEMAIL="build@osrfoundation.org"
 
 echo '# BEGIN SECTION: import the debian metadata'
 
-# Remove number for packages like (sdformat2 or gazebo3)
-REAL_PACKAGE_NAME=$(echo $PACKAGE | sed 's:[0-9]*$::g')
-
-# For rotary packages (gz-rotary-*), the source repo name doesn't include "rotary-"
-SOURCE_REPO_NAME=\$(echo \$REAL_PACKAGE_NAME | sed 's:-rotary::')
+REAL_PACKAGE_NAME=${REAL_PACKAGE_NAME}
+SOURCE_REPO_NAME=${REAL_PACKAGE_NAME}
 
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
