@@ -490,7 +490,10 @@ branch_ci kura sdformat-ci-sdf16-homebrew-amd64
 branch_ci kura sdformat-ci-sdf16-homebrew-arm64
 branch_ci kura sdformat-ci-sdf16-noble-amd64
 branch_ci kura sdformat-sdf16-cnlwin
+branch_ci rotary gz_cmake-ci-main-homebrew-amd64
+branch_ci rotary gz_cmake-ci-main-homebrew-arm64
 branch_ci rotary gz_cmake-ci-main-noble-amd64
+branch_ci rotary gz_cmake-main-cnlwin
 install_ci __upcoming__ gz_common7-install-pkg-noble-amd64
 install_ci __upcoming__ gz_common7-install_bottle-homebrew-amd64
 install_ci __upcoming__ gz_common7-install_bottle-homebrew-arm64
