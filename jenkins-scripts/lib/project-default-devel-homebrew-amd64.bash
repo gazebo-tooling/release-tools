@@ -157,6 +157,10 @@ export DISPLAY=$(ps ax \
 )
 
 CMAKE_ARGS=""
+# set CMAKE_PREFIX_PATH if we are using protobuf@33
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'protobuf@33' }.empty?"; then
+  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${HOMEBREW_PREFIX}/opt/protobuf@33
+fi
 # set CMAKE_PREFIX_PATH if we are using qt@5
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt@5' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${HOMEBREW_PREFIX}/opt/qt@5
