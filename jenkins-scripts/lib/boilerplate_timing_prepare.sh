@@ -1,6 +1,6 @@
 # TIMING ROUTINES
 if [ -z ${ENABLE_TIMING} ]; then
-  ENABLE_TIMING=false
+  ENABLE_TIMING=true
 fi
 
 # Need to copy the library into WORKSPACE/script to be used 
