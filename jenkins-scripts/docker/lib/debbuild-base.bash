@@ -23,6 +23,23 @@ export ENABLE_REAPER=false
 . ${SCRIPT_DIR}/lib/_common_scripts.bash
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
+# Remove number for packages like (sdformat2 or gazebo3)
+# For rotary packages (gz-rotary-*), reverse the DSL naming:
+#   gz-rotary-cmake → gz-cmake (re-add gz- prefix)
+#   gz-rotary-sdformat → sdformat (no gz- prefix in original)
+REAL_PACKAGE_NAME=$(echo $PACKAGE | sed 's:[0-9]*$::g')
+if [[ "$REAL_PACKAGE_NAME" == gz-rotary-* ]]; then
+    _rotary_base=${REAL_PACKAGE_NAME#gz-rotary-}
+    case $_rotary_base in
+      sdformat)
+        REAL_PACKAGE_NAME=$_rotary_base
+      ;;
+      *)
+        REAL_PACKAGE_NAME=gz-$_rotary_base
+      ;;
+    esac
+fi
+
 cat > build.sh << DELIM
 $(generate_buildsh_header)
 
@@ -33,18 +50,18 @@ export DEBEMAIL="build@osrfoundation.org"
 
 echo '# BEGIN SECTION: import the debian metadata'
 
-# Remove number for packages like (sdformat2 or gazebo3)
-REAL_PACKAGE_NAME=$(echo $PACKAGE | sed 's:[0-9]*$::g')
+REAL_PACKAGE_NAME=${REAL_PACKAGE_NAME}
+SOURCE_REPO_NAME=${REAL_PACKAGE_NAME}
 
 # Step 1: Get the source (nightly builds or tarball)
 if ${NIGHTLY_MODE}; then
   if ${USE_REPO_DIRECTORY_FOR_NIGHTLY}; then
     mv ${WORKSPACE}/repo \$REAL_PACKAGE_NAME
   else
-    git clone https://github.com/gazebosim/\$REAL_PACKAGE_NAME -b ${NIGHTLY_SRC_BRANCH}
+    git clone https://github.com/gazebosim/\${SOURCE_REPO_NAME} -b ${NIGHTLY_SRC_BRANCH}
   fi
-  PACKAGE_SRC_BUILD_DIR=\$REAL_PACKAGE_NAME
-  cd \$REAL_PACKAGE_NAME
+  PACKAGE_SRC_BUILD_DIR=\${SOURCE_REPO_NAME}
+  cd \${SOURCE_REPO_NAME}
   TIMESTAMP=\$(date '+%Y%m%d')
   # Store revision for use in version
   if [[ -d .hg ]]; then
@@ -84,9 +101,24 @@ git clone https://github.com/gazebo-release/$PACKAGE-release -b $RELEASE_REPO_BR
 cd /tmp/$PACKAGE-release
 # In nightly get the default latest version from default changelog
 if $NIGHTLY_MODE; then
-    # TODO: migrate to dpkg-parsechangelog
-    # dpkg-parsechangelog| grep Version | cut -f2 -d' '
-    UPSTREAM_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${DISTRO}/debian/changelog | head -n 1 | tr -d ' ' | sed 's:-[0-9]*~.*::' )
+    if grep -q '@VERSION_TEMPLATE@' ${DISTRO}/debian/changelog; then
+        # Rotary repos: extract version from package.xml in source tree
+        UPSTREAM_VERSION=\$(python3 -c "
+import xml.etree.ElementTree as ET
+tree = ET.parse('$WORKSPACE/build/\${SOURCE_REPO_NAME}/package.xml')
+print(tree.getroot().find('version').text)
+")
+        # Replace @VERSION_TEMPLATE@ with (MAJOR_VERSION - 1).999.999
+        # This places the rotary nightly below the upcoming major release
+        MAJOR_VERSION=\$(echo \${UPSTREAM_VERSION} | cut -d. -f1)
+        PREV_MAJOR=\$((MAJOR_VERSION - 1))
+        NIGHTLY_VERSION=\${PREV_MAJOR}.999.999
+        sed -i "s/@VERSION_TEMPLATE@/\${NIGHTLY_VERSION}-1~${DISTRO}/" ${DISTRO}/debian/changelog
+    else
+        # TODO: migrate to dpkg-parsechangelog
+        # dpkg-parsechangelog| grep Version | cut -f2 -d' '
+        NIGHTLY_VERSION=\$( sed -n '/(/,/)/ s/.*(\([^)]*\)).*/\1 /p' ${DISTRO}/debian/changelog | head -n 1 | tr -d ' ' | sed 's:-[0-9]*~.*::' )
+    fi
 fi
 
 # Should the case of new distros supported like debian
@@ -146,7 +178,7 @@ fi
 
 # [nightly] Adjust version in nightly mode
 if $NIGHTLY_MODE; then
-  NIGHTLY_VERSION_SUFFIX=\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV}-${RELEASE_VERSION}~${DISTRO}
+  NIGHTLY_VERSION_SUFFIX=\${NIGHTLY_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV}-${RELEASE_VERSION}~${DISTRO}
   debchange --package \${PACKAGE_ALIAS} \\
               --newversion \${NIGHTLY_VERSION_SUFFIX} \\
               --distribution ${DISTRO} \\
@@ -166,7 +198,7 @@ if $NIGHTLY_MODE; then
   if dpkg --compare-versions \$(apt-cache show dh-make | sed -n "s/Version: \\(.*\\)/\\1/p") lt 2.202003; then
     extra_dh_make_str=''
   fi
-  echo | dh_make -y -s --createorig \${extra_dh_make_str} -p\${PACKAGE_ALIAS}_\${UPSTREAM_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
+  echo | dh_make -y -s --createorig \${extra_dh_make_str} -p\${PACKAGE_ALIAS}_\${NIGHTLY_VERSION}+\${TIMESTAMP}+${RELEASE_VERSION}r\${REV} > /dev/null
   rm -fr debian/
 fi
 

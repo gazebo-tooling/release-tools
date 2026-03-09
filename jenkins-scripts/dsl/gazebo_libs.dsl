@@ -237,13 +237,19 @@ void generate_win_ci_job(gz_win_ci_job, lib_name, branch, ci_config)
 }
 
 
-String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
+String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging, collection_name)
 {
   major_version = parsed_yaml_lib.major_version
 
   ignore_major_version = parsed_yaml_packaging.linux?.ignore_major_version
   if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
     major_version = ""
+
+  if (collection_name == 'rotary') {
+    base_name = parsed_yaml_lib.name.startsWith('gz-') ?
+      parsed_yaml_lib.name.substring(3) : parsed_yaml_lib.name
+    return "gz-rotary-${base_name}-debbuilder"
+  }
 
   return parsed_yaml_lib.name + major_version + "-debbuilder"
 }
@@ -593,14 +599,22 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
 
   if (linux_ciconfigs && !exclusion_list.contains(canonical_lib_name))
   {
+    // For rotary packages, debbuilder/source names use the debbuilder prefix
+    // (e.g., gz-cmake → gz-rotary-cmake-debbuilder)
+    def collection_name = pkg_src_configs.values()[0][0].collection
+    def collection = gz_collections_yaml.collections.find { it.name == collection_name }
+    def lib = collection.libs.find { it.name == canonical_lib_name }
+    def debbuilder_pkg_name = get_debbuilder_name(lib, collection.packaging, collection_name)
+                                .replace("-debbuilder", "")
+
     // - DEBBUILD jobs -------------------------------------------------
-    generate_debbuilder_job(pkg_src,
+    generate_debbuilder_job(debbuilder_pkg_name,
       pre_setup_script_hooks
     )
     // - SOURCE jobs ---------------------------------------------------
-    def gz_source_job = job("${pkg_src}-source")
+    def gz_source_job = job("${debbuilder_pkg_name}-source")
     OSRFSourceCreation.create(gz_source_job, [
-      PACKAGE: pkg_src,
+      PACKAGE: debbuilder_pkg_name,
       SOURCE_REPO_URI: "https://github.com/gazebosim/${canonical_lib_name}.git"])
     OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
       canonical_lib_name,
@@ -675,7 +689,7 @@ collection_job_names.each { collection_name, job_names ->
       def collection = gz_collections_yaml.collections.find { it.name == collection_name }
       if (collection.packaging?.linux?.nightly) {
         collection.libs.each { lib ->
-          name(get_debbuilder_name(lib, collection.packaging))
+          name(get_debbuilder_name(lib, collection.packaging, collection_name))
         }
       }
     }

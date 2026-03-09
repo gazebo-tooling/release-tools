@@ -455,10 +455,10 @@ collections:
         major_version: 3
         repo:
           current_branch: main
-      - name: gz-cmake
-        major_version: 5
-        repo:
-          current_branch: main
+#      - name: gz-cmake
+#        major_version: 5
+#        repo:
+#          current_branch: main
       - name: gz-common
         major_version: 7
         repo:
@@ -530,6 +530,80 @@ collections:
         nightly:
           distros:
             - noble
+  - name: 'rotary'
+    libs:
+      - name: gz-cmake
+        repo:
+          current_branch: main
+      # TODO: remove __upcoming__ when rotary is ready
+      # - name: gz-tools
+      #   repo:
+      #     current_branch: main
+      # - name: gz-utils
+      #   repo:
+      #     current_branch: main
+      # - name: gz-math
+      #   repo:
+      #     current_branch: main
+      # - name: gz-plugin
+      #   repo:
+      #     current_branch: main
+      # - name: gz-common
+      #   repo:
+      #     current_branch: main
+      # - name: gz-msgs
+      #   repo:
+      #     current_branch: main
+      # - name: gz-rendering
+      #   repo:
+      #     current_branch: main
+      # - name: sdformat
+      #   repo:
+      #     current_branch: main
+      # - name: gz-fuel-tools
+      #   repo:
+      #     current_branch: main
+      # - name: gz-transport
+      #   repo:
+      #     current_branch: main
+      # - name: gz-gui
+      #   repo:
+      #     current_branch: main
+      # - name: gz-sensors
+      #   repo:
+      #     current_branch: main
+      # - name: gz-physics
+      #   repo:
+      #     current_branch: main
+      # - name: gz-sim
+      #   repo:
+      #     current_branch: main
+    ci:
+      configs:
+        - noble
+        - brew_amd64
+        - brew_arm64
+        - win_conda_noble
+    packaging:
+      configs:
+        - noble
+      linux:
+        ignore_major_version:
+          - gz-cmake
+          - gz-tools
+          - gz-utils
+          - gz-math
+          - gz-plugin
+          - gz-common
+          - gz-msgs
+          - gz-rendering
+          - sdformat
+          - gz-fuel-tools
+          - gz-transport
+          - gz-gui
+          - gz-sensors
+          - gz-physics
+          - gz-sim
 ci_configs:
   - name: focal
     system:
@@ -850,6 +924,7 @@ packaging_configs:
         - "export MAKE_JOBS=1"
     exclude:
         - __upcoming__
+        - rotary
   - name: noble
     system:
       so: linux
@@ -862,6 +937,7 @@ packaging_configs:
         - "export MAKE_JOBS=1"
     exclude:
         - __upcoming__
+        - rotary
   - name: brew_amd64
     system:
       so: darwin
