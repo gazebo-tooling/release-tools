@@ -59,12 +59,12 @@ git checkout origin/${DEST_BRANCH}
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-cmake ${ABI_JOB_CMAKE_PARAMS} \\
+cmake -GNinja ${ABI_JOB_CMAKE_PARAMS} \\
   -DBUILD_TESTING=OFF \\
   -DCMAKE_INSTALL_PREFIX=/usr/local/destination_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
-make -j${MAKE_JOBS}
-sudo make install
+cmake --build . -j${MAKE_JOBS}
+sudo cmake --install .
 DEST_DIR=\$(find /usr/local/destination_branch/include -name ${ABI_JOB_HEADER_PREFIX} -type d | sed -e 's:.*/include/::')
 echo '# END SECTION'
 
@@ -80,12 +80,12 @@ git checkout source_repo/${SRC_BRANCH}
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
-cmake ${ABI_JOB_CMAKE_PARAMS} \\
+cmake -GNinja ${ABI_JOB_CMAKE_PARAMS} \\
   -DBUILD_TESTING=OFF \\
   -DCMAKE_INSTALL_PREFIX=/usr/local/source_branch \\
   /tmp/${ABI_JOB_SOFTWARE_NAME}
-make -j${MAKE_JOBS}
-sudo make install
+cmake --build . -j${MAKE_JOBS}
+sudo cmake --install .
 SRC_DIR=\$(find /usr/local/source_branch/include -name ${ABI_JOB_HEADER_PREFIX} -type d | sed -e 's:.*/include/::')
 echo '# END SECTION'
 

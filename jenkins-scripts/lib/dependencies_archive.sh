@@ -9,7 +9,8 @@
 # net-tools (route command) for squid-deb-proxy checking
 # gnupg apt-key requires gnupg, gnupg2 or gnupg1
 BASE_DEPENDENCIES="build-essential \\
-                   cmake           \\
+                   cmake           \
+                   ninja-build     \\
                    debhelper       \\
                    mesa-utils      \\
                    x11-utils       \\

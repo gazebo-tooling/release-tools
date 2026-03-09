@@ -7,7 +7,7 @@
 #  - GENERIC_ENABLE_TESTS (optional) [default true] run tests
 #  - ASAN_OPTIONS (optional) extra asan options
 #  - BUILDING_EXTRA_CMAKE_PARAMS (optional) extra cmake params
-#  - BUILDING_EXTRA_MAKETEST_PARAMS (optional) extra "make test ARGS=" params
+#  - BUILDING_EXTRA_MAKETEST_PARAMS (optional) extra ctest params
 #  - BUILD_<lib name> (optional) build dependency from source, for example, BUILD_GZ_MATH
 #    - <lib name>_BRANCH (optional [default: master]) branch for BUILD_<lib_name>
 
@@ -95,17 +95,17 @@ cd $WORKSPACE
 [[ ! -d $WORKSPACE/build ]] && mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
 
-cmake $WORKSPACE/${SOFTWARE_DIR} ${BUILDING_EXTRA_CMAKE_PARAMS} \
+cmake -GNinja $WORKSPACE/${SOFTWARE_DIR} ${BUILDING_EXTRA_CMAKE_PARAMS} \
     -DCMAKE_INSTALL_PREFIX=/usr
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: compiling'
 init_stopwatch COMPILATION
-make -j\$(cat $WORKSPACE/make_jobs)
+cmake --build . -j\$(cat $WORKSPACE/make_jobs)
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: installing'
-sudo make install
+sudo cmake --install .
 stop_stopwatch COMPILATION
 echo '# END SECTION'
 
@@ -114,7 +114,7 @@ if $GENERIC_ENABLE_TESTS; then
   init_stopwatch TEST
   export ASAN_OPTIONS=\${ASAN_OPTIONS:+\$ASAN_OPTIONS:}${ASAN_OPTIONS}
   mkdir -p \$HOME
-  make test ARGS="-VV ${BUILDING_EXTRA_MAKETEST_PARAMS} --output-junit cmake_junit_output.xml" || true
+  ctest -VV ${BUILDING_EXTRA_MAKETEST_PARAMS} --output-junit cmake_junit_output.xml || true
   if [ -f cmake_junit_output.xml ]; then
     python3 $WORKSPACE/scripts/jenkins-scripts/tools/cmake_to_gtest_junit_output.py cmake_junit_output.xml test_results  || true
   fi
