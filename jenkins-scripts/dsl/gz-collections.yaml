@@ -451,10 +451,10 @@ collections:
           - gz-kura
   - name: '__upcoming__'
     libs:
-      - name: gz-tools
-        major_version: 3
-        repo:
-          current_branch: main
+#      - name: gz-tools
+#        major_version: 3
+#        repo:
+#          current_branch: main
 #      - name: gz-cmake
 #        major_version: 5
 #        repo:
@@ -507,10 +507,10 @@ collections:
         major_version: 15
         repo:
           current_branch: main
-      - name: gz-utils
-        major_version: 4
-        repo:
-          current_branch: main
+#      - name: gz-utils
+#        major_version: 4
+#        repo:
+#          current_branch: main
       - name: sdformat
         major_version: 16
         repo:
@@ -531,17 +531,17 @@ collections:
           distros:
             - noble
   - name: 'rotary'
+    # TODO: remove __upcoming__ when rotary is ready
     libs:
       - name: gz-cmake
         repo:
           current_branch: main
-      # TODO: remove __upcoming__ when rotary is ready
-      # - name: gz-tools
-      #   repo:
-      #     current_branch: main
-      # - name: gz-utils
-      #   repo:
-      #     current_branch: main
+      - name: gz-tools
+        repo:
+          current_branch: main
+      - name: gz-utils
+        repo:
+          current_branch: main
       # - name: gz-math
       #   repo:
       #     current_branch: main
