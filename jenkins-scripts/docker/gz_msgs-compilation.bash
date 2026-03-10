@@ -31,6 +31,6 @@ if [[ ${GZ_MSGS_MAJOR_VERSION} -ge 3 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
-export GZDEV_PROJECT_NAME="gz-msgs${GZ_MSGS_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="${GZDEV_PROJECT_NAME:-gz-msgs${GZ_MSGS_MAJOR_VERSION}}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

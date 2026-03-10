@@ -36,7 +36,7 @@ String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
 
 def DISABLE_TESTS           = false
 
-void generate_install_job(prefix, gz_collection_name, distro, arch)
+void generate_install_job(prefix, gz_collection_name, distro, arch, gzdev_project = '')
 {
   def install_default_job = job("${prefix}_${gz_collection_name}-install-pkg-${distro}-${arch}")
   OSRFLinuxInstall.create(install_default_job)
@@ -49,6 +49,7 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
 
     def dev_package = "${prefix}-${gz_collection_name}"
     def job_name = 'gz_launch-install-test-job.bash'
+    def gzdev_project_name = gzdev_project ?: dev_package
 
     label Globals.nontest_label("docker && gpu-reliable")
 
@@ -59,7 +60,7 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
            export DISTRO=${distro}
            export ARCH=${arch}
            export INSTALL_JOB_PKG=${dev_package}
-           export GZDEV_PROJECT_NAME="${dev_package}"
+           export GZDEV_PROJECT_NAME="${gzdev_project_name}"
            if [[ ${gz_collection_name} == 'citadel' || ${gz_collection_name} == 'fortress' ]]; then
               export GZ_SIM_RUNTIME_TEST_USE_IGN=true
            fi
@@ -93,7 +94,8 @@ gz_collections_yaml.collections.each { collection ->
     if ((gz_collection_name == "citadel") || (gz_collection_name == "fortress")) {
       generate_install_job('ignition', gz_collection_name, distro, arch)
     }
-    generate_install_job('gz', gz_collection_name, distro, arch)
+    def gzdev_project = (gz_collection_name == 'rotary') ? 'rotary' : ''
+    generate_install_job('gz', gz_collection_name, distro, arch, gzdev_project)
 
     // ROS BOOTSTRAP INSTALL JOBS:
     // --------------------------------------------------------------

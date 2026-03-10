@@ -29,6 +29,6 @@ fi
 
 export NEED_C17_COMPILER=true
 
-export GZDEV_PROJECT_NAME="gz-utils${GZ_UTILS_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="${GZDEV_PROJECT_NAME:-gz-utils${GZ_UTILS_MAJOR_VERSION}}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
