@@ -32,6 +32,6 @@ if [[ ${GZ_GUI_MAJOR_VERSION} -ge 1 ]]; then
 fi
 
 export GPU_SUPPORT_NEEDED=true
-export GZDEV_PROJECT_NAME="gz-gui${GZ_GUI_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="${GZDEV_PROJECT_NAME:-gz-gui${GZ_GUI_MAJOR_VERSION}}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

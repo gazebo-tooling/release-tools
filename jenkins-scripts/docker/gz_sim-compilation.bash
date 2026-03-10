@@ -30,6 +30,6 @@ fi
 export NEED_C17_COMPILER=true
 export GPU_SUPPORT_NEEDED=true
 
-export GZDEV_PROJECT_NAME="gz-sim${GZ_SIM_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="${GZDEV_PROJECT_NAME:-gz-sim${GZ_SIM_MAJOR_VERSION}}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
