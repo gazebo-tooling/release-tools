@@ -287,14 +287,17 @@ String generate_linux_install(src_name, lib_name, platform, arch, gzdev_project 
   return job_name
 }
 
-String generate_brew_install(src_name, lib_name, arch)
+String generate_brew_install(src_name, lib_name, arch, gzdev_project = '')
 {
   // We use the label x86_64 for node labeling, but amd64 for job naming consistency
   // This is due to ohai chef plugin that labels the nodes as x86_64
   // See: https://github.com/osrf/osrf_jenkins_agent/blob/latest/recipes/macos.rb#L68
   def arch_label = arch == 'amd64' ? 'x86_64' : arch
-  def script_name_prefix = cleanup_library_name(src_name)
-  def job_name = "${script_name_prefix}-install_bottle-homebrew-${arch}"
+  def gz_designation = lib_name.replaceAll('gz-','')
+  def formula_name = (gzdev_project == 'rotary') ? "gz-rotary-${gz_designation}" : "${src_name}"
+  def script_name_prefix = cleanup_library_name(formula_name)
+  def install_type = (gzdev_project == 'rotary') ? 'install_formula' : 'install_bottle'
+  def job_name = "${script_name_prefix}-${install_type}-homebrew-${arch}"
   def install_default_job = job(job_name)
   OSRFBrewInstall.create(install_default_job, arch_label)
 
@@ -314,7 +317,7 @@ String generate_brew_install(src_name, lib_name, arch)
      shell("""\
            #!/bin/bash -xe
 
-           /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${src_name}
+           /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${formula_name}
            """.stripIndent())
     }
 
@@ -649,7 +652,8 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
         install_job_name = generate_brew_install(
           pkg_src,
           canonical_lib_name,
-          arch)
+          arch,
+          gzdev_project)
       } else {
         assert("Unexpected pkg_system.so: " + pkg_system.so)
       }
