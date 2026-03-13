@@ -293,7 +293,7 @@ String generate_brew_install(src_name, lib_name, arch, gzdev_project = '')
   // This is due to ohai chef plugin that labels the nodes as x86_64
   // See: https://github.com/osrf/osrf_jenkins_agent/blob/latest/recipes/macos.rb#L68
   def arch_label = arch == 'amd64' ? 'x86_64' : arch
-  def gz_designation = lib_name.replaceAll('gz-','')
+  def gz_designation = lib_name.replace('gz-','')
   def formula_name = (gzdev_project == 'rotary') ? "gz-rotary-${gz_designation}" : "${src_name}"
   def script_name_prefix = cleanup_library_name(formula_name)
   def install_type = (gzdev_project == 'rotary') ? 'install_formula' : 'install_bottle'
