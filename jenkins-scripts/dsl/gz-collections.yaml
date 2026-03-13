@@ -451,18 +451,6 @@ collections:
           - gz-kura
   - name: '__upcoming__'
     libs:
-#      - name: gz-tools
-#        major_version: 3
-#        repo:
-#          current_branch: main
-#      - name: gz-cmake
-#        major_version: 5
-#        repo:
-#          current_branch: main
-      - name: gz-common
-        major_version: 7
-        repo:
-          current_branch: main
       - name: gz-fuel-tools
         major_version: 11
         repo:
@@ -473,14 +461,6 @@ collections:
           current_branch: main
       - name: gz-launch
         major_version: 9
-        repo:
-          current_branch: main
-      - name: gz-math
-        major_version: 9
-        repo:
-          current_branch: main
-      - name: gz-msgs
-        major_version: 12
         repo:
           current_branch: main
       - name: gz-physics
@@ -505,14 +485,6 @@ collections:
           current_branch: main
       - name: gz-transport
         major_version: 15
-        repo:
-          current_branch: main
-#      - name: gz-utils
-#        major_version: 4
-#        repo:
-#          current_branch: main
-      - name: sdformat
-        major_version: 16
         repo:
           current_branch: main
     ci:
@@ -542,24 +514,24 @@ collections:
       - name: gz-utils
         repo:
           current_branch: main
-      # - name: gz-math
-      #   repo:
-      #     current_branch: main
-      # - name: gz-plugin
-      #   repo:
-      #     current_branch: main
-      # - name: gz-common
-      #   repo:
-      #     current_branch: main
-      # - name: gz-msgs
-      #   repo:
-      #     current_branch: main
-      # - name: gz-rendering
-      #   repo:
-      #     current_branch: main
-      # - name: sdformat
-      #   repo:
-      #     current_branch: main
+      - name: gz-math
+        repo:
+          current_branch: main
+      - name: gz-plugin
+        repo:
+          current_branch: main
+      - name: gz-common
+        repo:
+          current_branch: main
+      - name: gz-msgs
+        repo:
+          current_branch: main
+      - name: gz-rendering
+        repo:
+          current_branch: main
+      - name: sdformat
+        repo:
+          current_branch: main
       # - name: gz-fuel-tools
       #   repo:
       #     current_branch: main
