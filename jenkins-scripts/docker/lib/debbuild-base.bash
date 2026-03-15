@@ -174,6 +174,10 @@ PACKAGE_ALIAS=${PACKAGE_ALIAS}
 SRC_PACKAGE_NAME=\$(grep-dctrl -sSource -n  '' debian/control)
 if [[ \${SRC_PACKAGE_NAME} != \${SRC_PACKAGE_NAME/gz-} ]]; then
   PACKAGE_ALIAS=\${SRC_PACKAGE_NAME}
+elif [[ \${PACKAGE_ALIAS} == gz-rotary-* ]]; then
+  # For rotary packages whose Source doesn't use gz- prefix (e.g., sdformat),
+  # use the Source name from debian/control to avoid name mismatch
+  PACKAGE_ALIAS=\${SRC_PACKAGE_NAME}
 fi
 
 # [nightly] Adjust version in nightly mode
