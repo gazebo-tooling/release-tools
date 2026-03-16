@@ -11,9 +11,7 @@ arch = 'amd64'
 file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
 gz_collections_yaml = new Yaml().load(file)
 
-gz_nightly = 'kura'
-// TODO: ENABLE when all rotary packages are set up in gz-collection.yaml
-// gz_nightly = 'rotary'
+gz_nightly = 'rotary'
 
 String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
 {
@@ -152,7 +150,8 @@ gz_collections_yaml.collections.each { collection ->
 // NIGHTLY GENERATION
 def get_nightly_branch(nightly_collection, lib)
 {
-  return nightly_collection.libs.find { it.name == lib }.repo.current_branch
+  def found = nightly_collection.libs.find { it.name == lib }
+  return found?.repo?.current_branch ?: 'main'
 }
 
 nightly_collection = gz_collections_yaml.collections
