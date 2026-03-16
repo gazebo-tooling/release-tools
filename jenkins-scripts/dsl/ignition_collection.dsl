@@ -13,7 +13,7 @@ gz_collections_yaml = new Yaml().load(file)
 
 gz_nightly = 'rotary'
 
-String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
+String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging, collection_name)
 {
   major_version = parsed_yaml_lib.major_version
 
@@ -21,12 +21,11 @@ String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
   if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
     major_version = ""
 
-  debbuilder_prefix = parsed_yaml_packaging.linux?.debbuilder_prefix
-  if (debbuilder_prefix) {
+  if (collection_name == 'rotary') {
     // gz-cmake → gz-rotary-cmake, sdformat → gz-rotary-sdformat
     base_name = parsed_yaml_lib.name.startsWith('gz-') ?
       parsed_yaml_lib.name.substring(3) : parsed_yaml_lib.name
-    return "gz-${debbuilder_prefix}-${base_name}-debbuilder"
+    return "gz-rotary-${base_name}-debbuilder"
   }
 
   return parsed_yaml_lib.name + major_version + "-debbuilder"
@@ -169,7 +168,7 @@ nightly_scheduler_job.with
   {
      stringParam('NIGHTLY_PACKAGES',
                 nightly_collection.libs.collect{
-                  get_debbuilder_name(it,nightly_collection.packaging)
+                  get_debbuilder_name(it, nightly_collection.packaging, nightly_collection.name)
                     .replace("-debbuilder","")
                 }.join(" "),
                 'space separated list of packages to build')
