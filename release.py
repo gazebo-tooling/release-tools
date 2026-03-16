@@ -415,6 +415,13 @@ def sanity_check_bump_linux(source_tarball_uri):
               'to call builders and not source generation')
 
 
+def sanity_check_gh_tool():
+    if shutil.which('gh') is None:
+        error("The 'gh' (GitHub CLI) tool is required but was not found in PATH.\n"
+              "Please install it from: https://cli.github.com/")
+    print_success("GitHub CLI (gh) tool is available")
+
+
 def sanity_checks(args, repo_dir):
     print("Safety checks:")
     sanity_package_name_underscore(args.package, args.package_alias)
@@ -434,6 +441,9 @@ def sanity_checks(args, repo_dir):
             sanity_check_cmake_version(args.package, args.version)
         sanity_project_package_in_stable(args.version, args.upload_to_repository)
 
+    # Don't check for gh here since it's not currently installed on built-in
+    # Move the checks to cases when we know ROS vendor package PRs will be generated
+    # sanity_check_gh_tool()
     check_credentials(args.auth_input_arg)
     print_success("Jenkins credentials are good")
     shutil.rmtree(repo_dir)
@@ -840,6 +850,8 @@ def go(argv):
 
     # If only the process of ROS vendor package is set, just do it
     if args.bump_ros_vendor_only:
+        # gh is needed for ROS vendor package PR
+        sanity_check_gh_tool()
         process_ros_vendor_package(args)
         sys.exit(0)
 
@@ -940,6 +952,8 @@ def go(argv):
                                        args.auth_input_arg)
     else:
         # b) Mode generate source
+        # gh is needed for ROS vendor package PR
+        sanity_check_gh_tool()
         # Choose platform to run gz-source on. It will need to install gz-cmake
         # Take the first key in the supported distros since all them should be
         # able to install the needed gz-cmake.
