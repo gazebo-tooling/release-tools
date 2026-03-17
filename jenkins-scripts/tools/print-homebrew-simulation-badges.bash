@@ -68,8 +68,25 @@ do
         echo -n " | [![Build Status][$designation-$c-$arch-badge]][$designation-$c-$arch]"
       fi
     done
+    # print blank line at end of row for each package / arch combination
     echo
   done
+done
+# print row of collection install jobs
+for arch in ${arches[@]};
+do
+  echo -n "collection | $(echo ${arch} | sed -e 's@amd64@intel@')"
+  for c in ${collections[@]};
+  do
+    if [ "$c" = "rotary" ]; then
+      echo -n " |"
+    else
+      #         | [![Build Status][cmake-fortress-amd64-badge]][cmake-fortress-amd64]
+      echo -n " | [![Build Status][collection-$c-$arch-badge]][collection-$c-$arch]"
+    fi
+  done
+  # print blank line at end of row for each arch
+  echo
 done
 
 # print extra blank line
@@ -94,3 +111,20 @@ do
   # print a blank line between packages
   echo
 done
+
+# define URLs for each collection
+for c in ${collections[@]};
+do
+  for arch in ${arches[@]};
+  do
+    grep "^install_ci [a-z]* gz_${c}-install.*homebrew-${arch}" ${generated_jobs} \
+      | awk -v arch="$arch" \
+            -v badge_url="${BADGE_URL}" \
+            -v job_url="${JOB_URL}" \
+            '{print "[collection-" $2 "-" arch "]: " job_url $3 "\n" \
+                    "[collection-" $2 "-" arch "-badge]: " badge_url $3;}'
+  done
+done
+
+# print a blank line at the end
+echo
