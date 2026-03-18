@@ -282,7 +282,11 @@ def sanity_package_name(repo_dir, package, package_alias):
     gz_name = gz_name.replace("gazebo", "sim")
     # For rotary packages (e.g. gz-rotary-cmake), the release repo uses the
     # base name without the '-rotary-' infix (e.g. gz-cmake)
-    gz_name = expected_name.replace('-rotary-', '-')
+    if expected_name == 'gz-rotary-sdformat':
+        # sdformat release repositories use the un-prefixed source package name.
+        gz_name = 'sdformat'
+    else:
+        gz_name = expected_name.replace('-rotary-', '-')
 
     cmd = ["find", repo_dir, "-name", "changelog", "-exec", "head", "-n", "1", "{}", ";"]
     out, _ = check_call(cmd, IGNORE_DRY_RUN)
