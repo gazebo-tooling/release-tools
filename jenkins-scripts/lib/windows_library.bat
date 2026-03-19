@@ -142,7 +142,7 @@ colcon build --build-base "build"^
   %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
   --cmake-args " -GNinja" " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
   %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
-  --event-handlers console_cohesion+ desktop_notifications- || goto :error
+  --event-handlers console_cohesion+ desktop_notification- || goto :error
 @echo off
 
 goto :EOF
