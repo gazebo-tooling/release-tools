@@ -140,7 +140,7 @@ colcon build --build-base "build"^
   --install-base "install"^
   --parallel-workers %MAKE_JOBS%^
   %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
-  --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
+  --cmake-args -GNinja " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
   %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
   --event-handler console_cohesion+ || goto :error
 @echo off
