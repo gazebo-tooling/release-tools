@@ -256,10 +256,11 @@ String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging, collection_na
   return parsed_yaml_lib.name + major_version + "-debbuilder"
 }
 
-String generate_linux_install(src_name, lib_name, platform, arch, gzdev_project = '')
+String generate_linux_install(src_name, lib_name, platform, arch, gzdev_project = '', custom_pkg = '', job_suffix = '')
 {
   def script_name_prefix = cleanup_library_name(src_name)
-  def job_name = "${script_name_prefix}-install-pkg-${platform}-${arch}"
+  def name_suffix = job_suffix ? "_${job_suffix}" : ""
+  def job_name = "${script_name_prefix}-install${name_suffix}-pkg-${platform}-${arch}"
   def install_default_job = job(job_name)
   OSRFLinuxInstall.create(install_default_job)
   install_default_job.with
@@ -268,7 +269,7 @@ String generate_linux_install(src_name, lib_name, platform, arch, gzdev_project 
       cron(Globals.CRON_EVERY_THREE_DAYS)
     }
 
-    def dev_package = "lib${src_name}-dev"
+    def dev_package = custom_pkg ?: "lib${src_name}-dev"
     def gzdev_project_name = gzdev_project ?: src_name
 
     steps {
@@ -661,6 +662,16 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
         logging_list['install_ci'].add(
           [collection: index_entry.collection,
            job_name: install_job_name])
+      }
+      // adding the server only for gz-sim
+      if (pkg_system.so == 'linux' && pkg_src == 'gz-sim10') {
+        def server_job_name = generate_linux_install(
+          pkg_src, canonical_lib_name, pkg_system.version, arch,
+          gzdev_project, 'gz-sim10-server', 'server')
+        pkg_src_config.getValue().each { index_entry ->
+          logging_list['install_ci'].add(
+            [collection: index_entry.collection, job_name: server_job_name])
+        }
       }
     }
   }
