@@ -12,29 +12,19 @@ export HOMEBREW_MAKE_JOBS=${MAKE_JOBS}
 # Get project name as first argument to this script
 PROJECT=$1 # project will have the major version included (ex gazebo2)
 PROJECT_ARGS=${2}
-
-# TODO(chapulina) Use gz path instead of legacy ign
-PROJECT_PATH=${PROJECT}
-if [[ ${PROJECT/gz} != ${PROJECT} ]]; then
-    PROJECT_PATH="ign${PROJECT/gz}"
-    PROJECT_PATH="${PROJECT_PATH/[0-9]*}"
-fi
-
-# Temporary fix for gz-sim
-PROJECT=${PROJECT/gz-gazebo/gz-sim}
-PROJECT_PATH=${PROJECT_PATH/ign-sim/ign-gazebo}
-
+# PROJECT_PATH can be passed as env variable or assume that is the same than project name
+PROJECT_PATH=${PROJECT_PATH:-$PROJECT}
 # Check for major version number
 # the PROJECT_FORMULA variable is only used for dependency resolution
 PROJECT_FORMULA=${PROJECT//[0-9]}$(\
-  python ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
+  python3 ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
   ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt || true)
 
 export HOMEBREW_PREFIX=/usr/local
 export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
-export PATH=${HOMEBREW_PREFIX}/bin:$PATH
+export PATH=${HOMEBREW_PREFIX}/bin:${HOMEBREW_PREFIX}/sbin:$PATH
 
-export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python
+export PYTHONPATH=$PYTHONPATH:${HOMEBREW_PREFIX}/lib/python
 
 # make verbose mode?
 MAKE_VERBOSE_STR=""
@@ -44,11 +34,12 @@ fi
 
 # Step 1. Set up homebrew
 echo "# BEGIN SECTION: clean up ${HOMEBREW_PREFIX}"
+export HOMEBREW_NO_INSTALL_FROM_API=1
 . ${SCRIPT_DIR}/lib/_homebrew_cleanup.bash
 . ${SCRIPT_DIR}/lib/_homebrew_base_setup.bash
 brew cleanup || echo "brew cleanup couldn't be run"
 mkdir -p ${HOMEBREW_CELLAR}
-sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
+chmod -R ug+rwx ${HOMEBREW_CELLAR}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: brew information'
@@ -87,31 +78,62 @@ brew install $(brew deps --1 --include-build ${PROJECT_FORMULA})
 # pytest is needed to run python tests with junit xml output
 PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} pytest"
 
+# Add protobuf since the homebrew protobuf bottle dropped support for python bindings
+PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} protobuf"
+
 if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   # Install lxml for flaky_junit_merge.py
   PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} lxml"
 fi
 
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
-  brew install python
-  PIP=pip3
-  if ! which ${PIP}; then
-    PIP=/usr/local/opt/python/bin/pip3
-  fi
-  ${PIP} install ${PIP_PACKAGES_NEEDED}
+  brew install python3
+  # reset command hash since python3 has already been invoked in this script
+  hash -r
+  rm -rf ${WORKSPACE}/venv
+  python3 -m venv ${WORKSPACE}/venv
+  . ${WORKSPACE}/venv/bin/activate
+  pip3 install ${PIP_PACKAGES_NEEDED}
+  # For python 3.X, our formulae install python bindings to
+  # ${HOMEBREW_PREFIX}/lib/python3.X/site-packages
+  # so add that folder to PYTHONPATH
+  python_minor_version=$(python3 -c 'import sys; print(sys.version_info[1])')
+  export PYTHONPATH=${HOMEBREW_PREFIX}/lib/python3.$python_minor_version/site-packages:$PYTHONPATH
+  # also add the venv site-packages to PYTHONPATH
+  # this seems to be needed by the gz-sim python system loader test
+  export PYTHONPATH=${WORKSPACE}/venv/lib/python3.$python_minor_version/site-packages:$PYTHONPATH
 fi
 
 if [[ -z "${DISABLE_CCACHE}" ]]; then
   brew install ccache
-  export PATH=/usr/local/opt/ccache/libexec:$PATH
+  export PATH=${HOMEBREW_PREFIX}/opt/ccache/libexec:$PATH
+fi
+echo '# END SECTION'
+
+echo "# BEGIN SECTION: Run brew bundle with source defined Brewfiles"
+# Validate all Brewfiles in the source repo before running the brew bundle cmd
+SOURCE_DEFINED_BREWFILES=($(find `pwd` -type f |  grep Brewfile | sort))
+if [[ -n "${SOURCE_DEFINED_BREWFILES}" ]]; then
+  . ${SCRIPT_DIR}/lib/_homebrew_brewfiles.bash
+  for i in $(seq ${#SOURCE_DEFINED_BREWFILES[*]}); do
+    brewfile=${SOURCE_DEFINED_BREWFILES[$i-1]}
+    if ! validate_brewfile ${brewfile}; then
+      echo "Error validating ${brewfile}"
+      exit 1
+    fi
+    # Validation passed, run brew bundle
+    echo "Running 'brew bundle --file ${brewfile} --verbose'"
+    brew bundle --file ${brewfile} --verbose
+  done
+else
+  echo "No brewfiles found. Skipping brew bundle install"
 fi
 echo '# END SECTION'
 
 # Step 3. Manually compile and install ${PROJECT}
 echo "# BEGIN SECTION: configure ${PROJECT}"
 cd ${WORKSPACE}/${PROJECT_PATH}
-# Need the sudo since the test are running with roots perms to access to GUI
-sudo rm -fr ${WORKSPACE}/build
+rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
 cd ${WORKSPACE}/build
 
@@ -129,51 +151,49 @@ export DISPLAY=$(ps ax \
 CMAKE_ARGS=""
 # set CMAKE_PREFIX_PATH if we are using qt@5
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt@5' }.empty?"; then
-  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/qt@5
+  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${HOMEBREW_PREFIX}/opt/qt@5
 fi
 # set cmake args if we are using qwt-qt5
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qwt-qt5' }.empty?"; then
-  CMAKE_ARGS='-DQWT_WIN_INCLUDE_DIR=/usr/local/opt/qwt-qt5/lib/qwt.framework/Headers -DQWT_WIN_LIBRARY_DIR=/usr/local/opt/qwt-qt5/lib'
+  CMAKE_ARGS="${CMAKE_ARGS} -DQWT_WIN_INCLUDE_DIR=${HOMEBREW_PREFIX}/opt/qwt-qt5/lib/qwt.framework/Headers -DQWT_WIN_LIBRARY_DIR=${HOMEBREW_PREFIX}/opt/qwt-qt5/lib"
 fi
 # Workaround for cmake@3.21.4: set PATH
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'cmake@3.21.4' }.empty?"; then
-  export PATH=/usr/local/opt/cmake@3.21.4/bin:${PATH}
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/cmake@3.21.4' }.empty?"; then
+  export PATH=${HOMEBREW_PREFIX}/opt/cmake@3.21.4/bin:${PATH}
 fi
-# Workaround for ffmpeg 4: set CMAKE_PREFIX_PATH and PKG_CONFIG_PATH if we are using ffmpeg@4
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'ffmpeg@4' }.empty?"; then
-  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/opt/ffmpeg@4/lib/pkgconfig
+# Workaround for ffmpeg 4: set PKG_CONFIG_PATH if we are using ffmpeg@4
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/ffmpeg@4' }.empty?"; then
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOMEBREW_PREFIX}/opt/ffmpeg@4/lib/pkgconfig
 fi
 # Workaround for tbb@2020_u3: set CPATH, LIBRARY_PATH, and CMAKE_PREFIX_PATH
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'tbb@2020_u3' }.empty?"; then
-  if [ "${ghprbSourceBranch}" != "replace_deprecated_tbb_task" ]; then
-    export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/tbb@2020_u3
-    export CPATH=${CPATH}:/usr/local/opt/tbb@2020_u3/include
-    export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/tbb@2020_u3/lib
-  fi
-fi
-# Workaround for tinyxml2 6.2.0: set CMAKE_PREFIX_PATH and PKG_CONFIG_PATH if we are using tinyxml2@6.2.0
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'tinyxml2@6.2.0' }.empty?"; then
-  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/tinyxml2@6.2.0
-  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/opt/tinyxml2@6.2.0/lib/pkgconfig
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/tbb@2020_u3' }.empty?"; then
+  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${HOMEBREW_PREFIX}/opt/tbb@2020_u3
+  export CPATH=${CPATH}:${HOMEBREW_PREFIX}/opt/tbb@2020_u3/include
+  export LIBRARY_PATH=${LIBRARY_PATH}:${HOMEBREW_PREFIX}/opt/tbb@2020_u3/lib
 fi
 # if we are using gts, need to add gettext library path since it is keg-only
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'gettext' }.empty?"; then
-  export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/gettext/lib
+  export LIBRARY_PATH=${LIBRARY_PATH}:${HOMEBREW_PREFIX}/opt/gettext/lib
 fi
 # if we are using boost, need to add icu4c library path since it is keg-only
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'icu4c' }.empty?"; then
-  export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/icu4c/lib
+  export LIBRARY_PATH=${LIBRARY_PATH}:${HOMEBREW_PREFIX}/opt/icu4c/lib
+fi
+# set Python3_EXECUTABLE if this homebrew formula defines the python_cmake_arg method
+if brew ruby -e "exit '${PROJECT_FORMULA}'.f.respond_to?(:python_cmake_arg)"; then
+  CMAKE_ARGS="${CMAKE_ARGS} -DPython3_EXECUTABLE=$(which python3)"
 fi
 
 # if we are using dart@6.10.0 (custom OR port), need to add dartsim library path since it is keg-only
-if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'dartsim@6.10.0' }.empty?"; then
-  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/local/opt/dartsim@6.10.0
-  export DYLD_FALLBACK_LIBRARY_PATH=${DYLD_FALLBACK_LIBRARY_PATH}:/usr/local/opt/dartsim@6.10.0/lib:/usr/local/opt/octomap/local
-  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/opt/dartsim@6.10.0/lib/pkgconfig
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/dartsim@6.10.0' }.empty?"; then
+  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${HOMEBREW_PREFIX}/opt/dartsim@6.10.0
+  export DYLD_FALLBACK_LIBRARY_PATH=${DYLD_FALLBACK_LIBRARY_PATH}:${HOMEBREW_PREFIX}/opt/dartsim@6.10.0/lib:${HOMEBREW_PREFIX}/opt/octomap/local
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOMEBREW_PREFIX}/opt/dartsim@6.10.0/lib/pkgconfig
 fi
 
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-      -DCMAKE_INSTALL_PREFIX=/usr/local/Cellar/${PROJECT_FORMULA}/HEAD \
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+      -DCMAKE_INSTALL_PREFIX=${HOMEBREW_PREFIX}/Cellar/${PROJECT_FORMULA}/HEAD \
      ${CMAKE_ARGS} \
      ${WORKSPACE}/${PROJECT_PATH}
 echo '# END SECTION'
@@ -214,5 +234,5 @@ rm -fr \$HOME/.gazebo/models test_results*
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: re-add group write permissions"
-sudo chmod -R ug+rwx ${HOMEBREW_CELLAR}
+chmod -R ug+rwx ${HOMEBREW_CELLAR}
 echo '# END SECTION'

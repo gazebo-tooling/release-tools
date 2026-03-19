@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 NIGHTLY_MODE=${NIGHTLY_MODE:-false}
-if [ "${UPLOAD_TO_REPO}" = "nightly" ]; then
+if [ "${VERSION}" = "nightly" ]; then
    OSRF_REPOS_TO_USE="${OSRF_REPOS_TO_USE:-stable nightly}"
    NIGHTLY_MODE=true
    # SOURCE_TARBALL_URI is reused in nightly mode to indicate the branch
@@ -20,14 +20,11 @@ fi
 export ENABLE_REAPER=false
 
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
+. ${SCRIPT_DIR}/lib/_common_scripts.bash
 . ${SCRIPT_DIR}/lib/_gazebo_utils.sh
 
 cat > build.sh << DELIM
-###################################################
-# Make project-specific changes here
-#
-#!/usr/bin/env bash
-set -ex
+$(generate_buildsh_header)
 
 cd $WORKSPACE/build
 
@@ -268,7 +265,11 @@ test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 
 cat /etc/apt/sources.list
-${DEBBUILD_AUTOPKGTEST}
+# Run only autopkgtest on amd64
+# see https://github.com/gazebosim/gz-common/issues/484
+if [[ ${ARCH} == 'amd64' ]]; then
+  ${DEBBUILD_AUTOPKGTEST}
+fi
 DELIM
 
 OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}

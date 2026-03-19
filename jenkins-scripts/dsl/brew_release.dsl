@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 
 // first distro in list is used as touchstone
-brew_supported_distros         = [ "catalina", "bigsur" ]
+brew_supported_distros         = [ "ventura", "sonoma" ]
 bottle_hash_updater_job_name   = 'generic-release-homebrew_pr_bottle_hash_updater'
 bottle_builder_job_name        = 'generic-release-homebrew_triggered_bottle_builder'
 directory_for_bottles          = 'pkgs'
@@ -51,7 +51,7 @@ void include_common_params(Job job)
 // 1. BREW pull request SHA updater
 def release_job = job("generic-release-homebrew_pull_request_updater")
 OSRFUNIXBase.create(release_job)
-GenericRemoteToken.create(release_job)
+OSRFCredentials.allowOsrfbuildToRunTheBuild(release_job)
 
 include_common_params(release_job)
 release_job.with
@@ -59,10 +59,14 @@ release_job.with
    String PR_URL_export_file_name = 'pull_request_created.properties'
    String PR_URL_export_file = '${WORKSPACE}/' + PR_URL_export_file_name
 
-   label "master"
+   label Globals.nontest_label("master")
 
    wrappers {
-        preBuildCleanup()
+     preBuildCleanup()
+     credentialsBinding {
+       // crendetial name needs to be in sync with provision code at infra/osrf-chef repo
+       string('GITHUB_TOKEN', 'osrfbuild-token')
+     }
    }
 
    parameters
@@ -127,15 +131,13 @@ OSRFBrewCompilationAnyGitHub.create(bottle_job_builder,
                                     DISABLE_TESTS,
                                     NO_SUPPORTED_BRANCHES,
                                     DISABLE_GITHUB_INTEGRATION)
-GenericRemoteToken.create(bottle_job_builder)
-
 bottle_job_builder.with
 {
    wrappers {
         preBuildCleanup()
         credentialsBinding {
           // crendetial name needs to be in sync with provision code at infra/osrf-chef repo
-          string('GITHUB_TOKEN', 'osrf-migration-token')
+          string('GITHUB_TOKEN', 'osrfbuild-token')
         }
    }
 
@@ -145,6 +147,7 @@ bottle_job_builder.with
 
    logRotator {
      artifactNumToKeep(10)
+     numToKeep(75)
    }
 
    axes {
@@ -187,6 +190,7 @@ bottle_job_builder.with
          useGitHubHooks(true)
          onlyTriggerPhrase(true)
          permitAll(false)
+         spec()
          cron()
          triggerPhrase '.*build bottle.*'
          extensions {
@@ -241,16 +245,19 @@ bottle_job_builder.with
 // 4. BREW bottle hash update
 def bottle_job_hash_updater = job(bottle_hash_updater_job_name)
 OSRFUNIXBase.create(bottle_job_hash_updater)
-GenericRemoteToken.create(bottle_job_hash_updater)
 
 include_common_params(bottle_job_hash_updater)
 bottle_job_hash_updater.with
 {
-  label "master"
+  label Globals.nontest_label("master")
 
   wrappers
   {
     preBuildCleanup()
+    credentialsBinding {
+      // crendetial name needs to be in sync with provision code at infra/osrf-chef repo
+      string('GITHUB_TOKEN', 'osrfbuild-token')
+    }
   }
 
   parameters

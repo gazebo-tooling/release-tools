@@ -18,7 +18,7 @@ class OSRFLinuxBuildPkgBase
      {
        logRotator {
          artifactNumToKeep(25)
-         numToKeep(200)
+         numToKeep(125)
        }
 
        wrappers {
@@ -30,17 +30,20 @@ class OSRFLinuxBuildPkgBase
 
       publishers
       {
-        postBuildScripts {
-          steps {
-            shell("""\
-              #!/bin/bash -xe
-
-              [[ -d \${WORKSPACE}/pkgs ]] && sudo chown -R jenkins \${WORKSPACE}/pkgs
-              """.stripIndent())
+        // This creates a post-build script that changes ownership of pkgs directory to jenkins user
+        // Runs regardless of build success or failure
+        configure { project ->
+          project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
+            buildSteps {
+              'hudson.tasks.Shell' {
+                command("""
+                  [ -d \${WORKSPACE}/pkgs ] && sudo chown -R jenkins \${WORKSPACE}/pkgs""")
+              }
+            }
+            scriptOnlyIfSuccess('false')
+            scriptOnlyIfFailure('false')
+            markBuildUnstable('false')
           }
-
-          onlyIfBuildSucceeds(false)
-          onlyIfBuildFails(false)
         }
 
         archiveArtifacts('pkgs/*')

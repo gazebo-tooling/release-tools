@@ -63,6 +63,10 @@ When opening PRs, add a link back to this issue for easier tracking.
     * <!-- LINK POST HERE -->
 - [ ] Hold tutorial party ([example](https://community.gazebosim.org/t/ignition-edifice-tutorial-party-support-open-source-and-get-t-shirts/866))
     * <!-- LINK POST HERE -->
+- [ ] Update references to the release install instructions
+    * [ ] Versions doc https://github.com/gazebosim/docs/blob/master/tools/versions.md
+    * [ ] ROS2 Installation https://github.com/gazebosim/docs/blob/master/ros_installation.md
+    * [ ] ros_gz README https://github.com/gazebosim/ros_gz/blob/ros2/README.md
 - [ ] PRs fixing documentation and critical bugs can be merged and pre-released
 - As libraries have all their documentation reviewed:
     - [ ] Make stable releases

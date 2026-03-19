@@ -15,7 +15,19 @@ instead.
 
 This script can be used to do most of the work:
 
-https://github.com/gazebo-tooling/release-tools/blob/master/release-repo-scripts/bump_dependency.bash
+https://github.com/gazebo-tooling/release-tools/blob/master/source-repo-scripts/bump_dependency.bash
+
+For example, the following command was used to open pull requests for 
+https://github.com/gazebo-tooling/release-tools/issues/1292:
+
+~~~~
+bump_dependency.bash \
+    jetty  \
+    "gz-transport;gz-sensors"  \
+    "15;10"  \
+    1292  \
+    ionic
+~~~~
 
 When opening PRs, add a link back to this issue for easier tracking.
 

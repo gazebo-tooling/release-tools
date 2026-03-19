@@ -9,12 +9,7 @@ DOCKER_JOB_NAME="install_job"
 echo '# END SECTION'
 
 cat > build.sh << DELIM
-#!/bin/bash
-
-###################################################
-# Make project-specific changes here
-#
-set -ex
+$(generate_buildsh_header)
 
 if [ `expr length "${INSTALL_JOB_PREINSTALL_HOOK} "` -gt 1 ]; then
 echo '# BEGIN SECTION: running pre install hook'

@@ -6,7 +6,7 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 
 # Arguments
 #
-# 1. <collection>: Required: A supported collection, i.e. "citadel", "fortesss", etc.
+# 1. <collection>: Required: A supported collection, i.e. "fortress", "harmonic", etc.
 # 2. <package_repo>: Optional: stable / prerelease / nightly (defaults to stable)
 #
 # Usage
@@ -21,6 +21,8 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 . ${SCRIPT_DIR}/_dashboard_lib.sh
 
 COLLECTION=$1
+PACKAGES_URL=${PACKAGES_URL:-packages.osrfoundation.org}
+echo "Using $PACKAGES_URL"
 PACKAGE_REPO=${2:-stable}
 
 COLUMN="        "
@@ -32,12 +34,28 @@ ARCHS=( "amd64")
 DISTROS=( "ubuntu" )
 # No nightlies or pre-releases for arm
 if [[ $PACKAGE_REPO == "stable" ]]; then
-  ARCHS+=( "i386" "arm64" "armhf")
+  if [[ $COLLECTION == "fortress" ]]; then
+    ARCHS+=( "i386" )
+  fi
+
+  ARCHS+=( "arm64" "armhf")
   # No debian version supported across the stack right now
   # DISTROS+=( "debian" )
 fi
 
+# Search heuristics used and context:
+# We are assuming that all the gz- libraries have a package named libgz${LIB} or
+# libgz${LIB}-dev except for the collection packages starting with Harmonic
+# Note that relying on the fact of having a packages available in a given
+# arch does not imply that build is successful since arch=all debs are built
+# once for amd64 and appear in all the arches.
+# The Source field (for source packages) is not mandatory and it is probably
+# not present when the binary package has the same name than the source
+# package.
 for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
+  if [[ "${LIB}" != "gz-${COLLECTION}" && "${LIB}" != "ignition-${COLLECTION}" ]]; then
+    LIB=lib${LIB}
+  fi
   echo -e "\e[107m\e[90m${LIB}\e[49m\e[39m"
 
   LIB_VER=""
@@ -45,12 +63,12 @@ for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
   for DISTRO in "${DISTROS[@]}"
   do
     if [[ $DISTRO == "ubuntu" ]]; then
-      if [[ $COLLECTION == "citadel" ]]; then
-        VERS=( "bionic" "focal" )
-      elif [[ $COLLECTION == "fortress" ]]; then
+      if [[ $COLLECTION == "fortress" ]]; then
         VERS=( "bionic" "focal" "jammy" )
-      elif [[ $COLLECTION == "garden" ]]; then
-        VERS=( "focal" "jammy" )
+      elif [[ $COLLECTION == "harmonic" ]]; then
+        VERS=( "jammy" )
+      elif [[ $COLLECTION == "ionic" ]]; then
+        VERS=( "noble" )
       fi
     fi
 
@@ -70,10 +88,8 @@ for LIB in $(get_libraries_by_collection "${COLLECTION}" ); do
         if [[ $ARCH == "i386" && $VER != "bionic" && $VER != "buster" ]]; then
           PKG_VERSION="disabled"
         else
-          # The Source field is not mandatory and it is probably not present when
-          # the binary package has the same name than the source package
-          PKG_VERSION=$(wget -qO- http://packages.osrfoundation.org/gazebo/${DISTRO}-${PACKAGE_REPO}/dists/${VER}/main/binary-${ARCH}/Packages | \
-            grep -2 -m 1 -e "Source: ${LIB}" -e "Package: ${LIB}" | \
+          PKG_VERSION=$(wget -qO- http://${PACKAGES_URL}/gazebo/${DISTRO}-${PACKAGE_REPO}/dists/${VER}/main/binary-${ARCH}/Packages | \
+            grep -2 -m 1 -e "Package: ${LIB}$" -e "Package: ${LIB}-dev$"| \
             sed -n 's/^Version: \(.*\)/\1/p' | uniq)
         fi
 

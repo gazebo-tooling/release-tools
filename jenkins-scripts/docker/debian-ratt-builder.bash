@@ -8,13 +8,11 @@ echo '# BEGIN SECTION: setup the testing enviroment'
 # Define the name to be used in docker
 export DOCKER_JOB_NAME="debian_ratt_builder"
 . "${SCRIPT_DIR}/lib/boilerplate_prepare.sh"
+. "${SCRIPT_DIR}/lib/_common_scripts.bash"
 echo '# END SECTION'
 
 cat > build.sh << DELIM
-###################################################
-# Make project-specific changes here
-#
-set -ex
+$(generate_buildsh_header)
 
 if ${USE_UNSTABLE}; then
    TARGET_DISTRO='unstable'

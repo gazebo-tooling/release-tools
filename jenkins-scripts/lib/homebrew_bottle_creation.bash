@@ -54,6 +54,7 @@ fi
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: clean up environment'
+export HOMEBREW_NO_INSTALL_FROM_API=1
 rm -fr ${PKG_DIR} && mkdir -p ${PKG_DIR}
 . ${SCRIPT_LIBDIR}/_homebrew_cleanup.bash
 # don't use HOMEBREW_UPDATE_TO_TAG for bottle builds
@@ -82,6 +83,7 @@ brew tap osrf/simulation
 # replace with 'hub -C $(brew --repo osrf/simulation) pr checkout ${ghprbPullId}'
 # after the following hub issue is resolved:
 # https://github.com/github/hub/issues/2612
+# hub requires authentication to operate. GITHUB_TOKEN enviroment variable for example
 pushd $(brew --repo osrf/simulation) && \
   hub pr checkout ${ghprbPullId} && \
   popd
@@ -112,7 +114,7 @@ for j in $(ls *.bottle.json); do
   SRC_BOTTLE=$(brew ruby -e \
     "puts JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['local_filename']")
   DEST_BOTTLE=$(brew ruby -e \
-    "puts URI.decode(JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['filename'])")
+    "puts URI::DEFAULT_PARSER.unescape(JSON.load(IO.read(\"${j}\")).values[0]['bottle']['tags'].values[0]['filename'])")
   mv ${SRC_BOTTLE} ${DEST_BOTTLE}
 done
 mv *.bottle*.tar.gz ${PKG_DIR}

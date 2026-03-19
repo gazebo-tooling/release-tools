@@ -11,23 +11,42 @@ this repositories (like updated -release repositories info).
 
 ### bump_dependency.bash
 
-The script will bump the major version of a library for a given collection:
+> [!NOTE]
+> The script has been migrated to work with non-versioned packages as
+> described in https://github.com/gazebo-tooling/release-tools/issues/1244
 
-#### Usage
+The script will bump the major version of a library for a given collection taking
+care of most of the operations needed through different repositories ***including the
+reverse dependencies of the libraries to update***. Changes will be done in the following
+repositories:
+
+* gazebosim/gz-* repositories: modifying build system code, docs, etc.
+* gazebo-release/gz-*-release repositories: modifying versions to match new version bumps
+* release-tools: update nightlies in ignition_gazebo.dsl
+* docs: bumping lib versions under `$distro/install.md` files from X to X+1
+* homebrew-simulation: creating a new Formula X+1 from the latest version X
+* gazebodistro: update reverse dependencies yaml files to new branches
+
+> [!IMPORTANT]
+> The script does not yet implement the necessary changes to jenkins/dsl/gz-collections.yaml in
+> release-tools, please do them manually.
+
+### Requisites
 
 Requires the 'gh' CLI to be installed.
+
 ```bash
+# A dry-run execution can be done to see how many different commits and pushes will be done
+# without executing changes in the official repositories
+DRY_RUN=true bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number> <prev_collection> [<docs_branch>]
+
+# real execution
 bump_dependency.bash <collection> <library>;<library> <version>;<version> <issue_number> <prev_collection> [<docs_branch>]
 ```
 
 The `docs_branch` parameter is optional and defaults to `master` if not specified.
 
 The script clones all the necessary repositories under /tmp/bump_dependency.
-
-Before committing to each repository, the script asks "Commit <repository
-name>?".  Before saying yes, navigate to the repository and check if the diff
-looks reasonable.  When you say yes, the changes will be committed and pushed.
-Click on the link printed by GitHub to open the pull request.
 
 #### Example
 

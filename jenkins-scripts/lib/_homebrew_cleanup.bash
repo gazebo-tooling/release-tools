@@ -10,7 +10,9 @@ restore_brew()
 
 BREW_BINARY_DIR=/usr/local/bin
 BREW_BINARY=${BREW_BINARY_DIR}/brew
-git -C $(${BREW_BINARY} --repo) fsck
+# Try running `git fsck` before `brew update` in case `git gc` broke something
+# but don't fail
+git -C $(${BREW_BINARY} --repo) fsck || true
 export HOMEBREW_UPDATE_TO_TAG=1
 ${BREW_BINARY} up || { restore_brew && ${BREW_BINARY} up ; }
 
@@ -31,7 +33,7 @@ for t in $(HOMEBREW_NO_AUTO_UPDATE=1 \
           | grep -v '^homebrew/core$'); do
   ${BREW_BINARY} untap $t
 done
-brew cleanup --prune-prefix
+${BREW_BINARY} cleanup --prune-prefix
 
 pushd $(${BREW_BINARY} --prefix)/Homebrew/Library 2> /dev/null
 git stash && git clean -d -f

@@ -1,6 +1,7 @@
 package _configs_
 
 import javaposse.jobdsl.dsl.Job
+import _configs_.Globals
 
 /*
   -> OSRFOsXBase
@@ -17,7 +18,7 @@ class OSRFOsXBase
 
      job.with
      {
-         label "osx"
+         label Globals.nontest_label("osx")
      }
    }
 }

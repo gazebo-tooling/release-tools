@@ -25,18 +25,7 @@ S3_upload()
 
     S3_DIR=$(mktemp -d ${HOME}/s3.XXXX)
     pushd ${S3_DIR}
-    # Hack for not failing when github is down
-    update_done=false
-    seconds_waiting=0
-    while (! $update_done); do
-      wget https://github.com/s3tools/s3cmd/archive/v1.5.0-rc1.tar.gz -O foo.tar.gz && update_done=true
-      sleep 1
-      seconds_waiting=$((seconds_waiting+1))
-      [ $seconds_waiting -gt 60 ] && exit 1
-    done
-    tar xzf foo.tar.gz
-    cd s3cmd-*
-    ./s3cmd put $pkg s3://osrf-distributions/${s3_destination_path}
+    s3cmd put $pkg s3://osrf-distributions/${s3_destination_path}
     popd
     rm -fr ${S3_DIR}
 }
@@ -47,7 +36,7 @@ dsc_package_exists_and_equal_or_greater()
 {
     local pkg=${1} new_version=${2} distro=${3}
 
-    current_dsc_info=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro -T dsc list "${distro}" "${pkg}" | tail -n 1)
+    current_dsc_info=$(GNUPGHOME=$HOME/.gnupg/ reprepro -T dsc list "${distro}" "${pkg}" | tail -n 1)
 
     if [[ -z ${current_dsc_info} ]]; then
         return 1 # do not exits, false
@@ -68,7 +57,7 @@ upload_package()
     [[ -z ${pkg} ]] && echo "Bad parameter pkg" && exit 1
     [[ -z ${pkg_name} ]] && echo "Bad parameter pkg_name" && exit 1
 
-    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
+    GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedeb $DISTRO ${pkg}
 
     # The path will end up being: s3://osrf-distributions/$pkg_root_name/releases/
     S3_upload ${pkg} ${pkg_name}/releases/
@@ -82,17 +71,10 @@ upload_dsc_package()
     # .dsc sometimes does not include priority or section,
     # try to upload and if failed, specify the values
     # see: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=768046
-    sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg} || \
-	sudo GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg} || \
+    GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg} || \
+	  GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg} || \
 		echo "MARK_BUILD_UNSTABLE"
 }
-
-NEEDED_HOST_PACKAGES="reprepro openssh-client jq gridsite-clients"
-QUERY_HOST_PACKAGES=$(dpkg-query -Wf'${db:Status-abbrev}' ${NEEDED_HOST_PACKAGES} 2>&1) || true
-if [[ -n ${QUERY_HOST_PACKAGES} ]]; then
-  sudo apt-get update
-  sudo apt-get install -y ${NEEDED_HOST_PACKAGES}
-fi
 
 # By default, enable s3 upload of packages
 ENABLE_S3_UPLOAD=true
@@ -109,7 +91,7 @@ fi
 
 # Check destination repository
 if [[ -z ${UPLOAD_TO_REPO} ]]; then
-    echo "No UPLOAD_TO_REPO value was send. Which repository to use? (stable | prerelease | nightly)"
+    echo "No UPLOAD_TO_REPO value was send. Which repository to use? (stable | prerelease | nightly | none)"
     echo ""
     echo "Please check that the jenkins -debbuild job that called this uploader is defining the parameter"
     echo "UPLOAD_TO_REPO in the job configuration. If it is not, just define it as a string parameter"
@@ -117,36 +99,44 @@ if [[ -z ${UPLOAD_TO_REPO} ]]; then
 fi
 
 case ${UPLOAD_TO_REPO} in
-    "stable")
-	# Security checks not to upload nightly or prereleases
-        # No packages with ~git or ~pre
-	if [[ -n $(ls ${pkgs_path}/*~git*.*) && -n $(ls ${pkgs_path}/*~pre*.*) ]]; then
-	  echo "There are nightly packages in the upload directory. Not uploading to stable repo"
-	  exit 1
-	fi
-        # No source packages with ~git in version
-	if [[ -n $(cat ${pkgs_path}/*.dsc | grep ^Version: | grep '~git\|~pre') ]]; then
-          echo "There is a sorce package with nightly or pre in version. Not uploading to stable repo"
-	  exit 1
-        fi
-	;;
-    "nightly")
-	# No uploads for nightly packages
-	ENABLE_S3_UPLOAD=false
-	;;
-    "only_s3_upload")
-        # This should be fine, no repo, only s3 upload
-        ENABLE_S3_UPLOAD=true
-        ;;
-    *)
-	# Here we could find project repositories uploads or error values.
-	# Error values for UPLOAD_TO_REPO will be get in the next directory check
-	# some lines below so we do nothing.
-	;;
+  "stable")
+    # Security checks not to upload nightly or prereleases
+    # No packages with ~git or ~pre
+    if [[ -n $(ls ${pkgs_path}/*~git*.*) && -n $(ls ${pkgs_path}/*~pre*.*) ]]; then
+      echo "There are nightly packages in the upload directory. Not uploading to stable repo"
+      exit 1
+    fi
+          # No source packages with ~git in version
+    if [[ -n $(cat ${pkgs_path}/*.dsc | grep ^Version: | grep '~git\|~pre') ]]; then
+            echo "There is a sorce package with nightly or pre in version. Not uploading to stable repo"
+      exit 1
+    fi
+  ;;
+  "nightly" | "testing")
+    # No uploads for nightly or testing packages test runs
+    ENABLE_S3_UPLOAD=false
+  ;;
+  "none")
+    echo "UPLOAD_TO_REPO was set to none. No upload is done."
+    exit 0
+  ;;
+  "only_s3_upload")
+    # This should be fine, no repo, only s3 upload
+    ENABLE_S3_UPLOAD=true
+  ;;
+  *)
+    # Here we could find project repositories uploads or error values.
+    # Error values for UPLOAD_TO_REPO will be get in the next directory check
+    # some lines below so we do nothing.
+  ;;
 esac
 
-# .zip | (mostly) windows packages
-for pkg in `ls $pkgs_path/*.zip`; do
+
+# S3_FILES_TO_UPLOAD can contain a list of filenames relative to $pkgs_path that will be uploaded to S3
+# together with any .zip (mostly old windows packages) if they exists
+S3_FILES_TO_UPLOAD="${S3_FILES_TO_UPLOAD} $(find "$pkgs_path" -type f -name '*.zip' -printf '%f\n' || true)"
+
+for pkg in ${S3_FILES_TO_UPLOAD}; do
   # S3_UPLOAD_PATH should be send by the upstream job
   if [[ -z ${S3_UPLOAD_PATH} ]]; then
     echo "S3_UPLOAD_PATH was not defined. Not uploading"
@@ -154,7 +144,7 @@ for pkg in `ls $pkgs_path/*.zip`; do
   fi
 
   # Seems important to upload the path with a final slash
-  S3_upload ${pkg} "${S3_UPLOAD_PATH}"
+  S3_upload "${pkgs_path}/${pkg}" "${S3_UPLOAD_PATH%*/}"/
 done
 
 # .bottle | brew binaries
@@ -227,7 +217,7 @@ for pkg in `ls $pkgs_path/*.deb`; do
       all.deb)
 	# Check if the package already exists. i386 and amd64 generates the same binaries.
 	# all should be multiarch, so supposed to work on every platform
-	existing_version=$(sudo GNUPGHOME=/var/lib/jenkins/.gnupg/ reprepro ls ${pkg_name} | grep ${DISTRO} | awk '{ print $3 }')
+	existing_version=$(GNUPGHOME=$HOME/.gnupg/ reprepro ls ${pkg_name} | grep ${DISTRO} | awk '{ print $3 }')
 	if $(dpkg --compare-versions ${pkg_version} le ${existing_version}); then
 	    echo "${pkg_relative} for ${DISTRO} is already in the repo with same version or greater"
 	    echo "SKIP UPLOAD"

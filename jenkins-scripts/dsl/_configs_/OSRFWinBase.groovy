@@ -1,6 +1,7 @@
 package _configs_
 
 import javaposse.jobdsl.dsl.Job
+import _configs_.Globals
 
 /*
   Implements:
@@ -14,7 +15,7 @@ class OSRFWinBase extends OSRFBase
      OSRFBase.create(job)
      job.with
      {
-        label "win"
+        label Globals.nontest_label("win")
 
         steps
         {
@@ -22,6 +23,13 @@ class OSRFWinBase extends OSRFBase
                 IF exist scripts ( rmdir scripts /s /q )
                 git clone https://github.com/gazebo-tooling/release-tools scripts -b %RTOOLS_BRANCH%
                 """.stripIndent())
+        }
+
+        publishers {
+          consoleParsing {
+            projectRules('scripts/jenkins-scripts/parser_rules/opengl_problem.parser')
+            unstableOnWarning()
+          }
         }
      }
    }

@@ -1,61 +1,59 @@
 echo '# BEGIN SECTION: setup the testing enviroment'
 export DOCKER_JOB_NAME="gzdev"
 . "${SCRIPT_DIR}/lib/boilerplate_prepare.sh"
+. "${SCRIPT_DIR}/lib/_common_scripts.bash"
+. "${SCRIPT_DIR}/lib/_install_nvidia_docker.sh"
 echo '# END SECTION'
 
-. ${SCRIPT_DIR}/lib/_install_nvidia_docker.sh
-
 cat > build.sh << DELIM
-###################################################
-#
-set -ex
+$(generate_buildsh_header)
 
 export MAKE_JOBS=${MAKE_JOBS}
 export DISPLAY=${DISPLAY}
 
-${INSTALL_NVIDIA_DOCKER1}
+${INSTALL_NVIDIA_DOCKER2}
 
 echo '# BEGIN SECTION: install pip requirements'
 cd ${WORKSPACE}/gzdev
-pip3 install -r requirements.txt
+# pip3 install -r requirements.txt
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: run gzdev for gazebo8 with nvidia'
-cd ${WORKSPACE}/gzdev
-./gzdev.py spawn --gzv=8 --nvidia
-echo '# END SECTION'
+echo '# BEGIN SECTION: smoke tests for ign-docker-env'
+sudo pip3 install git+https://github.com/adlarkin/ign-rocker.git
 
-echo '# BEGIN SECTION: Disply log file.'
-cat ./gz8.log
-echo '# END SECTION'
+# TODO: rocker can not play well docker-in-docker installations
+# out of the box. Needs more work.
 
-echo '# BEGIN SECTION: check that gazebo is running'
-gazebo_detection=false
-seconds_waiting=0
-cat gz8.log | grep "Connected to gazebo master" && gazebo_detection=true
-while (! \$gazebo_detection); do
-   sleep 1
-   docker top gz8 | grep gazebo && gazebo_detection=true
-   docker top gz8 | grep gzserver && gazebo_detection=true
-   seconds_waiting=\$((seconds_waiting+1))
-   [ \$seconds_waiting -gt 30 ] && break
-done
-# clean up gazebo instances
-docker rm -f gz8 || true
-killall -9 gazebo gzserver gzclient || true
-! \${gazebo_detection} && exit 1
+# xvfb :1 -ac -noreset -core -screen 0 1280x1024x24 &
+# export display=:1.0
+# export mesa_gl_version_override=3.3
+
+# test_timeout=300
+# test_start=\`date +%s\`
+# sudo bash -c "timeout --preserve-status \$test_timeout ./gzdev.py ign-docker-env dome --linux-distro ubuntu:bionic"
+# test_end=\`date +%s\`
+# diff=\$(expr \$test_end - \$test_start)
+
+# if [ \$diff -lt \$test_timeout ]; then
+#    echo 'the test took less than \$test_timeout. something bad happened'
+#    exit 1
+# fi
 echo '# END SECTION'
 DELIM
 
 export USE_DOCKER_IN_DOCKER=true
 export OSRF_REPOS_TO_USE="stable"
+export USE_ROS_REPO=true
+export ROS2=true
 export DEPENDENCY_PKGS="python3-pip \
                  bash \
                  apt-transport-https \
                  ca-certificates \
                  curl \
                  software-properties-common \
-		 psmisc" # killall
+                 python3-rocker \
+                 psmisc \
+                 xvfb"
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
 . "${SCRIPT_DIR}/lib/docker_run.bash"

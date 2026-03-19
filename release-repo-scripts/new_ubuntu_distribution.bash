@@ -6,11 +6,14 @@ set -e
 
 if [[ $# -lt 1 ]]; then
     echo "$0 <new_distro>"
-    echo " example: $0 jammy"
+    echo " Example: $0 jammy"
+    echo " Note: Importing metadata from debian salsa repositories can be done"
+    echo " using the DEBIAN_IMPORT=true environment variable."
     exit 1
 fi
 
 NEW_DISTRO=${1}
+DEBIAN_IMPORT=${DEBIAN_IMPORT:-false}
 
 get_latest_distribution_in_dir()
 {
@@ -71,17 +74,19 @@ echo -n " + Detecting package source name: "
 pushd "${latest_distro}" >/dev/null
 source_pkg=$(get_source_package_name)
 echo "${source_pkg}"
+
+if ${DEBIAN_IMPORT}; then
 source_pkg_debian=${source_pkg//[0-9]/}
 debian_repo=/tmp/${source_pkg_debian}
 echo " + Clone debian repository ${debian_repo}"
 if [[ ! -d ${debian_repo} ]]; then
   git clone "https://salsa.debian.org/science-team/${source_pkg_debian}" "${debian_repo}"
 fi
-popd >/dev/null
+fi
 
+popd >/dev/null
 echo " + Creating ${NEW_DISTRO} from ${latest_distro}"
 cp -a "${latest_distro}" "${NEW_DISTRO}"
-
 pushd "${NEW_DISTRO}" >/dev/null
 echo " -- Changes:"
 echo "     - Update changelog"
@@ -96,6 +101,7 @@ mv debian/changelog.new debian/changelog
 echo "     - Remove not needed format file"
 rm -f debian/format
 
+if ${DEBIAN_IMPORT}; then
 echo "     - Import watch file"
 cp "${debian_repo}/debian/watch" "${root_dir}/ubuntu/debian/watch"
 git add "${root_dir}/ubuntu/debian/watch"
@@ -165,12 +171,15 @@ for f in "${debian_repo}"/debian/*.examples; do
   fi
 done
 
+fi  # end of DEBIAN_IMPORT
+
 # Check broken symlinks
 echo "     - Check broken symlinks"
 find debian/ -xtype l
 # Finally add new files
 git add debian/*
 
+if ${DEBIAN_IMPORT}; then
 # Info sections
 BLUE='\033[1;34m'
 NC='\033[0m\n' # No Color
@@ -195,3 +204,4 @@ diff -qr debian "${debian_repo}/debian" || true
 echo
 printf "${BLUE}INFO: description in Debian for -dev package${NC}"
 grep-dctrl -n -s Description --field=Package "${source_pkg_debian}" "${debian_repo}/debian/control"
+fi

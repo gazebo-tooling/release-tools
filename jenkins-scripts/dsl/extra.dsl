@@ -23,7 +23,7 @@ release_repo_debbuilds.each { software ->
   build_pkg_job.with
   {
     // use only the most powerful nodes
-    label "large-memory"
+    label Globals.nontest_label("docker && large-memory")
 
     steps {
       shell("""\
@@ -43,7 +43,7 @@ gbp_repo_debbuilds.each { software ->
   build_pkg_job.with
   {
     // use only the most powerful nodes
-    label "large-memory"
+    label Globals.nontest_label("docker && large-memory")
 
     parameters
     {
@@ -79,6 +79,7 @@ gbp_repo_debbuilds.each { software ->
 
     logRotator {
       artifactNumToKeep(10)
+      numToKeep(75)
     }
 
     concurrentBuild(true)
@@ -132,18 +133,19 @@ gbp_repo_debbuilds.each { software ->
         }
       }
 
-      postBuildScripts {
-        steps {
-          shell("""\
-                #!/bin/bash -xe
-
-                sudo chown -R jenkins \${WORKSPACE}/pkgs
-                """.stripIndent())
+      configure { project ->
+          project / 'publishers' / 'org.jenkinsci.plugins.postbuildscript.PostBuildScript' << {
+            buildSteps {
+              'hudson.tasks.Shell' {
+                command("""
+                  [ -d \${WORKSPACE}/pkgs ] && sudo chown -R jenkins \${WORKSPACE}/pkgs""")
+              }
+            }
+            scriptOnlyIfSuccess('false')
+            scriptOnlyIfFailure('false')
+            markBuildUnstable('false')
+          }
         }
-
-        onlyIfBuildSucceeds(false)
-        onlyIfBuildFails(false)
-      }
     }
   }
 }

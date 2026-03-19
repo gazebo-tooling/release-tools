@@ -1,0 +1,18 @@
+name: Releasing tests
+
+on:
+  push:
+    paths:
+      - release.py
+
+jobs:
+  dsl_ci:
+    runs-on: ubuntu-latest
+    name: release.py checks
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Run release.py script tests
+        run: ./check_releasepy.bash

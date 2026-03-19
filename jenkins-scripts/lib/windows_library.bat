@@ -2,7 +2,6 @@
 call :%*
 exit /b
 
-
 :: ##################################
 :: Configure the build environment for MSVC 2017
 :configure_msvc2019_compiler
@@ -23,7 +22,6 @@ set MSVC_KEYWORD=%PLATFORM_TO_BUILD%
 IF %PLATFORM_TO_BUILD% == x86 (
   echo "Using 32bits VS configuration"
   set BITNESS=32
-  set VCPKG_DEFAULT_TRIPLET=x86-windows
 ) ELSE (
   REM Visual studio is accepting many keywords to compile for 64bits
   REM We need to set x86_amd64 to make express version to be able to
@@ -32,21 +30,23 @@ IF %PLATFORM_TO_BUILD% == x86 (
   set BITNESS=64
   set MSVC_KEYWORD=x86_amd64
   set PLATFORM_TO_BUILD=amd64
-  set VCPKG_DEFAULT_TRIPLET=x64-windows
   set PreferredToolArchitecture=x64
 )
 
 echo "Configure the VC++ compilation"
+set MSVC22_ON_WIN32_C=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat
+:: 2019 versions
 set MSVC_ON_WIN64_E=C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
 set MSVC_ON_WIN32_E=C:\Program Files\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
 set MSVC_ON_WIN64_C=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat
 set MSVC_ON_WIN32_C=C:\Program Files\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat
-:: libraries from vcpkg
+
 set LIB_DIR="%~dp0"
 call %LIB_DIR%\windows_env_vars.bat
-set PATH=%PATH%;%VCPKG_DIR%\installed\%VCPKG_DEFAULT_TRIPLET%\bin
 
-IF exist "%MSVC_ON_WIN64_E%" (
+IF exist "%MSVC22_ON_WIN32_C%" (
+   call "%MSVC22_ON_WIN32_C%" %MSVC_KEYWORD% || goto %win_lib% :error
+) ELSE IF exist "%MSVC_ON_WIN64_E%" (
    call "%MSVC_ON_WIN64_E%" %MSVC_KEYWORD% || goto %win_lib% :error
 ) ELSE IF exist "%MSVC_ON_WIN32_E%" (
    call "%MSVC_ON_WIN32_E%" %MSVC_KEYWORD% || goto %win_lib% :error
@@ -56,7 +56,7 @@ IF exist "%MSVC_ON_WIN64_E%" (
    call "%MSVC_ON_WIN32_C%" %MSVC_KEYWORD% || goto %win_lib% :error
 ) ELSE (
    echo "Could not find the vcvarsall.bat file"
-   exit -1
+   exit %EXTRA_EXIT_PARAM% -1
 )
 
 goto :EOF
@@ -64,74 +64,25 @@ goto :EOF
 :: ##################################
 :: Download an URL to the current directory
 :wget
-::
 :: arg1 URL to download
 :: arg2 filename (not including the path, just the filename)
-echo Downloading %~1
-:: Note that http://gazebosim.org/distributions/win32/deps/ redirects to an https
-:: version of the website. However the jenkins machine fails to validate the secure
-:: https version, so we use the --no-check-certificate option to prevent wget from
-:: quitting prematurely.
-wget %~1 --no-check-certificate -O %cd%\%~2 || goto :error
-goto :EOF
-
-:: ##################################
-:: Download the unzip utility from osrfoundation.org
-:download_7za
-::
-if not exist 7z.dll (call :wget http://osrf-distributions.s3.us-east-1.amazonaws.com/win32/deps/7z.dll 7z.dll || goto :error)
-if not exist 7z.exe (call :wget http://osrf-distributions.s3.us-east-1.amazonaws.com/win32/deps/7z.exe 7z.exe || goto :error)
-goto :EOF
-
-:: ##################################
-:: Unzip using 7za
-:unzip_7za
-::
-:: arg1 - File to unzip
-echo Uncompressing %~1
-IF NOT exist %~1 ( echo "Zip file does not exist: %~1" && goto :error )
-7z.exe x %~1 -aoa || goto :error
-goto :EOF
-
-:: ##################################
-:: Unzip using 7za and then install
-:unzip_install
-::
-echo Uncompressing %~1 to %~d0\install
-IF NOT exist %~1 ( echo "Zip file does not exist: %~1" && goto :error )
-call :download_7za || goto :error
-7z.exe x %~1 -aoa -o%WORKSPACE_INSTALL_DIR% || goto :error
-goto :EOF
-
-:: ##################################
-:: Download some prebuilt package from our repository, unzip it using 7za, and then install it
-:download_unzip_install
-::
-echo # BEGIN SECTION: downloading, unzipping, and installing dependency %1
-call :wget https://s3.amazonaws.com/osrf-distributions/win32/deps/%1 %1 || goto :error
-call :unzip_install %1 || goto :error
-goto :EOF
-
-:: ##################################
-:: Install an ignition project from source
-:install_ign_project
-::
-:: arg1: Name of the ignition project (e.g. ign-cmake, ign-math)
-:: arg2: [Optional] desired branch
-::
-set IGN_PROJECT_DEPENDENCY_DIR=%LOCAL_WS%\%1
-if exist %IGN_PROJECT_DEPENDENCY_DIR% ( rmdir /s /q %IGN_PROJECT_DEPENDENCY_DIR% )
-if "%2"=="" (
-  echo Installing master branch of %1
-  git clone https://github.com/gazebosim/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b master
-) else (
-  echo Installing branch %2 of %1
-  git clone https://github.com/gazebosim/%1 %IGN_PROJECT_DEPENDENCY_DIR% -b %2
+set URL=%~1
+set FILENAME=%~2
+set RETRIES=3
+set COUNT=0
+echo Downloading %URL%
+:retry
+powershell -command "Invoke-WebRequest -Uri %URL% -OutFile %cd%\%FILENAME%"
+if errorlevel 1 (
+    set /a COUNT+=1
+    echo Download failed. Retry attempt !COUNT! of %RETRIES%.
+    if !COUNT! geq %RETRIES% (
+        echo Maximum retry attempts reached. exit %EXTRA_EXIT_PARAM%ing...
+        exit %EXTRA_EXIT_PARAM% 1
+    )
+    timeout /t 5 >nul
+    goto retry
 )
-cd /d %IGN_PROJECT_DEPENDENCY_DIR%
-call .\configure.bat
-nmake || goto :error
-nmake install || goto :error
 goto :EOF
 
 :: ##################################
@@ -167,10 +118,6 @@ goto :EOF
 
 :: ##################################
 :_colcon_build_cmd
-::
-:: The CMAKE_BUILD_TYPE is needed to workaround on issue
-:: https://github.com/Microsoft/vcpkg/issues/1626
-::
 :: arg1 colcon command line extra arguments
 :: arg2 colcon cmake extra command line arguments
 set LIB_DIR="%~dp0"
@@ -187,18 +134,17 @@ set COLCON_EXTRA_CMAKE_ARGS2=%4
 set MAKEFLAGS=-j%MAKE_JOBS%
 
 echo "COLCON_EXTRA_ARGS: %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%"
-echo "COLCON_EXTRA_CMAKE_ARGS: %COLCON_EXTRA_CMAKE_ARGS%"
-echo "COLCON_EXTRA_CMAKE_ARGS2: %COLCON_EXTRA_CMAKE_ARGS2%"
 
+@echo on
 colcon build --build-base "build"^
-	     --install-base "install"^
-	     --parallel-workers %MAKE_JOBS%^
-	     %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
-	     --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
-		          " -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE_TOOLCHAIN_FILE%"^
-	                  " -DVCPKG_TARGET_TRIPLET=%VCPKG_DEFAULT_TRIPLET%"^
-             %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
-             --event-handler console_cohesion+ || goto :error
+  --install-base "install"^
+  --parallel-workers %MAKE_JOBS%^
+  %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
+  --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
+  %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
+  --event-handler console_cohesion+ || goto :error
+@echo off
+
 goto :EOF
 
 :: ##################################
@@ -250,62 +196,81 @@ echo # END SECTION
 goto :EOF
 
 :: ##################################
-:check_vcpkg_snapshot
-setlocal EnableDelayedExpansion
-:: look for same sha in repository HEAD and in the tag
-for /f %%i in ('git -C %VCPKG_DIR% rev-parse HEAD') do set VCPKG_HEAD=%%i
-for /f %%i in ('git -C %VCPKG_DIR% rev-list -n 1 %VCPKG_SNAPSHOT%') do set VCPKG_TAG=%%i
-if NOT %VCPKG_HEAD% == %VCPKG_TAG% (
-  echo The vpckg directory is not using the expected snapshot %VCPKG_SNAPSHOT%
-  echo VCPKG_HEAD points to %VCPKG_HEAD% while VCPKG_TAG points to %VCPKG_TAG%
-  echo They should point to the same commit hash
-  goto :error
+:: 
+:: Download the pixi binary to the system
+:pixi_installation
+set LIB_DIR=%~dp0
+call %LIB_DIR%\windows_env_vars.bat
+
+echo Downloading pixi %PIXI_VERSION% in %PIXI_TMPDIR%
+if not exist "%PIXI_TMPDIR%" mkdir "%PIXI_TMPDIR%"
+pushd %PIXI_TMPDIR%
+call :wget "%PIXI_URL%" pixi.exe
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
+popd 
+goto :EOF
+
+:: ##################################
+:: 
+:: Create a pixi environment
+:pixi_create_gz_environment
+:: arg1: environment name inside conda/envs in this repo
+set LIB_DIR="%~dp0"
+call %LIB_DIR%\windows_env_vars.bat
+
+set ENV_NAME=%1
+set CONDA_ENV_PATH=%CONDA_ENVS_DIR%\%ENV_NAME%
+if not exist %CONDA_ENV_PATH% (
+  echo Can not find %CONDA_ENV_PATH% directory in the system
+  exit %EXTRA_EXIT_PARAM% 1
 )
-goto :EOF
-
-:: ##################################
-:install_vcpkg_package
-:: arg1: package to install
-set LIB_DIR=%~dp0
-call %LIB_DIR%\windows_env_vars.bat || goto :error
-call %win_lib% :check_vcpkg_snapshot || goto :error
-:: update osrf vcpkg overlay
-pushd .
-cd %VCPKG_OSRF_DIR%
-git pull origin master || goto :error
+if exist %PIXI_PROJECT_PATH% ( rmdir /s /q "%PIXI_PROJECT_PATH%")
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
+mkdir %PIXI_PROJECT_PATH%
+copy %CONDA_ENV_PATH%\pixi.* %PIXI_PROJECT_PATH%
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
+pushd %PIXI_PROJECT_PATH%
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
+call %win_lib% :pixi_cmd install
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 popd
-
-%VCPKG_CMD% install --recurse "%1" --overlay-ports="%VCPKG_OSRF_DIR%"
 goto :EOF
 
 :: ##################################
-:remove_vcpkg_package
-:: arg1: package to install
-set LIB_DIR=%~dp0
-call %LIB_DIR%\windows_env_vars.bat || goto :error
+:pixi_load_shell
+:: pixi shell won't work since it spawns a blocking cmd inside Jenkins
+:: instead use the hook and execute them in the current shell
+set LIB_DIR="%~dp0"
+call %LIB_DIR%\windows_env_vars.bat
+set HOOK_FILE=%PIXI_PROJECT_PATH%\hooks.bat
 
-%VCPKG_CMD% remove --recurse "%1"
+pushd %PIXI_PROJECT_PATH%
+echo Running pixi %~1 %~2
+%PIXI_TMP% shell-hook --locked > %HOOK_FILE%
+:: ERRORS in hooks will make the build to fail. Be permissive
+type %HOOK_FILE%
+call %HOOK_FILE%
+popd
 goto :EOF
 
 :: ##################################
-:enable_vcpkg_integration
-%VCPKG_CMD% integrate install || goto :error
-goto :EOF
-
-:: ##################################
-:disable_vcpkg_integration
-%VCPKG_CMD% integrate remove || goto :error
-goto :EOF
-
-
-:: copy port to the official tree
-xcopy %VCPKG_OSRF_DIR%\%PKG% %PORT_DIR% /s /i /e || goto :error
-
-call %win_lib% :install_vcpkg_package %1 || goto :error
+:pixi_cmd
+:: arg1 pixi command to run on PIXI_PROJECT_PATH
+:: arg2 pixi second argument
+set LIB_DIR="%~dp0"
+call %LIB_DIR%\windows_env_vars.bat
+echo Running pixi %~1 %~2
+:: If using --manifest-file Windows will complain about permissions
+:: using error number 5 :?. Use pushd and popd to go into the 
+:: project directory.
+pushd %PIXI_PROJECT_PATH%
+call "%PIXI_TMP%" %1 %2
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
+popd
 goto :EOF
 
 :: ##################################
 :error - error routine
 ::
 echo Failed in windows_library with error #%errorlevel%.
-exit %errorlevel%
+exit %EXTRA_EXIT_PARAM% %errorlevel%

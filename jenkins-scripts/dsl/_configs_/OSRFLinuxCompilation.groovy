@@ -80,6 +80,7 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
               filters {
                 'io.jenkins.plugins.analysis.core.filter.ExcludeFile' {
                   pattern('.*ALSA lib.*')
+                  pattern('\\d+: \\(')
                 }
               }
               isEnabledForFailure(false)

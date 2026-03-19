@@ -4,7 +4,6 @@ import javaposse.jobdsl.dsl.Job
 
 /*
   -> OSRFLinuxBase
-  -> GenericRemoteToken
 
   Implements:
     - priorioty 300
@@ -24,7 +23,6 @@ class OSRFLinuxBackportPkg
   static void create(Job job)
   {
     OSRFLinuxBase.create(job)
-    GenericRemoteToken.create(job)
 
     job.with
     {
@@ -40,6 +38,7 @@ class OSRFLinuxBackportPkg
 
       logRotator {
         artifactNumToKeep(20)
+        numToKeep(75)
       }
 
       parameters {

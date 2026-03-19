@@ -5,6 +5,7 @@
 #  - GENERIC_ENABLE_TIMING (optional) [default true]
 #  - GENERIC_ENABLE_CPPCHECK (optional) [default true] run cppcheck
 #  - GENERIC_ENABLE_TESTS (optional) [default true] run tests
+#  - ASAN_OPTIONS (optional) extra asan options
 #  - BUILDING_EXTRA_CMAKE_PARAMS (optional) extra cmake params
 #  - BUILDING_EXTRA_MAKETEST_PARAMS (optional) extra "make test ARGS=" params
 #  - BUILD_<lib name> (optional) build dependency from source, for example, BUILD_GZ_MATH
@@ -19,13 +20,10 @@ fi
 [[ -z $GENERIC_ENABLE_CPPCHECK ]] && GENERIC_ENABLE_CPPCHECK=true
 [[ -z $GENERIC_ENABLE_TESTS ]] && GENERIC_ENABLE_TESTS=true
 
-cat > build.sh << DELIM_HEADER
-#!/bin/bash
-set -ex
+. ${SCRIPT_DIR}/lib/_common_scripts.bash
 
-if $GENERIC_ENABLE_TIMING; then
-  source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}
-fi
+cat > build.sh << DELIM_HEADER
+$(generate_buildsh_header)
 DELIM_HEADER
 
 # Process the source build of dependencies if needed
@@ -72,12 +70,31 @@ DELIM_BUILD_DEPS
   fi
 done
 
+# Minimal ROS env setup for finding ROS packages.
+# We don't need a full ROS env setup for building ROS packages or running
+# ROS tests. The ROS setup here is needed by gz-transport versions >= 15
+# so that  it can find ROS 2's zenoh_cpp_vendor package that is installed in
+# /opt/ros/<ROS_DISTRO>.
+# See jenkins-scripts/docker/gz_transport-compilation.bash
+if [[ -n ${ROS_DISTRO_SETUP_NEEDED} ]]; then
+cat >> build.sh << DELIM_ROS_DISTRO_SETUP
+echo '# BEGIN SECTION: sourcing ros setup script'
+if [ -f /opt/ros/${ROS_DISTRO_SETUP_NEEDED}/setup.bash ]; then
+  source /opt/ros/${ROS_DISTRO_SETUP_NEEDED}/setup.bash
+else
+  echo "ROS_DISTRO_SETUP_NEEDED set to ${ROS_DISTRO_SETUP_NEEDED} but no ROS 2 installation found"
+fi
+echo '# END SECTION'
+DELIM_ROS_DISTRO_SETUP
+fi
+
 cat >> build.sh << DELIM
 echo '# BEGIN SECTION: configure'
 # Step 2: configure and build
 cd $WORKSPACE
 [[ ! -d $WORKSPACE/build ]] && mkdir -p $WORKSPACE/build
 cd $WORKSPACE/build
+
 cmake $WORKSPACE/${SOFTWARE_DIR} ${BUILDING_EXTRA_CMAKE_PARAMS} \
     -DCMAKE_INSTALL_PREFIX=/usr
 echo '# END SECTION'
@@ -95,8 +112,12 @@ echo '# END SECTION'
 if $GENERIC_ENABLE_TESTS; then
   echo '# BEGIN SECTION: running tests'
   init_stopwatch TEST
+  export ASAN_OPTIONS=\${ASAN_OPTIONS:+\$ASAN_OPTIONS:}${ASAN_OPTIONS}
   mkdir -p \$HOME
-  make test ARGS="-VV ${BUILDING_EXTRA_MAKETEST_PARAMS}" || true
+  make test ARGS="-VV ${BUILDING_EXTRA_MAKETEST_PARAMS} --output-junit cmake_junit_output.xml" || true
+  if [ -f cmake_junit_output.xml ]; then
+    python3 $WORKSPACE/scripts/jenkins-scripts/tools/cmake_to_gtest_junit_output.py cmake_junit_output.xml test_results  || true
+  fi
   stop_stopwatch TEST
   echo '# END SECTION'
 else
