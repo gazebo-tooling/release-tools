@@ -142,7 +142,7 @@ colcon build --build-base "build"^
   %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
   --cmake-args " -GNinja" " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
   %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
-  --event-handler console_cohesion+ || goto :error
+  --event-handlers console_cohesion+ desktop_notifications- || goto :error
 @echo off
 
 goto :EOF
@@ -188,7 +188,7 @@ echo # BEGIN SECTION: colcon test for !COLCON_PACKAGE!
 colcon test --install-base "install"^
             --packages-select !COLCON_PACKAGE!^
             --executor sequential^
-            --event-handler console_direct+
+            --event-handlers console_direct+ desktop_notifications-
 echo # END SECTION
 echo # BEGIN SECTION: colcon test-result
 colcon test-result --all
