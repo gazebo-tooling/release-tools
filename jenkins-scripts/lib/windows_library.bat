@@ -188,7 +188,7 @@ echo # BEGIN SECTION: colcon test for !COLCON_PACKAGE!
 colcon test --install-base "install"^
             --packages-select !COLCON_PACKAGE!^
             --executor sequential^
-            --event-handlers console_direct+ desktop_notifications-
+            --event-handlers console_direct+ desktop_notification-
 echo # END SECTION
 echo # BEGIN SECTION: colcon test-result
 colcon test-result --all
