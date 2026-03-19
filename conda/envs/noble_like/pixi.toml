@@ -61,3 +61,4 @@ cmake = "3.28.3.*"  # good on noble
 colcon-common-extensions = "*"
 pkg-config = "*"
 vcstool = "*"
+ninja = "*"
