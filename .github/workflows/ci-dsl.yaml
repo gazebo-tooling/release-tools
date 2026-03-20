@@ -12,13 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     name: Generate XML config from DSL
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
@@ -50,11 +50,11 @@ jobs:
           # export files for later diff
           mkdir /tmp/pr_xml_configuration
           mv *.xml /tmp/pr_xml_configuration/
-      - name: Update and commit logs generated
-        uses: stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d  # v5 sha
+      - name: Upload generated logs
+        uses: actions/upload-artifact@v4
         with:
-          file_pattern: jenkins-scripts/dsl/logs/
-          commit_message: 'Automated change: update logs [skip ci]'
+          name: dsl_logs
+          path: jenkins-scripts/dsl/logs/
       - name: Generate master DSL files
         run: |
           git clean -f -e jobdsl.jar
@@ -78,6 +78,39 @@ jobs:
         with:
           name: xml_config_content_changed
           path: /tmp/xml_config_content_changed.diff
+
+  publish_results:
+    runs-on: ubuntu-latest
+    name: Commit logs and publish diffs
+    needs: xml_generation
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Download generated logs
+        uses: actions/download-artifact@v4
+        with:
+          name: dsl_logs
+          path: jenkins-scripts/dsl/logs/
+      - name: Update and commit logs generated
+        uses: stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d  # v5 sha
+        with:
+          file_pattern: jenkins-scripts/dsl/logs/
+          commit_message: 'Automated change: update logs [skip ci]'
+      - name: Download files changed diff
+        uses: actions/download-artifact@v4
+        with:
+          name: xml_config_files_changed
+          path: /tmp/
+      - name: Download content changed diff
+        uses: actions/download-artifact@v4
+        with:
+          name: xml_config_content_changed
+          path: /tmp/
       - name: Publish diffs in a comment
         uses: actions/github-script@v7
         with:
@@ -91,6 +124,9 @@ jobs:
               contentChanged = contentChanged.substring(0, MAX_BODY_SIZE) +
                 '\n... (truncated, diff too large for a GitHub comment)';
             }
+            // Use a code fence longer than any backtick sequence in the diff to prevent markdown injection
+            const maxBt = (contentChanged.match(/`+/g) || []).reduce((max, s) => Math.max(max, s.length), 2);
+            const fence = '`'.repeat(maxBt + 1);
             const output = `### This is an automatic response from the CI system for Jenkins DSL generation.
             Below is the list of Jenkins XML configuration files changed by this PR (from changes to DSL) and the content changed in the configuration files:
             #### :open_file_folder: XML Jenkins configuration files changed in this PR
@@ -102,7 +138,7 @@ jobs:
             #### :bookmark_tabs: Content changed in the XML configuration files in this PR
             <details>
 
-            ${contentChanged ? '```diff\n' + contentChanged + '\n```' : '_No content differences detected._'}
+            ${contentChanged ? fence + 'diff\n' + contentChanged + '\n' + fence : '_No content differences detected._'}
             </details>
             `;
             await github.rest.issues.createComment({
