@@ -86,7 +86,7 @@ jobs:
             #### :open_file_folder: XML Jenkins configuration files changed in this PR
             <details>
 
-            > ${filesChanged}
+            ${filesChanged.split('\n').map(l => '> ' + l).join('\n')}
             </details>
 
             #### :bookmark_tabs: Content changed in the XML configuration files in this PR
