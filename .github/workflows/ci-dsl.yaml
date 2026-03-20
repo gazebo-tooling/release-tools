@@ -86,15 +86,13 @@ jobs:
             #### :open_file_folder: XML Jenkins configuration files changed in this PR
             <details>
 
-            ${filesChanged.split('\n').map(l => '> ' + l).join('\n')}
+            ${filesChanged ? filesChanged.split('\n').map(l => '> ' + l).join('\n') : '_No XML configuration files were changed._'}
             </details>
 
             #### :bookmark_tabs: Content changed in the XML configuration files in this PR
             <details>
 
-            \`\`\`diff
-            ${contentChanged}
-            \`\`\`
+            ${contentChanged ? '```diff\n' + contentChanged + '\n```' : '_No content differences detected._'}
             </details>
             `;
             await github.rest.issues.createComment({
