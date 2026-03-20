@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-physics}"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_PHYSICS_DEPENDENCIES"
 
 # Identify GZ_PHYSICS_MAJOR_VERSION to help with dependency resolution
 GZ_PHYSICS_MAJOR_VERSION=$(\
@@ -29,6 +28,6 @@ if ! [[ ${GZ_PHYSICS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
 fi
 
 export NEED_C17_COMPILER=true
-export GZDEV_PROJECT_NAME="gz-physics${GZ_PHYSICS_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="${GZDEV_PROJECT_NAME:-gz-physics${GZ_PHYSICS_MAJOR_VERSION}}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

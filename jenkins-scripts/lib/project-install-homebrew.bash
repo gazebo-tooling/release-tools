@@ -10,9 +10,7 @@ fi
 # Get bottle name as first argument to this script
 BOTTLE_NAME=$1 # project will have the major version included (ex gazebo2)
 
-export HOMEBREW_PREFIX=/usr/local
-export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
-export PATH=${HOMEBREW_PREFIX}/bin:${HOMEBREW_PREFIX}/sbin:$PATH
+. ${SCRIPT_DIR}/lib/_homebrew_path_setup.sh
 
 # make verbose mode?
 MAKE_VERBOSE_STR=""
@@ -56,8 +54,16 @@ then
   echo '# END SECTION'
 fi
 
+echo "# BEGIN SECTION: check if ${BOTTLE_NAME} is HEAD formula"
+# Install with --HEAD if formula lacks a stable URL
+HEAD_FLAG=""
+if brew ruby -e "exit '${BOTTLE_NAME}'.f.stable.nil?"; then
+  HEAD_FLAG="--HEAD"
+fi
+echo '# END SECTION'
+
 echo "# BEGIN SECTION: install ${BOTTLE_NAME}"
-brew install --include-test ${BOTTLE_NAME}
+brew install --include-test ${BOTTLE_NAME} ${HEAD_FLAG}
 
 # add X11 path so glxinfo can be found
 export PATH="${PATH}:/opt/X11/bin"
@@ -84,10 +90,7 @@ echo '# END SECTION'
 
 echo "#BEGIN SECTION: brew doctor analysis"
 brew missing || brew install $(brew missing | awk '{print $2}') && brew missing
-# if szip is installed, skip brew doctor
-# remove this line when hdf5 stops depending on the deprecated szip formula
-# https://github.com/Homebrew/homebrew-core/issues/96930
-brew list | grep '^szip$' || brew doctor || echo MARK_AS_UNSTABLE
+brew doctor || echo MARK_AS_UNSTABLE
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: re-add group write permissions"

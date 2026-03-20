@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-rendering}"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_RENDERING_DEPENDENCIES"
 
 # Identify GZ_RENDERING_MAJOR_VERSION to help with dependency resolution
 GZ_RENDERING_MAJOR_VERSION=$(\
@@ -33,7 +32,7 @@ if [[ ${GZ_RENDERING_MAJOR_VERSION} -ge 1 ]]; then
 fi
 
 export GPU_SUPPORT_NEEDED=true
-export GZDEV_PROJECT_NAME="gz-rendering${GZ_RENDERING_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="${GZDEV_PROJECT_NAME:-gz-rendering${GZ_RENDERING_MAJOR_VERSION}}"
 
 # set SKIP_optix=true for Harmonic and earlier
 # not needed for ionic since https://github.com/gazebosim/gz-rendering/pull/1032

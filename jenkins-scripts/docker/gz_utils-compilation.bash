@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-utils}"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_UTILS_DEPENDENCIES"
 
 # Identify GZ_UTILS_MAJOR_VERSION to help with dependency resolution
 GZ_UTILS_MAJOR_VERSION=$(\
@@ -30,6 +29,6 @@ fi
 
 export NEED_C17_COMPILER=true
 
-export GZDEV_PROJECT_NAME="gz-utils${GZ_UTILS_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="${GZDEV_PROJECT_NAME:-gz-utils${GZ_UTILS_MAJOR_VERSION}}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

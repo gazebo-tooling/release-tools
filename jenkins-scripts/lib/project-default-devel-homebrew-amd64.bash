@@ -20,9 +20,7 @@ PROJECT_FORMULA=${PROJECT//[0-9]}$(\
   python3 ${SCRIPT_DIR}/tools/detect_cmake_major_version.py \
   ${WORKSPACE}/${PROJECT_PATH}/CMakeLists.txt || true)
 
-export HOMEBREW_PREFIX=/usr/local
-export HOMEBREW_CELLAR=${HOMEBREW_PREFIX}/Cellar
-export PATH=${HOMEBREW_PREFIX}/bin:${HOMEBREW_PREFIX}/sbin:$PATH
+. ${SCRIPT_DIR}/lib/_homebrew_path_setup.sh
 
 export PYTHONPATH=$PYTHONPATH:${HOMEBREW_PREFIX}/lib/python
 
@@ -69,11 +67,21 @@ then
   echo '# END SECTION'
 fi
 
+echo "# BEGIN SECTION: check if ${PROJECT_FORMULA} is HEAD formula"
+# Install with --HEAD if formula lacks a stable URL
+HEAD_FLAG=""
+if brew ruby -e "exit '${PROJECT_FORMULA}'.f.stable.nil?"; then
+  HEAD_FLAG="--HEAD"
+fi
+echo '# END SECTION'
+
 echo "# BEGIN SECTION: install ${PROJECT_FORMULA} dependencies"
 # Process the package dependencies
-brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies
+brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies ${HEAD_FLAG}
 # the following is needed to install :build dependencies of a formula
-brew install $(brew deps --1 --include-build ${PROJECT_FORMULA})
+# filter out the rotary dependencies since they require --HEAD
+NON_ROTARY_BUILD_DEPS=$(brew deps --1 --include-build ${PROJECT_FORMULA} | grep -v gz-rotary-)
+brew install ${NON_ROTARY_BUILD_DEPS}
 
 # pytest is needed to run python tests with junit xml output
 PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} pytest"
@@ -149,6 +157,10 @@ export DISPLAY=$(ps ax \
 )
 
 CMAKE_ARGS=""
+# set CMAKE_PREFIX_PATH if we are using protobuf@33
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'protobuf@33' }.empty?"; then
+  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${HOMEBREW_PREFIX}/opt/protobuf@33
+fi
 # set CMAKE_PREFIX_PATH if we are using qt@5
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt@5' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${HOMEBREW_PREFIX}/opt/qt@5
@@ -205,10 +217,7 @@ echo '# END SECTION'
 
 echo "#BEGIN SECTION: brew doctor analysis"
 brew missing || brew install $(brew missing | awk '{print $2}') && brew missing
-# if szip is installed, skip brew doctor
-# remove this line when hdf5 stops depending on the deprecated szip formula
-# https://github.com/Homebrew/homebrew-core/issues/96930
-brew list | grep '^szip$' || brew doctor || echo MARK_AS_UNSTABLE
+brew doctor || echo MARK_AS_UNSTABLE
 echo '# END SECTION'
 
 # CHECK PRE_TESTS_EXECUTION_HOOK AND RUN

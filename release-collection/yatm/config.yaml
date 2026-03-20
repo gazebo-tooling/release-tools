@@ -1,0 +1,43 @@
+repo_owner: gazebosim
+repo_name: gz-jetty
+workspace_version: 1.0.0
+yatm_v2_version: 1.0.0
+requirements_dirs:
+- requirements
+test_cases_builders_dirs:
+- test_cases_builders
+new_requirements_dir: requirements
+new_test_cases_builder_dir: test_cases_builders
+generated_files_dir: generated_files
+labels:
+- name: 'pre-development'
+  color: d73a4a
+  description: Tasks that occur before developoment starts
+
+- name: 'feature-freeze-starts'
+  color: 0075ca
+  description: Tasks that need to be completed before feature freeze starts
+
+- name: 'feature-freeze-ends'
+  color: cfd3d7
+  description: Tasks that need to be completed during the feature freeze
+
+- name: 'code-freeze-ends'
+  color: a2eeef
+  description: Tasks that need to be completed during the code freeze
+
+- name: 'tutorial-party'
+  color: 7057ff
+  description: Tasks that need to be completed during the tutorial party
+
+- name: 'demo-world'
+  color: 008672
+  description: Tasks that need to be completed for the demo world
+
+- name: 'release'
+  color: e4e669
+  description: Tasks that need to be completed before and on the release day
+
+- name: 'post-release'
+  color: d876e3
+  description: Tasks that need to be completed after the release

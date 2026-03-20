@@ -139,6 +139,15 @@ expect_number_of_jobs "${source_tarball_uri_test}" "7"
 expect_param "${source_tarball_uri_test}" "SOURCE_TARBALL_URI=https%3A%2F%2Fgazebosim%2Fgz-foo-1.2.3.tar.gz"
 expect_no_vendor "${source_tarball_uri_test}"
 
+source_tarball_uri_with_sha256_test=$(exec_releasepy_test "--source-tarball-uri https://gazebosim/gz-foo-1.2.3.tar.gz --source-tarball-sha256 abc123def456")
+expect_job_run "${source_tarball_uri_with_sha256_test}" "gz-foo-debbuilder"
+expect_job_run "${source_tarball_uri_with_sha256_test}" "generic-release-homebrew_pull_request_updater"
+expect_job_not_run "${source_tarball_uri_with_sha256_test}" "gz-foo-source"
+expect_number_of_jobs "${source_tarball_uri_with_sha256_test}" "7"
+expect_param "${source_tarball_uri_with_sha256_test}" "SOURCE_TARBALL_URI=https%3A%2F%2Fgazebosim%2Fgz-foo-1.2.3.tar.gz"
+expect_param "${source_tarball_uri_with_sha256_test}" "SOURCE_TARBALL_SHA256=abc123def456"
+expect_no_vendor "${source_tarball_uri_with_sha256_test}"
+
 nightly_test=$(exec_releasepy_test "--nightly-src-branch my-nightly-branch3 --upload-to-repo nightly")
 expect_job_run "${nightly_test}" "gz-foo-debbuilder"
 expect_job_not_run "${nightly_test}" "generic-release-homebrew_pull_request_updater"
@@ -146,6 +155,26 @@ expect_job_not_run "${nightly_test}" "gz-foo-source"
 expect_number_of_jobs "${nightly_test}" "2"
 expect_param "${nightly_test}" "SOURCE_TARBALL_URI=my-nightly-branch3"
 expect_no_vendor "${nightly_test}"
+
+# Rotary nightly test: package name includes "rotary" prefix
+exec_rotary_releasepy_test()
+{
+  test_params=${1}
+    ./release.py \
+      --dry-run \
+      --no-sanity-checks \
+      --auth user:fake \
+    gz-rotary-cmake 1.2.3 ${test_params}
+}
+
+rotary_nightly_test=$(exec_rotary_releasepy_test "--nightly-src-branch main --upload-to-repo nightly")
+expect_job_run "${rotary_nightly_test}" "gz-rotary-cmake-debbuilder"
+expect_job_not_run "${rotary_nightly_test}" "gz-cmake-debbuilder"
+expect_job_not_run "${rotary_nightly_test}" "generic-release-homebrew_pull_request_updater"
+expect_number_of_jobs "${rotary_nightly_test}" "2"
+expect_param "${rotary_nightly_test}" "PACKAGE=gz-rotary-cmake"
+expect_param "${rotary_nightly_test}" "SOURCE_TARBALL_URI=main"
+expect_no_vendor "${rotary_nightly_test}"
 
 bump_linux_test=$(exec_releasepy_test "--source-tarball-uri https://gazebosim/gz-foo-1.2.3.tar.gz --only-bump-revision-linux -r 2")
 expect_job_run "${bump_linux_test}" "gz-foo-debbuilder"

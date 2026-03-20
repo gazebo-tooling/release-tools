@@ -13,7 +13,7 @@ class OSRFReleasepy
 
     job.with
     {
-      label Globals.nontest_label("master")
+      label Globals.nontest_label("built-in")
 
       parameters
       {
@@ -29,6 +29,9 @@ class OSRFReleasepy
         stringParam("SOURCE_TARBALL_URI",
                     default_params.find{ it.key == "SOURCE_TARBALL_URI"}?.value,
                     "URL to the tarball containing the package sources")
+        stringParam("SOURCE_TARBALL_SHA256",
+                    default_params.find{ it.key == "SOURCE_TARBALL_SHA256"}?.value,
+                    "sha256 for SOURCE_TARBALL_URI")
         stringParam("RELEASE_REPO_BRANCH",
                     default_params.find{ it.key == "RELEASE_REPO_BRANCH"}?.value,
                     "Branch from the -release repo to be used")
@@ -74,6 +77,7 @@ class OSRFReleasepy
               python3 ./scripts/release.py \${dry_run_str} "\${PACKAGE}" "\${VERSION}" \${extra_osrf_repo} \
                       --auth "\${OSRFBUILD_JENKINS_USER}:\${OSRFBUILD_JENKINS_TOKEN}" \
                       --source-tarball-uri \${SOURCE_TARBALL_URI} \
+                      --source-tarball-sha256 \${SOURCE_TARBALL_SHA256} \
                       --release-repo-branch \${RELEASE_REPO_BRANCH} \
                       --upload-to-repo \${UPLOAD_TO_REPO}
             echo " - done"

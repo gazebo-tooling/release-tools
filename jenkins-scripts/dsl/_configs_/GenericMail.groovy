@@ -28,8 +28,7 @@ class GenericMail
   {
     GenericMail._include_mail_recipients(job, subject, content)
     GenericMail.update_field(job, "presendScript",
-                             GenericMail.get_base_presend_script() +
-                             GenericMail.get_OSRF_filter_presend_script())
+                             GenericMail.get_base_presend_script())
   }
 
   static void include_mail(Job job)
@@ -70,7 +69,6 @@ class GenericMail
           {
             failure {
               sendTo {
-                developers()
                 requester()
                 recipientList()
               }
@@ -78,7 +76,6 @@ class GenericMail
 
             unstable {
               sendTo {
-                developers()
                 requester()
                 recipientList()
               }
@@ -86,7 +83,6 @@ class GenericMail
 
             fixed {
               sendTo {
-                developers()
                 requester()
                 recipientList()
               }
@@ -130,23 +126,5 @@ class GenericMail
 
             cancel = final_cancel_answer
             """.stripIndent())
-  }
-
-  static String get_OSRF_filter_presend_script()
-  {
-    return("""
-           // 3. Filter mail to get only OSRF
-           recipients =
-              msg.getAllRecipients()
-           filtered =
-              recipients.findAll { addr -> addr.toString().contains('@osrfoundation.org') }
-           msg.setRecipients(javax.mail.Message.RecipientType.TO,
-                             filtered as javax.mail.Address[])
-           logger.println("Final list of recipients after filtering:");
-           logger.println(recipients);
-
-           // always need to be the last line to cancel email when needed
-           cancel = final_cancel_answer
-        """.stripIndent())
   }
 } // end of class

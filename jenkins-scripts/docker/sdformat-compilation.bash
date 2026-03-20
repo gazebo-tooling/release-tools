@@ -22,9 +22,6 @@ if [[ ${SDFORMAT_MAJOR_VERSION} -ge 8 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
-export GZDEV_PROJECT_NAME="sdformat${SDFORMAT_MAJOR_VERSION}"
-
-# master and major branches compilations
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="SDFORMAT_BASE_DEPENDENCIES"
+export GZDEV_PROJECT_NAME="${GZDEV_PROJECT_NAME:-sdformat${SDFORMAT_MAJOR_VERSION}}"
 
 . "${SCRIPT_DIR}/lib/generic-building-base.bash"

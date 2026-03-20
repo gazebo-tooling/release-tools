@@ -212,6 +212,23 @@ goto :EOF
 
 :: ##################################
 :: 
+:: Create the pixi bootstrap environment
+:pixi_create_bootstrap_environment
+
+set LIB_DIR="%~dp0"
+call %LIB_DIR%\windows_env_vars.bat
+
+if exist %PIXI_BOOTSTRAP_PROJECT_PATH% ( rmdir /s /q "%PIXI_BOOTSTRAP_PROJECT_PATH%")
+mkdir "%PIXI_BOOTSTRAP_PROJECT_PATH%"
+copy %CONDA_ROOT_DIR%\config-detector\pixi.* %PIXI_BOOTSTRAP_PROJECT_PATH%
+pushd %PIXI_BOOTSTRAP_PROJECT_PATH%
+call %win_lib% :pixi_bootstrap_cmd install
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
+popd
+goto :EOF
+
+:: ##################################
+::
 :: Create a pixi environment
 :pixi_create_gz_environment
 :: arg1: environment name inside conda/envs in this repo
@@ -237,6 +254,23 @@ popd
 goto :EOF
 
 :: ##################################
+:pixi_load_bootstrap_shell
+:: pixi shell won't work since it spawns a blocking cmd inside Jenkins
+:: instead use the hook and execute them in the current shell
+set LIB_DIR="%~dp0"
+call %LIB_DIR%\windows_env_vars.bat
+set HOOK_FILE=%PIXI_BOOTSTRAP_PROJECT_PATH%\hooks.bat
+
+pushd %PIXI_BOOTSTRAP_PROJECT_PATH%
+echo Running pixi %~1 %~2
+%PIXI_TMP% shell-hook --locked > %HOOK_FILE%
+:: ERRORS in hooks will make the build to fail. Be permissive
+type %HOOK_FILE%
+call %HOOK_FILE%
+popd
+goto :EOF
+
+:: ##################################
 :pixi_load_shell
 :: pixi shell won't work since it spawns a blocking cmd inside Jenkins
 :: instead use the hook and execute them in the current shell
@@ -253,6 +287,22 @@ call %HOOK_FILE%
 popd
 goto :EOF
 
+:pixi_bootstrap_cmd
+:: arg1 pixi command to run on PIXI_BOOTSTRAP_PROJECT_PATH
+:: arg2 pixi second argument
+set LIB_DIR="%~dp0"
+call %LIB_DIR%\windows_env_vars.bat
+echo Running pixi %~1 %~2 %~3 %~4
+:: If using --manifest-file Windows will complain about permissions
+:: using error number 5 :?. Use pushd and popd to go into the
+:: project directory.
+pushd %PIXI_BOOTSTRAP_PROJECT_PATH%
+call "%PIXI_TMP%" %1 %2 %3 %4
+if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
+popd
+goto :EOF
+
+
 :: ##################################
 :pixi_cmd
 :: arg1 pixi command to run on PIXI_PROJECT_PATH
@@ -267,6 +317,23 @@ pushd %PIXI_PROJECT_PATH%
 call "%PIXI_TMP%" %1 %2
 if errorlevel 1 exit %EXTRA_EXIT_PARAM% 1
 popd
+goto :EOF
+
+:: ##################################
+:: Detect conda environment for a package and major version
+:detect_conda_env
+:: arg1: package name
+:: arg2: major version (optional)
+
+set "SCRIPT_DIR=%~dp0"
+set "PACKAGE_NAME=%~1"
+set "MAJOR_VERSION=%~2"
+
+for /f %%i in ('python "%SCRIPT_DIR%\..\dsl\tools\get_conda_ciconfig_from_package_and_version.py" "--yaml-file" "%SCRIPT_DIR%\..\dsl\gz-collections.yaml" "%PACKAGE_NAME%" "%MAJOR_VERSION%"') do (
+  set "CONDA_ENV_NAME=%%i"
+)
+
+echo Detected conda environment: %CONDA_ENV_NAME%
 goto :EOF
 
 :: ##################################

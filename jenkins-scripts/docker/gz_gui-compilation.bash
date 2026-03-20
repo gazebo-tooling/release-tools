@@ -15,7 +15,6 @@ if [[ -z ${DISTRO} ]]; then
 fi
 
 export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-gui}"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_GUI_DEPENDENCIES"
 
 # Identify GZ_GUI_MAJOR_VERSION to help with dependency resolution
 GZ_GUI_MAJOR_VERSION=$(\
@@ -33,6 +32,6 @@ if [[ ${GZ_GUI_MAJOR_VERSION} -ge 1 ]]; then
 fi
 
 export GPU_SUPPORT_NEEDED=true
-export GZDEV_PROJECT_NAME="gz-gui${GZ_GUI_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="${GZDEV_PROJECT_NAME:-gz-gui${GZ_GUI_MAJOR_VERSION}}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

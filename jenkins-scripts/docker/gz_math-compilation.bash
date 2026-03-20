@@ -16,7 +16,6 @@ fi
 
 export BUILDING_SOFTWARE_DIRECTORY="${BUILDING_SOFTWARE_DIRECTORY:-ign-math}"
 export BUILDING_JOB_REPOSITORIES="stable"
-export BUILDING_PKG_DEPENDENCIES_VAR_NAME="GZ_MATH_DEPENDENCIES"
 
 # Identify GZ_MATH_MAJOR_VERSION to help with dependency resolution
 GZ_MATH_MAJOR_VERSION=$(\
@@ -33,6 +32,6 @@ if [[ ${GZ_MATH_MAJOR_VERSION} -ge 6 ]]; then
   export NEED_C17_COMPILER=true
 fi
 
-export GZDEV_PROJECT_NAME="gz-math${GZ_MATH_MAJOR_VERSION}"
+export GZDEV_PROJECT_NAME="${GZDEV_PROJECT_NAME:-gz-math${GZ_MATH_MAJOR_VERSION}}"
 
 . "${SCRIPT_DIR}/lib/generic-building-base.bash"

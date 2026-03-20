@@ -147,12 +147,20 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
   }
 }
 
-void generate_asan_ci_job(gz_ci_job, lib_name, branch, ci_config)
+void generate_asan_ci_job(gz_ci_job, lib_name, branch, ci_config, extra_cmd = '')
 {
+  def asan_extra = [extra_cmd, 'export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true']
+                    .findAll { it }.join('\n')
   generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
                   '-DGZ_SANITIZER=Address',
                   Globals.MAKETEST_SKIP_GZ,
-                  'export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true')
+                  asan_extra)
+  gz_ci_job.with {
+    // -asan- builds can produce really long logs. Reduce the number of builds in the server
+    logRotator {
+      numToKeep(10)
+    }
+  }
 }
 
 void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
@@ -161,6 +169,12 @@ void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
   lib_name = lib_name.replaceAll(/^ign-/, 'ignition-')
   gz_brew_ci_job.with
   {
+    wrappers {
+      timeout {
+        absolute(120)
+      }
+    }
+
     steps {
       shell("""\
             #!/bin/bash -xe
@@ -172,10 +186,11 @@ void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
   }
 }
 
-void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config)
+void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config, arch)
 {
   def ws_checkout_dir = lib_name
   OSRFBrewCompilation.create(gz_brew_ci_job,
+                             arch,
                              is_testing_enabled(lib_name, ci_config),
                              are_cmake_warnings_enabled(lib_name, ci_config))
   OSRFGitHub.create(gz_brew_ci_job,
@@ -224,7 +239,7 @@ void generate_win_ci_job(gz_win_ci_job, lib_name, branch, ci_config)
 }
 
 
-String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
+String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging, collection_name)
 {
   major_version = parsed_yaml_lib.major_version
 
@@ -232,10 +247,16 @@ String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
   if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
     major_version = ""
 
+  if (collection_name == 'rotary') {
+    base_name = parsed_yaml_lib.name.startsWith('gz-') ?
+      parsed_yaml_lib.name.substring(3) : parsed_yaml_lib.name
+    return "gz-rotary-${base_name}-debbuilder"
+  }
+
   return parsed_yaml_lib.name + major_version + "-debbuilder"
 }
 
-String generate_linux_install(src_name, lib_name, platform, arch)
+String generate_linux_install(src_name, lib_name, platform, arch, gzdev_project = '')
 {
   def script_name_prefix = cleanup_library_name(src_name)
   def job_name = "${script_name_prefix}-install-pkg-${platform}-${arch}"
@@ -248,6 +269,7 @@ String generate_linux_install(src_name, lib_name, platform, arch)
     }
 
     def dev_package = "lib${src_name}-dev"
+    def gzdev_project_name = gzdev_project ?: src_name
 
     steps {
      shell("""\
@@ -257,7 +279,7 @@ String generate_linux_install(src_name, lib_name, platform, arch)
            export DISTRO=${platform}
            export ARCH=${arch}
            export INSTALL_JOB_PKG=${dev_package}
-           export GZDEV_PROJECT_NAME="${src_name}"
+           export GZDEV_PROJECT_NAME="${gzdev_project_name}"
            /bin/bash -x ./scripts/jenkins-scripts/docker/generic-install-test-job.bash
            """.stripIndent())
     }
@@ -265,15 +287,28 @@ String generate_linux_install(src_name, lib_name, platform, arch)
   return job_name
 }
 
-String generate_brew_install(src_name, lib_name, arch)
+String generate_brew_install(src_name, lib_name, arch, gzdev_project = '')
 {
-  def script_name_prefix = cleanup_library_name(src_name)
-  def job_name = "${script_name_prefix}-install_bottle-homebrew-${arch}"
+  // We use the label x86_64 for node labeling, but amd64 for job naming consistency
+  // This is due to ohai chef plugin that labels the nodes as x86_64
+  // See: https://github.com/osrf/osrf_jenkins_agent/blob/latest/recipes/macos.rb#L68
+  def arch_label = arch == 'amd64' ? 'x86_64' : arch
+  def gz_designation = lib_name.replace('gz-','')
+  def formula_name = (gzdev_project == 'rotary') ? "gz-rotary-${gz_designation}" : "${src_name}"
+  def script_name_prefix = cleanup_library_name(formula_name)
+  def install_type = (gzdev_project == 'rotary') ? 'install_formula' : 'install_bottle'
+  def job_name = "${script_name_prefix}-${install_type}-homebrew-${arch}"
   def install_default_job = job(job_name)
-  OSRFBrewInstall.create(install_default_job)
+  OSRFBrewInstall.create(install_default_job, arch_label)
 
   install_default_job.with
   {
+    wrappers {
+      timeout {
+        absolute(120)
+      }
+    }
+
     triggers {
       cron('@daily')
     }
@@ -282,7 +317,7 @@ String generate_brew_install(src_name, lib_name, arch)
      shell("""\
            #!/bin/bash -xe
 
-           /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${src_name}
+           /bin/bash -x ./scripts/jenkins-scripts/lib/project-install-homebrew.bash ${formula_name}
            """.stripIndent())
     }
 
@@ -355,7 +390,7 @@ gz_collections_yaml.collections.each { collection ->
       if (ci_config.system.so == 'linux') {
         platform = distro
       } else if (ci_config.system.so == 'darwin') {
-        platform = 'homebrew'
+        platform = 'homebrew_' + arch
       } else if (ci_config.system.so == 'windows') {
         platform = distro
       }
@@ -374,14 +409,15 @@ gz_collections_yaml.collections.each { collection ->
       }
 
       // Generate jobs for the library entry being parsed
+      def gzdev_project_cmd = (collection.name == 'rotary') ? 'export GZDEV_PROJECT_NAME=rotary' : ''
       if (categories_enabled.contains('stable_branches')) {
         if (ci_config.system.so == 'linux') {
           gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-${distro}-${arch}")
-          generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+          generate_ci_job(gz_ci_job, lib_name, branch_name, ci_config, '', '', gzdev_project_cmd)
           if (categories_enabled.contains('stable_branches_asan'))
           {
             def gz_ci_asan_job =  job("${gz_job_name_prefix}-ci_asan-${branch_name}-${distro}-${arch}")
-            generate_asan_ci_job(gz_ci_asan_job, lib_name, branch_name, ci_config)
+            generate_asan_ci_job(gz_ci_asan_job, lib_name, branch_name, ci_config, gzdev_project_cmd)
             gz_ci_asan_job.with
             {
               triggers {
@@ -394,8 +430,12 @@ gz_collections_yaml.collections.each { collection ->
                job_name: gz_ci_asan_job.name])
           }
         } else if (ci_config.system.so == 'darwin') {
+          def arch_label = arch == 'amd64' ? 'x86_64' : arch
           gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-homebrew-${arch}")
-          generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+          if (arch != 'amd64' && arch != 'arm64') {
+            assert false : "Unsupported arch ${arch} for brew job ${gz_ci_job.name}"
+          } 
+          generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config, arch_label)
         } else if (ci_config.system.so == 'windows') {
           branch_number = branch_name - lib_name
           Globals.gazebodistro_branch = true
@@ -466,9 +506,11 @@ branch_index.each { lib_name, distro_configs ->
         } // end of ci_any_job
       } else if (ci_config.system.so == 'darwin') {
         // --------------------------------------------------------------
-        def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-amd64"
+        def arch_label = ci_config.system.arch == 'amd64' ? 'x86_64' : ci_config.system.arch
+        def gz_brew_ci_any_job_name = "${gz_job_name_prefix}-ci-pr_any-homebrew-${ci_config.system.arch}"
         def gz_brew_ci_any_job = job(gz_brew_ci_any_job_name)
         OSRFBrewCompilationAnyGitHub.create(gz_brew_ci_any_job,
+                                            arch_label,
                                             "gazebosim/${lib_name}",
                                             is_testing_enabled(lib_name, ci_config),
                                             branch_names,
@@ -564,21 +606,32 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
 
   if (linux_ciconfigs && !exclusion_list.contains(canonical_lib_name))
   {
+    // For rotary packages, debbuilder/source names use the debbuilder prefix
+    // (e.g., gz-cmake → gz-rotary-cmake-debbuilder)
+    def collection_name = pkg_src_configs.values()[0][0].collection
+    def collection = gz_collections_yaml.collections.find { it.name == collection_name }
+    def lib = collection.libs.find { it.name == canonical_lib_name }
+    def debbuilder_pkg_name = get_debbuilder_name(lib, collection.packaging, collection_name)
+                                .replace("-debbuilder", "")
+
     // - DEBBUILD jobs -------------------------------------------------
-    generate_debbuilder_job(pkg_src,
+    generate_debbuilder_job(debbuilder_pkg_name,
       pre_setup_script_hooks
     )
     // - SOURCE jobs ---------------------------------------------------
-    def gz_source_job = job("${pkg_src}-source")
+    def gz_source_job = job("${debbuilder_pkg_name}-source")
     OSRFSourceCreation.create(gz_source_job, [
-      PACKAGE: pkg_src,
+      PACKAGE: debbuilder_pkg_name,
       SOURCE_REPO_URI: "https://github.com/gazebosim/${canonical_lib_name}.git"])
     OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
+      canonical_lib_name,
       'repository_uploader_packages',
       '_releasepy')
   }
 
   // 2. Generate all -ci-install jobs
+  def install_collection_name = pkg_src_configs.values()[0][0].collection
+  def gzdev_project = (install_collection_name == 'rotary') ? 'rotary' : ''
   pkg_src_configs.each { pkg_src_config ->
     def config_name = pkg_src_config.getKey()
     def pkg_config = gz_collections_yaml.packaging_configs.find{ it.name == config_name }
@@ -593,12 +646,14 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
           pkg_src,
           canonical_lib_name,
           pkg_system.version,
-          arch)
+          arch,
+          gzdev_project)
       } else if (pkg_system.so == 'darwin') {
         install_job_name = generate_brew_install(
           pkg_src,
           canonical_lib_name,
-          arch)
+          arch,
+          gzdev_project)
       } else {
         assert("Unexpected pkg_system.so: " + pkg_system.so)
       }
@@ -613,6 +668,10 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
 
 def File log_file
 if (WRITE_JOB_LOG) {
+  // The generate_jobs.txt list hosts all the -ci- jobs generated by this DSL
+  // to provide a text list of stable jobs. It does not include the -pr- jobs
+  // or other jobs not designed to be tracked in the case of errors by the
+  // core team (regressions).
   log_file = new File("logs/generated_jobs.txt")
 }
 
@@ -641,7 +700,7 @@ collection_job_names.each { collection_name, job_names ->
       def collection = gz_collections_yaml.collections.find { it.name == collection_name }
       if (collection.packaging?.linux?.nightly) {
         collection.libs.each { lib ->
-          name(get_debbuilder_name(lib, collection.packaging))
+          name(get_debbuilder_name(lib, collection.packaging, collection_name))
         }
       }
     }
