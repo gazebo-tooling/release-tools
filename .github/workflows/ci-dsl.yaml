@@ -74,8 +74,13 @@ jobs:
           github-token: ${{secrets.USER_TOKEN}}
           script: |
             const fs = require('fs');
+            const MAX_BODY_SIZE = 60000;
             const filesChanged = fs.readFileSync('/tmp/xml_config_files_changed.diff', 'utf8').trim();
-            const contentChanged = fs.readFileSync('/tmp/xml_config_content_changed.diff', 'utf8').trim();
+            let contentChanged = fs.readFileSync('/tmp/xml_config_content_changed.diff', 'utf8').trim();
+            if (contentChanged.length > MAX_BODY_SIZE) {
+              contentChanged = contentChanged.substring(0, MAX_BODY_SIZE) +
+                '\n... (truncated, diff too large for a GitHub comment)';
+            }
             const output = `### This is an automatic response from the CI system for Jenkins DSL generation.
             Below is the list of Jenkins XML configuration files changed by this PR (from changes to DSL) and the content changed in the configuration files:
             #### :open_file_folder: XML Jenkins configuration files changed in this PR
