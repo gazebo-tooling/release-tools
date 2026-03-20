@@ -71,7 +71,7 @@ jobs:
       - name: Publish diffs in a comment
         uses: actions/github-script@v7
         with:
-          github-token: ${{secrets.USER_TOKEN}}
+          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const fs = require('fs');
             const MAX_BODY_SIZE = 60000;
