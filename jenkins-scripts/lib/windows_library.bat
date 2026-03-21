@@ -141,7 +141,7 @@ colcon build --build-base "build"^
   --parallel-workers %MAKE_JOBS%^
   %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
   --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
-  %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
+   " -DGZ_MSVC_WPO=OFF" %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
   --event-handler console_cohesion+ || goto :error
 @echo off
 
