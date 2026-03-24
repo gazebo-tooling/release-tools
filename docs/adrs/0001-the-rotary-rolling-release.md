@@ -86,7 +86,7 @@ Special case for sdformat (no `gz-` in its package name):
 
 ### Negative
 
-- Requires initial effort to create and populate all `{package}-rotary-release`
+- Requires initial effort to create and populate all `gz-rotary-{package_designation}-release`
   repos.
 - The sdformat package requires special-case handling due to its non-standard
   naming (no `gz-` prefix).
