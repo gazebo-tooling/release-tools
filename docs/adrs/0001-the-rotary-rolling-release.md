@@ -18,7 +18,7 @@ mechanism for continuously releasing from `main` into a rolling distribution.
 
 ## Decision
 
-We will create `{package}-rotary-release` repos for each package in a Gazebo
+We will create `gz-rotary-{package_designation}-release` repos for each package in a Gazebo
 collection. These repos contain debian metadata for unversioned Gazebo packages
 (e.g. `libgz-math-dev`) and `rotary`-labeled aliases (e.g.
 `libgz-rotary-math-dev`). Source repo `packages.apt` files use the rotary
