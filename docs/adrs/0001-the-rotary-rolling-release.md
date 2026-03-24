@@ -60,7 +60,8 @@ Special case for sdformat (no `gz-` in its package name):
 - Fork each `{package}-rotary-release` repo and modify control files to include
   the major version number.
 - Set explicit versions in `find_package` calls using
-  `set_explicit_find_package_versions.bash`.
+  [set_explicit_find_package_versions.bash](https://github.com/gazebo-tooling/release-tools/blob/master/source-repo-scripts/set_explicit_find_package_versions.bash)
+  (see also [gazebosim/gz-jetty#137](https://github.com/gazebosim/gz-jetty/issues/137) for reference.
 - As stable branches are created, update `packages.apt` with the rotary ->
   versioned package mapping.
 - Update `gz-collection.yaml`, `gazebodistro`, and homebrew so the new
