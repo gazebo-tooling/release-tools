@@ -52,7 +52,8 @@ Special case for sdformat (no `gz-` in its package name):
   with the next step).
 - Update `packages.apt` files to use `rotary` aliases packages.
 - The `__upcoming__` collection is replaced by the new `rotary` collection
-  in PR integration and the Jenkins views.
+  in PR integration and the Jenkins views
+  ([PR #1461](https://github.com/gazebo-tooling/release-tools/pull/1461)).
 
 **At branch-off (when creating a new Gazebo Stable Release):**
 
