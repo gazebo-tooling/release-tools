@@ -31,13 +31,6 @@ String get_windows_distro_sortname(ci_config)
 
 void generate_label_by_requirements(job, lib_name, requirements, base_label)
 {
-
-  if (requirements.nvidia_gpu.contains(lib_name) &&
-      requirements.large_memory.contains(lib_name)) {
-     println ("ERROR: more than one label is not supported by requirements")
-     exit(1)
-  }
-
   label = requirements.nvidia_gpu.contains(lib_name) ? "gpu-reliable" : null
   if (! label)
       return
