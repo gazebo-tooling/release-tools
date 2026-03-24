@@ -47,7 +47,7 @@ Special case for sdformat (no `gz-` in its package name):
   unversioned).
 - Add rotary aliases pointing to the unversioned packages.
 - Remove versions from `rules` (including versioned install path directories).
-- Make nightly releases from `rotary` by modifying `ignition_collection.dsl`.
+- Make nightly releases from `rotary` by modifying `ignition_collection.dsl` ([PR #1463](https://github.com/gazebo-tooling/release-tools/pull/1463)).
 - Bump `main` source branches to new major versions (can happen in parallel
   with the next step).
 - Update `packages.apt` files to use `rotary` aliases packages.
