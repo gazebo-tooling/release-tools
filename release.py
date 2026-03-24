@@ -920,14 +920,10 @@ def go(argv):
                         # Need to use JENKINS_NODE_TAG parameter for large memory nodes
                         # since it runs qemu emulation
                         linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
-                    elif ('ignition-physics' in args.package_alias) or \
-                         ('gz-physics' in args.package_alias):
-                        linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
 
                     # control nightly generation using a single machine to process
                     # all distribution builds to avoid race conditions. Note: this
-                    # assumes that large-memory nodes are being used for nightly
-                    # tags.
+                    # assumes that nodes are being tagged for nightly tags.
                     # https://github.com/gazebo-tooling/release-tools/issues/644
                     if (NIGHTLY):
                         assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
