@@ -3,6 +3,12 @@
 This repository holds scripts and tools that are used for testing and releasing
 Gazebo software.
 
+## Architecture Decision Records (ADRs)
+
+Significant decisions about releasing, packaging, infrastructure, and testing are documented as
+[Architecture Decision Records (ADRs)](docs/adrs/README.md).
+
+
 ## Scripts
 
   * [release.py](release.py): Triggers new debian and homebrew releases (major, minor, patch, pre-release...).
