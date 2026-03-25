@@ -290,7 +290,7 @@ debuild \${no_lintian_param} \${preserve_path} --no-tgz-check -uc -us --source-o
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
-PKGS=\`find .. -name '*.deb' || true\`
+PKGS=\`find .. -name '*.deb' -o -name '*.ddeb' || true\`
 
 FOUND_PKG=0
 for pkg in \${PKGS}; do

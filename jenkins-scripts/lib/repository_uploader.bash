@@ -196,8 +196,8 @@ for pkg in `ls $pkgs_path/*.dsc`; do
   fi
 done
 
-# .deb | debian packages
-for pkg in `ls $pkgs_path/*.deb`; do
+# .deb and .ddeb (dbgsym) | debian packages
+for pkg in `ls $pkgs_path/*.deb $pkgs_path/*.ddeb 2>/dev/null`; do
   if [[ -z ${DISTRO} ]]; then
     echo 'Error: $DISTRO parameter was not set'
     exit 1
@@ -211,10 +211,10 @@ for pkg in `ls $pkgs_path/*.deb`; do
   pkg_version=${pkg_version/_*} # remove package suffix
 
   case ${pkg_suffix} in
-      i386.deb | amd64.deb | armhf.deb | arm64.deb)
+      i386.deb | amd64.deb | armhf.deb | arm64.deb | i386.ddeb | amd64.ddeb | armhf.ddeb | arm64.ddeb)
 	  upload_package ${pkg} ${PACKAGE_ALIAS}
       ;;
-      all.deb)
+      all.deb | all.ddeb)
 	# Check if the package already exists. i386 and amd64 generates the same binaries.
 	# all should be multiarch, so supposed to work on every platform
 	existing_version=$(GNUPGHOME=$HOME/.gnupg/ reprepro ls ${pkg_name} | grep ${DISTRO} | awk '{ print $3 }')
@@ -235,3 +235,4 @@ done
 rm -fr $WORKSPACE/pkgs/*.zip
 rm -fr $WORKSPACE/pkgs/*.dsc
 rm -fr $WORKSPACE/pkgs/*.deb
+rm -fr $WORKSPACE/pkgs/*.ddeb
