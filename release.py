@@ -344,7 +344,7 @@ def get_version_from_cmake(cmake_file="CMakeLists.txt"):
     version_regex = re.compile(
         r"project\s*\(\s*[a-z0-9-_]*\s*VERSION\s*([0-9.]*)", re.MULTILINE
     )
-    # Note the re.DOTALL is used to match any newlines and arguments to 
+    # Note the re.DOTALL is used to match any newlines and arguments to
     # gz_configure_project before VERSION_SUFFIX
     suffix_regex = re.compile(
         r"(?:gz|ign)_configure_project\s*\(.*VERSION_SUFFIX\s*(pre\d+)",
@@ -921,9 +921,10 @@ def go(argv):
                         # since it runs qemu emulation
                         linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
 
-                    # control nightly generation using a single machine to process
-                    # all distribution builds to avoid race conditions. Note: this
-                    # assumes that nodes are being tagged for nightly tags.
+                    # The control nightly generation is done using a single machine to
+                    # process all gz libraries builds sequentially to avoid race
+                    # conditions. Note: this assumes that nodes are being tagged
+                    # 'linux-nightly-${ubuntu_distro} for nightly tags.
                     # https://github.com/gazebo-tooling/release-tools/issues/644
                     if (NIGHTLY):
                         assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
