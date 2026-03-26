@@ -19,6 +19,7 @@
 ::   - run tests
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
+set EXPORT_TEST_RESULT_PATH=%WORKSPACE%\build\test_results
 set LOCAL_WS=%WORKSPACE%\ws
 set LOCAL_WS_BUILD=%LOCAL_WS%\build
 set LOCAL_WS_SRC=%LOCAL_WS%\src
@@ -198,15 +199,15 @@ call %win_lib% :build_workspace !COLCON_PACKAGE! !COLCON_PACKAGE_EXTRA_CMAKE_ARG
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
+    set TEST_RESULT_PATH=%LOCAL_WS_BUILD%\!COLCON_PACKAGE!\test_results
+
     echo # BEGIN SECTION: running tests for !COLCON_PACKAGE!
     call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
     echo # END SECTION
 
     echo # BEGIN SECTION: export testing results
-    rem Jenkins parses JUnit files placed within the package's build directory
-    set EXPORT_TEST_RESULT_PATH=%WORKSPACE%\build\!COLCON_PACKAGE!\test_results
-    if exist "!EXPORT_TEST_RESULT_PATH!" ( rmdir /q /s "!EXPORT_TEST_RESULT_PATH!" )
-    mkdir "!EXPORT_TEST_RESULT_PATH!"
+    if exist %EXPORT_TEST_RESULT_PATH% ( rmdir /q /s %EXPORT_TEST_RESULT_PATH% )
+    mkdir %EXPORT_TEST_RESULT_PATH%
 
     rem CTest outputs JUnit results to localized directories inside Testing (e.g. Testing/2026.../Test.xml).
     rem We use a recursive directory search (dir /s /b) to find and copy only the CTest JUnit output (Test.xml).
