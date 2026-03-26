@@ -87,7 +87,7 @@ def main():
             del os.environ["REUSE_PIXI_INSTALLATION"]
 
     # Run the script
-    result = subprocess.run([script_path], shell=True, check=False)
+    result = subprocess.run([script_path], shell=True, check=False, cwd=workspace)
 
     print("\n\033[1;34m Local build finished \033[0m\n")
 
