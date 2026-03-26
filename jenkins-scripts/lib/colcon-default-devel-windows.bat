@@ -19,7 +19,6 @@
 ::   - run tests
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
-set EXPORT_TEST_RESULT_PATH=%WORKSPACE%\build\test_results
 set LOCAL_WS=%WORKSPACE%\ws
 set LOCAL_WS_BUILD=%LOCAL_WS%\build
 set LOCAL_WS_SRC=%LOCAL_WS%\src
@@ -204,19 +203,18 @@ if "%ENABLE_TESTS%" == "TRUE" (
     echo # END SECTION
 
     echo # BEGIN SECTION: export testing results
-    if exist %EXPORT_TEST_RESULT_PATH% ( rmdir /q /s %EXPORT_TEST_RESULT_PATH% )
-    mkdir %EXPORT_TEST_RESULT_PATH%
-    rem We use `findstr` (the batch equivalent of grep) to filter out the "Summary:" line
-    rem and only keep lines containing `build\{pkg}` (the test result files).
-    rem We redirect stderr (2^>nul) to ignore warnings.
-    rem The output format is assumed to be a relative path: `build\pkg\test_results\file.xml: X tests...`
-    rem We split by `:` and take the first token (%%a) which is the file path.
-    rem Checking `if exist` ensures we only copy actual files, which guards against future changes to colcons output.
-    for /f "tokens=1 delims=:" %%a in ('colcon test-result --all 2^>nul ^| findstr "build\\%COLCON_PACKAGE%"') do (
-      if exist "%%a" (
-        echo %LOCAL_WS%\%%a
-        copy "%%a" "%EXPORT_TEST_RESULT_PATH%\" > nul
-      )
+    rem Jenkins parses JUnit files placed within the package's build directory
+    set EXPORT_TEST_RESULT_PATH=%WORKSPACE%\build\!COLCON_PACKAGE!\test_results
+    if exist "!EXPORT_TEST_RESULT_PATH!" ( rmdir /q /s "!EXPORT_TEST_RESULT_PATH!" )
+    mkdir "!EXPORT_TEST_RESULT_PATH!"
+
+    rem CTest outputs JUnit results to localized directories inside Testing (e.g. Testing/2026.../Test.xml).
+    rem We use a recursive directory search (dir /s /b) to find and copy only the CTest JUnit output (Test.xml).
+    rem This avoids grabbing redundant test output (like those from gtest directly).
+    set CTEST_TESTING_DIR=%LOCAL_WS_BUILD%\!COLCON_PACKAGE!\Testing
+    for /f "usebackq tokens=*" %%F in (`dir /s /b "!CTEST_TESTING_DIR!\Test.xml"`) do (
+        echo Copying junit file: "%%F"
+        copy "%%F" "!EXPORT_TEST_RESULT_PATH!\" || goto :error
     )
     echo # END SECTION
 )
