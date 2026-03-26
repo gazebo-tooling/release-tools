@@ -198,8 +198,9 @@ cd %LOCAL_WS%
 call %win_lib% :build_workspace !COLCON_PACKAGE! !COLCON_PACKAGE_EXTRA_CMAKE_ARGS! || goto :error
 echo # END SECTION
 
+@echo on
 if "%ENABLE_TESTS%" == "TRUE" (
-    set TEST_RESULT_PATH=%LOCAL_WS_BUILD%\!COLCON_PACKAGE!\test_results
+    set TEST_RESULT_PATH=%LOCAL_WS_BUILD%\!COLCON_PACKAGE!\ctest_junit.xml
 
     echo # BEGIN SECTION: running tests for !COLCON_PACKAGE!
     call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
@@ -209,16 +210,11 @@ if "%ENABLE_TESTS%" == "TRUE" (
     if exist %EXPORT_TEST_RESULT_PATH% ( rmdir /q /s %EXPORT_TEST_RESULT_PATH% )
     mkdir %EXPORT_TEST_RESULT_PATH%
 
-    rem CTest outputs JUnit results to localized directories inside Testing (e.g. Testing/2026.../Test.xml).
-    rem We use a recursive directory search (dir /s /b) to find and copy only the CTest JUnit output (Test.xml).
-    rem This avoids grabbing redundant test output (like those from gtest directly).
-    set CTEST_TESTING_DIR=%LOCAL_WS_BUILD%\!COLCON_PACKAGE!\Testing
-    for /f "usebackq tokens=*" %%F in (`dir /s /b "!CTEST_TESTING_DIR!\Test.xml"`) do (
-        echo Copying junit file: "%%F" to %EXPORT_TEST_RESULT_PATH%
-        copy "%%F" %EXPORT_TEST_RESULT_PATH% || goto :error
-    )
+    echo Copying !TEST_RESULT_PATH! to %EXPORT_TEST_RESULT_PATH%
+    copy !TEST_RESULT_PATH! %EXPORT_TEST_RESULT_PATH% || goto :error
     echo # END SECTION
 )
+@echo off
 
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
