@@ -199,8 +199,6 @@ call %win_lib% :build_workspace !COLCON_PACKAGE! !COLCON_PACKAGE_EXTRA_CMAKE_ARG
 echo # END SECTION
 
 if "%ENABLE_TESTS%" == "TRUE" (
-    set TEST_RESULT_PATH=%LOCAL_WS_BUILD%\!COLCON_PACKAGE!\test_results
-
     echo # BEGIN SECTION: running tests for !COLCON_PACKAGE!
     call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
     echo # END SECTION
@@ -208,7 +206,18 @@ if "%ENABLE_TESTS%" == "TRUE" (
     echo # BEGIN SECTION: export testing results
     if exist %EXPORT_TEST_RESULT_PATH% ( rmdir /q /s %EXPORT_TEST_RESULT_PATH% )
     mkdir %EXPORT_TEST_RESULT_PATH%
-    xcopy !TEST_RESULT_PATH! %EXPORT_TEST_RESULT_PATH% /s /i /e || goto :error
+    :: We use `findstr` (the batch equivalent of grep) to filter out the "Summary:" line
+    :: and only keep lines containing `.xml:` (the test result files).
+    :: We redirect stderr (2^>nul) to ignore warnings.
+    :: The output format is assumed to be a relative path: `build\pkg\test_results\file.xml: X tests...`
+    :: We split by `:` and take the first token (%%a) which is the file path.
+    :: Checking `if exist` ensures we only copy actual files.
+    for /f "tokens=1 delims=:" %%a in ('colcon test-result --all 2^>nul ^| findstr "\.xml:"') do (
+      if exist "%%a" (
+        echo %LOCAL_WS%\%%a
+        copy "%%a" "%EXPORT_TEST_RESULT_PATH%\" > nul
+      )
+    )
     echo # END SECTION
 )
 
