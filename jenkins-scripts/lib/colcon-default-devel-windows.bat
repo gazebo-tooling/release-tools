@@ -214,8 +214,8 @@ if "%ENABLE_TESTS%" == "TRUE" (
     rem This avoids grabbing redundant test output (like those from gtest directly).
     set CTEST_TESTING_DIR=%LOCAL_WS_BUILD%\!COLCON_PACKAGE!\Testing
     for /f "usebackq tokens=*" %%F in (`dir /s /b "!CTEST_TESTING_DIR!\Test.xml"`) do (
-        echo Copying junit file: "%%F"
-        copy "%%F" "!EXPORT_TEST_RESULT_PATH!\" || goto :error
+        echo Copying junit file: "%%F" to %EXPORT_TEST_RESULT_PATH%
+        copy "%%F" %EXPORT_TEST_RESULT_PATH% || goto :error
     )
     echo # END SECTION
 )
