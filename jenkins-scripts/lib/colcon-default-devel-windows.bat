@@ -206,13 +206,13 @@ if "%ENABLE_TESTS%" == "TRUE" (
     echo # BEGIN SECTION: export testing results
     if exist %EXPORT_TEST_RESULT_PATH% ( rmdir /q /s %EXPORT_TEST_RESULT_PATH% )
     mkdir %EXPORT_TEST_RESULT_PATH%
-    :: We use `findstr` (the batch equivalent of grep) to filter out the "Summary:" line
-    :: and only keep lines containing `.xml:` (the test result files).
-    :: We redirect stderr (2^>nul) to ignore warnings.
-    :: The output format is assumed to be a relative path: `build\pkg\test_results\file.xml: X tests...`
-    :: We split by `:` and take the first token (%%a) which is the file path.
-    :: Checking `if exist` ensures we only copy actual files.
-    for /f "tokens=1 delims=:" %%a in ('colcon test-result --all 2^>nul ^| findstr "\.xml:"') do (
+    rem We use `findstr` (the batch equivalent of grep) to filter out the "Summary:" line
+    rem and only keep lines containing `build\{pkg}` (the test result files).
+    rem We redirect stderr (2^>nul) to ignore warnings.
+    rem The output format is assumed to be a relative path: `build\pkg\test_results\file.xml: X tests...`
+    rem We split by `:` and take the first token (%%a) which is the file path.
+    rem Checking `if exist` ensures we only copy actual files, which guards against future changes to colcons output.
+    for /f "tokens=1 delims=:" %%a in ('colcon test-result --all 2^>nul ^| findstr "build\\%COLCON_PACKAGE%"') do (
       if exist "%%a" (
         echo %LOCAL_WS%\%%a
         copy "%%a" "%EXPORT_TEST_RESULT_PATH%\" > nul
