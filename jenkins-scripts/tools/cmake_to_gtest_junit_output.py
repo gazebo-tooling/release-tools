@@ -104,7 +104,7 @@ def main(argv=sys.argv[1:]):
                     # Create a synthetic testcase to officially house the error and log in the CI dashboard
                     synth_tc = ET.Element("testcase", {
                         "name": "CTest_Failure_Log",
-                        "classname": testcase.attrib.get("name", "CTest"),
+                        "classname": target_testsuite.attrib.get("name", "CTest"),
                         "time": "0.0"
                     })
                     
@@ -130,7 +130,7 @@ def main(argv=sys.argv[1:]):
                 print(f" - inject system-out for CTest execute in {testcase.attrib.get('name', 'unknown')}")
                 synth_tc = ET.Element("testcase", {
                     "name": "CTest_Execution_Log",
-                    "classname": testcase.attrib.get("name", "CTest"),
+                    "classname": target_testsuite.attrib.get("name", "CTest"),
                     "time": "0.0"
                 })
                 synth_tc.append(copy.deepcopy(system_output))
