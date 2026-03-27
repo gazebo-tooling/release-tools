@@ -198,9 +198,8 @@ cd %LOCAL_WS%
 call %win_lib% :build_workspace !COLCON_PACKAGE! !COLCON_PACKAGE_EXTRA_CMAKE_ARGS! || goto :error
 echo # END SECTION
 
-@echo on
 if "%ENABLE_TESTS%" == "TRUE" (
-    set TEST_RESULT_PATH=%LOCAL_WS_BUILD%\!COLCON_PACKAGE!\ctest_junit.xml
+    set TEST_RESULT_PATH=%LOCAL_WS_BUILD%\!COLCON_PACKAGE!\test_results
 
     echo # BEGIN SECTION: running tests for !COLCON_PACKAGE!
     call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
@@ -209,12 +208,13 @@ if "%ENABLE_TESTS%" == "TRUE" (
     echo # BEGIN SECTION: export testing results
     if exist %EXPORT_TEST_RESULT_PATH% ( rmdir /q /s %EXPORT_TEST_RESULT_PATH% )
     mkdir %EXPORT_TEST_RESULT_PATH%
+    xcopy !TEST_RESULT_PATH! %EXPORT_TEST_RESULT_PATH% /s /i /e || goto :error
 
-    echo Copying !TEST_RESULT_PATH! to %EXPORT_TEST_RESULT_PATH%
-    copy !TEST_RESULT_PATH! %EXPORT_TEST_RESULT_PATH% || goto :error
+    set CTEST_JUNIT_RESULT_PATH=%LOCAL_WS_BUILD%\!COLCON_PACKAGE!\ctest_junit.xml
+    echo Copying !CTEST_JUNIT_RESULT_PATH! to %EXPORT_TEST_RESULT_PATH%
+    copy !CTEST_JUNIT_RESULT_PATH! %EXPORT_TEST_RESULT_PATH% || goto :error
     echo # END SECTION
 )
-@echo off
 
 if NOT DEFINED KEEP_WORKSPACE (
    echo # BEGIN SECTION: clean up workspace
