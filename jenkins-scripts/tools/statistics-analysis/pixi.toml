@@ -1,0 +1,16 @@
+[project]
+authors = ["Jose Luis Rivero <jrivero@openrobotics.com>"]
+channels = ["conda-forge"]
+description = "Add a short description here"
+name = "pixi_python_pandas"
+platforms = ["win-64", "linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.12.*"
+pandas = ">=2.2.3,<3"
+jupyter = ">=1.1.1,<2"
+matplotlib = ">=3.10.1,<4"
+seaborn = ">=0.13.2,<0.14"
