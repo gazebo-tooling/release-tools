@@ -496,6 +496,9 @@ collections:
       - name: gz-sim
         repo:
           current_branch: main
+      - name: gz-rotary
+        repo:
+          current_branch: main
     ci:
       configs:
         - noble
