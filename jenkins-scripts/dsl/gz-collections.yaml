@@ -601,6 +601,7 @@ ci_configs:
         - gz-ionic
         - gz-jetty
         - gz-kura
+        - gz-rotary
       abichecker:
         - gz-cmake
         - gz-tools
@@ -651,6 +652,7 @@ ci_configs:
         - gz-ionic
         - gz-jetty
         - gz-kura
+        - gz-rotary
     cmake_warnings_disabled:
       - gz-common
       - gz-fuel-tools
@@ -683,6 +685,7 @@ ci_configs:
         - gz-ionic
         - gz-jetty
         - gz-kura
+        - gz-rotary
     cmake_warnings_disabled:
       - gz-common
       - gz-fuel-tools
@@ -750,6 +753,7 @@ ci_configs:
       all:
         - gz-jetty
         - gz-kura
+        - gz-rotary
     cmake_warnings_disabled:
       - gz-cmake
       - gz-common
