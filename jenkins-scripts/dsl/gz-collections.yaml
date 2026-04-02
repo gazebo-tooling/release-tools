@@ -497,6 +497,7 @@ collections:
         repo:
           current_branch: main
       - name: gz-rotary
+        major_version: 1
         repo:
           current_branch: main
     ci:
@@ -527,6 +528,7 @@ collections:
           - gz-sensors
           - gz-physics
           - gz-sim
+          - gz-rotary
 ci_configs:
   - name: focal
     system:
