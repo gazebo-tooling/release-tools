@@ -787,6 +787,9 @@ install_ci rotary gz_msgs-install-pkg-noble-amd64
 install_ci rotary gz_physics-install-pkg-noble-amd64
 install_ci rotary gz_plugin-install-pkg-noble-amd64
 install_ci rotary gz_rendering-install-pkg-noble-amd64
+install_ci rotary gz_rotary-install-pkg-noble-amd64
+install_ci rotary gz_rotary-install_formula-homebrew-amd64
+install_ci rotary gz_rotary-install_formula-homebrew-arm64
 install_ci rotary gz_rotary_cmake-install_formula-homebrew-amd64
 install_ci rotary gz_rotary_cmake-install_formula-homebrew-arm64
 install_ci rotary gz_rotary_common-install_formula-homebrew-amd64

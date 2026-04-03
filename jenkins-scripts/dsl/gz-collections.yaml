@@ -496,6 +496,10 @@ collections:
       - name: gz-sim
         repo:
           current_branch: main
+      - name: gz-rotary
+        major_version: 1
+        repo:
+          current_branch: main
     ci:
       configs:
         - noble
@@ -524,6 +528,7 @@ collections:
           - gz-sensors
           - gz-physics
           - gz-sim
+          - gz-rotary
 ci_configs:
   - name: focal
     system:
@@ -598,6 +603,7 @@ ci_configs:
         - gz-ionic
         - gz-jetty
         - gz-kura
+        - gz-rotary
       abichecker:
         - gz-cmake
         - gz-tools
@@ -648,6 +654,7 @@ ci_configs:
         - gz-ionic
         - gz-jetty
         - gz-kura
+        - gz-rotary
     cmake_warnings_disabled:
       - gz-common
       - gz-fuel-tools
@@ -680,6 +687,7 @@ ci_configs:
         - gz-ionic
         - gz-jetty
         - gz-kura
+        - gz-rotary
     cmake_warnings_disabled:
       - gz-common
       - gz-fuel-tools
@@ -747,6 +755,7 @@ ci_configs:
       all:
         - gz-jetty
         - gz-kura
+        - gz-rotary
     cmake_warnings_disabled:
       - gz-cmake
       - gz-common
