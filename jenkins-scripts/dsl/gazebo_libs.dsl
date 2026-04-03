@@ -238,7 +238,7 @@ String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging, collection_na
   if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
     major_version = ""
 
-  if (collection_name == 'rotary') {
+  if (collection_name == 'rotary' && parsed_yaml_lib.name != 'gz-rotary') {
     base_name = parsed_yaml_lib.name.startsWith('gz-') ?
       parsed_yaml_lib.name.substring(3) : parsed_yaml_lib.name
     return "gz-rotary-${base_name}-debbuilder"
@@ -285,7 +285,7 @@ String generate_brew_install(src_name, lib_name, arch, gzdev_project = '')
   // See: https://github.com/osrf/osrf_jenkins_agent/blob/latest/recipes/macos.rb#L68
   def arch_label = arch == 'amd64' ? 'x86_64' : arch
   def gz_designation = lib_name.replace('gz-','')
-  def formula_name = (gzdev_project == 'rotary') ? "gz-rotary-${gz_designation}" : "${src_name}"
+  def formula_name = (gzdev_project == 'rotary' && gz_designation != 'rotary') ? "gz-rotary-${gz_designation}" : "${src_name}"
   def script_name_prefix = cleanup_library_name(formula_name)
   def install_type = (gzdev_project == 'rotary') ? 'install_formula' : 'install_bottle'
   def job_name = "${script_name_prefix}-${install_type}-homebrew-${arch}"
