@@ -21,7 +21,7 @@ String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging, collection_na
   if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
     major_version = ""
 
-  if (collection_name == 'rotary') {
+  if (collection_name == 'rotary' && parsed_yaml_lib.name != 'gz-rotary') {
     // gz-cmake → gz-rotary-cmake, sdformat → gz-rotary-sdformat
     base_name = parsed_yaml_lib.name.startsWith('gz-') ?
       parsed_yaml_lib.name.substring(3) : parsed_yaml_lib.name
