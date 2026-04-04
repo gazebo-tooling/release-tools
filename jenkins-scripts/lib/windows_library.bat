@@ -142,7 +142,7 @@ colcon build --build-base "build"^
   %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
   --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
   %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
-  --event-handler console_cohesion+ || goto :error
+  --event-handler console_cohesion+  desktop_notification- || goto :error
 @echo off
 
 goto :EOF
@@ -188,7 +188,7 @@ echo # BEGIN SECTION: colcon test for !COLCON_PACKAGE!
 colcon test --install-base "install"^
             --packages-select !COLCON_PACKAGE!^
             --executor sequential^
-            --event-handler console_direct+
+            --event-handler console_direct+ desktop_notification-
 echo # END SECTION
 echo # BEGIN SECTION: colcon test-result
 colcon test-result --all
