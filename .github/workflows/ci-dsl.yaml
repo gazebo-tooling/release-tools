@@ -120,6 +120,10 @@ jobs:
             const MAX_BODY_SIZE = 60000;
             const filesChanged = fs.readFileSync('/tmp/xml_config_files_changed.diff', 'utf8').trim();
             let contentChanged = fs.readFileSync('/tmp/xml_config_content_changed.diff', 'utf8').trim();
+            if (!filesChanged && !contentChanged) {
+              console.log('No XML configuration differences detected, skipping comment.');
+              return;
+            }
             if (contentChanged.length > MAX_BODY_SIZE) {
               contentChanged = contentChanged.substring(0, MAX_BODY_SIZE) +
                 '\n... (truncated, diff too large for a GitHub comment)';
