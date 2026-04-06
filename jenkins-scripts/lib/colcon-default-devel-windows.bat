@@ -66,6 +66,17 @@ if "%GPU_SUPPORT_NEEDED%" == "true" (
   echo # END SECTION
 )
 
+echo # BEGIN SECTION: OpenGL ICD and NVIDIA diagnostics
+echo --- nvidia-smi ---
+nvidia-smi 2>nul || echo WARNING: nvidia-smi not found or failed
+echo --- OpenGL ICD registry keys ---
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers" /s 2>nul || echo WARNING: No OpenGL ICD registry entries found
+echo --- Checking for NVIDIA OpenGL ICD DLL nvoglv64.dll ---
+where nvoglv64.dll 2>nul || echo WARNING: nvoglv64.dll not found in PATH
+dir /s /b "C:\Windows\System32\nvoglv64.dll" 2>nul || echo WARNING: nvoglv64.dll not in System32
+dir /s /b "C:\Windows\System32\DriverStore\FileRepository\nv*\nvoglv64.dll" 2>nul || echo WARNING: nvoglv64.dll not in DriverStore
+echo # END SECTION
+
 if not defined REUSE_PIXI_INSTALLATION (
   echo # BEGIN SECTION: pixi: installation
   call %win_lib% :pixi_installation || goto :error
