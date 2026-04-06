@@ -49,6 +49,8 @@ set DXDIAG_FILE=%WORKSPACE%\dxdiag.txt
 if "%GPU_SUPPORT_NEEDED%" == "true" (
   echo # BEGIN SECTION: dxdiag info
   dxdiag /t %DXDIAG_FILE%
+  :: dxdiag /t is async, give it time to write the file
+  timeout /t 5 >nul
   type %DXDIAG_FILE%
   echo Checking for correct NVIDIA GPU support %DXDIAG_FILE%
   findstr /C:"Manufacturer: NVIDIA" %DXDIAG_FILE%
@@ -56,6 +58,11 @@ if "%GPU_SUPPORT_NEEDED%" == "true" (
     echo ERROR: NVIDIA GPU not found in dxdiag
     goto :error
   )
+  echo --- GPU Driver Details ---
+  findstr /C:"Driver Version:" %DXDIAG_FILE%
+  findstr /C:"Feature Levels:" %DXDIAG_FILE%
+  findstr /C:"Display Memory:" %DXDIAG_FILE%
+  findstr /C:"Dedicated Memory:" %DXDIAG_FILE%
   echo # END SECTION
 )
 
@@ -122,6 +129,29 @@ if "!CONDA_PREFIX!"=="" (
 )
 set OGRE_RESOURCE_PATH=!CONDA_PREFIX!\Library\bin
 set OGRE2_RESOURCE_PATH=!CONDA_PREFIX!\Library\bin\OGRE-Next
+echo # END SECTION
+
+echo # BEGIN SECTION: OGRE diagnostic: plugin paths validation
+echo OGRE_RESOURCE_PATH=!OGRE_RESOURCE_PATH!
+echo OGRE2_RESOURCE_PATH=!OGRE2_RESOURCE_PATH!
+if exist "!OGRE_RESOURCE_PATH!" (
+  echo --- OGRE1 RenderSystem plugins in OGRE_RESOURCE_PATH ---
+  dir /b "!OGRE_RESOURCE_PATH!\RenderSystem_*" 2>nul || echo WARNING: No RenderSystem plugins found in OGRE_RESOURCE_PATH
+  if exist "!OGRE_RESOURCE_PATH!\RenderSystem_GL3Plus.dll" (
+    echo --- DLL dependencies for OGRE1 RenderSystem_GL3Plus.dll ---
+    dumpbin /dependents "!OGRE_RESOURCE_PATH!\RenderSystem_GL3Plus.dll" 2>nul || echo dumpbin not available
+  ) else (
+    echo WARNING: RenderSystem_GL3Plus.dll NOT found in OGRE_RESOURCE_PATH
+  )
+) else (
+  echo WARNING: OGRE_RESOURCE_PATH directory does not exist: !OGRE_RESOURCE_PATH!
+)
+if exist "!OGRE2_RESOURCE_PATH!" (
+  echo --- OGRE2 RenderSystem plugins in OGRE2_RESOURCE_PATH ---
+  dir /b "!OGRE2_RESOURCE_PATH!\RenderSystem_*" 2>nul || echo WARNING: No RenderSystem plugins found in OGRE2_RESOURCE_PATH
+) else (
+  echo WARNING: OGRE2_RESOURCE_PATH directory does not exist: !OGRE2_RESOURCE_PATH!
+)
 echo # END SECTION
 
 echo # BEGIN SECTION: setup workspace
@@ -203,6 +233,15 @@ if "%ENABLE_TESTS%" == "TRUE" (
 
     echo # BEGIN SECTION: running tests for !COLCON_PACKAGE!
     call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
+    echo # END SECTION
+
+    echo # BEGIN SECTION: OGRE test logs collection
+    for /r %LOCAL_WS_BUILD% %%f in (Ogre.log ogre.log) do (
+      if exist "%%f" (
+        echo --- Found OGRE log: %%f ---
+        type "%%f"
+      )
+    )
     echo # END SECTION
 
     echo # BEGIN SECTION: export testing results
