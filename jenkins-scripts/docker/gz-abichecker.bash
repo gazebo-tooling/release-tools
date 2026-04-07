@@ -49,22 +49,6 @@ else
   export ABI_JOB_HEADER_PREFIX=${ABI_JOB_SOFTWARE_NAME/[ignz]*-/}[0-9]*
 fi
 
-# check if NEED_C17_COMPILER should be set. Only needed for Bionic so only care about Citadel
-# versions
-if [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gazebo" ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-physics" ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-sensors" ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-common" ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-gui" ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-math" ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-msgs" ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-plugin" ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-rendering" ]] || \
-  [[ "${ABI_JOB_SOFTWARE_NAME}" = "ign-transport" ]]
-then
-  export NEED_C17_COMPILER=true
-fi
-
 # check if OGRE-2.2 include paths are needed
 if [[ "${ABI_JOB_SOFTWARE_NAME}" = "gz-sim"      && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 6 ]] || \
   [[ "${ABI_JOB_SOFTWARE_NAME}" = "gz-gui"       && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 6 ]] || \

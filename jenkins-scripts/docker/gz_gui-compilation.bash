@@ -27,10 +27,6 @@ if ! [[ ${GZ_GUI_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-if [[ ${GZ_GUI_MAJOR_VERSION} -ge 1 ]]; then
-  export NEED_C17_COMPILER=true
-fi
-
 export GPU_SUPPORT_NEEDED=true
 export GZDEV_PROJECT_NAME="${GZDEV_PROJECT_NAME:-gz-gui${GZ_GUI_MAJOR_VERSION}}"
 
