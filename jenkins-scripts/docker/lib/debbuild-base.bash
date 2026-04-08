@@ -78,7 +78,7 @@ if ${NIGHTLY_MODE}; then
   fi
 else
   # Some combinations does not known about AWS certificate from S3
-  if [[ ${LINUX_DISTRO} == debian ]] || [[ ${DISTRO} == 'focal' && ${ARCH} == 'armhf' ]]; then
+  if [[ ${LINUX_DISTRO} == debian ]]; then
      no_check_cert_str='--no-check-certificate'
   fi
   wget \$no_check_cert_str --quiet -O orig_tarball $SOURCE_TARBALL_URI || \
@@ -236,12 +236,6 @@ fi
 
 echo '# BEGIN SECTION: create source package' \${OSRF_VERSION}
 
-# lintian triggers a problem on arm in Focal when using qemu, avoid it
-no_lintian_param=""
-if [[ ${DISTRO} == 'focal' && (${ARCH} == 'arm64' || ${ARCH} == 'armhf') ]]; then
-  no_lintian_param="--no-lintian"
-fi
-
 # our packages.o.o running xenial does not support default zstd compression of
 # .deb files in jammy. Keep using xz. Not a trivial change, requires wrapper over dpkg-deb
 if [[ ${DISTRO} == 'jammy' ]]; then
@@ -253,7 +247,7 @@ if [[ ${DISTRO} == 'jammy' ]]; then
   preserve_path='--preserve-envvar PATH'
 fi
 
-debuild \${no_lintian_param} \${preserve_path} --no-tgz-check -uc -us -S --source-option=--include-binaries
+debuild \${preserve_path} --no-tgz-check -uc -us -S --source-option=--include-binaries
 
 cp ../*.dsc $WORKSPACE/pkgs
 cp ../*.orig.* $WORKSPACE/pkgs
@@ -270,12 +264,10 @@ fi
 
 # Hack to avoid problems with dwz symbols starting in Ubuntu Disco if tmp and debugtmp are the
 # same the build fails copying files because they are the same
-if [[ $DISTRO != 'bionic' ]]; then
-  sudo sed -i -e 's:dwz" and:dwz" and (\$tmp ne \$debugtmp) and:' /usr/bin/dh_strip
-fi
+sudo sed -i -e 's:dwz" and:dwz" and (\$tmp ne \$debugtmp) and:' /usr/bin/dh_strip
 
 echo '# BEGIN SECTION: create deb packages'
-debuild \${no_lintian_param} \${preserve_path} --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
+debuild \${preserve_path} --no-tgz-check -uc -us --source-option=--include-binaries -j${MAKE_JOBS}
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'

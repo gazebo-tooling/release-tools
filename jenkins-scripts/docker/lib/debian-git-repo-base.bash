@@ -48,13 +48,7 @@ ${DEBIAN_GIT_PREINSTALL_HOOK}
 echo '# END SECTION'
 fi
 
-if [[ ${DISTRO} == 'focal' && ${ARCH} == 'arm64' ]]; then
-    # Did not find the way of avoid lintian in gbp call
-    sudo ln -sf /bin/true /usr/bin/lintian
-fi
-
-# our packages.o.o running xenial does not support default zstd compression of
-# .deb files in jammy. Keep using xz. Not a trivial change, requires wrapper over dpkg-deb
+# The package infrastructure still expects xz-compressed .deb files from jammy builds.
 if [[ ${DISTRO} == 'jammy' ]]; then
   sudo bash -c 'echo \#\!/bin/bash > /usr/local/bin/dpkg-deb'
   sudo bash -c 'echo "/usr/bin/dpkg-deb -Zxz \\\$@" >> /usr/local/bin/dpkg-deb'

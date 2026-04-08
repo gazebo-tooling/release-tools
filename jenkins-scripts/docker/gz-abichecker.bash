@@ -56,22 +56,12 @@ if [[ "${ABI_JOB_SOFTWARE_NAME}" = "gz-sim"      && ${GZ_NAME_PREFIX_MAJOR_VERSI
   [[ "${ABI_JOB_SOFTWARE_NAME}" = "gz-sensors"   && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 6 ]] || \
   [[ "${ABI_JOB_SOFTWARE_NAME}" = "gz-rendering" && ${GZ_NAME_PREFIX_MAJOR_VERSION} -eq 6 ]]
 then
-  # OGRE 2.2 is packaged as "Ogre-Next" on jammy
-  if [[ "${DISTRO}" == "jammy" ]]
-  then
-    export EXTRA_INCLUDES="""
-   <add_include_paths>
-     /usr/include/OGRE-Next/Hlms/Common
-   </add_include_paths>
+  # Supported Ubuntu releases package OGRE Next headers under Ogre-Next.
+  export EXTRA_INCLUDES="""
+ <add_include_paths>
+   /usr/include/OGRE-Next/Hlms/Common
+ </add_include_paths>
 """
-  elif [[ "${DISTRO}" == "focal" ]]
-  then
-    export EXTRA_INCLUDES="""
-   <add_include_paths>
-     /usr/include/OGRE-2.2/Hlms/Common
-   </add_include_paths>
-"""
-  fi
 fi
 
 if [[ "${ABI_JOB_SOFTWARE_NAME}" = "gz-sim"      && ${GZ_NAME_PREFIX_MAJOR_VERSION} -ge 6 ]] || \

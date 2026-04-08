@@ -26,15 +26,15 @@ host other bash variables needed by the different methods.
  * **Directory layout**: In the root directory of the -release repo will exist
    one directory for every ubuntu distribution supported:
 
-   ```
-   build.metadata.bash
-   xenial/
-     debian/
-       ...
-   bionic/
-     debian/
-       ...
     ```
+    build.metadata.bash
+    jammy/
+      debian/
+        ...
+    noble/
+      debian/
+        ...
+     ```
 
 ### OVERWRITE_BASE
 
@@ -54,14 +54,14 @@ Import a LEGACY branch as a base and overwrite its contents with files and patch
    directory patches/ containing .patch files to be used against the base branch
 
    ```
-   build.metadata.bash
-   patches/
-     foo.patch
-   xenial/ 
-	   debian/ 
-	     changelog 
-   bionic/ 
+    build.metadata.bash
+    patches/
+      foo.patch
+    jammy/
+	   debian/
+	     changelog
+    noble/
 	   debian/
 	     rules
-	     changelog 
-  ```
+	     changelog
+   ```

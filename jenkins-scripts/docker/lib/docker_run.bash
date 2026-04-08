@@ -24,14 +24,12 @@ USERID=$(id -u)
 USER=$(whoami)
 
 # platform support starts on versions greater than 17.07
-PLAFTORM_PARAM=
-if [[ ${LINUX_DISTRO} == 'ubuntu' && \
-      ${DISTRO} != 'focal' && \
-      ${ARCH} == 'armhf' ]]; then
-  PLAFTORM_PARAM="--platform=linux/armhf"
+PLATFORM_PARAM=
+if [[ ${LINUX_DISTRO} == 'ubuntu' && ${ARCH} == 'armhf' ]]; then
+  PLATFORM_PARAM="--platform=linux/armhf"
 fi
 
-sudo docker build ${PLAFTORM_PARAM} ${_DOCKER_BUILD_EXTRA_ARGS} \
+sudo docker build ${PLATFORM_PARAM} ${_DOCKER_BUILD_EXTRA_ARGS} \
                   --build-arg GID=$(id -g $USER) \
                   --build-arg USERID=$USERID \
                   --build-arg USER=$USER \
@@ -82,7 +80,7 @@ if [[ -d /dev/snd ]]; then
 fi
 
 # DOCKER_FIX is for workaround https://github.com/docker/docker/issues/14203
-sudo ${docker_cmd} run ${PLAFTORM_PARAM} $EXTRA_PARAMS_STR  \
+sudo ${docker_cmd} run ${PLATFORM_PARAM} $EXTRA_PARAMS_STR  \
             -e DOCKER_FIX=''  \
             -e WORKSPACE=${WORKSPACE} \
             -e TERM=xterm-256color \

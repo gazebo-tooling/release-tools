@@ -29,15 +29,6 @@ fi
 
 PACKAGES_URL="${PACKAGES_URL:-packages.osrfoundation.org}"
 
-# Bionic|Focal builds were affected by a "gpg: keyserver receive failed" in apt-key execution
-# that poisoned a lot of docker cache in different builds and nodes. Force invalidation
-# during a couple of month to rotate images
-ref_date='2023-11-13'
-if [[ "${DISTRO}" == 'bionic' || "${DISTRO}" == 'focal' ]] && \
-   [[ "$(date '+%s')" -lt "$(date -d "${ref_date}+60 days" '+%s')" ]]; then
-  export INVALIDATE_DOCKER_CACHE=true
-fi
-
 export APT_PARAMS=
 
 GZDEV_DIR=/root/gzdev
@@ -47,9 +38,6 @@ if python3 ${SCRIPT_DIR}/../tools/detect_ci_matching_branch.py "${ghprbSourceBra
 fi
 
 KEYSERVER="keyserver.ubuntu.com"
-if [[ "${DISTRO}" == 'bionic' || "${DISTRO}" == 'focal' ]]; then
-  KEYSERVER="hkps://pgp.surf.nl"
-fi
 
 dockerfile_install_gzdev_repos()
 {
@@ -119,12 +107,8 @@ case ${ARCH} in
      fi
      ;;
    'armhf')
-     if [[ ${DISTRO} == 'focal' ]]; then
-      FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
-     else
       FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
-     fi
-     ;;
+      ;;
   'arm64')
      FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
      ;;
@@ -371,34 +355,8 @@ cat >> Dockerfile << DELIM_NVIDIA2_GPU
   ENV NVIDIA_DRIVER_CAPABILITIES \
     ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
 DELIM_NVIDIA2_GPU
-
-if [[ ${LINUX_DISTRO} == 'ubuntu' ]] && [[ ${DISTRO} == 'bionic' || ${DISTRO} == 'focal' ]]; then
-cat >> Dockerfile << DELIM_NVIDIA3_GPU
-# Install libglvnd for OpenGL using nvidia-docker2
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        git \
-        ca-certificates \
-        make \
-        automake \
-        autoconf \
-        libtool \
-        pkg-config \
-        python3 \
-        libxext-dev \
-        libx11-dev \
-        x11proto-gl-dev && \
-    rm -rf /var/lib/apt/lists/*
-RUN mkdir -p /opt/libglvnd && cd /opt/libglvnd && \
-    git clone -b v1.2.0 https://github.com/NVIDIA/libglvnd.git . && \
-    ./autogen.sh && \
-    ./configure --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu && \
-    make install-strip && \
-    find /usr/local/lib/x86_64-linux-gnu -type f -name 'lib*.la' -delete
-ENV LD_LIBRARY_PATH /usr/local/lib/x86_64-linux-gnu\${LD_LIBRARY_PATH:+:\${LD_LIBRARY_PATH}}
-DELIM_NVIDIA3_GPU
-fi
-  fi
- else
+   fi
+  else
   # No NVIDIA cards needs to have the same X stack than the host
   cat >> Dockerfile << DELIM_DISPLAY
 # Check to be sure version of kernel graphic card support is the same.
