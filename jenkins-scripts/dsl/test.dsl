@@ -19,6 +19,45 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
                                      false,
                                      ['main'])
 
+// local_build..py testing job
+def local_build_py_job_win = job("_test_local_build_py_win")
+OSRFWinCompilation.create(local_build_py_job_win)
+OSRFGitHub.create(local_build_py_job_win,
+                  'gazebosim/gz-cmake',
+                  'main',
+                  'gz-cmake')
+local_build_py_job_win.with
+{
+  steps
+  {
+    batchFile("""\
+          set "SOURCE_DIR=%WORKSPACE%\\gz-cmake"
+          if not exist "%SOURCE_DIR%" (
+            echo Source directory %SOURCE_DIR% not found
+            exit /b 1
+          )
+
+          python .\\scripts\\jenkins-scripts\\local_build.py gz_cmake-default-devel-windows-amd64.bat "%SOURCE_DIR%" || exit /b 1
+
+          if not exist ".debug_last_build.bat" (
+            echo local_build.py did not generate .debug_last_build.bat
+            exit /b 1
+          )
+
+          :: local_build.py stores the temp workspace in the debug helper.
+          for /f "tokens=1*" %%A in ('findstr /B /C:"cd " .debug_last_build.bat') do set "LOCAL_BUILD_WS=%%B"
+          if "%LOCAL_BUILD_WS%" == "" (
+            echo Failed to determine the local build workspace from .debug_last_build.bat
+            exit /b 1
+          )
+
+          if exist "%WORKSPACE%\\build\\test_results" ( rmdir /s /q "%WORKSPACE%\\build\\test_results" )
+          if not exist "%WORKSPACE%\\build" mkdir "%WORKSPACE%\\build"
+          xcopy "%LOCAL_BUILD_WS%\\build\\test_results" "%WORKSPACE%\\build\\test_results" /s /e /i || exit /b 1
+          """.stripIndent())
+  }
+}
+
 // releasing testing job
 def releasepy_job = job("_test_releasepy")
 OSRFReleasepy.create(releasepy_job, [DRY_RUN: true])
