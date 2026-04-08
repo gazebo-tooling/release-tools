@@ -53,7 +53,7 @@ def main():
     # Set environment variables
     os.environ["WORKSPACE"] = str(workspace)
     os.environ["MAKE_JOBS"] = str(make_jobs)  # Customize the number of building threads
-    pixi_project_path = Path(os.environ["LOCALAPPDATA"]) / "pixi" / "project"
+    pixi_project_path = Path(os.environ["PROGRAMDATA"]) / "pixi" / "project"
     os.environ["PIXI_PROJECT_PATH"] = str(pixi_project_path)
 
     # Check if script exists
