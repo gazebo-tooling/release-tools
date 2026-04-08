@@ -80,6 +80,12 @@ C:\Users\josel\AppData\Local\Temp\12853\ws> colcon list
 C:\Users\josel\AppData\Local\Temp\12853\ws> colcon build --packages-select gz-sim9
 ```
 
+### Buildfarm validation
+
+To validate changes to `local_build.py` on Jenkins, regenerate the `test` DSL jobs from your `release-tools` branch and run `_test_local_build_py_win`.
+
+The job keeps the standard `RTOOLS_BRANCH` parameter for the `release-tools` checkout, checks out `gazebosim/gz-cmake`, runs `local_build.py` with `gz_cmake-default-devel-windows-amd64.bat`, and copies the generated `build/test_results/*.xml` back into the Jenkins workspace so the usual test publishers can consume them.
+
 ## DSL related
 
 ### Useful links
