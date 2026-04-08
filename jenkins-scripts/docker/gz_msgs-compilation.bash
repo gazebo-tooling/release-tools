@@ -27,10 +27,6 @@ if ! [[ ${GZ_MSGS_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-if [[ ${GZ_MSGS_MAJOR_VERSION} -ge 3 ]]; then
-  export NEED_C17_COMPILER=true
-fi
-
 export GZDEV_PROJECT_NAME="${GZDEV_PROJECT_NAME:-gz-msgs${GZ_MSGS_MAJOR_VERSION}}"
 
 . ${SCRIPT_DIR}/lib/generic-building-base.bash

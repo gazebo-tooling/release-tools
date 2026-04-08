@@ -29,8 +29,6 @@ fi
 
 PACKAGES_URL="${PACKAGES_URL:-packages.osrfoundation.org}"
 
-[[ -z ${INSTALL_C17_COMPILER} ]] && INSTALL_C17_COMPILER=false
-
 # Bionic|Focal builds were affected by a "gpg: keyserver receive failed" in apt-key execution
 # that poisoned a lot of docker cache in different builds and nodes. Force invalidation
 # during a couple of month to rotate images

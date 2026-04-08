@@ -27,7 +27,6 @@ if ! [[ ${GZ_SIM_MAJOR_VERSION} =~ ^-?[0-9]+$ ]]; then
   exit -1
 fi
 
-export NEED_C17_COMPILER=true
 export GPU_SUPPORT_NEEDED=true
 
 export GZDEV_PROJECT_NAME="${GZDEV_PROJECT_NAME:-gz-sim${GZ_SIM_MAJOR_VERSION}}"

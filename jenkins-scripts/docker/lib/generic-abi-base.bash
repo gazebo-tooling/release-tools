@@ -36,10 +36,7 @@ if [[ -z "${ABI_JOB_HEADER_PREFIX}" ]]; then
   eval ABI_JOB_HEADER_PREFIX="\$${ABI_JOB_SOFTWARE_NAME}-*"
 fi
 
-ABI_CXX_STANDARD=c++11
-if [[ "${NEED_C17_COMPILER}" == "true" ]]; then
-  ABI_CXX_STANDARD=c++17
-fi
+ABI_CXX_STANDARD=c++17
 
 cat > build.sh << DELIM
 $(generate_buildsh_header)
