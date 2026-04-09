@@ -37,7 +37,22 @@ local_build_py_job_win.with
             exit /b 1
           )
 
-          python .\\scripts\\jenkins-scripts\\local_build.py gz_cmake-default-devel-windows-amd64.bat "%SOURCE_DIR%" || exit /b 1
+          set "SCRIPT_DIR=%WORKSPACE%\\scripts\\jenkins-scripts"
+          set "win_lib=%SCRIPT_DIR%\\lib\\windows_library.bat"
+
+          echo # BEGIN SECTION: pixi: installation
+          call %win_lib% :pixi_installation || exit /b 1
+          echo # END SECTION
+
+          echo # BEGIN SECTION: pixi: create bootstrap environment
+          call %win_lib% :pixi_create_bootstrap_environment || exit /b 1
+          echo # END SECTION
+
+          echo # BEGIN SECTION: pixi: load bootstrap shell
+          call %win_lib% :pixi_load_bootstrap_shell || exit /b 1
+          echo # END SECTION
+
+          python "%SCRIPT_DIR%\\local_build.py" gz_cmake-default-devel-windows-amd64.bat "%SOURCE_DIR%" || exit /b 1
 
           if not exist ".debug_last_build.bat" (
             echo local_build.py did not generate .debug_last_build.bat
