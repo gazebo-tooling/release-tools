@@ -52,6 +52,11 @@ local_build_py_job_win.with
           call %win_lib% :pixi_load_bootstrap_shell || exit /b 1
           echo # END SECTION
 
+          :: Bootstrap is already loaded above. Signal colcon-default-devel-windows.bat
+          :: to skip bootstrap recreation so it doesn't try to rmdir a directory
+          :: that contains the currently running python.exe.
+          set "REUSE_PIXI_BOOTSTRAP=1"
+
           python "%SCRIPT_DIR%\\local_build.py" gz_cmake-default-devel-windows-amd64.bat "%SOURCE_DIR%" || exit /b 1
 
           if not exist ".debug_last_build.bat" (
