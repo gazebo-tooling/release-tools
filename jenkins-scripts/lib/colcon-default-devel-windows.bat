@@ -60,12 +60,14 @@ if "%GPU_SUPPORT_NEEDED%" == "true" (
 )
 
 if not defined REUSE_PIXI_INSTALLATION (
-  echo # BEGIN SECTION: pixi: installation
-  call %win_lib% :pixi_installation || goto :error
-  echo # END SECTION
-  echo # BEGIN SECTION: pixi: create bootstrap environment
-  call %win_lib% :pixi_create_bootstrap_environment || goto :error
-  echo # END SECTION
+  if not defined REUSE_PIXI_BOOTSTRAP (
+    echo # BEGIN SECTION: pixi: installation
+    call %win_lib% :pixi_installation || goto :error
+    echo # END SECTION
+    echo # BEGIN SECTION: pixi: create bootstrap environment
+    call %win_lib% :pixi_create_bootstrap_environment || goto :error
+    echo # END SECTION
+  )
 )
 
 echo # BEGIN SECTION: pixi: load bootstrap shell
