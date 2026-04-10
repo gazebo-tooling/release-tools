@@ -24,7 +24,7 @@ def local_build_py_job_win = job("_test_local_build_py_win")
 OSRFWinCompilation.create(local_build_py_job_win)
 OSRFGitHub.create(local_build_py_job_win,
                   'gazebosim/gz-cmake',
-                  'main',
+                  'gz-cmake5',
                   'gz-cmake')
 local_build_py_job_win.with
 {
