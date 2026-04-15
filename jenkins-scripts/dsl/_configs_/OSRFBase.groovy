@@ -59,6 +59,12 @@ class OSRFBase
           checkRegexp: true,
           maxSchedule: 2
         ])
+
+        HelperRetryFailures.create(job, [
+          regexpForRerun: "Error: Empty installation",
+          checkRegexp: true,
+          maxSchedule: 2
+        ])
       }
     }
 }
