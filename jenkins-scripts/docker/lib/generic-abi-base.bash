@@ -53,7 +53,7 @@ cd /tmp/${ABI_JOB_SOFTWARE_NAME}
 git fetch origin
 git checkout origin/${DEST_BRANCH}
 # Install dependencies again in case packages.apt files are changed
-sudo apt install -y "$(sort -u $(find .github/ci -iname 'packages-'$DISTRO'.apt' -o -iname 'packages.apt') | tr '\n' ' ')"
+sudo apt install -y "\$(sort -u \$(find .github/ci -iname 'packages-'$DISTRO'.apt' -o -iname 'packages.apt') | tr '\n' ' ')"
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
@@ -76,7 +76,7 @@ git remote add source_repo ${SRC_REPO}
 git fetch source_repo
 git checkout source_repo/${SRC_BRANCH}
 # Install dependencies again in case packages.apt files are changed
-sudo apt install -y "$(sort -u $(find .github/ci -iname 'packages-'$DISTRO'.apt' -o -iname 'packages.apt') | tr '\n' ' ')"
+sudo apt install -y "\$(sort -u \$(find .github/ci -iname 'packages-'$DISTRO'.apt' -o -iname 'packages.apt') | tr '\n' ' ')"
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
 rm -rf $WORKSPACE/build
 mkdir -p $WORKSPACE/build
