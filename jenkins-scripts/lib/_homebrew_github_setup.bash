@@ -45,8 +45,8 @@ else
 fi
 # Use stable version of brew
 export HOMEBREW_UPDATE_TO_TAG=1
-if [[ $(date +%Y%m%d) -le 20260310 ]]; then
-  # until https://github.com/Homebrew/brew/pull/21552 is released
+if [[ $(date +%Y%m%d) -le 20260510 ]]; then
+  # until https://github.com/Homebrew/brew/pull/22050 is released
   unset HOMEBREW_UPDATE_TO_TAG
 fi
 brew update-reset
