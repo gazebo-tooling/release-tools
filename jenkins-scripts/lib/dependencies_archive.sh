@@ -23,6 +23,7 @@ BASE_DEPENDENCIES="build-essential \\
                    gnupg2          \\
                    net-tools       \\
                    locales         \\
-                   sudo"
+                   sudo            \\
+                   login"
 
 BREW_BASE_DEPENDCIES="git cmake"
