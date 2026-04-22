@@ -174,6 +174,10 @@ PACKAGE_ALIAS=${PACKAGE_ALIAS}
 SRC_PACKAGE_NAME=\$(grep-dctrl -sSource -n  '' debian/control)
 if [[ \${SRC_PACKAGE_NAME} != \${SRC_PACKAGE_NAME/gz-} ]]; then
   PACKAGE_ALIAS=\${SRC_PACKAGE_NAME}
+elif [[ \${PACKAGE_ALIAS} == gz-rotary-* ]]; then
+  # For rotary packages whose Source doesn't use gz- prefix (e.g., sdformat),
+  # use the Source name from debian/control to avoid name mismatch
+  PACKAGE_ALIAS=\${SRC_PACKAGE_NAME}
 fi
 
 # [nightly] Adjust version in nightly mode
@@ -228,17 +232,6 @@ ${MKBUILD_INSTALL_DEPS}
 
 if [ -f /usr/bin/rosdep ]; then
   rosdep init
-fi
-
-# Be sure that a previous bug using g++8 compiler is not present anymore
-if [[ ${DISTRO} == 'jammy' || ${DISTRO} == 'focal' ]]; then
- [[ \$(/usr/bin/gcc --version | grep 'gcc-8') ]] && ( echo "gcc-8 version found. A bug." ; exit 1 )
-elif $INSTALL_C17_COMPILER; then
-  echo '# BEGIN SECTION: install C++17 compiler'
-  sudo apt-get install -y gcc-8 g++-8
-  sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
-  g++ --version
-  echo '# END SECTION'
 fi
 
 echo '# BEGIN SECTION: create source package' \${OSRF_VERSION}

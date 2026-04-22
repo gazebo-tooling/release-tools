@@ -11,11 +11,9 @@ arch = 'amd64'
 file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
 gz_collections_yaml = new Yaml().load(file)
 
-gz_nightly = 'kura'
-// TODO: ENABLE when all rotary packages are set up in gz-collection.yaml
-// gz_nightly = 'rotary'
+gz_nightly = 'rotary'
 
-String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
+String get_package_name(parsed_yaml_lib, parsed_yaml_packaging, collection_name)
 {
   major_version = parsed_yaml_lib.major_version
 
@@ -23,20 +21,19 @@ String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging)
   if (ignore_major_version && ignore_major_version.contains(parsed_yaml_lib.name))
     major_version = ""
 
-  debbuilder_prefix = parsed_yaml_packaging.linux?.debbuilder_prefix
-  if (debbuilder_prefix) {
+  if (collection_name == 'rotary' && parsed_yaml_lib.name != 'gz-rotary') {
     // gz-cmake → gz-rotary-cmake, sdformat → gz-rotary-sdformat
     base_name = parsed_yaml_lib.name.startsWith('gz-') ?
       parsed_yaml_lib.name.substring(3) : parsed_yaml_lib.name
-    return "gz-${debbuilder_prefix}-${base_name}-debbuilder"
+    return "gz-rotary-${base_name}"
   }
 
-  return parsed_yaml_lib.name + major_version + "-debbuilder"
+  return parsed_yaml_lib.name + major_version
 }
 
 def DISABLE_TESTS           = false
 
-void generate_install_job(prefix, gz_collection_name, distro, arch)
+void generate_install_job(prefix, gz_collection_name, distro, arch, gzdev_project = '')
 {
   def install_default_job = job("${prefix}_${gz_collection_name}-install-pkg-${distro}-${arch}")
   OSRFLinuxInstall.create(install_default_job)
@@ -49,6 +46,7 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
 
     def dev_package = "${prefix}-${gz_collection_name}"
     def job_name = 'gz_launch-install-test-job.bash'
+    def gzdev_project_name = gzdev_project ?: dev_package
 
     label Globals.nontest_label("docker && gpu-reliable")
 
@@ -59,7 +57,7 @@ void generate_install_job(prefix, gz_collection_name, distro, arch)
            export DISTRO=${distro}
            export ARCH=${arch}
            export INSTALL_JOB_PKG=${dev_package}
-           export GZDEV_PROJECT_NAME="${dev_package}"
+           export GZDEV_PROJECT_NAME="${gzdev_project_name}"
            if [[ ${gz_collection_name} == 'citadel' || ${gz_collection_name} == 'fortress' ]]; then
               export GZ_SIM_RUNTIME_TEST_USE_IGN=true
            fi
@@ -93,7 +91,8 @@ gz_collections_yaml.collections.each { collection ->
     if ((gz_collection_name == "citadel") || (gz_collection_name == "fortress")) {
       generate_install_job('ignition', gz_collection_name, distro, arch)
     }
-    generate_install_job('gz', gz_collection_name, distro, arch)
+    def gzdev_project = (gz_collection_name == 'rotary') ? 'rotary' : ''
+    generate_install_job('gz', gz_collection_name, distro, arch, gzdev_project)
 
     // ROS BOOTSTRAP INSTALL JOBS:
     // --------------------------------------------------------------
@@ -148,11 +147,6 @@ gz_collections_yaml.collections.each { collection ->
 }
 
 // NIGHTLY GENERATION
-def get_nightly_branch(nightly_collection, lib)
-{
-  return nightly_collection.libs.find { it.name == lib }.repo.current_branch
-}
-
 nightly_collection = gz_collections_yaml.collections
   .find { it.name == gz_nightly }
 
@@ -164,13 +158,13 @@ nightly_scheduler_job.with
 {
   label Globals.nontest_label("built-in")
 
+  def nightly_packages = nightly_collection.libs.collect{
+    get_package_name(it, nightly_collection.packaging, nightly_collection.name) }.join(" ")
+
   parameters
   {
      stringParam('NIGHTLY_PACKAGES',
-                nightly_collection.libs.collect{
-                  get_debbuilder_name(it,nightly_collection.packaging)
-                    .replace("-debbuilder","")
-                }.join(" "),
+                nightly_packages,
                 'space separated list of packages to build')
 
      booleanParam('DRY_RUN',false,
@@ -181,21 +175,10 @@ nightly_scheduler_job.with
      cron(Globals.CRON_START_NIGHTLY)
   }
 
-  cmake_branch = get_nightly_branch(nightly_collection, 'gz-cmake')
-  common_branch = get_nightly_branch(nightly_collection, 'gz-common')
-  fuel_tools_branch = get_nightly_branch(nightly_collection, 'gz-fuel-tools')
-  sim_branch = get_nightly_branch(nightly_collection, 'gz-sim')
-  gui_branch = get_nightly_branch(nightly_collection, 'gz-gui')
-  math_branch = get_nightly_branch(nightly_collection, 'gz-math')
-  msgs_branch =  get_nightly_branch(nightly_collection, 'gz-msgs')
-  physics_branch = get_nightly_branch(nightly_collection, 'gz-physics')
-  plugin_branch = get_nightly_branch(nightly_collection, 'gz-plugin')
-  rendering_branch = get_nightly_branch(nightly_collection, 'gz-rendering')
-  sensors_branch = get_nightly_branch(nightly_collection, 'gz-sensors')
-  sdformat_branch = get_nightly_branch(nightly_collection, 'sdformat')
-  tools_branch = get_nightly_branch(nightly_collection, 'gz-tools')
-  transport_branch = get_nightly_branch(nightly_collection, 'gz-transport')
-  utils_branch = get_nightly_branch(nightly_collection, 'gz-utils')
+  def branch_map_entries = nightly_collection.libs.collect { lib ->
+    def pkg_name = get_package_name(lib, nightly_collection.packaging, nightly_collection.name)
+    "[${pkg_name}]=${lib.repo.current_branch}"
+  }.join(" ")
 
   steps {
     shell("""\
@@ -206,47 +189,19 @@ nightly_scheduler_job.with
             dry_run_str="--dry-run"
           fi
 
-          # redirect to not display the password
-          for n in \${NIGHTLY_PACKAGES}; do
+          # Associative array mapping package name -> source branch
+          declare -A branch_map=( ${branch_map_entries} )
 
-              if [[ "\${n}" != "\${n/cmake/}" ]]; then
-                src_branch="${cmake_branch}"
-              elif [[ "\${n}" != "\${n/common/}" ]]; then
-                src_branch="${common_branch}"
-              elif [[ "\${n}" != "\${n/fuel-tools/}" ]]; then
-                src_branch="${fuel_tools_branch}"
-              elif  [[ "\${n}" != "\${n/sim/}" ]]; then
-                src_branch="${sim_branch}"
-              elif  [[ "\${n}" != "\${n/gui/}" ]]; then
-                src_branch="${gui_branch}"
-              elif [[ "\${n}" != "\${n/math/}" ]]; then
-                src_branch="${math_branch}"
-              elif [[ "\${n}" != "\${n/msgs/}" ]]; then
-                src_branch="${msgs_branch}"
-              elif [[ "\${n}" != "\${n/physics/}" ]]; then
-                src_branch="${physics_branch}"
-              elif [[ "\${n}" != "\${n/plugin/}" ]]; then
-                src_branch="${plugin_branch}"
-              elif [[ "\${n}" != "\${n/rendering/}" ]]; then
-                src_branch="${rendering_branch}"
-              elif [[ "\${n}" != "\${n/sensors/}" ]]; then
-                src_branch="${sensors_branch}"
-              elif [[ "\${n}" != "\${n/sdformat/}" ]]; then
-                src_branch="${sdformat_branch}"
-              elif  [[ "\${n}" != "\${n/sim/}" ]]; then
-                src_branch="${sim_branch}"
-              elif [[ "\${n}" != "\${n/transport/}" ]]; then
-                src_branch="${transport_branch}"
-              elif [[ "\${n}" != "\${n/tools/}" ]]; then
-                src_branch="${tools_branch}"
-              elif [[ "\${n}" != "\${n/utils/}" ]]; then
-                src_branch="${utils_branch}"
-              else
-                src_branch="main"
+          # redirect to not display the password
+          for pkg in \$NIGHTLY_PACKAGES; do
+              src_branch="\${branch_map[\$pkg]}"
+              if [ -z "\${src_branch}" ]; then
+                echo "Error: no source branch found for package \${pkg}"
+                exit 1
               fi
 
-              echo "releasing \${n} (from branch \${src_branch})"
-              python3 ./scripts/release.py \${dry_run_str} "\${n}" nightly \
+              echo "releasing \${pkg} (from branch \${src_branch})"
+              python3 ./scripts/release.py \${dry_run_str} "\${pkg}" nightly \
                       --auth "\${OSRFBUILD_JENKINS_USER}:\${OSRFBUILD_JENKINS_TOKEN}" \
                       --release-repo-branch main \
                       --nightly-src-branch \${src_branch} \

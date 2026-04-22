@@ -59,6 +59,13 @@ class OSRFBase
           checkRegexp: true,
           maxSchedule: 2
         ])
+
+        // Homebrew installation problems, see https://github.com/gazebo-tooling/release-tools/issues/1479
+        HelperRetryFailures.create(job, [
+          regexpForRerun: "Error: Empty installation",
+          checkRegexp: true,
+          maxSchedule: 2
+        ])
       }
     }
 }
