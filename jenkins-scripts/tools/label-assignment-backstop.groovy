@@ -17,6 +17,7 @@ import hudson.model.Label;
 def nightly_label_prefix = "linux-nightly"
 def exactly_one_labels = [
   ["${nightly_label_prefix}-noble", "docker"],
+  ["${nightly_label_prefix}-resolute", "docker"],
 ]
 
 for (tup in exactly_one_labels) {
