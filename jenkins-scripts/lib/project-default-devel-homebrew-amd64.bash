@@ -150,11 +150,13 @@ export PATH="${PATH}:/opt/X11/bin"
 
 # set display before cmake
 # search for Xquartz instance owned by current user
+glxinfo || true
 export DISPLAY=$(ps ax \
   | grep '[[:digit:]]*:[[:digit:]][[:digit:]].[[:digit:]][[:digit:]] /opt/X11/bin/Xquartz' \
   | grep "auth /Users/$(whoami)/" \
   | sed -e 's@.*Xquartz @@' -e 's@ .*@@'
 )
+glxinfo || true
 
 CMAKE_ARGS=""
 # set CMAKE_PREFIX_PATH if we are using protobuf@33
