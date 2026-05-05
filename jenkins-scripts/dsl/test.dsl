@@ -73,7 +73,7 @@ local_build_py_job_win.with
 
           if exist "%WORKSPACE%\\build\\test_results" ( rmdir /s /q "%WORKSPACE%\\build\\test_results" )
           if not exist "%WORKSPACE%\\build" mkdir "%WORKSPACE%\\build"
-          xcopy "%LOCAL_BUILD_WS%\\build\\test_results" "%WORKSPACE%\\build\\test_results" /s /e /i || exit /b 1
+          xcopy "%LOCAL_BUILD_WS%\\..\\build\\test_results" "%WORKSPACE%\\build\\test_results" /s /e /i || exit /b 1
           """.stripIndent())
   }
 }
