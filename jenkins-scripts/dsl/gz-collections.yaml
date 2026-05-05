@@ -104,7 +104,6 @@ collections:
         - win_conda_L
     packaging:
       configs:
-        - focal
         - jammy
         - brew_amd64
         - brew_arm64
@@ -446,33 +445,6 @@ collections:
           - gz-sim
           - gz-rotary
 ci_configs:
-  - name: focal
-    system:
-      so: linux
-      distribution: ubuntu
-      version: focal
-      arch: amd64
-    requirements:
-      nvidia_gpu:
-        - gz-sim
-        - gz-gui
-        - gz-rendering
-        - gz-sensors
-    exclude:
-      all:
-        - gz-fortress
-      abichecker:
-        - gz-cmake
-        - gz-tools
-    pre_setup_script_hook:
-      gz-physics:
-        - "export MAKE_JOBS=1"
-    tests_disabled:
-    ci_categories_enabled:
-      - pr
-      - pr_abichecker
-      - stable_branches
-      - stable_branches_asan
   - name: jammy
     system:
       so: linux
@@ -723,16 +695,6 @@ ci_configs:
       - pr
       - stable_branches
 packaging_configs:
-  - name: focal
-    system:
-      so: linux
-      distribution: ubuntu
-      version: focal
-      arch:
-        - amd64
-    pre_setup_script_hook:
-      gz-physics:
-        - "export MAKE_JOBS=1"
   - name: jammy
     system:
       so: linux
