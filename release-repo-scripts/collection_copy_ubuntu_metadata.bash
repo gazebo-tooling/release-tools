@@ -211,12 +211,17 @@ fi
 # Use vcstool to import the collection repositories
 mkdir -p ${TEMP_DIR}/src
 vcs import ${TEMP_DIR}/src < ${COLLECTION_YAML_FILE}
+pushd ${TEMP_DIR}/src
+git clone https://github.com/${GZ_ORG}/gz-${COLLECTION}
+popd
 echo
 
 # Loop over all packages, clone and modify the corresponding release repositories
 for pkg_xml in ${TEMP_DIR}/src/*/package.xml; do
   PACKAGE=$(xmllint --xpath '/package/name/text()' $pkg_xml)
-  if [ "$COLLECTION" = "rotary" ]; then 
+  if [ "$PACKAGE" = "gz-$COLLECTION" ]; then
+    RELEASE_REPO=gz-$COLLECTION-release
+  elif [ "$COLLECTION" = "rotary" ]; then
     # remove "gz-" prefix and translate '_' to '-'
     DESIGNATION=$(echo ${PACKAGE#gz-} | tr '_' '-')
     RELEASE_REPO=gz-rotary-$DESIGNATION-release
