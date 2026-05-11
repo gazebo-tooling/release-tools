@@ -192,7 +192,6 @@ commitAndPR() {
     if [ "$CONTINUE" = "y" ]; then
       git commit -sam"${COMMIT_MSG_PREFIX}${COMMIT_MSG}"
       git push origin ${CURRENT_BRANCH}
-      echo gh pr create --title "${COMMIT_MSG_PREFIX}${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${ORG}/${REPO} --base ${BASE_BRANCH}
       gh pr create --title "${COMMIT_MSG_PREFIX}${COMMIT_MSG}" --body "${PR_TEXT}" --repo ${ORG}/${REPO} --base ${BASE_BRANCH}
     fi
   fi
