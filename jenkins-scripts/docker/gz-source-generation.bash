@@ -23,6 +23,7 @@ BUILD_DIR=\$SOURCES_DIR/build
 cd \${WORKSPACE}
 rm -fr \$SOURCES_DIR && mkdir \$SOURCES_DIR
 git clone --depth 1 --branch ${SOURCE_REPO_REF} ${SOURCE_REPO_URI} \${SOURCES_DIR}
+export SOURCE_DATE_EPOCH=$(git -C \$SOURCES_DIR log -1 --pretty=%ct)
 rm -fr \$BUILD_DIR && mkdir \$BUILD_DIR
 cd \${BUILD_DIR}
 cmake .. -DPACKAGE_SOURCE_ONLY:BOOL=ON
