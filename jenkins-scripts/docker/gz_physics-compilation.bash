@@ -29,4 +29,10 @@ fi
 
 export GZDEV_PROJECT_NAME="${GZDEV_PROJECT_NAME:-gz-physics${GZ_PHYSICS_MAJOR_VERSION}}"
 
+# set SKIP_mujoco=true for Rotary on 26.04
+# see https://github.com/gazebosim/gz-physics/pull/972
+if [[ "${GZDEV_PROJECT_NAME}" == "rotary" && "${DISTRO}" == "resolute" ]]; then
+  export BUILDING_EXTRA_CMAKE_PARAMS+=" -DSKIP_mujoco=true"
+fi
+
 . ${SCRIPT_DIR}/lib/generic-building-base.bash
