@@ -569,6 +569,7 @@ ci_configs:
     cmake_warnings_disabled:
       - gz-common
       - gz-sim
+      - gz-launch
       - gz-math
       - gz-rendering
       - gz-sensors
@@ -595,6 +596,7 @@ ci_configs:
     cmake_warnings_disabled:
       - gz-common
       - gz-sim
+      - gz-launch
       - gz-math
       - gz-rendering
       - gz-sensors
