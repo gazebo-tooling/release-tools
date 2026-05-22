@@ -21,9 +21,18 @@ export_display_variable()
 }
 
 # Resolve the host's MIT-MAGIC-COOKIE-1 file so docker_run.bash can bind-mount
-# it into the container. Newer X11 client stacks (Ubuntu 26.04+) reject
-# unauthenticated connections to the host display even from same-UID clients
-# inside a container. See release-tools#1499.
+# it into the container when a genuine one is available. Newer X11 client
+# stacks (libxcb in Ubuntu 26.04+) will *send* the cookie if XAUTHORITY is
+# set; if that cookie is not registered with the running X server the
+# connection is rejected outright rather than falling back to host-based
+# (xhost) auth. On agents whose X session is not owned by the jenkins user
+# there is no usable cookie to forward — in that case we leave HOST_XAUTHORITY
+# empty so the container connects with no auth and relies on the X server's
+# host-based policy (xhost +local: / +SI:localuser:...), which is what the
+# noble pipeline has been doing successfully. Do NOT synthesise a cookie via
+# `xauth generate` here: it produces an entry the X server does not
+# recognise and breaks an otherwise-working unauthenticated path. See
+# release-tools#1499.
 export_host_xauthority()
 {
     HOST_XAUTHORITY=""
@@ -31,14 +40,6 @@ export_host_xauthority()
       HOST_XAUTHORITY="${XAUTHORITY}"
     elif [ -r "${HOME}/.Xauthority" ]; then
       HOST_XAUTHORITY="${HOME}/.Xauthority"
-    elif command -v xauth > /dev/null 2>&1 && [ -n "${DISPLAY}" ]; then
-      # Last-resort fallback: synthesize a trusted cookie for the active
-      # display. Useful on agents where the jenkins user owns the X server
-      # but has no persistent ${HOME}/.Xauthority (e.g. lightdm autologin).
-      local generated="/tmp/.docker.xauth.$$"
-      if xauth -f "${generated}" generate "${DISPLAY}" . trusted > /dev/null 2>&1; then
-        HOST_XAUTHORITY="${generated}"
-      fi
     fi
     export HOST_XAUTHORITY
 }
@@ -115,8 +116,7 @@ if $GPU_SUPPORT_NEEDED; then
 	  echo "Imposible to get DISPLAY variable. Check your system"
 	  exit 1
       fi
-      # Retry xauthority resolution now that DISPLAY is available, so the
-      # xauth-generate fallback in export_host_xauthority can succeed.
+      # Retry xauthority resolution now that DISPLAY is available.
       export_host_xauthority
     fi
     

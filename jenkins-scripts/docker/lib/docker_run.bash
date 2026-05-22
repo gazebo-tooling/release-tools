@@ -55,10 +55,15 @@ if $USE_GPU_DOCKER; then
                     -v /var/run/docker.sock:/var/run/docker.sock \
                     -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
 
-  # Propagate the host's X11 authority cookie when available so newer X11
-  # client stacks (Ubuntu 26.04+) can authenticate the connection to the
-  # mounted host display. Harmless on older distros that did not require it.
-  # See release-tools#1499. HOST_XAUTHORITY is resolved by check_graphic_card.bash.
+  # Propagate the host's X11 authority cookie ONLY when a genuine one was
+  # resolved by check_graphic_card.bash::export_host_xauthority (i.e. an
+  # existing $XAUTHORITY or ~/.Xauthority on the agent). When no real cookie
+  # exists we deliberately leave XAUTHORITY unset inside the container so
+  # libxcb (Ubuntu 26.04+ included) connects with no auth and the X server's
+  # host-based policy (xhost +local: / +SI:localuser:...) authorises the
+  # connection — the same path the working noble pipeline uses. Forwarding a
+  # synthetic / mismatched cookie causes the X server to reject the
+  # connection. See release-tools#1499.
   if [ -n "${HOST_XAUTHORITY}" ] && [ -r "${HOST_XAUTHORITY}" ]; then
     EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} \
                     -v ${HOST_XAUTHORITY}:/tmp/.host.xauth:ro \
