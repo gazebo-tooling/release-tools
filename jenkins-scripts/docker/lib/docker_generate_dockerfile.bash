@@ -398,6 +398,17 @@ ENV LD_LIBRARY_PATH /usr/local/lib/x86_64-linux-gnu\${LD_LIBRARY_PATH:+:\${LD_LI
 DELIM_NVIDIA3_GPU
 fi
   fi
+
+  # Qt 6.5+ requires libxcb-cursor0 to initialize the xcb platform plugin.
+  # On Ubuntu 26.04 the absence of this library is surfaced as an error
+  # ("could not connect to display unix:0") that masks the real cause of
+  # rendering test failures. Install it for all GPU-enabled Nvidia jobs so
+  # the platform plugin loads cleanly across distros. See release-tools#1499.
+cat >> Dockerfile << DELIM_QT_XCB_CURSOR
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libxcb-cursor0 && \
+    rm -rf /var/lib/apt/lists/*
+DELIM_QT_XCB_CURSOR
  else
   # No NVIDIA cards needs to have the same X stack than the host
   cat >> Dockerfile << DELIM_DISPLAY

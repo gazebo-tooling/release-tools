@@ -110,6 +110,15 @@ stop_stopwatch COMPILATION
 echo '# END SECTION'
 
 if $GENERIC_ENABLE_TESTS; then
+  if [ -n "\${DISPLAY}" ]; then
+    echo '# BEGIN SECTION: display sanity'
+    echo "DISPLAY=\${DISPLAY} XAUTHORITY=\${XAUTHORITY}"
+    ls -la /tmp/.X11-unix/ 2>&1 || true
+    xauth -n list 2>&1 | wc -l
+    xdpyinfo -display "\${DISPLAY}" 2>&1 | head -20 || true
+    glxinfo -B 2>&1 | head -20 || true
+    echo '# END SECTION'
+  fi
   echo '# BEGIN SECTION: running tests'
   init_stopwatch TEST
   export ASAN_OPTIONS=\${ASAN_OPTIONS:+\$ASAN_OPTIONS:}${ASAN_OPTIONS}

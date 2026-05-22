@@ -55,6 +55,16 @@ if $USE_GPU_DOCKER; then
                     -v /var/run/docker.sock:/var/run/docker.sock \
                     -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
 
+  # Propagate the host's X11 authority cookie when available so newer X11
+  # client stacks (Ubuntu 26.04+) can authenticate the connection to the
+  # mounted host display. Harmless on older distros that did not require it.
+  # See release-tools#1499. HOST_XAUTHORITY is resolved by check_graphic_card.bash.
+  if [ -n "${HOST_XAUTHORITY}" ] && [ -r "${HOST_XAUTHORITY}" ]; then
+    EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} \
+                    -v ${HOST_XAUTHORITY}:/tmp/.host.xauth:ro \
+                    -e XAUTHORITY=/tmp/.host.xauth"
+  fi
+
   if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
     case ${NVIDIA_DOCKER_DRIVER} in
       'nvidia-container-toolkit' | 'nvidia-docker2')

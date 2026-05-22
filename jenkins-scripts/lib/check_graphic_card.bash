@@ -20,6 +20,29 @@ export_display_variable()
     done
 }
 
+# Resolve the host's MIT-MAGIC-COOKIE-1 file so docker_run.bash can bind-mount
+# it into the container. Newer X11 client stacks (Ubuntu 26.04+) reject
+# unauthenticated connections to the host display even from same-UID clients
+# inside a container. See release-tools#1499.
+export_host_xauthority()
+{
+    HOST_XAUTHORITY=""
+    if [ -n "${XAUTHORITY}" ] && [ -r "${XAUTHORITY}" ]; then
+      HOST_XAUTHORITY="${XAUTHORITY}"
+    elif [ -r "${HOME}/.Xauthority" ]; then
+      HOST_XAUTHORITY="${HOME}/.Xauthority"
+    elif command -v xauth > /dev/null 2>&1 && [ -n "${DISPLAY}" ]; then
+      # Last-resort fallback: synthesize a trusted cookie for the active
+      # display. Useful on agents where the jenkins user owns the X server
+      # but has no persistent ${HOME}/.Xauthority (e.g. lightdm autologin).
+      local generated="/tmp/.docker.xauth.$$"
+      if xauth -f "${generated}" generate "${DISPLAY}" . trusted > /dev/null 2>&1; then
+        HOST_XAUTHORITY="${generated}"
+      fi
+    fi
+    export HOST_XAUTHORITY
+}
+
 if [ -z ${GPU_SUPPORT_NEEDED} ]; then
     GPU_SUPPORT_NEEDED=false
 fi
@@ -30,6 +53,7 @@ fi
 
 # First try to get the display variable
 export_display_variable
+export_host_xauthority
 
 # Check for intel
 if [ -n "$(lspci -v | grep "Kernel driver in use: i[0-9][0-9][0-9]")" ]; then
@@ -91,6 +115,9 @@ if $GPU_SUPPORT_NEEDED; then
 	  echo "Imposible to get DISPLAY variable. Check your system"
 	  exit 1
       fi
+      # Retry xauthority resolution now that DISPLAY is available, so the
+      # xauth-generate fallback in export_host_xauthority can succeed.
+      export_host_xauthority
     fi
     
     # Check if the GPU support was found when not 
