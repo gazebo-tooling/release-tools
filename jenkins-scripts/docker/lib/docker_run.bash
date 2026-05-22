@@ -49,8 +49,15 @@ if $USE_DOCKER_IN_DOCKER; then
 fi
 
 if $USE_GPU_DOCKER; then
+  # Pass DISPLAY through unchanged (e.g. ":0") rather than the legacy
+  # "unix:0" form. libxcb 1.17 (shipped in Ubuntu 26.04) interprets the
+  # explicit "unix:" prefix more strictly than 1.16 and rejects the
+  # connection inside the container even when /tmp/.X11-unix is bind-mounted
+  # and the X server is reachable; the bare ":N" form lets libxcb resolve
+  # the local socket via the same path the working noble pipeline uses.
+  # See release-tools#1499.
   EXTRA_PARAMS_STR="--privileged \
-                    -e DISPLAY=unix$DISPLAY \
+                    -e DISPLAY=$DISPLAY \
                     -v /sys:/sys:ro         \
                     -v /var/run/docker.sock:/var/run/docker.sock \
                     -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
