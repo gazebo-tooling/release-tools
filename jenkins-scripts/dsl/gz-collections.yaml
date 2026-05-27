@@ -568,16 +568,11 @@ ci_configs:
         - gz-rotary
     cmake_warnings_disabled:
       - gz-common
-      - gz-fuel-tools
       - gz-sim
-      - gz-gui
       - gz-launch
       - gz-math
-      - gz-msgs
-      - gz-physics
       - gz-rendering
       - gz-sensors
-      - gz-tools
       - gz-transport
       - sdformat
     ci_categories_enabled:
@@ -600,16 +595,11 @@ ci_configs:
         - gz-rotary
     cmake_warnings_disabled:
       - gz-common
-      - gz-fuel-tools
       - gz-sim
-      - gz-gui
       - gz-launch
       - gz-math
-      - gz-msgs
-      - gz-physics
       - gz-rendering
       - gz-sensors
-      - gz-tools
       - gz-transport
       - sdformat
     ci_categories_enabled:
