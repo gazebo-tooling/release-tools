@@ -571,6 +571,7 @@ ci_configs:
       - gz-sim
       - gz-launch
       - gz-math
+      - gz-physics
       - gz-rendering
       - gz-sensors
       - gz-transport
@@ -598,6 +599,7 @@ ci_configs:
       - gz-sim
       - gz-launch
       - gz-math
+      - gz-physics
       - gz-rendering
       - gz-sensors
       - gz-transport
