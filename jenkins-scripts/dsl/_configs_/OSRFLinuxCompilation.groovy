@@ -12,7 +12,8 @@ import javaposse.jobdsl.dsl.Job
 class OSRFLinuxCompilation extends OSRFLinuxBase
 {
   static void create(Job job, enable_testing = true,
-                              enable_cppcheck = true)
+                              enable_cppcheck = true,
+                              enable_flaky_test_report = true)
   {
     OSRFLinuxBase.create(job)
 
@@ -43,7 +44,7 @@ class OSRFLinuxCompilation extends OSRFLinuxBase
     }
 
     /* Properties from generic compilations */
-    GenericCompilation.create(job, enable_testing)
+    GenericCompilation.create(job, enable_testing, enable_flaky_test_report)
 
     job.with
     {
