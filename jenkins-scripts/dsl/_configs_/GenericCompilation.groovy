@@ -33,8 +33,7 @@ class GenericCompilation
      '''.stripIndent()
    }
 
-   static void create(Job job, boolean enable_testing = true,
-                               boolean enable_flaky_test_report = true)
+   static void create(Job job, boolean enable_testing = true)
    {
 
      GenericMail.update_field(job, 'defaultContent',
@@ -55,13 +54,7 @@ class GenericCompilation
         {
           publishers
           {
-            archiveJunit('build/test_results/*.xml') {
-              if (enable_flaky_test_report) {
-                testDataPublishers {
-                  publishFlakyTestsReport()
-                }
-              }
-            }
+            archiveJunit('build/test_results/*.xml')
           } // end of publishers
         } // end of enable_testing
       } // end of job
