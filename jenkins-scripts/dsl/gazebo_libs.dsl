@@ -104,8 +104,7 @@ void generate_ciconfigs_by_lib(config, pkgconf_per_src_index)
 }
 
 void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
-                     extra_cmake = '', extra_test = '', extra_cmd = '',
-                     enable_flaky_test_report = true)
+                     extra_cmake = '', extra_test = '', extra_cmd = '')
 {
   def script_name_prefix = cleanup_library_name(lib_name)
   def distro = ci_config.system.version
@@ -114,8 +113,7 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
   def ws_checkout_dir = lib_name
   extra_cmd = [extra_cmd, pre_setup_script].findAll({ it != null }).join('\n')
 
-  OSRFLinuxCompilation.create(gz_ci_job, is_testing_enabled(lib_name, ci_config),
-                              true, enable_flaky_test_report)
+  OSRFLinuxCompilation.create(gz_ci_job, is_testing_enabled(lib_name, ci_config))
   OSRFGitHub.create(gz_ci_job,
                     "gazebosim/${lib_name}",
                     branch,
@@ -147,8 +145,7 @@ void generate_asan_ci_job(gz_ci_job, lib_name, branch, ci_config, extra_cmd = ''
   generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
                   '-DGZ_SANITIZER=Address',
                   Globals.MAKETEST_SKIP_GZ,
-                  asan_extra,
-                  false) // disable the flaky test plugin for -asan- jobs
+                  asan_extra)
   gz_ci_job.with {
     // -asan- builds can produce really long logs. Reduce the number of builds in the server
     logRotator {
