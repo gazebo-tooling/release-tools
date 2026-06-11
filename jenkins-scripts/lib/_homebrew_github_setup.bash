@@ -57,6 +57,7 @@ brew config
 # tap osrf/simulation
 brew untap osrf/simulation || true
 brew tap osrf/simulation
+brew trust osrf/simulation
 TAP_PREFIX=$(brew --repo osrf/simulation)
 GIT="git -C ${TAP_PREFIX}"
 ${GIT} remote add pr_head ${PULL_REQUEST_HEAD_REPO}
