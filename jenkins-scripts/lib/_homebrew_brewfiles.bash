@@ -42,7 +42,7 @@ validate_brewfile() {
     IFS=$' ' tokens=($line)
     # A first token that starts with # is a comment. Ignore the rest of the line.
     if [[ "${tokens[0]}" == \#* ]]; then
-      break
+      continue
     fi
     # The first token in a line should be a brew command
     # Check to make sure the brew command is allowed
@@ -70,7 +70,7 @@ validate_brewfile() {
       validated_repo=$(validate_brew_bundle_repo ${repo})
     else
       if [[ ${repo} == "*/*" ]]; then
-        repo="${token%/*}"
+        repo="${repo%/*}"
         validated_repo=$(validate_brew_bundle_repo ${repo})
       else
         validated_repo=${repo}
