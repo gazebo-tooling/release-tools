@@ -40,50 +40,47 @@ validate_brewfile() {
   for i in $(seq ${#lines[*]}); do
     line=${lines[$i-1]}
     IFS=$' ' tokens=($line)
-    checked_cmd=false
-    for j in "${tokens[@]}"; do
-       token=${j}
-       # A token that starts with # is a comment. Ignore the rest of the line.
-       if [[ "${token}" == \#* ]]; then
-         break
-       fi
-       # The first token in a line should be a brew command
-       # Check to make sure the brew command is allowed
-       if [[ $checked_cmd == false ]]; then
-         local brew_cmd=$(validate_brew_bundle_cmd ${token})
-         if [[ ${brew_cmd} == "" ]]; then
-           echo "brew bundle command not allowed: ${brew_cmd}"
-           return 1
-         fi
-         checked_cmd=true
-       else
-         # The token that follows the brew command may contain the repo name
-         # e.g.
-         #   tap org/repo
-         #   brew org/repo/package
-         # homebrew-core packages do not have repo name in them
-         # e.g.
-         #   brew package
-         # Remove quotes and check to make sure the homebrew repo is allowed
-         # if specified
-         repo=`echo "${token}" | cut -d'"' -f 2`
-         validated_repo=""
-         if [[ ${brew_cmd} == "tap" ]]; then
-           validated_repo=$(validate_brew_bundle_repo ${repo})
-         else
-           if [[ ${repo} == "*/*" ]]; then
-             repo="${token%/*}"
-             validated_repo=$(validate_brew_bundle_repo ${repo})
-           else
-             validated_repo=${repo}
-           fi
-         fi
-         if [[ ${validated_repo} == "" ]]; then
-           echo "homebrew repo not allowed: ${repo}"
-           return 1
-         fi
-       fi
-    done
+    # A first token that starts with # is a comment. Ignore the rest of the line.
+    if [[ "${tokens[0]}" == \#* ]]; then
+      break
+    fi
+    # The first token in a line should be a brew command
+    # Check to make sure the brew command is allowed
+    local brew_cmd=$(validate_brew_bundle_cmd ${tokens[0]})
+    if [[ ${brew_cmd} == "" ]]; then
+      echo "brew bundle command not allowed: ${brew_cmd}"
+      return 1
+    fi
+    # The token that follows the brew command may contain the repo name
+    # e.g.
+    #   tap "org/repo"
+    #   brew "org/repo/package"
+    # homebrew-core packages do not have repo name in them
+    # e.g.
+    #   brew "package"
+    # 3rd-party taps and formulae may also specified as trusted
+    # e.g.
+    #   tap "org/repo", trusted: true
+    #   brew "org/repo/package", trusted: true
+    # Remove `"` and `,` from the second token and check to make sure the
+    # homebrew repo is allowed if specified
+    repo=$(echo "${tokens[1]}" | tr -d '",')
+    validated_repo=""
+    if [[ ${brew_cmd} == "tap" ]]; then
+      validated_repo=$(validate_brew_bundle_repo ${repo})
+    else
+      if [[ ${repo} == "*/*" ]]; then
+        repo="${token%/*}"
+        validated_repo=$(validate_brew_bundle_repo ${repo})
+      else
+        validated_repo=${repo}
+      fi
+    fi
+    if [[ ${validated_repo} == "" ]]; then
+      echo "homebrew repo not allowed: ${repo}"
+      return 1
+    fi
+    # ignore any additional tokens
   done
 
   return 0
