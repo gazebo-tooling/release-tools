@@ -58,7 +58,7 @@ validate_brewfile() {
     # homebrew-core packages do not have repo name in them
     # e.g.
     #   brew "package"
-    # 3rd-party taps and formulae may also specified as trusted
+    # 3rd-party taps and formulae may also be specified as trusted
     # e.g.
     #   tap "org/repo", trusted: true
     #   brew "org/repo/package", trusted: true
