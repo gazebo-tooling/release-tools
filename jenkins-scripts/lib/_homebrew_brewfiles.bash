@@ -65,16 +65,16 @@ validate_brewfile() {
     #   brew "org/repo/package", trusted: true
     # Remove `"` and `,` from the second token and check to make sure the
     # homebrew repo is allowed if specified
-    repo=$(echo "${tokens[1]}" | tr -d '",')
+    resource=$(echo "${tokens[1]}" | tr -d '",')
     validated_repo=""
     if [[ ${brew_cmd} == "tap" ]]; then
-      validated_repo=$(validate_brew_bundle_repo ${repo})
+      validated_repo=$(validate_brew_bundle_repo ${resource})
     else
-      if [[ ${repo} == */* ]]; then
-        repo="${repo%/*}"
+      if [[ ${resource} == */*/* ]]; then
+        repo="${resource%/*}"
         validated_repo=$(validate_brew_bundle_repo ${repo})
       else
-        validated_repo=${repo}
+        validated_repo=${resource}
       fi
     fi
     if [[ ${validated_repo} == "" ]]; then
