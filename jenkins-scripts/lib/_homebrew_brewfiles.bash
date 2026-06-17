@@ -19,7 +19,8 @@ validate_brew_bundle_repo() {
 
   if [[ ! -f ${whitelist_file} ]]; then
     # Not found whitelist file
-    echo ""
+    echo "ERROR: homebrew whitelist file not found: ${whitelist_file}" >&2
+    return 1
   fi
 
   IFS=$'\n' repos=($(cat ${whitelist_file}))
@@ -48,7 +49,7 @@ validate_brewfile() {
     # Check to make sure the brew command is allowed
     local brew_cmd=$(validate_brew_bundle_cmd ${tokens[0]})
     if [[ ${brew_cmd} == "" ]]; then
-      echo "brew bundle command not allowed: ${brew_cmd}"
+      echo "brew bundle command not allowed: ${tokens[0]}"
       return 1
     fi
     # The token that follows the brew command may contain the repo name
@@ -69,7 +70,7 @@ validate_brewfile() {
     if [[ ${brew_cmd} == "tap" ]]; then
       validated_repo=$(validate_brew_bundle_repo ${repo})
     else
-      if [[ ${repo} == "*/*" ]]; then
+      if [[ ${repo} == */* ]]; then
         repo="${repo%/*}"
         validated_repo=$(validate_brew_bundle_repo ${repo})
       else
