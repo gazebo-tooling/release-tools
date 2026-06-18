@@ -54,6 +54,7 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: setup the osrf/simulation tap'
 brew tap osrf/simulation
+brew trust osrf/simulation
 echo '# END SECTION'
 
 # check if github pull request source branch starts with ci_matching_branch/
