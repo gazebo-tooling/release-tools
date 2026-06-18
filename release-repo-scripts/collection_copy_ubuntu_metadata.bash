@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (C) 2025 Open Source Robotics Foundation
+# Copyright (C) 2026 Open Source Robotics Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,18 +14,18 @@
 # limitations under the License.
 #
 
-# The script will set explicit find_package versions in each library of a given collection.
-# Only the root CMakeLists.txt, python/CMakeLists.txt, and src/python_pybind11/CMakeLists.txt
-# files will be modified.
+# The script will copy and rename an existing Ubuntu metadata folder in
+# the release repositories of a given collection to add support for a new
+# Ubuntu release.
 #
 # Requires the 'gh' CLI, `xmllint`, and 'python-vcstool' to be installed.
 #
 # Usage:
-# $ ./set_explicit_find_package_versions.bash <collection> <issue_reference>
+# $ ./collection_copy_ubuntu_metadata.bash <collection> <existing_ubuntu> <new_ubuntu> <issue_reference>
 #
-# For example, to set explicit versions in all find_package calls in Jetty packages:
+# For example, to copy the noble folder to resolute in all Jetty release repositories:
 #
-# ./set_explicit_find_package_versions.bash jetty gazebosim/gz-jetty#138
+# ./collection_copy_ubuntu_metadata.bash jetty noble resolute gazebo-tooling/release-tools/issues/1485
 #
 # Before committing to each repository, the script asks "Commit <repository name>?".
 # Before saying yes, navigate to the repository and check if the diff looks reasonable.
@@ -51,22 +51,24 @@ TOOLING_ORG="gazebo-tooling"
 RELEASE_ORG="gazebo-release"
 
 COLLECTION=${1}
-ISSUE_REFERENCE=${2}
+OLD_DISTRO=${2}
+NEW_DISTRO=${3}
+ISSUE_REFERENCE=${4}
 
-PR_BRANCH=find_explicit_version_${COLLECTION}
+PR_BRANCH=${COLLECTION}_copy_${OLD_DISTRO}_to_${NEW_DISTRO}
 PR_TEXT="Part of ${ISSUE_REFERENCE}."
 
 set -e
 
-if [[ $# -lt 2 ]]; then
-  echo "./set_explicit_find_package_versions.bash <collection> <issue_reference>"
+if [[ $# -lt 4 ]]; then
+  echo "./collection_copy_ubuntu_metadata.bash <collection> <existing_ubuntu> <new_ubuntu> <issue_reference>"
   exit 1
 fi
 
-COMMIT_MSG="Find ${COLLECTION} packages with explicit version"
+COMMIT_MSG="${COLLECTION}: copy ${OLD_DISTRO} metadata to ${NEW_DISTRO}"
 echo -e "${GREY}${WHITE_BG}${COMMIT_MSG}${DEFAULT_BG}${DEFAULT}"
 
-TEMP_DIR="/tmp/set_explicit_find_package_versions"
+TEMP_DIR="/tmp/collection_copy_ubuntu_metadata"
 echo -e "${GREEN}Creating directory [${TEMP_DIR}]${DEFAULT}"
 mkdir -p ${TEMP_DIR}
 
@@ -168,14 +170,14 @@ commitAndPR() {
   local BASE_BRANCH=$2
   local COMMIT_MSG_PREFIX=$3
 
-  if git diff --exit-code; then
+  if git diff --exit-code && git diff --cached --exit-code; then
     echo -e "${GREEN}${REPO}: Nothing to commit for ${REPO}.${DEFAULT}"
     return
   fi
 
   # Sanity check that we're on a find_explicit_version branch already
   local CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-  if [[ ! $CURRENT_BRANCH =~ find_explicit_version_* ]]
+  if [[ ! $CURRENT_BRANCH =~ [a-z]*_copy_[a-z]*_to_[a-z]* ]]
   then
     echo -e "${RED}${REPO}: Something's wrong, trying to commit to branch ${CURRENT_BRANCH}.${DEFAULT}"
     return
@@ -208,99 +210,39 @@ fi
 # Use vcstool to import the collection repositories
 mkdir -p ${TEMP_DIR}/src
 vcs import ${TEMP_DIR}/src < ${COLLECTION_YAML_FILE}
+pushd ${TEMP_DIR}/src
+git clone https://github.com/${GZ_ORG}/gz-${COLLECTION}
+popd
 echo
 
-# Loop over all packages and change find_package calls in specific CMakeLists.txt files
+# Loop over all packages, clone and modify the corresponding release repositories
 for pkg_xml in ${TEMP_DIR}/src/*/package.xml; do
   PACKAGE=$(xmllint --xpath '/package/name/text()' $pkg_xml)
-  VERSION=$(xmllint --xpath '/package/version/text()' $pkg_xml)
-  MAJOR_VERSION=$(echo $VERSION | sed -e 's@\..*@@')
-  echo "Find ${PACKAGE} with explicit version ${MAJOR_VERSION}"
-  pushd $(dirname $pkg_xml) > /dev/null
-  for cmake_txt_path in CMakeLists.txt \
-                        python/CMakeLists.txt \
-                        src/python_pybind11/CMakeLists.txt
-  do
-    # For gz_find_package calls:
-    # * If it has a VERSION argument on the first line that is followed by
-    #   an argument containing digits and '.', then delete the following
-    #   argument.
-    #   For example, the following line:
-    #       gz_find_package(gz-math REQUIRED VERSION 0.0.0)
-    #   is replaced with
-    #       gz_find_package(gz-math REQUIRED VERSION)
-    find ${TEMP_DIR}/src/*/${cmake_txt_path} -type f -print0 | xargs -0 \
-        sed -i "s@\(gz_find_package\s*(\s*${PACKAGE}.*\sVERSION\)\s\+[0-9\.]\+@\1@"
-    # * If it has a VERSION argument on the first line, delete it
-    #   For example, the following lines:
-    #       gz_find_package(gz-math REQUIRED VERSION)
-    #       gz_find_package(gz-math VERSION REQUIRED)
-    #   are replaced with
-    #       gz_find_package(gz-math REQUIRED)
-    find ${TEMP_DIR}/src/*/${cmake_txt_path} -type f -print0 | xargs -0 \
-        sed -i "s@\(gz_find_package\s*(\s*${PACKAGE}.*\)\sVERSION@\1@"
-    # * Add "VERSION ${MAJOR_VERSION}" just after the ${PACKAGE} name to be found
-    #   when there is whitespace or ')' after the package name.
-    #   For example, the following lines:
-    #       gz_find_package(gz-math)
-    #       gz_find_package(gz-math REQUIRED)
-    #   are replaced with
-    #       gz_find_package(gz-math VERSION 9)
-    #       gz_find_package(gz-math VERSION 9 REQUIRED)
-    find ${TEMP_DIR}/src/*/${cmake_txt_path} -type f -print0 | xargs -0 \
-        sed -i "s@\(gz_find_package\s*(\s*${PACKAGE}\)\([ )]\)@\1 VERSION ${MAJOR_VERSION}\2@"
-    # * Add "VERSION ${MAJOR_VERSION}" just after the ${PACKAGE} name to be found
-    #   when the package name is at the end of line. This must be done last.
-    #   For example, the following line:
-    #       gz_find_package(gz-math
-    #   is replaced with
-    #       gz_find_package(gz-math VERSION 9
-    find ${TEMP_DIR}/src/*/${cmake_txt_path} -type f -print0 | xargs -0 \
-        sed -i "s@\(gz_find_package\s*(\s*${PACKAGE}\)\$@\1 VERSION ${MAJOR_VERSION}@"
+  if [ "$PACKAGE" = "gz-$COLLECTION" ]; then
+    RELEASE_REPO=gz-$COLLECTION-release
+  elif [ "$COLLECTION" = "rotary" ]; then
+    # remove "gz-" prefix and translate '_' to '-'
+    DESIGNATION=$(echo ${PACKAGE#gz-} | tr '_' '-')
+    RELEASE_REPO=gz-rotary-$DESIGNATION-release
+  else
+    VERSION=$(xmllint --xpath '/package/version/text()' $pkg_xml)
+    MAJOR_VERSION=$(echo $VERSION | sed -e 's@\..*@@')
+    RELEASE_REPO=$PACKAGE$MAJOR_VERSION-release
+  fi
+  echo "Clone release repo $RELEASE_REPO"
+  cloneIfNeeded ${RELEASE_ORG} ${RELEASE_REPO}
+  mkdir -p $NEW_DISTRO
+  cp -R $OLD_DISTRO/* $NEW_DISTRO/
+  echo Replace "$OLD_DISTRO" with "$NEW_DISTRO" in changelog
+  sed -i -e "s@$OLD_DISTRO@$NEW_DISTRO@" $NEW_DISTRO/debian/changelog
+  git add $NEW_DISTRO
 
-    # For find_package calls:
-    # * If it has a string containing digits and '.' right after the package name
-    #   to be found, then remove that string.
-    #   For example, the following lines:
-    #       find_package(gz-math 0.0.0)
-    #       find_package(gz-math 0.0.0 REQUIRED)
-    #   are replaced with
-    #       find_package(gz-math)
-    #       find_package(gz-math REQUIRED)
-    find ${TEMP_DIR}/src/*/${cmake_txt_path} -type f -print0 | xargs -0 \
-        sed -i "s@^\(\s*find_package\s*(\s*${PACKAGE}\)\s\+[0-9\.]\+@\1@"
-    # * Add the major version after the package name to be found when there
-    #   is whitespace or ')' after the package name.
-    #   For example, the following lines:
-    #       find_package(gz-math)
-    #       find_package(gz-math REQUIRED)
-    #   is replaced with
-    #       find_package(gz-math 9)
-    #       find_package(gz-math 9 REQUIRED)
-    find ${TEMP_DIR}/src/*/${cmake_txt_path} -type f -print0 | xargs -0 \
-        sed -i "s@^\(\s*find_package\s*(\s*${PACKAGE}\)\([ )]\)@\1 ${MAJOR_VERSION}\2@"
-    # * Add the major version after the package name to be found when the package
-    #   name is at the end of line. This must be done last.
-    #   For example, the following lines:
-    #       find_package(gz-math
-    #   is replaced with
-    #       find_package(gz-math 9
-    find ${TEMP_DIR}/src/*/${cmake_txt_path} -type f -print0 | xargs -0 \
-        sed -i "s@^\(\s*find_package\s*(\s*${PACKAGE}\)\$@\1 ${MAJOR_VERSION}@"
-  done
-  popd > /dev/null
-done
+  # Skip commitAndPR if repo has no staged or unstaged code changes
+  git diff --cached --exit-code --quiet && git diff --exit-code --quiet && continue
 
-# Create new branch, commit, and PR if there are changes
-for pkg_xml in ${TEMP_DIR}/src/*/package.xml; do
-  pushd $(dirname $pkg_xml)
-  # Skip commitAndPR if repo has no code changes
-  git diff --exit-code --quiet && continue
-
-  BASE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+  BASE_BRANCH=main
   git stash
   startFromCleanBranch ${PR_BRANCH} $BASE_BRANCH
   git stash pop
-  commitAndPR ${GZ_ORG} ${BASE_BRANCH} ""
-  popd
+  commitAndPR ${RELEASE_ORG} ${BASE_BRANCH} ""
 done

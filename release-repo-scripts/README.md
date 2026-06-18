@@ -154,6 +154,40 @@ cd gz-cmake3-release
 ./path/to/release-tools/release-repo-scripts/new_ubuntu_distribution.bash kinetic
 ```
 
+### collection_copy_ubuntu_metadata.bash
+
+The script copies an existing Ubuntu metadata directory to a new Ubuntu
+distribution across every `-release` repository in a Gazebo collection. It
+clones the repositories for the collection, creates a working branch, stages
+the copied metadata, and can open pull requests for each repository.
+
+It also updates the collection repository itself, such as `gz-jetty-release`
+or `gz-rotary-release`, when that repository is part of the selected
+collection.
+
+#### Usage
+
+Requires the `gh` CLI, `xmllint`, and `python-vcstool` to be installed.
+
+The script prompts before creating each commit and pull request. Set
+`DRY_RUN=true` to inspect the generated changes without committing or pushing.
+
+```bash
+./path/to/release-tools/release-repo-scripts/collection_copy_ubuntu_metadata.bash \
+  <collection> <existing_distro> <new_distro> <issue_reference>
+```
+
+#### Example
+
+To copy the `noble` metadata to `resolute` for all release repositories in the
+Jetty collection:
+
+```bash
+DRY_RUN=true \
+./path/to/release-tools/release-repo-scripts/collection_copy_ubuntu_metadata.bash \
+  jetty noble resolute gazebo-tooling/release-tools/issues/1485
+```
+
 ### new_gazebo_release_repos.bash
 
 The script will create new -release repositories as forks from the previous version
