@@ -519,6 +519,7 @@ ci_configs:
     exclude:
       all:
         - gz-harmonic
+        - gz-rotary
       abichecker:
         - gz-cmake
         - gz-tools
