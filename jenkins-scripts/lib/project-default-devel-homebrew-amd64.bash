@@ -57,13 +57,24 @@ brew tap osrf/simulation
 brew trust osrf/simulation
 echo '# END SECTION'
 
+# check if github pull request source branch starts with ci_matching_branch/
 if [[ -n "${ghprbSourceBranch}" ]] && \
    python3 ${SCRIPT_DIR}/tools/detect_ci_matching_branch.py "${ghprbSourceBranch}"
 then
-  echo "# BEGIN SECTION: trying to checkout branch ${ghprbSourceBranch} from osrf/simulation"
+  export CI_MATCHING_BRANCH=${ghprbSourceBranch}
+# otherwise check if release-tools branch starts with ci_matching_branch/
+elif [[ -n "${RTOOLS_BRANCH}" ]] && \
+   python3 ${SCRIPT_DIR}/tools/detect_ci_matching_branch.py "${RTOOLS_BRANCH}"
+then
+  export CI_MATCHING_BRANCH=${RTOOLS_BRANCH}
+fi
+
+if [[ -n "${CI_MATCHING_BRANCH}" ]]
+then
+  echo "# BEGIN SECTION: trying to checkout branch ${CI_MATCHING_BRANCH} from osrf/simulation"
   pushd $(brew --repo osrf/simulation)
-  git fetch origin ${ghprbSourceBranch} || true
-  git checkout ${ghprbSourceBranch} || true
+  git fetch origin ${CI_MATCHING_BRANCH} || true
+  git checkout ${CI_MATCHING_BRANCH} || true
   popd
   echo '# END SECTION'
 fi
