@@ -31,7 +31,13 @@ if [[ ${LINUX_DISTRO} == 'ubuntu' && \
   PLAFTORM_PARAM="--platform=linux/armhf"
 fi
 
+# gzdev refs resolved by docker_generate_dockerfile.bash, used to bust the cache.
+GZDEV_BUILD_ARGS=""
+[[ -n "${GZDEV_REF:-}" ]] && GZDEV_BUILD_ARGS="--build-arg GZDEV_REF=${GZDEV_REF}"
+[[ -n "${GZDEV_TRY_REF:-}" ]] && GZDEV_BUILD_ARGS="${GZDEV_BUILD_ARGS} --build-arg GZDEV_TRY_REF=${GZDEV_TRY_REF}"
+
 sudo docker build ${PLAFTORM_PARAM} ${_DOCKER_BUILD_EXTRA_ARGS} \
+                  ${GZDEV_BUILD_ARGS} \
                   --build-arg GID=$(id -g $USER) \
                   --build-arg USERID=$USERID \
                   --build-arg USER=$USER \

@@ -51,19 +51,57 @@ if [[ "${DISTRO}" == 'bionic' || "${DISTRO}" == 'focal' ]]; then
   KEYSERVER="hkps://pgp.surf.nl"
 fi
 
+# Echo the HEAD SHA of a gzdev branch, or return 1. Tries the GitHub API first;
+# on failure falls back to git ls-remote (github.com, no REST API). No token.
+get_gzdev_branch_ref()
+{
+  local branch="${1}"
+  local url="https://api.github.com/repos/gazebo-tooling/gzdev/git/refs/heads/${branch}"
+  local repo="https://github.com/gazebo-tooling/gzdev"
+
+  local json
+  if json=$(curl --silent --show-error --fail --location \
+                 --retry 5 --retry-delay 5 --retry-connrefused \
+                 --retry-max-time 120 --max-time 30 \
+                 "${url}" 2>/dev/null); then
+    # local masks jq's exit status, keeping this safe under "set -e".
+    local api_ref=$(printf '%s' "${json}" | jq -r '.object.sha // empty' 2>/dev/null)
+    [[ "${api_ref}" =~ ^[0-9a-f]{40}$ ]] && { printf '%s' "${api_ref}"; return 0; }
+  fi
+
+  local git_ref=$(timeout 60 git ls-remote "${repo}" "refs/heads/${branch}" 2>/dev/null | awk 'NR==1{print $1}')
+  [[ "${git_ref}" =~ ^[0-9a-f]{40}$ ]] && { printf '%s' "${git_ref}"; return 0; }
+  return 1
+}
+
 dockerfile_install_gzdev_repos()
 {
+# GZDEV_REF is passed via --build-arg to bust the docker cache when the branch
+# HEAD moves, replacing the old "ADD <github-api-url>". On API failure, fall
+# back to a stable key (assume no changes) so the cached clone is reused.
+if GZDEV_REF=$(get_gzdev_branch_ref "${GZDEV_BRANCH}"); then
+  echo "gzdev branch '${GZDEV_BRANCH}' resolved to ${GZDEV_REF}"
+else
+  GZDEV_REF="nochange-${GZDEV_BRANCH}"
+  echo "WARNING: could not resolve gzdev '${GZDEV_BRANCH}' from GitHub; reusing cache (${GZDEV_REF})"
+fi
+export GZDEV_REF
+
 cat >> Dockerfile << DELIM_OSRF_REPO_GIT_1
-ADD https://api.github.com/repos/gazebo-tooling/gzdev/git/refs/heads/$GZDEV_BRANCH version.json
-RUN rm -fr ${GZDEV_DIR} \
+ARG GZDEV_REF
+RUN echo "Using gzdev ref: \${GZDEV_REF}" \
+    && rm -fr ${GZDEV_DIR} \
     && git clone https://github.com/gazebo-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
 DELIM_OSRF_REPO_GIT_1
-GZDEV_TRY_BRANCH_URL="https://api.github.com/repos/gazebo-tooling/gzdev/git/refs/heads/$GZDEV_TRY_BRANCH"
-if [ -n $GZDEV_TRY_BRANCH ] && curl --output /dev/null --silent --head --fail $GZDEV_TRY_BRANCH_URL; then
+
+# Resolving the ref both checks the PR matching branch exists and gives its key.
+if [[ -n "${GZDEV_TRY_BRANCH:-}" ]] && GZDEV_TRY_REF=$(get_gzdev_branch_ref "${GZDEV_TRY_BRANCH}"); then
+export GZDEV_TRY_REF
 cat >> Dockerfile << DELIM_OSRF_REPO_GIT_2
-ADD $GZDEV_TRY_BRANCH_URL version.json
-RUN git -C ${GZDEV_DIR} fetch origin $GZDEV_TRY_BRANCH || true;
-RUN git -C ${GZDEV_DIR} checkout $GZDEV_TRY_BRANCH || true;
+ARG GZDEV_TRY_REF
+RUN echo "Using gzdev try ref: \${GZDEV_TRY_REF}" \
+    && git -C ${GZDEV_DIR} fetch origin ${GZDEV_TRY_BRANCH} || true
+RUN git -C ${GZDEV_DIR} checkout ${GZDEV_TRY_BRANCH} || true
 DELIM_OSRF_REPO_GIT_2
 fi
 cat >> Dockerfile << DELIM_OSRF_REPO_GIT_3
