@@ -417,8 +417,8 @@ collections:
           current_branch: main
     ci:
       configs:
-        - noble
-        - resolute_no_pr
+        - noble_no_pr
+        - resolute
         - brew_amd64
         - brew_arm64
         - win_conda_noble
@@ -519,6 +519,7 @@ ci_configs:
     exclude:
       all:
         - gz-harmonic
+        - gz-rotary
       abichecker:
         - gz-cmake
         - gz-tools
@@ -528,6 +529,34 @@ ci_configs:
     tests_disabled:
     ci_categories_enabled:
       - stable_branches
+  - name: resolute
+    system:
+      so: linux
+      distribution: ubuntu
+      version: resolute
+      arch: amd64
+    requirements:
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
+    exclude:
+      all:
+        - gz-jetty
+        - gz-rotary
+      abichecker:
+        - gz-cmake
+        - gz-tools
+    pre_setup_script_hook:
+      gz-physics:
+        - "export MAKE_JOBS=1"
+    tests_disabled:
+    ci_categories_enabled:
+      - pr
+      - pr_abichecker
+      - stable_branches
+      - stable_branches_asan
   - name: resolute_no_pr
     system:
       so: linux
