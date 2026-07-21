@@ -50,7 +50,7 @@ fi
 
 if $USE_GPU_DOCKER; then
   EXTRA_PARAMS_STR="--privileged \
-                    -e DISPLAY=unix$DISPLAY \
+                    -e DISPLAY=$DISPLAY \
                     -v /sys:/sys:ro         \
                     -v /var/run/docker.sock:/var/run/docker.sock \
                     -v /tmp/.X11-unix:/tmp/.X11-unix:rw"

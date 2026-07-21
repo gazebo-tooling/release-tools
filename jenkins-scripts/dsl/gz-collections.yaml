@@ -417,7 +417,8 @@ collections:
           current_branch: main
     ci:
       configs:
-        - noble
+        - noble_no_pr
+        - resolute
         - brew_amd64
         - brew_arm64
         - win_conda_noble
@@ -542,6 +543,59 @@ ci_configs:
     exclude:
       all:
         - gz-harmonic
+        - gz-rotary
+      abichecker:
+        - gz-cmake
+        - gz-tools
+    pre_setup_script_hook:
+      gz-physics:
+        - "export MAKE_JOBS=1"
+    tests_disabled:
+    ci_categories_enabled:
+      - stable_branches
+  - name: resolute
+    system:
+      so: linux
+      distribution: ubuntu
+      version: resolute
+      arch: amd64
+    requirements:
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
+    exclude:
+      all:
+        - gz-jetty
+        - gz-rotary
+      abichecker:
+        - gz-cmake
+        - gz-tools
+    pre_setup_script_hook:
+      gz-physics:
+        - "export MAKE_JOBS=1"
+    tests_disabled:
+    ci_categories_enabled:
+      - pr
+      - pr_abichecker
+      - stable_branches
+      - stable_branches_asan
+  - name: resolute_no_pr
+    system:
+      so: linux
+      distribution: ubuntu
+      version: resolute
+      arch: amd64
+    requirements:
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
+    exclude:
+      all:
+        - gz-rotary
       abichecker:
         - gz-cmake
         - gz-tools
@@ -567,16 +621,12 @@ ci_configs:
         - gz-rotary
     cmake_warnings_disabled:
       - gz-common
-      - gz-fuel-tools
       - gz-sim
-      - gz-gui
       - gz-launch
       - gz-math
-      - gz-msgs
       - gz-physics
       - gz-rendering
       - gz-sensors
-      - gz-tools
       - gz-transport
       - sdformat
     ci_categories_enabled:
@@ -599,16 +649,12 @@ ci_configs:
         - gz-rotary
     cmake_warnings_disabled:
       - gz-common
-      - gz-fuel-tools
       - gz-sim
-      - gz-gui
       - gz-launch
       - gz-math
-      - gz-msgs
       - gz-physics
       - gz-rendering
       - gz-sensors
-      - gz-tools
       - gz-transport
       - sdformat
     ci_categories_enabled:
