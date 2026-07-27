@@ -118,15 +118,8 @@ case ${ARCH} in
        FROM_VALUE=${ARCH}/${LINUX_DISTRO}:${DISTRO}
      fi
      ;;
-   'armhf')
-     if [[ ${DISTRO} == 'focal' ]]; then
-      FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
-     else
-      FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
-     fi
-     ;;
-  'arm64')
-     FROM_VALUE=osrf/${LINUX_DISTRO}_${ARCH}:${DISTRO}
+  'armhf' | 'arm64')
+     FROM_VALUE=${LINUX_DISTRO}:${DISTRO}
      ;;
   *)
      echo "Arch unknown"
