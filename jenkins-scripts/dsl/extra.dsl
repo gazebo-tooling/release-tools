@@ -12,7 +12,8 @@ release_repo_debbuilds = [ 'opensplice' ]
 gbp_repo_debbuilds = [ 'lark-parser',
                        'ogre-2.1',
                        'ogre-2.2',
-                       'ogre-2.3']
+                       'ogre-2.3',
+                       'mujoco']
 
 release_repo_debbuilds.each { software ->
   // --------------------------------------------------------------
