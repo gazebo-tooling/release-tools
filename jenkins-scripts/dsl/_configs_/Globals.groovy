@@ -30,6 +30,25 @@ class Globals
    // constant will result in (osx && osx)
    static OSX_ANY_ARCHITECTURE = 'osx'
 
+   // Matches the NVML failure that appears when the nvidia userspace libraries
+   // were upgraded while the previously loaded nvidia.ko is still in memory.
+   // The wording depends on the nvidia-container-toolkit version, so match the
+   // stable part of it:
+   //   - libnvidia-container / nvidia-container-cli (legacy):
+   //       nvidia-container-cli: initialization error:
+   //       nvml error: driver/library version mismatch
+   //   - nvidia-container-toolkit >= 1.17 (CDI "auto" mode, go-nvml):
+   //       failed to initialize NVML: Driver/library version mismatch
+   //   - nvidia-smi on the agent (see jenkins-scripts/lib/check_graphic_card.bash):
+   //       Failed to initialize NVML: Driver/library version mismatch
+   // Keep 'nvml' in the expression: matching the bare 'driver/library version
+   // mismatch' would let a test log trigger a node reboot.
+   // The case-insensitive flag is scoped with (?i:...) instead of a leading
+   // (?i) because this value is appended to an alternation of other retry
+   // regexes (see HelperRetryFailures), and a bare flag would leak into any
+   // expression added after this one.
+   static NVIDIA_MISMATCH_LOG_REGEX = '(?i:nvml.*driver/library version mismatch)'
+
    static gpu_by_distro  = [ bionic  : [ 'nvidia' ]]
 
    static ros_ci = [ 'noetic'   : ['focal'] ,
