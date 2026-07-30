@@ -39,8 +39,8 @@ class Globals
    //       nvml error: driver/library version mismatch
    //   - nvidia-container-toolkit >= 1.17 (CDI "auto" mode, go-nvml):
    //       failed to initialize NVML: Driver/library version mismatch
-   //   - nvidia-smi on the agent (see jenkins-scripts/lib/check_graphic_card.bash):
-   //       Failed to initialize NVML: Driver/library version mismatch
+   //   - nvidia-smi on the agent
+   //       if sometime in the future is used 
    // Keep 'nvml' in the expression: matching the bare 'driver/library version
    // mismatch' would let a test log trigger a node reboot.
    // The case-insensitive flag is scoped with (?i:...) instead of a leading
