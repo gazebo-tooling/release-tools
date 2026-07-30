@@ -80,6 +80,7 @@ jobs:
           path: /tmp/xml_config_content_changed.diff
 
   publish_results:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     name: Commit logs and publish diffs
     needs: xml_generation
