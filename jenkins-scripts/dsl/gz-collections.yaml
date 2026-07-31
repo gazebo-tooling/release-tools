@@ -364,6 +364,27 @@ collections:
       linux:
         ignore_major_version:
           - gz-jetty
+  - name: 'm'
+    libs:
+      - name: gz-cmake
+        major_version: 6
+        repo:
+          current_branch: main
+      - name: gz-tools
+        major_version: 3
+        repo:
+          current_branch: main
+      - name: gz-utils
+        major_version: 5
+        repo:
+          current_branch: main
+      - name: gz-math
+        major_version: 10
+        repo:
+          current_branch: main
+    packaging:
+      configs:
+        - resolute
   - name: 'rotary'
     libs:
       - name: gz-cmake
