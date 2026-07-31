@@ -786,6 +786,18 @@ packaging_configs:
         - "export MAKE_JOBS=1"
     exclude:
         - rotary
+  - name: resolute
+    system:
+      so: linux
+      distribution: ubuntu
+      version: resolute
+      arch:
+        - amd64
+    pre_setup_script_hook:
+      gz-physics:
+        - "export MAKE_JOBS=1"
+    exclude:
+        - rotary  
   - name: brew_amd64
     system:
       so: darwin
