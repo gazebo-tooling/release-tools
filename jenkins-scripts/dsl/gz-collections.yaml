@@ -435,8 +435,6 @@ collections:
     packaging:
       configs:
         - resolute
-        - brew_amd64
-        - brew_arm64
   - name: 'rotary'
     libs:
       - name: gz-cmake
