@@ -43,7 +43,7 @@ class OSRFUNIXBase extends OSRFBase
         // Add the new regex to naginator tag
         // There is no need to specify checkRegexp and maxSchedule because they are the default values
         HelperRetryFailures.create(job, [
-          regexpForRerun: "nvml error: driver/library version mismatch",
+          regexpForRerun: Globals.NVIDIA_MISMATCH_LOG_REGEX,
           delay: 70
         ])
       }
@@ -76,7 +76,7 @@ def node = build.getBuiltOn()
 def old_labels = node.getLabelString()
 
 println("Checking if nvidia mismatch error is present in log")
-if (!(build.getLog(1000) =~ "nvml error: driver/library version mismatch")) {
+if (!(build.getLog(1000) =~ "''' + Globals.NVIDIA_MISMATCH_LOG_REGEX + '''")) {
 println(" NVIDIA driver/library version mismatch not detected in the log - Not performing any automatic recovery steps")
 return 1;
 } else {
