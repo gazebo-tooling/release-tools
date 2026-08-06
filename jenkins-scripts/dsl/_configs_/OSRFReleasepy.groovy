@@ -76,6 +76,7 @@ class OSRFReleasepy
             echo "releasing \${n} (from branch \${src_branch})"
               python3 ./scripts/release.py \${dry_run_str} "\${PACKAGE}" "\${VERSION}" \${extra_osrf_repo} \
                       --auth "\${OSRFBUILD_JENKINS_USER}:\${OSRFBUILD_JENKINS_TOKEN}" \
+                      --release-version \${RELEASE_VERSION} \
                       --source-tarball-uri \${SOURCE_TARBALL_URI} \
                       --source-tarball-sha256 \${SOURCE_TARBALL_SHA256} \
                       --release-repo-branch \${RELEASE_REPO_BRANCH} \
