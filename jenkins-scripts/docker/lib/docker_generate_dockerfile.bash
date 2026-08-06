@@ -149,6 +149,17 @@ cat > Dockerfile << DELIM_DOCKER
 # Docker file to run build.sh
 
 FROM ${FROM_VALUE}
+# Keep the build cache chain separate per architecture. This must stay as the
+# first instruction after FROM.
+#
+# Under the containerd image store, a multi-arch FROM resolves to the manifest
+# index digest, which is identical for every platform, and the legacy builder
+# does not include --platform in its cache key. Two builds for different
+# architectures on the same agent (armhf and arm64 share agents) would then
+# share every layer: the second one silently builds on the first one's
+# foreign-arch layers until the first freshly executed COPY/ADD aborts with
+# "does not provide the specified platform". See issue #1529.
+LABEL osrf.build.arch="${ARCH}"
 LABEL maintainer="Jose Luis Rivero <jrivero@osrfoundation.org>"
 
 # setup environment
