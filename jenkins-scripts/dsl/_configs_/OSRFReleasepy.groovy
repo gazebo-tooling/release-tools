@@ -26,6 +26,9 @@ class OSRFReleasepy
         stringParam("RELEASE_VERSION",
                     default_params.find{ it.key == "RELEASE_VERSION"}?.value,
                     "Packages release version")
+        booleanParam('ONLY_BUMP_REVISION_LINUX',
+                    default_params.find{ it.key == "ONLY_BUMP_REVISION_LINUX"}?.value,
+                    'Only trigger Linux debbuild jobs with bumped revision number. Do not upload new tarball or open homebrew pull request.')
         stringParam("SOURCE_TARBALL_URI",
                     default_params.find{ it.key == "SOURCE_TARBALL_URI"}?.value,
                     "URL to the tarball containing the package sources")
@@ -68,6 +71,11 @@ class OSRFReleasepy
               dry_run_str="--dry-run"
             fi
 
+            only_bump_revision_linux_str=""
+            if \$ONLY_BUMP_REVISION_LINUX; then
+              only_bump_revision_linux_str="--only-bump-revision-linux"
+            fi
+
             extra_osrf_repo=""
             if [[ -n \${EXTRA_OSRF_REPO} ]]; then
               extra_osrf_repo="--extra-osrf-repo \${EXTRA_OSRF_REPO}"
@@ -75,6 +83,7 @@ class OSRFReleasepy
 
             echo "releasing \${n} (from branch \${src_branch})"
               python3 ./scripts/release.py \${dry_run_str} "\${PACKAGE}" "\${VERSION}" \${extra_osrf_repo} \
+                      \${only_bump_revision_linux_str} \
                       --auth "\${OSRFBUILD_JENKINS_USER}:\${OSRFBUILD_JENKINS_TOKEN}" \
                       --source-tarball-uri \${SOURCE_TARBALL_URI} \
                       --source-tarball-sha256 \${SOURCE_TARBALL_SHA256} \
