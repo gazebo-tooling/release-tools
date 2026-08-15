@@ -141,9 +141,12 @@ if [[ -n "${SOURCE_DEFINED_BREWFILES}" ]]; then
       echo "Error validating ${brewfile}"
       exit 1
     fi
-    # Validation passed, run brew bundle
-    echo "Running 'brew bundle --file ${brewfile} --verbose'"
-    brew bundle --file ${brewfile} --verbose
+    # Disable brew bundle until zenoh dependencies are fixed
+    # https://github.com/gazebosim/gz-transport/issues/927
+    # uncomment the following lines when this issue is resolved
+    # # Validation passed, run brew bundle
+    # echo "Running 'brew bundle --file ${brewfile} --verbose'"
+    # brew bundle --file ${brewfile} --verbose
   done
 else
   echo "No brewfiles found. Skipping brew bundle install"
