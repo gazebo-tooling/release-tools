@@ -33,6 +33,15 @@ if [ -f "\${SOURCES_DIR}/.github/ci/packages.apt" ]; then
   GZ_CMAKE_PKG=\$(grep -E '^lib(gz|ign|ignition)(-rotary)?-cmake[0-9]*-dev' "\${SOURCES_DIR}/.github/ci/packages.apt" | head -n 1)
 fi
 
+if [ "\$GZ_CMAKE_PKG" = "libgz-rotary-cmake-dev" ]; then
+  # rotary package is only available in nightly repo. If it's not available
+  # (e.g. during a prerelease), fallback to the latest versioned package
+  if ! apt-cache show libgz-rotary-cmake-dev > /dev/null 2>&1; then
+    echo "libgz-rotary-cmake-dev not found, falling back to latest versioned package"
+    GZ_CMAKE_PKG=\$(apt-cache search --names-only '^libgz-cmake[0-9]+-dev' | awk '{print \$1}' | sort -V | tail -n 1)
+  fi
+fi
+
 if [ -n "\$GZ_CMAKE_PKG" ]; then
   echo "Installing detected cmake dependency: \${GZ_CMAKE_PKG}"
   sudo apt-get install -y "\${GZ_CMAKE_PKG}" || \
