@@ -28,9 +28,8 @@ case "\$SOURCE_DATE_EPOCH" in
     ;;
 esac
 
-GZ_CMAKE_PKG="${GZ_CMAKE_PKG}"
-# If GZ_CMAKE_PKG is not set via environment/parameter, try detecting from packages.apt
-if [ -z "\$GZ_CMAKE_PKG" ] && [ -f "\${SOURCES_DIR}/.github/ci/packages.apt" ]; then
+GZ_CMAKE_PKG=""
+if [ -f "\${SOURCES_DIR}/.github/ci/packages.apt" ]; then
   GZ_CMAKE_PKG=\$(grep -E '^lib(gz|ign|ignition)(-rotary)?-cmake[0-9]*-dev' "\${SOURCES_DIR}/.github/ci/packages.apt" | head -n 1)
 fi
 
