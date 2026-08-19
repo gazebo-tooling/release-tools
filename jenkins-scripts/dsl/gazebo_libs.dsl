@@ -610,10 +610,22 @@ pkgconf_per_src_index.each { pkg_src, pkg_src_configs ->
       pre_setup_script_hooks
     )
     // - SOURCE jobs ---------------------------------------------------
+    def gz_cmake_lib = collection.libs.find { it.name == 'gz-cmake' }
+    def gz_cmake_pkg = ""
+    if (canonical_lib_name != 'gz-cmake') {
+      if (gz_cmake_lib?.major_version) {
+        gz_cmake_pkg = (gz_cmake_lib.major_version == 2) ?
+          "libignition-cmake2-dev" : "libgz-cmake${gz_cmake_lib.major_version}-dev"
+      } else if (collection_name == 'rotary') {
+        gz_cmake_pkg = "libgz-rotary-cmake-dev"
+      }
+    }
+
     def gz_source_job = job("${debbuilder_pkg_name}-source")
     OSRFSourceCreation.create(gz_source_job, [
       PACKAGE: debbuilder_pkg_name,
-      SOURCE_REPO_URI: "https://github.com/gazebosim/${canonical_lib_name}.git"])
+      SOURCE_REPO_URI: "https://github.com/gazebosim/${canonical_lib_name}.git",
+      GZ_CMAKE_PKG: gz_cmake_pkg])
     OSRFSourceCreation.call_uploader_and_releasepy(gz_source_job,
       canonical_lib_name,
       'repository_uploader_packages',

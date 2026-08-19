@@ -47,6 +47,9 @@ class OSRFSourceCreation
         stringParam("EXTRA_OSRF_REPO",
                     default_params.find{ it.key == "EXTRA_OSRF_REPO"}?.value,
                     "For downstream jobs: OSRF extra repositories to add")
+        stringParam("GZ_CMAKE_PKG",
+                    default_params.find{ it.key == "GZ_CMAKE_PKG"}?.value ?: "",
+                    "gz-cmake dev package to install for source generation (optional)")
       }
     }
   }
