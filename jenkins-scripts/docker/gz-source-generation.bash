@@ -28,10 +28,7 @@ case "\$SOURCE_DATE_EPOCH" in
     ;;
 esac
 
-GZ_CMAKE_PKG=""
-if [ -f "\${SOURCES_DIR}/.github/ci/packages.apt" ]; then
-  GZ_CMAKE_PKG=\$(grep -E '^lib(gz|ign|ignition)(-rotary)?-cmake[0-9]*-dev' "\${SOURCES_DIR}/.github/ci/packages.apt" | head -n 1)
-fi
+GZ_CMAKE_PKG=\$(cat "\${SOURCES_DIR}/.github/ci/packages.apt" "\${SOURCES_DIR}/.github/ci/packages-${DISTRO}.apt" 2>/dev/null | grep -E '^lib(gz|ign|ignition)(-rotary)?-cmake[0-9]*-dev' | head -n 1)
 
 if [ "\$GZ_CMAKE_PKG" = "libgz-rotary-cmake-dev" ]; then
   # rotary package is only available in nightly repo. If it's not available
