@@ -35,15 +35,15 @@ DISTRO="ubuntu"
 # The goal of the following command is to download the current Packages file,
 # filter out all lines that are not blank or starting with
 # 'Package:', 'Source:', and 'Version:'
-# It currently filters out all non-empty lines not starting with 'P', 'S', or 'V'
-# as well as lines starting with 'Pr' (Priority), 'Se' (Section), 'Si' (Size),
-# and 'SH' (SHA1, SHA256). This appears to be sufficient to meet the stated goal.
+# It currently filters out all non-empty lines not starting with 'Pa', 'So', or 'Ve'.
+# This appears to be sufficient to meet the stated goal.
 # It also replaces instances of any string matching the UBUNTU_RELEASE variable
 # with a '${UBUNTU_RELEASE}' to reduce the diff between output from different
 # ubuntu releases.
 curl http://${PACKAGES_URL}/gazebo/ubuntu-${PACKAGE_REPO}/dists/${UBUNTU_RELEASE}/main/binary-${ARCH}/Packages \
   | egrep -v '^[^PSV]' \
-  | egrep -v '^Pr' \
-  | egrep -v 'S[eiH]' \
+  | egrep -v '^P[^a]' \
+  | egrep -v '^S[^o]' \
+  | egrep -v '^V[^e]' \
   | sed -e "s@${UBUNTU_RELEASE}@\${UBUNTU_RELEASE}@g"
 
