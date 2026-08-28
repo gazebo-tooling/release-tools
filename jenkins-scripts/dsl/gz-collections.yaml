@@ -643,6 +643,7 @@ ci_configs:
         - gz-sensors
     exclude:
       all:
+        - gz-jetty
         - gz-rotary
       abichecker:
         - gz-cmake
