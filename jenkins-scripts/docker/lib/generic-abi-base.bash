@@ -206,5 +206,6 @@ DEPENDENCY_PKGS="${ABI_JOB_PKG_DEPENDENCIES} \
                   exuberant-ctags \
                   ca-certificates"
 
+export INVALIDATE_DOCKER_CACHE=true
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
