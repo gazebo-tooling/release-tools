@@ -182,8 +182,8 @@ collections:
           current_branch: main
     ci:
       configs:
-        - jammy
-        - noble_no_pr
+        - jammy_no_pr
+        - noble
         - brew_amd64
         - brew_arm64
         - win_conda_LO23
@@ -546,6 +546,30 @@ ci_configs:
       - pr_abichecker
       - stable_branches
       - stable_branches_asan
+  - name: jammy_no_pr
+    system:
+      so: linux
+      distribution: ubuntu
+      version: jammy
+      arch: amd64
+    requirements:
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
+    exclude:
+      all:
+        - gz-harmonic
+      abichecker:
+        - gz-cmake
+        - gz-tools
+    pre_setup_script_hook:
+      gz-physics:
+        - "export MAKE_JOBS=1"
+    tests_disabled:
+    ci_categories_enabled:
+      - stable_branches
   - name: noble
     system:
       so: linux
