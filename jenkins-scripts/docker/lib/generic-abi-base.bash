@@ -206,6 +206,7 @@ DEPENDENCY_PKGS="${ABI_JOB_PKG_DEPENDENCIES} \
                   exuberant-ctags \
                   ca-certificates"
 
-export INVALIDATE_DOCKER_CACHE=true
+sudo docker builder prune --all --force
+sudo docker image prune --force
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash
