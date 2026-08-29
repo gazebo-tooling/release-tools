@@ -158,6 +158,50 @@ cd gz-math
 ~/release-tools/source-repo-scripts/source_changelog.bash 6.10.0
 ```
 
+### create_changelog_entry.py
+
+Generate a new `Changelog.md` entry from files in `.changelog/`.
+
+#### Requisites
+
+- `git`
+- [`gh`](https://cli.github.com/) (GitHub CLI) — used to discover the PR
+  associated with each changelog file.
+
+#### Usage
+
+The script must be run from the project root directory (the directory that
+contains both `.changelog/` and `Changelog.md`). It is interactive and prompts
+for confirmation before modifying `Changelog.md` and again before removing
+processed `.changelog/` files.
+
+```bash
+cd <project-root>
+python3 ~/release-tools/source-repo-scripts/create_changelog_entry.py
+```
+
+The first non-comment line of each `.changelog/*.md` file must follow the
+Conventional Commits format:
+
+```text
+<type>(<optional-scope>)!: <description>
+```
+
+Examples of valid first lines:
+
+```text
+feat(rendering): add support for foo
+fix: avoid crash when bar is empty
+```
+
+Lines starting with `#` are treated as template comments and ignored.
+Invalid or empty entries fail validation and stop changelog generation.
+The script auto-calculates the next version from the latest `Changelog.md`
+entry: it bumps the minor version when any entry is `feat`, otherwise it bumps
+the patch version.
+Entries using the breaking marker (`!`) are rejected because the script does
+not support major-version bumps; such releases must be handled manually.
+
 ### Release summary
 
 Print a markdown summary of a release (not `Changelog.md` entries), with its
