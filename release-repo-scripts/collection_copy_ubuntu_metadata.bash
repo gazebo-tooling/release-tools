@@ -175,7 +175,7 @@ commitAndPR() {
     return
   fi
 
-  # Sanity check that we're on a find_explicit_version branch already
+  # Sanity check that we're on a _copy_ branch already
   local CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
   if [[ ! $CURRENT_BRANCH =~ [a-z]*_copy_[a-z]*_to_[a-z]* ]]
   then
@@ -210,7 +210,12 @@ fi
 # Use vcstool to import the collection repositories
 mkdir -p ${TEMP_DIR}/src
 vcs import ${TEMP_DIR}/src < ${COLLECTION_YAML_FILE}
+# also clone the collection repo into the src folder alongside packages imported by vcs
 pushd ${TEMP_DIR}/src
+# since cloneIfNeeded only clones to TEMP_DIR, do the following from the src folder
+# * remove the folder if it already exists to avoid cloning errors
+# * clone with `git clone`
+rm -rf ./gz-${COLLECTION}
 git clone https://github.com/${GZ_ORG}/gz-${COLLECTION}
 popd
 echo
@@ -227,14 +232,18 @@ for pkg_xml in ${TEMP_DIR}/src/*/package.xml; do
   else
     VERSION=$(xmllint --xpath '/package/version/text()' $pkg_xml)
     MAJOR_VERSION=$(echo $VERSION | sed -e 's@\..*@@')
-    RELEASE_REPO=$PACKAGE$MAJOR_VERSION-release
+    # remove version numbers from package name and
+    # translate '_' to '-' for fuel tools
+    PACKAGE_WITH_DASH=$(echo ${PACKAGE//[0-9]/} | tr '_' '-')
+    RELEASE_REPO=${PACKAGE_WITH_DASH}$MAJOR_VERSION-release
   fi
   echo "Clone release repo $RELEASE_REPO"
   cloneIfNeeded ${RELEASE_ORG} ${RELEASE_REPO}
   mkdir -p $NEW_DISTRO
   cp -R $OLD_DISTRO/* $NEW_DISTRO/
   echo Replace "$OLD_DISTRO" with "$NEW_DISTRO" in changelog
-  sed -i -e "s@$OLD_DISTRO@$NEW_DISTRO@" $NEW_DISTRO/debian/changelog
+  sed -i -e "s@$OLD_DISTRO@$NEW_DISTRO@g" $NEW_DISTRO/debian/changelog
+
   git add $NEW_DISTRO
 
   # Skip commitAndPR if repo has no staged or unstaged code changes
