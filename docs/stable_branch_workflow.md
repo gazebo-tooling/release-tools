@@ -21,7 +21,7 @@ if (categories_enabled.contains('stable_branches')) {
 If the condition is met, the script generates a job with a name that explicitly includes the stable branch name. Using `gz-math` from the **Jetty** collection (which uses the `gz-math9` branch) as an example, the job names are:
 
 -   **Linux:** `gz_math-ci-gz-math9-noble-amd64`
--   **macOS:** `gz_math-ci-gz-math9-homebrew-amd64`
+-   **macOS:** `gz_math-ci-gz-math9-homebrew-arm64`
 -   **Windows:** `gz_math-9-cnlwin`
 
 Unlike PR jobs, these jobs are configured to check out one specific, hardcoded branch (e.g., `gz-math9`).
