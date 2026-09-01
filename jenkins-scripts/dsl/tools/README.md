@@ -84,7 +84,7 @@ $./get_branch_from_collection_and_package.py jetty gz-cmake
 That generates the result of:
 
 ```
-gz-cmake4
+gz-cmake5
 ```
 
 ### get_collections_from_package_and_version.py
@@ -107,11 +107,11 @@ Be sure of not including the major version number in the `<lib_name>`
 #### Example
 
 ```
-$./get_collections_from_package_and_version.py gz-cmake 4 ../gz-collections.yaml
+$./get_collections_from_package_and_version.py gz-tools 2 ../gz-collections.yaml
 ```
 
 That generates the result of:
 
 ```
-ionic jetty
+harmonic ionic jetty
 ```
