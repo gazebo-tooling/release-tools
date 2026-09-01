@@ -871,8 +871,10 @@ def go(argv):
     params['PACKAGE_ALIAS'] = args.package_alias
     params['RELEASE_VERSION'] = args.release_version
     params['UPLOAD_TO_REPO'] = args.upload_to_repository
-    # Assume that we want stable + own repo in the building
-    params['OSRF_REPOS_TO_USE'] = "stable " + args.upload_to_repository
+    # Assume that we want stable + own repo in the building, except when using "none"
+    params['OSRF_REPOS_TO_USE'] = "stable"
+    if args.upload_to_repository != "none":
+        params['OSRF_REPOS_TO_USE'] += " " + args.upload_to_repository
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
