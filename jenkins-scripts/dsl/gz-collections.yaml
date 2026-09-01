@@ -346,8 +346,8 @@ collections:
           current_branch: main
     ci:
       configs:
-        - noble
-        - resolute_no_pr
+        - noble_no_pr
+        - resolute
         - brew_arm64
         - win_conda_noble
     packaging:
@@ -581,6 +581,7 @@ ci_configs:
     exclude:
       all:
         - gz-harmonic
+        - gz-jetty
         - gz-rotary
       abichecker:
         - gz-cmake
