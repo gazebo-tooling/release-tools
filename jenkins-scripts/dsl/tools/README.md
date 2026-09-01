@@ -57,6 +57,36 @@ implement the CI and packaging.
 The file is useful for scripts that use global information about the
 Gazebo libraries.
 
+### get_branch_from_collection_and_package.py
+
+The script returns the branch used by a given library in a given Gazebo
+release (also known as collection), both provided as input parameters.
+
+The output is a single line with the branch name. If no match is found,
+the output is empty and an explanatory message is sent to stderr.
+
+#### Usage
+
+```
+./get_branch_from_collection_and_package.py <collection_name> <lib_name> [path-to-gz-collections.yaml]
+```
+
+Use the canonical library name without the major version number in
+`<lib_name>`. When `<path-to-gz-collections.yaml>` is omitted, the
+`gz-collections.yaml` file next to this directory is used.
+
+#### Example
+
+```
+$./get_branch_from_collection_and_package.py jetty gz-cmake
+```
+
+That generates the result of:
+
+```
+gz-cmake4
+```
+
 ### get_collections_from_package_and_version.py
 
 The script return the Gazebo releases (also known as collections) that
