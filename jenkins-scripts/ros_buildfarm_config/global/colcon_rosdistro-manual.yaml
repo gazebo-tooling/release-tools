@@ -89,6 +89,7 @@ repositories:
   - http://repos.ros.org/repos/ros_bootstrap  # Needed for getting the ROS building tools packages like python3-rosdep
 skip_rosdep_keys:
 - python3-distutils
+- gz-cmake3  # gz-tools2's package.xml declares a dependency on gz-cmake3
 # resolute is the platform lyrical and jetty share.
 targets:
   ubuntu:
