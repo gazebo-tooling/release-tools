@@ -1,0 +1,21 @@
+%YAML 1.1
+# ROS buildfarm index file for the REP-2015 rosdistro extension test.
+#
+# Targets citest.build.osrfoundation.org and a rosdistro index in which ROS 2
+# Lyrical extends Gazebo Jetty. Not read by production job generation, which
+# uses index.yaml. The ci build is declared under distributions so the job is
+# generated for the rosdistro name "lyrical" (needed by package_names).
+---
+distributions:
+  lyrical:
+    ci_builds:
+      colcon_rosdistro-manual: global/colcon_rosdistro-manual.yaml
+    notification_emails:
+    - jrivero@honurobotics.com
+jenkins_url: https://citest.build.osrfoundation.org
+notification_emails:
+- jrivero@honurobotics.com
+prerequisites:
+rosdistro_index_url: https://raw.githubusercontent.com/gazebo-tooling/gazebodistro/jrivero/jetty-rosdistro/rosdistro/index-v4.yaml
+type: buildfarm
+version: 1
