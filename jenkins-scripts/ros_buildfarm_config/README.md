@@ -81,3 +81,22 @@ for ci_build in $(yq -r '.ci_builds | keys[]' index.yaml); do
     "" $ci_build
 done
 ```
+
+## REP-2015 rosdistro extension test (citest)
+
+`index-citest-rep2015.yaml` describes one job on
+https://citest.build.osrfoundation.org that builds `gz-sim` and its
+dependencies from source using only rosdistro metadata: ROS 2 Lyrical
+`extends` Gazebo Jetty in the combined index at
+https://raw.githubusercontent.com/gazebo-tooling/gazebodistro/jrivero/jetty-rosdistro/rosdistro/index-v4.yaml.
+The build is declared under `distributions.lyrical` so the job carries the
+rosdistro name, which `package_names` needs. Generation must run from a
+checkout of `j-rivero/ros_buildfarm` branch
+`jrivero/rep2015-rosdistro-extension`, which the job clones at run time:
+
+```
+cd ~/code/infra/ros_buildfarm_j-rivero
+PYTHONPATH=$PWD python3 scripts/ci/generate_ci_jobs.py --dry-run \
+    https://raw.githubusercontent.com/gazebo-tooling/release-tools/jrivero/rep2015-citest/jenkins-scripts/ros_buildfarm_config/index-citest-rep2015.yaml \
+    lyrical colcon_rosdistro-manual
+```
