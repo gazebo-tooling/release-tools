@@ -481,13 +481,12 @@ collections:
           current_branch: main
     ci:
       configs:
-        - noble_no_pr
         - resolute
         - brew_arm64
         - win_conda_noble
     packaging:
       configs:
-        - noble
+        - resolute
         - brew_arm64
       linux:
         ignore_major_version:
