@@ -236,7 +236,8 @@ fi
 
 echo '# BEGIN SECTION: create source package' \${OSRF_VERSION}
 
-# lintian triggers a problem on arm in Focal when using qemu, avoid it
+# lintian triggers a problem on arm in Focal. It dates back to when arm was
+# emulated with qemu, kept conservatively since focal/arm64 is not re-tested here
 no_lintian_param=""
 if [[ ${DISTRO} == 'focal' && ${ARCH} == 'arm64' ]]; then
   no_lintian_param="--no-lintian"
