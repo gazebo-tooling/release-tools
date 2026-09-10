@@ -58,6 +58,12 @@ gbp_repo_debbuilds.each { software ->
                    'Architecture to be used in the built of the package')
        stringParam('UPLOAD_TO_REPO', 'stable',
                    'OSRF repo name to upload the package to')
+       // Builds run natively, so a non amd64 ARCH needs an agent of that same
+       // architecture (i.e. linux-arm64). See issue #1539.
+       labelParam('JENKINS_NODE_TAG') {
+         description('Jenkins node or group to run build')
+         defaultValue(Globals.nontest_label('docker'))
+       }
     }
 
     properties {
