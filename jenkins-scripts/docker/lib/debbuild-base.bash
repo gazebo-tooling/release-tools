@@ -78,7 +78,7 @@ if ${NIGHTLY_MODE}; then
   fi
 else
   # Some combinations does not known about AWS certificate from S3
-  if [[ ${LINUX_DISTRO} == debian ]] || [[ ${DISTRO} == 'focal' && ${ARCH} == 'armhf' ]]; then
+  if [[ ${LINUX_DISTRO} == debian ]]; then
      no_check_cert_str='--no-check-certificate'
   fi
   wget \$no_check_cert_str --quiet -O orig_tarball $SOURCE_TARBALL_URI || \
@@ -238,7 +238,7 @@ echo '# BEGIN SECTION: create source package' \${OSRF_VERSION}
 
 # lintian triggers a problem on arm in Focal when using qemu, avoid it
 no_lintian_param=""
-if [[ ${DISTRO} == 'focal' && (${ARCH} == 'arm64' || ${ARCH} == 'armhf') ]]; then
+if [[ ${DISTRO} == 'focal' && ${ARCH} == 'arm64' ]]; then
   no_lintian_param="--no-lintian"
 fi
 

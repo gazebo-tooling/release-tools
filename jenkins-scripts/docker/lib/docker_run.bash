@@ -25,8 +25,7 @@ USER=$(whoami)
 
 # platform support starts on versions greater than 17.07
 PLAFTORM_PARAM=
-if [[ ${LINUX_DISTRO} == 'ubuntu' && \
-      ( ${ARCH} == 'armhf' || ${ARCH} == 'arm64' ) ]]; then
+if [[ ${LINUX_DISTRO} == 'ubuntu' && ${ARCH} == 'arm64' ]]; then
   PLAFTORM_PARAM="--platform=linux/${ARCH}"
 fi
 
