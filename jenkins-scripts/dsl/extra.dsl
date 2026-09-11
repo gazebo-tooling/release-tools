@@ -128,6 +128,10 @@ gbp_repo_debbuilds.each { software ->
             currentBuild()
             predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
             predefinedProp("PACKAGE_ALIAS", "${software}")
+            // Keep the uploader on the packages node. Without this the label
+            // parameter of the build leaks downstream and overrides the node
+            // restriction. Real issue: https://issues.jenkins-ci.org/browse/JENKINS-45005
+            predefinedProp("JENKINS_NODE_TAG", "packages")
           }
         }
       }
