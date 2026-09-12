@@ -64,7 +64,7 @@ if [[ $# -lt 3 ]]; then
   exit 1
 fi
 
-COMMIT_MSG="${COLLECTION}: remove ${DISTRO_TO_REMOVE} metadata"
+COMMIT_MSG="${COLLECTION}: remove ${UBUNTU_TO_REMOVE} metadata"
 echo -e "${GREY}${WHITE_BG}${COMMIT_MSG}${DEFAULT_BG}${DEFAULT}"
 
 TEMP_DIR="/tmp/collection_rm_ubuntu_metadata"
