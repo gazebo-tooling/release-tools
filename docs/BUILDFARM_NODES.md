@@ -12,7 +12,6 @@ used (can check this in the Jenkins UI)
 | docker   | Node has capabilities to run Docker CI (standard Linux CI) | Linux system with docker installed - 16GB RAM |
 | gpu-reliable | Node has a real GPU able to run simulation for Gazebo | Nvidia card and nvidia-docker installed on Linux |
 | linux-arm64 | Node has capabilities to run native arm64 code (mostly used in packaging) | Bare-metal ARM machine |
-| linux-armhf | Node has capabilities to run native armhf code (mostly used in packaging) | Bare-metal ARM machine |
 | osx | Node has capabilities to run native OsX code | Apple system |
 | osx_gazebo | Node has capabilities to run Gazebo classic CI and packaging | 'Powerful' Apple system |
 | osx\_$distro | Node has capabilities to build code for the distribution $distro | Apple system running $distro |
