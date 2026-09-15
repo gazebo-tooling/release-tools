@@ -40,6 +40,24 @@ Harmonic and Ionic uses the legacy_ogre23 enviroments which is a variant
 of what vcpkg packages had providing an upgrade on ogre-next from 2.2 to
 2.3.
 
+### The noble_like environment
+
+Environment used by Jetty. The software versions chosen are mostly based on
+the Ubuntu Noble versions.
+
+### The resolute_like environment
+
+Environment used by the main branches of Gazebo (Gazebo M and Rotary). The
+software versions are pinned to be as close as possible to the Ubuntu Resolute
+versions. When a package is also present in the
+[ROS 2 pixi.toml](https://github.com/ros2/ros2/blob/rolling/pixi.toml) the
+same version used by ROS 2 is chosen. Differences with Ubuntu Resolute are
+documented with a TODO comment in the `pixi.toml` file.
+
+The `pixi.lock` file needs to be generated using the same Pixi version used
+in the Windows CI (see `PIXI_VERSION` in
+[windows_env_vars.bat](../jenkins-scripts/lib/windows_env_vars.bat)).
+
 ## Testing new Conda environments in Gazebo
 
 When developing a new Conda environment can be useful to run a -pr- job

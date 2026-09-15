@@ -27,9 +27,16 @@ python get_conda_ciconfig_from_package_and_version.py gz-rendering 6
 
 python get_conda_ciconfig_from_package_and_version.py gz-sim 10
 # Output: noble_like
+
+python get_conda_ciconfig_from_package_and_version.py gz-sim 11
+# Output: resolute_like
 ```
 
-**Output:** Single line containing the conda environment version (e.g., `legacy`, `legacy_ogre23`, `noble_like`).
+**Output:** Single line containing the conda environment version (e.g., `legacy`, `legacy_ogre23`, `noble_like`, `resolute_like`).
+
+Collections without stable branches yet (i.e: Gazebo M) use empty `ci.configs`
+since their `main` branches are tested by the `rotary` collection. For them, the
+CI configs of the collection that tests the same package in `main` are used.
 
 ## DSL 6
 python get_ciconfigs_from_package_and_version.py gz-sim 8 --yaml-file custom-collections.yaml

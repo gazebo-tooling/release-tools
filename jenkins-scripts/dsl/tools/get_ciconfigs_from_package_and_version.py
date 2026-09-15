@@ -30,6 +30,7 @@ def find_conda_configs(package_name, major_version, yaml_file_path):
 
     # Find the collection containing the package with specified major version
     found_collection = None
+    found_branch = None
     ci_configs = []
 
     for collection in data.get('collections', []):
@@ -41,6 +42,7 @@ def find_conda_configs(package_name, major_version, yaml_file_path):
             if (lib.get('name') == package_name and
                 lib.get('major_version') == major_version):
                 found_collection = collection_name
+                found_branch = lib.get('repo', {}).get('current_branch')
                 ci_configs = collection.get('ci', {}).get('configs', [])
                 break
 
@@ -52,6 +54,18 @@ def find_conda_configs(package_name, major_version, yaml_file_path):
             'found': False,
             'message': f"Package {package_name} with major version {major_version} not found"
         }
+
+    # Collections without stable branches yet can have empty ci configs since
+    # their main branches are tested by other collection (i.e: rotary). Use the
+    # ci configs of the collection testing the same package in main.
+    if not ci_configs and found_branch == 'main':
+        for collection in data.get('collections', []):
+            configs = collection.get('ci', {}).get('configs', [])
+            if configs and any(lib.get('name') == package_name and
+                               lib.get('repo', {}).get('current_branch') == 'main'
+                               for lib in collection.get('libs', [])):
+                ci_configs = configs
+                break
 
     # Find conda configurations from ci_configs section
     conda_configs = []

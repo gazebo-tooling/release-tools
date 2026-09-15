@@ -483,7 +483,7 @@ collections:
       configs:
         - resolute
         - brew_arm64
-        - win_conda_noble
+        - win_conda_resolute
     packaging:
       configs:
         - resolute
@@ -719,6 +719,40 @@ ci_configs:
     exclude:
       all:
         - gz-jetty
+        - gz-rotary
+    cmake_warnings_disabled:
+      - gz-cmake
+      - gz-common
+      - gz-fuel-tools
+      - gz-sim
+      - gz-gui
+      - gz-launch
+      - gz-math
+      - gz-msgs
+      - gz-physics
+      - gz-rendering
+      - gz-sensors
+      - gz-tools
+      - gz-transport
+      - gz-utils
+      - sdformat
+    ci_categories_enabled:
+      - pr
+      - stable_branches
+  - name: win_conda_resolute
+    system:
+      so: windows
+      distribution: conda
+      version: resolute_like
+      arch: amd64
+    requirements:
+      nvidia_gpu:
+        - gz-sim
+        - gz-gui
+        - gz-rendering
+        - gz-sensors
+    exclude:
+      all:
         - gz-rotary
     cmake_warnings_disabled:
       - gz-cmake
