@@ -59,7 +59,7 @@ libwebsockets = "==4.3.5"
 libzenohc = "==1.8.0"  # Ubuntu does not have zenoh, version from packages.osrfoundation.org
 libzenohcxx = "==1.8.0"
 libzip = "==1.11.2"  # Ubuntu has 1.11.4, which conda-forge does not have
-libmujoco = "==3.5.0"
+libmujoco = "3.11.*"  # Ubuntu has 3.5.0 but Gazebo main branches use 3.11
 ogre = "==1.10.12.1"  # Ubuntu has 1.12.10, which conda-forge does not have
 ogre-next = "==2.3.3"
 openssl = ">=3.4,<4"
