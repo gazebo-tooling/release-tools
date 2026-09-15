@@ -87,7 +87,10 @@ repositories:
   urls:
   - https://packages.osrfoundation.org/gazebo/ubuntu-stable
   - http://repos.ros.org/repos/ros_bootstrap  # Needed for getting the ROS building tools packages like python3-rosdep
-# gz-tools2 is not in this walk, so its gz-cmake3 declaration cannot bite.
+# Note what is NOT here: colcon_rosdistro-manual.yaml also skips gz-cmake3,
+# because gz-tools2's package.xml declares it and resolute has no
+# libgz-cmake3-dev. gz-tools2 is not in this four-package walk, so that skip is
+# unnecessary and would only hide a real unresolved key if one appeared.
 skip_rosdep_keys:
 - python3-distutils
 # resolute only, although my_gazebo_demo_distribution's release_platforms lists
