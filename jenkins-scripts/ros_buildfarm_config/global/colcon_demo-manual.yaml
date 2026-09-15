@@ -90,6 +90,9 @@ repositories:
 # gz-tools2 is not in this walk, so its gz-cmake3 declaration cannot bite.
 skip_rosdep_keys:
 - python3-distutils
+# resolute only, although my_gazebo_demo_distribution's release_platforms lists
+# noble as well to match jetty exactly: the demo exists to test the extension on
+# one platform, and nothing releases gz-demo-math on noble.
 targets:
   ubuntu:
     resolute:
