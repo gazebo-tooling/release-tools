@@ -1,0 +1,22 @@
+%YAML 1.1
+# ROS buildfarm index for the REP-2015 non-ROS downstream test.
+#
+# Targets citest.build.osrfoundation.org and a rosdistro index in which
+# my_gazebo_demo_distribution, which has no ROS lineage, extends Gazebo Jetty.
+# Not read by production job generation, which uses index.yaml. The ci build
+# is declared under distributions so the job is generated for a rosdistro
+# name, which package_names needs.
+---
+distributions:
+  my_gazebo_demo_distribution:
+    ci_builds:
+      colcon_demo-manual: global/colcon_demo-manual.yaml
+    notification_emails:
+    - jrivero@honurobotics.com
+jenkins_url: https://citest.build.osrfoundation.org
+notification_emails:
+- jrivero@honurobotics.com
+prerequisites:
+rosdistro_index_url: https://raw.githubusercontent.com/gazebo-tooling/gazebodistro/jrivero/jetty-rosdistro/rosdistro/index-demo-v4.yaml
+type: buildfarm
+version: 1

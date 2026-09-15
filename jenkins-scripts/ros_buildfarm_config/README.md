@@ -100,3 +100,27 @@ PYTHONPATH=$PWD python3 scripts/ci/generate_ci_jobs.py --dry-run \
     https://raw.githubusercontent.com/gazebo-tooling/release-tools/jrivero/rep2015-citest/jenkins-scripts/ros_buildfarm_config/index-citest-rep2015.yaml \
     lyrical colcon_rosdistro-manual
 ```
+
+## REP-2015 non-ROS downstream test (citest)
+
+`index-citest-rep2015-demo.yaml` describes a second job on
+https://citest.build.osrfoundation.org, this time for a rosdistro with no ROS
+lineage at all: `my_gazebo_demo_distribution` `extends` Gazebo Jetty directly
+in the combined index at
+https://raw.githubusercontent.com/gazebo-tooling/gazebodistro/jrivero/jetty-rosdistro/rosdistro/index-demo-v4.yaml.
+The `colcon_demo-manual` ci-build resolves `gz-demo-math` and, through the
+extension, its three Gazebo dependencies (`gz-math`, `gz-utils`, `gz-cmake`)
+into a four-package workspace, small enough to build with
+`-DBUILD_TESTING=ON`. The build is declared under
+`distributions.my_gazebo_demo_distribution` so the job carries the rosdistro
+name, which `package_names` needs, and generates
+`Mci__colcon_demo-manual_ubuntu_resolute_amd64`. Generation runs the same way
+as the `colcon_rosdistro-manual` job above, from the same
+`j-rivero/ros_buildfarm` branch checkout:
+
+```
+cd ~/code/infra/ros_buildfarm_j-rivero
+PYTHONPATH=$PWD python3 scripts/ci/generate_ci_jobs.py --dry-run \
+    https://raw.githubusercontent.com/gazebo-tooling/release-tools/jrivero/rep2015-citest/jenkins-scripts/ros_buildfarm_config/index-citest-rep2015-demo.yaml \
+    my_gazebo_demo_distribution colcon_demo-manual
+```
