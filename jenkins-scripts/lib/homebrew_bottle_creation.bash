@@ -76,6 +76,7 @@ echo '# BEGIN SECTION: run test-bot'
 # git to keep the slave working
 export HOMEBREW_DEVELOPER=1
 brew tap osrf/simulation
+brew trust osrf/simulation
 # replace with 'hub -C $(brew --repo osrf/simulation) pr checkout ${ghprbPullId}'
 # after the following hub issue is resolved:
 # https://github.com/github/hub/issues/2612

@@ -9,7 +9,7 @@ def find_collection(data, lib_name, major_version) -> list:
 
   for collection in data['collections']:
     for lib in collection['libs']:
-      if lib['name'] == lib_name and lib['major_version'] == major_version:
+      if lib['name'] == lib_name and lib.get('major_version') == major_version:
         instances.append(collection['name'])
   return instances
 

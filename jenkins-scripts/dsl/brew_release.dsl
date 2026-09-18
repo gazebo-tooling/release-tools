@@ -4,7 +4,7 @@ import javaposse.jobdsl.dsl.Job
 Globals.default_emails = "jrivero@osrfoundation.org, scpeters@osrfoundation.org"
 
 // first distro in list is used as touchstone
-brew_supported_distros         = [ "arm64_sonoma", "sonoma", "arm64_sequoia" ]
+brew_supported_distros         = [ "arm64_sequoia" ]
 bottle_hash_updater_job_name   = 'generic-release-homebrew_pr_bottle_hash_updater'
 bottle_builder_job_name        = 'generic-release-homebrew_triggered_bottle_builder'
 directory_for_bottles          = 'pkgs'
@@ -341,7 +341,7 @@ remove_dependent_bottles_job.with
     stringParam("BROKEN_FORMULA", '',
                 'Names of broken formulae whose bottles and dependent bottles should be removed')
     stringParam("BOTTLE_TAG", 'arm64_sequoia',
-                'Unique string representing the arch and OS of a homebrew bottle, such as "sonoma" or "arch64_sequoia"')
+                'Unique string representing the arch and OS of a homebrew bottle, such as "arch64_sequoia"')
     stringParam("PART_OF_GITHUB_ISSUE", '',
                 '(Optional) GitHub issue to reference in pull request description')
     stringParam("PULL_REQUEST_TITLE_OVERRIDE", '',
@@ -415,7 +415,7 @@ bump_unbottled_dependencies_job.with
     stringParam("FORMULA_WITH_UNBOTTLED_DEPENDENCIES", '',
                 'Names of formulae whose unbottled dependencies should be revision-bumped')
     stringParam("BOTTLE_TAG", 'arm64_sequoia',
-                'Unique string representing the arch and OS of a homebrew bottle, such as "sonoma" or "arm64_sequoia"')
+                'Unique string representing the arch and OS of a homebrew bottle, such as "arm64_sequoia"')
     stringParam("PART_OF_GITHUB_ISSUE", '',
                 '(Optional) GitHub issue to reference in pull request description')
     stringParam("PULL_REQUEST_TITLE_OVERRIDE", '',

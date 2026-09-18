@@ -54,24 +54,46 @@ echo '# END SECTION'
 
 echo '# BEGIN SECTION: setup the osrf/simulation tap'
 brew tap osrf/simulation
+brew trust osrf/simulation
 echo '# END SECTION'
 
+# check if github pull request source branch starts with ci_matching_branch/
 if [[ -n "${ghprbSourceBranch}" ]] && \
    python3 ${SCRIPT_DIR}/tools/detect_ci_matching_branch.py "${ghprbSourceBranch}"
 then
-  echo "# BEGIN SECTION: trying to checkout branch ${ghprbSourceBranch} from osrf/simulation"
+  export CI_MATCHING_BRANCH=${ghprbSourceBranch}
+# otherwise check if release-tools branch starts with ci_matching_branch/
+elif [[ -n "${RTOOLS_BRANCH}" ]] && \
+   python3 ${SCRIPT_DIR}/tools/detect_ci_matching_branch.py "${RTOOLS_BRANCH}"
+then
+  export CI_MATCHING_BRANCH=${RTOOLS_BRANCH}
+fi
+
+if [[ -n "${CI_MATCHING_BRANCH}" ]]
+then
+  echo "# BEGIN SECTION: trying to checkout branch ${CI_MATCHING_BRANCH} from osrf/simulation"
   pushd $(brew --repo osrf/simulation)
-  git fetch origin ${ghprbSourceBranch} || true
-  git checkout ${ghprbSourceBranch} || true
+  git fetch origin ${CI_MATCHING_BRANCH} || true
+  git checkout ${CI_MATCHING_BRANCH} || true
   popd
   echo '# END SECTION'
 fi
 
+echo "# BEGIN SECTION: check if ${PROJECT_FORMULA} is HEAD formula"
+# Install with --HEAD if formula lacks a stable URL
+HEAD_FLAG=""
+if brew ruby -e "exit '${PROJECT_FORMULA}'.f.stable.nil?"; then
+  HEAD_FLAG="--HEAD"
+fi
+echo '# END SECTION'
+
 echo "# BEGIN SECTION: install ${PROJECT_FORMULA} dependencies"
 # Process the package dependencies
-brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies
+brew install ${PROJECT_FORMULA} ${PROJECT_ARGS} --only-dependencies ${HEAD_FLAG}
 # the following is needed to install :build dependencies of a formula
-brew install $(brew deps --1 --include-build ${PROJECT_FORMULA})
+# filter out the rotary dependencies since they require --HEAD
+NON_ROTARY_BUILD_DEPS=$(brew deps --1 --include-build ${PROJECT_FORMULA} | grep -v gz-rotary-)
+brew install ${NON_ROTARY_BUILD_DEPS}
 
 # pytest is needed to run python tests with junit xml output
 PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} pytest"
@@ -147,6 +169,10 @@ export DISPLAY=$(ps ax \
 )
 
 CMAKE_ARGS=""
+# set CMAKE_PREFIX_PATH if we are using protobuf@33
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'protobuf@33' }.empty?"; then
+  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${HOMEBREW_PREFIX}/opt/protobuf@33
+fi
 # set CMAKE_PREFIX_PATH if we are using qt@5
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'qt@5' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${HOMEBREW_PREFIX}/opt/qt@5
@@ -190,7 +216,7 @@ if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name
 fi
 
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-      -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.10 \
       -DCMAKE_INSTALL_PREFIX=${HOMEBREW_PREFIX}/Cellar/${PROJECT_FORMULA}/HEAD \
      ${CMAKE_ARGS} \
      ${WORKSPACE}/${PROJECT_PATH}
@@ -203,10 +229,7 @@ echo '# END SECTION'
 
 echo "#BEGIN SECTION: brew doctor analysis"
 brew missing || brew install $(brew missing | awk '{print $2}') && brew missing
-# if szip is installed, skip brew doctor
-# remove this line when hdf5 stops depending on the deprecated szip formula
-# https://github.com/Homebrew/homebrew-core/issues/96930
-brew list | grep '^szip$' || brew doctor || echo MARK_AS_UNSTABLE
+brew doctor || echo MARK_AS_UNSTABLE
 echo '# END SECTION'
 
 # CHECK PRE_TESTS_EXECUTION_HOOK AND RUN

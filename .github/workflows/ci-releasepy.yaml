@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - release.py
+      - check_releasepy.bash
+      - jenkins-scripts/dsl/gz-collections.yaml
+      - jenkins-scripts/dsl/tools/get_collections_from_package_and_version.py
 
 jobs:
   dsl_ci:

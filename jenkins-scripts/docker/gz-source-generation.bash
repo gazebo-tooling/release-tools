@@ -23,6 +23,14 @@ BUILD_DIR=\$SOURCES_DIR/build
 cd \${WORKSPACE}
 rm -fr \$SOURCES_DIR && mkdir \$SOURCES_DIR
 git clone --depth 1 --branch ${SOURCE_REPO_REF} ${SOURCE_REPO_URI} \${SOURCES_DIR}
+export SOURCE_DATE_EPOCH=\$(git -C \$SOURCES_DIR log -1 --pretty=%ct)
+# assert that SOURCE_DATE_EPOCH is in the right format
+case "\$SOURCE_DATE_EPOCH" in
+  ''|*[!0-9]*)
+    echo "ERROR: SOURCE_DATE_EPOCH='\$SOURCE_DATE_EPOCH' is not a positive integer" >&2
+    exit 1
+    ;;
+esac
 rm -fr \$BUILD_DIR && mkdir \$BUILD_DIR
 cd \${BUILD_DIR}
 cmake .. -DPACKAGE_SOURCE_ONLY:BOOL=ON

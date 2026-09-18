@@ -30,7 +30,9 @@ SUPPORTED_ARCHS = ['amd64', 'armhf', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 ROS_VENDOR = {'harmonic': ['jazzy'],
               'ionic': ['kilted'],
-              'jetty': ['rolling']}
+              'jetty': ['lyrical'],
+              'm': ['rolling']
+              }
 
 OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing none"
 
@@ -127,7 +129,7 @@ B) Call builders: reuse existing tarball version + call build jobs:
    $ release.py --source-tarball-uri <URL> --source-tarball-sha256 <SHA256> <package> <version>
 
 C) Nightly builds (linux)
-   $ release.py --source-repo-existing-ref <git_branch> --upload-to-repo nightly <URL> <package> <version>
+   $ release.py --source-repo-existing-ref <git_branch> --upload-to-repo nightly <package> nightly
  """)
     parser.add_argument('package', help='which package to release')
     parser.add_argument('version', help='which version to release')
@@ -280,6 +282,13 @@ def sanity_package_name(repo_dir, package, package_alias):
     # Use igntiion for Citadel and Fortress, gz for Garden and beyond
     gz_name = expected_name.replace("ignition", "gz")
     gz_name = gz_name.replace("gazebo", "sim")
+    # For rotary packages (e.g. gz-rotary-cmake), the release repo uses the
+    # base name without the '-rotary-' infix (e.g. gz-cmake)
+    if expected_name == 'gz-rotary-sdformat':
+        # sdformat release repositories use the un-prefixed source package name.
+        gz_name = 'sdformat'
+    else:
+        gz_name = expected_name.replace('-rotary-', '-')
 
     cmd = ["find", repo_dir, "-name", "changelog", "-exec", "head", "-n", "1", "{}", ";"]
     out, _ = check_call(cmd, IGNORE_DRY_RUN)
@@ -337,7 +346,7 @@ def get_version_from_cmake(cmake_file="CMakeLists.txt"):
     version_regex = re.compile(
         r"project\s*\(\s*[a-z0-9-_]*\s*VERSION\s*([0-9.]*)", re.MULTILINE
     )
-    # Note the re.DOTALL is used to match any newlines and arguments to 
+    # Note the re.DOTALL is used to match any newlines and arguments to
     # gz_configure_project before VERSION_SUFFIX
     suffix_regex = re.compile(
         r"(?:gz|ign)_configure_project\s*\(.*VERSION_SUFFIX\s*(pre\d+)",
@@ -862,8 +871,10 @@ def go(argv):
     params['PACKAGE_ALIAS'] = args.package_alias
     params['RELEASE_VERSION'] = args.release_version
     params['UPLOAD_TO_REPO'] = args.upload_to_repository
-    # Assume that we want stable + own repo in the building
-    params['OSRF_REPOS_TO_USE'] = "stable " + args.upload_to_repository
+    # Assume that we want stable + own repo in the building, except when using "none"
+    params['OSRF_REPOS_TO_USE'] = "stable"
+    if args.upload_to_repository != "none":
+        params['OSRF_REPOS_TO_USE'] += " " + args.upload_to_repository
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
@@ -913,14 +924,11 @@ def go(argv):
                         # Need to use JENKINS_NODE_TAG parameter for large memory nodes
                         # since it runs qemu emulation
                         linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
-                    elif ('ignition-physics' in args.package_alias) or \
-                         ('gz-physics' in args.package_alias):
-                        linux_platform_params['JENKINS_NODE_TAG'] = 'large-memory'
 
-                    # control nightly generation using a single machine to process
-                    # all distribution builds to avoid race conditions. Note: this
-                    # assumes that large-memory nodes are being used for nightly
-                    # tags.
+                    # The control nightly generation is done using a single machine to
+                    # process all gz libraries builds sequentially to avoid race
+                    # conditions. Note: this assumes that nodes are being tagged
+                    # 'linux-nightly-${ubuntu_distro} for nightly tags.
                     # https://github.com/gazebo-tooling/release-tools/issues/644
                     if (NIGHTLY):
                         assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'

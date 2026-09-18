@@ -21,11 +21,11 @@
 # Requires the 'gh' CLI, `xmllint`, and 'python-vcstool' to be installed.
 #
 # Usage:
-# $ ./set_explicit_find_package_versions.sh <collection> <issue_reference>
+# $ ./set_explicit_find_package_versions.bash <collection> <issue_reference>
 #
 # For example, to set explicit versions in all find_package calls in Jetty packages:
 #
-# ./set_explicit_find_package_versions.sh jetty gazebosim/gz-jetty#138
+# ./set_explicit_find_package_versions.bash jetty gazebosim/gz-jetty#138
 #
 # Before committing to each repository, the script asks "Commit <repository name>?".
 # Before saying yes, navigate to the repository and check if the diff looks reasonable.
@@ -59,7 +59,7 @@ PR_TEXT="Part of ${ISSUE_REFERENCE}."
 set -e
 
 if [[ $# -lt 2 ]]; then
-  echo "./set_explicit_find_package_versions.sh <collection> <issue_reference>"
+  echo "./set_explicit_find_package_versions.bash <collection> <issue_reference>"
   exit 1
 fi
 

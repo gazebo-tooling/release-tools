@@ -54,11 +54,7 @@ class GenericCompilation
         {
           publishers
           {
-            archiveJunit('build/test_results/*.xml') {
-              testDataPublishers {
-                publishFlakyTestsReport()
-              }
-            }
+            archiveJunit('build/test_results/*.xml')
           } // end of publishers
         } // end of enable_testing
       } // end of job

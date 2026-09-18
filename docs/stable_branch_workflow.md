@@ -4,11 +4,11 @@ This document explains the continuous integration (CI) process for stable branch
 
 ## 1. Job Definition and Triggering
 
-The jobs for stable branches are defined and generated using the same core infrastructure as the pull request (PR) jobs, but with important differences in naming and triggering. The entire process is orchestrated by `jenkins-scripts/dsl/gazebo_libs.dsl`, which reads its configuration from `jenkins-scripts/dsl/gz-collections.yaml`.
+The jobs for stable branches are defined and generated using the same core infrastructure as the pull request (PR) jobs, but with important differences in naming and triggering. The entire process is orchestrated by [`jenkins-scripts/dsl/gazebo_libs.dsl`](../jenkins-scripts/dsl/gazebo_libs.dsl), which reads its configuration from [`jenkins-scripts/dsl/gz-collections.yaml`](../jenkins-scripts/dsl/gz-collections.yaml).
 
 ### Job Generation
 
-Within the `gazebo_libs.dsl` script, a specific block of code is responsible for creating stable branch jobs. It checks if the `stable_branches` category is enabled for a given CI configuration:
+Within the [`gazebo_libs.dsl`](../jenkins-scripts/dsl/gazebo_libs.dsl) script, a specific block of code is responsible for creating stable branch jobs. It checks if the `stable_branches` category is enabled for a given CI configuration:
 
 ```groovy
 // In jenkins-scripts/dsl/gazebo_libs.dsl
@@ -21,7 +21,7 @@ if (categories_enabled.contains('stable_branches')) {
 If the condition is met, the script generates a job with a name that explicitly includes the stable branch name. Using `gz-math` from the **Jetty** collection (which uses the `gz-math9` branch) as an example, the job names are:
 
 -   **Linux:** `gz_math-ci-gz-math9-noble-amd64`
--   **macOS:** `gz_math-ci-gz-math9-homebrew-amd64`
+-   **macOS:** `gz_math-ci-gz-math9-homebrew-arm64`
 -   **Windows:** `gz_math-9-cnlwin`
 
 Unlike PR jobs, these jobs are configured to check out one specific, hardcoded branch (e.g., `gz-math9`).

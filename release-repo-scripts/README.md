@@ -41,7 +41,7 @@ first fork the `gz-rendering6-release` in GitHub and call the fork `gz-rendering
 ```bash
 git clone https://github.com/gz-release/gz-rendering7-release
 cd gz-rendering7-release
-./path/to/release-tools/release-repo-scripts/bump_major_version 6 7
+./path/to/release-tools/release-repo-scripts/bump_major_version.bash 6 7
 ```
 
 ### changelog_spawn.sh
@@ -141,7 +141,7 @@ change.
 
 ```bash
 cd <path-to-release-repo>
-./new_ubuntu_distribution <new_distro_name>
+./new_ubuntu_distribution.bash <new_distro_name>
 ```
 
 #### Example
@@ -152,6 +152,40 @@ To create the kinetic Ubuntu distribution inside `gz-cmake3-release`:
 git clone https://github.com/gz-release/gz-cmake3-release
 cd gz-cmake3-release
 ./path/to/release-tools/release-repo-scripts/new_ubuntu_distribution.bash kinetic
+```
+
+### collection_copy_ubuntu_metadata.bash
+
+The script copies an existing Ubuntu metadata directory to a new Ubuntu
+distribution across every `-release` repository in a Gazebo collection. It
+clones the repositories for the collection, creates a working branch, stages
+the copied metadata, and can open pull requests for each repository.
+
+It also updates the collection repository itself, such as `gz-jetty-release`
+or `gz-rotary-release`, when that repository is part of the selected
+collection.
+
+#### Usage
+
+Requires the `gh` CLI, `xmllint`, and `python-vcstool` to be installed.
+
+The script prompts before creating each commit and pull request. Set
+`DRY_RUN=true` to inspect the generated changes without committing or pushing.
+
+```bash
+./path/to/release-tools/release-repo-scripts/collection_copy_ubuntu_metadata.bash \
+  <collection> <existing_distro> <new_distro> <issue_reference>
+```
+
+#### Example
+
+To copy the `noble` metadata to `resolute` for all release repositories in the
+Jetty collection:
+
+```bash
+DRY_RUN=true \
+./path/to/release-tools/release-repo-scripts/collection_copy_ubuntu_metadata.bash \
+  jetty noble resolute gazebo-tooling/release-tools/issues/1485
 ```
 
 ### new_gazebo_release_repos.bash

@@ -53,7 +53,7 @@ def main():
     # Set environment variables
     os.environ["WORKSPACE"] = str(workspace)
     os.environ["MAKE_JOBS"] = str(make_jobs)  # Customize the number of building threads
-    pixi_project_path = Path(os.environ["TMP"]) / "pixi" / "project"
+    pixi_project_path = Path(os.environ["PROGRAMDATA"]) / "pixi" / "project"
     os.environ["PIXI_PROJECT_PATH"] = str(pixi_project_path)
 
     # Check if script exists
@@ -87,7 +87,7 @@ def main():
             del os.environ["REUSE_PIXI_INSTALLATION"]
 
     # Run the script
-    result = subprocess.run([script_path], shell=True, check=False)
+    result = subprocess.run([script_path], shell=True, check=False, cwd=workspace)
 
     print("\n\033[1;34m Local build finished \033[0m\n")
 

@@ -85,17 +85,6 @@ if [ -z ${GITHUB_ORG} ]; then
     GITHUB_ORG="osrf"
 fi
 
-if [ -z "${NEED_C17_COMPILER}" ]; then
-  export INSTALL_C17_COMPILER=false
-fi
-# Check if we need to install a custom compiler in old distributions
-export INSTALL_C17_COMPILER=false
-if ${NEED_C17_COMPILER}; then
-  if [ ${DISTRO} = 'bionic' ] || [ ${DISTRO} = 'buster' ]; then
-    export INSTALL_C17_COMPILER=true
-  fi
-fi
-
 # By default, do not use ROS
 if [ -z ${ENABLE_ROS} ]; then
   ENABLE_ROS=false

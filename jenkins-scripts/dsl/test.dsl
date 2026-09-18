@@ -21,7 +21,7 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
 
 // releasing testing job
 def releasepy_job = job("_test_releasepy")
-OSRFReleasepy.create(releasepy_job, [DRY_RUN: true])
+OSRFReleasepy.create(releasepy_job, [DRY_RUN: true, ONLY_BUMP_REVISION_LINUX: false])
 releasepy_job.with {
       blockOn("_test_repository_uploader") {
         blockLevel('GLOBAL')

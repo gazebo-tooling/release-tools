@@ -26,9 +26,8 @@ USER=$(whoami)
 # platform support starts on versions greater than 17.07
 PLAFTORM_PARAM=
 if [[ ${LINUX_DISTRO} == 'ubuntu' && \
-      ${DISTRO} != 'focal' && \
-      ${ARCH} == 'armhf' ]]; then
-  PLAFTORM_PARAM="--platform=linux/armhf"
+      ( ${ARCH} == 'armhf' || ${ARCH} == 'arm64' ) ]]; then
+  PLAFTORM_PARAM="--platform=linux/${ARCH}"
 fi
 
 sudo docker build ${PLAFTORM_PARAM} ${_DOCKER_BUILD_EXTRA_ARGS} \
@@ -50,7 +49,7 @@ fi
 
 if $USE_GPU_DOCKER; then
   EXTRA_PARAMS_STR="--privileged \
-                    -e DISPLAY=unix$DISPLAY \
+                    -e DISPLAY=$DISPLAY \
                     -v /sys:/sys:ro         \
                     -v /var/run/docker.sock:/var/run/docker.sock \
                     -v /tmp/.X11-unix:/tmp/.X11-unix:rw"

@@ -1,6 +1,10 @@
 #/bin/bash +x
 set -e
 
+# Kill any lingering brew / Homebrew ruby processes from previous aborted builds
+pkill -u "$(whoami)" -f "bin/brew" || true
+pkill -u "$(whoami)" -f "Library/Homebrew" || true
+
 restore_brew()
 {
     rm -fr ${HOMEBREW_REPOSITORY}/Library/Homebrew/vendor/bundle/ruby
