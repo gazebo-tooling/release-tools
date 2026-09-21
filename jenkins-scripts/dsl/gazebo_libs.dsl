@@ -488,6 +488,15 @@ branch_index.each { lib_name, distro_configs ->
 
                   ${GLOBAL_SHELL_CMD}
                   ${extra_cmd}
+                  if [ -n "\${ghprbTargetBranch}" ] && [  -n "\${ghprbActualCommit}" ] && \
+                    git -C \${WORKSPACE}/${lib_name} \
+                      diff --merge-base origin/\${ghprbTargetBranch} \${ghprbActualCommit} --name-only \
+                      | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py \
+                                ./scripts/jenkins-scripts/tools/gz_ci.ignored;
+                  then
+                      echo Skipping CI
+                      exit
+                  fi
 
                   export BUILDING_SOFTWARE_DIRECTORY=${lib_name}
                   export ARCH=${arch}
@@ -555,6 +564,16 @@ branch_index.each { lib_name, distro_configs ->
 
                 ${GLOBAL_SHELL_CMD}
                 ${extra_cmd}
+
+                if [ -n "\${ghprbTargetBranch}" ] && [  -n "\${ghprbActualCommit}" ] && \
+                  git -C \${WORKSPACE}/${lib_name} \
+                    diff --merge-base origin/\${ghprbTargetBranch} \${ghprbActualCommit} --name-only \
+                    | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py \
+                              ./scripts/jenkins-scripts/tools/gz_ci.ignored;
+                then
+                    echo Skipping CI
+                    exit
+                fi
 
                 export ARCH=${arch}
                 export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
