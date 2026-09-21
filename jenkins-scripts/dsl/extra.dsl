@@ -58,6 +58,12 @@ gbp_repo_debbuilds.each { software ->
                    'Architecture to be used in the built of the package')
        stringParam('UPLOAD_TO_REPO', 'stable',
                    'OSRF repo name to upload the package to')
+       // Builds run natively, so a non amd64 ARCH needs an agent of that same
+       // architecture (i.e. linux-arm64). See issue #1539.
+       labelParam('JENKINS_NODE_TAG') {
+         description('Jenkins node or group to run build')
+         defaultValue(Globals.nontest_label('docker'))
+       }
     }
 
     properties {
@@ -122,6 +128,10 @@ gbp_repo_debbuilds.each { software ->
             currentBuild()
             predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
             predefinedProp("PACKAGE_ALIAS", "${software}")
+            // Keep the uploader on the packages node. Without this the label
+            // parameter of the build leaks downstream and overrides the node
+            // restriction. Real issue: https://issues.jenkins-ci.org/browse/JENKINS-45005
+            predefinedProp("JENKINS_NODE_TAG", "packages")
           }
         }
       }

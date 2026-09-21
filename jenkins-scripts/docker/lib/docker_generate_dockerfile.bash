@@ -42,6 +42,7 @@ export APT_PARAMS=
 
 GZDEV_DIR=/root/gzdev
 GZDEV_BRANCH=${GZDEV_BRANCH:-master}
+GZDEV_TRY_BRANCH=${GZDEV_TRY_BRANCH:-}
 if python3 ${SCRIPT_DIR}/../tools/detect_ci_matching_branch.py "${ghprbSourceBranch}"; then
   GZDEV_TRY_BRANCH=$ghprbSourceBranch
 fi
@@ -58,8 +59,8 @@ ADD https://api.github.com/repos/gazebo-tooling/gzdev/git/refs/heads/$GZDEV_BRAN
 RUN rm -fr ${GZDEV_DIR} \
     && git clone https://github.com/gazebo-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
 DELIM_OSRF_REPO_GIT_1
-GZDEV_TRY_BRANCH_URL="https://api.github.com/repos/gazebo-tooling/gzdev/git/refs/heads/$GZDEV_TRY_BRANCH"
-if [ -n $GZDEV_TRY_BRANCH ] && curl --output /dev/null --silent --head --fail $GZDEV_TRY_BRANCH_URL; then
+GZDEV_TRY_BRANCH_URL="https://api.github.com/repos/gazebo-tooling/gzdev/git/refs/heads/${GZDEV_TRY_BRANCH}"
+if [ -n "${GZDEV_TRY_BRANCH}" ] && curl --output /dev/null --silent --head --fail "${GZDEV_TRY_BRANCH_URL}"; then
 cat >> Dockerfile << DELIM_OSRF_REPO_GIT_2
 ADD $GZDEV_TRY_BRANCH_URL version.json
 RUN git -C ${GZDEV_DIR} fetch origin $GZDEV_TRY_BRANCH || true;
