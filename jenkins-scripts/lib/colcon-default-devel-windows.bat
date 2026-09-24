@@ -19,6 +19,7 @@
 ::   - run tests
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
+set TOOLS_DIR=%SCRIPT_DIR%\tools
 set EXPORT_TEST_RESULT_PATH=%WORKSPACE%\build\test_results
 set LOCAL_WS=%WORKSPACE%\ws
 set LOCAL_WS_BUILD=%LOCAL_WS%\build
@@ -203,6 +204,11 @@ if "%ENABLE_TESTS%" == "TRUE" (
 
     echo # BEGIN SECTION: running tests for !COLCON_PACKAGE!
     call %win_lib% :tests_in_workspace !COLCON_PACKAGE!
+    echo # END SECTION
+
+    echo # BEGIN SECTION: process test results
+    set CTEST_JUNIT_RESULT_PATH=%LOCAL_WS_BUILD%\!COLCON_PACKAGE!\ctest_junit.xml !TEST_RESULT_PATH!
+    python "%TOOLS_DIR%\cmake_to_gtest_junit_output.py" !CTEST_JUNIT_RESULT_PATH!
     echo # END SECTION
 
     echo # BEGIN SECTION: export testing results
