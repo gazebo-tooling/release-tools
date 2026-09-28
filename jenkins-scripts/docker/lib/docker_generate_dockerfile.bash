@@ -42,6 +42,7 @@ export APT_PARAMS=
 
 GZDEV_DIR=/root/gzdev
 GZDEV_BRANCH=${GZDEV_BRANCH:-master}
+GZDEV_TRY_BRANCH=${GZDEV_TRY_BRANCH:-}
 if python3 ${SCRIPT_DIR}/../tools/detect_ci_matching_branch.py "${ghprbSourceBranch}"; then
   GZDEV_TRY_BRANCH=$ghprbSourceBranch
 fi
@@ -58,8 +59,8 @@ ADD https://api.github.com/repos/gazebo-tooling/gzdev/git/refs/heads/$GZDEV_BRAN
 RUN rm -fr ${GZDEV_DIR} \
     && git clone https://github.com/gazebo-tooling/gzdev -b ${GZDEV_BRANCH} ${GZDEV_DIR}
 DELIM_OSRF_REPO_GIT_1
-GZDEV_TRY_BRANCH_URL="https://api.github.com/repos/gazebo-tooling/gzdev/git/refs/heads/$GZDEV_TRY_BRANCH"
-if [ -n $GZDEV_TRY_BRANCH ] && curl --output /dev/null --silent --head --fail $GZDEV_TRY_BRANCH_URL; then
+GZDEV_TRY_BRANCH_URL="https://api.github.com/repos/gazebo-tooling/gzdev/git/refs/heads/${GZDEV_TRY_BRANCH}"
+if [ -n "${GZDEV_TRY_BRANCH}" ] && curl --output /dev/null --silent --head --fail "${GZDEV_TRY_BRANCH_URL}"; then
 cat >> Dockerfile << DELIM_OSRF_REPO_GIT_2
 ADD $GZDEV_TRY_BRANCH_URL version.json
 RUN git -C ${GZDEV_DIR} fetch origin $GZDEV_TRY_BRANCH || true;
@@ -149,6 +150,17 @@ cat > Dockerfile << DELIM_DOCKER
 # Docker file to run build.sh
 
 FROM ${FROM_VALUE}
+# Keep the build cache chain separate per architecture. This must stay as the
+# first instruction after FROM.
+#
+# Under the containerd image store, a multi-arch FROM resolves to the manifest
+# index digest, which is identical for every platform, and the legacy builder
+# does not include --platform in its cache key. Two builds for different
+# architectures on the same agent would then share every layer: the second
+# one silently builds on the first one's foreign-arch layers until the first
+# freshly executed COPY/ADD aborts with "does not provide the specified
+# platform". See issue #1529.
+LABEL osrf.build.arch="${ARCH}"
 LABEL maintainer="Jose Luis Rivero <jrivero@osrfoundation.org>"
 
 # setup environment
