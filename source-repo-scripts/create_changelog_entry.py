@@ -382,8 +382,11 @@ def get_pr_info(file_path):
     """
     filename = os.path.basename(file_path)
 
-    # Get the SHA of the commit that created the file using git log.
-    git_cmd = ["git", "log", "--follow", "--diff-filter=A", "--format=%H", "--", file_path]
+    # Get the SHA of the most recent commit that added the file. Entry files
+    # are removed at every release, so a reused name (e.g. fix.md) has older
+    # adds from previous cycles. --follow is avoided because its rename
+    # detection can jump to an unrelated small file with similar content.
+    git_cmd = ["git", "log", "-n1", "--diff-filter=A", "--format=%H", "--", file_path]
     git_result = run_subprocess(git_cmd, context=f"git log for {filename}")
     if git_result is None:
         return ""
@@ -403,7 +406,7 @@ def get_pr_info(file_path):
             file=sys.stderr)
         return ""
 
-    commit_sha = git_result.stdout.strip().split('\n')[-1]
+    commit_sha = git_result.stdout.strip()
     print(f"Found commit SHA: {commit_sha} for file {filename}")
 
     # Use gh CLI to search for merged PRs containing the commit SHA.
