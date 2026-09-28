@@ -78,7 +78,9 @@ def parse_changelog_header(changelog_path):
         changelog_path (str): Path to Changelog.md.
 
     Returns:
-        tuple[str, str]: (project_name, current_version)
+        tuple[str, str, str]: (project_name, current_version, heading) where
+            heading is the markdown prefix used by that release header
+            (e.g. ``###``), so new releases can be written at the same level.
 
     Raises:
         RuntimeError: If the changelog file cannot be read.
@@ -126,7 +128,7 @@ def parse_changelog_header(changelog_path):
             raise ValueError(
                 f"Release {version} in {changelog_path} does not match its "
                 f"section '{lines[placeholder_index]}'")
-        return match.group("project"), version
+        return match.group("project"), version, match.group("level")
 
     if major is not None:
         raise ValueError(
@@ -282,7 +284,7 @@ def format_markdown_list_item(entry):
     return '\n'.join(formatted_lines)
 
 
-def generate_changelog_entry(entries, project_name, version):
+def generate_changelog_entry(entries, project_name, version, heading="###"):
     """
     Generate a changelog entry from entries.
 
@@ -290,6 +292,8 @@ def generate_changelog_entry(entries, project_name, version):
         entries (list): List of changelog entries with optional PR metadata.
         project_name (str): Changelog project name.
         version (str): Semver version for the release.
+        heading (str): Markdown heading prefix for the release header, matching
+            the existing release headers in Changelog.md.
 
     Returns:
         str: Formatted changelog entry.
@@ -297,7 +301,7 @@ def generate_changelog_entry(entries, project_name, version):
     today = datetime.now().strftime("%Y-%m-%d")
 
     changelog_lines = [
-        f"## {project_name} {version} ({today})",
+        f"{heading} {project_name} {version} ({today})",
         ""
     ]
 
@@ -465,7 +469,8 @@ def main():
         return 1
 
     try:
-        project_name, current_version = parse_changelog_header(changelog_path)
+        project_name, current_version, heading = parse_changelog_header(
+            changelog_path)
     except (RuntimeError, ValueError) as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
@@ -490,7 +495,8 @@ def main():
         print(f"Error: {e}", file=sys.stderr)
         return 1
     print(f"Calculated next version: {new_version}")
-    new_entry = generate_changelog_entry(entries, project_name, new_version)
+    new_entry = generate_changelog_entry(
+        entries, project_name, new_version, heading)
 
     print("Generated changelog entry:")
     print("-" * 50)
