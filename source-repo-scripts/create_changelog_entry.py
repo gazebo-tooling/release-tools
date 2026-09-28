@@ -4,8 +4,9 @@ Create and optionally apply a validated changelog section from .changelog/*.md.
 
 The script validates entries, discovers related PR metadata, auto-calculates the
 next version, and asks for confirmation before mutating Changelog.md. If
-confirmed, it optionally removes processed .changelog/ files via ``git rm`` and
-commits all changes.
+confirmed, it stages Changelog.md, optionally removes processed .changelog/
+files via ``git rm``, and creates a signed-off commit containing only those
+paths. The git index and Changelog.md must be clean before running it.
 """
 
 import glob
@@ -468,6 +469,19 @@ def main():
               file=sys.stderr)
         return 1
 
+    # The script commits on the user's behalf; refuse to sweep unrelated
+    # staged changes or local Changelog.md edits into that commit.
+    if subprocess.run(["git", "diff", "--cached", "--quiet"]).returncode != 0:
+        print("Error: the git index has staged changes; commit or unstage "
+              "them before running this script", file=sys.stderr)
+        return 1
+
+    if subprocess.run(
+            ["git", "diff", "--quiet", "--", changelog_path]).returncode != 0:
+        print(f"Error: {changelog_path} has uncommitted changes; commit or "
+              "discard them before running this script", file=sys.stderr)
+        return 1
+
     try:
         project_name, current_version, heading = parse_changelog_header(
             changelog_path)
@@ -521,12 +535,14 @@ def main():
               file=sys.stderr)
         return 1
 
+    commit_paths = [changelog_path]
     cleanup_response = input("Remove processed changelog entry files? (y/N): ")
     if cleanup_response.lower() in ['y', 'yes']:
         files = glob.glob(os.path.join(changelog_dir, '*.md'))
         for file_path in files:
             try:
                 subprocess.run(["git", "rm", file_path], check=True)
+                commit_paths.append(file_path)
                 print(f"Removed {file_path}")
             except subprocess.CalledProcessError as e:
                 print(f"Error: could not remove {file_path}: {e}",
@@ -535,8 +551,9 @@ def main():
 
     try:
         subprocess.run(
-            ["git", "commit", "-m",
-             f"Generate changelog entry for version {new_version}"],
+            ["git", "commit", "--signoff", "-m",
+             f"Generate changelog entry for version {new_version}",
+             "--", *commit_paths],
             check=True)
         print("Committed changelog updates")
     except subprocess.CalledProcessError as e:

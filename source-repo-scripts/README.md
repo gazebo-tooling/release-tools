@@ -171,9 +171,12 @@ Generate a new `Changelog.md` entry from files in `.changelog/`.
 #### Usage
 
 The script must be run from the project root directory (the directory that
-contains both `.changelog/` and `Changelog.md`). It is interactive and prompts
-for confirmation before modifying `Changelog.md` and again before removing
-processed `.changelog/` files.
+contains both `.changelog/` and `Changelog.md`). It is interactive: it prompts
+for confirmation before modifying `Changelog.md` (then stages it with
+`git add`) and again before removing processed `.changelog/` files with
+`git rm`. Finally it creates a signed-off commit
+(`Generate changelog entry for version X.Y.Z`) containing only those paths.
+The git index and `Changelog.md` must be clean before running it.
 
 ```bash
 cd <project-root>
