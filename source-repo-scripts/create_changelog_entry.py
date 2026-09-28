@@ -18,11 +18,16 @@ from datetime import datetime
 
 CONVENTIONAL_COMMIT_HEADER_RE = re.compile(
     r"^(?P<type>[a-z]+)(\([^\r\n()]+\))?(?P<breaking>!)?: (?P<description>\S.*)$")
+# Gazebo changelogs group releases under a "## <project> N.x" placeholder
+# with "### <project> X.Y.Z (YYYY-MM-DD)" release headers. Older files (and
+# some repos) use "##" for releases or "###" for the placeholder, so accept
+# both heading levels. Unreleased sections use dates like "20XX-XX-XX".
 CHANGELOG_RELEASE_HEADER_RE = re.compile(
-    r"^## (?P<project>.+) (?P<version>\d+\.\d+\.\d+) "
-    r"\((?P<date>\d{4}-\d{2}-\d{2})\)$")
+    r"^(?P<level>#{2,3}) (?P<project>.+) (?P<version>\d+\.\d+\.\d+) "
+    r"\((?P<date>[^)]*)\)$")
 CHANGELOG_PLACEHOLDER_RE = re.compile(
-    r"^## (?P<project>.+) (?P<major>\d+)\.[xX]$")
+    r"^(?P<level>#{2,3}) (?P<project>.+) (?P<major>\d+)\.[xX]$")
+RELEASE_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def first_non_blank_line(text):
@@ -62,7 +67,12 @@ def run_subprocess(cmd, timeout=10, context=""):
 
 def parse_changelog_header(changelog_path):
     """
-    Parse project name and current version from the first release header.
+    Parse project name and current version from Changelog.md.
+
+    The current version is the first release header inside the top
+    "<project> N.x" placeholder section (up to the next placeholder). Its
+    major version must match N. If the file has no placeholder at all, the
+    first release header in the file is used.
 
     Args:
         changelog_path (str): Path to Changelog.md.
@@ -72,33 +82,62 @@ def parse_changelog_header(changelog_path):
 
     Raises:
         RuntimeError: If the changelog file cannot be read.
-        ValueError: If no valid release header is found.
+        ValueError: If the current version cannot be determined reliably:
+            no release header, a pending (undated) release, a release whose
+            major does not match its section, or a section with no release
+            yet (first release of a new major must be written manually).
     """
     try:
         with open(changelog_path, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
+            lines = [line.strip() for line in f.readlines()]
     except OSError as e:
         raise RuntimeError(
             f"Could not read changelog file {changelog_path}: {e}") from e
 
-    for line in lines:
-        match = CHANGELOG_RELEASE_HEADER_RE.match(line.strip())
-        if match:
-            return match.group("project"), match.group("version")
+    placeholder_index = None
+    for i, line in enumerate(lines):
+        if CHANGELOG_PLACEHOLDER_RE.match(line):
+            placeholder_index = i
+            break
 
-    # No dated release found — fall back to placeholder header to extract
-    # project name and major version, using <major>.0.0 as the base.
-    for line in lines:
-        match = CHANGELOG_PLACEHOLDER_RE.match(line.strip())
-        if match:
-            major = match.group("major")
-            return match.group("project"), f"{major}.0.0"
+    if placeholder_index is None:
+        # Legacy layout without "N.x" sections.
+        section = lines
+        major = None
+    else:
+        placeholder = CHANGELOG_PLACEHOLDER_RE.match(lines[placeholder_index])
+        major = placeholder.group("major")
+        section = []
+        for line in lines[placeholder_index + 1:]:
+            if CHANGELOG_PLACEHOLDER_RE.match(line):
+                break
+            section.append(line)
+
+    for line in section:
+        match = CHANGELOG_RELEASE_HEADER_RE.match(line)
+        if not match:
+            continue
+        version = match.group("version")
+        if not RELEASE_DATE_RE.match(match.group("date")):
+            raise ValueError(
+                f"Top release '{line}' in {changelog_path} is not released yet "
+                f"(date '{match.group('date')}'); finish that release manually")
+        if major is not None and version.split('.')[0] != major:
+            raise ValueError(
+                f"Release {version} in {changelog_path} does not match its "
+                f"section '{lines[placeholder_index]}'")
+        return match.group("project"), version
+
+    if major is not None:
+        raise ValueError(
+            f"No release found under '{lines[placeholder_index]}' in "
+            f"{changelog_path}; the first {major}.x release must be written "
+            "manually")
 
     raise ValueError(
         f"Could not determine current version from {changelog_path}. "
-        "Expected a release header like "
-        "'## <project> <major>.<minor>.<patch> (YYYY-MM-DD)' "
-        "or a placeholder like '## <project> <major>.x'")
+        "Expected a placeholder like '## <project> <major>.x' followed by a "
+        "release header like '### <project> <major>.<minor>.<patch> (YYYY-MM-DD)'")
 
 
 def validate_changelog_entry(entry_content, filename):
