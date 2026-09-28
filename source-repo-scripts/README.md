@@ -205,6 +205,16 @@ the patch version.
 Entries using the breaking marker (`!`) are rejected because the script does
 not support major-version bumps; such releases must be handled manually.
 
+Each entry is linked to a pull request found from the commit that added the
+file. The commit subject decides which one: a trailing `(#N)` names the PR
+(GitHub adds it on squash-merge), otherwise the PR of the commit named in a
+`(cherry picked from commit X)` trailer is used, otherwise the merged PR that
+contains the commit. For backports this means:
+
+- squash-merged backport PR (`Fix foo (backport #10) (#12)`): links #12.
+- rebase-merged backport PR (the cherry-pick keeps `Fix foo (#10)`): links #10,
+  the original pull request.
+
 ### Release summary
 
 Print a markdown summary of a release (not `Changelog.md` entries), with its

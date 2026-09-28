@@ -29,6 +29,12 @@ CHANGELOG_RELEASE_HEADER_RE = re.compile(
 CHANGELOG_PLACEHOLDER_RE = re.compile(
     r"^(?P<level>#{2,3}) (?P<project>.+) (?P<major>\d+)\.[xX]$")
 RELEASE_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+# GitHub appends "(#N)" to squash-merge subjects; rebase and merge-commit
+# merges keep the subject of the original commit, and a backport cherry-pick
+# keeps the subject of the commit merged on the source branch.
+SUBJECT_PR_REF_RE = re.compile(r"\(#(?P<number>\d+)\)\s*$")
+CHERRY_PICK_TRAILER_RE = re.compile(
+    r"^\(cherry picked from commit (?P<sha>[0-9a-f]{7,40})\)$", re.M)
 
 
 def first_non_blank_line(text):
@@ -365,6 +371,109 @@ def update_changelog(changelog_path, new_entry):
     print(f"Successfully updated {changelog_path}")
 
 
+def format_pr_link(pr):
+    """Return the Changelog.md sub-bullet for a PR dict with number and url."""
+    return f"    * [Pull request #{pr['number']}]({pr['url']})"
+
+
+def get_merged_pr_by_number(pr_number):
+    """
+    Return ``{"number", "url"}`` for merged PR *pr_number*, or None.
+
+    None is returned when the number is not a merged PR (e.g. an issue) or
+    gh cannot answer.
+    """
+    cmd = ["gh", "pr", "view", pr_number, "--json", "number,url,state"]
+    result = run_subprocess(cmd, context=f"gh pr view {pr_number}")
+    if result is None or result.returncode != 0:
+        return None
+    try:
+        pr = json.loads(result.stdout)
+        if pr["state"] == "MERGED":
+            return {"number": pr["number"], "url": pr["url"]}
+    except (json.JSONDecodeError, KeyError, TypeError) as e:
+        print(
+            f"Warning: unexpected gh pr view output for #{pr_number} "
+            f"({type(e).__name__}: {e})",
+            file=sys.stderr)
+    return None
+
+
+def search_merged_pr_by_commit(commit_sha):
+    """Return ``{"number", "url"}`` of the merged PR containing *commit_sha*, or None."""
+    # Use gh CLI to search for merged PRs containing the commit SHA.
+    cmd = ["gh", "pr", "list", "--state=merged", "--search", commit_sha, "--json", "number,url"]
+    result = run_subprocess(cmd, context=f"gh pr list for {commit_sha}")
+    if result is None:
+        return None
+
+    if result.returncode != 0:
+        stderr = result.stderr.strip()
+        print(
+            f"Warning: gh pr list returned exit code {result.returncode} "
+            f"for {commit_sha}{': ' + stderr if stderr else ''}",
+            file=sys.stderr)
+        return None
+
+    if not result.stdout.strip():
+        return None
+
+    try:
+        prs = json.loads(result.stdout)
+        if prs:
+            return {"number": prs[0]["number"], "url": prs[0]["url"]}
+    except json.JSONDecodeError as e:
+        print(
+            f"Warning: gh returned invalid JSON for {commit_sha}: {e}",
+            file=sys.stderr)
+    except (KeyError, TypeError) as e:
+        print(
+            f"Warning: unexpected PR metadata structure for {commit_sha} "
+            f"({type(e).__name__}: {e})",
+            file=sys.stderr)
+    return None
+
+
+def find_pr_for_commit(commit_sha, message):
+    """
+    Return the PR to credit for the commit that added a changelog entry.
+
+    Backports reach a stable branch as a cherry-pick of the commit merged on
+    the source branch, inside a backport PR. The merge method of the backport
+    PR decides which PR is credited:
+
+    * squash-merge: the squash commit is new work of the backport PR and its
+      subject ends with ``(#<backport PR>)``, so the backport PR is linked.
+    * rebase-merge (or merge commit): the cherry-pick lands unchanged, with the
+      original subject ``... (#<original PR>)``, so the original PR is linked.
+      When the original PR was not squash-merged either, its subject carries
+      no ``(#N)`` and the ``(cherry picked from commit X)`` trailer is used.
+
+    Anything else falls back to searching the PR that contains the commit.
+    """
+    lines = message.split('\n', 1)
+    subject = lines[0]
+    body = lines[1] if len(lines) > 1 else ""
+
+    match = SUBJECT_PR_REF_RE.search(subject)
+    if match:
+        pr = get_merged_pr_by_number(match.group("number"))
+        if pr:
+            return pr
+        print(
+            f"Info: #{match.group('number')} in the subject of {commit_sha} "
+            "is not a merged PR, searching by commit",
+            file=sys.stderr)
+    else:
+        trailers = CHERRY_PICK_TRAILER_RE.findall(body)
+        if trailers:
+            pr = search_merged_pr_by_commit(trailers[-1])
+            if pr:
+                return pr
+
+    return search_merged_pr_by_commit(commit_sha)
+
+
 def get_pr_info(file_path):
     """
     Get PR information for a changelog file using GitHub CLI.
@@ -372,7 +481,7 @@ def get_pr_info(file_path):
     Args:
         file_path (str): Full path to the .changelog/ file. Used to identify
             the git commit that introduced the file, which is then used to
-            locate the associated merged PR.
+            locate the associated merged PR (see find_pr_for_commit).
 
     Returns:
         str: Formatted PR link (``    * [Pull request #N](url)``) when found,
@@ -382,11 +491,12 @@ def get_pr_info(file_path):
     """
     filename = os.path.basename(file_path)
 
-    # Get the SHA of the most recent commit that added the file. Entry files
-    # are removed at every release, so a reused name (e.g. fix.md) has older
-    # adds from previous cycles. --follow is avoided because its rename
-    # detection can jump to an unrelated small file with similar content.
-    git_cmd = ["git", "log", "-n1", "--diff-filter=A", "--format=%H", "--", file_path]
+    # Get the SHA and message of the most recent commit that added the file.
+    # Entry files are removed at every release, so a reused name (e.g.
+    # fix.md) has older adds from previous cycles. --follow is avoided because
+    # its rename detection can jump to an unrelated small file with similar
+    # content.
+    git_cmd = ["git", "log", "-n1", "--diff-filter=A", "--format=%H%n%B", "--", file_path]
     git_result = run_subprocess(git_cmd, context=f"git log for {filename}")
     if git_result is None:
         return ""
@@ -406,44 +516,13 @@ def get_pr_info(file_path):
             file=sys.stderr)
         return ""
 
-    commit_sha = git_result.stdout.strip()
+    commit_sha, _, message = git_result.stdout.strip().partition('\n')
     print(f"Found commit SHA: {commit_sha} for file {filename}")
 
-    # Use gh CLI to search for merged PRs containing the commit SHA.
-    cmd = ["gh", "pr", "list", "--state=merged", "--search", commit_sha, "--json", "number,url"]
-    result = run_subprocess(cmd, context=f"gh pr list for {commit_sha}")
-    if result is None:
-        return f"    * Commit: {commit_sha}"
-
-    if result.returncode != 0:
-        stderr = result.stderr.strip()
-        print(
-            f"Warning: gh pr list returned exit code {result.returncode} "
-            f"for {commit_sha}{': ' + stderr if stderr else ''}",
-            file=sys.stderr)
-        return f"    * Commit: {commit_sha}"
-
-    if not result.stdout.strip():
-        return f"    * Commit: {commit_sha}"
-
-    try:
-        prs = json.loads(result.stdout)
-        if prs:
-            pr = prs[0]
-            pr_number = pr["number"]
-            pr_url = pr["url"]
-            print(f"Found PR #{pr_number} for commit {commit_sha}")
-            return f"    * [Pull request #{pr_number}]({pr_url})"
-    except json.JSONDecodeError as e:
-        print(
-            f"Warning: gh returned invalid JSON for {commit_sha}: {e}",
-            file=sys.stderr)
-    except (KeyError, TypeError) as e:
-        print(
-            f"Warning: unexpected PR metadata structure for {commit_sha} "
-            f"({type(e).__name__}: {e})",
-            file=sys.stderr)
-
+    pr = find_pr_for_commit(commit_sha, message)
+    if pr:
+        print(f"Found PR #{pr['number']} for commit {commit_sha}")
+        return format_pr_link(pr)
     return f"    * Commit: {commit_sha}"
 
 
