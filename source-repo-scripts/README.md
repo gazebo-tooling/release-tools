@@ -209,7 +209,8 @@ not support major-version bumps; such releases must be handled manually.
 Each entry is linked to a pull request found from the commit that added the
 file. The commit subject decides which one: a trailing `(#N)` names the PR
 (GitHub adds it on squash-merge), otherwise the PR of the commit named in a
-`(cherry picked from commit X)` trailer is used, otherwise the merged PR that
+`(cherry picked from commit X)` trailer is used (the first one, when a
+backport of a backport carries several), otherwise the merged PR that
 contains the commit. For backports this means:
 
 - squash-merged backport PR (`Fix foo (backport #10) (#12)`): links #12.

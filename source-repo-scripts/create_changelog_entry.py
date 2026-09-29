@@ -460,6 +460,8 @@ def find_pr_for_commit(commit_sha, message):
       original subject ``... (#<original PR>)``, so the original PR is linked.
       When the original PR was not squash-merged either, its subject carries
       no ``(#N)`` and the ``(cherry picked from commit X)`` trailer is used.
+      A backport of a backport carries one trailer per hop, oldest first, so
+      the first trailer names the commit merged by the original PR.
 
     Anything else falls back to searching the PR that contains the commit.
     """
@@ -479,7 +481,7 @@ def find_pr_for_commit(commit_sha, message):
     else:
         trailers = CHERRY_PICK_TRAILER_RE.findall(body)
         if trailers:
-            pr = search_merged_pr_by_commit(trailers[-1])
+            pr = search_merged_pr_by_commit(trailers[0])
             if pr:
                 return pr
 
