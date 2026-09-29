@@ -4,9 +4,10 @@ Create and optionally apply a validated changelog section from .changelog/.
 
 The script validates entries, discovers related PR metadata, auto-calculates the
 next version, and asks for confirmation before mutating Changelog.md. If
-confirmed, it stages Changelog.md, optionally removes processed .changelog/
-files via ``git rm``, and creates a signed-off commit containing only those
-paths. The git index and Changelog.md must be clean before running it.
+confirmed, it stages Changelog.md, removes the processed .changelog/ files via
+``git rm`` (so the next release does not publish them again), and creates a
+signed-off commit containing only those paths. The git index and Changelog.md
+must be clean before running it.
 """
 
 import json
@@ -610,7 +611,13 @@ def main():
     print(new_entry)
     print("-" * 50)
 
-    response = input("Update Changelog.md with this entry? (y/N): ")
+    print("Processed entry files that will be removed:")
+    for file_path in entry_files:
+        print(f"  {os.path.relpath(file_path)}")
+
+    response = input(
+        "Update Changelog.md with this entry and remove the processed "
+        "entry files? (y/N): ")
     if response.lower() not in ['y', 'yes']:
         print("Changelog update cancelled.")
         return 0
@@ -629,17 +636,15 @@ def main():
         return 1
 
     commit_paths = [changelog_path]
-    cleanup_response = input("Remove processed changelog entry files? (y/N): ")
-    if cleanup_response.lower() in ['y', 'yes']:
-        for file_path in entry_files:
-            try:
-                subprocess.run(["git", "rm", file_path], check=True)
-                commit_paths.append(file_path)
-                print(f"Removed {file_path}")
-            except subprocess.CalledProcessError as e:
-                print(f"Error: could not remove {file_path}: {e}",
-                      file=sys.stderr)
-                return 1
+    for file_path in entry_files:
+        try:
+            subprocess.run(["git", "rm", file_path], check=True)
+            commit_paths.append(file_path)
+            print(f"Removed {file_path}")
+        except subprocess.CalledProcessError as e:
+            print(f"Error: could not remove {file_path}: {e}",
+                  file=sys.stderr)
+            return 1
 
     try:
         subprocess.run(
