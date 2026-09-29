@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Create and optionally apply a validated changelog section from .changelog/*.md.
+Create and optionally apply a validated changelog section from .changelog/.
 
 The script validates entries, discovers related PR metadata, auto-calculates the
 next version, and asks for confirmation before mutating Changelog.md. If
@@ -9,7 +9,6 @@ files via ``git rm``, and creates a signed-off commit containing only those
 paths. The git index and Changelog.md must be clean before running it.
 """
 
-import glob
 import json
 import os
 import re
@@ -174,24 +173,36 @@ def validate_changelog_entry(entry_content, filename):
     return None
 
 
+def list_changelog_files(changelog_dir):
+    """
+    Return the sorted paths of the entry files in *changelog_dir*.
+
+    pr-data-action accepts any file name in .changelog/, so every regular file
+    is an entry except hidden ones (e.g. .gitkeep keeping the directory).
+    """
+    return sorted(
+        entry.path for entry in os.scandir(changelog_dir)
+        if entry.is_file() and not entry.name.startswith('.'))
+
+
 def read_changelog_entries(changelog_dir):
     """
-    Read all markdown files in the changelog directory.
+    Read all entry files in the changelog directory.
 
     Args:
         changelog_dir (str): Path to the changelog directory.
 
     Returns:
-        tuple[list[str], list[str]]: A pair of (entries, errors). Each entry
-        is the validated changelog text, potentially with an appended PR-link
-        or commit-reference line. Errors contains human-readable validation
-        failure messages.
+        tuple[list[str], list[str], list[str]]: A tuple of (entries, errors,
+        files). Each entry is the validated changelog text, potentially with
+        an appended PR-link or commit-reference line. Errors contains
+        human-readable validation failure messages. Files lists the paths of
+        the entry files read.
     """
     entries = []
     errors = []
 
-    pattern = os.path.join(changelog_dir, '*.md')
-    files = sorted(glob.glob(pattern))
+    files = list_changelog_files(changelog_dir)
 
     for file_path in files:
         filename = os.path.basename(file_path)
@@ -220,7 +231,7 @@ def read_changelog_entries(changelog_dir):
         else:
             entries.append(entry_content)
 
-    return entries, errors
+    return entries, errors, files
 
 
 def calculate_next_version(entries, current_version):
@@ -572,7 +583,7 @@ def main():
         return 1
 
     print(f"Reading changelog entries from {changelog_dir}...")
-    entries, entry_errors = read_changelog_entries(changelog_dir)
+    entries, entry_errors, entry_files = read_changelog_entries(changelog_dir)
 
     if entry_errors:
         print("Error: invalid changelog entries detected:", file=sys.stderr)
@@ -620,8 +631,7 @@ def main():
     commit_paths = [changelog_path]
     cleanup_response = input("Remove processed changelog entry files? (y/N): ")
     if cleanup_response.lower() in ['y', 'yes']:
-        files = glob.glob(os.path.join(changelog_dir, '*.md'))
-        for file_path in files:
+        for file_path in entry_files:
             try:
                 subprocess.run(["git", "rm", file_path], check=True)
                 commit_paths.append(file_path)

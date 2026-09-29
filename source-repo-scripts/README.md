@@ -183,8 +183,9 @@ cd <project-root>
 python3 ~/release-tools/source-repo-scripts/create_changelog_entry.py
 ```
 
-The first non-comment line of each `.changelog/*.md` file must follow the
-Conventional Commits format:
+Every file in `.changelog/` is an entry, whatever its extension (hidden files
+such as `.gitkeep` are skipped). The first non-comment line of each entry
+must follow the Conventional Commits format:
 
 ```text
 <type>(<optional-scope>)!: <description>
