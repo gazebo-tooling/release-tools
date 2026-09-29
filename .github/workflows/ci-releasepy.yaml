@@ -5,6 +5,7 @@ on:
     paths:
       - release.py
       - check_releasepy.bash
+      - test_releasepy.py
       - jenkins-scripts/dsl/gz-collections.yaml
       - jenkins-scripts/dsl/tools/get_collections_from_package_and_version.py
 
@@ -19,3 +20,5 @@ jobs:
           fetch-depth: 0
       - name: Run release.py script tests
         run: ./check_releasepy.bash
+      - name: Run release.py unit tests
+        run: python3 -m unittest -v test_releasepy

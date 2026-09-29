@@ -221,3 +221,79 @@ expect_no_vendor "${ros_vendor_test}"
 
 ros_vendor_test=$(exec_releasepy_with_real_gz gz-ionic 3)
 expect_no_vendor "${ros_vendor_test}"
+
+# Infer package and version from the source checkout
+releasepy="${PWD}/release.py"
+create_checkout()
+{
+  checkout_dir=$(mktemp -d -p "${test_dir}")
+  git -C "${checkout_dir}" init -q -b "${1}"
+  printf '%s\n' "${2}" > "${checkout_dir}/CMakeLists.txt"
+  git -C "${checkout_dir}" add CMakeLists.txt
+  git -C "${checkout_dir}" -c user.name=test -c user.email=test@test.foo \
+    commit -q -m "Prepare release"
+  echo "${checkout_dir}"
+}
+
+exec_inferred_releasepy_test()
+{
+  checkout_dir=${1} test_params=${2}
+  (cd "${checkout_dir}" && "${releasepy}" \
+      --no-sanity-checks \
+      --auth user:fake \
+      --source-repo-uri https://github.com/gazebosim/gz-math.git \
+    ${test_params})
+}
+
+expect_output()
+{
+  output="${1}" text="${2}"
+
+  if ! grep -qF -- "${text}" <<< "${output}"; then
+    echo "'${text}' not found in test output"
+    exit 1
+  fi
+}
+
+stable_checkout=$(create_checkout gz-math8 'project(gz-math8 VERSION 8.4.0)')
+inferred_test=$(exec_inferred_releasepy_test "${stable_checkout}" "--dry-run")
+expect_job_run "${inferred_test}" "gz-math8-source"
+expect_number_of_jobs "${inferred_test}" "1"
+expect_param "${inferred_test}" "PACKAGE=gz-math8"
+expect_param "${inferred_test}" "VERSION=8.4.0"
+expect_param "${inferred_test}" "UPLOAD_TO_REPO=stable"
+expect_output "${inferred_test}" "Release plan for gz-math8 8.4.0-1 (stable)  [branch gz-math8 @"
+expect_output "${inferred_test}" "inferred    package, version, upload repo"
+expect_output "${inferred_test}" "tag         gz-math8_8.4.0 (local HEAD)"
+
+inferred_version_test=$(exec_inferred_releasepy_test "${stable_checkout}" "--dry-run gz-math8")
+expect_param "${inferred_version_test}" "VERSION=8.4.0"
+expect_output "${inferred_version_test}" "inferred    version, upload repo"
+
+main_checkout=$(create_checkout main "project(gz-math VERSION 10.0.0)
+gz_configure_project(VERSION_SUFFIX pre1)")
+inferred_pre_test=$(exec_inferred_releasepy_test "${main_checkout}" "--dry-run")
+expect_job_run "${inferred_pre_test}" "gz-math10-source"
+expect_param "${inferred_pre_test}" "PACKAGE=gz-math10"
+expect_param "${inferred_pre_test}" "VERSION=10.0.0~pre1"
+expect_param "${inferred_pre_test}" "UPLOAD_TO_REPO=prerelease"
+expect_output "${inferred_pre_test}" "tag         gz-math10_10.0.0-pre1 (local HEAD)"
+
+if mismatch_test=$(exec_inferred_releasepy_test "${stable_checkout}" "--dry-run gz-math7"); then
+  echo "package mismatch with CMakeLists.txt should fail"
+  exit 1
+fi
+expect_output "${mismatch_test}" "CMakeLists.txt says package gz-math8, command line says gz-math7"
+
+# Without --dry-run, an inferred release needs a confirmation: no terminal and
+# no --yes must abort before tagging or calling any job
+if no_confirm_test=$(exec_inferred_releasepy_test "${stable_checkout}" "" < /dev/null); then
+  echo "inferred release without terminal or --yes should fail"
+  exit 1
+fi
+expect_output "${no_confirm_test}" "no terminal to confirm"
+expect_number_of_jobs "${no_confirm_test}" "0"
+if git -C "${stable_checkout}" tag | grep -q .; then
+  echo "inferred release without confirmation created a tag"
+  exit 1
+fi

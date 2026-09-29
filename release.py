@@ -17,7 +17,7 @@ import argparse
 import shutil
 import venv
 
-USAGE = 'release.py <package> <version>'
+USAGE = 'release.py [<package> <version>]'
 try:
     JENKINS_URL = os.environ['JENKINS_URL']
 except KeyError:
@@ -130,9 +130,16 @@ B) Call builders: reuse existing tarball version + call build jobs:
 
 C) Nightly builds (linux)
    $ release.py --source-repo-existing-ref <git_branch> --upload-to-repo nightly <package> nightly
+
+D) Infer the release from the source checkout:
+   $ release.py
+   (package and version from CMakeLists.txt, release version from the -release
+    repo; checks the checkout, prints the release plan and asks for confirmation)
  """)
-    parser.add_argument('package', help='which package to release')
-    parser.add_argument('version', help='which version to release')
+    parser.add_argument('package', nargs='?', default=None,
+                        help='which package to release (default: from CMakeLists.txt)')
+    parser.add_argument('version', nargs='?', default=None,
+                        help='which version to release (default: from CMakeLists.txt)')
     parser.add_argument('deprecated_jenkins_token',
                         default=None,
                         nargs="?",
@@ -168,8 +175,9 @@ C) Nightly builds (linux)
     parser.add_argument('--source-tarball-sha256',
                         dest='source_tarball_sha256', default=None,
                         help='SHA256 checksum of the tarball specified in --source-tarball-uri.')  # NOQA
-    parser.add_argument('--upload-to-repo', dest='upload_to_repository', default="stable",
-                        help='OSRF repo to upload: stable | prerelease | nightly')
+    parser.add_argument('--upload-to-repo', dest='upload_to_repository', default=None,
+                        help='OSRF repo to upload: stable | prerelease | nightly\n'
+                             '(default: prerelease if the version has ~pre, stable otherwise)')
     parser.add_argument('--extra-osrf-repo', dest='extra_repo', default="",
                         help='extra OSRF repository to use in the build')
     parser.add_argument('--nightly-src-branch', dest='nightly_branch', default="main",
@@ -180,20 +188,33 @@ C) Nightly builds (linux)
     parser.add_argument('--only-bump-ros-vendor-package', dest='bump_ros_vendor_only',
                         action='store_true', default=False,
                         help='Only process the ROS vendor package (if any).')
+    parser.add_argument('-y', '--yes', dest='yes', action='store_true', default=False,
+                        help='Do not ask for confirmation before releasing when package\n'
+                             'or version were inferred from the checkout')
 
     args = parser.parse_args()
+    DRY_RUN = args.dry_run
+
+    return args
+
+
+def finalize_args(args):
+    global NIGHTLY
+    global PRERELEASE
 
     args.package_alias = args.package
     if args.package.startswith('ign-'):
         args.package_alias = args.package.replace('ign-', 'ignition-')
 
-    DRY_RUN = args.dry_run
+    if not args.upload_to_repository:
+        args.upload_to_repository = \
+            'prerelease' if '~pre' in args.version else 'stable'
+        args.inferred.append('upload repo')
+
     if args.upload_to_repository == 'nightly':
         NIGHTLY = True
     if args.upload_to_repository == 'prerelease':
         PRERELEASE = True
-
-    return args
 
 #
 # BEGIN: Credentials code copied from ros_buildfarm
@@ -311,9 +332,11 @@ def sanity_package_name(repo_dir, package, package_alias):
     print_success("Package names in changelog and control")
 
 
-def sanity_package_version(repo_dir, version, release_version):
+def get_release_repo_changelog_versions(repo_dir) -> list:
+    # (version, revision, full version) of the top entry of each changelog
     cmd = ["find", repo_dir, "-name", "changelog", "-exec", "head", "-n", "1", "{}", ";"]
     out, _ = check_call(cmd, IGNORE_DRY_RUN)
+    versions = []
     for line in out.decode().split('\n'):
         if not line:
             continue
@@ -322,7 +345,29 @@ def sanity_package_version(repo_dir, version, release_version):
         # get only version (not release) in brackets
         c_version = full_version[full_version.find("(")+1:full_version.find("-")]
         c_revision = full_version[full_version.find("-")+1:full_version.rfind("~")]
+        versions.append((c_version, c_revision, full_version))
+    return versions
 
+
+def infer_release_version(args, repo_dir):
+    if args.release_version:
+        return
+    # Use the revision of the -release repo changelogs when they all agree on
+    # it for this version. Otherwise default to 1 and let the sanity checks
+    # report the mismatch.
+    revisions = {revision for c_version, revision, _ in
+                 get_release_repo_changelog_versions(repo_dir)
+                 if c_version == args.version}
+    if len(revisions) == 1:
+        args.release_version = revisions.pop()
+        args.inferred.append('release version')
+    else:
+        args.release_version = '1'
+
+
+def sanity_package_version(repo_dir, version, release_version):
+    for c_version, c_revision, full_version in \
+            get_release_repo_changelog_versions(repo_dir):
         if c_version != version:
             error("Error in package version. Repo version: " + c_version + " Provided version: " + version)
 
@@ -342,9 +387,9 @@ def sanity_check_sdformat_versions(package, version):
 
     print_success("sdformat version in proper sdformat package")
 
-def get_version_from_cmake(cmake_file="CMakeLists.txt"):
-    version_regex = re.compile(
-        r"project\s*\(\s*[a-z0-9-_]*\s*VERSION\s*([0-9.]*)", re.MULTILINE
+def get_project_from_cmake(cmake_file="CMakeLists.txt") -> Tuple[str, str]:
+    project_regex = re.compile(
+        r"project\s*\(\s*([a-z0-9-_]*)\s*VERSION\s*([0-9.]*)", re.MULTILINE
     )
     # Note the re.DOTALL is used to match any newlines and arguments to
     # gz_configure_project before VERSION_SUFFIX
@@ -355,18 +400,57 @@ def get_version_from_cmake(cmake_file="CMakeLists.txt"):
     try:
         with open(cmake_file) as f:
             content = f.read()
-            version_match = re.search(version_regex, content)
-            suffix_match = re.search(suffix_regex, content)
-            if version_match:
-                cmake_version = version_match.group(1)
-                if suffix_match:
-                    cmake_version = f"{cmake_version}~{suffix_match.group(1)}"
-                return cmake_version
-            else:
-                error("Error parsing version from CMakeLists.txt file")
     except FileNotFoundError as e:
         print(e)
         error("Could not find CMakeLists file. Are you sure you're in the source directory?")
+
+    project_match = re.search(project_regex, content)
+    if not project_match or not project_match.group(2):
+        error("Error parsing version from CMakeLists.txt file")
+    cmake_version = project_match.group(2)
+    suffix_match = re.search(suffix_regex, content)
+    if suffix_match:
+        cmake_version = f"{cmake_version}~{suffix_match.group(1)}"
+    return project_match.group(1), cmake_version
+
+
+def get_version_from_cmake(cmake_file="CMakeLists.txt"):
+    return get_project_from_cmake(cmake_file)[1]
+
+
+def get_package_from_cmake_project(project_name, version):
+    # Stable branches use the major version in the project name
+    # (gz-math7, sdformat14, ignition-math6) but main does not (gz-math),
+    # the package name always carries it.
+    package = project_name
+    if package.startswith('ignition-'):
+        package = package.replace('ignition-', 'ign-', 1)
+    if not package[-1].isdigit():
+        package += version.split('.')[0]
+    return package
+
+
+def infer_from_checkout(args):
+    args.inferred = []
+    if args.package and args.version:
+        return
+
+    project_name, cmake_version = get_project_from_cmake()
+    if not project_name:
+        error("Could not read the project name from CMakeLists.txt. "
+              "Please pass <package> <version> explicitly")
+    cmake_package = get_package_from_cmake_project(project_name, cmake_version)
+
+    for arg_name, cmake_value in (('package', cmake_package),
+                                  ('version', cmake_version)):
+        value = getattr(args, arg_name)
+        if not value:
+            setattr(args, arg_name, cmake_value)
+            args.inferred.append(arg_name)
+        elif value != cmake_value:
+            error(f"CMakeLists.txt says {arg_name} {cmake_value}, "
+                  f"command line says {value}")
+
 
 def sanity_check_cmake_version(package, version):
     # These two packages do not follow the same formatting in their CMakeLists files.
@@ -521,10 +605,87 @@ def check_call(cmd, ignore_dry_run=False, cwd=None):
         return out, err
 
 
+def get_tag_name(args):
+    # tilde is not a valid character in git
+    return '%s_%s' % (args.package_alias, args.version.replace('~', '-'))
+
+
+def tags_local_repo(args):
+    # Source mode without an existing ref tags the local HEAD
+    return not (NIGHTLY or args.source_tarball_uri or args.source_repo_ref)
+
+
+def git_output(*cmd):
+    try:
+        out, _ = check_call(['git', *cmd], IGNORE_DRY_RUN)
+    except ErrorNoOutput:
+        return ''
+    except Exception:
+        error(f"Failed to run 'git {' '.join(cmd)}' in the local checkout")
+    return out.decode().strip()
+
+
+def get_changelog_versions(changelog_file='Changelog.md') -> list:
+    versions = []
+    with open(changelog_file) as f:
+        for line in f:
+            if line.startswith('#'):
+                versions += re.findall(r'(?<![\d.])\d+\.\d+\.\d+(?![\d.])', line)
+    return versions
+
+
+def checkout_checks(args):
+    # The release tags the local HEAD: check that it is the reviewed
+    # version bump in the expected branch.
+    print("Checkout checks:")
+    if git_output('status', '--porcelain'):
+        error("The working tree has uncommitted or untracked changes. "
+              "Release from a clean checkout")
+    print_success("Working tree is clean")
+
+    branch = git_output('rev-parse', '--abbrev-ref', 'HEAD')
+    if branch == 'HEAD':
+        error("The checkout is in detached HEAD. Checkout the branch to release")
+    git_output('fetch', '--tags', 'origin', branch)
+    counts = git_output('rev-list', '--left-right', '--count',
+                        f'HEAD...origin/{branch}').split()
+    if counts != ['0', '0']:
+        ahead, behind = counts
+        error(f"Local {branch} is {ahead} commit(s) ahead and {behind} "
+              f"behind origin/{branch}. Pull or push first")
+    print_success(f"Local {branch} is up to date with origin/{branch}")
+
+    expected_branches = get_expected_branches(args)
+    if not expected_branches:
+        print(f" ~ WARNING no branch for {args.package} in gz-collections.yaml,"
+              " not checking the branch")
+    elif branch in expected_branches:
+        print_success(f"Branch {branch} is the release branch for {args.package}")
+    elif branch == 'main':
+        print(f" ~ WARNING releasing {args.package} from main instead of "
+              f"{' or '.join(expected_branches)}. Expected only for the first"
+              " release of a major version")
+    else:
+        error(f"Branch {branch} is not the release branch for {args.package}. "
+              f"Expected {' or '.join(expected_branches)}")
+
+    if not os.path.isfile('Changelog.md'):
+        print(" ~ WARNING no Changelog.md found, not checking the changelog")
+    elif args.version.split('~')[0] not in get_changelog_versions():
+        error(f"Changelog.md has no entry for {args.version}. "
+              "Was the version bump PR merged?")
+    else:
+        print_success(f"Changelog.md has an entry for {args.version}")
+
+    tag = get_tag_name(args)
+    if git_output('ls-remote', '--tags', 'origin', f'refs/tags/{tag}'):
+        error(f"Tag {tag} already exists in origin")
+    print_success(f"Tag {tag} does not exist in origin")
+
+
 def tag_repo(args):
     try:
-        # tilde is not a valid character in git
-        tag = '%s_%s' % (args.package_alias, args.version.replace('~', '-'))
+        tag = get_tag_name(args)
         check_call(['git', 'tag', '-f', tag])
         check_call(['git', 'push', 'origin', 'tag', tag])
     except ErrorNoPermsRepo:
@@ -678,11 +839,11 @@ def display_help_job_chain_for_source_calls(args):
           f'{releasepy_check_url}')
 
 
-def get_collections_for_package(package_name, version) -> list:
+def get_collections_for_package(package_name, version, extra_args=()) -> list:
     script_directory = os.path.dirname(os.path.abspath(sys.argv[0]))
     helper_script = f'{script_directory}/jenkins-scripts/dsl/tools/get_collections_from_package_and_version.py'
     collection_yaml = f'{script_directory}/jenkins-scripts/dsl/gz-collections.yaml'
-    cmd = [helper_script,
+    cmd = [helper_script, *extra_args,
            get_canonical_package_name(package_name),
            version,
            collection_yaml]
@@ -699,6 +860,13 @@ def get_collections_for_package(package_name, version) -> list:
 
     collection_list = _out.decode().strip().split(' ')
     return collection_list
+
+
+def get_expected_branches(args) -> list:
+    # gz-collections.yaml uses gz names: ign-gazebo6 -> gz-sim6
+    branches = get_collections_for_package(
+        replace_ignition_gz(args.package_alias), args.version, ['--branches'])
+    return [b for b in branches if b]
 
 
 def get_vendor_github_repo(package_name) -> str:
@@ -818,23 +986,140 @@ def create_pr_in_gz_vendor_repo(args, ros_distro) -> str:
     return pr_msg
 
 
-def process_ros_vendor_package(args):
+def is_gz_metapackage(package):
+    return package.replace('gz-', '') in ROS_VENDOR
+
+
+def get_ros_vendor_targets(args) -> list:
+    # (collection, ros_distro) pairs with a vendor package to update.
     # Only create ros vendor updates for stable releases
+    if PRERELEASE or NIGHTLY or is_gz_metapackage(args.package):
+        return []
+    return [(collection, ros_distro)
+            for collection in get_collections_for_package(args.package,
+                                                          args.version)
+            if collection in ROS_VENDOR
+            for ros_distro in ROS_VENDOR[collection]]
+
+
+def process_ros_vendor_package(args):
     if PRERELEASE or NIGHTLY:
         return
     print("ROS vendor packages that can be updated:")
-    if  args.package.replace('gz-','') in ROS_VENDOR:
+    if is_gz_metapackage(args.package):
         print(" - There are no gz metapackages in ROS")
         return
-    for collection in get_collections_for_package(args.package,
-                                                  args.version):
-        if collection in ROS_VENDOR:
-            for ros_distro in ROS_VENDOR[collection]:
-                print(f" * Github {get_vendor_github_repo(args.package)} "
-                      f"part of {collection} in ROS 2 {ros_distro}")
-                print("   + Preparing a PR: ", end='', flush=True)
-                pr_url = create_pr_in_gz_vendor_repo(args, ros_distro)
-                print(pr_url)
+    for collection, ros_distro in get_ros_vendor_targets(args):
+        print(f" * Github {get_vendor_github_repo(args.package)} "
+              f"part of {collection} in ROS 2 {ros_distro}")
+        print("   + Preparing a PR: ", end='', flush=True)
+        pr_url = create_pr_in_gz_vendor_repo(args, ros_distro)
+        print(pr_url)
+
+
+def get_linux_build_targets(ubuntu_distros, debian_distros) -> list:
+    # (linux_distro, distro, arch) for each -debbuilder call
+    targets = []
+    for l in LINUX_DISTROS:
+        if (l == 'ubuntu'):
+            distros_dic = ubuntu_distros or {}
+        elif (l == 'debian'):
+            if (PRERELEASE or NIGHTLY):
+                continue
+            if not debian_distros:
+                continue
+            distros_dic = debian_distros
+        else:
+            error("Distro not supported in code")
+
+        for d in distros_dic:
+            for a in distros_dic[d]:
+                # Filter prerelease and nightly architectures
+                if (PRERELEASE or NIGHTLY):
+                    if (a == 'arm64'):
+                        continue
+                # No sid releases for arm64 lack of docker image
+                # https://hub.docker.com/r/aarch64/debian/ fails on Jenkins
+                if (a == 'arm64' and d == 'sid'):
+                    continue
+                targets.append((l, d, a))
+    return targets
+
+
+def format_linux_build_targets(targets) -> list:
+    lines = []
+    for l in LINUX_DISTROS:
+        platforms = [f'{d}/{a}' for (t_l, d, a) in targets if t_l == l]
+        if platforms:
+            lines.append(f"{l} {' '.join(platforms)}")
+    return lines
+
+
+def print_release_plan(args, params, linux_targets):
+    package_alias_force_gz = replace_ignition_gz(args.package_alias)
+    indent = ' ' * 14
+
+    header = f"Release plan for {args.package} {args.version}-{args.release_version}" \
+             f" ({args.upload_to_repository})"
+    if tags_local_repo(args):
+        # Informative only, the checkout checks validate the checkout
+        head = [subprocess.run(['git', 'rev-parse', flag, 'HEAD'],
+                               capture_output=True, text=True)
+                for flag in ('--abbrev-ref', '--short')]
+        if all(r.returncode == 0 for r in head):
+            branch, commit = (r.stdout.strip() for r in head)
+            header += f"  [branch {branch} @ {commit}]"
+    print(f"\n{header}\n")
+    if args.inferred:
+        print(f"  {'inferred':<12}{', '.join(args.inferred)}")
+
+    debbuilder = f"{package_alias_force_gz}-debbuilder"
+    linux_lines = format_linux_build_targets(linux_targets) or ['(none)']
+    if 'SOURCE_REPO_URI' in params:
+        if tags_local_repo(args):
+            print(f"  {'tag':<12}{get_tag_name(args)} (local HEAD)"
+                  f" -> {params['SOURCE_REPO_URI']}")
+        else:
+            print(f"  {'ref':<12}{args.source_repo_ref} in {params['SOURCE_REPO_URI']}")
+        print(f"  {'source job':<12}{package_alias_force_gz}-source"
+              f"  UPLOAD_TO_REPO={params['UPLOAD_TO_REPO']}"
+              f"  RELEASE_REPO_BRANCH={params['RELEASE_REPO_BRANCH']}")
+        print(f"  {'_releasepy':<12}will call {debbuilder} for:")
+        for line in linux_lines:
+            print(f"{indent}{line}")
+    else:
+        print(f"  {'source':<12}{params['SOURCE_TARBALL_URI']}")
+        print(f"  {'debbuilder':<12}{debbuilder} for:")
+        for line in linux_lines:
+            print(f"{indent}{line}")
+
+    if not NIGHTLY and not args.bump_rev_linux_only:
+        print(f"  {'brew':<12}PR to osrf/homebrew-simulation"
+              f" ({args.package_alias} {args.version})")
+
+    if 'SOURCE_REPO_URI' in params:
+        vendor_targets = get_ros_vendor_targets(args)
+        if vendor_targets:
+            ros_distros = ', '.join(r for _, r in vendor_targets)
+            collections = ', '.join(sorted({c for c, _ in vendor_targets}))
+            print(f"  {'ros vendor':<12}{get_vendor_github_repo(args.package)}:"
+                  f" PR on {ros_distros}  (collection {collections})")
+    print()
+
+
+def confirm_release(args):
+    # Only ask when the release was inferred from the checkout, explicit
+    # arguments keep the scripted (Jenkins) behavior
+    if args.dry_run or args.yes or \
+            not {'package', 'version'} & set(args.inferred):
+        return
+    if not sys.stdin.isatty():
+        error("Package or version were inferred from the checkout and there"
+              " is no terminal to confirm. Use --yes or pass <package> <version>")
+    answer = input("Proceed? [y/N] ")
+    if answer.strip().lower() not in ('y', 'yes'):
+        print("Aborted: nothing was tagged or triggered")
+        sys.exit(1)
 
 
 def go(argv):
@@ -844,25 +1129,33 @@ def go(argv):
         error('Build token has been removed. Please generate a user token:\n'
               '  - https://gazebosim.org/docs/latest/releases-instructions/#access-and-credentials')
 
+    # Missing package or version are read from the source checkout
+    infer_from_checkout(args)
+    finalize_args(args)
+
     # If only the process of ROS vendor package is set, just do it
     if args.bump_ros_vendor_only:
         process_ros_vendor_package(args)
         sys.exit(0)
-
-    # Default to release 1 if not present
-    if not args.release_version:
-        args.release_version = 1
 
     package_alias_force_gz = replace_ignition_gz(args.package_alias)
 
     print(f"Downloading releasing info for {args.package}")
     # Sanity checks and dicover supported distributions before proceed.
     repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
+    # Default to the revision in the -release repo, or 1
+    if NIGHTLY:
+        args.release_version = args.release_version or '1'
+    else:
+        infer_release_version(args, repo_dir)
     # The supported distros are the ones in the top level of -release repo
     ubuntu_distros = discover_distros(repo_dir)  # top level, ubuntu
     debian_distros = discover_distros(repo_dir + '/debian/')  # debian dir top level, Debian
+    linux_targets = get_linux_build_targets(ubuntu_distros, debian_distros)
     if not args.no_sanity_checks:
         sanity_checks(args, repo_dir)
+        if tags_local_repo(args):
+            checkout_checks(args)
 
     params = generate_source_params(args)
     params['PACKAGE'] = args.package
@@ -878,6 +1171,9 @@ def go(argv):
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
+    print_release_plan(args, params, linux_targets)
+    confirm_release(args)
+
     if args.dry_run:
         print("Simulation of jobs to be called if not dry-run:")
     else:
@@ -892,57 +1188,35 @@ def go(argv):
                                f'{args.package_alias}-{args.version}',
                                args.auth_input_arg)
         # RELEASING FOR LINUX
-        for l in LINUX_DISTROS:
-            if (l == 'ubuntu'):
-                distros_dic = ubuntu_distros
-            elif (l == 'debian'):
-                if (PRERELEASE or NIGHTLY):
-                    continue
-                if not debian_distros:
-                    continue
-                distros_dic = debian_distros
-            else:
-                error("Distro not supported in code")
+        for l, d, a in linux_targets:
+            linux_platform_params = params.copy()
+            linux_platform_params['ARCH'] = a
+            linux_platform_params['LINUX_DISTRO'] = l
+            linux_platform_params['DISTRO'] = d
 
-            for d in distros_dic:
-                for a in distros_dic[d]:
-                    # Filter prerelease and nightly architectures
-                    if (PRERELEASE or NIGHTLY):
-                        if (a == 'arm64'):
-                            continue
+            if (a == 'arm64'):
+                # Need to use JENKINS_NODE_TAG parameter for large memory nodes
+                # since it runs qemu emulation
+                linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
 
-                    linux_platform_params = params.copy()
-                    linux_platform_params['ARCH'] = a
-                    linux_platform_params['LINUX_DISTRO'] = l
-                    linux_platform_params['DISTRO'] = d
-
-                    if (a == 'arm64'):
-                        # No sid releases for arm64 lack of docker image
-                        # https://hub.docker.com/r/aarch64/debian/ fails on Jenkins
-                        if (d == 'sid'):
-                            continue
-                        # Need to use JENKINS_NODE_TAG parameter for large memory nodes
-                        # since it runs qemu emulation
-                        linux_platform_params['JENKINS_NODE_TAG'] = 'linux-' + a
-
-                    # The control nightly generation is done using a single machine to
-                    # process all gz libraries builds sequentially to avoid race
-                    # conditions. Note: this assumes that nodes are being tagged
-                    # 'linux-nightly-${ubuntu_distro} for nightly tags.
-                    # https://github.com/gazebo-tooling/release-tools/issues/644
-                    if (NIGHTLY):
-                        assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
-                        linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
-                    # TODO: last parameter of providing help for -debbuilders
-                    # does not currently work. Somehow the string composed by
-                    # "-()" do not work even in the web UI directly. Real
-                    # string should be:
-                    # f"{args.version}-{args.release_version}({l}/{d}::{a})")
-                    call_jenkins_build(f'{package_alias_force_gz}-debbuilder',
-                                       linux_platform_params,
-                                       f"{l} {d}/{a}",
-                                       f"{args.version}-{args.release_version}",
-                                       args.auth_input_arg)
+            # The control nightly generation is done using a single machine to
+            # process all gz libraries builds sequentially to avoid race
+            # conditions. Note: this assumes that nodes are being tagged
+            # 'linux-nightly-${ubuntu_distro} for nightly tags.
+            # https://github.com/gazebo-tooling/release-tools/issues/644
+            if (NIGHTLY):
+                assert a == 'amd64', f'Nightly tag assumed amd64 but arch is {a}'
+                linux_platform_params['JENKINS_NODE_TAG'] = 'linux-nightly-' + d
+            # TODO: last parameter of providing help for -debbuilders
+            # does not currently work. Somehow the string composed by
+            # "-()" do not work even in the web UI directly. Real
+            # string should be:
+            # f"{args.version}-{args.release_version}({l}/{d}::{a})")
+            call_jenkins_build(f'{package_alias_force_gz}-debbuilder',
+                               linux_platform_params,
+                               f"{l} {d}/{a}",
+                               f"{args.version}-{args.release_version}",
+                               args.auth_input_arg)
     else:
         # b) Mode generate source
         # Choose platform to run gz-source on. It will need to install gz-cmake
