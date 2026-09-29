@@ -6,8 +6,8 @@ The script validates entries, discovers related PR metadata, auto-calculates the
 next version, and asks for confirmation before mutating Changelog.md. If
 confirmed, it stages Changelog.md, removes the processed .changelog/ files via
 ``git rm`` (so the next release does not publish them again), and creates a
-signed-off commit containing only those paths. The git index and Changelog.md
-must be clean before running it.
+signed-off commit containing only those paths. The git index, Changelog.md and
+the .changelog/ entry files must be clean (committed) before running it.
 """
 
 import json
@@ -184,6 +184,25 @@ def list_changelog_files(changelog_dir):
     return sorted(
         entry.path for entry in os.scandir(changelog_dir)
         if entry.is_file() and not entry.name.startswith('.'))
+
+
+def uncommitted_changelog_files(files):
+    """
+    Return ``git status --porcelain`` lines for entry *files* that differ from HEAD.
+
+    Processed entries are removed with ``git rm``, which fails on untracked,
+    ignored or locally modified files after Changelog.md is already staged.
+    Returns None when git cannot answer.
+    """
+    if not files:
+        return []
+    result = run_subprocess(
+        ["git", "status", "--porcelain", "--untracked-files=all", "--ignored",
+         "--", *files],
+        context="git status for .changelog/")
+    if result is None or result.returncode != 0:
+        return None
+    return result.stdout.splitlines()
 
 
 def read_changelog_entries(changelog_dir):
@@ -576,6 +595,21 @@ def main():
             ["git", "diff", "--quiet", "--", changelog_path]).returncode != 0:
         print(f"Error: {changelog_path} has uncommitted changes; commit or "
               "discard them before running this script", file=sys.stderr)
+        return 1
+
+    # Entries come from merged PRs; a file that is not committed as-is would
+    # make the final "git rm" fail after Changelog.md has been staged.
+    uncommitted = uncommitted_changelog_files(
+        list_changelog_files(changelog_dir))
+    if uncommitted is None:
+        print("Error: could not check the git status of .changelog/",
+              file=sys.stderr)
+        return 1
+    if uncommitted:
+        print("Error: changelog entry files are not committed; commit or "
+              "remove them before running this script:", file=sys.stderr)
+        for line in uncommitted:
+            print(f"  {line}", file=sys.stderr)
         return 1
 
     try:

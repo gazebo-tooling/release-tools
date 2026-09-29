@@ -176,7 +176,9 @@ once for confirmation, then updates and stages `Changelog.md` with `git add`
 and removes the processed `.changelog/` files with `git rm`, so the next
 release does not publish them again. Finally it creates a signed-off commit
 (`Generate changelog entry for version X.Y.Z`) containing only those paths.
-The git index and `Changelog.md` must be clean before running it.
+The git index, `Changelog.md` and the `.changelog/` entry files must be clean
+before running it: an entry file that is untracked or locally modified stops
+the script before anything is changed.
 
 ```bash
 cd <project-root>
