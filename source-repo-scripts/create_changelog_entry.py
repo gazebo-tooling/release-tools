@@ -15,7 +15,7 @@ import os
 import re
 import subprocess
 import sys
-from datetime import datetime
+from datetime import date
 
 CONVENTIONAL_COMMIT_HEADER_RE = re.compile(
     r"^(?P<type>[a-z]+)(\([^\r\n()]+\))?(?P<breaking>!)?: (?P<description>\S.*)$")
@@ -46,7 +46,7 @@ def first_non_blank_line(text):
     return ""
 
 
-def run_subprocess(cmd, timeout=10, context=""):
+def run_subprocess(cmd, timeout=10, context="", quiet=False):
     """
     Run a subprocess and return its CompletedProcess, or None on error.
 
@@ -56,20 +56,34 @@ def run_subprocess(cmd, timeout=10, context=""):
         cmd (list): Command and arguments.
         timeout (int): Timeout in seconds.
         context (str): Human-readable label used in warning messages.
+        quiet (bool): Do not warn when the command exits non-zero.
 
     Returns:
         subprocess.CompletedProcess or None: The result, or None when the
-        command could not be executed at all.
+        command could not be executed or exited non-zero.
     """
     try:
-        return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=timeout)
     except subprocess.TimeoutExpired as e:
         print(f"Warning: {context} timed out: {e}", file=sys.stderr)
+        return None
     except FileNotFoundError as e:
         print(f"Warning: {context} command not found: {e}", file=sys.stderr)
+        return None
     except OSError as e:
         print(f"Warning: {context} failed: {e}", file=sys.stderr)
-    return None
+        return None
+
+    if result.returncode != 0:
+        if not quiet:
+            stderr = result.stderr.strip()
+            print(
+                f"Warning: {context} returned exit code {result.returncode}"
+                f"{': ' + stderr if stderr else ''}",
+                file=sys.stderr)
+        return None
+    return result
 
 
 def parse_changelog_header(changelog_path):
@@ -200,29 +214,26 @@ def uncommitted_changelog_files(files):
         ["git", "status", "--porcelain", "--untracked-files=all", "--ignored",
          "--", *files],
         context="git status for .changelog/")
-    if result is None or result.returncode != 0:
+    if result is None:
         return None
     return result.stdout.splitlines()
 
 
-def read_changelog_entries(changelog_dir):
+def read_changelog_entries(files):
     """
-    Read all entry files in the changelog directory.
+    Read the changelog entry *files*.
 
     Args:
-        changelog_dir (str): Path to the changelog directory.
+        files (list[str]): Paths of the entry files (see list_changelog_files).
 
     Returns:
-        tuple[list[str], list[str], list[str]]: A tuple of (entries, errors,
-        files). Each entry is the validated changelog text, potentially with
-        an appended PR-link or commit-reference line. Errors contains
-        human-readable validation failure messages. Files lists the paths of
-        the entry files read.
+        tuple[list[str], list[str]]: A tuple of (entries, errors). Each entry
+        is the validated changelog text, potentially with an appended PR-link
+        or commit-reference line. Errors contains human-readable validation
+        failure messages.
     """
     entries = []
     errors = []
-
-    files = list_changelog_files(changelog_dir)
 
     for file_path in files:
         filename = os.path.basename(file_path)
@@ -236,9 +247,9 @@ def read_changelog_entries(changelog_dir):
 
         # Remove template comment lines (lines whose first non-whitespace
         # character is '#').
-        lines = content.split('\n')
-        entry_lines = [line for line in lines if not line.strip().startswith('#')]
-        entry_content = '\n'.join(entry_lines).strip()
+        entry_content = '\n'.join(
+            line for line in content.split('\n')
+            if not line.strip().startswith('#')).strip()
 
         validation_error = validate_changelog_entry(entry_content, filename)
         if validation_error is not None:
@@ -246,12 +257,10 @@ def read_changelog_entries(changelog_dir):
             continue
 
         pr_info = get_pr_info(file_path)
-        if pr_info:
-            entries.append(f"{entry_content}\n{pr_info}")
-        else:
-            entries.append(entry_content)
+        entries.append(
+            f"{entry_content}\n{pr_info}" if pr_info else entry_content)
 
-    return entries, errors, files
+    return entries, errors
 
 
 def calculate_next_version(entries, current_version):
@@ -336,7 +345,7 @@ def generate_changelog_entry(entries, project_name, version, heading="###"):
     Returns:
         str: Formatted changelog entry.
     """
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = date.today().isoformat()
 
     changelog_lines = [
         f"{heading} {project_name} {version} ({today})",
@@ -415,8 +424,8 @@ def get_merged_pr_by_number(pr_number):
     gh cannot answer.
     """
     cmd = ["gh", "pr", "view", pr_number, "--json", "number,url,state"]
-    result = run_subprocess(cmd, context=f"gh pr view {pr_number}")
-    if result is None or result.returncode != 0:
+    result = run_subprocess(cmd, context=f"gh pr view {pr_number}", quiet=True)
+    if result is None:
         return None
     try:
         pr = json.loads(result.stdout)
@@ -435,18 +444,7 @@ def search_merged_pr_by_commit(commit_sha):
     # Use gh CLI to search for merged PRs containing the commit SHA.
     cmd = ["gh", "pr", "list", "--state=merged", "--search", commit_sha, "--json", "number,url"]
     result = run_subprocess(cmd, context=f"gh pr list for {commit_sha}")
-    if result is None:
-        return None
-
-    if result.returncode != 0:
-        stderr = result.stderr.strip()
-        print(
-            f"Warning: gh pr list returned exit code {result.returncode} "
-            f"for {commit_sha}{': ' + stderr if stderr else ''}",
-            file=sys.stderr)
-        return None
-
-    if not result.stdout.strip():
+    if result is None or not result.stdout.strip():
         return None
 
     try:
@@ -534,14 +532,6 @@ def get_pr_info(file_path):
     if git_result is None:
         return ""
 
-    if git_result.returncode != 0:
-        stderr = git_result.stderr.strip()
-        print(
-            f"Warning: git log returned exit code {git_result.returncode} "
-            f"for {filename}{': ' + stderr if stderr else ''}",
-            file=sys.stderr)
-        return ""
-
     if not git_result.stdout.strip():
         print(
             f"Info: no git history found for {filename} "
@@ -599,8 +589,8 @@ def main():
 
     # Entries come from merged PRs; a file that is not committed as-is would
     # make the final "git rm" fail after Changelog.md has been staged.
-    uncommitted = uncommitted_changelog_files(
-        list_changelog_files(changelog_dir))
+    entry_files = list_changelog_files(changelog_dir)
+    uncommitted = uncommitted_changelog_files(entry_files)
     if uncommitted is None:
         print("Error: could not check the git status of .changelog/",
               file=sys.stderr)
@@ -620,7 +610,7 @@ def main():
         return 1
 
     print(f"Reading changelog entries from {changelog_dir}...")
-    entries, entry_errors, entry_files = read_changelog_entries(changelog_dir)
+    entries, entry_errors = read_changelog_entries(entry_files)
 
     if entry_errors:
         print("Error: invalid changelog entries detected:", file=sys.stderr)
@@ -671,22 +661,18 @@ def main():
               file=sys.stderr)
         return 1
 
-    commit_paths = [changelog_path]
-    for file_path in entry_files:
-        try:
-            subprocess.run(["git", "rm", file_path], check=True)
-            commit_paths.append(file_path)
-            print(f"Removed {file_path}")
-        except subprocess.CalledProcessError as e:
-            print(f"Error: could not remove {file_path}: {e}",
-                  file=sys.stderr)
-            return 1
+    try:
+        subprocess.run(["git", "rm", "--", *entry_files], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error: could not remove the processed entry files: {e}",
+              file=sys.stderr)
+        return 1
 
     try:
         subprocess.run(
             ["git", "commit", "--signoff", "-m",
              f"Generate changelog entry for version {new_version}",
-             "--", *commit_paths],
+             "--", changelog_path, *entry_files],
             check=True)
         print("Committed changelog updates")
     except subprocess.CalledProcessError as e:
@@ -698,4 +684,4 @@ def main():
 
 
 if __name__ == '__main__':
-    exit(main())
+    sys.exit(main())
