@@ -171,15 +171,6 @@ void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
             #!/bin/bash -xe
 
             export PROJECT_PATH="${ws_checkout_dir}"
-            if [ -n "\${ghprbTargetBranch}" ] && [  -n "\${ghprbActualCommit}" ] && \
-              git -C \${WORKSPACE}/\${PROJECT_PATH} \
-                diff --merge-base origin/\${ghprbTargetBranch} \${ghprbActualCommit} --name-only \
-                | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py \
-                          ./scripts/jenkins-scripts/tools/gz_ci.ignored;
-            then
-                echo Skipping CI
-                exit
-            fi
             /bin/bash -xe ./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash "${lib_name}"
             """.stripIndent())
       }
@@ -498,7 +489,7 @@ branch_index.each { lib_name, distro_configs ->
                   ${GLOBAL_SHELL_CMD}
                   ${extra_cmd}
                   if [ -n "\${ghprbTargetBranch}" ] && [  -n "\${ghprbActualCommit}" ] && \
-                    git -C \${WORKSPACE}/\${PROJECT_PATH} \
+                    git -C \${WORKSPACE}/${lib_name} \
                       diff --merge-base origin/\${ghprbTargetBranch} \${ghprbActualCommit} --name-only \
                       | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py \
                                 ./scripts/jenkins-scripts/tools/gz_ci.ignored;
@@ -573,6 +564,16 @@ branch_index.each { lib_name, distro_configs ->
 
                 ${GLOBAL_SHELL_CMD}
                 ${extra_cmd}
+
+                if [ -n "\${ghprbTargetBranch}" ] && [  -n "\${ghprbActualCommit}" ] && \
+                  git -C \${WORKSPACE}/${lib_name} \
+                    diff --merge-base origin/\${ghprbTargetBranch} \${ghprbActualCommit} --name-only \
+                    | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py \
+                              ./scripts/jenkins-scripts/tools/gz_ci.ignored;
+                then
+                    echo Skipping CI
+                    exit
+                fi
 
                 export ARCH=${arch}
                 export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
