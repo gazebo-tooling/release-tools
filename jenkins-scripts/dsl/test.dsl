@@ -24,6 +24,7 @@ ignition_ci_pr_job.with
   {
      shell("""\
           #!/bin/bash -xe
+          set -e
 
           if [ -n "\${ghprbTargetBranch}" ] && [  -n "\${ghprbActualCommit}" ] && \
             git -C \${WORKSPACE}/testing \

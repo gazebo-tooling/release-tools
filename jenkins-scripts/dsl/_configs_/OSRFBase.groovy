@@ -27,7 +27,7 @@ class OSRFBase
         }
 
         parameters {
-          stringParam('RTOOLS_BRANCH','master','release-tools branch to use')
+          stringParam('RTOOLS_BRANCH','scpeters/check_ignored_files_test','release-tools branch to use')
           if (Globals.gazebodistro_branch)
           {
             stringParam('GAZEBODISTRO_BRANCH','master','gazebodistro branch to use')
