@@ -18,6 +18,25 @@ OSRFLinuxCompilationAnyGitHub.create(ignition_ci_pr_job,
                                      false,
                                      false,
                                      ['main'])
+ignition_ci_pr_job.with
+{
+  steps
+  {
+     shell("""\
+          #!/bin/bash -xe
+
+          if [ -n "\${ghprbTargetBranch}" ] && [  -n "\${ghprbActualCommit}" ] && \
+            git -C \${WORKSPACE}/${lib_name} \
+              diff --merge-base origin/\${ghprbTargetBranch} \${ghprbActualCommit} --name-only \
+              | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py \
+                        ./scripts/jenkins-scripts/tools/gz_ci.ignored;
+          then
+              echo Skipping CI
+              exit
+          fi
+          """.stripIndent())
+  } // end of steps
+} // end of ci_any_job
 
 // releasing testing job
 def releasepy_job = job("_test_releasepy")
