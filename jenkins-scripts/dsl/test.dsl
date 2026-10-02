@@ -26,7 +26,7 @@ ignition_ci_pr_job.with
           #!/bin/bash -xe
 
           if [ -n "\${ghprbTargetBranch}" ] && [  -n "\${ghprbActualCommit}" ] && \
-            git -C \${WORKSPACE}/${lib_name} \
+            git -C \${WORKSPACE}/testing \
               diff --merge-base origin/\${ghprbTargetBranch} \${ghprbActualCommit} --name-only \
               | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py \
                         ./scripts/jenkins-scripts/tools/gz_ci.ignored;
