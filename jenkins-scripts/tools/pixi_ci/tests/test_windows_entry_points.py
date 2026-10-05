@@ -41,6 +41,22 @@ def test_wrapper_runs_the_driver_with_the_bootstrap_python():
     assert "PYTHONPATH" not in text
 
 
+def test_wrapper_reusing_a_missing_bootstrap_env_fails_clearly():
+    # a new agent or a cleaned %PROGRAMDATA%\pixi has no bootstrap python:
+    # cmd would only say "The system cannot find the path specified."
+    lines = (LIB / "colcon-default-devel-windows.bat").read_bytes().decode().split("\r\n")
+    check = ('if defined REUSE_PIXI_INSTALLATION if not exist '
+             '"%PIXI_BOOTSTRAP_PROJECT_PATH%\\.pixi\\envs\\default\\python.exe" '
+             'goto :no_bootstrap_env')
+    run = next(i for i, line in enumerate(lines) if "run_pixi_ci.py" in line)
+    assert check in lines[:run]
+    error = lines.index(":no_bootstrap_env")
+    assert lines[error + 1].startswith(
+        "echo ERROR: REUSE_PIXI_INSTALLATION is set but "
+        "%PIXI_BOOTSTRAP_PROJECT_PATH% has no bootstrap environment")
+    assert lines[error + 2] == "exit %EXTRA_EXIT_PARAM% 1"
+
+
 def test_windows_library_keeps_only_the_labels_still_called():
     text = (LIB / "windows_library.bat").read_text()
     assert re.findall(r"^:([a-z_0-9]+)", text, re.MULTILINE) == [
