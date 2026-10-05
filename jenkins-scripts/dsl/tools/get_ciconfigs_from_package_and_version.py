@@ -3,6 +3,7 @@
 Script to find conda configurations for a given Gazebo package and major version
 Usage: python get_ciconfigs_from_package_and_version.py gz-rendering 3
        python get_ciconfigs_from_package_and_version.py --conda-env gz-rendering 6
+       python get_ciconfigs_from_package_and_version.py --conda-env --os windows --arch amd64 gz-rendering 6
 With --conda-env it returns only the conda environment version string
 (e.g., 'legacy', 'noble_like')
 """
@@ -96,6 +97,90 @@ def print_conda_env(result, package_name, major_version):
 
     print(result['conda_configs'][0]['version'])
 
+def _ci_config_names(collection):
+    return (collection.get('ci') or {}).get('configs') or []
+
+def _tracks_main(lib):
+    return (lib.get('repo') or {}).get('current_branch') == 'main'
+
+def find_platform_conda_envs(package_name, major_version, yaml_file_path,
+                             so, arch):
+    """
+    Find the conda environments testing a package and major version on one
+    platform (the system.so and system.arch of the ci_configs).
+
+    Unlike find_conda_configs, every collection with the package and major
+    version is a candidate, not only the first one. A candidate with empty
+    ci configs whose entry tracks main (i.e: Gazebo M before its stable
+    branches exist) is replaced by the collections testing the same package
+    on main with non-empty ci configs (i.e: rotary).
+
+    Args:
+        package_name (str): gz-collections.yaml library name (e.g., 'gz-fuel-tools')
+        major_version (int): Major version number
+        yaml_file_path (str): Path to gz-collections.yaml file
+        so (str): system.so of the ci_configs (e.g., 'windows', 'darwin')
+        arch (str): system.arch of the ci_configs (e.g., 'amd64', 'arm64')
+
+    Returns:
+        list: one dict (collection, ci_config, version) per matching conda
+              ci_config, in gz-collections.yaml order
+    """
+    with open(yaml_file_path, 'r') as f:
+        data = yaml.safe_load(f)
+
+    collections = data.get('collections', [])
+    candidates = []
+    for collection in collections:
+        for lib in collection.get('libs', []):
+            if (lib.get('name') != package_name or
+                lib.get('major_version') != major_version):
+                continue
+            if _ci_config_names(collection):
+                candidates.append(collection)
+            elif _tracks_main(lib):
+                candidates.extend(
+                    c for c in collections
+                    if _ci_config_names(c) and
+                    any(l.get('name') == package_name and _tracks_main(l)
+                        for l in c.get('libs', [])))
+            break
+
+    systems = {c.get('name'): c.get('system', {})
+               for c in data.get('ci_configs', [])}
+    matches = []
+    for collection in candidates:
+        for config_name in _ci_config_names(collection):
+            system = systems.get(config_name, {})
+            if (system.get('distribution') == 'conda' and
+                system.get('so') == so and system.get('arch') == arch):
+                matches.append({
+                    'collection': collection.get('name'),
+                    'ci_config': config_name,
+                    'version': system.get('version')
+                })
+    return matches
+
+def print_platform_env(package_name, major_version, yaml_file, so, arch):
+    """Print the only conda env for the platform; return the exit code."""
+    matches = find_platform_conda_envs(package_name, major_version,
+                                       yaml_file, so, arch)
+    versions = {m['version'] for m in matches}
+    if len(versions) == 1:
+        print(versions.pop())
+        return 0
+    if not matches:
+        print(f"Error: No conda configurations found for {package_name} "
+              f"v{major_version} on {so}/{arch}", file=sys.stderr)
+        return 1
+    print(f"Error: Several conda environments found for {package_name} "
+          f"v{major_version} on {so}/{arch}:", file=sys.stderr)
+    for m in matches:
+        print(f"  - {m['collection']}: {m['ci_config']}: {m['version']}",
+              file=sys.stderr)
+    print("Set CONDA_ENV_NAME to choose one of them", file=sys.stderr)
+    return 1
+
 def main():
     parser = argparse.ArgumentParser(description='Find conda configurations for Gazebo packages')
     parser.add_argument('package_name',
@@ -107,8 +192,20 @@ def main():
                        help='Path to gz-collections.yaml file')
     parser.add_argument('--conda-env', action='store_true',
                        help='Print only the conda environment version')
+    parser.add_argument('--os', dest='so',
+                       help='Only conda configs with this system.so '
+                            '(e.g., windows, darwin). Requires --arch '
+                            'and --conda-env')
+    parser.add_argument('--arch',
+                       help='Only conda configs with this system.arch '
+                            '(e.g., amd64, arm64). Requires --os '
+                            'and --conda-env')
 
     args = parser.parse_args()
+    if (args.so is None) != (args.arch is None):
+        parser.error('--os and --arch must be used together')
+    if args.so is not None and not args.conda_env:
+        parser.error('--os and --arch require --conda-env')
 
     package_name = args.package_name
     major_version = args.major_version
@@ -125,6 +222,10 @@ def main():
             sys.exit(1)
 
     try:
+        if args.so is not None:
+            sys.exit(print_platform_env(package_name, major_version,
+                                        yaml_file, args.so, args.arch))
+
         result = find_conda_configs(package_name, major_version, yaml_file)
 
         if not result['found']:
