@@ -31,6 +31,22 @@ python get_conda_ciconfig_from_package_and_version.py gz-sim 10
 
 **Output:** Single line containing the conda environment version (e.g., `legacy`, `legacy_ogre23`, `noble_like`).
 
+With `--os` and `--arch` (the `system.so` and `system.arch` of the ci_configs)
+only the conda configs of that platform count, in every collection with the
+package and major version. A collection with empty `ci.configs` whose entry
+tracks `main` (Gazebo M) uses the collections testing the package in `main`
+(rotary). Configs with the same environment collapse into one; several
+environments are an error that asks for `CONDA_ENV_NAME`. The pixi_ci driver
+uses this mode.
+
+```bash
+python get_conda_ciconfig_from_package_and_version.py --os windows --arch amd64 gz-sim 11
+# Output: noble_like
+
+python get_conda_ciconfig_from_package_and_version.py --os windows --arch amd64 gz-tools 2
+# Error (exit 1): harmonic and ionic use legacy_ogre23, jetty uses noble_like
+```
+
 ## DSL 6
 python get_ciconfigs_from_package_and_version.py gz-sim 8 --yaml-file custom-collections.yaml
 ```

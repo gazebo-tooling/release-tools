@@ -2,6 +2,7 @@
 """
 Wrapper script to get conda environment version for a given Gazebo package and major version
 Usage: python get_conda_ciconfig_from_package_and_version.py gz-rendering 6
+       python get_conda_ciconfig_from_package_and_version.py --os windows --arch amd64 gz-rendering 6
 Returns only the conda environment version string (e.g., 'legacy', 'noble_like')
 """
 
@@ -14,6 +15,27 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, script_dir)
 
 from get_ciconfigs_from_package_and_version import find_conda_configs
+from get_ciconfigs_from_package_and_version import find_platform_conda_envs
+
+def print_platform_env(package_name, major_version, yaml_file, so, arch):
+    """Print the only conda env for the platform; return the exit code."""
+    matches = find_platform_conda_envs(package_name, major_version,
+                                       yaml_file, so, arch)
+    versions = {m['version'] for m in matches}
+    if len(versions) == 1:
+        print(versions.pop())
+        return 0
+    if not matches:
+        print(f"Error: No conda configurations found for {package_name} "
+              f"v{major_version} on {so}/{arch}", file=sys.stderr)
+        return 1
+    print(f"Error: Several conda environments found for {package_name} "
+          f"v{major_version} on {so}/{arch}:", file=sys.stderr)
+    for m in matches:
+        print(f"  - {m['collection']}: {m['ci_config']}: {m['version']}",
+              file=sys.stderr)
+    print("Set CONDA_ENV_NAME to choose one of them", file=sys.stderr)
+    return 1
 
 def main():
     parser = argparse.ArgumentParser(
@@ -26,8 +48,16 @@ def main():
     parser.add_argument('--yaml-file', '-f',
                        default='../gz-collections.yaml',
                        help='Path to gz-collections.yaml file')
+    parser.add_argument('--os', dest='so',
+                       help='Only conda configs with this system.so '
+                            '(e.g., windows, darwin). Requires --arch')
+    parser.add_argument('--arch',
+                       help='Only conda configs with this system.arch '
+                            '(e.g., amd64, arm64). Requires --os')
 
     args = parser.parse_args()
+    if (args.so is None) != (args.arch is None):
+        parser.error('--os and --arch must be used together')
 
     package_name = args.package_name
     major_version = args.major_version
@@ -43,6 +73,10 @@ def main():
             sys.exit(1)
 
     try:
+        if args.so is not None:
+            sys.exit(print_platform_env(package_name, major_version,
+                                        yaml_file, args.so, args.arch))
+
         result = find_conda_configs(package_name, major_version, yaml_file)
 
         if not result['found']:

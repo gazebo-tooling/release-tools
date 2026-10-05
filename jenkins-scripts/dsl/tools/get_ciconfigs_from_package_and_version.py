@@ -79,6 +79,70 @@ def find_conda_configs(package_name, major_version, yaml_file_path):
         'conda_configs': conda_configs
     }
 
+def _ci_config_names(collection):
+    return (collection.get('ci') or {}).get('configs') or []
+
+def _tracks_main(lib):
+    return (lib.get('repo') or {}).get('current_branch') == 'main'
+
+def find_platform_conda_envs(package_name, major_version, yaml_file_path,
+                             so, arch):
+    """
+    Find the conda environments testing a package and major version on one
+    platform (the system.so and system.arch of the ci_configs).
+
+    Unlike find_conda_configs, every collection with the package and major
+    version is a candidate, not only the first one. A candidate with empty
+    ci configs whose entry tracks main (i.e: Gazebo M before its stable
+    branches exist) is replaced by the collections testing the same package
+    on main with non-empty ci configs (i.e: rotary).
+
+    Args:
+        package_name (str): gz-collections.yaml library name (e.g., 'gz-fuel-tools')
+        major_version (int): Major version number
+        yaml_file_path (str): Path to gz-collections.yaml file
+        so (str): system.so of the ci_configs (e.g., 'windows', 'darwin')
+        arch (str): system.arch of the ci_configs (e.g., 'amd64', 'arm64')
+
+    Returns:
+        list: one dict (collection, ci_config, version) per matching conda
+              ci_config, in gz-collections.yaml order
+    """
+    with open(yaml_file_path, 'r') as f:
+        data = yaml.safe_load(f)
+
+    collections = data.get('collections', [])
+    candidates = []
+    for collection in collections:
+        for lib in collection.get('libs', []):
+            if (lib.get('name') != package_name or
+                lib.get('major_version') != major_version):
+                continue
+            if _ci_config_names(collection):
+                candidates.append(collection)
+            elif _tracks_main(lib):
+                candidates.extend(
+                    c for c in collections
+                    if _ci_config_names(c) and
+                    any(l.get('name') == package_name and _tracks_main(l)
+                        for l in c.get('libs', [])))
+            break
+
+    systems = {c.get('name'): c.get('system', {})
+               for c in data.get('ci_configs', [])}
+    matches = []
+    for collection in candidates:
+        for config_name in _ci_config_names(collection):
+            system = systems.get(config_name, {})
+            if (system.get('distribution') == 'conda' and
+                system.get('so') == so and system.get('arch') == arch):
+                matches.append({
+                    'collection': collection.get('name'),
+                    'ci_config': config_name,
+                    'version': system.get('version')
+                })
+    return matches
+
 def main():
     parser = argparse.ArgumentParser(description='Find conda configurations for Gazebo packages')
     parser.add_argument('package_name',
