@@ -332,6 +332,7 @@ def test_reuse_pixi_installation_skips_the_env_install(tmp_path):
     job.project.mkdir(parents=True)
     (job.project / "pixi.toml").write_text("[workspace]\n")
     (job.project / "previous").write_text("x")
+    Path(job.pixi).write_text("")
     code, calls = job.run(REUSE_PIXI_INSTALLATION="1")
     pixi_args = [c.args for c in calls if c.tool == job.pixi]
     assert code == 0
@@ -404,6 +405,17 @@ def test_reuse_without_a_previous_installation_fails_clearly(tmp_path, capsys):
     assert code == 1
     assert (f"ERROR: REUSE_PIXI_INSTALLATION is set but {job.project} has no "
             "pixi project") in capsys.readouterr().out
+    assert not any(c.tool == job.pixi for c in calls)
+
+
+def test_reuse_without_the_pixi_executable_fails_clearly(tmp_path, capsys):
+    job = make_job(tmp_path)
+    job.project.mkdir(parents=True)
+    (job.project / "pixi.toml").write_text("[workspace]\n")
+    code, calls = job.run(REUSE_PIXI_INSTALLATION="1")
+    assert code == 1
+    assert (f"ERROR: REUSE_PIXI_INSTALLATION is set but {job.pixi} does not "
+            "exist") in capsys.readouterr().out
     assert not any(c.tool == job.pixi for c in calls)
 
 
