@@ -22,11 +22,16 @@ if not defined REUSE_PIXI_INSTALLATION (
   call %win_lib% :pixi_create_bootstrap_environment || goto :error
   echo # END SECTION
 )
+if defined REUSE_PIXI_INSTALLATION if not exist "%PIXI_BOOTSTRAP_PROJECT_PATH%\.pixi\envs\default\python.exe" goto :no_bootstrap_env
 
 :: Run the interpreter directly: .bat scripts can not capture the output of
 :: pixi run correctly (see conda/config-detector/pixi.toml)
 "%PIXI_BOOTSTRAP_PROJECT_PATH%\.pixi\envs\default\python.exe" -u "%SCRIPT_DIR%\tools\run_pixi_ci.py" %1 || goto :error
 goto :EOF
+
+:no_bootstrap_env
+echo ERROR: REUSE_PIXI_INSTALLATION is set but %PIXI_BOOTSTRAP_PROJECT_PATH% has no bootstrap environment: run once without it
+exit %EXTRA_EXIT_PARAM% 1
 
 :error - error routine
 echo Failed with error #%errorlevel%.
