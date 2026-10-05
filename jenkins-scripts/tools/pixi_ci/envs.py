@@ -60,6 +60,9 @@ def check_reused_project(cfg):
     if not (cfg.project_path / "pixi.toml").is_file():
         raise CIError(f"REUSE_PIXI_INSTALLATION is set but {cfg.project_path} "
                       "has no pixi project: run once without it")
+    if not cfg.pixi_exe.is_file():
+        raise CIError(f"REUSE_PIXI_INSTALLATION is set but {cfg.pixi_exe} "
+                      "does not exist: run once without it")
 
 
 def show_env(runner, cfg, env):
