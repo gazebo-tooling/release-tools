@@ -3,7 +3,9 @@
 Builds and tests one Gazebo library on a CI agent: it installs the third-party
 dependencies of a `conda/envs/<env>` pixi environment, builds the Gazebo
 dependencies from source (gazebodistro + colcon), then builds and tests the
-library. Today it supports Windows only.
+library. Today it supports Windows only: the `jenkins-scripts/<lib>-default-devel-windows-amd64.bat`
+entry points call `jenkins-scripts/lib/colcon-default-devel-windows.bat <library>`,
+which downloads pixi, creates the bootstrap environment and runs the driver.
 
 It runs with the Python of the `conda/config-detector` pixi environment (the
 "bootstrap" environment, which has pyyaml):

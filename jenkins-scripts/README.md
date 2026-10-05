@@ -21,6 +21,10 @@ Same [ROS 2 instructons](https://docs.ros.org/en/jazzy/Installation/Windows-Inst
 
 The `local_build.py` script is used to reproduce Jenkins builds for Windows, specifically supporting Pixi builds.
 
+The `gz_*.bat` scripts run the [pixi_ci driver](tools/pixi_ci/README.md). The job
+variables it documents can be set in the command prompt before calling
+`local_build.py`, for example `set CONDA_ENV_NAME=legacy` to force a conda environment.
+
 ### Running the script
 
 > [!IMPORTANT]

@@ -88,10 +88,10 @@ Note that both the generated files `Dockerfile` and `build.sh` are stored as Jen
 
 ### Windows: Building Dependencies from Source
 
-The Windows strategy is a hybrid: it uses the `pixi` package manager and `conda-forge` packages for a baseline of third-party tools and then builds all Gazebo dependencies from source using `gazebodistro`. The process is orchestrated by [jenkins-scripts/lib/colcon-default-devel-windows.bat](../jenkins-scripts/lib/colcon-default-devel-windows.bat).
+The Windows strategy is a hybrid: it uses the `pixi` package manager and `conda-forge` packages for a baseline of third-party tools and then builds all Gazebo dependencies from source using `gazebodistro`. The process is run by the [pixi_ci driver](../jenkins-scripts/tools/pixi_ci/README.md), which [jenkins-scripts/lib/colcon-default-devel-windows.bat](../jenkins-scripts/lib/colcon-default-devel-windows.bat) starts with the Python of the `conda/config-detector` pixi environment.
 
 1.  **Baseline via `pixi`/`conda`:** A `pixi` environment is created to install large, pre-built binary packages like Boost, OGRE, Qt, etc.
-2.  **Determine Target Version:** The script runs [tools/detect_cmake_major_version.py](../jenkins-scripts/tools/detect_cmake_major_version.py) on the PR's `CMakeLists.txt` to find the library's major version (e.g., `9`).
+2.  **Determine Target Version:** The driver runs [tools/detect_cmake_major_version.py](../jenkins-scripts/tools/detect_cmake_major_version.py) on the PR's `CMakeLists.txt` to find the library's major version (e.g., `9`).
 3.  **Checkout Dependencies from `gazebodistro`:** A helper function uses `vcs import` to read the appropriate `.yaml` file from the `gazebodistro` repository (e.g., `gz-math9.yaml`). `vcs` then clones the source code for **all listed dependencies** into the local workspace.
 4.  **Build Workspace:** The `colcon build` command is used to compile the entire workspace from source.
 
