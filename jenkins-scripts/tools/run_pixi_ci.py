@@ -12,4 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from pixi_ci.__main__ import main  # noqa: E402
 
+# Jenkins pipes stdout: on Windows python writes it in the ANSI code page,
+# where text from tool reports may not fit. Replace it, as cmd's type does.
+sys.stdout.reconfigure(errors="replace")
 sys.exit(main())
