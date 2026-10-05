@@ -81,10 +81,11 @@ class Job:
         if call.tool == self.pixi and call.args[:2] == ["shell-hook", "--locked"]:
             return Result(0, HOOKS)
         if call.tool == self.pixi and call.args[:2] == ["shell-hook", "--json"]:
+            # pixi prints the variables in a different order on every call
             return Result(0, json.dumps({"environment_variables": {
+                "QT_QPA_PLATFORM_PLUGIN_PATH": r"%CONDA_PREFIX%\Library\plugins",
                 "CONDA_PREFIX": PREFIX,
                 "PATH": PREFIX + r"\Library\bin;" + self.environ["PATH"],
-                "QT_QPA_PLATFORM_PLUGIN_PATH": r"%CONDA_PREFIX%\Library\plugins",
             }}))
         if call.tool == "git" and call.args[0] == "clone":
             Path(call.args[2]).mkdir(parents=True)

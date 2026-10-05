@@ -29,7 +29,7 @@ def test_posix_expansion():
         expand_posix("${NOPE}/bin", env)
 
 
-def test_merge_expands_in_order_against_the_merged_env():
+def test_merge_expands_references_to_activated_and_base_variables():
     platform = WindowsPlatform()
     base = platform.normalize_env({"Path": r"C:\Windows", "TEMP": r"C:\t"})
     activated = {
@@ -44,6 +44,28 @@ def test_merge_expands_in_order_against_the_merged_env():
         "CONDA_PREFIX": r"C:\pixi\env",
         "QT_QPA_PLATFORM_PLUGIN_PATH": r"C:\pixi\env\Library\plugins",
     }
+
+
+def test_merge_does_not_depend_on_the_order_pixi_prints():
+    # pixi prints the variables in a different order on every call, and the
+    # CONDA_PREFIX of a conda env active in the parent must not leak in
+    platform = WindowsPlatform()
+    base = platform.normalize_env({"Path": r"C:\Windows",
+                                   "CONDA_PREFIX": r"C:\Miniconda3"})
+    activated = {
+        "QT_QPA_PLATFORM_PLUGIN_PATH": r"%CONDA_PREFIX%\Library\plugins",
+        "Path": r"%CONDA_PREFIX%\Library\bin;%PATH%",
+        "CONDA_PREFIX": r"C:\pixi\env",
+    }
+    merged = merge_activation(base, activated, platform)
+    assert merged["QT_QPA_PLATFORM_PLUGIN_PATH"] == r"C:\pixi\env\Library\plugins"
+    assert merged["PATH"] == r"C:\pixi\env\Library\bin;C:\Windows"
+    assert merged["CONDA_PREFIX"] == r"C:\pixi\env"
+
+
+def test_merge_reports_circular_references():
+    with pytest.raises(CIError, match="circular reference"):
+        merge_activation({}, {"A": "%B%", "B": "%A%"}, WindowsPlatform())
 
 
 def test_post_activation_sets_the_ogre_paths():
