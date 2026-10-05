@@ -1,0 +1,34 @@
+name: pixi_ci driver tests
+
+on:
+  pull_request:
+    paths:
+      - 'jenkins-scripts/tools/**'
+      - 'jenkins-scripts/dsl/tools/**'
+      - 'jenkins-scripts/dsl/gz-collections.yaml'
+      - 'jenkins-scripts/lib/**'
+      - 'jenkins-scripts/*-default-devel-windows-amd64.bat'
+      - '.github/workflows/ci-pixi-ci.yaml'
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # python >= 3.10 in conda/config-detector, its lock pins 3.14
+        python-version: ['3.10', '3.14']
+    name: pytest (Python ${{ matrix.python-version }})
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7  # v10.2.0
+      - name: Create the test environment
+        run: |
+          uv venv --python ${{ matrix.python-version }} .venv
+          uv pip install --python .venv pytest pyyaml
+      - name: Run the tests
+        run: .venv/bin/python -m pytest -v jenkins-scripts/tools/pixi_ci/tests jenkins-scripts/dsl/tools/tests
