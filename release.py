@@ -477,7 +477,7 @@ def discover_distros(repo_dir):
         error('Can not find distributions directories in the -release repo')
 
     distro_arch_list = {}
-    for d in subdirs:
+    for d in sorted(subdirs):
         files = os.walk(repo_dir + '/' + d).__next__()[2]
         distro_arch_exclusion = get_exclusion_arches(files)
         excluded_arches = distro_arch_exclusion + repo_arch_exclusion
@@ -950,10 +950,10 @@ def go(argv):
         # able to install the needed gz-cmake.
         if ubuntu_distros:
             params['LINUX_DISTRO'] = 'ubuntu'
-            params['DISTRO'] = list(ubuntu_distros.keys())[0]
+            params['DISTRO'] = list(ubuntu_distros.keys())[-1]
         elif debian_distros:
             params['LINUX_DISTRO'] = 'debian'
-            params['DISTRO'] = list(debian_distros.keys())[0]
+            params['DISTRO'] = list(debian_distros.keys())[-1]
         else:
             error("No distributions where found in the release repo")
 
