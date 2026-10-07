@@ -2,6 +2,9 @@
 """
 Script to find conda configurations for a given Gazebo package and major version
 Usage: python get_ciconfigs_from_package_and_version.py gz-rendering 3
+       python get_ciconfigs_from_package_and_version.py --conda-env gz-rendering 6
+With --conda-env it returns only the conda environment version string
+(e.g., 'legacy', 'noble_like')
 """
 
 import yaml
@@ -79,6 +82,20 @@ def find_conda_configs(package_name, major_version, yaml_file_path):
         'conda_configs': conda_configs
     }
 
+def print_conda_env(result, package_name, major_version):
+    """Print the only conda environment version or exit with an error."""
+    if not result['conda_configs']:
+        print(f"Error: No conda configurations found for {package_name} v{major_version}", file=sys.stderr)
+        sys.exit(1)
+
+    if len(result['conda_configs']) > 1:
+        print(f"Error: Multiple conda configurations found for {package_name} v{major_version}:", file=sys.stderr)
+        for config in result['conda_configs']:
+            print(f"  - {config['name']}: {config['version']}", file=sys.stderr)
+        sys.exit(1)
+
+    print(result['conda_configs'][0]['version'])
+
 def main():
     parser = argparse.ArgumentParser(description='Find conda configurations for Gazebo packages')
     parser.add_argument('package_name',
@@ -88,6 +105,8 @@ def main():
     parser.add_argument('--yaml-file', '-f',
                        default='../gz-collections.yaml',
                        help='Path to gz-collections.yaml file')
+    parser.add_argument('--conda-env', action='store_true',
+                       help='Print only the conda environment version')
 
     args = parser.parse_args()
 
@@ -102,7 +121,7 @@ def main():
         yaml_file = os.path.join(script_dir, args.yaml_file)
 
         if not os.path.exists(yaml_file):
-            print(f"Error: YAML file not found: {args.yaml_file}")
+            print(f"Error: YAML file not found: {args.yaml_file}", file=sys.stderr)
             sys.exit(1)
 
     try:
@@ -111,6 +130,10 @@ def main():
         if not result['found']:
             print(result['message'], file=sys.stderr)
             sys.exit(1)
+
+        if args.conda_env:
+            print_conda_env(result, package_name, major_version)
+            return
 
         # Print results
         print(f"Collection: {result['collection']}")
