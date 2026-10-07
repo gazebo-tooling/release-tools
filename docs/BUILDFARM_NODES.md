@@ -19,6 +19,10 @@ used (can check this in the Jenkins UI)
 | win | Node is able to run Windows CI | Windows10 system. 16GB RAM |
 | win_testing | Testing node attached to the production buildfarm | Windows10 system |
 
+Linux builds are not emulated: a job must run on an agent of the same
+architecture it is building for. Anything other than amd64 needs the
+`JENKINS_NODE_TAG` parameter pointing at the matching `linux-$arch` label.
+
 ## Provision of Node labels
 
 ### Agents
