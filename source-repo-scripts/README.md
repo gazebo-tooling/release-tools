@@ -183,3 +183,34 @@ To announce the changes between Sensors 6.2.0 and 6.3.0:
 ```bash
 cd <path_to_source_code>
 bash release_summary.bash 6.2.0 6.3.0
+```
+
+### remove_github_workflow_job.py
+
+The script removes a job from a GitHub Actions workflow file in a source
+repository. It is useful when disabling CI for a given platform across the
+repositories of a Gazebo collection (e.g. dropping the `noble-ci` job from
+every `.github/workflows/ci.yml`).
+
+#### Usage
+
+```bash
+./remove_github_workflow_job.py [<workflow_file>] [<job_name>]
+```
+
+- `workflow_file`: path to the workflow file. Defaults to
+  `./.github/workflows/ci.yml`.
+- `job_name`: name of the job to remove. Defaults to `noble-ci`.
+
+The file is modified in place. The script exits with an error if the file does
+not exist; if the job is not found, it prints a message and leaves the file
+unchanged (exit code 0).
+
+#### Example
+
+To remove the `noble-ci` job from `gz-math`:
+
+```bash
+cd gz-math
+~/release-tools/source-repo-scripts/remove_github_workflow_job.py .github/workflows/ci.yml noble-ci
+```
