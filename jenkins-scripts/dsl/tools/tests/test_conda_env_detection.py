@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 
-from get_ciconfigs_from_package_and_version import find_platform_conda_envs
+from get_ciconfigs_from_package_and_version import find_conda_configs
 
 TOOLS = Path(__file__).resolve().parents[1]
 SCRIPT = TOOLS / 'get_ciconfigs_from_package_and_version.py'
@@ -12,11 +12,21 @@ FIXTURE = Path(__file__).resolve().parent / 'fixtures' / 'collections.yaml'
 REAL_YAML = TOOLS.parent / 'gz-collections.yaml'
 
 
-def detect(*args, yaml_file=FIXTURE):
+def run(*args, yaml_file=FIXTURE):
     return subprocess.run(
-        [sys.executable, str(SCRIPT), '--conda-env', '--yaml-file', str(yaml_file),
-         *args],
+        [sys.executable, str(SCRIPT), '--yaml-file', str(yaml_file), *args],
         capture_output=True, text=True)
+
+
+def detect(*args, yaml_file=FIXTURE):
+    return run('--conda-env', *args, yaml_file=yaml_file)
+
+
+def platform_envs(package_name, major_version, yaml_file, so, arch):
+    return [(r['collection'], c['name'], c['version'])
+            for r in find_conda_configs(package_name, major_version,
+                                        yaml_file, so, arch)
+            for c in r['conda_configs']]
 
 
 def test_windows_and_macos_resolve_to_the_same_env():
@@ -39,10 +49,8 @@ def test_several_envs_for_one_platform_fail_naming_every_candidate():
 
 
 def test_main_branch_major_falls_back_to_the_collection_testing_main():
-    assert find_platform_conda_envs('gz-math', 10, FIXTURE,
-                                    'windows', 'amd64') == [
-        {'collection': 'rotary', 'ci_config': 'win_conda_noble',
-         'version': 'noble_like'}]
+    assert platform_envs('gz-math', 10, FIXTURE, 'windows', 'amd64') == [
+        ('rotary', 'win_conda_noble', 'noble_like')]
     result = detect('--os', 'darwin', '--arch', 'arm64', 'gz-math', '10')
     assert (result.returncode, result.stdout) == (0, 'noble_like\n')
 
@@ -52,7 +60,7 @@ def test_library_name_resolves_and_colcon_name_does_not():
     colcon = detect('--os', 'windows', '--arch', 'amd64', 'gz-fuel_tools', '9')
     assert (library.returncode, library.stdout) == (0, 'legacy_ogre23\n')
     assert colcon.returncode == 1
-    assert 'No conda configurations found' in colcon.stderr
+    assert 'Package gz-fuel_tools with major version 9 not found' in colcon.stderr
 
 
 def test_no_config_for_the_platform_fails():
@@ -67,23 +75,40 @@ def test_os_without_arch_is_a_usage_error():
     assert '--os and --arch must be used together' in result.stderr
 
 
-def test_os_without_conda_env_is_a_usage_error():
-    result = subprocess.run(
-        [sys.executable, str(SCRIPT), '--yaml-file', str(FIXTURE),
-         '--os', 'windows', '--arch', 'amd64', 'gz-math', '9'],
-        capture_output=True, text=True)
-    assert result.returncode == 2
-    assert '--os and --arch require --conda-env' in result.stderr
-
-
-def test_without_os_the_behaviour_is_unchanged():
-    # First collection only: gz-tools 2 silently gets harmonic's env
+def test_without_os_every_platform_counts():
+    # Same rules as with --os: every collection, the main fallback and
+    # configs with the same env collapse, whatever the platform
     tools = detect('gz-tools', '2')
-    assert (tools.returncode, tools.stdout) == (0, 'legacy_ogre23\n')
-    # All conda configs of the collection, whatever the OS: an error
+    assert tools.returncode == 1
+    assert tools.stdout == ''
+    assert 'Several conda environments found for gz-tools v2:' in tools.stderr
     math = detect('gz-math', '9')
-    assert math.returncode == 1
-    assert 'Multiple conda configurations found for gz-math v9' in math.stderr
+    assert (math.returncode, math.stdout) == (0, 'noble_like\n')
+    main = detect('gz-math', '10')
+    assert (main.returncode, main.stdout) == (0, 'noble_like\n')
+
+
+def test_unknown_package_fails():
+    for result in (run('gz-foo', '1'), detect('gz-foo', '1')):
+        assert result.returncode == 1
+        assert 'Package gz-foo with major version 1 not found' in result.stderr
+
+
+def test_details_list_every_collection():
+    result = run('gz-tools', '2')
+    assert result.returncode == 0
+    assert [line for line in result.stdout.splitlines()
+            if line.startswith('Collection: ')] == [
+        'Collection: harmonic', 'Collection: ionic', 'Collection: jetty']
+    assert 'Name: osx_conda_noble' in result.stdout
+
+
+def test_details_use_the_platform_and_the_main_fallback():
+    result = run('--os', 'windows', '--arch', 'amd64', 'gz-math', '10')
+    assert result.returncode == 0
+    assert result.stdout.startswith('Collection: rotary\n')
+    assert 'Name: win_conda_noble' in result.stdout
+    assert 'Name: osx_conda' not in result.stdout
 
 
 def _main_branch_majors(data):
@@ -113,7 +138,7 @@ def test_real_collections_resolve_to_their_windows_env():
             major = lib.get('major_version', main_majors.get(lib['name']))
             assert major is not None, \
                 f"{collection['name']}: {lib['name']} has no major version"
-            found = {m['version'] for m in find_platform_conda_envs(
+            found = {version for _, _, version in platform_envs(
                 lib['name'], major, REAL_YAML, 'windows', 'amd64')}
             # Either resolves to the collection's env or is ambiguous with
             # the collection's env among the candidates
