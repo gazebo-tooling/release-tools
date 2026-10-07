@@ -12,36 +12,38 @@ python get_ciconfigs_from_package_and_version.py gz-rendering 6
 python get_ciconfigs_from_package_and_version.py gz-sim 8 --yaml-file custom-collections.yaml
 ```
 
-**Output:** Full details including collection name, CI configs, and conda configuration details.
+Every collection with the package and major version counts, not only the
+first one. A collection with empty `ci.configs` whose entry tracks `main`
+(Gazebo M) uses the collections testing the package in `main` (rotary).
+
+**Output:** Full details per collection: collection name, CI configs, and conda configuration details.
 
 With `--conda-env` the script returns only the conda environment version
 string. This is the mode used by the build system to determine which conda
-environment to use.
+environment to use. Configs with the same environment collapse into one;
+several environments are an error that lists them and asks for
+`CONDA_ENV_NAME`.
 
 ```bash
 python get_ciconfigs_from_package_and_version.py --conda-env gz-rendering 6
 # Output: legacy
 
-python get_ciconfigs_from_package_and_version.py --conda-env gz-sim 10
-# Output: noble_like
+python get_ciconfigs_from_package_and_version.py --conda-env gz-sim 11
+# Output: noble_like (from rotary, gz-sim 11 is in M)
+
+python get_ciconfigs_from_package_and_version.py --conda-env gz-tools 2
+# Error (exit 1): harmonic and ionic use legacy_ogre23, jetty uses noble_like
 ```
 
 **Output:** Single line containing the conda environment version (e.g., `legacy`, `legacy_ogre23`, `noble_like`).
 
-With `--conda-env`, `--os` and `--arch` (the `system.so` and `system.arch` of the ci_configs)
-only the conda configs of that platform count, in every collection with the
-package and major version. A collection with empty `ci.configs` whose entry
-tracks `main` (Gazebo M) uses the collections testing the package in `main`
-(rotary). Configs with the same environment collapse into one; several
-environments are an error that asks for `CONDA_ENV_NAME`. The pixi_ci driver
-uses this mode.
+`--os` and `--arch` (the `system.so` and `system.arch` of the ci_configs,
+used together) keep only the conda configs of that platform, in both modes.
+`windows_library.bat` and the pixi_ci driver use them.
 
 ```bash
-python get_ciconfigs_from_package_and_version.py --conda-env --os windows --arch amd64 gz-sim 11
+python get_ciconfigs_from_package_and_version.py --conda-env --os windows --arch amd64 gz-sim 10
 # Output: noble_like
-
-python get_ciconfigs_from_package_and_version.py --conda-env --os windows --arch amd64 gz-tools 2
-# Error (exit 1): harmonic and ionic use legacy_ogre23, jetty uses noble_like
 ```
 
 ## DSL 6
