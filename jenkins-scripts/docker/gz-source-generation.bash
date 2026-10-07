@@ -16,10 +16,6 @@ PKG_DIR=\$WORKSPACE/pkgs
 SOURCES_DIR=\$WORKSPACE/sources
 BUILD_DIR=\$SOURCES_DIR/build
 
-# Need to intall all supported gz-cmake* packages in the platform
-(sudo apt-get install -y *gz-cmake* || sudo apt-get install -y *ign-cmake*) || \
-  (echo "Can not find any ign-cmake/gz-cmake package" && exit 1)
-
 cd \${WORKSPACE}
 rm -fr \$SOURCES_DIR && mkdir \$SOURCES_DIR
 git clone --depth 1 --branch ${SOURCE_REPO_REF} ${SOURCE_REPO_URI} \${SOURCES_DIR}
@@ -31,6 +27,25 @@ case "\$SOURCE_DATE_EPOCH" in
     exit 1
     ;;
 esac
+
+GZ_CMAKE_PKG=\$(cat "\${SOURCES_DIR}/.github/ci/packages.apt" "\${SOURCES_DIR}/.github/ci/packages-${DISTRO}.apt" 2>/dev/null | grep -E '^lib(gz|ign|ignition)(-rotary)?-cmake[0-9]*-dev' | head -n 1)
+
+if [ "\$GZ_CMAKE_PKG" = "libgz-rotary-cmake-dev" ]; then
+  # rotary package is only available in nightly repo. If it's not available
+  # (e.g. during a prerelease), fallback to the latest versioned package
+  if ! apt-cache show libgz-rotary-cmake-dev > /dev/null 2>&1; then
+    echo "libgz-rotary-cmake-dev not found, falling back to latest versioned package"
+    GZ_CMAKE_PKG=\$(apt-cache search --names-only '^libgz-cmake[0-9]+-dev' | awk '{print \$1}' | sort -V | tail -n 1)
+  fi
+fi
+
+if [ -n "\$GZ_CMAKE_PKG" ]; then
+  echo "Installing detected cmake dependency: \${GZ_CMAKE_PKG}"
+  sudo apt-get install -y "\${GZ_CMAKE_PKG}" || \
+    (echo "Failed to install \${GZ_CMAKE_PKG}" && exit 1)
+else
+  echo "No external gz-cmake package required."
+fi
 rm -fr \$BUILD_DIR && mkdir \$BUILD_DIR
 cd \${BUILD_DIR}
 cmake .. -DPACKAGE_SOURCE_ONLY:BOOL=ON
@@ -39,7 +54,7 @@ make package_source
 rm -fr \$PKG_DIR && mkdir \$PKG_DIR
 find \${BUILD_DIR} -maxdepth 1 -name '*-${VERSION}.tar.*' -exec mv {} \${PKG_DIR} \\;
 
-if [ $(ls 2>/dev/null -Ubad1 -- "\${PKG_DIR}" | wc -l) -gt 1 ]; then
+if [ \$(ls 2>/dev/null -Ubad1 -- "\${PKG_DIR}" | wc -l) -gt 1 ]; then
   echo "Found more than one file inside pkgs directory:"
   ls \${PKG_DIR}
   exit 1
