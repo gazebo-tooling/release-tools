@@ -12,6 +12,9 @@ GITHUB_SUPPORT_ALL_BRANCHES = []
 ENABLE_GITHUB_PR_INTEGRATION = true
 DISABLE_TESTING = false
 DISABLE_CMAKE_WARNS = false
+// Exit code of jenkins-scripts/lib/filter_tests.{bash,bat} when a pull
+// request needs no tests (gzdev filter-tests --return-if-none)
+FILTER_TESTS_NONE_RC = 99
 
 def WRITE_JOB_LOG = System.getenv('WRITE_JOB_LOG') ?: false
 logging_list = [:].withDefault {[]}
@@ -154,8 +157,19 @@ void generate_asan_ci_job(gz_ci_job, lib_name, branch, ci_config, extra_cmd = ''
   }
 }
 
-void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
+// One shell line that ends the build step early when the pull request
+// needs no tests
+String filter_tests_bash_cmd(ws_checkout_dir, job_kind)
 {
+  return "filter_tests_rc=0; FILTER_TESTS_NONE_RC=${FILTER_TESTS_NONE_RC} " +
+         "/bin/bash -x ./scripts/jenkins-scripts/lib/filter_tests.bash " +
+         "\"\${WORKSPACE}/${ws_checkout_dir}\" ${job_kind} || filter_tests_rc=\$?; " +
+         "if [ \$filter_tests_rc -eq ${FILTER_TESTS_NONE_RC} ]; then exit 0; fi"
+}
+
+void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir, is_pr = false)
+{
+  def filter_tests_cmd = is_pr ? filter_tests_bash_cmd(ws_checkout_dir, 'brew') + '\n' : ''
   // ignition formulas does not match the lib name, expand the prefix
   lib_name = lib_name.replaceAll(/^ign-/, 'ignition-')
   gz_brew_ci_job.with
@@ -171,6 +185,7 @@ void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
             #!/bin/bash -xe
 
             export PROJECT_PATH="${ws_checkout_dir}"
+            """.stripIndent() + filter_tests_cmd + """\
             /bin/bash -xe ./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash "${lib_name}"
             """.stripIndent())
       }
@@ -191,15 +206,20 @@ void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config, arch)
   add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
 }
 
-void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config)
+void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config, is_pr = false)
 {
   def script_name_prefix = cleanup_library_name(lib_name)
+  // "if errorlevel N" means ">= N" and is evaluated when the line runs
+  def filter_tests_cmd = is_pr ?
+    "call \"./scripts/jenkins-scripts/lib/filter_tests.bat\" \"${ws_checkout_dir}\" ${FILTER_TESTS_NONE_RC}" +
+    " & if errorlevel ${FILTER_TESTS_NONE_RC} if not errorlevel ${FILTER_TESTS_NONE_RC + 1} exit /b 0\n" : ''
   def conda_env = ci_config.system.version
   gz_win_ci_job.with
   {
     steps {
       batchFile("""\
             set VCS_DIRECTORY=${ws_checkout_dir}
+            """.stripIndent() + filter_tests_cmd + """\
             if "%CONDA_ENV_NAME%" == "" set CONDA_ENV_NAME=${conda_env}
             if not exist "./scripts/conda/envs/%CONDA_ENV_NAME%" (
               echo "Conda environment %CONDA_ENV_NAME% not found"
@@ -485,6 +505,8 @@ branch_index.each { lib_name, distro_configs ->
                   #!/bin/bash -xe
 
                   export DISTRO=${distro}
+                  export ENABLE_FILTER_TESTS=true
+                  export FILTER_TESTS_NONE_RC=${FILTER_TESTS_NONE_RC}
 
                   ${GLOBAL_SHELL_CMD}
                   ${extra_cmd}
@@ -507,7 +529,7 @@ branch_index.each { lib_name, distro_configs ->
                                             branch_names,
                                             ENABLE_GITHUB_PR_INTEGRATION,
                                             are_cmake_warnings_enabled(lib_name, ci_config))
-        add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir)
+        add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir, true)
       } else if (ci_config.system.so == 'windows') {
         distro_sort_name = get_windows_distro_sortname(ci_config)
         Globals.gazebodistro_branch = false
@@ -523,7 +545,8 @@ branch_index.each { lib_name, distro_configs ->
         add_win_devel_bat_call(gz_win_ci_any_job,
                                lib_name,
                                ws_checkout_dir,
-                               ci_config)
+                               ci_config,
+                               true)
         Globals.gazebodistro_branch = false
       }
     }
@@ -552,6 +575,8 @@ branch_index.each { lib_name, distro_configs ->
                 #!/bin/bash -xe
 
                 export DISTRO=${distro}
+                export ENABLE_FILTER_TESTS=true
+                export FILTER_TESTS_NONE_RC=${FILTER_TESTS_NONE_RC}
 
                 ${GLOBAL_SHELL_CMD}
                 ${extra_cmd}
