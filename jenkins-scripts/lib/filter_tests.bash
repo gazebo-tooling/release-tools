@@ -70,9 +70,12 @@ DELIM_CPPCHECK
   esac
 }
 
-if ! [[ ${FILTER_TESTS_NONE_RC:-} =~ ^[0-9]+$ ]]; then
-  build_anyway "FILTER_TESTS_NONE_RC is not a number"
+if ! [[ ${FILTER_TESTS_NONE_RC:-} =~ ^[0-9]{1,3}$ ]] ||
+   (( 10#${FILTER_TESTS_NONE_RC} < 3 || 10#${FILTER_TESTS_NONE_RC} > 125 )); then
+  build_anyway "FILTER_TESTS_NONE_RC must be a number between 3 and 125"
 fi
+# Base 10 from here on: 099 must not be read as an invalid octal number
+FILTER_TESTS_NONE_RC=$(( 10#${FILTER_TESTS_NONE_RC} ))
 if [[ -z ${REPO_DIR} || -z ${WORKSPACE:-} ]]; then
   build_anyway "usage: filter_tests.bash <repository checkout> <job kind> with WORKSPACE set"
 fi
