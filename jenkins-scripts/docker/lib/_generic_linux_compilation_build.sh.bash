@@ -24,6 +24,7 @@ fi
 
 cat > build.sh << DELIM_HEADER
 $(generate_buildsh_header)
+$(generate_buildsh_filter_build_and_test "${WORKSPACE}/${SOFTWARE_DIR}" ci)
 DELIM_HEADER
 
 # Process the source build of dependencies if needed
