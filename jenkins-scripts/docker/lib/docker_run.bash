@@ -23,13 +23,19 @@ fi
 USERID=$(id -u)
 USER=$(whoami)
 
-# platform support starts on versions greater than 17.07
-PLAFTORM_PARAM=
-if [[ ${LINUX_DISTRO} == 'ubuntu' && ${ARCH} == 'arm64' ]]; then
-  PLAFTORM_PARAM="--platform=linux/${ARCH}"
+# Every build runs on an agent of its own architecture, so the base image
+# resolves to the right platform on its own and docker needs no --platform.
+# Guard the assumption: without --platform a mismatch here would not fail, it
+# would silently produce packages built for the architecture of the agent.
+# i386 is the exception, it runs natively on amd64 from an i386 base image.
+HOST_ARCH=$(dpkg --print-architecture)
+if [[ ${ARCH} != 'i386' && ${ARCH} != ${HOST_ARCH} ]]; then
+  echo "ARCH is '${ARCH}' but this agent is '${HOST_ARCH}'."
+  echo "Re-run the job using JENKINS_NODE_TAG=linux-${ARCH}."
+  exit 1
 fi
 
-sudo docker build ${PLAFTORM_PARAM} ${_DOCKER_BUILD_EXTRA_ARGS} \
+sudo docker build ${_DOCKER_BUILD_EXTRA_ARGS} \
                   --build-arg GID=$(id -g $USER) \
                   --build-arg USERID=$USERID \
                   --build-arg USER=$USER \
@@ -80,7 +86,7 @@ if [[ -d /dev/snd ]]; then
 fi
 
 # DOCKER_FIX is for workaround https://github.com/docker/docker/issues/14203
-sudo ${docker_cmd} run ${PLAFTORM_PARAM} $EXTRA_PARAMS_STR  \
+sudo ${docker_cmd} run $EXTRA_PARAMS_STR  \
             -e DOCKER_FIX=''  \
             -e WORKSPACE=${WORKSPACE} \
             -e TERM=xterm-256color \

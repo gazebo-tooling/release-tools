@@ -106,6 +106,11 @@ if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} lxml"
 fi
 
+# append to pip packages needed if this homebrew formula defines the ci_pip_packages method
+if brew ruby -e "exit '${PROJECT_FORMULA}'.f.respond_to?(:ci_pip_packages)"; then
+  PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} "$(brew ruby -e "puts '${PROJECT_FORMULA}'.f.ci_pip_packages")
+fi
+
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   brew install python3
   # reset command hash since python3 has already been invoked in this script
@@ -206,6 +211,10 @@ fi
 # set Python3_EXECUTABLE if this homebrew formula defines the python_cmake_arg method
 if brew ruby -e "exit '${PROJECT_FORMULA}'.f.respond_to?(:python_cmake_arg)"; then
   CMAKE_ARGS="${CMAKE_ARGS} -DPython3_EXECUTABLE=$(which python3)"
+fi
+# append to cmake args if this homebrew formula defines the ci_cmake_args method
+if brew ruby -e "exit '${PROJECT_FORMULA}'.f.respond_to?(:ci_cmake_args)"; then
+  CMAKE_ARGS="${CMAKE_ARGS} "$(brew ruby -e "puts '${PROJECT_FORMULA}'.f.ci_cmake_args")
 fi
 
 # if we are using dart@6.10.0 (custom OR port), need to add dartsim library path since it is keg-only
