@@ -40,6 +40,7 @@ ABI_CXX_STANDARD=c++17
 
 cat > build.sh << DELIM
 $(generate_buildsh_header)
+$(generate_buildsh_filter_tests "${WORKSPACE}/${ABI_JOB_SOFTWARE_NAME}" abi)
 
 if [ `expr length "${ABI_JOB_PRECHECKER_HOOK} "` -gt 1 ]; then
 echo '# BEGIN SECTION: running pre ABI hook'

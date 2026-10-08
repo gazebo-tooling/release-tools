@@ -12,3 +12,31 @@ generate_buildsh_header()
     echo "source ${TIMING_DIR}/_time_lib.sh ${WORKSPACE}"
   fi
 }
+
+# Print build.sh lines that end the build early when the pull request needs no
+# tests (gzdev filter-tests). Prints nothing unless ENABLE_FILTER_TESTS=true.
+#   $1: repository checkout inside the container
+#   $2: job kind passed to filter_tests.bash (ci or abi)
+# The image clones gzdev into /root/gzdev as root; build.sh runs as the jenkins
+# user, who cannot read /root, so the checkout is copied first.
+generate_buildsh_filter_tests()
+{
+  [[ ${ENABLE_FILTER_TESTS:-false} == true ]] || return 0
+  if ! [[ ${FILTER_TESTS_NONE_RC:-} =~ ^[0-9]+$ ]]; then
+    echo "filter-tests disabled: FILTER_TESTS_NONE_RC is not a number" >&2
+    return 0
+  fi
+cat << DELIM_FILTER_TESTS
+echo '# BEGIN SECTION: filter-tests'
+sudo cp -a /root/gzdev /tmp/gzdev-filter-tests && sudo chown -R "\$(id -u):\$(id -g)" /tmp/gzdev-filter-tests || true
+filter_tests_rc=0
+GZDEV_DIR=/tmp/gzdev-filter-tests \\
+FILTER_TESTS_NONE_RC=${FILTER_TESTS_NONE_RC} \\
+ghprbTargetBranch=$(printf '%q' "${ghprbTargetBranch:-}") \\
+ghprbActualCommit=$(printf '%q' "${ghprbActualCommit:-}") \\
+  bash $(printf '%q' "${WORKSPACE}/scripts/jenkins-scripts/lib/filter_tests.bash") $(printf '%q' "${1}") ${2} \\
+  || filter_tests_rc=\$?
+echo '# END SECTION'
+if [ \$filter_tests_rc -eq ${FILTER_TESTS_NONE_RC} ]; then exit 0; fi
+DELIM_FILTER_TESTS
+}
