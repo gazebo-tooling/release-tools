@@ -23,10 +23,13 @@ generate_buildsh_header()
 generate_buildsh_filter_build_and_test()
 {
   [[ ${ENABLE_FILTER_BUILD_AND_TEST:-false} == true ]] || return 0
-  if ! [[ ${FILTER_BUILD_AND_TEST_NONE_RC:-} =~ ^[0-9]+$ ]]; then
-    echo "filter-build-and-test disabled: FILTER_BUILD_AND_TEST_NONE_RC is not a number" >&2
+  if ! [[ ${FILTER_BUILD_AND_TEST_NONE_RC:-} =~ ^[0-9]{1,3}$ ]] ||
+     (( 10#${FILTER_BUILD_AND_TEST_NONE_RC} < 3 || 10#${FILTER_BUILD_AND_TEST_NONE_RC} > 125 )); then
+    echo "filter-build-and-test disabled: FILTER_BUILD_AND_TEST_NONE_RC must be a number between 3 and 125" >&2
     return 0
   fi
+  # Base 10 from here on: 099 must not be read as an invalid octal number
+  local FILTER_BUILD_AND_TEST_NONE_RC=$(( 10#${FILTER_BUILD_AND_TEST_NONE_RC} ))
 cat << DELIM_FILTER_BUILD_AND_TEST
 echo '# BEGIN SECTION: filter-build-and-test'
 sudo cp -a /root/gzdev /tmp/gzdev-filter-build-and-test && sudo chown -R "\$(id -u):\$(id -g)" /tmp/gzdev-filter-build-and-test || true
