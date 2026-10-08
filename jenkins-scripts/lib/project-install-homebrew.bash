@@ -36,6 +36,10 @@ brew update
 export HOMEBREW_NO_AUTO_UPDATE=1
 # Run brew config to print system information
 brew config
+echo pkgutil --pkg-info=com.apple.pkg.CLTools_Executables
+pkgutil --pkg-info=com.apple.pkg.CLTools_Executables
+echo softwareupdate --list
+softwareupdate --list
 # Run brew doctor to check for problems with the system
 brew doctor || echo MARK_AS_UNSTABLE
 echo '# END SECTION'
