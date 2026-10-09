@@ -12,7 +12,6 @@ Exit Codes:
   2 - Invalid arguments or pattern file missing.
 """
 
-import os
 import re
 import sys
 
@@ -60,8 +59,17 @@ def main():
             input_files = []
 
     if not input_files:
-        print("No files provided to check.")
+        print("No files provided to check (treating as all files ignored).")
         sys.exit(0)
+
+    print("Analyzing changed files against ignore patterns:")
+    print(f"  Pattern file: {pattern_file}")
+    print("  Patterns loaded:")
+    for p in compiled_patterns:
+        print(f"    - {p.pattern}")
+    print("  Files analyzed:")
+    for f in input_files:
+        print(f"    - {f}")
 
     if not compiled_patterns:
         print("Warning: Pattern file is empty or contains no valid patterns.", file=sys.stderr)
