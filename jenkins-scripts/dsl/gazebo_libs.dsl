@@ -59,6 +59,15 @@ String cleanup_library_name(lib_name)
   return lib_name.replaceAll('-','_').replaceAll('ign_','gz_').replaceAll('gazebo','sim')
 }
 
+String check_ignored_files_sh_cmd(lib_name)
+{
+  return """\
+    if /bin/sh ./scripts/jenkins-scripts/tools/check_pr_skip.sh ${lib_name}; then
+      exit 0
+    fi
+  """.stripIndent()
+}
+
 boolean is_testing_enabled(lib_name, ci_config)
 {
   return ! ci_config.tests_disabled?.contains(lib_name)
@@ -488,15 +497,7 @@ branch_index.each { lib_name, distro_configs ->
 
                   ${GLOBAL_SHELL_CMD}
                   ${extra_cmd}
-                  if [ -n "\${ghprbTargetBranch}" ] && [  -n "\${ghprbActualCommit}" ] && \
-                    git -C \${WORKSPACE}/${lib_name} \
-                      diff --merge-base origin/\${ghprbTargetBranch} \${ghprbActualCommit} --name-only \
-                      | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py \
-                                ./scripts/jenkins-scripts/tools/gz_ci.ignored;
-                  then
-                      echo Skipping CI
-                      exit
-                  fi
+                  ${check_ignored_files_sh_cmd(lib_name)}
 
                   export BUILDING_SOFTWARE_DIRECTORY=${lib_name}
                   export ARCH=${arch}
@@ -564,16 +565,7 @@ branch_index.each { lib_name, distro_configs ->
 
                 ${GLOBAL_SHELL_CMD}
                 ${extra_cmd}
-
-                if [ -n "\${ghprbTargetBranch}" ] && [  -n "\${ghprbActualCommit}" ] && \
-                  git -C \${WORKSPACE}/${lib_name} \
-                    diff --merge-base origin/\${ghprbTargetBranch} \${ghprbActualCommit} --name-only \
-                    | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py \
-                              ./scripts/jenkins-scripts/tools/gz_ci.ignored;
-                then
-                    echo Skipping CI
-                    exit
-                fi
+                ${check_ignored_files_sh_cmd(lib_name)}
 
                 export ARCH=${arch}
                 export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
