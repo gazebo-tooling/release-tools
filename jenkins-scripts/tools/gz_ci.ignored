@@ -7,8 +7,6 @@ MODULE.bazel$
 ^\.github/CODEOWNERS
 ^\.github/workflows/
 
-^Changelog.md$
-^CONTRIBUTING.md$
 ^LICENSE$
-^Migration.md$
-^README.md$
+package\.xml$
+\.md$
