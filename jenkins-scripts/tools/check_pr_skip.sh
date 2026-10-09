@@ -26,7 +26,7 @@ if [ ! -d "${REPO_DIR}" ]; then
 fi
 
 # Run git diff
-if ! CHANGED_FILES=$(git -C "${REPO_DIR}" diff --merge-base "origin/${ghprbTargetBranch}" "${ghprbActualCommit}" --name-only 2>/dev/null); then
+if ! CHANGED_FILES=$(git -C "${REPO_DIR}" diff --no-renames --merge-base "origin/${ghprbTargetBranch}" "${ghprbActualCommit}" --name-only 2>/dev/null); then
   # git diff failed; proceed with build
   exit 1
 fi
