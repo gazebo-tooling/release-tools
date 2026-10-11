@@ -5,6 +5,7 @@ on:
     paths:
       # Can not restrict it to jenkins-scripts/dsl/** since there are sanity
       # checks on generated XML done on removal/addition of scripts in jenkins-scripts
+      - '.github/workflows/ci-dsl.yaml'
       - 'jenkins-scripts/**'
 
 jobs:
@@ -80,6 +81,7 @@ jobs:
           path: /tmp/xml_config_content_changed.diff
 
   publish_results:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     name: Commit logs and publish diffs
     needs: xml_generation
