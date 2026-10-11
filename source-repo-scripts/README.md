@@ -158,6 +158,67 @@ cd gz-math
 ~/release-tools/source-repo-scripts/source_changelog.bash 6.10.0
 ```
 
+### create_changelog_entry.py
+
+Generate a new `Changelog.md` entry from files in `.changelog/`.
+
+#### Requisites
+
+- `git`
+- [`gh`](https://cli.github.com/) (GitHub CLI) — used to discover the PR
+  associated with each changelog file.
+
+#### Usage
+
+The script must be run from the project root directory (the directory that
+contains both `.changelog/` and `Changelog.md`). It is interactive: it prompts
+once for confirmation, then updates and stages `Changelog.md` with `git add`
+and removes the processed `.changelog/` files with `git rm`, so the next
+release does not publish them again. Finally it creates a signed-off commit
+(`Generate changelog entry for version X.Y.Z`) containing only those paths.
+The git index, `Changelog.md` and the `.changelog/` entry files must be clean
+before running it: an entry file that is untracked or locally modified stops
+the script before anything is changed.
+
+```bash
+cd <project-root>
+python3 ~/release-tools/source-repo-scripts/create_changelog_entry.py
+```
+
+Every file in `.changelog/` is an entry, whatever its extension (hidden files
+such as `.gitkeep` are skipped). The first non-comment line of each entry
+must follow the Conventional Commits format:
+
+```text
+<type>(<optional-scope>)!: <description>
+```
+
+Examples of valid first lines:
+
+```text
+feat(rendering): add support for foo
+fix: avoid crash when bar is empty
+```
+
+Lines starting with `#` are treated as template comments and ignored.
+Invalid or empty entries fail validation and stop changelog generation.
+The script auto-calculates the next version from the latest `Changelog.md`
+entry: it bumps the minor version when any entry is `feat`, otherwise it bumps
+the patch version.
+Entries using the breaking marker (`!`) are rejected because the script does
+not support major-version bumps; such releases must be handled manually.
+
+Each entry is linked to a pull request found from the commit that added the
+file. The commit subject decides which one: a trailing `(#N)` names the PR
+(GitHub adds it on squash-merge), otherwise the PR of the commit named in a
+`(cherry picked from commit X)` trailer is used (the first one, when a
+backport of a backport carries several), otherwise the merged PR that
+contains the commit. For backports this means:
+
+- squash-merged backport PR (`Fix foo (backport #10) (#12)`): links #12.
+- rebase-merged backport PR (the cherry-pick keeps `Fix foo (#10)`): links #10,
+  the original pull request.
+
 ### Release summary
 
 Print a markdown summary of a release (not `Changelog.md` entries), with its
