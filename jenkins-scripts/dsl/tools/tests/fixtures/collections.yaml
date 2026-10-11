@@ -1,0 +1,93 @@
+# Fixture for test_conda_env_detection.py. Shapes copied from
+# gz-collections.yaml: gz-tools 2 shared by three collections, an M-style
+# collection with empty ci configs, a rotary-style collection without major
+# versions, and two macOS conda configs (daily + PR canary) with one env.
+collections:
+  - name: 'harmonic'
+    libs:
+      - name: gz-tools
+        major_version: 2
+        repo:
+          current_branch: gz-tools2
+      - name: gz-fuel-tools
+        major_version: 9
+        repo:
+          current_branch: gz-fuel-tools9
+    ci:
+      configs:
+        - noble
+        - win_conda_LO23
+  - name: 'ionic'
+    libs:
+      - name: gz-tools
+        major_version: 2
+        repo:
+          current_branch: gz-tools2
+    ci:
+      configs:
+        - win_conda_LO23
+  - name: 'jetty'
+    libs:
+      - name: gz-tools
+        major_version: 2
+        repo:
+          current_branch: gz-tools2
+      - name: gz-math
+        major_version: 9
+        repo:
+          current_branch: gz-math9
+    ci:
+      configs:
+        - noble
+        - win_conda_noble
+        - osx_conda_noble
+        - osx_conda_noble_canary
+  - name: 'm'
+    libs:
+      - name: gz-math
+        major_version: 10
+        repo:
+          current_branch: main
+    ci:
+      configs: []
+  - name: 'rotary'
+    libs:
+      - name: gz-math
+        repo:
+          current_branch: main
+    ci:
+      configs:
+        - noble
+        - win_conda_noble
+        - osx_conda_noble
+ci_configs:
+  - name: noble
+    system:
+      so: linux
+      distribution: ubuntu
+      version: noble
+      arch: amd64
+  - name: win_conda_LO23
+    system:
+      so: windows
+      distribution: conda
+      version: legacy_ogre23
+      arch: amd64
+  - name: win_conda_noble
+    system:
+      so: windows
+      distribution: conda
+      version: noble_like
+      arch: amd64
+  - name: osx_conda_noble
+    system:
+      so: darwin
+      distribution: conda
+      version: noble_like
+      arch: arm64
+  - name: osx_conda_noble_canary
+    system:
+      so: darwin
+      distribution: conda
+      version: noble_like
+      arch: arm64
