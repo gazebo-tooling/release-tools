@@ -44,6 +44,8 @@ jobs:
         run: |
           cd jenkins-scripts/dsl
           ./dsl_checks.bash
+      - name: Check repository uploader
+        run: ./jenkins-scripts/lib/repository_uploader_test.bash
       - name: Export XML generated configuration for diff
         run: |
           cd jenkins-scripts/dsl
