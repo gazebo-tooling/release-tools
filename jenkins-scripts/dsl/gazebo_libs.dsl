@@ -160,10 +160,8 @@ void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
   lib_name = lib_name.replaceAll(/^ign-/, 'ignition-')
   gz_brew_ci_job.with
   {
-    wrappers {
-      timeout {
-        absolute(120)
-      }
+    configure { project ->
+      project / 'buildWrappers' / 'hudson.plugins.build__timeout.BuildTimeoutWrapper' / 'strategy' / 'timeoutMinutes' (120)
     }
 
     steps {
@@ -294,10 +292,8 @@ String generate_brew_install(src_name, lib_name, arch, gzdev_project = '')
 
   install_default_job.with
   {
-    wrappers {
-      timeout {
-        absolute(120)
-      }
+    configure { project ->
+      project / 'buildWrappers' / 'hudson.plugins.build__timeout.BuildTimeoutWrapper' / 'strategy' / 'timeoutMinutes' (120)
     }
 
     triggers {
