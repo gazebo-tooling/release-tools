@@ -64,7 +64,7 @@ fi
 echo '# END SECTION'
 
 echo "# BEGIN SECTION: install ${BOTTLE_NAME}"
-brew install --include-test ${BOTTLE_NAME} ${HEAD_FLAG} || \
+brew install --include-test ${BOTTLE_NAME} ${HEAD_FLAG} --verbose || \
   brew install --include-test ${BOTTLE_NAME} ${HEAD_FLAG} --verbose
 
 # add X11 path so glxinfo can be found
