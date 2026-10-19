@@ -6,16 +6,26 @@
 set -e
 
 LIB_NAME="${1:-}"
-PATTERN_FILE="${2:-./scripts/jenkins-scripts/tools/gz_ci.ignored}"
+
+if [ -z "${LIB_NAME}" ]; then
+  echo "Usage: $0 <lib_name> [pattern_file1 pattern_file2 ...]" >&2
+  exit 2
+fi
+
+shift
+
+IGNORE_ARGS=""
+if [ "$#" -gt 0 ]; then
+  for pf in "$@"; do
+    IGNORE_ARGS="${IGNORE_ARGS} -i ${pf}"
+  done
+else
+  IGNORE_ARGS="-i ./scripts/jenkins-scripts/tools/gz_ci.ignored"
+fi
 
 if [ -z "${ghprbTargetBranch:-}" ] || [ -z "${ghprbActualCommit:-}" ]; then
   # Not a PR build or environment variables missing; do not skip build
   exit 1
-fi
-
-if [ -z "${LIB_NAME}" ]; then
-  echo "Usage: $0 <lib_name> [pattern_file]" >&2
-  exit 2
 fi
 
 SKIP_KEYWORD="SKIP_CI_FOR_IGNORED_FILES"
@@ -42,7 +52,7 @@ if ! CHANGED_FILES=$(git -C "${REPO_DIR}" diff --no-renames --merge-base "origin
 fi
 
 # Run check_ignored_files.py
-if ! echo "${CHANGED_FILES}" | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py "${PATTERN_FILE}"; then
+if ! echo "${CHANGED_FILES}" | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py ${IGNORE_ARGS}; then
   # Non-ignored files present; proceed with build
   exit 1
 fi

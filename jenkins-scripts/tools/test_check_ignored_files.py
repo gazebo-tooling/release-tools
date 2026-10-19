@@ -18,7 +18,7 @@ import check_ignored_files
 class TestCheckIgnoredFiles(unittest.TestCase):
 
     def setUp(self):
-        # Create a temporary pattern file for testing
+        # Create temporary pattern files for testing
         self.pattern_file = tempfile.NamedTemporaryFile(mode='w+', delete=False, encoding='utf-8')
         self.pattern_file.write(r"""
 # This is a comment
@@ -29,9 +29,36 @@ class TestCheckIgnoredFiles(unittest.TestCase):
 """)
         self.pattern_file.close()
 
+        self.pattern_file2 = tempfile.NamedTemporaryFile(mode='w+', delete=False, encoding='utf-8')
+        self.pattern_file2.write(r"""
+package\.xml$
+^LICENSE$
+""")
+        self.pattern_file2.close()
+
     def tearDown(self):
         if os.path.exists(self.pattern_file.name):
             os.remove(self.pattern_file.name)
+        if os.path.exists(self.pattern_file2.name):
+            os.remove(self.pattern_file2.name)
+
+    def test_load_patterns_from_multiple_files(self):
+        patterns = check_ignored_files.load_patterns_from_files([self.pattern_file.name, self.pattern_file2.name])
+        self.assertEqual(len(patterns), 5)
+
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_main_multiple_ignore_flags(self, mock_stdout):
+        test_args = [
+            'check_ignored_files.py',
+            '-i', self.pattern_file.name,
+            '-i', self.pattern_file2.name,
+            'README.md', 'package.xml'
+        ]
+        with patch.object(sys, 'argv', test_args):
+            with self.assertRaises(SystemExit) as cm:
+                check_ignored_files.main()
+            self.assertEqual(cm.exception.code, 0)
+            self.assertIn("All files match the ignored set.", mock_stdout.getvalue())
 
     def test_load_patterns(self):
         patterns = check_ignored_files.load_patterns(self.pattern_file.name)
@@ -55,7 +82,7 @@ class TestCheckIgnoredFiles(unittest.TestCase):
 
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_main_all_ignored_args(self, mock_stdout):
-        test_args = ['check_ignored_files.py', self.pattern_file.name, '.github/workflows/ci.yml', 'README.md']
+        test_args = ['check_ignored_files.py', '-i', self.pattern_file.name, '.github/workflows/ci.yml', 'README.md']
         with patch.object(sys, 'argv', test_args):
             with self.assertRaises(SystemExit) as cm:
                 check_ignored_files.main()
@@ -64,7 +91,7 @@ class TestCheckIgnoredFiles(unittest.TestCase):
 
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_main_non_ignored_args(self, mock_stdout):
-        test_args = ['check_ignored_files.py', self.pattern_file.name, '.github/workflows/ci.yml', 'src/main.cpp']
+        test_args = ['check_ignored_files.py', '-i', self.pattern_file.name, '.github/workflows/ci.yml', 'src/main.cpp']
         with patch.object(sys, 'argv', test_args):
             with self.assertRaises(SystemExit) as cm:
                 check_ignored_files.main()
@@ -75,7 +102,7 @@ class TestCheckIgnoredFiles(unittest.TestCase):
 
     @patch('sys.stdout', new_callable=io.StringIO)
     def test_main_stdin_input(self, mock_stdout):
-        test_args = ['check_ignored_files.py', self.pattern_file.name]
+        test_args = ['check_ignored_files.py', '-i', self.pattern_file.name]
         stdin_data = ".github/workflows/ci.yml\ndocs/guide.txt\n"
         with patch.object(sys, 'argv', test_args):
             with patch('sys.stdin', io.StringIO(stdin_data)):
