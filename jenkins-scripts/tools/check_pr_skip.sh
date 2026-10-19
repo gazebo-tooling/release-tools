@@ -18,6 +18,16 @@ if [ -z "${LIB_NAME}" ]; then
   exit 2
 fi
 
+SKIP_KEYWORD="SKIP_CI_FOR_IGNORED_FILES"
+case "${ghprbPullLongDescription:-}" in
+  *"${SKIP_KEYWORD}"*)
+    ;;
+  *)
+    # Keyword not present in PR description; do not skip build
+    exit 1
+    ;;
+esac
+
 REPO_DIR="${WORKSPACE}/${LIB_NAME}"
 
 if [ ! -d "${REPO_DIR}" ]; then
