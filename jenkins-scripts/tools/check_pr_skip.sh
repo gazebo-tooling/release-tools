@@ -41,7 +41,7 @@ case "${ghprbPullLongDescription:-}" in
   *"${SKIP_KEYWORD}"*)
     ;;
   *)
-    # Keyword not present in PR description; do not skip build
+    echo "Keyword '${SKIP_KEYWORD}' not present in PR description; do not skip build"
     exit 1
     ;;
 esac
