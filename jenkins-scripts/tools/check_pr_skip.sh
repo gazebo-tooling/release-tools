@@ -1,7 +1,10 @@
 #!/bin/sh
-# Script to check if changed files in a PR branch only match ignored patterns.
-# If all files match, generates dummy test/cppcheck/ABI reports and exits 0 (signaling to skip build).
-# Otherwise exits 1 (signaling to proceed with build).
+# Usage: check_pr_skip.sh <lib_name> [pattern_file ...]
+# Checks whether every file changed in the PR matches the ignore patterns.
+# Skipping is opt-in: the PR description must contain SKIP_CI_FOR_IGNORED_FILES.
+# Exit 0: all changed files ignored; dummy test/cppcheck/ABI reports generated (skip build).
+# Exit 1: build required (non-PR build, keyword absent, non-ignored files).
+# Exit 2: usage error (missing lib_name) or check error. Callers should treat non-zero as "build".
 
 set -e
 
@@ -57,9 +60,11 @@ if ! CHANGED_FILES=$(git -C "${REPO_DIR}" diff --no-renames --merge-base "origin
 fi
 
 # Run check_ignored_files.py
-if ! echo "${CHANGED_FILES}" | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py ${IGNORE_ARGS}; then
-  # Non-ignored files present; proceed with build
-  exit 1
+if ! echo "${CHANGED_FILES}" | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py ${IGNORE_ARGS}; \
+    status=$?; then
+  # Non-ignored files present or check_ignored_files.py errored
+  # In either case return the same error code and proceed with build
+  exit $status
 fi
 
 echo "All changed files match ignored set. Generating dummy reports for publishers..."
