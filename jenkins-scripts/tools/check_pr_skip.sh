@@ -32,7 +32,7 @@ else
 fi
 
 if [ -z "${ghprbTargetBranch:-}" ] || [ -z "${ghprbActualCommit:-}" ]; then
-  # Not a PR build or environment variables missing; do not skip build
+  echo "Not a PR build or environment variables missing; do not skip build"
   exit 1
 fi
 
@@ -49,13 +49,13 @@ esac
 REPO_DIR="${WORKSPACE}/${LIB_NAME}"
 
 if [ ! -d "${REPO_DIR}" ]; then
-  # Repository directory not found; proceed with build
+  echo "Repository directory not found; proceed with build"
   exit 1
 fi
 
 # Run git diff
 if ! CHANGED_FILES=$(git -C "${REPO_DIR}" diff --no-renames --merge-base "origin/${ghprbTargetBranch}" "${ghprbActualCommit}" --name-only 2>/dev/null); then
-  # git diff failed; proceed with build
+  echo "git diff failed; proceed with build"
   exit 1
 fi
 
