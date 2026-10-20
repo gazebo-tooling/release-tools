@@ -12,14 +12,19 @@ if [ -z "${LIB_NAME}" ]; then
   exit 2
 fi
 
+# $1 has been parsed as LIB_NAME, so it can now be dropped
 shift
 
+# Pattern files must be passed with "-i" to check_ignored_files.py
+# This iterates over pattern files passed in $@ and appends to
+# IGNORE_ARGS with "-i"
 IGNORE_ARGS=""
 if [ "$#" -gt 0 ]; then
   for pf in "$@"; do
     IGNORE_ARGS="${IGNORE_ARGS} -i ${pf}"
   done
 else
+  # no pattern files were passed, so use gz_ci.ignored by default
   IGNORE_ARGS="-i ./scripts/jenkins-scripts/tools/gz_ci.ignored"
 fi
 
