@@ -12,13 +12,16 @@ used (can check this in the Jenkins UI)
 | docker   | Node has capabilities to run Docker CI (standard Linux CI) | Linux system with docker installed - 16GB RAM |
 | gpu-reliable | Node has a real GPU able to run simulation for Gazebo | Nvidia card and nvidia-docker installed on Linux |
 | linux-arm64 | Node has capabilities to run native arm64 code (mostly used in packaging) | Bare-metal ARM machine |
-| linux-armhf | Node has capabilities to run native armhf code (mostly used in packaging) | Bare-metal ARM machine |
 | osx | Node has capabilities to run native OsX code | Apple system |
 | osx_gazebo | Node has capabilities to run Gazebo classic CI and packaging | 'Powerful' Apple system |
 | osx\_$distro | Node has capabilities to build code for the distribution $distro | Apple system running $distro |
 | swarm | Node was created using swarm plugin in Jenkins | Chef provisioned node |
 | win | Node is able to run Windows CI | Windows10 system. 16GB RAM |
 | win_testing | Testing node attached to the production buildfarm | Windows10 system |
+
+Linux builds are not emulated: a job must run on an agent of the same
+architecture it is building for. Anything other than amd64 needs the
+`JENKINS_NODE_TAG` parameter pointing at the matching `linux-$arch` label.
 
 ## Provision of Node labels
 

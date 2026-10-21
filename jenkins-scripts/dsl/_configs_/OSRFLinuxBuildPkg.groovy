@@ -120,7 +120,7 @@ class OSRFLinuxBuildPkg
                     predefinedProp("PROJECT_NAME_TO_COPY_ARTIFACTS", "\${JOB_NAME}")
                     // Workaround to avoid problems on repository uploader. Real
                     // issue: https://issues.jenkins-ci.org/browse/JENKINS-45005
-                    predefinedProp("JENKINS_NODE_TAG", "master")
+                    predefinedProp("JENKINS_NODE_TAG", "packages")
                   }
                 }
               }

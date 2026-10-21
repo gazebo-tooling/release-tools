@@ -143,7 +143,6 @@ Track stable release of metapackage `ignition-<collection>`.
    - [ ] :hourglass: Buster/amd64
    - [ ] :hourglass: Sid/\*:
    - [ ] :hourglass: Buster/arm64
-   - [ ] :hourglass: Buster/armhf (raspbian)
 
 ### MacOSX
 

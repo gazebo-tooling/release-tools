@@ -30,7 +30,6 @@ For our `gz-math` example in the `jetty` collection, the YAML looks like this:
   ci:
     configs:
       - noble
-      - brew_amd64
       - brew_arm64
       - win_conda_noble
 ```

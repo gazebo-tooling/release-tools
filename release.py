@@ -26,11 +26,13 @@ JOB_NAME_PATTERN = '%s-debbuilder'
 GENERIC_BREW_PULLREQUEST_JOB = 'generic-release-homebrew_pull_request_updater'
 
 LINUX_DISTROS = ['ubuntu', 'debian']
-SUPPORTED_ARCHS = ['amd64', 'armhf', 'arm64']
+SUPPORTED_ARCHS = ['amd64', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 ROS_VENDOR = {'harmonic': ['jazzy'],
               'ionic': ['kilted'],
-              'jetty': ['rolling', 'lyrical']}
+              'jetty': ['lyrical'],
+              'm': ['rolling']
+              }
 
 OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing none"
 
@@ -869,8 +871,10 @@ def go(argv):
     params['PACKAGE_ALIAS'] = args.package_alias
     params['RELEASE_VERSION'] = args.release_version
     params['UPLOAD_TO_REPO'] = args.upload_to_repository
-    # Assume that we want stable + own repo in the building
-    params['OSRF_REPOS_TO_USE'] = "stable " + args.upload_to_repository
+    # Assume that we want stable + own repo in the building, except when using "none"
+    params['OSRF_REPOS_TO_USE'] = "stable"
+    if args.upload_to_repository != "none":
+        params['OSRF_REPOS_TO_USE'] += " " + args.upload_to_repository
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
@@ -904,7 +908,7 @@ def go(argv):
                 for a in distros_dic[d]:
                     # Filter prerelease and nightly architectures
                     if (PRERELEASE or NIGHTLY):
-                        if (a == 'armhf' or a == 'arm64'):
+                        if (a == 'arm64'):
                             continue
 
                     linux_platform_params = params.copy()
@@ -912,8 +916,8 @@ def go(argv):
                     linux_platform_params['LINUX_DISTRO'] = l
                     linux_platform_params['DISTRO'] = d
 
-                    if (a == 'armhf' or a == 'arm64'):
-                        # No sid releases for arm64/armhf lack of docker image
+                    if (a == 'arm64'):
+                        # No sid releases for arm64 lack of docker image
                         # https://hub.docker.com/r/aarch64/debian/ fails on Jenkins
                         if (d == 'sid'):
                             continue

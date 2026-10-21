@@ -99,13 +99,11 @@ collections:
     ci:
       configs:
         - jammy
-        - brew_amd64
         - brew_arm64
         - win_conda_L
     packaging:
       configs:
         - jammy
-        - brew_amd64
         - brew_arm64
       linux:
         ignore_major_version:
@@ -184,14 +182,12 @@ collections:
       configs:
         - jammy
         - noble_no_pr
-        - brew_amd64
         - brew_arm64
         - win_conda_LO23
     packaging:
       configs:
         - jammy
         - noble
-        - brew_amd64
         - brew_arm64
       linux:
         ignore_major_version:
@@ -269,13 +265,11 @@ collections:
     ci:
       configs:
         - noble
-        - brew_amd64
         - brew_arm64
         - win_conda_LO23
     packaging:
       configs:
         - noble
-        - brew_amd64
         - brew_arm64
       linux:
         ignore_major_version:
@@ -353,13 +347,12 @@ collections:
     ci:
       configs:
         - noble
-        - brew_amd64
+        - resolute_no_pr
         - brew_arm64
         - win_conda_noble
     packaging:
       configs:
         - noble
-        - brew_amd64
         - brew_arm64
       linux:
         ignore_major_version:
@@ -488,15 +481,12 @@ collections:
           current_branch: main
     ci:
       configs:
-        - noble_no_pr
         - resolute
-        - brew_amd64
         - brew_arm64
         - win_conda_noble
     packaging:
       configs:
-        - noble
-        - brew_amd64
+        - resolute
         - brew_arm64
       linux:
         ignore_major_version:
@@ -642,6 +632,7 @@ ci_configs:
         - gz-sensors
     exclude:
       all:
+        - gz-jetty
         - gz-rotary
       abichecker:
         - gz-cmake
@@ -651,34 +642,6 @@ ci_configs:
         - "export MAKE_JOBS=1"
     tests_disabled:
     ci_categories_enabled:
-      - stable_branches
-  - name: brew_amd64
-    system:
-      so: darwin
-      distribution: macOSX
-      version: all
-      arch: amd64
-    requirements:
-    exclude:
-      all:
-        - gz-fortress
-        - gz-harmonic
-        - gz-ionic
-        - gz-jetty
-        - gz-rotary
-    cmake_warnings_disabled:
-      - gz-common
-      - gz-sim
-      - gz-launch
-      - gz-math
-      - gz-physics
-      - gz-rendering
-      - gz-sensors
-      - gz-transport
-      - sdformat
-    ci_categories_enabled:
-      # pr jobs disabled for amd64 in favor of arm64
-      # https://github.com/gazebo-tooling/release-tools/issues/1416
       - stable_branches
   - name: brew_arm64
     system:
@@ -848,13 +811,6 @@ packaging_configs:
         - "export MAKE_JOBS=1"
     exclude:
         - rotary
-  - name: brew_amd64
-    system:
-      so: darwin
-      distribution: macOSX
-      version: all
-      arch:
-        - amd64
   - name: brew_arm64
     system:
       so: darwin
