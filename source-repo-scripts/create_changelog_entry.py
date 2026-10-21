@@ -691,25 +691,35 @@ def main():
         print("Changelog update cancelled.")
         return 0
 
+    # From here on a failure leaves Changelog.md and .changelog/ half
+    # updated. Restore only those paths: "git reset --hard" would also drop
+    # unrelated local changes, which the checks above allow.
+    undo_hint = (
+        "To undo the partial update run: git restore --source=HEAD "
+        f"--staged --worktree -- {os.path.relpath(changelog_path)} "
+        f"{os.path.relpath(changelog_dir)}")
+
     try:
         update_changelog(
             changelog_path, changelog_lines, insert_index, new_entry)
     except RuntimeError as e:
-        print(f"Error: {e}", file=sys.stderr)
+        print(f"Error: {e}\n{undo_hint}", file=sys.stderr)
         return 1
 
+    # Not run_subprocess: git output stays visible, and commit hooks or
+    # signing (e.g. waiting for a key touch) can outlast its timeout.
     try:
         subprocess.run(["git", "add", changelog_path], check=True)
     except subprocess.CalledProcessError as e:
-        print(f"Error: could not stage {changelog_path}: {e}",
+        print(f"Error: could not stage {changelog_path}: {e}\n{undo_hint}",
               file=sys.stderr)
         return 1
 
     try:
         subprocess.run(["git", "rm", "--", *entry_files], check=True)
     except subprocess.CalledProcessError as e:
-        print(f"Error: could not remove the processed entry files: {e}",
-              file=sys.stderr)
+        print(f"Error: could not remove the processed entry files: {e}\n"
+              f"{undo_hint}", file=sys.stderr)
         return 1
 
     try:
@@ -720,8 +730,8 @@ def main():
             check=True)
         print("Committed changelog updates")
     except subprocess.CalledProcessError as e:
-        print(f"Error: could not commit changelog updates: {e}",
-              file=sys.stderr)
+        print(f"Error: could not commit changelog updates: {e}\n"
+              f"{undo_hint}", file=sys.stderr)
         return 1
 
     return 0
