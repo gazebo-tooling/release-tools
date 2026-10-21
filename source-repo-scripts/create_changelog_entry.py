@@ -411,14 +411,42 @@ def format_pr_link(pr):
     return f"[Pull request #{pr['number']}]({pr['url']})"
 
 
-def get_merged_pr_by_number(pr_number):
+def resolve_github_repo():
     """
-    Return ``{"number", "url"}`` for merged PR *pr_number*, or None.
+    Return the ``owner/name`` GitHub repository for PR lookups, or None.
+
+    gh picks the repository from the git remotes of the checkout. In a fork
+    checkout that can be the fork, where the upstream PRs do not exist, so
+    the parent repository is used when the picked one is a fork.
+    """
+    result = run_subprocess(
+        ["gh", "repo", "view", "--json", "nameWithOwner,parent"],
+        context="gh repo view")
+    if result is None:
+        return None
+    try:
+        repo = json.loads(result.stdout)
+        parent = repo.get("parent")
+        if parent:
+            return f"{parent['owner']['login']}/{parent['name']}"
+        return repo["nameWithOwner"]
+    except (json.JSONDecodeError, KeyError, TypeError, AttributeError) as e:
+        print(
+            f"Warning: unexpected gh repo view output "
+            f"({type(e).__name__}: {e})",
+            file=sys.stderr)
+    return None
+
+
+def get_merged_pr_by_number(pr_number, repo):
+    """
+    Return ``{"number", "url"}`` for merged PR *pr_number* of *repo*, or None.
 
     None is returned when the number is not a merged PR (e.g. an issue) or
     gh cannot answer.
     """
-    cmd = ["gh", "pr", "view", pr_number, "--json", "number,url,state"]
+    cmd = ["gh", "pr", "view", pr_number, "--repo", repo,
+           "--json", "number,url,state"]
     result = run_subprocess(cmd, context=f"gh pr view {pr_number}", quiet=True)
     if result is None:
         return None
@@ -434,10 +462,11 @@ def get_merged_pr_by_number(pr_number):
     return None
 
 
-def search_merged_pr_by_commit(commit_sha):
-    """Return ``{"number", "url"}`` of the merged PR containing *commit_sha*, or None."""
+def search_merged_pr_by_commit(commit_sha, repo):
+    """Return ``{"number", "url"}`` of the merged PR of *repo* containing *commit_sha*, or None."""
     # Use gh CLI to search for merged PRs containing the commit SHA.
-    cmd = ["gh", "pr", "list", "--state=merged", "--search", commit_sha, "--json", "number,url"]
+    cmd = ["gh", "pr", "list", "--repo", repo, "--state=merged",
+           "--search", commit_sha, "--json", "number,url"]
     result = run_subprocess(cmd, context=f"gh pr list for {commit_sha}")
     if result is None or not result.stdout.strip():
         return None
@@ -458,9 +487,9 @@ def search_merged_pr_by_commit(commit_sha):
     return None
 
 
-def find_pr_for_commit(commit_sha, message):
+def find_pr_for_commit(commit_sha, message, repo):
     """
-    Return the PR to credit for the commit that added a changelog entry.
+    Return the PR of *repo* to credit for the commit that added an entry.
 
     Backports reach a stable branch as a cherry-pick of the commit merged on
     the source branch, inside a backport PR. The merge method of the backport
@@ -483,7 +512,7 @@ def find_pr_for_commit(commit_sha, message):
 
     match = SUBJECT_PR_REF_RE.search(subject)
     if match:
-        pr = get_merged_pr_by_number(match.group("number"))
+        pr = get_merged_pr_by_number(match.group("number"), repo)
         if pr:
             return pr
         print(
@@ -493,14 +522,14 @@ def find_pr_for_commit(commit_sha, message):
     else:
         trailers = CHERRY_PICK_TRAILER_RE.findall(body)
         if trailers:
-            pr = search_merged_pr_by_commit(trailers[0])
+            pr = search_merged_pr_by_commit(trailers[0], repo)
             if pr:
                 return pr
 
-    return search_merged_pr_by_commit(commit_sha)
+    return search_merged_pr_by_commit(commit_sha, repo)
 
 
-def get_pr_info(file_path):
+def get_pr_info(file_path, repo):
     """
     Get PR information for a changelog file using GitHub CLI.
 
@@ -508,6 +537,8 @@ def get_pr_info(file_path):
         file_path (str): Full path to the .changelog/ file. Used to identify
             the git commit that introduced the file, which is then used to
             locate the associated merged PR (see find_pr_for_commit).
+        repo (str): ``owner/name`` GitHub repository of the PRs (see
+            resolve_github_repo).
 
     Returns:
         str: Formatted PR link (``[Pull request #N](url)``) when found,
@@ -537,7 +568,7 @@ def get_pr_info(file_path):
     commit_sha, _, message = git_result.stdout.strip().partition('\n')
     print(f"Found commit SHA: {commit_sha} for file {filename}")
 
-    pr = find_pr_for_commit(commit_sha, message)
+    pr = find_pr_for_commit(commit_sha, message, repo)
     if pr:
         print(f"Found PR #{pr['number']} for commit {commit_sha}")
         return format_pr_link(pr)
@@ -618,8 +649,16 @@ def main():
         print("No changelog entries found!", file=sys.stderr)
         return 1
 
+    github_repo = resolve_github_repo()
+    if github_repo is None:
+        print("Error: gh could not tell the GitHub repository of this "
+              "checkout; check that gh is installed and authenticated, or "
+              "pick one with 'gh repo set-default'", file=sys.stderr)
+        return 1
+    print(f"Looking up pull requests in {github_repo}")
+
     for entry in entries:
-        entry["reference"] = get_pr_info(entry["path"])
+        entry["reference"] = get_pr_info(entry["path"], github_repo)
 
     print("Generating changelog entry...")
     try:

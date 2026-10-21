@@ -166,7 +166,9 @@ Generate a new `Changelog.md` entry from files in `.changelog/`.
 
 - `git`
 - [`gh`](https://cli.github.com/) (GitHub CLI) — used to discover the PR
-  associated with each changelog file.
+  associated with each changelog file. PRs are looked up in the repository
+  that `gh` picks for the checkout (see `gh repo set-default`), or in its
+  parent when that repository is a fork.
 
 #### Usage
 
