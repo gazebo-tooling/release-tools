@@ -89,7 +89,22 @@ def run_subprocess(cmd, timeout=10, context="", quiet=False):
     return result
 
 
-def parse_changelog_header(changelog_path):
+def read_changelog(changelog_path):
+    """
+    Return the lines of *changelog_path*, without line endings.
+
+    Raises:
+        RuntimeError: If the changelog file cannot be read.
+    """
+    try:
+        with open(changelog_path, 'r', encoding='utf-8') as f:
+            return f.read().split('\n')
+    except OSError as e:
+        raise RuntimeError(
+            f"Could not read changelog file {changelog_path}: {e}") from e
+
+
+def parse_changelog_header(changelog_lines, changelog_path):
     """
     Parse project name and current version from Changelog.md.
 
@@ -99,26 +114,24 @@ def parse_changelog_header(changelog_path):
     first release header in the file is used.
 
     Args:
-        changelog_path (str): Path to Changelog.md.
+        changelog_lines (list[str]): Lines of Changelog.md (see
+            read_changelog).
+        changelog_path (str): Path to Changelog.md, used in error messages.
 
     Returns:
-        tuple[str, str, str]: (project_name, current_version, heading) where
-            heading is the markdown prefix used by that release header
-            (e.g. ``###``), so new releases can be written at the same level.
+        tuple[str, str, str, int]: (project_name, current_version, heading,
+            index) where heading is the markdown prefix used by that release
+            header (e.g. ``###``), so new releases can be written at the same
+            level, and index is the position of that header in
+            *changelog_lines*, where the new release is inserted.
 
     Raises:
-        RuntimeError: If the changelog file cannot be read.
         ValueError: If the current version cannot be determined reliably:
             no release header, a pending (undated) release, a release whose
             major does not match its section, or a section with no release
             yet (first release of a new major must be written manually).
     """
-    try:
-        with open(changelog_path, 'r', encoding='utf-8') as f:
-            lines = [line.strip() for line in f.readlines()]
-    except OSError as e:
-        raise RuntimeError(
-            f"Could not read changelog file {changelog_path}: {e}") from e
+    lines = [line.strip() for line in changelog_lines]
 
     placeholder_index = None
     for i, line in enumerate(lines):
@@ -128,18 +141,16 @@ def parse_changelog_header(changelog_path):
 
     if placeholder_index is None:
         # Legacy layout without "N.x" sections.
-        section = lines
+        start = 0
         major = None
     else:
         placeholder = CHANGELOG_PLACEHOLDER_RE.match(lines[placeholder_index])
         major = placeholder.group("major")
-        section = []
-        for line in lines[placeholder_index + 1:]:
-            if CHANGELOG_PLACEHOLDER_RE.match(line):
-                break
-            section.append(line)
+        start = placeholder_index + 1
 
-    for line in section:
+    for i, line in enumerate(lines[start:], start):
+        if CHANGELOG_PLACEHOLDER_RE.match(line):
+            break
         match = CHANGELOG_RELEASE_HEADER_RE.match(line)
         if not match:
             continue
@@ -152,7 +163,7 @@ def parse_changelog_header(changelog_path):
             raise ValueError(
                 f"Release {version} in {changelog_path} does not match its "
                 f"section '{lines[placeholder_index]}'")
-        return match.group("project"), version, match.group("level")
+        return match.group("project"), version, match.group("level"), i
 
     if major is not None:
         raise ValueError(
@@ -368,49 +379,23 @@ def generate_changelog_entry(entries, project_name, version, heading="###"):
         [format_markdown_list_item(entry) for entry in entries])
 
 
-def update_changelog(changelog_path, new_entry):
+def update_changelog(changelog_path, changelog_lines, insert_index, new_entry):
     """
-    Update the changelog file with the new entry.
+    Write the changelog file with the new entry above the current release.
 
     Args:
         changelog_path (str): Path to the changelog file.
+        changelog_lines (list[str]): Current lines of the changelog (see
+            read_changelog).
+        insert_index (int): Index of the current release header in
+            *changelog_lines* (see parse_changelog_header).
         new_entry (str): New changelog entry to add.
 
     Raises:
-        RuntimeError: If file I/O fails while reading or writing changelog.
-        ValueError: If no valid insertion anchor can be found.
+        RuntimeError: If writing the changelog fails.
     """
-    try:
-        with open(changelog_path, 'r', encoding='utf-8') as f:
-            current_content = f.read()
-    except OSError as e:
-        raise RuntimeError(f"Could not read {changelog_path}: {e}") from e
-
-    lines = current_content.split('\n')
-    insert_index = None
-
-    # Prefer inserting after the top placeholder header (e.g. "## Gazebo Math 8.x").
-    for i, line in enumerate(lines):
-        if CHANGELOG_PLACEHOLDER_RE.match(line.strip()):
-            insert_index = i + 1
-            while insert_index < len(lines) and lines[insert_index].strip() == '':
-                insert_index += 1
-            break
-
-    # Otherwise insert before the first dated release header.
-    if insert_index is None:
-        for i, line in enumerate(lines):
-            if CHANGELOG_RELEASE_HEADER_RE.match(line.strip()):
-                insert_index = i
-                break
-
-    if insert_index is None:
-        raise ValueError(
-            f"Could not find insertion point in {changelog_path}. "
-            "Expected either a '## ... N.x' placeholder header or a dated release header.")
-
-    lines.insert(insert_index, new_entry)
-    lines.insert(insert_index + 1, "")
+    lines = (changelog_lines[:insert_index] + [new_entry, ""] +
+             changelog_lines[insert_index:])
 
     try:
         with open(changelog_path, 'w', encoding='utf-8') as f:
@@ -613,8 +598,9 @@ def main():
         return 1
 
     try:
-        project_name, current_version, heading = parse_changelog_header(
-            changelog_path)
+        changelog_lines = read_changelog(changelog_path)
+        project_name, current_version, heading, insert_index = \
+            parse_changelog_header(changelog_lines, changelog_path)
     except (RuntimeError, ValueError) as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
@@ -667,8 +653,9 @@ def main():
         return 0
 
     try:
-        update_changelog(changelog_path, new_entry)
-    except (RuntimeError, ValueError) as e:
+        update_changelog(
+            changelog_path, changelog_lines, insert_index, new_entry)
+    except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
 
