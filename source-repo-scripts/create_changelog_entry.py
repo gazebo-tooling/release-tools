@@ -35,6 +35,9 @@ RELEASE_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 SUBJECT_PR_REF_RE = re.compile(r"\(#(?P<number>\d+)\)\s*$")
 CHERRY_PICK_TRAILER_RE = re.compile(
     r"^\(cherry picked from commit (?P<sha>[0-9a-f]{7,40})\)$", re.M)
+# Template comments are "# ..." lines or a lone "#"; body text such as
+# "#123 is fixed too" is kept.
+TEMPLATE_COMMENT_RE = re.compile(r"^\s*#(\s|$)")
 
 
 def first_non_blank_line(text):
@@ -245,11 +248,9 @@ def read_changelog_entries(files):
             errors.append(f"{filename}: could not be read ({e})")
             continue
 
-        # Remove template comment lines (lines whose first non-whitespace
-        # character is '#').
         entry_content = '\n'.join(
             line for line in content.split('\n')
-            if not line.strip().startswith('#')).strip()
+            if not TEMPLATE_COMMENT_RE.match(line)).strip()
 
         validation_error = validate_changelog_entry(entry_content, filename)
         if validation_error is not None:
