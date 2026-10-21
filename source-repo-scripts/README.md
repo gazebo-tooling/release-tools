@@ -193,7 +193,7 @@ skipped). The first non-comment line of each entry
 must follow the Conventional Commits format:
 
 ```text
-<type>(<optional-scope>)!: <description>
+<type>(<optional-scope>): <description>
 ```
 
 Examples of valid first lines:
