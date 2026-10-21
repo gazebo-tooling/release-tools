@@ -166,29 +166,41 @@ def parse_changelog_header(changelog_path):
         "release header like '### <project> <major>.<minor>.<patch> (YYYY-MM-DD)'")
 
 
-def validate_changelog_entry(entry_content, filename):
+def parse_changelog_entry(entry_content, filename):
     """
-    Validate that the changelog entry follows Conventional Commits format.
+    Parse the Conventional Commits header of a changelog entry.
 
     Args:
         entry_content (str): Changelog entry content without template comments.
         filename (str): File name used for reporting validation errors.
 
     Returns:
-        str or None: None when valid, otherwise a validation error message.
+        re.Match: CONVENTIONAL_COMMIT_HEADER_RE match of the first line.
+
+    Raises:
+        ValueError: If the entry is empty, its first line does not follow
+            Conventional Commits, or it uses the breaking marker ('!'), which
+            automatic versioning does not support.
     """
     first_line = first_non_blank_line(entry_content)
 
     if not first_line:
-        return f"{filename}: entry is empty after removing template comments"
+        raise ValueError(
+            f"{filename}: entry is empty after removing template comments")
 
-    if not CONVENTIONAL_COMMIT_HEADER_RE.match(first_line):
-        return (
+    match = CONVENTIONAL_COMMIT_HEADER_RE.match(first_line)
+    if not match:
+        raise ValueError(
             f"{filename}: first non-comment line must follow Conventional Commits "
-            f"format '<type>(<optional-scope>)!: <description>' "
-            f"(both scope and '!' are optional), got '{first_line}'")
+            f"format '<type>(<optional-scope>): <description>' "
+            f"(scope is optional), got '{first_line}'")
 
-    return None
+    if match.group("breaking"):
+        raise ValueError(
+            f"{filename}: breaking marker '!' is not supported by automatic "
+            "versioning; handle this release manually")
+
+    return match
 
 
 def list_changelog_files(changelog_dir):
@@ -235,10 +247,10 @@ def read_changelog_entries(files):
         files (list[str]): Paths of the entry files (see list_changelog_files).
 
     Returns:
-        tuple[list[str], list[str]]: A tuple of (entries, errors). Each entry
-        is the validated changelog text, potentially with an appended PR-link
-        or commit-reference line. Errors contains human-readable validation
-        failure messages.
+        tuple[list[dict], list[str]]: A tuple of (entries, errors). Each entry
+        has the file ``path``, the parsed Conventional Commits ``header``
+        match and the entry ``text``. Errors contains human-readable
+        validation failure messages.
     """
     entries = []
     errors = []
@@ -257,14 +269,14 @@ def read_changelog_entries(files):
             line for line in content.split('\n')
             if not TEMPLATE_COMMENT_RE.match(line)).strip()
 
-        validation_error = validate_changelog_entry(entry_content, filename)
-        if validation_error is not None:
-            errors.append(validation_error)
+        try:
+            header = parse_changelog_entry(entry_content, filename)
+        except ValueError as e:
+            errors.append(str(e))
             continue
 
-        pr_info = get_pr_info(file_path)
         entries.append(
-            f"{entry_content}\n{pr_info}" if pr_info else entry_content)
+            {"path": file_path, "header": header, "text": entry_content})
 
     return entries, errors
 
@@ -274,21 +286,20 @@ def calculate_next_version(entries, current_version):
     Calculate the next version using changelog entries and the current version.
 
     Args:
-        entries (list[str]): Validated changelog entry texts.
+        entries (list[dict]): Validated entries from read_changelog_entries.
         current_version (str): Current semver version string (``X.Y.Z``).
 
     Returns:
         str: The calculated next semver version.
 
     Raises:
-        ValueError: If *current_version* is not valid semver, if an entry
-            header cannot be parsed, or if any entry uses the breaking
-            marker (``!``).
+        ValueError: If *current_version* is not valid semver.
 
     Rules:
-      - Entries with breaking marker '!' are unsupported and fail fast.
       - If any changelog entry is a feature (feat), bump minor and reset patch.
       - Otherwise, bump patch.
+      Entries with the breaking marker '!' never get here: they are rejected
+      by parse_changelog_entry.
     """
     try:
         major, minor, patch = map(int, current_version.split('.'))
@@ -296,22 +307,7 @@ def calculate_next_version(entries, current_version):
         raise ValueError(
             f"Current version '{current_version}' is not valid semver") from e
 
-    parsed_headers = []
-    for entry in entries:
-        first_line = first_non_blank_line(entry)
-        match = CONVENTIONAL_COMMIT_HEADER_RE.match(first_line)
-        if not match:
-            raise ValueError(
-                f"Could not parse changelog entry header: '{first_line}'")
-        parsed_headers.append(match)
-
-    if any(match.group("breaking") for match in parsed_headers):
-        raise ValueError(
-            "Entries with breaking marker '!' are not supported by automatic "
-            "versioning. Please remove '!' entries or handle versioning manually.")
-
-    has_feature = any(match.group("type") == "feat" for match in parsed_headers)
-    if has_feature:
+    if any(entry["header"].group("type") == "feat" for entry in entries):
         minor += 1
         patch = 0
     else:
@@ -325,12 +321,15 @@ def format_markdown_list_item(entry):
     Format a changelog entry as a markdown bullet preserving multiline structure.
 
     Args:
-        entry (str): Changelog entry text, potentially multiline.
+        entry (dict): Changelog entry with its ``text``, potentially
+            multiline, and its PR ``reference`` line (see get_pr_info).
 
     Returns:
         str: Markdown list item with indented continuation lines.
     """
-    lines = entry.split('\n')
+    lines = entry["text"].split('\n')
+    if entry["reference"]:
+        lines.append(entry["reference"])
     formatted_lines = [f"* {lines[0]}"]
     for line in lines[1:]:
         formatted_lines.append(f"  {line}" if line else "")
@@ -627,6 +626,9 @@ def main():
     if not entries:
         print("No changelog entries found!", file=sys.stderr)
         return 1
+
+    for entry in entries:
+        entry["reference"] = get_pr_info(entry["path"])
 
     print("Generating changelog entry...")
     try:
