@@ -59,12 +59,13 @@ if ! CHANGED_FILES=$(git -C "${REPO_DIR}" diff --no-renames --merge-base "origin
   exit 1
 fi
 
-# Run check_ignored_files.py
-if ! echo "${CHANGED_FILES}" | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py ${IGNORE_ARGS}; \
-    status=$?; then
-  # Non-ignored files present or check_ignored_files.py errored
-  # In either case return the same error code and proceed with build
-  exit $status
+# Run check_ignored_files.py and return its status if non-zero
+status=0
+printf '%s\n' "${CHANGED_FILES}" | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py "$@" || status=$?
+if [ "${status}" -ne 0 ]; then
+    # exit with same error code.
+    # The python script already prints error messages, so no need to print anything here.
+    exit ${status}
 fi
 
 echo "All changed files match ignored set. Generating dummy reports for publishers..."
