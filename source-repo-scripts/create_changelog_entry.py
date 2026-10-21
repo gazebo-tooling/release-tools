@@ -336,9 +336,9 @@ def format_markdown_list_item(entry):
     Format a changelog entry as a numbered Changelog.md item.
 
     The item text is the entry description, without the Conventional Commits
-    type and scope. The entry body and a ``* <reference>`` sub-bullet follow,
-    indented by 4 spaces so they stay inside the item, as in the existing
-    Changelog.md entries::
+    type and scope, and with its first letter capitalized. The entry body and
+    a ``* <reference>`` sub-bullet follow, indented by 4 spaces so they stay
+    inside the item, as in the existing Changelog.md entries::
 
         1. Add Centroid() to the simple shape classes
             * [Pull request #793](https://github.com/gazebosim/gz-math/pull/793)
@@ -351,11 +351,15 @@ def format_markdown_list_item(entry):
     Returns:
         str: Markdown list item.
     """
+    description = entry["header"].group("description")
+    # Only the first letter: str.capitalize() would lowercase names like
+    # SDFormat in the rest of the description.
+    description = description[:1].upper() + description[1:]
     sub_lines = list(entry["body"])
     if entry["reference"]:
         sub_lines.append(f"* {entry['reference']}")
     return '\n'.join(
-        [f"1. {entry['header'].group('description')}"] +
+        [f"1. {description}"] +
         [f"    {line}" if line else "" for line in sub_lines])
 
 

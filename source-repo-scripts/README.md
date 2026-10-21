@@ -218,8 +218,9 @@ the `.changelog/` entries it includes must be removed with it so that they are
 not released again in the next X.Y.Z.
 
 Each entry becomes a numbered item with its description (the Conventional
-Commits type and scope are dropped), its body lines and a link to its pull
-request, following the layout of the existing `Changelog.md` entries:
+Commits type and scope are dropped, and the first letter is capitalized), its
+body lines and a link to its pull request, following the layout of the
+existing `Changelog.md` entries:
 
 ```markdown
 ### Gazebo Test 0.1.0 (2026-10-21)
