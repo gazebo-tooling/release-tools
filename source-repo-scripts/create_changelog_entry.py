@@ -647,9 +647,14 @@ def main():
     for file_path in entry_files:
         print(f"  {os.path.relpath(file_path)}")
 
-    response = input(
-        "Update Changelog.md with this entry and remove the processed "
-        "entry files? (y/N): ")
+    try:
+        response = input(
+            "Update Changelog.md with this entry and remove the processed "
+            "entry files? (y/N): ")
+    except EOFError:
+        # No answer available (stdin closed or piped): treat it as "no".
+        print()
+        response = ""
     if response.lower() not in ['y', 'yes']:
         print("Changelog update cancelled.")
         return 0
