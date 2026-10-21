@@ -185,8 +185,9 @@ cd <project-root>
 python3 ~/release-tools/source-repo-scripts/create_changelog_entry.py
 ```
 
-Every file in `.changelog/` is an entry, whatever its extension (hidden files
-such as `.gitkeep` are skipped). The first non-comment line of each entry
+Every file in `.changelog/` and its subdirectories is an entry, whatever its
+extension (hidden files such as `.gitkeep` and hidden directories are
+skipped). The first non-comment line of each entry
 must follow the Conventional Commits format:
 
 ```text

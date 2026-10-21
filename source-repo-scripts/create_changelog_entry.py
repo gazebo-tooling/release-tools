@@ -195,12 +195,17 @@ def list_changelog_files(changelog_dir):
     """
     Return the sorted paths of the entry files in *changelog_dir*.
 
-    pr-data-action accepts any file name in .changelog/, so every regular file
-    is an entry except hidden ones (e.g. .gitkeep keeping the directory).
+    pr-data-action accepts any file under .changelog/, subdirectories
+    included, so every file is an entry except hidden ones (e.g. .gitkeep
+    keeping the directory) and those inside hidden directories.
     """
-    return sorted(
-        entry.path for entry in os.scandir(changelog_dir)
-        if entry.is_file() and not entry.name.startswith('.'))
+    files = []
+    for root, dirs, names in os.walk(changelog_dir):
+        dirs[:] = [d for d in dirs if not d.startswith('.')]
+        files.extend(
+            os.path.join(root, name) for name in names
+            if not name.startswith('.'))
+    return sorted(files)
 
 
 def uncommitted_changelog_files(files):
@@ -239,7 +244,7 @@ def read_changelog_entries(files):
     errors = []
 
     for file_path in files:
-        filename = os.path.basename(file_path)
+        filename = os.path.relpath(file_path)
 
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -521,7 +526,7 @@ def get_pr_info(file_path):
             the commit is known but no PR is found, or empty string when the
             originating commit cannot be determined.
     """
-    filename = os.path.basename(file_path)
+    filename = os.path.relpath(file_path)
 
     # Get the SHA and message of the most recent commit that added the file.
     # Entry files are removed at every release, so a reused name (e.g.
