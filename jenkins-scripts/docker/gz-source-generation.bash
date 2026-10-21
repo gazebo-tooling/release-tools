@@ -28,23 +28,29 @@ case "\$SOURCE_DATE_EPOCH" in
     ;;
 esac
 
-GZ_CMAKE_PKG=\$(cat "\${SOURCES_DIR}/.github/ci/packages.apt" "\${SOURCES_DIR}/.github/ci/packages-${DISTRO}.apt" 2>/dev/null | grep -E '^lib(gz|ign|ignition)(-rotary)?-cmake[0-9]*-dev' | head -n 1)
-
-if [ "\$GZ_CMAKE_PKG" = "libgz-rotary-cmake-dev" ]; then
-  # rotary package is only available in nightly repo. If it's not available
-  # (e.g. during a prerelease), fallback to the latest versioned package
-  if ! apt-cache show libgz-rotary-cmake-dev > /dev/null 2>&1; then
-    echo "libgz-rotary-cmake-dev not found, falling back to latest versioned package"
-    GZ_CMAKE_PKG=\$(apt-cache search --names-only '^libgz-cmake[0-9]+-dev' | awk '{print \$1}' | sort -V | tail -n 1)
+# Up to gz-cmake5 (Jetty), gz-cmake packages are side-by-side installable.
+# For newer releases, gz-cmake packages conflict with each other, so we install
+# the version specified in CMakeLists.txt, or for unversioned find_package(gz-cmake),
+# use libgz-cmake-dev (rotary) if available and otherwise the latest versioned package.
+if grep -qE 'find_package\((gz|ignition)-cmake[[:space:]]*[1-5]\b' "\${SOURCES_DIR}/CMakeLists.txt"; then
+  (sudo apt-get install -y 'libgz-cmake[1-5]-dev' || sudo apt-get install -y '*ign-cmake*') || \
+    (echo "Can not find any ign-cmake/gz-cmake package" && exit 1)
+else
+  # Matches e.g. "find_package(gz-cmake6 REQUIRED)" or "find_package(gz-cmake 6 REQUIRED)"
+  # and outputs "libgz-cmake6-dev". For Rotary, CMakeLists.txt uses unversioned
+  # "find_package(gz-cmake REQUIRED)", which does not match and leaves GZ_CMAKE_PKG
+  # empty so the fallback below selects "libgz-cmake-dev" (or the latest versioned
+  # package if building a prerelease without the nightly repo).
+  GZ_CMAKE_PKG=\$(sed -nE 's/^[[:space:]]*find_package\(gz-cmake[[:space:]]*([0-9]+).*/libgz-cmake\1-dev/p' "\${SOURCES_DIR}/CMakeLists.txt" | head -n 1)
+  if [ -z "\$GZ_CMAKE_PKG" ]; then
+    if apt-cache show libgz-cmake-dev > /dev/null 2>&1; then
+      GZ_CMAKE_PKG="libgz-cmake-dev"
+    else
+      GZ_CMAKE_PKG=\$(apt-cache search --names-only '^libgz-cmake[0-9]+-dev$' | awk '{print \$1}' | sort -V | tail -n 1)
+    fi
   fi
-fi
-
-if [ -n "\$GZ_CMAKE_PKG" ]; then
-  echo "Installing detected cmake dependency: \${GZ_CMAKE_PKG}"
   sudo apt-get install -y "\${GZ_CMAKE_PKG}" || \
     (echo "Failed to install \${GZ_CMAKE_PKG}" && exit 1)
-else
-  echo "No external gz-cmake package required."
 fi
 rm -fr \$BUILD_DIR && mkdir \$BUILD_DIR
 cd \${BUILD_DIR}
