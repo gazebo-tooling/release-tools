@@ -211,6 +211,11 @@ entry: it bumps the minor version when any entry is `feat`, otherwise it bumps
 the patch version.
 Entries using the breaking marker (`!`) are rejected because the script does
 not support major-version bumps; such releases must be handled manually.
+The script also stops when the latest release is still pending, like the
+`### <project> X.0.0 (20XX-XX-XX)` header that `main` carries until the next
+major release. The first release of a major version is written manually, and
+the `.changelog/` entries it includes must be removed with it so that they are
+not released again in the next X.Y.Z.
 
 Each entry becomes a numbered item with its description (the Conventional
 Commits type and scope are dropped), its body lines and a link to its pull
