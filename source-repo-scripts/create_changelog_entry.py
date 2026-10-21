@@ -249,8 +249,8 @@ def read_changelog_entries(files):
     Returns:
         tuple[list[dict], list[str]]: A tuple of (entries, errors). Each entry
         has the file ``path``, the parsed Conventional Commits ``header``
-        match and the entry ``text``. Errors contains human-readable
-        validation failure messages.
+        match and the ``body`` lines that follow the header. Errors contains
+        human-readable validation failure messages.
     """
     entries = []
     errors = []
@@ -275,8 +275,11 @@ def read_changelog_entries(files):
             errors.append(str(e))
             continue
 
-        entries.append(
-            {"path": file_path, "header": header, "text": entry_content})
+        entries.append({
+            "path": file_path,
+            "header": header,
+            "body": entry_content.split('\n')[1:],
+        })
 
     return entries, errors
 
@@ -318,22 +321,29 @@ def calculate_next_version(entries, current_version):
 
 def format_markdown_list_item(entry):
     """
-    Format a changelog entry as a markdown bullet preserving multiline structure.
+    Format a changelog entry as a numbered Changelog.md item.
+
+    The item text is the entry description, without the Conventional Commits
+    type and scope. The entry body and a ``* <reference>`` sub-bullet follow,
+    indented by 4 spaces so they stay inside the item, as in the existing
+    Changelog.md entries::
+
+        1. Add Centroid() to the simple shape classes
+            * [Pull request #793](https://github.com/gazebosim/gz-math/pull/793)
 
     Args:
-        entry (dict): Changelog entry with its ``text``, potentially
-            multiline, and its PR ``reference`` line (see get_pr_info).
+        entry (dict): Changelog entry with its parsed ``header``, its ``body``
+            lines and its PR ``reference`` (see get_pr_info).
 
     Returns:
-        str: Markdown list item with indented continuation lines.
+        str: Markdown list item.
     """
-    lines = entry["text"].split('\n')
+    sub_lines = list(entry["body"])
     if entry["reference"]:
-        lines.append(entry["reference"])
-    formatted_lines = [f"* {lines[0]}"]
-    for line in lines[1:]:
-        formatted_lines.append(f"  {line}" if line else "")
-    return '\n'.join(formatted_lines)
+        sub_lines.append(f"* {entry['reference']}")
+    return '\n'.join(
+        [f"1. {entry['header'].group('description')}"] +
+        [f"    {line}" if line else "" for line in sub_lines])
 
 
 def generate_changelog_entry(entries, project_name, version, heading="###"):
@@ -352,15 +362,10 @@ def generate_changelog_entry(entries, project_name, version, heading="###"):
     """
     today = date.today().isoformat()
 
-    changelog_lines = [
-        f"{heading} {project_name} {version} ({today})",
-        ""
-    ]
-
-    for entry in entries:
-        changelog_lines.append(format_markdown_list_item(entry))
-
-    return '\n'.join(changelog_lines)
+    # Changelog.md separates the release header and every item by a blank line.
+    return '\n\n'.join(
+        [f"{heading} {project_name} {version} ({today})"] +
+        [format_markdown_list_item(entry) for entry in entries])
 
 
 def update_changelog(changelog_path, new_entry):
@@ -417,8 +422,8 @@ def update_changelog(changelog_path, new_entry):
 
 
 def format_pr_link(pr):
-    """Return the Changelog.md sub-bullet for a PR dict with number and url."""
-    return f"    * [Pull request #{pr['number']}]({pr['url']})"
+    """Return the Changelog.md link for a PR dict with number and url."""
+    return f"[Pull request #{pr['number']}]({pr['url']})"
 
 
 def get_merged_pr_by_number(pr_number):
@@ -520,9 +525,9 @@ def get_pr_info(file_path):
             locate the associated merged PR (see find_pr_for_commit).
 
     Returns:
-        str: Formatted PR link (``    * [Pull request #N](url)``) when found,
-            commit SHA reference (``    * Commit: {sha}``) as fallback when
-            the commit is known but no PR is found, or empty string when the
+        str: Formatted PR link (``[Pull request #N](url)``) when found,
+            commit SHA reference (``Commit: {sha}``) as fallback when the
+            commit is known but no PR is found, or empty string when the
             originating commit cannot be determined.
     """
     filename = os.path.relpath(file_path)
@@ -551,7 +556,7 @@ def get_pr_info(file_path):
     if pr:
         print(f"Found PR #{pr['number']} for commit {commit_sha}")
         return format_pr_link(pr)
-    return f"    * Commit: {commit_sha}"
+    return f"Commit: {commit_sha}"
 
 
 def main():

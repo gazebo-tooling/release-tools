@@ -210,6 +210,20 @@ the patch version.
 Entries using the breaking marker (`!`) are rejected because the script does
 not support major-version bumps; such releases must be handled manually.
 
+Each entry becomes a numbered item with its description (the Conventional
+Commits type and scope are dropped), its body lines and a link to its pull
+request, following the layout of the existing `Changelog.md` entries:
+
+```markdown
+### Gazebo Test 0.1.0 (2026-10-21)
+
+1. Support for the new feature 1 in all the components
+    * [Pull request #3](https://github.com/gazebosim/gz-test/pull/3)
+
+1. Update license years from 2012 to 2025
+    * [Pull request #2](https://github.com/gazebosim/gz-test/pull/2)
+```
+
 Each entry is linked to a pull request found from the commit that added the
 file. The commit subject decides which one: a trailing `(#N)` names the PR
 (GitHub adds it on squash-merge), otherwise the PR of the commit named in a
