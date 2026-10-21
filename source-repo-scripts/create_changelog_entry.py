@@ -260,8 +260,9 @@ def read_changelog_entries(files):
     Returns:
         tuple[list[dict], list[str]]: A tuple of (entries, errors). Each entry
         has the file ``path``, the parsed Conventional Commits ``header``
-        match and the ``body`` lines that follow the header. Errors contains
-        human-readable validation failure messages.
+        match and the ``body`` lines that follow the header; main() adds its
+        PR ``reference`` (see get_pr_info) once every entry is valid. Errors
+        contains human-readable validation failure messages.
     """
     entries = []
     errors = []
@@ -344,7 +345,8 @@ def format_markdown_list_item(entry):
 
     Args:
         entry (dict): Changelog entry with its parsed ``header``, its ``body``
-            lines and its PR ``reference`` (see get_pr_info).
+            lines and its PR ``reference`` (see get_pr_info): a PR link,
+            ``Commit: <sha>``, or empty for no sub-bullet.
 
     Returns:
         str: Markdown list item.
@@ -359,17 +361,19 @@ def format_markdown_list_item(entry):
 
 def generate_changelog_entry(entries, project_name, version, heading="###"):
     """
-    Generate a changelog entry from entries.
+    Generate the Changelog.md section of a new release.
 
     Args:
-        entries (list): List of changelog entries with optional PR metadata.
+        entries (list[dict]): Entries from read_changelog_entries, each with
+            its ``reference`` set (see format_markdown_list_item).
         project_name (str): Changelog project name.
         version (str): Semver version for the release.
         heading (str): Markdown heading prefix for the release header, matching
             the existing release headers in Changelog.md.
 
     Returns:
-        str: Formatted changelog entry.
+        str: The release header followed by one numbered item per entry,
+            separated by blank lines, without a trailing newline.
     """
     today = date.today().isoformat()
 
@@ -657,6 +661,8 @@ def main():
         return 1
     print(f"Looking up pull requests in {github_repo}")
 
+    # Only now that every entry is valid: format_markdown_list_item needs
+    # the reference of each one.
     for entry in entries:
         entry["reference"] = get_pr_info(entry["path"], github_repo)
 
