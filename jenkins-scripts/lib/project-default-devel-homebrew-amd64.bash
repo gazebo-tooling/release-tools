@@ -174,6 +174,14 @@ export DISPLAY=$(ps ax \
 )
 
 CMAKE_ARGS=""
+# set -DBUILD_DOCS=OFF for Harmonic, detected by presence of osrf/simulation/gz-cmake3 in dependency list
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/gz-cmake3' }.empty?"; then
+  CMAKE_ARGS="${CMAKE_ARGS} -DBUILD_DOCS=OFF"
+fi
+# set -DBUILD_DOCS=OFF for Fortress, detected by presence of osrf/simulation/ignition-cmake2 in dependency list
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/ignition-cmake2' }.empty?"; then
+  CMAKE_ARGS="${CMAKE_ARGS} -DBUILD_DOCS=OFF"
+fi
 # set CMAKE_PREFIX_PATH if we are using protobuf@33
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'protobuf@33' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${HOMEBREW_PREFIX}/opt/protobuf@33
