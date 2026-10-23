@@ -33,7 +33,7 @@ esac
 # the version specified in CMakeLists.txt, or for unversioned find_package(gz-cmake),
 # use libgz-cmake-dev (rotary) if available and otherwise the latest versioned package.
 if grep -qE 'find_package\((gz|ignition)-cmake[[:space:]]*[1-5]\b' "\${SOURCES_DIR}/CMakeLists.txt"; then
-  (sudo apt-get install -y 'libgz-cmake[1-5]-dev' || sudo apt-get install -y '*ign-cmake*') || \
+  (sudo apt-get install -y 'libgz-cmake[1-5]-dev') || \
     (echo "Can not find any ign-cmake/gz-cmake package" && exit 1)
 else
   # Matches e.g. "find_package(gz-cmake6 REQUIRED)" or "find_package(gz-cmake 6 REQUIRED)"
