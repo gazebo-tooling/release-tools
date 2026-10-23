@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Check if a list of files matches a set of regex patterns defined in a pattern file.
+Check if a list of files matches a set of regex patterns defined in pattern files.
 
 Usage:
-  python3 check_ignored_files.py <pattern_file> [file1 file2 ...]
-  git diff --name-only | python3 check_ignored_files.py <pattern_file>
+  python3 check_ignored_files.py -i <pattern_file1> [-i <pattern_file2> ...] [file1 file2 ...]
+  git diff --name-only | python3 check_ignored_files.py -i <pattern_file1> [-i <pattern_file2> ...]
 
 Exit Codes:
   0 - ALL files match an ignored pattern in pattern_file.
@@ -12,11 +12,12 @@ Exit Codes:
   2 - Invalid arguments or pattern file missing.
 """
 
+import argparse
 import re
 import sys
 
 def load_patterns(pattern_file_path):
-    """Load regex patterns from file, ignoring comments and blank lines."""
+    """Load regex patterns from a single file, ignoring comments and blank lines."""
     patterns = []
     try:
         with open(pattern_file_path, 'r', encoding='utf-8') as f:
@@ -32,6 +33,13 @@ def load_patterns(pattern_file_path):
         sys.exit(2)
     return patterns
 
+def load_patterns_from_files(pattern_file_paths):
+    """Load and combine regex patterns from multiple pattern files."""
+    all_patterns = []
+    for path in pattern_file_paths:
+        all_patterns.extend(load_patterns(path))
+    return all_patterns
+
 def is_ignored(filename, compiled_patterns):
     """Check if a filename matches any of the compiled regex patterns."""
     for pattern in compiled_patterns:
@@ -40,30 +48,37 @@ def is_ignored(filename, compiled_patterns):
     return False
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: check_ignored_files.py <pattern_file> [file1 file2 ...]", file=sys.stderr)
-        print("       or pipe file list to stdin: cat files.txt | check_ignored_files.py <pattern_file>", file=sys.stderr)
-        sys.exit(2)
+    parser = argparse.ArgumentParser(
+        description="Check if a list of files matches a set of regex patterns defined in pattern files.",
+        usage="%(prog)s -i PATTERN_FILE [-i PATTERN_FILE ...] [FILE1 FILE2 ...]"
+    )
+    parser.add_argument(
+        '-i', '--ignore-file', action='append', dest='pattern_files', required=True,
+        help='Path to an ignore pattern file (can be specified multiple times)'
+    )
+    parser.add_argument(
+        'input_files', nargs='*',
+        help='Files to check (if not provided via stdin)'
+    )
 
-    pattern_file = sys.argv[1]
-    compiled_patterns = load_patterns(pattern_file)
+    args = parser.parse_args()
+    pattern_files = args.pattern_files
+    input_files = args.input_files
 
-    # Gather file list from positional arguments or stdin
-    if len(sys.argv) > 2:
-        input_files = sys.argv[2:]
-    else:
-        # Read from stdin if stdin is not a TTY (i.e. piped or redirected)
-        if not sys.stdin.isatty():
-            input_files = [line.strip() for line in sys.stdin if line.strip()]
-        else:
-            input_files = []
+    compiled_patterns = load_patterns_from_files(pattern_files)
+
+    # Gather file list from stdin if not provided as positional args and stdin is redirected
+    if not input_files and not sys.stdin.isatty():
+        input_files = [line.strip() for line in sys.stdin if line.strip()]
 
     if not input_files:
         print("No files provided to check (treating as all files ignored).")
         sys.exit(0)
 
     print("Analyzing changed files against ignore patterns:")
-    print(f"  Pattern file: {pattern_file}")
+    print("  Pattern file(s):")
+    for pf in pattern_files:
+        print(f"    - {pf}")
     print("  Patterns loaded:")
     for p in compiled_patterns:
         print(f"    - {p.pattern}")
@@ -72,7 +87,7 @@ def main():
         print(f"    - {f}")
 
     if not compiled_patterns:
-        print("Warning: Pattern file is empty or contains no valid patterns.", file=sys.stderr)
+        print("Warning: Pattern files are empty or contain no valid patterns.", file=sys.stderr)
         non_ignored = input_files
     else:
         non_ignored = [f for f in input_files if not is_ignored(f, compiled_patterns)]

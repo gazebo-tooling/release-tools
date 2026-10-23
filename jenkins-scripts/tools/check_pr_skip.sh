@@ -1,21 +1,39 @@
 #!/bin/sh
-# Script to check if changed files in a PR branch only match ignored patterns.
-# If all files match, generates dummy test/cppcheck/ABI reports and exits 0 (signaling to skip build).
-# Otherwise exits 1 (signaling to proceed with build).
+# Usage: check_pr_skip.sh <lib_name> [pattern_file ...]
+# Checks whether every file changed in the PR matches the ignore patterns.
+# Skipping is opt-in: the PR description must contain SKIP_CI_FOR_IGNORED_FILES.
+# Exit 0: all changed files ignored; dummy test/cppcheck/ABI reports generated (skip build).
+# Exit 1: build required (non-PR build, keyword absent, non-ignored files).
+# Exit 2: usage error (missing lib_name) or check error. Callers should treat non-zero as "build".
 
 set -e
 
 LIB_NAME="${1:-}"
-PATTERN_FILE="${2:-./scripts/jenkins-scripts/tools/gz_ci.ignored}"
-
-if [ -z "${ghprbTargetBranch:-}" ] || [ -z "${ghprbActualCommit:-}" ]; then
-  # Not a PR build or environment variables missing; do not skip build
-  exit 1
-fi
 
 if [ -z "${LIB_NAME}" ]; then
-  echo "Usage: $0 <lib_name> [pattern_file]" >&2
+  echo "Usage: $0 <lib_name> [pattern_file1 pattern_file2 ...]" >&2
   exit 2
+fi
+
+# $1 has been parsed as LIB_NAME, so it can now be dropped
+shift
+
+# Pattern files must be passed with "-i" to check_ignored_files.py
+# This iterates over pattern files passed in $@ and appends to
+# IGNORE_ARGS with "-i"
+IGNORE_ARGS=""
+if [ "$#" -gt 0 ]; then
+  for pf in "$@"; do
+    IGNORE_ARGS="${IGNORE_ARGS} -i ${pf}"
+  done
+else
+  # no pattern files were passed, so use gz_ci.ignored by default
+  IGNORE_ARGS="-i ./scripts/jenkins-scripts/tools/gz_ci.ignored"
+fi
+
+if [ -z "${ghprbTargetBranch:-}" ] || [ -z "${ghprbActualCommit:-}" ]; then
+  echo "Not a PR build or environment variables missing; do not skip build"
+  exit 1
 fi
 
 SKIP_KEYWORD="SKIP_CI_FOR_IGNORED_FILES"
@@ -31,20 +49,23 @@ esac
 REPO_DIR="${WORKSPACE}/${LIB_NAME}"
 
 if [ ! -d "${REPO_DIR}" ]; then
-  # Repository directory not found; proceed with build
+  echo "Repository directory not found; proceed with build"
   exit 1
 fi
 
 # Run git diff
 if ! CHANGED_FILES=$(git -C "${REPO_DIR}" diff --no-renames --merge-base "origin/${ghprbTargetBranch}" "${ghprbActualCommit}" --name-only 2>/dev/null); then
-  # git diff failed; proceed with build
+  echo "git diff failed; proceed with build"
   exit 1
 fi
 
-# Run check_ignored_files.py
-if ! echo "${CHANGED_FILES}" | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py "${PATTERN_FILE}"; then
-  # Non-ignored files present; proceed with build
-  exit 1
+# Run check_ignored_files.py and return its status if non-zero
+status=0
+printf '%s\n' "${CHANGED_FILES}" | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py ${IGNORE_ARGS} || status=$?
+if [ "${status}" -ne 0 ]; then
+    # exit with same error code.
+    # The python script already prints error messages, so no need to print anything here.
+    exit ${status}
 fi
 
 echo "All changed files match ignored set. Generating dummy reports for publishers..."
