@@ -31,23 +31,18 @@ esac
 # Up to gz-cmake5 (Jetty), gz-cmake packages are side-by-side installable.
 # For newer releases, gz-cmake packages conflict with each other, so we install
 # the version specified in CMakeLists.txt, or for unversioned find_package(gz-cmake),
-# use libgz-cmake-dev (rotary) if available and otherwise the latest versioned package.
+# the latest versioned package available.
 if grep -qE 'find_package\((gz|ignition)-cmake[[:space:]]*[1-5]\b' "\${SOURCES_DIR}/CMakeLists.txt"; then
   (sudo apt-get install -y 'libgz-cmake[1-5]-dev') || \
     (echo "Can not find any ign-cmake/gz-cmake package" && exit 1)
 else
   # Matches e.g. "find_package(gz-cmake6 REQUIRED)" or "find_package(gz-cmake 6 REQUIRED)"
-  # and outputs "libgz-cmake6-dev". For Rotary, CMakeLists.txt uses unversioned
-  # "find_package(gz-cmake REQUIRED)", which does not match and leaves GZ_CMAKE_PKG
-  # empty so the fallback below selects "libgz-cmake-dev" (or the latest versioned
-  # package if building a prerelease without the nightly repo).
+  # and outputs "libgz-cmake6-dev". Unversioned "find_package(gz-cmake REQUIRED)"
+  # does not match and leaves GZ_CMAKE_PKG empty so the fallback below selects
+  # the latest versioned package.
   GZ_CMAKE_PKG=\$(sed -nE 's/^[[:space:]]*find_package\(gz-cmake[[:space:]]*([0-9]+).*/libgz-cmake\1-dev/p' "\${SOURCES_DIR}/CMakeLists.txt" | head -n 1)
   if [ -z "\$GZ_CMAKE_PKG" ]; then
-    if apt-cache show libgz-cmake-dev > /dev/null 2>&1; then
-      GZ_CMAKE_PKG="libgz-cmake-dev"
-    else
-      GZ_CMAKE_PKG=\$(apt-cache search --names-only '^libgz-cmake[0-9]+-dev$' | awk '{print \$1}' | sort -V | tail -n 1)
-    fi
+    GZ_CMAKE_PKG=\$(apt-cache search --names-only '^libgz-cmake[0-9]+-dev$' | awk '{print \$1}' | sort -V | tail -n 1)
   fi
   sudo apt-get install -y "\${GZ_CMAKE_PKG}" || \
     (echo "Failed to install \${GZ_CMAKE_PKG}" && exit 1)
