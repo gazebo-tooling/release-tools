@@ -82,6 +82,30 @@ ENABLE_S3_UPLOAD=true
 # PATH to packages
 pkgs_path="$WORKSPACE/pkgs"
 
+# SOURCE_TARBALL_SHA256 is computed by the source job before its artifact is
+# archived. Verify the copied artifact before allowing it to cross the S3
+# boundary.
+if [[ -n ${SOURCE_TARBALL_SHA256:-} ]]; then
+    if [[ -z ${SOURCE_TARBALL_URI:-} ]]; then
+        echo "SOURCE_TARBALL_SHA256 was provided without SOURCE_TARBALL_URI"
+        exit 1
+    fi
+
+    source_tarball="${pkgs_path}/${SOURCE_TARBALL_URI##*/}"
+    if [[ ! -f ${source_tarball} ]]; then
+        echo "Source tarball not found: ${source_tarball}"
+        exit 1
+    fi
+
+    actual_source_tarball_sha256=$(sha256sum "${source_tarball}" | awk '{print $1}')
+    if [[ ${actual_source_tarball_sha256} != "${SOURCE_TARBALL_SHA256}" ]]; then
+        echo "Source tarball checksum mismatch: ${source_tarball}"
+        echo "Expected: ${SOURCE_TARBALL_SHA256}"
+        echo "Actual:   ${actual_source_tarball_sha256}"
+        exit 1
+    fi
+fi
+
 # Check if the node was configured to use s3cmd
 # This is done by running s3cmd --configure
 if [[ ! -f "${HOME}/.s3cfg" ]]; then
