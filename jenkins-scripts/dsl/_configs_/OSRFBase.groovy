@@ -45,6 +45,11 @@ class OSRFBase
 
         wrappers {
           timestamps()
+
+          // Default timeout for all jobs
+          timeout {
+            absolute(360)
+          }
         }
 
         // Create the naginator retry tags
