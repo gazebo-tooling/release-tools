@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "github-contributor-generator"
+version = "0.1.0"
+description = "Generates a Markdown list and/or an avatar collage of contributors from a GitHub pull request JSON file or a list of usernames."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "Addisu Taddese", email = "addisuzt@intrinsic.ai" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "requests",
+    "Pillow",
+]
+
+[project.scripts]
+get-merged-prs = "get_merged_prs:main"
+generate-contributors = "generate_contributors:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
