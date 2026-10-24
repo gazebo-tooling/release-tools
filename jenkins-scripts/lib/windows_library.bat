@@ -186,6 +186,7 @@ set COLCON_PACKAGE=%1
 
 echo # BEGIN SECTION: colcon test for !COLCON_PACKAGE!
 colcon test --install-base "install"^
+            --ctest-args --output-junit ctest_junit.xml^
             --packages-select !COLCON_PACKAGE!^
             --executor sequential^
             --event-handler console_direct+ desktop_notification-
