@@ -174,6 +174,9 @@ export DISPLAY=$(ps ax \
 )
 
 CMAKE_ARGS=""
+if [[ "${GZ_COLLECTION_NAME}" == "harmonic" || "${GZ_COLLECTION_NAME}" == "fortress" ]]; then
+  CMAKE_ARGS="${CMAKE_ARGS} -DBUILD_DOCS=OFF"
+fi
 # set CMAKE_PREFIX_PATH if we are using protobuf@33
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'protobuf@33' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${HOMEBREW_PREFIX}/opt/protobuf@33
