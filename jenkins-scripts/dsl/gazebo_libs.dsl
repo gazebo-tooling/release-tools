@@ -163,7 +163,7 @@ void generate_asan_ci_job(gz_ci_job, lib_name, branch, ci_config, extra_cmd = ''
   }
 }
 
-void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
+void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir, pre_setup_script)
 {
   // ignition formulas does not match the lib name, expand the prefix
   lib_name = lib_name.replaceAll(/^ign-/, 'ignition-')
@@ -179,6 +179,7 @@ void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
       shell("""\
             #!/bin/bash -xe
 
+            ${pre_setup_script}
             export PROJECT_PATH="${ws_checkout_dir}"
             /bin/bash -xe ./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash "${lib_name}"
             """.stripIndent())
@@ -197,7 +198,7 @@ void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config, arch)
                     "gazebosim/${lib_name}",
                     branch,
                     ws_checkout_dir)
-  add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
+  add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir, "")
 }
 
 void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config)
@@ -517,7 +518,7 @@ branch_index.each { lib_name, distro_configs ->
                                             branch_names,
                                             ENABLE_GITHUB_PR_INTEGRATION,
                                             are_cmake_warnings_enabled(lib_name, ci_config))
-        add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir)
+        add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir, "${check_ignored_files_sh_cmd(lib_name)}")
       } else if (ci_config.system.so == 'windows') {
         distro_sort_name = get_windows_distro_sortname(ci_config)
         Globals.gazebodistro_branch = false
