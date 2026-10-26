@@ -174,7 +174,8 @@ export DISPLAY=$(ps ax \
 )
 
 CMAKE_ARGS=""
-if [[ "${GZ_COLLECTION_NAME}" == "harmonic" || "${GZ_COLLECTION_NAME}" == "fortress" ]]; then
+# Disable docs for formulas using gz-cmake3 or ignition-cmake2
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/gz-cmake3' || d == 'osrf/simulation/ignition-cmake2' }.empty?"; then
   CMAKE_ARGS="${CMAKE_ARGS} -DBUILD_DOCS=OFF"
 fi
 # set CMAKE_PREFIX_PATH if we are using protobuf@33

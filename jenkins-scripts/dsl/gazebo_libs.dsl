@@ -154,7 +154,7 @@ void generate_asan_ci_job(gz_ci_job, lib_name, branch, ci_config, extra_cmd = ''
   }
 }
 
-void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir, collection_name)
+void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
 {
   // ignition formulas does not match the lib name, expand the prefix
   lib_name = lib_name.replaceAll(/^ign-/, 'ignition-')
@@ -171,14 +171,13 @@ void add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir, collec
             #!/bin/bash -xe
 
             export PROJECT_PATH="${ws_checkout_dir}"
-            export GZ_COLLECTION_NAME="${collection_name}"
             /bin/bash -xe ./scripts/jenkins-scripts/lib/project-default-devel-homebrew-amd64.bash "${lib_name}"
             """.stripIndent())
       }
   }
 }
 
-void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config, arch, collection_name)
+void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config, arch)
 {
   def ws_checkout_dir = lib_name
   OSRFBrewCompilation.create(gz_brew_ci_job,
@@ -189,7 +188,7 @@ void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config, arch, col
                     "gazebosim/${lib_name}",
                     branch,
                     ws_checkout_dir)
-  add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir, collection_name)
+  add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir)
 }
 
 void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config)
@@ -427,7 +426,7 @@ gz_collections_yaml.collections.each { collection ->
           if (arch != 'amd64' && arch != 'arm64') {
             assert false : "Unsupported arch ${arch} for brew job ${gz_ci_job.name}"
           } 
-          generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config, arch_label, collection.name)
+          generate_brew_ci_job(gz_ci_job, lib_name, branch_name, ci_config, arch_label)
         } else if (ci_config.system.so == 'windows') {
           branch_number = branch_name - lib_name
           Globals.gazebodistro_branch = true
