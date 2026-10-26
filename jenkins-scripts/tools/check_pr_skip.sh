@@ -64,7 +64,7 @@ status=0
 printf '%s\n' "${CHANGED_FILES}" | python3 ./scripts/jenkins-scripts/tools/check_ignored_files.py ${IGNORE_ARGS} || status=$?
 if [ "${status}" -ne 0 ]; then
     # exit with same error code.
-    echo "Proceeding with build\n"
+    echo "Proceeding with build (check_ignored_files.py exit status ${status})"
     exit ${status}
 fi
 
