@@ -67,10 +67,12 @@ class GenericAnyJobGitHub
           project  / triggers / 'org.jenkinsci.plugins.ghprb.GhprbTrigger' {
               adminlist 'osrf-jenkins j-rivero'
               orgslist 'osrf gazebosim'
+              whitelist Globals.CI_PR_APPROVED_USERS.join(' ')
               allowMembersOfWhitelistedOrgsAsAdmin(true)
               useGitHubHooks(true)
               onlyTriggerPhrase(false)
-              permitAll(true)
+              // only authors in orgslist, whitelist or adminlist start CI automatically
+              permitAll(false)
               // do not remove the cron/spec lines otherwise it triggers an error in the log
               // both are needed to control the contrab behaviour
               spec('')

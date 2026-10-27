@@ -30,6 +30,15 @@ class Globals
    // constant will result in (osx && osx)
    static OSX_ANY_ARCHITECTURE = 'osx'
 
+   // GitHub users whose pull requests automatically start the -ci-pr_any-
+   // jobs, in addition to the members of the osrf and gazebosim
+   // organizations. Pull requests from any other author need an
+   // organization member to comment 'ok to test' (or the trigger phrase)
+   // before CI runs.
+   static CI_PR_APPROVED_USERS = [ 'dependabot[bot]',
+                                   'mergify[bot]',
+                                   'renovate[bot]' ]
+
    // Matches the NVML failure that appears when the nvidia userspace libraries
    // were upgraded while the previously loaded nvidia.ko is still in memory.
    // The wording depends on the nvidia-container-toolkit version, so match the
