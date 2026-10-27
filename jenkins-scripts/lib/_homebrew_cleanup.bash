@@ -32,7 +32,9 @@ brew up || { restore_brew && brew up ; }
 brew list --formula > /dev/null || { restore_brew && brew list --formula > /dev/null; }
 BREW_LIST=$(brew list --formula)
 if [[ -n "${BREW_LIST}" ]]; then
-  brew remove --force --ignore-dependencies ${BREW_LIST}
+  # call restore_brew if `brew remove` fails
+  brew remove --force --ignore-dependencies ${BREW_LIST} || \
+    { restore_brew && brew remove --force --ignore-dependencies ${BREW_LIST} ; }
 fi
 rm -rf ${HOMEBREW_PREFIX}/lib/python*/site-packages
 hash -r
