@@ -23,18 +23,24 @@ fi
 # call restore_brew if CLEAR_BREW_CACHE is set
 if ${CLEAR_BREW_CACHE}; then
   # Assume that brew is already in the PATH
-  restore_brew && brew up
+  restore_brew
+  brew up
 fi
 # call restore_brew if `brew up` fails
-brew up || { restore_brew && brew up ; }
+brew up || {
+  restore_brew
+  brew up
+}
 
 # Clear all installed homebrew packages, links, taps, and kegs
 brew list --formula > /dev/null || { restore_brew && brew list --formula > /dev/null; }
 BREW_LIST=$(brew list --formula)
 if [[ -n "${BREW_LIST}" ]]; then
   # call restore_brew if `brew remove` fails
-  brew remove --force --ignore-dependencies ${BREW_LIST} || \
-    { restore_brew && brew remove --force --ignore-dependencies ${BREW_LIST} ; }
+  brew remove --force --ignore-dependencies ${BREW_LIST} || {
+    restore_brew
+    brew remove --force --ignore-dependencies ${BREW_LIST}
+  }
 fi
 rm -rf ${HOMEBREW_PREFIX}/lib/python*/site-packages
 hash -r
