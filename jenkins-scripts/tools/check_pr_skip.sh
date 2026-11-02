@@ -37,7 +37,7 @@ if [ -z "${ghprbTargetBranch:-}" ] || [ -z "${ghprbActualCommit:-}" ]; then
 fi
 
 SKIP_KEYWORD="SKIP_CI_FOR_IGNORED_FILES"
-DISABLE_SKIPPING_KEYWORD="DISABLE_CI_SKIPPING"
+DISABLE_SKIPPING_KEYWORD="DISABLE_CI_SKIPPING_FOR_IGNORED_FILES"
 case "${ghprbPullLongDescription:-}" in
   *"${DISABLE_SKIPPING_KEYWORD}"*)
     echo "Keyword '${DISABLE_SKIPPING_KEYWORD}' found in PR description; do not skip build"
