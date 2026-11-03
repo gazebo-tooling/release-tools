@@ -70,7 +70,8 @@ fi
 
 echo "All changed files match ignored set. Generating dummy reports for publishers..."
 
-# Create dummy JUnit XML for test results publisher
+# Remove existing test results and create dummy JUnit XML for test results publisher
+rm -fr "${WORKSPACE}/build/test_results"
 mkdir -p "${WORKSPACE}/build/test_results"
 cat << 'EOF' > "${WORKSPACE}/build/test_results/skipped_ci.xml"
 <?xml version="1.0" encoding="UTF-8"?>
@@ -83,7 +84,8 @@ cat << 'EOF' > "${WORKSPACE}/build/test_results/skipped_ci.xml"
 </testsuites>
 EOF
 
-# Create dummy Cppcheck XML for cppcheck publisher
+# Remove existing cppcheck results and create dummy Cppcheck XML for cppcheck publisher
+rm -fr "${WORKSPACE}/build/cppcheck_results"
 mkdir -p "${WORKSPACE}/build/cppcheck_results"
 cat << 'EOF' > "${WORKSPACE}/build/cppcheck_results/skipped_ci.xml"
 <?xml version="1.0" encoding="UTF-8"?>
@@ -93,7 +95,8 @@ cat << 'EOF' > "${WORKSPACE}/build/cppcheck_results/skipped_ci.xml"
 </results>
 EOF
 
-# Create dummy ABI report for HTML publisher
+# Remove existing ABI reports and create dummy ABI report for HTML publisher
+rm -fr "${WORKSPACE}/reports"
 mkdir -p "${WORKSPACE}/reports"
 cat << 'EOF' > "${WORKSPACE}/reports/compat_report.html"
 <!DOCTYPE html>
