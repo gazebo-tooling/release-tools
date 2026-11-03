@@ -14,18 +14,15 @@ python get_ciconfigs_from_package_and_version.py gz-sim 8 --yaml-file custom-col
 
 **Output:** Full details including collection name, CI configs, and conda configuration details.
 
-## get_conda_ciconfig_from_package_and_version.py
+With `--conda-env` the script returns only the conda environment version
+string. This is the mode used by the build system to determine which conda
+environment to use.
 
-Wrapper script that returns only the conda environment version string for a given
-Gazebo package and major version. This is the script used by the build system to
-determine which conda environment to use.
-
-**Usage:**
 ```bash
-python get_conda_ciconfig_from_package_and_version.py gz-rendering 6
+python get_ciconfigs_from_package_and_version.py --conda-env gz-rendering 6
 # Output: legacy
 
-python get_conda_ciconfig_from_package_and_version.py gz-sim 10
+python get_ciconfigs_from_package_and_version.py --conda-env gz-sim 10
 # Output: noble_like
 ```
 
