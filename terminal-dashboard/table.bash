@@ -38,7 +38,7 @@ if [[ $PACKAGE_REPO == "stable" ]]; then
     ARCHS+=( "i386" )
   fi
 
-  ARCHS+=( "arm64" "armhf")
+  ARCHS+=( "arm64" )
   # No debian version supported across the stack right now
   # DISTROS+=( "debian" )
 fi

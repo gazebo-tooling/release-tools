@@ -188,6 +188,41 @@ DRY_RUN=true \
   jetty noble resolute gazebo-tooling/release-tools/issues/1485
 ```
 
+### collection_rm_ubuntu_metadata.bash
+
+The script removes an Ubuntu metadata directory, used to drop support for an
+Ubuntu release, from every `-release` repository in a Gazebo collection. It
+clones the repositories for the collection, creates a working branch, stages
+the removal of the directory with `git rm`, and can open pull requests for each
+repository. Repositories that do not contain the directory are skipped.
+
+It also updates the collection repository itself, such as `gz-jetty-release`
+or `gz-rotary-release`, when that repository is part of the selected
+collection.
+
+#### Usage
+
+Requires the `gh` CLI, `xmllint`, and `python-vcstool` to be installed.
+
+The script prompts before creating each commit and pull request. Set
+`DRY_RUN=true` to inspect the generated changes without committing or pushing.
+
+```bash
+./path/to/release-tools/release-repo-scripts/collection_rm_ubuntu_metadata.bash \
+  <collection> <ubuntu_to_remove> <issue_reference>
+```
+
+#### Example
+
+To remove the `focal` metadata from all release repositories in the Harmonic
+collection:
+
+```bash
+DRY_RUN=true \
+./path/to/release-tools/release-repo-scripts/collection_rm_ubuntu_metadata.bash \
+  harmonic focal gazebo-tooling/release-tools/issues/1485
+```
+
 ### new_gazebo_release_repos.bash
 
 The script will create new -release repositories as forks from the previous version
