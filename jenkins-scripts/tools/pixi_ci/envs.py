@@ -48,6 +48,7 @@ def select_env(runner, cfg, platform, major, env):
 def install_env(runner, cfg, env_name, env):
     """Recreate the pixi project from conda/envs/<env_name> and install it."""
     source = cfg.release_tools / "conda" / "envs" / env_name
+    # On Windows the wrapper removed it already, see :pixi_remove_project
     remove_tree(cfg.project_path)
     cfg.project_path.mkdir(parents=True)
     for manifest in sorted(source.glob("pixi.*")):

@@ -57,11 +57,35 @@ def test_wrapper_reusing_a_missing_bootstrap_env_fails_clearly():
     assert lines[error + 2] == "exit %EXTRA_EXIT_PARAM% 1"
 
 
+def test_wrapper_removes_the_project_before_python_starts():
+    # the project shares hard links with the bootstrap env: Windows refuses to
+    # delete the ones the driver python has loaded (liblzma.dll, through shutil)
+    lines = (LIB / "colcon-default-devel-windows.bat").read_bytes().decode().split("\r\n")
+    block = lines.index("if not defined REUSE_PIXI_INSTALLATION (")
+    remove = lines.index("  call %win_lib% :pixi_remove_project || goto :error")
+    end = lines.index(")", block)
+    run = next(i for i, line in enumerate(lines) if "run_pixi_ci.py" in line)
+    assert block < remove < end < run
+
+
+def test_removing_the_project_fails_if_it_survives():
+    # rmdir /s /q leaves the files it can not delete and sets no errorlevel
+    lines = (LIB / "windows_library.bat").read_bytes().decode().split("\r\n")
+    label = lines.index(":pixi_remove_project")
+    body = lines[label:lines.index("goto :EOF", label)]
+    remove = body.index('if exist "%PIXI_PROJECT_PATH%" rmdir /s /q "%PIXI_PROJECT_PATH%"')
+    check = body.index('if exist "%PIXI_PROJECT_PATH%" (')
+    assert remove < check
+    assert body[check + 1] == '  echo ERROR: can not remove "%PIXI_PROJECT_PATH%"'
+    assert body[check + 2] == "  exit %EXTRA_EXIT_PARAM% 1"
+
+
 def test_windows_library_keeps_only_the_labels_still_called():
     text = (LIB / "windows_library.bat").read_text()
     assert re.findall(r"^:([a-z_0-9]+)", text, re.MULTILINE) == [
-        "configure_msvc2019_compiler", "wget", "retry", "pixi_installation",
-        "pixi_create_bootstrap_environment", "pixi_bootstrap_cmd", "error"]
+        "configure_msvc2019_compiler", "wget", "retry", "pixi_remove_project",
+        "pixi_installation", "pixi_create_bootstrap_environment",
+        "pixi_bootstrap_cmd", "error"]
 
 
 def test_no_script_uses_a_removed_label():

@@ -6,8 +6,8 @@
 ::   - SCRIPT_DIR : the jenkins-scripts directory, set by the per-package .bat
 ::
 :: Actions
-::   - Download pixi and create the bootstrap environment, unless
-::     REUSE_PIXI_INSTALLATION is defined
+::   - Remove the previous pixi project, download pixi and create the bootstrap
+::     environment, unless REUSE_PIXI_INSTALLATION is defined
 ::   - Run the driver with the bootstrap environment python
 
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
@@ -15,6 +15,9 @@ set LIB_DIR=%SCRIPT_DIR%\lib
 call "%LIB_DIR%\windows_env_vars.bat"
 
 if not defined REUSE_PIXI_INSTALLATION (
+  echo # BEGIN SECTION: pixi: remove the previous project
+  call %win_lib% :pixi_remove_project || goto :error
+  echo # END SECTION
   echo # BEGIN SECTION: pixi: installation
   call %win_lib% :pixi_installation || goto :error
   echo # END SECTION
