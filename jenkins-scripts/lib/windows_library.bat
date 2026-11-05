@@ -86,6 +86,24 @@ if errorlevel 1 (
 goto :EOF
 
 :: ##################################
+::
+:: Remove the pixi project of the previous build. This can not wait for the
+:: driver: pixi hard links the packages from its cache, so the project and the
+:: bootstrap environment share the files of the packages locked in both, and
+:: Windows refuses to delete a file loaded by the python running the driver.
+:pixi_remove_project
+set LIB_DIR=%~dp0
+call %LIB_DIR%\windows_env_vars.bat
+
+if exist "%PIXI_PROJECT_PATH%" rmdir /s /q "%PIXI_PROJECT_PATH%"
+:: rmdir /s /q sets no errorlevel when it leaves files behind
+if exist "%PIXI_PROJECT_PATH%" (
+  echo ERROR: can not remove "%PIXI_PROJECT_PATH%"
+  exit %EXTRA_EXIT_PARAM% 1
+)
+goto :EOF
+
+:: ##################################
 :: 
 :: Download the pixi binary to the system
 :pixi_installation
