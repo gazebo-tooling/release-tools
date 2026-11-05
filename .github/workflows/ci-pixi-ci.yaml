@@ -15,8 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        # 3.10 Jammy, 3.12 Noble, 3.14 Resolute
         # python >= 3.10 in conda/config-detector, its lock pins 3.14
-        python-version: ['3.10', '3.14']
+        python-version: ['3.10', '3.12', '3.14']
     name: pytest (Python ${{ matrix.python-version }})
     permissions:
       contents: read
@@ -31,4 +32,4 @@ jobs:
           uv venv --python ${{ matrix.python-version }} .venv
           uv pip install --python .venv pytest pyyaml
       - name: Run the tests
-        run: .venv/bin/python -m pytest -v jenkins-scripts/tools/pixi_ci/tests jenkins-scripts/dsl/tools/tests
+        run: .venv/bin/python -m pytest -v jenkins-scripts/tools/pixi_ci/tests

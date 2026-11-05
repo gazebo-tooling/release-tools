@@ -31,9 +31,10 @@ def select_env(runner, cfg, platform, major, env):
     with section("auto-detect conda environment"):
         result = runner.run(
             PYTHON,
-            [dsl / "tools" / "get_conda_ciconfig_from_package_and_version.py",
-             "--yaml-file", dsl / "gz-collections.yaml",
+            [dsl / "tools" / "get_ciconfigs_from_package_and_version.py",
+             "--conda-env",
              "--os", platform.detect_os, "--arch", platform.detect_arch,
+             "--yaml-file", dsl / "gz-collections.yaml",
              cfg.library, major],
             cwd=cfg.workspace, env=env, capture=True)
         name = result.stdout.strip()

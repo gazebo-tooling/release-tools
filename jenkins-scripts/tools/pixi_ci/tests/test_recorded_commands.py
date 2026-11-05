@@ -72,7 +72,7 @@ class Job:
         script = Path(call.args[0]).name if call.args else ""
         if call.tool == PYTHON and script == "detect_cmake_major_version.py":
             return Result(0, self.major + "\n")
-        if call.tool == PYTHON and script == "get_conda_ciconfig_from_package_and_version.py":
+        if call.tool == PYTHON and script == "get_ciconfigs_from_package_and_version.py":
             return Result(0, "noble_like\n")
         if call.tool == PYTHON and script == "detect_ci_matching_branch.py":
             return Result(0 if "ci_matching_branch/" in call.args[1] else 1)
@@ -160,9 +160,10 @@ def test_gz_math_jetty(tmp_path, capsys):
         (PYTHON, [str(tools / "detect_cmake_major_version.py"),
                   str(ws_root / "gz-math" / "CMakeLists.txt")], ws_root),
         # :detect_conda_env, now with the library name and the platform
-        (PYTHON, [str(dsl / "tools" / "get_conda_ciconfig_from_package_and_version.py"),
+        (PYTHON, [str(dsl / "tools" / "get_ciconfigs_from_package_and_version.py"),
+                  "--conda-env", "--os", "windows", "--arch", "amd64",
                   "--yaml-file", str(dsl / "gz-collections.yaml"),
-                  "--os", "windows", "--arch", "amd64", "gz-math", "9"], ws_root),
+                  "gz-math", "9"], ws_root),
         # :pixi_create_gz_environment (pixi install, now --locked)
         (job.pixi, ["install", "--locked"], job.project),
         (job.pixi, ["info"], job.project),
@@ -310,7 +311,7 @@ def test_fortress_library_uses_the_ignition_name(tmp_path):
                    colcon_names=("ignition-cmake2", "ignition-math6"))
     code, calls = job.run(CONDA_ENV_NAME="legacy")
     assert code == 0
-    assert not any("get_conda_ciconfig" in a for c in calls for a in c.args)
+    assert not any("get_ciconfigs" in a for c in calls for a in c.args)
     builds = [c.args for c in find(calls, "colcon", "build")]
     assert [option(builds[0], "--packages-skip"),
             option(builds[1], "--packages-select")] == [
