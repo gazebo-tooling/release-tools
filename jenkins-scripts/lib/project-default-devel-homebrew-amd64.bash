@@ -228,9 +228,11 @@ if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOMEBREW_PREFIX}/opt/dartsim@6.10.0/lib/pkgconfig
 fi
 
+# install to the Cellar using the canonical formula name, since PROJECT_FORMULA may be an alias
+CANONICAL_PROJECT_FORMULA=$(brew ruby -e "puts '${PROJECT_FORMULA}'.f.name")
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_POLICY_VERSION_MINIMUM=3.10 \
-      -DCMAKE_INSTALL_PREFIX=${HOMEBREW_PREFIX}/Cellar/${PROJECT_FORMULA}/HEAD \
+      -DCMAKE_INSTALL_PREFIX=${HOMEBREW_PREFIX}/Cellar/${CANONICAL_PROJECT_FORMULA}/HEAD \
      ${CMAKE_ARGS} \
      ${WORKSPACE}/${PROJECT_PATH}
 echo '# END SECTION'
