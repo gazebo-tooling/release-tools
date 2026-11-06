@@ -2,10 +2,14 @@
 jenkins-scripts/lib/colcon-default-devel-windows.bat runs today."""
 
 import json
+import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import yaml
+
 from pixi_ci.__main__ import main
+from pixi_ci.config import RELEASE_TOOLS
 from pixi_ci.platforms import WindowsPlatform
 from pixi_ci.runner import PYTHON, CommandError, Result
 from pixi_ci.workspace import GAZEBODISTRO_URL
@@ -116,6 +120,10 @@ def make_job(tmp_path, library="gz-math", major="9",
         env_dir.mkdir(parents=True)
         (env_dir / "pixi.toml").write_text("[workspace]\n")
         (env_dir / "pixi.lock").write_text("version: 6\n")
+    dsl = tmp_path / "release-tools" / "jenkins-scripts" / "dsl"
+    dsl.mkdir(parents=True)
+    shutil.copy(RELEASE_TOOLS / "jenkins-scripts" / "dsl" / "gz-collections.yaml",
+                dsl)
     sources = tmp_path / "workspace" / library
     (sources / ".git").mkdir(parents=True)
     (sources / "CMakeLists.txt").write_text(f"project({library} VERSION {major}.0.0)\n")
@@ -295,6 +303,55 @@ def test_gz_sim_checks_the_gpu_first(tmp_path, capsys):
     assert commands(calls)[0] == (
         "dxdiag", ["/t", str(job.workspace / "dxdiag.txt")], job.workspace)
     assert sections(capsys)[1] == "dxdiag info"
+
+
+def test_gz_gui_checks_the_gpu_as_its_job_label_requires(tmp_path):
+    # gz-collections.yaml sends gz-gui to gpu-reliable agents; its .bat never
+    # set GPU_SUPPORT_NEEDED
+    job = make_job(tmp_path, library="gz-gui", major="10",
+                   colcon_names=("gz-gui",))
+    code, calls = job.run()
+    assert code == 0
+    assert calls[0].tool == "dxdiag"
+
+
+def test_gz_math_needs_no_gpu(tmp_path):
+    job = make_job(tmp_path, dxdiag="Manufacturer: Microsoft\n")
+    code, calls = job.run()
+    assert code == 0
+    assert not any(c.tool == "dxdiag" for c in calls)
+
+
+def test_gpu_support_needed_false_overrides_the_collections(tmp_path):
+    job = make_job(tmp_path, library="gz-sim", major="10",
+                   colcon_names=("gz-sim",), dxdiag="Manufacturer: Microsoft\n")
+    code, calls = job.run(GPU_SUPPORT_NEEDED="false")
+    assert code == 0
+    assert not any(c.tool == "dxdiag" for c in calls)
+
+
+def test_library_added_to_the_collections_needs_no_driver_change(tmp_path):
+    job = make_job(tmp_path, library="gz-newlib",
+                   colcon_names=("gz-cmake", "gz-newlib"))
+    path = job.rt / "jenkins-scripts" / "dsl" / "gz-collections.yaml"
+    data = yaml.safe_load(path.read_text())
+    jetty = next(c for c in data["collections"] if c["name"] == "jetty")
+    jetty["libs"].append({"name": "gz-newlib"})
+    path.write_text(yaml.safe_dump(data))
+    code, calls = job.run()
+    assert code == 0
+    assert [option(c.args, "--packages-select")
+            for c in find(calls, "colcon", "build")[1:]] == ["gz-newlib"]
+
+
+def test_unknown_library_fails_before_running_anything(tmp_path, capsys):
+    job = make_job(tmp_path, library="gz-fuel_tools")
+    code, calls = job.run()
+    output = capsys.readouterr().out
+    assert code == 1
+    assert "ERROR: unknown library 'gz-fuel_tools'" in output
+    assert "gz-fuel-tools" in output
+    assert calls == []
 
 
 def test_gz_sim_without_nvidia_gpu_fails_before_pixi(tmp_path, capsys):

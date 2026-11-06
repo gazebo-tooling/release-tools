@@ -80,7 +80,7 @@ class JobConfig:
             # cmd treats `set NAME=` as unset: so does an empty value here
             return env.get(platform.normalize_key(name)) or None
 
-        package = packages.get(library)
+        package = packages.get(library, release_tools, platform)
         if get("WORKSPACE") is None:
             raise CIError("WORKSPACE is not set")
         workspace = Path(get("WORKSPACE"))

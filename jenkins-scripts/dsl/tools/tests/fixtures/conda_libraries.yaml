@@ -1,0 +1,91 @@
+# Fixture for test_conda_libraries.py: a library or a config for each rule of
+# find_conda_libraries. Shapes copied from gz-collections.yaml: null
+# requirements (brew_arm64), null configs and metapackages in exclude.all.
+collections:
+  - name: 'old'
+    libs:
+      - name: gz-both
+      - name: gz-cpu
+      - name: gz-gpu
+      - name: gz-old
+    ci:
+      configs:
+        - linux
+        - win_old
+        - win_arm
+        - mac_brew
+  - name: 'new'
+    libs:
+      - name: gz-both
+      - name: gz-new
+    ci:
+      configs:
+        - win_new
+        - mac_conda
+  - name: 'no_windows'
+    libs:
+      - name: gz-linux
+    ci:
+      configs:
+        - linux
+  - name: 'no_configs'
+    libs:
+      - name: gz-unreleased
+    ci:
+      configs:
+ci_configs:
+  - name: linux
+    system:
+      so: linux
+      distribution: ubuntu
+      version: noble
+      arch: amd64
+    requirements:
+      nvidia_gpu:
+        - gz-cpu
+        - gz-linux
+  - name: win_old
+    system:
+      so: windows
+      distribution: conda
+      version: legacy
+      arch: amd64
+    requirements:
+      nvidia_gpu:
+        - gz-both
+        - gz-gpu
+    exclude:
+      all:
+        - gz-old
+  - name: win_arm
+    system:
+      so: windows
+      distribution: conda
+      version: legacy
+      arch: arm64
+    requirements:
+      nvidia_gpu:
+        - gz-cpu
+  - name: win_new
+    system:
+      so: windows
+      distribution: conda
+      version: noble_like
+      arch: amd64
+    requirements:
+  - name: mac_brew
+    system:
+      so: darwin
+      distribution: macOSX
+      version: all
+      arch: arm64
+    requirements:
+      nvidia_gpu:
+        - gz-both
+  - name: mac_conda
+    system:
+      so: darwin
+      distribution: conda
+      version: noble_like
+      arch: arm64
+    requirements:

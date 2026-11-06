@@ -12,9 +12,11 @@ It runs with the Python of the `conda/config-detector` pixi environment (the
 "%PIXI_BOOTSTRAP_PROJECT_PATH%\.pixi\envs\default\python.exe" -u jenkins-scripts\tools\run_pixi_ci.py gz-fuel-tools
 ```
 
-The argument is the library name in `jenkins-scripts/dsl/gz-collections.yaml`.
-`run_pixi_ci.py` puts `jenkins-scripts/tools` on `sys.path`; no `PYTHONPATH` is
-set, so nothing leaks into the builds and tests.
+The argument is the library name in `jenkins-scripts/dsl/gz-collections.yaml`,
+which must give the library a CI job on this platform.
+`run_pixi_ci.py` puts `jenkins-scripts/tools` on `sys.path` and `pixi_ci` adds
+`jenkins-scripts/dsl/tools`; no `PYTHONPATH` is set, so nothing leaks into the
+builds and tests.
 
 ## Job variables
 
@@ -36,7 +38,7 @@ is *set* when it is defined and not empty, as in `cmd`.
 | `GAZEBODISTRO_BRANCH` | gazebodistro branch | `master` |
 | `ghprbSourceBranch` | PR branch: a `ci_matching_branch/*` name checks out the same gazebodistro branch | unset |
 | `MAKE_JOBS` | colcon `--parallel-workers` and `MAKEFLAGS=-j` | number of CPUs |
-| `GPU_SUPPORT_NEEDED` | `true`: fail unless `dxdiag` reports an NVIDIA GPU | from `packages.py` |
+| `GPU_SUPPORT_NEEDED` | `true`: fail unless `dxdiag` reports an NVIDIA GPU | `requirements.nvidia_gpu` in `gz-collections.yaml` |
 | `REUSE_PIXI_INSTALLATION` | when set (any value), reuse the installed pixi env | unset |
 | `PIXI_TMP` | pixi executable | `%PROGRAMDATA%\pixi\pixi.exe` |
 | `PIXI_PROJECT_PATH` | pixi project with the Gazebo env | `%PROGRAMDATA%\pixi\project` |
@@ -53,7 +55,7 @@ Outputs: JUnit files in `WORKSPACE\build\test_results`, and
 |---|---|
 | `__main__.py` | the job steps, in order, with `# BEGIN SECTION` markers |
 | `config.py` | job variables to `JobConfig` |
-| `packages.py` | per-library differences (colcon name, CMake args, GPU) |
+| `packages.py` | libraries and GPU needs from `gz-collections.yaml` (`find_conda_libraries` in `dsl/tools`), colcon name and CMake args that differ |
 | `platforms.py` | per-OS facts: pixi paths, variable expansion, OGRE paths, GPU check |
 | `envs.py` | major version, env selection, `pixi install --locked`, activation with `pixi shell-hook --json` |
 | `envvars.py` | merge of the activation variables, `%NAME%` expansion |

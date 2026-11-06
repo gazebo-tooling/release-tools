@@ -1,8 +1,18 @@
-"""Per-library facts: the differences between the per-package .bat files."""
+"""Per-library facts.
+
+The libraries and their GPU needs come from gz-collections.yaml, the file that
+generates the Jenkins jobs. The rest are the differences between the per-package
+.bat files, which no file records.
+"""
 
 from dataclasses import dataclass
 
+from get_ciconfigs_from_package_and_version import find_conda_libraries
+
 from .runner import CIError
+
+COLCON_BASES = {"gz-fuel-tools": "gz-fuel_tools"}
+EXTRA_CMAKE_ARGS = {"gz-cmake": ("-DBUILDSYSTEM_TESTING:BOOL=True",)}
 
 
 @dataclass(frozen=True)
@@ -13,30 +23,17 @@ class Package:
     gpu: bool = False       # needs an NVIDIA GPU (GPU_SUPPORT_NEEDED)
 
 
-PACKAGES = {p.library: p for p in (
-    Package("gz-cmake", "gz-cmake",
-            extra_cmake_args=("-DBUILDSYSTEM_TESTING:BOOL=True",)),
-    Package("gz-common", "gz-common"),
-    Package("gz-fuel-tools", "gz-fuel_tools"),
-    Package("gz-gui", "gz-gui"),
-    Package("gz-launch", "gz-launch"),
-    Package("gz-math", "gz-math"),
-    Package("gz-msgs", "gz-msgs"),
-    Package("gz-physics", "gz-physics"),
-    Package("gz-plugin", "gz-plugin"),
-    Package("gz-rendering", "gz-rendering", gpu=True),
-    Package("gz-sensors", "gz-sensors", gpu=True),
-    Package("gz-sim", "gz-sim", gpu=True),
-    Package("gz-tools", "gz-tools"),
-    Package("gz-transport", "gz-transport"),
-    Package("gz-utils", "gz-utils"),
-    Package("sdformat", "sdformat"),
-)}
+def libraries(release_tools, platform):
+    """{library: needs a GPU} of the libraries with a job on this platform."""
+    return find_conda_libraries(
+        release_tools / "jenkins-scripts" / "dsl" / "gz-collections.yaml",
+        platform.detect_os, platform.detect_arch)
 
 
-def get(library):
-    try:
-        return PACKAGES[library]
-    except KeyError:
+def get(library, release_tools, platform):
+    known = libraries(release_tools, platform)
+    if library not in known:
         raise CIError(f"unknown library {library!r}, expected one of: "
-                      f"{', '.join(sorted(PACKAGES))}") from None
+                      f"{', '.join(sorted(known))}")
+    return Package(library, COLCON_BASES.get(library, library),
+                   EXTRA_CMAKE_ARGS.get(library, ()), known[library])

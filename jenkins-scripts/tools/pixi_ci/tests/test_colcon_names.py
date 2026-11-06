@@ -1,6 +1,8 @@
 import pytest
 
 from pixi_ci import packages
+from pixi_ci.config import RELEASE_TOOLS
+from pixi_ci.platforms import WindowsPlatform
 from pixi_ci.runner import CIError
 from pixi_ci.workspace import resolve_colcon_name
 
@@ -34,11 +36,10 @@ def test_harmonic_jetty_rotary(base, major, names, expected):
     assert resolve_colcon_name(names, base, major, True) == expected
 
 
-@pytest.mark.parametrize("package", sorted(packages.PACKAGES.values(),
-                                           key=lambda p: p.library),
-                         ids=lambda p: p.library)
-def test_every_library_resolves_versioned_and_unversioned(package):
-    base = package.colcon_base
+@pytest.mark.parametrize("library", sorted(packages.libraries(
+    RELEASE_TOOLS, WindowsPlatform())))
+def test_every_library_resolves_versioned_and_unversioned(library):
+    base = packages.get(library, RELEASE_TOOLS, WindowsPlatform()).colcon_base
     assert resolve_colcon_name({base}, base, "11", True) == base
     assert resolve_colcon_name({base + "9", base}, base, "9", True) == base + "9"
 

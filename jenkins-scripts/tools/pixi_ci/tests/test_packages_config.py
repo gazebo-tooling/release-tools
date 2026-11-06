@@ -1,39 +1,49 @@
+import shutil
 from pathlib import Path
 
 import pytest
 
 from pixi_ci import packages
-from pixi_ci.config import JobConfig
+from pixi_ci.config import RELEASE_TOOLS, JobConfig
 from pixi_ci.platforms import WindowsPlatform
 from pixi_ci.runner import CIError
 
 PLATFORM = WindowsPlatform()
 
 
-def test_table_reproduces_the_per_package_bat_files():
-    assert sorted(packages.PACKAGES) == [
-        "gz-cmake", "gz-common", "gz-fuel-tools", "gz-gui", "gz-launch",
-        "gz-math", "gz-msgs", "gz-physics", "gz-plugin", "gz-rendering",
-        "gz-sensors", "gz-sim", "gz-tools", "gz-transport", "gz-utils",
-        "sdformat"]
-    assert packages.get("gz-fuel-tools").colcon_base == "gz-fuel_tools"
-    assert packages.get("gz-cmake").extra_cmake_args == (
-        "-DBUILDSYSTEM_TESTING:BOOL=True",)
-    assert {p.library for p in packages.PACKAGES.values() if p.gpu} == {
-        "gz-rendering", "gz-sensors", "gz-sim"}  # gz-gui: never set in its .bat
-    assert all(p.colcon_base == p.library for p in packages.PACKAGES.values()
-               if p.library != "gz-fuel-tools")
+@pytest.mark.parametrize("library, colcon_base, cmake_args, gpu", [
+    ("gz-cmake", "gz-cmake", ("-DBUILDSYSTEM_TESTING:BOOL=True",), False),
+    ("gz-fuel-tools", "gz-fuel_tools", (), False),
+    ("gz-gui", "gz-gui", (), True),
+    ("gz-rendering", "gz-rendering", (), True),
+    ("gz-sensors", "gz-sensors", (), True),
+    ("gz-sim", "gz-sim", (), True),
+    ("gz-math", "gz-math", (), False),
+    ("sdformat", "sdformat", (), False),
+])
+def test_real_collections_give_the_facts_of_each_library(library, colcon_base,
+                                                         cmake_args, gpu):
+    package = packages.get(library, RELEASE_TOOLS, PLATFORM)
+    assert package.library == library
+    assert package.colcon_base == colcon_base
+    assert package.extra_cmake_args == cmake_args
+    assert package.gpu is gpu
 
 
-def test_unknown_library_lists_the_known_ones():
-    with pytest.raises(CIError, match="unknown library 'gz-fuel_tools'.*gz-fuel-tools"):
-        packages.get("gz-fuel_tools")
+@pytest.mark.parametrize("metapackage", ["gz-harmonic", "gz-jetty", "gz-rotary"])
+def test_real_collections_have_no_job_for_the_metapackages(metapackage):
+    with pytest.raises(CIError, match="unknown library"):
+        packages.get(metapackage, RELEASE_TOOLS, PLATFORM)
 
 
 @pytest.fixture
 def job_env(tmp_path):
     (tmp_path / "ws_root" / "gz-sim").mkdir(parents=True)
     (tmp_path / "rt" / "conda" / "envs" / "legacy").mkdir(parents=True)
+    dsl = tmp_path / "rt" / "jenkins-scripts" / "dsl"
+    dsl.mkdir(parents=True)
+    shutil.copy(RELEASE_TOOLS / "jenkins-scripts" / "dsl" / "gz-collections.yaml",
+                dsl)
     return {"WORKSPACE": str(tmp_path / "ws_root"),
             "PROGRAMDATA": str(tmp_path / "ProgramData")}
 
