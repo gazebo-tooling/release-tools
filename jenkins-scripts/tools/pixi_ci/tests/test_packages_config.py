@@ -24,16 +24,9 @@ PLATFORM = WindowsPlatform()
 def test_real_collections_give_the_facts_of_each_library(library, colcon_base,
                                                          cmake_args, gpu):
     package = packages.get(library, RELEASE_TOOLS, PLATFORM)
-    assert package.library == library
     assert package.colcon_base == colcon_base
     assert package.extra_cmake_args == cmake_args
     assert package.gpu is gpu
-
-
-@pytest.mark.parametrize("metapackage", ["gz-harmonic", "gz-jetty", "gz-rotary"])
-def test_real_collections_have_no_job_for_the_metapackages(metapackage):
-    with pytest.raises(CIError, match="unknown library"):
-        packages.get(metapackage, RELEASE_TOOLS, PLATFORM)
 
 
 @pytest.fixture

@@ -17,10 +17,9 @@ EXTRA_CMAKE_ARGS = {"gz-cmake": ("-DBUILDSYSTEM_TESTING:BOOL=True",)}
 
 @dataclass(frozen=True)
 class Package:
-    library: str            # gz-collections.yaml name, e.g. gz-fuel-tools
     colcon_base: str        # colcon name without major version
-    extra_cmake_args: tuple = ()
-    gpu: bool = False       # needs an NVIDIA GPU (GPU_SUPPORT_NEEDED)
+    extra_cmake_args: tuple
+    gpu: bool               # needs an NVIDIA GPU (GPU_SUPPORT_NEEDED)
 
 
 def libraries(release_tools, platform):
@@ -35,5 +34,5 @@ def get(library, release_tools, platform):
     if library not in known:
         raise CIError(f"unknown library {library!r}, expected one of: "
                       f"{', '.join(sorted(known))}")
-    return Package(library, COLCON_BASES.get(library, library),
+    return Package(COLCON_BASES.get(library, library),
                    EXTRA_CMAKE_ARGS.get(library, ()), known[library])

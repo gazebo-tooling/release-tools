@@ -6,10 +6,6 @@ from .fsops import remove_tree
 from .runner import CIError, section
 
 
-def with_makeflags(env, make_jobs):
-    return dict(env, MAKEFLAGS=f"-j{make_jobs}")
-
-
 def build(runner, cfg, package, env):
     """Dependencies without tests, then the package with tests."""
     common = ["build", "--build-base", "build", "--install-base", "install",

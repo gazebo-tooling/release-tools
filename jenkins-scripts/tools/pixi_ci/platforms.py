@@ -32,6 +32,9 @@ class WindowsPlatform:
     def normalize_env(self, environ):
         return {self.normalize_key(k): v for k, v in environ.items()}
 
+    def references(self, value):
+        return envvars.windows_references(value)
+
     def expand(self, value, env):
         return envvars.expand_windows(value, env)
 

@@ -4,6 +4,7 @@ import json
 import shutil
 
 from . import envvars
+from .config import conda_envs_dir
 from .fsops import remove_tree
 from .runner import PYTHON, CIError, section
 
@@ -39,15 +40,16 @@ def select_env(runner, cfg, platform, major, env):
             cwd=cfg.workspace, env=env, capture=True)
         name = result.stdout.strip()
         print(f"Detected conda environment: {name}", flush=True)
-    if not name or not (cfg.release_tools / "conda" / "envs" / name).is_dir():
+    conda_envs = conda_envs_dir(cfg.release_tools)
+    if not name or not (conda_envs / name).is_dir():
         raise CIError(f"detected conda environment {name!r} is not in "
-                      f"{cfg.release_tools / 'conda' / 'envs'}")
+                      f"{conda_envs}")
     return name
 
 
 def install_env(runner, cfg, env_name, env):
     """Recreate the pixi project from conda/envs/<env_name> and install it."""
-    source = cfg.release_tools / "conda" / "envs" / env_name
+    source = conda_envs_dir(cfg.release_tools) / env_name
     remove_tree(cfg.project_path)
     cfg.project_path.mkdir(parents=True)
     for manifest in sorted(source.glob("pixi.*")):

@@ -1,6 +1,6 @@
 import pytest
 
-from pixi_ci.envvars import expand_posix, expand_windows, merge_activation
+from pixi_ci.envvars import expand_windows, merge_activation
 from pixi_ci.platforms import WindowsPlatform
 from pixi_ci.runner import CIError
 
@@ -19,14 +19,6 @@ def test_windows_expansion_leaves_non_references_alone():
 def test_windows_undefined_reference_fails():
     with pytest.raises(CIError, match=r"undefined variable %NOPE%"):
         expand_windows(r"%NOPE%\bin", {})
-
-
-def test_posix_expansion():
-    env = {"CONDA_PREFIX": "/pixi/env"}
-    assert expand_posix("$CONDA_PREFIX/lib:${CONDA_PREFIX}/plugins", env) == \
-        "/pixi/env/lib:/pixi/env/plugins"
-    with pytest.raises(CIError, match=r"undefined variable \$NOPE"):
-        expand_posix("${NOPE}/bin", env)
 
 
 def test_merge_expands_references_to_activated_and_base_variables():

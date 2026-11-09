@@ -11,7 +11,7 @@ import yaml
 from pixi_ci.__main__ import main
 from pixi_ci.config import RELEASE_TOOLS
 from pixi_ci.platforms import WindowsPlatform
-from pixi_ci.runner import PYTHON, CommandError, Result
+from pixi_ci.runner import PYTHON, CIError, Result
 from pixi_ci.workspace import GAZEBODISTRO_URL
 
 PREFIX = r"C:\pixi\project\.pixi\envs\default"
@@ -36,8 +36,8 @@ class FakeRunner:
         self.calls.append(call)
         result = self._respond(call) or Result(0)
         if check and result.returncode != 0:
-            raise CommandError(" ".join([call.tool] + call.args),
-                               result.returncode)
+            raise CIError(f"exit code {result.returncode}: "
+                          f"{' '.join([call.tool] + call.args)}")
         return result
 
 
@@ -98,7 +98,7 @@ class Job:
         if call.tool == "colcon" and call.args[:2] == ["list", "--names-only"]:
             return Result(0, "\n".join(self.colcon_names) + "\n")
         if call.tool == "colcon" and call.args[0] == "test":
-            package = call.args[call.args.index("--packages-select") + 1]
+            package = option(call.args, "--packages-select")
             results = call.cwd / "build" / package / "test_results" / package
             results.mkdir(parents=True)
             (results / "UNIT_Vector3_TEST.xml").write_text("<testsuites/>")

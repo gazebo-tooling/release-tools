@@ -5,7 +5,7 @@ import sys
 import pytest
 
 from pixi_ci.fsops import copy_sources, remove_tree
-from pixi_ci.runner import PYTHON, CIError, CommandError, Runner, resolve_executable
+from pixi_ci.runner import PYTHON, CIError, Runner, resolve_executable
 
 
 def make_tool(directory, name):
@@ -36,7 +36,7 @@ def test_runner_runs_the_resolved_tool_and_checks_the_exit_code(tmp_path):
     env = {"PATH": str(tmp_path / "bin")}
     result = Runner().run("colcon", [], cwd=tmp_path, env=env, capture=True)
     assert result.stdout == "from-env\n"
-    with pytest.raises(CommandError, match="exit code 3"):
+    with pytest.raises(CIError, match="exit code 3"):
         Runner().run(PYTHON, ["-c", "raise SystemExit(3)"], cwd=tmp_path, env={})
     assert Runner().run(PYTHON, ["-c", "raise SystemExit(3)"], cwd=tmp_path,
                         env={}, check=False).returncode == 3

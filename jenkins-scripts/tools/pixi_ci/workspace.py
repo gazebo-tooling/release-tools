@@ -86,7 +86,7 @@ def find_package(runner, cfg, major, env):
     with section("packages in workspace"):
         runner.run("colcon", ["list", "-t"], cwd=cfg.ws, env=env)
         runner.run("vcs", ["export", "--exact"], cwd=cfg.ws, env=env)
-    first = cfg.colcon_base + major if cfg.auto_major else cfg.colcon_base
+    first = colcon_name_candidates(cfg.colcon_base, major, cfg.auto_major)[0]
     with section(f"Check if package {first} is in colcon workspace"):
         listed = runner.run("colcon", ["list", "--names-only"], cwd=cfg.ws,
                             env=env, capture=True)

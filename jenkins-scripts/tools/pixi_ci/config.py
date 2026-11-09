@@ -11,13 +11,9 @@ from .runner import CIError
 
 RELEASE_TOOLS = Path(__file__).resolve().parents[3]
 
-# Job variables the driver reads (README.md describes each one)
-VARIABLES = ("WORKSPACE", "VCS_DIRECTORY", "COLCON_PACKAGE",
-             "COLCON_AUTO_MAJOR_VERSION", "COLCON_PACKAGE_EXTRA_CMAKE_ARGS",
-             "BUILD_TYPE", "ENABLE_TESTS", "KEEP_WORKSPACE", "CONDA_ENV_NAME",
-             "GAZEBODISTRO_FILE", "GAZEBODISTRO_BRANCH", "ghprbSourceBranch",
-             "MAKE_JOBS", "GPU_SUPPORT_NEEDED", "REUSE_PIXI_INSTALLATION",
-             "PIXI_TMP", "PIXI_PROJECT_PATH")
+
+def conda_envs_dir(release_tools):
+    return release_tools / "conda" / "envs"
 
 
 def _split_cmake_args(value):
@@ -54,7 +50,7 @@ class JobConfig:
     reuse_pixi: bool
     pixi_exe: Path
     project_path: Path
-    job_variables: tuple = ()   # (name, value) of the VARIABLES that are set
+    job_variables: tuple    # (name, value) of the job variables that are set
 
     @property
     def sources(self):
@@ -74,11 +70,20 @@ class JobConfig:
         return lines
 
     @classmethod
-    def from_environ(cls, library, env, platform, release_tools=RELEASE_TOOLS):
+    def from_environ(cls, library, env, platform, release_tools):
         """env is the job environment, already normalized by the platform."""
+        job_variables = {}
+
         def get(name):
             # cmd treats `set NAME=` as unset: so does an empty value here
-            return env.get(platform.normalize_key(name)) or None
+            value = env.get(platform.normalize_key(name)) or None
+            if value is not None:
+                job_variables[name] = value
+            return value
+
+        def flag(name, default):
+            value = get(name)
+            return default if value is None else value.lower() == "true"
 
         package = packages.get(library, release_tools, platform)
         if get("WORKSPACE") is None:
@@ -89,24 +94,24 @@ class JobConfig:
             raise CIError(f"VCS_DIRECTORY points to {workspace / vcs_directory}"
                           " but it does not exist")
         extra = get("COLCON_PACKAGE_EXTRA_CMAKE_ARGS")
-        gpu = get("GPU_SUPPORT_NEEDED")
         jobs = get("MAKE_JOBS")
         conda_env_name = get("CONDA_ENV_NAME")
+        conda_envs = conda_envs_dir(release_tools)
         if (conda_env_name is not None and
-                not (release_tools / "conda" / "envs" / conda_env_name).is_dir()):
+                not (conda_envs / conda_env_name).is_dir()):
             raise CIError(f"CONDA_ENV_NAME={conda_env_name} is not in "
-                          f"{release_tools / 'conda' / 'envs'}")
+                          f"{conda_envs}")
         return cls(
             library=library,
             release_tools=release_tools,
             workspace=workspace,
             vcs_directory=vcs_directory,
             colcon_base=get("COLCON_PACKAGE") or package.colcon_base,
-            auto_major=(get("COLCON_AUTO_MAJOR_VERSION") or "true").lower() == "true",
+            auto_major=flag("COLCON_AUTO_MAJOR_VERSION", True),
             extra_cmake_args=(_split_cmake_args(extra) if extra is not None
                               else package.extra_cmake_args),
             build_type=get("BUILD_TYPE") or platform.default_build_type,
-            enable_tests=(get("ENABLE_TESTS") or "TRUE").upper() == "TRUE",
+            enable_tests=flag("ENABLE_TESTS", True),
             keep_workspace=get("KEEP_WORKSPACE") is not None,
             conda_env_name=conda_env_name,
             gazebodistro_file=get("GAZEBODISTRO_FILE"),
@@ -114,12 +119,11 @@ class JobConfig:
             pr_source_branch=get("ghprbSourceBranch"),
             make_jobs=(_positive_int(jobs, "MAKE_JOBS") if jobs is not None
                        else os.cpu_count() or 1),
-            gpu_needed=gpu.lower() == "true" if gpu is not None else package.gpu,
+            gpu_needed=flag("GPU_SUPPORT_NEEDED", package.gpu),
             reuse_pixi=get("REUSE_PIXI_INSTALLATION") is not None,
             pixi_exe=(Path(get("PIXI_TMP")) if get("PIXI_TMP")
                       else platform.default_pixi_exe(env)),
             project_path=(Path(get("PIXI_PROJECT_PATH")) if get("PIXI_PROJECT_PATH")
                           else platform.default_project_path(env)),
-            job_variables=tuple((name, get(name)) for name in VARIABLES
-                                if get(name) is not None),
+            job_variables=tuple(job_variables.items()),
         )

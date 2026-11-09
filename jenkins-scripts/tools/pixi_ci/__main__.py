@@ -37,7 +37,7 @@ def run_job(cfg, platform, runner, base_env):
     workspace.copy_sources_under_test(cfg, platform)
     package = workspace.find_package(runner, cfg, major, env)
 
-    env = colcon.with_makeflags(env, cfg.make_jobs)
+    env = dict(env, MAKEFLAGS=f"-j{cfg.make_jobs}")
     with section(f"compiling {cfg.vcs_directory}"):
         colcon.build(runner, cfg, package, env)
     if cfg.enable_tests:
