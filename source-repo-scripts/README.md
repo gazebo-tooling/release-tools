@@ -149,6 +149,13 @@ source_changelog.bash <last_version>
 The script will parse git log entries and generate Markdown as console output
 ready to be injected to `Changelog.md` files.
 
+If the checkout has a `.changelog/` directory, the script runs
+[`create_changelog_entry.py`](#create_changelog_entrypy) instead of reading the
+git log, and exits with its status. Before that it prints two warnings on
+stderr when they apply: `.changelog/.gitkeep` is not tracked by git, and the
+list of commits merged since `<last_version>` but before `.changelog/` existed,
+which have to be added to `Changelog.md` by hand.
+
 ### Example
 
 To update the Changelog for `gz-math` new version 6.11.0:
