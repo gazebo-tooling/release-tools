@@ -101,7 +101,7 @@ def main():
     pattern_files = args.pattern_files
 
     if not pattern_files:
-        default_pattern_file = os.path.join("scripts", "jenkins-scripts", "tools", "gz_ci.ignored")
+        default_pattern_file = os.path.join(SCRIPT_DIR, "gz_ci.ignored")
         pattern_files = [default_pattern_file]
 
     ghprb_target_branch = os.environ.get("ghprbTargetBranch")
