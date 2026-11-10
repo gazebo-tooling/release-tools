@@ -23,12 +23,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 if SCRIPT_DIR not in sys.path:
     sys.path.insert(0, SCRIPT_DIR)
 
-try:
-    import check_ignored_files
-except ImportError:
-    # In case the script is invoked from a different working directory
-    # and sys.path[0] resolution requires fallback
-    from jenkins_scripts.tools import check_ignored_files
+import check_ignored_files
 
 
 JUNIT_DUMMY_XML = """<?xml version="1.0" encoding="UTF-8"?>
