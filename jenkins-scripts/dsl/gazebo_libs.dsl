@@ -68,6 +68,14 @@ String check_ignored_files_sh_cmd(lib_name)
   """.stripIndent()
 }
 
+String check_ignored_files_bat_cmd(lib_name)
+{
+  return """\
+    python ./scripts/jenkins-scripts/tools/check_pr_skip.py ${lib_name}
+    if not errorlevel 1 exit /b 0
+  """.stripIndent()
+}
+
 boolean is_testing_enabled(lib_name, ci_config)
 {
   return ! ci_config.tests_disabled?.contains(lib_name)
@@ -201,7 +209,7 @@ void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config, arch)
   add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir, "")
 }
 
-void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config)
+void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config, pre_setup_script = "")
 {
   def script_name_prefix = cleanup_library_name(lib_name)
   def conda_env = ci_config.system.version
@@ -209,6 +217,7 @@ void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config)
   {
     steps {
       batchFile("""\
+            ${pre_setup_script}
             set VCS_DIRECTORY=${ws_checkout_dir}
             if "%CONDA_ENV_NAME%" == "" set CONDA_ENV_NAME=${conda_env}
             if not exist "./scripts/conda/envs/%CONDA_ENV_NAME%" (
@@ -534,7 +543,8 @@ branch_index.each { lib_name, distro_configs ->
         add_win_devel_bat_call(gz_win_ci_any_job,
                                lib_name,
                                ws_checkout_dir,
-                               ci_config)
+                               ci_config,
+                               "${check_ignored_files_bat_cmd(lib_name)}")
         Globals.gazebodistro_branch = false
       }
     }
