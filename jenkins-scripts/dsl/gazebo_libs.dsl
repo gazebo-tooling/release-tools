@@ -62,7 +62,7 @@ String cleanup_library_name(lib_name)
 String check_ignored_files_sh_cmd(lib_name)
 {
   return """\
-    if /bin/sh ./scripts/jenkins-scripts/tools/check_pr_skip.sh ${lib_name}; then
+    if python3 ./scripts/jenkins-scripts/tools/check_pr_skip.py ${lib_name}; then
       exit 0
     fi
   """.stripIndent()
