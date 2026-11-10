@@ -63,7 +63,7 @@ String check_ignored_files_sh_cmd(lib_name, pattern_files = [])
 {
   def pattern_files_str = pattern_files ? pattern_files.join(" ") : ""
   return """\
-    if /bin/sh ./scripts/jenkins-scripts/tools/check_pr_skip.sh ${lib_name} ${pattern_files_str}; then
+    if python3 ./scripts/jenkins-scripts/tools/check_pr_skip.py ${lib_name} ${pattern_files_str}; then
       exit 0
     fi
   """.stripIndent()
