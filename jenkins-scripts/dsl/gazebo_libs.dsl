@@ -59,10 +59,11 @@ String cleanup_library_name(lib_name)
   return lib_name.replaceAll('-','_').replaceAll('ign_','gz_').replaceAll('gazebo','sim')
 }
 
-String check_ignored_files_sh_cmd(lib_name)
+String check_ignored_files_sh_cmd(lib_name, pattern_files = [])
 {
+  def pattern_files_str = pattern_files ? pattern_files.join(" ") : ""
   return """\
-    if /bin/sh ./scripts/jenkins-scripts/tools/check_pr_skip.sh ${lib_name}; then
+    if /bin/sh ./scripts/jenkins-scripts/tools/check_pr_skip.sh ${lib_name} ${pattern_files_str}; then
       exit 0
     fi
   """.stripIndent()
@@ -498,7 +499,7 @@ branch_index.each { lib_name, distro_configs ->
 
                   ${GLOBAL_SHELL_CMD}
                   ${extra_cmd}
-                  ${check_ignored_files_sh_cmd(lib_name)}
+                  ${check_ignored_files_sh_cmd(lib_name, ['./scripts/jenkins-scripts/tools/gz_ci.ignored', './scripts/jenkins-scripts/tools/gz_ci_used_by_colcon'])}
 
                   export BUILDING_SOFTWARE_DIRECTORY=${lib_name}
                   export ARCH=${arch}
@@ -518,7 +519,7 @@ branch_index.each { lib_name, distro_configs ->
                                             branch_names,
                                             ENABLE_GITHUB_PR_INTEGRATION,
                                             are_cmake_warnings_enabled(lib_name, ci_config))
-        add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir, "${check_ignored_files_sh_cmd(lib_name)}")
+        add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir, "${check_ignored_files_sh_cmd(lib_name, ['./scripts/jenkins-scripts/tools/gz_ci.ignored', './scripts/jenkins-scripts/tools/gz_ci_used_by_colcon', './scripts/jenkins-scripts/tools/gz_ci_used_by_linux'])}")
       } else if (ci_config.system.so == 'windows') {
         distro_sort_name = get_windows_distro_sortname(ci_config)
         Globals.gazebodistro_branch = false
@@ -566,7 +567,7 @@ branch_index.each { lib_name, distro_configs ->
 
                 ${GLOBAL_SHELL_CMD}
                 ${extra_cmd}
-                ${check_ignored_files_sh_cmd(lib_name)}
+                ${check_ignored_files_sh_cmd(lib_name, ['./scripts/jenkins-scripts/tools/gz_ci.ignored', './scripts/jenkins-scripts/tools/gz_ci_used_by_colcon'])}
 
                 export ARCH=${arch}
                 export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}

@@ -8,5 +8,4 @@ MODULE.bazel$
 ^\.github/workflows/
 
 ^LICENSE$
-package\.xml$
 \.md$
