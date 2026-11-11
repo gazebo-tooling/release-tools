@@ -59,19 +59,21 @@ String cleanup_library_name(lib_name)
   return lib_name.replaceAll('-','_').replaceAll('ign_','gz_').replaceAll('gazebo','sim')
 }
 
-String check_ignored_files_sh_cmd(lib_name)
+String check_ignored_files_sh_cmd(lib_name, pattern_files = [])
 {
+  def pattern_files_str = pattern_files ? pattern_files.join(" ") : ""
   return """\
-    if python3 ./scripts/jenkins-scripts/tools/check_pr_skip.py ${lib_name}; then
+    if python3 ./scripts/jenkins-scripts/tools/check_pr_skip.py ${lib_name} ${pattern_files_str}; then
       exit 0
     fi
   """.stripIndent()
 }
 
-String check_ignored_files_bat_cmd(lib_name)
+String check_ignored_files_bat_cmd(lib_name, pattern_files = [])
 {
+  def pattern_files_str = pattern_files ? pattern_files.join(" ") : ""
   return """\
-    python ./scripts/jenkins-scripts/tools/check_pr_skip.py ${lib_name}
+    python ./scripts/jenkins-scripts/tools/check_pr_skip.py ${lib_name} ${pattern_files_str}
     if not errorlevel 1 exit /b 0
   """.stripIndent()
 }
