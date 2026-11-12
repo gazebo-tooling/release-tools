@@ -1,6 +1,7 @@
 import os
 import stat
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -10,19 +11,27 @@ from pixi_ci.runner import PYTHON, CIError, Runner, resolve_executable
 
 def make_tool(directory, name):
     directory.mkdir(parents=True, exist_ok=True)
-    tool = directory / name
-    tool.write_text("#!/bin/sh\necho from-env\n")
-    tool.chmod(0o755)
+    if sys.platform == "win32":
+        # shutil.which only finds names with a PATHEXT extension on Windows
+        tool = directory / f"{name}.bat"
+        tool.write_text("@echo from-env\n")
+    else:
+        tool = directory / name
+        tool.write_text("#!/bin/sh\necho from-env\n")
+        tool.chmod(0o755)
     return tool
 
 
 def test_tools_resolve_against_the_activated_path_only(tmp_path):
     tool = make_tool(tmp_path / "env" / "bin", "colcon")
     env = {"PATH": str(tmp_path / "env" / "bin")}
-    assert resolve_executable("colcon", env) == str(tool)
-    # sh is on the PATH of this process, not on the activated one
-    with pytest.raises(CIError, match="sh not found in PATH: .*env"):
-        resolve_executable("sh", env)
+    # Path compares case-insensitively on Windows, where which() returns
+    # the extension as PATHEXT spells it (colcon.BAT)
+    assert Path(resolve_executable("colcon", env)) == tool
+    # the shell is on the PATH of this process, not on the activated one
+    shell = "cmd" if sys.platform == "win32" else "sh"
+    with pytest.raises(CIError, match=f"{shell} not found in PATH: .*env"):
+        resolve_executable(shell, env)
 
 
 def test_python_and_absolute_tools_are_not_searched(tmp_path):

@@ -12,15 +12,24 @@ on:
 
 jobs:
   pytest:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
+        os: [ubuntu-latest]
         # 3.10 Jammy, 3.12 Noble, 3.14 Resolute
         # python >= 3.10 in conda/config-detector, its lock pins 3.14
         python-version: ['3.10', '3.12', '3.14']
-    name: pytest (Python ${{ matrix.python-version }})
+        include:
+          # the CI agents run the driver on Windows with the 3.14 of that lock
+          - os: windows-latest
+            python-version: '3.14'
+    name: pytest (${{ matrix.os }}, Python ${{ matrix.python-version }})
     permissions:
       contents: read
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,4 +41,9 @@ jobs:
           uv venv --python ${{ matrix.python-version }} .venv
           uv pip install --python .venv pytest pyyaml
       - name: Run the tests
-        run: .venv/bin/python -m pytest -v jenkins-scripts/tools/pixi_ci/tests
+        run: |
+          python=.venv/bin/python
+          if [ "$RUNNER_OS" = Windows ]; then python=.venv/Scripts/python.exe; fi
+          # the driver imports and runs the dsl tools
+          "$python" -m pytest -v jenkins-scripts/tools/pixi_ci/tests \
+                                 jenkins-scripts/dsl/tools/tests
