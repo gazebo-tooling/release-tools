@@ -221,3 +221,76 @@ expect_no_vendor "${ros_vendor_test}"
 
 ros_vendor_test=$(exec_releasepy_with_real_gz gz-ionic 3)
 expect_no_vendor "${ros_vendor_test}"
+
+# --- gh sanity check ---------------------------------------------
+# These runs keep sanity checks ON. They always stop later (no CMakeLists.txt
+# in cwd, unreachable JENKINS_URL), so the exit status is ignored and the
+# output is inspected instead. GitHub runners ship gh: build PATHs without it.
+nogh_bin="${test_dir}/nogh-bin" fakegh_bin="${test_dir}/fakegh-bin"
+mkdir -p "${nogh_bin}" "${fakegh_bin}"
+for t in python3 find head grep; do ln -s "$(command -v ${t})" "${nogh_bin}/${t}"; done
+printf '#!/bin/sh\nexit 0\n' > "${fakegh_bin}/gh" && chmod +x "${fakegh_bin}/gh"
+
+exec_releasepy_gh_test()
+{
+  gh_path=${1} pkg=${2} ver=${3} test_params=${4}
+
+  JENKINS_URL=http://127.0.0.1:9 PATH="${gh_path}" ./release.py \
+      --dry-run \
+      --auth user:fake \
+    "${pkg}" "${ver}" ${test_params} 2>&1 || true
+}
+
+expect_output()
+{
+  output="${1}" text="${2}"
+
+  if ! grep -q -- "${text}" <<< "${output}"; then
+    echo "'${text}' not found in test output"
+    exit 1
+  fi
+}
+
+expect_not_output()
+{
+  output="${1}" text="${2}"
+
+  if grep -q -- "${text}" <<< "${output}"; then
+    echo "'${text}' found in test output. Should not appear."
+    exit 1
+  fi
+}
+
+gh_err="GitHub CLI) tool is required"
+sanity_ran="OK Package names in changelog and control"
+src_params="--source-repo-uri https://github.com/gazebosim/gz-fuel-tools.git --source-repo-existing-ref foo"
+
+# harmonic library, stable: gh needed
+gh_test=$(exec_releasepy_gh_test "${nogh_bin}" gz-fuel-tools 9.1.0 "${src_params}")
+expect_output "${gh_test}" "${gh_err}"
+gh_test=$(exec_releasepy_gh_test "${fakegh_bin}:${nogh_bin}" gz-fuel-tools 9.1.0 "${src_params}")
+expect_output "${gh_test}" "OK GitHub CLI (gh) tool is available"
+# vendor-only mode: gh needed
+gh_test=$(exec_releasepy_gh_test "${nogh_bin}" gz-fuel-tools 9.1.0 "--only-bump-ros-vendor-package")
+expect_output "${gh_test}" "${gh_err}"
+# no vendor PR possible: gh not needed (prerelease, nightly, builders,
+# metapackage, collection without ROS vendor packages)
+for gh_case in "gz-fuel-tools 9.1.0 --upload-to-repo prerelease ${src_params}" \
+               "gz-fuel-tools 9.1.0 --upload-to-repo nightly" \
+               "gz-fuel-tools 9.1.0 --source-tarball-uri https://x/gz-fuel-tools-9.1.0.tar.gz" \
+               "gz-ionic 3.0.0 ${src_params}" \
+               "gz-sim 6.17.0 ${src_params}"; do
+  read -r gh_pkg gh_ver gh_params <<< "${gh_case}"
+  gh_test=$(exec_releasepy_gh_test "${nogh_bin}" "${gh_pkg}" "${gh_ver}" "${gh_params}")
+  expect_output "${gh_test}" "${sanity_ran}"
+  expect_not_output "${gh_test}" "GitHub CLI"
+done
+# vendor-only mode runs just the gh check: it must work without downloading
+# the -release repository, a CMakeLists.txt in cwd or a reachable Jenkins
+if ! gh_test=$(JENKINS_URL=http://127.0.0.1:9 PATH="${nogh_bin}" ./release.py \
+      --dry-run --auth user:fake --only-bump-ros-vendor-package gz-sim 6.17.0 2>&1); then
+  echo "--only-bump-ros-vendor-package failed:"
+  echo "${gh_test}"
+  exit 1
+fi
+expect_not_output "${gh_test}" "Downloading releasing info"
