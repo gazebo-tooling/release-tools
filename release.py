@@ -414,6 +414,7 @@ def sanity_check_bump_linux(source_tarball_uri):
 
 def sanity_checks(args, repo_dir):
     print("Safety checks:")
+    sanity_check_gh_tool(args)
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
@@ -809,23 +810,48 @@ def create_pr_in_gz_vendor_repo(args, ros_distro) -> str:
     return pr_msg
 
 
-def process_ros_vendor_package(args):
-    # Only create ros vendor updates for stable releases
+def _ros_vendor_targets(args) -> list:
+    """Return the (collection, ros_distro) pairs that get a ROS vendor PR.
+
+    An empty list means that no vendor PR will be opened, so gh is not
+    needed.
+    """
+    # When calling deb builders there is no ros vendor operation
+    if args.source_tarball_uri:
+        return []
+    # Prerelease and nightly uploads never open ROS vendor PRs
     if PRERELEASE or NIGHTLY:
+        return []
+    # skip collection packages
+    if args.package.replace('gz-', '') in ROS_VENDOR:
+        return []
+    return [(collection, ros_distro)
+            for collection in get_collections_for_package(args.package,
+                                                          args.version)
+            if collection in ROS_VENDOR
+            for ros_distro in ROS_VENDOR[collection]]
+
+
+def sanity_check_gh_tool(args):
+    if not _ros_vendor_targets(args):
+        return
+    if shutil.which('gh') is None:
+        error("The 'gh' (GitHub CLI) tool is required but was not found in PATH.\n"
+              "Please install it from: https://cli.github.com/")
+    print_success("GitHub CLI (gh) tool is available")
+
+
+def process_ros_vendor_package(args):
+    targets = _ros_vendor_targets(args)
+    if not targets:
         return
     print("ROS vendor packages that can be updated:")
-    if  args.package.replace('gz-','') in ROS_VENDOR:
-        print(" - There are no gz metapackages in ROS")
-        return
-    for collection in get_collections_for_package(args.package,
-                                                  args.version):
-        if collection in ROS_VENDOR:
-            for ros_distro in ROS_VENDOR[collection]:
-                print(f" * Github {get_vendor_github_repo(args.package)} "
-                      f"part of {collection} in ROS 2 {ros_distro}")
-                print("   + Preparing a PR: ", end='', flush=True)
-                pr_url = create_pr_in_gz_vendor_repo(args, ros_distro)
-                print(pr_url)
+    for collection, ros_distro in targets:
+        print(f" * Github {get_vendor_github_repo(args.package)} "
+              f"part of {collection} in ROS 2 {ros_distro}")
+        print("   + Preparing a PR: ", end='', flush=True)
+        pr_url = create_pr_in_gz_vendor_repo(args, ros_distro)
+        print(pr_url)
 
 
 def go(argv):
