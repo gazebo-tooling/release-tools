@@ -49,6 +49,31 @@ values and the variables that were set.
 Outputs: JUnit files in `WORKSPACE\build\test_results`, and
 `PIXI_PROJECT_PATH\hooks.bat` to activate the env in a command prompt.
 
+## Running it outside the CI agents
+
+The defaults are the paths where `lib/windows_env_vars.bat` provisions pixi and
+the bootstrap environment on the agents. On a developer machine, set the two
+pixi variables to paths of your own, from the release-tools checkout:
+
+```bat
+:: the PIXI_VERSION of lib\windows_env_vars.bat, the one the agents download
+set "PIXI_TMP=C:\tools\pixi.exe"
+:: pixi_ci deletes and recreates this directory on every run
+set "PIXI_PROJECT_PATH=%LOCALAPPDATA%\pixi_ci\project"
+:: holds the checkout under test: %WORKSPACE%\gz-fuel-tools
+set "WORKSPACE=C:\ci"
+
+:: the bootstrap environment, as windows_library.bat installs it
+mkdir "%LOCALAPPDATA%\pixi_ci\bootstrap"
+copy conda\config-detector\pixi.* "%LOCALAPPDATA%\pixi_ci\bootstrap"
+"%PIXI_TMP%" install --locked --manifest-path "%LOCALAPPDATA%\pixi_ci\bootstrap\pixi.toml"
+
+"%LOCALAPPDATA%\pixi_ci\bootstrap\.pixi\envs\default\python.exe" -u jenkins-scripts\tools\run_pixi_ci.py gz-fuel-tools
+```
+
+pixi_ci does not fall back to a `pixi` found in `PATH`: the CI jobs must use
+the pinned version.
+
 ## Modules
 
 | Module | Responsibility |
