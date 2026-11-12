@@ -250,6 +250,9 @@ gh_test=$(exec_releasepy_gh_test "${nogh_bin}" gz-fuel-tools 9.1.0 "${src_params
 expect_output "${gh_test}" "${gh_err}"
 gh_test=$(exec_releasepy_gh_test "${fakegh_bin}:${nogh_bin}" gz-fuel-tools 9.1.0 "${src_params}")
 expect_output "${gh_test}" "OK GitHub CLI (gh) tool is available"
+# vendor-only mode: gh needed
+gh_test=$(exec_releasepy_gh_test "${nogh_bin}" gz-fuel-tools 9.1.0 "--only-bump-ros-vendor-package")
+expect_output "${gh_test}" "${gh_err}"
 # no vendor PR possible: gh not needed (prerelease, nightly, builders,
 # metapackage, collection without ROS vendor packages)
 for gh_case in "gz-fuel-tools 9.1.0 --upload-to-repo prerelease ${src_params}" \
@@ -262,3 +265,12 @@ for gh_case in "gz-fuel-tools 9.1.0 --upload-to-repo prerelease ${src_params}" \
   expect_output "${gh_test}" "${sanity_ran}"
   expect_not_output "${gh_test}" "GitHub CLI"
 done
+# vendor-only mode runs just the gh check: it must work without downloading
+# the -release repository, a CMakeLists.txt in cwd or a reachable Jenkins
+if ! gh_test=$(JENKINS_URL=http://127.0.0.1:9 PATH="${nogh_bin}" ./release.py \
+      --dry-run --auth user:fake --only-bump-ros-vendor-package gz-sim 6.17.0 2>&1); then
+  echo "--only-bump-ros-vendor-package failed:"
+  echo "${gh_test}"
+  exit 1
+fi
+expect_not_output "${gh_test}" "Downloading releasing info"

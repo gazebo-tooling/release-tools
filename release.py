@@ -415,6 +415,11 @@ def sanity_check_bump_linux(source_tarball_uri):
 def sanity_checks(args, repo_dir):
     print("Safety checks:")
     sanity_check_gh_tool(args)
+    # The ROS vendor only mode just opens the vendor PR: it does not use the
+    # -release repository, the source code or Jenkins
+    if args.bump_ros_vendor_only:
+        return
+
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
@@ -861,25 +866,30 @@ def go(argv):
         error('Build token has been removed. Please generate a user token:\n'
               '  - https://gazebosim.org/docs/latest/releases-instructions/#access-and-credentials')
 
-    # If only the process of ROS vendor package is set, just do it
-    if args.bump_ros_vendor_only:
-        process_ros_vendor_package(args)
-        sys.exit(0)
-
     # Default to release 1 if not present
     if not args.release_version:
         args.release_version = 1
 
     package_alias_force_gz = replace_ignition_gz(args.package_alias)
 
-    print(f"Downloading releasing info for {args.package}")
-    # Sanity checks and dicover supported distributions before proceed.
-    repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
-    # The supported distros are the ones in the top level of -release repo
-    ubuntu_distros = discover_distros(repo_dir)  # top level, ubuntu
-    debian_distros = discover_distros(repo_dir + '/debian/')  # debian dir top level, Debian
+    # The ROS vendor only mode does not use the -release repository
+    repo_dir = None
+    if not args.bump_ros_vendor_only:
+        print(f"Downloading releasing info for {args.package}")
+        # Sanity checks and dicover supported distributions before proceed.
+        repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
+        # The supported distros are the ones in the top level of -release repo
+        ubuntu_distros = discover_distros(repo_dir)  # top level, ubuntu
+        debian_distros = discover_distros(repo_dir + '/debian/')  # debian dir top level, Debian
+
+    # All the sanity checks run from here, before any mode does real work
     if not args.no_sanity_checks:
         sanity_checks(args, repo_dir)
+
+    # If only the process of ROS vendor package is set, just do it
+    if args.bump_ros_vendor_only:
+        process_ros_vendor_package(args)
+        sys.exit(0)
 
     params = generate_source_params(args)
     params['PACKAGE'] = args.package
