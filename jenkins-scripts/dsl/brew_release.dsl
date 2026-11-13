@@ -182,6 +182,13 @@ bottle_job_builder.with
      project / 'properties' / 'hudson.plugins.copyartifact.CopyArtifactPermissionProperty' / 'projectNameList' {
       'string' "${bottle_hash_updater_job_name}"
      }
+     // ghprb sets sha1 to origin/pr/<id>/merge. When the target branch moves,
+     // GitHub replaces that merge commit and the matrix configurations that
+     // start after the touchstone can no longer check out the commit resolved
+     // by the parent build (osrf/homebrew-simulation#1990). The bottle script
+     // builds the pull request head with `hub pr checkout` and does not use
+     // this checkout, so check out the head commit, which does not change.
+     (project / scm / branches / 'hudson.plugins.git.BranchSpec' / 'name').setValue('${ghprbActualCommit}')
      project  / triggers / 'org.jenkinsci.plugins.ghprb.GhprbTrigger' {
          adminlist 'osrf-jenkins j-rivero scpeters'
          orgslist 'gazebosim'
