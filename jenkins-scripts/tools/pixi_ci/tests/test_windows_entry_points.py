@@ -8,6 +8,7 @@ from pixi_ci.platforms import WindowsPlatform
 
 JENKINS_SCRIPTS = Path(__file__).resolve().parents[3]
 LIB = JENKINS_SCRIPTS / "lib"
+DSL = JENKINS_SCRIPTS / "dsl" / "gazebo_libs.dsl"
 ENTRY_POINTS = sorted(JENKINS_SCRIPTS.glob("*-default-devel-windows-amd64.bat"))
 REMOVED_LABELS = ("get_source_from_gazebodistro", "_colcon_build_cmd",
                   "build_workspace", "list_workspace_pkgs", "tests_in_workspace",
@@ -33,6 +34,22 @@ def test_entry_points_pass_their_library_to_the_wrapper():
         assert text.endswith(
             f'call "%SCRIPT_DIR%\\lib\\colcon-default-devel-windows.bat" '
             f'{library}\r\n'), bat.name
+
+
+def test_jobs_call_the_wrapper_with_the_library_name():
+    # the per-library .bat files stay only for the jobs generated before this
+    text = DSL.read_text()
+    assert ('call "./scripts/jenkins-scripts/lib/colcon-default-devel-windows.bat" '
+            '${lib_name}\n' in text)
+    assert "-default-devel-windows-amd64.bat" not in text
+
+
+def test_wrapper_finds_jenkins_scripts_from_its_own_path():
+    # the jobs call it directly, nobody sets SCRIPT_DIR for it
+    lines = (LIB / "colcon-default-devel-windows.bat").read_bytes().decode().split("\r\n")
+    set_dir = lines.index('for %%I in ("%~dp0..") do set "SCRIPT_DIR=%%~fI"')
+    first_use = next(i for i, line in enumerate(lines) if "%SCRIPT_DIR%" in line)
+    assert set_dir < first_use
 
 
 def test_wrapper_runs_the_driver_with_the_bootstrap_python():

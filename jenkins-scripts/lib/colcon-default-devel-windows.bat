@@ -2,14 +2,15 @@
 :: (jenkins-scripts/tools/pixi_ci/README.md lists the job variables)
 ::
 :: Parameters:
-::   - arg1       : gz-collections.yaml library name, e.g. gz-fuel-tools
-::   - SCRIPT_DIR : the jenkins-scripts directory, set by the per-package .bat
+::   - arg1 : gz-collections.yaml library name, e.g. gz-fuel-tools
 ::
 :: Actions
 ::   - Remove the previous pixi project, download pixi and create the bootstrap
 ::     environment, unless REUSE_PIXI_INSTALLATION is defined
 ::   - Run the driver with the bootstrap environment python
 
+:: the jenkins-scripts directory, whatever the caller set
+for %%I in ("%~dp0..") do set "SCRIPT_DIR=%%~fI"
 set win_lib=%SCRIPT_DIR%\lib\windows_library.bat
 set LIB_DIR=%SCRIPT_DIR%\lib
 call "%LIB_DIR%\windows_env_vars.bat"

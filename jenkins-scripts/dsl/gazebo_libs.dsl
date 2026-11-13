@@ -203,7 +203,6 @@ void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config, arch)
 
 void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config)
 {
-  def script_name_prefix = cleanup_library_name(lib_name)
   def conda_env = ci_config.system.version
   gz_win_ci_job.with
   {
@@ -215,7 +214,7 @@ void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config)
               echo "Conda environment %CONDA_ENV_NAME% not found"
               exit 1
             )
-            call "./scripts/jenkins-scripts/${script_name_prefix}-default-devel-windows-amd64.bat"
+            call "./scripts/jenkins-scripts/lib/colcon-default-devel-windows.bat" ${lib_name}
             """.stripIndent())
     }
   }
