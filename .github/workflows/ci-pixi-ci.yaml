@@ -1,0 +1,47 @@
+name: pixi_ci driver tests
+
+on:
+  pull_request:
+    paths:
+      - 'jenkins-scripts/tools/**'
+      - 'jenkins-scripts/dsl/tools/**'
+      - 'jenkins-scripts/dsl/gz-collections.yaml'
+      - 'jenkins-scripts/lib/**'
+      - 'jenkins-scripts/*-default-devel-windows-amd64.bat'
+      - '.github/workflows/ci-pixi-ci.yaml'
+
+jobs:
+  pytest:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        # 3.10 Jammy, 3.12 Noble, 3.14 Resolute
+        # python >= 3.10 in conda/config-detector, its lock pins 3.14
+        python-version: ['3.10', '3.12', '3.14']
+        include:
+          # the CI agents run the driver on Windows with the 3.14 of that lock
+          - os: windows-latest
+            python-version: '3.14'
+    name: pytest (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    permissions:
+      contents: read
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install the test dependencies
+        run: python -m pip install pytest pyyaml
+      - name: Run the tests
+        # the driver imports and runs the dsl tools
+        run: |
+          python -m pytest -v jenkins-scripts/tools/pixi_ci/tests \
+                              jenkins-scripts/dsl/tools/tests

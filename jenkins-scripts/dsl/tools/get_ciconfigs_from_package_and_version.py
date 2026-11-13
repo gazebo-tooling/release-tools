@@ -14,11 +14,33 @@ import sys
 import os
 import argparse
 
+def _optional_list(section, key):
+    # gz-collections.yaml leaves empty sections and lists as null
+    return (section or {}).get(key) or []
+
 def _ci_config_names(collection):
-    return (collection.get('ci') or {}).get('configs') or []
+    return _optional_list(collection.get('ci'), 'configs')
 
 def _tracks_main(lib):
     return (lib.get('repo') or {}).get('current_branch') == 'main'
+
+def _load_collections(yaml_file_path):
+    if not os.path.exists(yaml_file_path):
+        raise FileNotFoundError(f"YAML file not found: {yaml_file_path}")
+
+    with open(yaml_file_path, 'r') as f:
+        return yaml.safe_load(f)
+
+def _conda_ci_configs(data, so, arch):
+    """The conda ci configs by name; so or arch None for every platform."""
+    configs = {}
+    for config in data.get('ci_configs', []):
+        system = config.get('system', {})
+        if (system.get('distribution') == 'conda' and
+            so in (None, system.get('so')) and
+            arch in (None, system.get('arch'))):
+            configs[config.get('name')] = config
+    return configs
 
 def find_collections(package_name, major_version, data):
     """
@@ -76,23 +98,15 @@ def find_conda_configs(package_name, major_version, yaml_file_path,
               are not found
     """
 
-    if not os.path.exists(yaml_file_path):
-        raise FileNotFoundError(f"YAML file not found: {yaml_file_path}")
-
-    with open(yaml_file_path, 'r') as f:
-        data = yaml.safe_load(f)
-
-    systems = {c.get('name'): c.get('system', {})
-               for c in data.get('ci_configs', [])}
+    data = _load_collections(yaml_file_path)
+    platform_configs = _conda_ci_configs(data, so, arch)
     results = []
     for collection in find_collections(package_name, major_version, data):
         ci_configs = _ci_config_names(collection)
         conda_configs = []
         for config_name in ci_configs:
-            system = systems.get(config_name, {})
-            if (system.get('distribution') == 'conda' and
-                so in (None, system.get('so')) and
-                arch in (None, system.get('arch'))):
+            if config_name in platform_configs:
+                system = platform_configs[config_name]['system']
                 conda_configs.append({
                     'name': config_name,
                     'version': system.get('version'),
@@ -105,6 +119,37 @@ def find_conda_configs(package_name, major_version, yaml_file_path,
             'conda_configs': conda_configs
         })
     return results
+
+def find_conda_libraries(yaml_file_path, so, arch):
+    """
+    Find the libraries with a conda CI job on a platform
+
+    Follows the rules of the DSL: a collection lists the library, one of its
+    ci configs is for the platform and that config does not exclude it.
+
+    Args:
+        yaml_file_path (str): Path to gz-collections.yaml file
+        so (str): system.so of the platform (e.g., 'windows', 'darwin')
+        arch (str): system.arch of the platform (e.g., 'amd64', 'arm64')
+
+    Returns:
+        dict: library name -> True when one of those configs lists it in
+              requirements.nvidia_gpu
+    """
+    data = _load_collections(yaml_file_path)
+    platform_configs = _conda_ci_configs(data, so, arch)
+    libraries = {}
+    for collection in data.get('collections', []):
+        for config_name in _ci_config_names(collection):
+            if config_name not in platform_configs:
+                continue
+            config = platform_configs[config_name]
+            excluded = _optional_list(config.get('exclude'), 'all')
+            gpu = _optional_list(config.get('requirements'), 'nvidia_gpu')
+            for name in (lib['name'] for lib in collection.get('libs', [])):
+                if name not in excluded:
+                    libraries[name] = libraries.get(name, False) or name in gpu
+    return libraries
 
 def print_conda_env(results, package_name, major_version, so, arch):
     """Print the only conda environment version; return the exit code."""
