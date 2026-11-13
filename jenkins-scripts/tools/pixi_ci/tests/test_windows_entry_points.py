@@ -1,0 +1,120 @@
+"""The .bat files Jenkins runs on Windows end in the pixi_ci driver."""
+
+import re
+from pathlib import Path
+
+from pixi_ci import packages
+from pixi_ci.platforms import WindowsPlatform
+
+JENKINS_SCRIPTS = Path(__file__).resolve().parents[3]
+LIB = JENKINS_SCRIPTS / "lib"
+DSL = JENKINS_SCRIPTS / "dsl" / "gazebo_libs.dsl"
+ENTRY_POINTS = sorted(JENKINS_SCRIPTS.glob("*-default-devel-windows-amd64.bat"))
+REMOVED_LABELS = ("get_source_from_gazebodistro", "_colcon_build_cmd",
+                  "build_workspace", "list_workspace_pkgs", "tests_in_workspace",
+                  "pixi_create_gz_environment", "pixi_load_bootstrap_shell",
+                  "pixi_load_shell", "pixi_cmd", "detect_conda_env")
+
+
+def library_of(bat):
+    return bat.name.replace("-default-devel-windows-amd64.bat", "").replace("_", "-")
+
+
+def test_every_library_has_a_windows_entry_point():
+    expected = packages.libraries(JENKINS_SCRIPTS.parent, WindowsPlatform())
+    assert {library_of(bat) for bat in ENTRY_POINTS} == set(expected)
+
+
+def test_entry_points_pass_their_library_to_the_wrapper():
+    for bat in ENTRY_POINTS:
+        library = library_of(bat)
+        text = bat.read_bytes().decode()
+        assert (f"if not defined VCS_DIRECTORY set VCS_DIRECTORY={library}\r\n"
+                in text), bat.name
+        assert text.endswith(
+            f'call "%SCRIPT_DIR%\\lib\\colcon-default-devel-windows.bat" '
+            f'{library}\r\n'), bat.name
+
+
+def test_jobs_call_the_wrapper_with_the_library_name():
+    # the per-library .bat files stay only for the jobs generated before this
+    text = DSL.read_text()
+    assert ('call "./scripts/jenkins-scripts/lib/colcon-default-devel-windows.bat" '
+            '${lib_name}\n' in text)
+    assert "-default-devel-windows-amd64.bat" not in text
+
+
+def test_wrapper_finds_jenkins_scripts_from_its_own_path():
+    # the jobs call it directly, nobody sets SCRIPT_DIR for it
+    lines = (LIB / "colcon-default-devel-windows.bat").read_bytes().decode().split("\r\n")
+    set_dir = lines.index('for %%I in ("%~dp0..") do set "SCRIPT_DIR=%%~fI"')
+    first_use = next(i for i, line in enumerate(lines) if "%SCRIPT_DIR%" in line)
+    assert set_dir < first_use
+
+
+def test_wrapper_runs_the_driver_with_the_bootstrap_python():
+    text = (LIB / "colcon-default-devel-windows.bat").read_bytes().decode()
+    assert ('"%PIXI_BOOTSTRAP_PROJECT_PATH%\\.pixi\\envs\\default\\python.exe" '
+            '-u "%SCRIPT_DIR%\\tools\\run_pixi_ci.py" %1 || goto :error'
+            in text)
+    assert "PYTHONPATH" not in text
+
+
+def test_wrapper_reusing_a_missing_bootstrap_env_fails_clearly():
+    # a new agent or a cleaned %PROGRAMDATA%\pixi has no bootstrap python:
+    # cmd would only say "The system cannot find the path specified."
+    lines = (LIB / "colcon-default-devel-windows.bat").read_bytes().decode().split("\r\n")
+    check = ('if defined REUSE_PIXI_INSTALLATION if not exist '
+             '"%PIXI_BOOTSTRAP_PROJECT_PATH%\\.pixi\\envs\\default\\python.exe" '
+             'goto :no_bootstrap_env')
+    run = next(i for i, line in enumerate(lines) if "run_pixi_ci.py" in line)
+    assert check in lines[:run]
+    error = lines.index(":no_bootstrap_env")
+    assert lines[error + 1].startswith(
+        "echo ERROR: REUSE_PIXI_INSTALLATION is set but "
+        "%PIXI_BOOTSTRAP_PROJECT_PATH% has no bootstrap environment")
+    assert lines[error + 2] == "exit %EXTRA_EXIT_PARAM% 1"
+
+
+def test_wrapper_removes_the_project_before_python_starts():
+    # the project shares hard links with the bootstrap env: Windows refuses to
+    # delete the ones the driver python has loaded (liblzma.dll, through shutil)
+    lines = (LIB / "colcon-default-devel-windows.bat").read_bytes().decode().split("\r\n")
+    block = lines.index("if not defined REUSE_PIXI_INSTALLATION (")
+    remove = lines.index("  call %win_lib% :pixi_remove_project || goto :error")
+    end = lines.index(")", block)
+    run = next(i for i, line in enumerate(lines) if "run_pixi_ci.py" in line)
+    assert block < remove < end < run
+
+
+def test_removing_the_project_fails_if_it_survives():
+    # rmdir /s /q leaves the files it can not delete and sets no errorlevel
+    lines = (LIB / "windows_library.bat").read_bytes().decode().split("\r\n")
+    label = lines.index(":pixi_remove_project")
+    body = lines[label:lines.index("goto :EOF", label)]
+    remove = body.index('if exist "%PIXI_PROJECT_PATH%" rmdir /s /q "%PIXI_PROJECT_PATH%"')
+    check = body.index('if exist "%PIXI_PROJECT_PATH%" (')
+    assert remove < check
+    assert body[check + 1] == '  echo ERROR: can not remove "%PIXI_PROJECT_PATH%"'
+    assert body[check + 2] == "  exit %EXTRA_EXIT_PARAM% 1"
+
+
+def test_windows_library_keeps_only_the_labels_still_called():
+    text = (LIB / "windows_library.bat").read_text()
+    assert re.findall(r"^:([a-z_0-9]+)", text, re.MULTILINE) == [
+        "configure_msvc2019_compiler", "wget", "retry", "pixi_remove_project",
+        "pixi_installation", "pixi_create_bootstrap_environment",
+        "pixi_bootstrap_cmd", "error"]
+
+
+def test_no_script_uses_a_removed_label():
+    for bat in sorted(JENKINS_SCRIPTS.rglob("*.bat")):
+        text = bat.read_text(errors="replace")
+        for label in REMOVED_LABELS:
+            assert not re.search(rf":{label}\b", text), (bat.name, label)
+
+
+def test_bat_files_keep_crlf_line_endings():
+    for bat in sorted(JENKINS_SCRIPTS.rglob("*.bat")):
+        data = bat.read_bytes()
+        assert data.count(b"\n") == data.count(b"\r\n"), bat.name
