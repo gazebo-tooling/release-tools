@@ -142,8 +142,18 @@ bottle_job_builder.with
         }
    }
 
-   properties {
-     priority 100
+   // Bottle builds are long and share the macOS agents with CI. Queue them
+   // after the pull request jobs (200) but before the daily CI (300) and
+   // install (400) jobs.
+   // GenericAnyJobGitHub sets the priority in a configure block. A
+   // properties { priority } block here would add a second
+   // PriorityJobProperty after it instead of replacing it, so edit the same
+   // node. The closure replaces the node children: keep useJobPriority.
+   configure { project ->
+     project / 'properties' / 'jenkins.advancedqueue.priority.strategy.PriorityJobProperty' {
+       'useJobPriority'(true)
+       'priority'(250)
+     }
    }
 
    logRotator {
