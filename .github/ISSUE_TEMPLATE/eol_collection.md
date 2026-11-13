@@ -20,7 +20,7 @@ When opening PRs, add a link back to this issue for easier tracking.
 - [ ] Make releases with outstanding changes in each library about to be EOL'ed
     * <!-- LIST PRs HERE -->
 - [ ] Archive release repos in [gazebo-release](https://github.com/gazebo-release) for all libraries after the last release has been made
-- [ ] Update `release-tools` after all releases have been made ([example](https://github.com/gazebo-tooling/release-tools/pull/369))
+- [ ] Disable jenkins CI in `release-tools` after all releases have been made ([example](https://github.com/gazebo-tooling/release-tools/pull/1586))
     * <!-- LINK PR HERE -->
 - [ ] Deprecate homebrew bottles if they aren't deprecated yet (don't disable them) using the [add_deprecate.py script](https://github.com/osrf/homebrew-simulation/blob/master/.github/ci/add_deprecate.py) ([example](https://github.com/osrf/homebrew-simulation/pull/3598))
     * <!-- LINK PR HERE -->
