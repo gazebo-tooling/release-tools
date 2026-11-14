@@ -63,9 +63,18 @@ String check_ignored_files_sh_cmd(lib_name, pattern_files = [])
 {
   def pattern_files_str = pattern_files ? pattern_files.join(" ") : ""
   return """\
-    if /bin/sh ./scripts/jenkins-scripts/tools/check_pr_skip.sh ${lib_name} ${pattern_files_str}; then
+    if python3 ./scripts/jenkins-scripts/tools/check_pr_skip.py ${lib_name} ${pattern_files_str}; then
       exit 0
     fi
+  """.stripIndent()
+}
+
+String check_ignored_files_bat_cmd(lib_name, pattern_files = [])
+{
+  def pattern_files_str = pattern_files ? pattern_files.join(" ") : ""
+  return """\
+    python ./scripts/jenkins-scripts/tools/check_pr_skip.py ${lib_name} ${pattern_files_str}
+    if not errorlevel 1 exit /b 0
   """.stripIndent()
 }
 
@@ -202,7 +211,7 @@ void generate_brew_ci_job(gz_brew_ci_job, lib_name, branch, ci_config, arch)
   add_brew_shell_build_step(gz_brew_ci_job, lib_name, ws_checkout_dir, "")
 }
 
-void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config)
+void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config, pre_setup_script = "")
 {
   def script_name_prefix = cleanup_library_name(lib_name)
   def conda_env = ci_config.system.version
@@ -210,6 +219,7 @@ void add_win_devel_bat_call(gz_win_ci_job, lib_name, ws_checkout_dir, ci_config)
   {
     steps {
       batchFile("""\
+            ${pre_setup_script}
             set VCS_DIRECTORY=${ws_checkout_dir}
             if "%CONDA_ENV_NAME%" == "" set CONDA_ENV_NAME=${conda_env}
             if not exist "./scripts/conda/envs/%CONDA_ENV_NAME%" (
@@ -535,7 +545,8 @@ branch_index.each { lib_name, distro_configs ->
         add_win_devel_bat_call(gz_win_ci_any_job,
                                lib_name,
                                ws_checkout_dir,
-                               ci_config)
+                               ci_config,
+                               "${check_ignored_files_bat_cmd(lib_name, ['./scripts/jenkins-scripts/tools/gz_ci.ignored', './scripts/jenkins-scripts/tools/gz_ci_used_by_linux'])}")
         Globals.gazebodistro_branch = false
       }
     }
