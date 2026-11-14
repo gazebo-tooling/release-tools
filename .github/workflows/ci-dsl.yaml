@@ -47,6 +47,9 @@ jobs:
       - name: Unit tests for check_ignored_files
         run: |
           python3 -m unittest jenkins-scripts/tools/test_check_ignored_files.py
+      - name: Unit tests for check_pr_skip
+        run: |
+          python3 -m unittest jenkins-scripts/tools/test_check_pr_skip.py
       - name: Export XML generated configuration for diff
         run: |
           cd jenkins-scripts/dsl
