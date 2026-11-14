@@ -24,7 +24,7 @@ When opening PRs, add a link back to this issue for easier tracking.
     * <!-- LINK PR HERE -->
 - [ ] Deprecate homebrew bottles if they aren't deprecated yet (don't disable them) using the [add_deprecate.py script](https://github.com/osrf/homebrew-simulation/blob/master/.github/ci/add_deprecate.py) ([example](https://github.com/osrf/homebrew-simulation/pull/3598))
     * <!-- LINK PR HERE -->
-- [ ] Remove badges from `homebrew-simulation` README ([example](https://github.com/osrf/homebrew-simulation/pull/1772))
+- [ ] Remove badges from `homebrew-simulation` README ([example](https://github.com/osrf/homebrew-simulation/pull/3647))
     * <!-- LINK PR HERE -->
 - [ ] Remove from buildfarmer ([example](https://github.com/osrf/homebrew-simulation/pull/1785))
     * <!-- LINK PR HERE -->
