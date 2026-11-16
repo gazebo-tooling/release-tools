@@ -107,20 +107,24 @@ repository_uploader.with
   {
     // release.py prints a search URL that relies on this description
     // format ("PACKAGE_ALIAS VERSION"). Keep both in sync.
-    systemGroovyCommand("""\
-      build.setDescription(
-      '<b>' + build.buildVariableResolver.resolve('PACKAGE_ALIAS') + '</b>' +
-      '  <b>' + build.buildVariableResolver.resolve('VERSION') + '-' +
-      build.buildVariableResolver.resolve('RELEASE_VERSION') + '</b>' +
-      '(' + build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' +
-            build.buildVariableResolver.resolve('DISTRO') + '::' +
-            build.buildVariableResolver.resolve('ARCH') + ')' +
-      '<br />' +
-      'upload to: ' + build.buildVariableResolver.resolve('UPLOAD_TO_REPO') +
-      '<br />' +
-      'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));
-      """.stripIndent()
-    )
+    //
+    // The text is byte-identical (trailing spaces included) to the script
+    // approved for the hand-made job. Changing it requires a new approval
+    // in "In-process Script Approval" or every upload fails.
+    systemGroovyCommand([
+      "build.setDescription(",
+      "'<b>' + build.buildVariableResolver.resolve('PACKAGE_ALIAS') + '</b>' + ",
+      "'  <b>' + build.buildVariableResolver.resolve('VERSION') + '-' + ",
+      "build.buildVariableResolver.resolve('RELEASE_VERSION') + '</b>' +",
+      "'(' + build.buildVariableResolver.resolve('LINUX_DISTRO') + '/' + ",
+      "      build.buildVariableResolver.resolve('DISTRO') + '::' + ",
+      "      build.buildVariableResolver.resolve('ARCH') + ')' +",
+      "'<br />' +",
+      "'upload to: ' + build.buildVariableResolver.resolve('UPLOAD_TO_REPO') +",
+      "'<br />' +",
+      "'RTOOLS_BRANCH: ' + build.buildVariableResolver.resolve('RTOOLS_BRANCH'));",
+      ""
+    ].join('\n'))
 
     copyArtifacts('${PROJECT_NAME_TO_COPY_ARTIFACTS}')
     {
