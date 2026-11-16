@@ -140,6 +140,19 @@ repository_uploader.with
           /bin/bash -xe ./scripts/jenkins-scripts/lib/repository_uploader.bash
           """.stripIndent())
   }
+
+  publishers
+  {
+    // repository_uploader.bash prints MARK_AS_UNSTABLE when reprepro
+    // can not import a .dsc
+    configure { project ->
+      project / publishers << 'hudson.plugins.logparser.LogParserPublisher' {
+        unstableOnWarning true
+        failBuildOnError false
+        parsingRulesPath('/var/lib/jenkins/logparser_warn_on_mark_unstable')
+      }
+    }
+  }
 }
 
 // -------------------------------------------------------------------
