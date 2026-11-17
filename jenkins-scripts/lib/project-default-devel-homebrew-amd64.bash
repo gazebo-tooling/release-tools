@@ -198,6 +198,12 @@ fi
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/ffmpeg@4' }.empty?"; then
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOMEBREW_PREFIX}/opt/ffmpeg@4/lib/pkgconfig
 fi
+# ogre1.12 is keg-only (it installs the same files as ogre1.9): set
+# PKG_CONFIG_PATH and CMAKE_PREFIX_PATH if we are using it
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/ogre1.12' }.empty?"; then
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOMEBREW_PREFIX}/opt/ogre1.12/lib/pkgconfig
+  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${HOMEBREW_PREFIX}/opt/ogre1.12
+fi
 # Workaround for tbb@2020_u3: set CPATH, LIBRARY_PATH, and CMAKE_PREFIX_PATH
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/tbb@2020_u3' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${HOMEBREW_PREFIX}/opt/tbb@2020_u3
