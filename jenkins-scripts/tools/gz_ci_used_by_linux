@@ -1,0 +1,2 @@
+^\.github/ci/packages\.apt
+^\.github/ci/packages-[a-z]*\.apt

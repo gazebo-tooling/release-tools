@@ -158,6 +158,91 @@ cd gz-math
 ~/release-tools/source-repo-scripts/source_changelog.bash 6.10.0
 ```
 
+### create_changelog_entry.py
+
+Generate a new `Changelog.md` entry from files in `.changelog/`.
+
+#### Requisites
+
+- `git`
+- [`gh`](https://cli.github.com/) (GitHub CLI) — used to discover the PR
+  associated with each changelog file. PRs are looked up in the repository
+  that `gh` picks for the checkout (see `gh repo set-default`), or in its
+  parent when that repository is a fork.
+
+#### Usage
+
+The script must be run from the project root directory (the directory that
+contains both `.changelog/` and `Changelog.md`). It is interactive: it prompts
+once for confirmation, then updates and stages `Changelog.md` with `git add`
+and removes the processed `.changelog/` files with `git rm`, so the next
+release does not publish them again. Finally it creates a signed-off commit
+(`Generate changelog entry for version X.Y.Z`) containing only those paths.
+The git index, `Changelog.md` and the `.changelog/` entry files must be clean
+before running it: an entry file that is untracked or locally modified stops
+the script before anything is changed.
+
+```bash
+cd <project-root>
+python3 ~/release-tools/source-repo-scripts/create_changelog_entry.py
+```
+
+Every file in `.changelog/` and its subdirectories is an entry, whatever its
+extension (hidden files such as `.gitkeep` and hidden directories are
+skipped). The first non-comment line of each entry
+must follow the Conventional Commits format:
+
+```text
+<type>(<optional-scope>): <description>
+```
+
+Examples of valid first lines:
+
+```text
+feat(rendering): add support for foo
+fix: avoid crash when bar is empty
+```
+
+Lines starting with `# ` (or a lone `#`) are treated as template comments and
+ignored; other lines starting with `#`, such as `#123 is fixed too`, are kept.
+Invalid or empty entries fail validation and stop changelog generation.
+The script auto-calculates the next version from the latest `Changelog.md`
+entry: it bumps the minor version when any entry is `feat`, otherwise it bumps
+the patch version.
+Entries using the breaking marker (`!`) are rejected because the script does
+not support major-version bumps; such releases must be handled manually.
+The script also stops when the latest release is still pending, like the
+`### <project> X.0.0 (20XX-XX-XX)` header that `main` carries until the next
+major release. The first release of a major version is written manually, and
+the `.changelog/` entries it includes must be removed with it so that they are
+not released again in the next X.Y.Z.
+
+Each entry becomes a numbered item with its description (the Conventional
+Commits type and scope are dropped, and the first letter is capitalized), its
+body lines and a link to its pull request, following the layout of the
+existing `Changelog.md` entries:
+
+```markdown
+### Gazebo Test 0.1.0 (2026-10-21)
+
+1. Support for the new feature 1 in all the components
+    * [Pull request #3](https://github.com/gazebosim/gz-test/pull/3)
+
+1. Update license years from 2012 to 2025
+    * [Pull request #2](https://github.com/gazebosim/gz-test/pull/2)
+```
+
+Each entry is linked to a pull request found from the commit that added the
+file. The commit subject decides which one: a trailing `(#N)` names the PR
+(GitHub adds it on squash-merge), otherwise the PR of the commit named in a
+`(cherry picked from commit X)` trailer is used (the first one, when a
+backport of a backport carries several), otherwise the merged PR that
+contains the commit. For backports this means:
+
+- squash-merged backport PR (`Fix foo (backport #10) (#12)`): links #12.
+- rebase-merged backport PR (the cherry-pick keeps `Fix foo (#10)`): links #10,
+  the original pull request.
+
 ### Release summary
 
 Print a markdown summary of a release (not `Changelog.md` entries), with its
@@ -183,3 +268,34 @@ To announce the changes between Sensors 6.2.0 and 6.3.0:
 ```bash
 cd <path_to_source_code>
 bash release_summary.bash 6.2.0 6.3.0
+```
+
+### remove_github_workflow_job.py
+
+The script removes a job from a GitHub Actions workflow file in a source
+repository. It is useful when disabling CI for a given platform across the
+repositories of a Gazebo collection (e.g. dropping the `noble-ci` job from
+every `.github/workflows/ci.yml`).
+
+#### Usage
+
+```bash
+./remove_github_workflow_job.py [<workflow_file>] [<job_name>]
+```
+
+- `workflow_file`: path to the workflow file. Defaults to
+  `./.github/workflows/ci.yml`.
+- `job_name`: name of the job to remove. Defaults to `noble-ci`.
+
+The file is modified in place. The script exits with an error if the file does
+not exist; if the job is not found, it prints a message and leaves the file
+unchanged (exit code 0).
+
+#### Example
+
+To remove the `noble-ci` job from `gz-math`:
+
+```bash
+cd gz-math
+~/release-tools/source-repo-scripts/remove_github_workflow_job.py .github/workflows/ci.yml noble-ci
+```

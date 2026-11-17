@@ -106,6 +106,11 @@ if [[ "${RERUN_FAILED_TESTS}" -gt 0 ]]; then
   PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} lxml"
 fi
 
+# append to pip packages needed if this homebrew formula defines the ci_pip_packages method
+if brew ruby -e "exit '${PROJECT_FORMULA}'.f.respond_to?(:ci_pip_packages)"; then
+  PIP_PACKAGES_NEEDED="${PIP_PACKAGES_NEEDED} "$(brew ruby -e "puts '${PROJECT_FORMULA}'.f.ci_pip_packages")
+fi
+
 if [[ -n "${PIP_PACKAGES_NEEDED}" ]]; then
   brew install python3
   # reset command hash since python3 has already been invoked in this script
@@ -169,6 +174,10 @@ export DISPLAY=$(ps ax \
 )
 
 CMAKE_ARGS=""
+# Disable docs for formulas using ignition-cmake2
+if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/ignition-cmake2' }.empty?"; then
+  CMAKE_ARGS="${CMAKE_ARGS} -DBUILD_DOCS=OFF"
+fi
 # set CMAKE_PREFIX_PATH if we are using protobuf@33
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'protobuf@33' }.empty?"; then
   export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${HOMEBREW_PREFIX}/opt/protobuf@33
@@ -207,6 +216,10 @@ fi
 if brew ruby -e "exit '${PROJECT_FORMULA}'.f.respond_to?(:python_cmake_arg)"; then
   CMAKE_ARGS="${CMAKE_ARGS} -DPython3_EXECUTABLE=$(which python3)"
 fi
+# append to cmake args if this homebrew formula defines the ci_cmake_args method
+if brew ruby -e "exit '${PROJECT_FORMULA}'.f.respond_to?(:ci_cmake_args)"; then
+  CMAKE_ARGS="${CMAKE_ARGS} "$(brew ruby -e "puts '${PROJECT_FORMULA}'.f.ci_cmake_args")
+fi
 
 # if we are using dart@6.10.0 (custom OR port), need to add dartsim library path since it is keg-only
 if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name).keep_if { |d| d == 'osrf/simulation/dartsim@6.10.0' }.empty?"; then
@@ -215,9 +228,11 @@ if brew ruby -e "exit ! '${PROJECT_FORMULA}'.f.recursive_dependencies.map(&:name
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${HOMEBREW_PREFIX}/opt/dartsim@6.10.0/lib/pkgconfig
 fi
 
+# install to the Cellar using the canonical formula name, since PROJECT_FORMULA may be an alias
+CANONICAL_PROJECT_FORMULA=$(brew ruby -e "puts '${PROJECT_FORMULA}'.f.name")
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_POLICY_VERSION_MINIMUM=3.10 \
-      -DCMAKE_INSTALL_PREFIX=${HOMEBREW_PREFIX}/Cellar/${PROJECT_FORMULA}/HEAD \
+      -DCMAKE_INSTALL_PREFIX=${HOMEBREW_PREFIX}/Cellar/${CANONICAL_PROJECT_FORMULA}/HEAD \
      ${CMAKE_ARGS} \
      ${WORKSPACE}/${PROJECT_PATH}
 echo '# END SECTION'

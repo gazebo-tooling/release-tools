@@ -26,11 +26,13 @@ JOB_NAME_PATTERN = '%s-debbuilder'
 GENERIC_BREW_PULLREQUEST_JOB = 'generic-release-homebrew_pull_request_updater'
 
 LINUX_DISTROS = ['ubuntu', 'debian']
-SUPPORTED_ARCHS = ['amd64', 'armhf', 'arm64']
+SUPPORTED_ARCHS = ['amd64', 'arm64']
 RELEASEPY_NO_ARCH_PREFIX = '.releasepy_NO_ARCH_'
 ROS_VENDOR = {'harmonic': ['jazzy'],
               'ionic': ['kilted'],
-              'jetty': ['rolling', 'lyrical']}
+              'jetty': ['lyrical'],
+              'm': ['rolling']
+              }
 
 OSRF_REPOS_SUPPORTED = "stable prerelease nightly testing none"
 
@@ -421,6 +423,12 @@ def sanity_check_bump_linux(source_tarball_uri):
 
 def sanity_checks(args, repo_dir):
     print("Safety checks:")
+    sanity_check_gh_tool(args)
+    # The ROS vendor only mode just opens the vendor PR: it does not use the
+    # -release repository, the source code or Jenkins
+    if args.bump_ros_vendor_only:
+        return
+
     sanity_package_name_underscore(args.package, args.package_alias)
     sanity_package_name(repo_dir, args.package, args.package_alias)
     sanity_check_repo_name(args.upload_to_repository)
@@ -816,23 +824,48 @@ def create_pr_in_gz_vendor_repo(args, ros_distro) -> str:
     return pr_msg
 
 
-def process_ros_vendor_package(args):
-    # Only create ros vendor updates for stable releases
+def _ros_vendor_targets(args) -> list:
+    """Return the (collection, ros_distro) pairs that get a ROS vendor PR.
+
+    An empty list means that no vendor PR will be opened, so gh is not
+    needed.
+    """
+    # When calling deb builders there is no ros vendor operation
+    if args.source_tarball_uri:
+        return []
+    # Prerelease and nightly uploads never open ROS vendor PRs
     if PRERELEASE or NIGHTLY:
+        return []
+    # skip collection packages
+    if args.package.replace('gz-', '') in ROS_VENDOR:
+        return []
+    return [(collection, ros_distro)
+            for collection in get_collections_for_package(args.package,
+                                                          args.version)
+            if collection in ROS_VENDOR
+            for ros_distro in ROS_VENDOR[collection]]
+
+
+def sanity_check_gh_tool(args):
+    if not _ros_vendor_targets(args):
+        return
+    if shutil.which('gh') is None:
+        error("The 'gh' (GitHub CLI) tool is required but was not found in PATH.\n"
+              "Please install it from: https://cli.github.com/")
+    print_success("GitHub CLI (gh) tool is available")
+
+
+def process_ros_vendor_package(args):
+    targets = _ros_vendor_targets(args)
+    if not targets:
         return
     print("ROS vendor packages that can be updated:")
-    if  args.package.replace('gz-','') in ROS_VENDOR:
-        print(" - There are no gz metapackages in ROS")
-        return
-    for collection in get_collections_for_package(args.package,
-                                                  args.version):
-        if collection in ROS_VENDOR:
-            for ros_distro in ROS_VENDOR[collection]:
-                print(f" * Github {get_vendor_github_repo(args.package)} "
-                      f"part of {collection} in ROS 2 {ros_distro}")
-                print("   + Preparing a PR: ", end='', flush=True)
-                pr_url = create_pr_in_gz_vendor_repo(args, ros_distro)
-                print(pr_url)
+    for collection, ros_distro in targets:
+        print(f" * Github {get_vendor_github_repo(args.package)} "
+              f"part of {collection} in ROS 2 {ros_distro}")
+        print("   + Preparing a PR: ", end='', flush=True)
+        pr_url = create_pr_in_gz_vendor_repo(args, ros_distro)
+        print(pr_url)
 
 
 def go(argv):
@@ -842,25 +875,30 @@ def go(argv):
         error('Build token has been removed. Please generate a user token:\n'
               '  - https://gazebosim.org/docs/latest/releases-instructions/#access-and-credentials')
 
-    # If only the process of ROS vendor package is set, just do it
-    if args.bump_ros_vendor_only:
-        process_ros_vendor_package(args)
-        sys.exit(0)
-
     # Default to release 1 if not present
     if not args.release_version:
         args.release_version = 1
 
     package_alias_force_gz = replace_ignition_gz(args.package_alias)
 
-    print(f"Downloading releasing info for {args.package}")
-    # Sanity checks and dicover supported distributions before proceed.
-    repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
-    # The supported distros are the ones in the top level of -release repo
-    ubuntu_distros = discover_distros(repo_dir)  # top level, ubuntu
-    debian_distros = discover_distros(repo_dir + '/debian/')  # debian dir top level, Debian
+    # The ROS vendor only mode does not use the -release repository
+    repo_dir = None
+    if not args.bump_ros_vendor_only:
+        print(f"Downloading releasing info for {args.package}")
+        # Sanity checks and dicover supported distributions before proceed.
+        repo_dir, args.release_repo_branch = download_release_repository(args.package, args.release_repo_branch)
+        # The supported distros are the ones in the top level of -release repo
+        ubuntu_distros = discover_distros(repo_dir)  # top level, ubuntu
+        debian_distros = discover_distros(repo_dir + '/debian/')  # debian dir top level, Debian
+
+    # All the sanity checks run from here, before any mode does real work
     if not args.no_sanity_checks:
         sanity_checks(args, repo_dir)
+
+    # If only the process of ROS vendor package is set, just do it
+    if args.bump_ros_vendor_only:
+        process_ros_vendor_package(args)
+        sys.exit(0)
 
     params = generate_source_params(args)
     params['PACKAGE'] = args.package
@@ -869,8 +907,10 @@ def go(argv):
     params['PACKAGE_ALIAS'] = args.package_alias
     params['RELEASE_VERSION'] = args.release_version
     params['UPLOAD_TO_REPO'] = args.upload_to_repository
-    # Assume that we want stable + own repo in the building
-    params['OSRF_REPOS_TO_USE'] = "stable " + args.upload_to_repository
+    # Assume that we want stable + own repo in the building, except when using "none"
+    params['OSRF_REPOS_TO_USE'] = "stable"
+    if args.upload_to_repository != "none":
+        params['OSRF_REPOS_TO_USE'] += " " + args.upload_to_repository
     if args.extra_repo:
         params['OSRF_REPOS_TO_USE'] += " " + args.extra_repo
 
@@ -904,7 +944,7 @@ def go(argv):
                 for a in distros_dic[d]:
                     # Filter prerelease and nightly architectures
                     if (PRERELEASE or NIGHTLY):
-                        if (a == 'armhf' or a == 'arm64'):
+                        if (a == 'arm64'):
                             continue
 
                     linux_platform_params = params.copy()
@@ -912,8 +952,8 @@ def go(argv):
                     linux_platform_params['LINUX_DISTRO'] = l
                     linux_platform_params['DISTRO'] = d
 
-                    if (a == 'armhf' or a == 'arm64'):
-                        # No sid releases for arm64/armhf lack of docker image
+                    if (a == 'arm64'):
+                        # No sid releases for arm64 lack of docker image
                         # https://hub.docker.com/r/aarch64/debian/ fails on Jenkins
                         if (d == 'sid'):
                             continue

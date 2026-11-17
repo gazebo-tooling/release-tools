@@ -1,0 +1,11 @@
+^\.bazelrc
+^\.bazelversion
+^\.bcr/
+BUILD.bazel$
+MODULE.bazel$
+
+^\.github/CODEOWNERS
+^\.github/workflows/
+
+^LICENSE$
+\.md$
