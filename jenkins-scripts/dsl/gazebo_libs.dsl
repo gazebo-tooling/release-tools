@@ -32,8 +32,10 @@ String get_windows_distro_sortname(ci_config)
 void generate_label_by_requirements(job, lib_name, requirements, base_label)
 {
   label = requirements.nvidia_gpu.contains(lib_name) ? "gpu-reliable" : null
-  if (! label)
-      return
+  if (! label) {
+    exclude_gpu_agents(job, base_label)
+    return
+  }
 
   job.with
   {
