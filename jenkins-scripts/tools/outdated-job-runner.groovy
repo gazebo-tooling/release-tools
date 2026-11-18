@@ -66,7 +66,18 @@ def runJobsInAvailableNodes(LinkedHashMap outdatedJobs) {
         }
 }
 
-def JOBS_URL = 'https://raw.githubusercontent.com/gazebo-tooling/release-tools/master/jenkins-scripts/dsl/logs/generated_jobs.txt'
+/*
+ * A job is outdated when it has not been run in 4 days or has not yet run.
+ * ASan jobs poll for changes once a week: they are outdated after a week, so
+ * that the runner does not build them a second time every week.
+ */
+def isOutdated(project) {
+    int days = project.displayName.contains('-ci_asan-') ? 7 : 4
+    Date limit = new Date(System.currentTimeMillis() - days * 24 * 60 * 60 * 1000L)
+    return project.lastBuild == null || project.lastBuild.getTime().before(limit)
+}
+
+def JOBS_URL ='https://raw.githubusercontent.com/gazebo-tooling/release-tools/master/jenkins-scripts/dsl/logs/generated_jobs.txt'
 
 def trackedJobs = new LinkedHashSet();
 
@@ -84,12 +95,8 @@ def jenkinsJobs = Hudson.instance
 
 def jobsToRun = [osx: [], win: [], docker: []]
 
-long fourDaysAgoMillis = System.currentTimeMillis() - 4 * 24 * 60 * 60 * 1000; // 4 days ago in milis
-Date fourDaysAgoDate = new Date(fourDaysAgoMillis);
-
 jenkinsJobs.getItems(Project).each { project ->
-    // Filter jobs that have not been run in 4 days (or that have not yet run)
-    if (!project.disabled && trackedJobs.contains(project.displayName) && (project.lastBuild == null || project.lastBuild.getTime().before(fourDaysAgoDate))) {
+    if (!project.disabled && trackedJobs.contains(project.displayName) && isOutdated(project)) {
         if (project.displayName.contains('homebrew')) {
             jobsToRun.osx << project.displayName
         } else if (project.displayName.contains('win')) {
