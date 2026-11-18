@@ -135,12 +135,17 @@ set MAKEFLAGS=-j%MAKE_JOBS%
 
 echo "COLCON_EXTRA_ARGS: %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%"
 
+:: GZ_MSVC_WPO=OFF: gz-cmake enables MSVC Whole Program Optimization (/GL and
+:: /LTCG) by default in Release builds. It moves code generation to link time
+:: and repeats it in every binary, which makes CI builds slower and gives
+:: nothing back: CI binaries are not shipped. gz-cmake versions without the
+:: option only print an unused-variable warning.
 @echo on
 colcon build --build-base "build"^
   --install-base "install"^
   --parallel-workers %MAKE_JOBS%^
   %COLCON_EXTRA_ARGS% %COLCON_PACKAGE%^
-  --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%"^
+  --cmake-args " -DCMAKE_BUILD_TYPE=%BUILD_TYPE%" " -DGZ_MSVC_WPO=OFF"^
   %COLCON_EXTRA_CMAKE_ARGS% %COLCON_EXTRA_CMAKE_ARGS2%^
   --event-handler console_cohesion+  desktop_notification- || goto :error
 @echo off
