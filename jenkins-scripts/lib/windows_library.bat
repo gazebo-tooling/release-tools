@@ -174,6 +174,17 @@ echo # BEGIN SECTION: colcon compilation without test for dependencies of !COLCO
 call :_colcon_build_cmd --packages-skip !COLCON_PACKAGE! "-DBUILD_TESTING=0" "-DCMAKE_CXX_FLAGS=-w"
 echo # END SECTION
 echo # BEGIN SECTION: colcon compilation with tests for !COLCON_PACKAGE!
+:: With Visual Studio generators colcon-cmake runs "cmake --build" without
+:: --parallel, so MSBuild builds one project at a time (the /MP that
+:: colcon-cmake adds to CL only compiles the files of one project in
+:: parallel). CMake passes CMAKE_BUILD_PARALLEL_LEVEL to MSBuild as /m:N.
+:: Only the package under test uses it: colcon already builds several
+:: dependencies at the same time, and a job can still define it to apply
+:: it to the dependencies too.
+if not defined CMAKE_BUILD_PARALLEL_LEVEL set CMAKE_BUILD_PARALLEL_LEVEL=%NUMBER_OF_PROCESSORS%
+echo "CMAKE_BUILD_PARALLEL_LEVEL: %CMAKE_BUILD_PARALLEL_LEVEL%"
+:: Do not leave MSBuild worker nodes running after the build
+set MSBUILDDISABLENODEREUSE=1
 call :_colcon_build_cmd --packages-select !COLCON_PACKAGE! %_COLCON_EXTRA_CMAKE_ARGS% " -DBUILD_TESTING=1"
 echo # END SECTION
 goto :EOF
