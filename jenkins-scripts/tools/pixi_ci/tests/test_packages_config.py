@@ -5,7 +5,7 @@ import pytest
 
 from pixi_ci import packages
 from pixi_ci.config import RELEASE_TOOLS, JobConfig
-from pixi_ci.platforms import WindowsPlatform
+from pixi_ci.platforms import MacOSPlatform, WindowsPlatform
 from pixi_ci.runner import CIError
 
 PLATFORM = WindowsPlatform()
@@ -27,6 +27,14 @@ def test_real_collections_give_the_facts_of_each_library(library, colcon_base,
     assert package.colcon_base == colcon_base
     assert package.extra_cmake_args == cmake_args
     assert package.gpu is gpu
+
+
+def test_macos_gets_the_libraries_of_its_ci_config():
+    macos = MacOSPlatform()
+    assert packages.get("gz-math", RELEASE_TOOLS, macos) == \
+        packages.Package("gz-math", (), False)
+    with pytest.raises(CIError, match="unknown library 'gz-fuel_tools'"):
+        packages.get("gz-fuel_tools", RELEASE_TOOLS, macos)
 
 
 @pytest.fixture

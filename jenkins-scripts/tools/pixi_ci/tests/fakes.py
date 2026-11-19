@@ -16,6 +16,17 @@ HOOKS = '@SET "CONDA_PREFIX=C:\\pixi\\project\\.pixi\\envs\\default"\n'
 # pixi shell-hook --shell <shell> output
 SHELL_HOOKS = {"cmd": HOOKS,
                "bash": 'export CONDA_PREFIX="/pixi/project/.pixi/envs/default"\n'}
+# The compilers the conda clang activation sets on macOS
+CC = "arm64-apple-darwin20.0.0-clang"
+CXX = "arm64-apple-darwin20.0.0-clang++"
+
+
+def make_tool(path):
+    """An executable file at path."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("#!/bin/sh\n")
+    path.chmod(0o755)
+    return path
 
 
 @dataclass
