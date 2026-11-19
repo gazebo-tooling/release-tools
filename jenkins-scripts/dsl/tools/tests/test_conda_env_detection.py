@@ -145,3 +145,19 @@ def test_real_collections_resolve_to_their_windows_env():
             assert envs <= found, (collection['name'], lib['name'], found)
             checked += 1
     assert checked > 0
+
+
+def test_real_collections_resolve_darwin_arm64():
+    data = yaml.safe_load(REAL_YAML.read_text())
+    rotary = next(c for c in data['collections'] if c['name'] == 'rotary')
+    rotary_math = next(lib for lib in rotary['libs'] if lib['name'] == 'gz-math')
+    rotary_major = rotary_math.get('major_version',
+                                   _main_branch_majors(data).get('gz-math'))
+    # Rotary builds gz-math from main, a newer major than Jetty's 9
+    assert rotary_major not in (None, 9)
+    for library, major in (('gz-math', 9), ('gz-sim', 10),
+                           ('gz-math', rotary_major)):
+        result = detect('--os', 'darwin', '--arch', 'arm64', library,
+                        str(major), yaml_file=REAL_YAML)
+        assert (result.returncode, result.stdout) == (0, 'noble_like\n'), \
+            (library, major, result.stderr)
