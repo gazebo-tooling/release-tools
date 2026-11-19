@@ -350,6 +350,8 @@ collections:
         - resolute
         - brew_arm64
         - osx_conda_noble
+        # gz-math pull requests, until osx_conda_noble enables pr
+        - osx_conda_noble_canary
         - win_conda_noble
     packaging:
       configs:
@@ -485,6 +487,8 @@ collections:
         - resolute
         - brew_arm64
         - osx_conda_noble
+        # gz-math pull requests, until osx_conda_noble enables pr
+        - osx_conda_noble_canary
         - win_conda_noble
     packaging:
       configs:
@@ -718,10 +722,51 @@ ci_configs:
       - gz-sensors
       - gz-transport
       - sdformat
-    # No jobs until the DSL generates macOS conda jobs; the pixi_ci driver
-    # needs this config to accept a library on macOS. An empty list, not
-    # null: the DSL calls ci_categories_enabled.contains().
-    ci_categories_enabled: []
+    # Daily jobs only: pull requests run for gz-math on
+    # osx_conda_noble_canary until this config enables pr
+    ci_categories_enabled:
+      - stable_branches
+  # The canary of the macOS pull request jobs: gz-math only, every other
+  # library of Jetty and Rotary is excluded. Remove it, and its entries in
+  # the collections, when osx_conda_noble enables pr.
+  - name: osx_conda_noble_canary
+    system:
+      so: darwin
+      distribution: conda
+      version: noble_like
+      arch: arm64
+    requirements:
+    exclude:
+      all:
+        - gz-cmake
+        - gz-common
+        - gz-fuel-tools
+        - gz-gui
+        - gz-jetty
+        - gz-launch
+        - gz-msgs
+        - gz-physics
+        - gz-plugin
+        - gz-rendering
+        - gz-rotary
+        - gz-sensors
+        - gz-sim
+        - gz-tools
+        - gz-transport
+        - gz-utils
+        - sdformat
+    cmake_warnings_disabled:
+      - gz-common
+      - gz-sim
+      - gz-launch
+      - gz-math
+      - gz-physics
+      - gz-rendering
+      - gz-sensors
+      - gz-transport
+      - sdformat
+    ci_categories_enabled:
+      - pr
   - name: win_conda_L
     system:
       so: windows
