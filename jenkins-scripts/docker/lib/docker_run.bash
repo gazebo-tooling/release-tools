@@ -75,9 +75,20 @@ if $USE_GPU_DOCKER; then
   fi
 fi
 
+# See CCACHE_MODE in boilerplate_prepare.sh. The read-only mount is what keeps
+# a build from writing to the shared cache: inside the container the build can
+# use sudo, so environment variables would not be enough.
 if $ENABLE_CCACHE; then
-  EXTRA_PARAMS_STR="$EXTRA_PARAMS_STR \
-                    -v ${CCACHE_DIR}:${CCACHE_DIR}:rw"
+  case ${CCACHE_MODE} in
+    shared-rw)
+      EXTRA_PARAMS_STR="$EXTRA_PARAMS_STR \
+                        -v ${CCACHE_DIR}:${CCACHE_DIR}:rw"
+      ;;
+    shared-ro)
+      EXTRA_PARAMS_STR="$EXTRA_PARAMS_STR \
+                        -v ${CCACHE_DIR}:${CCACHE_DIR}:ro"
+      ;;
+  esac
 fi
 
 DEVICE_SND=""

@@ -114,8 +114,13 @@ void generate_ciconfigs_by_lib(config, pkgconf_per_src_index)
 }
 
 void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
-                     extra_cmake = '', extra_test = '', extra_cmd = '')
+                     extra_cmake = '', extra_test = '', extra_cmd = '',
+                     use_ccache = true)
 {
+  // Builds of a branch of the upstream repository are the ones that write the
+  // shared ccache. See CCACHE_MODE in boilerplate_prepare.sh. One line, so
+  // that stripIndent() below keeps working.
+  def ccache_cmd = use_ccache ? 'export CCACHE_MODE=shared-rw' : 'export ENABLE_CCACHE=false'
   def script_name_prefix = cleanup_library_name(lib_name)
   def distro = ci_config.system.version
   def arch = ci_config.system.arch
@@ -136,6 +141,7 @@ void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
             #!/bin/bash -xe
 
             ${GLOBAL_SHELL_CMD}
+            ${ccache_cmd}
             ${extra_cmd}
             export BUILDING_EXTRA_CMAKE_PARAMS="${extra_cmake}"
             export BUILDING_EXTRA_MAKETEST_PARAMS="${extra_test}"
@@ -152,10 +158,13 @@ void generate_asan_ci_job(gz_ci_job, lib_name, branch, ci_config, extra_cmd = ''
 {
   def asan_extra = [extra_cmd, 'export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true']
                     .findAll { it }.join('\n')
+  // No ccache: weekly builds with flags of their own would only push the
+  // objects of the other builds out of the cache
   generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
                   '-DGZ_SANITIZER=Address',
                   Globals.MAKETEST_SKIP_GZ,
-                  asan_extra)
+                  asan_extra,
+                  false)
   gz_ci_job.with {
     // -asan- builds can produce really long logs. Reduce the number of builds in the server
     logRotator {

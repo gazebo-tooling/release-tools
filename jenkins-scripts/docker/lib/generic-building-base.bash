@@ -1,6 +1,8 @@
 echo '# BEGIN SECTION: setup the testing enviroment'
 # Define the name to be used in docker
 DOCKER_JOB_NAME="building_job"
+# See CCACHE_MODE in boilerplate_prepare.sh
+ENABLE_CCACHE=${ENABLE_CCACHE:-true}
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 echo '# END SECTION'
 

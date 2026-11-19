@@ -24,6 +24,10 @@ set -e
 echo '# BEGIN SECTION: setup the testing enviroment'
 # Define the name to be used in docker
 DOCKER_JOB_NAME="abi_job"
+# See CCACHE_MODE in boilerplate_prepare.sh. The checker builds code of pull
+# requests: a cache of its own, so the second build reuses the first one.
+ENABLE_CCACHE=${ENABLE_CCACHE:-true}
+CCACHE_MODE=${CCACHE_MODE:-local}
 . ${SCRIPT_DIR}/lib/boilerplate_prepare.sh
 . ${SCRIPT_DIR}/lib/_common_scripts.bash
 echo '# END SECTION'

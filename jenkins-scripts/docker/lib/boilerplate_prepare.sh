@@ -120,16 +120,47 @@ fi
 . ${SCRIPT_DIR}/../lib/dependencies_archive.sh
 
 # After dependencies_archive.sh call to get the rest of BASE_DEPENDENCIES
-if [ -z "${ENABLE_CCACHE}" ]; then
-  ENABLE_CCACHE=true
+#
+# ccache is off unless the calling script enables it (CI and ABI builds do).
+# CCACHE_MODE sets how the build uses /srv/ccache, the cache that every job
+# running on the agent shares:
+#   shared-rw  read and write it. Only for builds of code that is already in
+#              the upstream repositories (branch CI). Whatever a build writes
+#              there ends up in the binaries of the next builds on the agent,
+#              so a build of a pull request must never get this mode.
+#   shared-ro  read it through a read-only mount (default).
+#   local      do not mount it: the build gets an empty cache inside its
+#              container that goes away with it.
+# The shared modes need a volume of its own at /srv/ccache (the agent
+# provisioning mounts the instance store there). Without one the build runs
+# without ccache: on the root volume the cache would compete with
+# /var/lib/docker.
+ENABLE_CCACHE=${ENABLE_CCACHE:-false}
+CCACHE_MODE=${CCACHE_MODE:-shared-ro}
+CCACHE_HOST_DIR=/srv/ccache
+if ${ENABLE_CCACHE}; then
+  case ${CCACHE_MODE} in
+    shared-rw | shared-ro)
+      if mountpoint -q ${CCACHE_HOST_DIR}; then
+        CCACHE_DIR=${CCACHE_HOST_DIR}
+        CCACHE_MAXSIZE=${CCACHE_MAXSIZE:-5G}
+      else
+        echo "No volume mounted at ${CCACHE_HOST_DIR}: building without ccache"
+        ENABLE_CCACHE=false
+      fi
+      ;;
+    local)
+      CCACHE_DIR=/tmp/ccache
+      CCACHE_MAXSIZE=5G
+      ;;
+    *)
+      echo "Unknown CCACHE_MODE: ${CCACHE_MODE}"
+      exit 1
+      ;;
+  esac
+fi
+if ${ENABLE_CCACHE}; then
   BASE_DEPENDENCIES="${BASE_DEPENDENCIES} ccache"
-  CCACHE_DIR="/srv/ccache"
-  CCACHE_MAXSIZE=${CCACHE_MAXSIZE:-5G}
-  # create the host cache dir to be shared across all docker images
-  if [[ ! -d ${CCACHE_DIR} ]]; then
-    sudo mkdir -p ${CCACHE_DIR}
-    sudo chmod o+w ${CCACHE_DIR}
-  fi
 fi
 
 

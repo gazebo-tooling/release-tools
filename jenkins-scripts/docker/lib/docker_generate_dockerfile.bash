@@ -445,23 +445,41 @@ DELIM_WORKAROUND_91
 
 if $ENABLE_CCACHE; then
 cat >> Dockerfile << DELIM_CCACHE
-ENV PATH /usr/lib/ccache:\$PATH
+# ccache only runs through the CMake compiler launcher. Its settings come from
+# the environment, and CCACHE_CONFIGPATH points to a file of the image: ccache
+# never reads a ccache.conf from the cache directory, which other builds share.
+RUN echo '# ccache settings come from the CCACHE_* environment' > /etc/ccache-ci.conf
+ENV CCACHE_CONFIGPATH /etc/ccache-ci.conf
+ENV CMAKE_C_COMPILER_LAUNCHER ccache
+ENV CMAKE_CXX_COMPILER_LAUNCHER ccache
 ENV CCACHE_DIR ${CCACHE_DIR}
 ENV CCACHE_MAXSIZE ${CCACHE_MAXSIZE}
+# Hash paths relative to the workspace, so that jobs with different workspaces
+# reuse each other's results.
+ENV CCACHE_BASEDIR ${WORKSPACE}
+ENV CCACHE_NOHASHDIR 1
+# Statistics of this build alone, for ccache --show-log-stats
+ENV CCACHE_STATSLOG /tmp/ccache-stats.log
 DELIM_CCACHE
+
+if [[ ${CCACHE_MODE} == shared-ro ]]; then
+cat >> Dockerfile << DELIM_CCACHE_READ_ONLY
+ENV CCACHE_READONLY 1
+ENV CCACHE_TEMPDIR /tmp
+DELIM_CCACHE_READ_ONLY
+fi
 
 # Add the statistics about ccache at the beggining of the build
 # first 3 lines: bash, set and space
-sed -i '4iecho "# BEGIN SECTION: starting ccache statistics"' build.sh
-sed -i "5iccache -M ${CCACHE_MAXSIZE}" build.sh
-sed -i '6iccache -s' build.sh
-sed -i '7iecho # "END SECTION"' build.sh
-sed -i '8iecho ""' build.sh
+sed -i '4iecho "# BEGIN SECTION: ccache statistics before the build"' build.sh
+sed -i "5iecho 'ccache mode: ${CCACHE_MODE}, directory: ${CCACHE_DIR}'" build.sh
+sed -i '6iccache -s || true' build.sh
+sed -i '7iecho "# END SECTION"' build.sh
 
 # Add the statistics about ccache at the end
 cat >> build.sh << BUILDSH_CCACHE
-echo '# BEGIN SECTION: starting ccache statistics'
-ccache -s
+echo '# BEGIN SECTION: ccache statistics of this build'
+ccache --show-log-stats || true
 echo '# END SECTION'
 BUILDSH_CCACHE
 fi
