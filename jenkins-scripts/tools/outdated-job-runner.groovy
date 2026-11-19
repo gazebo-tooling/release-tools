@@ -72,8 +72,8 @@ def runJobsInAvailableNodes(LinkedHashMap outdatedJobs) {
  * that the runner does not build them a second time every week.
  */
 def isOutdated(project) {
-    int days = project.displayName.contains('-ci_asan-') ? 7 : 4
-    Date limit = new Date(System.currentTimeMillis() - days * 24 * 60 * 60 * 1000L)
+    int days = project.displayName.contains('-ci_asan-') ? 7 : 4  // 4 days except asan that is 7 days
+    Date limit = new Date(System.currentTimeMillis() - days * 24 * 60 * 60 * 1000L)  // Transform to miliseconds
     return project.lastBuild == null || project.lastBuild.getTime().before(limit)
 }
 
