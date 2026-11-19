@@ -6,8 +6,9 @@ from .fsops import remove_tree
 from .runner import CIError, section
 
 
-def build(runner, cfg, package, env):
-    """Dependencies without tests, then the package with tests."""
+def build(runner, cfg, package, env, package_env):
+    """Dependencies without tests in env, then the package with tests in
+    package_env."""
     common = ["build", "--build-base", "build", "--install-base", "install",
               "--parallel-workers", str(cfg.make_jobs)]
     # The leading space is what today's .bat passes; colcon needs it for
@@ -23,7 +24,7 @@ def build(runner, cfg, package, env):
         runner.run("colcon", common + ["--packages-select", package]
                    + build_type + list(cfg.extra_cmake_args)
                    + [" -DBUILD_TESTING=1"] + handlers,
-                   cwd=cfg.ws, env=env)
+                   cwd=cfg.ws, env=package_env)
 
 
 def test(runner, cfg, package, env):
