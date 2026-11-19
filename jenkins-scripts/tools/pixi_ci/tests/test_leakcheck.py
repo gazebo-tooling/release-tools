@@ -1,6 +1,10 @@
 """The macOS leak check: Mach-O detection, the otool and CMakeCache parsers
 and the allowlists applied to an install tree and its CMake caches."""
 
+import os
+import sys
+from pathlib import Path
+
 import pytest
 
 from fakes import FakeRunner
@@ -41,12 +45,12 @@ def otool_output(path, commands):
     return "\n".join(lines) + "\n"
 
 
-def leaks(ws, otool=None):
+def leaks(ws, otool=None, *, conda_prefix=CONDA, sdkroot=SDKROOT):
     """find_leaks with otool answering otool[file name]; returns (lines, files)."""
     otool = otool or {}
     runner = FakeRunner(lambda call: Result(0, otool_output(
         call.args[1], otool.get(call.args[1].replace("\\", "/").split("/")[-1], []))))
-    found = find_leaks(runner, ws, conda_prefix=CONDA, sdkroot=SDKROOT,
+    found = find_leaks(runner, ws, conda_prefix=conda_prefix, sdkroot=sdkroot,
                        developer_dir=DEVELOPER_DIR, env={"PATH": "/usr/bin"})
     assert all(c.tool == "otool" and c.args[0] == "-l" and c.cwd == ws
                for c in runner.calls)
@@ -205,6 +209,36 @@ def test_cache_refuses_paths_outside_the_allowlist(tmp_path):
         f"{cache}: Foo_DIR /Library/Frameworks/Foo.framework",
         f"{cache}: X11_X11_LIB /opt/X11/lib/libX11.dylib",
     ]
+
+
+@pytest.mark.skipif(sys.platform == "win32",
+                    reason="directory symlinks; the check runs on macOS")
+def test_physical_paths_of_the_workspace_env_and_sdk_are_inside(tmp_path):
+    # CMake and colcon record the physical path of their working directory,
+    # so with WORKSPACE behind a symlink (/tmp is one on macOS) the build tree
+    # and the env show up resolved. The SDK path of xcrun is a symlink too.
+    real = tmp_path / "real"
+    (real / "conda").mkdir(parents=True)
+    (real / "MacOSX15.sdk").mkdir()
+    link = tmp_path / "link"
+    symlink_or_skip(link, real)
+    symlink_or_skip(real / "MacOSX.sdk", real / "MacOSX15.sdk")
+    physical = Path(os.path.realpath(real)).as_posix()
+    ws = link / "ws"
+    write(ws / "install" / "lib" / "libgz-math9.dylib", THIN)
+    write_cache(ws, "gz-math", [
+        f"CMAKE_INSTALL_PREFIX:PATH={physical}/ws/install/gz-math",
+        f"Eigen3_DIR:PATH={physical}/conda/share/eigen3/cmake",
+        f"CMAKE_CXX_COMPILER:FILEPATH={physical}/conda/bin/clang++",
+        f"OPENGL_gl_LIBRARY:FILEPATH={physical}/MacOSX15.sdk/System/Library/"
+        "Frameworks/OpenGL.framework",
+    ])
+    found, _ = leaks(ws, {"libgz-math9.dylib": [
+        ("LC_RPATH", f"{physical}/conda/lib"),
+        ("LC_LOAD_DYLIB", f"{physical}/ws/install/lib/libgz-utils3.dylib"),
+    ]}, conda_prefix=(link / "conda").as_posix(),
+        sdkroot=(link / "MacOSX.sdk").as_posix())
+    assert found == []
 
 
 def test_compilers_must_come_from_conda(tmp_path):
