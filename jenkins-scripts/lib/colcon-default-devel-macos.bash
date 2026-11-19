@@ -15,6 +15,8 @@
 # environment in $WORKSPACE/.pixi_ci/bootstrap (PIXI_BOOTSTRAP_PROJECT_PATH)
 
 set -euo pipefail
+# bash 3.2, the /bin/bash of macOS, ignores set -e for a failing ( ... )
+# subshell: check the status of each one explicitly
 
 if [ $# -ne 1 ]; then
   echo "usage: $0 <gz-collections.yaml library name>" >&2
@@ -47,8 +49,11 @@ if [ -z "${REUSE_PIXI_INSTALLATION:-}" ]; then
   binary="${PIXI_TMP}.download"
   mkdir -p "$(dirname "${PIXI_TMP}")"
   curl -fsSL --retry 5 --retry-all-errors -o "${archive}" "${PIXI_URL}"
-  (cd "$(dirname "${archive}")" &&
-    echo "${PIXI_SHA256}  $(basename "${archive}")" | shasum -a 256 -c -)
+  if ! (cd "$(dirname "${archive}")" &&
+      echo "${PIXI_SHA256}  $(basename "${archive}")" | shasum -a 256 -c -); then
+    echo "ERROR: the pixi ${PIXI_VERSION} download does not match PIXI_SHA256"
+    exit 1
+  fi
   tar -xzOf "${archive}" pixi > "${binary}"
   chmod +x "${binary}"
   mv -f "${binary}" "${PIXI_TMP}"
@@ -60,7 +65,10 @@ if [ -z "${REUSE_PIXI_INSTALLATION:-}" ]; then
   mkdir -p "${PIXI_BOOTSTRAP_PROJECT_PATH}"
   cp "${CONFIG_DETECTOR}/pixi.toml" "${CONFIG_DETECTOR}/pixi.lock" \
     "${PIXI_BOOTSTRAP_PROJECT_PATH}/"
-  (cd "${PIXI_BOOTSTRAP_PROJECT_PATH}" && "${PIXI_TMP}" install --locked)
+  if ! (cd "${PIXI_BOOTSTRAP_PROJECT_PATH}" && "${PIXI_TMP}" install --locked); then
+    echo "ERROR: pixi install --locked failed in ${PIXI_BOOTSTRAP_PROJECT_PATH}"
+    exit 1
+  fi
   echo "# END SECTION"
 elif [ ! -x "${BOOTSTRAP_PYTHON}" ]; then
   echo "ERROR: REUSE_PIXI_INSTALLATION is set but ${PIXI_BOOTSTRAP_PROJECT_PATH} has no bootstrap environment: run once without it"

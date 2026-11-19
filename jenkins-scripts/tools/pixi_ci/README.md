@@ -155,6 +155,10 @@ its file:
   `/bin`, `/usr/sbin`, `/sbin`, `/usr/lib` or `/System/Library`, and
   `CMAKE_C_COMPILER`/`CMAKE_CXX_COMPILER` under `$CONDA_PREFIX`.
 
+`$CONDA_PREFIX`, `ws`, `$SDKROOT` and `xcode-select -p` also count by their
+physical path: CMake and colcon record resolved paths when the workspace is
+behind a symlink (`/tmp` on macOS), and the SDK path is a symlink.
+
 It is an allowlist: prefixes nobody listed (`/opt/X11`, `/Library/Frameworks`,
 MacPorts) fail too. When a refused path is legitimate, add its root to
 `SYSTEM_LIBRARY_ROOTS` (libraries and caches) or `SYSTEM_TOOL_ROOTS` (caches

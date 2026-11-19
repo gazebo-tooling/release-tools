@@ -1,5 +1,9 @@
 """lib/colcon-default-devel-macos.bash, with curl, shasum and pixi faked:
-the pixi download and its check, the bootstrap env and the driver run."""
+the pixi download and its check, the bootstrap env and the driver run.
+
+The script runs with the bash of /usr/bin:/bin. On the macOS runners that is
+bash 3.2, the /bin/bash of the agents, which ignores set -e for a failing
+( ... ) subshell: the macOS pytest row is what covers it."""
 
 import io
 import os
@@ -45,6 +49,7 @@ case "$1" in
   --version) echo "pixi 0.44.0" ;;
   install)
     pwd -P >> "$FAKE_LOG/pixi_install_cwd"
+    [ -z "${FAKE_PIXI_INSTALL_EXIT:-}" ] || exit "$FAKE_PIXI_INSTALL_EXIT"
     mkdir -p .pixi/envs/default/bin
     cat > .pixi/envs/default/bin/python <<'PYTHON'
 #!/bin/bash
@@ -142,11 +147,25 @@ def test_checksum_mismatch_stops_before_replacing_pixi(wrapper):
     wrapper.pixi.write_text("the previous pixi")
     result = wrapper.run("gz-math", FAKE_SHASUM_EXIT="1")
     assert result.returncode == 1
+    assert ("ERROR: the pixi 0.44.0 download does not match PIXI_SHA256"
+            in result.stdout)
     # the download ran and the check refused it
     assert wrapper.logged("curl_args")[-1] == PIXI_URL
     assert PIXI_SHA256 in "\n".join(wrapper.logged("shasum_stdin"))
     assert wrapper.pixi.read_text() == "the previous pixi"
     assert wrapper.logged("pixi_calls") is None
+    assert wrapper.logged("driver_argv") is None
+
+
+def test_failed_bootstrap_install_stops_the_job(wrapper):
+    # the bootstrap env of an earlier run is still there
+    assert wrapper.run("gz-math").returncode == 0
+    (wrapper.log / "driver_argv").unlink()
+    result = wrapper.run("gz-math", FAKE_PIXI_INSTALL_EXIT="1")
+    assert result.returncode == 1
+    assert wrapper.logged("pixi_calls")[-1] == "install --locked"
+    assert (f"ERROR: pixi install --locked failed in {wrapper.bootstrap}"
+            in result.stdout)
     assert wrapper.logged("driver_argv") is None
 
 

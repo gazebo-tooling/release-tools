@@ -92,6 +92,15 @@ def _link_allowed(name, roots):
     return name.startswith(RELATIVE_LINK_PREFIXES) or is_inside(name, roots)
 
 
+def _with_physical(roots):
+    """roots, then their physical paths. CMake and colcon record the physical
+    path of their working directory, so with WORKSPACE behind a symlink (/tmp
+    is one on macOS) the build tree shows up resolved; so can the env, and
+    the SDK path of xcrun is a symlink."""
+    return tuple(roots) + tuple(Path(os.path.realpath(root)).as_posix()
+                                for root in roots if root)
+
+
 def _install_files(install):
     for directory, _, names in os.walk(install):
         for name in names:
@@ -102,8 +111,11 @@ def find_leaks(runner, ws, *, conda_prefix, sdkroot, developer_dir, env):
     """Lines '<file relative to ws>: <load command or cache entry> <path>'
     for every path outside the allowlists, sorted."""
     ws = Path(ws)
-    link_roots = (conda_prefix, ws.as_posix()) + SYSTEM_LIBRARY_ROOTS
-    cache_roots = ((conda_prefix, ws.as_posix(), sdkroot, developer_dir)
+    compiler_roots = _with_physical((conda_prefix,))
+    link_roots = (_with_physical((conda_prefix, ws.as_posix()))
+                  + SYSTEM_LIBRARY_ROOTS)
+    cache_roots = (_with_physical((conda_prefix, ws.as_posix(), sdkroot,
+                                   developer_dir))
                    + SYSTEM_TOOL_ROOTS + SYSTEM_LIBRARY_ROOTS)
     leaks = set()
     for path in sorted(p for p in _install_files(ws / "install") if is_macho(p)):
@@ -116,7 +128,7 @@ def find_leaks(runner, ws, *, conda_prefix, sdkroot, developer_dir, env):
         text = cache.read_text(encoding="utf-8", errors="replace")
         for name, kind, value in cache_entries(text):
             if name in COMPILER_ENTRIES:
-                roots = (conda_prefix,)
+                roots = compiler_roots
             elif kind in PATH_TYPES:
                 roots = cache_roots
             else:
