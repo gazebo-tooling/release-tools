@@ -21,7 +21,7 @@ logging_list = [:].withDefault {[]}
 file = readFileFromWorkspace("scripts/jenkins-scripts/dsl/gz-collections.yaml")
 gz_collections_yaml = new Yaml().load(file)
 
-String get_windows_distro_sortname(ci_config)
+String get_conda_distro_sortname(ci_config)
 {
   // return the components initials of the distribution and the version strings counting
   // _ as separator for components.
@@ -239,6 +239,47 @@ void generate_win_ci_job(gz_win_ci_job, lib_name, branch, ci_config)
                          ci_config)
 }
 
+void add_osx_conda_build_step(gz_osx_ci_job, lib_name, ws_checkout_dir, ci_config, pre_setup_script = "")
+{
+  def conda_env = ci_config.system.version
+  // pre_setup_script is not indented: stripIndent() would leave the
+  // indentation of the lines below, the shebang included, if it ran on it
+  def build_cmd = """\
+      export VCS_DIRECTORY=${ws_checkout_dir}
+      export CONDA_ENV_NAME=\${CONDA_ENV_NAME:-${conda_env}}
+      [[ -d ./scripts/conda/envs/\${CONDA_ENV_NAME} ]] || { echo "Conda environment \${CONDA_ENV_NAME} not found"; exit 1; }
+      /bin/bash -xe ./scripts/jenkins-scripts/lib/colcon-default-devel-macos.bash ${lib_name}
+      """.stripIndent()
+  gz_osx_ci_job.with
+  {
+    wrappers {
+      timeout {
+        absolute(180)
+      }
+    }
+
+    steps {
+      shell("#!/bin/bash -xe\n\n" + (pre_setup_script ? "${pre_setup_script}\n" : "") + build_cmd)
+    }
+  }
+}
+
+void generate_osx_conda_ci_job(gz_osx_ci_job, lib_name, branch, ci_config)
+{
+  def ws_checkout_dir = lib_name
+  OSRFOsXCondaCompilation.create(gz_osx_ci_job,
+                                 is_testing_enabled(lib_name, ci_config),
+                                 are_cmake_warnings_enabled(lib_name, ci_config))
+  OSRFGitHub.create(gz_osx_ci_job,
+                    "gazebosim/${lib_name}",
+                    branch,
+                    ws_checkout_dir)
+  add_osx_conda_build_step(gz_osx_ci_job,
+                           lib_name,
+                           ws_checkout_dir,
+                           ci_config)
+}
+
 
 String get_debbuilder_name(parsed_yaml_lib, parsed_yaml_packaging, collection_name)
 {
@@ -390,6 +431,8 @@ gz_collections_yaml.collections.each { collection ->
       // looping twice.
       if (ci_config.system.so == 'linux') {
         platform = distro
+      } else if (ci_config.system.so == 'darwin' && ci_config.system.distribution == 'conda') {
+        platform = 'osx_' + distro
       } else if (ci_config.system.so == 'darwin') {
         platform = 'homebrew_' + arch
       } else if (ci_config.system.so == 'windows') {
@@ -430,6 +473,13 @@ gz_collections_yaml.collections.each { collection ->
                [collection: collection.name,
                job_name: gz_ci_asan_job.name])
           }
+        } else if (ci_config.system.so == 'darwin' && ci_config.system.distribution == 'conda') {
+          branch_number = branch_name - lib_name
+          Globals.gazebodistro_branch = true
+          distro_sort_name = get_conda_distro_sortname(ci_config)
+          gz_ci_job = job("${gz_job_name_prefix}-${branch_number}-${distro_sort_name}mac")
+          generate_osx_conda_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
+          Globals.gazebodistro_branch = false
         } else if (ci_config.system.so == 'darwin') {
           def arch_label = arch == 'amd64' ? 'x86_64' : arch
           gz_ci_job = job("${gz_job_name_prefix}-ci-${branch_name}-homebrew-${arch}")
@@ -440,7 +490,7 @@ gz_collections_yaml.collections.each { collection ->
         } else if (ci_config.system.so == 'windows') {
           branch_number = branch_name - lib_name
           Globals.gazebodistro_branch = true
-          distro_sort_name = get_windows_distro_sortname(ci_config)
+          distro_sort_name = get_conda_distro_sortname(ci_config)
           gz_ci_job = job("${gz_job_name_prefix}-${branch_number}-${distro_sort_name}win")
           generate_win_ci_job(gz_ci_job, lib_name, branch_name, ci_config)
           Globals.gazebodistro_branch = false
@@ -506,6 +556,24 @@ branch_index.each { lib_name, distro_configs ->
                   """.stripIndent())
           } // end of steps
         } // end of ci_any_job
+      } else if (ci_config.system.so == 'darwin' && ci_config.system.distribution == 'conda') {
+        distro_sort_name = get_conda_distro_sortname(ci_config)
+        Globals.gazebodistro_branch = false
+        def gz_osx_ci_any_job_name = "${gz_job_name_prefix}-pr-${distro_sort_name}mac"
+        def gz_osx_ci_any_job = job(gz_osx_ci_any_job_name)
+        Globals.gazebodistro_branch = true
+        OSRFOsXCondaCompilationAnyGitHub.create(gz_osx_ci_any_job,
+                                                "gazebosim/${lib_name}",
+                                                is_testing_enabled(lib_name, ci_config),
+                                                branch_names,
+                                                ENABLE_GITHUB_PR_INTEGRATION,
+                                                are_cmake_warnings_enabled(lib_name, ci_config))
+        add_osx_conda_build_step(gz_osx_ci_any_job,
+                                 lib_name,
+                                 ws_checkout_dir,
+                                 ci_config,
+                                 check_ignored_files_sh_cmd(lib_name, ['./scripts/jenkins-scripts/tools/gz_ci.ignored', './scripts/jenkins-scripts/tools/gz_ci_used_by_linux']))
+        Globals.gazebodistro_branch = false
       } else if (ci_config.system.so == 'darwin') {
         // --------------------------------------------------------------
         def arch_label = ci_config.system.arch == 'amd64' ? 'x86_64' : ci_config.system.arch
@@ -520,7 +588,7 @@ branch_index.each { lib_name, distro_configs ->
                                             are_cmake_warnings_enabled(lib_name, ci_config))
         add_brew_shell_build_step(gz_brew_ci_any_job, lib_name, ws_checkout_dir, "${check_ignored_files_sh_cmd(lib_name, ['./scripts/jenkins-scripts/tools/gz_ci.ignored', './scripts/jenkins-scripts/tools/gz_ci_used_by_colcon', './scripts/jenkins-scripts/tools/gz_ci_used_by_linux'])}")
       } else if (ci_config.system.so == 'windows') {
-        distro_sort_name = get_windows_distro_sortname(ci_config)
+        distro_sort_name = get_conda_distro_sortname(ci_config)
         Globals.gazebodistro_branch = false
         def gz_win_ci_any_job_name = "${gz_job_name_prefix}-pr-${distro_sort_name}win"
         def gz_win_ci_any_job = job(gz_win_ci_any_job_name)
