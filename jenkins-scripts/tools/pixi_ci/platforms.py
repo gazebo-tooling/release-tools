@@ -24,6 +24,21 @@ class WindowsPlatform:
     default_build_type = "Release"
     hooks_file = "hooks.bat"
     hook_shell = "cmd"
+    cmake_args = ()                # appended to both colcon builds
+
+    def isolate_env(self, env):
+        """The job environment every later step runs with."""
+        return env
+
+    def report_toolchain(self, runner, cfg, env):
+        """Log the compiler and SDK after the activation: nothing on Windows."""
+
+    def dependency_cxx_flags(self, env):
+        """CMAKE_CXX_FLAGS of the build of the dependencies."""
+        return "-w"
+
+    def check_build(self, runner, cfg, env):
+        """Check the build before the tests: nothing on Windows."""
 
     def normalize_key(self, name):
         # Windows variable names are case-insensitive
