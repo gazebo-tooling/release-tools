@@ -4,10 +4,10 @@ This repository hosts the Conda related configurations and files used
 by the Gazebo project.
 
 > [!IMPORTANT]
-> Currently the Gazebo project is only using Conda for supporting the
-> build on Windows. The builds or Conda packages can perfectly work
-> on different platforms but the core team is not actively testing
-> them.
+> Currently the Gazebo project uses Conda for the Windows CI and, in a
+> trial (release-tools#1567), for the macOS arm64 CI. The builds or
+> Conda packages can perfectly work on other platforms but the core
+> team is not actively testing them.
 
 ## The envs/ (environments) directory
 
