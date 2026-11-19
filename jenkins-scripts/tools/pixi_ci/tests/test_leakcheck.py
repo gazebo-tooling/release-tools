@@ -155,6 +155,26 @@ def test_homebrew_and_system_cxx_runtime_links_are_reported(tmp_path):
     ]
 
 
+def test_links_refuse_paths_outside_the_allowlist(tmp_path):
+    # Prefixes that no list names: an allowlist refuses them, a Homebrew
+    # denylist would let them through
+    ws = tmp_path / "ws"
+    write(ws / "install" / "lib" / "libgz-gui10.dylib", THIN)
+    found, _ = leaks(ws, {"libgz-gui10.dylib": [
+        ("LC_LOAD_DYLIB", "/opt/X11/lib/libX11.6.dylib"),
+        ("LC_LOAD_DYLIB", "/Library/Frameworks/Foo.framework/Foo"),
+        ("LC_RPATH", "/opt/local/lib"),
+        ("LC_LOAD_WEAK_DYLIB", f"{CONDA}-old/lib/libx.dylib"),
+    ]})
+    lib = "install/lib/libgz-gui10.dylib"
+    assert found == [
+        f"{lib}: LC_LOAD_DYLIB /Library/Frameworks/Foo.framework/Foo",
+        f"{lib}: LC_LOAD_DYLIB /opt/X11/lib/libX11.6.dylib",
+        f"{lib}: LC_LOAD_WEAK_DYLIB {CONDA}-old/lib/libx.dylib",
+        f"{lib}: LC_RPATH /opt/local/lib",
+    ]
+
+
 def test_cache_refuses_paths_outside_the_allowlist(tmp_path):
     ws = tmp_path / "ws"
     write_cache(ws, "gz-math", [
