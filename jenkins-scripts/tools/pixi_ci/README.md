@@ -156,7 +156,10 @@ its file:
 - every `ws/build/*/CMakeCache.txt`: the `PATH` and `FILEPATH` entries must be
   under `$CONDA_PREFIX`, `ws`, `$SDKROOT`, `xcode-select -p`, `/usr/bin`,
   `/bin`, `/usr/sbin`, `/sbin`, `/usr/lib` or `/System/Library`, and
-  `CMAKE_C_COMPILER`/`CMAKE_CXX_COMPILER` under `$CONDA_PREFIX`.
+  `CMAKE_C_COMPILER`/`CMAKE_CXX_COMPILER` under `$CONDA_PREFIX`. The
+  `CMAKE_INSTALL_<dir>` destinations of GNUInstallDirs are not checked: they
+  say where the install goes, and `CMAKE_INSTALL_OLDINCLUDEDIR` is
+  `/usr/include` in every cache.
 
 `$CONDA_PREFIX`, `ws`, `$SDKROOT` and `xcode-select -p` also count by their
 physical path: CMake and colcon record resolved paths when the workspace is
