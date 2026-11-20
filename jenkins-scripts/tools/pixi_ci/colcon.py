@@ -13,7 +13,8 @@ def build(runner, cfg, platform, package, env):
     # The leading space is what today's .bat passes; colcon needs it for
     # values starting with a dash only, kept for parity
     build_type = ["--cmake-args", f" -DCMAKE_BUILD_TYPE={cfg.build_type}"]
-    handlers = ["--event-handler", "console_cohesion+", "desktop_notification-"]
+    handlers = ["--event-handler", "console_cohesion+",
+                *platform.colcon_event_handlers]
     cxx_flags = platform.dependency_cxx_flags(env)
     with section("colcon compilation without test for dependencies of "
                  f"{package}"):
@@ -29,14 +30,14 @@ def build(runner, cfg, platform, package, env):
                    cwd=cfg.ws, env=env)
 
 
-def test(runner, cfg, package, env):
+def test(runner, cfg, platform, package, env):
     """Test failures do not fail the job: Jenkins reads the JUnit files."""
     with section(f"colcon test for {package}"):
         runner.run("colcon", ["test", "--install-base", "install",
                               "--packages-select", package,
                               "--executor", "sequential",
                               "--event-handler", "console_direct+",
-                              "desktop_notification-"],
+                              *platform.colcon_event_handlers],
                    cwd=cfg.ws, env=env, check=False)
     with section("colcon test-result"):
         runner.run("colcon", ["test-result", "--all"], cwd=cfg.ws, env=env,

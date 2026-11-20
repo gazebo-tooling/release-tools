@@ -93,7 +93,9 @@ def test_gz_math_jetty_on_macos(tmp_path, capsys):
     build = ["build", "--build-base", "build", "--install-base", "install",
              "--parallel-workers", "4"]
     build_type = ["--cmake-args", " -DCMAKE_BUILD_TYPE=RelWithDebInfo"]
-    handlers = ["--event-handler", "console_cohesion+", "desktop_notification-"]
+    # no desktop_notification-: the osx-arm64 envs have no colcon-notification
+    # and colcon refuses a handler it does not know, even to disable it
+    handlers = ["--event-handler", "console_cohesion+"]
     assert code == 0
     assert commands(calls) == [
         (PYTHON, [str(tools / "detect_cmake_major_version.py"),
@@ -132,8 +134,7 @@ def test_gz_math_jetty_on_macos(tmp_path, capsys):
         ("xcode-select", ["-p"], ws_root),
         ("colcon", ["test", "--install-base", "install",
                     "--packages-select", "gz-math", "--executor", "sequential",
-                    "--event-handler", "console_direct+",
-                    "desktop_notification-"], ws),
+                    "--event-handler", "console_direct+"], ws),
         ("colcon", ["test-result", "--all"], ws),
     ]
     assert sections(capsys) == [

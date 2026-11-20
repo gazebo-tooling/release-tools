@@ -45,7 +45,7 @@ def run_job(cfg, platform, runner, base_env):
     platform.check_build(runner, cfg, env)
     if cfg.enable_tests:
         with section(f"running tests for {package}"):
-            colcon.test(runner, cfg, package, env)
+            colcon.test(runner, cfg, platform, package, env)
         with section("export testing results"):
             colcon.export_test_results(cfg, package)
     if not cfg.keep_workspace:
