@@ -9,7 +9,6 @@ why.
 import contextlib
 import os
 import threading
-import urllib.request
 from dataclasses import dataclass, field
 
 SAMPLE_SECONDS = 2.0
@@ -162,23 +161,15 @@ def describe_agent(probe):
         return f"agent: unknown ({type(error).__name__}: {error})"
 
 
-def aws_instance_type(timeout=1.0):
-    """EC2 instance type from the instance metadata (IMDSv2), or None."""
-    base = "http://169.254.169.254/latest"
-    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
-    try:
-        request = urllib.request.Request(
-            f"{base}/api/token", method="PUT",
-            headers={"X-aws-ec2-metadata-token-ttl-seconds": "60"})
-        with opener.open(request, timeout=timeout) as response:
-            token = response.read().decode()
-        request = urllib.request.Request(
-            f"{base}/meta-data/instance-type",
-            headers={"X-aws-ec2-metadata-token": token})
-        with opener.open(request, timeout=timeout) as response:
-            return response.read().decode().strip()
-    except OSError:
-        return None
+def machine_name(manufacturer, product):
+    """The EC2 instance type, or the machine model elsewhere.
+
+    The BIOS of EC2 Nitro instances names the product after the instance
+    type ("m7i.xlarge"). Unlike the instance metadata service, it needs no
+    network, which a firewall can block for the Jenkins user."""
+    if manufacturer.strip() == "Amazon EC2":
+        return product.strip()
+    return f"{manufacturer.strip()} {product.strip()}".strip() or "unknown"
 
 
 class WindowsMemoryProbe:
@@ -348,7 +339,12 @@ class WindowsMemoryProbe:
     def describe(self):
         info = self._performance()
         page = info.PageSize
-        instance = aws_instance_type() or "not an EC2 instance"
-        return (f"agent: {instance}, {os.cpu_count()} CPUs, "
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                            r"HARDWARE\DESCRIPTION\System\BIOS") as key:
+            machine = machine_name(
+                winreg.QueryValueEx(key, "SystemManufacturer")[0],
+                winreg.QueryValueEx(key, "SystemProductName")[0])
+        return (f"agent: {machine}, {os.cpu_count()} CPUs, "
                 f"{gib(info.PhysicalTotal * page)} RAM, commit limit "
                 f"{gib(info.CommitLimit * page)}")

@@ -1,7 +1,6 @@
 """The memory report: peaks, summary line, and probes that fail."""
 
 import time
-import urllib.request
 
 import pytest
 
@@ -134,10 +133,11 @@ def test_a_probe_that_can_not_be_created_reports_why(capsys):
     assert capsys.readouterr().out.startswith("memory gz-math: no samples")
 
 
-def test_instance_type_is_none_outside_ec2(monkeypatch):
-    class Opener:
-        def open(self, request, timeout):
-            raise urllib.error.URLError("timed out")
+def test_machine_name_is_the_instance_type_on_ec2():
+    assert memory.machine_name("Amazon EC2", "m7i.xlarge ") == "m7i.xlarge"
 
-    monkeypatch.setattr(urllib.request, "build_opener", lambda *_: Opener())
-    assert memory.aws_instance_type() is None
+
+def test_machine_name_is_the_model_outside_ec2():
+    assert memory.machine_name("VMware, Inc.", "VMware7,1") == \
+        "VMware, Inc. VMware7,1"
+    assert memory.machine_name(" ", "") == "unknown"
