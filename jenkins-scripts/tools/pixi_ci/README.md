@@ -57,8 +57,8 @@ Outputs: JUnit files in `WORKSPACE\build\test_results`, and
 ## Memory report
 
 The `pixi_ci configuration` section ends with the agent: EC2 instance type
-(from the instance metadata), CPUs, RAM and commit limit (RAM plus page
-files). Each of the two colcon builds ends with one line:
+(from the BIOS, or the machine model outside EC2), CPUs, RAM and commit
+limit (RAM plus page files). Each of the two colcon builds ends with one line:
 
 ```
 memory gz-sim: peak commit 11.2 GiB of 20.0 GiB, lowest available RAM 3.1 GiB of 16.0 GiB, CPUs 93% busy, up to 12 cl.exe using 7.9 GiB, the largest 1.3 GiB, up to 2 link.exe using 1.8 GiB, the largest 1.5 GiB (1450 samples every 2 s)
