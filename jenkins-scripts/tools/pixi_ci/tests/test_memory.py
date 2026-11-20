@@ -58,9 +58,21 @@ def test_summary_ignores_a_system_peak_older_than_the_phase():
     assert "system peak" not in stats.summary()
 
 
+def test_summary_reports_how_busy_the_cpus_were():
+    stats = PhaseStats("gz-sim")
+    for busy, total in ((100, 1000), (400, 1400), (1000, 2000)):
+        stats.add(Sample(commit=6 * GIB, commit_limit=20 * GIB,
+                         commit_peak=6 * GIB, ram=16 * GIB,
+                         ram_available=9 * GIB, cpu_busy=busy,
+                         cpu_total=total))
+    assert "RAM 9.0 GiB of 16.0 GiB, CPUs 90% busy (3 samples" in \
+        stats.summary()
+
+
 def test_summary_leaves_out_tools_that_did_not_run():
     stats = PhaseStats("gz-cmake")
     stats.add(sample(5, 10))
+    assert "CPUs" not in stats.summary()
     assert "cl.exe" not in stats.summary()
     assert "link.exe" not in stats.summary()
 
