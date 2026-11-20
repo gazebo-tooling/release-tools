@@ -42,17 +42,33 @@ def findAvailableNodes() {
 }
 
 /*
- * For each node in each OS, run a job if there are jobs to run
+ * Return the first job of the list whose label the node satisfies, or null.
+ * An idle node must not pick a job that cannot run on it: an idle GPU agent
+ * would otherwise schedule a job that excludes GPU agents, which then waits
+ * for another node while the GPU agent stays idle.
+ */
+def findJobForNode(List jobNames, String nodeName) {
+    def node = Jenkins.instance.getNode(nodeName)
+    return jobNames.find { jobName ->
+        def label = Jenkins.instance.getItemByFullName(jobName)?.getAssignedLabel()
+        label == null || label.contains(node)
+    }
+}
+
+/*
+ * For each node in each OS, run a job that can run on that node if there are
+ * jobs to run
  */
 def runJobsInAvailableNodes(LinkedHashMap outdatedJobs) {
     def availableNodes = findAvailableNodes()
 
-    availableNodes.each { os -> 
+    availableNodes.each { os ->
         os.value.each { node ->
-                if (outdatedJobs[os.key].size() > 0) {
+                def jobName = findJobForNode(outdatedJobs[os.key], node)
+                if (jobName) {
+                    outdatedJobs[os.key].remove(jobName)
                     try {
-                        def jobName = outdatedJobs[os.key].remove(0)
-                        println("Running job ${jobName}")
+                        println("Running job ${jobName} (idle node: ${node})")
                         if (!runJob(jobName)) {
                             println("Error scheduling job ${jobName}. Project disabled?")
                             println("MARK_AS_UNSTABLE")
