@@ -12,7 +12,7 @@ class Globals
 
    static CRON_EVERY_THREE_DAYS = 'H H * * H/3'
    static CRON_HOURLY = 'H * * * *'
-   static CRON_ON_WEEKEND = 'H H * * 6-7'
+   static CRON_ON_WEEKEND = 'H H * * 6'
    // Run nightly scheduler every 20 minutes being sure to
    // run it at 9 just before the nightly creation.
    static CRON_NIGHTLY_NODES = '*/20 9-23 * * * \n20 0-8 * * *'
