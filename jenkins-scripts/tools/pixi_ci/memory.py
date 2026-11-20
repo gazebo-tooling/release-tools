@@ -1,8 +1,8 @@
-"""Memory use of the agent while colcon builds.
+"""Memory and CPU use of the agent while colcon builds.
 
-A thread samples the system commit charge, the available RAM and the
-compilers and linkers running, and each build phase ends with one summary
-line. The report never fails a job: a probe that stops working only prints
+A thread samples the system commit charge, the available RAM, the CPU time
+and the compilers and linkers running, and each build phase ends with one
+summary line. The report never fails a job: a probe that stops working only prints
 why.
 """
 
@@ -34,6 +34,9 @@ class Sample:
     ram: int
     ram_available: int
     tools: dict = field(default_factory=dict)   # name -> ToolUse
+    # CPU time since the system started, in any unit: not idle, and total
+    cpu_busy: int = 0
+    cpu_total: int = 0
 
 
 class PhaseStats:
@@ -44,6 +47,7 @@ class PhaseStats:
         self.samples = 0
         self.error = None
         self.first = None
+        self.last = None
         self.commit = 0
         self.commit_limit = 0
         self.commit_peak = 0
@@ -54,6 +58,7 @@ class PhaseStats:
     def add(self, sample):
         if self.first is None:
             self.first = sample
+        self.last = sample
         self.samples += 1
         self.commit = max(self.commit, sample.commit)
         self.commit_limit = sample.commit_limit
@@ -78,6 +83,10 @@ class PhaseStats:
         parts = [commit,
                  f"lowest available RAM {gib(self.ram_available)} of "
                  f"{gib(self.ram)}"]
+        cpu_total = self.last.cpu_total - self.first.cpu_total
+        if cpu_total > 0:
+            busy = (self.last.cpu_busy - self.first.cpu_busy) / cpu_total
+            parts.append(f"CPUs {busy:.0%} busy")
         for name in (COMPILER, LINKER):
             use = self.tools.get(name)
             if use and use.count:
@@ -246,6 +255,8 @@ class WindowsMemoryProbe:
                                               ctypes.c_void_p,
                                               wintypes.DWORD]
         k.K32GetProcessMemoryInfo.restype = wintypes.BOOL
+        k.GetSystemTimes.argtypes = [ctypes.c_void_p] * 3
+        k.GetSystemTimes.restype = wintypes.BOOL
         k.CloseHandle.argtypes = [wintypes.HANDLE]
         k.CloseHandle.restype = wintypes.BOOL
 
@@ -303,7 +314,18 @@ class WindowsMemoryProbe:
         finally:
             self._kernel32.CloseHandle(handle)
 
+    def _cpu_times(self):
+        """(busy, total) 100 ns ticks of all the CPUs since boot."""
+        times = [self._ctypes.c_ulonglong() for _ in range(3)]
+        if not self._kernel32.GetSystemTimes(
+                *(self._ctypes.byref(t) for t in times)):
+            raise self._error("GetSystemTimes")
+        idle, kernel, user = (t.value for t in times)
+        # kernel time includes the idle time
+        return kernel + user - idle, kernel + user
+
     def sample(self):
+        cpu_busy, cpu_total = self._cpu_times()
         info = self._performance()
         page = info.PageSize
         tools = {name: ToolUse() for name in self.TOOLS}
@@ -321,7 +343,7 @@ class WindowsMemoryProbe:
                       commit_peak=info.CommitPeak * page,
                       ram=info.PhysicalTotal * page,
                       ram_available=info.PhysicalAvailable * page,
-                      tools=tools)
+                      tools=tools, cpu_busy=cpu_busy, cpu_total=cpu_total)
 
     def describe(self):
         info = self._performance()
