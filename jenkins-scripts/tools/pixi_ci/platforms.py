@@ -119,8 +119,12 @@ class MacOSPlatform:
     default_build_type = "RelWithDebInfo"   # as the Homebrew jobs
     hooks_file = "hooks.sh"
     hook_shell = "bash"
-    # The find_*() calls of CMake >= 3.23 skip these prefixes
-    cmake_args = ("-DCMAKE_IGNORE_PREFIX_PATH=" + ";".join(HOMEBREW_ROOTS),)
+    # The find_*() calls of CMake >= 3.23 skip these prefixes, and look in
+    # the env before the SDK frameworks and app bundles, as conda-forge
+    # builds its macOS packages: with the default FIRST, FindRuby takes the
+    # headers of the SDK's Ruby.framework for the env's ruby
+    cmake_args = ("-DCMAKE_IGNORE_PREFIX_PATH=" + ";".join(HOMEBREW_ROOTS),
+                  "-DCMAKE_FIND_FRAMEWORK=LAST", "-DCMAKE_FIND_APPBUNDLE=LAST")
     # colcon refuses a handler it does not know, even to disable it, and the
     # osx-arm64 envs have no colcon-notification
     colcon_event_handlers = ()

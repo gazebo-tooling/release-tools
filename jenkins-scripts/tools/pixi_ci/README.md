@@ -135,7 +135,10 @@ runs, pixi included, the driver removes from the job environment:
 
 The `macOS: remove Homebrew from the job environment` section lists what it
 removed, by name only. Both colcon builds also get
-`-DCMAKE_IGNORE_PREFIX_PATH=/opt/homebrew;/usr/local`.
+`-DCMAKE_IGNORE_PREFIX_PATH=/opt/homebrew;/usr/local`, and
+`-DCMAKE_FIND_FRAMEWORK=LAST -DCMAKE_FIND_APPBUNDLE=LAST` as conda-forge
+builds its macOS packages: CMake looks in the env before the SDK frameworks,
+otherwise the headers of the SDK's `Ruby.framework` win over the env's ruby.
 
 ### Leak check
 
