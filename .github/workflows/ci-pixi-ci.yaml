@@ -10,11 +10,6 @@ on:
       - 'jenkins-scripts/*-default-devel-windows-amd64.bat'
       - 'conda/**'
       - '.github/workflows/ci-pixi-ci.yaml'
-  # TESTING ONLY, to be reverted: run on pushes to the macOS branches
-  push:
-    branches:
-      - jrivero/pixi_ci_macos
-      - jrivero/pixi_ci_macos_dsl
 
 jobs:
   pytest:
