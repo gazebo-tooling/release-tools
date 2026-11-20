@@ -40,6 +40,9 @@ class WindowsPlatform:
     hooks_file = "hooks.bat"
     hook_shell = "cmd"
     cmake_args = ()                # appended to both colcon builds
+    # after the console handler of colcon build and test; colcon-notification
+    # is in the win-64 envs only
+    colcon_event_handlers = ("desktop_notification-",)
 
     def isolate_env(self, env):
         """The job environment every later step runs with."""
@@ -118,6 +121,9 @@ class MacOSPlatform:
     hook_shell = "bash"
     # The find_*() calls of CMake >= 3.23 skip these prefixes
     cmake_args = ("-DCMAKE_IGNORE_PREFIX_PATH=" + ";".join(HOMEBREW_ROOTS),)
+    # colcon refuses a handler it does not know, even to disable it, and the
+    # osx-arm64 envs have no colcon-notification
+    colcon_event_handlers = ()
 
     def isolate_env(self, env):
         """env without Homebrew: its PATH entries, the variables that steer
