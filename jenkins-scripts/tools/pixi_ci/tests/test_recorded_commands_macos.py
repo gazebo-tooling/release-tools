@@ -16,6 +16,10 @@ pytestmark = pytest.mark.skipif(
 
 DEVELOPER_DIR = "/Library/Developer/CommandLineTools"
 IGNORE_HOMEBREW = "-DCMAKE_IGNORE_PREFIX_PATH=/opt/homebrew;/usr/local"
+# the env before the SDK frameworks: with the default FIRST, FindRuby takes
+# the SDK's Ruby.framework headers next to the env's ruby
+MACOS_CMAKE_ARGS = [IGNORE_HOMEBREW, "-DCMAKE_FIND_FRAMEWORK=LAST",
+                    "-DCMAKE_FIND_APPBUNDLE=LAST"]
 # What a Jenkins agent with Homebrew can pass to the job
 HOMEBREW_ENV = {
     "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin",
@@ -127,9 +131,9 @@ def test_gz_math_jetty_on_macos(tmp_path, capsys):
         ("colcon", build + ["--packages-skip", "gz-math"] + build_type
          + ["-DBUILD_TESTING=0",
             f"-DCMAKE_CXX_FLAGS=-stdlib=libc++ -isystem {prefix}/include -w",
-            IGNORE_HOMEBREW] + handlers, ws),
+            *MACOS_CMAKE_ARGS] + handlers, ws),
         ("colcon", build + ["--packages-select", "gz-math"] + build_type
-         + [IGNORE_HOMEBREW, " -DBUILD_TESTING=1"] + handlers, ws),
+         + MACOS_CMAKE_ARGS + [" -DBUILD_TESTING=1"] + handlers, ws),
         # the leak check; install/ has no Mach-O file for otool here
         ("xcode-select", ["-p"], ws_root),
         ("colcon", ["test", "--install-base", "install",
