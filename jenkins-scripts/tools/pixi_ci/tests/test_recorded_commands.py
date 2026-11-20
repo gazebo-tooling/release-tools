@@ -10,6 +10,7 @@ import yaml
 
 from pixi_ci.__main__ import main
 from pixi_ci.config import RELEASE_TOOLS
+from pixi_ci.memory import GIB, Sample, ToolUse
 from pixi_ci.platforms import WindowsPlatform
 from pixi_ci.runner import PYTHON, CIError, Result
 from pixi_ci.workspace import GAZEBODISTRO_URL
@@ -39,6 +40,19 @@ class FakeRunner:
             raise CIError(f"exit code {result.returncode}: "
                           f"{' '.join([call.tool] + call.args)}")
         return result
+
+
+class FakeMemoryProbe:
+    """A 16 GiB agent where one cl.exe uses 1 GiB."""
+
+    def sample(self):
+        return Sample(commit=6 * GIB, commit_limit=20 * GIB,
+                      commit_peak=8 * GIB, ram=16 * GIB,
+                      ram_available=9 * GIB,
+                      tools={"cl.exe": ToolUse(1, GIB, GIB)})
+
+    def describe(self):
+        return "agent: m7i.xlarge, 4 CPUs, 16.0 GiB RAM, commit limit 20.0 GiB"
 
 
 @dataclass
@@ -109,7 +123,8 @@ class Job:
         runner = FakeRunner(self.respond)
         environ = dict(self.environ, **variables)
         code = main([self.library], environ=environ, runner=runner,
-                    platform=WindowsPlatform(), release_tools=self.rt)
+                    platform=WindowsPlatform(), release_tools=self.rt,
+                    memory_probe=FakeMemoryProbe())
         return code, runner.calls
 
 
@@ -251,6 +266,24 @@ def test_build_env_is_the_activated_one(tmp_path):
     # helper scripts and pixi run in the job environment, not the activated one
     assert all("CONDA_PREFIX" not in c.env for c in calls
                if c.tool in (PYTHON, job.pixi))
+
+
+def test_log_reports_the_agent_and_the_memory_of_each_build(tmp_path,
+                                                            capsys):
+    job = make_job(tmp_path)
+    code, _ = job.run()
+    out = capsys.readouterr().out
+    assert code == 0
+    configuration = out.split("# BEGIN SECTION: pixi_ci configuration")[1]
+    assert configuration.split("# END SECTION")[0].rstrip().endswith(
+        "agent: m7i.xlarge, 4 CPUs, 16.0 GiB RAM, commit limit 20.0 GiB")
+    memory_lines = [line for line in out.splitlines()
+                    if line.startswith("memory ")]
+    assert [line.split(":")[0] for line in memory_lines] == [
+        "memory dependencies", "memory gz-math"]
+    assert all("peak commit 6.0 GiB of 20.0 GiB" in line and
+               "up to 1 cl.exe using 1.0 GiB" in line
+               for line in memory_lines)
 
 
 def test_sources_copy_leaves_hidden_entries_out(tmp_path, monkeypatch):

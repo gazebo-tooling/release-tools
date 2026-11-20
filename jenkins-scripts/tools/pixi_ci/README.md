@@ -53,6 +53,21 @@ values and the variables that were set.
 Outputs: JUnit files in `WORKSPACE\build\test_results`, and
 `PIXI_PROJECT_PATH\hooks.bat` to activate the env in a command prompt.
 
+## Memory report
+
+The `pixi_ci configuration` section ends with the agent: EC2 instance type
+(from the instance metadata), CPUs, RAM and commit limit (RAM plus page
+files). Each of the two colcon builds ends with one line:
+
+```
+memory gz-sim: peak commit 11.2 GiB of 20.0 GiB, lowest available RAM 3.1 GiB of 16.0 GiB, up to 12 cl.exe using 7.9 GiB, the largest 1.3 GiB, up to 2 link.exe using 1.8 GiB, the largest 1.5 GiB (1450 samples every 2 s)
+```
+
+A thread samples the memory every 2 seconds. When the system commit peak
+rises above what the samples saw, the line adds the exact peak. The commit
+limit is what fails a build with `C1060` (compiler out of heap space) or
+`LNK1102`. A probe that fails prints why and never fails the job.
+
 ## Running it outside the CI agents
 
 The defaults are the paths where `lib/windows_env_vars.bat` provisions pixi and
@@ -90,6 +105,7 @@ the pinned version.
 | `envvars.py` | merge of the activation variables, `%NAME%` expansion |
 | `workspace.py` | gazebodistro, copy of the sources, colcon package name |
 | `colcon.py` | colcon build and test, JUnit export |
+| `memory.py` | memory report of the colcon builds |
 | `runner.py` | subprocesses (absolute executables from the activated `PATH`), log sections |
 | `fsops.py` | `rmdir /s /q` and `xcopy` equivalents |
 

@@ -6,7 +6,7 @@ import stat
 import sys
 from pathlib import Path
 
-from . import envvars
+from . import envvars, memory
 from .runner import CIError, section
 
 
@@ -48,6 +48,9 @@ class WindowsPlatform:
 
     def default_project_path(self, env):
         return self._pixi_root(env) / "project"
+
+    def memory_probe(self):
+        return memory.WindowsMemoryProbe()
 
     def post_activation(self, env):
         prefix = env.get("CONDA_PREFIX")
