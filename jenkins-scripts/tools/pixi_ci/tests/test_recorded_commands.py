@@ -253,6 +253,42 @@ def test_build_env_is_the_activated_one(tmp_path):
                if c.tool in (PYTHON, job.pixi))
 
 
+MSBUILD_PARALLEL = ("CMAKE_BUILD_PARALLEL_LEVEL", "MSBUILDDISABLENODEREUSE")
+
+
+def test_package_under_test_builds_its_projects_in_parallel(tmp_path):
+    job = make_job(tmp_path)
+    code, calls = job.run(NUMBER_OF_PROCESSORS="8")
+    deps, package = find(calls, "colcon", "build")
+    assert code == 0
+    assert option(package.args, "--packages-select") == "gz-math"
+    assert package.env["CMAKE_BUILD_PARALLEL_LEVEL"] == "8"
+    assert package.env["MSBUILDDISABLENODEREUSE"] == "1"
+    # colcon already builds several dependencies at the same time
+    assert all(name not in deps.env for name in MSBUILD_PARALLEL)
+    assert {k: v for k, v in package.env.items()
+            if k not in MSBUILD_PARALLEL} == deps.env
+
+
+def test_parallel_level_without_number_of_processors(tmp_path, monkeypatch):
+    monkeypatch.setattr("pixi_ci.platforms.os.cpu_count", lambda: 6)
+    job = make_job(tmp_path)
+    code, calls = job.run()
+    _, package = find(calls, "colcon", "build")
+    assert code == 0
+    assert package.env["CMAKE_BUILD_PARALLEL_LEVEL"] == "6"
+
+
+def test_job_parallel_level_applies_to_the_dependencies_too(tmp_path):
+    job = make_job(tmp_path)
+    code, calls = job.run(NUMBER_OF_PROCESSORS="8",
+                          CMAKE_BUILD_PARALLEL_LEVEL="2")
+    deps, package = find(calls, "colcon", "build")
+    assert code == 0
+    assert deps.env["CMAKE_BUILD_PARALLEL_LEVEL"] == "2"
+    assert package.env["CMAKE_BUILD_PARALLEL_LEVEL"] == "2"
+
+
 def test_sources_copy_leaves_hidden_entries_out(tmp_path, monkeypatch):
     monkeypatch.setattr(WindowsPlatform, "is_hidden_or_system",
                         lambda self, path: path.name.startswith("."))

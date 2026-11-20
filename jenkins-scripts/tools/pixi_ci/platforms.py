@@ -49,6 +49,25 @@ class WindowsPlatform:
     def default_project_path(self, env):
         return self._pixi_root(env) / "project"
 
+    def package_build_env(self, env):
+        """Environment of the build of the package under test.
+
+        With Visual Studio generators colcon-cmake runs "cmake --build"
+        without --parallel, so MSBuild builds one project at a time (the /MP
+        that colcon-cmake adds to CL only compiles the files of one project
+        in parallel). CMake passes CMAKE_BUILD_PARALLEL_LEVEL to MSBuild as
+        /m:N. Only the package under test uses it: colcon already builds
+        several dependencies at the same time, and a job can still define it
+        to apply it to the dependencies too.
+        """
+        env = dict(env)
+        if not env.get("CMAKE_BUILD_PARALLEL_LEVEL"):
+            env["CMAKE_BUILD_PARALLEL_LEVEL"] = (
+                env.get("NUMBER_OF_PROCESSORS") or str(os.cpu_count() or 1))
+        # Do not leave MSBuild worker nodes running after the build
+        env["MSBUILDDISABLENODEREUSE"] = "1"
+        return env
+
     def post_activation(self, env):
         prefix = env.get("CONDA_PREFIX")
         if not prefix:
