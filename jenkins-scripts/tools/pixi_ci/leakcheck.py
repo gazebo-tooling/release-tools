@@ -24,6 +24,9 @@ SYSTEM_LIBRARY_ROOTS = ("/usr/lib", "/System/Library")
 SYSTEM_TOOL_ROOTS = ("/usr/bin", "/bin", "/usr/sbin", "/sbin")
 COMPILER_ENTRIES = {"CMAKE_C_COMPILER", "CMAKE_CXX_COMPILER"}
 PATH_TYPES = {"PATH", "FILEPATH"}
+# The GNUInstallDirs destinations say where the install goes, not what the
+# build used; CMAKE_INSTALL_OLDINCLUDEDIR is /usr/include in every cache
+INSTALL_DESTINATION = re.compile(r"CMAKE_INSTALL_[A-Z]*DIR")
 
 _THIN_MAGICS = {b"\xcf\xfa\xed\xfe", b"\xce\xfa\xed\xfe",
                 b"\xfe\xed\xfa\xcf", b"\xfe\xed\xfa\xce"}
@@ -129,7 +132,7 @@ def find_leaks(runner, ws, *, conda_prefix, sdkroot, developer_dir, env):
         for name, kind, value in cache_entries(text):
             if name in COMPILER_ENTRIES:
                 roots = compiler_roots
-            elif kind in PATH_TYPES:
+            elif kind in PATH_TYPES and not INSTALL_DESTINATION.fullmatch(name):
                 roots = cache_roots
             else:
                 continue

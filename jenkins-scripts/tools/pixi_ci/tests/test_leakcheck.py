@@ -211,6 +211,20 @@ def test_cache_refuses_paths_outside_the_allowlist(tmp_path):
     ]
 
 
+def test_install_destinations_are_not_build_inputs(tmp_path):
+    # GNUInstallDirs writes this absolute default in every cache; the
+    # install_name_tool is a tool the install runs, so it is still checked
+    ws = tmp_path / "ws"
+    write_cache(ws, "gz-math", [
+        "CMAKE_INSTALL_OLDINCLUDEDIR:PATH=/usr/include",
+        "CMAKE_INSTALL_NAME_TOOL:FILEPATH=/opt/homebrew/bin/install_name_tool",
+    ])
+    assert leaks(ws)[0] == [
+        "build/gz-math/CMakeCache.txt: CMAKE_INSTALL_NAME_TOOL "
+        "/opt/homebrew/bin/install_name_tool",
+    ]
+
+
 @pytest.mark.skipif(sys.platform == "win32",
                     reason="directory symlinks; the check runs on macOS")
 def test_physical_paths_of_the_workspace_env_and_sdk_are_inside(tmp_path):
