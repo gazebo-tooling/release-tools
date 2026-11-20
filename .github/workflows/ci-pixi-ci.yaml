@@ -8,6 +8,7 @@ on:
       - 'jenkins-scripts/dsl/gz-collections.yaml'
       - 'jenkins-scripts/lib/**'
       - 'jenkins-scripts/*-default-devel-windows-amd64.bat'
+      - 'conda/**'
       - '.github/workflows/ci-pixi-ci.yaml'
 
 jobs:
@@ -24,6 +25,9 @@ jobs:
           # the CI agents run the driver on Windows with the 3.14 of that lock
           - os: windows-latest
             python-version: '3.14'
+          # the bootstrap lock's python on osx-arm64
+          - os: macos-15
+            python-version: '3.15'
     name: pytest (${{ matrix.os }}, Python ${{ matrix.python-version }})
     permissions:
       contents: read
@@ -45,3 +49,74 @@ jobs:
         run: |
           python -m pytest -v jenkins-scripts/tools/pixi_ci/tests \
                               jenkins-scripts/dsl/tools/tests
+
+  macos_smoke:
+    # gz-math built and tested by the macOS wrapper, as the Jenkins jobs do,
+    # on runners with Homebrew in /opt/homebrew like the agents
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-26]
+    name: macOS smoke build (${{ matrix.runner }})
+    permissions:
+      contents: read
+    env:
+      WORKSPACE: ${{ github.workspace }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: scripts
+          persist-credentials: false
+      - name: Checkout gz-math
+        uses: actions/checkout@v4
+        with:
+          repository: gazebosim/gz-math
+          ref: gz-math9
+          path: gz-math
+          persist-credentials: false
+      - name: Install the gz-math dependencies with Homebrew
+        # something real for the isolation to hide
+        run: brew install eigen pybind11
+      - name: Build and test gz-math with pixi_ci
+        env:
+          MAKE_JOBS: 3
+          # Homebrew values the isolation must remove
+          CC: clang
+          CXX: clang++
+          CXXFLAGS: -I/opt/homebrew/include
+          LDFLAGS: -L/opt/homebrew/lib
+          CMAKE_PREFIX_PATH: /opt/homebrew
+          PKG_CONFIG_PATH: /opt/homebrew/lib/pkgconfig
+          CPATH: /opt/homebrew/include
+          LIBRARY_PATH: /opt/homebrew/lib
+        run: bash -xe scripts/jenkins-scripts/lib/colcon-default-devel-macos.bash gz-math
+      - name: Check the test results
+        # Jenkins reads the JUnit files; here a failed test fails the job
+        shell: python3 {0}
+        run: |
+          import sys
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          files = sorted(Path("build/test_results").rglob("*.xml"))
+          if not files:
+              sys.exit("no test results in build/test_results")
+          failed = []
+          for path in files:
+              root = ET.parse(path).getroot()
+              for suite in [root, *root.iter("testsuite")]:
+                  if (int(suite.get("failures", 0)) > 0 or
+                          int(suite.get("errors", 0)) > 0):
+                      failed.append(f"{path}: {suite.get('name')}")
+          print(f"{len(files)} result files")
+          print("\n".join(failed))
+          sys.exit(1 if failed else 0)
+      - name: Upload the test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test_results-${{ matrix.runner }}
+          path: build/test_results/

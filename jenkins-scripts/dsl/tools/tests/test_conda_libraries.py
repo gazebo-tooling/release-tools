@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+import yaml
 
 from get_ciconfigs_from_package_and_version import find_conda_libraries
 
@@ -41,3 +42,13 @@ def test_real_collections_have_no_job_for_the_metapackages():
     assert 'gz-math' in libraries
     assert not {'gz-fortress', 'gz-harmonic', 'gz-ionic', 'gz-jetty',
                 'gz-rotary'} & set(libraries)
+
+
+def test_real_collections_on_macos_have_no_metapackages_and_no_gpu():
+    data = yaml.safe_load(REAL_YAML.read_text())
+    metapackages = {'gz-' + c['name'] for c in data['collections']}
+    libraries = find_conda_libraries(REAL_YAML, 'darwin', 'arm64')
+    assert {'gz-math', 'gz-sim'} <= set(libraries)
+    assert not metapackages & set(libraries)
+    # No GPU requirement on macOS: the agents always have an Apple GPU
+    assert not any(libraries.values())
