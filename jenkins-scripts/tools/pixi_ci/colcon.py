@@ -6,9 +6,13 @@ from .fsops import remove_tree
 from .runner import CIError, section
 
 
-def build(runner, cfg, package, env, package_env):
+def build(runner, cfg, package, env, package_env, watch):
     """Dependencies without tests in env, then the package with tests in
-    package_env."""
+    package_env.
+
+    watch(label) is a context manager reporting the memory used while each
+    of the two builds runs.
+    """
     common = ["build", "--build-base", "build", "--install-base", "install",
               "--parallel-workers", str(cfg.make_jobs)]
     # The leading space is what today's .bat passes; colcon needs it for
@@ -16,11 +20,12 @@ def build(runner, cfg, package, env, package_env):
     build_type = ["--cmake-args", f" -DCMAKE_BUILD_TYPE={cfg.build_type}"]
     handlers = ["--event-handler", "console_cohesion+", "desktop_notification-"]
     with section("colcon compilation without test for dependencies of "
-                 f"{package}"):
+                 f"{package}"), watch("dependencies"):
         runner.run("colcon", common + ["--packages-skip", package] + build_type
                    + ["-DBUILD_TESTING=0", "-DCMAKE_CXX_FLAGS=-w"] + handlers,
                    cwd=cfg.ws, env=env)
-    with section(f"colcon compilation with tests for {package}"):
+    with section(f"colcon compilation with tests for {package}"), \
+            watch(package):
         runner.run("colcon", common + ["--packages-select", package]
                    + build_type + list(cfg.extra_cmake_args)
                    + [" -DBUILD_TESTING=1"] + handlers,

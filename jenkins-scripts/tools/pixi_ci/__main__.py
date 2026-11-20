@@ -1,16 +1,17 @@
 """pixi_ci entry point; Jenkins runs it through ../run_pixi_ci.py."""
 
 import argparse
+import functools
 import os
 import sys
 
-from . import colcon, envs, platforms, workspace
+from . import colcon, envs, memory, platforms, workspace
 from .config import RELEASE_TOOLS, JobConfig
 from .fsops import remove_tree
 from .runner import CIError, Runner, section
 
 
-def run_job(cfg, platform, runner, base_env):
+def run_job(cfg, platform, runner, base_env, memory_probe):
     if cfg.gpu_needed:
         platform.check_gpu(runner, cfg, base_env)
     major = envs.detect_major_version(runner, cfg, base_env)
@@ -40,7 +41,8 @@ def run_job(cfg, platform, runner, base_env):
     env = dict(env, MAKEFLAGS=f"-j{cfg.make_jobs}")
     with section(f"compiling {cfg.vcs_directory}"):
         colcon.build(runner, cfg, package, env,
-                     platform.package_build_env(env))
+                     platform.package_build_env(env),
+                     functools.partial(memory.watch, memory_probe))
     if cfg.enable_tests:
         with section(f"running tests for {package}"):
             colcon.test(runner, cfg, package, env)
@@ -52,7 +54,7 @@ def run_job(cfg, platform, runner, base_env):
 
 
 def main(argv=None, environ=None, runner=None, platform=None,
-         release_tools=RELEASE_TOOLS):
+         release_tools=RELEASE_TOOLS, memory_probe=None):
     parser = argparse.ArgumentParser(
         prog="pixi_ci",
         description="Build and test a Gazebo library with pixi and colcon")
@@ -65,9 +67,12 @@ def main(argv=None, environ=None, runner=None, platform=None,
                                           else environ)
         cfg = JobConfig.from_environ(args.library, base_env, platform,
                                      release_tools)
+        memory_probe = memory_probe or memory.create_probe(
+            platform.memory_probe)
         with section("pixi_ci configuration"):
             print("\n".join(cfg.describe()), flush=True)
-        run_job(cfg, platform, runner or Runner(), base_env)
+            print(memory.describe_agent(memory_probe), flush=True)
+        run_job(cfg, platform, runner or Runner(), base_env, memory_probe)
     except CIError as error:
         print(f"ERROR: {error}", flush=True)
         return 1
