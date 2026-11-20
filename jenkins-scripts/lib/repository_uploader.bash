@@ -73,7 +73,7 @@ upload_dsc_package()
     # see: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=768046
     GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror includedsc $DISTRO ${pkg} || \
 	  GNUPGHOME=$HOME/.gnupg reprepro --nothingiserror --section science --priority extra includedsc $DISTRO ${pkg} || \
-		echo "MARK_BUILD_UNSTABLE"
+		echo "MARK_AS_UNSTABLE"
 }
 
 # By default, enable s3 upload of packages
