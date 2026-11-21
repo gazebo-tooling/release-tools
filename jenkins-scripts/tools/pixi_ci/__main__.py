@@ -43,6 +43,11 @@ def run_job(cfg, platform, runner, base_env, memory_probe):
             platform.build_setup(env, cfg) as setup:
         colcon.build(runner, cfg, package, setup,
                      functools.partial(memory.watch, memory_probe))
+        # TEST ONLY: C4103 diagnostics
+        if package.startswith("gz-sim") and \
+                setup.package_env.get("CMAKE_GENERATOR") == "Ninja":
+            from . import diag_c4103
+            diag_c4103.run_all(cfg, package, setup.package_env)
     if cfg.enable_tests:
         with section(f"running tests for {package}"):
             colcon.test(runner, cfg, package, env)
