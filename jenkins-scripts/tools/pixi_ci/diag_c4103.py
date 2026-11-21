@@ -1,21 +1,27 @@
 """TEST ONLY: find what makes cl.exe report C4103 in gz-sim under Ninja.
 
 Runs after the build of the package. For each object below it takes the
-compile command from build.ninja and runs it again outside ninja:
+compile command from build.ninja and runs it again outside ninja with /Zs,
+counting C4103, under variants of the command line that move it towards the
+one the Visual Studio generator passes (which reports no C4103):
 
-* with /Zs under four INCLUDE variants, counting C4103: as activated, without
-  the conda Library\\include that the vs2019 activation prepends, with the
-  Windows SDK that the Visual Studio generator selected (10.0.19041.0), and
-  both changes together;
-* with /showIncludes as activated, printing the headers opened right before
-  the first C4103;
-* with /P, finding the files whose #pragma pack directives do not balance.
+* without /showIncludes;
+* with the -external:I directories as plain -I, and without -external:W0;
+* with -external:W2, so that a C4103 inside an external header is shown;
+* without the -I of the conda Library\\include that comes from CXXFLAGS (the
+  same directory is also an -external:I);
+* in the MSBuild order: the -I directories first, then -external:W0 and the
+  -external:I directories after the other flags;
+* with the flags that MSBuild adds (/GR /GS /fp:precise /Zc:inline ...);
+* both of the last two.
+
+The first round (INCLUDE without the conda Library\\include, /P scan of the
+#pragma pack directives) is in the log of gz_sim-pr-cnlwin-nogpu #7 on citest.
 
 Nothing here can fail the job.
 """
 
 import ntpath
-import os
 import re
 import shutil
 import subprocess
@@ -26,9 +32,8 @@ OBJECTS = (
     "src/systems/physics/CMakeFiles/UNIT_EntityFeatureMap_TEST.dir/"
     "EntityFeatureMap_TEST.cc.obj",
 )
-MSBUILD_SDK = "10.0.19041.0"
-PACK = re.compile(r"(?:#\s*pragma\s+pack|__pragma\s*\(\s*pack)\s*\(([^)]*)\)")
-LINE = re.compile(r'^#line\s+\d+\s+"(.*)"')
+MSBUILD_FLAGS = ("/GR /Gm- /GS /fp:precise /Zc:wchar_t /Zc:forScope "
+                 "/Zc:inline /Gd /FC /diagnostics:column")
 
 
 def say(*lines):
@@ -52,102 +57,81 @@ def compile_command(ninja, build_dir, obj, env):
     return lines[-1]
 
 
-def include_variants(env):
-    include = env.get("INCLUDE", "").split(";")
+def is_external(token):
+    return token.lower().startswith(("-external:i", "/external:i"))
+
+
+def is_external_level(token):
+    return token.lower().startswith(("-external:w", "/external:w"))
+
+
+def is_include(token):
+    return token.startswith(("-I", "/I"))
+
+
+def is_conda_include(token, env):
     conda_inc = ntpath.normcase(ntpath.join(env.get("CONDA_PREFIX", ""),
                                             "Library", "include"))
-    without_conda = [p for p in include
-                     if ntpath.normcase(p.rstrip("\\")) != conda_inc]
-    sdk = env.get("WINDOWSSDKVERSION", "").strip("\\")
-
-    def swap_sdk(paths):
-        if not sdk or sdk == MSBUILD_SDK:
-            return None
-        swapped = [p.replace(f"\\{sdk}\\", f"\\{MSBUILD_SDK}\\") for p in paths]
-        missing = [p for p in swapped if p and not os.path.isdir(p)]
-        return None if missing else swapped
-
-    variants = {"as activated": include, "without conda Library\\include":
-                without_conda}
-    for name, paths in (("SDK " + MSBUILD_SDK, include),
-                        ("both", without_conda)):
-        swapped = swap_sdk(paths)
-        if swapped is not None:
-            variants[name] = swapped
-    return variants
+    path = ntpath.normcase(token[2:].replace("/", "\\").rstrip("\\"))
+    return is_include(token) and path == conda_inc
 
 
-def pack_report(preprocessed):
-    """Files whose #pragma pack pushes and pops do not match, or that set
-    the packing without a push."""
-    stats, current = {}, "?"
-    with open(preprocessed, encoding="utf-8", errors="replace") as f:
-        for line in f:
-            match = LINE.match(line)
-            if match:
-                current = match.group(1).replace("\\\\", "\\")
-                continue
-            for args in PACK.findall(line):
-                words = [a.strip() for a in args.split(",") if a.strip()]
-                entry = stats.setdefault(current, {"push": 0, "pop": 0,
-                                                   "set": 0, "seen": []})
-                kind = (words[0] if words and words[0] in ("push", "pop")
-                        else "set")
-                entry[kind] += 1
-                if len(entry["seen"]) < 4:
-                    entry["seen"].append(args.strip())
-    return {name: s for name, s in stats.items()
-            if s["push"] != s["pop"] or s["set"]}
+def msbuild_order(tokens):
+    """cl.exe first, then -I, the other flags, -external:W0, -external:I."""
+    cl, rest = tokens[0], tokens[1:]
+    includes = [t for t in rest if is_include(t)]
+    level = [t for t in rest if is_external_level(t)]
+    external = [t for t in rest if is_external(t)]
+    others = [t for t in rest if not (is_include(t) or is_external_level(t)
+                                      or is_external(t))]
+    return [cl, *includes, *others, *level, *external]
 
 
-def diagnose(build_dir, obj, env, ninja, out_dir):
+def variants(command, env):
+    base = re.sub(r'\s/Fo\S+', "", command)
+    result = {
+        "as built": base,
+        "without /showIncludes": base.replace(" /showIncludes", ""),
+        "-external:I as -I, no -external:W0": re.sub(
+            r"(?<=\s)[-/]external:I", "-I",
+            re.sub(r"\s[-/]external:W0", "", base)),
+        "-external:W2": re.sub(r"(?<=\s)([-/]external:)W0", r"\1W2", base),
+    }
+    if '"' in base:
+        say("quoted arguments in the command: no token variants")
+        return result
+    tokens = base.split()
+    result["without the CXXFLAGS -I conda Library\\include"] = " ".join(
+        t for t in tokens if not is_conda_include(t, env))
+    result["MSBuild order"] = " ".join(msbuild_order(tokens))
+    result["MSBuild flags"] = base + " " + MSBUILD_FLAGS
+    result["MSBuild order and flags"] = (" ".join(msbuild_order(tokens)) +
+                                         " " + MSBUILD_FLAGS)
+    return result
+
+
+def diagnose(build_dir, obj, env, ninja):
     say(f"=== {obj}")
     command = compile_command(ninja, build_dir, obj, env)
     say("command:", command)
-    base = re.sub(r'\s/Fo\S+', "", command)
-    for name, paths in include_variants(env).items():
-        venv = dict(env, INCLUDE=";".join(paths))
-        code, out = run(base + " /Zs", build_dir, venv)
+    for name, variant in variants(command, env).items():
+        code, out = run(variant + " /Zs", build_dir, env)
         warnings = [line for line in out.splitlines() if "C4103" in line]
-        say(f"/Zs, INCLUDE {name}: exit {code}, {len(warnings)} C4103",
-            *[f"  {w}" for w in warnings[:5]])
-    code, out = run(base + " /Zs", build_dir, env)
-    lines = out.splitlines()
-    first = next((i for i, line in enumerate(lines) if "C4103" in line), None)
-    if first is not None:
-        say("headers opened before the first C4103 (/showIncludes):",
-            *lines[max(0, first - 60):first + 1])
-    stem = re.sub(r"[^A-Za-z0-9_.]", "_", obj)
-    preprocessed = os.path.join(out_dir, stem + ".i")
-    code, out = run(base + f' /P /Fi"{preprocessed}"', build_dir, env)
-    if code != 0 or not os.path.isfile(preprocessed):
-        say(f"/P failed ({code}): {out[-2000:]}")
-        return
-    unbalanced = pack_report(preprocessed)
-    say(f"#pragma pack not balanced in {len(unbalanced)} files:")
-    for name, s in unbalanced.items():
-        say(f"  {name}: push {s['push']} pop {s['pop']} set {s['set']} "
-            f"{s['seen']}")
+        say(f"/Zs, {name}: exit {code}, {len(warnings)} C4103",
+            *[f"  {w}" for w in warnings[:10]])
+        if code != 0:
+            say(*[f"  | {line}" for line in out.splitlines()
+                  if "Note: including file" not in line][:10])
 
 
 def run_all(cfg, package, env):
     print("# BEGIN SECTION: TEST ONLY: C4103 diagnostics", flush=True)
     try:
-        say("INCLUDE=" + env.get("INCLUDE", ""))
-        for name in ("WINDOWSSDKVERSION", "UCRTVERSION", "VCTOOLSVERSION",
-                     "WINDOWSSDKDIR", "CMAKE_GENERATOR"):
-            say(f"{name}={env.get(name, '')}")
-        sdk_dir = env.get("WINDOWSSDKDIR", "")
-        if sdk_dir and os.path.isdir(os.path.join(sdk_dir, "Include")):
-            say("SDKs: " + " ".join(sorted(os.listdir(
-                os.path.join(sdk_dir, "Include")))))
         ninja = shutil.which("ninja", path=env.get("PATH"))
         build_dir = str(cfg.ws / "build" / package)
-        out_dir = str(cfg.workspace / "c4103")
-        os.makedirs(out_dir, exist_ok=True)
         for obj in OBJECTS:
             try:
-                diagnose(build_dir, obj, env, ninja, out_dir)
+                diagnose(build_dir, obj, env, ninja)
             except Exception:
                 say(traceback.format_exc())
     except Exception:
