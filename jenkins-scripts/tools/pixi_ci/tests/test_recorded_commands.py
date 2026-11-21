@@ -1,6 +1,7 @@
 """The commands the driver runs for a Windows job, compared with the ones
 jenkins-scripts/lib/colcon-default-devel-windows.bat runs today."""
 
+import contextlib
 import json
 import shutil
 from dataclasses import dataclass, field
@@ -103,6 +104,10 @@ class Job:
             return Result(0, json.dumps({"environment_variables": {
                 "QT_QPA_PLATFORM_PLUGIN_PATH": r"%CONDA_PREFIX%\Library\plugins",
                 "CONDA_PREFIX": PREFIX,
+                # what the vs2019_win-64 activation sets
+                "CMAKE_GENERATOR": "Visual Studio 16 2019",
+                "CMAKE_GENERATOR_PLATFORM": "x64",
+                "CMAKE_GENERATOR_TOOLSET": "v142",
                 "PATH": PREFIX + r"\Library\bin;" + self.environ["PATH"],
             }}))
         if call.tool == "git" and call.args[0] == "clone":
@@ -302,6 +307,83 @@ def test_job_parallel_level_applies_to_the_dependencies_too(tmp_path):
     assert code == 0
     assert deps.env["CMAKE_BUILD_PARALLEL_LEVEL"] == "2"
     assert package.env["CMAKE_BUILD_PARALLEL_LEVEL"] == "2"
+
+
+class FakeSemaphore:
+    """Records the jobserver semaphores the driver opens and closes."""
+
+    def __init__(self, events):
+        self.events = events
+
+    @contextlib.contextmanager
+    def __call__(self, tokens):
+        self.events.append(("open", tokens))
+        yield "pixi_ci_jobserver_42"
+        self.events.append(("close", tokens))
+
+
+def colcon_steps(events):
+    """Each colcon call appends its subcommand to events, then the default
+    reply runs."""
+    return [(lambda call: call.tool == "colcon" and
+             events.append(call.args[0]), None)]
+
+
+def test_ninja_builds_share_one_jobserver(tmp_path, monkeypatch, capsys):
+    events = []
+    monkeypatch.setattr("pixi_ci.jobserver.windows_semaphore",
+                        FakeSemaphore(events))
+    job = make_job(tmp_path, replies=colcon_steps(events))
+    code, calls = job.run(CMAKE_GENERATOR="Ninja", NUMBER_OF_PROCESSORS="4")
+    deps, package = find(calls, "colcon", "build")
+    assert code == 0
+    for build in (deps, package):
+        assert " -GNinja" in build.args
+        assert build.env["CMAKE_GENERATOR"] == "Ninja"
+        assert "CMAKE_GENERATOR_PLATFORM" not in build.env
+        assert "CMAKE_GENERATOR_TOOLSET" not in build.env
+        # an explicit -j would make ninja ignore the jobserver
+        assert build.env["MAKEFLAGS"] == "-j4 --jobserver-auth=pixi_ci_jobserver_42"
+        assert all(name not in build.env for name in MSBUILD_PARALLEL)
+    # quiet dependencies: /w after the /W2 of gz-cmake, default flags kept
+    assert "-DCMAKE_CXX_FLAGS=-w" not in deps.args
+    assert deps.env["_CL_"] == "/w"
+    assert "_CL_" not in package.env
+    # 4 CPUs: 3 tokens, plus the job each ninja runs without one; the
+    # semaphore lives as long as the two builds
+    assert [e for e in events if e != "list"] == [
+        ("open", 3), "build", "build", ("close", 3), "test", "test-result"]
+    test = find(calls, "colcon", "test")[0]
+    assert test.env["MAKEFLAGS"] == "-j4"
+    assert "ninja: jobserver pixi_ci_jobserver_42: up to 4 jobs" in \
+        capsys.readouterr().out
+
+
+def test_ninja_with_a_job_parallel_level_uses_it_in_every_build(tmp_path,
+                                                                monkeypatch):
+    events = []
+    monkeypatch.setattr("pixi_ci.jobserver.windows_semaphore",
+                        FakeSemaphore(events))
+    job = make_job(tmp_path)
+    code, calls = job.run(CMAKE_GENERATOR="Ninja",
+                          CMAKE_BUILD_PARALLEL_LEVEL="6")
+    deps, package = find(calls, "colcon", "build")
+    assert code == 0
+    assert events == []
+    for build in (deps, package):
+        assert " -GNinja" in build.args
+        assert build.env["CMAKE_BUILD_PARALLEL_LEVEL"] == "6"
+        assert build.env["MAKEFLAGS"] == "-j4"
+
+
+def test_unknown_cmake_generator_fails_before_running_anything(tmp_path,
+                                                               capsys):
+    job = make_job(tmp_path)
+    code, calls = job.run(CMAKE_GENERATOR="NMake Makefiles")
+    assert code == 1
+    assert calls == []
+    assert ("ERROR: CMAKE_GENERATOR=NMake Makefiles is not supported"
+            in capsys.readouterr().out)
 
 
 def test_log_reports_the_agent_and_the_memory_of_each_build(tmp_path,

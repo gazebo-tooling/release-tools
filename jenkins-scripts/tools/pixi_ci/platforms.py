@@ -1,12 +1,13 @@
 """Per-OS facts. Phase A knows Windows only."""
 
+import contextlib
 import ntpath
 import os
 import stat
 import sys
 from pathlib import Path
 
-from . import envvars, memory
+from . import colcon, envvars, jobserver, memory
 from .runner import CIError, section
 
 
@@ -52,7 +53,20 @@ class WindowsPlatform:
     def memory_probe(self):
         return memory.WindowsMemoryProbe()
 
-    def package_build_env(self, env):
+    def _cpus(self, env):
+        return env.get("NUMBER_OF_PROCESSORS") or str(os.cpu_count() or 1)
+
+    @contextlib.contextmanager
+    def build_setup(self, env, cfg):
+        """Yield the colcon.BuildSetup of the dependencies and the package."""
+        if cfg.cmake_generator == "Ninja":
+            with self._ninja_setup(env, cfg) as setup:
+                yield setup
+        else:
+            yield colcon.BuildSetup(deps_env=env,
+                                    package_env=self._msbuild_package_env(env))
+
+    def _msbuild_package_env(self, env):
         """Environment of the build of the package under test.
 
         With Visual Studio generators colcon-cmake runs "cmake --build"
@@ -65,11 +79,43 @@ class WindowsPlatform:
         """
         env = dict(env)
         if not env.get("CMAKE_BUILD_PARALLEL_LEVEL"):
-            env["CMAKE_BUILD_PARALLEL_LEVEL"] = (
-                env.get("NUMBER_OF_PROCESSORS") or str(os.cpu_count() or 1))
+            env["CMAKE_BUILD_PARALLEL_LEVEL"] = self._cpus(env)
         # Do not leave MSBuild worker nodes running after the build
         env["MSBUILDDISABLENODEREUSE"] = "1"
         return env
+
+    @contextlib.contextmanager
+    def _ninja_setup(self, env, cfg):
+        """Ninja builds every target of a package in parallel, file by file,
+        so no /MP and no /m. The cap on the jobs of all the ninja processes
+        together is a jobserver, unless the job sets CMAKE_BUILD_PARALLEL_LEVEL,
+        which CMake passes to every ninja as -jN.
+        """
+        env = dict(env, CMAKE_GENERATOR="Ninja")
+        # Set by the vs2019 activation; Ninja accepts no platform or toolset
+        for name in ("CMAKE_GENERATOR_PLATFORM", "CMAKE_GENERATOR_TOOLSET"):
+            env.pop(name, None)
+        # The dependencies build without warnings. CMAKE_CXX_FLAGS=-w, as with
+        # MSBuild, would drop the default /EHsc /GR, and gz-cmake adds /W2
+        # after it. cl.exe reads _CL_ after its command line, so /w wins
+        # (cl.exe prints D9025 "overriding '/W2' with '/w'" for each file).
+        deps_env = dict(env, _CL_=" ".join(filter(None, (env.get("_CL_"),
+                                                          "/w"))))
+        ninja_args = {"cmake_args": (" -GNinja",), "quiet_deps_args": ()}
+        if env.get("CMAKE_BUILD_PARALLEL_LEVEL"):
+            print("ninja: -j" + env["CMAKE_BUILD_PARALLEL_LEVEL"] +
+                  " for every package (CMAKE_BUILD_PARALLEL_LEVEL)",
+                  flush=True)
+            yield colcon.BuildSetup(deps_env, env, **ninja_args)
+            return
+        slots = int(self._cpus(env))
+        with jobserver.windows_semaphore(jobserver.tokens_for(slots)) as name:
+            print(f"ninja: jobserver {name}: up to {slots} jobs for one "
+                  "package, one more for each other package building at "
+                  "the same time", flush=True)
+            flags = jobserver.makeflags(cfg.make_jobs, name)
+            yield colcon.BuildSetup(dict(deps_env, MAKEFLAGS=flags),
+                                    dict(env, MAKEFLAGS=flags), **ninja_args)
 
     def post_activation(self, env):
         prefix = env.get("CONDA_PREFIX")
