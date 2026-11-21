@@ -14,16 +14,6 @@ echo '# END SECTION'
 cat > build.sh << DELIM
 $(generate_buildsh_header)
 
-if ${USE_UNSTABLE}; then
-   TARGET_DISTRO='unstable'
-else
-  TARGET_DISTRO='experimental'
-  tee ~/.sbuildrc << EOF
-\\\$verbose = 1;
-\\\$extra_repositories = [ 'deb http://ftp.us.debian.org/debian experimental main' ];
-EOF
-fi
-
 sudo rm /var/lib/apt/lists/*.lz4
 sudo sed -i -e 's:GzipIndexes "true":GzipIndexes "false":g' /etc/apt/apt.conf.d/*
 sudo apt-get update
@@ -42,15 +32,24 @@ cd \$dir
 debuild --no-sign
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: create chroot'
-sudo sbuild-adduser \${USER}
-# experimental should be handled in sbuild.conf file
-if $USE_UNSTABLE; then
-  sudo sbuild-createchroot unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian
-else
-  sudo sbuild-createchroot --extra-repository='deb http://ftp.us.debian.org/debian experimental main' unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian
+echo '# BEGIN SECTION: configure sbuild'
+# Creating an sbuild chroot (schroot or unshare) needs a privileged
+# container. Instead, sbuild builds every reverse dependency directly in
+# this container through the autopkgtest null server, purging the build
+# dependencies after each build. That mode needs sbuild to run as root;
+# dpkg-buildpackage still runs as the unprivileged sbuild user.
+sudo mkdir -p /root/.config/sbuild
+sudo tee /root/.config/sbuild/config.pl << EOF
+\\\$chroot_mode = 'autopkgtest';
+\\\$autopkgtest_virt_server = 'null';
+\\\$build_user = 'sbuild';
+EOF
+if ! $USE_UNSTABLE; then
+  sudo tee -a /root/.config/sbuild/config.pl << EOF
+\\\$verbose = 1;
+\\\$extra_repositories = [ 'deb http://ftp.us.debian.org/debian experimental main' ];
+EOF
 fi
-
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
@@ -60,7 +59,7 @@ if $USE_UNSTABLE; then
 fi
 rm -fr ${WORKSPACE}/logs && mkdir ${WORKSPACE}/logs
 
-sudo apt-get install -y golang-go login
+sudo apt-get install -y golang-go
 pushd /tmp 2> /dev/null
 git clone https://github.com/j-rivero/ratt
 cd ratt
@@ -69,20 +68,19 @@ go mod tidy
 go build
 popd 2> /dev/null
 
-str_params=''
+# An array keeps each filter as a single argument, without the quotes
+ratt_params=()
 if [[ -n '$RATT_INCLUDE' ]]; then
-  str_params="--include '${RATT_INCLUDE}'"
+  ratt_params+=(--include '${RATT_INCLUDE}')
 fi
 
 if [[ -n '$RATT_EXCLUDE' ]]; then
-  str_params="\${str_params} --exclude '${RATT_EXCLUDE}'"
+  ratt_params+=(--exclude '${RATT_EXCLUDE}')
 fi
 
-# use new group to run sbuild
-newgrp sbuild << END
-echo running ratt under sbuild group
-/tmp/ratt/build \${str_params} ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
-END
+# sbuild needs root, see the sbuild configuration above
+sudo -H /tmp/ratt/build "\${ratt_params[@]}" ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
+sudo chown -R \${USER}: buildlogs
 cp -a buildlogs ${WORKSPACE}/logs
 echo '# END SECTION'
 DELIM
@@ -93,8 +91,7 @@ if $USE_UNSTABLE; then
 else
   export DISTRO=experimental
 fi
-export DEPENDENCY_PKGS="sbuild quilt devscripts dose-extra git"
-export USE_DOCKER_IN_DOCKER=true
+export DEPENDENCY_PKGS="sbuild autopkgtest quilt devscripts dose-extra git"
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
 . "${SCRIPT_DIR}/lib/docker_run.bash"

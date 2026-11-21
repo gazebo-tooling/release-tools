@@ -23,29 +23,37 @@ export DEBFULLNAME="OSRF Jenkins"
 export DEBEMAIL="build@osrfoundation.org"
 
 echo '# BEGIN SECTION: generating the backport (${DEST_UBUNTU_DISTRO}/${ARCH})'
-export COWBUILDER_BASE_PATH=/var/lib/pbuilder/${DEST_UBUNTU_DISTRO}-base.cow
-mkdir -p /var/lib/pbuilder/
-cowbuilder --create \
-           --distribution ${DEST_UBUNTU_DISTRO} \
-	   --components "main restricted universe multiverse" \
-           --basepath=\${COWBUILDER_BASE_PATH}
+# Only the source package: the container is already a ${DEST_UBUNTU_DISTRO}
+# system, so the binaries are built right here. A cowbuilder/pbuilder chroot
+# would need a privileged container.
+backportpackage --dont-sign \
+                -s ${SOURCE_UBUNTU_DISTRO} -d ${DEST_UBUNTU_DISTRO} \
+                -w . ${PACKAGE}
+BACKPORT_CHANGES=\$(find . -maxdepth 1 -name '*_source.changes')
+if [[ \$(echo "\${BACKPORT_CHANGES}" | wc -w) -ne 1 ]]; then
+  echo "Expected one *_source.changes from backportpackage, found: \${BACKPORT_CHANGES}"
+  exit 1
+fi
+BACKPORT_DSC=\${BACKPORT_CHANGES%_source.changes}.dsc
+echo '# END SECTION'
 
-BASEPATH=\${COWBUILDER_BASE_PATH} \
-  backportpackage --dont-sign \
-		  -b \
-                  --builder cowbuilder \
-		  -s ${SOURCE_UBUNTU_DISTRO} -d ${DEST_UBUNTU_DISTRO} \
-		  -w . ${PACKAGE}
+echo '# BEGIN SECTION: building the backport'
+dpkg-source -x \${BACKPORT_DSC} backport_src
+cd backport_src
+sudo apt-get update
+sudo apt-get build-dep -y ./
+dpkg-buildpackage -us -uc -b
+cd ..
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: export pkgs'
 mkdir -p $WORKSPACE/pkgs
 cp *.tar.* $WORKSPACE/pkgs
-cp buildresult/*.dsc $WORKSPACE/pkgs
+cp \${BACKPORT_DSC} $WORKSPACE/pkgs
 # debian is only generated in quilt format, native does not have it
 cp ../*.debian.* $WORKSPACE/pkgs || true
 
-PKGS=\`find buildresult/ -name '*.deb' || true\`
+PKGS=\`find . -maxdepth 1 -name '*.deb' || true\`
 
 FOUND_PKG=0
 for pkg in \${PKGS}; do
@@ -60,17 +68,16 @@ test \$FOUND_PKG -eq 1 || exit 1
 echo '# END SECTION'
 DELIM
 
-# Workaround to invoke the --priveleged option in docker, needed for pbuilder
-USE_GPU_DOCKER=true
 OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
 DEPENDENCY_PKGS="devscripts \
-		 ubuntu-dev-tools \
-		 debhelper \
-		 wget \
-		 ca-certificates \
-		 equivs \
-		 dh-make \
-		 cowbuilder"
+                 ubuntu-dev-tools \
+                 build-essential \
+                 fakeroot \
+                 debhelper \
+                 wget \
+                 ca-certificates \
+                 equivs \
+                 dh-make"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash

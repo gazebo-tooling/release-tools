@@ -13,7 +13,6 @@ sudo rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
 
 [[ -z ${DOCKER_DO_NOT_CACHE} ]] && DOCKER_DO_NOT_CACHE=false
-[[ -z ${USE_DOCKER_IN_DOCKER} ]] && export USE_DOCKER_IN_DOCKER=false
 
 # Remove intermediate containers even if the build is not successful
 if $DOCKER_DO_NOT_CACHE; then
@@ -47,17 +46,24 @@ echo '# BEGIN SECTION: see build.sh script'
 cat build.sh
 echo '# END SECTION'
 
-if $USE_DOCKER_IN_DOCKER; then
- EXTRA_PARAMS_STR="--privileged \
-                    -v /var/run/docker.sock:/var/run/docker.sock"
-fi
-
+# Build containers do not use --privileged nor mount the docker socket.
+# GPU access goes through the explicit devices below.
 if $USE_GPU_DOCKER; then
-  EXTRA_PARAMS_STR="--privileged \
-                    -e DISPLAY=$DISPLAY \
+  EXTRA_PARAMS_STR="-e DISPLAY=$DISPLAY \
                     -v /sys:/sys:ro         \
-                    -v /var/run/docker.sock:/var/run/docker.sock \
                     -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
+
+  # The nvidia runtime injects /dev/nvidia* and /dev/dri itself. Other cards
+  # need /dev/dri passed in, plus the groups that own its nodes since the
+  # container user is not a member of the host video/render groups.
+  if [[ $GRAPHIC_CARD_NAME != "Nvidia" && -d /dev/dri ]]; then
+    EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --device /dev/dri"
+    for dri_gid in $(find /dev/dri -maxdepth 1 -type c -printf '%G\n' | sort -u); do
+      if [[ ${dri_gid} != 0 ]]; then
+        EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --group-add ${dri_gid}"
+      fi
+    done
+  fi
 
   if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
     case ${NVIDIA_DOCKER_DRIVER} in
