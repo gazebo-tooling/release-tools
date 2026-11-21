@@ -98,7 +98,8 @@ class JobConfig:
                           " but it does not exist")
         extra = get("COLCON_PACKAGE_EXTRA_CMAKE_ARGS")
         jobs = get("MAKE_JOBS")
-        generator = get("CMAKE_GENERATOR")
+        # TEST ONLY: Ninja unless the job says otherwise
+        generator = get("CMAKE_GENERATOR") or "Ninja"
         if generator is not None and generator not in GENERATORS:
             raise CIError(f"CMAKE_GENERATOR={generator} is not supported: "
                           f"use one of {', '.join(GENERATORS)} or leave it "
