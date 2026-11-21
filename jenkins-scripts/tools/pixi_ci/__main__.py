@@ -38,9 +38,9 @@ def run_job(cfg, platform, runner, base_env):
     package = workspace.find_package(runner, cfg, major, env)
 
     env = dict(env, MAKEFLAGS=f"-j{cfg.make_jobs}")
-    with section(f"compiling {cfg.vcs_directory}"):
-        colcon.build(runner, cfg, package, env,
-                     platform.package_build_env(env))
+    with section(f"compiling {cfg.vcs_directory}"), \
+            platform.build_setup(env, cfg) as setup:
+        colcon.build(runner, cfg, package, setup)
     if cfg.enable_tests:
         with section(f"running tests for {package}"):
             colcon.test(runner, cfg, package, env)
