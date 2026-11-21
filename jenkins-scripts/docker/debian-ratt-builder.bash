@@ -68,17 +68,18 @@ go mod tidy
 go build
 popd 2> /dev/null
 
-str_params=''
+# An array keeps each filter as a single argument, without the quotes
+ratt_params=()
 if [[ -n '$RATT_INCLUDE' ]]; then
-  str_params="--include '${RATT_INCLUDE}'"
+  ratt_params+=(--include '${RATT_INCLUDE}')
 fi
 
 if [[ -n '$RATT_EXCLUDE' ]]; then
-  str_params="\${str_params} --exclude '${RATT_EXCLUDE}'"
+  ratt_params+=(--exclude '${RATT_EXCLUDE}')
 fi
 
 # sbuild needs root, see the sbuild configuration above
-sudo -H /tmp/ratt/build \${str_params} ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
+sudo -H /tmp/ratt/build "\${ratt_params[@]}" ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
 sudo chown -R \${USER}: buildlogs
 cp -a buildlogs ${WORKSPACE}/logs
 echo '# END SECTION'
