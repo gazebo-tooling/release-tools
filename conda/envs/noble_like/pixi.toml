@@ -45,6 +45,7 @@ libgdal-netcdf = ">=3.10.0,<4"
 [target.win-64.dependencies]
 dlfcn-win32 = "*"
 vs2019_win-64 = ">=19.29.30139,<20"
+ninja = ">=1.13"
 
 [target.linux.dependencies]
 libegl-devel = "*"
