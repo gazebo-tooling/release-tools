@@ -1,39 +1,43 @@
 """TEST ONLY: find what makes cl.exe report C4103 in gz-sim under Ninja.
 
-Runs after the build of the package. For each object below it takes the
-compile command from build.ninja and runs it again outside ninja with /Zs,
-counting C4103, under variants of the command line that move it towards the
-one the Visual Studio generator passes (which reports no C4103):
+Round 2 (gz_sim-pr-cnlwin-nogpu #8 on citest) showed that the innermost
+C4103 is at the first #include <atomic> (MSVC STL system_error:18), reached
+after some gz-physics headers, whatever the command line. This round
+compiles small probe files with the flags of each object and /Zs:
 
-* without /showIncludes;
-* with the -external:I directories as plain -I, and without -external:W0;
-* with -external:W2, so that a C4103 inside an external header is shown;
-* without the -I of the conda Library\\include that comes from CXXFLAGS (the
-  same directory is also an -external:I);
-* in the MSBuild order: the -I directories first, then -external:W0 and the
-  -external:I directories after the other flags;
-* with the flags that MSBuild adds (/GR /GS /fp:precise /Zc:inline ...);
-* both of the last two.
-
-The first round (INCLUDE without the conda Library\\include, /P scan of the
-#pragma pack directives) is in the log of gz_sim-pr-cnlwin-nogpu #7 on citest.
+* trace: the first headers of the object, then <atomic>, with
+  #pragma pack(show) (warning C4810 prints the packing value) after each
+  include, and a report of the macros that could rewrite a #pragma pack
+  (push, pop, pack, new, _CRT_PACKING);
+* control: <atomic> alone;
+* bisection: for each header that the first headers open (/showIncludes
+  order), a probe with that header and then <atomic>; prints the headers
+  after which <atomic> changes the packing.
 
 Nothing here can fail the job.
 """
 
 import ntpath
+import os
 import re
 import shutil
 import subprocess
+import time
 import traceback
 
-OBJECTS = (
-    "src/systems/physics/CMakeFiles/gz-sim-physics-system.dir/Physics.cc.obj",
+# object -> the includes that come before the one that warns
+OBJECTS = {
+    "src/systems/physics/CMakeFiles/gz-sim-physics-system.dir/Physics.cc.obj":
+        ("<memory>", "<unordered_map>", "<utility>",
+         "<gz/physics/FindFeatures.hh>", "<gz/physics/RequestFeatures.hh>"),
     "src/systems/physics/CMakeFiles/UNIT_EntityFeatureMap_TEST.dir/"
-    "EntityFeatureMap_TEST.cc.obj",
-)
-MSBUILD_FLAGS = ("/GR /Gm- /GS /fp:precise /Zc:wchar_t /Zc:forScope "
-                 "/Zc:inline /Gd /FC /diagnostics:column")
+    "EntityFeatureMap_TEST.cc.obj": ('"EntityFeatureMap.hh"',),
+}
+MAX_HEADERS = 400
+BUDGET_SECONDS = 20 * 60
+SHOW = re.compile(r"\((\d+)\).*C4810.*==\s*(\d+)")
+NOTE = re.compile(r"Note: including file:\s*(.*\S)")
+MACROS = ("push", "pop", "pack", "new", "show")
 
 
 def say(*lines):
@@ -57,71 +61,119 @@ def compile_command(ninja, build_dir, obj, env):
     return lines[-1]
 
 
-def is_external(token):
-    return token.lower().startswith(("-external:i", "/external:i"))
+class Prober:
+    """Compiles probe sources with the flags of one object."""
+
+    def __init__(self, command, build_dir, env, out_dir, stem):
+        flags, source = command.rsplit(" ", 1)
+        flags = re.sub(r"\s/Fo\S+", "", flags).replace(" /showIncludes", "")
+        self.flags = f'{flags} -I"{ntpath.dirname(source)}" /Zs'
+        self.build_dir, self.env = build_dir, env
+        self.out_dir, self.stem, self.count = out_dir, stem, 0
+
+    def compile(self, lines, extra=""):
+        self.count += 1
+        path = os.path.join(self.out_dir, f"{self.stem}_{self.count}.cc")
+        with open(path, "w", encoding="ascii", errors="replace") as f:
+            f.write("\n".join(lines) + "\n")
+        code, out = run(f'{self.flags} {extra} "{path}"', self.build_dir,
+                        self.env)
+        mine = os.path.basename(path).lower()
+        shows = [(int(line_no), int(value))
+                 for line_no, value in (m.groups() for m in
+                                        (SHOW.search(line) for line in
+                                         out.splitlines()) if m)]
+        c4103 = [line for line in out.splitlines() if "warning C4103" in line]
+        own = [line for line in c4103 if mine in line.lower()]
+        return code, out, shows, c4103, own
 
 
-def is_external_level(token):
-    return token.lower().startswith(("-external:w", "/external:w"))
+def macro_lines():
+    lines = ["#define C4103_STR2(x) #x", "#define C4103_STR(x) C4103_STR2(x)"]
+    for name in MACROS:
+        lines += [f"#ifdef {name}",
+                  f'#pragma message("C4103 probe: {name} is a macro: "'
+                  f" C4103_STR({name}))", "#endif"]
+    lines.append('#pragma message("C4103 probe: _CRT_PACKING = "'
+                 " C4103_STR(_CRT_PACKING))")
+    return lines
 
 
-def is_include(token):
-    return token.startswith(("-I", "/I"))
+def trace(prober, prefix):
+    lines = ["#pragma pack(show)"]
+    for include in prefix:
+        lines += [f"#include {include}", "#pragma pack(show)"]
+    lines += macro_lines()
+    lines += ["#include <atomic>", "#pragma pack(show)"]
+    code, out, shows, c4103, own = prober.compile(lines)
+    say(f"trace: exit {code}, {len(c4103)} C4103 ({len(own)} in the probe)")
+    for line_no, value in shows:
+        say(f"  pack(show) after line {line_no - 1}: "
+            f"{lines[line_no - 2] if line_no > 1 else '(start)'} -> {value}")
+    say(*[f"  {line.strip()}" for line in out.splitlines()
+          if "C4103 probe" in line or ("C4103" in line and "probe" in
+                                       line.lower())][:20])
+    code, out, shows, c4103, own = prober.compile(
+        ["#pragma pack(show)", "#include <atomic>", "#pragma pack(show)"])
+    say(f"control, <atomic> alone: exit {code}, {len(c4103)} C4103, "
+        f"pack {[value for _, value in shows]}")
 
 
-def is_conda_include(token, env):
-    conda_inc = ntpath.normcase(ntpath.join(env.get("CONDA_PREFIX", ""),
-                                            "Library", "include"))
-    path = ntpath.normcase(token[2:].replace("/", "\\").rstrip("\\"))
-    return is_include(token) and path == conda_inc
+def is_system(path, env):
+    roots = [env.get(name, "") for name in ("VCTOOLSINSTALLDIR",
+                                             "WINDOWSSDKDIR")]
+    return any(root and path.lower().startswith(root.lower())
+               for root in roots)
 
 
-def msbuild_order(tokens):
-    """cl.exe first, then -I, the other flags, -external:W0, -external:I."""
-    cl, rest = tokens[0], tokens[1:]
-    includes = [t for t in rest if is_include(t)]
-    level = [t for t in rest if is_external_level(t)]
-    external = [t for t in rest if is_external(t)]
-    others = [t for t in rest if not (is_include(t) or is_external_level(t)
-                                      or is_external(t))]
-    return [cl, *includes, *others, *level, *external]
+def headers_of(prober, prefix):
+    """(depth, path) of each file the prefix opens, first time only, the
+    headers outside MSVC and the Windows SDK first."""
+    lines = [f"#include {include}" for include in prefix]
+    code, out, _, _, _ = prober.compile(lines, "/showIncludes")
+    seen, ordered = set(), []
+    for line in out.splitlines():
+        match = NOTE.search(line)
+        if match and match.group(1).lower() not in seen:
+            seen.add(match.group(1).lower())
+            rest = line.split("including file:", 1)[1]
+            ordered.append((len(rest) - len(rest.lstrip()), match.group(1)))
+    ordered.sort(key=lambda item: is_system(item[1], prober.env))
+    return code, ordered
 
 
-def variants(command, env):
-    base = re.sub(r'\s/Fo\S+', "", command)
-    result = {
-        "as built": base,
-        "without /showIncludes": base.replace(" /showIncludes", ""),
-        "-external:I as -I, no -external:W0": re.sub(
-            r"(?<=\s)[-/]external:I", "-I",
-            re.sub(r"\s[-/]external:W0", "", base)),
-        "-external:W2": re.sub(r"(?<=\s)([-/]external:)W0", r"\1W2", base),
-    }
-    if '"' in base:
-        say("quoted arguments in the command: no token variants")
-        return result
-    tokens = base.split()
-    result["without the CXXFLAGS -I conda Library\\include"] = " ".join(
-        t for t in tokens if not is_conda_include(t, env))
-    result["MSBuild order"] = " ".join(msbuild_order(tokens))
-    result["MSBuild flags"] = base + " " + MSBUILD_FLAGS
-    result["MSBuild order and flags"] = (" ".join(msbuild_order(tokens)) +
-                                         " " + MSBUILD_FLAGS)
-    return result
+def bisect(prober, prefix):
+    code, headers = headers_of(prober, prefix)
+    say(f"bisection: the first headers open {len(headers)} files "
+        f"(exit {code}); probing up to {MAX_HEADERS}, non-system first; "
+        "hit = <atomic> after the header changes the packing")
+    start, hits, failed = time.monotonic(), 0, 0
+    for index, (depth, header) in enumerate(headers[:MAX_HEADERS]):
+        if time.monotonic() - start > BUDGET_SECONDS:
+            say(f"  time budget spent after {index} headers")
+            break
+        code, _, shows, _, own = prober.compile(
+            ["#pragma pack(show)", f'#include "{header}"', "#pragma pack(show)",
+             "#include <atomic>", "#pragma pack(show)"])
+        failed += code != 0
+        values = [value for _, value in shows]
+        if own or len(set(values)) > 1:
+            hits += 1
+            say(f"  [{index}] depth {depth} {header}: exit {code}, "
+                f"pack {values}, {len(own)} C4103 in the probe")
+            if hits >= 150:
+                say("  150 hits, stopping")
+                break
+    say(f"bisection done: {hits} hits, {failed} probes did not compile, "
+        f"{time.monotonic() - start:.0f} s")
 
 
-def diagnose(build_dir, obj, env, ninja):
+def diagnose(build_dir, obj, prefix, env, ninja, out_dir, stem):
     say(f"=== {obj}")
     command = compile_command(ninja, build_dir, obj, env)
-    say("command:", command)
-    for name, variant in variants(command, env).items():
-        code, out = run(variant + " /Zs", build_dir, env)
-        warnings = [line for line in out.splitlines() if "C4103" in line]
-        say(f"/Zs, {name}: exit {code}, {len(warnings)} C4103",
-            *[f"  {w}" for w in warnings[:10]])
-        if code != 0:
-            say(*[f"  | {line}" for line in out.splitlines()
-                  if "Note: including file" not in line][:10])
+    prober = Prober(command, build_dir, env, out_dir, stem)
+    trace(prober, prefix)
+    bisect(prober, prefix)
 
 
 def run_all(cfg, package, env):
@@ -129,9 +181,12 @@ def run_all(cfg, package, env):
     try:
         ninja = shutil.which("ninja", path=env.get("PATH"))
         build_dir = str(cfg.ws / "build" / package)
-        for obj in OBJECTS:
+        out_dir = str(cfg.workspace / "c4103")
+        os.makedirs(out_dir, exist_ok=True)
+        for number, (obj, prefix) in enumerate(OBJECTS.items()):
             try:
-                diagnose(build_dir, obj, env, ninja)
+                diagnose(build_dir, obj, prefix, env, ninja, out_dir,
+                         f"probe{number}")
             except Exception:
                 say(traceback.format_exc())
     except Exception:
