@@ -1,18 +1,20 @@
 """TEST ONLY: find what makes cl.exe report C4103 in gz-sim under Ninja.
 
-Round 2 (gz_sim-pr-cnlwin-nogpu #8 on citest) showed that the innermost
-C4103 is at the first #include <atomic> (MSVC STL system_error:18), reached
-after some gz-physics headers, whatever the command line. This round
-compiles small probe files with the flags of each object and /Zs:
+Round 3 (gz_sim-pr-cnlwin-nogpu #9 on citest) found the trigger: after
+gz-physics detail/RequestFeatures.hh, which has no #pragma, only the
+out-of-class definitions of two member templates of RequestFeatures<>, the
+next #pragma pack(show) reports two values, 16 and then 8 (_CRT_PACKING),
+and the next #include <atomic> reports C4103. <atomic> alone does not.
+This round compiles small probe files with the flags of Physics.cc.obj and
+/Zs:
 
-* trace: the first headers of the object, then <atomic>, with
-  #pragma pack(show) (warning C4810 prints the packing value) after each
-  include, and a report of the macros that could rewrite a #pragma pack
-  (push, pop, pack, new, _CRT_PACKING);
-* control: <atomic> alone;
-* bisection: for each header that the first headers open (/showIncludes
-  order), a probe with that header and then <atomic>; prints the headers
-  after which <atomic> changes the packing.
+* base: the raw C4810 and C4103 lines of RequestFeatures.hh then <atomic>;
+* layout: whether a struct declared after the header gets the packing 8;
+* split: the two definitions of detail/RequestFeatures.hh one at a time;
+* standalone: the same kind of definitions without the gz headers;
+* flags: the base probe with one compiler flag changed at a time;
+* generators: the base probe in a small CMake project built with Ninja and
+  with Visual Studio 16 2019 (MSBuild), with the same compile options.
 
 Nothing here can fail the job.
 """
@@ -22,26 +24,164 @@ import os
 import re
 import shutil
 import subprocess
-import time
 import traceback
 
-# object -> the includes that come before the one that warns
-OBJECTS = {
-    "src/systems/physics/CMakeFiles/gz-sim-physics-system.dir/Physics.cc.obj":
-        ("<memory>", "<unordered_map>", "<utility>",
-         "<gz/physics/FindFeatures.hh>", "<gz/physics/RequestFeatures.hh>"),
-    "src/systems/physics/CMakeFiles/UNIT_EntityFeatureMap_TEST.dir/"
-    "EntityFeatureMap_TEST.cc.obj": ('"EntityFeatureMap.hh"',),
-}
-MAX_HEADERS = 400
-BUDGET_SECONDS = 20 * 60
+OBJECT = "src/systems/physics/CMakeFiles/gz-sim-physics-system.dir/Physics.cc.obj"
 SHOW = re.compile(r"\((\d+)\).*C4810.*==\s*(\d+)")
-NOTE = re.compile(r"Note: including file:\s*(.*\S)")
-MACROS = ("push", "pop", "pack", "new", "show")
+VALUE = re.compile(r"C4810.*==\s*(\d+)")
+SHOW_ATOMIC = ["#pragma pack(show)", "#include <atomic>", "#pragma pack(show)"]
+BASE = ["#pragma pack(show)", "#include <gz/physics/RequestFeatures.hh>",
+        *SHOW_ATOMIC]
+STL = ["#include <memory>", "#include <set>", "#include <string>",
+       "#include <utility>"]
+A16 = ["#include <cstddef>", "struct alignas(16) C4103A { char c[16]; };"]
+
+# gz-physics main, include/gz/physics/detail/RequestFeatures.hh
+FROM = """
+    /////////////////////////////////////////////////
+    template <typename FeatureListT>
+    template <
+      typename PolicyT,
+      typename FromFeatureList,
+      template <typename, typename> class EntityT>
+    EntityPtr<EntityT<PolicyT, FeatureListT>>
+    RequestFeatures<FeatureListT>::From(
+        const EntityPtr<EntityT<PolicyT, FromFeatureList>>& _from)
+    {
+      using ToPluginType =
+          typename detail::DeterminePlugin<PolicyT, FeatureListT>::type;
+
+      // If there is no underlying entity, then just return a null EntityPtr.
+      if (!_from.entity)
+        return nullptr;
+
+      // If there is no underlying pimpl, then just return a null EntityPtr.
+      // TODO(MXG): Should this ever be possible? Maybe this should be an
+      // assertion instead?
+      if (!_from.entity->pimpl)
+        return nullptr;
+
+      ToPluginType toPlugin(*_from.entity->pimpl);
+      if (!detail::InspectFeatures<
+              PolicyT,
+              FeatureListT
+          >::Verify(toPlugin))
+      {
+        // The physics plugin does not implement all of the features that were
+        // requested, so we will return a nullptr.
+        return nullptr;
+      }
+
+      return EntityPtr<EntityT<PolicyT, FeatureListT>>(
+            std::make_shared<ToPluginType>(std::move(toPlugin)),
+            _from.entity->identity);
+    }
+"""
+
+MISSING = """
+    /////////////////////////////////////////////////
+    template <typename FeatureListT>
+    template <
+        typename PolicyT,
+        typename FromFeatureList,
+        template <typename, typename> class EntityT>
+    std::set<std::string> RequestFeatures<FeatureListT>::MissingFeatureNames(
+        const EntityPtr<EntityT<PolicyT, FromFeatureList>> &_entity)
+    {
+      std::set<std::string> names;
+      if (!_entity.entity || !_entity.entity->pimpl)
+      {
+        detail::InspectFeatures<PolicyT, FeatureListT>::MissingNames(
+              plugin::PluginPtr(), names);
+        return names;
+      }
+
+      detail::InspectFeatures<PolicyT, FeatureListT>::MissingNames(
+            *_entity.entity->pimpl, names);
+      return names;
+    }
+"""
+
+STANDALONE = {
+    "out-of-class, class template, template template parameter": """
+template <typename P, typename F> class C4103E {};
+template <typename T> class C4103Ptr {};
+template <typename L>
+struct C4103R
+{
+  template <typename P, typename F, template <typename, typename> class E>
+  static C4103Ptr<E<P, L>> From(const C4103Ptr<E<P, F>> &);
+};
+template <typename L>
+template <typename P, typename F, template <typename, typename> class E>
+C4103Ptr<E<P, L>> C4103R<L>::From(const C4103Ptr<E<P, F>> &)
+{
+  return {};
+}
+""",
+    "out-of-class, class template, type parameters only": """
+template <typename T> class C4103Ptr {};
+template <typename L>
+struct C4103R
+{
+  template <typename P, typename F>
+  static C4103Ptr<P> From(const C4103Ptr<F> &);
+};
+template <typename L>
+template <typename P, typename F>
+C4103Ptr<P> C4103R<L>::From(const C4103Ptr<F> &)
+{
+  return {};
+}
+""",
+    "in-class, class template, template template parameter": """
+template <typename P, typename F> class C4103E {};
+template <typename T> class C4103Ptr {};
+template <typename L>
+struct C4103R
+{
+  template <typename P, typename F, template <typename, typename> class E>
+  static C4103Ptr<E<P, L>> From(const C4103Ptr<E<P, F>> &)
+  {
+    return {};
+  }
+};
+""",
+    "out-of-class, plain class, template template parameter": """
+template <typename P, typename F> class C4103E {};
+template <typename T> class C4103Ptr {};
+struct C4103R
+{
+  template <typename P, typename F, template <typename, typename> class E>
+  static C4103Ptr<E<P, F>> From(const C4103Ptr<E<P, F>> &);
+};
+template <typename P, typename F, template <typename, typename> class E>
+C4103Ptr<E<P, F>> C4103R::From(const C4103Ptr<E<P, F>> &)
+{
+  return {};
+}
+""",
+}
+
+FLAG_VARIANTS = (
+    ("without -permissive-", ("-permissive-",), ""),
+    ("with /Zc:twoPhase-", (), "/Zc:twoPhase-"),
+    ("without -Zc:__cplusplus", ("-Zc:__cplusplus",), ""),
+    ("without -utf-8", ("-utf-8",), ""),
+    ("without /GL", ("/GL",), ""),
+    ("without /bigobj", ("/bigobj",), ""),
+    ("-std:c++14", ("-std:c++17",), "-std:c++14"),
+    ("-std:c++latest", ("-std:c++17",), "-std:c++latest"),
+)
+
+# compile options of the ninja command that the small CMake project sets
+# itself or that do not apply to it
+NOT_OPTIONS = ("/nologo", "/TP", "/showIncludes", "/FS", "-c")
 
 
 def say(*lines):
-    print("\n".join(str(line) for line in lines), flush=True)
+    if lines:
+        print("\n".join(str(line) for line in lines), flush=True)
 
 
 def run(command, cwd, env):
@@ -61,15 +201,33 @@ def compile_command(ninja, build_dir, obj, env):
     return lines[-1]
 
 
+def short(line):
+    """A compiler message without the directory of the file."""
+    return line.strip().rsplit("\\", 1)[-1][:300]
+
+
 class Prober:
     """Compiles probe sources with the flags of one object."""
 
     def __init__(self, command, build_dir, env, out_dir, stem):
         flags, source = command.rsplit(" ", 1)
         flags = re.sub(r"\s/Fo\S+", "", flags).replace(" /showIncludes", "")
-        self.flags = f'{flags} -I"{ntpath.dirname(source)}" /Zs'
+        self.source_dir = ntpath.dirname(source)
+        self.flags = f'{flags} -I"{self.source_dir}" /Zs'
         self.build_dir, self.env = build_dir, env
         self.out_dir, self.stem, self.count = out_dir, stem, 0
+
+    def variant(self, stem, drop=(), add=""):
+        other = Prober.__new__(Prober)
+        other.__dict__.update(self.__dict__)
+        other.stem, other.count = stem, 0
+        flags = self.flags
+        for token in drop:
+            if token not in flags.split():
+                say(f"    ({token} is not in the flags)")
+            flags = re.sub(rf"(^|\s){re.escape(token)}(?=\s|$)", "", flags)
+        other.flags = f"{flags} {add}".rstrip()
+        return other
 
     def compile(self, lines, extra=""):
         self.count += 1
@@ -88,92 +246,127 @@ class Prober:
         return code, out, shows, c4103, own
 
 
-def macro_lines():
-    lines = ["#define C4103_STR2(x) #x", "#define C4103_STR(x) C4103_STR2(x)"]
-    for name in MACROS:
-        lines += [f"#ifdef {name}",
-                  f'#pragma message("C4103 probe: {name} is a macro: "'
-                  f" C4103_STR({name}))", "#endif"]
-    lines.append('#pragma message("C4103 probe: _CRT_PACKING = "'
-                 " C4103_STR(_CRT_PACKING))")
-    return lines
-
-
-def trace(prober, prefix):
-    lines = ["#pragma pack(show)"]
-    for include in prefix:
-        lines += [f"#include {include}", "#pragma pack(show)"]
-    lines += macro_lines()
-    lines += ["#include <atomic>", "#pragma pack(show)"]
+def report(prober, name, lines, raw=False):
     code, out, shows, c4103, own = prober.compile(lines)
-    say(f"trace: exit {code}, {len(c4103)} C4103 ({len(own)} in the probe)")
-    for line_no, value in shows:
-        say(f"  pack(show) after line {line_no - 1}: "
-            f"{lines[line_no - 2] if line_no > 1 else '(start)'} -> {value}")
-    say(*[f"  {line.strip()}" for line in out.splitlines()
-          if "C4103 probe" in line or ("C4103" in line and "probe" in
-                                       line.lower())][:20])
-    code, out, shows, c4103, own = prober.compile(
-        ["#pragma pack(show)", "#include <atomic>", "#pragma pack(show)"])
-    say(f"control, <atomic> alone: exit {code}, {len(c4103)} C4103, "
-        f"pack {[value for _, value in shows]}")
+    say(f"  {name}: exit {code}, pack {[value for _, value in shows]}, "
+        f"{len(own)} C4103 in the probe, {len(c4103)} in all")
+    notes = [short(line) for line in out.splitlines()
+             if "C4103 probe" in line or ": error " in line
+             or (raw and ("C4810" in line or "C4103" in line))]
+    say(*[f"    {note}" for note in notes[:12]])
 
 
-def is_system(path, env):
-    roots = [env.get(name, "") for name in ("VCTOOLSINSTALLDIR",
-                                             "WINDOWSSDKDIR")]
-    return any(root and path.lower().startswith(root.lower())
-               for root in roots)
+def wrap(code):
+    return ["namespace gz", "{", "namespace physics", "{",
+            *code.splitlines(), "}", "}"]
 
 
-def headers_of(prober, prefix):
-    """(depth, path) of each file the prefix opens, first time only, the
-    headers outside MSVC and the Windows SDK first."""
-    lines = [f"#include {include}" for include in prefix]
-    code, out, _, _, _ = prober.compile(lines, "/showIncludes")
-    seen, ordered = set(), []
-    for line in out.splitlines():
-        match = NOTE.search(line)
-        if match and match.group(1).lower() not in seen:
-            seen.add(match.group(1).lower())
-            rest = line.split("including file:", 1)[1]
-            ordered.append((len(rest) - len(rest.lstrip()), match.group(1)))
-    ordered.sort(key=lambda item: is_system(item[1], prober.env))
-    return code, ordered
+def layout(tag):
+    return [f"struct C4103S_{tag} {{ char c; C4103A a; }};",
+            (f"static_assert(offsetof(C4103S_{tag}, a) == 16, "
+             f'"C4103 probe: {tag}: the alignas(16) member is not at 16");')]
 
 
-def bisect(prober, prefix):
-    code, headers = headers_of(prober, prefix)
-    say(f"bisection: the first headers open {len(headers)} files "
-        f"(exit {code}); probing up to {MAX_HEADERS}, non-system first; "
-        "hit = <atomic> after the header changes the packing")
-    start, hits, failed = time.monotonic(), 0, 0
-    for index, (depth, header) in enumerate(headers[:MAX_HEADERS]):
-        if time.monotonic() - start > BUDGET_SECONDS:
-            say(f"  time budget spent after {index} headers")
-            break
-        code, _, shows, _, own = prober.compile(
-            ["#pragma pack(show)", f'#include "{header}"', "#pragma pack(show)",
-             "#include <atomic>", "#pragma pack(show)"])
-        failed += code != 0
-        values = [value for _, value in shows]
-        if own or len(set(values)) > 1:
-            hits += 1
-            say(f"  [{index}] depth {depth} {header}: exit {code}, "
-                f"pack {values}, {len(own)} C4103 in the probe")
-            if hits >= 150:
-                say("  150 hits, stopping")
-                break
-    say(f"bisection done: {hits} hits, {failed} probes did not compile, "
-        f"{time.monotonic() - start:.0f} s")
+def base(prober):
+    say("base: RequestFeatures.hh then <atomic>, raw messages")
+    report(prober, "base", BASE, raw=True)
 
 
-def diagnose(build_dir, obj, prefix, env, ninja, out_dir, stem):
-    say(f"=== {obj}")
-    command = compile_command(ninja, build_dir, obj, env)
-    prober = Prober(command, build_dir, env, out_dir, stem)
-    trace(prober, prefix)
-    bisect(prober, prefix)
+def layouts(prober):
+    say("layout: struct { char; alignas(16) member; } declared at each point; "
+        "a static_assert error means the member offset is not 16")
+    report(prober, "no header", A16 + layout("no_header"))
+    report(prober, "inside pack(push, 8), positive control",
+           A16 + ["#pragma pack(push, 8)"] + layout("pack8")
+           + ["#pragma pack(pop)"])
+    report(prober, "after RequestFeatures.hh and after <atomic>",
+           A16 + ["#include <gz/physics/RequestFeatures.hh>",
+                  "#pragma pack(show)"] + layout("after_header")
+           + SHOW_ATOMIC + layout("after_atomic"))
+
+
+def split(prober):
+    say("split: RequestFeatures.hh without its detail header (include "
+        "guard defined first), then the definitions of the detail header")
+    head = ["#define GZ_PHYSICS_DETAIL_REQUESTFEATURES_HH_", *STL,
+            "#include <gz/physics/RequestFeatures.hh>",
+            "#include <gz/physics/detail/InspectFeatures.hh>",
+            "#pragma pack(show)"]
+    report(prober, "no definition", head + SHOW_ATOMIC)
+    report(prober, "From", head + wrap(FROM) + SHOW_ATOMIC)
+    report(prober, "MissingFeatureNames", head + wrap(MISSING) + SHOW_ATOMIC)
+    report(prober, "both", head + wrap(FROM + MISSING) + SHOW_ATOMIC)
+
+
+def standalone(prober):
+    say("standalone: no gz headers; <memory> <set> <string> <utility>, "
+        "the definition, then <atomic>")
+    report(prober, "no definition", STL + SHOW_ATOMIC)
+    for name, code in STANDALONE.items():
+        report(prober, name,
+               STL + ["#pragma pack(show)", *code.splitlines()] + SHOW_ATOMIC)
+    first = next(iter(STANDALONE.values()))
+    report(prober, "the first one without the STL headers before it",
+           ["#pragma pack(show)", *first.splitlines()] + SHOW_ATOMIC)
+
+
+def flag_variants(prober):
+    say("flags: the base probe with one flag changed")
+    for number, (name, drop, add) in enumerate(FLAG_VARIANTS):
+        report(prober.variant(f"{prober.stem}f{number}", drop, add), name,
+               BASE)
+
+
+def generators(prober, command, env, ninja):
+    say("generators: a CMake OBJECT library with the base probe and the "
+        "compile options of the ninja command")
+    cmake = shutil.which("cmake", path=env.get("PATH"))
+    if not cmake:
+        say("  no cmake in PATH")
+        return
+    root = os.path.join(prober.out_dir, "generators")
+    os.makedirs(root, exist_ok=True)
+    with open(os.path.join(root, "probe.cc"), "w", encoding="ascii") as f:
+        f.write("\n".join(BASE) + "\n")
+    options = [token for token in command.split()[1:-1]
+               if token not in NOT_OPTIONS
+               and not token.startswith(("/Fo", "/Fd"))]
+    options.append(f"-I{prober.source_dir}")
+    with open(os.path.join(root, "CMakeLists.txt"), "w",
+              encoding="ascii") as f:
+        f.write("cmake_minimum_required(VERSION 3.16)\n"
+                "project(c4103 CXX)\n"
+                "add_library(c4103probe OBJECT probe.cc)\n"
+                "target_compile_options(c4103probe PRIVATE\n"
+                + "".join(f"  [==[{option}]==]\n" for option in options)
+                + ")\n")
+    clean = {key: value for key, value in env.items()
+             if not key.upper().startswith("CMAKE_GENERATOR")}
+    legs = (
+        ("ninja", (f'-G Ninja -DCMAKE_BUILD_TYPE=Release '
+                   f'-DCMAKE_MAKE_PROGRAM="{ninja}"'), "-- -v"),
+        ("msbuild", '-G "Visual Studio 16 2019" -A x64 -T host=x64',
+         "--config Release -- -v:n -nologo"),
+    )
+    for name, configure, build in legs:
+        build_dir = os.path.join(root, f"build_{name}")
+        code, out = run(f'"{cmake}" -S "{root}" -B "{build_dir}" {configure}',
+                        root, clean)
+        if code != 0:
+            say(f"  {name}: configure exit {code}", out[-2000:])
+            continue
+        code, out = run(f'"{cmake}" --build "{build_dir}" {build}', root,
+                        clean)
+        # MSBuild prints file(line,column) and repeats the warnings at the end
+        lines = list(dict.fromkeys(out.splitlines()))
+        shows = [m.group(1) for m in map(VALUE.search, lines) if m]
+        c4103 = [line for line in lines if "warning C4103" in line]
+        say(f"  {name}: build exit {code}, pack {shows}, {len(c4103)} C4103")
+        say(*[f"    {short(line)}" for line in c4103[:3]])
+        say(*[f"    command: {line.strip()}" for line in lines
+              if re.search(r"cl\.exe\s", line, re.IGNORECASE)][:2])
+        if code != 0:
+            say(out[-2000:])
 
 
 def run_all(cfg, package, env):
@@ -183,12 +376,14 @@ def run_all(cfg, package, env):
         build_dir = str(cfg.ws / "build" / package)
         out_dir = str(cfg.workspace / "c4103")
         os.makedirs(out_dir, exist_ok=True)
-        for number, (obj, prefix) in enumerate(OBJECTS.items()):
+        command = compile_command(ninja, build_dir, OBJECT, env)
+        prober = Prober(command, build_dir, env, out_dir, "probe")
+        for step in (base, layouts, split, standalone, flag_variants):
             try:
-                diagnose(build_dir, obj, prefix, env, ninja, out_dir,
-                         f"probe{number}")
+                step(prober)
             except Exception:
                 say(traceback.format_exc())
+        generators(prober, command, env, ninja)
     except Exception:
         say(traceback.format_exc())
     print("# END SECTION", flush=True)
