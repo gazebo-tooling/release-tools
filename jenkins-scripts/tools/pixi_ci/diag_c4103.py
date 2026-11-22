@@ -1,28 +1,29 @@
 """TEST ONLY: find what makes cl.exe report C4103 in gz-sim under Ninja.
 
-Round 4 (gz_sim-pr-cnlwin-nogpu #10 on citest) found:
+Rounds 4 and 5 (gz_sim-pr-cnlwin-nogpu #10 and #11 on citest) found:
 
-* of the two definitions in gz-physics detail/RequestFeatures.hh, only
-  RequestFeatures<>::MissingFeatureNames (returns std::set<std::string>)
-  makes the next #pragma pack(show) report 16 and then 8, and the next
-  <atomic> report C4103;
-* it needs two-phase name lookup: no C4103 without -permissive-, with
-  /Zc:twoPhase- or with -std:c++latest;
+* the out-of-class definition of gz-physics
+  RequestFeatures<>::MissingFeatureNames makes the next #pragma pack(show)
+  report 16 and then 8, and the next <atomic> report C4103, only under
+  two-phase name lookup (-permissive-);
+* a trailing return type, an alias or an empty body do not help;
+* without gz headers: a member template of a class template, with a template
+  template parameter, defined out of class and returning std::set or
+  std::vector warns; a type parameter or a plain member function does not;
 * an alignas(16) member stays at offset 16 inside #pragma pack(push, 8):
   on x64, packing 8 and 16 give the same layouts;
-* a CMake project built by MSBuild with the same options does not warn.
+* MSBuild does not report it, but the same cl command run alone does.
 
 This round compiles small probe files with the flags of Physics.cc.obj and
 /Zs:
 
-* missing: MissingFeatureNames written in other ways that a gz-physics
-  change could use (trailing return type, an alias, an empty body);
-* standalone: definitions returning std::set<std::string> without the gz
-  headers, for a minimal reproduction;
-* context: what before the header hides it (the round 4 layout probe had
-  no C4103);
-* generators: the raw messages of the Ninja and MSBuild builds, then the
-  command that each one ran, run again outside the generator.
+* fixes: gz-physics changes that keep the API: #pragma pack(push)/(pop)
+  around the definition, the definition in the class, the return type
+  through a member alias, a deduced return type;
+* theory: the leaked value is the packing where the returned class template
+  was defined (the STL headers use 8): a class template defined under
+  pack 4 should make pack(show) report 4;
+* generators: the Ninja and MSBuild messages, which line MSBuild reports 8.
 
 Nothing here can fail the job.
 """
@@ -68,17 +69,53 @@ BODY = """    {
       return names;
     }
 """
+# RequestFeatures.hh (gz-physics main and 9) with the definition in it or
+# with a member alias; {members} is the rest of the class
+CLASS = """
+    template <typename ToFeatureList>
+    struct RequestFeatures
+    {
+      using Features = typename ToFeatureList::Features;
+
+      template <
+          typename PolicyT,
+          typename FromFeatureList,
+          template <typename, typename> class EntityT>
+      static EntityPtr<EntityT<PolicyT, ToFeatureList>> From(
+          const EntityPtr<EntityT<PolicyT, FromFeatureList>> &_from);
+{members}    };
+"""
+TT_PARAMS = """      template <
+          typename PolicyT,
+          typename FromFeatureList,
+          template <typename, typename> class EntityT>
+"""
+IN_CLASS = (TT_PARAMS + """      static std::set<std::string> MissingFeatureNames(
+          const EntityPtr<EntityT<PolicyT, FromFeatureList>> &_entity)
+""" + BODY.replace("FeatureListT", "ToFeatureList").replace("\n    ", "\n      ")
+            .replace("    {\n", "      {\n", 1))
 RETURN_TYPE = "    std::set<std::string> RequestFeatures"
-MISSING = {
-    "as is": SIGNATURE + BODY,
-    "trailing return type": SIGNATURE.replace(
-        RETURN_TYPE, "    auto RequestFeatures").replace(
-        "&_entity)\n", "&_entity)\n    -> std::set<std::string>\n") + BODY,
-    "return type through an alias":
-        "    using C4103Names = std::set<std::string>;\n"
-        + SIGNATURE.replace(RETURN_TYPE, "    C4103Names RequestFeatures")
-        + BODY,
-    "empty body": SIGNATURE + "    {\n      return {};\n    }\n",
+MEMBER_ALIAS = (
+    CLASS.replace("{members}", "      using MissingNames = std::set<std::string>;\n"
+                  + TT_PARAMS + "      static MissingNames MissingFeatureNames(\n"
+                  "          const EntityPtr<EntityT<PolicyT, FromFeatureList>> "
+                  "&_entity);\n")
+    + SIGNATURE.replace(RETURN_TYPE, "    typename RequestFeatures<FeatureListT>"
+                        "::MissingNames\n    RequestFeatures") + BODY)
+DEDUCED = (
+    CLASS.replace("{members}", TT_PARAMS + "      static auto MissingFeatureNames(\n"
+                  "          const EntityPtr<EntityT<PolicyT, FromFeatureList>> "
+                  "&_entity);\n")
+    + SIGNATURE.replace(RETURN_TYPE, "    auto RequestFeatures") + BODY)
+# probe head for each: True keeps RequestFeatures.hh (its detail header
+# skipped), False replaces both headers with the code
+FIXES = {
+    "as is (control)": (True, SIGNATURE + BODY),
+    "#pragma pack(push) and pack(pop) around the definition":
+        (True, "#pragma pack(push)" + SIGNATURE + BODY + "#pragma pack(pop)\n"),
+    "definition in the class": (False, CLASS.replace("{members}", IN_CLASS)),
+    "return type through a member alias": (False, MEMBER_ALIAS),
+    "deduced return type (auto)": (False, DEDUCED),
 }
 
 SET_TT = """
@@ -98,41 +135,50 @@ std::set<std::string> C4103R<L>::Missing(const C4103Ptr<E<P, F>> &)
   return names;
 }
 """
-STANDALONE = {
-    "class template, member template, template template parameter": SET_TT,
-    "the same, return {}": SET_TT.replace(
-        "  std::set<std::string> names;\n  return names;", "  return {};"),
-    "the same, std::vector instead of std::set": SET_TT.replace(
-        "std::set", "std::vector"),
-    "class template, member template, type parameter": """
+OWN_TT = """
+template <typename P, typename F> class C4103E {};
 template <typename T> class C4103Ptr {};
 template <typename L>
 struct C4103R
 {
-  template <typename P>
-  static std::set<std::string> Missing(const C4103Ptr<P> &);
+  template <typename P, typename F, template <typename, typename> class E>
+  static C4103Box<int> Missing(const C4103Ptr<E<P, F>> &);
 };
 template <typename L>
-template <typename P>
-std::set<std::string> C4103R<L>::Missing(const C4103Ptr<P> &)
+template <typename P, typename F, template <typename, typename> class E>
+C4103Box<int> C4103R<L>::Missing(const C4103Ptr<E<P, F>> &)
 {
-  std::set<std::string> names;
-  return names;
+  return {};
 }
-""",
-    "class template, plain member function": """
+"""
+BOX = "template <typename T> struct C4103Box { T value; };"
+PLAIN_BOX = "struct C4103Plain { int value; };"
+THEORY = {
+    "std::set (control)": SET_TT,
+    "own class template defined under pack(push, 4)":
+        f"#pragma pack(push, 4)\n{BOX}\n#pragma pack(pop)\n{OWN_TT}",
+    "own class template at the default packing": BOX + "\n" + OWN_TT,
+    "own plain struct defined under pack(push, 4)":
+        f"#pragma pack(push, 4)\n{PLAIN_BOX}\n#pragma pack(pop)\n"
+        + OWN_TT.replace("C4103Box<int>", "C4103Plain"),
+    "std::set, definition in the class": """
+template <typename P, typename F> class C4103E {};
+template <typename T> class C4103Ptr {};
 template <typename L>
 struct C4103R
 {
-  static std::set<std::string> Missing(int);
+  template <typename P, typename F, template <typename, typename> class E>
+  static std::set<std::string> Missing(const C4103Ptr<E<P, F>> &)
+  {
+    std::set<std::string> names;
+    return names;
+  }
 };
-template <typename L>
-std::set<std::string> C4103R<L>::Missing(int)
-{
-  std::set<std::string> names;
-  return names;
-}
 """,
+    "std::set, pack(push) and pack(pop) around the definition":
+        SET_TT.replace("template <typename L>\ntemplate",
+                       "#pragma pack(push)\ntemplate <typename L>\ntemplate")
+        + "#pragma pack(pop)\n",
 }
 
 # compile options of the ninja command that the small CMake project sets
@@ -164,7 +210,8 @@ def compile_command(ninja, build_dir, obj, env):
 
 def short(line):
     """A compiler message without the directory of the file."""
-    return line.strip().rsplit("\\", 1)[-1][:300]
+    line = re.sub(r"\s*\[[^\]]*\.vcxproj\]$", "", line.strip())
+    return line.rsplit("\\", 1)[-1][:300]
 
 
 class Prober:
@@ -200,7 +247,7 @@ def report(prober, name, lines, raw=False):
     say(f"  {name}: exit {code}, pack {[value for _, value in shows]}, "
         f"{len(own)} C4103 in the probe, {len(c4103)} in all")
     notes = [short(line) for line in out.splitlines()
-             if ": error " in line
+             if ": error " in line or "C4161" in line
              or (raw and ("C4810" in line or "C4103" in line))]
     say(*[f"    {note}" for note in notes[:12]])
 
@@ -219,37 +266,30 @@ def base(prober):
     report(prober, "base", BASE, raw=True)
 
 
-def missing(prober):
-    say("missing: RequestFeatures.hh without its detail header (include "
-        "guard defined first), then MissingFeatureNames written as")
-    head = ["#define GZ_PHYSICS_DETAIL_REQUESTFEATURES_HH_", *STL,
+def fixes(prober):
+    say("fixes: MissingFeatureNames changed in gz-physics, then <atomic>")
+    keep = ["#define GZ_PHYSICS_DETAIL_REQUESTFEATURES_HH_", *STL,
             "#include <gz/physics/RequestFeatures.hh>",
             "#include <gz/physics/detail/InspectFeatures.hh>",
             "#pragma pack(show)"]
-    for name, code in MISSING.items():
+    replace = ["#define GZ_PHYSICS_REQUESTFEATURES_HH_",
+               "#define GZ_PHYSICS_DETAIL_REQUESTFEATURES_HH_", *STL,
+               "#include <gz/physics/Entity.hh>",
+               "#include <gz/physics/detail/InspectFeatures.hh>",
+               "#pragma pack(show)"]
+    for name, (keep_header, code) in FIXES.items():
         report(prober, name,
-               head + ["namespace gz", "{", "namespace physics", "{",
-                       *code.splitlines(), "}", "}"] + SHOW_ATOMIC)
+               (keep if keep_header else replace)
+               + ["namespace gz", "{", "namespace physics", "{",
+                  *code.splitlines(), "}", "}"] + SHOW_ATOMIC)
 
 
-def standalone(prober):
-    say("standalone: no gz headers; the STL headers, the definition, then "
-        "<atomic>")
-    report(prober, "no definition", STL + SHOW_ATOMIC)
-    for name, code in STANDALONE.items():
+def theory(prober):
+    say("theory: no gz headers; the STL headers, the definition, then "
+        "<atomic>; a leaked 4 means the packing of the returned type")
+    for name, code in THEORY.items():
         report(prober, name,
                STL + ["#pragma pack(show)", *code.splitlines()] + SHOW_ATOMIC)
-
-
-def context(prober):
-    say("context: the base probe after other lines")
-    report(prober, "without the first pack(show)", BASE[1:])
-    report(prober, "after <cstddef>", ["#include <cstddef>", *BASE])
-    report(prober, "after a plain struct",
-           ["struct C4103B { char c; };", *BASE])
-    report(prober, "after <cstddef> and an alignas(16) struct (round 4)",
-           ["#include <cstddef>",
-            "struct alignas(16) C4103A { char c[16]; };", *BASE])
 
 
 def generators(prober, command, env, ninja):
@@ -327,7 +367,7 @@ def run_all(cfg, package, env):
         os.makedirs(out_dir, exist_ok=True)
         command = compile_command(ninja, build_dir, OBJECT, env)
         prober = Prober(command, build_dir, env, out_dir, "probe")
-        for step in (base, missing, standalone, context):
+        for step in (base, fixes, theory):
             try:
                 step(prober)
             except Exception:
