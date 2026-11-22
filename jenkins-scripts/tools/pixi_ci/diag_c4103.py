@@ -1,20 +1,28 @@
 """TEST ONLY: find what makes cl.exe report C4103 in gz-sim under Ninja.
 
-Round 3 (gz_sim-pr-cnlwin-nogpu #9 on citest) found the trigger: after
-gz-physics detail/RequestFeatures.hh, which has no #pragma, only the
-out-of-class definitions of two member templates of RequestFeatures<>, the
-next #pragma pack(show) reports two values, 16 and then 8 (_CRT_PACKING),
-and the next #include <atomic> reports C4103. <atomic> alone does not.
+Round 4 (gz_sim-pr-cnlwin-nogpu #10 on citest) found:
+
+* of the two definitions in gz-physics detail/RequestFeatures.hh, only
+  RequestFeatures<>::MissingFeatureNames (returns std::set<std::string>)
+  makes the next #pragma pack(show) report 16 and then 8, and the next
+  <atomic> report C4103;
+* it needs two-phase name lookup: no C4103 without -permissive-, with
+  /Zc:twoPhase- or with -std:c++latest;
+* an alignas(16) member stays at offset 16 inside #pragma pack(push, 8):
+  on x64, packing 8 and 16 give the same layouts;
+* a CMake project built by MSBuild with the same options does not warn.
+
 This round compiles small probe files with the flags of Physics.cc.obj and
 /Zs:
 
-* base: the raw C4810 and C4103 lines of RequestFeatures.hh then <atomic>;
-* layout: whether a struct declared after the header gets the packing 8;
-* split: the two definitions of detail/RequestFeatures.hh one at a time;
-* standalone: the same kind of definitions without the gz headers;
-* flags: the base probe with one compiler flag changed at a time;
-* generators: the base probe in a small CMake project built with Ninja and
-  with Visual Studio 16 2019 (MSBuild), with the same compile options.
+* missing: MissingFeatureNames written in other ways that a gz-physics
+  change could use (trailing return type, an alias, an empty body);
+* standalone: definitions returning std::set<std::string> without the gz
+  headers, for a minimal reproduction;
+* context: what before the header hides it (the round 4 layout probe had
+  no C4103);
+* generators: the raw messages of the Ninja and MSBuild builds, then the
+  command that each one ran, run again outside the generator.
 
 Nothing here can fail the job.
 """
@@ -33,52 +41,10 @@ SHOW_ATOMIC = ["#pragma pack(show)", "#include <atomic>", "#pragma pack(show)"]
 BASE = ["#pragma pack(show)", "#include <gz/physics/RequestFeatures.hh>",
         *SHOW_ATOMIC]
 STL = ["#include <memory>", "#include <set>", "#include <string>",
-       "#include <utility>"]
-A16 = ["#include <cstddef>", "struct alignas(16) C4103A { char c[16]; };"]
+       "#include <utility>", "#include <vector>"]
 
 # gz-physics main, include/gz/physics/detail/RequestFeatures.hh
-FROM = """
-    /////////////////////////////////////////////////
-    template <typename FeatureListT>
-    template <
-      typename PolicyT,
-      typename FromFeatureList,
-      template <typename, typename> class EntityT>
-    EntityPtr<EntityT<PolicyT, FeatureListT>>
-    RequestFeatures<FeatureListT>::From(
-        const EntityPtr<EntityT<PolicyT, FromFeatureList>>& _from)
-    {
-      using ToPluginType =
-          typename detail::DeterminePlugin<PolicyT, FeatureListT>::type;
-
-      // If there is no underlying entity, then just return a null EntityPtr.
-      if (!_from.entity)
-        return nullptr;
-
-      // If there is no underlying pimpl, then just return a null EntityPtr.
-      // TODO(MXG): Should this ever be possible? Maybe this should be an
-      // assertion instead?
-      if (!_from.entity->pimpl)
-        return nullptr;
-
-      ToPluginType toPlugin(*_from.entity->pimpl);
-      if (!detail::InspectFeatures<
-              PolicyT,
-              FeatureListT
-          >::Verify(toPlugin))
-      {
-        // The physics plugin does not implement all of the features that were
-        // requested, so we will return a nullptr.
-        return nullptr;
-      }
-
-      return EntityPtr<EntityT<PolicyT, FeatureListT>>(
-            std::make_shared<ToPluginType>(std::move(toPlugin)),
-            _from.entity->identity);
-    }
-"""
-
-MISSING = """
+SIGNATURE = """
     /////////////////////////////////////////////////
     template <typename FeatureListT>
     template <
@@ -87,7 +53,8 @@ MISSING = """
         template <typename, typename> class EntityT>
     std::set<std::string> RequestFeatures<FeatureListT>::MissingFeatureNames(
         const EntityPtr<EntityT<PolicyT, FromFeatureList>> &_entity)
-    {
+"""
+BODY = """    {
       std::set<std::string> names;
       if (!_entity.entity || !_entity.entity->pimpl)
       {
@@ -101,78 +68,72 @@ MISSING = """
       return names;
     }
 """
+RETURN_TYPE = "    std::set<std::string> RequestFeatures"
+MISSING = {
+    "as is": SIGNATURE + BODY,
+    "trailing return type": SIGNATURE.replace(
+        RETURN_TYPE, "    auto RequestFeatures").replace(
+        "&_entity)\n", "&_entity)\n    -> std::set<std::string>\n") + BODY,
+    "return type through an alias":
+        "    using C4103Names = std::set<std::string>;\n"
+        + SIGNATURE.replace(RETURN_TYPE, "    C4103Names RequestFeatures")
+        + BODY,
+    "empty body": SIGNATURE + "    {\n      return {};\n    }\n",
+}
 
+SET_TT = """
+template <typename P, typename F> class C4103E {};
+template <typename T> class C4103Ptr {};
+template <typename L>
+struct C4103R
+{
+  template <typename P, typename F, template <typename, typename> class E>
+  static std::set<std::string> Missing(const C4103Ptr<E<P, F>> &);
+};
+template <typename L>
+template <typename P, typename F, template <typename, typename> class E>
+std::set<std::string> C4103R<L>::Missing(const C4103Ptr<E<P, F>> &)
+{
+  std::set<std::string> names;
+  return names;
+}
+"""
 STANDALONE = {
-    "out-of-class, class template, template template parameter": """
-template <typename P, typename F> class C4103E {};
+    "class template, member template, template template parameter": SET_TT,
+    "the same, return {}": SET_TT.replace(
+        "  std::set<std::string> names;\n  return names;", "  return {};"),
+    "the same, std::vector instead of std::set": SET_TT.replace(
+        "std::set", "std::vector"),
+    "class template, member template, type parameter": """
 template <typename T> class C4103Ptr {};
 template <typename L>
 struct C4103R
 {
-  template <typename P, typename F, template <typename, typename> class E>
-  static C4103Ptr<E<P, L>> From(const C4103Ptr<E<P, F>> &);
+  template <typename P>
+  static std::set<std::string> Missing(const C4103Ptr<P> &);
 };
 template <typename L>
-template <typename P, typename F, template <typename, typename> class E>
-C4103Ptr<E<P, L>> C4103R<L>::From(const C4103Ptr<E<P, F>> &)
+template <typename P>
+std::set<std::string> C4103R<L>::Missing(const C4103Ptr<P> &)
 {
-  return {};
+  std::set<std::string> names;
+  return names;
 }
 """,
-    "out-of-class, class template, type parameters only": """
-template <typename T> class C4103Ptr {};
-template <typename L>
-struct C4103R
-{
-  template <typename P, typename F>
-  static C4103Ptr<P> From(const C4103Ptr<F> &);
-};
-template <typename L>
-template <typename P, typename F>
-C4103Ptr<P> C4103R<L>::From(const C4103Ptr<F> &)
-{
-  return {};
-}
-""",
-    "in-class, class template, template template parameter": """
-template <typename P, typename F> class C4103E {};
-template <typename T> class C4103Ptr {};
+    "class template, plain member function": """
 template <typename L>
 struct C4103R
 {
-  template <typename P, typename F, template <typename, typename> class E>
-  static C4103Ptr<E<P, L>> From(const C4103Ptr<E<P, F>> &)
-  {
-    return {};
-  }
+  static std::set<std::string> Missing(int);
 };
-""",
-    "out-of-class, plain class, template template parameter": """
-template <typename P, typename F> class C4103E {};
-template <typename T> class C4103Ptr {};
-struct C4103R
+template <typename L>
+std::set<std::string> C4103R<L>::Missing(int)
 {
-  template <typename P, typename F, template <typename, typename> class E>
-  static C4103Ptr<E<P, F>> From(const C4103Ptr<E<P, F>> &);
-};
-template <typename P, typename F, template <typename, typename> class E>
-C4103Ptr<E<P, F>> C4103R::From(const C4103Ptr<E<P, F>> &)
-{
-  return {};
+  std::set<std::string> names;
+  return names;
 }
 """,
 }
-
-FLAG_VARIANTS = (
-    ("without -permissive-", ("-permissive-",), ""),
-    ("with /Zc:twoPhase-", (), "/Zc:twoPhase-"),
-    ("without -Zc:__cplusplus", ("-Zc:__cplusplus",), ""),
-    ("without -utf-8", ("-utf-8",), ""),
-    ("without /GL", ("/GL",), ""),
-    ("without /bigobj", ("/bigobj",), ""),
-    ("-std:c++14", ("-std:c++17",), "-std:c++14"),
-    ("-std:c++latest", ("-std:c++17",), "-std:c++latest"),
-)
 
 # compile options of the ninja command that the small CMake project sets
 # itself or that do not apply to it
@@ -217,18 +178,6 @@ class Prober:
         self.build_dir, self.env = build_dir, env
         self.out_dir, self.stem, self.count = out_dir, stem, 0
 
-    def variant(self, stem, drop=(), add=""):
-        other = Prober.__new__(Prober)
-        other.__dict__.update(self.__dict__)
-        other.stem, other.count = stem, 0
-        flags = self.flags
-        for token in drop:
-            if token not in flags.split():
-                say(f"    ({token} is not in the flags)")
-            flags = re.sub(rf"(^|\s){re.escape(token)}(?=\s|$)", "", flags)
-        other.flags = f"{flags} {add}".rstrip()
-        return other
-
     def compile(self, lines, extra=""):
         self.count += 1
         path = os.path.join(self.out_dir, f"{self.stem}_{self.count}.cc")
@@ -251,20 +200,18 @@ def report(prober, name, lines, raw=False):
     say(f"  {name}: exit {code}, pack {[value for _, value in shows]}, "
         f"{len(own)} C4103 in the probe, {len(c4103)} in all")
     notes = [short(line) for line in out.splitlines()
-             if "C4103 probe" in line or ": error " in line
+             if ": error " in line
              or (raw and ("C4810" in line or "C4103" in line))]
     say(*[f"    {note}" for note in notes[:12]])
 
 
-def wrap(code):
-    return ["namespace gz", "{", "namespace physics", "{",
-            *code.splitlines(), "}", "}"]
-
-
-def layout(tag):
-    return [f"struct C4103S_{tag} {{ char c; C4103A a; }};",
-            (f"static_assert(offsetof(C4103S_{tag}, a) == 16, "
-             f'"C4103 probe: {tag}: the alignas(16) member is not at 16");')]
+def messages(out):
+    """The C4810 values, the C4103 count and both raw, once each."""
+    lines = list(dict.fromkeys(line.strip() for line in out.splitlines()
+                               if "C4810" in line or "C4103" in line))
+    values = [m.group(1) for m in map(VALUE.search, lines) if m]
+    c4103 = [line for line in lines if "warning C4103" in line]
+    return values, c4103, lines
 
 
 def base(prober):
@@ -272,49 +219,37 @@ def base(prober):
     report(prober, "base", BASE, raw=True)
 
 
-def layouts(prober):
-    say("layout: struct { char; alignas(16) member; } declared at each point; "
-        "a static_assert error means the member offset is not 16")
-    report(prober, "no header", A16 + layout("no_header"))
-    report(prober, "inside pack(push, 8), positive control",
-           A16 + ["#pragma pack(push, 8)"] + layout("pack8")
-           + ["#pragma pack(pop)"])
-    report(prober, "after RequestFeatures.hh and after <atomic>",
-           A16 + ["#include <gz/physics/RequestFeatures.hh>",
-                  "#pragma pack(show)"] + layout("after_header")
-           + SHOW_ATOMIC + layout("after_atomic"))
-
-
-def split(prober):
-    say("split: RequestFeatures.hh without its detail header (include "
-        "guard defined first), then the definitions of the detail header")
+def missing(prober):
+    say("missing: RequestFeatures.hh without its detail header (include "
+        "guard defined first), then MissingFeatureNames written as")
     head = ["#define GZ_PHYSICS_DETAIL_REQUESTFEATURES_HH_", *STL,
             "#include <gz/physics/RequestFeatures.hh>",
             "#include <gz/physics/detail/InspectFeatures.hh>",
             "#pragma pack(show)"]
-    report(prober, "no definition", head + SHOW_ATOMIC)
-    report(prober, "From", head + wrap(FROM) + SHOW_ATOMIC)
-    report(prober, "MissingFeatureNames", head + wrap(MISSING) + SHOW_ATOMIC)
-    report(prober, "both", head + wrap(FROM + MISSING) + SHOW_ATOMIC)
+    for name, code in MISSING.items():
+        report(prober, name,
+               head + ["namespace gz", "{", "namespace physics", "{",
+                       *code.splitlines(), "}", "}"] + SHOW_ATOMIC)
 
 
 def standalone(prober):
-    say("standalone: no gz headers; <memory> <set> <string> <utility>, "
-        "the definition, then <atomic>")
+    say("standalone: no gz headers; the STL headers, the definition, then "
+        "<atomic>")
     report(prober, "no definition", STL + SHOW_ATOMIC)
     for name, code in STANDALONE.items():
         report(prober, name,
                STL + ["#pragma pack(show)", *code.splitlines()] + SHOW_ATOMIC)
-    first = next(iter(STANDALONE.values()))
-    report(prober, "the first one without the STL headers before it",
-           ["#pragma pack(show)", *first.splitlines()] + SHOW_ATOMIC)
 
 
-def flag_variants(prober):
-    say("flags: the base probe with one flag changed")
-    for number, (name, drop, add) in enumerate(FLAG_VARIANTS):
-        report(prober.variant(f"{prober.stem}f{number}", drop, add), name,
-               BASE)
+def context(prober):
+    say("context: the base probe after other lines")
+    report(prober, "without the first pack(show)", BASE[1:])
+    report(prober, "after <cstddef>", ["#include <cstddef>", *BASE])
+    report(prober, "after a plain struct",
+           ["struct C4103B { char c; };", *BASE])
+    report(prober, "after <cstddef> and an alignas(16) struct (round 4)",
+           ["#include <cstddef>",
+            "struct alignas(16) C4103A { char c[16]; };", *BASE])
 
 
 def generators(prober, command, env, ninja):
@@ -357,16 +292,30 @@ def generators(prober, command, env, ninja):
             continue
         code, out = run(f'"{cmake}" --build "{build_dir}" {build}', root,
                         clean)
-        # MSBuild prints file(line,column) and repeats the warnings at the end
-        lines = list(dict.fromkeys(out.splitlines()))
-        shows = [m.group(1) for m in map(VALUE.search, lines) if m]
-        c4103 = [line for line in lines if "warning C4103" in line]
-        say(f"  {name}: build exit {code}, pack {shows}, {len(c4103)} C4103")
-        say(*[f"    {short(line)}" for line in c4103[:3]])
-        say(*[f"    command: {line.strip()}" for line in lines
-              if re.search(r"cl\.exe\s", line, re.IGNORECASE)][:2])
+        values, c4103, lines = messages(out)
+        say(f"  {name}: build exit {code}, pack {values}, {len(c4103)} C4103")
+        say(*[f"    {short(line)}" for line in lines[:10]])
         if code != 0:
             say(out[-2000:])
+            continue
+        # the cl command that the generator ran, run again by itself; the
+        # MSBuild log does not quote the path of CL.exe
+        found = next(((line, m) for line, m in
+                      ((line, re.search(r"cl\.exe\s+(?=/)", line,
+                                        re.IGNORECASE))
+                       for line in out.splitlines()) if m), None)
+        if not found:
+            say("    no cl command in the build output")
+            continue
+        line, match = found
+        executable = re.sub(r"^\s*(\[\d+/\d+\])?\s*", "",
+                            line[:match.start() + len("cl.exe")])
+        code, out = run(f'"{executable}" {line[match.end():]}', build_dir,
+                        env)
+        values, c4103, lines = messages(out)
+        say(f"  {name} command run alone: exit {code}, pack {values}, "
+            f"{len(c4103)} C4103")
+        say(*[f"    {short(line)}" for line in lines[:10]])
 
 
 def run_all(cfg, package, env):
@@ -378,7 +327,7 @@ def run_all(cfg, package, env):
         os.makedirs(out_dir, exist_ok=True)
         command = compile_command(ninja, build_dir, OBJECT, env)
         prober = Prober(command, build_dir, env, out_dir, "probe")
-        for step in (base, layouts, split, standalone, flag_variants):
+        for step in (base, missing, standalone, context):
             try:
                 step(prober)
             except Exception:
