@@ -1,33 +1,30 @@
 """TEST ONLY: find what makes cl.exe report C4103 in gz-sim under Ninja.
 
-Rounds 4 and 5 (gz_sim-pr-cnlwin-nogpu #10 and #11 on citest) found:
+Rounds 4 to 6 (gz_sim-pr-cnlwin-nogpu #10 to #12 on citest) found:
 
 * the out-of-class definition of gz-physics
-  RequestFeatures<>::MissingFeatureNames makes the next #pragma pack(show)
-  report 16 and then 8, and the next <atomic> report C4103, only under
-  two-phase name lookup (-permissive-);
-* a trailing return type, an alias or an empty body do not help;
-* without gz headers: a member template of a class template, with a template
-  template parameter, defined out of class and returning std::set or
-  std::vector warns; a type parameter or a plain member function does not;
-* an alignas(16) member stays at offset 16 inside #pragma pack(push, 8):
-  on x64, packing 8 and 16 give the same layouts;
-* MSBuild does not report it, but the same cl command run alone does.
+  RequestFeatures<>::MissingFeatureNames leaves a wrong packing state under
+  two-phase name lookup (-permissive-): the next #pragma pack(show)
+  reports 16 and then 8, and the next <atomic> reports C4103;
+* the trigger is a member template with a template template parameter
+  whose return type does not depend on the member template's parameters;
+* #pragma pack(push) and pack(pop) around the definition, or the
+  definition inside the class, avoid it in small probe files;
+* on x64, packing 8 and 16 give the same layouts; MSBuild drops the
+  messages after the wrong state.
 
-This round compiles small probe files with the flags of Physics.cc.obj and
-/Zs:
-
-* fixes: gz-physics changes that keep the API: #pragma pack(push)/(pop)
-  around the definition, the definition in the class, the return type
-  through a member alias, a deduced return type;
-* theory: the leaked value is the packing where the returned class template
-  was defined (the STL headers use 8): a class template defined under
-  pack 4 should make pack(show) report 4;
-* generators: the Ninja and MSBuild messages, which line MSBuild reports 8.
+This round checks the gz-physics fix (pack(push) and pack(pop) around the
+definition) on gz-sim's own files that warn: it patches the installed
+gz-physics header, compiles Physics.cc and EntityFeatureMap_TEST.cc with
+/Zs, and puts the header back. It also tries warning(push),
+warning(disable: 4103) and warning(pop) around the definition instead,
+which should not help: C4103 is reported at a later #include of the
+including file, after the warning(pop).
 
 Nothing here can fail the job.
 """
 
+import functools
 import ntpath
 import os
 import re
@@ -36,6 +33,24 @@ import subprocess
 import traceback
 
 OBJECT = "src/systems/physics/CMakeFiles/gz-sim-physics-system.dir/Physics.cc.obj"
+REAL_OBJECTS = (
+    OBJECT,
+    ("src/systems/physics/CMakeFiles/UNIT_EntityFeatureMap_TEST.dir/"
+     "EntityFeatureMap_TEST.cc.obj"),
+)
+HEADER = ("gz", "physics", "detail", "RequestFeatures.hh")
+# the gz-physics change: (text it starts before, text it ends after)
+FIX_START = """    template <typename FeatureListT>
+    template <
+        typename PolicyT,
+        typename FromFeatureList,
+        template <typename, typename> class EntityT>
+    std::set<std::string> RequestFeatures<FeatureListT>::MissingFeatureNames(
+"""
+FIX_END = """            *_entity.entity->pimpl, names);
+      return names;
+    }
+"""
 SHOW = re.compile(r"\((\d+)\).*C4810.*==\s*(\d+)")
 VALUE = re.compile(r"C4810.*==\s*(\d+)")
 SHOW_ATOMIC = ["#pragma pack(show)", "#include <atomic>", "#pragma pack(show)"]
@@ -292,6 +307,74 @@ def theory(prober):
                STL + ["#pragma pack(show)", *code.splitlines()] + SHOW_ATOMIC)
 
 
+def installed_header(command):
+    """The detail/RequestFeatures.hh that the compile command finds."""
+    for match in re.finditer(r'(?:[-/]external:I|[-/]I)\s*"?([^"\s]+)',
+                             command):
+        path = ntpath.join(match.group(1), *HEADER)
+        if os.path.isfile(path):
+            return path
+    raise RuntimeError("no gz/physics/detail/RequestFeatures.hh in the "
+                       "include directories")
+
+
+def with_fix(text, before=("#pragma pack(push)",),
+             after=("#pragma pack(pop)",)):
+    """The header with MSVC-only pragmas around MissingFeatureNames."""
+    if text.count(FIX_START) != 1 or text.count(FIX_END) != 1:
+        raise RuntimeError("the installed header is not the expected one")
+
+    def msvc(pragmas):
+        return "#ifdef _MSC_VER\n" + "".join(f"{p}\n" for p in pragmas) \
+            + "#endif\n"
+    return (text.replace(FIX_START, msvc(before) + FIX_START)
+            .replace(FIX_END, FIX_END + msvc(after)))
+
+
+def real(prober, ninja, env):
+    say("real: gz-sim's own files with /Zs; the installed header as is, "
+        "with the fix, and put back")
+    commands = [compile_command(ninja, prober.build_dir, obj, env)
+                for obj in REAL_OBJECTS]
+    header = installed_header(commands[0])
+    say(f"  header: {header}")
+    backup = os.path.join(prober.out_dir, "RequestFeatures.hh.orig")
+    shutil.copy2(header, backup)
+    with open(backup, encoding="utf-8") as f:
+        original = f.read()
+    variants = (
+        ("as is", None),
+        ("with the fix (pack push/pop)", with_fix(original)),
+        ("warning(disable: 4103) around the definition instead",
+         with_fix(original,
+                  ("#pragma warning(push)", "#pragma warning(disable: 4103)"),
+                  ("#pragma warning(pop)",))),
+        ("put back", None),
+    )
+    try:
+        for name, text in variants:
+            if text is None:
+                shutil.copy2(backup, header)
+            else:
+                with open(header, "w", encoding="utf-8") as f:
+                    f.write(text)
+            for command in commands:
+                flags, source = command.rsplit(" ", 1)
+                flags = re.sub(r"\s/Fo\S+", "", flags).replace(
+                    " /showIncludes", "")
+                code, out = run(f"{flags} /Zs {source}", prober.build_dir,
+                                env)
+                c4103 = [line for line in out.splitlines()
+                         if "warning C4103" in line]
+                errors = [line for line in out.splitlines()
+                          if ": error " in line or "fatal error" in line]
+                say(f"  {name}, {ntpath.basename(source)}: exit {code}, "
+                    f"{len(c4103)} C4103",
+                    *[f"    {short(line)}" for line in (c4103 + errors)[:6]])
+    finally:
+        shutil.copy2(backup, header)
+
+
 def generators(prober, command, env, ninja):
     say("generators: a CMake OBJECT library with the base probe and the "
         "compile options of the ninja command")
@@ -367,12 +450,11 @@ def run_all(cfg, package, env):
         os.makedirs(out_dir, exist_ok=True)
         command = compile_command(ninja, build_dir, OBJECT, env)
         prober = Prober(command, build_dir, env, out_dir, "probe")
-        for step in (base, fixes, theory):
+        for step in (base, functools.partial(real, ninja=ninja, env=env)):
             try:
                 step(prober)
             except Exception:
                 say(traceback.format_exc())
-        generators(prober, command, env, ninja)
     except Exception:
         say(traceback.format_exc())
     print("# END SECTION", flush=True)
