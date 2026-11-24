@@ -75,10 +75,7 @@ if $USE_GPU_DOCKER; then
   fi
 fi
 
-if $ENABLE_CCACHE; then
-  EXTRA_PARAMS_STR="$EXTRA_PARAMS_STR \
-                    -v ${CCACHE_DIR}:${CCACHE_DIR}:rw"
-fi
+sccache_setup_docker_run
 
 DEVICE_SND=""
 if [[ -d /dev/snd ]]; then
@@ -99,6 +96,12 @@ sudo ${docker_cmd} run $EXTRA_PARAMS_STR  \
             --rm \
             ${DOCKER_TAG} \
             /bin/bash build.sh
+
+# The overlay of the compiler cache goes with the build. After a failed build,
+# the next job that uses the cache removes it.
+if [[ -n ${SCCACHE_MODE} ]]; then
+  sccache_remove_overlays
+fi
 
 # Export results out of build directory, to WORKSPACE
 for d in $(find ${WORKSPACE}/build -maxdepth 1 -name '*_results' -type d); do
