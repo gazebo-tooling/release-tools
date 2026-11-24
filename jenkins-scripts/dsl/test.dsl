@@ -216,3 +216,69 @@ test_dummy_job.with {
     numToKeep(25)
   }
 }
+
+// TEST ONLY, never merge: compiler cache (sccache) on citest. gz-math jobs as
+// gazebo_libs.dsl makes them, with no triggers: run them by hand. The branch
+// build fills the cache, the other two read it.
+
+// No mails and no automatic retries, and this branch of release-tools by default
+def sccache_test_quiet = { sccache_job ->
+  sccache_job.with {
+    configure { project ->
+      (project / 'publishers').children().removeAll {
+        it.name() in ['hudson.plugins.emailext.ExtendedEmailPublisher',
+                      'com.chikli.hudson.plugin.naginator.NaginatorPublisher']
+      }
+      def params = project / 'properties' / 'hudson.model.ParametersDefinitionProperty' / 'parameterDefinitions'
+      def rtools = params.children().find { (it / 'name').text() == 'RTOOLS_BRANCH' }
+      (rtools / 'defaultValue').setValue('jrivero/sccache_citest_jobname')
+    }
+  }
+}
+
+[
+  '_test_sccache_gz_math-ci-noble-amd64': 'rw',
+  '_test_sccache_gz_math-ci-pr_any-noble-amd64': 'ro'
+].each { job_name, mode ->
+  def sccache_job = job(job_name)
+  OSRFLinuxCompilation.create(sccache_job)
+  OSRFGitHub.create(sccache_job, 'gazebosim/gz-math', '${sha1}', 'gz-math')
+  sccache_test_quiet(sccache_job)
+  sccache_job.with {
+    parameters {
+      stringParam('sha1', 'gz-math8', 'Branch of gz-math to build')
+    }
+    steps {
+      shell("""\
+            #!/bin/bash -xe
+
+            export SCCACHE_MODE=${mode}
+            export BUILDING_SOFTWARE_DIRECTORY=gz-math
+            export DISTRO=noble
+            export ARCH=amd64
+            /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_math-compilation.bash
+            """.stripIndent())
+    }
+  }
+}
+
+def sccache_abi_job = job('_test_sccache_gz_math-abichecker-noble-amd64')
+OSRFLinuxABIGitHub.create(sccache_abi_job)
+OSRFGitHub.create(sccache_abi_job, 'gazebosim/gz-math', 'gz-math8', 'gz-math')
+sccache_test_quiet(sccache_abi_job)
+sccache_abi_job.with {
+  steps {
+    shell("""\
+          #!/bin/bash -xe
+
+          export SCCACHE_MODE=abi
+          export DISTRO=noble
+          export ARCH=amd64
+          export DEST_BRANCH=\${DEST_BRANCH:-gz-math8}
+          export SRC_BRANCH=\${SRC_BRANCH:-gz-math8}
+          export SRC_REPO=\${SRC_REPO:-https://github.com/gazebosim/gz-math.git}
+          export ABI_JOB_SOFTWARE_NAME=gz-math
+          /bin/bash -xe ./scripts/jenkins-scripts/docker/gz-abichecker.bash
+          """.stripIndent())
+  }
+}
