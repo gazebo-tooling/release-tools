@@ -818,6 +818,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/llvm-tools-21.1.0-hc7d33da_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/lz4-c-1.9.4-hb7217d7_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/lzo-2.10-h74c22ad_1003.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/make-4.4.1-h63fc045_4.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/minizip-4.2.2-h6a11f2a_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/mysql-common-9.2.0-hd7719f6_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/mysql-libs-9.2.0-ha8be5b7_0.conda
@@ -9355,6 +9356,15 @@ packages:
   license_family: GPL2
   size: 142771
   timestamp: 1713516312465
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/make-4.4.1-h63fc045_4.conda
+  sha256: 9a913075a5c373ed7e12daa4f60d15fe5b0638eb806d79975bd6c498c8728ed6
+  md5: 7210f45233086f80e4fa081d5ede2eaa
+  depends:
+  - __osx >=11.0
+  license: GPL-3.0-or-later
+  license_family: GPL
+  size: 296222
+  timestamp: 1792070312438
 - conda: https://conda.anaconda.org/conda-forge/linux-64/minizip-4.0.7-h05a5f5f_3.conda
   sha256: 9a9459024e9cdc68c799b057de021b8c652de542e24e9e48f2726578e822659c
   md5: eec77634ccdb2ba6c231290c399b1dae
