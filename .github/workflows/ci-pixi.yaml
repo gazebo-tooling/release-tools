@@ -5,60 +5,115 @@ on:
   # support push to work on pull_request is not trivial
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   detection:
     runs-on: ubuntu-latest
     outputs:
-      toml_file: ${{ steps.changed-toml-files.outputs.toml_file }}
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      has_rows: ${{ steps.matrix.outputs.has_rows }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Detect changed files
-      shell: bash
-      id: changed-files
-      run: |
-        # Only works on pull_request events
-        ALL_CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | tr '\n' ' ')
-        echo "Detected changed files: $ALL_CHANGED_FILES"
-        echo "all_changed_files=$ALL_CHANGED_FILES" >> $GITHUB_OUTPUT
-    - name: List all changed files
-      id: changed-toml-files
+        persist-credentials: false
+    - name: One row per changed pixi manifest and platform with a runner
+      id: matrix
       env:
-        ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
       run: |
-        ALL_TOML_FILES=""
-        for file in ${ALL_CHANGED_FILES}; do
-          if [[ $file == *.toml ]]; then
-            ALL_TOML_FILES="$ALL_TOML_FILES $file"
-          fi
-        done
-        if [[ -z $ALL_TOML_FILES ]]; then
-          echo "No TOML files changed"
-          echo "toml_file=[]" >> $GITHUB_OUTPUT
-          exit 0
-        fi
-        ALL_TOML_FILES=${ALL_TOML_FILES# }
-        echo "All TOML files: ${ALL_TOML_FILES}"
-        JSON_ALL_TOML="{ \"toml_file\": $(echo [\"$(sed 's/ /","/g' <<< ${ALL_TOML_FILES})\"])}"
-        echo "toml_file=${JSON_ALL_TOML}" >> $GITHUB_OUTPUT
+        # A changed pixi.lock counts as a change to its manifest. Deleted
+        # files are left out.
+        git diff --name-only --diff-filter=d "${BASE_SHA}" HEAD -- \
+          'conda/*pixi.toml' 'conda/*pixi.lock' > "${RUNNER_TEMP}/changed_pixi_files.txt"
+        echo "Changed pixi files:"
+        cat "${RUNNER_TEMP}/changed_pixi_files.txt"
+        python3 - "${RUNNER_TEMP}/changed_pixi_files.txt" >> "${GITHUB_OUTPUT}" <<'EOF'
+        import json
+        import sys
+        import tomllib
+        from pathlib import Path
+
+        # pixi platform -> runner. macos-15 is the oldest macOS of the Jenkins
+        # agents: a package that needs a newer macOS fails here.
+        RUNNERS = {"linux-64": "ubuntu-latest", "osx-arm64": "macos-15"}
+
+        changed = [Path(f) for f in Path(sys.argv[1]).read_text().split()]
+        manifests = sorted({f.parent / "pixi.toml" for f in changed
+                            if f.parts[0] == "conda" and f.name in ("pixi.toml", "pixi.lock")})
+        rows = []
+        for manifest in manifests:
+            if not manifest.is_file():
+                continue
+            data = tomllib.loads(manifest.read_text())
+            table = data.get("workspace") or data.get("project") or {}
+            rows += [{"manifest": str(manifest), "platform": platform, "runner": RUNNERS[platform]}
+                     for platform in table.get("platforms", []) if platform in RUNNERS]
+        print(json.dumps(rows, indent=2), file=sys.stderr)
+        print(f"matrix={json.dumps({'include': rows})}")
+        print(f"has_rows={'true' if rows else 'false'}")
+        EOF
   pixi_builder:
-    name: Pixi builder
+    name: pixi install (${{ matrix.manifest }}, ${{ matrix.platform }})
     needs: detection
-    runs-on: ubuntu-latest
-    if: ${{ needs.detection.outputs.toml_file != '[]' }}
+    runs-on: ${{ matrix.runner }}
+    if: ${{ needs.detection.outputs.has_rows == 'true' }}
     strategy:
-      matrix: ${{ fromJSON(needs.detection.outputs.toml_file) }}
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.detection.outputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: Install dependencies using pixi on ${{ matrix.toml_file }}
+          persist-credentials: false
+      - name: Install dependencies using pixi on ${{ matrix.manifest }}
         uses: prefix-dev/setup-pixi@ba3bb36eb2066252b2363392b7739741bb777659  # v0.8.1
         with:
           pixi-version: v0.44.0
           locked: true
           cache: false  # 10Gb limit might be too low for caching
-          manifest-path: ${{ matrix.toml_file }}
+          manifest-path: ${{ matrix.manifest }}
+      - name: Compile and run C++ with the toolchain of the env
+        if: ${{ matrix.platform == 'osx-arm64' }}
+        env:
+          MANIFEST: ${{ matrix.manifest }}
+        run: |
+          cat > "${RUNNER_TEMP}/toolchain.sh" <<'EOF'
+          # Runs inside the activated env (pixi run)
+          set -euo pipefail
+          if [[ -z "${CXX:-}" ]]; then
+            echo "No C++ compiler activation in this env, nothing to compile"
+            exit 0
+          fi
+          echo "CXX=${CXX}"
+          echo "SDKROOT=${SDKROOT:-}"
+          "${CXX}" --version
+          cd "$(mktemp -d)"
+          printf '#include <iostream>\nint main() { std::cout << "hello from the env toolchain" << std::endl; }\n' > hello.cpp
+          # shellcheck disable=SC2086  # the flags are word lists
+          "${CXX}" ${CXXFLAGS:-} ${CPPFLAGS:-} hello.cpp ${LDFLAGS:-} -o hello
+          ./hello
+          otool -L hello
+          # conda's libc++, not the system /usr/lib/libc++.1.dylib
+          otool -L hello | grep -q '@rpath/libc++.1.dylib'
+          # CMake finds the compiler and the make of the env, not AppleClang
+          # and the make of the Command Line Tools
+          printf 'cmake_minimum_required(VERSION 3.16)\nproject(hello CXX)\nadd_executable(hello_cmake hello.cpp)\n' > CMakeLists.txt
+          cmake -S . -B build
+          prefix=$(cd "${CONDA_PREFIX}" && pwd -P)
+          for entry in CMAKE_CXX_COMPILER CMAKE_MAKE_PROGRAM; do
+            value=$(sed -n "s/^${entry}:[A-Z]*=//p" build/CMakeCache.txt)
+            echo "${entry}=${value}"
+            case "$(cd "$(dirname "${value}")" && pwd -P)" in
+              "${prefix}"/*) ;;
+              *) echo "ERROR: ${entry} is outside ${CONDA_PREFIX}"; exit 1 ;;
+            esac
+          done
+          cmake --build build
+          ./build/hello_cmake
+          otool -L build/hello_cmake | grep -q '@rpath/libc++.1.dylib'
+          EOF
+          pixi run --locked --manifest-path "${MANIFEST}" bash "${RUNNER_TEMP}/toolchain.sh"
