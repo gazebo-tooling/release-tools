@@ -217,9 +217,9 @@ test_dummy_job.with {
   }
 }
 
-// TEST ONLY, never merge: compiler cache (sccache) on citest. gz-math jobs as
-// gazebo_libs.dsl makes them, with no triggers: run them by hand. The branch
-// build fills the cache, the other two read it.
+// TEST ONLY, never merge: compiler cache (sccache) on citest. Jobs as
+// gazebo_libs.dsl makes them for noble, with no triggers: run them by hand.
+// The branch build fills the cache, the other two read it.
 
 // No mails and no automatic retries, and this branch of release-tools by default
 def sccache_test_quiet = { sccache_job ->
@@ -236,49 +236,74 @@ def sccache_test_quiet = { sccache_job ->
   }
 }
 
-[
-  '_test_sccache_gz_math-ci-noble-amd64': 'rw',
-  '_test_sccache_gz_math-ci-pr_any-noble-amd64': 'ro'
-].each { job_name, mode ->
-  def sccache_job = job(job_name)
-  OSRFLinuxCompilation.create(sccache_job)
-  OSRFGitHub.create(sccache_job, 'gazebosim/gz-math', '${sha1}', 'gz-math')
-  sccache_test_quiet(sccache_job)
-  sccache_job.with {
-    parameters {
-      stringParam('sha1', 'gz-math8', 'Branch of gz-math to build')
-    }
-    steps {
-      shell("""\
-            #!/bin/bash -xe
-
-            export SCCACHE_MODE=${mode}
-            export BUILDING_SOFTWARE_DIRECTORY=gz-math
-            export DISTRO=noble
-            export ARCH=amd64
-            /bin/bash -xe ./scripts/jenkins-scripts/docker/gz_math-compilation.bash
-            """.stripIndent())
-    }
-  }
+def sccache_test_shell = { lines ->
+  (['#!/bin/bash -xe', ''] + lines).join('\n') + '\n'
 }
 
-def sccache_abi_job = job('_test_sccache_gz_math-abichecker-noble-amd64')
-OSRFLinuxABIGitHub.create(sccache_abi_job)
-OSRFGitHub.create(sccache_abi_job, 'gazebosim/gz-math', 'gz-math8', 'gz-math')
-sccache_test_quiet(sccache_abi_job)
-sccache_abi_job.with {
-  steps {
-    shell("""\
-          #!/bin/bash -xe
+// Per library:
+//   branch  built by the branch job; DEST_BRANCH of the ABI job
+//   pr      built by the PR job; SRC_BRANCH of the ABI job. A branch of the
+//           gazebosim repository: the jobs do not fetch pull request refs.
+//   extra   the pre_setup_script_hook of noble in gz-collections.yaml
+//   no_gpu  the citest agent has no GPU: drop GPU_SUPPORT_NEEDED and run no
+//           tests. The tests still compile.
+[
+  [lib: 'gz-math', branch: 'gz-math8', pr: 'gz-math8'],
+  // gazebosim/gz-physics#1175
+  [lib: 'gz-physics', branch: 'gz-physics7', pr: 'mergify/bp/gz-physics7/pr-1172',
+   extra: ['export MAKE_JOBS=1']],
+  // gazebosim/gz-sim#4265
+  [lib: 'gz-sim', branch: 'gz-sim10', pr: 'mergify/bp/gz-sim10/pr-4252',
+   no_gpu: true],
+].each { t ->
+  def prefix = t.lib.replaceAll('-', '_')
+  def extra = t.extra ?: []
+  def script = "./scripts/jenkins-scripts/docker/${prefix}-compilation.bash"
+  def build = ["/bin/bash -xe ${script}"]
+  if (t.no_gpu) {
+    def nogpu_script = "./scripts/jenkins-scripts/docker/${prefix}_nogpu-compilation.bash"
+    build = ["sed '/^export GPU_SUPPORT_NEEDED=true\$/d' ${script} > ${nogpu_script}",
+             'export GENERIC_ENABLE_TESTS=false',
+             "/bin/bash -xe ${nogpu_script}"]
+  }
 
-          export SCCACHE_MODE=abi
-          export DISTRO=noble
-          export ARCH=amd64
-          export DEST_BRANCH=\${DEST_BRANCH:-gz-math8}
-          export SRC_BRANCH=\${SRC_BRANCH:-gz-math8}
-          export SRC_REPO=\${SRC_REPO:-https://github.com/gazebosim/gz-math.git}
-          export ABI_JOB_SOFTWARE_NAME=gz-math
-          /bin/bash -xe ./scripts/jenkins-scripts/docker/gz-abichecker.bash
-          """.stripIndent())
+  [
+    [name: "_test_sccache_${prefix}-ci-noble-amd64", mode: 'rw', branch: t.branch],
+    [name: "_test_sccache_${prefix}-ci-pr_any-noble-amd64", mode: 'ro', branch: t.pr]
+  ].each { j ->
+    def sccache_job = job(j.name)
+    OSRFLinuxCompilation.create(sccache_job, ! t.no_gpu)
+    OSRFGitHub.create(sccache_job, "gazebosim/${t.lib}", '${sha1}', t.lib)
+    sccache_test_quiet(sccache_job)
+    sccache_job.with {
+      parameters {
+        stringParam('sha1', j.branch, "Branch of ${t.lib} to build")
+      }
+      steps {
+        shell(sccache_test_shell(extra + [
+          "export SCCACHE_MODE=${j.mode}",
+          "export BUILDING_SOFTWARE_DIRECTORY=${t.lib}",
+          'export DISTRO=noble',
+          'export ARCH=amd64'] + build))
+      }
+    }
+  }
+
+  def sccache_abi_job = job("_test_sccache_${prefix}-abichecker-noble-amd64")
+  OSRFLinuxABIGitHub.create(sccache_abi_job)
+  OSRFGitHub.create(sccache_abi_job, "gazebosim/${t.lib}", t.branch, t.lib)
+  sccache_test_quiet(sccache_abi_job)
+  sccache_abi_job.with {
+    steps {
+      shell(sccache_test_shell(extra + [
+        'export SCCACHE_MODE=abi',
+        'export DISTRO=noble',
+        'export ARCH=amd64',
+        "export DEST_BRANCH=\${DEST_BRANCH:-${t.branch}}",
+        "export SRC_BRANCH=\${SRC_BRANCH:-${t.pr}}",
+        "export SRC_REPO=\${SRC_REPO:-https://github.com/gazebosim/${t.lib}.git}",
+        "export ABI_JOB_SOFTWARE_NAME=${t.lib}",
+        '/bin/bash -xe ./scripts/jenkins-scripts/docker/gz-abichecker.bash']))
+    }
   }
 }
