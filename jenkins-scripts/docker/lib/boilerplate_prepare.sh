@@ -120,6 +120,17 @@ fi
 . ${SCRIPT_DIR}/../lib/dependencies_archive.sh
 
 # Compiler cache, see SCCACHE_MODE in sccache.bash
+# TEST ONLY, never merge: the citest jobs come from the master DSL, which does
+# not export SCCACHE_MODE. Infer it from the job name.
+if [[ -z ${SCCACHE_MODE:-} ]]; then
+  case ${JOB_NAME:-} in
+    *-ci-pr_any-*) SCCACHE_MODE=ro ;;
+    *-abichecker-*) SCCACHE_MODE=abi ;;
+    *-ci_asan-*) ;;
+    *-ci-*) SCCACHE_MODE=rw ;;
+  esac
+  echo "TEST ONLY: SCCACHE_MODE '${SCCACHE_MODE:-}' from job name ${JOB_NAME:-}"
+fi
 . ${SCRIPT_DIR}/lib/sccache.bash
 sccache_check_host
 
