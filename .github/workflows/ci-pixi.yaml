@@ -99,5 +99,21 @@ jobs:
           otool -L hello
           # conda's libc++, not the system /usr/lib/libc++.1.dylib
           otool -L hello | grep -q '@rpath/libc++.1.dylib'
+          # CMake finds the compiler and the make of the env, not AppleClang
+          # and the make of the Command Line Tools
+          printf 'cmake_minimum_required(VERSION 3.16)\nproject(hello CXX)\nadd_executable(hello_cmake hello.cpp)\n' > CMakeLists.txt
+          cmake -S . -B build
+          prefix=$(cd "${CONDA_PREFIX}" && pwd -P)
+          for entry in CMAKE_CXX_COMPILER CMAKE_MAKE_PROGRAM; do
+            value=$(sed -n "s/^${entry}:[A-Z]*=//p" build/CMakeCache.txt)
+            echo "${entry}=${value}"
+            case "$(cd "$(dirname "${value}")" && pwd -P)" in
+              "${prefix}"/*) ;;
+              *) echo "ERROR: ${entry} is outside ${CONDA_PREFIX}"; exit 1 ;;
+            esac
+          done
+          cmake --build build
+          ./build/hello_cmake
+          otool -L build/hello_cmake | grep -q '@rpath/libc++.1.dylib'
           EOF
           pixi run --locked --manifest-path "${MANIFEST}" bash "${RUNNER_TEMP}/toolchain.sh"

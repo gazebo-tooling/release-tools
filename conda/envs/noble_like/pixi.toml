@@ -68,3 +68,6 @@ vcstool = "*"
 # would pick AppleClang and link the system libc++.
 clang_osx-arm64 = "21.*"
 clangxx_osx-arm64 = "21.*"
+# CMake generates Makefiles on macOS. Without make in the env the build uses
+# the GNU make 3.81 of the Command Line Tools.
+make = "*"
