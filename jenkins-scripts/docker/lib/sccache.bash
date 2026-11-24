@@ -89,7 +89,7 @@ sccache_setup_docker_run()
       ;;
     ro | abi)
       # No commas or colons: they would break the mount options
-      name=$(echo "${BUILD_TAG:-build-$$}" | tr -c 'A-Za-z0-9_.-' '_')
+      name=$(printf '%s' "${BUILD_TAG:-build-$$}" | tr -c 'A-Za-z0-9_.-' '_')
       overlay_dir=${SCCACHE_OVERLAY_ROOT}/${name}
       mkdir -p "${overlay_dir}/upper" "${overlay_dir}/work"
       volume=${SCCACHE_VOLUME_PREFIX}${name}
