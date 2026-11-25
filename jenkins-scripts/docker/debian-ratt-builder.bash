@@ -54,15 +54,15 @@ echo '# BEGIN SECTION: configure sbuild'
 # dependencies after each build. That mode needs sbuild to run as root;
 # dpkg-buildpackage still runs as the unprivileged sbuild user.
 sudo mkdir -p /root/.config/sbuild
-sudo tee /root/.config/sbuild/config.pl << EOF
-\\\$chroot_mode = 'autopkgtest';
-\\\$autopkgtest_virt_server = 'null';
-\\\$build_user = 'sbuild';
+sudo tee /root/.config/sbuild/config.pl << 'EOF'
+\$chroot_mode = 'autopkgtest';
+\$autopkgtest_virt_server = 'null';
+\$build_user = 'sbuild';
 EOF
 if ! $USE_UNSTABLE; then
-  sudo tee -a /root/.config/sbuild/config.pl << EOF
-\\\$verbose = 1;
-\\\$extra_repositories = [ 'deb http://ftp.us.debian.org/debian experimental main' ];
+  sudo tee -a /root/.config/sbuild/config.pl << 'EOF'
+\$verbose = 1;
+\$extra_repositories = [ 'deb http://ftp.us.debian.org/debian experimental main' ];
 EOF
 fi
 echo '# END SECTION'
@@ -121,20 +121,36 @@ go mod tidy
 go build
 popd 2> /dev/null
 
-# An array keeps each filter as a single argument, without the quotes
+# Collect the filters in an array so each regex reaches ratt as one
+# argument; a plain string would pass the quote characters literally.
+# RATT_INCLUDE and RATT_EXCLUDE are expanded when build.sh is generated.
 ratt_params=()
-if [[ -n '$RATT_INCLUDE' ]]; then
+if [[ -n '${RATT_INCLUDE}' ]]; then
   ratt_params+=(--include '${RATT_INCLUDE}')
 fi
 
-if [[ -n '$RATT_EXCLUDE' ]]; then
+if [[ -n '${RATT_EXCLUDE}' ]]; then
   ratt_params+=(--exclude '${RATT_EXCLUDE}')
 fi
 
-# sbuild needs root, see the sbuild configuration above
-sudo -H /tmp/ratt/build "\${ratt_params[@]}" ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
+# ratt runs sbuild, which must be root for the null server (see "configure
+# sbuild" above). -H sets HOME=/root so that sbuild reads
+# /root/.config/sbuild/config.pl. The build logs come out owned by root.
+ratt_rc=0
+sudo -H /tmp/ratt/build "\${ratt_params[@]}" ${DEB_PACKAGE}_*.changes* || ratt_rc=\$?
+if [[ ! -d buildlogs ]]; then
+  echo "ratt exited with \${ratt_rc} before building anything, see its output above"
+  exit 1
+fi
 sudo chown -R \${USER}: buildlogs
 cp -a buildlogs ${WORKSPACE}/logs
+if [[ -z \$(ls -A buildlogs) ]]; then
+  echo "ratt built no reverse dependency: check DEB_PACKAGE, RATT_INCLUDE and RATT_EXCLUDE"
+  exit 1
+fi
+if [[ \${ratt_rc} -ne 0 ]]; then
+  echo MARK_AS_UNSTABLE
+fi
 echo '# END SECTION'
 DELIM
 

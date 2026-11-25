@@ -34,6 +34,8 @@ fi
 backportpackage --dont-sign \
                 -s ${SOURCE_UBUNTU_DISTRO} -d ${DEST_UBUNTU_DISTRO} \
                 -w . ${PACKAGE}
+# The work dir also holds the original source package that backportpackage
+# downloaded, so pick the backport through its _source.changes
 BACKPORT_CHANGES=\$(find . -maxdepth 1 -name '*_source.changes')
 if [[ \$(echo "\${BACKPORT_CHANGES}" | wc -w) -ne 1 ]]; then
   echo "Expected one *_source.changes from backportpackage, found: \${BACKPORT_CHANGES}"
@@ -47,7 +49,9 @@ dpkg-source -x \${BACKPORT_DSC} backport_src
 cd backport_src
 sudo apt-get update
 sudo apt-get build-dep -y ./
-dpkg-buildpackage -us -uc -b
+# -J passes the jobs only through DEB_BUILD_OPTIONS, so packages that do not
+# support parallel builds still build serially
+dpkg-buildpackage -us -uc -b -J${MAKE_JOBS}
 cd ..
 echo '# END SECTION'
 
@@ -55,10 +59,8 @@ echo '# BEGIN SECTION: export pkgs'
 mkdir -p $WORKSPACE/pkgs
 cp *.tar.* $WORKSPACE/pkgs
 cp \${BACKPORT_DSC} $WORKSPACE/pkgs
-# debian is only generated in quilt format, native does not have it
-cp ../*.debian.* $WORKSPACE/pkgs || true
 
-PKGS=\`find . -maxdepth 1 -name '*.deb' || true\`
+PKGS=\$(find . -maxdepth 1 -name '*.deb')
 
 FOUND_PKG=0
 for pkg in \${PKGS}; do
@@ -76,13 +78,9 @@ DELIM
 OSRF_REPOS_TO_USE=${OSRF_REPOS_TO_USE:=stable}
 DEPENDENCY_PKGS="devscripts \
                  ubuntu-dev-tools \
-                 build-essential \
                  fakeroot \
                  debhelper \
-                 wget \
-                 ca-certificates \
-                 equivs \
-                 dh-make"
+                 ca-certificates"
 
 . ${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash
 . ${SCRIPT_DIR}/lib/docker_run.bash

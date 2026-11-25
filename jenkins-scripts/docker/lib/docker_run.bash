@@ -55,19 +55,9 @@ if $USE_GPU_DOCKER; then
                     -v /sys:/sys:ro         \
                     -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
 
-  # The nvidia runtime injects /dev/nvidia* and /dev/dri itself. Other cards
-  # need /dev/dri passed in, plus the groups that own its nodes since the
-  # container user is not a member of the host video/render groups.
-  if [[ $GRAPHIC_CARD_NAME != "Nvidia" && -d /dev/dri ]]; then
-    EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --device /dev/dri"
-    for dri_gid in $(find /dev/dri -maxdepth 1 -type c -printf '%G\n' | sort -u); do
-      if [[ ${dri_gid} != 0 ]]; then
-        EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --group-add ${dri_gid}"
-      fi
-    done
-  fi
-
   if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
+    # The nvidia runtime injects /dev/nvidia* and, since the image requests
+    # the graphics capability, the /dev/dri nodes of the card.
     case ${NVIDIA_DOCKER_DRIVER} in
       'nvidia-container-toolkit' | 'nvidia-docker2')
         export EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --runtime=nvidia"
@@ -80,6 +70,21 @@ if $USE_GPU_DOCKER; then
         echo "Probably a problem in the provisioning of the agent"
         exit 1
     esac
+  else
+    # Other cards need /dev/dri passed in, plus the groups that own its nodes
+    # since the container user is not a member of the host video/render
+    # groups. Without a render node the build would silently fall back to
+    # software rendering.
+    if ! compgen -G '/dev/dri/renderD*' > /dev/null; then
+      echo "GPU support needed (${GRAPHIC_CARD_NAME}) but there is no /dev/dri/renderD* node"
+      exit 1
+    fi
+    EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --device /dev/dri"
+    # Not in a pipeline, so that set -e stops the script if find fails
+    dri_gids=$(find /dev/dri -maxdepth 1 -type c ! -gid 0 -printf '%G\n')
+    for dri_gid in $(sort -u <<< "${dri_gids}"); do
+      EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --group-add ${dri_gid}"
+    done
   fi
 fi
 

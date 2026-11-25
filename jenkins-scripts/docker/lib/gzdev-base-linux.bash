@@ -7,19 +7,14 @@ echo '# END SECTION'
 cat > build.sh << DELIM
 $(generate_buildsh_header)
 
-export MAKE_JOBS=${MAKE_JOBS}
-
-echo '# BEGIN SECTION: install pip requirements'
+echo '# BEGIN SECTION: check the gzdev checkout'
+# No gzdev tests run here: the job only checks that the image builds and
+# that the checkout is in place.
 cd ${WORKSPACE}/gzdev
-# pip3 install -r requirements.txt
 echo '# END SECTION'
 DELIM
 
 export OSRF_REPOS_TO_USE="stable"
-export USE_ROS_REPO=true
-export ROS2=true
-export DEPENDENCY_PKGS="python3-pip \
-                 bash"
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
 . "${SCRIPT_DIR}/lib/docker_run.bash"
