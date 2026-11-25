@@ -305,5 +305,11 @@ def sccache_test_shell = { lines ->
         "export ABI_JOB_SOFTWARE_NAME=${t.lib}",
         '/bin/bash -xe ./scripts/jenkins-scripts/docker/gz-abichecker.bash']))
     }
+    // Keep the checker's own logs (header compile errors, per side) next to
+    // Dockerfile and build.sh
+    configure { project ->
+      def artifacts = project / publishers / 'hudson.tasks.ArtifactArchiver' / artifacts
+      artifacts.setValue(artifacts.text() + ',abi_checker/logs/**')
+    }
   }
 }
