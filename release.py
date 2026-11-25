@@ -776,6 +776,8 @@ def create_pr_for_vendor_package(args, repo_path, base_branch) -> str:
     branch_cmd = ['git', "-C", repo_path,
                   'checkout', '-b',  branch_name]
     _, _ = check_call(branch_cmd, IGNORE_DRY_RUN)
+    add_cmd = ['git', "-C", repo_path, 'add', '--all']
+    _, _ = check_call(add_cmd, IGNORE_DRY_RUN)
     commit_cmd = ['git', "-C", repo_path,
                   'commit',
                   '-m', f'Bump version to {args.version}',
