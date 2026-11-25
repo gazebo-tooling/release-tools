@@ -163,6 +163,47 @@ class TestCheckPrSkip(unittest.TestCase):
                     check_pr_skip.main()
                 self.assertEqual(cm.exception.code, 0)
 
+    def test_recreate_dir_removes_stale_files(self):
+        target_dir = os.path.join(self.workspace, "build", "test_results")
+        os.makedirs(target_dir)
+        stale_file = os.path.join(target_dir, "stale.xml")
+        with open(stale_file, "w", encoding="utf-8") as f:
+            f.write("<stale/>")
+
+        check_pr_skip.recreate_dir(target_dir)
+
+        self.assertTrue(os.path.isdir(target_dir))
+        self.assertFalse(os.path.exists(stale_file))
+
+    @patch("shutil.rmtree", side_effect=PermissionError("Permission denied"))
+    def test_recreate_dir_raises_oserror_on_rmtree_failure(self, _mock_rmtree):
+        target_dir = os.path.join(self.workspace, "build", "test_results")
+        os.makedirs(target_dir)
+
+        with self.assertRaises(OSError):
+            check_pr_skip.recreate_dir(target_dir)
+
+    @patch("subprocess.run")
+    @patch("shutil.rmtree", side_effect=PermissionError("Permission denied"))
+    def test_report_generation_oserror_exits_2(self, _mock_rmtree, mock_subprocess):
+        mock_proc = unittest.mock.Mock()
+        mock_proc.stdout = "README.md\n"
+        mock_subprocess.return_value = mock_proc
+
+        os.makedirs(os.path.join(self.workspace, "build", "test_results"))
+
+        env = {
+            "ghprbTargetBranch": "main",
+            "ghprbActualCommit": "abcdef123",
+            "WORKSPACE": self.workspace,
+        }
+        test_args = ["check_pr_skip.py", "test_repo", self.pattern_file]
+        with patch.dict(os.environ, env, clear=True):
+            with patch("sys.argv", test_args):
+                with self.assertRaises(SystemExit) as cm:
+                    check_pr_skip.main()
+                self.assertEqual(cm.exception.code, 2)
+
 
 class TestCheckPrSkipWithGit(unittest.TestCase):
 

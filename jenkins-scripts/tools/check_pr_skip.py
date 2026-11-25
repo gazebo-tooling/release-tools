@@ -54,28 +54,29 @@ ABI_DUMMY_HTML = """<!DOCTYPE html>
 """
 
 
+def recreate_dir(path):
+    """Equivalent to `rm -fr path && mkdir -p path`.
+
+    Raises OSError if a previous build left files that can not be removed
+    (e.g. root-owned directories from docker, read-only/locked files on Windows)
+    so they are never published together with the dummy reports.
+    """
+    if os.path.lexists(path):
+        shutil.rmtree(path)
+    os.makedirs(path)
+
+
 def generate_dummy_reports(workspace):
     """Generate dummy XML and HTML reports for publishers when CI is skipped."""
-    # Test results
-    test_results_dir = os.path.join(workspace, "build", "test_results")
-    shutil.rmtree(test_results_dir, ignore_errors=True)
-    os.makedirs(test_results_dir, exist_ok=True)
-    with open(os.path.join(test_results_dir, "skipped_ci.xml"), "w", encoding="utf-8") as f:
-        f.write(JUNIT_DUMMY_XML)
-
-    # Cppcheck results
-    cppcheck_results_dir = os.path.join(workspace, "build", "cppcheck_results")
-    shutil.rmtree(cppcheck_results_dir, ignore_errors=True)
-    os.makedirs(cppcheck_results_dir, exist_ok=True)
-    with open(os.path.join(cppcheck_results_dir, "skipped_ci.xml"), "w", encoding="utf-8") as f:
-        f.write(CPPCHECK_DUMMY_XML)
-
-    # ABI reports
-    reports_dir = os.path.join(workspace, "reports")
-    shutil.rmtree(reports_dir, ignore_errors=True)
-    os.makedirs(reports_dir, exist_ok=True)
-    with open(os.path.join(reports_dir, "compat_report.html"), "w", encoding="utf-8") as f:
-        f.write(ABI_DUMMY_HTML)
+    reports = [
+        (os.path.join(workspace, "build", "test_results"), "skipped_ci.xml", JUNIT_DUMMY_XML),
+        (os.path.join(workspace, "build", "cppcheck_results"), "skipped_ci.xml", CPPCHECK_DUMMY_XML),
+        (os.path.join(workspace, "reports"), "compat_report.html", ABI_DUMMY_HTML),
+    ]
+    for report_dir, filename, content in reports:
+        recreate_dir(report_dir)
+        with open(os.path.join(report_dir, filename), "w", encoding="utf-8") as f:
+            f.write(content)
 
 
 def main():
@@ -177,7 +178,11 @@ def main():
 
     print("All files match the ignored set.")
     print("All changed files match ignored set. Generating dummy reports for publishers...")
-    generate_dummy_reports(workspace)
+    try:
+        generate_dummy_reports(workspace)
+    except OSError as e:
+        print(f"Failed to generate dummy reports ({e}); proceed with build")
+        sys.exit(2)
     print("Skipping CI")
     sys.exit(0)
 
