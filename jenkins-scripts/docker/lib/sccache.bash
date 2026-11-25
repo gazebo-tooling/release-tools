@@ -14,10 +14,12 @@
 # /usr/local/bin/sccache and mounts the instance store at /srv/sccache. When
 # either is missing, the build runs without a cache.
 #
-# ro and abi see the shared cache through an overlay volume: the kernel sends
-# every write to directories of the job, deleted after the build. A read-only
-# bind mount would give no hits: sccache updates the times of every file it
-# reads from the cache, and fails the read when it cannot.
+# ro mounts the shared cache read-only. It needs sccache 0.20.0 or newer:
+# older releases update the times of every file they read from the cache, and
+# fail the read on a read-only mount (mozilla/sccache#2901).
+#
+# abi sees the shared cache through an overlay volume: the kernel sends every
+# write to directories of the job, deleted after the build.
 #
 # The local backend of sccache supports one server per cache directory, and
 # each build container runs its own server: this needs agents with a single
@@ -51,8 +53,8 @@ sccache_check_host()
   fi
 }
 
-# Remove the overlay volumes and their directories. With one executor per
-# agent, anything there belongs to a build that is over.
+# Remove the overlay volumes of the ABI checker jobs and their directories.
+# With one executor per agent, anything there belongs to a build that is over.
 sccache_remove_overlays()
 {
   local volume
@@ -65,7 +67,7 @@ sccache_remove_overlays()
   fi
 }
 
-# Most of the volume, leaving room for the overlays of the pull requests
+# Most of the volume, leaving room for the overlays of the ABI checker jobs
 sccache_cache_size()
 {
   local size_gb
@@ -81,13 +83,18 @@ sccache_setup_docker_run()
   sccache_remove_overlays
   mkdir -p "${SCCACHE_SHARED_DIR}"
 
-  local volume rw_mode basedirs name overlay_dir
+  local volume mount_options='' rw_mode basedirs name overlay_dir
   case ${SCCACHE_MODE} in
     rw)
       volume=${SCCACHE_SHARED_DIR}
       rw_mode=READ_WRITE
       ;;
-    ro | abi)
+    ro)
+      volume=${SCCACHE_SHARED_DIR}
+      mount_options=:ro
+      rw_mode=READ_ONLY
+      ;;
+    abi)
       # No commas or colons: they would break the mount options
       name=$(printf '%s' "${BUILD_TAG:-build-$$}" | tr -c 'A-Za-z0-9_.-' '_')
       overlay_dir=${SCCACHE_OVERLAY_ROOT}/${name}
@@ -98,11 +105,7 @@ sccache_setup_docker_run()
         --opt device=overlay \
         --opt "o=lowerdir=${SCCACHE_SHARED_DIR},upperdir=${overlay_dir}/upper,workdir=${overlay_dir}/work" \
         "${volume}" > /dev/null
-      if [[ ${SCCACHE_MODE} == ro ]]; then
-        rw_mode=READ_ONLY
-      else
-        rw_mode=READ_WRITE
-      fi
+      rw_mode=READ_WRITE
       ;;
   esac
 
@@ -125,7 +128,7 @@ sccache_setup_docker_run()
   # CMAKE_<LANG>_COMPILER_LAUNCHER: CMake 3.17 or newer.
   EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} \
                     -v ${SCCACHE_HOST_BIN}:/usr/local/bin/sccache:ro \
-                    -v ${volume}:/srv/sccache \
+                    -v ${volume}:/srv/sccache${mount_options} \
                     -e SCCACHE_DIR=/srv/sccache \
                     -e SCCACHE_LOCAL_RW_MODE=${rw_mode} \
                     -e SCCACHE_CACHE_SIZE=$(sccache_cache_size) \
