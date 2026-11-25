@@ -52,6 +52,44 @@ EOF
 fi
 echo '# END SECTION'
 
+echo '# BEGIN SECTION: check the sbuild setup'
+# ratt reports every failing sbuild call as a broken reverse dependency,
+# which only marks the job as unstable. Build a dummy package first so that
+# a broken sbuild setup fails the job instead.
+mkdir -p /tmp/sbuild-check/sbuild-check/debian/source
+pushd /tmp/sbuild-check 2> /dev/null
+echo '3.0 (native)' > sbuild-check/debian/source/format
+cat > sbuild-check/debian/control << 'EOF'
+Source: sbuild-check
+Section: misc
+Priority: optional
+Maintainer: OSRF Jenkins <build@osrfoundation.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+
+Package: sbuild-check
+Architecture: any
+Description: dummy package to check the sbuild setup
+ Built before running ratt so that a broken sbuild setup fails the job.
+EOF
+cat > sbuild-check/debian/changelog << 'EOF'
+sbuild-check (1.0) unstable; urgency=medium
+
+  * Check the sbuild setup.
+
+ -- OSRF Jenkins <build@osrfoundation.org>  Mon, 01 Jan 2024 00:00:00 +0000
+EOF
+printf '#!/usr/bin/make -f\n%%:\n\tdh \$@\n' > sbuild-check/debian/rules
+chmod +x sbuild-check/debian/rules
+dpkg-source -b sbuild-check
+sudo -H sbuild --nolog --no-run-lintian --no-run-autopkgtest --no-run-piuparts \
+  --dist=unstable sbuild-check_1.0.dsc
+popd 2> /dev/null
+# sbuild leaves the apt lists without the Packages and Sources indexes,
+# which ratt reads to find the reverse dependencies
+sudo apt-get update
+echo '# END SECTION'
+
 echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
 cd ..
 if $USE_UNSTABLE; then
