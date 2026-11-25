@@ -14,12 +14,20 @@
 #                         of path headers to ignore
 # ABI_JOB_EXTRA_GCC_OPTIONS: (optional) inject gcc_options in the descriptor file
 #                            one per line
+# ABI_JOB_BASE_REPO: (mandatory) upstream repository URL that DEST_BRANCH is
+#                    always fetched from
 
 # Jenkins variables:
-# DEST_BRANCH
-# SRC_BRANCH
+# DEST_BRANCH: base branch, fetched from ABI_JOB_BASE_REPO
+# SRC_BRANCH: branch in SRC_REPO, merged into DEST_BRANCH for the comparison
+# SRC_REPO
 
 set -e
+
+if [[ -z "${ABI_JOB_BASE_REPO}" ]]; then
+  echo "ABI_JOB_BASE_REPO not set!"
+  exit 1
+fi
 
 echo '# BEGIN SECTION: setup the testing enviroment'
 # Define the name to be used in docker
@@ -47,11 +55,38 @@ ${ABI_JOB_PREABI_HOOK}
 echo '# END SECTION'
 fi
 
-echo '# BEGIN SECTION: compile and install branch: ${DEST_BRANCH}'
+echo '# BEGIN SECTION: fetch ${DEST_BRANCH} from ${ABI_JOB_BASE_REPO} and ${SRC_BRANCH} from ${SRC_REPO}'
 cp -a $WORKSPACE/${ABI_JOB_SOFTWARE_NAME} /tmp/${ABI_JOB_SOFTWARE_NAME}
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
-git fetch origin
-git checkout origin/${DEST_BRANCH}
+# The base branch always comes from the upstream repository, whatever the
+# workspace clone points to
+git remote add base_repo ${ABI_JOB_BASE_REPO}
+git fetch base_repo +refs/heads/${DEST_BRANCH}:refs/remotes/base_repo/${DEST_BRANCH}
+git remote add source_repo ${SRC_REPO}
+git fetch source_repo +refs/heads/${SRC_BRANCH}:refs/remotes/source_repo/${SRC_BRANCH}
+# Resolve both commits once so the two builds share the same base commit even
+# if the branch moves while the job runs
+BASE_COMMIT=\$(git rev-parse base_repo/${DEST_BRANCH})
+SOURCE_COMMIT=\$(git rev-parse source_repo/${SRC_BRANCH})
+echo "Base:   ${ABI_JOB_BASE_REPO} ${DEST_BRANCH} \${BASE_COMMIT}"
+echo "Source: ${SRC_REPO} ${SRC_BRANCH} \${SOURCE_COMMIT}"
+# The source side is what merging the pull request produces: the source branch
+# merged on top of the base commit. A source branch that is behind its base
+# would otherwise report the newer base changes as removed symbols. Merge
+# before building anything so a conflict fails the job right away.
+git checkout --detach \${BASE_COMMIT}
+if ! git -c user.name='ABI checker' -c user.email='abichecker@localhost' \\
+       merge --no-ff --no-edit \${SOURCE_COMMIT}; then
+  echo "${SRC_REPO} ${SRC_BRANCH} does not merge cleanly into ${DEST_BRANCH}: resolve the conflicts first"
+  exit 1
+fi
+MERGE_COMMIT=\$(git rev-parse HEAD)
+echo "Merged: \${MERGE_COMMIT}"
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: compile and install branch: ${DEST_BRANCH}'
+cd /tmp/${ABI_JOB_SOFTWARE_NAME}
+git checkout --detach \${BASE_COMMIT}
 # Install dependencies again in case packages.apt files are changed
 sudo apt install -y \$(sort -u \$(find .github/ci -iname 'packages-'$DISTRO'.apt' -o -iname 'packages.apt') | tr '\n' ' ')
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
@@ -67,14 +102,11 @@ sudo make install
 DEST_DIR=\$(find /usr/local/destination_branch/include -name ${ABI_JOB_HEADER_PREFIX} -type d | sed -e 's:.*/include/::')
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: compile and install branch: ${SRC_BRANCH}'
-# 2.2 Target branch
+echo '# BEGIN SECTION: compile and install branch: ${SRC_BRANCH} merged into ${DEST_BRANCH}'
 # Reusing the same building and source directory to save bandwith and
 # compilation time.
 cd /tmp/${ABI_JOB_SOFTWARE_NAME}
-git remote add source_repo ${SRC_REPO}
-git fetch source_repo
-git checkout source_repo/${SRC_BRANCH}
+git checkout --detach \${MERGE_COMMIT}
 # Install dependencies again in case packages.apt files are changed
 sudo apt install -y \$(sort -u \$(find .github/ci -iname 'packages-'$DISTRO'.apt' -o -iname 'packages.apt') | tr '\n' ' ')
 # Normal cmake routine for ${ABI_JOB_SOFTWARE_NAME}
