@@ -25,11 +25,26 @@ sudo bash -c 'echo "deb-src http://deb.debian.org/debian experimental main" >> /
 sudo apt-get update
 mkdir /tmp/work
 cd /tmp/work
-sudo apt-get build-dep -y ${DEB_PACKAGE}
 apt-get source -t experimental ${DEB_PACKAGE}
 dir=\$(find . -maxdepth 1 -mindepth 1 -type d)
+# Install the build dependencies through a metapackage, so that they can be
+# removed before the reverse dependencies are built in this same container
+mkdir /tmp/build-deps
+pushd /tmp/build-deps 2> /dev/null
+sudo mk-build-deps -i -r -t 'apt-get -y --no-install-recommends' /tmp/work/\$dir/debian/control
+popd 2> /dev/null
 cd \$dir
 debuild --no-sign
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: remove the build dependencies of ${DEB_PACKAGE}'
+# sbuild builds every reverse dependency directly in this container, not in
+# a clean chroot. It purges what it installs for each build, but anything
+# already installed here stays visible to all of them and could hide a
+# missing Build-Depends. Leave the container as close to its initial
+# package set as possible.
+sudo apt-get -y purge ${DEB_PACKAGE}-build-deps
+sudo apt-get -y autoremove --purge
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: configure sbuild'
@@ -129,7 +144,7 @@ if $USE_UNSTABLE; then
 else
   export DISTRO=experimental
 fi
-export DEPENDENCY_PKGS="sbuild autopkgtest quilt devscripts dose-extra git"
+export DEPENDENCY_PKGS="sbuild autopkgtest quilt devscripts equivs dose-extra git"
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
 . "${SCRIPT_DIR}/lib/docker_run.bash"
