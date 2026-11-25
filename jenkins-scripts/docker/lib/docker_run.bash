@@ -46,8 +46,10 @@ echo '# BEGIN SECTION: see build.sh script'
 cat build.sh
 echo '# END SECTION'
 
-# Build containers do not use --privileged nor mount the docker socket.
-# GPU access goes through the explicit devices below.
+# Build containers run without --privileged and without the docker socket.
+# GPU jobs get the card through the options below: the nvidia runtime (or
+# the legacy nvidia-docker wrapper) for NVIDIA cards, and --device /dev/dri
+# plus the groups that own its nodes for the rest.
 if $USE_GPU_DOCKER; then
   EXTRA_PARAMS_STR="-e DISPLAY=$DISPLAY \
                     -v /sys:/sys:ro         \
