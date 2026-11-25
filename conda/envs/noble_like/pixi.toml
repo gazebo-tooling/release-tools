@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Pixi configuration to run Gazebo Jetty. Similar versions than Ubuntu Noble."
 authors = ["Jose Luis Rivero <jrivero@openrobotics.org>"]
 channels = ["conda-forge"]
-platforms = ["linux-64", "linux-aarch64", "win-64"]
+platforms = ["linux-64", "linux-aarch64", "win-64", "osx-arm64"]
 
 [target.win-64.activation.env]
 QT_QPA_PLATFORM_PLUGIN_PATH="%CONDA_PREFIX%\\Library\\lib\\qt6\\plugins\\platforms"
@@ -23,14 +23,14 @@ freeimage = "*"
 gdal = "3.*"
 gflags = "*"
 jsoncpp = "*"
-libprotobuf = "*"
+libprotobuf = "4.25.*"       # same series on all platforms
 libsqlite = "*"
 libzip = "*"
 ogre = "1.10.12.1.*"
 ogre-next = "2.3.*"
 openssl = "*"
-protobuf = "*"
-pybind11 = "*"
+protobuf = "4.25.*"          # same series on all platforms
+pybind11 = "2.13.*"          # same series on all platforms
 python = "3.12.*"
 qt6-main = "6.8.*"
 ruby = "*"
@@ -38,8 +38,8 @@ tinyxml2 = "*"
 yaml = "*"
 zeromq = "4.3.4.*"           # good for noble
 libwebsockets = ">=4.3.3,<5" # good for noble
-libzenohc = ">=1.8.0,<2"
-libzenohcxx = ">=1.8.0,<2"
+libzenohc = "1.8.*"          # same series on all platforms
+libzenohcxx = "1.8.*"        # same series on all platforms
 libgdal-netcdf = ">=3.10.0,<4"
 
 [target.win-64.dependencies]
@@ -61,3 +61,13 @@ cmake = "3.28.3.*"  # good on noble
 colcon-common-extensions = "*"
 pkg-config = "*"
 vcstool = "*"
+
+[target.osx-arm64.build-dependencies]
+# conda-forge clang with its activation (CC, CXX, CXXFLAGS, LDFLAGS, SDKROOT).
+# Not c-compiler/cxx-compiler: since 2.0 they install a bare clang, so CMake
+# would pick AppleClang and link the system libc++.
+clang_osx-arm64 = "21.*"
+clangxx_osx-arm64 = "21.*"
+# CMake generates Makefiles on macOS. Without make in the env the build uses
+# the GNU make 3.81 of the Command Line Tools.
+make = "*"
