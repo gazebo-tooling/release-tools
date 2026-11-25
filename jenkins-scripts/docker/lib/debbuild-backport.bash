@@ -23,9 +23,14 @@ export DEBFULLNAME="OSRF Jenkins"
 export DEBEMAIL="build@osrfoundation.org"
 
 echo '# BEGIN SECTION: generating the backport (${DEST_UBUNTU_DISTRO}/${ARCH})'
-# Only the source package: the container is already a ${DEST_UBUNTU_DISTRO}
-# system, so the binaries are built right here. A cowbuilder/pbuilder chroot
-# would need a privileged container.
+# backportpackage only generates the source package. The container must be a
+# ${DEST_UBUNTU_DISTRO} system, since the binaries are built right here; a
+# cowbuilder/pbuilder chroot would need a privileged container.
+CONTAINER_DISTRO=\$(. /etc/os-release && echo \${VERSION_CODENAME})
+if [[ \${CONTAINER_DISTRO} != ${DEST_UBUNTU_DISTRO} ]]; then
+  echo "The container is \${CONTAINER_DISTRO} but the backport targets ${DEST_UBUNTU_DISTRO}: run the job with DISTRO=${DEST_UBUNTU_DISTRO}"
+  exit 1
+fi
 backportpackage --dont-sign \
                 -s ${SOURCE_UBUNTU_DISTRO} -d ${DEST_UBUNTU_DISTRO} \
                 -w . ${PACKAGE}
