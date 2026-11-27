@@ -87,6 +87,9 @@ fi
 # default to use stable repos
 export ABI_JOB_REPOS="stable"
 
+# the base branch (DEST_BRANCH) always comes from the gazebosim repository
+export ABI_JOB_BASE_REPO=${ABI_JOB_BASE_REPO:-https://github.com/gazebosim/${ABI_JOB_SOFTWARE_NAME}.git}
+
 # set GZDEV_PROJECT_NAME so it can override repos if necessary
 export GZDEV_PROJECT_NAME=${ABI_JOB_SOFTWARE_NAME/ign-/ignition-}${GZ_NAME_PREFIX_MAJOR_VERSION}
 
