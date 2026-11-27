@@ -727,7 +727,14 @@ collection_job_names.each { collection_name, job_names ->
     }
 
     configure { view ->
-      view / columns << "hudson.plugins.warnings.WarningsColumn" (plugin: 'warnings@5.0.1')
+      // warnings-ng issues column. Jenkins loads the view without calling its
+      // constructor, so set the fields the constructor would give a default.
+      view / columns << 'io.jenkins.plugins.analysis.core.columns.IssuesTotalColumn' {
+        selectTools(false)
+        tools()
+        name('# Issues')
+        type('TOTAL')
+      }
 
       def topPortlets = view / NodeBuilder.newInstance().topPortlets {}
 
