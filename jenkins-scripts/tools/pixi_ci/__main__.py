@@ -11,6 +11,7 @@ from .runner import CIError, Runner, section
 
 
 def run_job(cfg, platform, runner, base_env):
+    base_env = platform.isolate_env(base_env)
     if cfg.gpu_needed:
         platform.check_gpu(runner, cfg, base_env)
     major = envs.detect_major_version(runner, cfg, base_env)
@@ -25,6 +26,7 @@ def run_job(cfg, platform, runner, base_env):
         env = envs.activate(runner, cfg, platform, base_env)
     with section("pixi: custom environment variable for gz"):
         env = platform.post_activation(env)
+    platform.report_toolchain(runner, cfg, env)
 
     workspace.setup(cfg)
     if cfg.gazebodistro_file is not None:
@@ -39,10 +41,11 @@ def run_job(cfg, platform, runner, base_env):
 
     env = dict(env, MAKEFLAGS=f"-j{cfg.make_jobs}")
     with section(f"compiling {cfg.vcs_directory}"):
-        colcon.build(runner, cfg, package, env)
+        colcon.build(runner, cfg, platform, package, env)
+    platform.check_build(runner, cfg, env)
     if cfg.enable_tests:
         with section(f"running tests for {package}"):
-            colcon.test(runner, cfg, package, env)
+            colcon.test(runner, cfg, platform, package, env)
         with section("export testing results"):
             colcon.export_test_results(cfg, package)
     if not cfg.keep_workspace:
