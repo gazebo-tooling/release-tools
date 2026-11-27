@@ -14,16 +14,6 @@ echo '# END SECTION'
 cat > build.sh << DELIM
 $(generate_buildsh_header)
 
-if ${USE_UNSTABLE}; then
-   TARGET_DISTRO='unstable'
-else
-  TARGET_DISTRO='experimental'
-  tee ~/.sbuildrc << EOF
-\\\$verbose = 1;
-\\\$extra_repositories = [ 'deb http://ftp.us.debian.org/debian experimental main' ];
-EOF
-fi
-
 sudo rm /var/lib/apt/lists/*.lz4
 sudo sed -i -e 's:GzipIndexes "true":GzipIndexes "false":g' /etc/apt/apt.conf.d/*
 sudo apt-get update
@@ -35,22 +25,84 @@ sudo bash -c 'echo "deb-src http://deb.debian.org/debian experimental main" >> /
 sudo apt-get update
 mkdir /tmp/work
 cd /tmp/work
-sudo apt-get build-dep -y ${DEB_PACKAGE}
 apt-get source -t experimental ${DEB_PACKAGE}
 dir=\$(find . -maxdepth 1 -mindepth 1 -type d)
+# Install the build dependencies through a metapackage, so that they can be
+# removed before the reverse dependencies are built in this same container
+mkdir /tmp/build-deps
+pushd /tmp/build-deps 2> /dev/null
+sudo mk-build-deps -i -r -t 'apt-get -y --no-install-recommends' /tmp/work/\$dir/debian/control
+popd 2> /dev/null
 cd \$dir
 debuild --no-sign
 echo '# END SECTION'
 
-echo '# BEGIN SECTION: create chroot'
-sudo sbuild-adduser \${USER}
-# experimental should be handled in sbuild.conf file
-if $USE_UNSTABLE; then
-  sudo sbuild-createchroot unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian
-else
-  sudo sbuild-createchroot --extra-repository='deb http://ftp.us.debian.org/debian experimental main' unstable /srv/chroot/test-amd64-sbuild http://deb.debian.org/debian
-fi
+echo '# BEGIN SECTION: remove the build dependencies of ${DEB_PACKAGE}'
+# sbuild builds every reverse dependency directly in this container, not in
+# a clean chroot. It purges what it installs for each build, but anything
+# already installed here stays visible to all of them and could hide a
+# missing Build-Depends. Leave the container as close to its initial
+# package set as possible.
+sudo apt-get -y purge ${DEB_PACKAGE}-build-deps
+sudo apt-get -y autoremove --purge
+echo '# END SECTION'
 
+echo '# BEGIN SECTION: configure sbuild'
+# Creating an sbuild chroot (schroot or unshare) needs a privileged
+# container. Instead, sbuild builds every reverse dependency directly in
+# this container through the autopkgtest null server, purging the build
+# dependencies after each build. That mode needs sbuild to run as root;
+# dpkg-buildpackage still runs as the unprivileged sbuild user.
+sudo mkdir -p /root/.config/sbuild
+sudo tee /root/.config/sbuild/config.pl << 'EOF'
+\$chroot_mode = 'autopkgtest';
+\$autopkgtest_virt_server = 'null';
+\$build_user = 'sbuild';
+EOF
+if ! $USE_UNSTABLE; then
+  sudo tee -a /root/.config/sbuild/config.pl << 'EOF'
+\$verbose = 1;
+\$extra_repositories = [ 'deb http://ftp.us.debian.org/debian experimental main' ];
+EOF
+fi
+echo '# END SECTION'
+
+echo '# BEGIN SECTION: check the sbuild setup'
+# ratt reports every failing sbuild call as a broken reverse dependency,
+# which only marks the job as unstable. Build a dummy package first so that
+# a broken sbuild setup fails the job instead.
+mkdir -p /tmp/sbuild-check/sbuild-check/debian/source
+pushd /tmp/sbuild-check 2> /dev/null
+echo '3.0 (native)' > sbuild-check/debian/source/format
+cat > sbuild-check/debian/control << 'EOF'
+Source: sbuild-check
+Section: misc
+Priority: optional
+Maintainer: OSRF Jenkins <build@osrfoundation.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+
+Package: sbuild-check
+Architecture: any
+Description: dummy package to check the sbuild setup
+ Built before running ratt so that a broken sbuild setup fails the job.
+EOF
+cat > sbuild-check/debian/changelog << 'EOF'
+sbuild-check (1.0) unstable; urgency=medium
+
+  * Check the sbuild setup.
+
+ -- OSRF Jenkins <build@osrfoundation.org>  Mon, 01 Jan 2024 00:00:00 +0000
+EOF
+printf '#!/usr/bin/make -f\n%%:\n\tdh \$@\n' > sbuild-check/debian/rules
+chmod +x sbuild-check/debian/rules
+dpkg-source -b sbuild-check
+sudo -H sbuild --nolog --no-run-lintian --no-run-autopkgtest --no-run-piuparts \
+  --dist=unstable sbuild-check_1.0.dsc
+popd 2> /dev/null
+# sbuild leaves the apt lists without the Packages and Sources indexes,
+# which ratt reads to find the reverse dependencies
+sudo apt-get update
 echo '# END SECTION'
 
 echo '# BEGIN SECTION: run ratt for ${DEB_PACKAGE}'
@@ -60,7 +112,7 @@ if $USE_UNSTABLE; then
 fi
 rm -fr ${WORKSPACE}/logs && mkdir ${WORKSPACE}/logs
 
-sudo apt-get install -y golang-go login
+sudo apt-get install -y golang-go
 pushd /tmp 2> /dev/null
 git clone https://github.com/j-rivero/ratt
 cd ratt
@@ -69,21 +121,36 @@ go mod tidy
 go build
 popd 2> /dev/null
 
-str_params=''
-if [[ -n '$RATT_INCLUDE' ]]; then
-  str_params="--include '${RATT_INCLUDE}'"
+# Collect the filters in an array so each regex reaches ratt as one
+# argument; a plain string would pass the quote characters literally.
+# RATT_INCLUDE and RATT_EXCLUDE are expanded when build.sh is generated.
+ratt_params=()
+if [[ -n '${RATT_INCLUDE}' ]]; then
+  ratt_params+=(--include '${RATT_INCLUDE}')
 fi
 
-if [[ -n '$RATT_EXCLUDE' ]]; then
-  str_params="\${str_params} --exclude '${RATT_EXCLUDE}'"
+if [[ -n '${RATT_EXCLUDE}' ]]; then
+  ratt_params+=(--exclude '${RATT_EXCLUDE}')
 fi
 
-# use new group to run sbuild
-newgrp sbuild << END
-echo running ratt under sbuild group
-/tmp/ratt/build \${str_params} ${DEB_PACKAGE}_*.changes* || echo MARK_AS_UNSTABLE
-END
+# ratt runs sbuild, which must be root for the null server (see "configure
+# sbuild" above). -H sets HOME=/root so that sbuild reads
+# /root/.config/sbuild/config.pl. The build logs come out owned by root.
+ratt_rc=0
+sudo -H /tmp/ratt/build "\${ratt_params[@]}" ${DEB_PACKAGE}_*.changes* || ratt_rc=\$?
+if [[ ! -d buildlogs ]]; then
+  echo "ratt exited with \${ratt_rc} before building anything, see its output above"
+  exit 1
+fi
+sudo chown -R \${USER}: buildlogs
 cp -a buildlogs ${WORKSPACE}/logs
+if [[ -z \$(ls -A buildlogs) ]]; then
+  echo "ratt built no reverse dependency: check DEB_PACKAGE, RATT_INCLUDE and RATT_EXCLUDE"
+  exit 1
+fi
+if [[ \${ratt_rc} -ne 0 ]]; then
+  echo MARK_AS_UNSTABLE
+fi
 echo '# END SECTION'
 DELIM
 
@@ -93,8 +160,7 @@ if $USE_UNSTABLE; then
 else
   export DISTRO=experimental
 fi
-export DEPENDENCY_PKGS="sbuild quilt devscripts dose-extra git"
-export USE_DOCKER_IN_DOCKER=true
+export DEPENDENCY_PKGS="sbuild autopkgtest quilt devscripts equivs dose-extra git"
 
 . "${SCRIPT_DIR}/lib/docker_generate_dockerfile.bash"
 . "${SCRIPT_DIR}/lib/docker_run.bash"

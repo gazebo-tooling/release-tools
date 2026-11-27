@@ -13,7 +13,6 @@ sudo rm -fr ${WORKSPACE}/build
 mkdir -p ${WORKSPACE}/build
 
 [[ -z ${DOCKER_DO_NOT_CACHE} ]] && DOCKER_DO_NOT_CACHE=false
-[[ -z ${USE_DOCKER_IN_DOCKER} ]] && export USE_DOCKER_IN_DOCKER=false
 
 # Remove intermediate containers even if the build is not successful
 if $DOCKER_DO_NOT_CACHE; then
@@ -47,19 +46,18 @@ echo '# BEGIN SECTION: see build.sh script'
 cat build.sh
 echo '# END SECTION'
 
-if $USE_DOCKER_IN_DOCKER; then
- EXTRA_PARAMS_STR="--privileged \
-                    -v /var/run/docker.sock:/var/run/docker.sock"
-fi
-
+# Build containers run without --privileged and without the docker socket.
+# GPU jobs get the card through the options below: the nvidia runtime (or
+# the legacy nvidia-docker wrapper) for NVIDIA cards, and --device /dev/dri
+# plus the groups that own its nodes for the rest.
 if $USE_GPU_DOCKER; then
-  EXTRA_PARAMS_STR="--privileged \
-                    -e DISPLAY=$DISPLAY \
+  EXTRA_PARAMS_STR="-e DISPLAY=$DISPLAY \
                     -v /sys:/sys:ro         \
-                    -v /var/run/docker.sock:/var/run/docker.sock \
                     -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
 
   if [[ $GRAPHIC_CARD_NAME == "Nvidia" ]]; then
+    # The nvidia runtime injects /dev/nvidia* and, since the image requests
+    # the graphics capability, the /dev/dri nodes of the card.
     case ${NVIDIA_DOCKER_DRIVER} in
       'nvidia-container-toolkit' | 'nvidia-docker2')
         export EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --runtime=nvidia"
@@ -72,6 +70,21 @@ if $USE_GPU_DOCKER; then
         echo "Probably a problem in the provisioning of the agent"
         exit 1
     esac
+  else
+    # Other cards need /dev/dri passed in, plus the groups that own its nodes
+    # since the container user is not a member of the host video/render
+    # groups. Without a render node the build would silently fall back to
+    # software rendering.
+    if ! compgen -G '/dev/dri/renderD*' > /dev/null; then
+      echo "GPU support needed (${GRAPHIC_CARD_NAME}) but there is no /dev/dri/renderD* node"
+      exit 1
+    fi
+    EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --device /dev/dri"
+    # Not in a pipeline, so that set -e stops the script if find fails
+    dri_gids=$(find /dev/dri -maxdepth 1 -type c ! -gid 0 -printf '%G\n')
+    for dri_gid in $(sort -u <<< "${dri_gids}"); do
+      EXTRA_PARAMS_STR="${EXTRA_PARAMS_STR} --group-add ${dri_gid}"
+    done
   fi
 fi
 
