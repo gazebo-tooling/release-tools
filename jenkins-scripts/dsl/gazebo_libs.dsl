@@ -32,8 +32,10 @@ String get_windows_distro_sortname(ci_config)
 void generate_label_by_requirements(job, lib_name, requirements, base_label)
 {
   label = requirements.nvidia_gpu.contains(lib_name) ? "gpu-reliable" : null
-  if (! label)
-      return
+  if (! label) {
+    exclude_gpu_agents(job, base_label)
+    return
+  }
 
   job.with
   {
@@ -49,6 +51,17 @@ void generate_label_by_requirements(job, lib_name, requirements, base_label)
         }
       }
     }
+  }
+}
+
+// GPU agents also carry the 'docker' or 'win' label, so Jenkins places on
+// them any job that only asks for the platform. Jobs that do not need a GPU
+// exclude them to keep the scarce GPU agents for the jobs that do.
+void exclude_gpu_agents(job, base_label)
+{
+  job.with
+  {
+    label Globals.nontest_label("${base_label} && !gpu-nvidia")
   }
 }
 
@@ -555,7 +568,8 @@ branch_index.each { lib_name, distro_configs ->
       GenericAnyJobGitHub.create(abi_job,
                         "gazebosim/${lib_name}",
                         branch_names)
-      generate_label_by_requirements(abi_job, lib_name, ci_config.requirements, 'docker')
+      // The ABI checker only compiles (BUILD_TESTING=OFF), it never needs a GPU
+      exclude_gpu_agents(abi_job, 'docker')
       abi_job.with
       {
         steps {
