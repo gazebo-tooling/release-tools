@@ -114,14 +114,18 @@ void generate_ciconfigs_by_lib(config, pkgconf_per_src_index)
 }
 
 void generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
-                     extra_cmake = '', extra_test = '', extra_cmd = '')
+                     extra_cmake = '', extra_test = '', extra_cmd = '',
+                     sccache_mode = 'rw')
 {
+  // Builds of a branch of the upstream repository are the ones that write the
+  // shared compiler cache. See SCCACHE_MODE in docker/lib/sccache.bash.
+  def sccache_cmd = sccache_mode ? "export SCCACHE_MODE=${sccache_mode}" : null
   def script_name_prefix = cleanup_library_name(lib_name)
   def distro = ci_config.system.version
   def arch = ci_config.system.arch
   def pre_setup_script = ci_config.pre_setup_script_hook?.get(lib_name)?.join('\n')
   def ws_checkout_dir = lib_name
-  extra_cmd = [extra_cmd, pre_setup_script].findAll({ it != null }).join('\n')
+  extra_cmd = [sccache_cmd, extra_cmd, pre_setup_script].findAll({ it != null }).join('\n')
 
   OSRFLinuxCompilation.create(gz_ci_job, is_testing_enabled(lib_name, ci_config))
   OSRFGitHub.create(gz_ci_job,
@@ -152,10 +156,13 @@ void generate_asan_ci_job(gz_ci_job, lib_name, branch, ci_config, extra_cmd = ''
 {
   def asan_extra = [extra_cmd, 'export ASAN_OPTIONS=check_initialization_order=true:strict_init_order=true']
                     .findAll { it }.join('\n')
+  // No compiler cache: weekly builds with flags of their own would only push
+  // the objects of the other builds out of it
   generate_ci_job(gz_ci_job, lib_name, branch, ci_config,
                   '-DGZ_SANITIZER=Address',
                   Globals.MAKETEST_SKIP_GZ,
-                  asan_extra)
+                  asan_extra,
+                  null)
   gz_ci_job.with {
     // -asan- builds can produce really long logs. Reduce the number of builds in the server
     logRotator {
@@ -500,6 +507,8 @@ branch_index.each { lib_name, distro_configs ->
                   ${extra_cmd}
                   ${check_ignored_files_sh_cmd(lib_name, ['./scripts/jenkins-scripts/tools/gz_ci.ignored', './scripts/jenkins-scripts/tools/gz_ci_used_by_colcon'])}
 
+                  # Pull requests only read the shared compiler cache
+                  export SCCACHE_MODE=ro
                   export BUILDING_SOFTWARE_DIRECTORY=${lib_name}
                   export ARCH=${arch}
                   /bin/bash -xe ./scripts/jenkins-scripts/docker/${script_name_prefix}-compilation.bash
@@ -568,6 +577,8 @@ branch_index.each { lib_name, distro_configs ->
                 ${extra_cmd}
                 ${check_ignored_files_sh_cmd(lib_name, ['./scripts/jenkins-scripts/tools/gz_ci.ignored', './scripts/jenkins-scripts/tools/gz_ci_used_by_colcon'])}
 
+                # Reads the shared compiler cache, keeps its own objects
+                export SCCACHE_MODE=abi
                 export ARCH=${arch}
                 export DEST_BRANCH=\${DEST_BRANCH:-\$ghprbTargetBranch}
                 export SRC_BRANCH=\${SRC_BRANCH:-\$ghprbSourceBranch}
