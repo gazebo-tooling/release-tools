@@ -42,6 +42,8 @@ is *set* when it is defined and not empty, as in `cmd`.
 | `GAZEBODISTRO_BRANCH` | gazebodistro branch | `master` |
 | `ghprbSourceBranch` | PR branch: a `ci_matching_branch/*` name checks out the same gazebodistro branch | unset |
 | `MAKE_JOBS` | colcon `--parallel-workers` and `MAKEFLAGS=-j` | number of CPUs |
+| `CMAKE_GENERATOR` | `Ninja`, or a Visual Studio generator such as `Visual Studio 16 2019`; see [Ninja](#ninja) | the one of the pixi env: Ninja when it sets `CMAKE_GENERATOR` in `[activation.env]`, otherwise Visual Studio |
+| `CMAKE_BUILD_PARALLEL_LEVEL` | Visual Studio: MSBuild `/m:N`, projects built at the same time; applies to the dependencies only when the job sets it. Ninja: `-jN` for every package, instead of the jobserver | Visual Studio: `NUMBER_OF_PROCESSORS` for the library under test. Ninja: unset |
 | `GPU_SUPPORT_NEEDED` | `true`: fail unless `dxdiag` reports an NVIDIA GPU | `requirements.nvidia_gpu` in `gz-collections.yaml` |
 | `REUSE_PIXI_INSTALLATION` | when set (any value), reuse the installed pixi env | unset |
 | `PIXI_TMP` | pixi executable | `%PROGRAMDATA%\pixi\pixi.exe` |
@@ -52,6 +54,44 @@ values and the variables that were set.
 
 Outputs: JUnit files in `WORKSPACE\build\test_results`, and
 `PIXI_PROJECT_PATH\hooks.bat` to activate the env in a command prompt.
+
+## Ninja
+
+A pixi env builds with Ninja when it provides `ninja` (1.13 or newer) and
+sets the generator in its manifest:
+
+```toml
+[target.win-64.activation.env]
+CMAKE_GENERATOR = "Ninja"
+```
+
+The vs2019 activation only sets a Visual Studio generator when
+`CMAKE_GENERATOR` is empty, and pixi gives `[activation.env]` precedence over
+the activation scripts of the packages. A job overrides the env with its own
+`CMAKE_GENERATOR`, for example `Visual Studio 16 2019` to go back to MSBuild.
+The log prints the generator and where it comes from.
+
+With Ninja both colcon builds pass `-G Ninja` to CMake, and the driver drops
+the `CMAKE_GENERATOR_PLATFORM` and `CMAKE_GENERATOR_TOOLSET` that the vs2019
+activation sets for Visual Studio.
+
+Ninja compiles the files of every target of a package in parallel, so it
+needs neither `/MP` nor `/m`. colcon still builds several packages at the
+same time, each with its own ninja. To cap the jobs of all of them together
+the driver creates a jobserver, a named semaphore with
+`NUMBER_OF_PROCESSORS - 1` tokens, and names it in `MAKEFLAGS`
+(`-jN --jobserver-auth=NAME`). Each
+ninja runs one job without a token, so one package alone builds with
+`NUMBER_OF_PROCESSORS` jobs and each other package building at the same time
+adds one. Ninja reports `Jobserver mode detected` when it uses it. Link steps
+take tokens too. When the job sets `CMAKE_BUILD_PARALLEL_LEVEL`, CMake passes
+it to every ninja as `-jN` and ninja ignores the jobserver.
+
+The dependencies are built without warnings through `_CL_=/w`, which `cl.exe`
+reads after its command line: `-DCMAKE_CXX_FLAGS=-w` would drop the default
+`/EHsc /GR`, and gz-cmake adds `/W2` after it. `cl.exe` prints `D9025`
+(`overriding '/W2' with '/w'`) for each file of the dependencies, in a format
+that the Jenkins MSBuild warnings parser does not count.
 
 ## Running it outside the CI agents
 
@@ -90,6 +130,7 @@ the pinned version.
 | `envvars.py` | merge of the activation variables, `%NAME%` expansion |
 | `workspace.py` | gazebodistro, copy of the sources, colcon package name |
 | `colcon.py` | colcon build and test, JUnit export |
+| `jobserver.py` | the jobserver semaphore shared by the ninja processes |
 | `runner.py` | subprocesses (absolute executables from the activated `PATH`), log sections |
 | `fsops.py` | `rmdir /s /q` and `xcopy` equivalents |
 

@@ -1,29 +1,44 @@
 """colcon build, test and the JUnit export."""
 
 import shutil
+from dataclasses import dataclass
 
 from .fsops import remove_tree
 from .runner import CIError, section
 
 
-def build(runner, cfg, package, env):
-    """Dependencies without tests, then the package with tests."""
+@dataclass(frozen=True)
+class BuildSetup:
+    """What the generator changes in the two colcon builds."""
+    deps_env: dict
+    package_env: dict
+    # CMake arguments of both builds, e.g. the generator
+    cmake_args: tuple = ()
+    # CMake arguments that turn off the warnings of the dependencies
+    quiet_deps_args: tuple = ("-DCMAKE_CXX_FLAGS=-w",)
+
+
+def build(runner, cfg, package, setup):
+    """Dependencies without tests, then the package with tests, in the
+    environments of setup, a BuildSetup."""
     common = ["build", "--build-base", "build", "--install-base", "install",
               "--parallel-workers", str(cfg.make_jobs)]
     # The leading space is what today's .bat passes; colcon needs it for
     # values starting with a dash only, kept for parity
-    build_type = ["--cmake-args", f" -DCMAKE_BUILD_TYPE={cfg.build_type}"]
+    build_type = (["--cmake-args", f" -DCMAKE_BUILD_TYPE={cfg.build_type}"]
+                  + list(setup.cmake_args))
     handlers = ["--event-handler", "console_cohesion+", "desktop_notification-"]
     with section("colcon compilation without test for dependencies of "
                  f"{package}"):
         runner.run("colcon", common + ["--packages-skip", package] + build_type
-                   + ["-DBUILD_TESTING=0", "-DCMAKE_CXX_FLAGS=-w"] + handlers,
-                   cwd=cfg.ws, env=env)
+                   + ["-DBUILD_TESTING=0"] + list(setup.quiet_deps_args)
+                   + handlers,
+                   cwd=cfg.ws, env=setup.deps_env)
     with section(f"colcon compilation with tests for {package}"):
         runner.run("colcon", common + ["--packages-select", package]
                    + build_type + list(cfg.extra_cmake_args)
                    + [" -DBUILD_TESTING=1"] + handlers,
-                   cwd=cfg.ws, env=env)
+                   cwd=cfg.ws, env=setup.package_env)
 
 
 def test(runner, cfg, package, env):

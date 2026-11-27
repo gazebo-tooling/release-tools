@@ -9,6 +9,9 @@ platforms = ["linux-64", "linux-aarch64", "win-64", "osx-arm64"]
 [target.win-64.activation.env]
 QT_QPA_PLATFORM_PLUGIN_PATH="%CONDA_PREFIX%\\Library\\lib\\qt6\\plugins\\platforms"
 QML2_IMPORT_PATH="%CONDA_PREFIX%\\Library\\lib\\qt6\\qml"
+# pixi_ci builds with Ninja and a jobserver (see its README). The vs2019
+# activation keeps a CMAKE_GENERATOR that is already set.
+CMAKE_GENERATOR="Ninja"
 
 [dependencies]
 assimp = "*"
@@ -45,6 +48,7 @@ libgdal-netcdf = ">=3.10.0,<4"
 [target.win-64.dependencies]
 dlfcn-win32 = "*"
 vs2019_win-64 = ">=19.29.30139,<20"
+ninja = ">=1.13"
 
 [target.linux.dependencies]
 libegl-devel = "*"

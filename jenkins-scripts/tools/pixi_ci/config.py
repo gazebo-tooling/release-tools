@@ -10,6 +10,9 @@ from . import packages
 from .runner import CIError
 
 RELEASE_TOOLS = Path(__file__).resolve().parents[3]
+# CMAKE_GENERATOR values the driver knows how to build with: Ninja, or the
+# Visual Studio generator that colcon-cmake picks for the MSVC environment
+GENERATORS = ("Ninja", "Visual Studio")
 
 
 def conda_envs_dir(release_tools):
@@ -46,6 +49,7 @@ class JobConfig:
     gazebodistro_branch: str
     pr_source_branch: str | None
     make_jobs: int
+    cmake_generator: str | None   # None: the one of the pixi env
     gpu_needed: bool
     reuse_pixi: bool
     pixi_exe: Path
@@ -95,6 +99,11 @@ class JobConfig:
                           " but it does not exist")
         extra = get("COLCON_PACKAGE_EXTRA_CMAKE_ARGS")
         jobs = get("MAKE_JOBS")
+        generator = get("CMAKE_GENERATOR")
+        if generator is not None and not generator.startswith(GENERATORS):
+            raise CIError(f"CMAKE_GENERATOR={generator} is not supported: "
+                          "use Ninja, a Visual Studio generator or leave it "
+                          "unset")
         conda_env_name = get("CONDA_ENV_NAME")
         conda_envs = conda_envs_dir(release_tools)
         if (conda_env_name is not None and
@@ -119,6 +128,7 @@ class JobConfig:
             pr_source_branch=get("ghprbSourceBranch"),
             make_jobs=(_positive_int(jobs, "MAKE_JOBS") if jobs is not None
                        else os.cpu_count() or 1),
+            cmake_generator=generator,
             gpu_needed=flag("GPU_SUPPORT_NEEDED", package.gpu),
             reuse_pixi=get("REUSE_PIXI_INSTALLATION") is not None,
             pixi_exe=(Path(get("PIXI_TMP")) if get("PIXI_TMP")
