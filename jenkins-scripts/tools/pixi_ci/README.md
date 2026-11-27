@@ -42,6 +42,7 @@ is *set* when it is defined and not empty, as in `cmd`.
 | `GAZEBODISTRO_BRANCH` | gazebodistro branch | `master` |
 | `ghprbSourceBranch` | PR branch: a `ci_matching_branch/*` name checks out the same gazebodistro branch | unset |
 | `MAKE_JOBS` | colcon `--parallel-workers` and `MAKEFLAGS=-j` | number of CPUs |
+| `CMAKE_BUILD_PARALLEL_LEVEL` | MSBuild `/m:N`: projects built at the same time. Applies to the dependencies only when the job sets it | `NUMBER_OF_PROCESSORS` for the library under test |
 | `GPU_SUPPORT_NEEDED` | `true`: fail unless `dxdiag` reports an NVIDIA GPU | `requirements.nvidia_gpu` in `gz-collections.yaml` |
 | `REUSE_PIXI_INSTALLATION` | when set (any value), reuse the installed pixi env | unset |
 | `PIXI_TMP` | pixi executable | `%PROGRAMDATA%\pixi\pixi.exe` |
